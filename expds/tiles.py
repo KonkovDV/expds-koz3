@@ -8,6 +8,10 @@
 
     python -m expds.tiles --root D:/expds3 --gt work/gt_train.geojson --markup li \
         --out work/cache/li --res 0.5 --tile 256
+
+Для li каналы по умолчанию строятся из LAS (lidar.relief_channels) — той же
+функцией, что на инференсе. --li-source tif берёт готовые карты Li трейна;
+их нельзя воспроизвести из LAS, поэтому модель на них не переносится на валидацию.
 """
 from __future__ import annotations
 
@@ -73,10 +77,50 @@ def to_uint8(a: np.ndarray, markup: str) -> np.ndarray:
 
 
 def n_channels(markup: str, li_tags: list[str]) -> int:
-    """Число каналов модели: li — по тегам (g, i — 1; c, ch — 3), геофизика — 1, оптика — 3."""
+    """Число каналов модели: li — по тегам (c, ch — 3, остальные — 1), геофизика — 1, оптика — 3."""
     if markup == "li":
-        return sum(1 if t in ("g", "i") else 3 for t in li_tags)
+        return sum(3 if t in ("c", "ch") else 1 for t in li_tags)
     return 1 if markup in GEO_MARKUP else 3
+
+
+def cut_window(arr: np.ndarray, transform, cx: float, cy: float, tile: int):
+    """Окно tile×tile из C×H×W, выровненное по сетке массива; снаружи — 0. Возвращает (окно, привязка)."""
+    step = transform.a
+    col0 = round((cx - transform.c) / step - tile / 2)
+    row0 = round((transform.f - cy) / step - tile / 2)
+    c, h, w = arr.shape
+    out = np.zeros((c, tile, tile), arr.dtype)
+    r0, r1 = max(0, row0), min(h, row0 + tile)
+    c0, c1 = max(0, col0), min(w, col0 + tile)
+    if r1 > r0 and c1 > c0:
+        out[:, r0 - row0:r1 - row0, c0 - col0:c1 - col0] = arr[:, r0:r1, c0:c1]
+    return out, from_origin(transform.c + col0 * step, transform.f - row0 * step, step, step)
+
+
+def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int):
+    """Источники тайлов региона: (имя, CRS, рамка, read(cx, cy) → (окно, привязка))."""
+    if markup == "li" and li_source == "las":
+        from .lidar import build_dem, relief_channels
+
+        for las in reg.las:
+            d = build_dem(las, crs=read_utm_json(reg.utm_json))
+            if d.crs is None:
+                log.warning("%s: нет CRS у %s — пропуск", reg.name, las.name)
+                continue
+            arr, tr = relief_channels(d, res, tuple(li_tags))
+            h, w = arr.shape[1:]
+            bnd = box(tr.c, tr.f - h * tr.a, tr.c + w * tr.a, tr.f)
+            yield las.name, d.crs, bnd, lambda cx, cy, a=arr, t=tr: cut_window(a, t, cx, cy, tile)
+        return
+    for files in sources_for(reg, markup, li_tags):
+        crs = raster_crs(files[0]) or read_utm_json(reg.utm_json)
+        if crs is None:
+            log.warning("%s: нет CRS у %s — пропуск", reg.name, files[0].name)
+            continue
+        with rasterio.open(files[0]) as ds:
+            bnd = box(*ds.bounds)
+        yield files[0].name, crs, bnd, lambda cx, cy, f=files: (
+            read_window(f, cx, cy, res, tile), from_origin(cx - tile * res / 2, cy + tile * res / 2, res, res))
 
 
 def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
@@ -107,10 +151,13 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
 
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
-                max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000) -> dict:
+                max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
+                li_source: str = "las") -> dict:
     """Строит кэш тайлов и возвращает сводку."""
+    from .lidar import RELIEF_TAGS
+
     rng = random.Random(seed)
-    li_tags = li_tags or ["g"]
+    li_tags = list(li_tags or (RELIEF_TAGS if li_source == "las" else ["g"]))
     n_ch = n_channels(markup, li_tags)
     classes = classes_for(markup)
     gt = json.loads(Path(gt_path).read_text(encoding="utf-8"))["features"]
@@ -136,13 +183,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
 
     for reg in scan_root(root):
         objs = by_region.get(reg.name, [])
-        for files in sources_for(reg, markup, li_tags):
-            crs = raster_crs(files[0]) or read_utm_json(reg.utm_json)
-            if crs is None:
-                log.warning("%s: нет CRS у %s — пропуск", reg.name, files[0].name)
-                continue
-            with rasterio.open(files[0]) as ds:
-                bnd = box(*ds.bounds)
+        for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             local = [(g, c) for g, c in local if g.intersects(bnd)]
             centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local]
@@ -164,10 +205,9 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 j = tile * res * jitter
                 cx += rng.uniform(-j, j) if pos else 0
                 cy += rng.uniform(-j, j) if pos else 0
-                img = read_window(files, cx, cy, res, tile)
+                img, tr = read(cx, cy)
                 if not img.any():
                     continue
-                tr = from_origin(cx - tile * res / 2, cy + tile * res / 2, res, res)
                 m = np.zeros((tile, tile), np.uint8)
                 for k, cls in enumerate(classes):
                     shp = [(g.buffer(1.0) if g.geom_type == "Point" else g) for g, c in local if c == cls]
@@ -177,7 +217,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                         m |= (r.astype(np.uint8) << k)
                 imgs.append(fix_channels(to_uint8(img, markup), n_ch))
                 masks.append(m)
-                rows.append([shard, len(imgs) - 1, reg.name, site_family(reg.name), files[0].name,
+                rows.append([shard, len(imgs) - 1, reg.name, site_family(reg.name), src_name,
                              round(cx, 2), round(cy, 2), int(m.any())])
                 total["tiles"] += 1
                 total["positive"] += int(m.any())
@@ -189,8 +229,10 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         w = csv.writer(f)
         w.writerow(["shard", "idx", "region", "family", "file", "cx", "cy", "positive"])
         w.writerows(rows)
+    li_src = li_source if markup == "li" else None
     meta = {"markup": markup, "classes": classes, "res": res, "tile": tile, "li_tags": li_tags,
-            "flips": markup != "li", "channels": n_ch, **total}
+            "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
+            "channels": n_ch, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -204,12 +246,15 @@ def _cli() -> None:
     ap.add_argument("--res", type=float, default=0.5)
     ap.add_argument("--tile", type=int, default=256)
     ap.add_argument("--neg-per-pos", type=float, default=1.0)
-    ap.add_argument("--li-tags", nargs="*", default=["g"])
+    ap.add_argument("--li-source", choices=["las", "tif"], default="las",
+                    help="li: каналы из LAS (как на инференсе) или готовые карты Li трейна")
+    ap.add_argument("--li-tags", nargs="*", default=None,
+                    help="las: lrm_s lrm_l slope g; tif: g i c ch")
     ap.add_argument("--max-per-region", type=int, default=3000)
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
-                       li_tags=args.li_tags, max_per_region=args.max_per_region)
+                       li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source)
     print(json.dumps(meta, ensure_ascii=False))
 
 

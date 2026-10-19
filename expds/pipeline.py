@@ -127,12 +127,17 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
 
 
 def _li_with_model(seg, d, region: str, source: str, hillshade_set) -> list[dict]:
-    """Отмывки из DEM → рабочий шаг модели → вероятности → объекты."""
+    """Каналы из DEM на рабочем шаге модели → вероятности → объекты."""
     from rasterio.transform import from_origin
 
     from .candidates import downsample_mean
     from .infer_nn import probs_to_features
 
+    if seg.meta.get("li_source") == "las":
+        from .lidar import relief_channels
+
+        img, tr = relief_channels(d, seg.res, tuple(seg.meta["li_tags"]))
+        return probs_to_features(seg.predict(img), seg.classes, tr, d.crs, tr.a, region, "li", source)
     tags = seg.meta.get("li_tags") or ["g"]
     images = hillshade_set(d, tags=tuple(tags))
     k = max(1, int(round(seg.res / d.res)))

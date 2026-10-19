@@ -32,6 +32,10 @@ DEFAULTS = {
     "cycles_c": 3.0,
 }
 TAGS = ("c", "ch", "g", "i")
+#: Каналы модели li, построенные из LAS (relief_channels). Не зависят от освещения.
+RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
+#: Радиусы окна локального рельефа (м) и шкалы перевода в uint8.
+RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0, "slope_max_deg": 45.0}
 
 
 @dataclass
@@ -142,6 +146,50 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
         if tag in tags:
             out[tag] = accel.color_relief(filled, valid, z_min, z_range, cycles[tag])
     return out
+
+
+def slope_deg(z: np.ndarray, res: float) -> np.ndarray:
+    """Уклон в градусах по ядру Хорна 3×3 (как в ArcGIS); на краях — повтор крайних пикселей."""
+    p = np.pad(z, 1, mode="edge")
+    dzdx = ((p[:-2, 2:] + 2 * p[1:-1, 2:] + p[2:, 2:]) - (p[:-2, :-2] + 2 * p[1:-1, :-2] + p[2:, :-2])) / (8 * res)
+    dzdy = ((p[:-2, :-2] + 2 * p[:-2, 1:-1] + p[:-2, 2:]) - (p[2:, :-2] + 2 * p[2:, 1:-1] + p[2:, 2:])) / (8 * res)
+    return np.degrees(np.arctan(np.hypot(dzdx, dzdy))).astype(np.float32)
+
+
+def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
+    """Каналы модели li из DEM на рабочем шаге: C×H×W uint8 и привязка (север вверху).
+
+    Одна и та же функция строит кэш тайлов и вход модели на инференсе: в
+    валидации готовых карт Li нет, а карты Li трейна построены другим
+    инструментом и не повторяются по LAS (expds.lidar check). Значения 1…255,
+    0 — вне контура съёмки.
+    lrm_s, lrm_l — локальный рельеф (высота − среднее окна радиусом 8 и 30 м,
+    под курганы лесной и степной зон); slope — уклон; g — серая отмывка.
+    Только g зависит от направления света: без него допустимы повороты.
+    """
+    from rasterio.transform import from_origin
+
+    from .candidates import downsample_mean
+
+    k = max(1, round(res / d.res))
+    z = downsample_mean(d.dem, k)
+    step = d.res * k
+    valid = np.isfinite(z)
+    filled = np.where(valid, z, np.float32(np.nanmean(z)) if valid.any() else np.float32(0)).astype(np.float32)
+    out = []
+    for t in tags:
+        if t in ("lrm_s", "lrm_l"):
+            radius = max(1, round(RELIEF[f"{t}_m"] / step))
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            unit = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF[f"{t}_clip_m"], -1, 1) * 0.5 + 0.5
+        elif t == "slope":
+            unit = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
+        elif t == "g":
+            unit = accel.hillshade(filled, step, step).astype(np.float32) / 255.0
+        else:
+            raise ValueError(f"неизвестный канал li: {t}")
+        out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))
+    return np.stack(out), from_origin(d.left, d.top, step, step)
 
 
 def write_set(images: dict[str, np.ndarray], d: Dem, out_dir: str | Path, name: str) -> list[Path]:
