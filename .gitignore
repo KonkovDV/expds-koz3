@@ -1,0 +1,31 @@
+# Конкурсные данные и всё, что из них получено, в git не попадают (п. 13.11 ТР)
+data/
+work/
+cache/
+*.las
+*.laz
+*.tif
+*.tiff
+*.geojson
+*.npy
+*.npz
+
+# Модели и сборки
+models/*.pt
+models/*.txt
+inference/lib/*.so
+inference/lib/*.pyd
+dist/
+rust/target/
+rust/expds_core/target/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+bench_result.json
+
+# Секреты (ключи S3 и т. п.)
+.env
+*.key

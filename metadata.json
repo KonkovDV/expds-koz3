@@ -1,0 +1,4 @@
+{
+  "image": "ВАШ_ЛОГИН/ВАШ_ОБРАЗ:ТЕГ",
+  "entry_point": "python inference/main.py"
+}

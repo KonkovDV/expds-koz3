@@ -1,0 +1,17 @@
+[project]
+name = "expds-koz3"
+version = "0.2.0"
+description = "Каркас решения КОЗ №3 «Комплексирование» (Экспедиция. Data Science): Python + Rust"
+requires-python = ">=3.12"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["expds*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning:koz3_compute_metrics"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"

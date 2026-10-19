@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
+
+[project]
+name = "expds-core"
+version = "0.1.0"
+description = "Rust-ускоритель для пайплайна КОЗ №3 (LAS → DEM, отмывки, рельеф, пики)"
+requires-python = ">=3.12"
+dependencies = ["numpy>=1.26"]
+
+[tool.maturin]
+features = ["extension-module"]
+module-name = "expds_core"

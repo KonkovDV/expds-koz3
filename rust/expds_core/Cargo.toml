@@ -1,0 +1,25 @@
+[package]
+name = "expds_core"
+version = "0.1.0"
+edition = "2021"
+description = "Быстрые вычисления КОЗ №3: LAS → DEM, заполнение пустот, отмывки, локальный рельеф, поиск пиков"
+publish = false
+
+[lib]
+name = "expds_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.30", features = ["abi3-py312"] }
+numpy = "0.30"
+rayon = "1.12"
+las = { version = "0.11", features = ["laz"] }
+
+[features]
+# maturin включает этот флаг сам (см. pyproject.toml)
+extension-module = ["pyo3/extension-module"]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

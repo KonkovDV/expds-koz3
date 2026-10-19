@@ -1,0 +1,77 @@
+"""Сквозной запуск inference/main.py на синтетической «валидации»."""
+import json
+import subprocess
+import sys
+
+import numpy as np
+import pytest
+from shapely.geometry import Point, mapping
+
+from conftest import MOUNDS, ROOT, UTM, X0, Y0
+from expds import writer
+from expds.crs import WEB_MERCATOR, to_crs
+
+
+def test_main_writes_valid_geojson(val_dir, tmp_path, official_metric):
+    out = tmp_path / "out" / "result.geojson"
+    r = subprocess.run([sys.executable, str(ROOT / "inference" / "main.py"), str(val_dir), str(out)],
+                       capture_output=True, text=True, timeout=600)
+    assert r.returncode == 0, r.stdout + r.stderr
+    rep = writer.validate(out)
+    assert rep["ok"], rep
+    by = rep["summary"]["by_class"]
+    assert by.get("kurgany_tselye", 0) >= 1 and by.get("finds_points", 0) >= 1
+    if official_metric:
+        from expds.metric import score
+
+        gt = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {"class_name": "kurgany_tselye", "region_name": "region_0001"},
+             "geometry": mapping(to_crs(Point(X0 + mx, Y0 + my).buffer(r / 2), UTM, WEB_MERCATOR))}
+            for mx, my, _, r in MOUNDS]}
+        res = score(json.loads(out.read_text(encoding="utf-8")), gt, official_metric)
+        assert res["per_class"]["kurgany_tselye"]["tp"] == len(MOUNDS)
+
+
+def test_main_survives_bad_input(tmp_path):
+    bad = tmp_path / "in" / "region_0009"
+    bad.mkdir(parents=True)
+    (bad / "broken.las").write_bytes(b"not a las file")
+    out = tmp_path / "o" / "result.geojson"
+    r = subprocess.run([sys.executable, str(ROOT / "inference" / "main.py"), str(bad.parent), str(out)],
+                       capture_output=True, text=True, timeout=300)
+    assert r.returncode == 0 and writer.validate(out)["ok"]
+
+
+def test_train_and_infer_smoke(tmp_path):
+    pytest.importorskip("torch")
+    pytest.importorskip("segmentation_models_pytorch")
+    from expds.infer_nn import Segmenter, probs_to_features
+    from expds.train import train
+
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    rng = np.random.default_rng(0)
+    n, t = 24, 64
+    imgs = rng.integers(0, 255, (n, 1, t, t), dtype=np.uint8)
+    masks = np.zeros((n, t, t), np.uint8)
+    masks[:, 20:30, 20:30] = 1 << 1          # класс kurgany_tselye
+    imgs[:, :, 20:30, 20:30] = 255
+    np.save(cache / "images_0000.npy", imgs)
+    np.save(cache / "masks_0000.npy", masks)
+    rows = "shard,idx,region,family,file,cx,cy,positive\n" + "".join(
+        f"0,{i},r{i % 3},{'A' if i % 3 else 'B'},f.tif,0,0,1\n" for i in range(n))
+    (cache / "index.csv").write_text(rows, encoding="utf-8")
+    meta = {"markup": "li", "classes": ["kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha",
+                                        "arkhitektury", "fortifikatsii"],
+            "res": 0.5, "tile": t, "li_tags": ["g"], "flips": False, "channels": 1}
+    (cache / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    res = train(str(cache), str(tmp_path / "m.pt"), epochs=1, batch=8, val_families=["B"], workers=0,
+                pretrained=False)
+    assert (tmp_path / "m.pt").exists() and res["train_tiles"] == 16
+    seg = Segmenter(tmp_path / "m.pt", device="cpu")
+    probs = seg.predict(rng.integers(0, 255, (1, 100, 150), dtype=np.uint8))
+    assert probs.shape == (5, 100, 150) and np.isfinite(probs).all()
+    from rasterio.transform import from_origin
+    feats = probs_to_features(probs, seg.classes, from_origin(X0, Y0 + 50, 0.5, 0.5), UTM, 0.5,
+                              "r", "li", "x", low=0.0)
+    assert all(f["geom"].geom_type == "Polygon" for f in feats)
