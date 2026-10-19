@@ -120,7 +120,16 @@ python -m expds.metric sweep --pred work/cand_train.geojson --gt work/gt_train.g
 python -m expds.candidates train --root D:/expds3 --gt work/gt_train.geojson --out models/kurgan_lgbm.txt --val-families Гнёздово
 ```
 
-После обучения — `lgbm_model = "models/kurgan_lgbm.txt"` в `[candidates]`.
+После обучения — `lgbm_model = "models/kurgan_lgbm.txt"` в `[candidates]`. С `--multiclass` модель различает фон, повреждённый и целый курган, и каждый класс получает свою уверенность и свой порог. По разметке трейна класс зависит от съёмки: в 195 из 214 спорных пар курган целый на аэрофото 1940-х и повреждённый на лидаре.
+
+Честная оценка до сабмита — предсказания вне обучения: оценщик каждой «семьи» участков учится только на остальных, результат проходит ту же постобработку, что на инференсе:
+
+```bash
+python -m expds.candidates oof --root D:/expds3 --gt work/gt_train.geojson --out work/cand_oof.geojson --folds 5
+python -m expds.metric sweep --pred work/cand_oof.geojson --gt work/gt_train.geojson --markup li --bootstrap 300
+```
+
+Для оценки нужны только LAS: все 57 файлов трейна — 36,6 ГиБ, а 76 % курганов `li` лежат на участках, чьи LAS весят вместе 0,36 ГБ.
 
 **6. Нейросети по модальностям (GTX 1650, обучение по ночам)**
 
