@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gc
 import json
 import logging
 import os
@@ -131,6 +132,8 @@ def main() -> None:
             feats += got
             n_reg += 1
             log.info("предсказание %s: %+d", reg.name, len(got))
+            del got
+            gc.collect()
         rec = {"fold": k, "test": sorted(test), "val": val, **res, "test_regions": n_reg,
                "minutes": round((time.perf_counter() - t0) / 60, 1)}
         report.append(rec)
