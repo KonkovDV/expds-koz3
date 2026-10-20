@@ -54,11 +54,12 @@ def _params(cls, cfg: dict):
     return cls(**{k: v for k, v in (cfg or {}).items() if k in names})
 
 
-def model_specs(models: dict, markup: str) -> list[tuple[str, list[str] | None]]:
+def model_specs(models: dict, markup: str) -> list[tuple[str | list[str], list[str] | None]]:
     """Модели модальности из [models]: путь, таблица {path, classes} или их список.
 
     classes ограничивает выход модели, чтобы две модели одной модальности
     (например, мелкая и крупная для городищ) не выдавали один класс дважды.
+    path может быть списком: это ансамбль, вероятности моделей усредняются.
     """
     v = models.get(markup)
     out = []
@@ -70,17 +71,23 @@ def model_specs(models: dict, markup: str) -> list[tuple[str, list[str] | None]]
     return out
 
 
+def model_files(path: str | list[str]) -> list[str]:
+    """Файлы весов одной записи model_specs."""
+    return list(path) if isinstance(path, list) else [path]
+
+
 def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
-    from .infer_nn import Segmenter
+    from .infer_nn import Ensemble, Segmenter
 
     segs = []
     for path, classes in model_specs(models, markup):
-        p = Path(path)
-        p = p if p.is_absolute() else root / p
-        if not p.exists():
-            log.warning("модель %s не найдена: %s", markup, p)
+        files = [Path(f) if Path(f).is_absolute() else root / f for f in model_files(path)]
+        missing = [f for f in files if not f.exists()]
+        if missing:
+            log.warning("модель %s не найдена: %s", markup, ", ".join(map(str, missing)))
             continue
-        seg = Segmenter(p)
+        members = [Segmenter(f) for f in files]
+        seg = members[0] if len(members) == 1 else Ensemble(members)
         seg.keep = set(classes) if classes else None
         seg.tta = tta
         segs.append(seg)

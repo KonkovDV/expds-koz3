@@ -34,11 +34,11 @@ def collect() -> list[Path]:
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
     files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
     files += sorted((ROOT / "configs").glob("*.toml"))
-    from expds.pipeline import model_specs
+    from expds.pipeline import model_files, model_specs
 
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
-    paths = [p for mt in models for p, _ in model_specs(models, mt)]
+    paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model")]:
         if rel:
             p = ROOT / rel

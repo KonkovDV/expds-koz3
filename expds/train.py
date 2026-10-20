@@ -189,7 +189,7 @@ def dice_loss(logits, target, eps: float = 1.0):
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
-          gpu_data: bool | None = None, copy_paste: float = 0.0) -> dict:
+          gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None) -> dict:
     """Обучает модель и сохраняет лучший по валидационной потере чекпойнт.
 
     gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
@@ -198,6 +198,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     import segmentation_models_pytorch as smp
     from torch.utils.data import DataLoader
 
+    if seed is not None:
+        torch.manual_seed(seed)
+        np.random.seed(seed)
     cache_p = Path(cache)
     meta = json.loads((cache_p / "meta.json").read_text(encoding="utf-8"))
     rows = load_index(cache_p)
@@ -331,11 +334,12 @@ def _cli() -> None:
     ap.add_argument("--cpu-data", action="store_true", help="тайлы через DataLoader, а не из видеопамяти")
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность вставить курган с другого тайла (Simple Copy-Paste)")
+    ap.add_argument("--seed", type=int, default=None, help="зерно инициализации и порядка батчей (ансамбль)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
-                gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste)
+                gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

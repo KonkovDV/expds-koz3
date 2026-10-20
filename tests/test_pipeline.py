@@ -61,6 +61,39 @@ def test_model_specs_and_class_filter():
     assert _kept(SimpleNamespace(keep=None), feats) == feats
 
 
+def test_ensemble_averages_members(tmp_path):
+    torch = pytest.importorskip("torch")
+    smp = pytest.importorskip("segmentation_models_pytorch")
+    from expds.infer_nn import Ensemble, Segmenter
+    from expds.pipeline import _segmenters, model_files, model_specs
+
+    classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+    paths = []
+    for s in range(2):
+        torch.manual_seed(s)
+        net = smp.Unet(encoder_name="resnet18", encoder_weights=None, in_channels=3, classes=2)
+        p = tmp_path / f"m{s}.pt"
+        torch.save({"state_dict": net.state_dict(), "encoder": "resnet18", "in_channels": 3,
+                    "classes": classes, "res": 0.5, "tile": 64}, p)
+        paths.append(p)
+    img = np.random.default_rng(0).integers(0, 255, (3, 70, 90), dtype=np.uint8)
+    a, b = (Segmenter(p, device="cpu").predict(img) for p in paths)
+    ens = Ensemble([Segmenter(p, device="cpu") for p in paths])
+    assert np.allclose(ens.predict(img), (a + b) / 2, atol=1e-6)
+
+    models = {"li": {"path": [str(p) for p in paths]}}
+    assert model_files(model_specs(models, "li")[0][0]) == [str(p) for p in paths]
+    segs = _segmenters(models, "li", tmp_path)
+    assert len(segs) == 1 and isinstance(segs[0], Ensemble)
+
+    torch.save({"state_dict": smp.Unet(encoder_name="resnet18", encoder_weights=None, in_channels=3,
+                                       classes=1).state_dict(),
+                "encoder": "resnet18", "in_channels": 3, "classes": classes[:1], "res": 0.5, "tile": 64},
+               tmp_path / "other.pt")
+    with pytest.raises(ValueError):
+        Ensemble([Segmenter(paths[0], device="cpu"), Segmenter(tmp_path / "other.pt", device="cpu")])
+
+
 def test_main_survives_bad_input(tmp_path):
     bad = tmp_path / "in" / "region_0009"
     bad.mkdir(parents=True)

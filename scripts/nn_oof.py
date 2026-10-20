@@ -84,10 +84,12 @@ def main() -> None:
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
+    ap.add_argument("--seeds", type=int, default=1,
+                    help="моделей на фолд с разными зёрнами; предсказание — их среднее (ансамбль)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    from expds.infer_nn import Segmenter
+    from expds.infer_nn import Ensemble, Segmenter
     from expds.train import train
 
     cache, work = Path(args.cache), Path(args.work)
@@ -111,16 +113,22 @@ def main() -> None:
         val = min(train_fams, key=lambda f: (abs(tiles[f] - 0.1 * n_train), f))
         t0 = time.perf_counter()
         fc = work / f"fold{k}"
-        model, done = fc / f"{args.markup}.pt", fc / "done.json"
-        if args.resume and done.exists() and model.exists():
-            res = json.loads(done.read_text(encoding="utf-8"))
-        else:
-            fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
-            res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs, batch=args.batch,
-                        val_families=[val], workers=0, copy_paste=args.copy_paste)
-            res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
-            done.write_text(json.dumps(res), encoding="utf-8")
-        seg = Segmenter(model)
+        models = []
+        for s in range(max(1, args.seeds)):
+            tag = "" if s == 0 else f"_s{s}"
+            model, done = fc / f"{args.markup}{tag}.pt", fc / f"done{tag}.json"
+            if args.resume and done.exists() and model.exists():
+                res = json.loads(done.read_text(encoding="utf-8"))
+            else:
+                fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
+                res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
+                            batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
+                            seed=s if s else None)
+                res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
+                done.write_text(json.dumps(res), encoding="utf-8")
+            models.append(model)
+        members = [Segmenter(m) for m in models]
+        seg = members[0] if len(members) == 1 else Ensemble(members)
         seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
         n_reg = 0
         for reg in regions:

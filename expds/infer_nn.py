@@ -122,6 +122,46 @@ class Segmenter:
         return (acc / wsum.clamp_min(1e-6)).cpu().numpy()
 
 
+class Ensemble:
+    """Несколько моделей одной схемы: вероятность — среднее их карт.
+
+    Модели должны совпадать классами, шагом, тайлом и входом (каналы li, DEM),
+    иначе карты нельзя усреднять. meta и прочие поля — от первой модели.
+    """
+
+    _SAME = ("classes", "res", "tile", "in_channels", "li_tags", "li_source", "dem_res", "dem_fill", "markup")
+
+    def __init__(self, members: list[Segmenter]):
+        if not members:
+            raise ValueError("пустой ансамбль")
+        first = members[0].meta
+        for m in members[1:]:
+            diff = [k for k in self._SAME if m.meta.get(k) != first.get(k)]
+            if diff:
+                raise ValueError(f"модели ансамбля различаются: {diff}")
+        self.members = members
+        self.meta = first
+        self.classes = members[0].classes
+        self.res = members[0].res
+        self.tile = members[0].tile
+        self.keep = None
+
+    @property
+    def tta(self) -> int:
+        return self.members[0].tta
+
+    @tta.setter
+    def tta(self, value: int) -> None:
+        for m in self.members:
+            m.tta = value
+
+    def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int = 16) -> np.ndarray:
+        acc = self.members[0].predict(img, overlap, batch)
+        for m in self.members[1:]:
+            acc += m.predict(img, overlap, batch)
+        return acc / np.float32(len(self.members))
+
+
 def split_by_peaks(prob: np.ndarray, mask: np.ndarray, radius_px: int, min_peak: float) -> np.ndarray:
     """Экземпляры: связные области маски, разделённые по ближайшему пику вероятности."""
     from scipy.ndimage import distance_transform_edt, find_objects, label
