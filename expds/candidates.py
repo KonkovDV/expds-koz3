@@ -112,8 +112,8 @@ def sample_probs(c: dict, probs: np.ndarray, transform, window_px: int = 5) -> n
 
 def to_features(c: dict, scores: np.ndarray, crs: str | None, region: str, p: CandidateParams,
                 classes: tuple[str, ...] = ("kurgany_povrezhdennye", "kurgany_tselye"),
-                source: str = "las") -> list[dict]:
-    """Кандидаты → объекты пайплайна (круги в EPSG:3857, markup_type li).
+                source: str = "las", markup: str = "li") -> list[dict]:
+    """Кандидаты → объекты пайплайна (круги в EPSG:3857).
 
     Кандидат выдаётся в обоих классах. Метрика считает классы независимо:
     в нужном классе это TP, в соседнем — FP с ценой 0,5. При N уверенностях
@@ -129,31 +129,34 @@ def to_features(c: dict, scores: np.ndarray, crs: str | None, region: str, p: Ca
         geom = to_crs(circle, crs, WEB_MERCATOR) if crs else circle
         for cls, conf in zip(classes, s):
             out.append({"geom": geom, "class_name": cls, "confidence": float(conf), "region_name": region,
-                        "markup_type": "li", "source": source, "original_crs": crs})
+                        "markup_type": markup, "source": source, "original_crs": crs})
     return out
 
 
-def label(c: dict, crs: str, gt_items: list[dict], classes=("kurgany_povrezhdennye", "kurgany_tselye")) -> np.ndarray:
-    """Метка кандидата: 1 + индекс класса эталонного кургана li, в котором его центр; 0 — фон.
+def label(c: dict, crs: str, gt_items: list[dict], classes=("kurgany_povrezhdennye", "kurgany_tselye"),
+          markup: str = "li") -> np.ndarray:
+    """Метка кандидата: 1 + индекс класса эталона модальности markup, в котором его центр; 0 — фон.
 
-    С одним классом в classes это обычная метка 0/1.
+    С одним классом в classes это обычная метка 0/1. Эталонные точки засчитываются
+    ближе 2 м, как в метрике.
     """
-    from shapely.geometry import Point
+    import shapely
     from shapely.strtree import STRtree
 
+    from .crs import transformer
+
     gts = [(g["geom"], classes.index(g["class_name"])) for g in gt_items
-           if g["class_name"] in classes and g["markup_type"] == "li"]
-    if not gts:
-        return np.zeros(len(c["x"]), np.int8)
-    tree = STRtree([g for g, _ in gts])
+           if g["class_name"] in classes and g["markup_type"] == markup]
     y = np.zeros(len(c["x"]), np.int8)
-    for k, (x0, y0) in enumerate(zip(c["x"], c["y"])):
-        pt = to_crs(Point(float(x0), float(y0)), crs, WEB_MERCATOR)
-        for j in tree.query(pt.buffer(2.5)):
-            g, ci = gts[int(j)]
-            if (g.geom_type == "Point" and g.distance(pt) <= 2.0) or g.contains(pt):
-                y[k] = 1 + ci
-                break
+    if not gts or len(c["x"]) == 0:
+        return y
+    xs, ys = (c["x"], c["y"]) if crs == WEB_MERCATOR else transformer(crs).transform(c["x"], c["y"])
+    pts = shapely.points(np.asarray(xs), np.asarray(ys))
+    geoms = [g.buffer(2.0) if g.geom_type == "Point" else g for g, _ in gts]
+    hit_pt, hit_gt = STRtree(geoms).query(pts, predicate="intersects")
+    order = np.argsort(hit_gt, kind="stable")          # при нескольких эталонах — первый по порядку
+    for k, j in zip(hit_pt[order][::-1], hit_gt[order][::-1]):
+        y[k] = 1 + gts[int(j)][1]
     return y
 
 
@@ -227,11 +230,12 @@ def oof_predictions(recs: list[dict], p: CandidateParams, folds: int = 5, multic
         x = np.nan_to_num(np.vstack([r["c"]["features"] for r in tr]), nan=-999.0)
         y = np.concatenate([r["y"] for r in tr])
         y = y if multiclass else (y > 0).astype(np.int8)
-        booster = lgb.train(_lgb_params(multiclass), lgb.Dataset(x, y, feature_name=FEATURE_NAMES),
-                            num_boost_round=rounds)
+        names = FEATURE_NAMES if x.shape[1] == len(FEATURE_NAMES) else "auto"
+        booster = lgb.train(_lgb_params(multiclass), lgb.Dataset(x, y, feature_name=names), num_boost_round=rounds)
         for r in te:
             s = booster.predict(np.nan_to_num(r["c"]["features"], nan=-999.0)).astype(np.float32)
-            feats += to_features(r["c"], s, r["crs"], r["region"], p, source=r["source"])
+            feats += to_features(r["c"], s, r["crs"], r["region"], p, source=r["source"],
+                                 markup=r.get("markup", "li"))
         log.info("фолд %d: обучение %d LAS, проверка %d LAS", k, len(tr), len(te))
     return feats
 
