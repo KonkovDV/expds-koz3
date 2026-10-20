@@ -70,6 +70,16 @@ def test_tile_cache_li_tif(tmp_path):
     assert ((masks >> bit) & 1).sum() > 0
 
 
+def test_shrink_separates_touching_mounds():
+    a, b = Point(0, 0).buffer(5), Point(10, 0).buffer(5)
+    assert a.buffer(1e-6).intersects(b)
+    sa, sb = tiles.shrink_polygon(a, 0.4), tiles.shrink_polygon(b, 0.4)
+    assert not sa.intersects(sb) and sa.within(a)
+    assert abs(sa.area / a.area - 0.36) < 0.02
+    assert tiles.shrink_polygon(Point(1, 1), 0.4).equals(Point(1, 1))
+    assert tiles.shrink_polygon(a, 0.0) is a
+
+
 def test_tile_cache_li_las_matches_inference(tmp_path):
     """Тайлы из LAS — точные куски тех каналов, которые инференс подаёт модели."""
     root = make_train(tmp_path / "train")

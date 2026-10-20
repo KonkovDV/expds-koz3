@@ -97,6 +97,28 @@ def cut_window(arr: np.ndarray, transform, cx: float, cy: float, tile: int):
     return out, from_origin(transform.c + col0 * step, transform.f - row0 * step, step, step)
 
 
+#: Классы, маски которых сжимаются к центру при shrink > 0 (плотные курганные группы).
+SHRINK_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def shrink_polygon(g, shrink: float):
+    """Полигон, сжатый к центру: радиус эквивалентного круга умножается на (1 − shrink).
+
+    Соседние насыпи на маске перестают касаться, и связные области модели
+    разделяют экземпляры. Метрика засчитывает такой объект: покрытие меньшей
+    фигуры = 1, внутренняя точка — внутри эталона.
+    """
+    import math
+
+    if shrink <= 0 or g.geom_type == "Point" or g.area <= 0:
+        return g
+    r = math.sqrt(g.area / math.pi)
+    s = g.buffer(-shrink * r)
+    if s.is_empty or s.area < 0.05 * g.area:
+        s = g.representative_point().buffer(max(r * (1 - shrink), 0.5))
+    return s
+
+
 def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int):
     """Источники тайлов региона: (имя, CRS, рамка, read(cx, cy) → (окно, привязка))."""
     if markup == "li" and li_source == "las":
@@ -152,7 +174,7 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
-                li_source: str = "las") -> dict:
+                li_source: str = "las", shrink: float = 0.0) -> dict:
     """Строит кэш тайлов и возвращает сводку."""
     from .lidar import RELIEF_TAGS
 
@@ -210,7 +232,9 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                     continue
                 m = np.zeros((tile, tile), np.uint8)
                 for k, cls in enumerate(classes):
-                    shp = [(g.buffer(1.0) if g.geom_type == "Point" else g) for g, c in local if c == cls]
+                    shp = [(g.buffer(1.0) if g.geom_type == "Point"
+                            else shrink_polygon(g, shrink) if cls in SHRINK_CLASSES else g)
+                           for g, c in local if c == cls]
                     if shp:
                         r = rasterize(((g, 1) for g in shp), out_shape=(tile, tile), transform=tr,
                                       all_touched=True, dtype="uint8")
@@ -232,7 +256,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     li_src = li_source if markup == "li" else None
     meta = {"markup": markup, "classes": classes, "res": res, "tile": tile, "li_tags": li_tags,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
-            "channels": n_ch, **total}
+            "channels": n_ch, "shrink": shrink, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -251,10 +275,13 @@ def _cli() -> None:
     ap.add_argument("--li-tags", nargs="*", default=None,
                     help="las: lrm_s lrm_l slope g; tif: g i c ch")
     ap.add_argument("--max-per-region", type=int, default=3000)
+    ap.add_argument("--shrink", type=float, default=0.0,
+                    help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
-                       li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source)
+                       li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
+                       shrink=args.shrink)
     print(json.dumps(meta, ensure_ascii=False))
 
 
