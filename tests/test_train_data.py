@@ -46,6 +46,24 @@ def test_same_transform_for_image_and_mask(tmp_path):
     assert len(seen) == 8                                         # все 8 поворотов и отражений
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="нет CUDA")
+def test_predict_on_device_matches_cpu(tmp_path):
+    smp = pytest.importorskip("segmentation_models_pytorch")
+    from expds.infer_nn import Segmenter
+
+    net = smp.Unet(encoder_name="resnet18", encoder_weights=None, in_channels=3, classes=2)
+    path = tmp_path / "m.pt"
+    torch.save({"state_dict": net.state_dict(), "encoder": "resnet18", "in_channels": 3,
+                "classes": ["kurgany_povrezhdennye", "kurgany_tselye"], "res": 0.5, "tile": 64}, path)
+    img = np.random.default_rng(1).integers(0, 255, (3, 150, 210), dtype=np.uint8)
+    cpu = Segmenter(path, device="cpu").predict(img)
+    gpu_seg = Segmenter(path, device="cuda")
+    gpu_seg.amp = False
+    gpu = gpu_seg.predict(img)
+    assert gpu.shape == cpu.shape == (2, 150, 210)
+    assert np.abs(gpu - cpu).max() < 1e-3
+
+
 def test_epoch_covers_each_tile_once(tmp_path):
     rows, _, _ = make_cache(tmp_path)
     g = GpuTiles(tmp_path, rows, 5, flips=False, device=torch.device("cpu"))

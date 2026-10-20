@@ -62,12 +62,15 @@ class Segmenter:
             xs.append(w - t)
         pad_h, pad_w = max(0, t - h), max(0, t - w)
         x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w)))
-        acc = np.zeros((len(self.classes), x_all.shape[1], x_all.shape[2]), np.float32)
-        wsum = np.zeros(x_all.shape[1:], np.float32)
         ramp = np.minimum(np.arange(t) + 1, np.arange(t)[::-1] + 1).astype(np.float32)
         weight = np.minimum.outer(ramp, ramp)
         weight /= weight.max()
         coords = [(y, x) for y in ys for x in xs]
+        need = x_all.nbytes + (len(self.classes) + 1) * x_all.shape[1] * x_all.shape[2] * 4
+        if self.device.type == "cuda" and need < 0.6 * torch.cuda.mem_get_info(self.device)[0]:
+            return self._predict_on_device(x_all, coords, weight, batch)[:, :h, :w]
+        acc = np.zeros((len(self.classes), x_all.shape[1], x_all.shape[2]), np.float32)
+        wsum = np.zeros(x_all.shape[1:], np.float32)
         with torch.inference_mode():
             for s in range(0, len(coords), batch):
                 chunk = coords[s:s + batch]
@@ -79,6 +82,29 @@ class Segmenter:
                     acc[:, y:y + t, x:x + t] += p * weight
                     wsum[y:y + t, x:x + t] += weight
         return (acc / np.maximum(wsum, 1e-6))[:, :h, :w]
+
+    def _predict_on_device(self, x_all: np.ndarray, coords: list[tuple[int, int]], weight: np.ndarray,
+                           batch: int) -> np.ndarray:
+        """Как predict, но снимок, окна и накопление — в памяти устройства; на CPU — только итог."""
+        import torch
+
+        t = self.tile
+        dev = self.device
+        x = torch.from_numpy(x_all).to(dev)
+        acc = torch.zeros((len(self.classes), *x.shape[1:]), device=dev)
+        wsum = torch.zeros(x.shape[1:], device=dev)
+        wt = torch.from_numpy(weight).to(dev)
+        with torch.inference_mode():
+            for s in range(0, len(coords), batch):
+                chunk = coords[s:s + batch]
+                xb = torch.stack([x[:, y:y + t, x0:x0 + t] for y, x0 in chunk]).float()
+                xb = xb.div_(255.0).sub_(0.5).div_(0.25)
+                with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=self.amp):
+                    pr = self.model(xb).float().sigmoid()
+                for (y, x0), p in zip(chunk, pr):
+                    acc[:, y:y + t, x0:x0 + t] += p * wt
+                    wsum[y:y + t, x0:x0 + t] += wt
+        return (acc / wsum.clamp_min(1e-6)).cpu().numpy()
 
 
 def split_by_peaks(prob: np.ndarray, mask: np.ndarray, radius_px: int, min_peak: float) -> np.ndarray:
