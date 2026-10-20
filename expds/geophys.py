@@ -57,48 +57,140 @@ def robust_z(a: np.ndarray) -> np.ndarray:
     return ((a - med) / mad).astype(np.float32)
 
 
-def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None) -> list[dict]:
+def strength_confidence(v: np.ndarray | float) -> np.ndarray | float:
+    """Уверенность из силы аномалии (в MAD): монотонно и без насыщения, чтобы порог различал сильные пики."""
+    return v / (v + 10.0)
+
+
+def highpass(z: np.ndarray, res: float, background_m: float) -> np.ndarray:
+    """Высокочастотная составляющая: z минус среднее окна радиусом background_m."""
+    return (z - accel.box_mean(z, max(1, round(background_m / res)))).astype(np.float32)
+
+
+def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
+               p: GeoParams, k_min: float | None = None) -> list[dict]:
+    """Экстремумы |hp| не ниже k_min (по умолчанию peak_k) → круги finds_points."""
+    mag = np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
+    rows, cols, vals = accel.find_peaks(mag, max(1, round(p.peak_radius_m / res)),
+                                        p.peak_k if k_min is None else k_min)
+    xs, ys = pixel_to_xy(tr, rows, cols)
+    return [{"geom": circle_3857(float(x), float(y), p.point_circle_m, crs), "class_name": "finds_points",
+             "confidence": float(strength_confidence(v)), "region_name": region, "markup_type": markup_type,
+             "source": source, "original_crs": crs} for x, y, v in zip(xs, ys, vals)]
+
+
+def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
+               p: GeoParams) -> list[dict]:
+    """Связные области сглаженной |hp| выше poly_k с допустимой площадью → полигоны object_poly."""
+    from scipy.ndimage import label as cc_label
+
+    sm = accel.box_mean(np.abs(hp).astype(np.float32), max(1, round(p.smooth_m / res)))
+    lab, n = cc_label(np.isfinite(sm) & (sm >= p.poly_k))
+    if n == 0:
+        return []
+    sizes = np.bincount(lab.ravel()) * res * res
+    keep = (sizes >= p.min_area_m2) & (sizes <= p.max_area_m2)
+    keep[0] = False
+    lab = np.where(keep[lab], lab, 0)
+    peak = np.zeros(n + 1, np.float32)
+    np.maximum.at(peak, lab.ravel(), np.nan_to_num(sm, nan=0).ravel())
+    return [{"geom": poly, "class_name": "object_poly", "confidence": float(strength_confidence(peak[k])),
+             "region_name": region, "markup_type": markup_type, "source": source, "original_crs": crs}
+            for poly, k in mask_to_polygons(lab, tr, crs)]
+
+
+def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None,
+                 k_min: float | None = None) -> list[dict]:
     """Точечные аномалии → круги класса finds_points."""
     p = p or GeoParams()
     a, tr, crs, res = read_band(path)
-    z = robust_z(a)
-    hp = z - accel.box_mean(z, max(1, int(round(p.background_m / res))))
-    mag = np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
-    rows, cols, vals = accel.find_peaks(mag, max(1, int(round(p.peak_radius_m / res))), p.peak_k)
-    xs, ys = pixel_to_xy(tr, rows, cols)
-    out = []
-    for x, y, v in zip(xs, ys, vals):
-        conf = float(1.0 - np.exp(-(v - p.peak_k + 1.0) / 3.0))
-        out.append({"geom": circle_3857(float(x), float(y), p.point_circle_m, crs), "class_name": "finds_points",
-                    "confidence": max(0.01, min(conf, 0.99)), "region_name": region,
-                    "markup_type": markup_type, "source": Path(path).name, "original_crs": crs})
-    return out
+    return peaks_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
+                      Path(path).name, p, k_min)
 
 
 def object_polys(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None) -> list[dict]:
     """Площадные аномалии → полигоны класса object_poly."""
     p = p or GeoParams()
-    from scipy.ndimage import label as cc_label
-
     a, tr, crs, res = read_band(path)
-    z = robust_z(a)
-    hp = z - accel.box_mean(z, max(1, int(round(p.background_m / res))))
-    sm = accel.box_mean(np.abs(hp).astype(np.float32), max(1, int(round(p.smooth_m / res))))
-    mask = np.isfinite(sm) & (sm >= p.poly_k)
-    lab, n = cc_label(mask)
-    if n == 0:
-        return []
-    px_area = res * res
-    sizes = np.bincount(lab.ravel())
-    keep = (sizes * px_area >= p.min_area_m2) & (sizes * px_area <= p.max_area_m2)
-    keep[0] = False
-    lab = np.where(keep[lab], lab, 0)
-    peak = np.zeros(n + 1, np.float32)
-    np.maximum.at(peak, lab.ravel(), np.nan_to_num(sm, nan=0).ravel())
+    return polys_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
+                      Path(path).name, p)
+
+
+#: Пределы площади object_poly по описанию классов: MagGr — диаметр от 5 м, EtGr — 0,3–12 м, TerFl — 0,3–30 м.
+AREA_M2 = {"maggr": (5.0, 3000.0), "etgr": (0.05, 150.0), "terfl": (0.05, 1000.0)}
+#: Аномалии EtGr глубже 2 м — геология, а не археология (описание классов).
+ETGR_MAX_DEPTH_M = 2.0
+
+
+def select_rasters(files: list[Path], markup_type: str) -> list[Path]:
+    """Растры для детекторов: без цветных копий серых карт и без срезов EtGr глубже 2 м."""
+    import re
+
+    gray = [f for f in files if "цвет" not in f.name.lower()]
+    files = gray or files
+    if markup_type != "etgr":
+        return files
     out = []
-    for poly, k in mask_to_polygons(lab, tr, crs):
-        conf = float(1.0 - np.exp(-(peak[k] - p.poly_k + 0.5) / 2.0))
-        out.append({"geom": poly, "class_name": "object_poly", "confidence": max(0.01, min(conf, 0.99)),
-                    "region_name": region, "markup_type": markup_type, "source": Path(path).name,
-                    "original_crs": crs})
+    for f in files:
+        m = re.search(r"карта_\d+_(\d+(?:[.,]\d+)?)", f.stem)
+        if m is None or float(m.group(1).replace(",", ".")) <= ETGR_MAX_DEPTH_M:
+            out.append(f)
+    return out
+
+
+def load_mask(files: list[Path], markup_type: str, fallback_crs: str | None):
+    """Объединение полигонов масок (extra/*_границы, *_шум) нужной модальности в EPSG:3857; None — нет масок."""
+    import json
+
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+    from shapely.validation import make_valid
+
+    from .crs import WEB_MERCATOR, guess_geojson_crs, to_crs
+    from .naming import markup_type_of
+
+    parts = []
+    for f in files:
+        if markup_type_of(f) != markup_type:
+            continue
+        try:
+            d = json.loads(Path(f).read_text(encoding="utf-8-sig"))
+            src = guess_geojson_crs(d, fallback_crs)
+            if src is None:
+                continue
+            gs = [make_valid(shape(x["geometry"])) for x in d.get("features", []) if x.get("geometry")]
+            if gs:
+                parts.append(to_crs(unary_union(gs), src, WEB_MERCATOR))
+        except Exception as exc:
+            log.warning("маска %s не прочитана: %s", Path(f).name, exc)
+    return unary_union(parts).buffer(0) if parts else None
+
+
+def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams, dict]:
+    """Параметры детектора из [geophys] и [geophys.<модальность>.<класс>] конфига.
+
+    Возвращает GeoParams и опции после детектора: use_noise (маска шума),
+    min_confidence (порог этой модальности; [thresholds] задаёт порог только по классу).
+    """
+    base = {k: v for k, v in (cfg or {}).items() if not isinstance(v, dict)}
+    over = ((cfg or {}).get(markup_type) or {}).get(class_name) or {}
+    merged = {**base, **over}
+    p = GeoParams(**{k: v for k, v in merged.items() if k in GeoParams.__dataclass_fields__})
+    lo, hi = AREA_M2.get(markup_type, (p.min_area_m2, p.max_area_m2))
+    p.min_area_m2, p.max_area_m2 = over.get("min_area_m2", lo), over.get("max_area_m2", hi)
+    return p, {"use_noise": bool(merged.get("use_noise", False)),
+               "min_confidence": float(merged.get("min_confidence", 0.0))}
+
+
+def apply_masks(feats: list[dict], boundary=None, noise=None) -> list[dict]:
+    """Оставляет объекты внутри границ съёмки и вне шума (по внутренней точке)."""
+    from shapely.prepared import prep
+
+    b = prep(boundary) if boundary is not None else None
+    n = prep(noise) if noise is not None else None
+    out = []
+    for f in feats:
+        pt = f["geom"].representative_point()
+        if (b is None or b.contains(pt)) and (n is None or not n.contains(pt)):
+            out.append(f)
     return out

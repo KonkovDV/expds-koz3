@@ -75,7 +75,6 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
     feats: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    geo_p = _params(geophys.GeoParams, cfg.get("geophys"))
     models = cfg.get("models", {})
     kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
 
@@ -100,15 +99,26 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
         except Exception as exc:
             log.exception("%s: ошибка лидара (%s)", las.name, exc)
 
-    # 2. Геофизика
+    # 2. Геофизика: параметры и порог — по модальности; маски extra/ — после детекторов
+    geo_cfg = cfg.get("geophys", {})
     for mt in ("maggr", "etgr", "terfl"):
-        for path in reg.rasters.get(mt, []):
+        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
+        if not files:
+            continue
+        classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
+        opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
+        boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
+        noise = geophys.load_mask(reg.noise, mt, crs_region)
+        for path in files:
             if not guard.ok(30):
                 break
             try:
-                if mt == "maggr":
-                    feats += geophys.finds_points(path, reg.name, mt, geo_p)
-                feats += geophys.object_polys(path, reg.name, mt, geo_p)
+                for cls in classes:
+                    p, o = opts[cls]
+                    found = (geophys.finds_points(path, reg.name, mt, p) if cls == "finds_points"
+                             else geophys.object_polys(path, reg.name, mt, p))
+                    found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
+                    feats += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
 
