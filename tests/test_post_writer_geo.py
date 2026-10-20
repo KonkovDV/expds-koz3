@@ -53,6 +53,9 @@ def test_thresholds_and_cap():
     feats = [feat(sq(i * 10, 0), conf=c) for i, c in enumerate([0.05, 0.2, 0.9])]
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15})) == 2
     assert [f["confidence"] for f in post.cap_features(feats, 1)] == [0.9]
+    mt = feats[0]["markup_type"]
+    assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={mt: {"kurgany_tselye": 0.5}})) == 1
+    assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={"other": {"kurgany_tselye": 0.5}})) == 2
 
 
 def test_geophys_rasters_params_and_masks():

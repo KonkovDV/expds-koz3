@@ -226,7 +226,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     finally:
         summary["raw"] = len(feats)
         out = post.only_known_classes(feats)
-        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15))
+        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                    cfg.get("thresholds_by_markup", {}))
         out = post.merge_within_markup(out)
         out = post.finalize(out)
         out = post.cap_features(out)
