@@ -23,6 +23,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
              ".shp", ".gpkg", ".zip"}
 LIMIT = 2 * 1024 ** 3
@@ -33,8 +34,12 @@ def collect() -> list[Path]:
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
     files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
     files += sorted((ROOT / "configs").glob("*.toml"))
+    from expds.pipeline import model_specs
+
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
-    for rel in list(cfg.get("models", {}).values()) + [cfg.get("candidates", {}).get("lgbm_model")]:
+    models = cfg.get("models", {})
+    paths = [p for mt in models for p, _ in model_specs(models, mt)]
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model")]:
         if rel:
             p = ROOT / rel
             if not p.exists():
