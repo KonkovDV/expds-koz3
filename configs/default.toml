@@ -38,7 +38,7 @@ kurgany_tselye = 0.0096
 mode = "rescore"
 
 [models]
-# li = "models/li_r18.pt"
+li = "models/li_r18.pt"
 # ae = "models/ae_r18.pt"
 # sp_or = "models/spor_r18.pt"
 # or = "models/or_r18.pt"
