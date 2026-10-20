@@ -94,8 +94,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         tr_rows, va_rows = rows[:-cut], rows[-cut:]
     k = len(meta["classes"])
     c = int(meta.get("channels") or np.load(cache_p / "images_0000.npy", mmap_mode="r").shape[1])
+    from .infer_nn import fp16_ok
+
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    use_amp = amp and dev.type == "cuda"
+    use_amp = amp and fp16_ok(dev)
+    if amp and dev.type == "cuda" and not use_amp:
+        log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
     model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
                      in_channels=c, classes=k).to(dev).to(memory_format=torch.channels_last)
     dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, meta.get("flips", False)), batch_size=batch,

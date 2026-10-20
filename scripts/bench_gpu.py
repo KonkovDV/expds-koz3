@@ -148,6 +148,9 @@ def main() -> None:
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.cpu else "cpu")
     amp = not args.no_amp
+    if amp and device.type == "cuda" and "GTX 16" in torch.cuda.get_device_name(0):
+        print("GTX 16xx: FP16 в cuDNN даёт NaN, замер в FP32 (как при обучении).")
+        amp = False
     info = {
         "python": platform.python_version(),
         "torch": torch.__version__,

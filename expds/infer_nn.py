@@ -21,6 +21,13 @@ SPLIT_RADIUS_M = {"kurgany_povrezhdennye": 4.0, "kurgany_tselye": 4.0, "arkhitek
                   "gorodishcha": 0.0, "fortifikatsii": 0.0, "object_poly": 0.0, "finds_points": 1.0}
 
 
+def fp16_ok(device) -> bool:
+    """FP16 (AMP) только на CUDA и не на GTX 16xx: у этих карт половинная точность в cuDNN даёт NaN."""
+    import torch
+
+    return device.type == "cuda" and "GTX 16" not in torch.cuda.get_device_name(device)
+
+
 class Segmenter:
     """Загруженная модель из чекпойнта expds.train."""
 
@@ -38,7 +45,7 @@ class Segmenter:
                               in_channels=ck["in_channels"], classes=len(self.classes))
         self.model.load_state_dict(ck["state_dict"])
         self.model.to(self.device).eval()
-        self.amp = self.device.type == "cuda"
+        self.amp = fp16_ok(self.device)
 
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int = 16) -> np.ndarray:
         """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32."""
