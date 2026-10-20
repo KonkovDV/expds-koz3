@@ -53,6 +53,11 @@ def test_thresholds_and_cap():
     feats = [feat(sq(i * 10, 0), conf=c) for i, c in enumerate([0.05, 0.2, 0.9])]
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15})) == 2
     assert [f["confidence"] for f in post.cap_features(feats, 1)] == [0.9]
+    # насыщенный лёгкий класс не забирает квоту более тяжёлого
+    mixed = [feat(sq(i, 0), cls="fortifikatsii", conf=0.99) for i in range(5)]
+    mixed.append(feat(sq(0, 20), cls="kurgany_povrezhdennye", conf=0.2))
+    capped = post.cap_features(mixed, 2)
+    assert {f["class_name"] for f in capped} == {"fortifikatsii", "kurgany_povrezhdennye"}
     mt = feats[0]["markup_type"]
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={mt: {"kurgany_tselye": 0.5}})) == 1
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={"other": {"kurgany_tselye": 0.5}})) == 2

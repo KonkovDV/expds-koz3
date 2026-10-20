@@ -18,7 +18,7 @@ from shapely.ops import unary_union
 from shapely.strtree import STRtree
 from shapely.validation import make_valid
 
-from .constants import CLASSES, MAX_FEATURES, MAX_VERTICES
+from .constants import CLASS_WEIGHTS, CLASSES, MAX_FEATURES, MAX_VERTICES
 
 
 def polygons_of(geom: BaseGeometry) -> list[BaseGeometry]:
@@ -135,10 +135,40 @@ def apply_thresholds(feats: list[dict], thresholds: dict[str, float], default: f
 
 
 def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
-    """Если объектов больше лимита — оставляет самые уверенные."""
+    """Если объектов больше лимита — квота класса пропорциональна его весу в метрике.
+
+    Внутри класса остаются самые уверенные. Общий отбор по уверенности отдаёт весь
+    лимит классу, у которого вероятности насытились (на OOF всех LAS у «целых»
+    курганов 185 тысяч объектов выше 0,99), и вытесняет более тяжёлые классы.
+    """
     if len(feats) <= max_n:
         return feats
-    return sorted(feats, key=lambda f: f.get("confidence", 1.0), reverse=True)[:max_n]
+    groups: dict[str, list[dict]] = {}
+    for f in feats:
+        groups.setdefault(f["class_name"], []).append(f)
+    for g in groups.values():
+        g.sort(key=lambda f: f.get("confidence", 1.0), reverse=True)
+    weight = {c: CLASS_WEIGHTS.get(c, 1.0) for c in groups}
+    total_w = sum(weight.values())
+    raw = {c: max_n * weight[c] / total_w for c in groups}
+    quota = {c: min(len(groups[c]), int(raw[c])) for c in groups}
+    left = max_n - sum(quota.values())
+    order = sorted(groups, key=lambda c: raw[c] - int(raw[c]), reverse=True)
+    while left > 0:
+        progressed = False
+        for c in order:
+            if quota[c] < len(groups[c]):
+                quota[c] += 1
+                left -= 1
+                progressed = True
+                if left <= 0:
+                    break
+        if not progressed:
+            break
+    out: list[dict] = []
+    for c in groups:
+        out.extend(groups[c][: quota[c]])
+    return out
 
 
 def only_known_classes(feats: list[dict]) -> list[dict]:
