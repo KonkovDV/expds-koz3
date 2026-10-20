@@ -119,13 +119,15 @@ def shrink_polygon(g, shrink: float):
     return s
 
 
-def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int):
+def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int,
+                 dem: dict | None = None):
     """Источники тайлов региона: (имя, CRS, рамка, read(cx, cy) → (окно, привязка))."""
     if markup == "li" and li_source == "las":
-        from .lidar import build_dem, relief_channels
+        from .lidar import MODEL_DEM, build_dem, relief_channels
 
+        dem = dem or MODEL_DEM
         for las in reg.las:
-            d = build_dem(las, crs=read_utm_json(reg.utm_json))
+            d = build_dem(las, res=dem["res"], fill=dem["fill"], crs=read_utm_json(reg.utm_json))
             if d.crs is None:
                 log.warning("%s: нет CRS у %s — пропуск", reg.name, las.name)
                 continue
@@ -174,9 +176,11 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
-                li_source: str = "las", shrink: float = 0.0) -> dict:
-    """Строит кэш тайлов и возвращает сводку."""
-    from .lidar import RELIEF_TAGS
+                li_source: str = "las", shrink: float = 0.0, dem: dict | None = None) -> dict:
+    """Строит кэш тайлов и возвращает сводку. dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM)."""
+    from .lidar import MODEL_DEM, RELIEF_TAGS
+
+    dem = dict(dem or MODEL_DEM)
 
     rng = random.Random(seed)
     li_tags = list(li_tags or (RELIEF_TAGS if li_source == "las" else ["g"]))
@@ -205,7 +209,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
 
     for reg in scan_root(root):
         objs = by_region.get(reg.name, [])
-        for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile):
+        for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             local = [(g, c) for g, c in local if g.intersects(bnd)]
             centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local]
@@ -256,6 +260,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     li_src = li_source if markup == "li" else None
     meta = {"markup": markup, "classes": classes, "res": res, "tile": tile,
             "li_tags": li_tags if markup == "li" else None,
+            "dem_res": dem["res"] if li_src == "las" else None, "dem_fill": dem["fill"] if li_src == "las" else None,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
             "channels": n_ch, "shrink": shrink, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -278,11 +283,16 @@ def _cli() -> None:
     ap.add_argument("--max-per-region", type=int, default=3000)
     ap.add_argument("--shrink", type=float, default=0.0,
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
+    ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
+    ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    from .lidar import MODEL_DEM
+
+    dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"]}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
-                       shrink=args.shrink)
+                       shrink=args.shrink, dem=dem)
     print(json.dumps(meta, ensure_ascii=False))
 
 

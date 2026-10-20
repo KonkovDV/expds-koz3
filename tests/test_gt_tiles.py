@@ -11,7 +11,7 @@ from expds import gt as gtmod
 from expds import tiles
 from expds.catalog import scan_root
 from expds.crs import WEB_MERCATOR, to_crs
-from expds.lidar import RELIEF_TAGS, build_dem, hillshade_set, relief_channels, write_set
+from expds.lidar import MODEL_DEM, RELIEF_TAGS, build_dem, hillshade_set, relief_channels, write_set
 
 
 def make_train(root):
@@ -92,7 +92,8 @@ def test_tile_cache_li_las_matches_inference(tmp_path):
     bit = meta["classes"].index("kurgany_tselye")
     assert ((masks >> bit) & 1).sum() > 0
     las = next(root.rglob("*.las"))
-    full, tr = relief_channels(build_dem(las, crs=UTM), 0.5)
+    assert (meta["dem_res"], meta["dem_fill"]) == (MODEL_DEM["res"], MODEL_DEM["fill"])
+    full, tr = relief_channels(build_dem(las, res=meta["dem_res"], fill=meta["dem_fill"], crs=UTM), 0.5)
     assert full.dtype == np.uint8 and full[:, full.any(axis=0)].min() >= 1
     rows = list(csv.DictReader((cache / "index.csv").open(encoding="utf-8")))
     for r in rows:

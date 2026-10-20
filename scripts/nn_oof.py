@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT))
 
 from expds import candidates, post, writer
 from expds.catalog import read_utm_json, scan_root
-from expds.lidar import build_dem, hillshade_set
+from expds.lidar import build_dem, dem_params, hillshade_set
 from expds.naming import site_family
 from expds.pipeline import _li_with_model, _params, _raster_with_model, load_config
 
@@ -56,8 +56,9 @@ def predict_region(seg, reg, markup: str, cand_p) -> list[dict]:
     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region."""
     feats: list[dict] = []
     if markup == "li":
+        dp = dem_params(seg.meta)
         for las in reg.las:
-            d = build_dem(las, crs=read_utm_json(reg.utm_json))
+            d = build_dem(las, res=dp["res"], fill=dp["fill"], crs=read_utm_json(reg.utm_json))
             if d.crs is not None:
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p)
         return feats

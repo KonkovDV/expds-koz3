@@ -157,15 +157,20 @@ def label(c: dict, crs: str, gt_items: list[dict], classes=("kurgany_povrezhdenn
     return y
 
 
-def collect(root: str | Path, gt_path: str | Path, p: CandidateParams | None = None) -> list[dict]:
-    """Кандидаты и метки по всем LAS трейна: по записи на LAS (регион, семья, кандидаты, CRS, метки)."""
+def collect(root: str | Path, gt_path: str | Path, p: CandidateParams | None = None,
+            dem: dict | None = None) -> list[dict]:
+    """Кандидаты и метки по всем LAS трейна: по записи на LAS (регион, семья, кандидаты, CRS, метки).
+
+    dem — {res, fill} DEM, как в пайплайне без модели li (по умолчанию lidar.MODEL_DEM).
+    """
     from shapely.geometry import shape
 
     from .catalog import read_utm_json, scan_root
-    from .lidar import build_dem
+    from .lidar import MODEL_DEM, build_dem
     from .naming import site_family
 
     p = p or CandidateParams()
+    dem = dem or MODEL_DEM
     gt = json.loads(Path(gt_path).read_text(encoding="utf-8"))["features"]
     gt_by_region: dict[str, list[dict]] = {}
     for f in gt:
@@ -176,7 +181,7 @@ def collect(root: str | Path, gt_path: str | Path, p: CandidateParams | None = N
     for reg in scan_root(root):
         crs = read_utm_json(reg.utm_json)
         for las in reg.las:
-            d = build_dem(las, crs=crs)
+            d = build_dem(las, res=dem["res"], fill=dem["fill"], crs=crs)
             c = detect(d, p)
             if len(c["x"]) == 0 or not d.crs:
                 continue

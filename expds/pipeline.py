@@ -70,7 +70,7 @@ def _segmenter(models: dict, markup: str, root: Path):
 
 def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
     """Все предсказания одного региона."""
-    from .lidar import build_dem, hillshade_set
+    from .lidar import build_dem, dem_params, hillshade_set
 
     feats: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
@@ -84,11 +84,12 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
             log.warning("время на исходе: пропускаю %s", las.name)
             break
         try:
-            d = build_dem(las, crs=crs_region)
+            seg = seg_cache.setdefault("li", _segmenter(models, "li", root))
+            dp = dem_params(seg.meta if seg is not None else None, cfg)
+            d = build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region)
             if d.crs is None:
                 log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
                 continue
-            seg = seg_cache.setdefault("li", _segmenter(models, "li", root))
             if seg is not None:
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p if rescore else None)

@@ -244,7 +244,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             torch.save({"state_dict": model.state_dict(), "encoder": encoder, "in_channels": c,
                         "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
                         "tile": meta["tile"], "li_tags": meta.get("li_tags"),
-                        "li_source": meta.get("li_source"), "epoch": ep + 1,
+                        "li_source": meta.get("li_source"), "dem_res": meta.get("dem_res"),
+                        "dem_fill": meta.get("dem_fill"), "epoch": ep + 1,
                         "val_loss": vl}, out)
     return {"best_val_loss": best, "history": history, "out": out,
             "train_tiles": len(tr_rows), "val_tiles": len(va_rows), "device": str(dev)}

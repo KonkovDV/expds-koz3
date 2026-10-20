@@ -87,6 +87,21 @@ def test_oof_by_family_and_class_scores(tmp_path):
     assert not np.allclose(by_cls["kurgany_povrezhdennye"], by_cls["kurgany_tselye"])
 
 
+def test_dem_params_follow_model_then_config():
+    from expds.lidar import LEGACY_DEM, MODEL_DEM, dem_params
+
+    assert dem_params(None, {}) == MODEL_DEM
+    assert dem_params(None, {"lidar": {"dem_res": 0.25, "dem_fill": "delaunay"}}) == {"res": 0.25, "fill": "delaunay"}
+    assert dem_params({"dem_res": None}) == LEGACY_DEM                      # модель обучена до MODEL_DEM
+    assert dem_params({"dem_res": 0.5, "dem_fill": "pyramid"}, {"lidar": {"dem_res": 0.1}}) == MODEL_DEM
+
+
+def test_pyramid_dem_fills_holes_inside_survey(tmp_path):
+    las = write_las(tmp_path / "e.las")
+    d = build_dem(las, res=0.5, fill="pyramid")
+    assert np.isfinite(d.dem).mean() > 0.95 and d.res == 0.5
+
+
 def test_candidates_find_mounds(tmp_path):
     las = write_las(tmp_path / "d.las", n=200_000)
     d = build_dem(las, res=0.1)

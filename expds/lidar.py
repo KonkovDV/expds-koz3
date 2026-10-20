@@ -31,6 +31,11 @@ DEFAULTS = {
     "max_vertices": 4_000_000,  # до этого числа занятых ячеек — Делоне (scipy)
     "cycles_c": 3.0,
 }
+#: DEM для моделей и кандидатов: при шаге 0,1 м заняты лишь 1,5–24 % ячеек (DEM — в основном
+#: заливка, Делоне — 15–97 с на LAS), при 0,5 м — 34–97 %, и заливка пирамидой занимает сотые секунды.
+MODEL_DEM = {"res": 0.5, "fill": "pyramid"}
+#: DEM моделей, обученных до появления MODEL_DEM (в чекпойнте нет dem_res).
+LEGACY_DEM = {"res": 0.1, "fill": "delaunay"}
 TAGS = ("c", "ch", "g", "i")
 #: Каналы модели li, построенные из LAS (relief_channels). Не зависят от освещения.
 RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
@@ -81,15 +86,20 @@ def _fill_by_delaunay(dem: np.ndarray, valid: np.ndarray, to_fill: np.ndarray,
         return None
 
 
-def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_vertices"]) -> np.ndarray:
-    """Заполняет пустоты внутри выпуклой оболочки съёмки; снаружи остаётся NaN."""
+def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_vertices"],
+                        method: str = "delaunay") -> np.ndarray:
+    """Заполняет пустоты внутри выпуклой оболочки съёмки; снаружи остаётся NaN.
+
+    method: delaunay — линейная интерполяция по Делоне, как у бейзлайна (пирамида, если ячеек
+    больше max_vertices); pyramid — многомасштабная пирамида (pull-push).
+    """
     valid = np.isfinite(dem)
     if valid.all():
         return dem
     to_fill = accel.convex_hull_mask(valid) & ~valid
     if not to_fill.any():
         return dem
-    filled = _fill_by_delaunay(dem, valid, to_fill, max_vertices)
+    filled = _fill_by_delaunay(dem, valid, to_fill, max_vertices) if method == "delaunay" else None
     if filled is None:
         filled = np.where(to_fill, accel.fill_pyramid(dem), dem)
     unresolved = to_fill & ~np.isfinite(filled)
@@ -100,13 +110,13 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
 
 def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
               max_pixels: int = DEFAULTS["max_pixels"], ground_class: int = DEFAULTS["ground_class"],
-              crs: str | None = None) -> Dem:
-    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот."""
+              crs: str | None = None, fill: str = "delaunay") -> Dem:
+    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill)."""
     t0 = time.perf_counter()
     dem, info = accel.las_grid(las_path, res, ground_class, max_pixels)
     t1 = time.perf_counter()
     holes = int(np.count_nonzero(~np.isfinite(dem)))
-    dem = fill_interior_holes(dem)
+    dem = fill_interior_holes(dem, method=fill)
     t2 = time.perf_counter()
     info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
                 backend=accel.backend())
@@ -117,6 +127,16 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
     log.info("DEM %s: %dx%d @ %.3g м, точек %s, пустот %d, %s", Path(las_path).name,
              dem.shape[1], dem.shape[0], info["res"], info["points_used"], holes, info["backend"])
     return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=crs, info=info)
+
+
+def dem_params(meta: dict | None = None, cfg: dict | None = None) -> dict:
+    """Параметры DEM: из чекпойнта модели li (как при обучении), иначе из [lidar] конфига, иначе MODEL_DEM."""
+    if meta is not None:
+        if meta.get("dem_res") is None:
+            return dict(LEGACY_DEM)
+        return {"res": float(meta["dem_res"]), "fill": meta.get("dem_fill") or MODEL_DEM["fill"]}
+    lid = (cfg or {}).get("lidar", {})
+    return {"res": float(lid.get("dem_res", MODEL_DEM["res"])), "fill": lid.get("dem_fill", MODEL_DEM["fill"])}
 
 
 def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
