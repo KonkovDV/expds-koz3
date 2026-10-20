@@ -118,6 +118,16 @@ def test_prob_peaks_fill_gaps_and_skip_nearby():
     assert abs(out["x"][-1] - 16.5) < 1e-6 and abs(out["y"][-1] - 17.5) < 1e-6
 
 
+def test_relief_on_coarse_dem_stays_on_model_step():
+    from expds.lidar import Dem, relief_channels
+
+    dem = np.zeros((30, 30), np.float32)
+    dem[5:25, 5:25] = 10
+    img, tr = relief_channels(Dem(dem=dem, left=0, top=9, res=0.3, crs="EPSG:32636"), 0.5)
+    assert tr.a == pytest.approx(0.5) and abs(tr.e) == pytest.approx(0.5)
+    assert img.shape[1] == int(np.floor(30 * 0.3 / 0.5))
+
+
 def test_work_grid_matches_blocks_and_hits_exact_step():
     rng = np.random.default_rng(0)
     src = rng.normal(size=(20, 20)).astype(np.float32)
