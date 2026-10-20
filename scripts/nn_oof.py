@@ -121,13 +121,21 @@ def main() -> None:
         seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
         n_reg = 0
         for reg in regions:
-            if site_family(reg.name) in test:
-                feats += predict_region(seg, reg, args.markup, cand_p, cfg.get("li"))
-                n_reg += 1
+            if site_family(reg.name) not in test:
+                continue
+            try:
+                got = predict_region(seg, reg, args.markup, cand_p, cfg.get("li"))
+            except Exception:
+                log.exception("%s: предсказание пропущено", reg.name)
+                continue
+            feats += got
+            n_reg += 1
+            log.info("предсказание %s: %+d", reg.name, len(got))
         rec = {"fold": k, "test": sorted(test), "val": val, **res, "test_regions": n_reg,
                "minutes": round((time.perf_counter() - t0) / 60, 1)}
         report.append(rec)
         log.info(json.dumps(rec, ensure_ascii=False))
+        writer.write_geojson(post.finalize(post.merge_within_markup(feats)), work / "partial.geojson")
     out = post.finalize(post.merge_within_markup(feats))
     writer.write_geojson(out, args.out)
     (work / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
