@@ -46,6 +46,23 @@ class Segmenter:
         self.model.load_state_dict(ck["state_dict"])
         self.model.to(self.device).eval()
         self.amp = fp16_ok(self.device)
+        self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
+
+    def _forward(self, xb):
+        """Сигмоида модели, усреднённая по self.tta отражениям/транспонированиям окна."""
+        import torch
+
+        outs = []
+        for k in range(max(1, min(int(self.tta), 8))):
+            t = xb.flip(-1) if k & 1 else xb
+            t = t.flip(-2) if k & 2 else t
+            t = t.transpose(-1, -2) if k & 4 else t
+            with torch.autocast(device_type=self.device.type, dtype=torch.float16, enabled=self.amp):
+                p = self.model(t).float().sigmoid()
+            p = p.transpose(-1, -2) if k & 4 else p
+            p = p.flip(-2) if k & 2 else p
+            outs.append(p.flip(-1) if k & 1 else p)
+        return outs[0] if len(outs) == 1 else torch.stack(outs).mean(0)
 
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int = 16) -> np.ndarray:
         """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32."""
@@ -76,8 +93,7 @@ class Segmenter:
                 chunk = coords[s:s + batch]
                 xb = np.stack([x_all[:, y:y + t, x:x + t] for y, x in chunk]).astype(np.float32)
                 xb = torch.from_numpy((xb / 255.0 - 0.5) / 0.25).to(self.device)
-                with torch.autocast(device_type=self.device.type, dtype=torch.float16, enabled=self.amp):
-                    pr = self.model(xb).float().sigmoid().cpu().numpy()
+                pr = self._forward(xb).cpu().numpy()
                 for (y, x), p in zip(chunk, pr):
                     acc[:, y:y + t, x:x + t] += p * weight
                     wsum[y:y + t, x:x + t] += weight
@@ -99,8 +115,7 @@ class Segmenter:
                 chunk = coords[s:s + batch]
                 xb = torch.stack([x[:, y:y + t, x0:x0 + t] for y, x0 in chunk]).float()
                 xb = xb.div_(255.0).sub_(0.5).div_(0.25)
-                with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=self.amp):
-                    pr = self.model(xb).float().sigmoid()
+                pr = self._forward(xb)
                 for (y, x0), p in zip(chunk, pr):
                     acc[:, y:y + t, x0:x0 + t] += p * wt
                     wsum[y:y + t, x0:x0 + t] += wt

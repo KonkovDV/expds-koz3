@@ -80,6 +80,7 @@ def main() -> None:
     ap.add_argument("--encoder", default="resnet18")
     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
+    ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -117,6 +118,7 @@ def main() -> None:
             res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
             done.write_text(json.dumps(res), encoding="utf-8")
         seg = Segmenter(model)
+        seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
         n_reg = 0
         for reg in regions:
             if site_family(reg.name) in test:

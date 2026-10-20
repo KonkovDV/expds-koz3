@@ -70,7 +70,7 @@ def model_specs(models: dict, markup: str) -> list[tuple[str, list[str] | None]]
     return out
 
 
-def _segmenters(models: dict, markup: str, root: Path) -> list:
+def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
     from .infer_nn import Segmenter
 
     segs = []
@@ -82,8 +82,17 @@ def _segmenters(models: dict, markup: str, root: Path) -> list:
             continue
         seg = Segmenter(p)
         seg.keep = set(classes) if classes else None
+        seg.tta = tta
         segs.append(seg)
     return segs
+
+
+def _cached_segmenters(seg_cache: dict, cfg: dict, markup: str, root: Path) -> list:
+    """Модели модальности загружаются один раз за прогон."""
+    if markup not in seg_cache:
+        seg_cache[markup] = _segmenters(cfg.get("models", {}), markup, root,
+                                        int(cfg.get("tta", {}).get(markup, 1)))
+    return seg_cache[markup]
 
 
 def _kept(seg, feats: list[dict]) -> list[dict]:
@@ -98,7 +107,6 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
     feats: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    models = cfg.get("models", {})
     kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
 
     # 1. Лидар
@@ -107,7 +115,7 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
             log.warning("время на исходе: пропускаю %s", las.name)
             break
         try:
-            segs = seg_cache.setdefault("li", _segmenters(models, "li", root))
+            segs = _cached_segmenters(seg_cache, cfg, "li", root)
             dems: dict[tuple, object] = {}
 
             def dem_for(meta):
@@ -168,7 +176,9 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
 
     # 3. Оптика — только обученными моделями
     for mt in ("ae", "sp_or", "or"):
-        for seg in seg_cache.setdefault(mt, _segmenters(models, mt, root)):
+        if not reg.rasters.get(mt):
+            continue
+        for seg in _cached_segmenters(seg_cache, cfg, mt, root):
             for path in reg.rasters.get(mt, []):
                 if not guard.ok(60):
                     break
