@@ -29,22 +29,24 @@ pub fn downsample_mean(z: &[f32], h: usize, w: usize, k: usize) -> (Vec<f32>, us
     if oh == 0 || ow == 0 {
         return (out, oh, ow);
     }
+    // Сумма в f64: порядок сложения 25 значений тогда не влияет на результат в f32,
+    // и NumPy (`candidates.downsample_mean`) даёт те же биты.
     out.par_chunks_mut(ow).enumerate().for_each(|(bi, row)| {
         for bj in 0..ow {
-            let mut sum = 0f32;
+            let mut sum = 0f64;
             let mut n = 0u32;
             for ki in 0..k {
                 let base = (bi * k + ki) * w + bj * k;
                 for kj in 0..k {
                     let v = z[base + kj];
                     if v.is_finite() {
-                        sum += v;
+                        sum += v as f64;
                         n += 1;
                     }
                 }
             }
             if n > 0 {
-                row[bj] = sum / n as f32;
+                row[bj] = (sum / n as f64) as f32;
             }
         }
     });

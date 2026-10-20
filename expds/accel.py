@@ -302,10 +302,75 @@ def slope_deg(z: np.ndarray, res: float) -> np.ndarray:
     z = np.ascontiguousarray(z, np.float32)
     if _rs is not None and hasattr(_rs, "slope_deg"):
         return _rs.slope_deg(z, float(res))
+    # Суммы ядра в float32 (как у Rust), деление и углы — в float64.
     p = np.pad(z, 1, mode="edge")
-    dzdx = ((p[:-2, 2:] + 2 * p[1:-1, 2:] + p[2:, 2:]) - (p[:-2, :-2] + 2 * p[1:-1, :-2] + p[2:, :-2])) / (8 * res)
-    dzdy = ((p[:-2, :-2] + 2 * p[:-2, 1:-1] + p[:-2, 2:]) - (p[2:, :-2] + 2 * p[2:, 1:-1] + p[2:, 2:])) / (8 * res)
+    gx = (p[:-2, 2:] + 2 * p[1:-1, 2:] + p[2:, 2:]) - (p[:-2, :-2] + 2 * p[1:-1, :-2] + p[2:, :-2])
+    gy = (p[:-2, :-2] + 2 * p[:-2, 1:-1] + p[:-2, 2:]) - (p[2:, :-2] + 2 * p[2:, 1:-1] + p[2:, 2:])
+    dzdx = gx.astype(np.float64) / (8 * res)
+    dzdy = gy.astype(np.float64) / (8 * res)
     return np.degrees(np.arctan(np.hypot(dzdx, dzdy))).astype(np.float32)
+
+
+def ray_offsets(radius_px: int, n_dir: int) -> list[list[tuple[int, int, float]]]:
+    """Смещения луча по каждому направлению: (dy, dx, расстояние), без повторов (как в Rust)."""
+    import math
+
+    rays = []
+    for d in range(n_dir):
+        a = 2 * math.pi * d / n_dir
+        out: list[tuple[int, int, float]] = []
+        for step in range(1, radius_px + 1):
+            dx = round_half_away(step * math.cos(a))
+            dy = -round_half_away(step * math.sin(a))
+            if (dx, dy) == (0, 0) or (out and out[-1][:2] == (dy, dx)):
+                continue
+            out.append((dy, dx, math.hypot(dx, dy)))
+        rays.append(out)
+    return rays
+
+
+def round_half_away(v: float) -> int:
+    """Округление половинок от нуля (как f64::round в Rust), а не к чётному."""
+    import math
+
+    return int(math.copysign(math.floor(abs(v) + 0.5), v))
+
+
+def openness_svf(z: np.ndarray, res: float, radius_px: int, n_dir: int = 16) -> tuple[np.ndarray, np.ndarray]:
+    """Положительная открытость (градусы) и фактор вида на небо по n_dir лучам; NaN вне съёмки.
+
+    γ — наибольший угол возвышения горизонта по лучу (0, если на луче нет данных).
+    Открытость — среднее (90° − γ), Yokoyama et al. (2002); SVF = 1 − среднее max(0, sin γ),
+    Zakšek et al. (2011).
+    """
+    z = np.ascontiguousarray(z, np.float32)
+    if _rs is not None and hasattr(_rs, "openness_svf"):
+        return _rs.openness_svf(z, float(res), int(radius_px), int(n_dir))
+    h, w = z.shape
+    fin = np.isfinite(z)
+    sum_open = np.zeros((h, w), np.float64)
+    sum_sin = np.zeros((h, w), np.float64)
+    z64 = z.astype(np.float64)
+    for ray in ray_offsets(radius_px, n_dir):
+        best = np.full((h, w), -np.inf)
+        alive = np.ones((h, w), bool)
+        for dy, dx, dist in ray:
+            ys0, ys1 = max(0, -dy), min(h, h - dy)
+            xs0, xs1 = max(0, -dx), min(w, w - dx)
+            inside = np.zeros((h, w), bool)
+            inside[ys0:ys1, xs0:xs1] = True
+            alive &= inside
+            nb = np.full((h, w), np.nan)
+            nb[ys0:ys1, xs0:xs1] = z64[ys0 + dy:ys1 + dy, xs0 + dx:xs1 + dx]
+            ok = alive & np.isfinite(nb)
+            best = np.where(ok, np.maximum(best, (nb - z64) / (dist * res)), best)
+        g = np.where(np.isfinite(best), np.arctan(best), 0.0)
+        sum_open += 90.0 - np.degrees(g)
+        sum_sin += np.maximum(np.sin(g), 0.0)
+    n = max(1, n_dir)
+    opn = np.where(fin, sum_open / n, np.nan).astype(np.float32)
+    svf = np.where(fin, 1.0 - sum_sin / n, np.nan).astype(np.float32)
+    return opn, svf
 
 
 def local_relief(z: np.ndarray, radius: int) -> np.ndarray:

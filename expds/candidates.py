@@ -54,7 +54,7 @@ def downsample_mean(dem: np.ndarray, k: int) -> np.ndarray:
     hh, ww = h // k * k, w // k * k
     blk = dem[:hh, :ww].reshape(hh // k, k, ww // k, k)
     fin = np.isfinite(blk)
-    s = np.where(fin, blk, 0).sum(axis=(1, 3))
+    s = np.where(fin, blk, 0).astype(np.float64).sum(axis=(1, 3))
     n = fin.sum(axis=(1, 3))
     with np.errstate(invalid="ignore", divide="ignore"):
         return np.where(n > 0, s / n, np.nan).astype(np.float32)

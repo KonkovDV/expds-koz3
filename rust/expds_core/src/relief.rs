@@ -99,6 +99,67 @@ pub fn slope_deg(z: &[f32], h: usize, w: usize, res: f64) -> Vec<f32> {
     out
 }
 
+/// Смещения луча по направлению: (dy, dx, расстояние в пикселях), без повторов.
+pub fn ray_offsets(radius_px: usize, n_dir: usize) -> Vec<Vec<(isize, isize, f64)>> {
+    (0..n_dir)
+        .map(|d| {
+            let a = 2.0 * std::f64::consts::PI * d as f64 / n_dir as f64;
+            let (s, c) = a.sin_cos();
+            let mut out: Vec<(isize, isize, f64)> = Vec::new();
+            for step in 1..=radius_px {
+                let dx = (step as f64 * c).round() as isize;
+                let dy = -(step as f64 * s).round() as isize;
+                if (dx, dy) == (0, 0) || out.last().is_some_and(|&(py, px, _)| (py, px) == (dy, dx)) {
+                    continue;
+                }
+                out.push((dy, dx, ((dx * dx + dy * dy) as f64).sqrt()));
+            }
+            out
+        })
+        .collect()
+}
+
+/// Положительная открытость (градусы) и фактор вида на небо по n_dir лучам длиной radius_px.
+///
+/// По каждому лучу — наибольший угол возвышения горизонта γ. Открытость = среднее
+/// (90° − γ) (Yokoyama et al., 2002), SVF = 1 − среднее max(0, sin γ) (Zakšek et al., 2011).
+/// Луч без конечных ячеек даёт γ = 0. Пустые ячейки на выходе — NaN.
+pub fn openness_svf(z: &[f32], h: usize, w: usize, res: f64, radius_px: usize, n_dir: usize)
+                    -> (Vec<f32>, Vec<f32>) {
+    let rays = ray_offsets(radius_px, n_dir);
+    let mut opn = vec![f32::NAN; h * w];
+    let mut svf = vec![f32::NAN; h * w];
+    opn.par_chunks_mut(w).zip(svf.par_chunks_mut(w)).enumerate().for_each(|(y, (orow, srow))| {
+        for x in 0..w {
+            let z0 = z[y * w + x];
+            if !z0.is_finite() {
+                continue;
+            }
+            let (mut sum_open, mut sum_sin) = (0f64, 0f64);
+            for ray in &rays {
+                let mut best = f64::NEG_INFINITY;
+                for &(dy, dx, dist) in ray {
+                    let (yy, xx) = (y as isize + dy, x as isize + dx);
+                    if yy < 0 || xx < 0 || yy >= h as isize || xx >= w as isize {
+                        break;
+                    }
+                    let v = z[yy as usize * w + xx as usize];
+                    if v.is_finite() {
+                        best = best.max((v as f64 - z0 as f64) / (dist * res));
+                    }
+                }
+                let g = if best.is_finite() { best.atan() } else { 0.0 };
+                sum_open += 90.0 - g.to_degrees();
+                sum_sin += g.sin().max(0.0);
+            }
+            let n = rays.len().max(1) as f64;
+            orow[x] = (sum_open / n) as f32;
+            srow[x] = (1.0 - sum_sin / n) as f32;
+        }
+    });
+    (opn, svf)
+}
+
 /// Локальный рельеф: высота минус среднее окрестности радиуса `r` пикселей.
 pub fn local_relief(z: &[f32], h: usize, w: usize, r: usize) -> Vec<f32> {
     let m = box_mean(z, h, w, r);

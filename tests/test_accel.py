@@ -166,6 +166,28 @@ def test_relief_channels_match_numpy():
     assert ta.a == pytest.approx(float(tb.a))
     assert a.shape == b.shape
     assert np.array_equal(a, b)
+    five, _ = relief_channels(d, 0.5, ("lrm_s", "lrm_l", "slope", "opns", "svf"))
+    assert np.array_equal(five[:3], a)
+    five, _ = relief_channels(d, 0.5, ("lrm_s", "lrm_l", "slope", "opns", "svf"))
+    assert np.array_equal(five[:3], a)
+
+
+def test_openness_svf_matches_numpy_and_shape():
+    z = accel.fill_pyramid(dem_with_holes(40, 52))
+    z[:2, :] = np.nan
+    (o1, s1), (o2, s2) = both(accel.openness_svf, z, 0.5, 6, 16)
+    assert np.allclose(o1, o2, atol=1e-4, equal_nan=True) and np.allclose(s1, s2, atol=1e-6, equal_nan=True)
+    assert np.isnan(o1[:2]).all()
+    flat = np.zeros((21, 21), np.float32)
+    o, s = accel.openness_svf(flat, 0.5, 5, 16)
+    assert np.allclose(o, 90.0) and np.allclose(s, 1.0)
+    mound = flat.copy()
+    mound[10, 10] = 1.0
+    o, s = accel.openness_svf(mound, 0.5, 5, 16)
+    assert o[10, 10] > 90.0 and s[10, 10] == pytest.approx(1.0)
+    pit = -mound
+    o, s = accel.openness_svf(pit, 0.5, 5, 16)
+    assert o[10, 10] < 90.0 and s[10, 10] < 1.0
 
 
 def test_slope_matches_numpy():

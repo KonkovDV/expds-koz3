@@ -13,15 +13,7 @@ fn np_rint_u8(x: f32) -> u8 {
     if !x.is_finite() || x <= 0.0 {
         return 0;
     }
-    let base = x.floor();
-    let frac = x - base;
-    let n = if (frac - 0.5).abs() <= 1.0e-5 {
-        let i = base as i64;
-        if i.rem_euclid(2) == 0 { i } else { i + 1 }
-    } else {
-        x.round() as i64
-    };
-    n.clamp(0, 255) as u8
+    x.round_ties_even().clamp(0.0, 255.0) as u8
 }
 
 fn radius_px(meters: f64, step: f64) -> usize {

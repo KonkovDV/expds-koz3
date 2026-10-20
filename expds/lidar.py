@@ -41,7 +41,12 @@ TAGS = ("c", "ch", "g", "i")
 #: Каналы модели li, построенные из LAS (relief_channels). Не зависят от освещения.
 RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
 #: Радиусы окна локального рельефа (м) и шкалы перевода в uint8.
-RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0, "slope_max_deg": 45.0}
+#: opns, svf — положительная открытость и фактор вида на небо: луч opns_r_m, opns_dirs направлений,
+#: линейная шкала в пределах *_range (1–99 перцентили на шаге 0,5 м по четырём участкам трейна).
+RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0, "slope_max_deg": 45.0,
+          "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0)}
+#: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
+FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
 
 
 @dataclass
@@ -231,7 +236,8 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     инструментом и не повторяются по LAS (expds.lidar check). Значения 1…255,
     0 — вне контура съёмки.
     lrm_s, lrm_l — локальный рельеф (высота − среднее окна радиусом 8 и 30 м,
-    под курганы лесной и степной зон); slope — уклон; g — серая отмывка.
+    под курганы лесной и степной зон); slope — уклон; g — серая отмывка;
+    opns, svf — положительная открытость и фактор вида на небо (насыпь и ров).
     Только g зависит от направления света: без него допустимы повороты.
     """
     from rasterio.transform import from_origin
@@ -239,7 +245,7 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     from .candidates import to_work_grid
 
     rs = accel._rs
-    if rs is not None and hasattr(rs, "relief_channels"):
+    if rs is not None and hasattr(rs, "relief_channels") and set(tags) <= FUSED_TAGS:
         try:
             img, step = rs.relief_channels(
                 np.ascontiguousarray(d.dem, np.float32), float(d.res), float(res), list(tags),
@@ -252,8 +258,10 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
-    filled = np.where(valid, z, np.float32(np.nanmean(z)) if valid.any() else np.float32(0)).astype(np.float32)
+    mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
+    filled = np.where(valid, z, mean).astype(np.float32)
     out = []
+    opn_svf = None
     for t in tags:
         if t in ("lrm_s", "lrm_l"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
@@ -263,6 +271,13 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             unit = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
         elif t == "g":
             unit = accel.hillshade(filled, step, step).astype(np.float32) / 255.0
+        elif t in ("opns", "svf"):
+            if opn_svf is None:
+                opn_svf = accel.openness_svf(np.where(valid, z, np.nan).astype(np.float32), step,
+                                             max(1, round(RELIEF["opns_r_m"] / step)), int(RELIEF["opns_dirs"]))
+            v = opn_svf[0] if t == "opns" else opn_svf[1]
+            lo, hi = RELIEF[f"{t}_range"]
+            unit = np.clip((np.nan_to_num(v, nan=lo) - lo) / (hi - lo), 0, 1)
         else:
             raise ValueError(f"неизвестный канал li: {t}")
         out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))

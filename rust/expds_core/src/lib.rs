@@ -182,6 +182,20 @@ fn slope_deg<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, res: f64) -> P
     Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
 }
 
+/// Положительная открытость (градусы) и SVF; пустые ячейки — NaN.
+#[pyfunction]
+#[pyo3(signature = (z, res, radius_px, n_dir=16))]
+fn openness_svf<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, res: f64, radius_px: usize, n_dir: usize)
+                     -> PyResult<(Bound<'py, PyArray2<f32>>, Bound<'py, PyArray2<f32>>)> {
+    if !(res > 0.0) || radius_px == 0 || n_dir == 0 {
+        return Err(PyValueError::new_err("res, radius_px и n_dir должны быть > 0"));
+    }
+    let (v, h, w) = to_vec_f32(&z);
+    let (o, s) = py.detach(|| relief::openness_svf(&v, h, w, res, radius_px, n_dir));
+    Ok((Array2::from_shape_vec((h, w), o).unwrap().into_pyarray(py),
+        Array2::from_shape_vec((h, w), s).unwrap().into_pyarray(py)))
+}
+
 /// Локальный рельеф: z − среднее окна радиуса `radius` пикселей.
 #[pyfunction]
 fn local_relief<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, radius: usize)
@@ -291,6 +305,7 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(local_relief, m)?)?;
     m.add_function(wrap_pyfunction!(work_grid, m)?)?;
     m.add_function(wrap_pyfunction!(slope_deg, m)?)?;
+    m.add_function(wrap_pyfunction!(openness_svf, m)?)?;
     m.add_function(wrap_pyfunction!(find_peaks, m)?)?;
     m.add_function(wrap_pyfunction!(relief_channels, m)?)?;
     m.add_function(wrap_pyfunction!(sample_window_max, m)?)?;
