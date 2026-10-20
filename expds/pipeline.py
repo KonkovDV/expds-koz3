@@ -95,7 +95,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
-                feats += candidates.to_features(c, s, d.crs, reg.name, cand_p, source=las.name)
+                feats += [dict(f, threshold_group="li_cpu")
+                          for f in candidates.to_features(c, s, d.crs, reg.name, cand_p, source=las.name)]
         except Exception as exc:
             log.exception("%s: ошибка лидара (%s)", las.name, exc)
 

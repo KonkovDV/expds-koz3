@@ -121,13 +121,14 @@ def apply_thresholds(feats: list[dict], thresholds: dict[str, float], default: f
                      by_markup: dict[str, dict[str, float]] | None = None) -> list[dict]:
     """Оставляет объекты с уверенностью не ниже порога своего класса.
 
-    by_markup[markup_type][класс] переопределяет общий порог: у моделей разных
-    модальностей своя шкала уверенности.
+    by_markup[группа][класс] переопределяет общий порог: у моделей разных
+    модальностей своя шкала уверенности. Группа — threshold_group объекта
+    (например, li_cpu у запасного детектора), иначе его markup_type.
     """
     by_markup = by_markup or {}
 
     def tau(f: dict) -> float:
-        own = by_markup.get(f.get("markup_type"), {})
+        own = by_markup.get(f.get("threshold_group") or f.get("markup_type"), {})
         return own.get(f["class_name"], thresholds.get(f["class_name"], default))
 
     return [f for f in feats if f.get("confidence", 1.0) >= tau(f)]

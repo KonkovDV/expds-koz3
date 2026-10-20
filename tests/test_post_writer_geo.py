@@ -56,6 +56,9 @@ def test_thresholds_and_cap():
     mt = feats[0]["markup_type"]
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={mt: {"kurgany_tselye": 0.5}})) == 1
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15}, by_markup={"other": {"kurgany_tselye": 0.5}})) == 2
+    grouped = [dict(f, threshold_group="other") for f in feats]
+    assert len(post.apply_thresholds(grouped, {"kurgany_tselye": 0.15}, by_markup={"other": {"kurgany_tselye": 0.5},
+                                                                                     mt: {"kurgany_tselye": 0.0}})) == 1
 
 
 def test_geophys_rasters_params_and_masks():

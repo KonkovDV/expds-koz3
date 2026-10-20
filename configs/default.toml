@@ -20,6 +20,18 @@ finds_points = 0.0
 
 # Модели по markup_type (файлы из expds.train). Нет файла — модальность
 # обрабатывается классикой (li, геофизика) или пропускается (оптика).
+# Пороги модели li в режиме rescore: подобраны на предсказаниях вне обучения (5 фолдов по «семьям»,
+# 15 участков, 1540 курганов); F1 0,557 и 0,535. Бутстреп по участкам: p10–p90 0,24–0,95 и 0,006–0,21.
+[thresholds_by_markup.li]
+kurgany_povrezhdennye = 0.394
+kurgany_tselye = 0.0098
+
+# Запасной путь без модели li: пики рельефа + LightGBM (3 класса); пороги — по его предсказаниям
+# вне обучения (F1 0,455 и 0,344).
+[thresholds_by_markup.li_cpu]
+kurgany_povrezhdennye = 0.0121
+kurgany_tselye = 0.0096
+
 [li]
 # rescore — курганы по пикам рельефа с уверенностью модели li (на отложенном Гнёздово 0,674
 # против 0,538 у масок); segment — все классы масками модели.
@@ -39,7 +51,7 @@ min_relief_m = 0.12
 r_in_m = 2.5
 r_out_m = 8.0
 circle_m = 2.0
-# lgbm_model = "models/kurgan_lgbm.txt"
+lgbm_model = "models/kurgan_lgbm.txt"
 
 [geophys]
 point_circle_m = 0.3
