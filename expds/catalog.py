@@ -9,10 +9,11 @@ from __future__ import annotations
 
 import json
 import logging
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .naming import class_of_annotation, markup_type_of, modality_of, normalize_code_text
+from .naming import class_of_annotation, markup_type_of, modality_of
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def scan_region(path: Path) -> Region:
         if not f.is_file():
             continue
         suf = f.suffix.lower()
-        low = normalize_code_text(f.name).lower()
+        low = unicodedata.normalize("NFC", f.name).lower()   # без замены двойников: иначе «границы» → «гpaницы»
         if f.name == "UTM.json":
             reg.utm_json = f
         elif suf in LAS_EXT:

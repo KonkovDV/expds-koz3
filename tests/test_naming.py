@@ -27,6 +27,19 @@ def test_keywords_for_validation_names():
     assert markup_type_of("region_0003/магниторазведка.tif") == "maggr"
 
 
+def test_scan_region_finds_boundaries_and_noise(tmp_path):
+    from expds.catalog import scan_region
+
+    reg = tmp_path / "200_Судьбищи_2"
+    (reg / "extra").mkdir(parents=True)
+    for name in ("Судьбищи_2_MagGr_границы.geojson", "Судьбищи_2_MagGr_шум.geojson"):
+        (reg / "extra" / name).write_text('{"type": "FeatureCollection", "features": []}', encoding="utf-8")
+    r = scan_region(reg)
+    assert [p.name for p in r.boundaries] == ["Судьбищи_2_MagGr_границы.geojson"]
+    assert [p.name for p in r.noise] == ["Судьбищи_2_MagGr_шум.geojson"]
+    assert not r.skipped
+
+
 def test_site_family():
     assert site_family("209_Гнёздово_Терраса_1") == "Гнёздово"
     assert site_family("203_Семибратнее_Городище_3") == "Семибратнее"
