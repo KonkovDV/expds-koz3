@@ -181,25 +181,49 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None)
     return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source)
 
 
-def _raster_with_model(seg, path: Path, region: str, markup: str) -> list[dict]:
-    """Растр целиком на рабочем шаге модели → объекты."""
+def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
+                       overlap: int = 256) -> list[dict]:
+    """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно)."""
     import rasterio
     from rasterio.enums import Resampling
+    from rasterio.windows import Window
+    from shapely.geometry import box
 
+    from .crs import WEB_MERCATOR, to_crs
     from .infer_nn import probs_to_features
-    from .tiles import fix_channels, to_uint8
+    from .tiles import MAX_UPSAMPLE, band_stats, fix_channels, to_uint8, working_res
 
+    stats = band_stats(str(path), markup)
+    half = overlap // 2
+    feats: list[dict] = []
     with rasterio.open(path) as ds:
-        scale = seg.res / abs(ds.res[0])
-        h, w = max(1, int(ds.height / scale)), max(1, int(ds.width / scale))
+        r = working_res(abs(ds.res[0]), seg.res, seg.meta.get("max_upsample") or MAX_UPSAMPLE)
+        scale = r / abs(ds.res[0])
+        w, h = max(1, int(ds.width / scale)), max(1, int(ds.height / scale))
         n = min(ds.count, 3)
-        a = ds.read(list(range(1, n + 1)), out_shape=(n, h, w),
-                    resampling=Resampling.average if scale > 1 else Resampling.bilinear)
-        tr = ds.transform * rasterio.Affine.scale(ds.width / w, ds.height / h)
         crs = ds.crs.to_string() if ds.crs else None
-    img = fix_channels(to_uint8(a, markup), int(seg.meta["in_channels"]))
-    probs = seg.predict(img)
-    return probs_to_features(probs, seg.classes, tr, crs, seg.res, region, markup, path.name)
+        step = block - overlap
+        xs = list(range(0, max(w - overlap, 1), step))
+        ys = list(range(0, max(h - overlap, 1), step))
+        for iy, y0 in enumerate(ys):
+            for ix, x0 in enumerate(xs):
+                bw, bh = min(block, w - x0), min(block, h - y0)
+                win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
+                a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+                            resampling=Resampling.average if scale > 1 else Resampling.bilinear)
+                if not a.any():
+                    continue
+                tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
+                img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
+                found = probs_to_features(seg.predict(img), seg.classes, tr, crs, r, region, markup, path.name)
+                # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
+                c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
+                c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))
+                (ax, ay), (bx, by) = tr @ c0, tr @ c1
+                core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
+                core = to_crs(core, crs, WEB_MERCATOR) if crs else core
+                feats += [f for f in found if core.contains(f["geom"].representative_point())]
+    return feats
 
 
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,

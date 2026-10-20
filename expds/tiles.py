@@ -20,6 +20,7 @@ import csv
 import json
 import logging
 import random
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -54,12 +55,61 @@ def sources_for(reg: Region, markup: str, li_tags: list[str]) -> list[list[Path]
     return [[s[t] for t in li_tags] for s in sets.values() if all(t in s for t in li_tags)]
 
 
-def to_uint8(a: np.ndarray, markup: str) -> np.ndarray:
-    """Каналы → uint8: геофизика — робастная нормировка, остальное — как есть или растяжка."""
+#: Растр увеличивается до рабочего шага не больше чем в MAX_UPSAMPLE раз: аэрофото 1,6 м
+#: на шаге 0,5 м — это 2,4 Гпикс и 44,7 ГБ на одну карту вероятностей.
+MAX_UPSAMPLE = 2.0
+
+
+def working_res(native_res: float, res: float, max_upsample: float = MAX_UPSAMPLE) -> float:
+    """Рабочий шаг растра: res, но не мельче native_res / max_upsample."""
+    return max(res, native_res / max_upsample)
+
+
+@lru_cache(maxsize=256)
+def band_stats(path: str, markup: str, max_side: int = 2048) -> tuple | None:
+    """Перевод каналов растра в uint8, общий для всего снимка: ((a, b), …), y = (x − a)·b; None — уже uint8.
+
+    Считается по уменьшенному обзору снимка, поэтому тайлы обучения и окна
+    инференса растягиваются одинаково (по своим перцентилям они растягивались бы по-разному).
+    """
+    import math
+
+    with rasterio.open(path) as ds:
+        if ds.dtypes[0] == "uint8":
+            return None
+        n = min(ds.count, 3)
+        f = max(1, math.ceil(max(ds.width, ds.height) / max_side))
+        a = ds.read(list(range(1, n + 1)), out_shape=(n, max(1, ds.height // f), max(1, ds.width // f)),
+                    resampling=Resampling.nearest, masked=True).astype(np.float32).filled(np.nan)
+    out = []
+    for x in a:
+        fin = x[np.isfinite(x)]
+        if fin.size == 0:
+            out.append((0.0, 1.0))
+        elif markup in GEO_MARKUP:
+            med = float(np.median(fin))
+            mad = float(np.median(np.abs(fin - med))) * 1.4826 or 1.0
+            out.append((med - 4 * mad, 31.75 / mad))
+        else:
+            lo, hi = np.percentile(fin, [1, 99])
+            out.append((float(lo), 255.0 / max(float(hi - lo), 1e-6)))
+    return tuple(out)
+
+
+def to_uint8(a: np.ndarray, markup: str, stats: tuple | None = None) -> np.ndarray:
+    """Каналы → uint8: геофизика — робастная нормировка, остальное — как есть или растяжка.
+
+    stats (band_stats) задаёт растяжку всего снимка; без них — по самому массиву.
+    """
     if a.dtype == np.uint8:
         return a
     a = a.astype(np.float32)
     out = np.zeros(a.shape, np.uint8)
+    if stats is not None:
+        for c in range(a.shape[0]):
+            lo, k = stats[min(c, len(stats) - 1)]
+            out[c] = np.clip(np.nan_to_num((a[c] - lo) * k, nan=0), 0, 255).astype(np.uint8)
+        return out
     for c in range(a.shape[0]):
         x = a[c]
         fin = np.isfinite(x)
@@ -143,8 +193,11 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
             continue
         with rasterio.open(files[0]) as ds:
             bnd = box(*ds.bounds)
-        yield files[0].name, crs, bnd, lambda cx, cy, f=files: (
-            read_window(f, cx, cy, res, tile), from_origin(cx - tile * res / 2, cy + tile * res / 2, res, res))
+            r = working_res(abs(ds.res[0]), res)
+        stats = band_stats(str(files[0]), markup) if len(files) == 1 else None
+        yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=r, st=stats: (
+            to_uint8(read_window(f, cx, cy, r, tile), markup, st),
+            from_origin(cx - tile * r / 2, cy + tile * r / 2, r, r))
 
 
 def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
@@ -262,7 +315,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "li_tags": li_tags if markup == "li" else None,
             "dem_res": dem["res"] if li_src == "las" else None, "dem_fill": dem["fill"] if li_src == "las" else None,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
-            "channels": n_ch, "shrink": shrink, **total}
+            "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
