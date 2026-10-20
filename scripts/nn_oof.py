@@ -82,6 +82,8 @@ def main() -> None:
     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
+    ap.add_argument("--copy-paste", type=float, default=0.0,
+                    help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -115,7 +117,7 @@ def main() -> None:
         else:
             fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
             res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs, batch=args.batch,
-                        val_families=[val], workers=0)
+                        val_families=[val], workers=0, copy_paste=args.copy_paste)
             res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
             done.write_text(json.dumps(res), encoding="utf-8")
         seg = Segmenter(model)

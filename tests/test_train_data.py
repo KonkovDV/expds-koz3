@@ -4,7 +4,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from expds.train import GpuTiles, TileDataset
+from expds.train import GpuTiles, TileDataset, paste_objects
 
 
 def make_cache(tmp_path, n=10, c=3, t=16, k=5):
@@ -62,6 +62,53 @@ def test_predict_on_device_matches_cpu(tmp_path):
     gpu = gpu_seg.predict(img)
     assert gpu.shape == cpu.shape == (2, 150, 210)
     assert np.abs(gpu - cpu).max() < 1e-3
+
+
+def test_paste_copies_object_pixels_only():
+    x = torch.zeros(2, 1, 8, 8)
+    y = torch.zeros(2, 2, 8, 8)
+    x[0, 0, 2:4, 3:5] = 0.8
+    y[0, 0, 2:4, 3:5] = 1
+    x[1] = 0.2
+    same_x, same_y = paste_objects(x.clone(), y.clone(), (0,), p=0.0)
+    assert torch.equal(same_x, x) and torch.equal(same_y, y)
+    found = False
+    for seed in range(40):
+        torch.manual_seed(seed)
+        xp, yp = paste_objects(x.clone(), y.clone(), (0,), p=1.0)
+        obj = yp[1, 0] > 0.5
+        if not bool(obj.any()):
+            continue
+        assert torch.allclose(xp[1, 0][obj], torch.full((int(obj.sum()),), 0.8))
+        assert torch.allclose(xp[1, 0][~obj], torch.full((int((~obj).sum()),), 0.2))
+        assert float(yp[1, 1].sum()) == 0
+        assert torch.equal(xp[0], x[0]) and torch.equal(yp[0], y[0])
+        found = True
+        break
+    assert found
+
+
+def test_copy_paste_on_gpu_tiles(tmp_path):
+    rows, _, _ = make_cache(tmp_path, n=4)
+    g = GpuTiles(tmp_path, rows, 5, flips=False, device=torch.device("cpu"),
+                 copy_paste=1.0, paste_channels=(0,))
+    g.x.zero_()
+    g.m.zero_()
+    g.x[0, 0, 4:8, 4:8] = 200
+    g.m[0, 4:8, 4:8] = 1
+    painted = (200 / 255.0 - 0.5) / 0.25
+    found = False
+    for seed in range(40):
+        torch.manual_seed(seed)
+        x, y = g.get(torch.arange(4), augment=True)
+        obj = y[1, 0] > 0.5
+        if not bool(obj.any()):
+            continue
+        assert torch.allclose(x[1, 0][obj], torch.full((int(obj.sum()),), painted), atol=1e-5)
+        assert float(y[1, 1:].sum()) == 0
+        found = True
+        break
+    assert found
 
 
 def test_epoch_covers_each_tile_once(tmp_path):

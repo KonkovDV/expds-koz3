@@ -230,7 +230,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
-                only_classes: list[str] | None = None, pos_repeat: int = 1) -> dict:
+                only_classes: list[str] | None = None, pos_repeat: int = 1,
+                only_regions: list[str] | None = None) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
@@ -268,6 +269,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         imgs, masks = [], []
 
     for reg in scan_root(root):
+        if only_regions is not None and reg.name not in only_regions:
+            continue
         objs = by_region.get(reg.name, [])
         for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
@@ -347,6 +350,7 @@ def _cli() -> None:
     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
     ap.add_argument("--classes", nargs="*", default=None, help="учить только эти классы")
     ap.add_argument("--pos-repeat", type=int, default=1, help="тайлов на объект (разные сдвиги)")
+    ap.add_argument("--regions", nargs="*", default=None, help="только эти участки")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -354,7 +358,8 @@ def _cli() -> None:
     dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"]}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
-                       shrink=args.shrink, dem=dem, only_classes=args.classes, pos_repeat=args.pos_repeat)
+                       shrink=args.shrink, dem=dem, only_classes=args.classes, pos_repeat=args.pos_repeat,
+                       only_regions=args.regions)
     print(json.dumps(meta, ensure_ascii=False))
 
 

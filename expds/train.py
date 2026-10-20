@@ -22,11 +22,65 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
+#: Классы, чьи пиксели Simple Copy-Paste переносит на другой тайл.
+PASTE_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+
 
 def load_index(cache: Path) -> list[dict]:
     """Строки index.csv кэша."""
     with (cache / "index.csv").open(encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def paste_channels(classes: list[str]) -> tuple[int, ...]:
+    """Индексы классов, которые copy-paste переносит (курганы)."""
+    return tuple(i for i, name in enumerate(classes) if name in PASTE_CLASSES)
+
+
+def paste_objects(x, y, channels: tuple[int, ...], p: float):
+    """Simple Copy-Paste: пиксели объекта с тайла-донора заменяют фон приёмника.
+
+    x — N×C×H×W, y — N×K×H×W. Объект — пиксели каналов `channels`. Вставка только
+    на тайл без кургана (с вероятностью p): плотная группа эталона не затирается,
+    а пустой фон, где модель даёт ложные насыпи, получает настоящую форму.
+    Донор — случайный тайл батча, где объект есть. Насыпь сдвигается так, чтобы её
+    центр масс попал в случайный пиксель. Фон донора не копируется. Ghiasi et al., CVPR 2021.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    if p <= 0 or not channels or x.shape[0] == 0:
+        return x, y
+    n, _, h, w = x.shape
+    obj = y[:, list(channels)].sum(dim=1) > 0
+    has = obj.flatten(1).any(dim=1)
+    donors = torch.where(has)[0]
+    if donors.numel() == 0:
+        return x, y
+    do = (~has) & (torch.rand(n, device=x.device) < p)
+    if not bool(do.any()):
+        return x, y
+    src = donors[torch.randint(donors.numel(), (n,), device=x.device)]
+    taken = obj[src]
+    mass = taken.flatten(1).sum(dim=1).clamp(min=1).to(x.dtype)
+    rows = torch.arange(h, device=x.device, dtype=x.dtype).view(1, h, 1)
+    cols = torch.arange(w, device=x.device, dtype=x.dtype).view(1, 1, w)
+    cy = (taken.to(x.dtype) * rows).sum(dim=(1, 2)) / mass
+    cx = (taken.to(x.dtype) * cols).sum(dim=(1, 2)) / mass
+    ty = torch.randint(0, h, (n,), device=x.device)
+    tx = torch.randint(0, w, (n,), device=x.device)
+    shift_y = (ty - cy.round()).view(n, 1, 1).to(torch.long)
+    shift_x = (tx - cx.round()).view(n, 1, 1).to(torch.long)
+    gy = torch.arange(h, device=x.device).view(1, h, 1).expand(n, h, w) - shift_y
+    gx = torch.arange(w, device=x.device).view(1, 1, w).expand(n, h, w) - shift_x
+    grid = torch.stack([
+        gx.to(x.dtype) / max(w - 1, 1) * 2 - 1,
+        gy.to(x.dtype) / max(h - 1, 1) * 2 - 1,
+    ], dim=-1)
+    sx = F.grid_sample(x[src], grid, mode="nearest", padding_mode="zeros", align_corners=True)
+    sy = F.grid_sample(y[src], grid, mode="nearest", padding_mode="zeros", align_corners=True)
+    alpha = (sy[:, list(channels)].sum(dim=1, keepdim=True) > 0.5) & do.view(n, 1, 1, 1)
+    return torch.where(alpha, sx, x), torch.where(alpha, sy, y)
 
 
 class TileDataset:
@@ -72,7 +126,8 @@ class GpuTiles:
     видеокарту недогруженной; здесь процессор в цикле обучения не участвует.
     """
 
-    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None):
+    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None,
+                 copy_paste: float = 0.0, paste_channels: tuple[int, ...] = ()):
         import torch
 
         self.memory_format = memory_format or torch.contiguous_format
@@ -88,6 +143,7 @@ class GpuTiles:
         self.m = torch.from_numpy(np.concatenate(msks)).to(device)
         self.shift = torch.arange(n_classes, device=device, dtype=self.m.dtype).view(1, -1, 1, 1)
         self.flips, self.device = flips, device
+        self.copy_paste, self.paste_channels = copy_paste, paste_channels
 
     def __len__(self) -> int:
         return int(self.x.shape[0])
@@ -109,6 +165,8 @@ class GpuTiles:
             for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
                 w = (torch.rand(len(idx), device=self.device) < 0.5).view(-1, 1, 1, 1)
                 x, y = torch.where(w, op(x), x), torch.where(w, op(y), y)
+        if augment and self.copy_paste > 0 and self.paste_channels:
+            x, y = paste_objects(x, y, self.paste_channels, self.copy_paste)
         return x.contiguous(memory_format=self.memory_format), y
 
     def batches(self, batch: int, shuffle: bool, drop_last: bool):
@@ -131,7 +189,7 @@ def dice_loss(logits, target, eps: float = 1.0):
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
-          gpu_data: bool | None = None) -> dict:
+          gpu_data: bool | None = None, copy_paste: float = 0.0) -> dict:
     """Обучает модель и сохраняет лучший по валидационной потере чекпойнт.
 
     gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
@@ -167,8 +225,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     torch.backends.cudnn.benchmark = dev.type == "cuda"
     if gpu_data is None:
         gpu_data = dev.type == "cuda" and GpuTiles.nbytes(cache_p, rows) < 0.25 * torch.cuda.mem_get_info(dev)[0]
+    ch = paste_channels(meta["classes"]) if copy_paste > 0 else ()
+    if copy_paste > 0 and not gpu_data:
+        log.warning("copy-paste выключен: тайлы не в видеопамяти")
+        ch = ()
     if gpu_data:
-        g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt)
+        g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt)
         n_steps = len(g_tr) // batch
 
@@ -192,8 +254,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
 
         def val_batches():
             return to_dev(dl_va)
-    log.info("данные: %s, тайлов обучения %d, проверки %d", "в видеопамяти" if gpu_data else "DataLoader",
-             len(tr_rows), len(va_rows))
+    log.info("данные: %s, тайлов обучения %d, проверки %d%s",
+             "в видеопамяти" if gpu_data else "DataLoader", len(tr_rows), len(va_rows),
+             f", copy-paste {copy_paste:g}" if ch else "")
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     steps = max(1, epochs * max(1, n_steps))
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, total_steps=steps, pct_start=0.1)
@@ -266,11 +329,13 @@ def _cli() -> None:
     ap.add_argument("--limit", type=int, default=None, help="взять первые N тайлов (отладка)")
     ap.add_argument("--no-amp", action="store_true")
     ap.add_argument("--cpu-data", action="store_true", help="тайлы через DataLoader, а не из видеопамяти")
+    ap.add_argument("--copy-paste", type=float, default=0.0,
+                    help="вероятность вставить курган с другого тайла (Simple Copy-Paste)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
-                gpu_data=False if args.cpu_data else None)
+                gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 
