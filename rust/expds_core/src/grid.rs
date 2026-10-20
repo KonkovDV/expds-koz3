@@ -9,6 +9,9 @@
 //! * пустые ячейки = NaN (их заполняет отдельный шаг, см. fill.rs).
 
 use las::{PointDataBuilder, Reader};
+use rayon::prelude::*;
+use std::fs::File;
+use std::io::{BufReader, Read, Seek, SeekFrom};
 
 /// Параметры сетки DEM.
 #[derive(Clone, Copy, Debug)]
@@ -124,20 +127,153 @@ fn accumulate(path: &str, spec: GridSpec, ground_class: u8, use_all: bool,
     Ok((acc, total))
 }
 
+/// Поля заголовка несжатого LAS (1.0–1.4), нужные для чтения записей точек напрямую.
+struct RawHeader {
+    point_offset: u64,
+    format: u8,
+    record_len: usize,
+    count: u64,
+    scale: [f64; 3],
+    offset: [f64; 3],
+    bounds: [f64; 4], // min_x, min_y, max_x, max_y
+}
+
+fn raw_header(path: &str) -> std::io::Result<Option<RawHeader>> {
+    let mut head = Vec::with_capacity(375);
+    File::open(path)?.take(375).read_to_end(&mut head)?;
+    if head.len() < 227 || &head[0..4] != b"LASF" {
+        return Ok(None);
+    }
+    let u16_at = |o: usize| u16::from_le_bytes([head[o], head[o + 1]]);
+    let u32_at = |o: usize| u32::from_le_bytes(head[o..o + 4].try_into().unwrap());
+    let u64_at = |o: usize| u64::from_le_bytes(head[o..o + 8].try_into().unwrap());
+    let f64_at = |o: usize| f64::from_le_bytes(head[o..o + 8].try_into().unwrap());
+    let fmt = head[104];
+    if fmt & 0xC0 != 0 || fmt & 0x3F > 10 {
+        return Ok(None); // LAZ (сжатие — в старших битах формата) или неизвестный формат
+    }
+    let legacy = u32_at(107) as u64;
+    let count = if (head[24], head[25]) >= (1, 4) && head.len() >= 255 && u64_at(247) > 0 { u64_at(247) } else { legacy };
+    Ok(Some(RawHeader {
+        point_offset: u32_at(96) as u64,
+        format: fmt & 0x3F,
+        record_len: u16_at(105) as usize,
+        count,
+        scale: [f64_at(131), f64_at(139), f64_at(147)],
+        offset: [f64_at(155), f64_at(163), f64_at(171)],
+        bounds: [f64_at(187), f64_at(203), f64_at(179), f64_at(195)],
+    }))
+}
+
+/// Читает буфер целиком или до конца файла; возвращает число прочитанных байт.
+fn read_full<R: Read>(r: &mut R, buf: &mut [u8]) -> std::io::Result<usize> {
+    let mut got = 0;
+    while got < buf.len() {
+        match r.read(&mut buf[got..])? {
+            0 => break,
+            n => got += n,
+        }
+    }
+    Ok(got)
+}
+
+/// Как `accumulate`, но по сырым записям: координаты и ячейки считаются параллельно,
+/// суммы копятся в исходном порядке точек (тот же результат, что у последовательного кода).
+fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8, use_all: bool,
+                  histogram: &mut Option<[u64; 256]>) -> std::io::Result<(Accumulator, u64)> {
+    let rec = hdr.record_len;
+    let (cls_off, cls_mask) = if hdr.format <= 5 { (15usize, 0x1Fu8) } else { (16usize, 0xFFu8) };
+    if rec <= cls_off {
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "длина записи точки меньше формата"));
+    }
+    let mut f = BufReader::with_capacity(8 << 20, File::open(path)?);
+    f.seek(SeekFrom::Start(hdr.point_offset))?;
+    let mut acc = Accumulator::new(spec);
+    let chunk = 2_000_000usize;
+    let mut buf = vec![0u8; chunk * rec];
+    let (mut remaining, mut total) = (hdr.count, 0u64);
+    let ([sx, sy, sz], [ox, oy, oz]) = (hdr.scale, hdr.offset);
+    let coord = |r: &[u8], o: usize| i32::from_le_bytes(r[o..o + 4].try_into().unwrap()) as f64;
+    while remaining > 0 {
+        let want = remaining.min(chunk as u64) as usize * rec;
+        let got = read_full(&mut f, &mut buf[..want])?;
+        let n = got / rec;
+        if n == 0 {
+            break;
+        }
+        let bytes = &buf[..n * rec];
+        if let Some(h) = histogram.as_mut() {
+            let part = bytes
+                .par_chunks_exact(rec)
+                .fold(|| [0u64; 256], |mut a, r| {
+                    a[(r[cls_off] & cls_mask) as usize] += 1;
+                    a
+                })
+                .reduce(|| [0u64; 256], |mut a, b| {
+                    a.iter_mut().zip(b.iter()).for_each(|(x, y)| *x += y);
+                    a
+                });
+            h.iter_mut().zip(part.iter()).for_each(|(x, y)| *x += y);
+        }
+        let s = spec;
+        let cells: Vec<(usize, f64)> = bytes
+            .par_chunks_exact(rec)
+            .filter_map(|r| {
+                if !use_all && r[cls_off] & cls_mask != ground_class {
+                    return None;
+                }
+                let x = coord(r, 0) * sx + ox;
+                let y = coord(r, 4) * sy + oy;
+                let col = ((x - s.left) / s.res).floor();
+                let row = ((s.top - y) / s.res).floor();
+                if col < 0.0 || row < 0.0 || col as usize >= s.width || row as usize >= s.height {
+                    return None;
+                }
+                Some((row as usize * s.width + col as usize, coord(r, 8) * sz + oz))
+            })
+            .collect();
+        for (i, z) in cells {
+            acc.sums[i] += z;
+            acc.counts[i] += 1;
+            acc.used += 1;
+        }
+        total += n as u64;
+        remaining -= n as u64;
+        if got < want {
+            break; // файл короче, чем обещает заголовок
+        }
+    }
+    Ok((acc, total))
+}
+
 /// Читает LAS/LAZ потоково и строит DEM (средняя высота точек земли).
-pub fn las_grid(path: &str, res: f64, ground_class: u8, max_pixels: u64, use_all: bool) -> Result<GridResult, las::Error> {
-    let reader = Reader::from_path(path)?;
-    let b = reader.header().bounds();
-    drop(reader);
-    let spec = grid_spec(b.min.x, b.min.y, b.max.x, b.max.y, res, max_pixels);
+///
+/// Несжатый LAS читается по сырым записям параллельно; LAZ — через крейт `las`.
+pub fn las_grid(path: &str, res: f64, ground_class: u8, max_pixels: u64, use_all: bool) -> Result<GridResult, String> {
+    let raw = raw_header(path).map_err(|e| e.to_string())?;
+    let bounds = match &raw {
+        Some(h) => h.bounds,
+        None => {
+            let reader = Reader::from_path(path).map_err(|e| e.to_string())?;
+            let b = reader.header().bounds();
+            [b.min.x, b.min.y, b.max.x, b.max.y]
+        }
+    };
+    let spec = grid_spec(bounds[0], bounds[1], bounds[2], bounds[3], res, max_pixels);
     let batch = 2_000_000u64;
+    let run = |all: bool, hist: &mut Option<[u64; 256]>| -> Result<(Accumulator, u64), String> {
+        match &raw {
+            Some(h) => accumulate_raw(path, h, spec, ground_class, all, hist).map_err(|e| e.to_string()),
+            None => accumulate(path, spec, ground_class, all, hist, batch).map_err(|e| e.to_string()),
+        }
+    };
     let mut hist: Option<[u64; 256]> = Some([0u64; 256]);
-    let (mut acc, total) = accumulate(path, spec, ground_class, use_all, &mut hist, batch)?;
+    let (mut acc, total) = run(use_all, &mut hist)?;
     let mut used_all = use_all;
     if acc.used == 0 && !use_all {
         // В файле нет точек земли: берём все точки (как бейзлайн).
         let mut none: Option<[u64; 256]> = None;
-        acc = accumulate(path, spec, ground_class, true, &mut none, batch)?.0;
+        acc = run(true, &mut none)?.0;
         used_all = true;
     }
     let classes = hist

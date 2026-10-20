@@ -10,22 +10,29 @@ mod peaks;
 mod relief;
 mod shade;
 
+use std::borrow::Cow;
+
 use numpy::ndarray::{Array1, Array2, Array3};
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyUntypedArrayMethods};
 use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
-fn to_vec_f32(a: &PyReadonlyArray2<'_, f32>) -> (Vec<f32>, usize, usize) {
-    let v = a.as_array();
-    let (h, w) = v.dim();
-    (v.iter().copied().collect(), h, w)
+/// Данные массива без копии, если он непрерывный (C-порядок); иначе — копия.
+fn to_vec_f32<'a>(a: &'a PyReadonlyArray2<'_, f32>) -> (Cow<'a, [f32]>, usize, usize) {
+    let (h, w) = a.as_array().dim();
+    match a.as_slice() {
+        Ok(s) => (Cow::Borrowed(s), h, w),
+        Err(_) => (Cow::Owned(a.as_array().iter().copied().collect()), h, w),
+    }
 }
 
-fn to_vec_bool(a: &PyReadonlyArray2<'_, bool>) -> (Vec<bool>, usize, usize) {
-    let v = a.as_array();
-    let (h, w) = v.dim();
-    (v.iter().copied().collect(), h, w)
+fn to_vec_bool<'a>(a: &'a PyReadonlyArray2<'_, bool>) -> (Cow<'a, [bool]>, usize, usize) {
+    let (h, w) = a.as_array().dim();
+    match a.as_slice() {
+        Ok(s) => (Cow::Borrowed(s), h, w),
+        Err(_) => (Cow::Owned(a.as_array().iter().copied().collect()), h, w),
+    }
 }
 
 /// Версия модуля (для логов и проверки сборки).
