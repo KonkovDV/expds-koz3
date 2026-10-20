@@ -70,6 +70,18 @@ def test_tile_cache_li_tif(tmp_path):
     assert ((masks >> bit) & 1).sum() > 0
 
 
+def test_tile_cache_only_classes(tmp_path):
+    root = make_train(tmp_path / "train")
+    meta = tiles.build_cache(str(root), str(_gt_file(root, tmp_path)), "li", str(tmp_path / "cache"), res=0.5,
+                             tile=64, only_classes=["kurgany_tselye"])
+    assert meta["classes"] == ["kurgany_tselye"]
+    masks = np.load(tmp_path / "cache" / "masks_0000.npy")
+    assert masks.max() == 1                                   # единственный класс — бит 0
+    with pytest.raises(ValueError):
+        tiles.build_cache(str(root), str(_gt_file(root, tmp_path)), "li", str(tmp_path / "c2"), res=0.5, tile=64,
+                          only_classes=["finds_points"])
+
+
 def test_shrink_separates_touching_mounds():
     a, b = Point(0, 0).buffer(5), Point(10, 0).buffer(5)
     assert a.buffer(1e-6).intersects(b)

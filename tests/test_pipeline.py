@@ -32,6 +32,23 @@ def test_main_writes_valid_geojson(val_dir, tmp_path, official_metric):
         assert res["per_class"]["kurgany_tselye"]["tp"] == len(MOUNDS)
 
 
+def test_model_specs_and_class_filter():
+    from types import SimpleNamespace
+
+    from expds.pipeline import _kept, model_specs
+
+    models = {"li": "models/li.pt",
+              "sp_or": ["models/a.pt", {"path": "models/b.pt", "classes": ["gorodishcha"]}],
+              "ae": {"path": "models/c.pt"}}
+    assert model_specs(models, "li") == [("models/li.pt", None)]
+    assert model_specs(models, "sp_or") == [("models/a.pt", None), ("models/b.pt", ["gorodishcha"])]
+    assert model_specs(models, "ae") == [("models/c.pt", None)]
+    assert model_specs(models, "or") == []
+    feats = [{"class_name": "gorodishcha"}, {"class_name": "kurgany_tselye"}]
+    assert _kept(SimpleNamespace(keep={"gorodishcha"}), feats) == feats[:1]
+    assert _kept(SimpleNamespace(keep=None), feats) == feats
+
+
 def test_main_survives_bad_input(tmp_path):
     bad = tmp_path / "in" / "region_0009"
     bad.mkdir(parents=True)

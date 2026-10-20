@@ -229,16 +229,22 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
-                li_source: str = "las", shrink: float = 0.0, dem: dict | None = None) -> dict:
-    """Строит кэш тайлов и возвращает сводку. dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM)."""
+                li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
+                only_classes: list[str] | None = None) -> dict:
+    """Строит кэш тайлов и возвращает сводку.
+
+    dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
+    только эти классы (например, городища на грубом шаге).
+    """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
     dem = dict(dem or MODEL_DEM)
-
     rng = random.Random(seed)
     li_tags = list(li_tags or (RELIEF_TAGS if li_source == "las" else ["g"]))
     n_ch = n_channels(markup, li_tags)
-    classes = classes_for(markup)
+    classes = [c for c in classes_for(markup) if not only_classes or c in only_classes]
+    if not classes:
+        raise ValueError(f"нет классов {only_classes} в модальности {markup}")
     gt = json.loads(Path(gt_path).read_text(encoding="utf-8"))["features"]
     by_region: dict[str, list[tuple]] = {}
     for f in gt:
@@ -338,6 +344,7 @@ def _cli() -> None:
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
     ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
+    ap.add_argument("--classes", nargs="*", default=None, help="учить только эти классы")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -345,7 +352,7 @@ def _cli() -> None:
     dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"]}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
-                       shrink=args.shrink, dem=dem)
+                       shrink=args.shrink, dem=dem, only_classes=args.classes)
     print(json.dumps(meta, ensure_ascii=False))
 
 

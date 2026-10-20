@@ -54,18 +54,41 @@ def _params(cls, cfg: dict):
     return cls(**{k: v for k, v in (cfg or {}).items() if k in names})
 
 
-def _segmenter(models: dict, markup: str, root: Path):
-    path = models.get(markup)
-    if not path:
-        return None
-    p = Path(path)
-    p = p if p.is_absolute() else root / p
-    if not p.exists():
-        log.warning("модель %s не найдена: %s", markup, p)
-        return None
+def model_specs(models: dict, markup: str) -> list[tuple[str, list[str] | None]]:
+    """Модели модальности из [models]: путь, таблица {path, classes} или их список.
+
+    classes ограничивает выход модели, чтобы две модели одной модальности
+    (например, мелкая и крупная для городищ) не выдавали один класс дважды.
+    """
+    v = models.get(markup)
+    out = []
+    for it in v if isinstance(v, list) else ([v] if v else []):
+        if isinstance(it, str):
+            out.append((it, None))
+        elif isinstance(it, dict) and it.get("path"):
+            out.append((it["path"], list(it.get("classes") or []) or None))
+    return out
+
+
+def _segmenters(models: dict, markup: str, root: Path) -> list:
     from .infer_nn import Segmenter
 
-    return Segmenter(p)
+    segs = []
+    for path, classes in model_specs(models, markup):
+        p = Path(path)
+        p = p if p.is_absolute() else root / p
+        if not p.exists():
+            log.warning("модель %s не найдена: %s", markup, p)
+            continue
+        seg = Segmenter(p)
+        seg.keep = set(classes) if classes else None
+        segs.append(seg)
+    return segs
+
+
+def _kept(seg, feats: list[dict]) -> list[dict]:
+    keep = getattr(seg, "keep", None)
+    return feats if keep is None else [f for f in feats if f["class_name"] in keep]
 
 
 def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
@@ -84,15 +107,25 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
             log.warning("время на исходе: пропускаю %s", las.name)
             break
         try:
-            seg = seg_cache.setdefault("li", _segmenter(models, "li", root))
-            dp = dem_params(seg.meta if seg is not None else None, cfg)
-            d = build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+            segs = seg_cache.setdefault("li", _segmenters(models, "li", root))
+            dems: dict[tuple, object] = {}
+
+            def dem_for(meta):
+                dp = dem_params(meta, cfg)
+                key = (dp["res"], dp["fill"])
+                if key not in dems:
+                    dems[key] = build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+                return dems[key]
+
+            d = dem_for(segs[0].meta if segs else None)
             if d.crs is None:
                 log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
                 continue
-            if seg is not None:
+            if segs:
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
-                feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p if rescore else None)
+                for seg in segs:
+                    feats += _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
+                                                       cand_p if rescore else None))
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
@@ -128,16 +161,14 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
 
     # 3. Оптика — только обученными моделями
     for mt in ("ae", "sp_or", "or"):
-        seg = seg_cache.setdefault(mt, _segmenter(models, mt, root))
-        if seg is None:
-            continue
-        for path in reg.rasters.get(mt, []):
-            if not guard.ok(60):
-                break
-            try:
-                feats += _raster_with_model(seg, path, reg.name, mt)
-            except Exception as exc:
-                log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
+        for seg in seg_cache.setdefault(mt, _segmenters(models, mt, root)):
+            for path in reg.rasters.get(mt, []):
+                if not guard.ok(60):
+                    break
+                try:
+                    feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt))
+                except Exception as exc:
+                    log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     return feats
 
 
@@ -158,8 +189,10 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None)
 
         img, tr = relief_channels(d, seg.res, tuple(seg.meta["li_tags"]))
         probs = seg.predict(img)
-        kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in seg.classes] if cand_p else []
-        rest = [c for c in seg.classes if c not in kur]
+        keep = getattr(seg, "keep", None)
+        out_classes = [c for c in seg.classes if keep is None or c in keep]
+        kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in out_classes] if cand_p else []
+        rest = [c for c in out_classes if c not in kur]
         feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
                                   region, "li", source) if rest else []
         if kur:
