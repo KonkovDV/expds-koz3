@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -86,7 +87,9 @@ def detect(path: str | Path, p: BlobParams | None = None) -> dict:
                     continue
                 z = np.where(valid, (a.mean(axis=0) - mean) / sigma, np.nan).astype(np.float32)
                 resp = [accel.box_mean(z, k) - accel.box_mean(z, round(k * p.surround)) for k in radii]
-                strength = np.nanmax(np.abs(np.stack(resp)), axis=0)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RuntimeWarning)
+                    strength = np.nanmax(np.abs(np.stack(resp)), axis=0)
                 strength = np.where(valid, np.nan_to_num(strength, nan=0.0), np.nan).astype(np.float32)
                 rows, cols, vals = accel.find_peaks(strength, max(1, round(p.peak_radius_m / r)),
                                                     p.min_contrast, p.max_candidates)

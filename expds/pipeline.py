@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel, candidates, geophys, post, writer
+from . import accel, candidates, fusion, geophys, post, writer
 from .catalog import Region, read_utm_json, scan_root
 from .constants import DEFAULT_BUDGET_S
 
@@ -133,6 +133,13 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                           for f in candidates.to_features(c, s, d.crs, reg.name, cand_p, source=las.name)]
         except Exception as exc:
             log.exception("%s: ошибка лидара (%s)", las.name, exc)
+
+    fp = _params(fusion.FusionParams, cfg.get("fusion"))
+    if fp.li_to_ae and reg.rasters.get("ae"):
+        try:
+            feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
+        except Exception as exc:
+            log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
 
     # 2. Геофизика: параметры и порог — по модальности; маски extra/ — после детекторов
     geo_cfg = cfg.get("geophys", {})

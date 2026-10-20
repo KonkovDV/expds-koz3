@@ -1,9 +1,9 @@
 """Кандидаты-пятна на оптике: светлые и тёмные пятна находятся, окна не дают дублей."""
 import numpy as np
 import rasterio
+from conftest import UTM, X0, Y0
 from rasterio.transform import from_origin
 
-from conftest import UTM, X0, Y0
 from expds import blobs
 
 SPOTS = [(60, 60, 40), (150, 220, -40), (240, 90, 35), (300, 330, -30)]   # строка, столбец, Δяркости
