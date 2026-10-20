@@ -14,8 +14,9 @@ kurgany_tselye = 0.15
 gorodishcha = 0.15
 arkhitektury = 0.15
 fortifikatsii = 0.20
-object_poly = 0.15
-finds_points = 0.15
+# Геофизика отсекается своим порогом по модальности ([geophys.*] min_confidence).
+object_poly = 0.0
+finds_points = 0.0
 
 # Модели по markup_type (файлы из expds.train). Нет файла — модальность
 # обрабатывается классикой (li, геофизика) или пропускается (оптика).
@@ -41,11 +42,35 @@ circle_m = 2.0
 # lgbm_model = "models/kurgan_lgbm.txt"
 
 [geophys]
-background_m = 4.0
-peak_radius_m = 1.0
-peak_k = 4.0
 point_circle_m = 0.3
-poly_k = 2.5
+
+# Подобрано scripts/geo_tune.py официальной метрикой на трейне (min_confidence — порог этой
+# модальности). F1 с отложенной «семьёй»: finds_points 0,461, object_poly MagGr 0,341;
+# у EtGr и TerFl одна «семья», проверка только на тех же данных (0,201 и 0,171).
+[geophys.maggr.finds_points]
+background_m = 2.0
+peak_radius_m = 2.0
+peak_k = 1.0
+use_noise = true
+confidence = "rank"
+min_confidence = 0.1739
+
+[geophys.maggr.object_poly]
+background_m = 8.0
 smooth_m = 0.5
-min_area_m2 = 0.3
-max_area_m2 = 60.0
+poly_k = 1.5
+use_noise = true
+confidence = "rank"
+min_confidence = 0.0714
+
+[geophys.etgr.object_poly]
+background_m = 2.0
+smooth_m = 0.1
+poly_k = 1.0
+min_confidence = 0.0958
+
+[geophys.terfl.object_poly]
+background_m = 8.0
+smooth_m = 0.25
+poly_k = 1.0
+min_confidence = 0.1426
