@@ -27,6 +27,11 @@ def test_merge_only_across_images_within_markup():
     assert len(out) == 5
     merged = [f for f in out if f["geom"].area > 30 and f["markup_type"] == "ae"]
     assert len(merged) == 1 and merged[0]["confidence"] == 0.7
+    # срезы EtGr — отдельные эталоны, даже когда полигоны совпадают
+    layers = [feat(sq(0, 0), cls="object_poly", mt="etgr", src="карта_1.tif"),
+              feat(sq(0, 0), cls="object_poly", mt="etgr", src="профиль_1.tif")]
+    kept = post.merge_within_markup(layers)
+    assert len(kept) == 2 and {f["source"] for f in kept} == {"карта_1.tif", "профиль_1.tif"}
 
 
 def test_finalize_splits_multipolygon_and_caps_vertices():

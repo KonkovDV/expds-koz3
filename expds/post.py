@@ -3,6 +3,8 @@
 Правила (ТР КОЗ №3 и разъяснения организаторов):
 * внутри одного (регион, markup_type, класс) пересекающиеся полигоны с РАЗНЫХ
   снимков объединяются в один объект;
+* EtGr — исключение: карта глубины и профиль размечены отдельно, даже если
+  полигоны совпадают. Схлопывание слоёв снижает балл (письмо организаторов 20.10.2026);
 * между разными markup_type ничего не объединяется, даже при пересечении:
   эталон размечен по модальностям, и два попадания дают два TP;
 * MultiPolygon метрика оценивает только по самой большой части, поэтому
@@ -76,13 +78,16 @@ def merge_across_sources(items: list[dict], source_key: str = "source") -> list[
 
 
 def merge_within_markup(feats: list[dict]) -> list[dict]:
-    """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются."""
+    """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
+
+    Слои EtGr не объединяются: каждый снимок — отдельный эталон.
+    """
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for f in feats:
         groups[(f.get("region_name"), f.get("markup_type"), f["class_name"])].append(f)
     out = []
-    for items in groups.values():
-        out.extend(merge_across_sources(items))
+    for key, items in groups.items():
+        out.extend(items if key[1] == "etgr" else merge_across_sources(items))
     return out
 
 
