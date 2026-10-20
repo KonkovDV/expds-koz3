@@ -264,6 +264,19 @@ def color_relief(filled: np.ndarray, valid: np.ndarray, z_min: float, z_range: f
 
 # ───────────────────────────── рельеф и пики ─────────────────────────────
 
+def robust_z(a: np.ndarray) -> np.ndarray:
+    """(a − медиана) / (1,4826·MAD) по конечным значениям; NaN остаются NaN."""
+    a = np.ascontiguousarray(a, np.float32)
+    if _rs is not None and hasattr(_rs, "robust_z"):
+        return _rs.robust_z(a)
+    fin = np.isfinite(a)
+    if not fin.any():
+        return np.full_like(a, np.nan)
+    med = float(np.median(a[fin]))
+    mad = float(np.median(np.abs(a[fin] - med))) * 1.4826 or 1.0
+    return ((a - med) / mad).astype(np.float32)
+
+
 def box_mean(z: np.ndarray, radius: int) -> np.ndarray:
     """Среднее в окне (2r+1)² без учёта NaN (на краях — по попавшим пикселям)."""
     z = np.ascontiguousarray(z, np.float32)
@@ -282,6 +295,17 @@ def box_mean(z: np.ndarray, radius: int) -> np.ndarray:
     cnt = n[r1][:, c1] - n[r0][:, c1] - n[r1][:, c0] + n[r0][:, c0]
     with np.errstate(invalid="ignore", divide="ignore"):
         return np.where(cnt > 0, tot / cnt, np.nan).astype(np.float32)
+
+
+def slope_deg(z: np.ndarray, res: float) -> np.ndarray:
+    """Уклон в градусах, ядро Хорна 3×3; край растра повторяется."""
+    z = np.ascontiguousarray(z, np.float32)
+    if _rs is not None and hasattr(_rs, "slope_deg"):
+        return _rs.slope_deg(z, float(res))
+    p = np.pad(z, 1, mode="edge")
+    dzdx = ((p[:-2, 2:] + 2 * p[1:-1, 2:] + p[2:, 2:]) - (p[:-2, :-2] + 2 * p[1:-1, :-2] + p[2:, :-2])) / (8 * res)
+    dzdy = ((p[:-2, :-2] + 2 * p[:-2, 1:-1] + p[:-2, 2:]) - (p[2:, :-2] + 2 * p[2:, 1:-1] + p[2:, 2:])) / (8 * res)
+    return np.degrees(np.arctan(np.hypot(dzdx, dzdy))).astype(np.float32)
 
 
 def local_relief(z: np.ndarray, radius: int) -> np.ndarray:

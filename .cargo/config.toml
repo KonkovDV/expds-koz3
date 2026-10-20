@@ -1,0 +1,6 @@
+# Сборка на этой машине (i5-13600KF): LLVM берёт AVX2 и FMA именно Raptor Lake.
+# Лежит в корне, потому что cargo читает .cargo от текущей папки, а не от крейта.
+# Колесо для платформы собирается с RUSTFLAGS=-C target-cpu=x86-64-v3
+# (scripts/build_rust.py linux): переменная окружения заменяет эти флаги.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-cpu=native"]

@@ -146,3 +146,33 @@ pub fn find_peaks(img: &[f32], h: usize, w: usize, r: usize, min_value: f32,
     }
     out
 }
+
+/// Индекс как у `scipy.ndimage` mode='reflect': отражение относительно края пикселя.
+fn reflect_index(i: isize, n: isize) -> isize {
+    if n <= 1 {
+        return 0;
+    }
+    let m = n * 2 - 2;
+    let mut ii = i.rem_euclid(m);
+    if ii >= n {
+        ii = m - ii;
+    }
+    ii
+}
+
+/// Максимум окна `size`×`size` в точках (rows, cols). Совпадает с maximum_filter(size)[row, col].
+pub fn sample_window_max(img: &[f32], h: usize, w: usize, rows: &[i64], cols: &[i64], size: usize) -> Vec<f32> {
+    let rad = (size / 2) as isize;
+    let hi = size as isize - rad;
+    rows.par_iter().zip(cols.par_iter()).map(|(&r, &c)| {
+        let mut best = f32::NEG_INFINITY;
+        for dr in -rad..hi {
+            let y = reflect_index(r as isize + dr, h as isize) as usize;
+            for dc in -rad..hi {
+                let x = reflect_index(c as isize + dc, w as isize) as usize;
+                best = best.max(img[y * w + x]);
+            }
+        }
+        if best.is_finite() { best } else { f32::NAN }
+    }).collect()
+}

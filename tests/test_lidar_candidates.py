@@ -128,6 +128,41 @@ def test_relief_on_coarse_dem_stays_on_model_step():
     assert img.shape[1] == int(np.floor(30 * 0.3 / 0.5))
 
 
+def test_dem_prefetch_matches_direct_build(tmp_path):
+    from expds.lidar import DemPrefetch
+
+    a = write_las(tmp_path / "a.las", n=40_000, seed=1)
+    b = write_las(tmp_path / "b.las", n=40_000, seed=2)
+    pf = DemPrefetch([(a, UTM), (b, UTM)])
+    try:
+        da = pf.get(a, 0.1, "delaunay", UTM)
+        db = pf.get(b, 0.1, "delaunay", UTM)
+        again = pf.get(a, 0.1, "delaunay", UTM)
+    finally:
+        pf.close()
+    for got, path in ((da, a), (db, b), (again, a)):
+        ref = build_dem(path, res=0.1, fill="delaunay", crs=UTM)
+        assert np.array_equal(got.dem, ref.dem, equal_nan=True)
+        assert (got.left, got.top, got.res) == (ref.left, ref.top, ref.res)
+
+
+def test_circles_match_point_buffer():
+    from shapely.geometry import Point
+
+    from expds.candidates import CandidateParams, to_features
+    from expds.crs import WEB_MERCATOR
+
+    c = {"x": np.array([500_000.0, 500_030.0]), "y": np.array([6_000_000.0, 6_000_010.0])}
+    scores = np.array([[0.0, 0.4, 0.2], [0.0, 0.1, 0.9]], np.float32)
+    feats = to_features(c, scores, "EPSG:32636", "r", CandidateParams(circle_m=2.0))
+    assert len(feats) == 4
+    assert feats[0]["geom"].equals(feats[1]["geom"])
+    one = Point(c["x"][0], c["y"][0]).buffer(2.0, quad_segs=4)
+    from expds.crs import to_crs
+    expect = to_crs(one, "EPSG:32636", WEB_MERCATOR)
+    assert feats[0]["geom"].equals_exact(expect, tolerance=1e-4)
+
+
 def test_work_grid_matches_blocks_and_hits_exact_step():
     rng = np.random.default_rng(0)
     src = rng.normal(size=(20, 20)).astype(np.float32)

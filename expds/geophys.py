@@ -19,6 +19,8 @@ from pathlib import Path
 import numpy as np
 
 from . import accel
+
+from . import accel
 from .raster import circle_3857, mask_to_polygons, pixel_to_xy
 
 log = logging.getLogger(__name__)
@@ -49,12 +51,7 @@ def read_band(path: str | Path) -> tuple[np.ndarray, object, str | None, float]:
 
 def robust_z(a: np.ndarray) -> np.ndarray:
     """(a − медиана) / (1,4826·MAD) по конечным значениям."""
-    fin = np.isfinite(a)
-    if not fin.any():
-        return np.full_like(a, np.nan)
-    med = float(np.median(a[fin]))
-    mad = float(np.median(np.abs(a[fin] - med))) * 1.4826 or 1.0
-    return ((a - med) / mad).astype(np.float32)
+    return accel.robust_z(a)
 
 
 def strength_confidence(v: np.ndarray | float) -> np.ndarray | float:

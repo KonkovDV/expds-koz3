@@ -139,6 +139,46 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
     return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=crs, info=info)
 
 
+class DemPrefetch:
+    """DEM следующих LAS строятся в фоновых потоках, пока текущий участок считается.
+
+    Сетка, TIN и заливка — Rust без GIL, так что потоки действительно параллельны
+    основному: тот в это время ждёт видеокарту и собирает полигоны. Чтение
+    холодного файла с диска тоже уходит в фон. Триангуляция Делоне идёт в одном
+    потоке, поэтому depth облаков триангулируются одновременно на разных ядрах.
+    В памяти — не больше depth + 1 DEM.
+    """
+
+    def __init__(self, order: list[tuple[Path, str | None]], depth: int = 2):
+        from concurrent.futures import ThreadPoolExecutor
+
+        self.depth = max(1, int(depth))
+        self._ahead = {str(p): order[i + 1:i + 1 + self.depth] for i, (p, _) in enumerate(order)}
+        self._pool = ThreadPoolExecutor(max_workers=self.depth, thread_name_prefix="dem")
+        self._jobs: dict[tuple, object] = {}
+
+    def _submit(self, las: Path, res: float, fill: str, crs: str | None) -> tuple:
+        key = (str(las), float(res), fill, crs)
+        if key not in self._jobs:
+            self._jobs[key] = self._pool.submit(build_dem, las, res=res, fill=fill, crs=crs)
+        return key
+
+    def get(self, las: Path, res: float, fill: str, crs: str | None) -> Dem:
+        """DEM этого LAS; следующие depth по порядку ставятся в очередь сразу за ним."""
+        key = self._submit(las, res, fill, crs)
+        keep = {key} | {self._submit(p, res, fill, c) for p, c in self._ahead.get(str(las), [])}
+        # LAS, пропущенный по времени, не должен держать свой DEM в памяти.
+        for stale in [k for k in self._jobs if k not in keep]:
+            self._jobs.pop(stale).cancel()
+        return self._jobs.pop(key).result()
+
+    def close(self) -> None:
+        for fut in self._jobs.values():
+            fut.cancel()
+        self._jobs.clear()
+        self._pool.shutdown(wait=False, cancel_futures=True)
+
+
 def dem_params(meta: dict | None = None, cfg: dict | None = None) -> dict:
     """Параметры DEM: из чекпойнта модели li (как при обучении), иначе из [lidar] конфига, иначе MODEL_DEM."""
     if meta is not None:
@@ -180,10 +220,7 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
 
 def slope_deg(z: np.ndarray, res: float) -> np.ndarray:
     """Уклон в градусах по ядру Хорна 3×3 (как в ArcGIS); на краях — повтор крайних пикселей."""
-    p = np.pad(z, 1, mode="edge")
-    dzdx = ((p[:-2, 2:] + 2 * p[1:-1, 2:] + p[2:, 2:]) - (p[:-2, :-2] + 2 * p[1:-1, :-2] + p[2:, :-2])) / (8 * res)
-    dzdy = ((p[:-2, :-2] + 2 * p[:-2, 1:-1] + p[:-2, 2:]) - (p[2:, :-2] + 2 * p[2:, 1:-1] + p[2:, 2:])) / (8 * res)
-    return np.degrees(np.arctan(np.hypot(dzdx, dzdy))).astype(np.float32)
+    return accel.slope_deg(z, res)
 
 
 def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
@@ -201,6 +238,18 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
 
     from .candidates import to_work_grid
 
+    rs = accel._rs
+    if rs is not None and hasattr(rs, "relief_channels"):
+        try:
+            img, step = rs.relief_channels(
+                np.ascontiguousarray(d.dem, np.float32), float(d.res), float(res), list(tags),
+                float(RELIEF["lrm_s_m"]), float(RELIEF["lrm_s_clip_m"]),
+                float(RELIEF["lrm_l_m"]), float(RELIEF["lrm_l_clip_m"]),
+                float(RELIEF["slope_max_deg"]))
+            step = float(step)
+            return img, from_origin(d.left, d.top, step, step)
+        except Exception as exc:
+            log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
     filled = np.where(valid, z, np.float32(np.nanmean(z)) if valid.any() else np.float32(0)).astype(np.float32)

@@ -10,20 +10,49 @@ use rayon::prelude::*;
 /// Среднее в квадратном окне радиуса `r` (NaN не учитываются).
 pub fn box_mean(z: &[f32], h: usize, w: usize, r: usize) -> Vec<f32> {
     let (h1, w1) = (h + 1, w + 1);
+    // Горизонтальные префиксы строк независимы. Вертикаль потом идёт сверху вниз,
+    // в том же порядке, что и однопоточный проход, поэтому суммы f64 те же.
+    let mut row_s = vec![0f64; h * w1];
+    let mut row_n = vec![0u32; h * w1];
+    row_s.par_chunks_mut(w1).zip(row_n.par_chunks_mut(w1)).enumerate().for_each(|(i, (rs, rn))| {
+        let (mut s, mut c) = (0f64, 0u32);
+        let src = &z[i * w..(i + 1) * w];
+        for (j, &v) in src.iter().enumerate() {
+            if v.is_finite() {
+                s += v as f64;
+                c += 1;
+            }
+            rs[j + 1] = s;
+            rn[j + 1] = c;
+        }
+    });
     let mut s = vec![0f64; h1 * w1];
     let mut n = vec![0u32; h1 * w1];
-    for i in 0..h {
-        let (mut rs, mut rn) = (0f64, 0u32);
-        for j in 0..w {
-            let v = z[i * w + j];
-            if v.is_finite() {
-                rs += v as f64;
-                rn += 1;
+    // Столбцы независимы. Полоса в 64 столбца читается подряд по строке,
+    // сумма в каждом столбце идёт сверху вниз — тот же порядок f64, что и в одном потоке.
+    let tile = 64usize;
+    // Адреса, а не указатели: иначе замыкание rayon не Send. Полосы пишут разные столбцы.
+    let s_addr = s.as_mut_ptr() as usize;
+    let n_addr = n.as_mut_ptr() as usize;
+    (0..w1.div_ceil(tile)).into_par_iter().for_each(|t| {
+        let j0 = t * tile;
+        let j1 = (j0 + tile).min(w1);
+        let width = j1 - j0;
+        let mut acc_s = vec![0f64; width];
+        let mut acc_n = vec![0u32; width];
+        for i in 0..h {
+            let src = i * w1;
+            let dst = (i + 1) * w1;
+            for (k, j) in (j0..j1).enumerate() {
+                acc_s[k] += row_s[src + j];
+                acc_n[k] += row_n[src + j];
+                unsafe {
+                    *(s_addr as *mut f64).add(dst + j) = acc_s[k];
+                    *(n_addr as *mut u32).add(dst + j) = acc_n[k];
+                }
             }
-            s[(i + 1) * w1 + j + 1] = s[i * w1 + j + 1] + rs;
-            n[(i + 1) * w1 + j + 1] = n[i * w1 + j + 1] + rn;
         }
-    }
+    });
     let mut out = vec![f32::NAN; h * w];
     out.par_chunks_mut(w).enumerate().for_each(|(i, row)| {
         let r0 = i.saturating_sub(r);
@@ -36,6 +65,35 @@ pub fn box_mean(z: &[f32], h: usize, w: usize, r: usize) -> Vec<f32> {
             if cnt > 0 {
                 *o = (sum / cnt as f64) as f32;
             }
+        }
+    });
+    out
+}
+
+/// Уклон в градусах, ядро Хорна 3×3 (как ArcGIS и `lidar.slope_deg`). Край повторяется.
+pub fn slope_deg(z: &[f32], h: usize, w: usize, res: f64) -> Vec<f32> {
+    if h == 0 || w == 0 {
+        return Vec::new();
+    }
+    let denom = 8.0 * res;
+    let mut out = vec![0f32; h * w];
+    // Сначала float32, как NumPy на массиве float32, и только деление — в float64.
+    let at = |y: isize, x: isize| -> f32 {
+        let y = y.clamp(0, h as isize - 1) as usize;
+        let x = x.clamp(0, w as isize - 1) as usize;
+        z[y * w + x]
+    };
+    out.par_chunks_mut(w).enumerate().for_each(|(i, row)| {
+        let y = i as isize;
+        for (j, o) in row.iter_mut().enumerate() {
+            let x = j as isize;
+            let dx = (at(y - 1, x + 1) + 2.0f32 * at(y, x + 1) + at(y + 1, x + 1)
+                - (at(y - 1, x - 1) + 2.0f32 * at(y, x - 1) + at(y + 1, x - 1))) as f64
+                / denom;
+            let dy = (at(y - 1, x - 1) + 2.0f32 * at(y - 1, x) + at(y - 1, x + 1)
+                - (at(y + 1, x - 1) + 2.0f32 * at(y + 1, x) + at(y + 1, x + 1))) as f64
+                / denom;
+            *o = dx.hypot(dy).atan().to_degrees() as f32;
         }
     });
     out

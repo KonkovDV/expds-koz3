@@ -100,8 +100,9 @@ def _kept(seg, feats: list[dict]) -> list[dict]:
     return feats if keep is None else [f for f in feats if f["class_name"] in keep]
 
 
-def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
-    """Все предсказания одного региона."""
+def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+               prefetch=None) -> list[dict]:
+    """Все предсказания одного региона. prefetch — lidar.DemPrefetch на весь прогон."""
     from .lidar import build_dem, dem_params, hillshade_set
 
     feats: list[dict] = []
@@ -122,7 +123,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 dp = dem_params(meta, cfg)
                 key = (dp["res"], dp["fill"])
                 if key not in dems:
-                    dems[key] = build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+                    dems[key] = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
                 return dems[key]
 
             d = dem_for(segs[0].meta if segs else None)
@@ -292,20 +294,28 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     feats: list[dict] = []
     seg_cache: dict = {}
     summary = {"regions": 0, "raw": 0}
+    prefetch = None
     try:
+        from .lidar import DemPrefetch
+
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
         # Сначала регионы с LAS: лидар даёт основную часть балла.
         regions.sort(key=lambda r: (not r.las, r.name))
+        depth = int(cfg.get("lidar", {}).get("prefetch", 2))
+        if depth > 0:
+            prefetch = DemPrefetch([(las, read_utm_json(r.utm_json)) for r in regions for las in r.las], depth)
         for reg in regions:
             if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
                 log.warning("бюджет времени исчерпан, остальные регионы пропущены")
                 break
             t = time.monotonic()
-            feats += run_region(reg, cfg, guard, seg_cache, root)
+            feats += run_region(reg, cfg, guard, seg_cache, root, prefetch)
             log.info("%s: объектов %d, %.1f с, прошло %.0f с", reg.name, len(feats),
                      time.monotonic() - t, guard.elapsed())
     finally:
+        if prefetch is not None:
+            prefetch.close()
         summary["raw"] = len(feats)
         out = post.only_known_classes(feats)
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),

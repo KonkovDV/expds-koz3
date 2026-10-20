@@ -4,16 +4,21 @@
 //! выбирает Rust, если модуль собран, и NumPy в остальных случаях.
 //! Тяжёлые вычисления выполняются без GIL и параллельно (rayon).
 
+mod channels;
+mod cpu;
 mod fill;
 mod grid;
 mod peaks;
 mod relief;
+mod resample;
 mod shade;
+mod stats;
 
 use std::borrow::Cow;
 
 use numpy::ndarray::{Array1, Array2, Array3};
-use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyUntypedArrayMethods};
+use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
+            PyUntypedArrayMethods};
 use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -35,10 +40,10 @@ fn to_vec_bool<'a>(a: &'a PyReadonlyArray2<'_, bool>) -> (Cow<'a, [bool]>, usize
     }
 }
 
-/// Версия модуля (для логов и проверки сборки).
+/// Версия модуля и как собран пул потоков (для логов и проверки сборки).
 #[pyfunction]
-fn version() -> &'static str {
-    env!("CARGO_PKG_VERSION")
+fn version() -> String {
+    format!("{} {}", env!("CARGO_PKG_VERSION"), cpu::describe())
 }
 
 /// LAS/LAZ → DEM (среднее z точек `ground_class`, NaN в пустых ячейках).
@@ -138,12 +143,42 @@ fn color_relief<'py>(py: Python<'py>, filled: PyReadonlyArray2<'py, f32>, valid:
     Ok(Array3::from_shape_vec((3, h, w), out).unwrap().into_pyarray(py))
 }
 
+/// (x − медиана) / (1.4826·MAD) по конечным пикселям; NaN остаются NaN.
+#[pyfunction]
+fn robust_z<'py>(py: Python<'py>, a: PyReadonlyArray2<'py, f32>) -> PyResult<Bound<'py, PyArray2<f32>>> {
+    let (v, h, w) = to_vec_f32(&a);
+    let out = py.detach(|| stats::robust_z(&v));
+    Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
+}
+
 /// Среднее в окне (2r+1)² без учёта NaN.
 #[pyfunction]
 fn box_mean<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, radius: usize)
                  -> PyResult<Bound<'py, PyArray2<f32>>> {
     let (v, h, w) = to_vec_f32(&z);
     let out = py.detach(|| relief::box_mean(&v, h, w, radius));
+    Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
+}
+
+/// DEM к рабочему шагу: (растр, фактический шаг в метрах).
+#[pyfunction]
+fn work_grid<'py>(py: Python<'py>, dem: PyReadonlyArray2<'py, f32>, src_res: f64, dst_res: f64)
+                  -> PyResult<(Bound<'py, PyArray2<f32>>, f64)> {
+    let (v, h, w) = to_vec_f32(&dem);
+    let (pix, oh, ow, step) = py
+        .detach(|| resample::work_grid(&v, h, w, src_res, dst_res))
+        .map_err(PyValueError::new_err)?;
+    Ok((Array2::from_shape_vec((oh, ow), pix).unwrap().into_pyarray(py), step))
+}
+
+/// Уклон в градусах (Хорн 3×3).
+#[pyfunction]
+fn slope_deg<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, res: f64) -> PyResult<Bound<'py, PyArray2<f32>>> {
+    if !(res > 0.0) {
+        return Err(PyValueError::new_err("шаг должен быть > 0"));
+    }
+    let (v, h, w) = to_vec_f32(&z);
+    let out = py.detach(|| relief::slope_deg(&v, h, w, res));
     Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
 }
 
@@ -154,6 +189,57 @@ fn local_relief<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, radius: usi
     let (v, h, w) = to_vec_f32(&z);
     let out = py.detach(|| relief::local_relief(&v, h, w, radius));
     Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
+}
+
+/// Каналы модели li (uint8 C×H×W) и фактический шаг сетки.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn relief_channels<'py>(py: Python<'py>, dem: PyReadonlyArray2<'py, f32>, src_res: f64, dst_res: f64,
+                        tags: Vec<String>, lrm_s_m: f64, lrm_s_clip: f64, lrm_l_m: f64, lrm_l_clip: f64,
+                        slope_max: f64) -> PyResult<(Bound<'py, PyArray3<u8>>, f64)> {
+    let (v, h, w) = to_vec_f32(&dem);
+    let (pix, nc, oh, ow, step) = py.detach(|| {
+        channels::relief_channels(&v, h, w, src_res, dst_res, &tags, lrm_s_m, lrm_s_clip, lrm_l_m,
+                                  lrm_l_clip, slope_max)
+    }).map_err(PyValueError::new_err)?;
+    Ok((Array3::from_shape_vec((nc, oh, ow), pix).unwrap().into_pyarray(py), step))
+}
+
+/// Максимум окна в заданных пикселях: (K, H, W) → (N, K). Как maximum_filter(size)[rows, cols].
+#[pyfunction]
+fn sample_window_max<'py>(py: Python<'py>, img: PyReadonlyArray3<'py, f32>, rows: PyReadonlyArray1<'py, i64>,
+                          cols: PyReadonlyArray1<'py, i64>, size: usize) -> PyResult<Bound<'py, PyArray2<f32>>> {
+    if rows.len() != cols.len() {
+        return Err(PyValueError::new_err("rows и cols разной длины"));
+    }
+    if size == 0 {
+        return Err(PyValueError::new_err("size должен быть > 0"));
+    }
+    let view = img.as_array();
+    let (k, h, w) = view.dim();
+    let flat: Vec<f32> = if let Some(s) = view.as_slice() {
+        s.to_vec()
+    } else {
+        view.iter().copied().collect()
+    };
+    let rr: Vec<i64> = rows.as_array().iter().copied().collect();
+    let cc: Vec<i64> = cols.as_array().iter().copied().collect();
+    let mut out = Vec::with_capacity(rr.len() * k);
+    // по каналам, затем транспонируем в N×K
+    let mut per_k: Vec<Vec<f32>> = Vec::with_capacity(k);
+    py.detach(|| {
+        for ki in 0..k {
+            let plane = &flat[ki * h * w..(ki + 1) * h * w];
+            per_k.push(peaks::sample_window_max(plane, h, w, &rr, &cc, size));
+        }
+    });
+    let n = rr.len();
+    for i in 0..n {
+        for plane in &per_k {
+            out.push(plane[i]);
+        }
+    }
+    Ok(Array2::from_shape_vec((n, k), out).unwrap().into_pyarray(py))
 }
 
 /// Локальные максимумы с подавлением соседей: (rows int64, cols int64, values float32).
@@ -191,6 +277,7 @@ fn ring_stats<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, rows: PyReado
 
 #[pymodule]
 fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    cpu::init();
     m.add_function(wrap_pyfunction!(version, m)?)?;
     m.add_function(wrap_pyfunction!(las_grid, m)?)?;
     m.add_function(wrap_pyfunction!(fill_pyramid, m)?)?;
@@ -200,8 +287,13 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hillshade, m)?)?;
     m.add_function(wrap_pyfunction!(color_relief, m)?)?;
     m.add_function(wrap_pyfunction!(box_mean, m)?)?;
+    m.add_function(wrap_pyfunction!(robust_z, m)?)?;
     m.add_function(wrap_pyfunction!(local_relief, m)?)?;
+    m.add_function(wrap_pyfunction!(work_grid, m)?)?;
+    m.add_function(wrap_pyfunction!(slope_deg, m)?)?;
     m.add_function(wrap_pyfunction!(find_peaks, m)?)?;
+    m.add_function(wrap_pyfunction!(relief_channels, m)?)?;
+    m.add_function(wrap_pyfunction!(sample_window_max, m)?)?;
     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
     Ok(())
 }

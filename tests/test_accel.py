@@ -117,8 +117,70 @@ def test_relief_peaks_ring_parity():
     assert np.allclose(s1, s2, atol=1e-3, equal_nan=True)
 
 
+def test_robust_z_matches_numpy():
+    rng = np.random.default_rng(2)
+    a = rng.normal(size=(40, 70)).astype(np.float32)
+    a[::5, ::3] = np.nan
+    a[0, 0] = 1e6
+    got, ref = both(accel.robust_z, a)
+    assert np.allclose(got, ref, equal_nan=True, atol=1e-5)
+    even = np.array([[1, 2], [3, 4]], np.float32)
+    got, ref = both(accel.robust_z, even)
+    assert np.allclose(got, ref, equal_nan=True, atol=1e-5)
+
+
 def test_box_mean_ignores_nan():
     z = np.ones((5, 5), np.float32)
     z[2, 2] = np.nan
     m = accel.box_mean(z, 1)
     assert np.allclose(m, 1.0)
+
+
+def test_sample_window_matches_scipy():
+    scipy = pytest.importorskip("scipy")
+    from scipy.ndimage import maximum_filter
+
+    if not accel.HAVE_RUST or not hasattr(accel._rs, "sample_window_max"):
+        pytest.skip("нет sample_window_max")
+    rng = np.random.default_rng(0)
+    img = rng.normal(size=(3, 9, 11)).astype(np.float32)
+    img[0, 2, 3] = np.nan
+    rows = np.array([0, 1, 8, 4, 3], np.int64)
+    cols = np.array([0, 10, 2, 5, 1], np.int64)
+    got = accel._rs.sample_window_max(np.ascontiguousarray(img), rows, cols, 5)
+    ref = np.stack([maximum_filter(p, size=5)[rows, cols] for p in img], 1)
+    assert np.allclose(got, ref, equal_nan=True)
+    assert scipy is not None
+
+
+def test_relief_channels_match_numpy():
+    from expds.lidar import Dem, relief_channels
+
+    rng = np.random.default_rng(1)
+    dem = rng.normal(scale=0.2, size=(24, 31)).astype(np.float32) + 100
+    dem[0, :] = np.nan
+    d = Dem(dem=dem, left=100.0, top=200.0, res=0.1, crs="EPSG:32636")
+    a, ta = relief_channels(d, 0.5)
+    with numpy_backend():
+        b, tb = relief_channels(d, 0.5)
+    assert ta.a == pytest.approx(float(tb.a))
+    assert a.shape == b.shape
+    assert np.array_equal(a, b)
+
+
+def test_slope_matches_numpy():
+    z = dem_with_holes(48, 63)
+    a, b = both(accel.slope_deg, z, 0.5)
+    assert a.shape == z.shape
+    assert np.allclose(a, b, atol=1e-4, equal_nan=True)
+
+
+def test_work_grid_matches_numpy():
+    from expds import candidates
+
+    z = dem_with_holes(40, 55)
+    for src, dst in ((0.1, 0.5), (0.3, 0.5), (0.5, 0.5)):
+        (a, sa), (b, sb) = both(candidates.to_work_grid, z, src, dst)
+        assert sa == pytest.approx(sb)
+        assert a.shape == b.shape
+        assert np.allclose(a, b, equal_nan=True, atol=1e-5)

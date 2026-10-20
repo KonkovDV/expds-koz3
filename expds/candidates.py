@@ -65,7 +65,12 @@ def to_work_grid(dem: np.ndarray, src_res: float, dst_res: float) -> tuple[np.nd
 
     Крупный LAS не влезает в сетку 0,1 м, и шаг DEM становится 0,2–0,3 м. Округление
     0,5/0,3 до 2 даёт шаг 0,6 м вместо 0,5 м, на котором училась модель.
+    Считается в Rust (`expds_core.work_grid`), NumPy ниже — запасной путь.
     """
+    dem = np.ascontiguousarray(dem, np.float32)
+    if accel._rs is not None and hasattr(accel._rs, "work_grid"):
+        arr, step = accel._rs.work_grid(dem, float(src_res), float(dst_res))
+        return arr, float(step)
     if src_res <= 0 or dst_res <= 0:
         raise ValueError(f"шаг сетки должен быть > 0, получено {src_res}, {dst_res}")
     ratio = dst_res / src_res
@@ -157,12 +162,15 @@ def add_prob_peaks(c: dict, prob: np.ndarray, transform, min_prob: float = 0.3, 
 
 def sample_probs(c: dict, probs: np.ndarray, transform, window_px: int = 5) -> np.ndarray:
     """Вероятности модели в центрах кандидатов: максимум в окне window_px² (K×H×W → N×K)."""
-    from scipy.ndimage import maximum_filter
-
     if len(c["x"]) == 0:
         return np.zeros((0, probs.shape[0]), np.float32)
-    col = np.clip(np.floor((c["x"] - transform.c) / transform.a).astype(int), 0, probs.shape[2] - 1)
-    row = np.clip(np.floor((transform.f - c["y"]) / transform.a).astype(int), 0, probs.shape[1] - 1)
+    col = np.clip(np.floor((c["x"] - transform.c) / transform.a).astype(np.int64), 0, probs.shape[2] - 1)
+    row = np.clip(np.floor((transform.f - c["y"]) / transform.a).astype(np.int64), 0, probs.shape[1] - 1)
+    probs = np.ascontiguousarray(probs, np.float32)
+    if accel._rs is not None and hasattr(accel._rs, "sample_window_max"):
+        return accel._rs.sample_window_max(probs, row, col, int(window_px))
+    from scipy.ndimage import maximum_filter
+
     return np.stack([maximum_filter(p, size=window_px)[row, col] for p in probs], 1).astype(np.float32)
 
 
@@ -176,13 +184,19 @@ def to_features(c: dict, scores: np.ndarray, crs: str | None, region: str, p: Ca
     у обоих классов одна уверенность; при N×3 (фон, повреждённый, целый) —
     у каждого своя. Лишнее отсекают пороги по классам (expds.metric sweep).
     """
-    from shapely.geometry import Point
+    from shapely import buffer, points
 
+    xs = np.asarray(c["x"], np.float64)
+    ys = np.asarray(c["y"], np.float64)
+    if xs.size == 0:
+        return []
+    # Один вызов GEOS и один пересчёт CRS на все вершины, а не по кругу.
+    geoms = buffer(points(xs, ys), float(p.circle_m), quad_segs=4)
+    if crs and crs != WEB_MERCATOR:
+        geoms = to_crs(geoms, crs, WEB_MERCATOR)
     per_class = scores[:, 1:1 + len(classes)] if scores.ndim == 2 else np.repeat(scores[:, None], len(classes), 1)
     out = []
-    for x, y, s in zip(c["x"], c["y"], per_class):
-        circle = Point(float(x), float(y)).buffer(p.circle_m, quad_segs=4)
-        geom = to_crs(circle, crs, WEB_MERCATOR) if crs else circle
+    for geom, s in zip(geoms, per_class):
         for cls, conf in zip(classes, s):
             out.append({"geom": geom, "class_name": cls, "confidence": float(conf), "region_name": region,
                         "markup_type": markup, "source": source, "original_crs": crs})

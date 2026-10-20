@@ -216,7 +216,7 @@ fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8,
             h.iter_mut().zip(part.iter()).for_each(|(x, y)| *x += y);
         }
         let s = spec;
-        let cells: Vec<(usize, f64)> = bytes
+        let mut cells: Vec<(usize, f64)> = bytes
             .par_chunks_exact(rec)
             .filter_map(|r| {
                 if !use_all && r[cls_off] & cls_mask != ground_class {
@@ -232,6 +232,10 @@ fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8,
                 Some((row as usize * s.width + col as usize, coord(r, 8) * sz + oz))
             })
             .collect();
+        // Стабильная сортировка по номеру ячейки: внутри ячейки точки остаются
+        // в порядке файла, сумма z не меняется. Дальше запись идёт подряд по сетке,
+        // а не случайными прыжками по всей DEM (так же устроен bincount).
+        cells.sort_by_key(|c| c.0);
         for (i, z) in cells {
             acc.sums[i] += z;
             acc.counts[i] += 1;
