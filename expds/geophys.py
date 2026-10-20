@@ -62,6 +62,25 @@ def strength_confidence(v: np.ndarray | float) -> np.ndarray | float:
     return v / (v + 10.0)
 
 
+def rank_within_source(feats: list[dict]) -> list[dict]:
+    """Уверенность = доля объектов того же растра со силой не выше (0…1].
+
+    Карты MagGr — визуализации с разным растяжением контраста: сила аномалии
+    в MAD у эталонных точек отличается между местами в десятки раз, а её ранг
+    среди пиков своей карты сопоставим.
+    """
+    groups: dict[tuple, list[int]] = {}
+    for i, f in enumerate(feats):
+        groups.setdefault((f["region_name"], f["source"]), []).append(i)
+    out = [dict(f) for f in feats]
+    for idx in groups.values():
+        v = np.array([feats[i]["confidence"] for i in idx])
+        ranks = np.searchsorted(np.sort(v), v, side="right") / len(v)
+        for i, r in zip(idx, ranks):
+            out[i]["confidence"] = float(r)
+    return out
+
+
 def highpass(z: np.ndarray, res: float, background_m: float) -> np.ndarray:
     """Высокочастотная составляющая: z минус среднее окна радиусом background_m."""
     return (z - accel.box_mean(z, max(1, round(background_m / res)))).astype(np.float32)
@@ -170,7 +189,8 @@ def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams,
     """Параметры детектора из [geophys] и [geophys.<модальность>.<класс>] конфига.
 
     Возвращает GeoParams и опции после детектора: use_noise (маска шума),
-    min_confidence (порог этой модальности; [thresholds] задаёт порог только по классу).
+    min_confidence (порог этой модальности; [thresholds] задаёт порог только по классу),
+    rank (confidence = "rank": уверенность — ранг силы среди объектов своего растра).
     """
     base = {k: v for k, v in (cfg or {}).items() if not isinstance(v, dict)}
     over = ((cfg or {}).get(markup_type) or {}).get(class_name) or {}
@@ -179,7 +199,8 @@ def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams,
     lo, hi = AREA_M2.get(markup_type, (p.min_area_m2, p.max_area_m2))
     p.min_area_m2, p.max_area_m2 = over.get("min_area_m2", lo), over.get("max_area_m2", hi)
     return p, {"use_noise": bool(merged.get("use_noise", False)),
-               "min_confidence": float(merged.get("min_confidence", 0.0))}
+               "min_confidence": float(merged.get("min_confidence", 0.0)),
+               "rank": merged.get("confidence", "strength") == "rank"}
 
 
 def apply_masks(feats: list[dict], boundary=None, noise=None) -> list[dict]:

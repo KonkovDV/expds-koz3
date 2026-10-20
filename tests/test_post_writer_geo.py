@@ -65,12 +65,16 @@ def test_geophys_rasters_params_and_masks():
     et = [Path(n) for n in ("01_X_EtGr_карта_04_0.75.tif", "02_X_EtGr_карта_09_2.5.tif", "03_X_EtGr_профиль_01.tif")]
     assert [f.name for f in geophys.select_rasters(et, "etgr")] == ["01_X_EtGr_карта_04_0.75.tif",
                                                                     "03_X_EtGr_профиль_01.tif"]
-    cfg = {"background_m": 4.0, "maggr": {"object_poly": {"poly_k": 1.5, "use_noise": True, "min_confidence": 0.2}}}
+    cfg = {"background_m": 4.0, "maggr": {"object_poly": {"poly_k": 1.5, "use_noise": True, "min_confidence": 0.2,
+                                                          "confidence": "rank"}}}
     p, o = geophys.params_for(cfg, "maggr", "object_poly")
     assert p.poly_k == 1.5 and p.background_m == 4.0 and (p.min_area_m2, p.max_area_m2) == geophys.AREA_M2["maggr"]
-    assert o == {"use_noise": True, "min_confidence": 0.2}
+    assert o == {"use_noise": True, "min_confidence": 0.2, "rank": True}
     p2, o2 = geophys.params_for(cfg, "etgr", "object_poly")
-    assert p2.poly_k == geophys.GeoParams().poly_k and o2["use_noise"] is False
+    assert p2.poly_k == geophys.GeoParams().poly_k and o2["use_noise"] is False and o2["rank"] is False
+    ranked = geophys.rank_within_source(
+        [{"region_name": "r", "source": s, "confidence": c} for s, c in (("a", 5.0), ("a", 1.0), ("b", 0.1))])
+    assert [f["confidence"] for f in ranked] == [1.0, 0.5, 1.0]
     feats = [{"geom": box(x, 0, x + 1, 1)} for x in (0, 5, 20)]
     kept = geophys.apply_masks(feats, boundary=box(-1, -1, 10, 2), noise=box(4, -1, 7, 2))
     assert [f["geom"].bounds[0] for f in kept] == [0]

@@ -42,7 +42,9 @@ GRID = {
                                "poly_k": [1.0, 1.5, 2.0, 3.0]},
 }
 NOISE_OPTIONS = {"maggr": [False, True]}
-K_MIN = 3.0
+CONFIDENCE_OPTIONS = ["strength", "rank"]
+#: Нижняя отсечка пиков (MAD): у эталонных точек Семибратнего медиана силы 1,9.
+K_MIN = 1.0
 
 
 def detect_all(data: dict, mt: str, cls: str, grid: dict) -> dict:
@@ -148,13 +150,17 @@ def main() -> None:
         det = detect_all(data, mt, cls, grid)
         curves = []
         for key, by_region in det.items():
-            for use_noise in NOISE_OPTIONS.get(mt, [False]):
+            for use_noise, conf in itertools.product(NOISE_OPTIONS.get(mt, [False]), CONFIDENCE_OPTIONS):
                 feats = []
                 for region, items in data.items():
-                    feats += geophys.apply_masks(features_of(region, mt, by_region.get(region, [])),
-                                                 items["boundary"], items["noise"] if use_noise else None)
+                    found = features_of(region, mt, by_region.get(region, []))
+                    if conf == "rank":
+                        found = geophys.rank_within_source(found)
+                    feats += geophys.apply_masks(found, items["boundary"], items["noise"] if use_noise else None)
                 pred = to_feature_collection(post.finalize(post.merge_within_markup(feats)))
-                cfg = {**json.loads(key), "use_noise": use_noise}
+                cfg = {**json.loads(key), "use_noise": use_noise, "confidence": conf}
+                if cls == "finds_points":
+                    cfg["peak_k"] = K_MIN
                 curves.append((cfg, metric.build_curves(pred, g, args.metric)[cls]))
         allr = set(data)
         (s_all, t_all), cfg_all = max(((best_tau(c, allr), cfg) for cfg, c in curves), key=lambda t: t[0][0])

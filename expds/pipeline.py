@@ -117,6 +117,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                     p, o = opts[cls]
                     found = (geophys.finds_points(path, reg.name, mt, p) if cls == "finds_points"
                              else geophys.object_polys(path, reg.name, mt, p))
+                    if o["rank"]:
+                        found = geophys.rank_within_source(found)
                     found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
                     feats += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
