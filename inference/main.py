@@ -2,6 +2,10 @@
 
     python inference/main.py <папка_валидационной_выборки> <путь_к_result.geojson>
 
+Второй аргумент по ТР (Прил. 2) — путь к файлу GeoJSON; примеры организаторов
+(simple_solution, бейзлайн) передают папку. Если это папка или путь без
+.geojson, результат пишется в <путь>/result.geojson.
+
 Rust-ускоритель подключается из inference/lib/ (файл expds_core*.so), если он
 там есть; иначе работают NumPy-версии тех же функций. Файл результата
 записывается всегда: при любой ошибке — хотя бы пустой FeatureCollection,
@@ -28,6 +32,8 @@ def main() -> int:
         print("usage: python inference/main.py <input_dir> <output.geojson>")
         return 2
     input_dir, output = Path(sys.argv[1]), Path(sys.argv[2])
+    if output.is_dir() or output.suffix.lower() != ".geojson":
+        output = output / "result.geojson"
     t0 = time.monotonic()
     try:
         from expds.pipeline import run

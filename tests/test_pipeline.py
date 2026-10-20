@@ -32,6 +32,18 @@ def test_main_writes_valid_geojson(val_dir, tmp_path, official_metric):
         assert res["per_class"]["kurgany_tselye"]["tp"] == len(MOUNDS)
 
 
+def test_main_accepts_output_dir_like_organizer_examples(tmp_path):
+    bad = tmp_path / "in" / "region_0009"
+    bad.mkdir(parents=True)
+    (bad / "broken.las").write_bytes(b"not a las file")
+    out_dir = tmp_path / "output"
+    out_dir.mkdir()
+    for target in (out_dir, tmp_path / "output2"):
+        r = subprocess.run([sys.executable, str(ROOT / "inference" / "main.py"), str(bad.parent), str(target)],
+                           capture_output=True, text=True, timeout=300)
+        assert r.returncode == 0 and writer.validate(target / "result.geojson")["ok"]
+
+
 def test_model_specs_and_class_filter():
     from types import SimpleNamespace
 
