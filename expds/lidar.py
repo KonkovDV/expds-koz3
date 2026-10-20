@@ -199,11 +199,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     """
     from rasterio.transform import from_origin
 
-    from .candidates import downsample_mean
+    from .candidates import to_work_grid
 
-    k = max(1, round(res / d.res))
-    z = downsample_mean(d.dem, k)
-    step = d.res * k
+    z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
     filled = np.where(valid, z, np.float32(np.nanmean(z)) if valid.any() else np.float32(0)).astype(np.float32)
     out = []

@@ -118,6 +118,21 @@ def test_prob_peaks_fill_gaps_and_skip_nearby():
     assert abs(out["x"][-1] - 16.5) < 1e-6 and abs(out["y"][-1] - 17.5) < 1e-6
 
 
+def test_work_grid_matches_blocks_and_hits_exact_step():
+    rng = np.random.default_rng(0)
+    src = rng.normal(size=(20, 20)).astype(np.float32)
+    src[0, 0] = np.nan
+    blocked, step = candidates.to_work_grid(src, 0.1, 0.5)
+    assert step == pytest.approx(0.5)
+    assert np.allclose(blocked, candidates.downsample_mean(src, 5), equal_nan=True)
+    coarse = np.full((10, 10), 3.0, np.float32)
+    coarse[0, :] = np.nan
+    out, step = candidates.to_work_grid(coarse, 0.3, 0.5)
+    assert step == pytest.approx(0.5)
+    assert out.shape == (6, 6)
+    assert np.nanmax(out) == pytest.approx(3.0)
+
+
 def test_candidates_find_mounds(tmp_path):
     las = write_las(tmp_path / "d.las", n=200_000)
     d = build_dem(las, res=0.1)

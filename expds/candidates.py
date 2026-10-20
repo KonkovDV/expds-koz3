@@ -60,12 +60,38 @@ def downsample_mean(dem: np.ndarray, k: int) -> np.ndarray:
         return np.where(n > 0, s / n, np.nan).astype(np.float32)
 
 
+def to_work_grid(dem: np.ndarray, src_res: float, dst_res: float) -> tuple[np.ndarray, float]:
+    """DEM к рабочему шагу. Целый множитель совпадает с обучением (блоки k×k).
+
+    Крупный LAS не влезает в сетку 0,1 м, и шаг DEM становится 0,2–0,3 м. Округление
+    0,5/0,3 до 2 даёт шаг 0,6 м вместо 0,5 м, на котором училась модель.
+    """
+    if src_res <= 0 or dst_res <= 0:
+        raise ValueError(f"шаг сетки должен быть > 0, получено {src_res}, {dst_res}")
+    ratio = dst_res / src_res
+    if ratio <= 1.02:
+        return dem.astype(np.float32), float(src_res)
+    k = int(round(ratio))
+    if k >= 1 and abs(src_res * k - dst_res) <= 0.02 * dst_res:
+        return downsample_mean(dem, k), float(src_res * k)
+    h, w = dem.shape
+    nh = max(1, int(np.floor(h * src_res / dst_res)))
+    nw = max(1, int(np.floor(w * src_res / dst_res)))
+    rows = np.minimum((np.arange(h) * src_res / dst_res).astype(np.int64), nh - 1)
+    cols = np.minimum((np.arange(w) * src_res / dst_res).astype(np.int64), nw - 1)
+    idx = (rows[:, None] * nw + cols[None, :]).ravel()
+    fin = np.isfinite(dem)
+    sums = np.bincount(idx, weights=np.where(fin, dem, 0.0).ravel(), minlength=nh * nw)
+    cnts = np.bincount(idx, weights=fin.ravel().astype(np.float64), minlength=nh * nw)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        out = np.where(cnts > 0, sums / np.maximum(cnts, 1), np.nan)
+    return out.reshape(nh, nw).astype(np.float32), float(dst_res)
+
+
 def detect(d: Dem, p: CandidateParams | None = None) -> dict:
     """Кандидаты: координаты центров в CRS DEM и матрица признаков N×len(FEATURE_NAMES)."""
     p = p or CandidateParams()
-    k = max(1, int(round(p.work_res / d.res)))
-    z = downsample_mean(d.dem, k)
-    res = d.res * k
+    z, res = to_work_grid(d.dem, d.res, p.work_res)
     relief = accel.local_relief(z, max(1, int(round(p.relief_radius_m / res))))
     relief = np.where(np.isfinite(z), relief, np.nan).astype(np.float32)
     rows, cols, vals = accel.find_peaks(relief, max(1, int(round(p.peak_radius_m / res))),
