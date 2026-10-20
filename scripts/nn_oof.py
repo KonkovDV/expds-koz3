@@ -52,7 +52,7 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
         w.writerows(rows)
 
 
-def predict_region(seg, reg, markup: str, cand_p) -> list[dict]:
+def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None) -> list[dict]:
     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region."""
     feats: list[dict] = []
     if markup == "li":
@@ -60,7 +60,7 @@ def predict_region(seg, reg, markup: str, cand_p) -> list[dict]:
         for las in reg.las:
             d = build_dem(las, res=dp["res"], fill=dp["fill"], crs=read_utm_json(reg.utm_json))
             if d.crs is not None:
-                feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p)
+                feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
         return feats
     for path in reg.rasters.get(markup, []):
         feats += _raster_with_model(seg, path, reg.name, markup)
@@ -122,7 +122,7 @@ def main() -> None:
         n_reg = 0
         for reg in regions:
             if site_family(reg.name) in test:
-                feats += predict_region(seg, reg, args.markup, cand_p)
+                feats += predict_region(seg, reg, args.markup, cand_p, cfg.get("li"))
                 n_reg += 1
         rec = {"fold": k, "test": sorted(test), "val": val, **res, "test_regions": n_reg,
                "minutes": round((time.perf_counter() - t0) / 60, 1)}

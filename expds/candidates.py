@@ -99,6 +99,30 @@ def score(feats: np.ndarray, model_path: str | Path | None = None) -> np.ndarray
     return heuristic_score(feats)
 
 
+def add_prob_peaks(c: dict, prob: np.ndarray, transform, min_prob: float = 0.3, radius_m: float = 2.5,
+                   dedupe_m: float = 2.0) -> dict:
+    """Кандидаты из пиков вероятности модели там, где пика рельефа ближе dedupe_m нет.
+
+    Пики рельефа пропускают мелкие и низкие курганы (до 30 м² — половину), а модель их видит.
+    Признаков рельефа у таких кандидатов нет (NaN): в режиме rescore оценка — вероятность модели.
+    """
+    from scipy.spatial import cKDTree
+
+    res = abs(transform.a)
+    rows, cols, _ = accel.find_peaks(np.nan_to_num(prob, nan=0.0).astype(np.float32),
+                                     max(1, round(radius_m / res)), min_prob)
+    if rows.size == 0:
+        return c
+    x = transform.c + (cols + 0.5) * transform.a
+    y = transform.f + (rows + 0.5) * transform.e
+    if len(c["x"]):
+        dist, _ = cKDTree(np.column_stack([c["x"], c["y"]])).query(np.column_stack([x, y]))
+        x, y = x[dist > dedupe_m], y[dist > dedupe_m]
+    nf = c["features"].shape[1]
+    return {**c, "x": np.r_[c["x"], x], "y": np.r_[c["y"], y],
+            "features": np.vstack([c["features"], np.full((len(x), nf), np.nan, np.float32)])}
+
+
 def sample_probs(c: dict, probs: np.ndarray, transform, window_px: int = 5) -> np.ndarray:
     """Вероятности модели в центрах кандидатов: максимум в окне window_px² (K×H×W → N×K)."""
     from scipy.ndimage import maximum_filter

@@ -133,7 +133,7 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 for seg in segs:
                     feats += _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
-                                                       cand_p if rescore else None))
+                                                       cand_p if rescore else None, cfg.get("li")))
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
@@ -189,7 +189,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
     return feats
 
 
-def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None) -> list[dict]:
+def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+                   li_cfg: dict | None = None) -> list[dict]:
     """Каналы из DEM на рабочем шаге модели → вероятности → объекты.
 
     С cand_p курганы выдаются по кандидатам-пикам рельефа с уверенностью модели
@@ -214,7 +215,12 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None)
                                   region, "li", source) if rest else []
         if kur:
             c = candidates.detect(d, cand_p)
-            s = candidates.sample_probs(c, probs[[seg.classes.index(k) for k in kur]], tr)
+            kp = probs[[seg.classes.index(k) for k in kur]]
+            lc = li_cfg or {}
+            if lc.get("nn_peaks", False):
+                c = candidates.add_prob_peaks(c, kp.max(axis=0), tr, lc.get("nn_peak_min", 0.3),
+                                              lc.get("nn_peak_radius_m", 2.5), lc.get("nn_peak_dedupe_m", 2.0))
+            s = candidates.sample_probs(c, kp, tr)
             scores = np.column_stack([np.zeros(len(s), np.float32), s])
             feats += candidates.to_features(c, scores, d.crs, region, cand_p, classes=tuple(kur), source=source)
         return feats

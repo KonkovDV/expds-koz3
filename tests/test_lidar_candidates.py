@@ -103,6 +103,21 @@ def test_pyramid_dem_fills_holes_inside_survey(tmp_path):
     assert np.isfinite(d.dem).mean() > 0.95 and d.res == 0.5
 
 
+def test_prob_peaks_fill_gaps_and_skip_nearby():
+    c = {"x": np.array([10.0, 0.0]), "y": np.array([10.0, 0.0]),
+         "features": np.ones((2, 8), np.float32)}
+    prob = np.zeros((20, 20), np.float32)
+    # from_origin(0, 20, 1): центр пикселя (col, row) = (col+0.5, 19.5-row)
+    prob[19, 0] = 0.95        # (0.5, 0.5) — ближе 2 м к (0, 0), не добавлять
+    prob[2, 16] = 0.8         # (16.5, 17.5) — далеко, добавить
+    from rasterio.transform import from_origin
+    tr = from_origin(0, 20, 1, 1)
+    out = candidates.add_prob_peaks(c, prob, tr, min_prob=0.5, radius_m=1.0, dedupe_m=2.0)
+    assert len(out["x"]) == 3
+    assert np.isnan(out["features"][-1]).all()
+    assert abs(out["x"][-1] - 16.5) < 1e-6 and abs(out["y"][-1] - 17.5) < 1e-6
+
+
 def test_candidates_find_mounds(tmp_path):
     las = write_las(tmp_path / "d.las", n=200_000)
     d = build_dem(las, res=0.1)
