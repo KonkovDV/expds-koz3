@@ -73,7 +73,8 @@ def measure(cfg: Config, device: torch.device, steps: int, warmup: int,
     """Меряет обучение (forward+backward+step) и инференс на случайных тензорах."""
     use_cuda = device.type == "cuda"
     try:
-        model = build_model(cfg).to(device).to(memory_format=torch.channels_last)
+        fmt = torch.channels_last if amp and use_cuda else torch.contiguous_format   # как в expds.train
+        model = build_model(cfg).to(device).to(memory_format=fmt)
     except Exception as exc:  # энкодер может отсутствовать в вашей версии smp
         return Result(cfg.encoder, cfg.size, cfg.batch, None, None, None, None,
                       f"энкодер недоступен: {type(exc).__name__}")
@@ -81,7 +82,7 @@ def measure(cfg: Config, device: torch.device, steps: int, warmup: int,
     loss_fn = torch.nn.BCEWithLogitsLoss()
     scaler = torch.amp.GradScaler("cuda", enabled=amp and use_cuda)
     x = torch.randn(cfg.batch, cfg.in_ch, cfg.size, cfg.size, device=device)
-    x = x.contiguous(memory_format=torch.channels_last)
+    x = x.contiguous(memory_format=fmt)
     y = (torch.rand(cfg.batch, cfg.classes, cfg.size, cfg.size, device=device) > 0.95).float()
 
     def sync():

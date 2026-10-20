@@ -72,8 +72,10 @@ class GpuTiles:
     видеокарту недогруженной; здесь процессор в цикле обучения не участвует.
     """
 
-    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device):
+    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None):
         import torch
+
+        self.memory_format = memory_format or torch.contiguous_format
 
         by_shard: dict[int, list[int]] = {}
         for r in rows:
@@ -107,7 +109,7 @@ class GpuTiles:
             for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
                 w = (torch.rand(len(idx), device=self.device) < 0.5).view(-1, 1, 1, 1)
                 x, y = torch.where(w, op(x), x), torch.where(w, op(y), y)
-        return x.contiguous(memory_format=torch.channels_last), y
+        return x.contiguous(memory_format=self.memory_format), y
 
     def batches(self, batch: int, shuffle: bool, drop_last: bool):
         import torch
@@ -157,14 +159,17 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     use_amp = amp and fp16_ok(dev)
     if amp and dev.type == "cuda" and not use_amp:
         log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
+    # channels_last ускоряет только тензорные ядра в FP16; в FP32 на GTX 1650 он в 4,4 раза медленнее
+    fmt = torch.channels_last if use_amp else torch.contiguous_format
     model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
-                     in_channels=c, classes=k).to(dev).to(memory_format=torch.channels_last)
+                     in_channels=c, classes=k).to(dev).to(memory_format=fmt)
     flips = meta.get("flips", False)
+    torch.backends.cudnn.benchmark = dev.type == "cuda"
     if gpu_data is None:
         gpu_data = dev.type == "cuda" and GpuTiles.nbytes(cache_p, rows) < 0.25 * torch.cuda.mem_get_info(dev)[0]
     if gpu_data:
-        torch.backends.cudnn.benchmark = True
-        g_tr, g_va = GpuTiles(cache_p, tr_rows, k, flips, dev), GpuTiles(cache_p, va_rows, k, False, dev)
+        g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt)
+        g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt)
         n_steps = len(g_tr) // batch
 
         def train_batches():
@@ -180,7 +185,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
 
         def to_dev(it):
             for x, y in it:
-                yield x.to(dev, non_blocking=True).to(memory_format=torch.channels_last), y.to(dev, non_blocking=True)
+                yield x.to(dev, non_blocking=True).to(memory_format=fmt), y.to(dev, non_blocking=True)
 
         def train_batches():
             return to_dev(dl_tr)
