@@ -138,21 +138,19 @@ def label(c: dict, crs: str, gt_items: list[dict], classes=("kurgany_povrezhdenn
     """Метка кандидата: 1 + индекс класса эталона модальности markup, в котором его центр; 0 — фон.
 
     С одним классом в classes это обычная метка 0/1. Эталонные точки засчитываются
-    ближе 2 м, как в метрике.
+    ближе 2 м в метрах CRS кандидатов (UTM), как в метрике, а не в единицах EPSG:3857.
     """
     import shapely
     from shapely.strtree import STRtree
-
-    from .crs import transformer
 
     gts = [(g["geom"], classes.index(g["class_name"])) for g in gt_items
            if g["class_name"] in classes and g["markup_type"] == markup]
     y = np.zeros(len(c["x"]), np.int8)
     if not gts or len(c["x"]) == 0:
         return y
-    xs, ys = (c["x"], c["y"]) if crs == WEB_MERCATOR else transformer(crs).transform(c["x"], c["y"])
-    pts = shapely.points(np.asarray(xs), np.asarray(ys))
-    geoms = [g.buffer(2.0) if g.geom_type == "Point" else g for g, _ in gts]
+    pts = shapely.points(np.asarray(c["x"]), np.asarray(c["y"]))
+    geoms = [to_crs(g, WEB_MERCATOR, crs) if crs != WEB_MERCATOR else g for g, _ in gts]
+    geoms = [g.buffer(2.0) if g.geom_type == "Point" else g for g in geoms]
     hit_pt, hit_gt = STRtree(geoms).query(pts, predicate="intersects")
     order = np.argsort(hit_gt, kind="stable")          # при нескольких эталонах — первый по порядку
     for k, j in zip(hit_pt[order][::-1], hit_gt[order][::-1]):
