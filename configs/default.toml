@@ -27,6 +27,14 @@ finds_points = 0.0
 kurgany_povrezhdennye = 0.318
 kurgany_tselye = 0.0098
 
+# Оптика: пороги — с плато кривой F1 вне обучения (фортификации 0,298–0,306 при 0,9993–0,9996,
+# городища 0,097–0,108 при 0,85–0,93)
+[thresholds_by_markup.ae]
+fortifikatsii = 0.9995
+
+[thresholds_by_markup.sp_or]
+gorodishcha = 0.9
+
 # Копии курганов лидара для слоя аэрофото: отбор — отсечками [fusion]
 [thresholds_by_markup.li_ae]
 kurgany_povrezhdennye = 0.0
@@ -59,8 +67,10 @@ dem_fill = "delaunay"
 
 [models]
 li = "models/li_r18.pt"
-# ae = "models/ae_r18.pt"
-# sp_or = "models/spor_r18.pt"
+# Курганы на оптике вне обучения не находятся (F1 ≤ 0,011), поэтому от оптических моделей берём только
+# классы, где они работают: аэрофото — фортификации (F1 0,31), спутник 2 м — городища (F1 0,11).
+ae = {path = "models/ae_r18.pt", classes = ["fortifikatsii"]}
+sp_or = {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]}
 # or = "models/or_r18.pt"
 
 [candidates]
