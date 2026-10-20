@@ -77,12 +77,18 @@ def to_work_grid(dem: np.ndarray, src_res: float, dst_res: float) -> tuple[np.nd
     h, w = dem.shape
     nh = max(1, int(np.floor(h * src_res / dst_res)))
     nw = max(1, int(np.floor(w * src_res / dst_res)))
-    rows = np.minimum((np.arange(h) * src_res / dst_res).astype(np.int64), nh - 1)
     cols = np.minimum((np.arange(w) * src_res / dst_res).astype(np.int64), nw - 1)
-    idx = (rows[:, None] * nw + cols[None, :]).ravel()
-    fin = np.isfinite(dem)
-    sums = np.bincount(idx, weights=np.where(fin, dem, 0.0).ravel(), minlength=nh * nw)
-    cnts = np.bincount(idx, weights=fin.ravel().astype(np.float64), minlength=nh * nw)
+    sums = np.zeros(nh * nw, np.float64)
+    cnts = np.zeros(nh * nw, np.float64)
+    # Полосами: целая индексная карта h×w на крупном LAS — это сотни мегабайт и падение процесса.
+    for r0 in range(0, h, 256):
+        r1 = min(h, r0 + 256)
+        rows = np.minimum((np.arange(r0, r1) * src_res / dst_res).astype(np.int64), nh - 1)
+        idx = (rows[:, None] * nw + cols[None, :]).ravel()
+        block = dem[r0:r1]
+        fin = np.isfinite(block)
+        sums += np.bincount(idx, weights=np.where(fin, block, 0.0).ravel(), minlength=nh * nw)
+        cnts += np.bincount(idx, weights=fin.ravel().astype(np.float64), minlength=nh * nw)
     with np.errstate(invalid="ignore", divide="ignore"):
         out = np.where(cnts > 0, sums / np.maximum(cnts, 1), np.nan)
     return out.reshape(nh, nw).astype(np.float32), float(dst_res)
