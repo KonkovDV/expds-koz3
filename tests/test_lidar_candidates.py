@@ -93,7 +93,8 @@ def test_dem_params_follow_model_then_config():
     assert dem_params(None, {}) == MODEL_DEM
     assert dem_params(None, {"lidar": {"dem_res": 0.25, "dem_fill": "delaunay"}}) == {"res": 0.25, "fill": "delaunay"}
     assert dem_params({"dem_res": None}) == LEGACY_DEM                      # модель обучена до MODEL_DEM
-    assert dem_params({"dem_res": 0.5, "dem_fill": "pyramid"}, {"lidar": {"dem_res": 0.1}}) == MODEL_DEM
+    assert dem_params({"dem_res": 0.5, "dem_fill": "pyramid"}, {"lidar": {"dem_res": 0.1}}) == {"res": 0.5,
+                                                                                               "fill": "pyramid"}
 
 
 def test_pyramid_dem_fills_holes_inside_survey(tmp_path):

@@ -36,6 +36,27 @@ def dem_with_holes(h=97, w=131, seed=0):
     return z
 
 
+@pytest.mark.skipif(not hasattr(accel._rs, "fill_tin"), reason="expds_core без fill_tin")
+def test_fill_tin_matches_scipy_on_plane():
+    from expds import lidar
+
+    rng = np.random.default_rng(3)
+    yy, xx = np.mgrid[0:90, 0:120]
+    plane = (50 + 0.3 * xx - 0.2 * yy).astype(np.float32)
+    dem = plane.copy()
+    dem[rng.random(dem.shape) < 0.7] = np.nan
+    dem[30:55, 40:80] = np.nan
+    valid = np.isfinite(dem)
+    to_fill = accel.convex_hull_mask(valid) & ~valid
+    tin = accel.fill_tin(dem)
+    with numpy_backend():
+        ref = lidar._fill_by_delaunay(dem, valid, to_fill, 10**9)
+    assert np.array_equal(np.isfinite(tin) & to_fill, np.isfinite(ref) & to_fill)
+    m = to_fill & np.isfinite(tin)
+    assert m.sum() > 1000
+    assert np.abs(tin[m] - plane[m]).max() < 1e-3 and np.abs(ref[m] - plane[m]).max() < 1e-3
+
+
 @rust
 def test_fill_pyramid_parity():
     a, b = both(accel.fill_pyramid, dem_with_holes())

@@ -171,6 +171,13 @@ def fill_pyramid(dem: np.ndarray, max_levels: int = 16) -> np.ndarray:
     return current
 
 
+def fill_tin(dem: np.ndarray) -> np.ndarray | None:
+    """Линейная интерполяция пустот по Делоне занятых ячеек (Rust); None — модуль не собран или старый."""
+    if _rs is None or not hasattr(_rs, "fill_tin"):
+        return None
+    return _rs.fill_tin(np.ascontiguousarray(dem, np.float32))
+
+
 def convex_hull_mask(valid: np.ndarray) -> np.ndarray:
     """Маска выпуклой оболочки занятых ячеек (границы включительно)."""
     valid = np.ascontiguousarray(valid, bool)

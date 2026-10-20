@@ -29,12 +29,13 @@ DEFAULTS = {
     "max_pixels": 60_000_000,  # больше ячеек → шаг увеличивается (как у бейзлайна)
     "ground_class": 2,
     "max_vertices": 4_000_000,  # до этого числа занятых ячеек — Делоне (scipy)
+    "max_vertices_rust": 20_000_000,  # то же для Rust (≈ 72 байта на вершину)
     "cycles_c": 3.0,
 }
-#: DEM для моделей и кандидатов: при шаге 0,1 м заняты лишь 1,5–24 % ячеек (DEM — в основном
-#: заливка, Делоне — 15–97 с на LAS), при 0,5 м — 34–97 %, и заливка пирамидой занимает сотые секунды.
-MODEL_DEM = {"res": 0.5, "fill": "pyramid"}
-#: DEM моделей, обученных до появления MODEL_DEM (в чекпойнте нет dem_res).
+#: DEM для моделей и кандидатов: TIN по ячейкам 0,1 м, затем усреднение до рабочего шага.
+#: Вариант «сразу 0,5 м + пирамида» быстрее, но хуже: детектор курганов вне обучения 0,373 против 0,411.
+MODEL_DEM = {"res": 0.1, "fill": "delaunay"}
+#: DEM моделей без dem_res в чекпойнте (обучены до появления параметра) — тот же TIN 0,1 м.
 LEGACY_DEM = {"res": 0.1, "fill": "delaunay"}
 TAGS = ("c", "ch", "g", "i")
 #: Каналы модели li, построенные из LAS (relief_channels). Не зависят от освещения.
@@ -63,8 +64,17 @@ class Dem:
 
 def _fill_by_delaunay(dem: np.ndarray, valid: np.ndarray, to_fill: np.ndarray,
                       max_vertices: int) -> np.ndarray | None:
-    """Линейная интерполяция по Делоне (scipy), как в бейзлайне; None — если не применима."""
-    if int(valid.sum()) > max_vertices:
+    """Линейная интерполяция по Делоне, как в бейзлайне; None — если не применима.
+
+    С Rust — expds_core.fill_tin (до DEFAULTS["max_vertices_rust"] вершин), иначе scipy (Qhull)
+    до max_vertices вершин.
+    """
+    n = int(valid.sum())
+    if n <= DEFAULTS["max_vertices_rust"]:
+        tin = accel.fill_tin(dem)
+        if tin is not None:
+            return np.where(to_fill, tin, dem).astype(np.float32)
+    if n > max_vertices:
         return None
     try:
         from scipy.interpolate import LinearNDInterpolator

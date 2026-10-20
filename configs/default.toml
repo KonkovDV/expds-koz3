@@ -40,8 +40,8 @@ mode = "rescore"
 # DEM для запасного детектора курганов (без модели li). С моделью li параметры берутся
 # из её чекпойнта — так, как она обучалась.
 [lidar]
-dem_res = 0.5
-dem_fill = "pyramid"
+dem_res = 0.1
+dem_fill = "delaunay"
 
 [models]
 li = "models/li_r18.pt"

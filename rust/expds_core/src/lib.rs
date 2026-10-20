@@ -86,6 +86,14 @@ fn fill_pyramid<'py>(py: Python<'py>, dem: PyReadonlyArray2<'py, f32>, max_level
     Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
 }
 
+/// Линейная интерполяция пустых ячеек по Делоне занятых (TIN); вне выпуклой оболочки — NaN.
+#[pyfunction]
+fn fill_tin<'py>(py: Python<'py>, dem: PyReadonlyArray2<'py, f32>) -> PyResult<Bound<'py, PyArray2<f32>>> {
+    let (v, h, w) = to_vec_f32(&dem);
+    let out = py.detach(|| fill::fill_tin(&v, h, w));
+    Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
+}
+
 /// Маска выпуклой оболочки занятых ячеек.
 #[pyfunction]
 fn convex_hull_mask<'py>(py: Python<'py>, valid: PyReadonlyArray2<'py, bool>)
@@ -186,6 +194,7 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(version, m)?)?;
     m.add_function(wrap_pyfunction!(las_grid, m)?)?;
     m.add_function(wrap_pyfunction!(fill_pyramid, m)?)?;
+    m.add_function(wrap_pyfunction!(fill_tin, m)?)?;
     m.add_function(wrap_pyfunction!(convex_hull_mask, m)?)?;
     m.add_function(wrap_pyfunction!(resize_linear, m)?)?;
     m.add_function(wrap_pyfunction!(hillshade, m)?)?;

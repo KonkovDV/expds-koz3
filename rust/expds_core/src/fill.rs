@@ -151,6 +151,56 @@ pub fn convex_hull(mut pts: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
     lower
 }
 
+/// Линейная интерполяция пустых ячеек по триангуляции Делоне занятых (TIN), как
+/// `scipy.interpolate.LinearNDInterpolator`: вершины — центры занятых ячеек,
+/// пустая ячейка получает значение треугольника, в который попадает; вне
+/// выпуклой оболочки остаётся NaN. Каждый треугольник растеризуется по своей
+/// рамке, поэтому время ~ площади съёмки, а не числу пар «точка — треугольник».
+pub fn fill_tin(dem: &[f32], h: usize, w: usize) -> Vec<f32> {
+    use delaunator::{triangulate, Point};
+
+    let mut out = dem.to_vec();
+    let (idx, pts): (Vec<usize>, Vec<Point>) = dem
+        .iter()
+        .enumerate()
+        .filter(|(_, v)| v.is_finite())
+        .map(|(i, _)| (i, Point { x: (i % w) as f64, y: (i / w) as f64 }))
+        .unzip();
+    if pts.len() < 3 || pts.len() == h * w {
+        return out;
+    }
+    let tri = triangulate(&pts);
+    for t in tri.triangles.chunks_exact(3) {
+        let (a, b, c) = (&pts[t[0]], &pts[t[1]], &pts[t[2]]);
+        let (za, zb, zc) = (dem[idx[t[0]]] as f64, dem[idx[t[1]]] as f64, dem[idx[t[2]]] as f64);
+        let det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+        if det.abs() < 1e-12 {
+            continue;
+        }
+        let x0 = a.x.min(b.x).min(c.x).ceil().max(0.0) as usize;
+        let x1 = (a.x.max(b.x).max(c.x).floor() as usize).min(w - 1);
+        let y0 = a.y.min(b.y).min(c.y).ceil().max(0.0) as usize;
+        let y1 = (a.y.max(b.y).max(c.y).floor() as usize).min(h - 1);
+        for y in y0..=y1 {
+            let py = y as f64;
+            for x in x0..=x1 {
+                let i = y * w + x;
+                if out[i].is_finite() {
+                    continue;
+                }
+                let px = x as f64;
+                let l1 = ((b.y - c.y) * (px - c.x) + (c.x - b.x) * (py - c.y)) / det;
+                let l2 = ((c.y - a.y) * (px - c.x) + (a.x - c.x) * (py - c.y)) / det;
+                let l3 = 1.0 - l1 - l2;
+                if l1 >= -1e-9 && l2 >= -1e-9 && l3 >= -1e-9 {
+                    out[i] = (l1 * za + l2 * zb + l3 * zc) as f32;
+                }
+            }
+        }
+    }
+    out
+}
+
 /// Маска выпуклой оболочки занятых ячеек (центры пикселей, границы включительно).
 pub fn convex_hull_mask(valid: &[bool], h: usize, w: usize) -> Vec<bool> {
     // Для оболочки достаточно крайних занятых ячеек каждой строки.
