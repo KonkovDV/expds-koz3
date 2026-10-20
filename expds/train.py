@@ -65,6 +65,59 @@ class TileDataset:
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
 
+class GpuTiles:
+    """Тайлы кэша целиком в памяти видеокарты: батч — индексы, аугментации и распаковка масок — на GPU.
+
+    Поштучная подготовка на CPU (DataLoader в Windows — один поток) оставляла
+    видеокарту недогруженной; здесь процессор в цикле обучения не участвует.
+    """
+
+    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device):
+        import torch
+
+        by_shard: dict[int, list[int]] = {}
+        for r in rows:
+            by_shard.setdefault(int(r["shard"]), []).append(int(r["idx"]))
+        imgs, msks = [], []
+        for s, idx in sorted(by_shard.items()):
+            imgs.append(np.asarray(np.load(cache / f"images_{s:04d}.npy", mmap_mode="r")[idx]))
+            msks.append(np.asarray(np.load(cache / f"masks_{s:04d}.npy", mmap_mode="r")[idx]))
+        self.x = torch.from_numpy(np.concatenate(imgs)).to(device)
+        self.m = torch.from_numpy(np.concatenate(msks)).to(device)
+        self.shift = torch.arange(n_classes, device=device, dtype=self.m.dtype).view(1, -1, 1, 1)
+        self.flips, self.device = flips, device
+
+    def __len__(self) -> int:
+        return int(self.x.shape[0])
+
+    @staticmethod
+    def nbytes(cache: Path, rows: list[dict]) -> int:
+        """Объём выбранных тайлов и масок в байтах (оценка до загрузки)."""
+        img = np.load(cache / "images_0000.npy", mmap_mode="r")
+        msk = np.load(cache / "masks_0000.npy", mmap_mode="r")
+        return len(rows) * (img[0].nbytes + msk[0].nbytes)
+
+    def get(self, idx, augment: bool):
+        import torch
+
+        x = self.x[idx].float().div_(255.0).sub_(0.5).div_(0.25)
+        y = ((self.m[idx].unsqueeze(1) >> self.shift) & 1).float()
+        if augment and self.flips:
+            # два отражения и транспонирование с p = 0,5 дают все 8 поворотов и отражений квадрата
+            for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
+                w = (torch.rand(len(idx), device=self.device) < 0.5).view(-1, 1, 1, 1)
+                x, y = torch.where(w, op(x), x), torch.where(w, op(y), y)
+        return x.contiguous(memory_format=torch.channels_last), y
+
+    def batches(self, batch: int, shuffle: bool, drop_last: bool):
+        import torch
+
+        order = torch.randperm(len(self), device=self.device) if shuffle else torch.arange(len(self), device=self.device)
+        stop = len(self) - batch + 1 if drop_last else len(self)
+        for i in range(0, max(stop, 0), batch):
+            yield self.get(order[i:i + batch], augment=shuffle)
+
+
 def dice_loss(logits, target, eps: float = 1.0):
     """Мягкий Dice по классам (среднее по классам, где есть пиксели или предсказания)."""
     p = logits.sigmoid()
@@ -75,8 +128,12 @@ def dice_loss(logits, target, eps: float = 1.0):
 
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
-          pretrained: bool = True, limit: int | None = None, amp: bool = True) -> dict:
-    """Обучает модель и сохраняет лучший по валидационной потере чекпойнт."""
+          pretrained: bool = True, limit: int | None = None, amp: bool = True,
+          gpu_data: bool | None = None) -> dict:
+    """Обучает модель и сохраняет лучший по валидационной потере чекпойнт.
+
+    gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
+    """
     import torch
     import segmentation_models_pytorch as smp
     from torch.utils.data import DataLoader
@@ -102,11 +159,38 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
     model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
                      in_channels=c, classes=k).to(dev).to(memory_format=torch.channels_last)
-    dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, meta.get("flips", False)), batch_size=batch,
-                       shuffle=True, num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
-    dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False), batch_size=batch, num_workers=workers)
+    flips = meta.get("flips", False)
+    if gpu_data is None:
+        gpu_data = dev.type == "cuda" and GpuTiles.nbytes(cache_p, rows) < 0.25 * torch.cuda.mem_get_info(dev)[0]
+    if gpu_data:
+        torch.backends.cudnn.benchmark = True
+        g_tr, g_va = GpuTiles(cache_p, tr_rows, k, flips, dev), GpuTiles(cache_p, va_rows, k, False, dev)
+        n_steps = len(g_tr) // batch
+
+        def train_batches():
+            return g_tr.batches(batch, shuffle=True, drop_last=True)
+
+        def val_batches():
+            return g_va.batches(batch, shuffle=False, drop_last=False)
+    else:
+        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips), batch_size=batch, shuffle=True,
+                           num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
+        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False), batch_size=batch, num_workers=workers)
+        n_steps = len(dl_tr)
+
+        def to_dev(it):
+            for x, y in it:
+                yield x.to(dev, non_blocking=True).to(memory_format=torch.channels_last), y.to(dev, non_blocking=True)
+
+        def train_batches():
+            return to_dev(dl_tr)
+
+        def val_batches():
+            return to_dev(dl_va)
+    log.info("данные: %s, тайлов обучения %d, проверки %d", "в видеопамяти" if gpu_data else "DataLoader",
+             len(tr_rows), len(va_rows))
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
-    steps = max(1, epochs * max(1, len(dl_tr)))
+    steps = max(1, epochs * max(1, n_steps))
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, total_steps=steps, pct_start=0.1)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     bce = torch.nn.BCEWithLogitsLoss()
@@ -114,10 +198,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     for ep in range(epochs):
         t0 = time.perf_counter()
         model.train()
-        tl, n = 0.0, 0
-        for x, y in dl_tr:
-            x = x.to(dev, non_blocking=True).to(memory_format=torch.channels_last)
-            y = y.to(dev, non_blocking=True)
+        tl = torch.zeros((), device=dev)
+        n = 0
+        for x, y in train_batches():
             with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x)
                 loss = bce(logits, y) + dice_loss(logits.float(), y)
@@ -126,28 +209,26 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             scaler.step(opt)
             scaler.update()
             sched.step()
-            tl += loss.item() * len(x)
+            tl += loss.detach() * len(x)
             n += len(x)
         model.eval()
-        vl, vn = 0.0, 0
-        tp = np.zeros(k)
-        fp = np.zeros(k)
-        fn = np.zeros(k)
+        vl = torch.zeros((), device=dev)
+        vn = 0
+        tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
         with torch.inference_mode():
-            for x, y in dl_va:
-                x = x.to(dev).to(memory_format=torch.channels_last)
-                y = y.to(dev)
+            for x, y in val_batches():
                 with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                     logits = model(x)
-                vl += float(bce(logits.float(), y) + dice_loss(logits.float(), y)) * len(x)
+                vl += (bce(logits.float(), y) + dice_loss(logits.float(), y)) * len(x)
                 vn += len(x)
                 p = (logits.float().sigmoid() > 0.5).float()
-                tp += (p * y).sum(dim=(0, 2, 3)).cpu().numpy()
-                fp += (p * (1 - y)).sum(dim=(0, 2, 3)).cpu().numpy()
-                fn += ((1 - p) * y).sum(dim=(0, 2, 3)).cpu().numpy()
-        vl /= max(vn, 1)
+                tp += (p * y).sum(dim=(0, 2, 3))
+                fp += (p * (1 - y)).sum(dim=(0, 2, 3))
+                fn += ((1 - p) * y).sum(dim=(0, 2, 3))
+        vl = float(vl) / max(vn, 1)
+        tp, fp, fn = tp.cpu().numpy(), fp.cpu().numpy(), fn.cpu().numpy()
         f1 = 2 * tp / np.maximum(2 * tp + fp + fn, 1)
-        rec = {"epoch": ep + 1, "train_loss": round(tl / max(n, 1), 4), "val_loss": round(vl, 4),
+        rec = {"epoch": ep + 1, "train_loss": round(float(tl) / max(n, 1), 4), "val_loss": round(vl, 4),
                "pixel_f1": {cls: round(float(v), 3) for cls, v in zip(meta["classes"], f1)},
                "seconds": round(time.perf_counter() - t0, 1)}
         history.append(rec)
@@ -177,10 +258,12 @@ def _cli() -> None:
     ap.add_argument("--no-pretrained", action="store_true", help="без загрузки весов ImageNet")
     ap.add_argument("--limit", type=int, default=None, help="взять первые N тайлов (отладка)")
     ap.add_argument("--no-amp", action="store_true")
+    ap.add_argument("--cpu-data", action="store_true", help="тайлы через DataLoader, а не из видеопамяти")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
-                args.workers, not args.no_pretrained, args.limit, not args.no_amp)
+                args.workers, not args.no_pretrained, args.limit, not args.no_amp,
+                gpu_data=False if args.cpu_data else None)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 
