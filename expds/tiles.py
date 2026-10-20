@@ -230,11 +230,12 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
-                only_classes: list[str] | None = None) -> dict:
+                only_classes: list[str] | None = None, pos_repeat: int = 1) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
-    только эти классы (например, городища на грубом шаге).
+    только эти классы (например, городища на грубом шаге); pos_repeat — тайлов на
+    объект (каждый со своим случайным сдвигом), для редких классов.
     """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
@@ -271,7 +272,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             local = [(g, c) for g, c in local if g.intersects(bnd)]
-            centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local]
+            centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local] * pos_repeat
             rng.shuffle(centers)
             centers = centers[:max_per_region]
             n_neg = max(5, int(len(centers) * neg_per_pos))
@@ -345,6 +346,7 @@ def _cli() -> None:
     ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
     ap.add_argument("--classes", nargs="*", default=None, help="учить только эти классы")
+    ap.add_argument("--pos-repeat", type=int, default=1, help="тайлов на объект (разные сдвиги)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -352,7 +354,7 @@ def _cli() -> None:
     dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"]}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
-                       shrink=args.shrink, dem=dem, only_classes=args.classes)
+                       shrink=args.shrink, dem=dem, only_classes=args.classes, pos_repeat=args.pos_repeat)
     print(json.dumps(meta, ensure_ascii=False))
 
 
