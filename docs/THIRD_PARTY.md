@@ -14,6 +14,8 @@
 | byteorder 1.5 | Unlicense OR MIT | транзитивно |
 | target-lexicon 0.13 | Apache-2.0 WITH LLVM-exception | только сборка |
 
+`rust/expds_core/src/delaunay.rs` — копия delaunator 1.1.0 ([mourner/delaunator-rs](https://github.com/mourner/delaunator-rs), ISC, © 2018 Mapbox; текст лицензии — в заголовке файла). Изменены точная в f64 ориентация для целых координат и перенумерация вершин в порядке вставки; треугольники совпадают с оригиналом побитово (тест `fill.rs`). Сам крейт delaunator остаётся зависимостью для сеток больше 2^25 по стороне.
+
 Остальные транзитивные крейты — MIT и/или Apache-2.0 (проверено по Cargo.toml в реестре 19.10.2026). Перепроверка: `cargo install cargo-license && cargo license` в `rust/expds_core`.
 
 ## Python

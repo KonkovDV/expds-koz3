@@ -1,4 +1,4 @@
-//! Заполнение пустот DEM.
+﻿//! Заполнение пустот DEM.
 //!
 //! * `fill_pyramid` — многомасштабное заполнение NaN: усреднение 2×2 по
 //!   конечным значениям до полного покрытия, затем билинейное увеличение
@@ -10,6 +10,22 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use rayon::prelude::*;
+
+use crate::delaunay::{self, Point};
+
+struct TriView {
+    triangles: Vec<usize>,
+}
+
+/// Треугольники Делоне по центрам ячеек. До 2^25 по стороне — копия delaunator
+/// с точной в f64 ориентацией (crate::delaunay), иначе — сам delaunator.
+fn triangulate_cells(pts: &[Point], h: usize, w: usize) -> Vec<usize> {
+    if (h as f64) < delaunay::EXACT_LIMIT && (w as f64) < delaunay::EXACT_LIMIT {
+        return delaunay::triangulate(pts).triangles;
+    }
+    let up: Vec<delaunator::Point> = pts.iter().map(|p| delaunator::Point { x: p.x, y: p.y }).collect();
+    delaunator::triangulate(&up).triangles
+}
 
 /// Билинейное изменение размера с семантикой OpenCV INTER_LINEAR
 /// (центры пикселей, зажим индексов на краях). Вход без NaN.
@@ -160,8 +176,6 @@ pub fn convex_hull(mut pts: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
 /// выпуклой оболочки остаётся NaN. Каждый треугольник растеризуется по своей
 /// рамке, поэтому время ~ площади съёмки, а не числу пар «точка — треугольник».
 pub fn fill_tin(dem: &[f32], h: usize, w: usize) -> Vec<f32> {
-    use delaunator::{triangulate, Point};
-
     let mut out = dem.to_vec();
     let (idx, pts): (Vec<usize>, Vec<Point>) = dem
         .iter()
@@ -172,7 +186,8 @@ pub fn fill_tin(dem: &[f32], h: usize, w: usize) -> Vec<f32> {
     if pts.len() < 3 || pts.len() == h * w {
         return out;
     }
-    let tri = triangulate(&pts);
+    let triangles = triangulate_cells(&pts, h, w);
+    let tri = TriView { triangles };
     let nt = tri.triangles.len() / 3;
     if nt >= u32::MAX as usize {
         return fill_tin_sequential(dem, h, w, &idx, &pts, &tri.triangles);
@@ -230,7 +245,7 @@ struct TinBox {
 }
 
 /// Рамка треугольника на сетке и определитель; None — вырожденный или вне сетки.
-fn tin_bbox(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Point, h: usize, w: usize)
+fn tin_bbox(a: &Point, b: &Point, c: &Point, h: usize, w: usize)
             -> Option<TinBox> {
     let det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
     if det.abs() < 1e-12 {
@@ -248,7 +263,7 @@ fn tin_bbox(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Point,
 
 /// Барицентрические координаты ячейки (px, py); None — ячейка вне треугольника.
 #[inline]
-fn barycentric(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Point, det: f64, px: f64, py: f64)
+fn barycentric(a: &Point, b: &Point, c: &Point, det: f64, px: f64, py: f64)
                -> Option<(f64, f64, f64)> {
     let l1 = ((b.y - c.y) * (px - c.x) + (c.x - b.x) * (py - c.y)) / det;
     let l2 = ((c.y - a.y) * (px - c.x) + (a.x - c.x) * (py - c.y)) / det;
@@ -258,7 +273,7 @@ fn barycentric(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Poi
 
 /// Столбцы строки py, которые может задеть треугольник, с запасом в 1 ячейку.
 /// Сужает обход рамки; принимает ячейку всё равно только barycentric.
-fn scan_span(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Point, py: f64, bx0: usize,
+fn scan_span(a: &Point, b: &Point, c: &Point, py: f64, bx0: usize,
              bx1: usize) -> (usize, usize) {
     let v = [(a.x, a.y), (b.x, b.y), (c.x, c.y)];
     let (mut lo, mut hi) = (f64::INFINITY, f64::NEG_INFINITY);
@@ -284,7 +299,7 @@ fn scan_span(a: &delaunator::Point, b: &delaunator::Point, c: &delaunator::Point
 }
 
 /// Тот же обход в одном потоке: для триангуляций больше u32::MAX треугольников.
-fn fill_tin_sequential(dem: &[f32], h: usize, w: usize, idx: &[usize], pts: &[delaunator::Point],
+fn fill_tin_sequential(dem: &[f32], h: usize, w: usize, idx: &[usize], pts: &[Point],
                        triangles: &[usize]) -> Vec<f32> {
     let mut out = dem.to_vec();
     for t in triangles.chunks_exact(3) {
@@ -388,19 +403,42 @@ mod tests {
                 }
             }
             let par = fill_tin(&dem, h, w);
-            let (idx, pts): (Vec<usize>, Vec<delaunator::Point>) = dem
+            let (idx, up): (Vec<usize>, Vec<delaunator::Point>) = dem
                 .iter()
                 .enumerate()
                 .filter(|(_, v)| v.is_finite())
                 .map(|(i, _)| (i, delaunator::Point { x: (i % w) as f64, y: (i / w) as f64 }))
                 .unzip();
-            let tri = delaunator::triangulate(&pts);
+            let tri = delaunator::triangulate(&up);
+            let pts: Vec<Point> = up.iter().map(|p| Point { x: p.x, y: p.y }).collect();
             let seq = fill_tin_sequential(&dem, h, w, &idx, &pts, &tri.triangles);
             let filled = par.iter().zip(&dem).filter(|(p, d)| p.is_finite() && !d.is_finite()).count();
             assert!(filled > 100);
             for (i, (a, b)) in par.iter().zip(&seq).enumerate() {
                 assert!(a.to_bits() == b.to_bits() || (a.is_nan() && b.is_nan()), "ячейка {i}: {a} != {b}");
             }
+        }
+    }
+
+    #[test]
+    fn exact_orient_triangulation_matches_delaunator() {
+        // Сплошные строки, коллинеарные края и пустоты: robust уходит в точную арифметику.
+        for (h, w, hole, seed0) in [(50usize, 70usize, 0.0, 2u64), (80, 80, 0.6, 5), (30, 400, 0.9, 9), (200, 150, 0.75, 4)] {
+            let mut seed = seed0;
+            let mut up = Vec::new();
+            for y in 0..h {
+                for x in 0..w {
+                    if lcg(&mut seed) >= hole {
+                        up.push(delaunator::Point { x: x as f64, y: y as f64 });
+                    }
+                }
+            }
+            let ours: Vec<Point> = up.iter().map(|p| Point { x: p.x, y: p.y }).collect();
+            let a = delaunator::triangulate(&up);
+            let b = delaunay::triangulate(&ours);
+            assert_eq!(a.triangles, b.triangles);
+            assert_eq!(a.halfedges, b.halfedges);
+            assert_eq!(a.hull, b.hull);
         }
     }
 }

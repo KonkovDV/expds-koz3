@@ -6,6 +6,7 @@
 
 mod channels;
 mod cpu;
+mod delaunay;
 mod fill;
 mod grid;
 mod peaks;
