@@ -91,7 +91,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 continue
             seg = seg_cache.setdefault("li", _segmenter(models, "li", root))
             if seg is not None:
-                feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set)
+                rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
+                feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p if rescore else None)
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
@@ -126,8 +127,13 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
     return feats
 
 
-def _li_with_model(seg, d, region: str, source: str, hillshade_set) -> list[dict]:
-    """Каналы из DEM на рабочем шаге модели → вероятности → объекты."""
+def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None) -> list[dict]:
+    """Каналы из DEM на рабочем шаге модели → вероятности → объекты.
+
+    С cand_p курганы выдаются по кандидатам-пикам рельефа с уверенностью модели
+    в их центрах: пики разделяют соседние насыпи, которые маска сливает в один
+    объект (а слитый полигон метрика не засчитывает). Остальные классы — масками.
+    """
     from rasterio.transform import from_origin
 
     from .candidates import downsample_mean
@@ -137,7 +143,17 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set) -> list[dict
         from .lidar import relief_channels
 
         img, tr = relief_channels(d, seg.res, tuple(seg.meta["li_tags"]))
-        return probs_to_features(seg.predict(img), seg.classes, tr, d.crs, tr.a, region, "li", source)
+        probs = seg.predict(img)
+        kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in seg.classes] if cand_p else []
+        rest = [c for c in seg.classes if c not in kur]
+        feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
+                                  region, "li", source) if rest else []
+        if kur:
+            c = candidates.detect(d, cand_p)
+            s = candidates.sample_probs(c, probs[[seg.classes.index(k) for k in kur]], tr)
+            scores = np.column_stack([np.zeros(len(s), np.float32), s])
+            feats += candidates.to_features(c, scores, d.crs, region, cand_p, classes=tuple(kur), source=source)
+        return feats
     tags = seg.meta.get("li_tags") or ["g"]
     images = hillshade_set(d, tags=tuple(tags))
     k = max(1, int(round(seg.res / d.res)))

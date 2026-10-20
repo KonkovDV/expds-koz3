@@ -115,3 +115,12 @@ def test_li_las_model_runs_in_pipeline(tmp_path):
     d = build_dem(next(root.rglob("*.las")), crs=UTM)
     feats = _li_with_model(seg, d, "001_Тест_Курганы", "x.las", hillshade_set)
     assert all(f["geom"].geom_type == "Polygon" and f["markup_type"] == "li" for f in feats)
+
+    from expds import candidates
+
+    p = candidates.CandidateParams()
+    n = len(candidates.detect(d, p)["x"])
+    feats = _li_with_model(seg, d, "001_Тест_Курганы", "x.las", hillshade_set, p)
+    kur = [f for f in feats if f["class_name"].startswith("kurgany")]
+    assert n > 0 and len(kur) == 2 * n
+    assert all(0.0 <= f["confidence"] <= 1.0 for f in kur)

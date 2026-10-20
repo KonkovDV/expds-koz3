@@ -99,6 +99,17 @@ def score(feats: np.ndarray, model_path: str | Path | None = None) -> np.ndarray
     return heuristic_score(feats)
 
 
+def sample_probs(c: dict, probs: np.ndarray, transform, window_px: int = 5) -> np.ndarray:
+    """Вероятности модели в центрах кандидатов: максимум в окне window_px² (K×H×W → N×K)."""
+    from scipy.ndimage import maximum_filter
+
+    if len(c["x"]) == 0:
+        return np.zeros((0, probs.shape[0]), np.float32)
+    col = np.clip(np.floor((c["x"] - transform.c) / transform.a).astype(int), 0, probs.shape[2] - 1)
+    row = np.clip(np.floor((transform.f - c["y"]) / transform.a).astype(int), 0, probs.shape[1] - 1)
+    return np.stack([maximum_filter(p, size=window_px)[row, col] for p in probs], 1).astype(np.float32)
+
+
 def to_features(c: dict, scores: np.ndarray, crs: str | None, region: str, p: CandidateParams,
                 classes: tuple[str, ...] = ("kurgany_povrezhdennye", "kurgany_tselye"),
                 source: str = "las") -> list[dict]:
