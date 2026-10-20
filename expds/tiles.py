@@ -254,7 +254,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         w.writerow(["shard", "idx", "region", "family", "file", "cx", "cy", "positive"])
         w.writerows(rows)
     li_src = li_source if markup == "li" else None
-    meta = {"markup": markup, "classes": classes, "res": res, "tile": tile, "li_tags": li_tags,
+    meta = {"markup": markup, "classes": classes, "res": res, "tile": tile,
+            "li_tags": li_tags if markup == "li" else None,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
             "channels": n_ch, "shrink": shrink, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
