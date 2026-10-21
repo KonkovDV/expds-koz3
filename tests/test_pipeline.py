@@ -179,3 +179,54 @@ def test_train_and_infer_smoke(tmp_path):
     feats = probs_to_features(probs, seg.classes, from_origin(X0, Y0 + 50, 0.5, 0.5), UTM, 0.5,
                               "r", "li", "x", low=0.0)
     assert all(f["geom"].geom_type == "Polygon" for f in feats)
+
+
+def test_broken_lidar_model_uses_cpu_detector(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from expds import pipeline
+
+    dem = SimpleNamespace(crs="EPSG:32636", info={"factor": 1})
+    monkeypatch.setattr(pipeline, "_cached_segmenters", lambda *a, **k: [SimpleNamespace(meta={})])
+    monkeypatch.setattr(pipeline, "_li_with_model", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("oom")))
+    monkeypatch.setattr("expds.lidar.build_dem", lambda *a, **k: dem)
+    seen = {}
+
+    def cpu(d, region, source, cfg, root, cand_p):
+        seen["source"] = source
+        return [{"class_name": "kurgany_povrezhdennye", "threshold_group": "li_cpu",
+                 "confidence": 0.2, "markup_type": "li", "region_name": region, "source": source}]
+
+    monkeypatch.setattr(pipeline, "cpu_kurgans", cpu)
+    reg = SimpleNamespace(name="r", las=[tmp_path / "a.las"], rasters={}, utm_json=None)
+    out = pipeline.lidar_feats(reg, {}, pipeline.TimeGuard(1000), {}, tmp_path, prefetch=None)
+    assert seen["source"] == "a.las"
+    assert out[0]["threshold_group"] == "li_cpu"
+
+
+def test_watchdog_writes_a_valid_file_and_stops(tmp_path):
+    import time
+
+    from shapely.geometry import box
+
+    from expds.watchdog import RunState, arm
+
+    state = RunState(tmp_path / "result.geojson",
+                     {"thresholds": {}, "default_threshold": 0.0, "thresholds_by_markup": {}})
+    state.add([{"geom": box(0, 0, 10, 10), "class_name": "kurgany_tselye", "confidence": 0.5,
+                "markup_type": "li", "region_name": "r"}])
+    flag = {}
+    arm(state, 0.15, exit_fn=lambda code: flag.setdefault("code", code))
+    time.sleep(0.6)
+    assert flag["code"] == 0
+    assert writer.validate(tmp_path / "result.geojson")["ok"]
+
+
+def test_inference_stays_fp32_unless_asked():
+    torch = pytest.importorskip("torch")
+    from expds.infer_nn import configure_runtime, inference_amp
+
+    configure_runtime(amp=False, tf32=False, deterministic=True)
+    assert inference_amp(torch.device("cpu")) is False
+    assert torch.backends.cudnn.deterministic is True
+    assert torch.backends.cuda.matmul.allow_tf32 is False

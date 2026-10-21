@@ -16,9 +16,27 @@ from .raster import mask_to_polygons
 
 log = logging.getLogger(__name__)
 
+#: Как считать на платформе. Пороги подобраны в FP32; половинная точность и TF32
+#: их сдвигают. Включается из конфига [infer] через configure_runtime.
+_RUNTIME = {"amp": False, "tf32": False, "deterministic": True}
+
 #: Радиус разделения экземпляров по пикам (м); 0 — не делить (крупные объекты).
 SPLIT_RADIUS_M = {"kurgany_povrezhdennye": 4.0, "kurgany_tselye": 4.0, "arkhitektury": 0.0,
                   "gorodishcha": 0.0, "fortifikatsii": 0.0, "object_poly": 0.0, "finds_points": 1.0}
+
+
+def configure_runtime(amp: bool = False, tf32: bool = False, deterministic: bool = True) -> None:
+    """Фиксирует точность инференса. По умолчанию FP32 без TF32: так подобраны пороги."""
+    import torch
+
+    _RUNTIME["amp"] = bool(amp)
+    _RUNTIME["tf32"] = bool(tf32)
+    _RUNTIME["deterministic"] = bool(deterministic)
+    torch.backends.cuda.matmul.allow_tf32 = bool(tf32)
+    torch.backends.cudnn.allow_tf32 = bool(tf32)
+    torch.backends.cudnn.benchmark = not deterministic
+    torch.backends.cudnn.deterministic = bool(deterministic)
+    log.info("amp=%s tf32=%s deterministic=%s", _RUNTIME["amp"], _RUNTIME["tf32"], _RUNTIME["deterministic"])
 
 
 def fp16_ok(device) -> bool:
@@ -26,6 +44,11 @@ def fp16_ok(device) -> bool:
     import torch
 
     return device.type == "cuda" and "GTX 16" not in torch.cuda.get_device_name(device)
+
+
+def inference_amp(device) -> bool:
+    """AMP инференса: и карта умеет FP16, и конфиг его не запретил."""
+    return bool(_RUNTIME["amp"]) and fp16_ok(device)
 
 
 class Segmenter:
@@ -45,7 +68,7 @@ class Segmenter:
                               in_channels=ck["in_channels"], classes=len(self.classes))
         self.model.load_state_dict(ck["state_dict"])
         self.model.to(self.device).eval()
-        self.amp = fp16_ok(self.device)
+        self.amp = inference_amp(self.device)
         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
 
     def _forward(self, xb):

@@ -140,38 +140,55 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     return feats
 
 
+def cpu_kurgans(d, region: str, source: str, cfg: dict, root: Path, cand_p) -> list[dict]:
+    """Пики рельефа и LightGBM. Включается, когда модели нет или она упала на этом LAS."""
+    kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
+    found = candidates.detect(d, cand_p)
+    scores = candidates.score(found["features"], root / kurgan_model if kurgan_model else None)
+    return [dict(f, threshold_group="li_cpu")
+            for f in candidates.to_features(found, scores, d.crs, region, cand_p, source=source)]
+
+
 def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
                 prefetch=None) -> list[dict]:
-    """LAS → объекты лидара и, где есть аэрофото, копии курганов в слой ae."""
+    """LAS → объекты лидара и, где есть аэрофото, копии курганов в слой ae.
+
+    Сбой загрузки или инференса модели не оставляет участок без курганов:
+    для этого LAS считается запасной детектор.
+    """
     from .lidar import build_dem, dem_params, hillshade_set
 
     feats: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
             break
         try:
             segs = _cached_segmenters(seg_cache, cfg, "li", root)
-            dems: dict[tuple, object] = {}
+        except Exception:
+            log.exception("модель li не загрузилась, дальше запасной детектор")
+            seg_cache["li"] = []
+            segs = []
+        dems: dict[tuple, object] = {}
 
-            def dem_for(meta):
-                dp = dem_params(meta, cfg)
-                key = (dp["res"], dp["fill"])
-                if key not in dems:
-                    dems[key] = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
-                                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
-                return dems[key]
+        def dem_for(meta, _las=las):
+            dp = dem_params(meta, cfg)
+            key = (dp["res"], dp["fill"])
+            if key not in dems:
+                dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                             else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+            return dems[key]
 
-            d = dem_for(segs[0].meta if segs else None)
-            if d.crs is None:
-                log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
-                continue
-            if segs:
+        produced = False
+        if segs:
+            try:
+                d = dem_for(segs[0].meta)
+                if d.crs is None:
+                    log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
+                    continue
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
-                # На крупной сетке та же модель даёт много ложных курганов: у неё свой порог.
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
                 for seg in segs:
@@ -182,13 +199,29 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                             if not f.get("threshold_group"):
                                 f["threshold_group"] = group
                     feats += found
-            else:
-                c = candidates.detect(d, cand_p)
-                s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
-                feats += [dict(f, threshold_group="li_cpu")
-                          for f in candidates.to_features(c, s, d.crs, reg.name, cand_p, source=las.name)]
-        except Exception as exc:
-            log.exception("%s: ошибка лидара (%s)", las.name, exc)
+                produced = True
+            except Exception:
+                log.exception("%s: инференс li упал, запасной детектор", las.name)
+                try:
+                    import torch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                except Exception:
+                    pass
+        if produced:
+            continue
+        try:
+            d = dem_for(None)
+        except Exception:
+            log.exception("%s: DEM для запасного детектора не построен", las.name)
+            continue
+        if d.crs is None:
+            log.warning("%s: нет CRS — пропуск", las.name)
+            continue
+        try:
+            feats += cpu_kurgans(d, reg.name, las.name, cfg, root, cand_p)
+        except Exception:
+            log.exception("%s: запасной детектор упал", las.name)
 
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
     if fp.li_to_ae and reg.rasters.get("ae"):
@@ -205,7 +238,13 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
     for mt in ("ae", "sp_or", "or"):
         if not reg.rasters.get(mt):
             continue
-        for seg in _cached_segmenters(seg_cache, cfg, mt, root):
+        try:
+            segs = _cached_segmenters(seg_cache, cfg, mt, root)
+        except Exception:
+            log.exception("модель %s не загрузилась, модальность пропущена", mt)
+            seg_cache[mt] = []
+            continue
+        for seg in segs:
             for path in reg.rasters.get(mt, []):
                 if not guard.ok(60):
                     break
@@ -349,12 +388,20 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
-    """Полный прогон; файл результата записывается в любом случае."""
+    """Полный прогон. Контрольные записи — после геофизики, после лидара и по сторожу времени."""
+    from .infer_nn import configure_runtime
+    from .watchdog import RunState, arm_platform, checkpoint
+
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg = load_config(config_path or root / "configs" / "default.toml")
+    infer = cfg.get("infer", {})
+    configure_runtime(bool(infer.get("amp", False)), bool(infer.get("tf32", False)),
+                      bool(infer.get("deterministic", True)))
     guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
     log.info("ускоритель: %s", accel.backend())
-    feats: list[dict] = []
+    state = RunState(Path(output_path), cfg)
+    if cfg.get("time", {}).get("watchdog", True):
+        arm_platform(state)
     seg_cache: dict = {}
     summary = {"regions": 0, "raw": 0}
     prefetch = None
@@ -363,45 +410,40 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
-        # Сначала регионы с LAS: лидар даёт основную часть балла.
         regions.sort(key=lambda r: (not r.las, r.name))
         depth = int(cfg.get("lidar", {}).get("prefetch", 2))
         if depth > 0:
             prefetch = DemPrefetch([(las, read_utm_json(r.utm_json)) for r in regions for las in r.las], depth)
         for reg in regions:
-            n0 = len(feats)
-            feats += geophys_feats(reg, cfg, guard)
-            if len(feats) != n0:
-                log.info("%s: геофизика %+d, прошло %.0f с", reg.name, len(feats) - n0, guard.elapsed())
+            found = geophys_feats(reg, cfg, guard)
+            state.add(found)
+            if found:
+                log.info("%s: геофизика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        checkpoint(state, "геофизика")
         reserve = cfg.get("time", {}).get("reserve_s", 120)
         for reg in regions:
             if not guard.ok(reserve):
                 log.warning("бюджет времени исчерпан, оставшийся лидар пропущен")
                 break
             t = time.monotonic()
-            n0 = len(feats)
-            feats += lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
-            log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(feats) - n0,
+            found = lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
+            state.add(found)
+            log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(found),
                      time.monotonic() - t, guard.elapsed())
+        checkpoint(state, "лидар")
         for reg in regions:
             if not guard.ok(60):
                 log.warning("на оптику времени не осталось")
                 break
-            n0 = len(feats)
-            feats += optical_feats(reg, cfg, guard, seg_cache, root)
-            if len(feats) != n0:
-                log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(feats) - n0, guard.elapsed())
+            found = optical_feats(reg, cfg, guard, seg_cache, root)
+            state.add(found)
+            if found:
+                log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
     finally:
         if prefetch is not None:
             prefetch.close()
-        summary["raw"] = len(feats)
-        out = post.only_known_classes(feats)
-        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                    cfg.get("thresholds_by_markup", {}))
-        out = post.merge_within_markup(out)
-        out = post.finalize(out)
-        out = post.cap_features(out)
-        writer.write_geojson(out, output_path)
-        summary.update(written=len(out), seconds=round(guard.elapsed(), 1))
-        log.info("записано %d объектов в %s за %.1f с", len(out), output_path, guard.elapsed())
+        summary["raw"] = len(state.snapshot())
+        summary["written"] = checkpoint(state, "конец")
+        summary["seconds"] = round(guard.elapsed(), 1)
+        log.info("записано %d объектов в %s за %.1f с", summary["written"], output_path, guard.elapsed())
     return summary

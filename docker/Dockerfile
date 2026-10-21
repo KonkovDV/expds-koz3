@@ -5,19 +5,13 @@
 # (слои читаются через API). Код, веса и expds_core*.so едут в архиве.
 #
 # Сборка и публикация (имя образа лучше нейтральное, без «koz3»):
-#   docker build -t ВАШ_ЛОГИН/geo-runtime:2026-10 -f docker/Dockerfile .
-#   docker push ВАШ_ЛОГИН/geo-runtime:2026-10
-# Затем это имя — в metadata.json, поле image.
-#
-# Локальная проверка как на платформе (без сети):
-#   docker run --rm --gpus all --network none -v %CD%:/app -w /app ^
-#     -v D:/val:/data/input -v D:/out:/data/output ВАШ_ЛОГИН/geo-runtime:2026-10 ^
-#     python inference/main.py /data/input /data/output/result.geojson
-
+#   docker build -t ВАШ_ЛОГИН/geo-runtime:2026-10-22 -f docker/Dockerfile .
+# Тег не переписывать: платформа кэширует слои. Новая сборка — новый тег.
+# Для локальной проверки без GPU: --build-arg TORCH_INDEX=https://download.pytorch.org/whl/cpu
 FROM python:3.12-slim-bookworm
 
 # Для локальной проверки без GPU: --build-arg TORCH_INDEX=https://download.pytorch.org/whl/cpu
-ARG TORCH_INDEX=https://download.pytorch.org/whl/cu126
+ARG TORCH_INDEX=https://download.pytorch.org/whl/cu128
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 GDAL_PAM_ENABLED=NO OMP_NUM_THREADS=8
@@ -26,7 +20,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
-# PyTorch с CUDA 12.6 (колёса несут свои библиотеки CUDA; драйвер — на хосте платформы)
+# PyTorch CUDA 12.8: RTX 4090 (Ada) и более новые карты. Колёса несут свои библиотеки CUDA.
 RUN pip install torch==2.7.1 torchvision==0.22.1 --index-url ${TORCH_INDEX}
 
 COPY requirements.txt /tmp/requirements.txt
