@@ -121,6 +121,31 @@ def test_tile_cache_li_las_matches_inference(tmp_path):
         assert found, r
 
 
+def test_lidar_center_checkpoint_emits_circles():
+    """Чекпойнт target=centers на LAS отдаёт круг, а не маску пятна."""
+    from expds.lidar import Dem
+    from expds.pipeline import _li_with_model
+
+    class Seg:
+        meta = {"li_source": "las", "li_tags": ["lrm_s", "lrm_l", "slope"], "target": "centers",
+                "center_radius_m": 12.0, "min_dist_m": 4.0}
+        res = 0.5
+        classes = ["gorodishcha", "kurgany_povrezhdennye"]
+
+        def predict(self, img):
+            p = np.zeros((2, img.shape[1], img.shape[2]), np.float32)
+            p[0, img.shape[1] // 2, img.shape[2] // 2] = 0.8
+            return p
+
+    z = np.full((40, 40), 10.0, np.float32)
+    d = Dem(z, left=500000.0, top=6000000.0, res=0.5, crs=UTM)
+    feats = _li_with_model(Seg(), d, "001_Тест", "x.las", hillshade_set, cand_p=object())
+    assert len(feats) == 1
+    assert feats[0]["class_name"] == "gorodishcha" and feats[0]["markup_type"] == "li"
+    assert feats[0]["confidence"] == pytest.approx(0.8)
+    assert feats[0]["geom"].geom_type == "Polygon" and feats[0]["geom"].area > 100
+
+
 def test_li_las_model_runs_in_pipeline(tmp_path):
     pytest.importorskip("torch")
     pytest.importorskip("segmentation_models_pytorch")

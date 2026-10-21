@@ -329,6 +329,8 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
     С cand_p курганы выдаются по кандидатам-пикам рельефа с уверенностью модели
     в их центрах: пики разделяют соседние насыпи, которые маска сливает в один
     объект (а слитый полигон метрика не засчитывает). Остальные классы — масками.
+    Чекпойнт с target="centers" отдаёт круги вокруг пиков, как оптика. У сданных
+    весов лидара этого поля нет.
     """
     from rasterio.transform import from_origin
 
@@ -342,6 +344,15 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
         probs = seg.predict(img)
         keep = getattr(seg, "keep", None)
         out_classes = [c for c in seg.classes if keep is None or c in keep]
+        if seg.meta.get("target") == "centers":
+            from .centers import centers_to_features
+
+            idx = [seg.classes.index(c) for c in out_classes]
+            return centers_to_features(
+                probs[idx], out_classes, tr, d.crs, float(tr.a), region, "li", source,
+                radius_m=float(seg.meta.get("center_radius_m") or 6.0),
+                min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
+                min_conf=min_conf)
         kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in out_classes] if cand_p else []
         rest = [c for c in out_classes if c not in kur]
         feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
