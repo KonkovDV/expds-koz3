@@ -1,0 +1,40 @@
+{
+  "decision": "ship",
+  "formulation": "Маска городищ на кэше шага 1 м, тайл 384, каналы lrm_l, lrm_xl и уклон. Пять фолдов по семьям. Своя группа li_mask. Отличие от отклонённых кругов на этом же кэше: выход — полигон маски, не круг 12 м.",
+  "polygons": 293,
+  "kept": 26,
+  "tp": 14,
+  "threshold": 0.99451,
+  "base_all": 0.32996638777767695,
+  "all": 0.3385856158764114,
+  "delta_all": 0.008619228098734444,
+  "base_new": 0.2838579838622589,
+  "new": 0.30126799904277846,
+  "delta_new": 0.017410015180519545,
+  "base_optical": 0.1866869395850313,
+  "optical": 0.1866869395850313,
+  "delta_optical": 0.0,
+  "bootstrap": {
+    "mean": 0.008858472168726528,
+    "p5": 0.0033358893402857747,
+    "p50": 0.008788607196623194,
+    "p95": 0.01494268590869448,
+    "p_gt0": 0.999
+  },
+  "gorodishcha_f1_before": 0.2332,
+  "gorodishcha_f1_after": 0.29069724026564486,
+  "groups_after": {
+    "li": {"threshold": 0.993091, "kept": 0, "tp": 0, "before_threshold": 0.977365, "before_kept": 15, "before_tp": 1},
+    "li_coarse": {"threshold": 0.986425, "kept": 24, "tp": 8, "before_threshold": 0.98362, "before_kept": 39, "before_tp": 16},
+    "li_mask": {"threshold": 0.99451, "kept": 26, "tp": 14},
+    "sp_or": {"threshold": 0.994085, "kept": 33, "tp": 3}
+  },
+  "kurgan_thresholds_unchanged": true,
+  "weights": "models/li_gor_mask_r18.pt, 21 эпоха на всех 486 тайлах. 21 — медиана эпохи лучших чекпойнтов пяти фолдов (8, 10, 21, 23, 23).",
+  "acceptance": {
+    "delta_all_at_least_0_003": true,
+    "new_not_worse": true,
+    "optical_not_worse": true,
+    "bootstrap_p_gt0_at_least_0_9": true
+  }
+}

@@ -149,6 +149,30 @@ def cpu_kurgans(d, region: str, source: str, cfg: dict, root: Path, cand_p) -> l
             for f in candidates.to_features(found, scores, d.crs, region, cand_p, source=source)]
 
 
+def li_mask_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path, dem_for) -> list[dict]:
+    """Городища отдельной модели на своём DEM. Группа порога li_mask, не li и не li_coarse.
+
+    Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
+    Нет файла весов — пустой список, основной лидар не трогается.
+    """
+    from .lidar import hillshade_set
+
+    segs = _cached_segmenters(seg_cache, cfg, "li_mask", root)
+    out: list[dict] = []
+    for seg in segs:
+        d = dem_for(seg.meta)
+        if d.crs is None:
+            continue
+        found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set, None, None,
+                                          output_floors(cfg, "li_mask")))
+        for feat in found:
+            if feat.get("class_name") != "gorodishcha":
+                continue
+            feat["threshold_group"] = "li_mask"
+            out.append(feat)
+    return out
+
+
 def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
                 prefetch=None) -> list[dict]:
     """LAS → объекты лидара и, где есть аэрофото, копии курганов в слой ae.
@@ -246,6 +270,11 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                 except Exception:
                     pass
         if produced:
+            if guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
+                try:
+                    feats += li_mask_feats(reg, las, cfg, seg_cache, root, dem_for)
+                except Exception:
+                    log.exception("%s: маска городищ пропущена", las.name)
             continue
         try:
             d = dem_for(None)

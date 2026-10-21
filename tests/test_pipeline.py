@@ -211,6 +211,39 @@ def test_train_and_infer_smoke(tmp_path):
     assert all(f["geom"].geom_type == "Polygon" for f in feats)
 
 
+def test_hillfort_mask_keeps_its_own_group(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import pipeline
+
+    dem = SimpleNamespace(crs="EPSG:32636", info={})
+    seg = SimpleNamespace(meta={"dem_res": 1.0, "dem_fill": "delaunay"}, keep={"gorodishcha"})
+
+    def segs(cache, cfg, markup, root, tta=1):
+        assert markup == "li_mask"
+        return [seg]
+
+    def predict(seg_arg, d, region, source, hillshade, cand_p, li_cfg, floors):
+        assert d is dem and cand_p is None
+        assert floors["gorodishcha"] == 0.99451
+        return [
+            {"class_name": "gorodishcha", "markup_type": "li", "confidence": 0.995,
+             "geom": Point(0, 0).buffer(12), "region_name": region, "source": source},
+            {"class_name": "kurgany_povrezhdennye", "markup_type": "li", "confidence": 0.9,
+             "geom": Point(1, 1).buffer(4), "region_name": region, "source": source},
+        ]
+
+    monkeypatch.setattr(pipeline, "_cached_segmenters", segs)
+    monkeypatch.setattr(pipeline, "_li_with_model", predict)
+    reg = SimpleNamespace(name="021_Новенькое")
+    cfg = {"thresholds_by_markup": {"li_mask": {"gorodishcha": 0.99451}}}
+    out = pipeline.li_mask_feats(reg, tmp_path / "a.las", cfg, {}, tmp_path, lambda meta: dem)
+    assert len(out) == 1
+    assert out[0]["class_name"] == "gorodishcha" and out[0]["threshold_group"] == "li_mask"
+
+
 def test_broken_lidar_model_uses_cpu_detector(monkeypatch, tmp_path):
     from types import SimpleNamespace
 
