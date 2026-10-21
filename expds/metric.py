@@ -190,6 +190,64 @@ def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dic
             for cls, v in taus.items() if v}
 
 
+def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
+                     tau_b: dict[str, float], n: int = 1000, seed: int = 0) -> dict:
+    """Разница баллов A − B на одних и тех же выборках регионов с возвращением.
+
+    Пороги фиксированы (как в сабмите). Одни веса регионов на обе модели убирают
+    из разницы разброс «какие участки попались» — сравнение парное.
+    """
+    regions = sorted({r for cs in (a, b) for c in cs.values() for r in c.pred_region} |
+                     {r for cs in (a, b) for c in cs.values() for r in c.gt_regions})
+    if not regions or n <= 0:
+        return {}
+    idx = {r: i for i, r in enumerate(regions)}
+    rng = np.random.default_rng(seed)
+
+    def prep(curves, taus):
+        out = {}
+        for cls, c in curves.items():
+            kept = c.conf >= (taus.get(cls) or 0.0)
+            out[cls] = (np.array([idx[r] for r in c.pred_region], np.int64)[kept], c.hit[kept],
+                        {idx[r]: k for r, k in c.gt_regions.items()})
+        return out
+
+    pa, pb = prep(a, tau_a), prep(b, tau_b)
+    classes = sorted(set(pa) | set(pb))
+    diffs, per = [], {c: [] for c in classes}
+    for _ in range(n):
+        w = np.bincount(rng.integers(0, len(regions), len(regions)), minlength=len(regions)).astype(float)
+        s = []
+        for prepared in (pa, pb):
+            num = den = 0.0
+            f1s = {}
+            for cls in classes:
+                if cls not in prepared:
+                    continue
+                reg, hit, gtr = prepared[cls]
+                n_gt = sum(w[r] * k for r, k in gtr.items())
+                if n_gt == 0:
+                    continue
+                pw = w[reg]
+                tp = float((pw * hit).sum())
+                f1 = float(_f1(tp, float(pw.sum()) - tp, n_gt - tp))
+                f1s[cls] = f1
+                num += CLASS_WEIGHTS.get(cls, 0.0) * f1
+                den += CLASS_WEIGHTS.get(cls, 0.0)
+            s.append((num / den if den else 0.0, f1s))
+        diffs.append(s[0][0] - s[1][0])
+        for cls in classes:
+            if cls in s[0][1] and cls in s[1][1]:
+                per[cls].append(s[0][1][cls] - s[1][1][cls])
+
+    def summary(v):
+        v = np.asarray(v)
+        return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
+                "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean())}
+
+    return {"score": summary(diffs), "per_class": {c: summary(v) for c, v in per.items() if v}, "samples": n}
+
+
 def apply_thresholds(fc: dict, thresholds: dict[str, float], metric_path: str | None = None) -> dict:
     """Оставляет предсказания с confidence ≥ порога своего класса."""
     norm = load_official(metric_path).normalize_class_name
@@ -257,6 +315,14 @@ def _cli() -> None:
         if name == "sweep":
             p.add_argument("--out", default=None, help="куда сохранить пороги (JSON)")
             p.add_argument("--bootstrap", type=int, default=0, help="повторов бутстрепа по регионам")
+    p = sub.add_parser("compare", help="A против B: пороги — оптимум каждой, разница — парный бутстреп по регионам")
+    p.add_argument("--pred", required=True, help="A")
+    p.add_argument("--pred-b", required=True, help="B")
+    p.add_argument("--gt", required=True)
+    p.add_argument("--metric", default=None)
+    p.add_argument("--markup", default=None)
+    p.add_argument("--regions", default=None)
+    p.add_argument("--boot", type=int, default=1000)
     args = ap.parse_args()
     pred = json.loads(Path(args.pred).read_text(encoding="utf-8-sig"))
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8-sig"))
@@ -264,6 +330,18 @@ def _cli() -> None:
     regions = ({ln.strip() for ln in Path(args.regions).read_text(encoding="utf-8").splitlines() if ln.strip()}
                if args.regions else None)
     pred, gt = _filter(pred, markup, regions), _filter(gt, markup, regions)
+    if args.cmd == "compare":
+        pred_b = _filter(json.loads(Path(args.pred_b).read_text(encoding="utf-8-sig")), markup, regions)
+        ra, rb = sweep(pred, gt, args.metric), sweep(pred_b, gt, args.metric)
+        res = paired_bootstrap(ra["_curves"], rb["_curves"], ra["thresholds"], rb["thresholds"], args.boot)
+        print(f"балл A {ra['estimated_score']:.4f}, B {rb['estimated_score']:.4f}")
+        s = res["score"]
+        print(f"A − B: среднее {s['mean']:+.4f}, 90% интервал [{s['p5']:+.4f}; {s['p95']:+.4f}], "
+              f"доля выборок с A > B {s['p_gt0']:.2f}")
+        for cls, v in res["per_class"].items():
+            fa, fb = ra["per_class"][cls]["f1"], rb["per_class"][cls]["f1"]
+            print(f"  {cls:24s} F1 {fa:.3f} − {fb:.3f}: [{v['p5']:+.3f}; {v['p95']:+.3f}], A > B в {v['p_gt0']:.2f}")
+        return
     if args.cmd == "score":
         res = score(pred, gt, args.metric)
         print(json.dumps({"final_score": res["final_score"],

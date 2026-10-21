@@ -73,3 +73,16 @@ def test_one_pass_equals_official(seed, official_metric):
     assert res["official"] >= metric.score(pred, gt, official_metric)["final_score"] - 1e-12
     assert abs(res["official"] - sw["estimated_score"]) < 1e-6
     assert set(sw["bootstrap"]) <= set(sw["thresholds"])
+
+
+def test_paired_bootstrap_zero_for_same_model_and_sign_for_worse(official_metric):
+    if not official_metric:
+        pytest.skip("нет EXPDS_METRIC")
+    pred, gt = make_case(0)
+    sw = metric.sweep(pred, gt, official_metric)
+    same = metric.paired_bootstrap(sw["_curves"], sw["_curves"], sw["thresholds"], sw["thresholds"], 200)
+    assert same["score"]["p5"] == same["score"]["p95"] == 0.0
+    worse = {**pred, "features": pred["features"][::2]}
+    sw_b = metric.sweep(worse, gt, official_metric)
+    res = metric.paired_bootstrap(sw["_curves"], sw_b["_curves"], sw["thresholds"], sw_b["thresholds"], 200)
+    assert res["score"]["mean"] > 0 and res["score"]["p_gt0"] > 0.9
