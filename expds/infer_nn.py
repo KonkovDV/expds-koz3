@@ -195,13 +195,21 @@ def split_by_peaks(prob: np.ndarray, mask: np.ndarray, radius_px: int, min_peak:
 
 def probs_to_features(probs: np.ndarray, classes: list[str], transform, crs: str | None, res: float,
                       region: str, markup: str, source: str, low: float = 0.05,
-                      min_area_px: int = 3) -> list[dict]:
-    """Вероятности K×H×W → объекты пайплайна (полигоны EPSG:3857 с уверенностью)."""
+                      min_area_px: int = 3, min_conf: dict[str, float] | None = None) -> list[dict]:
+    """Вероятности K×H×W → объекты пайплайна (полигоны EPSG:3857 с уверенностью).
+
+    min_conf — пороги выдачи по классам: экземпляры ниже них отбрасываются до
+    полигонизации. Итог после post.apply_thresholds тот же, но GDAL и shapely не
+    строят тысячи полигонов, которые всё равно отсекаются. Для OOF не задавать.
+    """
     out = []
     for k, cls in enumerate(classes):
         p = probs[k]
         mask = p >= low
         if not mask.any():
+            continue
+        floor = (min_conf or {}).get(cls)
+        if floor is not None and float(p.max()) < floor:
             continue
         r = SPLIT_RADIUS_M.get(cls, 0.0)
         inst = split_by_peaks(p, mask, int(round(r / res)) if r else 0, low * 2)
@@ -209,9 +217,13 @@ def probs_to_features(probs: np.ndarray, classes: list[str], transform, crs: str
         if n == 0:
             continue
         sizes = np.bincount(inst.ravel(), minlength=n + 1)
-        peak = np.zeros(n + 1, np.float32)
-        np.maximum.at(peak, inst.ravel(), p.ravel())
-        inst = np.where(sizes[inst] >= min_area_px, inst, 0)
+        peak = accel.label_max(inst, p, n)
+        keep = sizes >= min_area_px
+        if floor is not None:
+            keep &= peak.astype(np.float64) >= floor
+        inst = np.where(keep[inst], inst, 0)
+        if not inst.any():
+            continue
         for poly, lab in mask_to_polygons(inst, transform, crs, simplify=res * 0.5):
             out.append({"geom": poly, "class_name": cls, "confidence": float(peak[lab]), "region_name": region,
                         "markup_type": markup, "source": source, "original_crs": crs})

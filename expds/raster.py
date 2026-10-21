@@ -15,7 +15,7 @@ import rasterio
 from rasterio.enums import Resampling
 from rasterio.features import shapes
 from rasterio.windows import Window
-from shapely.geometry import Point, shape
+from shapely.geometry import Point
 
 from .crs import WEB_MERCATOR, to_crs
 
@@ -63,17 +63,37 @@ def iter_tiles(path: str | Path, target_res: float, tile: int = 256, overlap: fl
 
 def mask_to_polygons(labels: np.ndarray, transform, crs: str | None,
                      simplify: float = 0.0) -> list[tuple[object, int]]:
-    """Растровые экземпляры (0 — фон) → [(полигон в EPSG:3857, номер экземпляра)]."""
-    out = []
+    """Растровые экземпляры (0 — фон) → [(полигон в EPSG:3857, номер экземпляра)].
+
+    Кольца GDAL собираются в один массив, и полигоны, упрощение и пересчёт CRS
+    делаются одним вызовом shapely на все объекты. Геометрия та же, что у
+    shape() + simplify() + to_crs() по одному полигону.
+    """
+    import shapely
+
     labels = labels.astype(np.int32)
+    coords: list[list] = []
+    ring_ends: list[int] = []
+    poly_ends: list[int] = []
+    vals: list[int] = []
+    n_pts = 0
     for geom, val in shapes(labels, mask=labels > 0, transform=transform, connectivity=8):
-        poly = shape(geom)
-        if simplify > 0:
-            poly = poly.simplify(simplify, preserve_topology=True)
-        if crs:
-            poly = to_crs(poly, crs, WEB_MERCATOR)
-        out.append((poly, int(val)))
-    return out
+        for ring in geom["coordinates"]:
+            coords.append(ring)
+            n_pts += len(ring)
+            ring_ends.append(n_pts)
+        poly_ends.append(len(ring_ends))
+        vals.append(int(val))
+    if not vals:
+        return []
+    xy = np.concatenate([np.asarray(ring, dtype=np.float64) for ring in coords])
+    polys = shapely.from_ragged_array(shapely.GeometryType.POLYGON, xy,
+                                      (np.r_[0, ring_ends].astype(np.int64), np.r_[0, poly_ends].astype(np.int64)))
+    if simplify > 0:
+        polys = shapely.simplify(polys, simplify, preserve_topology=True)
+    if crs:
+        polys = to_crs(polys, crs, WEB_MERCATOR)
+    return list(zip(polys.tolist(), vals))
 
 
 def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 16):

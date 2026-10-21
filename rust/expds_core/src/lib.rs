@@ -152,6 +152,24 @@ fn robust_z<'py>(py: Python<'py>, a: PyReadonlyArray2<'py, f32>) -> PyResult<Bou
     Ok(Array2::from_shape_vec((h, w), out).unwrap().into_pyarray(py))
 }
 
+/// Максимум значений по номеру области (0..=n), начиная с 0: как np.maximum.at.
+#[pyfunction]
+fn label_max<'py>(py: Python<'py>, labels: PyReadonlyArray2<'py, i32>, values: PyReadonlyArray2<'py, f32>, n: usize)
+                  -> PyResult<Bound<'py, PyArray1<f32>>> {
+    let (lh, lw) = labels.as_array().dim();
+    let (vh, vw) = values.as_array().dim();
+    if (lh, lw) != (vh, vw) {
+        return Err(PyValueError::new_err("labels и values разного размера"));
+    }
+    let l: Cow<[i32]> = match labels.as_slice() {
+        Ok(s) => Cow::Borrowed(s),
+        Err(_) => Cow::Owned(labels.as_array().iter().copied().collect()),
+    };
+    let (v, _, _) = to_vec_f32(&values);
+    let out = py.detach(|| stats::label_max(&l, &v, n));
+    Ok(Array1::from(out).into_pyarray(py))
+}
+
 /// Среднее в окне (2r+1)² без учёта NaN.
 #[pyfunction]
 fn box_mean<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, radius: usize)
@@ -303,6 +321,7 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(color_relief, m)?)?;
     m.add_function(wrap_pyfunction!(box_mean, m)?)?;
     m.add_function(wrap_pyfunction!(robust_z, m)?)?;
+    m.add_function(wrap_pyfunction!(label_max, m)?)?;
     m.add_function(wrap_pyfunction!(local_relief, m)?)?;
     m.add_function(wrap_pyfunction!(work_grid, m)?)?;
     m.add_function(wrap_pyfunction!(slope_deg, m)?)?;

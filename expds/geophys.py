@@ -108,8 +108,7 @@ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     keep = (sizes >= p.min_area_m2) & (sizes <= p.max_area_m2)
     keep[0] = False
     lab = np.where(keep[lab], lab, 0)
-    peak = np.zeros(n + 1, np.float32)
-    np.maximum.at(peak, lab.ravel(), np.nan_to_num(sm, nan=0).ravel())
+    peak = accel.label_max(lab, np.nan_to_num(sm, nan=0), n)
     return [{"geom": poly, "class_name": "object_poly", "confidence": float(strength_confidence(peak[k])),
              "region_name": region, "markup_type": markup_type, "source": source, "original_crs": crs}
             for poly, k in mask_to_polygons(lab, tr, crs)]

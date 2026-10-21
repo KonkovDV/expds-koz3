@@ -117,6 +117,16 @@ def test_relief_peaks_ring_parity():
     assert np.allclose(s1, s2, atol=1e-3, equal_nan=True)
 
 
+def test_label_max_matches_ufunc_at():
+    rng = np.random.default_rng(4)
+    labels = rng.integers(0, 50, (300, 400)).astype(np.int32)
+    values = rng.random((300, 400), dtype=np.float32)
+    ref = np.zeros(50, np.float32)
+    np.maximum.at(ref, labels.ravel(), values.ravel())
+    a, b = both(accel.label_max, labels, values, 49)
+    assert np.array_equal(a, ref) and np.array_equal(b, ref)
+
+
 def test_robust_z_matches_numpy():
     rng = np.random.default_rng(2)
     a = rng.normal(size=(40, 70)).astype(np.float32)

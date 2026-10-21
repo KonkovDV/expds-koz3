@@ -277,6 +277,17 @@ def robust_z(a: np.ndarray) -> np.ndarray:
     return ((a - med) / mad).astype(np.float32)
 
 
+def label_max(labels: np.ndarray, values: np.ndarray, n: int) -> np.ndarray:
+    """out[l] = max(0, max values при labels == l), l = 0..n — как np.maximum.at; values конечные."""
+    labels = np.ascontiguousarray(labels, np.int32)
+    values = np.ascontiguousarray(values, np.float32)
+    if _rs is not None and hasattr(_rs, "label_max") and labels.ndim == 2:
+        return _rs.label_max(labels, values, int(n))
+    out = np.zeros(n + 1, np.float32)
+    np.maximum.at(out, labels.ravel(), values.ravel())
+    return out
+
+
 def box_mean(z: np.ndarray, radius: int) -> np.ndarray:
     """Среднее в окне (2r+1)² без учёта NaN (на краях — по попавшим пикселям)."""
     z = np.ascontiguousarray(z, np.float32)

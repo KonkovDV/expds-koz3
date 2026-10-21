@@ -146,6 +146,54 @@ def test_dem_prefetch_matches_direct_build(tmp_path):
         assert (got.left, got.top, got.res) == (ref.left, ref.top, ref.res)
 
 
+def test_mask_to_polygons_matches_shape_by_shape():
+    from rasterio.features import shapes
+    from rasterio.transform import from_origin
+    from shapely.geometry import shape
+
+    from expds.crs import WEB_MERCATOR, to_crs
+    from expds.raster import mask_to_polygons
+
+    rng = np.random.default_rng(5)
+    lab = np.zeros((120, 160), np.int32)
+    for k in range(1, 40):
+        r, c = rng.integers(5, 110), rng.integers(5, 150)
+        lab[r:r + rng.integers(2, 9), c:c + rng.integers(2, 9)] = k
+    lab[50:60, 50:60] = 99
+    lab[54:56, 54:56] = 0
+    tr = from_origin(X0, Y0 + 100, 0.5, 0.5)
+    got = mask_to_polygons(lab, tr, UTM, simplify=0.25)
+    ref = []
+    for geom, val in shapes(lab, mask=lab > 0, transform=tr, connectivity=8):
+        ref.append((to_crs(shape(geom).simplify(0.25, preserve_topology=True), UTM, WEB_MERCATOR), int(val)))
+    assert [v for _, v in got] == [v for _, v in ref]
+    assert all(a.equals_exact(b, tolerance=0) for (a, _), (b, _) in zip(got, ref))
+    assert any(len(p.interiors) for p, _ in got)
+
+
+def test_probs_to_features_floor_is_post_threshold():
+    from rasterio.transform import from_origin
+
+    from expds.infer_nn import probs_to_features
+    from expds.post import apply_thresholds
+
+    rng = np.random.default_rng(6)
+    probs = np.zeros((2, 90, 90), np.float32)
+    for k in range(2):
+        for _ in range(25):
+            r, c = rng.integers(3, 85, 2)
+            probs[k, r - 2:r + 3, c - 2:c + 3] = rng.uniform(0.06, 1.0)
+    tr = from_origin(X0, Y0 + 45, 0.5, 0.5)
+    classes = ["gorodishcha", "fortifikatsii"]
+    floors = {"gorodishcha": 0.7, "fortifikatsii": 0.4}
+    full = probs_to_features(probs, classes, tr, UTM, 0.5, "r", "li", "s")
+    cut = probs_to_features(probs, classes, tr, UTM, 0.5, "r", "li", "s", min_conf=floors)
+    kept = apply_thresholds(full, floors)
+    assert 0 < len(cut) < len(full)
+    key = lambda f: (f["class_name"], f["confidence"], f["geom"].wkb)
+    assert sorted(map(key, cut)) == sorted(map(key, kept))
+
+
 def test_circles_match_point_buffer():
     from shapely.geometry import Point
 

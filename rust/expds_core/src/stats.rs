@@ -24,6 +24,39 @@ fn median(v: &mut [f32]) -> f64 {
     (lo + hi) / 2.0
 }
 
+/// Максимум значения по номеру области: out[l] = max(0, max values[i] при labels[i] == l).
+/// Как `np.maximum.at(zeros(n + 1), labels, values)` для конечных values; номера вне 0..=n пропускаются.
+pub fn label_max(labels: &[i32], values: &[f32], n: usize) -> Vec<f32> {
+    use rayon::prelude::*;
+
+    let chunk = (labels.len() / (rayon::current_num_threads() * 4)).max(1 << 16);
+    labels
+        .par_chunks(chunk)
+        .zip(values.par_chunks(chunk))
+        .fold(
+            || vec![0f32; n + 1],
+            |mut acc, (ls, vs)| {
+                for (&l, &v) in ls.iter().zip(vs) {
+                    if l >= 0 && (l as usize) <= n && v > acc[l as usize] {
+                        acc[l as usize] = v;
+                    }
+                }
+                acc
+            },
+        )
+        .reduce(
+            || vec![0f32; n + 1],
+            |mut a, b| {
+                for (x, y) in a.iter_mut().zip(b) {
+                    if y > *x {
+                        *x = y;
+                    }
+                }
+                a
+            },
+        )
+}
+
 pub fn robust_z(a: &[f32]) -> Vec<f32> {
     let mut fin: Vec<f32> = a.iter().copied().filter(|v| v.is_finite()).collect();
     if fin.is_empty() {

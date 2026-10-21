@@ -142,7 +142,8 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 for seg in segs:
                     feats += _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
-                                                       cand_p if rescore else None, cfg.get("li")))
+                                                       cand_p if rescore else None, cfg.get("li"),
+                                                       output_floors(cfg, "li")))
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
@@ -192,14 +193,25 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 if not guard.ok(60):
                     break
                 try:
-                    feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt))
+                    feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
+                                                           min_conf=output_floors(cfg, mt)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     return feats
 
 
+def output_floors(cfg: dict, markup: str) -> dict[str, float]:
+    """Пороги выдачи классов для объектов этого markup_type — те же, что потом применит post.apply_thresholds."""
+    from .constants import CLASSES
+
+    thr = cfg.get("thresholds", {})
+    own = cfg.get("thresholds_by_markup", {}).get(markup, {})
+    default = cfg.get("default_threshold", 0.15)
+    return {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+
+
 def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
-                   li_cfg: dict | None = None) -> list[dict]:
+                   li_cfg: dict | None = None, min_conf: dict[str, float] | None = None) -> list[dict]:
     """Каналы из DEM на рабочем шаге модели → вероятности → объекты.
 
     С cand_p курганы выдаются по кандидатам-пикам рельефа с уверенностью модели
@@ -221,7 +233,7 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
         kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in out_classes] if cand_p else []
         rest = [c for c in out_classes if c not in kur]
         feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
-                                  region, "li", source) if rest else []
+                                  region, "li", source, min_conf=min_conf) if rest else []
         if kur:
             c = candidates.detect(d, cand_p)
             kp = probs[[seg.classes.index(k) for k in kur]]
@@ -243,11 +255,11 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
     img = np.clip(np.nan_to_num(np.stack(chans), nan=0), 0, 255).astype(np.uint8)
     probs = seg.predict(img)
     tr = from_origin(d.left, d.top, d.res * k, d.res * k)
-    return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source)
+    return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source, min_conf=min_conf)
 
 
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
-                       overlap: int = 256) -> list[dict]:
+                       overlap: int = 256, min_conf: dict[str, float] | None = None) -> list[dict]:
     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно)."""
     import rasterio
     from rasterio.enums import Resampling
@@ -280,7 +292,8 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                     continue
                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
                 img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
-                found = probs_to_features(seg.predict(img), seg.classes, tr, crs, r, region, markup, path.name)
+                found = probs_to_features(seg.predict(img), seg.classes, tr, crs, r, region, markup, path.name,
+                                          min_conf=min_conf)
                 # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
                 c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
                 c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))
