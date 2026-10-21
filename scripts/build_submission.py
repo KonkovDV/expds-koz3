@@ -51,10 +51,12 @@ def collect() -> list[Path]:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Сборка архива решения")
     ap.add_argument("--out", default=str(ROOT / "dist" / "submission.zip"))
+    ap.add_argument("--local", action="store_true",
+                    help="для проверки распакованного архива в контейнере: без проверки поля image")
     args = ap.parse_args()
     meta = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))
     problems = []
-    if "ВАШ_" in meta.get("image", "") or not meta.get("image"):
+    if not args.local and ("ВАШ_" in meta.get("image", "") or not meta.get("image")):
         problems.append("metadata.json: укажите публичный образ Docker Hub в поле image")
     if not meta.get("entry_point"):
         problems.append("metadata.json: нет entry_point")
