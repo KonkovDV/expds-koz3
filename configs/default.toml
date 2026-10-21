@@ -54,6 +54,10 @@ fortifikatsii = 0.9995
 
 [thresholds_by_markup.sp_or]
 gorodishcha = 0.9
+# Карта центров, круг 4 м. Официально 0,218156 → 0,230356; на 34 новых LAS плюс 0,0003.
+# Парный бутстреп A > B в 0,993. Порог лидара при этом не сдвигался.
+kurgany_povrezhdennye = 0.3645
+kurgany_tselye = 0.3725
 
 # Копии курганов лидара для слоя аэрофото: отбор — отсечками [fusion]
 [thresholds_by_markup.li_ae]
@@ -94,12 +98,13 @@ prefetch = 2
 [models]
 # Вторая итерация трудных негативов. Общий балл 0,203 против 0,197 у первой.
 li = "models/li_r18_hard2.pt"
-# Курганы на оптике в этот конфиг не входят. Совместный балл лидара и городищ
-# 0,218; сеть 1 м с рангом внутри участка даёт −0,00003 и порог её выкидывает.
-# Следующий опыт — карта центров (docs/PLAN.md). В конфиг она попадёт только
-# если официальный балл на всех участках вырастет.
+# Городища и курганы спутника — две модели. Курганы: фокальная карта центров,
+# ширина пика от радиуса объекта, круг 4 м. Официально +0,0122 к лидару и городищам.
+sp_or = [
+  {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]},
+  {path = "models/spor_focal_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]},
+]
 ae = {path = "models/ae_r18.pt", classes = ["fortifikatsii"]}
-sp_or = {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]}
 # or = "models/or_r18.pt"
 
 [candidates]

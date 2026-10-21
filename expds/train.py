@@ -202,12 +202,14 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
           gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None,
           target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0,
-          center_loss_name: str = "bce") -> dict:
+          center_loss_name: str = "bce", all_data: bool = False) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
     в центре каждой насыпи, F1 по пикам. Второй режим для курганов на снимке:
     маска ставит внутреннюю точку не туда, куда смотрит метрика.
+    all_data пишет в файл каждую эпоху, так что на диске остаётся последняя:
+    число эпох тогда берётся из уже посчитанных фолдов.
     gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
     """
     import torch
@@ -228,6 +230,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     if not va_rows:  # без проверки по семьям — 10 % хвоста (только для отладки)
         cut = max(1, len(rows) // 10)
         tr_rows, va_rows = rows[:-cut], rows[-cut:]
+    if all_data:
+        # Сдача учится на всех тайлах. Эпоха задана числом эпох (медиана фолдов),
+        # а не F1 на куске тех же данных.
+        tr_rows = list(rows)
+        va_rows = rows[: max(1, min(64, len(rows)))]
     if target not in ("mask", "centers"):
         raise ValueError(f"target={target!r}: ожидается mask или centers")
     center = target == "centers"
@@ -361,6 +368,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         # Чекпойнт — по F1 классов, которые есть в проверке (пиксели или пики центров).
         # Потеря BCE почти целиком про фон и выбирала пустую карту.
         better = f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and vl < best_loss)
+        if all_data:
+            better = True
         if better:
             best_f1, best_loss = f1_mean, vl
             Path(out).parent.mkdir(parents=True, exist_ok=True)
@@ -400,13 +409,15 @@ def _cli() -> None:
     ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce",
                     help="focal — потеря карты центров Law & Deng / CenterNet")
+    ap.add_argument("--all-data", action="store_true",
+                    help="все тайлы в обучении, в файл весов пишется последняя эпоха")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
                 gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed,
                 target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
-                center_loss_name=args.center_loss)
+                center_loss_name=args.center_loss, all_data=args.all_data)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

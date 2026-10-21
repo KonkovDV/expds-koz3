@@ -2,7 +2,8 @@
 
 Сюда кладутся обученные модели:
 
-- `li_r18.pt`, `ae_r18.pt`, … — U-Net из `python -m expds.train`;
+- `li_r18.pt`, `ae_r18.pt`, `spor_focal_r18.pt` — U-Net из `python -m expds.train`;
+- `spor_gor_r18.pt` — городища спутника, только класс `gorodishcha`;
 - `kurgan_lgbm.txt` — оценщик CPU-кандидатов из `python -m expds.candidates train`.
 
 Подключение — в `configs/default.toml`, секции `[models]` и `[candidates]`. В архив платформы попадают только модели, указанные в конфиге (`scripts/build_submission.py`).
