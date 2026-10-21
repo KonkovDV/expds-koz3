@@ -19,7 +19,13 @@ def test_two_mounds_do_not_merge_into_the_gap():
     assert heat[18, 18] < 0.05
 
 
-def test_focal_loss_cares_about_the_peak_more_than_the_background():
+def test_focal_bias_starts_the_map_near_empty():
+    smp = pytest.importorskip("segmentation_models_pytorch")
+    from expds.centers import init_focal_bias
+
+    model = smp.Unet(encoder_name="resnet18", encoder_weights=None, in_channels=3, classes=2)
+    init_focal_bias(model, prior=0.01)
+    assert abs(float(model.segmentation_head[0].bias[0].detach()) - (-4.595)) < 0.01
     from expds.centers import focal_center_loss
 
     target = torch.zeros(1, 1, 8, 8)

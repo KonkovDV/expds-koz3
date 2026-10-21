@@ -61,6 +61,23 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False):
     return torch.from_numpy(out).to(device)
 
 
+def init_focal_bias(model, prior: float = 0.01) -> None:
+    """Стартовая вероятность пика около prior, а не 0,5.
+
+    Иначе сумма штрафа по всему фону в первые эпохи заставляет сеть
+    предсказывать пустую карту: так и случилось на первом прогоне
+    (потеря 4000 → 40, F1 пиков остался 0). Приём из CornerNet.
+    """
+    import math
+
+    import torch
+
+    conv = model.segmentation_head[0]
+    if conv.bias is None:
+        return
+    torch.nn.init.constant_(conv.bias, -math.log((1.0 - prior) / prior))
+
+
 def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     """Фокальная потеря карты центров (Law & Deng, 2018; Zhou et al., 2019).
 
@@ -68,7 +85,6 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     множитель (1 − target)^β. Нормировка — на число пиков в батче, не на все пиксели.
     """
     import torch
-    import torch.nn.functional as F
 
     p = logits.float().sigmoid().clamp(1e-4, 1 - 1e-4)
     pos = target >= 0.999

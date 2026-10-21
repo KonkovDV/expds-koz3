@@ -244,6 +244,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     fmt = torch.channels_last if use_amp else torch.contiguous_format
     model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
                      in_channels=c, classes=k).to(dev).to(memory_format=fmt)
+    if center and center_loss_name == "focal":
+        from .centers import init_focal_bias
+        init_focal_bias(model)
     flips = meta.get("flips", False)
     torch.backends.cudnn.benchmark = dev.type == "cuda"
     if gpu_data is None:
