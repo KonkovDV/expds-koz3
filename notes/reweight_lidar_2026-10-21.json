@@ -1,0 +1,59 @@
+{
+  "decision": "reject",
+  "formulation": "LightGBM по семьям только для групп li, li_coarse, li_mosaic. Уверенность спутника и аэрофото не подменялась. Соседи считались по всем кандидатам курганов с уверенностью от 0,02, в том числе по спутнику.",
+  "difference_from_reweight_2026-10-21": "Тот опыт менял уверенность всех слоёв одной моделью. Здесь в обучение и в подмену входят только лидарные группы.",
+  "candidates_all_kurgans": 68284,
+  "lidar_candidates": 28462,
+  "positives": 1957,
+  "median_confidence_before": 0.025,
+  "median_confidence_after": 0.003,
+  "median_confidence_hits": 0.542,
+  "base_all": 0.32996638777767695,
+  "all": 0.33207954765519543,
+  "delta_all": 0.002113159877518478,
+  "base_new": 0.2838579838622589,
+  "new": 0.26927758222574544,
+  "delta_new": -0.014580401636513474,
+  "base_optical": 0.1866869395850313,
+  "optical": 0.1866869395850313,
+  "delta_optical": 0.0,
+  "bootstrap": {
+    "mean": 0.0021271016487891935,
+    "p5": -0.004478394863160354,
+    "p50": 0.0023643686223857874,
+    "p95": 0.007803450830532174,
+    "p_gt0": 0.744
+  },
+  "acceptance": {
+    "delta_all_at_least_0_003": false,
+    "new_not_worse": false,
+    "optical_not_worse": true,
+    "bootstrap_p_gt0_at_least_0_9": false
+  },
+  "damaged_lidar_tp": {"before": 750, "after": 601, "kept_before": 2153, "kept_after": 2354},
+  "ae_threshold_moved": "Порог копий ae повреждённых сдвинулся с 0,9905 (371 объект, 71 попадание) на 0 (379 объектов, 256 попаданий). Уверенность ae не менялась. Сопоставление одно на класс: лидар отпустил эталоны, и перебор порога забрал их копиями. Участки без лидара при этом не сдвинулись.",
+  "per_class": {
+    "kurgany_povrezhdennye": {
+      "f1": 0.3601952748419481,
+      "n_gt": 3620,
+      "groups": {
+        "ae": {"threshold": 0.0, "kept": 379, "tp": 256},
+        "li": {"threshold": 0.144652, "kept": 2354, "tp": 601},
+        "li_ae": {"threshold": 0.0, "kept": 1, "tp": 1},
+        "li_mosaic": {"threshold": 0.130506, "kept": 168, "tp": 43},
+        "sp_focal": {"threshold": 0.364475, "kept": 1014, "tp": 203}
+      }
+    },
+    "kurgany_tselye": {
+      "f1": 0.49527035450047496,
+      "n_gt": 1577,
+      "groups": {
+        "ae": {"threshold": 0.802255, "kept": 811, "tp": 291},
+        "li": {"threshold": 0.162121, "kept": 611, "tp": 243},
+        "li_ae": {"threshold": 1.000001, "kept": 0, "tp": 0},
+        "li_mosaic": {"threshold": 0.060388, "kept": 392, "tp": 158},
+        "sp_focal": {"threshold": 0.372525, "kept": 127, "tp": 28}
+      }
+    }
+  }
+}
