@@ -182,6 +182,24 @@ def test_relief_channels_match_numpy():
     assert np.array_equal(five[:3], a)
 
 
+def test_lrm_xl_sees_a_wide_dome_without_changing_narrower_channels():
+    from expds.lidar import Dem, relief_channels
+
+    n = 220
+    yy, xx = np.mgrid[-n // 2:n // 2, -n // 2:n // 2]
+    radius = np.hypot(xx, yy).astype(np.float32)
+    z = np.where(radius < 80, 4.0 * (1 - radius / 80), 0).astype(np.float32)
+    d = Dem(dem=z, left=0.0, top=float(n), res=1.0, crs="EPSG:32636")
+    wide, _ = relief_channels(d, 1.0, ("lrm_l", "slope", "lrm_xl"))
+    with numpy_backend():
+        base, _ = relief_channels(d, 1.0, ("lrm_l", "slope"))
+    assert wide.shape[0] == 3 and np.array_equal(wide[:2], base)
+    center = int(wide[2, n // 2, n // 2])
+    assert center > int(wide[2, 2, 2]) + 30
+    with pytest.raises(ValueError):
+        relief_channels(d, 1.0, ("nope",))
+
+
 def test_openness_svf_matches_numpy_and_shape():
     z = accel.fill_pyramid(dem_with_holes(40, 52))
     z[:2, :] = np.nan

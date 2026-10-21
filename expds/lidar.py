@@ -44,7 +44,8 @@ RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
 #: Радиусы окна локального рельефа (м) и шкалы перевода в uint8.
 #: opns, svf — положительная открытость и фактор вида на небо: луч opns_r_m, opns_dirs направлений,
 #: линейная шкала в пределах *_range (1–99 перцентили на шаге 0,5 м по четырём участкам трейна).
-RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0, "slope_max_deg": 45.0,
+RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0,
+          "lrm_xl_m": 100.0, "lrm_xl_clip_m": 4.0, "slope_max_deg": 45.0,
           "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0)}
 #: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
 FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
@@ -379,7 +380,8 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     инструментом и не повторяются по LAS (expds.lidar check). Значения 1…255,
     0 — вне контура съёмки.
     lrm_s, lrm_l — локальный рельеф (высота − среднее окна радиусом 8 и 30 м,
-    под курганы лесной и степной зон); slope — уклон; g — серая отмывка;
+    под курганы лесной и степной зон); lrm_xl — то же окно 100 м под городища,
+    в сданных весах курганов его нет; slope — уклон; g — серая отмывка;
     opns, svf — положительная открытость и фактор вида на небо (насыпь и ров).
     Только g зависит от направления света: без него допустимы повороты.
     """
@@ -406,7 +408,7 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     out = []
     opn_svf = None
     for t in tags:
-        if t in ("lrm_s", "lrm_l"):
+        if t in ("lrm_s", "lrm_l", "lrm_xl"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
             lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
             unit = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF[f"{t}_clip_m"], -1, 1) * 0.5 + 0.5

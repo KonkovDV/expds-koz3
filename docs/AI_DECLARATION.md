@@ -34,7 +34,7 @@
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Архитектура | Пять фолдов, круг 2 м. Официально +0,0026, 14 попаданий из 407. Ниже порога 0,003, в конфиг не ставилось | `notes/sp_arch_2026-10-21.json`, `docs/PLAN.md`, `expds/train.py`, `scripts/nn_oof.py` | _ФИО_ |
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Пересчёт уверенности лидара | LightGBM по семьям только для групп li, li_coarse, li_mosaic: +0,0021, на 34 новых −0,0146, A > B в 0,744. В конфиг не ставилось | `notes/reweight_lidar_2026-10-21.json`, `docs/PLAN.md` | _ФИО_ |
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Магниторазведка | Медиана строки и столбца при замороженном детекторе. База 0,5818 совпала. Столбец: по семьям 0,550 → 0,580, Гнёздово хуже. В конфиг не ставилось | `notes/destripe_finds_2026-10-21.json`, `docs/PLAN.md` | _ФИО_ |
-| 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Городища лидара | Чекпойнт с target=centers на LAS отдаёт круги. Сданные веса лидара этого поля не имеют. Пять фолдов на окне 64 м: +0,0008, 1 попадание из 118. В конфиг не ставилось | `expds/pipeline.py`, `expds/centers.py`, `tests/test_gt_tiles.py`, `notes/li_gor_2026-10-21.json` | _ФИО_ |
+| 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Городища лидара | Чекпойнт с target=centers на LAS отдаёт круги. Сданные веса лидара этого поля не имеют. Пять фолдов на окне 64 м: +0,0008, 1 попадание из 118. В конфиг не ставилось. Канал lrm_xl — локальный рельеф окна 100 м, в сданных весах его нет | `expds/pipeline.py`, `expds/centers.py`, `expds/lidar.py`, `tests/test_gt_tiles.py`, `tests/test_accel.py`, `notes/li_gor_2026-10-21.json` | _ФИО_ |
 
 ## Правила ведения
 
