@@ -16,6 +16,7 @@
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Курганы на снимке | Аудит сдвига разметки между слоями; фокальная потеря и стартовое смещение головы | `analysis/audit_optical_gt.py`, `expds/centers.py`, `expds/train.py`, `docs/PLAN.md` | _ФИО_ |
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Единый балл сдачи | Свёл лидар, городища и геофизику в один официальный расчёт: 0,307 на всех участках | `scripts/oof_full.py`, `docs/PLAN.md` | _ФИО_ |
 | 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Пороги и сетка лидара | Середина плато F1 против острого максимума на полном стеке; одно чтение LAS в мозаике DEM 0,1→0,5 м | `expds/metric.py`, `expds/lidar.py`, `tests/test_plateau.py`, `docs/PLAN.md` | _ФИО_ |
+| 21.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Находки магниторазведки | Проверка, не лежит ли эталон между полюсами диполя. Пик модуля ближе; общий сдвиг не переносится между участками | `docs/PLAN.md`, `docs/COMPETITOR_REVIEW.md` | _ФИО_ |
 
 ## Правила ведения
 
