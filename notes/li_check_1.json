@@ -1,0 +1,49 @@
+﻿{
+  "seconds": 6.3,
+  "report": {
+    "g": {
+      "status": "ok",
+      "file": "03_Миловидово_Li_g.tif",
+      "pixels": 1497600,
+      "equal_pct": 13.619,
+      "within1_pct": 31.709,
+      "mae": 5.5835,
+      "shift_px": [
+        1.0,
+        0.0
+      ],
+      "shift_m": [
+        0.1,
+        0.0
+      ],
+      "shift_peak": 0.243
+    },
+    "i": {
+      "status": "ok",
+      "file": "04_Миловидово_Li_i.tif",
+      "pixels": 1497600,
+      "equal_pct": 9.34,
+      "within1_pct": 25.977,
+      "mae": 5.9606,
+      "shift_px": [
+        1.0,
+        0.0
+      ],
+      "shift_m": [
+        0.1,
+        0.0
+      ],
+      "shift_peak": 0.243
+    },
+    "c": {
+      "status": "разный шаг",
+      "li_res": 0.05,
+      "our_res": 0.1
+    },
+    "ch": {
+      "status": "разный шаг",
+      "li_res": 0.05,
+      "our_res": 0.1
+    }
+  }
+}

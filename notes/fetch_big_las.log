@@ -1,0 +1,8 @@
+﻿to download: 3 files, 11844.3 MB
+  ok 01_Боровичи_1_La_точки.las  2093.8 MB
+  ClientError on 01_Вышегжа_2_La_точки.las at 0 MB, wait 3s
+  ok 01_Вышегжа_2_La_точки.las  3986.7 MB
+  ClientError on 01_Муравлево_La_точки.las at 0 MB, wait 3s
+  IncompleteReadError on 01_Муравлево_La_точки.las at 0 MB, wait 6s
+  ok 01_Муравлево_La_точки.las  5763.7 MB
+done: 3 of 3; failed 0

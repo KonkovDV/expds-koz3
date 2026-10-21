@@ -1,0 +1,5 @@
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 2849, проверки 140
+INFO {"epoch": 1, "train_loss": 1.3735, "val_loss": 1.2901, "pixel_f1": {"kurgany_povrezhdennye": 0.112, "kurgany_tselye": 0.331, "gorodishcha": 0.031, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 19.2}
+INFO {"epoch": 2, "train_loss": 0.9979, "val_loss": 1.0755, "pixel_f1": {"kurgany_povrezhdennye": 0.19, "kurgany_tselye": 0.275, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 12.4}
+INFO {"epoch": 3, "train_loss": 0.8391, "val_loss": 1.0291, "pixel_f1": {"kurgany_povrezhdennye": 0.259, "kurgany_tselye": 0.104, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 12.3}

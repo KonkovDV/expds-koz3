@@ -1,0 +1,13 @@
+waiting for li_all_oof.geojson
+found 439575113 bytes
+sweep las15
+li_all_oof                   povr 0.516  tsel 0.517  score 0.337039
+li_all_oof_fused             povr 0.512  tsel 0.552  score 0.344497
+
+
+sweep all
+li_all_oof                   povr 0.238  tsel 0.355  score 0.157904
+li_all_oof_fused             povr 0.247  tsel 0.412  score 0.171927
+
+
+score done

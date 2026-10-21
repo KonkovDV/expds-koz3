@@ -1,0 +1,6 @@
+03:26:20 oof rc=0
+03:27:41 fusion rc=0
+03:28:13 sweep las15 li_hard3_nocp_fused          povr 0.538  tsel 0.565  score 0.348426
+03:28:46 sweep new li_hard3_nocp_fused          povr 0.241  tsel 0.231  score 0.185119
+03:29:47 sweep las49 li_hard3_nocp_fused          povr 0.453  tsel 0.520  score 0.285331
+03:29:47 nocp done

@@ -1,0 +1,274 @@
+INFO найдено регионов: 210 в F:\expds3\train-expds-3
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+INFO данные: в видеопамяти, тайлов обучения 2769, проверки 177
+INFO {"epoch": 1, "train_loss": 1.5578, "val_loss": 1.3923, "pixel_f1": {"kurgany_povrezhdennye": 0.035, "kurgany_tselye": 0.203, "gorodishcha": 0.002, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 17.6}
+INFO {"epoch": 2, "train_loss": 1.1407, "val_loss": 1.1037, "pixel_f1": {"kurgany_povrezhdennye": 0.133, "kurgany_tselye": 0.105, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.6}
+INFO {"epoch": 3, "train_loss": 0.8927, "val_loss": 1.0705, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 4, "train_loss": 0.8263, "val_loss": 1.0998, "pixel_f1": {"kurgany_povrezhdennye": 0.044, "kurgany_tselye": 0.002, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 5, "train_loss": 0.8069, "val_loss": 1.0246, "pixel_f1": {"kurgany_povrezhdennye": 0.217, "kurgany_tselye": 0.125, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 6, "train_loss": 0.7878, "val_loss": 1.0439, "pixel_f1": {"kurgany_povrezhdennye": 0.153, "kurgany_tselye": 0.087, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 7, "train_loss": 0.8076, "val_loss": 1.0194, "pixel_f1": {"kurgany_povrezhdennye": 0.212, "kurgany_tselye": 0.157, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 8, "train_loss": 0.7814, "val_loss": 0.9968, "pixel_f1": {"kurgany_povrezhdennye": 0.206, "kurgany_tselye": 0.3, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 9, "train_loss": 0.7662, "val_loss": 1.01, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.278, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 10, "train_loss": 0.7627, "val_loss": 1.0228, "pixel_f1": {"kurgany_povrezhdennye": 0.186, "kurgany_tselye": 0.158, "gorodishcha": 0.006, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 11, "train_loss": 0.7531, "val_loss": 1.0069, "pixel_f1": {"kurgany_povrezhdennye": 0.174, "kurgany_tselye": 0.28, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 12, "train_loss": 0.7396, "val_loss": 1.1133, "pixel_f1": {"kurgany_povrezhdennye": 0.169, "kurgany_tselye": 0.192, "gorodishcha": 0.019, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 13, "train_loss": 0.7457, "val_loss": 1.0771, "pixel_f1": {"kurgany_povrezhdennye": 0.123, "kurgany_tselye": 0.054, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 14, "train_loss": 0.7374, "val_loss": 1.0253, "pixel_f1": {"kurgany_povrezhdennye": 0.183, "kurgany_tselye": 0.116, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 15, "train_loss": 0.7139, "val_loss": 1.0133, "pixel_f1": {"kurgany_povrezhdennye": 0.188, "kurgany_tselye": 0.23, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 16, "train_loss": 0.7033, "val_loss": 1.0135, "pixel_f1": {"kurgany_povrezhdennye": 0.186, "kurgany_tselye": 0.291, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 17, "train_loss": 0.6932, "val_loss": 1.0179, "pixel_f1": {"kurgany_povrezhdennye": 0.177, "kurgany_tselye": 0.287, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 18, "train_loss": 0.6842, "val_loss": 1.0034, "pixel_f1": {"kurgany_povrezhdennye": 0.167, "kurgany_tselye": 0.275, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 19, "train_loss": 0.7061, "val_loss": 0.9944, "pixel_f1": {"kurgany_povrezhdennye": 0.175, "kurgany_tselye": 0.343, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 20, "train_loss": 0.6834, "val_loss": 0.9895, "pixel_f1": {"kurgany_povrezhdennye": 0.179, "kurgany_tselye": 0.307, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 21, "train_loss": 0.654, "val_loss": 0.9802, "pixel_f1": {"kurgany_povrezhdennye": 0.176, "kurgany_tselye": 0.287, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 22, "train_loss": 0.5586, "val_loss": 0.8129, "pixel_f1": {"kurgany_povrezhdennye": 0.168, "kurgany_tselye": 0.309, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 23, "train_loss": 0.4455, "val_loss": 0.8082, "pixel_f1": {"kurgany_povrezhdennye": 0.173, "kurgany_tselye": 0.269, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 24, "train_loss": 0.4531, "val_loss": 0.8278, "pixel_f1": {"kurgany_povrezhdennye": 0.154, "kurgany_tselye": 0.203, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 25, "train_loss": 0.4426, "val_loss": 0.817, "pixel_f1": {"kurgany_povrezhdennye": 0.16, "kurgany_tselye": 0.238, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 26, "train_loss": 0.4314, "val_loss": 0.807, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.268, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 27, "train_loss": 0.4332, "val_loss": 0.8087, "pixel_f1": {"kurgany_povrezhdennye": 0.163, "kurgany_tselye": 0.262, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 28, "train_loss": 0.4203, "val_loss": 0.8076, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.263, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 29, "train_loss": 0.4214, "val_loss": 0.8076, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.273, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO {"epoch": 30, "train_loss": 0.4292, "val_loss": 0.8045, "pixel_f1": {"kurgany_povrezhdennye": 0.167, "kurgany_tselye": 0.269, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.7}
+INFO DEM 01_Гнёздово_Нивленское_La_точки.las: 7752x5159 @ 0.1 м, точек 7402349, пустот 34099378, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 001_Гнёздово_Нивленское: +4913
+INFO DEM 01_Гнёздово_Днепровская_La_точки.las: 9124x6186 @ 0.3 м, точек 10093840, пустот 48305111, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Гнёздово_Лесная_1_La_точки.las: 1223x3106 @ 0.1 м, точек 1214070, пустот 2902212, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Гнёздово_Заольшанская_La_точки.las: 6445x4915 @ 0.3 м, точек 4843307, пустот 27608321, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 101_Гнёздово_Днепровская: +60411
+INFO DEM 01_Гнёздово_Лесная_2_La_точки.las: 1249x3109 @ 0.1 м, точек 559595, пустот 3400670, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 102_Гнёздово_Заольшанская: +41107
+INFO предсказание 179_Гнёздово_Лесная_1: +753
+INFO DEM 01_Гнёздово_Лесная_3_La_точки.las: 948x3109 @ 0.1 м, точек 398884, пустот 2595545, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 180_Гнёздово_Лесная_2: +746
+INFO предсказание 181_Гнёздово_Лесная_3: +721
+INFO {"fold": 0, "test": ["Гнёздово"], "val": "Эрентуна", "train_tiles": 2769, "best_val_loss": 0.804525774077507, "test_regions": 6, "minutes": 6.4}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 3396, проверки 177
+INFO {"epoch": 1, "train_loss": 1.4803, "val_loss": 1.2892, "pixel_f1": {"kurgany_povrezhdennye": 0.144, "kurgany_tselye": 0.293, "gorodishcha": 0.001, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.5}
+INFO {"epoch": 2, "train_loss": 1.0603, "val_loss": 1.0769, "pixel_f1": {"kurgany_povrezhdennye": 0.066, "kurgany_tselye": 0.097, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 3, "train_loss": 0.8671, "val_loss": 1.0659, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.131, "gorodishcha": 0.052, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 4, "train_loss": 0.8285, "val_loss": 1.0552, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.257, "gorodishcha": 0.004, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 5, "train_loss": 0.8109, "val_loss": 1.0488, "pixel_f1": {"kurgany_povrezhdennye": 0.196, "kurgany_tselye": 0.107, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 6, "train_loss": 0.7991, "val_loss": 1.0442, "pixel_f1": {"kurgany_povrezhdennye": 0.165, "kurgany_tselye": 0.089, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 7, "train_loss": 0.7889, "val_loss": 1.0217, "pixel_f1": {"kurgany_povrezhdennye": 0.118, "kurgany_tselye": 0.276, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 8, "train_loss": 0.7817, "val_loss": 1.0325, "pixel_f1": {"kurgany_povrezhdennye": 0.176, "kurgany_tselye": 0.175, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 9, "train_loss": 0.7751, "val_loss": 1.0524, "pixel_f1": {"kurgany_povrezhdennye": 0.105, "kurgany_tselye": 0.096, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 10, "train_loss": 0.7599, "val_loss": 1.0475, "pixel_f1": {"kurgany_povrezhdennye": 0.051, "kurgany_tselye": 0.064, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 11, "train_loss": 0.6167, "val_loss": 0.8331, "pixel_f1": {"kurgany_povrezhdennye": 0.186, "kurgany_tselye": 0.149, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 12, "train_loss": 0.5407, "val_loss": 0.8091, "pixel_f1": {"kurgany_povrezhdennye": 0.208, "kurgany_tselye": 0.342, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 13, "train_loss": 0.5503, "val_loss": 0.8351, "pixel_f1": {"kurgany_povrezhdennye": 0.172, "kurgany_tselye": 0.154, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 14, "train_loss": 0.545, "val_loss": 0.8321, "pixel_f1": {"kurgany_povrezhdennye": 0.175, "kurgany_tselye": 0.124, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 15, "train_loss": 0.5184, "val_loss": 0.8034, "pixel_f1": {"kurgany_povrezhdennye": 0.165, "kurgany_tselye": 0.263, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 16, "train_loss": 0.5005, "val_loss": 0.8085, "pixel_f1": {"kurgany_povrezhdennye": 0.176, "kurgany_tselye": 0.349, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 17, "train_loss": 0.5109, "val_loss": 0.8345, "pixel_f1": {"kurgany_povrezhdennye": 0.208, "kurgany_tselye": 0.143, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 18, "train_loss": 0.4988, "val_loss": 0.806, "pixel_f1": {"kurgany_povrezhdennye": 0.217, "kurgany_tselye": 0.17, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 19, "train_loss": 0.471, "val_loss": 0.8109, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.202, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 20, "train_loss": 0.4901, "val_loss": 0.7915, "pixel_f1": {"kurgany_povrezhdennye": 0.217, "kurgany_tselye": 0.266, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 21, "train_loss": 0.4589, "val_loss": 0.8085, "pixel_f1": {"kurgany_povrezhdennye": 0.207, "kurgany_tselye": 0.232, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 22, "train_loss": 0.4621, "val_loss": 0.8014, "pixel_f1": {"kurgany_povrezhdennye": 0.229, "kurgany_tselye": 0.206, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 23, "train_loss": 0.4547, "val_loss": 0.7945, "pixel_f1": {"kurgany_povrezhdennye": 0.223, "kurgany_tselye": 0.214, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 24, "train_loss": 0.4385, "val_loss": 0.8021, "pixel_f1": {"kurgany_povrezhdennye": 0.208, "kurgany_tselye": 0.233, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 25, "train_loss": 0.4355, "val_loss": 0.7931, "pixel_f1": {"kurgany_povrezhdennye": 0.216, "kurgany_tselye": 0.253, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 26, "train_loss": 0.4323, "val_loss": 0.7922, "pixel_f1": {"kurgany_povrezhdennye": 0.22, "kurgany_tselye": 0.261, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 27, "train_loss": 0.4269, "val_loss": 0.799, "pixel_f1": {"kurgany_povrezhdennye": 0.218, "kurgany_tselye": 0.242, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 28, "train_loss": 0.4211, "val_loss": 0.7948, "pixel_f1": {"kurgany_povrezhdennye": 0.209, "kurgany_tselye": 0.239, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 29, "train_loss": 0.4163, "val_loss": 0.7939, "pixel_f1": {"kurgany_povrezhdennye": 0.22, "kurgany_tselye": 0.259, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO {"epoch": 30, "train_loss": 0.4281, "val_loss": 0.7917, "pixel_f1": {"kurgany_povrezhdennye": 0.217, "kurgany_tselye": 0.254, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.4}
+INFO DEM 01_Тимерево_La_точки.las: 3726x4183 @ 0.1 м, точек 2311007, пустот 13576962, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 036_Тимерево: +1947
+INFO {"fold": 1, "test": ["Тимерево"], "val": "Эрентуна", "train_tiles": 3396, "best_val_loss": 0.7915029579636741, "test_regions": 1, "minutes": 7.3}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 3462, проверки 177
+INFO {"epoch": 1, "train_loss": 1.5125, "val_loss": 1.3345, "pixel_f1": {"kurgany_povrezhdennye": 0.191, "kurgany_tselye": 0.002, "gorodishcha": 0.007, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.8}
+INFO {"epoch": 2, "train_loss": 1.0623, "val_loss": 1.0834, "pixel_f1": {"kurgany_povrezhdennye": 0.062, "kurgany_tselye": 0.137, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.6}
+INFO {"epoch": 3, "train_loss": 0.8521, "val_loss": 1.0887, "pixel_f1": {"kurgany_povrezhdennye": 0.002, "kurgany_tselye": 0.003, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.6}
+INFO {"epoch": 4, "train_loss": 0.806, "val_loss": 1.0405, "pixel_f1": {"kurgany_povrezhdennye": 0.184, "kurgany_tselye": 0.144, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.6}
+INFO {"epoch": 5, "train_loss": 0.779, "val_loss": 1.0513, "pixel_f1": {"kurgany_povrezhdennye": 0.007, "kurgany_tselye": 0.325, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.6}
+INFO {"epoch": 6, "train_loss": 0.7731, "val_loss": 1.0386, "pixel_f1": {"kurgany_povrezhdennye": 0.079, "kurgany_tselye": 0.301, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 7, "train_loss": 0.7625, "val_loss": 0.9983, "pixel_f1": {"kurgany_povrezhdennye": 0.199, "kurgany_tselye": 0.337, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 8, "train_loss": 0.7435, "val_loss": 1.0035, "pixel_f1": {"kurgany_povrezhdennye": 0.213, "kurgany_tselye": 0.381, "gorodishcha": 0.074, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 9, "train_loss": 0.7431, "val_loss": 1.0063, "pixel_f1": {"kurgany_povrezhdennye": 0.142, "kurgany_tselye": 0.354, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 10, "train_loss": 0.7257, "val_loss": 1.0522, "pixel_f1": {"kurgany_povrezhdennye": 0.107, "kurgany_tselye": 0.182, "gorodishcha": 0.025, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 11, "train_loss": 0.7303, "val_loss": 1.0245, "pixel_f1": {"kurgany_povrezhdennye": 0.171, "kurgany_tselye": 0.25, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 12, "train_loss": 0.7051, "val_loss": 1.037, "pixel_f1": {"kurgany_povrezhdennye": 0.173, "kurgany_tselye": 0.222, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 13, "train_loss": 0.6879, "val_loss": 1.0274, "pixel_f1": {"kurgany_povrezhdennye": 0.149, "kurgany_tselye": 0.215, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 14, "train_loss": 0.6634, "val_loss": 1.0066, "pixel_f1": {"kurgany_povrezhdennye": 0.096, "kurgany_tselye": 0.319, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 15, "train_loss": 0.5932, "val_loss": 0.8027, "pixel_f1": {"kurgany_povrezhdennye": 0.184, "kurgany_tselye": 0.369, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 16, "train_loss": 0.4818, "val_loss": 0.8283, "pixel_f1": {"kurgany_povrezhdennye": 0.099, "kurgany_tselye": 0.231, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 17, "train_loss": 0.4616, "val_loss": 0.8064, "pixel_f1": {"kurgany_povrezhdennye": 0.107, "kurgany_tselye": 0.339, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 18, "train_loss": 0.4513, "val_loss": 0.8018, "pixel_f1": {"kurgany_povrezhdennye": 0.142, "kurgany_tselye": 0.329, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 19, "train_loss": 0.4441, "val_loss": 0.822, "pixel_f1": {"kurgany_povrezhdennye": 0.155, "kurgany_tselye": 0.226, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 20, "train_loss": 0.4323, "val_loss": 0.8064, "pixel_f1": {"kurgany_povrezhdennye": 0.146, "kurgany_tselye": 0.376, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 21, "train_loss": 0.4233, "val_loss": 0.8168, "pixel_f1": {"kurgany_povrezhdennye": 0.143, "kurgany_tselye": 0.24, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 22, "train_loss": 0.4217, "val_loss": 0.8033, "pixel_f1": {"kurgany_povrezhdennye": 0.13, "kurgany_tselye": 0.299, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 23, "train_loss": 0.3978, "val_loss": 0.8013, "pixel_f1": {"kurgany_povrezhdennye": 0.157, "kurgany_tselye": 0.332, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 24, "train_loss": 0.4026, "val_loss": 0.8021, "pixel_f1": {"kurgany_povrezhdennye": 0.173, "kurgany_tselye": 0.3, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 25, "train_loss": 0.4029, "val_loss": 0.8041, "pixel_f1": {"kurgany_povrezhdennye": 0.163, "kurgany_tselye": 0.321, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 26, "train_loss": 0.386, "val_loss": 0.8037, "pixel_f1": {"kurgany_povrezhdennye": 0.149, "kurgany_tselye": 0.321, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 27, "train_loss": 0.3879, "val_loss": 0.797, "pixel_f1": {"kurgany_povrezhdennye": 0.164, "kurgany_tselye": 0.336, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 28, "train_loss": 0.3752, "val_loss": 0.8031, "pixel_f1": {"kurgany_povrezhdennye": 0.154, "kurgany_tselye": 0.292, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 29, "train_loss": 0.3842, "val_loss": 0.8019, "pixel_f1": {"kurgany_povrezhdennye": 0.152, "kurgany_tselye": 0.307, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO {"epoch": 30, "train_loss": 0.3686, "val_loss": 0.8004, "pixel_f1": {"kurgany_povrezhdennye": 0.158, "kurgany_tselye": 0.321, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.7}
+INFO DEM 01_Эсбю_La_точки.las: 5284x3580 @ 0.1 м, точек 282665, пустот 18634633, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Эсбю_укрепление_La_точки.las: 6519x4439 @ 0.1 м, точек 228338, пустот 28712440, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 010_Эсбю_укрепление: +3134
+INFO предсказание 030_Эсбю: +2629
+INFO {"fold": 2, "test": ["Эсбю"], "val": "Эрентуна", "train_tiles": 3462, "best_val_loss": 0.7970442260052525, "test_regions": 2, "minutes": 7.4}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 3272, проверки 141
+INFO {"epoch": 1, "train_loss": 1.5425, "val_loss": 1.3941, "pixel_f1": {"kurgany_povrezhdennye": 0.174, "kurgany_tselye": 0.064, "gorodishcha": 0.169, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.5}
+INFO {"epoch": 2, "train_loss": 1.0743, "val_loss": 1.1122, "pixel_f1": {"kurgany_povrezhdennye": 0.192, "kurgany_tselye": 0.069, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 3, "train_loss": 0.8603, "val_loss": 1.1327, "pixel_f1": {"kurgany_povrezhdennye": 0.035, "kurgany_tselye": 0.001, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 4, "train_loss": 0.8149, "val_loss": 1.0846, "pixel_f1": {"kurgany_povrezhdennye": 0.369, "kurgany_tselye": 0.12, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 5, "train_loss": 0.7959, "val_loss": 1.0497, "pixel_f1": {"kurgany_povrezhdennye": 0.349, "kurgany_tselye": 0.221, "gorodishcha": 0.297, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 6, "train_loss": 0.7812, "val_loss": 1.0808, "pixel_f1": {"kurgany_povrezhdennye": 0.273, "kurgany_tselye": 0.135, "gorodishcha": 0.133, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 7, "train_loss": 0.7608, "val_loss": 1.0954, "pixel_f1": {"kurgany_povrezhdennye": 0.337, "kurgany_tselye": 0.135, "gorodishcha": 0.155, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 8, "train_loss": 0.7542, "val_loss": 1.0694, "pixel_f1": {"kurgany_povrezhdennye": 0.317, "kurgany_tselye": 0.173, "gorodishcha": 0.197, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 9, "train_loss": 0.7413, "val_loss": 1.1293, "pixel_f1": {"kurgany_povrezhdennye": 0.183, "kurgany_tselye": 0.08, "gorodishcha": 0.204, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 10, "train_loss": 0.7341, "val_loss": 1.1217, "pixel_f1": {"kurgany_povrezhdennye": 0.213, "kurgany_tselye": 0.185, "gorodishcha": 0.217, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 11, "train_loss": 0.7226, "val_loss": 1.1331, "pixel_f1": {"kurgany_povrezhdennye": 0.184, "kurgany_tselye": 0.064, "gorodishcha": 0.291, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 12, "train_loss": 0.7214, "val_loss": 1.0899, "pixel_f1": {"kurgany_povrezhdennye": 0.244, "kurgany_tselye": 0.109, "gorodishcha": 0.283, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 13, "train_loss": 0.7258, "val_loss": 1.0594, "pixel_f1": {"kurgany_povrezhdennye": 0.267, "kurgany_tselye": 0.124, "gorodishcha": 0.299, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 14, "train_loss": 0.7174, "val_loss": 1.1089, "pixel_f1": {"kurgany_povrezhdennye": 0.255, "kurgany_tselye": 0.118, "gorodishcha": 0.161, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 15, "train_loss": 0.7054, "val_loss": 1.1038, "pixel_f1": {"kurgany_povrezhdennye": 0.273, "kurgany_tselye": 0.133, "gorodishcha": 0.182, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 16, "train_loss": 0.6968, "val_loss": 1.0823, "pixel_f1": {"kurgany_povrezhdennye": 0.259, "kurgany_tselye": 0.124, "gorodishcha": 0.227, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 17, "train_loss": 0.5091, "val_loss": 0.7433, "pixel_f1": {"kurgany_povrezhdennye": 0.255, "kurgany_tselye": 0.145, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 18, "train_loss": 0.36, "val_loss": 0.7152, "pixel_f1": {"kurgany_povrezhdennye": 0.288, "kurgany_tselye": 0.168, "gorodishcha": 0.002, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 19, "train_loss": 0.3389, "val_loss": 0.7107, "pixel_f1": {"kurgany_povrezhdennye": 0.238, "kurgany_tselye": 0.102, "gorodishcha": 0.277, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 20, "train_loss": 0.3423, "val_loss": 0.6948, "pixel_f1": {"kurgany_povrezhdennye": 0.27, "kurgany_tselye": 0.154, "gorodishcha": 0.18, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 21, "train_loss": 0.3302, "val_loss": 0.7178, "pixel_f1": {"kurgany_povrezhdennye": 0.258, "kurgany_tselye": 0.113, "gorodishcha": 0.163, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 22, "train_loss": 0.3324, "val_loss": 0.7371, "pixel_f1": {"kurgany_povrezhdennye": 0.222, "kurgany_tselye": 0.128, "gorodishcha": 0.08, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 23, "train_loss": 0.3305, "val_loss": 0.7066, "pixel_f1": {"kurgany_povrezhdennye": 0.187, "kurgany_tselye": 0.135, "gorodishcha": 0.256, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 24, "train_loss": 0.3261, "val_loss": 0.7016, "pixel_f1": {"kurgany_povrezhdennye": 0.228, "kurgany_tselye": 0.13, "gorodishcha": 0.245, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 25, "train_loss": 0.3261, "val_loss": 0.7308, "pixel_f1": {"kurgany_povrezhdennye": 0.232, "kurgany_tselye": 0.134, "gorodishcha": 0.103, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 26, "train_loss": 0.3201, "val_loss": 0.7197, "pixel_f1": {"kurgany_povrezhdennye": 0.226, "kurgany_tselye": 0.129, "gorodishcha": 0.172, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 27, "train_loss": 0.3148, "val_loss": 0.7246, "pixel_f1": {"kurgany_povrezhdennye": 0.229, "kurgany_tselye": 0.119, "gorodishcha": 0.135, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 28, "train_loss": 0.3155, "val_loss": 0.732, "pixel_f1": {"kurgany_povrezhdennye": 0.233, "kurgany_tselye": 0.134, "gorodishcha": 0.087, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 29, "train_loss": 0.3129, "val_loss": 0.7374, "pixel_f1": {"kurgany_povrezhdennye": 0.235, "kurgany_tselye": 0.131, "gorodishcha": 0.075, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 30, "train_loss": 0.3082, "val_loss": 0.7419, "pixel_f1": {"kurgany_povrezhdennye": 0.232, "kurgany_tselye": 0.141, "gorodishcha": 0.05, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO DEM 01_Лубно_La_точки.las: 5063x8739 @ 0.1 м, точек 6881438, пустот 39148425, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Тешилово_La_точки.las: 5880x3147 @ 0.2 м, точек 23084223, пустот 11555441, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 002_Тешилово: +8144
+INFO предсказание 003_Лубно: +6375
+INFO DEM 01_Боровичи_2_La_точки.las: 4240x3659 @ 0.1 м, точек 2733371, пустот 13462758, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Хальвасборген_La_точки.las: 5111x3711 @ 0.2 м, точек 818123, пустот 18160957, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Боровичи_1_La_точки.las: 5234x8198 @ 0.3 м, точек 64574413, пустот 26234682, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 004_Боровичи_1: +76321
+INFO предсказание 005_Боровичи_2: +1441
+INFO предсказание 009_Хальвасборген: +12066
+INFO DEM 01_Эрентуна_La_точки.las: 8358x5321 @ 0.2 м, точек 3874779, пустот 40754556, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Курган_Хога_La_точки.las: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 011_Эрентуна: +12812
+INFO DEM 01_Селяне_La_точки.las: 6535x6777 @ 0.1 м, точек 11180594, пустот 35912732, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Демидовка_La_точки.las: 6132x6473 @ 0.2 м, точек 19834247, пустот 32453621, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 015_Демидовка: +14156
+INFO предсказание 018_Курган_Хога: +2216
+INFO предсказание 019_Селяне: +4055
+INFO DEM 01_Вышенское_La_точки.las: 8689x5648 @ 0.2 м, точек 3614940, пустот 46658613, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Лихуша_La_точки.las: 4157x5073 @ 0.2 м, точек 8915672, пустот 17269965, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 022_Лихуша: +11113
+INFO предсказание 025_Вышенское: +24808
+INFO DEM 01_Вышегжа_1_La_точки.las: 4678x3812 @ 0.2 м, точек 4500403, пустот 15008257, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Золотаревка_La_точки.las: 6705x7024 @ 0.3 м, точек 26435701, пустот 38897459, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 026_Золотаревка: +65626
+INFO предсказание 027_Вышегжа_1: +15107
+INFO DEM 01_Красносельская_0.5км_La_точки.las: 3605x3011 @ 0.1 м, точек 3660936, пустот 8124886, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Шумгора_La_точки.las: 6242x4659 @ 0.3 м, точек 12626325, пустот 22541696, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Вышегжа_2_La_точки.las: 7193x5466 @ 0.4 м, точек 122953043, пустот 26292338, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 028_Вышегжа_2: +84220
+INFO предсказание 032_Красносельская_0.5км: +1144
+INFO DEM 01_Примаки_0.7км_La_точки.las: 2733x2123 @ 0.1 м, точек 131822, пустот 5678178, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Примаки_1.3км_La_точки.las: 5208x5623 @ 0.1 м, точек 2057628, пустот 27666883, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 035_Шумгора: +26489
+INFO предсказание 039_Примаки_0.7км: +436
+INFO предсказание 040_Примаки_1.3км: +2974
+INFO DEM 01_Красносельская_1.7км_La_точки.las: 1933x2599 @ 0.1 м, точек 1699904, пустот 3755994, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Руна_La_точки.las: 4835x5222 @ 0.1 м, точек 4164554, пустот 22073549, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Московиты_La_точки.las: 6805x6143 @ 0.1 м, точек 17585071, пустот 30726516, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 066_Московиты: +4921
+INFO предсказание 182_Красносельская_1.7км: +489
+INFO предсказание 188_Руна: +6430
+INFO {"fold": 3, "test": ["Боровичи", "Вышегжа", "Вышенское", "Демидовка", "Золотаревка", "Красносельская", "Курган", "Лихуша", "Лубно", "Московиты", "Примаки", "Руна", "Селяне", "Тешилово", "Хальвасборген", "Шумгора", "Эрентуна"], "val": "Новенькое", "train_tiles": 3272, "best_val_loss": 0.6947911039311835, "test_regions": 21, "minutes": 9.7}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 3292, проверки 177
+INFO {"epoch": 1, "train_loss": 1.4548, "val_loss": 1.309, "pixel_f1": {"kurgany_povrezhdennye": 0.13, "kurgany_tselye": 0.168, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.1}
+INFO {"epoch": 2, "train_loss": 1.0263, "val_loss": 1.0765, "pixel_f1": {"kurgany_povrezhdennye": 0.132, "kurgany_tselye": 0.131, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 3, "train_loss": 0.841, "val_loss": 1.0562, "pixel_f1": {"kurgany_povrezhdennye": 0.158, "kurgany_tselye": 0.007, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 4, "train_loss": 0.8106, "val_loss": 1.0536, "pixel_f1": {"kurgany_povrezhdennye": 0.145, "kurgany_tselye": 0.091, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 5, "train_loss": 0.7829, "val_loss": 1.0901, "pixel_f1": {"kurgany_povrezhdennye": 0.003, "kurgany_tselye": 0.013, "gorodishcha": 0.001, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 6, "train_loss": 0.7692, "val_loss": 1.0715, "pixel_f1": {"kurgany_povrezhdennye": 0.079, "kurgany_tselye": 0.012, "gorodishcha": 0.001, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 7, "train_loss": 0.756, "val_loss": 1.0501, "pixel_f1": {"kurgany_povrezhdennye": 0.175, "kurgany_tselye": 0.041, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 8, "train_loss": 0.7425, "val_loss": 1.0468, "pixel_f1": {"kurgany_povrezhdennye": 0.16, "kurgany_tselye": 0.114, "gorodishcha": 0.003, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 9, "train_loss": 0.7303, "val_loss": 1.0417, "pixel_f1": {"kurgany_povrezhdennye": 0.187, "kurgany_tselye": 0.119, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 10, "train_loss": 0.7329, "val_loss": 1.053, "pixel_f1": {"kurgany_povrezhdennye": 0.145, "kurgany_tselye": 0.106, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 11, "train_loss": 0.7328, "val_loss": 1.0529, "pixel_f1": {"kurgany_povrezhdennye": 0.184, "kurgany_tselye": 0.061, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 12, "train_loss": 0.7168, "val_loss": 1.0676, "pixel_f1": {"kurgany_povrezhdennye": 0.175, "kurgany_tselye": 0.009, "gorodishcha": 0.004, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 13, "train_loss": 0.7037, "val_loss": 1.2893, "pixel_f1": {"kurgany_povrezhdennye": 0.033, "kurgany_tselye": 0.009, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 14, "train_loss": 0.7231, "val_loss": 1.039, "pixel_f1": {"kurgany_povrezhdennye": 0.166, "kurgany_tselye": 0.121, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 15, "train_loss": 0.7054, "val_loss": 1.0522, "pixel_f1": {"kurgany_povrezhdennye": 0.158, "kurgany_tselye": 0.05, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 16, "train_loss": 0.693, "val_loss": 1.0475, "pixel_f1": {"kurgany_povrezhdennye": 0.182, "kurgany_tselye": 0.049, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 17, "train_loss": 0.6933, "val_loss": 1.0598, "pixel_f1": {"kurgany_povrezhdennye": 0.172, "kurgany_tselye": 0.051, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 18, "train_loss": 0.6789, "val_loss": 1.0538, "pixel_f1": {"kurgany_povrezhdennye": 0.176, "kurgany_tselye": 0.025, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 19, "train_loss": 0.6306, "val_loss": 0.8749, "pixel_f1": {"kurgany_povrezhdennye": 0.192, "kurgany_tselye": 0.03, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 20, "train_loss": 0.4765, "val_loss": 0.8467, "pixel_f1": {"kurgany_povrezhdennye": 0.187, "kurgany_tselye": 0.028, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 21, "train_loss": 0.4595, "val_loss": 0.845, "pixel_f1": {"kurgany_povrezhdennye": 0.177, "kurgany_tselye": 0.02, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 22, "train_loss": 0.4462, "val_loss": 0.8559, "pixel_f1": {"kurgany_povrezhdennye": 0.152, "kurgany_tselye": 0.037, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 23, "train_loss": 0.454, "val_loss": 0.8455, "pixel_f1": {"kurgany_povrezhdennye": 0.192, "kurgany_tselye": 0.029, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 24, "train_loss": 0.4529, "val_loss": 0.8425, "pixel_f1": {"kurgany_povrezhdennye": 0.176, "kurgany_tselye": 0.039, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 25, "train_loss": 0.441, "val_loss": 0.844, "pixel_f1": {"kurgany_povrezhdennye": 0.168, "kurgany_tselye": 0.038, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 26, "train_loss": 0.4368, "val_loss": 0.8456, "pixel_f1": {"kurgany_povrezhdennye": 0.171, "kurgany_tselye": 0.033, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 27, "train_loss": 0.4375, "val_loss": 0.846, "pixel_f1": {"kurgany_povrezhdennye": 0.182, "kurgany_tselye": 0.038, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 28, "train_loss": 0.4246, "val_loss": 0.8384, "pixel_f1": {"kurgany_povrezhdennye": 0.183, "kurgany_tselye": 0.039, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.9}
+INFO {"epoch": 29, "train_loss": 0.4268, "val_loss": 0.8425, "pixel_f1": {"kurgany_povrezhdennye": 0.179, "kurgany_tselye": 0.041, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO {"epoch": 30, "train_loss": 0.4391, "val_loss": 0.8431, "pixel_f1": {"kurgany_povrezhdennye": 0.178, "kurgany_tselye": 0.04, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 13.8}
+INFO DEM 01_Нора_Виннон_La_точки.las: 4550x4143 @ 0.1 м, точек 532036, пустот 18325152, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Хога_La_точки.las: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Осечки_1.1км_La_точки.las: 4031x3996 @ 0.2 м, точек 3289274, пустот 14471943, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 006_Осечки_1.1км: +6823
+INFO предсказание 013_Нора_Виннон: +1641
+INFO предсказание 016_Хога: +1634
+INFO DEM 01_Юшково_La_точки.las: 4909x5030 @ 0.1 м, точек 11803811, пустот 16060278, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 017_Юшково: +5061
+INFO DEM 01_Бервенец_La_точки.las: 5844x7687 @ 0.1 м, точек 10127976, пустот 37757700, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Новенькое_La_точки.las: 8473x6279 @ 0.1 м, точек 17076925, пустот 40953668, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 021_Новенькое: +3524
+INFO предсказание 023_Бервенец: +7236
+INFO DEM 01_Новотитаровская_La_точки.las: 6297x6516 @ 0.1 м, точек 12703351, пустот 36116896, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 031_Новотитаровская: +4179
+INFO DEM 01_Усть_река_La_точки.las: 7410x6642 @ 0.1 м, точек 6538396, пустот 43624824, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Копанское_La_точки.las: 3419x1588 @ 0.1 м, точек 3498670, пустот 3459756, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Елизаветинское_La_точки.las: 6057x3421 @ 0.2 м, точек 34185465, пустот 9080335, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 033_Елизаветинское: +10845
+INFO DEM 01_Миловидово_La_точки.las: 1248x1200 @ 0.1 м, точек 176745, пустот 1351643, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 034_Усть_река: +4487
+INFO предсказание 038_Копанское: +437
+INFO DEM 01_Новотитаровская_1.8км_La_точки.las: 725x1017 @ 0.1 м, точек 262114, пустот 541572, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 041_Миловидово: +373
+INFO предсказание 044_Новотитаровская_1.8км: +172
+INFO DEM 01_Новотитаровская_2.8км_La_точки.las: 2123x1604 @ 0.1 м, точек 784958, пустот 2791435, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 045_Новотитаровская_2.8км: +365
+INFO DEM 01_Граборг_La_точки.las: 8004x5727 @ 0.2 м, точек 1977965, пустот 43882858, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 061_Граборг: +39022
+INFO DEM 01_Стеклянуха_1_La_точки.las: 5383x4022 @ 0.2 м, точек 18787612, пустот 12743026, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 068_Стеклянуха_1: +9569
+INFO DEM 01_Стеклянуха_2_La_точки.las: 4063x3957 @ 0.2 м, точек 24318736, пустот 8355004, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 069_Стеклянуха_2: +6154
+INFO DEM 01_Шетнево_La_точки.las: 5184x4323 @ 0.2 м, точек 11274663, пустот 16050505, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 104_Шетнево: +17355
+INFO DEM 01_Вщиж_La_точки.las: 8625x5614 @ 0.2 м, точек 16153052, пустот 38553966, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Макеево_La_точки.las: 2807x6776 @ 0.2 м, точек 1670004, пустот 17669899, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 105_Вщиж: +12278
+INFO DEM 01_Осечки_1.3км_La_точки.las: 2324x1779 @ 0.1 м, точек 130242, пустот 4021059, rust 0.1.0 avx2=true/true threads=12
+INFO DEM 01_Верхмарево_La_точки.las: 5887x5269 @ 0.2 м, точек 38759349, пустот 19215035, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 106_Верхмарево: +14524
+INFO предсказание 189_Макеево: +7786
+INFO предсказание 191_Осечки_1.3км: +522
+INFO DEM 01_КЧР_La_точки.las: 4652x4641 @ 0.1 м, точек 6204603, пустот 16096539, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 192_КЧР: +1505
+INFO DEM 01_Судьбищи_2_La_точки.las: 6748x5286 @ 0.2 м, точек 13179395, пустот 25878382, rust 0.1.0 avx2=true/true threads=12
+INFO предсказание 200_Судьбищи_2: +11765
+INFO {"fold": 4, "test": ["Бервенец", "Верхмарево", "Вщиж", "Граборг", "Елизаветинское", "КЧР", "Копанское", "Макеево", "Миловидово", "Новенькое", "Новотитаровская", "Нора", "Осечки", "Стеклянуха", "Судьбищи", "Усть", "Хога", "Шетнево", "Юшково"], "val": "Эрентуна", "train_tiles": 3292, "best_val_loss": 0.8383808028226518, "test_regions": 23, "minutes": 8.9}
+{"written": 664961, "folds": [{"fold": 0, "test": ["Гнёздово"], "val": "Эрентуна", "train_tiles": 2769, "best_val_loss": 0.804525774077507, "test_regions": 6, "minutes": 6.4}, {"fold": 1, "test": ["Тимерево"], "val": "Эрентуна", "train_tiles": 3396, "best_val_loss": 0.7915029579636741, "test_regions": 1, "minutes": 7.3}, {"fold": 2, "test": ["Эсбю"], "val": "Эрентуна", "train_tiles": 3462, "best_val_loss": 0.7970442260052525, "test_regions": 2, "minutes": 7.4}, {"fold": 3, "test": ["Боровичи", "Вышегжа", "Вышенское", "Демидовка", "Золотаревка", "Красносельская", "Курган", "Лихуша", "Лубно", "Московиты", "Примаки", "Руна", "Селяне", "Тешилово", "Хальвасборген", "Шумгора", "Эрентуна"], "val": "Новенькое", "train_tiles": 3272, "best_val_loss": 0.6947911039311835, "test_regions": 21, "minutes": 9.7}, {"fold": 4, "test": ["Бервенец", "Верхмарево", "Вщиж", "Граборг", "Елизаветинское", "КЧР", "Копанское", "Макеево", "Миловидово", "Новенькое", "Новотитаровская", "Нора", "Осечки", "Стеклянуха", "Судьбищи", "Усть", "Хога", "Шетнево", "Юшково"], "val": "Эрентуна", "train_tiles": 3292, "best_val_loss": 0.8383808028226518, "test_regions": 23, "minutes": 8.9}]}

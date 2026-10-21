@@ -1,0 +1,13 @@
+21:47:37 жду las102, сейчас 0 из 164672667
+21:48:07 las102 готов, 164672667 байт
+21:48:12 тайлы 102: 133 положительных 68
+21:48:12 кэш строк 4595
+21:48:12 scripts/nn_oof.py --markup li --root F:\expds3\train-expds-3 --cache
+22:38:18 oof rc=0
+22:38:18 C:\Users\Пользователь\AppData\Local\Temp\expds_materials\fusion_apply.py F:\expds3\train-expds-3 F:\expds3\work\li_hard3_oof.geojson F:\expds3\work\fusion\li_hard3_fused.geojson
+22:40:07 fusion rc=0
+22:41:06 sweep las15 li_hard3_fused               povr 0.526  tsel 0.582  score 0.342528
+22:42:17 sweep new li_hard3_fused               povr 0.203  tsel 0.190  score 0.16963
+22:44:51 sweep all li_hard3_fused               povr 0.314  tsel 0.422  score 0.205483
+22:44:51 hard3 done
+sweep las49 li_hard3_fused               povr 0.431  tsel 0.544  score 0.288089

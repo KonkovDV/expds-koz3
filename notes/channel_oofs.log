@@ -1,0 +1,12 @@
+02:08:46 recut cur3 rc=0
+02:13:29 recut opn5 rc=0
+03:35:29 ens2 закончил, видеокарта свободна
+04:17:14 oof cur3 rc=0
+04:18:59 sweep cur3 las15 li_cur3_fused                povr 0.536  tsel 0.553  score 0.342691
+04:19:30 sweep cur3 new li_cur3_fused                povr 0.193  tsel 0.213  score 0.173522
+04:20:26 sweep cur3 las49 li_cur3_fused                povr 0.469  tsel 0.509  score 0.292682
+05:02:48 oof opn5 rc=0
+05:04:40 sweep opn5 las15 li_opn5_fused                povr 0.537  tsel 0.562  score 0.350929
+05:05:11 sweep opn5 new li_opn5_fused                povr 0.178  tsel 0.175  score 0.151005
+05:06:06 sweep opn5 las49 li_opn5_fused                povr 0.470  tsel 0.512  score 0.288312
+05:06:06 channel oofs done

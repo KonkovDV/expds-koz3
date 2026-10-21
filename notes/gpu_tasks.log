@@ -1,0 +1,13 @@
+14:40:06 runner started
+14:40:07 waiting: li_all_oof,spor_gor_final,li_final_all,li_final_tin
+14:45:05 waiting: spor_gor_final,li_final_tin,li_all_oof,li_final_all51
+14:58:55 waiting: spor_gor_final,li_final_tin,ae_final,li_all_oof,li_final_all51
+15:05:21 start spor_gor_final
+15:10:07 done spor_gor_final: rc=0, 4.8 min
+15:10:08 start li_all_oof
+15:44:08 done li_all_oof: rc=3221225725, 34.0 min
+15:44:09 start ae_final
+15:53:07 done ae_final: rc=0, 9.0 min
+15:53:08 start li_final_tin
+15:54:08 done li_final_tin: rc=1073807364, 1.0 min
+15:54:08 waiting: li_final_all51

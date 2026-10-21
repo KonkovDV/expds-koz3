@@ -1,0 +1,12 @@
+{
+  "ae": {
+    "kurgany_povrezhdennye": 0.99053,
+    "kurgany_tselye": 0.830675
+  },
+  "li": {
+    "kurgany_povrezhdennye": 0.49494,
+    "kurgany_tselye": 0.46535,
+    "gorodishcha": 0.98362,
+    "fortifikatsii": 0.98225
+  }
+}

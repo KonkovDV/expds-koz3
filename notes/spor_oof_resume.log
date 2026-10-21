@@ -1,0 +1,167 @@
+INFO найдено регионов: 210 в F:\expds3\train-expds-3
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 1427, проверки 164
+INFO {"epoch": 1, "train_loss": 1.6406, "val_loss": 1.5033, "pixel_f1": {"kurgany_povrezhdennye": 0.044, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 12.0}
+INFO {"epoch": 2, "train_loss": 1.3475, "val_loss": 1.2329, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 3, "train_loss": 1.0943, "val_loss": 1.1454, "pixel_f1": {"kurgany_povrezhdennye": 0.005, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 4, "train_loss": 1.0382, "val_loss": 1.0946, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 5, "train_loss": 1.0179, "val_loss": 1.1186, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 6, "train_loss": 1.009, "val_loss": 1.1966, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 7, "train_loss": 0.9878, "val_loss": 1.1589, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 8, "train_loss": 0.9901, "val_loss": 1.2921, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 9, "train_loss": 0.9775, "val_loss": 1.0557, "pixel_f1": {"kurgany_povrezhdennye": 0.051, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 10, "train_loss": 0.9629, "val_loss": 1.2677, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 11, "train_loss": 0.968, "val_loss": 1.09, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 12, "train_loss": 0.9688, "val_loss": 1.1172, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 13, "train_loss": 0.9451, "val_loss": 1.0608, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 14, "train_loss": 0.9493, "val_loss": 1.0893, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 15, "train_loss": 0.9486, "val_loss": 1.139, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 16, "train_loss": 0.9238, "val_loss": 1.0759, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 17, "train_loss": 0.9146, "val_loss": 1.162, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 18, "train_loss": 0.9078, "val_loss": 1.0972, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 19, "train_loss": 0.8615, "val_loss": 1.1549, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 20, "train_loss": 0.8189, "val_loss": 1.1704, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 21, "train_loss": 0.817, "val_loss": 1.1084, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 22, "train_loss": 0.7997, "val_loss": 1.1047, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 23, "train_loss": 0.7674, "val_loss": 1.1052, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 24, "train_loss": 0.7469, "val_loss": 1.1684, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 25, "train_loss": 0.7737, "val_loss": 1.1482, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 26, "train_loss": 0.7358, "val_loss": 1.1439, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 27, "train_loss": 0.7247, "val_loss": 1.124, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 28, "train_loss": 0.7074, "val_loss": 1.1253, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 29, "train_loss": 0.7128, "val_loss": 1.1361, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"epoch": 30, "train_loss": 0.6907, "val_loss": 1.1107, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 6.0}
+INFO {"fold": 0, "test": ["Курганы"], "val": "Гнёздово", "train_tiles": 1427, "best_val_loss": 1.0556973713200266, "test_regions": 34, "minutes": 4.7}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 2311, проверки 164
+INFO {"epoch": 1, "train_loss": 1.7349, "val_loss": 1.6361, "pixel_f1": {"kurgany_povrezhdennye": 0.091, "kurgany_tselye": 0.001, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 2, "train_loss": 1.357, "val_loss": 1.1932, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 3, "train_loss": 1.0862, "val_loss": 1.1275, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 4, "train_loss": 1.029, "val_loss": 1.1298, "pixel_f1": {"kurgany_povrezhdennye": 0.02, "kurgany_tselye": 0.019, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 5, "train_loss": 0.9431, "val_loss": 1.0585, "pixel_f1": {"kurgany_povrezhdennye": 0.021, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 6, "train_loss": 0.888, "val_loss": 1.076, "pixel_f1": {"kurgany_povrezhdennye": 0.016, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 7, "train_loss": 0.8628, "val_loss": 1.1189, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.251, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 8, "train_loss": 0.8562, "val_loss": 1.074, "pixel_f1": {"kurgany_povrezhdennye": 0.023, "kurgany_tselye": 0.237, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 9, "train_loss": 0.8142, "val_loss": 1.2075, "pixel_f1": {"kurgany_povrezhdennye": 0.026, "kurgany_tselye": 0.126, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 10, "train_loss": 0.8176, "val_loss": 1.1493, "pixel_f1": {"kurgany_povrezhdennye": 0.016, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 11, "train_loss": 0.7732, "val_loss": 1.0515, "pixel_f1": {"kurgany_povrezhdennye": 0.03, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 12, "train_loss": 0.7635, "val_loss": 1.3707, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 13, "train_loss": 0.7403, "val_loss": 1.1701, "pixel_f1": {"kurgany_povrezhdennye": 0.019, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 14, "train_loss": 0.7323, "val_loss": 1.0603, "pixel_f1": {"kurgany_povrezhdennye": 0.026, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 15, "train_loss": 0.6824, "val_loss": 1.0512, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 16, "train_loss": 0.6946, "val_loss": 1.0926, "pixel_f1": {"kurgany_povrezhdennye": 0.031, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 17, "train_loss": 0.6758, "val_loss": 1.0944, "pixel_f1": {"kurgany_povrezhdennye": 0.009, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 18, "train_loss": 0.6337, "val_loss": 1.016, "pixel_f1": {"kurgany_povrezhdennye": 0.021, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 19, "train_loss": 0.6344, "val_loss": 0.9468, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 20, "train_loss": 0.6805, "val_loss": 0.8367, "pixel_f1": {"kurgany_povrezhdennye": 0.017, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 21, "train_loss": 0.6677, "val_loss": 0.8637, "pixel_f1": {"kurgany_povrezhdennye": 0.013, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 22, "train_loss": 0.7257, "val_loss": 0.8209, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 23, "train_loss": 0.6891, "val_loss": 0.8195, "pixel_f1": {"kurgany_povrezhdennye": 0.013, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 24, "train_loss": 0.6817, "val_loss": 0.8151, "pixel_f1": {"kurgany_povrezhdennye": 0.023, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 25, "train_loss": 0.6654, "val_loss": 0.8118, "pixel_f1": {"kurgany_povrezhdennye": 0.021, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 10.0}
+INFO {"epoch": 26, "train_loss": 0.6269, "val_loss": 0.8127, "pixel_f1": {"kurgany_povrezhdennye": 0.024, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 27, "train_loss": 0.6172, "val_loss": 0.8175, "pixel_f1": {"kurgany_povrezhdennye": 0.024, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 28, "train_loss": 0.6221, "val_loss": 0.8161, "pixel_f1": {"kurgany_povrezhdennye": 0.023, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 29, "train_loss": 0.6198, "val_loss": 0.8144, "pixel_f1": {"kurgany_povrezhdennye": 0.023, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 30, "train_loss": 0.6445, "val_loss": 0.8137, "pixel_f1": {"kurgany_povrezhdennye": 0.025, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"fold": 1, "test": ["Кабардино", "Калмыкия", "Курменту", "Новотитаровская", "Солдатское", "Торт"], "val": "Гнёздово", "train_tiles": 2311, "best_val_loss": 0.8117558549090129, "test_regions": 7, "minutes": 5.9}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 2316, проверки 188
+INFO {"epoch": 1, "train_loss": 1.6099, "val_loss": 1.4745, "pixel_f1": {"kurgany_povrezhdennye": 0.038, "kurgany_tselye": 0.012, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 10.8}
+INFO {"epoch": 2, "train_loss": 1.266, "val_loss": 1.1527, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 3, "train_loss": 1.0586, "val_loss": 1.1248, "pixel_f1": {"kurgany_povrezhdennye": 0.003, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 4, "train_loss": 0.9837, "val_loss": 1.094, "pixel_f1": {"kurgany_povrezhdennye": 0.184, "kurgany_tselye": 0.045, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 5, "train_loss": 0.9375, "val_loss": 1.3313, "pixel_f1": {"kurgany_povrezhdennye": 0.01, "kurgany_tselye": 0.013, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 6, "train_loss": 0.8915, "val_loss": 1.0703, "pixel_f1": {"kurgany_povrezhdennye": 0.085, "kurgany_tselye": 0.274, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 7, "train_loss": 0.8951, "val_loss": 1.1157, "pixel_f1": {"kurgany_povrezhdennye": 0.015, "kurgany_tselye": 0.009, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 8, "train_loss": 0.868, "val_loss": 1.1098, "pixel_f1": {"kurgany_povrezhdennye": 0.074, "kurgany_tselye": 0.013, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.7}
+INFO {"epoch": 9, "train_loss": 0.8445, "val_loss": 1.1148, "pixel_f1": {"kurgany_povrezhdennye": 0.008, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 10, "train_loss": 0.8327, "val_loss": 1.0969, "pixel_f1": {"kurgany_povrezhdennye": 0.031, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 11, "train_loss": 0.8173, "val_loss": 1.1015, "pixel_f1": {"kurgany_povrezhdennye": 0.054, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 12, "train_loss": 0.8074, "val_loss": 1.0791, "pixel_f1": {"kurgany_povrezhdennye": 0.12, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 13, "train_loss": 0.7803, "val_loss": 1.0744, "pixel_f1": {"kurgany_povrezhdennye": 0.117, "kurgany_tselye": 0.019, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 14, "train_loss": 0.7884, "val_loss": 1.0568, "pixel_f1": {"kurgany_povrezhdennye": 0.145, "kurgany_tselye": 0.155, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 15, "train_loss": 0.7638, "val_loss": 1.0857, "pixel_f1": {"kurgany_povrezhdennye": 0.106, "kurgany_tselye": 0.034, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 16, "train_loss": 0.745, "val_loss": 1.0866, "pixel_f1": {"kurgany_povrezhdennye": 0.077, "kurgany_tselye": 0.011, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 17, "train_loss": 0.7393, "val_loss": 1.0608, "pixel_f1": {"kurgany_povrezhdennye": 0.208, "kurgany_tselye": 0.042, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 18, "train_loss": 0.7288, "val_loss": 1.0879, "pixel_f1": {"kurgany_povrezhdennye": 0.064, "kurgany_tselye": 0.047, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 19, "train_loss": 0.7089, "val_loss": 1.0695, "pixel_f1": {"kurgany_povrezhdennye": 0.169, "kurgany_tselye": 0.007, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 20, "train_loss": 0.7063, "val_loss": 1.0764, "pixel_f1": {"kurgany_povrezhdennye": 0.11, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 21, "train_loss": 0.6935, "val_loss": 1.0819, "pixel_f1": {"kurgany_povrezhdennye": 0.101, "kurgany_tselye": 0.015, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 22, "train_loss": 0.6856, "val_loss": 1.094, "pixel_f1": {"kurgany_povrezhdennye": 0.058, "kurgany_tselye": 0.016, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 23, "train_loss": 0.6606, "val_loss": 1.0752, "pixel_f1": {"kurgany_povrezhdennye": 0.127, "kurgany_tselye": 0.02, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 24, "train_loss": 0.6686, "val_loss": 1.0802, "pixel_f1": {"kurgany_povrezhdennye": 0.095, "kurgany_tselye": 0.035, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 25, "train_loss": 0.6513, "val_loss": 1.0778, "pixel_f1": {"kurgany_povrezhdennye": 0.094, "kurgany_tselye": 0.038, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 26, "train_loss": 0.6645, "val_loss": 1.084, "pixel_f1": {"kurgany_povrezhdennye": 0.071, "kurgany_tselye": 0.045, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 27, "train_loss": 0.6415, "val_loss": 1.0816, "pixel_f1": {"kurgany_povrezhdennye": 0.088, "kurgany_tselye": 0.04, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 28, "train_loss": 0.6448, "val_loss": 1.0826, "pixel_f1": {"kurgany_povrezhdennye": 0.077, "kurgany_tselye": 0.04, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 29, "train_loss": 0.6382, "val_loss": 1.0779, "pixel_f1": {"kurgany_povrezhdennye": 0.102, "kurgany_tselye": 0.039, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"epoch": 30, "train_loss": 0.6387, "val_loss": 1.0775, "pixel_f1": {"kurgany_povrezhdennye": 0.103, "kurgany_tselye": 0.039, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.8}
+INFO {"fold": 2, "test": ["Артпозиции", "Миловидово", "Сакские", "Сарское", "Тору", "Усть"], "val": "Калмыкия", "train_tiles": 2316, "best_val_loss": 1.0567734089303524, "test_regions": 6, "minutes": 5.5}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 2244, проверки 188
+INFO {"epoch": 1, "train_loss": 1.5599, "val_loss": 1.3958, "pixel_f1": {"kurgany_povrezhdennye": 0.107, "kurgany_tselye": 0.009, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.6}
+INFO {"epoch": 2, "train_loss": 1.2174, "val_loss": 1.1555, "pixel_f1": {"kurgany_povrezhdennye": 0.163, "kurgany_tselye": 0.102, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 3, "train_loss": 1.0309, "val_loss": 1.0758, "pixel_f1": {"kurgany_povrezhdennye": 0.014, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 4, "train_loss": 0.9309, "val_loss": 1.0287, "pixel_f1": {"kurgany_povrezhdennye": 0.151, "kurgany_tselye": 0.202, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 5, "train_loss": 0.8837, "val_loss": 1.1056, "pixel_f1": {"kurgany_povrezhdennye": 0.001, "kurgany_tselye": 0.008, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 6, "train_loss": 0.8606, "val_loss": 1.0582, "pixel_f1": {"kurgany_povrezhdennye": 0.032, "kurgany_tselye": 0.351, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 7, "train_loss": 0.8179, "val_loss": 1.0676, "pixel_f1": {"kurgany_povrezhdennye": 0.016, "kurgany_tselye": 0.205, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 8, "train_loss": 0.8208, "val_loss": 1.2543, "pixel_f1": {"kurgany_povrezhdennye": 0.054, "kurgany_tselye": 0.019, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 9, "train_loss": 0.8013, "val_loss": 1.0678, "pixel_f1": {"kurgany_povrezhdennye": 0.094, "kurgany_tselye": 0.048, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 10, "train_loss": 0.7631, "val_loss": 1.0834, "pixel_f1": {"kurgany_povrezhdennye": 0.087, "kurgany_tselye": 0.015, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 11, "train_loss": 0.7677, "val_loss": 1.4542, "pixel_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 12, "train_loss": 0.7487, "val_loss": 1.0701, "pixel_f1": {"kurgany_povrezhdennye": 0.078, "kurgany_tselye": 0.037, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 13, "train_loss": 0.72, "val_loss": 1.058, "pixel_f1": {"kurgany_povrezhdennye": 0.121, "kurgany_tselye": 0.017, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 14, "train_loss": 0.7234, "val_loss": 1.0717, "pixel_f1": {"kurgany_povrezhdennye": 0.051, "kurgany_tselye": 0.002, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 15, "train_loss": 0.6892, "val_loss": 1.0235, "pixel_f1": {"kurgany_povrezhdennye": 0.076, "kurgany_tselye": 0.121, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 16, "train_loss": 0.7184, "val_loss": 1.0285, "pixel_f1": {"kurgany_povrezhdennye": 0.11, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 17, "train_loss": 0.6812, "val_loss": 0.8622, "pixel_f1": {"kurgany_povrezhdennye": 0.159, "kurgany_tselye": 0.014, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 18, "train_loss": 0.7545, "val_loss": 0.8111, "pixel_f1": {"kurgany_povrezhdennye": 0.142, "kurgany_tselye": 0.069, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 19, "train_loss": 0.7223, "val_loss": 0.8349, "pixel_f1": {"kurgany_povrezhdennye": 0.064, "kurgany_tselye": 0.055, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 20, "train_loss": 0.7189, "val_loss": 0.805, "pixel_f1": {"kurgany_povrezhdennye": 0.126, "kurgany_tselye": 0.258, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 21, "train_loss": 0.7026, "val_loss": 0.8148, "pixel_f1": {"kurgany_povrezhdennye": 0.063, "kurgany_tselye": 0.29, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 10.8}
+INFO {"epoch": 22, "train_loss": 0.6904, "val_loss": 0.8341, "pixel_f1": {"kurgany_povrezhdennye": 0.062, "kurgany_tselye": 0.02, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.6}
+INFO {"epoch": 23, "train_loss": 0.6721, "val_loss": 0.8182, "pixel_f1": {"kurgany_povrezhdennye": 0.086, "kurgany_tselye": 0.192, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 11.3}
+INFO {"epoch": 24, "train_loss": 0.6854, "val_loss": 0.8275, "pixel_f1": {"kurgany_povrezhdennye": 0.072, "kurgany_tselye": 0.099, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 25, "train_loss": 0.6766, "val_loss": 0.8339, "pixel_f1": {"kurgany_povrezhdennye": 0.071, "kurgany_tselye": 0.053, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 26, "train_loss": 0.6727, "val_loss": 0.8326, "pixel_f1": {"kurgany_povrezhdennye": 0.072, "kurgany_tselye": 0.078, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 27, "train_loss": 0.6636, "val_loss": 0.832, "pixel_f1": {"kurgany_povrezhdennye": 0.057, "kurgany_tselye": 0.159, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 28, "train_loss": 0.6516, "val_loss": 0.8272, "pixel_f1": {"kurgany_povrezhdennye": 0.06, "kurgany_tselye": 0.167, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 29, "train_loss": 0.655, "val_loss": 0.8226, "pixel_f1": {"kurgany_povrezhdennye": 0.066, "kurgany_tselye": 0.185, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"epoch": 30, "train_loss": 0.6433, "val_loss": 0.8255, "pixel_f1": {"kurgany_povrezhdennye": 0.067, "kurgany_tselye": 0.145, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.5}
+INFO {"fold": 3, "test": ["Воронеж", "Гнёздово", "Каменные", "Орнок", "Постройки"], "val": "Калмыкия", "train_tiles": 2244, "best_val_loss": 0.804969219451255, "test_regions": 27, "minutes": 5.4}
+WARNING NVIDIA GeForce GTX 1650: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32
+INFO данные: в видеопамяти, тайлов обучения 2130, проверки 188
+INFO {"epoch": 1, "train_loss": 1.508, "val_loss": 1.3508, "pixel_f1": {"kurgany_povrezhdennye": 0.064, "kurgany_tselye": 0.037, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.1}
+INFO {"epoch": 2, "train_loss": 1.1879, "val_loss": 1.1214, "pixel_f1": {"kurgany_povrezhdennye": 0.02, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 8.9}
+INFO {"epoch": 3, "train_loss": 1.0207, "val_loss": 1.2323, "pixel_f1": {"kurgany_povrezhdennye": 0.173, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 8.9}
+INFO {"epoch": 4, "train_loss": 0.9747, "val_loss": 1.0986, "pixel_f1": {"kurgany_povrezhdennye": 0.09, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 5, "train_loss": 0.9305, "val_loss": 1.0983, "pixel_f1": {"kurgany_povrezhdennye": 0.03, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 6, "train_loss": 0.894, "val_loss": 1.0683, "pixel_f1": {"kurgany_povrezhdennye": 0.056, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 7, "train_loss": 0.8528, "val_loss": 1.0709, "pixel_f1": {"kurgany_povrezhdennye": 0.096, "kurgany_tselye": 0.14, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 8, "train_loss": 0.8114, "val_loss": 1.1162, "pixel_f1": {"kurgany_povrezhdennye": 0.007, "kurgany_tselye": 0.001, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 9, "train_loss": 0.8199, "val_loss": 1.0927, "pixel_f1": {"kurgany_povrezhdennye": 0.015, "kurgany_tselye": 0.028, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 10, "train_loss": 0.8138, "val_loss": 1.079, "pixel_f1": {"kurgany_povrezhdennye": 0.07, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 11, "train_loss": 0.788, "val_loss": 1.1027, "pixel_f1": {"kurgany_povrezhdennye": 0.043, "kurgany_tselye": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 12, "train_loss": 0.7541, "val_loss": 1.084, "pixel_f1": {"kurgany_povrezhdennye": 0.033, "kurgany_tselye": 0.087, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 13, "train_loss": 0.7437, "val_loss": 1.0581, "pixel_f1": {"kurgany_povrezhdennye": 0.161, "kurgany_tselye": 0.051, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 14, "train_loss": 0.7004, "val_loss": 1.0742, "pixel_f1": {"kurgany_povrezhdennye": 0.059, "kurgany_tselye": 0.022, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 15, "train_loss": 0.6815, "val_loss": 1.0637, "pixel_f1": {"kurgany_povrezhdennye": 0.058, "kurgany_tselye": 0.005, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 16, "train_loss": 0.7269, "val_loss": 1.0707, "pixel_f1": {"kurgany_povrezhdennye": 0.041, "kurgany_tselye": 0.033, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 17, "train_loss": 0.6891, "val_loss": 1.0262, "pixel_f1": {"kurgany_povrezhdennye": 0.113, "kurgany_tselye": 0.136, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 18, "train_loss": 0.6535, "val_loss": 1.0123, "pixel_f1": {"kurgany_povrezhdennye": 0.154, "kurgany_tselye": 0.255, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 19, "train_loss": 0.6888, "val_loss": 0.9818, "pixel_f1": {"kurgany_povrezhdennye": 0.086, "kurgany_tselye": 0.146, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 20, "train_loss": 0.7153, "val_loss": 0.9245, "pixel_f1": {"kurgany_povrezhdennye": 0.059, "kurgany_tselye": 0.095, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 21, "train_loss": 0.629, "val_loss": 0.9316, "pixel_f1": {"kurgany_povrezhdennye": 0.06, "kurgany_tselye": 0.013, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 22, "train_loss": 0.6277, "val_loss": 0.9361, "pixel_f1": {"kurgany_povrezhdennye": 0.092, "kurgany_tselye": 0.148, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 23, "train_loss": 0.626, "val_loss": 0.8311, "pixel_f1": {"kurgany_povrezhdennye": 0.046, "kurgany_tselye": 0.189, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 24, "train_loss": 0.6045, "val_loss": 0.9155, "pixel_f1": {"kurgany_povrezhdennye": 0.088, "kurgany_tselye": 0.066, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 25, "train_loss": 0.5988, "val_loss": 0.9008, "pixel_f1": {"kurgany_povrezhdennye": 0.141, "kurgany_tselye": 0.059, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 26, "train_loss": 0.565, "val_loss": 0.902, "pixel_f1": {"kurgany_povrezhdennye": 0.136, "kurgany_tselye": 0.101, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 27, "train_loss": 0.5571, "val_loss": 0.8962, "pixel_f1": {"kurgany_povrezhdennye": 0.132, "kurgany_tselye": 0.124, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 28, "train_loss": 0.5603, "val_loss": 0.9011, "pixel_f1": {"kurgany_povrezhdennye": 0.11, "kurgany_tselye": 0.127, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 29, "train_loss": 0.5643, "val_loss": 0.8979, "pixel_f1": {"kurgany_povrezhdennye": 0.111, "kurgany_tselye": 0.138, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"epoch": 30, "train_loss": 0.5657, "val_loss": 0.9009, "pixel_f1": {"kurgany_povrezhdennye": 0.108, "kurgany_tselye": 0.113, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 9.0}
+INFO {"fold": 4, "test": ["Архангельское", "Барскоон", "Белая", "Булан", "Верхнее", "Верхний", "Городище", "Гочево", "Демидовка", "Елизаветинское", "Золотаревка", "Иссык", "Каджы", "Каменка", "Кан", "Кароол", "Кель", "Кисловодская", "Конур", "Корумду", "Костомаровское", "Ксизово", "Маяцкая", "Мостище", "Примаки", "Россошки", "Русская", "Сары", "Скупая", "Сторожевое", "Таш", "Тыва", "Шаты", "Шумгора", "Шурскол"], "val": "Калмыкия", "train_tiles": 2130, "best_val_loss": 0.8310564731029754, "test_regions": 53, "minutes": 5.4}
+{"written": 70681, "folds": [{"fold": 0, "test": ["Курганы"], "val": "Гнёздово", "train_tiles": 1427, "best_val_loss": 1.0556973713200266, "test_regions": 34, "minutes": 4.7}, {"fold": 1, "test": ["Кабардино", "Калмыкия", "Курменту", "Новотитаровская", "Солдатское", "Торт"], "val": "Гнёздово", "train_tiles": 2311, "best_val_loss": 0.8117558549090129, "test_regions": 7, "minutes": 5.9}, {"fold": 2, "test": ["Артпозиции", "Миловидово", "Сакские", "Сарское", "Тору", "Усть"], "val": "Калмыкия", "train_tiles": 2316, "best_val_loss": 1.0567734089303524, "test_regions": 6, "minutes": 5.5}, {"fold": 3, "test": ["Воронеж", "Гнёздово", "Каменные", "Орнок", "Постройки"], "val": "Калмыкия", "train_tiles": 2244, "best_val_loss": 0.804969219451255, "test_regions": 27, "minutes": 5.4}, {"fold": 4, "test": ["Архангельское", "Барскоон", "Белая", "Булан", "Верхнее", "Верхний", "Городище", "Гочево", "Демидовка", "Елизаветинское", "Золотаревка", "Иссык", "Каджы", "Каменка", "Кан", "Кароол", "Кель", "Кисловодская", "Конур", "Корумду", "Костомаровское", "Ксизово", "Маяцкая", "Мостище", "Примаки", "Россошки", "Русская", "Сары", "Скупая", "Сторожевое", "Таш", "Тыва", "Шаты", "Шумгора", "Шурскол"], "val": "Калмыкия", "train_tiles": 2130, "best_val_loss": 0.8310564731029754, "test_regions": 53, "minutes": 5.4}]}

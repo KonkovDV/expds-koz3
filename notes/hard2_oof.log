@@ -1,0 +1,12 @@
+19:56:11 mine2
+20:02:20 mine2 rc=0
+20:02:20 cache rows 4260
+20:02:20 oof
+20:56:26 oof rc=0
+20:57:46 sweep las15
+20:58:25 li_hard2_fused               povr 0.503  tsel 0.572  score 0.334965
+20:58:25 sweep new
+20:59:06 li_hard2_fused               povr 0.234  tsel 0.250  score 0.216678
+20:59:06 sweep all
+21:00:49 li_hard2_fused               povr 0.278  tsel 0.433  score 0.202637
+21:00:49 hard2 done

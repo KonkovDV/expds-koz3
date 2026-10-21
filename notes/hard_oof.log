@@ -1,0 +1,14 @@
+18:14:24 mine
+18:21:18 mine rc=0
+18:21:18 cache rows 4105
+18:21:18 oof
+19:10:06 oof rc=3221225725
+19:16:47 resume predict
+19:26:34 resume rc=0
+19:27:43 sweep las15
+19:28:13 li_hard_fused                povr 0.509  tsel 0.543  score 0.326495
+19:28:13 sweep new
+19:28:44 li_hard_fused                povr 0.195  tsel 0.312  score 0.208379
+19:28:44 sweep all
+19:30:33 li_hard_fused                povr 0.281  tsel 0.425  score 0.197246
+19:30:33 hard oof done

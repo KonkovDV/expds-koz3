@@ -1,0 +1,25 @@
+﻿.\.venv\Scripts\python : INFO найдено регионов: 210 в F:\expds3\train-expds-3
+At C:\Users\Пользователь\AppData\Local\Temp\ps-script-ed5d2739-7415-4973-9643-d79b0d462690.ps1:96 char:524
++ ... = Get-Date; .\.venv\Scripts\python -X utf8 scripts/nn_oof.py --markup ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO найдено ре...3\train-expds-3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO DEM 01_Гнёздово_Нивленское_La_точки.las: 7752x5159 @ 0.1 м, точек 7402349, пустот 34099378, rust 0.1.0
+INFO DEM 01_Гнёздово_Лесная_1_La_точки.las: 1223x3106 @ 0.1 м, точек 1214070, пустот 2902212, rust 0.1.0
+INFO DEM 01_Гнёздово_Лесная_2_La_точки.las: 1249x3109 @ 0.1 м, точек 559595, пустот 3400670, rust 0.1.0
+INFO DEM 01_Гнёздово_Лесная_3_La_точки.las: 948x3109 @ 0.1 м, точек 398884, пустот 2595545, rust 0.1.0
+INFO {"fold": 0, "test": ["Гнёздово"], "val": "Эрентуна", "train_tiles": 1577, "best_val_loss": 0.9408616202218192, 
+"test_regions": 4, "minutes": 0.2}
+INFO DEM 01_Тимерево_La_точки.las: 3726x4183 @ 0.1 м, точек 2311007, пустот 13576962, rust 0.1.0
+INFO {"fold": 1, "test": ["Тимерево"], "val": "Эрентуна", "train_tiles": 2160, "best_val_loss": 0.751259776524135, 
+"test_regions": 1, "minutes": 0.0}
+INFO DEM 01_Эсбю_укрепление_La_точки.las: 6519x4439 @ 0.1 м, точек 228338, пустот 28712440, rust 0.1.0
+INFO DEM 01_Эсбю_La_точки.las: 5284x3580 @ 0.1 м, точек 282665, пустот 18634633, rust 0.1.0
+INFO {"fold": 2, "test": ["Эсбю"], "val": "Эрентуна", "train_tiles": 2253, "best_val_loss": 0.4728086199079241, 
+"test_regions": 2, "minutes": 0.0}
+INFO DEM 01_Осечки_1.1км_La_точки.las: 4031x3996 @ 0.2 м, точек 3289274, пустот 14471943, rust 0.1.0
+INFO DEM 01_Эрентуна_La_точки.las: 8358x5321 @ 0.2 м, точек 3874779, пустот 40754556, rust 0.1.0
+INFO DEM 01_Хога_La_точки.las: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, rust 0.1.0
+INFO DEM 01_Курган_Хога_La_точки.las: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, rust 0.1.0
+INFO DEM 01_Новотитаровская_La_точки.las: 6297x6516 @ 0.1 м, точек 12703351, пустот 36116896, rust 0.1.0

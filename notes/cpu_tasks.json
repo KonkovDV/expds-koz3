@@ -1,0 +1,11 @@
+[
+  {"name": "ae_all_cache",
+   "idle_for": ["li_tin_all_t128"],
+   "args": ["-m", "expds.tiles", "--root", "F:/expds3/train-expds-3", "--gt", "F:/expds3/work/gt_train.geojson",
+            "--markup", "ae", "--out", "F:/expds3/work/cache/ae_all_r05_t128_s04", "--res", "0.5", "--tile", "128",
+            "--shrink", "0.4"]},
+  {"name": "li_all51_cache",
+   "requires_text": [["F:/expds3/work/fetch_big_las.log", "done:"]], "idle_for": ["li_tin_all_t128"],
+   "args": ["-m", "expds.tiles", "--root", "F:/expds3/train-expds-3", "--gt", "F:/expds3/work/gt_train.geojson",
+            "--markup", "li", "--out", "F:/expds3/work/cache/li_tin_all51_t128", "--res", "0.5", "--tile", "128"]}
+]

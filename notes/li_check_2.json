@@ -1,0 +1,49 @@
+﻿{
+  "seconds": 6.1,
+  "report": {
+    "g": {
+      "status": "ok",
+      "file": "03_Новотитаровская_1.8км_Li_g.tif",
+      "pixels": 737325,
+      "equal_pct": 9.908,
+      "within1_pct": 28.893,
+      "mae": 6.1528,
+      "shift_px": [
+        0.0,
+        0.0
+      ],
+      "shift_m": [
+        0.0,
+        0.0
+      ],
+      "shift_peak": 0.386
+    },
+    "i": {
+      "status": "ok",
+      "file": "04_Новотитаровская_1.8км_Li_i.tif",
+      "pixels": 737325,
+      "equal_pct": 9.165,
+      "within1_pct": 25.929,
+      "mae": 6.3397,
+      "shift_px": [
+        0.0,
+        0.0
+      ],
+      "shift_m": [
+        0.0,
+        0.0
+      ],
+      "shift_peak": 0.386
+    },
+    "c": {
+      "status": "разный шаг",
+      "li_res": 0.05,
+      "our_res": 0.1
+    },
+    "ch": {
+      "status": "разный шаг",
+      "li_res": 0.05,
+      "our_res": 0.1
+    }
+  }
+}

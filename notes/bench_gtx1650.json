@@ -1,0 +1,78 @@
+{
+  "info": {
+    "python": "3.12.10",
+    "torch": "2.11.0+cu128",
+    "smp": "0.5.0",
+    "device": "NVIDIA GeForce GTX 1650",
+    "capability": [
+      7,
+      5
+    ],
+    "vram_gb": 4.0,
+    "amp_fp16": false,
+    "tiles": 30000,
+    "epochs": 20
+  },
+  "results": [
+    {
+      "encoder": "resnet18",
+      "size": 256,
+      "batch": 16,
+      "train_img_s": 50.2,
+      "infer_img_s": 171.5,
+      "peak_mem_gb": 2.97,
+      "hours_per_model": 3.3,
+      "note": ""
+    },
+    {
+      "encoder": "resnet34",
+      "size": 256,
+      "batch": 16,
+      "train_img_s": 37.9,
+      "infer_img_s": 127.1,
+      "peak_mem_gb": 2.1,
+      "hours_per_model": 4.4,
+      "note": ""
+    },
+    {
+      "encoder": "efficientnet-b0",
+      "size": 256,
+      "batch": 16,
+      "train_img_s": 24.4,
+      "infer_img_s": 146.9,
+      "peak_mem_gb": 3.0,
+      "hours_per_model": 6.8,
+      "note": ""
+    },
+    {
+      "encoder": "mobilenet_v2",
+      "size": 256,
+      "batch": 16,
+      "train_img_s": 37.4,
+      "infer_img_s": 168.4,
+      "peak_mem_gb": 3.13,
+      "hours_per_model": 4.5,
+      "note": ""
+    },
+    {
+      "encoder": "resnet18",
+      "size": 384,
+      "batch": 8,
+      "train_img_s": 20.0,
+      "infer_img_s": 65.1,
+      "peak_mem_gb": 3.0,
+      "hours_per_model": 8.3,
+      "note": ""
+    },
+    {
+      "encoder": "resnet18",
+      "size": 512,
+      "batch": 4,
+      "train_img_s": 11.6,
+      "infer_img_s": 39.8,
+      "peak_mem_gb": 2.94,
+      "hours_per_model": 14.4,
+      "note": ""
+    }
+  ]
+}

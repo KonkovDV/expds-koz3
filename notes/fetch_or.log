@@ -1,0 +1,11 @@
+﻿to download: 7 files, 7057.1 MB
+  ok 01_Елизаветинское_Or_ортофото.tif  3448.5 MB
+  have Елизаветинское_Or_городища.geojson
+  ok 01_Фалхан_Or_ортофото.tif  3504.9 MB
+  have Фалхан_Or_архитектуры.geojson
+  ClientError on 01_Изборск_Or_ортофото.tif at 0 MB, wait 3s
+  IncompleteReadError on 01_Изборск_Or_ортофото.tif at 0 MB, wait 6s
+  ok 01_Изборск_Or_ортофото.tif  103.4 MB
+  have Изборск_Or_городища.geojson
+  have Изборск_Or_фортификации.geojson
+done: 7 of 7; failed 0

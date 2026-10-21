@@ -1,0 +1,8 @@
+﻿.\.venv\Scripts\python : INFO найдено регионов: 210 в F:\expds3\train-expds-3
+At C:\Users\Пользователь\AppData\Local\Temp\ps-script-57c1f707-b2bc-48a4-991d-7ec0191fd8ce.ps1:95 char:71
++ ... FFERED='1'; .\.venv\Scripts\python -X utf8 scripts/nn_oof.py --markup ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO найдено ре...3\train-expds-3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO DEM 01_Гнёздово_Нивленское_La_точки.las: 7752x5159 @ 0.1 м, точек 7402349, пустот 34099378, rust 0.1.0

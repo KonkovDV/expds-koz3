@@ -1,0 +1,6 @@
+03:31:31 oof rc=0
+03:32:47 fusion rc=0
+03:33:17 sweep las15 li_ens2_fused                povr 0.528  tsel 0.576  score 0.34185
+03:33:48 sweep new li_ens2_fused                povr 0.209  tsel 0.245  score 0.175936
+03:34:42 sweep las49 li_ens2_fused                povr 0.455  tsel 0.530  score 0.287675
+03:34:42 ens2 done

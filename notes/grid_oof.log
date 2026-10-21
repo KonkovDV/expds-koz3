@@ -1,0 +1,11 @@
+17:26:34 start predict
+17:32:41 predict rc=3221225725
+17:37:12 start predict
+17:46:10 predict rc=0
+17:47:19 sweep las15
+17:47:49 li_all_grid_fused            povr 0.509  tsel 0.554  score 0.329256
+17:47:49 sweep new
+17:48:19 li_all_grid_fused            povr 0.181  tsel 0.210  score 0.142476
+17:48:19 sweep all
+17:50:15 li_all_grid_fused            povr 0.251  tsel 0.411  score 0.171656
+17:50:15 grid oof done

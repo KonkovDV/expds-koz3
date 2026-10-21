@@ -1,0 +1,158 @@
+{
+  "maggr/finds_points": {
+    "best_cfg": {
+      "background_m": 2.0,
+      "peak_radius_m": 2.0,
+      "use_noise": true,
+      "confidence": "rank",
+      "peak_k": 1.0
+    },
+    "tau": 0.17391,
+    "f1_in_sample": 0.5818,
+    "f1_lofo_pooled": 0.4614,
+    "n_gt": 3478,
+    "regions": 13,
+    "families": 3,
+    "lofo": [
+      {
+        "held_out": "Гнёздово",
+        "cfg": {
+          "background_m": 2.0,
+          "peak_radius_m": 2.0,
+          "use_noise": true,
+          "confidence": "rank",
+          "peak_k": 1.0
+        },
+        "tau": 0.17391,
+        "f1_held": 0.3409,
+        "tp": 248,
+        "fp": 630,
+        "fn": 644
+      },
+      {
+        "held_out": "Семибратнее",
+        "cfg": {
+          "background_m": 1.0,
+          "peak_radius_m": 1.0,
+          "use_noise": true,
+          "confidence": "rank",
+          "peak_k": 1.0
+        },
+        "tau": 0.70048,
+        "f1_held": 0.5134,
+        "tp": 879,
+        "fp": 351,
+        "fn": 1491
+      },
+      {
+        "held_out": "Судьбищи",
+        "cfg": {
+          "background_m": 2.0,
+          "peak_radius_m": 2.0,
+          "use_noise": true,
+          "confidence": "rank",
+          "peak_k": 1.0
+        },
+        "tau": 0.10837,
+        "f1_held": 0.4573,
+        "tp": 142,
+        "fp": 526,
+        "fn": 74
+      }
+    ]
+  },
+  "maggr/object_poly": {
+    "best_cfg": {
+      "background_m": 8.0,
+      "poly_k": 1.5,
+      "smooth_m": 0.5,
+      "use_noise": true,
+      "confidence": "rank"
+    },
+    "tau": 0.07143,
+    "f1_in_sample": 0.4034,
+    "f1_lofo_pooled": 0.3405,
+    "n_gt": 248,
+    "regions": 13,
+    "families": 3,
+    "lofo": [
+      {
+        "held_out": "Гнёздово",
+        "cfg": {
+          "background_m": 8.0,
+          "poly_k": 1.0,
+          "smooth_m": 0.5,
+          "use_noise": true,
+          "confidence": "rank"
+        },
+        "tau": 0.32692,
+        "f1_held": 0.3658,
+        "tp": 31,
+        "fp": 41,
+        "fn": 87
+      },
+      {
+        "held_out": "Семибратнее",
+        "cfg": {
+          "background_m": 8.0,
+          "poly_k": 1.5,
+          "smooth_m": 0.5,
+          "use_noise": false,
+          "confidence": "rank"
+        },
+        "tau": 0.09195,
+        "f1_held": 0.3256,
+        "tp": 28,
+        "fp": 38,
+        "fn": 97
+      },
+      {
+        "held_out": "Судьбищи",
+        "cfg": {
+          "background_m": 8.0,
+          "poly_k": 1.5,
+          "smooth_m": 0.5,
+          "use_noise": true,
+          "confidence": "rank"
+        },
+        "tau": 0.07143,
+        "f1_held": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 5
+      }
+    ]
+  },
+  "etgr/object_poly": {
+    "best_cfg": {
+      "background_m": 2.0,
+      "poly_k": 1.0,
+      "smooth_m": 0.1,
+      "use_noise": false,
+      "confidence": "strength"
+    },
+    "tau": 0.09578,
+    "f1_in_sample": 0.2012,
+    "f1_lofo_pooled": null,
+    "n_gt": 112,
+    "regions": 6,
+    "families": 1,
+    "lofo": []
+  },
+  "terfl/object_poly": {
+    "best_cfg": {
+      "background_m": 8.0,
+      "poly_k": 1.0,
+      "smooth_m": 0.25,
+      "use_noise": false,
+      "confidence": "strength"
+    },
+    "tau": 0.14263,
+    "f1_in_sample": 0.1707,
+    "f1_lofo_pooled": null,
+    "n_gt": 177,
+    "regions": 2,
+    "families": 1,
+    "lofo": []
+  }
+}
