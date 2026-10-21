@@ -1,5 +1,6 @@
 """Середина плато F1, а не острый максимум на одном пороге."""
 import numpy as np
+import pytest
 
 from expds.metric import plateau_index
 
@@ -32,4 +33,23 @@ def test_group_plateau_moves_off_the_sharp_peak():
     assert sharp_g["kept"] == n_hit
     assert flat_g["kept"] > sharp_g["kept"]
     assert flat["kurgany_povrezhdennye"]["f1"] >= sharp["kurgany_povrezhdennye"]["f1"] - 0.002
+
+
+def test_region_subset_keeps_confidence_order_and_group_threshold():
+    from collections import Counter
+
+    from expds.metric import ClassCurve, curve_where, score_group_thresholds
+
+    curve = ClassCurve(conf=np.array([0.9, 0.4, 0.2]), hit=np.array([True, False, True]),
+                       pred_region=["a", "b", "a"], n_gt=2,
+                       gt_regions=Counter({"a": 1, "b": 1}), pred_group=["li", "li", "li_mosaic"])
+    held = curve_where(curve, {"a"})
+    assert held.conf.tolist() == [0.9, 0.2]
+    assert held.n_gt == 1 and held.pred_group == ["li", "li_mosaic"]
+    score, per = score_group_thresholds(
+        {"kurgany_povrezhdennye": held},
+        {"li": {"kurgany_povrezhdennye": 0.5}, "li_mosaic": {"kurgany_povrezhdennye": 0.5}})
+    assert per["kurgany_povrezhdennye"]["tp"] == 1
+    assert per["kurgany_povrezhdennye"]["fp"] == 0
+    assert score == pytest.approx(1.0, abs=1e-4)
 

@@ -289,6 +289,39 @@ def score_at(curves: dict[str, ClassCurve], thresholds: dict[str, float]) -> tup
     return (num / den if den else 0.0), per
 
 
+def curve_where(c: ClassCurve, regions: set[str]) -> ClassCurve:
+    """Та же кривая, только объекты и эталон выбранных участков. Порядок уверенности сохраняется."""
+    if not c.pred_region:
+        mask = np.zeros(0, dtype=bool)
+    else:
+        mask = np.fromiter((r in regions for r in c.pred_region), dtype=bool, count=len(c.pred_region))
+    gt = Counter({r: n for r, n in c.gt_regions.items() if r in regions})
+    groups = [g for g, keep in zip(c.pred_group, mask) if keep] if c.pred_group else []
+    return ClassCurve(c.conf[mask], c.hit[mask], [r for r, keep in zip(c.pred_region, mask) if keep],
+                      int(sum(gt.values())), gt, groups)
+
+
+def score_group_thresholds(curves: dict[str, ClassCurve], taus: dict[str, dict[str, float]]) -> tuple[float, dict]:
+    """Балл по кривым при пороге (группа, класс). Класс без эталона из среднего выпадает."""
+    num = den = 0.0
+    per = {}
+    for cls, c in curves.items():
+        if c.conf.size == 0:
+            kept = np.zeros(0, dtype=bool)
+        else:
+            tau = np.fromiter((taus.get(g, {}).get(cls, 0.0) for g in c.pred_group),
+                              dtype=np.float64, count=len(c.pred_group))
+            kept = c.conf >= tau
+        tp = int(c.hit[kept].sum()) if kept.size else 0
+        fp = int(kept.sum()) - tp
+        f1 = float(_f1(tp, fp, c.n_gt - tp))
+        per[cls] = {"f1": f1, "tp": tp, "fp": fp, "fn": c.n_gt - tp, "n_gt": c.n_gt}
+        if c.n_gt > 0:
+            num += CLASS_WEIGHTS.get(cls, 0.0) * f1
+            den += CLASS_WEIGHTS.get(cls, 0.0)
+    return (num / den if den else 0.0), per
+
+
 def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
     """Устойчивость порогов: регионы выбираются с возвращением, оптимум ищется заново.
 
