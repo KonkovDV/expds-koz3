@@ -157,29 +157,6 @@ def would_coarsen(las_path: str | Path, res: float, max_pixels: int) -> bool:
     return int(spec["factor"]) > 1
 
 
-def _points_in_box(path: str | Path, ground_class: int, xmin: float, ymin: float,
-                   xmax: float, ymax: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Точки земли внутри прямоугольника. Граница справа и сверху включена."""
-    import laspy
-
-    xs, ys, zs = [], [], []
-    with laspy.open(str(path)) as f:
-        for pts in f.chunk_iterator(1_000_000):
-            x = np.asarray(pts.x, np.float64)
-            y = np.asarray(pts.y, np.float64)
-            m = ((np.asarray(pts.classification) == ground_class)
-                 & (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax))
-            if not m.any():
-                continue
-            xs.append(x[m])
-            ys.append(y[m])
-            zs.append(np.asarray(pts.z, np.float64)[m])
-    if not xs:
-        z = np.zeros(0, np.float64)
-        return z, z, z
-    return np.concatenate(xs), np.concatenate(ys), np.concatenate(zs)
-
-
 def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0.5,
                      tile_m: float = 400.0, halo_m: float = 40.0,
                      ground_class: int = 2, fill: str = "delaunay",
@@ -189,8 +166,8 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     Крупный LAS не влезает в сетку 0,1 м, и общий шаг становится 0,2–0,3 м.
     Модель училась на среднем блоков 0,1 → 0,5 м. Здесь каждый кусок строится
     на 0,1 м с полем вокруг, пустоты заполняются, в мозаику попадает только
-    середина, усреднённая до 0,5 м. В конфиг не включено: на 24 грубых облаках
-    это ещё не проверено официальной метрикой.
+    середина, усреднённая до 0,5 м. Файл читается один раз. В конфиг не включено:
+    на 24 грубых облаках это ещё не проверено официальной метрикой.
     """
     import laspy
 
@@ -209,34 +186,95 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     halo_px = max(1, int(round(halo_m / res)))
     out_h, out_w = spec["height"] // k, spec["width"] // k
     mosaic = np.full((out_h, out_w), np.nan, np.float32)
-    for r0 in range(0, spec["height"] // k * k, tile_px):
-        for c0 in range(0, spec["width"] // k * k, tile_px):
-            r1 = min(spec["height"] // k * k, r0 + tile_px)
-            c1 = min(spec["width"] // k * k, c0 + tile_px)
-            rr0, cc0 = max(0, r0 - halo_px), max(0, c0 - halo_px)
-            rr1 = min(spec["height"], r1 + halo_px)
-            cc1 = min(spec["width"], c1 + halo_px)
-            ymin = spec["top"] - rr1 * res
-            ymax = spec["top"] - rr0 * res
-            xmin = spec["left"] + cc0 * res
-            xmax = spec["left"] + cc1 * res
-            xs, ys, zs = _points_in_box(las_path, ground_class, xmin, ymin, xmax, ymax)
-            local_h, local_w = rr1 - rr0, cc1 - cc0
-            local = np.full((local_h, local_w), np.nan, np.float32)
-            if xs.size:
-                col = np.floor((xs - xmin) / res).astype(np.int64)
-                row = np.floor((ymax - ys) / res).astype(np.int64)
-                ok = (col >= 0) & (row >= 0) & (col < local_w) & (row < local_h)
-                if ok.any():
-                    flat = row[ok] * local_w + col[ok]
-                    sums = np.bincount(flat, weights=zs[ok], minlength=local_h * local_w)
-                    counts = np.bincount(flat, minlength=local_h * local_w)
-                    local = np.where(counts > 0, sums / np.maximum(counts, 1), np.nan).reshape(local_h, local_w)
-                    local = local.astype(np.float32)
-            local = fill_interior_holes(local, method=fill)
-            interior = local[r0 - rr0:r1 - rr0, c0 - cc0:c1 - cc0]
+    fine_h, fine_w = spec["height"] // k * k, spec["width"] // k * k
+    row_starts = list(range(0, fine_h, tile_px))
+    col_starts = list(range(0, fine_w, tile_px))
+
+    def window(r0: int, c0: int) -> dict:
+        r1 = min(fine_h, r0 + tile_px)
+        c1 = min(fine_w, c0 + tile_px)
+        rr0, cc0 = max(0, r0 - halo_px), max(0, c0 - halo_px)
+        rr1 = min(spec["height"], r1 + halo_px)
+        cc1 = min(spec["width"], c1 + halo_px)
+        ymin = spec["top"] - rr1 * res
+        ymax = spec["top"] - rr0 * res
+        xmin = spec["left"] + cc0 * res
+        xmax = spec["left"] + cc1 * res
+        return {"r0": r0, "c0": c0, "r1": r1, "c1": c1, "rr0": rr0, "cc0": cc0,
+                "xmin": xmin, "xmax": xmax, "ymin": ymin, "ymax": ymax,
+                "h": rr1 - rr0, "w": cc1 - cc0}
+
+    n_col = len(col_starts)
+    n_row = len(row_starts)
+    tiles = [window(r0, c0) for r0 in row_starts for c0 in col_starts]
+    # Один проход по LAS. Точка лежит в своём куске и в соседях, чьё поле до неё достаёт.
+    reach = max(1, int(np.ceil(halo_px / tile_px)))
+    import tempfile
+
+    tmp = tempfile.TemporaryDirectory(prefix="dem-mosaic-")
+    try:
+        bins = [(Path(tmp.name) / f"{i}.f64").open("wb") for i in range(len(tiles))]
+        try:
+            with laspy.open(str(las_path)) as f:
+                for pts in f.chunk_iterator(1_000_000):
+                    y_all = np.asarray(pts.y, np.float64)
+                    ground = np.asarray(pts.classification) == ground_class
+                    if not ground.any():
+                        continue
+                    x = np.asarray(pts.x, np.float64)[ground]
+                    y = y_all[ground]
+                    z = np.asarray(pts.z, np.float64)[ground]
+                    col = np.floor((x - spec["left"]) / res).astype(np.int64)
+                    row = np.floor((spec["top"] - y) / res).astype(np.int64)
+                    ri = np.clip(row // tile_px, 0, max(n_row - 1, 0))
+                    ci = np.clip(col // tile_px, 0, max(n_col - 1, 0))
+                    for di in range(-reach, reach + 1):
+                        for dj in range(-reach, reach + 1):
+                            ti = ri + di
+                            tj = ci + dj
+                            ok = (ti >= 0) & (ti < n_row) & (tj >= 0) & (tj < n_col)
+                            if not ok.any():
+                                continue
+                            ids = ti[ok] * n_col + tj[ok]
+                            order = np.argsort(ids, kind="mergesort")
+                            ids = ids[order]
+                            xo, yo, zo = x[ok][order], y[ok][order], z[ok][order]
+                            cuts = np.flatnonzero(np.diff(ids)) + 1
+                            starts = np.r_[0, cuts]
+                            for sl, tile_i in zip(np.split(np.arange(ids.size), cuts), ids[starts]):
+                                t = tiles[int(tile_i)]
+                                sel = ((xo[sl] >= t["xmin"]) & (xo[sl] <= t["xmax"])
+                                       & (yo[sl] >= t["ymin"]) & (yo[sl] <= t["ymax"]))
+                                if not sel.any():
+                                    continue
+                                blob = np.column_stack((xo[sl][sel], yo[sl][sel], zo[sl][sel]))
+                                bins[int(tile_i)].write(np.ascontiguousarray(blob, np.float64).tobytes())
+        finally:
+            for fh in bins:
+                fh.close()
+        for i, t in enumerate(tiles):
+            raw = np.fromfile(Path(tmp.name) / f"{i}.f64", dtype=np.float64)
+            if raw.size:
+                xyz = raw.reshape(-1, 3)
+                c = np.floor((xyz[:, 0] - t["xmin"]) / res).astype(np.int64)
+                r = np.floor((t["ymax"] - xyz[:, 1]) / res).astype(np.int64)
+                inside = (c >= 0) & (r >= 0) & (c < t["w"]) & (r < t["h"])
+                if inside.any():
+                    flat = r[inside] * t["w"] + c[inside]
+                    sums = np.bincount(flat, weights=xyz[inside, 2], minlength=t["h"] * t["w"])
+                    counts = np.bincount(flat, minlength=t["h"] * t["w"])
+                    local = np.where(counts > 0, sums / np.maximum(counts, 1), np.nan).astype(np.float32)
+                else:
+                    local = np.full(t["h"] * t["w"], np.nan, np.float32)
+            else:
+                local = np.full(t["h"] * t["w"], np.nan, np.float32)
+            local = fill_interior_holes(local.reshape(t["h"], t["w"]), method=fill)
+            interior = local[t["r0"] - t["rr0"]:t["r1"] - t["rr0"], t["c0"] - t["cc0"]:t["c1"] - t["cc0"]]
             block = downsample_mean(interior, k)
-            mosaic[r0 // k:r0 // k + block.shape[0], c0 // k:c0 // k + block.shape[1]] = block
+            mosaic[t["r0"] // k:t["r0"] // k + block.shape[0],
+                    t["c0"] // k:t["c0"] // k + block.shape[1]] = block
+    finally:
+        tmp.cleanup()
     if crs is None:
         from .crs import las_crs
         crs = las_crs(las_path)

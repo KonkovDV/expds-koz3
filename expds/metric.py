@@ -146,7 +146,28 @@ def _group_cuts(conf: np.ndarray, hit: np.ndarray) -> tuple[np.ndarray, np.ndarr
     return keep, tp, taus
 
 
-def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20) -> dict:
+def _f1_along(groups: list[str], cuts: dict, k: dict, g: str, n_gt: int) -> np.ndarray:
+    """F1 класса, когда у группы g меняется срез, а остальные группы зафиксированы."""
+    tp_o = sum(cuts[h][1][k[h]] for h in groups if h != g)
+    n_o = sum(cuts[h][0][k[h]] for h in groups if h != g)
+    keep, tp, _ = cuts[g]
+    t, n = tp_o + tp, n_o + keep
+    return np.where(n > 0, _f1(t, n - t, n_gt - t), 0.0)
+
+
+def _plateau_indices(groups: list[str], cuts: dict, k: dict, n_gt: int) -> dict:
+    """Один проход: каждая группа встаёт на середину своего плато при уже найденных остальных.
+
+    Повторный подъём здесь не нужен. Середина чуть ниже острого максимума, и следующий
+    проход снова уехал бы к краю.
+    """
+    chosen = dict(k)
+    for g in groups:
+        chosen[g] = plateau_index(_f1_along(groups, cuts, chosen, g, n_gt))
+    return chosen
+
+
+def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
     """Пороги по (группа, класс), максимизирующие общий F1 класса по всем группам.
 
     Метрика сводит класс по всем модальностям и участкам: F1 ≈ 2TP / (TP + 0,5·FP + GT).
@@ -154,6 +175,10 @@ def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20) -> dict:
     (все группы выключены, все включены), берётся лучший. Попадания — из общего
     прохода, поэтому группы, борющиеся за один эталон, оцениваются приближённо;
     точный балл — verify_groups.
+
+    pick="max" оставляет острый максимум. pick="plateau" после него сдвигает каждую
+    группу на середину плато F1 (допуск 0,002). В конфиг этот сдвиг не записывается,
+    пока официальный балл на новых участках его не подтвердит.
     """
     out: dict[str, dict] = {}
     for cls, c in curves.items():
@@ -177,11 +202,7 @@ def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20) -> dict:
             for _ in range(rounds):
                 changed = False
                 for g in groups:
-                    tp_o = sum(cuts[h][1][k[h]] for h in groups if h != g)
-                    n_o = sum(cuts[h][0][k[h]] for h in groups if h != g)
-                    keep, tp, _ = cuts[g]
-                    t, n = tp_o + tp, n_o + keep
-                    f = np.where(n > 0, _f1(t, n - t, c.n_gt - t), 0.0)
+                    f = _f1_along(groups, cuts, k, g, c.n_gt)
                     j = int(np.argmax(f))
                     if j != k[g] and f[j] > f[k[g]] + 1e-12:
                         k[g], changed = j, True
@@ -190,6 +211,11 @@ def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20) -> dict:
             f = f1_of(k)
             if f > best_f:
                 best_f, best_k = f, dict(k)
+        if pick == "plateau" and best_k is not None:
+            best_k = _plateau_indices(groups, cuts, best_k, c.n_gt)
+            best_f = f1_of(best_k)
+        elif pick != "max":
+            raise ValueError(f"неизвестный выбор порога: {pick}")
         out[cls] = {"f1": best_f, "n_gt": c.n_gt,
                     "groups": {g: {"threshold": round(float(cuts[g][2][best_k[g]]), 6),
                                    "kept": int(cuts[g][0][best_k[g]]), "tp": int(cuts[g][1][best_k[g]])}
