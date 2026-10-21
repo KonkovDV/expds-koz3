@@ -144,6 +144,107 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
     return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=crs, info=info)
 
 
+def would_coarsen(las_path: str | Path, res: float, max_pixels: int) -> bool:
+    """True, если сетка всего облака на шаге res больше max_pixels и шаг пришлось бы увеличить."""
+    import laspy
+
+    from .accel import grid_spec
+
+    with laspy.open(str(las_path)) as f:
+        h = f.header
+        spec = grid_spec(float(h.mins[0]), float(h.mins[1]), float(h.maxs[0]), float(h.maxs[1]),
+                         res, max_pixels)
+    return int(spec["factor"]) > 1
+
+
+def _points_in_box(path: str | Path, ground_class: int, xmin: float, ymin: float,
+                   xmax: float, ymax: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Точки земли внутри прямоугольника. Граница справа и сверху включена."""
+    import laspy
+
+    xs, ys, zs = [], [], []
+    with laspy.open(str(path)) as f:
+        for pts in f.chunk_iterator(1_000_000):
+            x = np.asarray(pts.x, np.float64)
+            y = np.asarray(pts.y, np.float64)
+            m = ((np.asarray(pts.classification) == ground_class)
+                 & (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax))
+            if not m.any():
+                continue
+            xs.append(x[m])
+            ys.append(y[m])
+            zs.append(np.asarray(pts.z, np.float64)[m])
+    if not xs:
+        z = np.zeros(0, np.float64)
+        return z, z, z
+    return np.concatenate(xs), np.concatenate(ys), np.concatenate(zs)
+
+
+def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0.5,
+                     tile_m: float = 400.0, halo_m: float = 40.0,
+                     ground_class: int = 2, fill: str = "delaunay",
+                     crs: str | None = None) -> Dem:
+    """DEM шага work_res из кусков res, без огрубления всего облака.
+
+    Крупный LAS не влезает в сетку 0,1 м, и общий шаг становится 0,2–0,3 м.
+    Модель училась на среднем блоков 0,1 → 0,5 м. Здесь каждый кусок строится
+    на 0,1 м с полем вокруг, пустоты заполняются, в мозаику попадает только
+    середина, усреднённая до 0,5 м. В конфиг не включено: на 24 грубых облаках
+    это ещё не проверено официальной метрикой.
+    """
+    import laspy
+
+    from .accel import grid_spec
+    from .candidates import downsample_mean
+
+    with laspy.open(str(las_path)) as f:
+        hdr = f.header
+        min_x, min_y = float(hdr.mins[0]), float(hdr.mins[1])
+        max_x, max_y = float(hdr.maxs[0]), float(hdr.maxs[1])
+    spec = grid_spec(min_x, min_y, max_x, max_y, res, max_pixels=0)
+    k = int(round(work_res / res))
+    if k < 1 or abs(res * k - work_res) > 1e-6:
+        raise ValueError(f"шаг {work_res} не кратен {res}")
+    tile_px = max(k, int(round(tile_m / res)) // k * k)
+    halo_px = max(1, int(round(halo_m / res)))
+    out_h, out_w = spec["height"] // k, spec["width"] // k
+    mosaic = np.full((out_h, out_w), np.nan, np.float32)
+    for r0 in range(0, spec["height"] // k * k, tile_px):
+        for c0 in range(0, spec["width"] // k * k, tile_px):
+            r1 = min(spec["height"] // k * k, r0 + tile_px)
+            c1 = min(spec["width"] // k * k, c0 + tile_px)
+            rr0, cc0 = max(0, r0 - halo_px), max(0, c0 - halo_px)
+            rr1 = min(spec["height"], r1 + halo_px)
+            cc1 = min(spec["width"], c1 + halo_px)
+            ymin = spec["top"] - rr1 * res
+            ymax = spec["top"] - rr0 * res
+            xmin = spec["left"] + cc0 * res
+            xmax = spec["left"] + cc1 * res
+            xs, ys, zs = _points_in_box(las_path, ground_class, xmin, ymin, xmax, ymax)
+            local_h, local_w = rr1 - rr0, cc1 - cc0
+            local = np.full((local_h, local_w), np.nan, np.float32)
+            if xs.size:
+                col = np.floor((xs - xmin) / res).astype(np.int64)
+                row = np.floor((ymax - ys) / res).astype(np.int64)
+                ok = (col >= 0) & (row >= 0) & (col < local_w) & (row < local_h)
+                if ok.any():
+                    flat = row[ok] * local_w + col[ok]
+                    sums = np.bincount(flat, weights=zs[ok], minlength=local_h * local_w)
+                    counts = np.bincount(flat, minlength=local_h * local_w)
+                    local = np.where(counts > 0, sums / np.maximum(counts, 1), np.nan).reshape(local_h, local_w)
+                    local = local.astype(np.float32)
+            local = fill_interior_holes(local, method=fill)
+            interior = local[r0 - rr0:r1 - rr0, c0 - cc0:c1 - cc0]
+            block = downsample_mean(interior, k)
+            mosaic[r0 // k:r0 // k + block.shape[0], c0 // k:c0 // k + block.shape[1]] = block
+    if crs is None:
+        from .crs import las_crs
+        crs = las_crs(las_path)
+    info = dict(spec, res=work_res, factor=1, tiled=True, fine_res=res,
+                width=out_w, height=out_h)
+    return Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+
+
 class DemPrefetch:
     """DEM следующих LAS строятся в фоновых потоках, пока текущий участок считается.
 

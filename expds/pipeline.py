@@ -174,11 +174,16 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         dems: dict[tuple, object] = {}
 
         def dem_for(meta, _las=las):
+            from .lidar import DEFAULTS, build_dem_mosaic, would_coarsen
+
             dp = dem_params(meta, cfg)
-            key = (dp["res"], dp["fill"])
+            key = (dp["res"], dp["fill"], bool(cfg.get("lidar", {}).get("mosaic", False)))
             if key not in dems:
-                dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
-                             else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+                if key[2] and would_coarsen(_las, dp["res"], DEFAULTS["max_pixels"]):
+                    dems[key] = build_dem_mosaic(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+                else:
+                    dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                                 else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
             return dems[key]
 
         produced = False

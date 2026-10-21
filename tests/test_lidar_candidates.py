@@ -20,7 +20,23 @@ def test_las_grid_backends_agree(tmp_path):
     assert ia["points_used"] == ib["points_used"] and ia["left"] == pytest.approx(ib["left"])
 
 
-def test_ground_fallback_to_all_points(tmp_path):
+def test_mosaic_matches_full_dem_averaged_to_half_metre(tmp_path):
+    """Куски 0,1 м с полем дают тот же шаг 0,5 м, что и целая сетка, кроме узкого шва."""
+    from expds.candidates import downsample_mean
+    from expds.lidar import build_dem_mosaic
+
+    las = write_las(tmp_path / "mosaic.las", n=80_000)
+    full = build_dem(las, res=0.1, max_pixels=10**12)
+    whole = downsample_mean(full.dem, 5)
+    mosaic = build_dem_mosaic(las, tile_m=40.0, halo_m=20.0)
+    h = min(whole.shape[0], mosaic.dem.shape[0])
+    w = min(whole.shape[1], mosaic.dem.shape[1])
+    a, b = whole[:h, :w], mosaic.dem[:h, :w]
+    both = np.isfinite(a) & np.isfinite(b)
+    assert both.mean() > 0.5
+    close = np.abs(a - b) <= 0.05
+    assert close[both].mean() > 0.99
+    assert mosaic.info["factor"] == 1 and mosaic.res == pytest.approx(0.5)
     las = write_las(tmp_path / "b.las", ground_class=1)   # нет класса 2
     dem, info = accel.las_grid(las, 0.5)
     assert info["used_all"] and np.isfinite(dem).any()
