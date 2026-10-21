@@ -21,8 +21,10 @@ import os
 import shutil
 import sys
 import time
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
+
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -107,6 +109,24 @@ def main() -> None:
     with (cache / "index.csv").open(encoding="utf-8") as fh:
         rd = csv.DictReader(fh)
         fields, rows = list(rd.fieldnames or []), list(rd)
+    if args.classes:
+        meta0 = json.loads((cache / "meta.json").read_text(encoding="utf-8"))
+        missing = [c for c in args.classes if c not in meta0["classes"]]
+        if missing:
+            raise SystemExit(f"в кэше нет классов {missing}")
+        bits = [meta0["classes"].index(c) for c in args.classes]
+        by_shard: dict[int, list[tuple[int, int]]] = defaultdict(list)
+        for n, row in enumerate(rows):
+            by_shard[int(row["shard"])].append((n, int(row["idx"])))
+        hit = [False] * len(rows)
+        for shard, items in by_shard.items():
+            masks = np.load(cache / f"masks_{shard:04d}.npy", mmap_mode="r")
+            for n, idx in items:
+                mask = np.asarray(masks[idx])
+                hit[n] = any(int(((mask >> b) & 1).any()) for b in bits)
+        for n, row in enumerate(rows):
+            row["positive"] = "1" if hit[n] else "0"
+        print(f"тайлов выбранных классов {sum(hit)} из {len(rows)}", flush=True)
     tiles = Counter(r["family"] for r in rows)
     pos = Counter(r["family"] for r in rows if r["positive"] == "1")
     fams = sorted(tiles)
@@ -138,8 +158,10 @@ def main() -> None:
                     meta_path = fc / "cache" / "meta.json"
                     meta = json.loads(meta_path.read_text(encoding="utf-8"))
                     want = list(args.classes)
-                    if meta["classes"][:len(want)] != want:
-                        raise SystemExit(f"биты кэша {meta['classes']} не начинаются с {want}")
+                    missing = [c for c in want if c not in meta["classes"]]
+                    if missing:
+                        raise SystemExit(f"в кэше нет классов {missing}")
+                    meta["class_bits"] = [meta["classes"].index(c) for c in want]
                     meta["classes"] = want
                     meta_path.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,

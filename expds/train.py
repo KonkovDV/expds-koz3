@@ -87,8 +87,10 @@ def paste_objects(x, y, channels: tuple[int, ...], p: float):
 class TileDataset:
     """Тайлы из .npy-шардов (memmap); маски — биты классов → K каналов float."""
 
-    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool):
+    def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool,
+                 class_bits: list[int] | None = None):
         self.cache, self.rows, self.k, self.flips = cache, rows, n_classes, flips
+        self.bits = class_bits if class_bits is not None else list(range(n_classes))
         self._img: dict[int, np.ndarray] = {}
         self._msk: dict[int, np.ndarray] = {}
 
@@ -108,7 +110,7 @@ class TileDataset:
         imgs, msks = self._arrays(int(r["shard"]))
         x = np.asarray(imgs[int(r["idx"])], np.float32) / 255.0
         bits = np.asarray(msks[int(r["idx"])])
-        y = np.stack([(bits >> k) & 1 for k in range(self.k)]).astype(np.float32)
+        y = np.stack([(bits >> k) & 1 for k in self.bits]).astype(np.float32)
         if self.flips:
             if np.random.rand() < 0.5:
                 x, y = x[:, :, ::-1], y[:, :, ::-1]
@@ -128,7 +130,7 @@ class GpuTiles:
     """
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None,
-                 copy_paste: float = 0.0, paste_channels: tuple[int, ...] = ()):
+                 copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None):
         import torch
 
         self.memory_format = memory_format or torch.contiguous_format
@@ -142,7 +144,8 @@ class GpuTiles:
             msks.append(np.asarray(np.load(cache / f"masks_{s:04d}.npy", mmap_mode="r")[idx]))
         self.x = torch.from_numpy(np.concatenate(imgs)).to(device)
         self.m = torch.from_numpy(np.concatenate(msks)).to(device)
-        self.shift = torch.arange(n_classes, device=device, dtype=self.m.dtype).view(1, -1, 1, 1)
+        bits = class_bits if class_bits is not None else list(range(n_classes))
+        self.shift = torch.tensor(bits, device=device, dtype=self.m.dtype).view(1, -1, 1, 1)
         self.flips, self.device = flips, device
         self.copy_paste, self.paste_channels = copy_paste, paste_channels
 
@@ -240,6 +243,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     center = target == "centers"
     sigma_px = center_sigma_m / float(meta["res"]) if center else 0.0
     k = len(meta["classes"])
+    class_bits = meta.get("class_bits")
     c = int(meta.get("channels") or np.load(cache_p / "images_0000.npy", mmap_mode="r").shape[1])
     from .infer_nn import fp16_ok
 
@@ -263,8 +267,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.warning("copy-paste выключен: тайлы не в видеопамяти")
         ch = ()
     if gpu_data:
-        g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch)
-        g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt)
+        g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
+                        class_bits=class_bits)
+        g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits)
         n_steps = len(g_tr) // batch
 
         def train_batches():
@@ -273,9 +278,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         def val_batches():
             return g_va.batches(batch, shuffle=False, drop_last=False)
     else:
-        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips), batch_size=batch, shuffle=True,
+        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits), batch_size=batch, shuffle=True,
                            num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
-        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False), batch_size=batch, num_workers=workers)
+        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch, num_workers=workers)
         n_steps = len(dl_tr)
 
         def to_dev(it):
