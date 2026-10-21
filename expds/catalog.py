@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import unicodedata
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -44,14 +45,76 @@ class Region:
         return sorted(types)
 
 
+def _bare_stem(path: Path) -> str:
+    name = path.stem.lower()
+    for suffix in ("_ground", "-ground"):
+        if name.endswith(suffix):
+            return name[: -len(suffix)]
+    return name
+
+
+def _overlap_ratio(a: tuple, b: tuple) -> float:
+    """Доля площади меньшей рамки, покрытая пересечением."""
+    ax0, ay0, ax1, ay1 = a
+    bx0, by0, bx1, by1 = b
+    iw, ih = min(ax1, bx1) - max(ax0, bx0), min(ay1, by1) - max(ay0, by0)
+    if iw <= 0 or ih <= 0:
+        return 0.0
+    smaller = min(max(ax1 - ax0, 0.0) * max(ay1 - ay0, 0.0), max(bx1 - bx0, 0.0) * max(by1 - by0, 0.0))
+    return (iw * ih) / smaller if smaller else 0.0
+
+
+def _same_cloud(a: Path, box_a: tuple | None, b: Path, box_b: tuple | None) -> bool:
+    """Сырой и ground одного охвата — одно облако. Разные тайлы — нет."""
+    if _bare_stem(a) == _bare_stem(b):
+        return True
+    if box_a is None or box_b is None:
+        return True
+    return _overlap_ratio(box_a, box_b) >= 0.8
+
+
+def choose_las_boxes(records: list[tuple[Path, tuple | None]]) -> list[Path]:
+    """По одному файлу на облако. Тайлы одной папки с разным охватом сохраняются.
+
+    Из пары берётся имя с «ground». Рамка None (заголовок не прочитан) не
+    разрешает второй проход: неизвестный охват склеивается с соседним файлом.
+    """
+    by_parent: dict[Path, list[tuple[Path, tuple | None]]] = defaultdict(list)
+    for path, box in records:
+        by_parent[path.parent].append((path, box))
+    chosen: list[Path] = []
+    for group in by_parent.values():
+        clusters: list[list[tuple[Path, tuple | None]]] = []
+        for rec in sorted(group, key=lambda item: item[0].name):
+            for cluster in clusters:
+                if any(_same_cloud(rec[0], rec[1], other[0], other[1]) for other in cluster):
+                    cluster.append(rec)
+                    break
+            else:
+                clusters.append([rec])
+        for cluster in clusters:
+            best = cluster[0][0]
+            for path, _box in cluster[1:]:
+                if "ground" in path.name.lower() and "ground" not in best.name.lower():
+                    best = path
+            chosen.append(best)
+    return chosen
+
+
+def _las_box(path: Path) -> tuple | None:
+    try:
+        import laspy
+        with laspy.open(path) as src:
+            h = src.header
+            return (float(h.mins[0]), float(h.mins[1]), float(h.maxs[0]), float(h.maxs[1]))
+    except Exception:
+        log.warning("рамка LAS не прочитана, файл не считается отдельным тайлом: %s", path.name)
+        return None
+
+
 def _choose_las(files: list[Path]) -> list[Path]:
-    """По одному LAS на папку; отфильтрованный «ground»-файл предпочтительнее (как бейзлайн)."""
-    chosen: dict[Path, Path] = {}
-    for p in sorted(files):
-        cur = chosen.get(p.parent)
-        if cur is None or ("ground" in p.name.lower() and "ground" not in cur.name.lower()):
-            chosen[p.parent] = p
-    return list(chosen.values())
+    """Облака папки: ground вместо сырого того же охвата, остальные тайлы все."""
+    return choose_las_boxes([(path, _las_box(path)) for path in files])
 
 
 def scan_region(path: Path) -> Region:

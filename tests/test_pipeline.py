@@ -72,6 +72,36 @@ def test_exhausted_budget_still_visits_geophys_before_lidar(tmp_path, monkeypatc
     assert calls == ["geo"]
 
 
+def test_missing_torch_still_keeps_geophysics(tmp_path, monkeypatch):
+    """Сбой импорта torch не обнуляет файл: геофизика всё равно считается."""
+    import builtins
+
+    from types import SimpleNamespace
+
+    from expds import pipeline
+
+    calls = []
+    real = builtins.__import__
+
+    def guarded(name, *args, **kwargs):
+        if name == "torch" or str(name).startswith("torch."):
+            raise ImportError("torch нет")
+        return real(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded)
+    reg = SimpleNamespace(name="r", las=[], rasters={}, utm_json=None, boundaries=[], noise=[])
+    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
+    monkeypatch.setattr(pipeline, "geophys_feats", lambda *_a, **_k: calls.append("geo") or [])
+    monkeypatch.setattr(pipeline, "lidar_feats", lambda *_a, **_k: calls.append("li") or [])
+    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: calls.append("opt") or [])
+    cfg = tmp_path / "t.toml"
+    cfg.write_text("[time]\nbudget_s = 0\nwatchdog = false\n", encoding="utf-8")
+    summary = pipeline.run(tmp_path, tmp_path / "out.geojson", cfg)
+    assert calls == ["geo"]
+    assert summary["written"] >= 0
+    assert (tmp_path / "out.geojson").exists()
+
+
 def test_coarse_lidar_has_its_own_threshold_group():
     from expds.pipeline import lidar_threshold_group, output_floors
 
@@ -230,3 +260,20 @@ def test_inference_stays_fp32_unless_asked():
     assert inference_amp(torch.device("cpu")) is False
     assert torch.backends.cudnn.deterministic is True
     assert torch.backends.cuda.matmul.allow_tf32 is False
+
+
+def test_two_las_tiles_in_one_folder_are_both_kept():
+    from pathlib import Path
+
+    from expds.catalog import choose_las_boxes
+
+    folder = Path("region/La")
+    west = (folder / "west.las", (0.0, 0.0, 100.0, 100.0))
+    east = (folder / "east.las", (500.0, 0.0, 600.0, 100.0))
+    raw = (folder / "site.las", (200.0, 0.0, 300.0, 100.0))
+    ground = (folder / "site_ground.las", (200.0, 0.0, 300.0, 100.0))
+    kept = choose_las_boxes([west, east, raw, ground])
+    names = sorted(p.name for p in kept)
+    assert names == ["east.las", "site_ground.las", "west.las"]
+    unknown = choose_las_boxes([(folder / "a.las", None), (folder / "b.las", None)])
+    assert len(unknown) == 1

@@ -1,0 +1,37 @@
+{
+  "metric": "koz3-1.5.0 built-in defaults, config.py absent",
+  "base": {"all": 0.31952628911364006, "new34": 0.2617399078311329},
+  "full_replacement": {
+    "what": "все классы 24 грубых LAS заменены предсказаниями мозаики 0,1→0,5 м, группа li",
+    "all": 0.3179323712426516,
+    "new34": 0.25173294764429777,
+    "delta_all": -0.0015939178709884483,
+    "delta_new34": -0.010006960186835112,
+    "damaged_f1": 0.3334,
+    "intact_f1": 0.4922,
+    "gorodishcha_f1": 0.1700,
+    "fort_f1": 0.0987,
+    "decision": "rejected"
+  },
+  "kurgans_only": {
+    "what": "курганы 24 грубых LAS с мозаики, городища и фортификации с грубой сетки",
+    "all": 0.3233412104663608,
+    "new34": 0.2801509962355283,
+    "optical_regions": 156,
+    "optical": 0.1866869395850313,
+    "delta_all": 0.0038149213527207126,
+    "delta_new34": 0.018411088404395426,
+    "delta_optical": 0.0,
+    "damaged_f1": {"base": 0.3508, "hybrid": 0.3334, "tp_li": 700, "threshold_li": 0.2358},
+    "intact_f1": {"base": 0.4470, "hybrid": 0.4922, "tp_li": 386, "threshold_li": 0.1704},
+    "gorodishcha_f1": 0.2332,
+    "bootstrap_n": 1000,
+    "bootstrap_mean": 0.004923418564674107,
+    "bootstrap_p5": -0.007259862375407861,
+    "bootstrap_p95": 0.023034105743062992,
+    "bootstrap_p_gt0": 0.651,
+    "damaged_p_gt0": 0.139,
+    "intact_p_gt0": 0.997,
+    "decision": "rejected: point estimate +0.0038 but A>B only 0.651, need 0.90; damaged F1 down"
+  }
+}

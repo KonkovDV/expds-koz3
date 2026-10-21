@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -22,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "inference" / "lib"))
 sys.path.insert(0, str(ROOT))
+import expds.watchdog  # старт отсчёта 30 минут до импорта моделей
 
 
 def main() -> int:
@@ -35,6 +37,7 @@ def main() -> int:
     if output.is_dir() or output.suffix.lower() != ".geojson":
         output = output / "result.geojson"
     t0 = time.monotonic()
+    os.environ["EXPDS_TMP"] = str(output.parent)
     try:
         from expds.pipeline import run
 

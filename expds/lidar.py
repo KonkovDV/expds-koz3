@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -211,7 +212,8 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     reach = max(1, int(np.ceil(halo_px / tile_px)))
     import tempfile
 
-    tmp = tempfile.TemporaryDirectory(prefix="dem-mosaic-")
+    tmp_dir = os.environ.get("EXPDS_TMP") or None
+    tmp = tempfile.TemporaryDirectory(prefix="dem-mosaic-", dir=tmp_dir)
     try:
         bins = [(Path(tmp.name) / f"{i}.f64").open("wb") for i in range(len(tiles))]
         try:

@@ -180,7 +180,11 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             key = (dp["res"], dp["fill"], bool(cfg.get("lidar", {}).get("mosaic", False)))
             if key not in dems:
                 if key[2] and would_coarsen(_las, dp["res"], DEFAULTS["max_pixels"]):
-                    dems[key] = build_dem_mosaic(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+                    try:
+                        dems[key] = build_dem_mosaic(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
+                    except Exception:
+                        log.exception("%s: мозаика не собралась, обычная сетка", _las.name)
+                        dems[key] = build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
                 else:
                     dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
                                  else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
@@ -394,14 +398,17 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
     """Полный прогон. Контрольные записи — после геофизики, после лидара и по сторожу времени."""
-    from .infer_nn import configure_runtime
     from .watchdog import RunState, arm_platform, checkpoint
 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg = load_config(config_path or root / "configs" / "default.toml")
     infer = cfg.get("infer", {})
-    configure_runtime(bool(infer.get("amp", False)), bool(infer.get("tf32", False)),
-                      bool(infer.get("deterministic", True)))
+    try:
+        from .infer_nn import configure_runtime
+        configure_runtime(bool(infer.get("amp", False)), bool(infer.get("tf32", False)),
+                          bool(infer.get("deterministic", True)))
+    except Exception:
+        log.exception("точность видеокарты не настроена, дальше без моделей torch")
     guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
     log.info("ускоритель: %s", accel.backend())
     state = RunState(Path(output_path), cfg)
