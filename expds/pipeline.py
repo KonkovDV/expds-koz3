@@ -446,7 +446,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     log.info("ускоритель: %s", accel.backend())
     state = RunState(Path(output_path), cfg)
     if cfg.get("time", {}).get("watchdog", True):
-        arm_platform(state)
+        margin = cfg.get("time", {}).get("guard_margin_s", 180)
+        arm_platform(state, margin_s=float(margin))
     seg_cache: dict = {}
     summary = {"regions": 0, "raw": 0}
     prefetch = None

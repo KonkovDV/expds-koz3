@@ -66,15 +66,15 @@ def main() -> None:
     ap.add_argument("--las49", default="")
     ap.add_argument("--las-new", default="")
     ap.add_argument("--centers", default="", help="круги карты центров вне обучения; своя группа порога sp_focal")
+    ap.add_argument("--train", default="", help="корень трейна: по заголовкам LAS помечается группа li_coarse")
     args = ap.parse_args()
     work = Path(args.work)
-    sys.path.insert(0, str(work))
-    from score_coarse import las_boxes, tag
+    from expds.coarse import las_boxes, tag
 
-    boxes = las_boxes()
     gt = load(work / "gt_train.geojson")
     fused = load(work / "fusion" / "li_hard2_fused.geojson")
-    print(f"помечено li_coarse: {tag(fused, boxes)}", flush=True)
+    if args.train:
+        print(f"помечено li_coarse: {tag(fused, las_boxes(args.train))}", flush=True)
     gor = load(work / "spor_gor_oof.geojson")
     geo = load(work / "geo_new.geojson")
     feats = fused["features"] + gor["features"] + geo["features"]

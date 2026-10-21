@@ -83,8 +83,9 @@ def arm(state: RunState, delay_s: float, exit_fn=os._exit) -> threading.Thread:
     return thread
 
 
-def arm_platform(state: RunState, exit_fn=os._exit) -> threading.Thread:
-    """Дедлайн — 30 минут платформы минус три минуты, от старта процесса."""
-    left = PLATFORM_LIMIT_S - GUARD_MARGIN_S - (time.monotonic() - PROCESS_START)
+def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
+    """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
+    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+    left = PLATFORM_LIMIT_S - margin - (time.monotonic() - PROCESS_START)
     log.info("сторож сработает через %.0f с", max(0.0, left))
     return arm(state, left, exit_fn)

@@ -262,6 +262,24 @@ def test_inference_stays_fp32_unless_asked():
     assert torch.backends.cuda.matmul.allow_tf32 is False
 
 
+def test_coarse_lidar_box_is_tagged_and_a_fine_one_is_not():
+    from expds.coarse import tag
+
+    fine = {"type": "Feature", "properties": {"markup_type": "li", "region_name": "a", "original_crs": ""},
+            "geometry": {"type": "Point", "coordinates": [1.0, 1.0]}}
+    coarse = {"type": "Feature", "properties": {"markup_type": "li", "region_name": "b", "original_crs": ""},
+              "geometry": {"type": "Point", "coordinates": [1.0, 1.0]}}
+    other = {"type": "Feature", "properties": {"markup_type": "ae", "region_name": "b"},
+             "geometry": {"type": "Point", "coordinates": [1.0, 1.0]}}
+    fc = {"features": [fine, coarse, other]}
+    boxes = {"a": [(0.0, 0.0, 10.0, 10.0, 1, "fine.las")],
+             "b": [(0.0, 0.0, 10.0, 10.0, 4, "coarse.las")]}
+    assert tag(fc, boxes) == 1
+    assert "threshold_group" not in fine["properties"]
+    assert coarse["properties"]["threshold_group"] == "li_coarse"
+    assert "threshold_group" not in other["properties"]
+
+
 def test_two_las_tiles_in_one_folder_are_both_kept():
     from pathlib import Path
 
