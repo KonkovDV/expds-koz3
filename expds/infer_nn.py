@@ -71,6 +71,28 @@ class Segmenter:
         self.amp = inference_amp(self.device)
         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
 
+    def _auto_batch(self) -> int:
+        """Батч окон по свободной памяти.
+
+        На GTX 1650 полный проход снимка 1400×1600: батч 16 — 0,36 с, батч 64 — 0,32 с.
+        torch.compile, TF32 и граф CUDA сюда не входят. TF32 и компилятор меняют
+        ядра свёртки, а пороги сидят у 0,99. Граф на батче 64 замедлил тот же
+        проход до 0,55 с: запись графа на этой карте дороже запуска ядер.
+        """
+        if self.device.type != "cuda":
+            return 16
+        import torch
+
+        free, _ = torch.cuda.mem_get_info(self.device)
+        channels = int(self.meta.get("in_channels") or 3)
+        # Вход и активации U-Net: грубая оценка 48 float32 на пиксель канала.
+        per = 4 * channels * int(self.tile) * int(self.tile) * 48
+        return int(min(64, max(8, free * 0.25 / max(per, 1))))
+
+    @staticmethod
+    def _oom(exc: BaseException) -> bool:
+        return "out of memory" in str(exc).lower()
+
     def _forward(self, xb):
         """Сигмоида модели, усреднённая по self.tta отражениям/транспонированиям окна."""
         import torch
@@ -87,12 +109,15 @@ class Segmenter:
             outs.append(p.flip(-1) if k & 1 else p)
         return outs[0] if len(outs) == 1 else torch.stack(outs).mean(0)
 
-    def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int = 16) -> np.ndarray:
+    def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
         """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32."""
         import torch
 
         c, h, w = img.shape
         t = self.tile
+        if batch is None:
+            batch = self._auto_batch()
+        batch = max(1, int(batch))
         step = max(1, int(t * (1 - overlap)))
         ys = list(range(0, max(h - t, 0) + 1, step)) or [0]
         xs = list(range(0, max(w - t, 0) + 1, step)) or [0]
@@ -112,14 +137,25 @@ class Segmenter:
         acc = np.zeros((len(self.classes), x_all.shape[1], x_all.shape[2]), np.float32)
         wsum = np.zeros(x_all.shape[1:], np.float32)
         with torch.inference_mode():
-            for s in range(0, len(coords), batch):
+            s = 0
+            while s < len(coords):
                 chunk = coords[s:s + batch]
                 xb = np.stack([x_all[:, y:y + t, x:x + t] for y, x in chunk]).astype(np.float32)
                 xb = torch.from_numpy((xb / 255.0 - 0.5) / 0.25).to(self.device)
-                pr = self._forward(xb).cpu().numpy()
+                try:
+                    pr = self._forward(xb).cpu().numpy()
+                except RuntimeError as exc:
+                    del xb
+                    if not self._oom(exc) or batch == 1:
+                        raise
+                    torch.cuda.empty_cache()
+                    batch = max(1, batch // 2)
+                    log.warning("нехватка памяти, батч окон уменьшен до %s", batch)
+                    continue
                 for (y, x), p in zip(chunk, pr):
                     acc[:, y:y + t, x:x + t] += p * weight
                     wsum[y:y + t, x:x + t] += weight
+                s += len(chunk)
         return (acc / np.maximum(wsum, 1e-6))[:, :h, :w]
 
     def _predict_on_device(self, x_all: np.ndarray, coords: list[tuple[int, int]], weight: np.ndarray,
@@ -134,14 +170,25 @@ class Segmenter:
         wsum = torch.zeros(x.shape[1:], device=dev)
         wt = torch.from_numpy(weight).to(dev)
         with torch.inference_mode():
-            for s in range(0, len(coords), batch):
+            s = 0
+            while s < len(coords):
                 chunk = coords[s:s + batch]
                 xb = torch.stack([x[:, y:y + t, x0:x0 + t] for y, x0 in chunk]).float()
                 xb = xb.div_(255.0).sub_(0.5).div_(0.25)
-                pr = self._forward(xb)
+                try:
+                    pr = self._forward(xb)
+                except RuntimeError as exc:
+                    del xb
+                    if not self._oom(exc) or batch == 1:
+                        raise
+                    torch.cuda.empty_cache()
+                    batch = max(1, batch // 2)
+                    log.warning("нехватка памяти, батч окон уменьшен до %s", batch)
+                    continue
                 for (y, x0), p in zip(chunk, pr):
                     acc[:, y:y + t, x0:x0 + t] += p * wt
                     wsum[y:y + t, x0:x0 + t] += wt
+                s += len(chunk)
         return (acc / wsum.clamp_min(1e-6)).cpu().numpy()
 
 
@@ -178,7 +225,7 @@ class Ensemble:
         for m in self.members:
             m.tta = value
 
-    def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int = 16) -> np.ndarray:
+    def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
         acc = self.members[0].predict(img, overlap, batch)
         for m in self.members[1:]:
             acc += m.predict(img, overlap, batch)

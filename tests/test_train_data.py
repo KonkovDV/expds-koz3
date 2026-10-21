@@ -76,6 +76,26 @@ def test_predict_on_device_matches_cpu(tmp_path):
     assert np.abs(gpu - cpu).max() < 1e-3
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="нет CUDA")
+def test_larger_batch_matches_small_batch(tmp_path):
+    """Больший батч в режиме eval не смешивает окна: вероятности те же, что при батче 4."""
+    pytest.importorskip("segmentation_models_pytorch")
+    from expds.infer_nn import Segmenter
+
+    net = __import__("segmentation_models_pytorch").Unet(
+        encoder_name="resnet18", encoder_weights=None, in_channels=3, classes=2)
+    path = tmp_path / "m.pt"
+    torch.save({"state_dict": net.state_dict(), "encoder": "resnet18", "in_channels": 3,
+                "classes": ["a", "b"], "res": 0.5, "tile": 64}, path)
+    img = np.random.default_rng(2).integers(0, 255, (3, 180, 200), dtype=np.uint8)
+    seg = Segmenter(path, device="cuda")
+    seg.amp = False
+    small = seg.predict(img, batch=4)
+    large = seg.predict(img, batch=32)
+    # Сложение перекрытий идёт в другом порядке, последняя цифра float32 гуляет примерно на 1e-5.
+    assert np.abs(small - large).max() < 1e-4
+
+
 def test_paste_copies_object_pixels_only():
     x = torch.zeros(2, 1, 8, 8)
     y = torch.zeros(2, 2, 8, 8)
