@@ -234,7 +234,9 @@ Rust-модуль `expds_core` против NumPy на реальных данн
 - DEM для моделей — TIN по ячейкам 0,1 м (`fill_tin`: триангуляция `delaunator`, растеризация треугольников в пустые ячейки), затем усреднение до 0,5 м. При шаге 0,1 м заняты лишь 1,5–24 % ячеек, так что способ заливки определяет рельеф: «сразу 0,5 м + пирамида» быстрее, но детектор курганов вне обучения хуже (0,373 против 0,411).
 - На GTX 1650 (FP32, без тензорных ядер) `channels_last` в 4,4 раза медленнее обычной раскладки, поэтому он включается только вместе с FP16; эпоха кэша `li` — 13,9 с вместо 60,3 с.
 
-Сборка: Windows — `python scripts/build_rust.py dev` (Rust + MSVC Build Tools); для контейнера платформы — `python scripts/build_rust.py linux --docker` (образ `ghcr.io/pyo3/maturin`, manylinux_2_28).
+Сборка: Windows — `python scripts/build_rust.py dev` (Rust + MSVC Build Tools); для контейнера платформы — `python scripts/build_rust.py linux --docker` (образ `ghcr.io/pyo3/maturin`, manylinux_2_28, x86-64-v3).
+
+Проверка как на платформе (21.10.2026): образ из `docker/Dockerfile` с PyTorch для CPU (`--build-arg TORCH_INDEX=https://download.pytorch.org/whl/cpu`), запуск `inference/main.py` с `--network none` на трёх участках (лидар, магниторазведка, спутник). Rust-модуль из `inference/lib` подключился, объекты те же, что на Windows, уверенность отличается не больше чем на 1e-5. Найдено и исправлено: в `python:3.12-slim-bookworm` без пакета `libexpat1` не импортируется rasterio. Скачивание колёс внутри Docker Desktop на этой сети иногда портится (pip сообщает о несовпадении хеша); повтор сборки помогает, колесо PyTorch надёжнее скачать заранее с `curl --retry` и проверкой SHA-256.
 
 ## Замеры геофизики (18 участков 200–217, официальная метрика)
 

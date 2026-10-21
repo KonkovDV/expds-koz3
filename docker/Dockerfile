@@ -16,14 +16,18 @@
 
 FROM python:3.12-slim-bookworm
 
+# Для локальной проверки без GPU: --build-arg TORCH_INDEX=https://download.pytorch.org/whl/cpu
+ARG TORCH_INDEX=https://download.pytorch.org/whl/cu126
+
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 GDAL_PAM_ENABLED=NO OMP_NUM_THREADS=8
 
-RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+# libexpat1: колесо rasterio (GDAL) без неё не импортируется в slim-образе
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
 # PyTorch с CUDA 12.6 (колёса несут свои библиотеки CUDA; драйвер — на хосте платформы)
-RUN pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu126
+RUN pip install torch==2.7.1 torchvision==0.22.1 --index-url ${TORCH_INDEX}
 
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt && rm /tmp/requirements.txt \
