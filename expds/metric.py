@@ -233,6 +233,19 @@ def curve_table(c: ClassCurve) -> tuple[np.ndarray, np.ndarray]:
     return np.r_[np.inf, c.conf[last]], np.r_[0.0, _f1(tp, n - tp, c.n_gt - tp)]
 
 
+def plateau_index(f1: np.ndarray, tol: float = 0.002) -> int:
+    """Середина плато: все пороги, где F1 не ниже максимума больше чем на tol.
+
+    Острый оптимум на одном значении confidence плохо переносится на новые участки.
+    При ровной кривой берётся середина, а не левый или правый край.
+    """
+    scores = np.asarray(f1, dtype=float)
+    if scores.size == 0:
+        return 0
+    ok = np.flatnonzero(scores >= float(scores.max()) - tol)
+    return int(ok[len(ok) // 2])
+
+
 def score_at(curves: dict[str, ClassCurve], thresholds: dict[str, float]) -> tuple[float, dict]:
     """Итоговый балл при порогах (классы без эталона из среднего исключаются, как в метрике)."""
     num = den = 0.0
