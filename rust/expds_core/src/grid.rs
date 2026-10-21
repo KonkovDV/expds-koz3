@@ -86,8 +86,8 @@ impl Accumulator {
     /// Средняя высота по ячейкам; пустые ячейки — NaN.
     pub fn mean_dem(&self) -> Vec<f32> {
         self.sums
-            .iter()
-            .zip(self.counts.iter())
+            .par_iter()
+            .zip(self.counts.par_iter())
             .map(|(s, &c)| if c > 0 { (s / c as f64) as f32 } else { f32::NAN })
             .collect()
     }
@@ -233,9 +233,9 @@ fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8,
             })
             .collect();
         // Стабильная сортировка по номеру ячейки: внутри ячейки точки остаются
-        // в порядке файла, сумма z не меняется. Дальше запись идёт подряд по сетке,
-        // а не случайными прыжками по всей DEM (так же устроен bincount).
-        cells.sort_by_key(|c| c.0);
+        // в порядке файла, сумма z не меняется. Параллельная устойчивая сортировка
+        // (rayon par_sort) даёт тот же порядок, что sort_by_key, и пишет подряд по сетке.
+        cells.par_sort_by_key(|c| c.0);
         for (i, z) in cells {
             acc.sums[i] += z;
             acc.counts[i] += 1;

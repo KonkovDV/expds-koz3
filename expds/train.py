@@ -6,6 +6,7 @@ fp16 (AMP), без тяжёлых аугментаций. Для отмывок 
 артефакт. Проверка — по «семьям» участков (--val-families), а не случайно.
 
     python -m expds.train --cache work/cache/li --out models/li_r18.pt --val-families Гнёздово
+    python -m expds.train --cache work/cache/spor --out models/spor_center.pt --target centers
     python -m expds.train --cache work/cache/li --out models/li_r18.pt --epochs 1 --limit 200   # дымовой тест
 """
 from __future__ import annotations
@@ -179,19 +180,33 @@ class GpuTiles:
 
 
 def dice_loss(logits, target, eps: float = 1.0):
-    """Мягкий Dice по классам (среднее по классам, где есть пиксели или предсказания)."""
+    """Мягкий Dice. В среднее входят только классы, у которых в батче есть пиксели.
+
+    Пустой класс при нулевом предсказании даёт Dice 1 и разбавляет промах по
+    редкому кургану. На спутнике из-за этого проверка по потере выбирала модель,
+    которая не рисует ни одного кургана, хотя по пиксельному F1 она была хуже.
+    """
+    dims = tuple(d for d in range(target.ndim) if d != 1)
     p = logits.sigmoid()
-    inter = (p * target).sum(dim=(0, 2, 3))
-    union = p.sum(dim=(0, 2, 3)) + target.sum(dim=(0, 2, 3))
-    return 1.0 - ((2 * inter + eps) / (union + eps)).mean()
+    inter = (p * target).sum(dim=dims)
+    union = p.sum(dim=dims) + target.sum(dim=dims)
+    present = target.sum(dim=dims) > 0
+    dice = (2 * inter + eps) / (union + eps)
+    if bool(present.any()):
+        return 1.0 - dice[present].mean()
+    return logits.sum() * 0
 
 
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
-          gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None) -> dict:
-    """Обучает модель и сохраняет лучший по валидационной потере чекпойнт.
+          gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None,
+          target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0) -> dict:
+    """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
+    target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
+    в центре каждой насыпи, F1 по пикам. Второй режим для курганов на снимке:
+    маска ставит внутреннюю точку не туда, куда смотрит метрика.
     gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
     """
     import torch
@@ -212,6 +227,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     if not va_rows:  # без проверки по семьям — 10 % хвоста (только для отладки)
         cut = max(1, len(rows) // 10)
         tr_rows, va_rows = rows[:-cut], rows[-cut:]
+    if target not in ("mask", "centers"):
+        raise ValueError(f"target={target!r}: ожидается mask или centers")
+    center = target == "centers"
+    sigma_px = center_sigma_m / float(meta["res"]) if center else 0.0
     k = len(meta["classes"])
     c = int(meta.get("channels") or np.load(cache_p / "images_0000.npy", mmap_mode="r").shape[1])
     from .infer_nn import fp16_ok
@@ -265,7 +284,19 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, total_steps=steps, pct_start=0.1)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     bce = torch.nn.BCEWithLogitsLoss()
-    best, history = math.inf, []
+    if center:
+        from .centers import center_loss, gaussians_from_binary, heatmap_counts
+
+        def prepare(y):
+            return gaussians_from_binary(y, sigma_px)
+
+        def batch_loss(logits, y):
+            y = prepare(y)
+            return center_loss(logits, y), y
+    else:
+        def batch_loss(logits, y):
+            return bce(logits, y) + dice_loss(logits.float(), y), y
+    best_f1, best_loss, history = -1.0, math.inf, []
     for ep in range(epochs):
         t0 = time.perf_counter()
         model.train()
@@ -274,7 +305,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         for x, y in train_batches():
             with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x)
-                loss = bce(logits, y) + dice_loss(logits.float(), y)
+                loss, _ = batch_loss(logits, y)
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
             scaler.step(opt)
@@ -290,31 +321,52 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             for x, y in val_batches():
                 with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                     logits = model(x)
-                vl += (bce(logits.float(), y) + dice_loss(logits.float(), y)) * len(x)
+                loss, y = batch_loss(logits, y)
+                vl += loss * len(x)
                 vn += len(x)
-                p = (logits.float().sigmoid() > 0.5).float()
-                tp += (p * y).sum(dim=(0, 2, 3))
-                fp += (p * (1 - y)).sum(dim=(0, 2, 3))
-                fn += ((1 - p) * y).sum(dim=(0, 2, 3))
+                if center:
+                    ctp, cfp, cfn = heatmap_counts(logits.float().sigmoid(), y, max(1, round(sigma_px)))
+                    tp += ctp
+                    fp += cfp
+                    fn += cfn
+                else:
+                    p = (logits.float().sigmoid() > 0.5).float()
+                    tp += (p * y).sum(dim=(0, 2, 3))
+                    fp += (p * (1 - y)).sum(dim=(0, 2, 3))
+                    fn += ((1 - p) * y).sum(dim=(0, 2, 3))
         vl = float(vl) / max(vn, 1)
         tp, fp, fn = tp.cpu().numpy(), fp.cpu().numpy(), fn.cpu().numpy()
-        f1 = 2 * tp / np.maximum(2 * tp + fp + fn, 1)
+        if center:
+            prec = tp / np.maximum(tp + 0.5 * fp, 1e-6)
+            rec_c = tp / np.maximum(tp + fn, 1e-6)
+            f1 = 2 * prec * rec_c / np.maximum(prec + rec_c, 1e-6)
+            f1_key = "center_f1"
+        else:
+            f1 = 2 * tp / np.maximum(2 * tp + fp + fn, 1)
+            f1_key = "pixel_f1"
         rec = {"epoch": ep + 1, "train_loss": round(float(tl) / max(n, 1), 4), "val_loss": round(vl, 4),
-               "pixel_f1": {cls: round(float(v), 3) for cls, v in zip(meta["classes"], f1)},
+               f1_key: {cls: round(float(v), 3) for cls, v in zip(meta["classes"], f1)},
                "seconds": round(time.perf_counter() - t0, 1)}
         history.append(rec)
         log.info(json.dumps(rec, ensure_ascii=False))
-        if vl < best:
-            best = vl
+        support = (tp + fn) > 0
+        f1_mean = float(f1[support].mean()) if support.any() else -1.0
+        # Чекпойнт — по F1 классов, которые есть в проверке (пиксели или пики центров).
+        # Потеря BCE почти целиком про фон и выбирала пустую карту.
+        better = f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and vl < best_loss)
+        if better:
+            best_f1, best_loss = f1_mean, vl
             Path(out).parent.mkdir(parents=True, exist_ok=True)
             torch.save({"state_dict": model.state_dict(), "encoder": encoder, "in_channels": c,
                         "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
                         "tile": meta["tile"], "li_tags": meta.get("li_tags"),
                         "li_source": meta.get("li_source"), "dem_res": meta.get("dem_res"),
                         "dem_fill": meta.get("dem_fill"), "max_upsample": meta.get("max_upsample"),
+                        "target": target, "center_sigma_m": center_sigma_m if center else None,
+                        "center_radius_m": center_radius_m if center else None,
                         "epoch": ep + 1,
                         "val_loss": vl}, out)
-    return {"best_val_loss": best, "history": history, "out": out,
+    return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "history": history, "out": out,
             "train_tiles": len(tr_rows), "val_tiles": len(va_rows), "device": str(dev)}
 
 
@@ -335,11 +387,16 @@ def _cli() -> None:
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность вставить курган с другого тайла (Simple Copy-Paste)")
     ap.add_argument("--seed", type=int, default=None, help="зерно инициализации и порядка батчей (ансамбль)")
+    ap.add_argument("--target", choices=("mask", "centers"), default="mask",
+                    help="mask — маска класса; centers — гауссиана в центре объекта")
+    ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы центра, м")
+    ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
-                gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed)
+                gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed,
+                target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

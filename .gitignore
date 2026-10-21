@@ -28,5 +28,21 @@ bench_result.json
 
 # Секреты (ключи S3 и т. п.) и журналы синхронизации, где они печатаются
 .env
+.env.*
 *.key
 *.log
+
+# Сборки, кэши инструментов, локальные файлы редактора
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.whl
+*.egg-info/
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+.cursor/
+*.tmp
+*.bak

@@ -31,12 +31,14 @@ def test_copies_follow_gates_coverage_and_class_shift(tmp_path):
              + kurgan(X0 + 25, Y0 + 20, 0.5, 0.4)           # только «целый»: 0.5 + 0.4 ≥ 0.8
              + kurgan(X0 + 30, Y0 + 80, 0.3, 0.2)           # слабый — без копий
              + kurgan(X0 + 80, Y0 + 50, 0.999, 0.001)       # вне покрытия снимка
+             + kurgan(X0 + 15, Y0 + 40, 0.996, 0.002, group="li_coarse")  # крупная сетка копируется
              + kurgan(X0 + 10, Y0 + 10, 0.999, 0.001, group="li_cpu"))   # запасной детектор не копируется
     out = fusion.li_to_ae(feats, [ae])
     got = sorted((f["class_name"], round(f["confidence"], 3)) for f in out)
-    assert got == [(fusion.POVR, 0.995), (fusion.TSEL, 0.9), (fusion.TSEL, 0.999)]
+    assert got == [(fusion.POVR, 0.995), (fusion.POVR, 0.996),
+                   (fusion.TSEL, 0.9), (fusion.TSEL, 0.998), (fusion.TSEL, 0.999)]
     assert all(f["markup_type"] == "ae" and f["threshold_group"] == "li_ae" for f in out)
     kept = post.apply_thresholds(feats + out, {}, 0.15, {"li_ae": {fusion.POVR: 0.0, fusion.TSEL: 0.0}})
-    assert sum(f["markup_type"] == "ae" for f in kept) == 3
+    assert sum(f["markup_type"] == "ae" for f in kept) == 5
     assert len(post.merge_within_markup(kept)) == len(kept)   # слои не схлопываются друг с другом
     assert fusion.li_to_ae(feats, [], fusion.FusionParams()) == []

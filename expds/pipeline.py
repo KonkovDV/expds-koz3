@@ -1,11 +1,13 @@
 """Сквозной инференс: папка валидационной выборки → result.geojson.
 
-Порядок (приоритет — по весу классов и надёжности):
-1. лидар: LAS → DEM → (модель li, если есть) иначе CPU-кандидаты курганов;
-2. геофизика: классика (finds_points, object_poly) + модель, если есть;
-3. оптика (ae, sp_or, or): только при наличии модели.
-Бюджет времени контролируется между шагами: при нехватке тяжёлые шаги
-пропускаются, но файл с найденным к этому моменту записывается всегда.
+Порядок по всему набору, а не внутри участка. Иначе облака LAS съедают
+30 минут, и геофизика (вес 20) с оптикой не запускаются:
+
+1. геофизика по всем участкам — растры маленькие;
+2. лидар: LAS → DEM → модель, иначе CPU-кандидаты; участки с LAS первыми;
+3. оптика (ae, sp_or, or) на оставшемся времени, только при наличии модели.
+
+Файл с тем, что уже найдено, записывается всегда.
 """
 from __future__ import annotations
 
@@ -107,17 +109,46 @@ def _kept(seg, feats: list[dict]) -> list[dict]:
     return feats if keep is None else [f for f in feats if f["class_name"] in keep]
 
 
-def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
-               prefetch=None) -> list[dict]:
-    """Все предсказания одного региона. prefetch — lidar.DemPrefetch на весь прогон."""
+def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
+    """Классические finds_points и object_poly. Маски extra/ применяются после детектора."""
+    feats: list[dict] = []
+    crs_region = read_utm_json(reg.utm_json)
+    geo_cfg = cfg.get("geophys", {})
+    for mt in ("maggr", "etgr", "terfl"):
+        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
+        if not files:
+            continue
+        classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
+        opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
+        boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
+        noise = geophys.load_mask(reg.noise, mt, crs_region)
+        for path in files:
+            if not guard.ok(5):
+                log.warning("время на исходе: геофизика %s пропущена", path.name)
+                break
+            try:
+                for cls in classes:
+                    p, o = opts[cls]
+                    found = (geophys.finds_points(path, reg.name, mt, p) if cls == "finds_points"
+                             else geophys.object_polys(path, reg.name, mt, p))
+                    if o["rank"]:
+                        found = geophys.rank_within_source(found)
+                    found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
+                    feats += [f for f in found if f["confidence"] >= o["min_confidence"]]
+            except Exception as exc:
+                log.exception("%s: ошибка геофизики (%s)", path.name, exc)
+    return feats
+
+
+def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+                prefetch=None) -> list[dict]:
+    """LAS → объекты лидара и, где есть аэрофото, копии курганов в слой ae."""
     from .lidar import build_dem, dem_params, hillshade_set
 
     feats: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
     kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
-
-    # 1. Лидар
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
@@ -140,10 +171,17 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 continue
             if segs:
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
+                # На крупной сетке та же модель даёт много ложных курганов: у неё свой порог.
+                group = lidar_threshold_group(d.info)
+                floors = output_floors(cfg, group or "li")
                 for seg in segs:
-                    feats += _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
-                                                       cand_p if rescore else None, cfg.get("li"),
-                                                       output_floors(cfg, "li")))
+                    found = _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
+                                                      cand_p if rescore else None, cfg.get("li"), floors))
+                    if group:
+                        for f in found:
+                            if not f.get("threshold_group"):
+                                f["threshold_group"] = group
+                    feats += found
             else:
                 c = candidates.detect(d, cand_p)
                 s = candidates.score(c["features"], root / kurgan_model if kurgan_model else None)
@@ -158,33 +196,12 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
         except Exception as exc:
             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+    return feats
 
-    # 2. Геофизика: параметры и порог — по модальности; маски extra/ — после детекторов
-    geo_cfg = cfg.get("geophys", {})
-    for mt in ("maggr", "etgr", "terfl"):
-        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
-        if not files:
-            continue
-        classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
-        opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
-        boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
-        noise = geophys.load_mask(reg.noise, mt, crs_region)
-        for path in files:
-            if not guard.ok(30):
-                break
-            try:
-                for cls in classes:
-                    p, o = opts[cls]
-                    found = (geophys.finds_points(path, reg.name, mt, p) if cls == "finds_points"
-                             else geophys.object_polys(path, reg.name, mt, p))
-                    if o["rank"]:
-                        found = geophys.rank_within_source(found)
-                    found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
-                    feats += [f for f in found if f["confidence"] >= o["min_confidence"]]
-            except Exception as exc:
-                log.exception("%s: ошибка геофизики (%s)", path.name, exc)
 
-    # 3. Оптика — только обученными моделями
+def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
+    """Обученные модели ae, sp_or и or. Без файла весов модальность пропускается."""
+    feats: list[dict] = []
     for mt in ("ae", "sp_or", "or"):
         if not reg.rasters.get(mt):
             continue
@@ -198,6 +215,22 @@ def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: 
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     return feats
+
+
+def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+               prefetch=None) -> list[dict]:
+    """Один участок целиком: лидар, затем геофизика и оптика. Для прогона набора — три прохода в run()."""
+    return (lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
+            + geophys_feats(reg, cfg, guard) + optical_feats(reg, cfg, guard, seg_cache, root))
+
+
+def lidar_threshold_group(info: dict | None) -> str | None:
+    """Группа порога этого LAS: li_coarse, если шаг DEM увеличен (облако не влезло в 60 млн ячеек)."""
+    try:
+        factor = int((info or {}).get("factor") or 1)
+    except (TypeError, ValueError):
+        return None
+    return "li_coarse" if factor > 1 else None
 
 
 def output_floors(cfg: dict, markup: str) -> dict[str, float]:
@@ -270,6 +303,8 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     from .infer_nn import probs_to_features
     from .tiles import MAX_UPSAMPLE, band_stats, fix_channels, to_uint8, working_res
 
+    as_centers = seg.meta.get("target") == "centers"
+
     stats = band_stats(str(path), markup)
     half = overlap // 2
     feats: list[dict] = []
@@ -292,8 +327,16 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                     continue
                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
                 img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
-                found = probs_to_features(seg.predict(img), seg.classes, tr, crs, r, region, markup, path.name,
-                                          min_conf=min_conf)
+                probs = seg.predict(img)
+                if as_centers:
+                    from .centers import centers_to_features
+
+                    found = centers_to_features(
+                        probs, seg.classes, tr, crs, r, region, markup, path.name,
+                        radius_m=float(seg.meta.get("center_radius_m") or 6.0), min_conf=min_conf)
+                else:
+                    found = probs_to_features(probs, seg.classes, tr, crs, r, region, markup, path.name,
+                                              min_conf=min_conf)
                 # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
                 c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
                 c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))
@@ -326,13 +369,28 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         if depth > 0:
             prefetch = DemPrefetch([(las, read_utm_json(r.utm_json)) for r in regions for las in r.las], depth)
         for reg in regions:
-            if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
-                log.warning("бюджет времени исчерпан, остальные регионы пропущены")
+            n0 = len(feats)
+            feats += geophys_feats(reg, cfg, guard)
+            if len(feats) != n0:
+                log.info("%s: геофизика %+d, прошло %.0f с", reg.name, len(feats) - n0, guard.elapsed())
+        reserve = cfg.get("time", {}).get("reserve_s", 120)
+        for reg in regions:
+            if not guard.ok(reserve):
+                log.warning("бюджет времени исчерпан, оставшийся лидар пропущен")
                 break
             t = time.monotonic()
-            feats += run_region(reg, cfg, guard, seg_cache, root, prefetch)
-            log.info("%s: объектов %d, %.1f с, прошло %.0f с", reg.name, len(feats),
+            n0 = len(feats)
+            feats += lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
+            log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(feats) - n0,
                      time.monotonic() - t, guard.elapsed())
+        for reg in regions:
+            if not guard.ok(60):
+                log.warning("на оптику времени не осталось")
+                break
+            n0 = len(feats)
+            feats += optical_feats(reg, cfg, guard, seg_cache, root)
+            if len(feats) != n0:
+                log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(feats) - n0, guard.elapsed())
     finally:
         if prefetch is not None:
             prefetch.close()

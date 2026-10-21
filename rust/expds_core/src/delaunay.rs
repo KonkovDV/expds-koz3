@@ -77,6 +77,7 @@ impl Point {
     /// Returns a **negative** value if ```self```, ```q``` and ```r``` occur in counterclockwise order (```r``` is to the left of the directed line ```self``` --> ```q```)
     /// Returns a **positive** value if they occur in clockwise order(```r``` is to the right of the directed line ```self``` --> ```q```)
     /// Returns zero is they are collinear
+    #[inline(always)]
     fn orient(&self, q: &Self, r: &Self) -> f64 {
         // Та же формула, что robust::orient2d(self, q, r): (a − c) × (b − c).
         (self.x - r.x) * (q.y - r.y) - (self.y - r.y) * (q.x - r.x)
@@ -110,6 +111,7 @@ impl Point {
         }
     }
 
+    #[inline(always)]
     fn in_circle(&self, b: &Self, c: &Self, p: &Self) -> bool {
         let dx = self.x - p.x;
         let dy = self.y - p.y;
@@ -640,9 +642,6 @@ pub fn triangulate(points: &[Point]) -> Triangulation {
     for v in triangulation.hull.iter_mut() {
         *v = order[*v];
     }
-    triangulation.triangles.shrink_to_fit();
-    triangulation.halfedges.shrink_to_fit();
-
     triangulation
 }
 

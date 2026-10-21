@@ -69,7 +69,10 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
     p = p or FusionParams()
     groups: dict[tuple, dict] = {}
     for f in feats:
-        if f.get("markup_type") != "li" or f.get("threshold_group") or f["class_name"] not in (POVR, TSEL):
+        # li_coarse — те же вероятности нейросети, только порог выдачи другой. Запасной
+        # детектор (li_cpu) и уже скопированные объекты не копируются.
+        if (f.get("markup_type") != "li" or f.get("threshold_group") not in (None, "", "li_coarse")
+                or f["class_name"] not in (POVR, TSEL)):
             continue
         c = f["geom"].centroid
         groups.setdefault((f.get("source"), round(c.x, 1), round(c.y, 1)), {})[f["class_name"]] = f

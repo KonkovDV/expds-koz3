@@ -26,7 +26,7 @@ def to_feature_collection(feats: list[dict]) -> dict:
         geom = mapping(f["geom"])
         geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
         props = {"fid": k, "class_name": f["class_name"],
-                 "confidence": round(float(f.get("confidence", 1.0)), 5),
+                 "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
                  "region_name": f.get("region_name", "default_source"),
                  "crs": "EPSG:3857"}
         if f.get("markup_type"):

@@ -19,8 +19,6 @@ from pathlib import Path
 import numpy as np
 
 from . import accel
-
-from . import accel
 from .raster import circle_3857, mask_to_polygons, pixel_to_xy
 
 log = logging.getLogger(__name__)

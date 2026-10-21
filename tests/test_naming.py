@@ -9,7 +9,20 @@ def test_cyrillic_ae_is_recognized():
     assert class_of_annotation(name) == "kurgany_povrezhdennye"
 
 
-def test_codes_and_classes():
+def test_cyrillic_ae_inventory_is_not_dropped():
+    # Опись files/sklad: эти участки теряются, если «Ае» не перевести в Ae.
+    ae = "Ае"
+    names = [
+        f"Юшково_{ae}_курганы_поврежденные.geojson",
+        f"Вышегжа_3_{ae}_курганы_целые.geojson",
+        f"Миловидово_{ae}_курганы_поврежденные.geojson",
+        f"Перынь_{ae}_архитектуры.geojson",
+        f"Шниткино_{ae}_курганы_целые.geojson",
+        f"Верхмарево_{ae}_курганы_поврежденные.geojson",
+    ]
+    assert all(markup_type_of(n) == "ae" for n in names)
+    assert class_of_annotation(names[0]) == "kurgany_povrezhdennye"
+    assert class_of_annotation(names[3]) == "arkhitektury"
     assert markup_type_of("01_Гнёздово_Нивленское_Li_c.tif") == "li"
     assert markup_type_of("Миловидово_SpOr_курганы_целые.geojson") == "sp_or"
     assert markup_type_of("05_Герите_Or_ортофото.tif") == "or"

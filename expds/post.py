@@ -77,35 +77,71 @@ def merge_across_sources(items: list[dict], source_key: str = "source") -> list[
     return out
 
 
+def _repaired(feat: dict) -> dict | None:
+    """Копия объекта с валидной геометрией. Пустая после починки — None.
+
+    make_valid до слияния: самопересечение из растеризации роняет unary_union
+    уже после того, как все участки посчитаны, и файл результата пустеет.
+    """
+    geom = feat.get("geom")
+    if geom is None or geom.is_empty:
+        return None
+    if not geom.is_valid:
+        geom = make_valid(geom)
+        if geom.is_empty:
+            return None
+        feat = dict(feat, geom=geom)
+    return feat
+
+
 def merge_within_markup(feats: list[dict]) -> list[dict]:
     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
 
     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
     """
     groups: dict[tuple, list[dict]] = defaultdict(list)
-    for f in feats:
-        groups[(f.get("region_name"), f.get("markup_type"), f["class_name"])].append(f)
+    for raw in feats:
+        feat = _repaired(raw)
+        if feat is not None:
+            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"])].append(feat)
     out = []
     for key, items in groups.items():
         out.extend(items if key[1] == "etgr" else merge_across_sources(items))
     return out
 
 
-def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> BaseGeometry:
-    """Упрощает полигон, пока число вершин не станет меньше лимита метрики."""
-    def count(g):
-        return len(g.exterior.coords) + sum(len(r.coords) for r in g.interiors)
+def _vertex_count(geom: BaseGeometry) -> int:
+    return len(geom.exterior.coords) + sum(len(r.coords) for r in geom.interiors)
 
-    if count(geom) < max_vertices:
+
+def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> BaseGeometry:
+    """Упрощает полигон, пока число вершин не станет меньше лимита метрики.
+
+    Допуск Дугласа–Пекера ищется двоичным поиском: берётся наименее грубый,
+    при котором вершин уже хватает. Выпуклая оболочка затягивает выемку и ров,
+    и внутренняя точка, по которой метрика засчитывает объект, уезжает.
+    """
+    if geom.geom_type != "Polygon":
+        parts = polygons_of(geom)
+        geom = max(parts, key=lambda p: p.area) if parts else geom
+        if geom.geom_type != "Polygon":
+            return geom
+    if _vertex_count(geom) < max_vertices:
         return geom
-    tol = max(geom.length / 5000.0, 1e-3)
-    g = geom
-    for _ in range(30):
-        g = geom.simplify(tol, preserve_topology=True)
-        if g.geom_type == "Polygon" and count(g) < max_vertices:
-            return g
-        tol *= 1.6
-    return geom.convex_hull
+    lo, hi = 0.0, max(geom.length, 1e-3)
+    best = None
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        parts = polygons_of(geom.simplify(mid, preserve_topology=True))
+        if not parts:
+            lo = mid
+            continue
+        g = max(parts, key=lambda p: p.area)
+        if _vertex_count(g) < max_vertices:
+            best, hi = g, mid
+        else:
+            lo = mid
+    return best if best is not None else geom.convex_hull
 
 
 def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:

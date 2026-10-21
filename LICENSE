@@ -1,0 +1,13 @@
+Copyright (c) 2026 Konkov Dmitrij
+
+All rights reserved.
+
+This repository is private for the duration of Up Great «Экспедиция. Data Science»,
+КОЗ №3. It is not open-source software. An MIT, Apache, or other public license
+is intentionally not granted: the contest rules require the exclusive rights in
+the result to be transferable to the operator, and a public license would obstruct
+that transfer.
+
+No part of this tree may be copied, published, or shared with anyone outside the
+team. Contest datasets, derived tiles, predictions, and model weights are not in
+this repository and must not be added.

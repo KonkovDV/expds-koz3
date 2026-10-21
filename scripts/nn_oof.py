@@ -88,6 +88,10 @@ def main() -> None:
                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
     ap.add_argument("--seeds", type=int, default=1,
                     help="моделей на фолд с разными зёрнами; предсказание — их среднее (ансамбль)")
+    ap.add_argument("--target", choices=("mask", "centers"), default="mask",
+                    help="centers — гауссиана в центре насыпи, на выходе круг")
+    ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы, м")
+    ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -112,7 +116,9 @@ def main() -> None:
         test = {f for f in fams if fold[f] == k}
         train_fams = [f for f in fams if f not in test]
         n_train = sum(tiles[f] for f in train_fams)
-        val = min(train_fams, key=lambda f: (abs(tiles[f] - 0.1 * n_train), f))
+        # Семья проверки должна содержать объекты: иначе пиксельный F1 не из чего считать.
+        pool = [f for f in train_fams if pos[f] > 0] or train_fams
+        val = min(pool, key=lambda f: (abs(tiles[f] - 0.1 * n_train), f))
         t0 = time.perf_counter()
         fc = work / f"fold{k}"
         models = []
@@ -125,7 +131,8 @@ def main() -> None:
                 fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
                             batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
-                            seed=s if s else None)
+                            seed=s if s else None, target=args.target,
+                            center_sigma_m=args.center_sigma, center_radius_m=args.center_radius)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

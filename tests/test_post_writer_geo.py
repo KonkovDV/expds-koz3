@@ -19,7 +19,10 @@ def sq(dx, dy, s=5):
     return box(BASE.x + dx, BASE.y + dy, BASE.x + dx + s, BASE.y + dy + s)
 
 
-def test_merge_only_across_images_within_markup():
+def test_writer_clamps_confidence_into_unit_interval():
+    fc = writer.to_feature_collection([feat(sq(0, 0), conf=1.7), feat(sq(30, 0), conf=-0.4)])
+    assert [f["properties"]["confidence"] for f in fc["features"]] == [1.0, 0.0]
+    assert writer.validate(fc)["ok"]
     feats = [feat(sq(0, 0), src="a.tif", conf=0.3), feat(sq(2, 2), src="b.tif", conf=0.7),   # слить
              feat(sq(20, 0), src="a.tif"), feat(sq(22, 2), src="a.tif"),                     # один снимок
              feat(sq(40, 0), mt="li"), feat(sq(40, 0), mt="ae", src="c.tif")]                 # разные типы
@@ -40,6 +43,34 @@ def test_finalize_splits_multipolygon_and_caps_vertices():
     out = post.finalize([feat(mp), feat(big)])
     assert len(out) == 3 and all(f["geom"].geom_type == "Polygon" for f in out)
     assert max(len(f["geom"].exterior.coords) for f in out) < 3000
+
+
+def test_merge_repairs_self_intersection_instead_of_aborting():
+    from shapely.geometry import Polygon
+
+    bow = Polygon([(0, 0), (2, 2), (2, 0), (0, 2), (0, 0)])
+    assert not bow.is_valid
+    out = post.merge_within_markup([feat(bow, src="a.tif"), feat(box(0, 0, 1.2, 1.2), src="b.tif")])
+    assert out and all(f["geom"].is_valid for f in out)
+
+
+def test_vertex_cap_keeps_notch_convex_hull_would_fill():
+    from shapely.geometry import Polygon
+
+    corners = [(0, 0), (10, 0), (10, 3), (4, 3), (4, 7), (10, 7), (10, 10), (0, 10)]
+
+    def edge(a, b, n):
+        return [(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n) for i in range(n)]
+
+    pts = []
+    for a, b in zip(corners, corners[1:] + corners[:1]):
+        pts.extend(edge(a, b, 40))
+    pts.append(pts[0])
+    poly = Polygon(pts)
+    capped = post.limit_vertices(poly, 20)
+    assert post._vertex_count(capped) < 20
+    assert capped.area < poly.convex_hull.area - 1
+    assert poly.buffer(0.5).covers(capped.representative_point())
 
 
 def test_writer_roundtrip_and_validation(tmp_path):

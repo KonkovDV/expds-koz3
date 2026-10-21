@@ -4,7 +4,10 @@
 распашке). Отклик на масштабе a — среднее круга радиуса a минус среднее
 окружения радиуса surround·a; пики модуля отклика по нескольким масштабам —
 кандидаты, их признаки — отклики со знаком. Оценка — LightGBM вне обучения
-по «семьям» участков (как у кандидатов по рельефу, expds.candidates):
+по «семьям» участков (как у кандидатов по рельефу, expds.candidates).
+
+Радиусы 2/4/7 м ловят рябь, а не насыпь: медиана кургана на спутнике около
+1000 м² (радиус ~18 м). Для насыпей — `--radii 8,16,28 --peak-radius 12`.
 
     python -m expds.blobs oof --root D:/expds3 --gt work/gt_train.geojson --markup ae --out work/blobs_ae.geojson
 """
@@ -155,12 +158,26 @@ def _cli() -> None:
     o.add_argument("--markup", required=True, choices=["ae", "sp_or", "or"])
     o.add_argument("--out", required=True)
     o.add_argument("--folds", type=int, default=5)
+    o.add_argument("--radii", default="", help="радиусы пятна в метрах через запятую; пусто — 2,4,7")
+    o.add_argument("--peak-radius", type=float, default=None, help="минимальный шаг между пиками, м")
+    o.add_argument("--min-contrast", type=float, default=None)
+    o.add_argument("--circle", type=float, default=None, help="радиус круга кандидата, м")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     from . import candidates, post, writer
 
-    p = BlobParams()
+    kw = {}
+    if args.radii:
+        kw["radii_m"] = tuple(float(x) for x in args.radii.split(",") if x.strip())
+    if args.peak_radius is not None:
+        kw["peak_radius_m"] = args.peak_radius
+    if args.min_contrast is not None:
+        kw["min_contrast"] = args.min_contrast
+    if args.circle is not None:
+        kw["circle_m"] = args.circle
+    p = BlobParams(**kw)
+    log.info("масштабы %s м, шаг пиков %s м, контраст %s", p.radii_m, p.peak_radius_m, p.min_contrast)
     recs = collect(args.root, args.gt, args.markup, p)
     cp = candidates.CandidateParams(circle_m=p.circle_m)
     feats = candidates.oof_predictions(recs, cp, args.folds, multiclass=True)

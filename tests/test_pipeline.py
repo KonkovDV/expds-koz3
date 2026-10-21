@@ -44,6 +44,48 @@ def test_main_accepts_output_dir_like_organizer_examples(tmp_path):
         assert r.returncode == 0 and writer.validate(target / "result.geojson")["ok"]
 
 
+def test_exhausted_budget_still_visits_geophys_before_lidar(tmp_path, monkeypatch):
+    """Нулевой бюджет не отменяет геофизику: она идёт раньше лидара и не ждёт запас в 120 с."""
+    from types import SimpleNamespace
+
+    from expds import pipeline
+
+    calls = []
+    reg = SimpleNamespace(name="r", las=[tmp_path / "a.las"], rasters={}, utm_json=None,
+                          boundaries=[], noise=[])
+    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
+    monkeypatch.setattr(pipeline, "geophys_feats", lambda *_a, **_k: calls.append("geo") or [])
+    monkeypatch.setattr(pipeline, "lidar_feats", lambda *_a, **_k: calls.append("li") or [])
+    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: calls.append("opt") or [])
+
+    class Dummy:
+        def __init__(self, *_a, **_k):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("expds.lidar.DemPrefetch", Dummy)
+    cfg = tmp_path / "t.toml"
+    cfg.write_text("[time]\nbudget_s = 0\nreserve_s = 120\n", encoding="utf-8")
+    pipeline.run(tmp_path, tmp_path / "out.geojson", cfg)
+    assert calls == ["geo"]
+
+
+def test_coarse_lidar_has_its_own_threshold_group():
+    from expds.pipeline import lidar_threshold_group, output_floors
+
+    assert lidar_threshold_group({"factor": 1}) is None
+    assert lidar_threshold_group({"factor": 3}) == "li_coarse"
+    assert lidar_threshold_group({}) is None
+    assert lidar_threshold_group({"factor": "нет"}) is None
+    cfg = {"thresholds": {"kurgany_povrezhdennye": 0.15},
+           "thresholds_by_markup": {"li": {"kurgany_povrezhdennye": 0.05},
+                                    "li_coarse": {"kurgany_povrezhdennye": 0.97}}}
+    assert output_floors(cfg, "li")["kurgany_povrezhdennye"] == 0.05
+    assert output_floors(cfg, "li_coarse")["kurgany_povrezhdennye"] == 0.97
+
+
 def test_model_specs_and_class_filter():
     from types import SimpleNamespace
 

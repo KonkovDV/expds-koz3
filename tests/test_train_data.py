@@ -7,6 +7,18 @@ torch = pytest.importorskip("torch")
 from expds.train import GpuTiles, TileDataset, paste_objects
 
 
+def test_dice_does_not_dilute_a_missed_class_with_an_empty_one():
+    from expds.train import dice_loss
+
+    logits = torch.zeros(2, 2, 4, 4)
+    target = torch.zeros_like(logits)
+    target[:, 0, 1:3, 1:3] = 1
+    missed = dice_loss(logits[:, :1], target[:, :1])
+    both = dice_loss(logits, target)
+    assert torch.allclose(both, missed, atol=1e-5)
+    assert float(missed) > 0.5
+
+
 def make_cache(tmp_path, n=10, c=3, t=16, k=5):
     rng = np.random.default_rng(0)
     imgs = rng.integers(0, 255, (n, c, t, t), dtype=np.uint8)
