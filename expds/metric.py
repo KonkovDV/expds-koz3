@@ -67,6 +67,12 @@ class ClassCurve:
     pred_region: list[str]
     n_gt: int
     gt_regions: Counter = field(default_factory=Counter)
+    pred_group: list[str] = field(default_factory=list)
+
+
+def threshold_group(props: dict) -> str:
+    """Группа порога объекта, как в post.apply_thresholds: threshold_group, иначе markup_type."""
+    return str(props.get("threshold_group") or props.get("markup_type") or "")
 
 
 def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
@@ -84,7 +90,7 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
         if geom.geom_type == "Point" and not is_gt:
             geom = mod._point_to_circle(geom, calc.r_tolerance, calc.circle_points)
         out.setdefault(cls, []).append((geom, mod._get_confidence(feature),
-                                        str(props.get("region_name", "default_source"))))
+                                        str(props.get("region_name", "default_source")), threshold_group(props)))
     return out
 
 
@@ -124,8 +130,90 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[s
                     hits[rank] = True
         curves[cls] = ClassCurve(conf=np.array([p[i][1] for i in order], dtype=np.float64), hit=hits,
                                  pred_region=[p[i][2] for i in order], n_gt=len(g),
-                                 gt_regions=Counter(x[2] for x in g))
+                                 gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])
     return curves
+
+
+def _group_cuts(conf: np.ndarray, hit: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Допустимые срезы группы (уверенности по убыванию): сколько оставить, TP и порог на каждом."""
+    if conf.size == 0:
+        return np.array([0]), np.array([0.0]), np.array([np.inf])
+    last = np.r_[np.flatnonzero(conf[1:] != conf[:-1]), conf.size - 1]
+    keep = np.r_[0, last + 1]
+    tp = np.r_[0.0, np.cumsum(hit)[last].astype(float)]
+    lower = np.r_[conf[last[:-1] + 1], -np.inf] if last.size else np.array([-np.inf])
+    taus = np.r_[conf[0] + 1e-6, np.where(np.isfinite(lower), (conf[last] + lower) / 2, 0.0)]
+    return keep, tp, taus
+
+
+def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20) -> dict:
+    """Пороги по (группа, класс), максимизирующие общий F1 класса по всем группам.
+
+    Метрика сводит класс по всем модальностям и участкам: F1 ≈ 2TP / (TP + 0,5·FP + GT).
+    Покоординатный подъём: порог одной группы — лучший при остальных. Два старта
+    (все группы выключены, все включены), берётся лучший. Попадания — из общего
+    прохода, поэтому группы, борющиеся за один эталон, оцениваются приближённо;
+    точный балл — verify_groups.
+    """
+    out: dict[str, dict] = {}
+    for cls, c in curves.items():
+        groups = sorted(set(c.pred_group)) if c.pred_group else []
+        if c.n_gt == 0:
+            continue
+        if not groups:
+            out[cls] = {"f1": 0.0, "n_gt": c.n_gt, "groups": {}}
+            continue
+        g_arr = np.array(c.pred_group)
+        cuts = {g: _group_cuts(c.conf[g_arr == g], c.hit[g_arr == g]) for g in groups}
+
+        def f1_of(k: dict) -> float:
+            tp = sum(cuts[g][1][k[g]] for g in groups)
+            n = sum(cuts[g][0][k[g]] for g in groups)
+            return float(_f1(tp, n - tp, c.n_gt - tp)) if n else 0.0
+
+        best_k, best_f = None, -1.0
+        for start in ("none", "all"):
+            k = {g: 0 if start == "none" else len(cuts[g][0]) - 1 for g in groups}
+            for _ in range(rounds):
+                changed = False
+                for g in groups:
+                    tp_o = sum(cuts[h][1][k[h]] for h in groups if h != g)
+                    n_o = sum(cuts[h][0][k[h]] for h in groups if h != g)
+                    keep, tp, _ = cuts[g]
+                    t, n = tp_o + tp, n_o + keep
+                    f = np.where(n > 0, _f1(t, n - t, c.n_gt - t), 0.0)
+                    j = int(np.argmax(f))
+                    if j != k[g] and f[j] > f[k[g]] + 1e-12:
+                        k[g], changed = j, True
+                if not changed:
+                    break
+            f = f1_of(k)
+            if f > best_f:
+                best_f, best_k = f, dict(k)
+        out[cls] = {"f1": best_f, "n_gt": c.n_gt,
+                    "groups": {g: {"threshold": round(float(cuts[g][2][best_k[g]]), 6),
+                                   "kept": int(cuts[g][0][best_k[g]]), "tp": int(cuts[g][1][best_k[g]])}
+                               for g in groups}}
+    return out
+
+
+def official_weighted(per_class: dict[str, dict]) -> float:
+    """Взвешенный балл по F1 классов с эталоном (как в метрике)."""
+    num = sum(CLASS_WEIGHTS.get(c, 0.0) * v["f1"] for c, v in per_class.items() if v.get("n_gt", 0) > 0)
+    den = sum(CLASS_WEIGHTS.get(c, 0.0) for c, v in per_class.items() if v.get("n_gt", 0) > 0)
+    return num / den if den else 0.0
+
+
+def apply_group_thresholds(fc: dict, taus: dict[str, dict[str, float]], metric_path: str | None = None) -> dict:
+    """Оставляет объекты с confidence ≥ taus[группа][класс]; нет порога — объект остаётся."""
+    norm = load_official(metric_path).normalize_class_name
+    feats = []
+    for f in fc.get("features", []):
+        pr = f.get("properties") or {}
+        tau = taus.get(threshold_group(pr), {}).get(norm(pr.get("class_name")), 0.0)
+        if float(pr.get("confidence", 1.0)) >= tau:
+            feats.append(f)
+    return {**{k: v for k, v in fc.items() if k != "features"}, "features": feats}
 
 
 def _f1(tp, fp, fn):
@@ -315,6 +403,12 @@ def _cli() -> None:
         if name == "sweep":
             p.add_argument("--out", default=None, help="куда сохранить пороги (JSON)")
             p.add_argument("--bootstrap", type=int, default=0, help="повторов бутстрепа по регионам")
+    p = sub.add_parser("sweep-groups", help="совместные пороги по (группа порога, класс) на общий F1 класса")
+    p.add_argument("--pred", required=True)
+    p.add_argument("--gt", required=True)
+    p.add_argument("--metric", default=None)
+    p.add_argument("--regions", default=None)
+    p.add_argument("--out", default=None, help="JSON {группа: {класс: порог}} для [thresholds_by_markup]")
     p = sub.add_parser("compare", help="A против B: пороги — оптимум каждой, разница — парный бутстреп по регионам")
     p.add_argument("--pred", required=True, help="A")
     p.add_argument("--pred-b", required=True, help="B")
@@ -326,10 +420,25 @@ def _cli() -> None:
     args = ap.parse_args()
     pred = json.loads(Path(args.pred).read_text(encoding="utf-8-sig"))
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8-sig"))
-    markup = set(args.markup.split(",")) if args.markup else None
+    markup = set(args.markup.split(",")) if getattr(args, "markup", None) else None
     regions = ({ln.strip() for ln in Path(args.regions).read_text(encoding="utf-8").splitlines() if ln.strip()}
                if args.regions else None)
     pred, gt = _filter(pred, markup, regions), _filter(gt, markup, regions)
+    if args.cmd == "sweep-groups":
+        curves = build_curves(pred, gt, args.metric)
+        res = sweep_groups(curves)
+        taus: dict[str, dict[str, float]] = {}
+        for cls, v in res.items():
+            print(f"{cls:24s} GT {v['n_gt']:5d}  F1 {v['f1']:.3f}")
+            for g, gv in v["groups"].items():
+                taus.setdefault(g, {})[cls] = gv["threshold"]
+                print(f"    {g:8s} порог {gv['threshold']:.6f}  оставлено {gv['kept']:6d}  TP {gv['tp']:5d}")
+        est = official_weighted(res)
+        official = score(apply_group_thresholds(pred, taus, args.metric), gt, args.metric)["final_score"]
+        print(f"балл по кривым {est:.6f}; официальный расчёт {official:.6f}")
+        if args.out:
+            Path(args.out).write_text(json.dumps(taus, ensure_ascii=False, indent=2), encoding="utf-8")
+        return
     if args.cmd == "compare":
         pred_b = _filter(json.loads(Path(args.pred_b).read_text(encoding="utf-8-sig")), markup, regions)
         ra, rb = sweep(pred, gt, args.metric), sweep(pred_b, gt, args.metric)

@@ -75,6 +75,36 @@ def test_one_pass_equals_official(seed, official_metric):
     assert set(sw["bootstrap"]) <= set(sw["thresholds"])
 
 
+def test_group_thresholds_beat_single_and_match_official(official_metric):
+    if not official_metric:
+        pytest.skip("нет EXPDS_METRIC")
+    pred, gt = make_case(1)
+    regions = sorted({f["properties"]["region_name"] for f in pred["features"]})
+    half = set(regions[: len(regions) // 2])
+    feats = []
+    for f in pred["features"]:
+        pr = dict(f["properties"])
+        if pr["region_name"] in half:
+            pr["markup_type"] = "li"
+        else:
+            pr["markup_type"] = "sp_or"
+            pr["confidence"] = round(pr["confidence"] * 0.5, 3)  # другая шкала уверенности
+        feats.append({**f, "properties": pr})
+    pred = {**pred, "features": feats}
+    curves = metric.build_curves(pred, gt, official_metric)
+    single = metric.sweep(pred, gt, official_metric)["estimated_score"]
+    res = metric.sweep_groups(curves)
+    taus: dict = {}
+    for cls, v in res.items():
+        for g, gv in v["groups"].items():
+            taus.setdefault(g, {})[cls] = gv["threshold"]
+    est = metric.official_weighted(res)
+    official = metric.score(metric.apply_group_thresholds(pred, taus, official_metric), gt,
+                            official_metric)["final_score"]
+    assert abs(est - official) < 1e-6
+    assert official >= single - 1e-12
+
+
 def test_paired_bootstrap_zero_for_same_model_and_sign_for_worse(official_metric):
     if not official_metric:
         pytest.skip("нет EXPDS_METRIC")
