@@ -202,7 +202,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
           gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None,
           target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0,
-          center_loss_name: str = "bce", all_data: bool = False) -> dict:
+          center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -380,6 +380,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "dem_fill": meta.get("dem_fill"), "max_upsample": meta.get("max_upsample"),
                         "target": target, "center_sigma_m": center_sigma_m if center else None,
                         "center_radius_m": center_radius_m if center else None,
+                        "min_dist_m": min_dist_m if center else None,
                         "epoch": ep + 1,
                         "val_loss": vl}, out)
     return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "history": history, "out": out,
@@ -407,6 +408,8 @@ def _cli() -> None:
                     help="mask — маска класса; centers — гауссиана в центре объекта")
     ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы центра, м")
     ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
+    ap.add_argument("--center-min-dist", type=float, default=12.0,
+                    help="минимальное расстояние между центрами на выходе, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce",
                     help="focal — потеря карты центров Law & Deng / CenterNet")
     ap.add_argument("--all-data", action="store_true",
@@ -417,7 +420,7 @@ def _cli() -> None:
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
                 gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed,
                 target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
-                center_loss_name=args.center_loss, all_data=args.all_data)
+                center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

@@ -1,0 +1,110 @@
+{
+  "all_base": 0.31952628911364006,
+  "all": 0.32996638777767695,
+  "delta_all": 0.01044009866403689,
+  "new_base": 0.2617399078311329,
+  "new": 0.2838579838622589,
+  "delta_new": 0.022118076031126033,
+  "optical_base": 0.1866869395850313,
+  "optical": 0.1866869395850313,
+  "delta_optical": 0.0,
+  "bootstrap": {
+    "mean": 0.010843406272668913,
+    "p5": 0.0015748820716012747,
+    "p50": 0.00948943585148282,
+    "p95": 0.025758607981181555,
+    "p_gt0": 0.998
+  },
+  "per_class": {
+    "arkhitektury": {
+      "mean": 0.0,
+      "p5": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p_gt0": 0.0
+    },
+    "finds_points": {
+      "mean": 0.0,
+      "p5": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p_gt0": 0.0
+    },
+    "fortifikatsii": {
+      "mean": 0.0,
+      "p5": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p_gt0": 0.0
+    },
+    "gorodishcha": {
+      "mean": 0.0,
+      "p5": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p_gt0": 0.0
+    },
+    "kurgany_povrezhdennye": {
+      "mean": 0.004196682462696574,
+      "p5": -0.0007343890350695076,
+      "p50": 0.003749673273187093,
+      "p95": 0.01168313931270341,
+      "p_gt0": 0.883
+    },
+    "kurgany_tselye": {
+      "mean": 0.0479220076692997,
+      "p5": 0.007278958576955402,
+      "p50": 0.0417953112784083,
+      "p95": 0.11141747971621191,
+      "p_gt0": 0.998
+    },
+    "object_poly": {
+      "mean": 0.0,
+      "p5": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p_gt0": 0.0
+    }
+  },
+  "thresholds": {
+    "ae": {
+      "kurgany_povrezhdennye": 0.99053,
+      "kurgany_tselye": 0.802255
+    },
+    "li": {
+      "kurgany_povrezhdennye": 0.06415,
+      "kurgany_tselye": 0.19422,
+      "gorodishcha": 0.977365,
+      "fortifikatsii": 0.980195
+    },
+    "li_ae": {
+      "kurgany_povrezhdennye": 0.993061,
+      "kurgany_tselye": 1.000001
+    },
+    "li_mosaic": {
+      "kurgany_povrezhdennye": 0.959005,
+      "kurgany_tselye": 0.17042
+    },
+    "sp_focal": {
+      "kurgany_povrezhdennye": 0.364475,
+      "kurgany_tselye": 0.372525
+    },
+    "li_coarse": {
+      "gorodishcha": 0.98362,
+      "fortifikatsii": 0.226255
+    },
+    "sp_or": {
+      "gorodishcha": 0.994085
+    },
+    "etgr": {
+      "object_poly": 0.0969
+    },
+    "maggr": {
+      "object_poly": 0.0,
+      "finds_points": 0.0
+    },
+    "terfl": {
+      "object_poly": 0.0
+    }
+  }
+}

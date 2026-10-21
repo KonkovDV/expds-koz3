@@ -92,7 +92,11 @@ def main() -> None:
                     help="centers — гауссиана в центре насыпи, на выходе круг")
     ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы, м")
     ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
+    ap.add_argument("--center-min-dist", type=float, default=12.0,
+                    help="минимальное расстояние между центрами, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
+    ap.add_argument("--classes", nargs="*", default=None,
+                    help="префикс классов кэша: биты маски идут в этом порядке")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -130,11 +134,19 @@ def main() -> None:
                 res = json.loads(done.read_text(encoding="utf-8"))
             else:
                 fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
+                if args.classes:
+                    meta_path = fc / "cache" / "meta.json"
+                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    want = list(args.classes)
+                    if meta["classes"][:len(want)] != want:
+                        raise SystemExit(f"биты кэша {meta['classes']} не начинаются с {want}")
+                    meta["classes"] = want
+                    meta_path.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
                             batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
                             seed=s if s else None, target=args.target,
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
-                            center_loss_name=args.center_loss)
+                            center_loss_name=args.center_loss, min_dist_m=args.center_min_dist)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

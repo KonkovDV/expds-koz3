@@ -159,6 +159,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     from .lidar import build_dem, dem_params, hillshade_set
 
     feats: list[dict] = []
+    mosaic_kurgans: list[dict] = []
     crs_region = read_utm_json(reg.utm_json)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
     for las in reg.las:
@@ -174,40 +175,67 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         dems: dict[tuple, object] = {}
 
         def dem_for(meta, _las=las):
-            from .lidar import DEFAULTS, build_dem_mosaic, would_coarsen
-
             dp = dem_params(meta, cfg)
-            key = (dp["res"], dp["fill"], bool(cfg.get("lidar", {}).get("mosaic", False)))
+            key = (dp["res"], dp["fill"])
             if key not in dems:
-                if key[2] and would_coarsen(_las, dp["res"], DEFAULTS["max_pixels"]):
-                    try:
-                        dems[key] = build_dem_mosaic(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
-                    except Exception:
-                        log.exception("%s: мозаика не собралась, обычная сетка", _las.name)
-                        dems[key] = build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region)
-                else:
-                    dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
-                                 else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+                dems[key] = (prefetch.get(_las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                             else build_dem(_las, res=dp["res"], fill=dp["fill"], crs=crs_region))
             return dems[key]
 
         produced = False
         if segs:
             try:
-                d = dem_for(segs[0].meta)
+                from .lidar import DEFAULTS, build_dem_mosaic, would_coarsen
+
+                dp0 = dem_params(segs[0].meta, cfg)
+                split = (bool(cfg.get("lidar", {}).get("mosaic", False))
+                         and would_coarsen(las, dp0["res"], DEFAULTS["max_pixels"]))
+                if split:
+                    d = (prefetch.get(las, dp0["res"], dp0["fill"], crs_region) if prefetch is not None
+                         else build_dem(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region))
+                else:
+                    d = dem_for(segs[0].meta)
                 if d.crs is None:
                     log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
                     continue
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
+                kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
                 for seg in segs:
-                    found = _kept(seg, _li_with_model(seg, dem_for(seg.meta), reg.name, las.name, hillshade_set,
+                    found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                       cand_p if rescore else None, cfg.get("li"), floors))
+                    if split:
+                        found = [f for f in found if f.get("class_name") not in kur]
                     if group:
                         for f in found:
                             if not f.get("threshold_group"):
                                 f["threshold_group"] = group
                     feats += found
+                if split:
+                    try:
+                        mosaic = build_dem_mosaic(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region)
+                    except Exception:
+                        log.exception("%s: мозаика не собралась, курганы с грубой сетки", las.name)
+                        mosaic = None
+                    fresh: list[dict] = []
+                    if mosaic is not None and mosaic.crs is not None:
+                        for seg in segs:
+                            found = _li_with_model(seg, mosaic, reg.name, las.name, hillshade_set,
+                                                   cand_p if rescore else None, cfg.get("li"), None)
+                            fresh += [f for f in found if f.get("class_name") in kur]
+                    else:
+                        for seg in segs:
+                            found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
+                                                              cand_p if rescore else None, cfg.get("li"), floors))
+                            found = [f for f in found if f.get("class_name") in kur]
+                            if group:
+                                for f in found:
+                                    if not f.get("threshold_group"):
+                                        f["threshold_group"] = group
+                            fresh = found
+                    mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
+                    feats += fresh
                 produced = True
             except Exception:
                 log.exception("%s: инференс li упал, запасной детектор", las.name)
@@ -238,6 +266,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
         except Exception as exc:
             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+    for f in mosaic_kurgans:
+        if f.get("markup_type") == "li" and not f.get("threshold_group"):
+            f["threshold_group"] = "li_mosaic"
     return feats
 
 
@@ -381,7 +412,9 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 
                     found = centers_to_features(
                         probs, seg.classes, tr, crs, r, region, markup, path.name,
-                        radius_m=float(seg.meta.get("center_radius_m") or 6.0), min_conf=min_conf)
+                        radius_m=float(seg.meta.get("center_radius_m") or 6.0),
+                        min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
+                        min_conf=min_conf)
                 else:
                     found = probs_to_features(probs, seg.classes, tr, crs, r, region, markup, path.name,
                                               min_conf=min_conf)
