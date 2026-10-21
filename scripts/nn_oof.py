@@ -92,6 +92,7 @@ def main() -> None:
                     help="centers — гауссиана в центре насыпи, на выходе круг")
     ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы, м")
     ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
+    ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -132,7 +133,8 @@ def main() -> None:
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
                             batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
                             seed=s if s else None, target=args.target,
-                            center_sigma_m=args.center_sigma, center_radius_m=args.center_radius)
+                            center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
+                            center_loss_name=args.center_loss)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

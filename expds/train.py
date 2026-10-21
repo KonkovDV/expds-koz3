@@ -201,7 +201,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
           gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None,
-          target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0) -> dict:
+          target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0,
+          center_loss_name: str = "bce") -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -285,14 +286,16 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     bce = torch.nn.BCEWithLogitsLoss()
     if center:
-        from .centers import center_loss, gaussians_from_binary, heatmap_counts
+        if center:
+            from .centers import center_loss, focal_center_loss, gaussians_from_binary, heatmap_counts
 
-        def prepare(y):
-            return gaussians_from_binary(y, sigma_px)
+            def prepare(y):
+                return gaussians_from_binary(y, sigma_px, by_radius=center_sigma_m <= 0)
 
-        def batch_loss(logits, y):
-            y = prepare(y)
-            return center_loss(logits, y), y
+            def batch_loss(logits, y):
+                y = prepare(y)
+                loss = focal_center_loss(logits, y) if center_loss_name == "focal" else center_loss(logits, y)
+                return loss, y
     else:
         def batch_loss(logits, y):
             return bce(logits, y) + dice_loss(logits.float(), y), y
@@ -325,7 +328,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 vl += loss * len(x)
                 vn += len(x)
                 if center:
-                    ctp, cfp, cfn = heatmap_counts(logits.float().sigmoid(), y, max(1, round(sigma_px)))
+                    match_r = max(2, round(sigma_px)) if center_sigma_m <= 0 else max(1, round(sigma_px))
+                    ctp, cfp, cfn = heatmap_counts(logits.float().sigmoid(), y, match_r)
                     tp += ctp
                     fp += cfp
                     fn += cfn
@@ -391,12 +395,15 @@ def _cli() -> None:
                     help="mask — маска класса; centers — гауссиана в центре объекта")
     ap.add_argument("--center-sigma", type=float, default=4.0, help="ширина гауссианы центра, м")
     ap.add_argument("--center-radius", type=float, default=6.0, help="радиус круга на выходе, м")
+    ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce",
+                    help="focal — потеря карты центров Law & Deng / CenterNet")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
                 gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed,
-                target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius)
+                target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
+                center_loss_name=args.center_loss)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

@@ -19,7 +19,25 @@ def test_two_mounds_do_not_merge_into_the_gap():
     assert heat[18, 18] < 0.05
 
 
-def test_empty_mask_stays_empty():
+def test_focal_loss_cares_about_the_peak_more_than_the_background():
+    from expds.centers import focal_center_loss
+
+    target = torch.zeros(1, 1, 8, 8)
+    target[0, 0, 3, 3] = 1
+    missed = torch.full((1, 1, 8, 8), -6.0)
+    hit = missed.clone()
+    hit[0, 0, 3, 3] = 6.0
+    assert float(focal_center_loss(missed, target)) > float(focal_center_loss(hit, target))
+
+
+def test_wide_mound_gets_a_wider_gaussian():
+    small = torch.zeros(1, 1, 32, 32)
+    large = torch.zeros(1, 1, 32, 32)
+    small[0, 0, 8:10, 8:10] = 1
+    large[0, 0, 4:20, 4:20] = 1
+    a = gaussians_from_binary(small, 1.0, by_radius=True)[0, 0]
+    b = gaussians_from_binary(large, 1.0, by_radius=True)[0, 0]
+    assert float((b > 0.5).sum()) > float((a > 0.5).sum())
     heat = gaussians_from_binary(torch.zeros(2, 3, 8, 8), 1.5)
     assert float(heat.sum()) == 0.0
 

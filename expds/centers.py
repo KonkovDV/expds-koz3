@@ -20,16 +20,17 @@ from . import accel
 CENTER_POS_WEIGHT = 20.0
 
 
-def gaussians_from_binary(mask, sigma_px: float):
+def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False):
     """Бинарные маски N×K×H×W → гауссианы в центрах связных компонент.
 
     Несколько насыпей в одном тайле дают несколько пиков. Центр масс всей маски
     лёг бы между ними, и метрика такой объект не засчитывает.
+    by_radius: ширина пика равна радиусу компоненты / 3, а не фиксированным метрам.
     """
     import torch
     from scipy import ndimage
 
-    if float(sigma_px) <= 0:
+    if not by_radius and float(sigma_px) <= 0:
         raise ValueError("sigma_px должен быть положительным")
     device = mask.device
     binary = mask.detach().cpu().numpy() > 0.5
@@ -38,7 +39,6 @@ def gaussians_from_binary(mask, sigma_px: float):
     if not binary.any():
         return torch.from_numpy(out).to(device)
     yy, xx = np.ogrid[:h, :w]
-    sig2 = 2.0 * float(sigma_px) * float(sigma_px)
     for i in range(n):
         for c in range(k):
             if not binary[i, c].any():
@@ -49,8 +49,34 @@ def gaussians_from_binary(mask, sigma_px: float):
                 ys, xs = np.nonzero(labels == lab)
                 cy = float(ys.mean())
                 cx = float(xs.mean())
+                if by_radius:
+                    sigma = max(1.0, float(np.sqrt(len(ys) / np.pi)) / 3.0)
+                else:
+                    sigma = float(sigma_px)
+                sig2 = 2.0 * sigma * sigma
                 np.maximum(heat, np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / sig2), out=heat)
+                ry = min(max(int(round(cy)), 0), h - 1)
+                rx = min(max(int(round(cx)), 0), w - 1)
+                heat[ry, rx] = 1.0
     return torch.from_numpy(out).to(device)
+
+
+def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
+    """Фокальная потеря карты центров (Law & Deng, 2018; Zhou et al., 2019).
+
+    У пика (target = 1) штраф (1 − p)^α. Рядом с пиком фон почти не штрафуется:
+    множитель (1 − target)^β. Нормировка — на число пиков в батче, не на все пиксели.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    p = logits.float().sigmoid().clamp(1e-4, 1 - 1e-4)
+    pos = target >= 0.999
+    neg = ~pos
+    pos_loss = -((1 - p) ** alpha) * torch.log(p)
+    neg_loss = -((1 - target) ** beta) * (p ** alpha) * torch.log(1 - p)
+    n_pos = pos.sum().clamp(min=1).to(pos_loss.dtype)
+    return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
 def center_loss(logits, target):
