@@ -213,6 +213,8 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     import tempfile
 
     tmp_dir = os.environ.get("EXPDS_TMP") or None
+    if tmp_dir:
+        os.makedirs(tmp_dir, exist_ok=True)
     tmp = tempfile.TemporaryDirectory(prefix="dem-mosaic-", dir=tmp_dir)
     try:
         bins = [(Path(tmp.name) / f"{i}.f64").open("wb") for i in range(len(tiles))]

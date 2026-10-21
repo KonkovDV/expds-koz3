@@ -277,3 +277,12 @@ def test_two_las_tiles_in_one_folder_are_both_kept():
     assert names == ["east.las", "site_ground.las", "west.las"]
     unknown = choose_las_boxes([(folder / "a.las", None), (folder / "b.las", None)])
     assert len(unknown) == 1
+    broken = choose_las_boxes([west, east, (folder / "broken.las", None)])
+    assert sorted(p.name for p in broken) == ["broken.las", "east.las", "west.las"]
+    # Края сами не пересекаются на 80 %, средний накрывает оба. Это одно облако.
+    overlap = choose_las_boxes([
+        (folder / "a.las", (0.0, 0.0, 100.0, 100.0)),
+        (folder / "c.las", (25.0, 0.0, 125.0, 100.0)),
+        (folder / "b.las", (10.0, 0.0, 110.0, 100.0)),
+    ])
+    assert len(overlap) == 1

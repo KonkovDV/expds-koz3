@@ -32,6 +32,7 @@
     "bootstrap_p_gt0": 0.651,
     "damaged_p_gt0": 0.139,
     "intact_p_gt0": 0.997,
-    "decision": "rejected: point estimate +0.0038 but A>B only 0.651, need 0.90; damaged F1 down"
+    "decision": "rejected: point estimate +0.0038 but A>B only 0.651, need 0.90",
+    "threshold_confound": "mosaic kurgans share group li; damaged threshold moved 0.0641 -> 0.2358, so the fine clouds changed too"
   }
 }
