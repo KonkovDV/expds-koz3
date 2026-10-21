@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 from expds import candidates, post, writer
 from expds.catalog import read_utm_json, scan_root
-from expds.lidar import build_dem, dem_params, hillshade_set
+from expds.lidar import DemPrefetch, build_dem, dem_params, hillshade_set
 from expds.naming import site_family
 from expds.pipeline import _li_with_model, _params, _raster_with_model, load_config
 
@@ -53,13 +53,15 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
         w.writerows(rows)
 
 
-def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None) -> list[dict]:
+def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None) -> list[dict]:
     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region."""
     feats: list[dict] = []
     if markup == "li":
         dp = dem_params(seg.meta)
+        crs = read_utm_json(reg.utm_json)
         for las in reg.las:
-            d = build_dem(las, res=dp["res"], fill=dp["fill"], crs=read_utm_json(reg.utm_json))
+            d = (prefetch.get(las, dp["res"], dp["fill"], crs) if prefetch is not None
+                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs))
             if d.crs is not None:
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
         return feats
@@ -131,19 +133,25 @@ def main() -> None:
         seg = members[0] if len(members) == 1 else Ensemble(members)
         seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
         n_reg = 0
-        for reg in regions:
-            if site_family(reg.name) not in test:
-                continue
-            try:
-                got = predict_region(seg, reg, args.markup, cand_p, cfg.get("li"))
-            except Exception:
-                log.exception("%s: предсказание пропущено", reg.name)
-                continue
-            feats += got
-            n_reg += 1
-            log.info("предсказание %s: %+d", reg.name, len(got))
-            del got
-            gc.collect()
+        fold_regions = [reg for reg in regions if site_family(reg.name) in test]
+        prefetch = (DemPrefetch([(las, read_utm_json(r.utm_json)) for r in fold_regions for las in r.las],
+                                int(cfg.get("lidar", {}).get("prefetch", 2)))
+                    if args.markup == "li" and int(cfg.get("lidar", {}).get("prefetch", 2)) > 0 else None)
+        try:
+            for reg in fold_regions:
+                try:
+                    got = predict_region(seg, reg, args.markup, cand_p, cfg.get("li"), prefetch)
+                except Exception:
+                    log.exception("%s: предсказание пропущено", reg.name)
+                    continue
+                feats += got
+                n_reg += 1
+                log.info("предсказание %s: %+d", reg.name, len(got))
+                del got
+                gc.collect()
+        finally:
+            if prefetch is not None:
+                prefetch.close()
         rec = {"fold": k, "test": sorted(test), "val": val, **res, "test_regions": n_reg,
                "minutes": round((time.perf_counter() - t0) / 60, 1)}
         report.append(rec)
