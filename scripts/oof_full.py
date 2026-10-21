@@ -56,7 +56,7 @@ def report(name: str, fc: dict, gt: dict, metric: str) -> float:
     official = score(kept, gt, metric)["final_score"]
     print(f"{name}: по кривым {est:.6f}; официальный {official:.6f}; оставлено {len(kept['features'])}",
           flush=True)
-    return official
+    return official, taus
 
 
 def main() -> None:
@@ -65,6 +65,7 @@ def main() -> None:
     ap.add_argument("--metric", required=True)
     ap.add_argument("--las49", default="")
     ap.add_argument("--las-new", default="")
+    ap.add_argument("--centers", default="", help="круги карты центров вне обучения; своя группа порога sp_focal")
     args = ap.parse_args()
     work = Path(args.work)
     sys.path.insert(0, str(work))
@@ -77,14 +78,33 @@ def main() -> None:
     gor = load(work / "spor_gor_oof.geojson")
     geo = load(work / "geo_new.geojson")
     feats = fused["features"] + gor["features"] + geo["features"]
+    if args.centers:
+        extra = load(Path(args.centers))
+        keep = {"kurgany_povrezhdennye", "kurgany_tselye"}
+        n = 0
+        for f in extra["features"]:
+            p = dict(f.get("properties") or {})
+            if p.get("class_name") not in keep:
+                continue
+            p["threshold_group"] = "sp_focal"
+            p["markup_type"] = p.get("markup_type") or "sp_or"
+            feats.append({**f, "properties": p})
+            n += 1
+        print(f"кругов карты центров {n}", flush=True)
     fc = {"type": "FeatureCollection", "features": feats}
-    base = report("полный стек", fc, gt, args.metric)
+    base, taus = report("полный стек", fc, gt, args.metric)
     print(f"полный стек {base:.6f}", flush=True)
+    from expds.metric import apply_group_thresholds, score
     for label, path in (("49 с LAS", args.las49), ("34 новых", args.las_new)):
         if not path:
             continue
         regs = names(Path(path))
-        report(label, keep_regions(fc, regs), keep_regions(gt, regs), args.metric)
+        held = keep_regions(fc, regs)
+        held_gt = keep_regions(gt, regs)
+        kept = apply_group_thresholds(held, taus, args.metric)
+        moved = score(kept, held_gt, args.metric)["final_score"]
+        print(f"{label}: порог со всех участков {moved:.6f}", flush=True)
+        report(f"{label}, порог на этом же подмножестве", held, held_gt, args.metric)
     print("фортификации аэрофото в этом счёте нет: их предсказаний вне обучения на диске нет", flush=True)
 
 
