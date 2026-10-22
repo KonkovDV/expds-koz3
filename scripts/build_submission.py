@@ -79,7 +79,7 @@ def main() -> None:
     size = out.stat().st_size
     if size > LIMIT:
         sys.exit(f"архив {size / 2**20:.0f} МБ больше 2 ГБ")
-    digest = hashlib.sha256(out.read_bytes()).hexdigest()[:16]
+    digest = hashlib.sha256(out.read_bytes()).hexdigest()
     print(f"архив: {out} — {len(files)} файлов, {size / 2**20:.1f} МБ, sha256 {digest}")
     for f in files:
         print("  ", f.relative_to(ROOT).as_posix())

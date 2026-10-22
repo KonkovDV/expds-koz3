@@ -21,10 +21,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libexp
     && rm -rf /var/lib/apt/lists/*
 
 # PyTorch CUDA 12.8: RTX 4090 (Ada) и более новые карты. Колёса несут свои библиотеки CUDA.
-RUN pip install torch==2.7.1 torchvision==0.22.1 --index-url ${TORCH_INDEX}
+# Та же версия, на которой подбирались пороги (.venv, 22.10.2026).
+RUN pip install torch==2.11.0 torchvision==0.26.0 --index-url ${TORCH_INDEX}
 
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt && rm /tmp/requirements.txt \
+# Точные версии остальных пакетов; requirements.txt — только нижние границы для разработки.
+COPY requirements.lock /tmp/requirements.lock
+RUN pip install -r /tmp/requirements.lock && rm /tmp/requirements.lock \
     && python -c "import torch, rasterio, shapely, pyproj, laspy, scipy, segmentation_models_pytorch; print('ok')"
 
 WORKDIR /app
