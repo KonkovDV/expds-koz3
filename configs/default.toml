@@ -39,7 +39,8 @@ kurgany_tselye = 0.194220
 # совместный перебор его выкинул. Курганы этой группы не сдвигались.
 gorodishcha = 0.993091
 arkhitektury = 1.01
-fortifikatsii = 0.980195
+# 0,999971 — вместе с маской фортификаций аэрофото (ae); группа фактически выключена.
+fortifikatsii = 0.999971
 
 # То же облако точек, но шаг DEM увеличен (ячеек больше 60 млн). Ложных курганов много,
 # поэтому порог повреждённых высокий. Группа ставится в pipeline.lidar_threshold_group.
@@ -49,7 +50,8 @@ kurgany_tselye = 0.469805
 # 0,986425 — вместе с маской li_mask (было 0,983620: 39 объектов, 16 попаданий).
 gorodishcha = 0.986425
 arkhitektury = 1.01
-fortifikatsii = 0.226255
+# 0,999260 — вместе с маской фортификаций аэрофото (было 0,226255: 427 объектов, 7 попаданий).
+fortifikatsii = 0.999260
 
 # Курганы с мозаики 0,1→0,5 м. Городища этой группы не получают.
 [thresholds_by_markup.li_mosaic]
@@ -62,10 +64,11 @@ kurgany_tselye = 0.170420
 [thresholds_by_markup.li_mask]
 gorodishcha = 0.994510
 
-# Оптика: пороги — с плато кривой F1 вне обучения (фортификации 0,298–0,306 при 0,9993–0,9996,
-# городища 0,097–0,108 при 0,85–0,93)
+# Маска фортификаций аэрофото, пять фолдов на эталоне со слоями EtGr без склейки:
+# 0,339456 → 0,347318, 34 новых +0,0163, без лидара +0,0047, A > B в 0,983.
+# 714 объектов, 94 попадания из 696 эталонов (notes/ae_fort_mask_2026-10-22.json).
 [thresholds_by_markup.ae]
-fortifikatsii = 0.9995
+fortifikatsii = 0.998215
 
 [thresholds_by_markup.sp_or]
 # 0,994085 — порог совместного прогона, который дал 0,218 и 0,230.
@@ -127,7 +130,8 @@ sp_or = [
   {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]},
   {path = "models/spor_focal_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]},
 ]
-ae = {path = "models/ae_r18.pt", classes = ["fortifikatsii"]}
+# Фортификации аэрофото: маска одного класса, 20 эпох на всех тайлах (медиана лучших эпох фолдов).
+ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
 # or = "models/or_r18.pt"
 
 [candidates]
