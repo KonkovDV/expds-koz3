@@ -179,6 +179,8 @@ def main() -> None:
     ap.add_argument("--gt", default=None,
                     help="эталон; по умолчанию <work>/gt_train_v2.geojson (слои EtGr не склеены)")
     ap.add_argument("--expect", type=float, default=None, help="база должна совпасть с точностью 0,0005")
+    ap.add_argument("--base-add", action="append", default=[],
+                    help="путь:группа[:класс[:слой]] — уже принятая ветка, входит в базу")
     ap.add_argument("--add", action="append", default=[], help="путь:группа[:класс[:слой]]")
     ap.add_argument("--replace", action="append", default=[],
                     help="группа=путь: убрать объекты группы и добавить файл; своя группа объекта сохраняется")
@@ -193,6 +195,8 @@ def main() -> None:
     geo = Path(args.geo) if args.geo else work / "geo_cur.geojson"
     gt_path = Path(args.gt) if args.gt else work / "gt_train_v2.geojson"
     feats, gt, new, optical = build_stack(work, Path(args.train), geo, gt_path)
+    for spec in args.base_add:
+        feats += added(spec)
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
@@ -210,9 +214,7 @@ def main() -> None:
             props(f).setdefault("threshold_group", group)
         mixed += fresh
     for spec in args.add:
-        path, group, *rest = _split_windows(spec) if re.match(r"^[A-Za-z]:[\\/]", spec) else spec.split(":")
-        mixed += tagged(load(Path(path))["features"], group, rest[0] if rest else None,
-                        rest[1] if len(rest) > 1 else None)
+        mixed += added(spec)
     from expds.metric import build_curves, paired_bootstrap
 
     after, taus, kept_a, per_a = evaluate("опыт", mixed, gt, new, optical, args.metric)
@@ -234,6 +236,12 @@ def main() -> None:
             "thresholds": {g: {c: round(t, 6) for c, t in cls.items()} for g, cls in taus.items()},
             "add": args.add, "replace": args.replace, "geo": geo.name, "gt": gt_path.name,
         }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def added(spec: str) -> list[dict]:
+    """Объекты из «путь:группа[:класс[:слой]]» с проставленной группой."""
+    path, group, *rest = _split_windows(spec) if re.match(r"^[A-Za-z]:[\\/]", spec) else spec.split(":")
+    return tagged(load(Path(path))["features"], group, rest[0] if rest else None, rest[1] if len(rest) > 1 else None)
 
 
 def _split_windows(spec: str) -> list[str]:

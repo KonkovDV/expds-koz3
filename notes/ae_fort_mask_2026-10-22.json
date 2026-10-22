@@ -1,0 +1,20 @@
+{
+  "decision": "ship",
+  "formulation": "Маска фортификаций на аэрофото: кэш ae_all_r05_t128_s04 (шаг 0,5 м, тайл 128), только класс fortifikatsii (бит 4), пять фолдов по семьям. Своя группа ae_fort. Модель ae_r18.pt, которая была в конфиге, вне обучения не мерилась.",
+  "base": "эталон gt_train_v2 (слои EtGr не склеены), геофизика текущего кода",
+  "polygons_oof": 60987,
+  "base_all": 0.339456, "all": 0.347318, "delta_all": 0.007862,
+  "base_new": 0.301268, "new": 0.317538, "delta_new": 0.016270,
+  "base_optical": 0.187478, "optical": 0.192144, "delta_optical": 0.004666,
+  "bootstrap": {"mean": 0.00734, "p5": 0.00065, "p50": 0.00768, "p95": 0.01435, "p_gt0": 0.983},
+  "fortifikatsii": {"f1_before": 0.0172, "f1_after": 0.17446, "n_gt": 696,
+                    "groups_after": {"ae_fort": {"threshold": 0.998215, "kept": 714, "tp": 94},
+                                     "li_coarse": {"threshold": 0.99926, "kept": 21, "tp": 3},
+                                     "li": {"threshold": 0.999971, "kept": 0, "tp": 0}}},
+  "fold_best_epochs": [22, 5, 20, 20, 18],
+  "final_model": "models/ae_fort_mask_r18.pt, 20 эпох на всех 4327 тайлах, кэш-вид F:/expds3/work/cache/ae_fort_all",
+  "config": {"[models] ae": "models/ae_fort_mask_r18.pt, classes fortifikatsii",
+             "[thresholds_by_markup.ae] fortifikatsii": 0.998215,
+             "[thresholds_by_markup.li_coarse] fortifikatsii": 0.99926,
+             "[thresholds_by_markup.li] fortifikatsii": 0.999971}
+}
