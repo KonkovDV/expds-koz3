@@ -122,8 +122,27 @@ def build_stack(work: Path, train: Path, geo: Path, gt_path: Path | None = None)
     return feats, gt, new, optical
 
 
+OFFICIAL = False
+
+
+def final_score(kept: dict, gt: dict, metric: str) -> float:
+    """Итоговый балл набора после порогов.
+
+    Официальный F1Calculator сопоставляет каждое предсказание со всеми эталонами
+    класса без индекса и ещё раз так же считает справочную мягкую полноту. Здесь —
+    то же жадное сопоставление (build_curves: тот же порядок, та же проверка пары),
+    но только по парам с пересекающимися рамками. Остальные пары попасть не могут.
+    Совпадение с официальным расчётом проверяется флагом --official.
+    """
+    from expds.metric import build_curves, score, score_at
+
+    if OFFICIAL:
+        return score(kept, gt, metric)["final_score"]
+    return score_at(build_curves(kept, gt, metric), {})[0]
+
+
 def evaluate(name: str, feats: list[dict], gt: dict, new: set[str], optical: set[str], metric: str):
-    from expds.metric import apply_group_thresholds, build_curves, score, sweep_groups
+    from expds.metric import apply_group_thresholds, build_curves, sweep_groups
 
     fc = {"type": "FeatureCollection", "features": feats}
     print(f"{name}: объектов {len(feats)}", flush=True)
@@ -142,11 +161,11 @@ def evaluate(name: str, feats: list[dict], gt: dict, new: set[str], optical: set
             if gv["kept"]:
                 print(f"    {g:11s} порог {gv['threshold']:.6f}  оставлено {gv['kept']:5d}  TP {gv['tp']}", flush=True)
     kept = apply_group_thresholds(fc, taus, metric)
-    scores = [score(kept, gt, metric)["final_score"]]
+    scores = [final_score(kept, gt, metric)]
     for regions in (new, optical):
-        scores.append(score({"type": "FeatureCollection", "features": subset(kept["features"], regions)},
-                            {"type": "FeatureCollection", "features": subset(gt["features"], regions)},
-                            metric)["final_score"])
+        scores.append(final_score({"type": "FeatureCollection", "features": subset(kept["features"], regions)},
+                                  {"type": "FeatureCollection", "features": subset(gt["features"], regions)},
+                                  metric))
     print(f"{name}: все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; без лидара {scores[2]:.6f}", flush=True)
     return scores, taus, kept, per
 
@@ -164,8 +183,12 @@ def main() -> None:
     ap.add_argument("--replace", action="append", default=[],
                     help="группа=путь: убрать объекты группы и добавить файл; своя группа объекта сохраняется")
     ap.add_argument("--bootstrap", type=int, default=1000)
+    ap.add_argument("--official", action="store_true",
+                    help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
     args = ap.parse_args()
+    global OFFICIAL
+    OFFICIAL = args.official
     work = Path(args.work)
     geo = Path(args.geo) if args.geo else work / "geo_cur.geojson"
     gt_path = Path(args.gt) if args.gt else work / "gt_train_v2.geojson"
