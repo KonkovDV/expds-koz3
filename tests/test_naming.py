@@ -69,6 +69,26 @@ def test_site_named_like_noise_keeps_its_annotations(tmp_path):
     assert [p.name for p in r.boundaries] == [names[3]]
 
 
+def test_unknown_modality_and_unscored_class_are_not_read(tmp_path):
+    """Георадар в перечне задач есть, в классах ТР нет. structure.poly метрика не считает.
+
+    Оба файла остаются в skipped и не попадают ни в растры, ни в эталон.
+    """
+    from expds.catalog import scan_region
+
+    reg = tmp_path / "region_0007"
+    (reg / "02_снимки").mkdir(parents=True)
+    (reg / "02_снимки" / "георадар_воздух.tif").write_bytes(b"not-a-tiff")
+    (reg / "02_снимки" / "спутник.tif").write_bytes(b"x")
+    (reg / "06_разметка").mkdir()
+    (reg / "06_разметка" / "Участок_MagGr_StructurePoly.geojson").write_text(
+        '{"type": "FeatureCollection", "features": []}', encoding="utf-8")
+    r = scan_region(reg)
+    assert sorted(p.name for p in r.skipped) == ["Участок_MagGr_StructurePoly.geojson", "георадар_воздух.tif"]
+    assert list(r.rasters) == ["sp_or"]
+    assert r.annotations == []
+
+
 def test_site_family():
     assert site_family("209_Гнёздово_Терраса_1") == "Гнёздово"
     assert site_family("203_Семибратнее_Городище_3") == "Семибратнее"

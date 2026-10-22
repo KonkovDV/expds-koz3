@@ -151,6 +151,7 @@ def scan_region(path: Path) -> Region:
             elif mt:
                 reg.rasters.setdefault(mt, []).append(f)
             else:
+                # Модальности вне ТР (георадар и любое неузнанное имя) не открываются.
                 reg.skipped.append(f)
         elif suf in (".geojson", ".json"):
             # По последнему слову имени: «Шумгора_Li_курганы_целые» — разметка, а не маска шума.
@@ -164,6 +165,7 @@ def scan_region(path: Path) -> Region:
                 if cls and mt:
                     reg.annotations.append((f, cls, mt))
                 else:
+                    # structure.poly метрика не считает; файл без класса в эталон не входит.
                     reg.skipped.append(f)
         else:
             reg.skipped.append(f)

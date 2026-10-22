@@ -59,6 +59,41 @@ def test_matching_peaks_score_one_and_a_shift_does_not():
     assert (int(tp), int(fp), int(fn)) == (0, 1, 1)
 
 
+def test_log_parabola_pulls_the_circle_toward_the_gaussian_center():
+    from rasterio.transform import from_origin
+
+    from expds.centers import subpixel_offsets
+
+    yy, xx = np.mgrid[:24, :24]
+    heat = np.exp(-((yy - 7.35) ** 2 + (xx - 11.2) ** 2) / (2 * 1.2 ** 2)).astype(np.float32)
+    row, col = np.unravel_index(int(np.argmax(heat)), heat.shape)
+    dy, dx = subpixel_offsets(heat, np.array([row]), np.array([col]))
+    assert abs(row + float(dy[0]) - 7.35) < 0.02
+    assert abs(col + float(dx[0]) - 11.2) < 0.02
+    whole = centers_to_features(
+        heat[None], ["kurgany_povrezhdennye"], from_origin(0, 24, 1, 1), None, 1.0,
+        "region", "sp_or", "a.tif", radius_m=4.0, min_dist_m=8.0, low=0.2)
+    shifted = centers_to_features(
+        heat[None], ["kurgany_povrezhdennye"], from_origin(0, 24, 1, 1), None, 1.0,
+        "region", "sp_or", "a.tif", radius_m=4.0, min_dist_m=8.0, low=0.2, subpixel=True)
+    assert whole[0]["geom"].centroid.distance(shifted[0]["geom"].centroid) > 0.05
+    assert shifted[0]["confidence"] == pytest.approx(whole[0]["confidence"])
+
+
+def test_subpixel_shift_drops_the_weaker_peak_that_lands_inside_min_dist():
+    from rasterio.transform import from_origin
+
+    heat = np.zeros(32, np.float32)
+    yy = np.arange(32, dtype=np.float64)
+    heat += 0.9 * np.exp(-((yy - 2.45) ** 2) / (2 * 0.55 ** 2))
+    heat += 0.7 * np.exp(-((yy - 10.55) ** 2) / (2 * 0.55 ** 2))
+    both = centers_to_features(
+        heat.reshape(1, 1, 32), ["kurgany_povrezhdennye"], from_origin(0, 0, 1, 1), None, 1.0,
+        "region", "sp_or", "a.tif", radius_m=1.0, min_dist_m=8.4, low=0.2, subpixel=True)
+    assert len(both) == 1
+    assert both[0]["confidence"] == pytest.approx(float(heat.max()), abs=1e-5)
+
+
 def test_peak_becomes_a_circle_around_itself():
     from rasterio.transform import from_origin
 

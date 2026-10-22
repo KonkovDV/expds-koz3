@@ -38,6 +38,24 @@ from expds.pipeline import _li_with_model, _params, _raster_with_model, load_con
 log = logging.getLogger("nn_oof")
 
 
+def repeat_rows(rows: list[dict], regions: set[str], times: int, skip_families: set[str] | None = None) -> list[dict]:
+    """Повторяет тайлы выбранных участков. Семьи из skip_families остаются в одном экземпляре.
+
+    Повтор нужен, когда одна съёмка редка в кэше: эпоха видит её несколько раз,
+    а проверка по семье не раздувается. times=1 возвращает те же строки.
+    """
+    if times < 1:
+        raise ValueError(f"times={times}: нужно хотя бы один раз")
+    if times == 1 or not regions:
+        return list(rows)
+    skip = skip_families or set()
+    out = []
+    for row in rows:
+        copies = times if row.get("region") in regions and row.get("family") not in skip else 1
+        out.extend(dict(row) for _ in range(copies))
+    return out
+
+
 def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> None:
     """Кэш фолда: шарды — жёсткими ссылками (копией, если ссылки недоступны), индекс — свой."""
     dst.mkdir(parents=True, exist_ok=True)
@@ -99,6 +117,9 @@ def main() -> None:
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="префикс классов кэша: биты маски идут в этом порядке")
+    ap.add_argument("--repeat-regions", default=None,
+                    help="файл участков, чьи тайлы повторяются в обучении (семья проверки — нет)")
+    ap.add_argument("--repeat", type=int, default=1, help="сколько раз такой тайл входит в эпоху")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -106,6 +127,8 @@ def main() -> None:
     from expds.train import train
 
     cache, work = Path(args.cache), Path(args.work)
+    repeat_regions = ({ln.strip() for ln in Path(args.repeat_regions).read_text(encoding="utf-8").splitlines() if ln.strip()}
+                      if args.repeat_regions else set())
     with (cache / "index.csv").open(encoding="utf-8") as fh:
         rd = csv.DictReader(fh)
         fields, rows = list(rd.fieldnames or []), list(rd)
@@ -153,7 +176,12 @@ def main() -> None:
             if args.resume and done.exists() and model.exists():
                 res = json.loads(done.read_text(encoding="utf-8"))
             else:
-                fold_cache(cache, fc / "cache", [r for r in rows if r["family"] not in test], fields)
+                train_rows = [r for r in rows if r["family"] not in test]
+                if repeat_regions and args.repeat > 1:
+                    before = len(train_rows)
+                    train_rows = repeat_rows(train_rows, repeat_regions, args.repeat, skip_families={val})
+                    log.info("повтор участков: тайлов фолда %d → %d", before, len(train_rows))
+                fold_cache(cache, fc / "cache", train_rows, fields)
                 if args.classes:
                     meta_path = fc / "cache" / "meta.json"
                     meta = json.loads(meta_path.read_text(encoding="utf-8"))

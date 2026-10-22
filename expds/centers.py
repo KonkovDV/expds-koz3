@@ -133,15 +133,64 @@ def heatmap_counts(pred, target, radius: int):
     return tp, fp, fn
 
 
+def _log_parabola(left: float, mid: float, right: float) -> float:
+    """Шаг Ньютона по логарифму трёх отсчётов: μ = m − P'(m) / P''(m).
+
+    Это одномерный частный случай DARK (Zhang et al., CVPR 2020): логарифм
+    гауссианы квадратичен, и разложение Тейлора в целом пике возвращает её центр.
+    Положительный сдвиг — к большему индексу. Обрезка ±0,5 не даёт перескочить
+    на соседнюю клетку. Перекрёстная производная не считается: цели обучения
+    изотропны, у них она нулевая.
+    """
+    sample = np.array([left, mid, right], np.float64)
+    if not np.isfinite(sample).all():
+        return 0.0
+    vals = np.log(np.clip(sample, 1e-6, None))
+    denom = float(vals[0] - 2.0 * vals[1] + vals[2])
+    if abs(denom) < 1e-8:
+        return 0.0
+    return float(np.clip(0.5 * (vals[0] - vals[2]) / denom, -0.5, 0.5))
+
+
+def subpixel_offsets(heat: np.ndarray, rows: np.ndarray, cols: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Сдвиг каждого пика внутри своей клетки. На краю растра сдвиг по этой оси нулевой."""
+    height, width = heat.shape
+    dy = np.zeros(len(rows), np.float64)
+    dx = np.zeros(len(cols), np.float64)
+    for i, (row, col) in enumerate(zip(rows.astype(int), cols.astype(int))):
+        if 0 < row < height - 1:
+            dy[i] = _log_parabola(heat[row - 1, col], heat[row, col], heat[row + 1, col])
+        if 0 < col < width - 1:
+            dx[i] = _log_parabola(heat[row, col - 1], heat[row, col], heat[row, col + 1])
+    return dy, dx
+
+
+def _keep_min_distance(xs: np.ndarray, ys: np.ndarray, min_dist: float) -> np.ndarray:
+    """Оставляет пики не ближе min_dist. Вход уже отсортирован по убыванию уверенности."""
+    keep = np.ones(len(xs), dtype=bool)
+    if min_dist <= 0 or len(xs) < 2:
+        return keep
+    limit = float(min_dist) ** 2
+    chosen: list[tuple[float, float]] = []
+    for i, (x, y) in enumerate(zip(xs, ys)):
+        if any((float(x) - cx) ** 2 + (float(y) - cy) ** 2 < limit for cx, cy in chosen):
+            keep[i] = False
+        else:
+            chosen.append((float(x), float(y)))
+    return keep
+
+
 def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: str | None, res: float,
                         region: str, markup: str, source: str, radius_m: float = 6.0,
                         min_dist_m: float = 12.0, low: float = 0.05,
-                        min_conf: dict[str, float] | None = None) -> list[dict]:
+                        min_conf: dict[str, float] | None = None, subpixel: bool = False) -> list[dict]:
     """Пики карты центров → круги EPSG:3857. Уверенность — высота пика.
 
     radius_m меньше медианы насыпи на спутнике (~18 м), min_dist_m не даёт
     двум кругам слиться в один полигон. low низкий: отбор порогом делает
     подбор метрики, не этот шаг. Для OOF min_conf не задавать.
+    subpixel сдвигает круг внутри клетки по параболе логарифма. По умолчанию
+    выключен: пороги сдачи подобраны на целых пикселях.
     """
     from .raster import circle_3857, pixel_to_xy
 
@@ -153,7 +202,16 @@ def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: s
         rows, cols, vals = accel.find_peaks(p, max(1, int(round(min_dist_m / step))), floor)
         if rows.size == 0:
             continue
+        if subpixel:
+            dy, dx = subpixel_offsets(p, rows, cols)
+            rows = rows.astype(np.float64) + dy
+            cols = cols.astype(np.float64) + dx
         xs, ys = pixel_to_xy(transform, rows, cols)
+        if subpixel:
+            # Подавление в find_peaks шло по целым клеткам. Сдвиг может сблизить
+            # два пика ближе min_dist_m, и круги склеятся в один полигон.
+            keep = _keep_min_distance(xs, ys, min_dist_m)
+            xs, ys, vals = xs[keep], ys[keep], vals[keep]
         for x, y, v in zip(xs, ys, vals):
             geom = circle_3857(float(x), float(y), radius_m, crs)
             if geom.is_empty:
