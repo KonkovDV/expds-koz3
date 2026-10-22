@@ -1,0 +1,33 @@
+{
+  "source": "files/materials/public_val_structure/data_structure.md (организаторы). Имена участков сюда не переносятся.",
+  "regions": 48,
+  "modalities": {
+    "La": {"regions": 13, "files": 13, "median_mb": 23.7, "max_mb": 1433.6, "total_gb": 2.46,
+           "sizes_mb": [4.5, 5.1, 10.6, 11.7, 14.2, 21.8, 23.7, 28.4, 32.6, 119.6, 205.6, 605.0, 1433.6]},
+    "SpOr": {"regions": 30, "files": 31, "median_mb": 191.5, "max_mb": 549.7, "total_gb": 4.68,
+             "files_ge_150mb": 17, "files_lt_15mb": 13},
+    "Ae": {"regions": 4, "files": 4, "median_mb": 292.3, "max_mb": 356.3, "total_gb": 0.76,
+           "with_las": 1},
+    "Or": {"regions": 1, "files": 1, "size_gb": 2.70},
+    "MagGr": {"regions": 2, "files": 2, "noise_masks": 1},
+    "EtGr": {"regions": 1, "maps": 4, "map_depths_m": [0.75, 1.0, 1.25, 1.75], "profiles": 14},
+    "TerFl": {"regions": 1, "files": 1}
+  },
+  "train_for_comparison": {
+    "regions": 210,
+    "las": {"regions": 54, "median_mb": 157.0, "max_mb": 5763.7, "total_gb": 25.45},
+    "sp_or": {"regions": 132, "files": 175, "median_mb": 4.0, "max_mb": 1167.5, "total_gb": 5.03,
+              "regions_with_file_ge_150mb": 12},
+    "ae": {"regions": 32, "files": 36, "median_mb": 158.9, "total_gb": 6.91},
+    "or": {"regions": 3, "total_gb": 6.89, "gt_on_or": {"Фалхан arkhitektury": 53, "Елизаветинское gorodishcha": 2,
+                                                         "Изборск gorodishcha": 2, "Изборск fortifikatsii": 2}},
+    "maggr_regions": 13, "etgr_regions": 6, "etgr_profile_files": 50, "terfl_regions": 2
+  },
+  "conclusions": [
+    "Гипотеза H1 (сотни участков) для публичной выборки не подтвердилась: 48 участков. Для закрытой выборки не известно.",
+    "Спутник есть на 30 из 48 участков. Ветка без лидара весит на выборке больше, чем на трейне.",
+    "Крупных спутниковых сцен от 150 МБ в выборке 17, в трейне участков с такими сценами 12.",
+    "Ортофото 2,7 ГБ: модели or в конфиге нет, участок сейчас даёт 0 объектов.",
+    "Аэрофото: 4 участка, LAS только на одном, копии li→ae работают на одном."
+  ]
+}

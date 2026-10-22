@@ -33,7 +33,7 @@ inference/main.py      точка входа платформы; inference/lib/ 
 configs/default.toml   пороги, модели, параметры детекторов, бюджет времени
 scripts/               сборка Rust, сборка архива, замер видеокарты
 docker/Dockerfile      образ только с окружением (без кода и весов)
-tests/                 33 теста на синтетических данных
+tests/                 тесты на синтетических данных (98: 93 проходят, 5 пропускаются без EXPDS_METRIC или Rust)
 docs/                  декларация ИИ, лицензии, протокол данных, план по курганам на снимке (`PLAN.md`), решения по files/sklad (`SKLAD.md`)
 ```
 
@@ -51,7 +51,7 @@ Rust-ускоритель (необязателен, но в 5–20 раз бы�
 ```bash
 # один раз: установить Rust с https://rustup.rs (Windows: rustup-init.exe; нужен MSVC Build Tools)
 python scripts/build_rust.py dev       # собирает и ставит expds_core в .venv
-pytest -q                              # 33 passed (3 теста метрики — при заданном EXPDS_METRIC, 3 — при собранном Rust)
+pytest -q                              # 22.10: 93 passed, 5 skipped
 ```
 
 Проверить видеокарту: `python scripts/bench_gpu.py`. Скрипт печатает, сколько часов займёт обучение одной модели.

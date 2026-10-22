@@ -1,0 +1,25 @@
+{
+  "etgr_profiles": {
+    "formulation": "Детектор и пороги object_poly для EtGr из configs/default.toml, как в pipeline.geophys_feats. Официальная метрика, порог подобран на тех же участках (in-sample).",
+    "files": {"maps": 26, "profiles": 50},
+    "gt_etgr_object_poly": 112,
+    "all": {"objects": 403, "f1": 0.1705, "threshold": 0.101715, "kept": 315, "tp": 24},
+    "maps_only": {"objects": 178, "f1": 0.1167, "threshold": 0.1016, "kept": 142, "tp": 11},
+    "profiles_only": {"objects": 225, "f1": 0.1918, "threshold": 0.101715, "kept": 173, "tp": 20},
+    "scoreboard_file": "F:/expds3/work/geo_new.geojson от 20.10 08:33: 96 объектов EtGr, F1 0,1951, оставлено 88, TP 16. Текущий код даёт 403 объекта. Файл табло не совпадает с текущим кодом."
+  },
+  "dem_1m_timing_gtx1650_host": {
+    "note": "Второе чтение LAS для маски городищ (DEM 1 м, Делоне). i5-13600KF, 12 потоков, диск F:.",
+    "Верхмарево 1257 МБ": {"seconds": 14.7, "grid_s": 14.55, "fill_s": 0.17},
+    "Стеклянуха_1 609 МБ": {"seconds": 7.8, "grid_s": 7.66, "fill_s": 0.15},
+    "КЧР 201 МБ": {"seconds": 2.6, "grid_s": 2.53, "fill_s": 0.05}
+  },
+  "environment": {
+    "local_venv": {"torch": "2.11.0+cu128", "torchvision": "0.26.0+cu128", "segmentation_models_pytorch": "0.5.0",
+                   "timm": "1.0.30", "numpy": "2.5.4", "rasterio": "1.5.2", "shapely": "2.2.0", "laspy": "2.7.0",
+                   "lightgbm": "4.7.0", "scipy": "1.18.1", "pyproj": "3.8.0"},
+    "docker_Dockerfile": {"torch": "2.7.1 cu128", "others": "requirements.txt без верхних границ"},
+    "risk": "Пороги подобраны в локальном окружении. В образе другая версия torch и непрозрачные версии остальных пакетов."
+  },
+  "tests": "93 passed, 5 skipped (22.10.2026)"
+}
