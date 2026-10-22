@@ -52,14 +52,14 @@ fn version() -> String {
 /// Возвращает (dem float32 H×W, info: dict с left, top, res, width, height,
 /// factor, points_used, points_total, used_all, classes).
 #[pyfunction]
-#[pyo3(signature = (path, res=0.1, ground_class=2, max_pixels=60_000_000, use_all=false))]
+#[pyo3(signature = (path, res=0.1, ground_class=2, max_pixels=60_000_000, use_all=false, keep_prob=1.0))]
 fn las_grid<'py>(py: Python<'py>, path: String, res: f64, ground_class: u8, max_pixels: u64,
-                 use_all: bool) -> PyResult<(Bound<'py, PyArray2<f32>>, Bound<'py, PyDict>)> {
+                 use_all: bool, keep_prob: f64) -> PyResult<(Bound<'py, PyArray2<f32>>, Bound<'py, PyDict>)> {
     if res.is_nan() || res <= 0.0 {
         return Err(PyValueError::new_err("res должен быть > 0"));
     }
     let result = py
-        .detach(|| grid::las_grid(&path, res, ground_class, max_pixels, use_all))
+        .detach(|| grid::las_grid(&path, res, ground_class, max_pixels, use_all, keep_prob))
         .map_err(|e| PyIOError::new_err(format!("{path}: {e}")))?;
     let s = result.spec;
     let dem = Array2::from_shape_vec((s.height, s.width), result.dem)

@@ -42,6 +42,17 @@ def test_mosaic_matches_full_dem_averaged_to_half_metre(tmp_path):
     assert info["used_all"] and np.isfinite(dem).any()
 
 
+def test_full_cloud_matches_keep_one_and_thinning_drops_points(tmp_path):
+    las = write_las(tmp_path / "thin.las", n=20_000)
+    full, info = accel.las_grid(las, 0.5)
+    same, info_same = accel.las_grid(las, 0.5, keep_prob=1.0)
+    thin, info_thin = accel.las_grid(las, 0.5, keep_prob=0.4)
+    assert np.array_equal(np.nan_to_num(full, nan=-1), np.nan_to_num(same, nan=-1))
+    assert info["points_used"] == info_same["points_used"]
+    assert 0 < info_thin["points_used"] < info["points_used"]
+    assert np.isfinite(thin).any()
+
+
 def test_dem_and_hillshades(tmp_path):
     las = write_las(tmp_path / "c.las")
     d = build_dem(las, res=0.1)

@@ -55,7 +55,7 @@ def grid_spec(min_x: float, min_y: float, max_x: float, max_y: float,
 
 
 def _las_grid_numpy(path: str, res: float, ground_class: int, max_pixels: int,
-                    use_all: bool) -> tuple[np.ndarray, dict]:
+                    use_all: bool, keep_prob: float = 1.0) -> tuple[np.ndarray, dict]:
     import laspy
 
     with laspy.open(path) as f:
@@ -81,6 +81,13 @@ def _las_grid_numpy(path: str, res: float, ground_class: int, max_pixels: int,
                 x = np.asarray(pts.x, np.float64)[m]
                 y = np.asarray(pts.y, np.float64)[m]
                 z = np.asarray(pts.z, np.float64)[m]
+                if keep_prob < 1.0:
+                    keep = np.fromiter(
+                        (_keep_xyz(float(a), float(b), float(c), keep_prob) for a, b, c in zip(x, y, z)),
+                        dtype=bool, count=x.size)
+                    x, y, z = x[keep], y[keep], z[keep]
+                    if x.size == 0:
+                        continue
                 col = np.floor((x - spec["left"]) / spec["res"])
                 row = np.floor((spec["top"] - y) / spec["res"])
                 ok = (col >= 0) & (row >= 0) & (col < spec["width"]) & (row < spec["height"])
@@ -93,7 +100,7 @@ def _las_grid_numpy(path: str, res: float, ground_class: int, max_pixels: int,
     hist: dict = {}
     sums, counts, used = accumulate(use_all, hist)
     used_all = use_all
-    if used == 0 and not use_all:
+    if used == 0 and not use_all and keep_prob >= 1.0:
         sums, counts, used = accumulate(True, None)
         used_all = True
     dem = np.where(counts > 0, sums / np.maximum(counts, 1), np.nan)
@@ -102,15 +109,36 @@ def _las_grid_numpy(path: str, res: float, ground_class: int, max_pixels: int,
     return dem, info
 
 
+def _keep_xyz(x: float, y: float, z: float, keep_prob: float) -> bool:
+    """Запасной путь без Rust. Доля стабильна между запусками, с Rust не обязана совпасть."""
+    if keep_prob >= 1.0:
+        return True
+    if keep_prob <= 0.0:
+        return False
+    import struct
+    raw = struct.pack("<ddd", float(x), float(y), float(z))
+    h = 0x9E3779B97F4A7C15
+    for byte in raw:
+        h = (h ^ byte) * 0x100000001B3 & 0xFFFFFFFFFFFFFFFF
+    return (h >> 11) / float(1 << 53) < keep_prob
+
+
 def las_grid(path: str | Path, res: float = 0.1, ground_class: int = 2,
-             max_pixels: int = 60_000_000, use_all: bool = False) -> tuple[np.ndarray, dict]:
-    """LAS/LAZ → DEM float32 (NaN в пустых ячейках) и словарь параметров сетки."""
+             max_pixels: int = 60_000_000, use_all: bool = False,
+             keep_prob: float = 1.0) -> tuple[np.ndarray, dict]:
+    """LAS/LAZ → DEM float32 (NaN в пустых ячейках) и словарь параметров сетки.
+
+    keep_prob < 1 оставляет эту долю точек земли. 1 — сетка как раньше.
+    """
     if _rs is not None:
         try:
+            # keep_prob=1 — прежняя сигнатура: старый .so на платформе её принимает.
+            if keep_prob < 1.0:
+                return _rs.las_grid(str(path), res, ground_class, max_pixels, use_all, keep_prob)
             return _rs.las_grid(str(path), res, ground_class, max_pixels, use_all)
         except Exception as exc:  # редкие варианты LAS: читаем через laspy
             log.warning("Rust не прочитал %s (%s), перехожу на laspy", path, exc)
-    return _las_grid_numpy(str(path), res, ground_class, max_pixels, use_all)
+    return _las_grid_numpy(str(path), res, ground_class, max_pixels, use_all, keep_prob)
 
 
 # ───────────────────────────── заполнение ─────────────────────────────

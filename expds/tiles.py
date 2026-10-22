@@ -177,7 +177,13 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
 
         dem = dem or MODEL_DEM
         for las in reg.las:
-            d = build_dem(las, res=dem["res"], fill=dem["fill"], crs=read_utm_json(reg.utm_json))
+            keep = float(dem.get("keep_prob", 1.0))
+            if dem.get("thin"):
+                from .lidar import thin_keep
+                keep = thin_keep(las.name, int(dem.get("thin_seed", 0)))
+                log.info("прореживание %s: оставляю %.3f точек земли", las.name, keep)
+            d = build_dem(las, res=dem["res"], fill=dem["fill"], crs=read_utm_json(reg.utm_json),
+                          keep_prob=keep)
             if d.crs is None:
                 log.warning("%s: нет CRS у %s — пропуск", reg.name, las.name)
                 continue
@@ -348,6 +354,8 @@ def _cli() -> None:
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
     ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
+    ap.add_argument("--thin", action="store_true",
+                    help="в половине облаков оставить 25–100 %% точек земли до сетки")
     ap.add_argument("--classes", nargs="*", default=None, help="учить только эти классы")
     ap.add_argument("--pos-repeat", type=int, default=1, help="тайлов на объект (разные сдвиги)")
     ap.add_argument("--regions", nargs="*", default=None, help="только эти участки")
@@ -355,7 +363,8 @@ def _cli() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
 
-    dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"]}
+    dem = {"res": args.dem_res or MODEL_DEM["res"], "fill": args.dem_fill or MODEL_DEM["fill"],
+           "thin": args.thin}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
                        shrink=args.shrink, dem=dem, only_classes=args.classes, pos_repeat=args.pos_repeat,

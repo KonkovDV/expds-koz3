@@ -103,7 +103,20 @@ pub struct GridResult {
     pub used_all: bool,
 }
 
-fn accumulate(path: &str, spec: GridSpec, ground_class: u8, use_all: bool,
+/// Доля точек, которые остаются в сетке. 1 — все. Хеш координат, без генератора.
+fn keep_xyz(x: f64, y: f64, z: f64, keep_prob: f64) -> bool {
+    if keep_prob >= 1.0 {
+        return true;
+    }
+    if keep_prob <= 0.0 {
+        return false;
+    }
+    let h = x.to_bits() ^ y.to_bits().rotate_left(21) ^ z.to_bits().rotate_left(42);
+    let unit = (h.wrapping_mul(0x9E3779B97F4A7C15) >> 11) as f64 / (1u64 << 53) as f64;
+    unit < keep_prob
+}
+
+fn accumulate(path: &str, spec: GridSpec, ground_class: u8, use_all: bool, keep_prob: f64,
               histogram: &mut Option<[u64; 256]>, batch: u64) -> Result<(Accumulator, u64), las::Error> {
     let mut reader = Reader::from_path(path)?;
     let mut acc = Accumulator::new(spec);
@@ -119,7 +132,7 @@ fn accumulate(path: &str, spec: GridSpec, ground_class: u8, use_all: bool,
             if let Some(h) = histogram.as_mut() {
                 h[c as usize] += 1;
             }
-            if use_all || c == ground_class {
+            if (use_all || c == ground_class) && keep_xyz(x, y, z, keep_prob) {
                 acc.add(x, y, z);
             }
         }
@@ -180,7 +193,7 @@ fn read_full<R: Read>(r: &mut R, buf: &mut [u8]) -> std::io::Result<usize> {
 /// Как `accumulate`, но по сырым записям: координаты и ячейки считаются параллельно,
 /// суммы копятся в исходном порядке точек (тот же результат, что у последовательного кода).
 fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8, use_all: bool,
-                  histogram: &mut Option<[u64; 256]>) -> std::io::Result<(Accumulator, u64)> {
+                  keep_prob: f64, histogram: &mut Option<[u64; 256]>) -> std::io::Result<(Accumulator, u64)> {
     let rec = hdr.record_len;
     let (cls_off, cls_mask) = if hdr.format <= 5 { (15usize, 0x1Fu8) } else { (16usize, 0xFFu8) };
     if rec <= cls_off {
@@ -224,12 +237,16 @@ fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8,
                 }
                 let x = coord(r, 0) * sx + ox;
                 let y = coord(r, 4) * sy + oy;
+                let z = coord(r, 8) * sz + oz;
+                if !keep_xyz(x, y, z, keep_prob) {
+                    return None;
+                }
                 let col = ((x - s.left) / s.res).floor();
                 let row = ((s.top - y) / s.res).floor();
                 if col < 0.0 || row < 0.0 || col as usize >= s.width || row as usize >= s.height {
                     return None;
                 }
-                Some((row as usize * s.width + col as usize, coord(r, 8) * sz + oz))
+                Some((row as usize * s.width + col as usize, z))
             })
             .collect();
         // Стабильная сортировка по номеру ячейки: внутри ячейки точки остаются
@@ -253,7 +270,8 @@ fn accumulate_raw(path: &str, hdr: &RawHeader, spec: GridSpec, ground_class: u8,
 /// Читает LAS/LAZ потоково и строит DEM (средняя высота точек земли).
 ///
 /// Несжатый LAS читается по сырым записям параллельно; LAZ — через крейт `las`.
-pub fn las_grid(path: &str, res: f64, ground_class: u8, max_pixels: u64, use_all: bool) -> Result<GridResult, String> {
+pub fn las_grid(path: &str, res: f64, ground_class: u8, max_pixels: u64, use_all: bool,
+                keep_prob: f64) -> Result<GridResult, String> {
     let raw = raw_header(path).map_err(|e| e.to_string())?;
     let bounds = match &raw {
         Some(h) => h.bounds,
@@ -267,14 +285,14 @@ pub fn las_grid(path: &str, res: f64, ground_class: u8, max_pixels: u64, use_all
     let batch = 2_000_000u64;
     let run = |all: bool, hist: &mut Option<[u64; 256]>| -> Result<(Accumulator, u64), String> {
         match &raw {
-            Some(h) => accumulate_raw(path, h, spec, ground_class, all, hist).map_err(|e| e.to_string()),
-            None => accumulate(path, spec, ground_class, all, hist, batch).map_err(|e| e.to_string()),
+            Some(h) => accumulate_raw(path, h, spec, ground_class, all, keep_prob, hist).map_err(|e| e.to_string()),
+            None => accumulate(path, spec, ground_class, all, keep_prob, hist, batch).map_err(|e| e.to_string()),
         }
     };
     let mut hist: Option<[u64; 256]> = Some([0u64; 256]);
     let (mut acc, total) = run(use_all, &mut hist)?;
     let mut used_all = use_all;
-    if acc.used == 0 && !use_all {
+    if acc.used == 0 && !use_all && keep_prob >= 1.0 {
         // В файле нет точек земли: берём все точки (как бейзлайн).
         let mut none: Option<[u64; 256]> = None;
         acc = run(true, &mut none)?.0;

@@ -15,6 +15,7 @@ import argparse
 import json
 import logging
 import os
+import random
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -125,12 +126,24 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
     return filled.astype(np.float32)
 
 
+def thin_keep(name: str, seed: int = 0) -> float:
+    """С вероятностью 0,5 оставить 25–100 % точек земли, иначе все.
+
+    Доля зависит только от имени файла и зерна, чтобы кэш повторялся.
+    На инференсе не вызывается: там облако читается целиком.
+    """
+    rng = random.Random(f"{seed}:{name}")
+    if rng.random() >= 0.5:
+        return 1.0
+    return rng.uniform(0.25, 1.0)
+
+
 def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
               max_pixels: int = DEFAULTS["max_pixels"], ground_class: int = DEFAULTS["ground_class"],
-              crs: str | None = None, fill: str = "delaunay") -> Dem:
+              crs: str | None = None, fill: str = "delaunay", keep_prob: float = 1.0) -> Dem:
     """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill)."""
     t0 = time.perf_counter()
-    dem, info = accel.las_grid(las_path, res, ground_class, max_pixels)
+    dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
     t1 = time.perf_counter()
     holes = int(np.count_nonzero(~np.isfinite(dem)))
     dem = fill_interior_holes(dem, method=fill)
