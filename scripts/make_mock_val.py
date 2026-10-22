@@ -29,8 +29,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from expds.catalog import scan_root  # noqa: E402
-from expds.naming import markup_type_of  # noqa: E402
+from expds.catalog import scan_root
+from expds.naming import markup_type_of
 
 CODE_TO_MARKUP = {"La": "li", "SpOr": "sp_or", "Ae": "ae", "Or": "or", "MagGr": "maggr", "EtGr": "etgr",
                   "TerFl": "terfl"}

@@ -4,6 +4,8 @@
 markup_type, source (файл разметки). Пересекающиеся объекты одного класса
 из РАЗНЫХ файлов одного markup_type объединяются (правило организаторов для
 выхода; так же, вероятно, собран эталон валидации — флаг --no-merge отключает).
+Исключение — EtGr: по письму организаторов от 20.10 каждый срез и профиль —
+отдельный эталон, как и в post.merge_within_markup.
 
 Статистика отвечает на вопрос «куда вкладываться»: число объектов по
 классам и модальностям и доля объектов, размеченных в двух модальностях.
@@ -109,6 +111,10 @@ def read_annotation(path: Path, cls: str, markup_type: str, region: Region,
 
 
 
+#: Слои, объекты которых из разных файлов не объединяются (срезы и профили электроразведки).
+UNMERGED_MARKUP = frozenset({"etgr"})
+
+
 def merge_across_sources(items: list[dict]) -> tuple[list[dict], int]:
     """Объединяет пересекающиеся полигоны из разных источников (файлов/снимков).
 
@@ -163,7 +169,7 @@ def build_gt(regions: list[Region], merge: bool = True,
             for item in read_annotation(path, cls, mt, reg, report):
                 groups[(mt, cls)].append(item)
         for (mt, _), items in groups.items():
-            if merge:
+            if merge and mt not in UNMERGED_MARKUP:
                 items, m = merge_across_sources(items)
                 merges_total += m
                 merges_by_mt[mt] += m

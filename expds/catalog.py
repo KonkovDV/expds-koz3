@@ -153,9 +153,11 @@ def scan_region(path: Path) -> Region:
             else:
                 reg.skipped.append(f)
         elif suf in (".geojson", ".json"):
-            if "границ" in low:
+            # По последнему слову имени: «Шумгора_Li_курганы_целые» — разметка, а не маска шума.
+            last = low.rsplit(".", 1)[0].split("_")[-1]
+            if last.startswith("границ"):
                 reg.boundaries.append(f)
-            elif "шум" in low:
+            elif last == "шум":
                 reg.noise.append(f)
             else:
                 cls, mt = class_of_annotation(f), markup_type_of(f)

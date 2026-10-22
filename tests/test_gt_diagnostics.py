@@ -90,6 +90,23 @@ def test_gt_diagnostics(tmp_path):
     assert "Тест_Li" not in share and "001_Тест" not in share                  # обезличено
 
 
+def test_etgr_layers_stay_separate_and_other_layers_merge(tmp_path):
+    site = tmp_path / "train" / "001_Тест_Геофизика"
+    ann = site / "06_Тест_Геофизика_разметка"
+    ann.mkdir(parents=True)
+    (site / "UTM.json").write_text(json.dumps({"utm": "36N"}), encoding="utf-8")
+    for name, dx in (("EtGr_карта_01_0.5", 0.0), ("EtGr_профиль_01", 0.5),
+                     ("MagGr_серый", 0.0), ("MagGr_цвет", 0.5)):
+        fc = _fc([_poly(_ring(427_435.0 + dx, 6_070_922.0, 2.0))], crs="urn:ogc:def:crs:EPSG::32636")
+        (ann / f"Тест_Геофизика_{name}_ObjectPoly.geojson").write_text(json.dumps(fc), encoding="utf-8")
+    items, info = build_gt(scan_root(tmp_path / "train"))
+    by = {}
+    for it in items:
+        by[it["markup_type"]] = by.get(it["markup_type"], 0) + 1
+    assert by == {"etgr": 2, "maggr": 1}
+    assert info["merges_by_markup_type"].get("etgr", 0) == 0
+
+
 def test_phase_shift_detects_georeference_offset():
     from expds.lidar import phase_shift
     rng = np.random.default_rng(0)

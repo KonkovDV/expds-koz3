@@ -32,6 +32,7 @@ class GeoParams:
     peak_k: float = 4.0             # порог пика, в MAD
     point_circle_m: float = 0.3
     poly_k: float = 2.5             # порог области, в MAD
+    poly_k_low: float | None = None  # гистерезис: граница области до этого порога, если внутри есть poly_k
     smooth_m: float = 0.5
     min_area_m2: float = 0.3
     max_area_m2: float = 60.0
@@ -99,7 +100,17 @@ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     from scipy.ndimage import label as cc_label
 
     sm = accel.box_mean(np.abs(hp).astype(np.float32), max(1, round(p.smooth_m / res)))
-    lab, n = cc_label(np.isfinite(sm) & (sm >= p.poly_k))
+    finite = np.isfinite(sm)
+    if p.poly_k_low is not None and p.poly_k_low < p.poly_k:
+        lab, n = cc_label(finite & (sm >= p.poly_k_low))
+        if n == 0:
+            return []
+        strong = np.zeros(n + 1, bool)
+        strong[np.unique(lab[finite & (sm >= p.poly_k)])] = True
+        strong[0] = False
+        lab, n = cc_label(strong[lab])
+    else:
+        lab, n = cc_label(finite & (sm >= p.poly_k))
     if n == 0:
         return []
     sizes = np.bincount(lab.ravel()) * res * res

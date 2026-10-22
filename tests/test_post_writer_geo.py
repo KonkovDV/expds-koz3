@@ -127,6 +127,25 @@ def test_geophys_rasters_params_and_masks():
     assert [f["geom"].bounds[0] for f in kept] == [0]
 
 
+def test_polys_hysteresis_grows_cores_and_drops_weak_blobs():
+    from rasterio.transform import from_origin
+
+    hp = np.zeros((60, 60), np.float32)
+    hp[10:30, 10:30] = 1.5          # слабая кайма вокруг ядра
+    hp[17:23, 17:23] = 4.0          # сильное ядро
+    hp[40:55, 40:55] = 1.5          # слабое пятно без ядра
+    tr = from_origin(500_000.0, 6_100_030.0, 0.5, 0.5)
+    base = geophys.GeoParams(poly_k=2.5, smooth_m=0.5, min_area_m2=0.5, max_area_m2=1000.0)
+    plain = geophys.polys_from(hp, tr, UTM, 0.5, "r", "maggr", "a", base)
+    hyst = geophys.polys_from(hp, tr, UTM, 0.5, "r", "maggr", "a",
+                              geophys.GeoParams(**{**base.__dict__, "poly_k_low": 1.0}))
+    area = [to_crs(f["geom"], WEB_MERCATOR, UTM).area for f in plain]
+    area_h = [to_crs(f["geom"], WEB_MERCATOR, UTM).area for f in hyst]
+    assert len(plain) == 1 and len(hyst) == 1
+    assert area_h[0] > 5 * area[0]
+    assert geophys.GeoParams().poly_k_low is None
+
+
 def test_geophys_points_and_polys(tmp_path):
     path, pts = write_mag_tif(tmp_path / "m.tif")
     found = geophys.finds_points(path, "r", "maggr")

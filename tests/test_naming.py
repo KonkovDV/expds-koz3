@@ -53,6 +53,22 @@ def test_scan_region_finds_boundaries_and_noise(tmp_path):
     assert not r.skipped
 
 
+def test_site_named_like_noise_keeps_its_annotations(tmp_path):
+    from expds.catalog import scan_region
+
+    reg = tmp_path / "035_Шумгора"
+    ann = reg / "06_Шумгора_разметка"
+    ann.mkdir(parents=True)
+    names = ("Шумгора_Li_курганы_целые.geojson", "Шумгора_SpOr_городища.geojson",
+             "Гнёздово_Терраса_3_MagGr_цвет_2_шум.geojson", "Шумгора_EtGr_карта_01_0.2_границы.geojson")
+    for name in names:
+        (ann / name).write_text('{"type": "FeatureCollection", "features": []}', encoding="utf-8")
+    r = scan_region(reg)
+    assert sorted(p.name for p, _, _ in r.annotations) == sorted(names[:2])
+    assert [p.name for p in r.noise] == [names[2]]
+    assert [p.name for p in r.boundaries] == [names[3]]
+
+
 def test_site_family():
     assert site_family("209_Гнёздово_Терраса_1") == "Гнёздово"
     assert site_family("203_Семибратнее_Городище_3") == "Семибратнее"
