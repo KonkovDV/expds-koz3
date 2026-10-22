@@ -293,6 +293,10 @@ def test_inference_stays_fp32_unless_asked():
     assert inference_amp(torch.device("cpu")) is False
     assert torch.backends.cudnn.deterministic is True
     assert torch.backends.cuda.matmul.allow_tf32 is False
+    assert torch.backends.cudnn.allow_tf32 is False
+    conv = getattr(torch.backends.cudnn, "conv", None)
+    if conv is not None and hasattr(conv, "fp32_precision"):
+        assert conv.fp32_precision == "ieee"
 
 
 def test_coarse_lidar_box_is_tagged_and_a_fine_one_is_not():

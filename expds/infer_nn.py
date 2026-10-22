@@ -34,6 +34,10 @@ def configure_runtime(amp: bool = False, tf32: bool = False, deterministic: bool
     _RUNTIME["deterministic"] = bool(deterministic)
     torch.backends.cuda.matmul.allow_tf32 = bool(tf32)
     torch.backends.cudnn.allow_tf32 = bool(tf32)
+    # torch ≥ 2.9: после allow_tf32 = False свёртки остаются в "none" (наследование), не в "ieee"
+    conv = getattr(torch.backends.cudnn, "conv", None)
+    if conv is not None and hasattr(conv, "fp32_precision"):
+        conv.fp32_precision = "tf32" if tf32 else "ieee"
     torch.backends.cudnn.benchmark = not deterministic
     torch.backends.cudnn.deterministic = bool(deterministic)
     log.info("amp=%s tf32=%s deterministic=%s", _RUNTIME["amp"], _RUNTIME["tf32"], _RUNTIME["deterministic"])
