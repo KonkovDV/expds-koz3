@@ -1,0 +1,228 @@
+diff --git a/expds/fusion.py b/expds/fusion.py
+index 136facf..329d5fb 100644
+--- a/expds/fusion.py
++++ b/expds/fusion.py
+@@ -24,6 +24,11 @@ from .crs import WEB_MERCATOR, transformer
+ 
+ POVR, TSEL = "kurgany_povrezhdennye", "kurgany_tselye"
+ 
++#: Группа порога копии по группе исходного кургана лидара. Так копии подписаны в табло 0,353793:
++#: копии мелкой сетки — без своей группы, то есть ae (0,99053 / 0,802255); копии мозаики — li_ae
++#: (scripts/scoreboard.py, mosaic_kurgans). Копий грубой сетки в табло не было; li_ae — строгий порог.
++COPY_GROUP = {None: "ae", "": "ae", "li_mosaic": "li_ae", "li_coarse": "li_ae"}
++
+ 
+ @dataclass
+ class FusionParams:
+@@ -69,9 +74,9 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
+     p = p or FusionParams()
+     groups: dict[tuple, dict] = {}
+     for f in feats:
+-        # li_coarse — те же вероятности нейросети, только порог выдачи другой. Запасной
++        # li_coarse и li_mosaic — те же вероятности нейросети, только порог выдачи другой. Запасной
+         # детектор (li_cpu) и уже скопированные объекты не копируются.
+-        if (f.get("markup_type") != "li" or f.get("threshold_group") not in (None, "", "li_coarse")
++        if (f.get("markup_type") != "li" or f.get("threshold_group") not in COPY_GROUP
+                 or f["class_name"] not in (POVR, TSEL)):
+             continue
+         c = f["geom"].centroid
+@@ -88,11 +93,12 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
+         pp = g[POVR]["confidence"] if POVR in g else 0.0
+         pt = g[TSEL]["confidence"] if TSEL in g else 0.0
+         base = next(iter(g.values()))
++        group = COPY_GROUP[base.get("threshold_group")]
+         if pp >= p.povr_min:
+-            out.append(dict(base, class_name=POVR, confidence=float(pp), markup_type="ae", threshold_group="li_ae"))
++            out.append(dict(base, class_name=POVR, confidence=float(pp), markup_type="ae", threshold_group=group))
+         if pp + pt >= p.tselye_min:
+             out.append(dict(base, class_name=TSEL, confidence=float(min(pp + pt, 1.0)), markup_type="ae",
+-                            threshold_group="li_ae"))
++                            threshold_group=group))
+     return out
+ 
+ 
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 82794b3..a61f9bc 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -351,15 +351,16 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
+         except Exception:
+             log.exception("%s: запасной детектор упал", las.name)
+ 
++    # Группа мозаики ставится до копий: копия мозаики — li_ae, копия мелкой сетки — ae, как в табло.
++    for f in mosaic_kurgans:
++        if f.get("markup_type") == "li" and not f.get("threshold_group"):
++            f["threshold_group"] = "li_mosaic"
+     fp = _params(fusion.FusionParams, cfg.get("fusion"))
+     if fp.li_to_ae and reg.rasters.get("ae"):
+         try:
+             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
+         except Exception as exc:
+             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+-    for f in mosaic_kurgans:
+-        if f.get("markup_type") == "li" and not f.get("threshold_group"):
+-            f["threshold_group"] = "li_mosaic"
+     return _with_copies(feats, reg, cfg)
+ 
+ 
+diff --git a/scripts/check_groups.py b/scripts/check_groups.py
+new file mode 100644
+index 0000000..25e6e00
+--- /dev/null
++++ b/scripts/check_groups.py
+@@ -0,0 +1,64 @@
++#!/usr/bin/env python3
++"""Состав файла предсказаний по слою, группе порога и классу.
++
++Сверка табло и сдачи: группа объекта — threshold_group, иначе markup_type (post.apply_thresholds).
++Копии курганов лидара в слой ae должны быть в той же группе, что в табло 0,353793:
++копии мелкой сетки — ae, копии мозаики — li_ae (expds/fusion.py, COPY_GROUP).
++
++    python scripts/check_groups.py F:/expds3/work/fusion/li_hard2_fused.geojson
++    python scripts/check_groups.py out/result.geojson --config configs/default.toml
++
++С --config печатается порог, который сдача применит к каждой группе, и сколько объектов он оставит.
++"""
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++import tomllib
++from collections import Counter
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT))
++
++KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
++
++
++def group_of(props: dict) -> str:
++    return props.get("threshold_group") or props.get("markup_type") or "нет"
++
++
++def main() -> None:
++    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++    ap.add_argument("path")
++    ap.add_argument("--config", default=None, help="configs/default.toml: показать порог группы и сколько он оставит")
++    args = ap.parse_args()
++    with Path(args.path).open(encoding="utf-8") as f:
++        feats = json.load(f)["features"]
++    cfg = tomllib.loads(Path(args.config).read_text(encoding="utf-8")) if args.config else None
++    rows: Counter = Counter()
++    kept: Counter = Counter()
++    for feat in feats:
++        p = feat.get("properties") or {}
++        key = (p.get("markup_type") or "нет", p.get("threshold_group") or "", p.get("class_name"))
++        rows[key] += 1
++        if cfg is not None:
++            own = cfg.get("thresholds_by_markup", {}).get(group_of(p), {})
++            tau = own.get(p.get("class_name"), cfg.get("thresholds", {}).get(p.get("class_name"),
++                                                                              cfg.get("default_threshold", 0.15)))
++            if float(p.get("confidence", 1.0)) >= float(tau):
++                kept[key] += 1
++    print(f"{'markup_type':10s} {'threshold_group':16s} {'класс':24s} {'объектов':>9s}" + ("  после порога" if cfg else ""))
++    for key in sorted(rows):
++        line = f"{key[0]:10s} {key[1] or '—':16s} {key[2]:24s} {rows[key]:9d}"
++        print(line + (f"  {kept[key]:13d}" if cfg else ""))
++    copies = {k: v for k, v in rows.items() if k[0] == "ae" and k[2] in KUR}
++    if copies:
++        groups = sorted({k[1] or "— (группа = ae)" for k in copies})
++        print("\nкурганы слоя ae (копии лидара) лежат в группах:", ", ".join(groups))
++        print("в табло 0,353793 копии мелкой сетки — группа ae (0,99053 / 0,802255), копии мозаики — li_ae")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/scoreboard.py b/scripts/scoreboard.py
+index ce9d9e8..152942e 100644
+--- a/scripts/scoreboard.py
++++ b/scripts/scoreboard.py
+@@ -100,14 +100,16 @@ def satellite_centers(fc: dict) -> list[dict]:
+     return out
+ 
+ 
+-def build_stack(work: Path, train: Path, geo: Path, gt_path: Path | None = None):
++def build_stack(work: Path, train: Path, geo: Path, gt_path: Path | None = None,
++                fused_path: Path | None = None, mosaic_dir: Path | None = None):
++    """fused_path и mosaic_dir заменяют лидар целиком: другая модель li сравнивается заменой, а не второй группой."""
+     from expds.coarse import las_boxes, tag
+ 
+     gt = load(gt_path or work / "gt_train.geojson")
+     boxes = las_boxes(train)
+-    fused = load(work / "fusion" / "li_hard2_fused.geojson")
++    fused = load(fused_path or work / "fusion" / "li_hard2_fused.geojson")
+     tag(fused, boxes)
+-    names, mosaic = mosaic_kurgans(work / "mosaic_li")
++    names, mosaic = mosaic_kurgans(mosaic_dir or work / "mosaic_li")
+     if len(names) < 24:
+         raise SystemExit(f"мозаика не на всех 24 грубых облаках: {len(names)}")
+     extra = (load(work / "spor_gor_oof.geojson")["features"] + load(geo)["features"]
+@@ -184,6 +186,9 @@ def main() -> None:
+     ap.add_argument("--add", action="append", default=[], help="путь:группа[:класс[:слой]]")
+     ap.add_argument("--replace", action="append", default=[],
+                     help="группа=путь: убрать объекты группы и добавить файл; своя группа объекта сохраняется")
++    ap.add_argument("--fused", default=None,
++                    help="другой лидар со слиянием в аэрофото вместо fusion/li_hard2_fused.geojson (опыт, не база)")
++    ap.add_argument("--mosaic-dir", default=None, help="курганы мозаики этого лидара вместо <work>/mosaic_li")
+     ap.add_argument("--bootstrap", type=int, default=1000)
+     ap.add_argument("--official", action="store_true",
+                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
+@@ -200,12 +205,20 @@ def main() -> None:
+     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
+     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
+         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
+-    if not args.add and not args.replace:
++    swap_li = bool(args.fused or args.mosaic_dir)
++    if not args.add and not args.replace and not swap_li:
+         if args.out:
+             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b}, ensure_ascii=False, indent=2),
+                                       encoding="utf-8")
+         return
+     mixed = list(feats)
++    if swap_li:
++        # Опыт с другим лидаром: стек собирается заново из его файлов, база остаётся прежней.
++        mixed, _, _, _ = build_stack(work, Path(args.train), geo, gt_path,
++                                     Path(args.fused) if args.fused else None,
++                                     Path(args.mosaic_dir) if args.mosaic_dir else None)
++        for spec in args.base_add:
++            mixed += added(spec)
+     for spec in args.replace:
+         group, path = spec.split("=", 1)
+         mixed = [f for f in mixed if (f.get("properties") or {}).get("threshold_group") != group]
+diff --git a/tests/test_fusion.py b/tests/test_fusion.py
+index 6089112..899ac18 100644
+--- a/tests/test_fusion.py
++++ b/tests/test_fusion.py
+@@ -37,8 +37,28 @@ def test_copies_follow_gates_coverage_and_class_shift(tmp_path):
+     got = sorted((f["class_name"], round(f["confidence"], 3)) for f in out)
+     assert got == [(fusion.POVR, 0.995), (fusion.POVR, 0.996),
+                    (fusion.TSEL, 0.9), (fusion.TSEL, 0.998), (fusion.TSEL, 0.999)]
+-    assert all(f["markup_type"] == "ae" and f["threshold_group"] == "li_ae" for f in out)
+-    kept = post.apply_thresholds(feats + out, {}, 0.15, {"li_ae": {fusion.POVR: 0.0, fusion.TSEL: 0.0}})
++    assert all(f["markup_type"] == "ae" for f in out)
++    # Копии мелкой сетки — группа ae, копия грубой сетки — li_ae, как в табло 0,353793.
++    assert sorted(f["threshold_group"] for f in out) == ["ae", "ae", "ae", "li_ae", "li_ae"]
++    zero = {fusion.POVR: 0.0, fusion.TSEL: 0.0}
++    kept = post.apply_thresholds(feats + out, {}, 0.15, {"ae": zero, "li_ae": zero})
+     assert sum(f["markup_type"] == "ae" for f in kept) == 5
+     assert len(post.merge_within_markup(kept)) == len(kept)   # слои не схлопываются друг с другом
+     assert fusion.li_to_ae(feats, [], fusion.FusionParams()) == []
++
++
++def test_mosaic_copies_keep_their_own_group(tmp_path):
++    """Копия кургана мозаики — группа li_ae, копия мелкой сетки — ae. Без этого целые копии
++    мелкой сетки уходили под порог li_ae 1,000001 и выпадали все."""
++    ae = write_ae(tmp_path / "ae.tif")
++    feats = (kurgan(X0 + 20, Y0 + 50, 0.995, 0.004)
++             + kurgan(X0 + 35, Y0 + 60, 0.997, 0.001, group="li_mosaic"))
++    out = fusion.li_to_ae(feats, [ae])
++    by_group = sorted((f["threshold_group"], f["class_name"]) for f in out)
++    assert by_group == [("ae", fusion.POVR), ("ae", fusion.TSEL),
++                        ("li_ae", fusion.POVR), ("li_ae", fusion.TSEL)]
++    taus = {"ae": {fusion.POVR: 0.99053, fusion.TSEL: 0.802255},
++            "li_ae": {fusion.POVR: 0.993061, fusion.TSEL: 1.000001}}
++    kept = post.apply_thresholds(out, {}, 0.15, taus)
++    assert sorted((f["threshold_group"], f["class_name"]) for f in kept) == [
++        ("ae", fusion.POVR), ("ae", fusion.TSEL), ("li_ae", fusion.POVR)]

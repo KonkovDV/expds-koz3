@@ -37,8 +37,28 @@ def test_copies_follow_gates_coverage_and_class_shift(tmp_path):
     got = sorted((f["class_name"], round(f["confidence"], 3)) for f in out)
     assert got == [(fusion.POVR, 0.995), (fusion.POVR, 0.996),
                    (fusion.TSEL, 0.9), (fusion.TSEL, 0.998), (fusion.TSEL, 0.999)]
-    assert all(f["markup_type"] == "ae" and f["threshold_group"] == "li_ae" for f in out)
-    kept = post.apply_thresholds(feats + out, {}, 0.15, {"li_ae": {fusion.POVR: 0.0, fusion.TSEL: 0.0}})
+    assert all(f["markup_type"] == "ae" for f in out)
+    # Копии мелкой сетки — группа ae, копия грубой сетки — li_ae, как в табло 0,353793.
+    assert sorted(f["threshold_group"] for f in out) == ["ae", "ae", "ae", "li_ae", "li_ae"]
+    zero = {fusion.POVR: 0.0, fusion.TSEL: 0.0}
+    kept = post.apply_thresholds(feats + out, {}, 0.15, {"ae": zero, "li_ae": zero})
     assert sum(f["markup_type"] == "ae" for f in kept) == 5
     assert len(post.merge_within_markup(kept)) == len(kept)   # слои не схлопываются друг с другом
     assert fusion.li_to_ae(feats, [], fusion.FusionParams()) == []
+
+
+def test_mosaic_copies_keep_their_own_group(tmp_path):
+    """Копия кургана мозаики — группа li_ae, копия мелкой сетки — ae. Без этого целые копии
+    мелкой сетки уходили под порог li_ae 1,000001 и выпадали все."""
+    ae = write_ae(tmp_path / "ae.tif")
+    feats = (kurgan(X0 + 20, Y0 + 50, 0.995, 0.004)
+             + kurgan(X0 + 35, Y0 + 60, 0.997, 0.001, group="li_mosaic"))
+    out = fusion.li_to_ae(feats, [ae])
+    by_group = sorted((f["threshold_group"], f["class_name"]) for f in out)
+    assert by_group == [("ae", fusion.POVR), ("ae", fusion.TSEL),
+                        ("li_ae", fusion.POVR), ("li_ae", fusion.TSEL)]
+    taus = {"ae": {fusion.POVR: 0.99053, fusion.TSEL: 0.802255},
+            "li_ae": {fusion.POVR: 0.993061, fusion.TSEL: 1.000001}}
+    kept = post.apply_thresholds(out, {}, 0.15, taus)
+    assert sorted((f["threshold_group"], f["class_name"]) for f in kept) == [
+        ("ae", fusion.POVR), ("ae", fusion.TSEL), ("li_ae", fusion.POVR)]

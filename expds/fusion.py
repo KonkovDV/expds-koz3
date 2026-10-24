@@ -24,6 +24,11 @@ from .crs import WEB_MERCATOR, transformer
 
 POVR, TSEL = "kurgany_povrezhdennye", "kurgany_tselye"
 
+#: Группа порога копии по группе исходного кургана лидара. Так копии подписаны в табло 0,353793:
+#: копии мелкой сетки — без своей группы, то есть ae (0,99053 / 0,802255); копии мозаики — li_ae
+#: (scripts/scoreboard.py, mosaic_kurgans). Копий грубой сетки в табло не было; li_ae — строгий порог.
+COPY_GROUP = {None: "ae", "": "ae", "li_mosaic": "li_ae", "li_coarse": "li_ae"}
+
 
 @dataclass
 class FusionParams:
@@ -69,9 +74,9 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
     p = p or FusionParams()
     groups: dict[tuple, dict] = {}
     for f in feats:
-        # li_coarse — те же вероятности нейросети, только порог выдачи другой. Запасной
+        # li_coarse и li_mosaic — те же вероятности нейросети, только порог выдачи другой. Запасной
         # детектор (li_cpu) и уже скопированные объекты не копируются.
-        if (f.get("markup_type") != "li" or f.get("threshold_group") not in (None, "", "li_coarse")
+        if (f.get("markup_type") != "li" or f.get("threshold_group") not in COPY_GROUP
                 or f["class_name"] not in (POVR, TSEL)):
             continue
         c = f["geom"].centroid
@@ -88,11 +93,12 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
         pp = g[POVR]["confidence"] if POVR in g else 0.0
         pt = g[TSEL]["confidence"] if TSEL in g else 0.0
         base = next(iter(g.values()))
+        group = COPY_GROUP[base.get("threshold_group")]
         if pp >= p.povr_min:
-            out.append(dict(base, class_name=POVR, confidence=float(pp), markup_type="ae", threshold_group="li_ae"))
+            out.append(dict(base, class_name=POVR, confidence=float(pp), markup_type="ae", threshold_group=group))
         if pp + pt >= p.tselye_min:
             out.append(dict(base, class_name=TSEL, confidence=float(min(pp + pt, 1.0)), markup_type="ae",
-                            threshold_group="li_ae"))
+                            threshold_group=group))
     return out
 
 

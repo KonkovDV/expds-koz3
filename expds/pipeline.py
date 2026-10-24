@@ -351,15 +351,16 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         except Exception:
             log.exception("%s: запасной детектор упал", las.name)
 
+    # Группа мозаики ставится до копий: копия мозаики — li_ae, копия мелкой сетки — ae, как в табло.
+    for f in mosaic_kurgans:
+        if f.get("markup_type") == "li" and not f.get("threshold_group"):
+            f["threshold_group"] = "li_mosaic"
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
     if fp.li_to_ae and reg.rasters.get("ae"):
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
         except Exception as exc:
             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
-    for f in mosaic_kurgans:
-        if f.get("markup_type") == "li" and not f.get("threshold_group"):
-            f["threshold_group"] = "li_mosaic"
     return _with_copies(feats, reg, cfg)
 
 

@@ -100,14 +100,16 @@ def satellite_centers(fc: dict) -> list[dict]:
     return out
 
 
-def build_stack(work: Path, train: Path, geo: Path, gt_path: Path | None = None):
+def build_stack(work: Path, train: Path, geo: Path, gt_path: Path | None = None,
+                fused_path: Path | None = None, mosaic_dir: Path | None = None):
+    """fused_path и mosaic_dir заменяют лидар целиком: другая модель li сравнивается заменой, а не второй группой."""
     from expds.coarse import las_boxes, tag
 
     gt = load(gt_path or work / "gt_train.geojson")
     boxes = las_boxes(train)
-    fused = load(work / "fusion" / "li_hard2_fused.geojson")
+    fused = load(fused_path or work / "fusion" / "li_hard2_fused.geojson")
     tag(fused, boxes)
-    names, mosaic = mosaic_kurgans(work / "mosaic_li")
+    names, mosaic = mosaic_kurgans(mosaic_dir or work / "mosaic_li")
     if len(names) < 24:
         raise SystemExit(f"мозаика не на всех 24 грубых облаках: {len(names)}")
     extra = (load(work / "spor_gor_oof.geojson")["features"] + load(geo)["features"]
@@ -184,6 +186,9 @@ def main() -> None:
     ap.add_argument("--add", action="append", default=[], help="путь:группа[:класс[:слой]]")
     ap.add_argument("--replace", action="append", default=[],
                     help="группа=путь: убрать объекты группы и добавить файл; своя группа объекта сохраняется")
+    ap.add_argument("--fused", default=None,
+                    help="другой лидар со слиянием в аэрофото вместо fusion/li_hard2_fused.geojson (опыт, не база)")
+    ap.add_argument("--mosaic-dir", default=None, help="курганы мозаики этого лидара вместо <work>/mosaic_li")
     ap.add_argument("--bootstrap", type=int, default=1000)
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
@@ -200,12 +205,20 @@ def main() -> None:
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
-    if not args.add and not args.replace:
+    swap_li = bool(args.fused or args.mosaic_dir)
+    if not args.add and not args.replace and not swap_li:
         if args.out:
             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b}, ensure_ascii=False, indent=2),
                                       encoding="utf-8")
         return
     mixed = list(feats)
+    if swap_li:
+        # Опыт с другим лидаром: стек собирается заново из его файлов, база остаётся прежней.
+        mixed, _, _, _ = build_stack(work, Path(args.train), geo, gt_path,
+                                     Path(args.fused) if args.fused else None,
+                                     Path(args.mosaic_dir) if args.mosaic_dir else None)
+        for spec in args.base_add:
+            mixed += added(spec)
     for spec in args.replace:
         group, path = spec.split("=", 1)
         mixed = [f for f in mixed if (f.get("properties") or {}).get("threshold_group") != group]
