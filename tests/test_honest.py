@@ -121,3 +121,26 @@ def test_scoreboard_honest_uses_the_stored_curves(monkeypatch):
     sb.LAST_CURVES["база"] = {KUR: with_gt(curve(rows), gt)}
     scores, counts = sb.honest("база", {"001_A"}, {"003_C"}, -1)
     assert abs(scores[0] - 1.0) < 1e-5 and counts[KUR]["002_B"] == [1, 0, 1]
+
+
+def test_region_folds_let_a_family_vote_for_its_own_neighbour(monkeypatch):
+    """По участкам порог видит соседний планшет той же семьи; по семьям — нет."""
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location("scoreboard", Path(__file__).resolve().parents[1] / "scripts" / "scoreboard.py")
+    sb = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sb)
+    rows, gt = [], {}
+    for r in ("001_A_1", "002_A_2"):                  # семья A: два попадания низкой уверенности
+        rows += [(0.3, True, r, "sp"), (0.3, True, r, "sp")]
+        gt[r] = 2
+    for r in ("003_B_1", "004_C_1"):                  # другие семьи: уверенное попадание и ложный на 0,3
+        rows += [(0.9, True, r, "sp"), (0.3, False, r, "sp")]
+        gt[r] = 1
+    sb.LAST_CURVES["база"] = {KUR: with_gt(curve(rows), gt)}
+    fam, counts_f = sb.honest("база", set(), set(), -1, "family")
+    reg, counts_r = sb.honest("база", set(), set(), -1, "region")
+    assert counts_f[KUR]["001_A_1"][0] == 0          # порог с B и C отрезает 0,3
+    assert counts_r[KUR]["001_A_1"][0] == 2          # порог с A_2 оставляет оба на 0,3
+    assert reg[0] > fam[0]

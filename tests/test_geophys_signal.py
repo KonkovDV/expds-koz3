@@ -158,3 +158,32 @@ def test_geo_predict_override_and_run(tmp_path):
     assert res.returncode == 0, res.stderr
     fc = json.loads(out.read_text(encoding="utf-8"))
     assert any(f["properties"]["class_name"] == "finds_points" for f in fc["features"])
+
+
+def test_site_overlap_finds_the_neighbouring_train_site(tmp_path):
+    train, val = tmp_path / "train", tmp_path / "val"
+    near = train / "001_Гнёздово_1"
+    far = train / "002_Далёкое_1"
+    v = val / "region_0001"
+    for d in (near, far, v):
+        d.mkdir(parents=True)
+        (d / "UTM.json").write_text(json.dumps({"crs": "EPSG:32636"}), encoding="utf-8")
+    u8 = np.zeros((1, 50, 50), np.uint8)
+    _write_tif(near / "01_x_MagGr_серый.tif", u8)
+    import rasterio
+    from rasterio.transform import from_origin
+
+    def put(path, x0, y0):
+        with rasterio.open(path, "w", driver="GTiff", height=50, width=50, count=1, dtype="uint8",
+                           crs="EPSG:32636", transform=from_origin(x0, y0, 0.1, 0.1)) as ds:
+            ds.write(u8)
+
+    put(far / "01_x_MagGr_серый.tif", 560000, 6150000)
+    put(v / "01_x_MagGr_серый.tif", 500010, 6100000)        # в 5 м от рамки «Гнёздово_1»
+    out = tmp_path / "o.json"
+    res = subprocess.run([sys.executable, str(ROOT / "scripts" / "site_overlap.py"), "--train", str(train),
+                          "--val", str(val), "--out", str(out)], capture_output=True, text=True, cwd=ROOT,
+                         check=False)
+    assert res.returncode == 0, res.stderr
+    rows = json.loads(out.read_text(encoding="utf-8"))
+    assert rows[0]["region"] == "val_000" and rows[0]["family"] == "Гнёздово" and rows[0]["gap_m"] < 50

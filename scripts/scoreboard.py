@@ -183,17 +183,29 @@ def evaluate(name: str, feats: list[dict], gt: dict, new: set[str], optical: set
 LAST_CURVES: dict = {}
 
 
-def honest(name: str, new: set[str], optical: set[str], folds_k: int):
-    """Порог группы подбирается на других семьях и применяется к своей (как cross_family.json)."""
-    from expds.metric import family_folds, honest_counts, score_counts
+def unit_of(by: str):
+    """Единица честной проверки: семья (новые памятники) или участок (соседний планшет той же семьи)."""
     from expds.naming import site_family
+
+    return site_family if by == "family" else (lambda r: r)
+
+
+def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = "family"):
+    """Порог группы подбирается на других фолдах и применяется к своему (как cross_family.json).
+
+    by="family" — фолд из целых семей: оценка для новых памятников. by="region" — фолд из
+    участков: оценка для соседних планшетов уже знакомых памятников. Какая из них ближе
+    к площадке, показывает scripts/site_overlap.py.
+    """
+    from expds.metric import family_folds, honest_counts, score_counts
 
     curves = LAST_CURVES[name]
     regions = {r for c in curves.values() for r in c.pred_region} | {r for c in curves.values() for r in c.gt_regions}
-    folds = family_folds(regions, site_family, None if folds_k < 0 else folds_k)
+    folds = family_folds(regions, unit_of(by), None if folds_k < 0 else folds_k)
     counts, info = honest_counts(curves, folds)
     scores = [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
-    print(f"{name}, честно ({info['folds']} фолдов семей): все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; "
+    unit = "семей" if by == "family" else "участков"
+    print(f"{name}, честно ({info['folds']} фолдов {unit}): все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; "
           f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}", flush=True)
     return scores, counts
 
@@ -219,6 +231,9 @@ def main() -> None:
     ap.add_argument("--honest", type=int, default=0,
                     help="честный балл: K фолдов семей (порог группы — с других семей); -1 — одна семья на фолд; "
                          "0 — выключено. Приёмка по нему печатается отдельной строкой")
+    ap.add_argument("--honest-by", choices=("family", "region"), default="family",
+                    help="фолды из семей (новые памятники) или из участков (соседние планшеты); "
+                         "выбор — по scripts/site_overlap.py")
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
@@ -234,7 +249,7 @@ def main() -> None:
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
-    honest_b = honest("база", new, optical, args.honest) if args.honest else None
+    honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
     if not args.add and not args.replace and not swap_li:
         if args.out:
@@ -276,7 +291,8 @@ def main() -> None:
         from expds.metric import paired_bootstrap_counts
         from expds.naming import site_family
 
-        honest_a = honest("опыт", new, optical, args.honest)
+        honest_a = honest("опыт", new, optical, args.honest, args.honest_by)
+        # Бутстреп всегда по семьям: участки одной семьи не независимы при любой единице фолда.
         hboot = paired_bootstrap_counts(honest_a[1], honest_b[1], site_family, args.bootstrap)
         for label, b, a in zip(labels, honest_b[0], honest_a[0]):
             print(f"честно, {label}: {b:.6f} → {a:.6f} ({a - b:+.6f})", flush=True)
@@ -286,7 +302,7 @@ def main() -> None:
                          and honest_a[0][1] >= honest_b[0][1] - 0.001 and honest_a[0][2] >= honest_b[0][2] - 0.001)
         print("честная приёмка:", "проходит" if honest_accept else "не проходит", flush=True)
         honest_res = {"base": honest_b[0], "after": honest_a[0], "bootstrap_families": hboot,
-                      "accept": honest_accept, "folds": args.honest}
+                      "accept": honest_accept, "folds": args.honest, "by": args.honest_by}
     if args.out:
         Path(args.out).write_text(json.dumps({
             "base_all": base[0], "all": after[0], "delta_all": after[0] - base[0],

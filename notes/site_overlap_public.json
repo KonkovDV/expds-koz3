@@ -1,0 +1,841 @@
+[
+ {
+  "region": "val_000",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "046_Тыва_1",
+  "family": "Тыва",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Тыва"
+  ]
+ },
+ {
+  "region": "val_001",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "155_Курганы_26",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_002",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "159_Курганы_30",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_003",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "158_Курганы_29",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_004",
+  "types": [
+   "ae"
+  ],
+  "nearest_train": "067_Чудово",
+  "family": "Чудово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae"
+  ],
+  "within_5km": [
+   "Чудово"
+  ]
+ },
+ {
+  "region": "val_005",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "009_Хальвасборген",
+  "family": "Хальвасборген",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Хальвасборген"
+  ]
+ },
+ {
+  "region": "val_006",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "092_Шаты",
+  "family": "Шаты",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы",
+   "Шаты"
+  ]
+ },
+ {
+  "region": "val_007",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "135_Курганы_6",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_008",
+  "types": [
+   "li",
+   "sp_or"
+  ],
+  "nearest_train": "006_Осечки_1.1км",
+  "family": "Осечки",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Копанское",
+   "Миловидово",
+   "Новотитаровская",
+   "Осечки",
+   "Примаки"
+  ]
+ },
+ {
+  "region": "val_009",
+  "types": [
+   "ae",
+   "li"
+  ],
+  "nearest_train": "001_Гнёздово_Нивленское",
+  "family": "Гнёздово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Гнёздово",
+   "Демидовка",
+   "Лубно"
+  ]
+ },
+ {
+  "region": "val_010",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "034_Усть_река",
+  "family": "Усть",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Усть"
+  ]
+ },
+ {
+  "region": "val_011",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "170_Кисловодская_котловина_7",
+  "family": "Кисловодская",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Кисловодская"
+  ]
+ },
+ {
+  "region": "val_012",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "160_Курганы_31",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_013",
+  "types": [
+   "ae"
+  ],
+  "nearest_train": "017_Юшково",
+  "family": "Юшково",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Макеево",
+   "Селяне",
+   "Шетнево",
+   "Шниткино",
+   "Юшково"
+  ]
+ },
+ {
+  "region": "val_014",
+  "types": [
+   "li",
+   "sp_or"
+  ],
+  "nearest_train": "006_Осечки_1.1км",
+  "family": "Осечки",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Копанское",
+   "Миловидово",
+   "Новотитаровская",
+   "Осечки",
+   "Примаки"
+  ]
+ },
+ {
+  "region": "val_015",
+  "types": [
+   "maggr"
+  ],
+  "nearest_train": "186_Семибратнее_1",
+  "family": "Семибратнее",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Семибратнее"
+  ]
+ },
+ {
+  "region": "val_016",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "157_Курганы_28",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_017",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "033_Елизаветинское",
+  "family": "Елизаветинское",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li",
+   "or",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Елизаветинское"
+  ]
+ },
+ {
+  "region": "val_018",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "091_Сакские_курганы",
+  "family": "Сакские",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Сакские"
+  ]
+ },
+ {
+  "region": "val_019",
+  "types": [
+   "etgr"
+  ],
+  "nearest_train": "179_Гнёздово_Лесная_1",
+  "family": "Гнёздово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Гнёздово",
+   "Демидовка",
+   "Лубно"
+  ]
+ },
+ {
+  "region": "val_020",
+  "types": [
+   "maggr"
+  ],
+  "nearest_train": "186_Семибратнее_1",
+  "family": "Семибратнее",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Семибратнее"
+  ]
+ },
+ {
+  "region": "val_021",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "013_Нора_Виннон",
+  "family": "Нора",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Нора"
+  ]
+ },
+ {
+  "region": "val_022",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "156_Курганы_27",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_023",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "162_Курганы_33",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_024",
+  "types": [
+   "ae"
+  ],
+  "nearest_train": "059_Шишкино",
+  "family": "Шишкино",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae"
+  ],
+  "within_5km": [
+   "Шишкино"
+  ]
+ },
+ {
+  "region": "val_025",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "142_Курганы_13",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_026",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "077_Русская_Тростянка",
+  "family": "Русская",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Русская"
+  ]
+ },
+ {
+  "region": "val_027",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "153_Курганы_24",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Иссык",
+   "Каджы",
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_028",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "163_Курганы_34",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_029",
+  "types": [
+   "li",
+   "sp_or"
+  ],
+  "nearest_train": "026_Золотаревка",
+  "family": "Золотаревка",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Золотаревка"
+  ]
+ },
+ {
+  "region": "val_030",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "154_Курганы_25",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Иссык",
+   "Каджы",
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_031",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "106_Верхмарево",
+  "family": "Верхмарево",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Верхмарево"
+  ]
+ },
+ {
+  "region": "val_032",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "045_Новотитаровская_2.8км",
+  "family": "Новотитаровская",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Новотитаровская"
+  ]
+ },
+ {
+  "region": "val_033",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "180_Гнёздово_Лесная_2",
+  "family": "Гнёздово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Гнёздово",
+   "Демидовка",
+   "Лубно"
+  ]
+ },
+ {
+  "region": "val_034",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "074_Солдатское",
+  "family": "Солдатское",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Воронеж",
+   "Солдатское"
+  ]
+ },
+ {
+  "region": "val_035",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "039_Примаки_0.7км",
+  "family": "Примаки",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Миловидово",
+   "Осечки",
+   "Примаки"
+  ]
+ },
+ {
+  "region": "val_036",
+  "types": [
+   "terfl"
+  ],
+  "nearest_train": "179_Гнёздово_Лесная_1",
+  "family": "Гнёздово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Гнёздово",
+   "Демидовка",
+   "Лубно"
+  ]
+ },
+ {
+  "region": "val_037",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "079_Городище",
+  "family": "Городище",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Городище"
+  ]
+ },
+ {
+  "region": "val_038",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "179_Гнёздово_Лесная_1",
+  "family": "Гнёздово",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Гнёздово",
+   "Демидовка",
+   "Лубно"
+  ]
+ },
+ {
+  "region": "val_039",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "155_Курганы_26",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_040",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "032_Красносельская_0.5км",
+  "family": "Красносельская",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "li"
+  ],
+  "within_5km": [
+   "Красносельская"
+  ]
+ },
+ {
+  "region": "val_041",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "160_Курганы_31",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_042",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "166_Кисловодская_котловина_3",
+  "family": "Кисловодская",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Кисловодская"
+  ]
+ },
+ {
+  "region": "val_043",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "158_Курганы_29",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_044",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "156_Курганы_27",
+  "family": "Курганы",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "sp_or"
+  ],
+  "within_5km": [
+   "Курганы"
+  ]
+ },
+ {
+  "region": "val_045",
+  "types": [
+   "li"
+  ],
+  "nearest_train": "189_Макеево",
+  "family": "Макеево",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "li"
+  ],
+  "within_5km": [
+   "Макеево",
+   "Шетнево",
+   "Шниткино",
+   "Юшково"
+  ]
+ },
+ {
+  "region": "val_046",
+  "types": [
+   "or"
+  ],
+  "nearest_train": "056_Фалхан",
+  "family": "Фалхан",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "or"
+  ],
+  "within_5km": [
+   "Фалхан"
+  ]
+ },
+ {
+  "region": "val_047",
+  "types": [
+   "sp_or"
+  ],
+  "nearest_train": "183_Сарское",
+  "family": "Сарское",
+  "gap_m": 0.0,
+  "overlaps": true,
+  "train_types": [
+   "ae",
+   "sp_or"
+  ],
+  "within_5km": [
+   "Сарское",
+   "Шурскол"
+  ]
+ },
+ {
+  "summary": {
+   "<= 0 m": 48,
+   "<= 500 m": 48,
+   "<= 2000 m": 48,
+   "<= 10000 m": 48,
+   "<= 50000 m": 48,
+   "median_gap_m_by_type": {
+    "ae": 0.0,
+    "etgr": 0.0,
+    "li": 0.0,
+    "maggr": 0.0,
+    "or": 0.0,
+    "sp_or": 0.0,
+    "terfl": 0.0
+   }
+  }
+ }
+]
