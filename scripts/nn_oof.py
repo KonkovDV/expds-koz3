@@ -85,7 +85,12 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
             if d.crs is not None:
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
         return feats
-    for path in reg.rasters.get(markup, []):
+    files = reg.rasters.get(markup, [])
+    if markup in ("maggr", "etgr", "terfl"):
+        from expds import geophys
+
+        files = geophys.select_rasters(files, markup)    # те же карты, что у сдачи
+    for path in files:
         feats += _raster_with_model(seg, path, reg.name, markup)
     return feats
 

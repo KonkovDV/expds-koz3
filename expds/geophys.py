@@ -36,14 +36,80 @@ class GeoParams:
     smooth_m: float = 0.5
     min_area_m2: float = 0.3
     max_area_m2: float = 60.0
+    band_mode: str = "first"        # как RGB-карта сводится к числу (scalar_from_bands)
+    signal: str = "abs"             # finds_points: пики |hp| или аналитического сигнала ("asa")
+    polarity: str = "abs"           # object_poly: |hp|, только положительные ("pos") или отрицательные ("neg")
 
 
-def read_band(path: str | Path) -> tuple[np.ndarray, object, str | None, float]:
-    """Первый канал как float32 с NaN вместо nodata."""
+#: Как цветная или «серая» RGB-карта сводится к одному числу на пиксель. Сданный балл снят с "first".
+BAND_MODES = ("first", "mean", "luma", "pca", "auto")
+
+
+def scalar_from_bands(bands: np.ndarray, mode: str = "first") -> np.ndarray:
+    """C×H×W (NaN — нет данных) → H×W.
+
+    first — первый канал, как в сданном детекторе. mean и luma — среднее и яркость
+    BT.601. pca — проекция на главную ось цвета: у двухцветной шкалы это и есть
+    величина поля. Знак у детекторов не важен, они берут модуль высоких частот;
+    ось всё равно ориентируется по яркости, чтобы результат был детерминирован.
+    auto — pca, если каналы различаются хотя бы в 1 % пикселей, иначе first.
+    """
+    if mode not in BAND_MODES:
+        raise ValueError(f"неизвестный режим каналов: {mode}")
+    a = np.asarray(bands, dtype=np.float32)
+    if a.ndim == 2:
+        return a
+    if a.shape[0] == 1 or mode == "first":
+        return a[0]
+    rgb = a[:3]
+    valid = np.all(np.isfinite(rgb), axis=0)
+    if mode == "auto":
+        if not valid.any():
+            return a[0]
+        x = rgb[:, valid]
+        differ = np.mean(np.any(x != x[:1], axis=0))
+        if differ < 0.01:
+            return a[0]
+        mode = "pca"
+    if mode == "mean":
+        out = rgb.mean(axis=0)
+    elif mode == "luma":
+        w = np.array([0.299, 0.587, 0.114], np.float32)[: rgb.shape[0]]
+        out = np.tensordot(w / w.sum(), rgb, axes=1)
+    else:
+        x = rgb[:, valid].astype(np.float64)
+        if x.shape[1] < 2:
+            return a[0]
+        step = max(1, x.shape[1] // 2_000_000)
+        sample = x[:, ::step]
+        mean = sample.mean(axis=1, keepdims=True)
+        cov = np.cov(sample - mean)
+        vals, vecs = np.linalg.eigh(np.atleast_2d(cov))
+        axis = vecs[:, int(np.argmax(vals))]
+        luma = np.array([0.299, 0.587, 0.114])[: rgb.shape[0]]
+        if float(axis @ luma) < 0:
+            axis = -axis
+        out = np.tensordot(axis.astype(np.float32), rgb - mean.astype(np.float32)[:, :, None], axes=1)
+    return np.where(valid, out, np.nan).astype(np.float32)
+
+
+def read_band(path: str | Path, mode: str = "first") -> tuple[np.ndarray, object, str | None, float]:
+    """Одно число на пиксель (scalar_from_bands) как float32 с NaN вместо nodata.
+
+    Альфа-канал, если он есть, только маскирует пиксели: прозрачное — нет данных.
+    """
     from .raster import open_metric
 
     with open_metric(path) as ds:
-        a = ds.read(1, masked=True).astype(np.float32).filled(np.nan)
+        if mode == "first" or ds.count == 1:
+            a = ds.read(1, masked=True).astype(np.float32).filled(np.nan)
+        else:
+            n = min(ds.count, 3)
+            bands = ds.read(list(range(1, n + 1)), masked=True).astype(np.float32).filled(np.nan)
+            alpha = [i + 1 for i, ci in enumerate(ds.colorinterp) if getattr(ci, "name", "") == "alpha"]
+            if alpha:
+                bands[:, ds.read(alpha[0]) == 0] = np.nan
+            a = scalar_from_bands(bands, mode)
         crs = ds.crs.to_string() if ds.crs else None
         return a, ds.transform, crs, float(abs(ds.res[0]))
 
@@ -82,10 +148,65 @@ def highpass(z: np.ndarray, res: float, background_m: float) -> np.ndarray:
     return (z - accel.box_mean(z, max(1, round(background_m / res)))).astype(np.float32)
 
 
+SIGNALS = ("abs", "asa")
+POLARITIES = ("abs", "pos", "neg")
+
+
+def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.ndarray:
+    """Амплитуда аналитического сигнала √(gx² + gy² + gz²) в единицах MAD самой амплитуды.
+
+    Все производные — в спектре: gx = F⁻¹(i·kx·F), gy = F⁻¹(i·ky·F), gz = F⁻¹(|k|·F)
+    (Nabighian, 1972; Roest et al., 1992). Перед ними поле продолжается вверх на
+    upward_m: множитель e^(−|k|·h) — физический фильтр потенциального поля, без него
+    производные раздувают шум пикселя. Максимум амплитуды стоит над компактным
+    источником при любом наклонении. Пустые пиксели на время преобразования — ноль,
+    на выходе снова NaN.
+    """
+    finite = np.isfinite(hp)
+    f = np.where(finite, hp, 0.0).astype(np.float64)
+    ny, nx = f.shape
+    py, px = ny + ny // 4, nx + nx // 4            # запас от заворота краёв
+    spec = np.fft.rfft2(f, s=(py, px))
+    ky = 2 * np.pi * np.fft.fftfreq(py, d=res)[:, None]
+    kx = 2 * np.pi * np.fft.rfftfreq(px, d=res)[None, :]
+    k = np.sqrt(kx * kx + ky * ky)
+    spec = spec * np.exp(-k * max(float(upward_m), 0.0))
+    def back(m):
+        return np.fft.irfft2(spec * m, s=(py, px))[:ny, :nx]
+
+    amp = np.sqrt(back(1j * kx) ** 2 + back(1j * ky) ** 2 + back(k) ** 2)
+    v = amp[finite]
+    if v.size:
+        med = float(np.median(v))
+        mad = float(np.median(np.abs(v - med))) * 1.4826 or 1.0
+        amp = (amp - med) / mad
+    return np.where(finite, amp, np.nan).astype(np.float32)
+
+
+def detection_image(hp: np.ndarray, res: float, signal: str = "abs") -> np.ndarray:
+    """Неотрицательная карта для поиска пиков находок: |hp| (сдача) или аналитический сигнал."""
+    if signal not in SIGNALS:
+        raise ValueError(f"неизвестный сигнал: {signal}")
+    if signal == "asa":
+        return analytic_signal(hp, res)
+    return np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
+
+
+def polarity_image(hp: np.ndarray, polarity: str = "abs") -> np.ndarray:
+    """|hp| (сдача), только положительная или только отрицательная часть аномалии."""
+    if polarity not in POLARITIES:
+        raise ValueError(f"неизвестная полярность: {polarity}")
+    if polarity == "pos":
+        return np.where(np.isfinite(hp), np.maximum(hp, 0), np.nan).astype(np.float32)
+    if polarity == "neg":
+        return np.where(np.isfinite(hp), np.maximum(-hp, 0), np.nan).astype(np.float32)
+    return np.abs(hp).astype(np.float32)
+
+
 def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
                p: GeoParams, k_min: float | None = None) -> list[dict]:
-    """Экстремумы |hp| не ниже k_min (по умолчанию peak_k) → круги finds_points."""
-    mag = np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
+    """Пики карты обнаружения (detection_image) не ниже k_min (по умолчанию peak_k) → круги finds_points."""
+    mag = detection_image(hp, res, p.signal)
     rows, cols, vals = accel.find_peaks(mag, max(1, round(p.peak_radius_m / res)),
                                         p.peak_k if k_min is None else k_min)
     xs, ys = pixel_to_xy(tr, rows, cols)
@@ -99,7 +220,7 @@ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     """Связные области сглаженной |hp| выше poly_k с допустимой площадью → полигоны object_poly."""
     from scipy.ndimage import label as cc_label
 
-    sm = accel.box_mean(np.abs(hp).astype(np.float32), max(1, round(p.smooth_m / res)))
+    sm = accel.box_mean(polarity_image(hp, p.polarity), max(1, round(p.smooth_m / res)))
     finite = np.isfinite(sm)
     if p.poly_k_low is not None and p.poly_k_low < p.poly_k:
         lab, n = cc_label(finite & (sm >= p.poly_k_low))
@@ -127,7 +248,7 @@ def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams |
                  k_min: float | None = None) -> list[dict]:
     """Точечные аномалии → круги класса finds_points."""
     p = p or GeoParams()
-    a, tr, crs, res = read_band(path)
+    a, tr, crs, res = read_band(path, p.band_mode)
     return peaks_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
                       Path(path).name, p, k_min)
 
@@ -135,7 +256,7 @@ def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams |
 def object_polys(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None) -> list[dict]:
     """Площадные аномалии → полигоны класса object_poly."""
     p = p or GeoParams()
-    a, tr, crs, res = read_band(path)
+    a, tr, crs, res = read_band(path, p.band_mode)
     return polys_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
                       Path(path).name, p)
 

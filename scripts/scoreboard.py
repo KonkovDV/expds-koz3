@@ -12,6 +12,11 @@
 Пороги каждой группы подбираются перебором на всех участках (`sweep_groups`). Три числа:
 все участки, 34 новых LAS (`notes/regions_las_new.txt`), участки без лидара.
 
+`--honest K` добавляет честный балл: порог группы подбирается на других семьях и применяется
+к своей (K фолдов семей, -1 — одна семья на фолд). На стеке 0,350588 так получалось 0,329489,
+а площадка дала 0,32850. Новая группа порогов поднимает балл «на всех» и тогда, когда переноса
+нет, поэтому решение о конфиге — по строке «честная приёмка».
+
     python scripts/scoreboard.py --work F:/expds3/work --train F:/expds3/train-expds-3 \
         --metric materials/compute_metrics.py --expect 0.338586
 
@@ -148,7 +153,8 @@ def evaluate(name: str, feats: list[dict], gt: dict, new: set[str], optical: set
 
     fc = {"type": "FeatureCollection", "features": feats}
     print(f"{name}: объектов {len(feats)}", flush=True)
-    res = sweep_groups(build_curves(fc, gt, metric))
+    curves = build_curves(fc, gt, metric)
+    res = sweep_groups(curves)
     taus: dict = {}
     per = {}
     for cls, v in res.items():
@@ -169,7 +175,27 @@ def evaluate(name: str, feats: list[dict], gt: dict, new: set[str], optical: set
                                   {"type": "FeatureCollection", "features": subset(gt["features"], regions)},
                                   metric))
     print(f"{name}: все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; без лидара {scores[2]:.6f}", flush=True)
+    LAST_CURVES[name] = curves
     return scores, taus, kept, per
+
+
+#: Кривые последнего evaluate по имени прогона: честный балл берёт их, а не строит заново.
+LAST_CURVES: dict = {}
+
+
+def honest(name: str, new: set[str], optical: set[str], folds_k: int):
+    """Порог группы подбирается на других семьях и применяется к своей (как cross_family.json)."""
+    from expds.metric import family_folds, honest_counts, score_counts
+    from expds.naming import site_family
+
+    curves = LAST_CURVES[name]
+    regions = {r for c in curves.values() for r in c.pred_region} | {r for c in curves.values() for r in c.gt_regions}
+    folds = family_folds(regions, site_family, None if folds_k < 0 else folds_k)
+    counts, info = honest_counts(curves, folds)
+    scores = [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
+    print(f"{name}, честно ({info['folds']} фолдов семей): все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; "
+          f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}", flush=True)
+    return scores, counts
 
 
 def main() -> None:
@@ -190,6 +216,9 @@ def main() -> None:
                     help="другой лидар со слиянием в аэрофото вместо fusion/li_hard2_fused.geojson (опыт, не база)")
     ap.add_argument("--mosaic-dir", default=None, help="курганы мозаики этого лидара вместо <work>/mosaic_li")
     ap.add_argument("--bootstrap", type=int, default=1000)
+    ap.add_argument("--honest", type=int, default=0,
+                    help="честный балл: K фолдов семей (порог группы — с других семей); -1 — одна семья на фолд; "
+                         "0 — выключено. Приёмка по нему печатается отдельной строкой")
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
@@ -205,11 +234,13 @@ def main() -> None:
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
+    honest_b = honest("база", new, optical, args.honest) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
     if not args.add and not args.replace and not swap_li:
         if args.out:
-            Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b}, ensure_ascii=False, indent=2),
-                                      encoding="utf-8")
+            Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
+                                                  "honest_base": honest_b[0] if honest_b else None},
+                                                 ensure_ascii=False, indent=2), encoding="utf-8")
         return
     mixed = list(feats)
     if swap_li:
@@ -240,6 +271,22 @@ def main() -> None:
           f"A > B в {boot['p_gt0']:.3f}", flush=True)
     accept = after[0] - base[0] >= 0.003 and boot["p_gt0"] >= 0.9 and after[1] >= base[1] and after[2] >= base[2]
     print("приёмка:", "проходит" if accept else "не проходит", flush=True)
+    honest_res = None
+    if honest_b is not None:
+        from expds.metric import paired_bootstrap_counts
+        from expds.naming import site_family
+
+        honest_a = honest("опыт", new, optical, args.honest)
+        hboot = paired_bootstrap_counts(honest_a[1], honest_b[1], site_family, args.bootstrap)
+        for label, b, a in zip(labels, honest_b[0], honest_a[0]):
+            print(f"честно, {label}: {b:.6f} → {a:.6f} ({a - b:+.6f})", flush=True)
+        print(f"честно, A − B по семьям: среднее {hboot['mean']:+.4f}, 90% [{hboot['p5']:+.4f}; {hboot['p95']:+.4f}], "
+              f"A > B в {hboot['p_gt0']:.3f}", flush=True)
+        honest_accept = (honest_a[0][0] - honest_b[0][0] >= 0.002 and hboot["p_gt0"] >= 0.8
+                         and honest_a[0][1] >= honest_b[0][1] - 0.001 and honest_a[0][2] >= honest_b[0][2] - 0.001)
+        print("честная приёмка:", "проходит" if honest_accept else "не проходит", flush=True)
+        honest_res = {"base": honest_b[0], "after": honest_a[0], "bootstrap_families": hboot,
+                      "accept": honest_accept, "folds": args.honest}
     if args.out:
         Path(args.out).write_text(json.dumps({
             "base_all": base[0], "all": after[0], "delta_all": after[0] - base[0],
@@ -248,6 +295,7 @@ def main() -> None:
             "bootstrap": boot, "accept": accept, "per_class": per_a,
             "thresholds": {g: {c: round(t, 6) for c, t in cls.items()} for g, cls in taus.items()},
             "add": args.add, "replace": args.replace, "geo": geo.name, "gt": gt_path.name,
+            "honest": honest_res,
         }, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

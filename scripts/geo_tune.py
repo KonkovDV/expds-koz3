@@ -7,6 +7,14 @@
 отложенной (TP/FP/FN отложенных семей суммируются, как в метрике).
 
     python scripts/geo_tune.py --root D:/expds3 --gt work/gt_train.geojson --out work/geo_tune.json
+
+Опыты 25.10 (каждый в свой JSON, сравнение — по f1_lofo_pooled, не по f1_in_sample):
+
+    ... --only maggr/finds_points --k-min 1.0 --out work/geo_k10.json            # база сдачи
+    ... --only maggr/finds_points --k-min 0.5 0.75 1.0 --out work/geo_k.json     # отсечка ниже 1 MAD
+    ... --only maggr/finds_points --band-mode auto --out work/geo_band.json      # RGB-карты через PCA
+    ... --only maggr/finds_points --signals abs asa --out work/geo_asa.json      # аналитический сигнал
+    ... --only maggr/object_poly --polarities abs pos --out work/geo_pol.json    # ямы — положительные
 """
 from __future__ import annotations
 
@@ -33,7 +41,8 @@ log = logging.getLogger("geo_tune")
 
 #: Параметры детектора (пересчитываются) и фильтры после него (use_noise).
 GRID = {
-    ("maggr", "finds_points"): {"background_m": [1.0, 2.0, 4.0, 8.0], "peak_radius_m": [0.5, 1.0, 2.0]},
+    ("maggr", "finds_points"): {"background_m": [1.0, 2.0, 4.0, 8.0], "peak_radius_m": [0.5, 1.0, 2.0],
+                                "peak_k": [0.5, 0.75, 1.0]},
     ("maggr", "object_poly"): {"background_m": [4.0, 8.0, 16.0], "smooth_m": [0.5, 1.0, 2.0],
                                "poly_k": [1.0, 1.5, 2.0, 3.0]},
     ("etgr", "object_poly"): {"background_m": [1.0, 2.0, 4.0], "smooth_m": [0.1, 0.25, 0.5],
@@ -43,34 +52,53 @@ GRID = {
 }
 NOISE_OPTIONS = {"maggr": [False, True]}
 CONFIDENCE_OPTIONS = ["strength", "rank"]
-#: Нижняя отсечка пиков (MAD): у эталонных точек Семибратнего медиана силы 1,9.
+#: Нижняя отсечка пиков (MAD) по умолчанию: у эталонных точек Семибратнего медиана силы 1,9.
+#: До 24.10 она не перебиралась. На публичной выборке геофизика выдала 570 объектов на 1441
+#: эталон при 65 % попаданий, а добавлять выгодно уже от 11 %: полноту держит эта отсечка,
+#: а не порог ранга. Сетка peak_k у finds_points проверяет 0,5 и 0,75.
 K_MIN = 1.0
 
 
-def detect_all(data: dict, mt: str, cls: str, grid: dict) -> dict:
-    """{конфиг детектора: {регион: объекты}}; фильтр считается один раз на (растр, фон)."""
+def detect_all(data: dict, mt: str, cls: str, grid: dict, band_mode: str = "first") -> dict:
+    """{конфиг детектора: {регион: объекты}}; фильтр считается один раз на (растр, фон).
+
+    Пики ищутся один раз на (фон, радиус) с самой низкой отсечкой сетки и затем
+    режутся по peak_k: жадное подавление идёт по убыванию силы, поэтому набор
+    пиков выше k тот же, что при поиске сразу с отсечкой k.
+    """
     keys = list(grid)
     configs = [dict(zip(keys, v)) for v in itertools.product(*(grid[k] for k in keys))]
     out = {json.dumps(c, sort_keys=True): defaultdict(list) for c in configs}
     for region, items in data.items():
         for path in items["rasters"]:
-            a, tr, crs, res = geophys.read_band(path)
+            a, tr, crs, res = geophys.read_band(path, band_mode)
             z = geophys.robust_z(a)
             del a
             for bg in sorted({c["background_m"] for c in configs}):
                 hp = geophys.highpass(z, res, bg)
+                peaks: dict[tuple, tuple] = {}
+                images: dict[str, np.ndarray] = {}
                 for c in (c for c in configs if c["background_m"] == bg):
                     p = geophys.GeoParams(**c)
                     p.min_area_m2, p.max_area_m2 = geophys.AREA_M2[mt]
                     if cls == "finds_points":
-                        mag = np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
-                        rows, cols, vals = geophys.accel.find_peaks(mag, max(1, round(p.peak_radius_m / res)), K_MIN)
-                        xs, ys = pixel_to_xy(tr, rows, cols)
-                        out[json.dumps(c, sort_keys=True)][region].append((xs, ys, vals, crs, path.name))
+                        floor = min(grid.get("peak_k", [K_MIN]))
+                        key = (p.peak_radius_m, p.signal)
+                        if key not in peaks:
+                            if p.signal not in images:
+                                images[p.signal] = geophys.detection_image(hp, res, p.signal)
+                            rows, cols, vals = geophys.accel.find_peaks(
+                                images[p.signal], max(1, round(p.peak_radius_m / res)), floor)
+                            xs, ys = pixel_to_xy(tr, rows, cols)
+                            peaks[key] = (xs, ys, vals)
+                        xs, ys, vals = peaks[key]
+                        keep = vals >= np.float32(c.get("peak_k", K_MIN))
+                        out[json.dumps(c, sort_keys=True)][region].append(
+                            (xs[keep], ys[keep], vals[keep], crs, path.name))
                     else:
                         out[json.dumps(c, sort_keys=True)][region] += geophys.polys_from(
                             hp, tr, crs, res, region, mt, path.name, p)
-                del hp
+                del hp, images
     return out
 
 
@@ -121,6 +149,14 @@ def main() -> None:
     ap.add_argument("--metric", default=None)
     ap.add_argument("--out", required=True)
     ap.add_argument("--only", default=None, help="например maggr/finds_points")
+    ap.add_argument("--band-mode", default="first", choices=geophys.BAND_MODES,
+                    help="как RGB-карта сводится к числу; сданный балл снят с first")
+    ap.add_argument("--k-min", type=float, nargs="*", default=None,
+                    help="сетка нижней отсечки пиков finds_points, MAD (по умолчанию 0,5 0,75 1,0)")
+    ap.add_argument("--signals", nargs="*", default=None, choices=geophys.SIGNALS,
+                    help="finds_points: abs (сдача) и/или asa — аналитический сигнал")
+    ap.add_argument("--polarities", nargs="*", default=None, choices=geophys.POLARITIES,
+                    help="object_poly: abs (сдача), pos, neg")
     args = ap.parse_args()
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
 
@@ -147,7 +183,13 @@ def main() -> None:
         fams = defaultdict(set)
         for r, v in data.items():
             fams[v["family"]].add(r)
-        det = detect_all(data, mt, cls, grid)
+        if cls == "finds_points" and args.k_min:
+            grid = {**grid, "peak_k": sorted(args.k_min)}
+        if cls == "finds_points" and args.signals:
+            grid = {**grid, "signal": list(args.signals)}
+        if cls == "object_poly" and args.polarities:
+            grid = {**grid, "polarity": list(args.polarities)}
+        det = detect_all(data, mt, cls, grid, args.band_mode)
         curves = []
         for key, by_region in det.items():
             for use_noise, conf in itertools.product(NOISE_OPTIONS.get(mt, [False]), CONFIDENCE_OPTIONS):
@@ -158,9 +200,9 @@ def main() -> None:
                         found = geophys.rank_within_source(found)
                     feats += geophys.apply_masks(found, items["boundary"], items["noise"] if use_noise else None)
                 pred = to_feature_collection(post.finalize(post.merge_within_markup(feats)))
-                cfg = {**json.loads(key), "use_noise": use_noise, "confidence": conf}
+                cfg = {**json.loads(key), "use_noise": use_noise, "confidence": conf, "band_mode": args.band_mode}
                 if cls == "finds_points":
-                    cfg["peak_k"] = K_MIN
+                    cfg.setdefault("peak_k", K_MIN)
                 curves.append((cfg, metric.build_curves(pred, g, args.metric)[cls]))
         allr = set(data)
         (s_all, t_all), cfg_all = max(((best_tau(c, allr), cfg) for cfg, c in curves), key=lambda t: t[0][0])

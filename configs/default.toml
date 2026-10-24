@@ -178,6 +178,8 @@ sp_focal2 = {path = "models/spor_focal_wide_r18.pt", classes = ["kurgany_povrezh
 # Фортификации аэрофото: маска одного класса, 20 эпох на всех тайлах (медиана лучших эпох фолдов).
 ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
 # or = "models/or_r18.pt"
+# Сеть на картах геофизики (pipeline.geo_model_feats), только вместе с порогом группы maggr_nn:
+# maggr = {path = "models/maggr_finds_r18.pt", classes = ["finds_points"]}
 
 [candidates]
 work_res = 0.5
@@ -193,6 +195,15 @@ lgbm_model = "models/kurgan_lgbm.txt"
 
 [geophys]
 point_circle_m = 0.3
+# Опыты 25.10, по умолчанию выключены (поведение сдачи то же):
+#   band_mode = "first" | "mean" | "luma" | "pca" | "auto" — как RGB-карта сводится к числу;
+#     сданный балл снят с "first". "auto" — pca, если каналы различаются (цветная шкала).
+#   [geophys.maggr.finds_points] signal = "abs" | "asa" — пики |hp| или аналитического сигнала.
+#   [geophys.<модальность>.object_poly] polarity = "abs" | "pos" | "neg".
+#   [geophys.<модальность>] classic = false — классику модальности считает сеть [models] <модальность>,
+#     группа порога <модальность>_nn. Без [thresholds_by_markup.<модальность>_nn] сеть не включать.
+# Подбор: scripts/geo_tune.py --k-min / --band-mode / --signals / --polarities; файл для табло —
+# scripts/geo_predict.py --set ...; приёмка — scripts/scoreboard.py --honest 10.
 
 # Подобрано scripts/geo_tune.py официальной метрикой на трейне (min_confidence — порог этой
 # модальности). F1 с отложенной «семьёй»: finds_points 0,461, object_poly MagGr 0,341;

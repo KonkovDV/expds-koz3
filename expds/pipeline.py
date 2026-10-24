@@ -152,6 +152,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
         if not files:
             continue
+        if (geo_cfg.get(mt) or {}).get("classic", True) is False:
+            # Классика выключена конфигом: эту модальность считает сеть (geo_model_feats).
+            continue
         classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
         opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
         boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
@@ -457,7 +460,54 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                                                            min_conf=output_floors(cfg, mt)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
-    return _with_copies(_wide_without_lidar(reg, cfg, guard, seg_cache, root, feats), reg, cfg)
+    feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
+    return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
+
+
+#: Модальности геофизики, для которых [models] может назвать сеть. Группа порога — «<модальность>_nn».
+GEO_NN = ("maggr", "etgr", "terfl")
+
+
+def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
+    """Сеть на картах геофизики: [models] maggr / etgr / terfl. Без строки в конфиге — пусто.
+
+    Растры те же, что у классики (select_rasters: без цветных копий и срезов EtGr глубже 2 м).
+    Объекты идут в группу «<модальность>_nn», порог — [thresholds_by_markup.<модальность>_nn].
+    Без этой секции действует [thresholds] класса (у геофизики 0,0), поэтому сеть
+    включается только вместе с порогами из табло. Классику той же модальности выключает
+    [geophys.<модальность>] classic = false, иначе выдаются обе ветки.
+    Маски границ и шума здесь не применяются: так же предсказывает scripts/nn_oof.py.
+    """
+    out: list[dict] = []
+    models = cfg.get("models", {})
+    for mt in GEO_NN:
+        if not models.get(mt):
+            continue
+        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
+        if not files:
+            continue
+        try:
+            segs = _cached_segmenters(seg_cache, cfg, mt, root)
+        except Exception:
+            log.exception("модель %s не загрузилась, сеть геофизики пропущена", mt)
+            seg_cache[mt] = []
+            continue
+        group = f"{mt}_nn"
+        floors = output_floors(cfg, group)
+        for seg in segs:
+            for path in files:
+                if not guard.ok(30):
+                    log.warning("время на исходе: сеть %s пропущена на %s", mt, path.name)
+                    break
+                try:
+                    found = _kept(seg, _raster_with_model(seg, path, reg.name, mt, min_conf=floors))
+                except Exception as exc:
+                    log.exception("%s: ошибка сети %s (%s)", path.name, mt, exc)
+                    continue
+                for feat in found:
+                    feat["threshold_group"] = group
+                out += found
+    return out
 
 
 def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,

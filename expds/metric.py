@@ -408,6 +408,119 @@ def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: 
     return {"score": summary(diffs), "per_class": {c: summary(v) for c, v in per.items() if v}, "samples": n}
 
 
+# ─────────────────────────── честный балл: порог с других семей ─────────────────
+
+def family_folds(regions, family_of, k: int | None = None) -> list[set[str]]:
+    """Фолды участков по семьям. k=None или k ≥ числа семей — одна семья на фолд.
+
+    Семьи раскладываются жадно по размеру в k корзин, порядок детерминирован.
+    Одна семья никогда не делится между фолдами.
+    """
+    fams: dict[str, set[str]] = {}
+    for r in regions:
+        fams.setdefault(family_of(r), set()).add(r)
+    names = sorted(fams)
+    if not k or k >= len(names):
+        return [fams[f] for f in names]
+    bins: list[set[str]] = [set() for _ in range(k)]
+    sizes = [0] * k
+    for f in sorted(names, key=lambda f: (-len(fams[f]), f)):
+        i = int(np.argmin(sizes))
+        bins[i] |= fams[f]
+        sizes[i] += len(fams[f])
+    return [b for b in bins if b]
+
+
+def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
+                  unseen: str = "drop") -> tuple[dict[str, dict[str, list[int]]], dict]:
+    """TP, FP и эталоны каждого участка при порогах, подобранных без его фолда.
+
+    Для фолда пороги (группа, класс) ищет sweep_groups на остальных участках и
+    применяет к участкам фолда. Так устроен «честный балл» 0,329489: порог семьи
+    не видит её эталона. unseen="drop" выбрасывает объекты группы, которой на
+    остальных участках не было (порог не из чего подобрать); "keep" их оставляет.
+
+    Возвращает ({класс: {участок: [tp, fp, n_gt]}}, сводку по фолдам).
+    """
+    every = set().union(*folds) if folds else set()
+    counts: dict[str, dict[str, list[int]]] = {cls: {} for cls in curves}
+    info = {"folds": len(folds), "unseen_dropped": 0, "unseen_kept": 0}
+    for held in folds:
+        train = every - held
+        res = sweep_groups({cls: curve_where(c, train) for cls, c in curves.items()}, pick=pick)
+        taus: dict[str, dict[str, float]] = {}
+        for cls, v in res.items():
+            for g, gv in v["groups"].items():
+                taus.setdefault(g, {})[cls] = gv["threshold"]
+        for cls, c in curves.items():
+            hc = curve_where(c, held)
+            per = counts[cls]
+            for r, n in hc.gt_regions.items():
+                per.setdefault(r, [0, 0, 0])[2] += int(n)
+            if hc.conf.size == 0:
+                continue
+            raw = [taus.get(g, {}).get(cls) for g in hc.pred_group]
+            missing = np.fromiter((t is None for t in raw), dtype=bool, count=len(raw))
+            fill = np.inf if unseen == "drop" else -np.inf
+            tau = np.fromiter((fill if t is None else t for t in raw), dtype=np.float64, count=len(raw))
+            info["unseen_dropped" if unseen == "drop" else "unseen_kept"] += int(missing.sum())
+            kept = hc.conf >= tau
+            for r, hit in zip(np.asarray(hc.pred_region, dtype=object)[kept], hc.hit[kept]):
+                per.setdefault(r, [0, 0, 0])[0 if hit else 1] += 1
+    return counts, info
+
+
+def score_counts(counts: dict[str, dict[str, list[int]]], regions: set[str] | None = None,
+                 weights: dict[str, float] | None = None) -> tuple[float, dict]:
+    """Итоговый балл по счётчикам участков (как в метрике: класс без эталона выпадает).
+
+    weights — кратность участка в выборке бутстрепа; без неё каждый участок один раз.
+    """
+    num = den = 0.0
+    per = {}
+    for cls, by_region in counts.items():
+        tp = fp = n_gt = 0.0
+        for r, (a, b, g) in by_region.items():
+            if regions is not None and r not in regions:
+                continue
+            w = 1.0 if weights is None else weights.get(r, 0.0)
+            tp, fp, n_gt = tp + w * a, fp + w * b, n_gt + w * g
+        f1 = float(_f1(tp, fp, n_gt - tp))
+        per[cls] = {"f1": f1, "tp": tp, "fp": fp, "fn": n_gt - tp, "n_gt": n_gt}
+        if n_gt > 0:
+            num += CLASS_WEIGHTS.get(cls, 0.0) * f1
+            den += CLASS_WEIGHTS.get(cls, 0.0)
+    return (num / den if den else 0.0), per
+
+
+def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
+                            regions: set[str] | None = None) -> dict:
+    """A − B по честным счётчикам. Выборка с возвращением — семьи, не участки.
+
+    Участки одной семьи соседствуют и делят разметчика: если тянуть участки
+    по одному, разброс занижается и доля A > B выглядит увереннее, чем есть.
+    """
+    regs = {r for cs in (a, b) for by in cs.values() for r in by}
+    if regions is not None:
+        regs &= regions
+    fams: dict[str, list[str]] = {}
+    for r in sorted(regs):
+        fams.setdefault(family_of(r), []).append(r)
+    names = sorted(fams)
+    if not names or n <= 0:
+        return {}
+    rng = np.random.default_rng(seed)
+    diffs = []
+    for _ in range(n):
+        pick = np.bincount(rng.integers(0, len(names), len(names)), minlength=len(names))
+        w = {r: float(k) for f, k in zip(names, pick) if k for r in fams[f]}
+        diffs.append(score_counts(a, None, w)[0] - score_counts(b, None, w)[0])
+    v = np.asarray(diffs)
+    return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
+            "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean()), "samples": n,
+            "families": len(names)}
+
+
 def apply_thresholds(fc: dict, thresholds: dict[str, float], metric_path: str | None = None) -> dict:
     """Оставляет предсказания с confidence ≥ порога своего класса."""
     norm = load_official(metric_path).normalize_class_name
