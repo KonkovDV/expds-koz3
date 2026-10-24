@@ -368,7 +368,8 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
 # кругу того же участка и класса выбрасывается. Числа — совместный оптимум
 # замера 0,353793 (notes/pack_wide_dev_2026-10-23.json). sp_or и sp_focal —
 # одна карта центров: в сдаче группа читается из markup_type, в табло она
-# подписана sp_focal. Порог лидара в конфиге 0,05333 лежит на той же полке.
+# подписана sp_focal. В конфиге порог лидара 0,06415 / 0,194220.
+# 0,05333 — более ранняя точка, в конфиг её не возвращать.
 KEPT_KURGAN_CONF = {
     "ae": {"kurgany_povrezhdennye": 0.99053, "kurgany_tselye": 0.802255},
     "li": {"kurgany_povrezhdennye": 0.06415, "kurgany_tselye": 0.19422},
@@ -533,7 +534,7 @@ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root
 
 def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
                prefetch=None) -> list[dict]:
-    """Один участок целиком: лидар, затем геофизика и оптика. Для прогона набора — три прохода в run()."""
+    """Один участок: лидар, геофизика, оптика. Канала σ здесь нет. Платформа идёт через run(): четыре прохода."""
     return (lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
             + geophys_feats(reg, cfg, guard) + optical_feats(reg, cfg, guard, seg_cache, root))
 
