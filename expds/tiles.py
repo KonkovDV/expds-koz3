@@ -170,7 +170,7 @@ def shrink_polygon(g, shrink: float):
 
 
 def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int,
-                 dem: dict | None = None):
+                 dem: dict | None = None, ground_pixels: bool = False):
     """Источники тайлов региона: (имя, CRS, рамка, read(cx, cy) → (окно, привязка))."""
     if markup == "li" and li_source == "las":
         from .lidar import MODEL_DEM, build_dem, relief_channels
@@ -199,7 +199,14 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
             continue
         with rasterio.open(files[0]) as ds:
             bnd = box(*ds.bounds)
-            r = working_res(abs(ds.res[0]), res)
+            native = abs(ds.res[0])
+            if ground_pixels:
+                from .raster import ground_step, raster_kind_and_latitude
+
+                kind, lat = raster_kind_and_latitude(ds.crs, ds.transform, ds.width, ds.height)
+                r = ground_step(native, kind, lat, res)
+            else:
+                r = working_res(native, res)
         stats = band_stats(str(files[0]), markup) if len(files) == 1 else None
         yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=r, st=stats: (
             to_uint8(read_window(f, cx, cy, r, tile), markup, st),
@@ -232,17 +239,39 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
     return np.concatenate(chans, axis=0)
 
 
+def ground_area_m2(g, crs: str) -> float:
+    """Площадь полигона в квадратных метрах на земле.
+
+    В UTM это площадь фигуры. В веб-меркаторе и в градусах фигура сначала
+    переводится в зону UTM центроида: иначе на широте Москвы квадратный метр
+    карты примерно втрое больше метра на земле.
+    """
+    if g.is_empty or g.geom_type == "Point":
+        return 0.0
+    from .crs import transformer, utm_for_lonlat
+    from .raster import _radius_in_ground_meters
+
+    if _radius_in_ground_meters(crs):
+        return float(g.area)
+    c = g.centroid
+    lon, lat = transformer(crs, "EPSG:4326").transform(c.x, c.y)
+    utm = utm_for_lonlat(float(lon), float(lat))
+    return float(to_crs(g, crs, utm).area)
+
+
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
+                ground_pixels: bool = False,
                 only_classes: list[str] | None = None, pos_repeat: int = 1,
-                only_regions: list[str] | None = None) -> dict:
+                only_regions: list[str] | None = None, min_area_m2: float = 0.0) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
     только эти классы (например, городища на грубом шаге); pos_repeat — тайлов на
     объект (каждый со своим случайным сдвигом), для редких классов.
+    min_area_m2 — не брать полигоны мельче этого размера на земле; точки остаются.
     """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
@@ -278,9 +307,13 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         if only_regions is not None and reg.name not in only_regions:
             continue
         objs = by_region.get(reg.name, [])
-        for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem):
+        for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem,
+                                                     ground_pixels=ground_pixels):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             local = [(g, c) for g, c in local if g.intersects(bnd)]
+            if min_area_m2 > 0:
+                local = [(g, c) for g, c in local
+                         if g.geom_type == "Point" or ground_area_m2(g, crs) >= min_area_m2]
             centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local] * pos_repeat
             rng.shuffle(centers)
             centers = centers[:max_per_region]
@@ -331,7 +364,9 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "li_tags": li_tags if markup == "li" else None,
             "dem_res": dem["res"] if li_src == "las" else None, "dem_fill": dem["fill"] if li_src == "las" else None,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
-            "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE, **total}
+            "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE,
+            "pixel_units": "ground" if ground_pixels else "native",
+            "min_area_m2": min_area_m2, **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -348,7 +383,7 @@ def _cli() -> None:
     ap.add_argument("--li-source", choices=["las", "tif"], default="las",
                     help="li: каналы из LAS (как на инференсе) или готовые карты Li трейна")
     ap.add_argument("--li-tags", nargs="*", default=None,
-                    help="las: lrm_s lrm_l lrm_xl slope g; tif: g i c ch")
+                    help="las: lrm_s lrm_l lrm_xl slope g dev_s dev_l dev_xl; tif: g i c ch")
     ap.add_argument("--max-per-region", type=int, default=3000)
     ap.add_argument("--shrink", type=float, default=0.0,
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
@@ -358,7 +393,11 @@ def _cli() -> None:
                     help="в половине облаков оставить 25–100 %% точек земли до сетки")
     ap.add_argument("--classes", nargs="*", default=None, help="учить только эти классы")
     ap.add_argument("--pos-repeat", type=int, default=1, help="тайлов на объект (разные сдвиги)")
+    ap.add_argument("--ground-pixels", action="store_true",
+                    help="шаг тайла в метрах на земле: веб-меркатор делится на cos(широты)")
     ap.add_argument("--regions", nargs="*", default=None, help="только эти участки")
+    ap.add_argument("--min-area", type=float, default=0.0,
+                    help="не брать полигоны мельче этого размера, м² на земле; точки остаются")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -367,8 +406,9 @@ def _cli() -> None:
            "thin": args.thin}
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
-                       shrink=args.shrink, dem=dem, only_classes=args.classes, pos_repeat=args.pos_repeat,
-                       only_regions=args.regions)
+                       shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
+                       only_classes=args.classes, pos_repeat=args.pos_repeat,
+                       only_regions=args.regions, min_area_m2=args.min_area)
     print(json.dumps(meta, ensure_ascii=False))
 
 

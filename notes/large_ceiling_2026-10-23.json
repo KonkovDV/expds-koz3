@@ -1,0 +1,20 @@
+{
+  "min_area_m2": 1000,
+  "n": 356,
+  "by_class": {
+    "kurgany_povrezhdennye": {
+      "n": 296,
+      "found": 45,
+      "miss": 251,
+      "miss_optical": 215,
+      "miss_new34": 8
+    },
+    "kurgany_tselye": {
+      "n": 60,
+      "found": 19,
+      "miss": 41,
+      "miss_optical": 40,
+      "miss_new34": 0
+    }
+  }
+}

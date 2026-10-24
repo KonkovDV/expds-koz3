@@ -5,7 +5,9 @@
 """
 from __future__ import annotations
 
+import logging
 import math
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
@@ -18,6 +20,8 @@ from rasterio.windows import Window
 from shapely.geometry import Point
 
 from .crs import WEB_MERCATOR, to_crs
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -96,15 +100,110 @@ def mask_to_polygons(labels: np.ndarray, transform, crs: str | None,
     return list(zip(polys.tolist(), vals))
 
 
-def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 16):
-    """Круг радиуса radius_m вокруг точки (x, y) в CRS растра → полигон EPSG:3857.
+EARTH_RADIUS_M = 6_378_137.0
 
-    Метрика засчитывает точечный эталон по расстоянию от центроида до точки
-    (≤ 2 м), а полигональный — по покрытию и внутренней точке, поэтому
-    маленький круг вокруг центра объекта — допустимый и честный выход.
+
+def ground_step(native_res: float, kind: str, lat_deg: float, target_m: float,
+                max_upsample: float = 2.0) -> float:
+    """Шаг в единицах растра, при котором пиксель равен target_m на земле.
+
+    kind='meter' — UTM, шаг уже в метрах. kind='3857' — веб-меркатор, масштаб
+    1/cos(широты). kind='degree' — градусы, 111320·cos(широты) метров на градус.
+    Сданные веса учились в единицах файла: этот шаг включает только кэш с
+    pixel_units='ground'.
     """
-    poly = Point(x, y).buffer(radius_m, quad_segs=max(2, n // 4))
-    return to_crs(poly, crs, WEB_MERCATOR) if crs else poly
+    native = abs(float(native_res))
+
+    def _cap(native_m: float) -> float:
+        return max(float(target_m), native_m / max_upsample)
+
+    if kind == "meter":
+        return _cap(native)
+    cos = math.cos(math.radians(lat_deg))
+    if cos < 0.2:
+        cos = 0.2
+    meters_per_unit = cos if kind == "3857" else 111_320.0 * cos
+    return _cap(native * meters_per_unit) / meters_per_unit
+
+
+def raster_kind_and_latitude(crs, transform, width: int, height: int) -> tuple[str, float]:
+    """('meter'|'3857'|'degree', широта центра). Без CRS считаем единицы метрами."""
+    if crs is None:
+        return "meter", 0.0
+    x, y = transform * (width / 2.0, height / 2.0)
+    epsg = crs.to_epsg() if hasattr(crs, "to_epsg") else None
+    if getattr(crs, "is_geographic", False):
+        return "degree", float(y)
+    if epsg == 3857:
+        lat = math.degrees(math.atan(math.sinh(y / EARTH_RADIUS_M)))
+        return "3857", lat
+    return "meter", 0.0
+
+
+def _radius_in_ground_meters(crs: str) -> bool:
+    """UTM и прочие проекции в метрах. Веб-меркатор и градусы растягивают радиус."""
+    from pyproj import CRS
+
+    ref = CRS.from_user_input(crs)
+    return not ref.is_geographic and ref.to_epsg() != 3857
+
+
+def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 16):
+    """Круг радиуса radius_m метров на местности вокруг (x, y) → полигон EPSG:3857.
+
+    В EPSG:3857 и в градусах буфер строится в зоне UTM точки, иначе 4 м на
+    широте Москвы становятся примерно 2,3 м на земле. В UTM буфер как раньше:
+    единицы растра уже метры.
+    """
+    from .crs import transformer, utm_for_lonlat
+
+    src, px, py = crs, float(x), float(y)
+    if crs and not _radius_in_ground_meters(crs):
+        lon, lat = transformer(crs, "EPSG:4326").transform(px, py)
+        src = utm_for_lonlat(float(lon), float(lat))
+        px, py = transformer(crs, src).transform(float(x), float(y))
+    poly = Point(px, py).buffer(radius_m, quad_segs=max(2, n // 4))
+    return to_crs(poly, src, WEB_MERCATOR) if src else poly
+
+
+def needs_warp(ds) -> str | None:
+    """'gcps' или 'geographic', если окна растра нельзя читать как метры. UTM и 3857 — None."""
+    from .crs import is_geographic
+
+    crs = ds.crs.to_string() if ds.crs else None
+    if crs is None:
+        gcps, gcp_crs = ds.gcps
+        return "gcps" if gcps and gcp_crs else None
+    return "geographic" if is_geographic(crs) else None
+
+
+@contextmanager
+def open_metric(path: str | Path):
+    """Растр в метрах. UTM и EPSG:3857 открываются как есть. Градусы и GCP — через WarpedVRT."""
+    from rasterio.vrt import WarpedVRT
+
+    from .crs import transformer, utm_for_lonlat
+
+    with rasterio.open(path) as src:
+        why = needs_warp(src)
+        if why is None:
+            yield src
+            return
+        if why == "gcps":
+            gcps, gcp_crs = src.gcps
+            src_crs = gcp_crs
+            xs = [g.x for g in gcps]
+            ys = [g.y for g in gcps]
+            cx, cy = sum(xs) / len(xs), sum(ys) / len(ys)
+        else:
+            src_crs = src.crs
+            b = src.bounds
+            cx, cy = (b.left + b.right) / 2, (b.bottom + b.top) / 2
+        lon, lat = transformer(src_crs.to_string(), "EPSG:4326").transform(cx, cy)
+        dst = utm_for_lonlat(lon, lat)
+        log.warning("%s: %s → перепроецирую в %s", Path(path).name, why, dst)
+        with WarpedVRT(src, src_crs=src_crs, crs=dst, resampling=Resampling.bilinear) as vrt:
+            yield vrt
 
 
 def pixel_to_xy(transform, rows: np.ndarray, cols: np.ndarray) -> tuple[np.ndarray, np.ndarray]:

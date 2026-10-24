@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-23",
+  "image": "expds-runtime:2026-10-22",
+  "image_id": "sha256:8d67bb57929f3a99dff51c64ff6d7872dd2521b3bc0a712c6aa6422aaa384bfa",
+  "input": "F:\\expds3\\mock_val",
+  "regions": 48,
+  "raw": 102893,
+  "written": 3099,
+  "pipeline_s": 798.1,
+  "wall_s": 816.4,
+  "docker_wall_ms": 840933,
+  "peak_gib_sampled": 5.085,
+  "sample_s": 15,
+  "memory_limit": "16g",
+  "memory_limit_note": "План просил 96g. Хост 32 ГБ, чужие контейнеры не останавливались, пик 5,1 ГБ в потолок не упёрся.",
+  "bare_s": 337,
+  "bare_gib": 4.9,
+  "network": "none",
+  "gpus": "all"
+}

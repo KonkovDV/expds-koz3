@@ -6,6 +6,7 @@ UTM.json региона → WKT в заголовке LAS → CRS самого �
 from __future__ import annotations
 
 import logging
+import math
 from functools import lru_cache
 from pathlib import Path
 
@@ -63,6 +64,125 @@ def utm_for_lonlat(lon: float, lat: float) -> str:
     """EPSG зоны UTM для точки (для метрических расчётов вне растров)."""
     zone = int((lon + 180) // 6) + 1
     return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
+
+
+@lru_cache(maxsize=256)
+def valid_crs(text: str | None) -> str | None:
+    """Строка, если pyproj её понимает. «EPSG» без кода — None."""
+    if not text:
+        return None
+    try:
+        CRS.from_user_input(text)
+    except Exception:
+        log.warning("CRS %r не разбирается", text)
+        return None
+    return text
+
+
+@lru_cache(maxsize=256)
+def is_geographic(crs: str | None) -> bool:
+    if not crs:
+        return False
+    try:
+        return bool(CRS.from_user_input(crs).is_geographic)
+    except Exception:
+        return False
+
+
+def las_box(path: str | Path) -> tuple | None:
+    try:
+        import laspy
+
+        with laspy.open(str(path)) as f:
+            h = f.header
+            return float(h.mins[0]), float(h.mins[1]), float(h.maxs[0]), float(h.maxs[1])
+    except Exception:
+        return None
+
+
+def _box_in(crs_src: str, crs_dst: str, box: tuple) -> tuple | None:
+    try:
+        tr = transformer(crs_src, crs_dst)
+        xs, ys = tr.transform([box[0], box[2], box[0], box[2]], [box[1], box[1], box[3], box[3]])
+        if not all(map(math.isfinite, list(xs) + list(ys))):
+            return None
+        return min(xs), min(ys), max(xs), max(ys)
+    except Exception:
+        return None
+
+
+def plausible(crs: str, box: tuple | None) -> bool:
+    if box is None:
+        return True
+    ll = _box_in(crs, "EPSG:4326", box)
+    if ll is None or not (-180 <= ll[0] <= ll[2] <= 180 and -85 <= ll[1] <= ll[3] <= 85):
+        return False
+    lon0 = _utm_central_lon(crs)
+    return lon0 is None or abs((ll[0] + ll[2]) / 2 - lon0) <= 6.0
+
+
+def _same(a: str | None, b: str | None) -> bool:
+    return _same_crs(a, b)
+
+
+def _same_crs(a: str | None, b: str | None) -> bool:
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    try:
+        return CRS.from_user_input(a) == CRS.from_user_input(b)
+    except Exception:
+        return False
+
+
+def _overlap_votes(crs: str, box: tuple, rasters: list) -> int:
+    import rasterio
+
+    votes = 0
+    for path in rasters:
+        try:
+            with rasterio.open(path) as ds:
+                if ds.crs is None:
+                    continue
+                rb = _box_in(crs, ds.crs.to_string(), box)
+                b = ds.bounds
+        except Exception:
+            continue
+        if rb and rb[0] < b.right and rb[2] > b.left and rb[1] < b.top and rb[3] > b.bottom:
+            votes += 1
+    return votes
+
+
+def resolve_region_crs(utm_json: str | None, las_files: list, rasters: list, policy: str = "utm_json") -> str | None:
+    """CRS участка. По умолчанию UTM.json, как в замере 0,353793.
+
+    policy "las" берёт заголовок LAS. policy "vote" при расхождении выбирает CRS,
+    в которой рамка облака ложится на снимки участка; при равенстве остаётся UTM.json.
+    """
+    utm = valid_crs(utm_json)
+    las = valid_crs(las_crs(las_files[0])) if las_files else None
+    box = las_box(las_files[0]) if las_files else None
+    cands = [c for c in (utm, las) if c]
+    if not cands:
+        return None
+    if len(cands) == 1 or _same_crs(utm, las):
+        return cands[0]
+    log.warning("CRS расходятся: UTM.json %s, LAS %s", utm, las)
+    if policy == "las":
+        return las
+    if policy != "vote":
+        return utm
+    ok = [c for c in cands if plausible(c, box)]
+    if len(ok) == 1:
+        log.warning("выбрана %s: другая CRS не ложится на землю", ok[0])
+        return ok[0]
+    flat = [p for files in rasters for p in files] if rasters and isinstance(rasters, dict) else list(rasters or [])
+    votes = {c: _overlap_votes(c, box, flat) for c in cands} if box and flat else {}
+    if votes and votes.get(las, 0) > votes.get(utm, 0):
+        log.warning("выбрана CRS LAS %s: растры участка за неё (%s)", las, votes)
+        return las
+    return utm
 
 
 def _utm_central_lon(epsg: str | None) -> float | None:

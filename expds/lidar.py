@@ -47,7 +47,9 @@ RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
 #: линейная шкала в пределах *_range (1–99 перцентили на шаге 0,5 м по четырём участкам трейна).
 RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0,
           "lrm_xl_m": 100.0, "lrm_xl_clip_m": 4.0, "slope_max_deg": 45.0,
-          "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0)}
+          "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0),
+          "dev_s_m": 8.0, "dev_l_m": 30.0, "dev_xl_m": 100.0,
+          "dev_clip": 3.0, "dev_std_floor_m": 0.05}
 #: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
 FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
 
@@ -172,6 +174,17 @@ def would_coarsen(las_path: str | Path, res: float, max_pixels: int) -> bool:
     return int(spec["factor"]) > 1
 
 
+def has_class(las_path: str | Path, ground_class: int = 2) -> bool:
+    """Есть ли в облаке хотя бы одна точка этого класса. Читает, пока не найдёт."""
+    import laspy
+
+    with laspy.open(str(las_path)) as f:
+        for pts in f.chunk_iterator(1_000_000):
+            if np.any(np.asarray(pts.classification) == ground_class):
+                return True
+    return False
+
+
 def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0.5,
                      tile_m: float = 400.0, halo_m: float = 40.0,
                      ground_class: int = 2, fill: str = "delaunay",
@@ -229,6 +242,9 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     tmp_dir = os.environ.get("EXPDS_TMP") or None
     if tmp_dir:
         os.makedirs(tmp_dir, exist_ok=True)
+    use_all = not has_class(las_path, ground_class)
+    if use_all:
+        log.info("%s: класса %s нет, мозаика по всем точкам", Path(las_path).name, ground_class)
     tmp = tempfile.TemporaryDirectory(prefix="dem-mosaic-", dir=tmp_dir)
     try:
         bins = [(Path(tmp.name) / f"{i}.f64").open("wb") for i in range(len(tiles))]
@@ -236,7 +252,10 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
             with laspy.open(str(las_path)) as f:
                 for pts in f.chunk_iterator(1_000_000):
                     y_all = np.asarray(pts.y, np.float64)
-                    ground = np.asarray(pts.classification) == ground_class
+                    if use_all:
+                        ground = np.ones(np.asarray(pts.classification).shape, dtype=bool)
+                    else:
+                        ground = np.asarray(pts.classification) == ground_class
                     if not ground.any():
                         continue
                     x = np.asarray(pts.x, np.float64)[ground]
@@ -297,8 +316,14 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
         from .crs import las_crs
         crs = las_crs(las_path)
     info = dict(spec, res=work_res, factor=1, tiled=True, fine_res=res,
-                width=out_w, height=out_h)
+                width=out_w, height=out_h, used_all=use_all)
     return Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+
+
+# Готовые сетки остаются до конца прогона: канал σ читает тот же DEM, что и основной лидар.
+# 8 ГиБ хватает на копию публичной выборки (около 1 ГиБ сеток). Сверх этого старые сетки
+# забываются и при повторном запросе строятся заново, числа те же.
+_READY_BUDGET = int(float(os.environ.get("EXPDS_DEM_CACHE_GIB", "8")) * 1024 ** 3)
 
 
 class DemPrefetch:
@@ -308,7 +333,9 @@ class DemPrefetch:
     основному: тот в это время ждёт видеокарту и собирает полигоны. Чтение
     холодного файла с диска тоже уходит в фон. Триангуляция Делоне идёт в одном
     потоке, поэтому depth облаков триангулируются одновременно на разных ядрах.
-    В памяти — не больше depth + 1 DEM.
+    Уже запущенную сборку не отменяем: cancel не останавливает поток, а следующий
+    запрос того же шага построил бы ту же сетку ещё раз. Готовая сетка хранится
+    и отдаётся повторно, в том числе каналу σ после оптики.
     """
 
     def __init__(self, order: list[tuple[Path, str | None]], depth: int = 2):
@@ -318,26 +345,52 @@ class DemPrefetch:
         self._ahead = {str(p): order[i + 1:i + 1 + self.depth] for i, (p, _) in enumerate(order)}
         self._pool = ThreadPoolExecutor(max_workers=self.depth, thread_name_prefix="dem")
         self._jobs: dict[tuple, object] = {}
+        self._ready: dict[tuple, Dem] = {}
 
     def _submit(self, las: Path, res: float, fill: str, crs: str | None) -> tuple:
         key = (str(las), float(res), fill, crs)
-        if key not in self._jobs:
+        if key not in self._ready and key not in self._jobs:
             self._jobs[key] = self._pool.submit(build_dem, las, res=res, fill=fill, crs=crs)
         return key
 
+    def _queue_ahead(self, las: Path, res: float, fill: str) -> None:
+        for path, crs in self._ahead.get(str(las), []):
+            self._submit(path, res, fill, crs)
+
+    def _remember(self, key: tuple, dem: Dem) -> Dem:
+        self._ready.pop(key, None)
+        self._ready[key] = dem
+        while len(self._ready) > 1 and sum(item.dem.nbytes for item in self._ready.values()) > _READY_BUDGET:
+            self._ready.pop(next(iter(self._ready)))
+        return self._ready.get(key, dem)
+
     def get(self, las: Path, res: float, fill: str, crs: str | None) -> Dem:
         """DEM этого LAS; следующие depth по порядку ставятся в очередь сразу за ним."""
+        key = (str(las), float(res), fill, crs)
+        if key in self._ready:
+            self._queue_ahead(las, res, fill)
+            dem = self._ready.pop(key)
+            return self._remember(key, dem)
         key = self._submit(las, res, fill, crs)
-        keep = {key} | {self._submit(p, res, fill, c) for p, c in self._ahead.get(str(las), [])}
-        # LAS, пропущенный по времени, не должен держать свой DEM в памяти.
+        keep = {key} | {self._submit(path, res, fill, ahead_crs)
+                        for path, ahead_crs in self._ahead.get(str(las), [])}
         for stale in [k for k in self._jobs if k not in keep]:
-            self._jobs.pop(stale).cancel()
-        return self._jobs.pop(key).result()
+            fut = self._jobs[stale]
+            if fut.running():
+                continue
+            self._jobs.pop(stale)
+            if fut.done() and not fut.cancelled() and fut.exception() is None:
+                self._remember(stale, fut.result())
+            elif not fut.done():
+                fut.cancel()
+        dem = self._jobs.pop(key).result()
+        return self._remember(key, dem)
 
     def close(self) -> None:
         for fut in self._jobs.values():
             fut.cancel()
         self._jobs.clear()
+        self._ready.clear()
         self._pool.shutdown(wait=False, cancel_futures=True)
 
 
@@ -396,6 +449,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     под курганы лесной и степной зон); lrm_xl — то же окно 100 м под городища,
     в сданных весах курганов его нет; slope — уклон; g — серая отмывка;
     opns, svf — положительная открытость и фактор вида на небо (насыпь и ров).
+    dev_s, dev_l, dev_xl — то же окно, но делённое на σ окрестности и обрезанное
+    к ±3: низкая насыпь в ровном поле не тонет, а в шумном лесу не сливается
+    с клипом в метрах. Сданные каналы этот тег не использует.
     Только g зависит от направления света: без него допустимы повороты.
     """
     from rasterio.transform import from_origin
@@ -425,6 +481,11 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
             lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
             unit = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF[f"{t}_clip_m"], -1, 1) * 0.5 + 0.5
+        elif t in ("dev_s", "dev_l", "dev_xl"):
+            radius = max(1, round(RELIEF[f"{t}_m"] / step))
+            dev = accel.local_dev(np.where(valid, z, np.nan).astype(np.float32), radius,
+                                  float(RELIEF["dev_std_floor_m"]))
+            unit = np.clip(np.nan_to_num(dev, nan=0.0) / RELIEF["dev_clip"], -1, 1) * 0.5 + 0.5
         elif t == "slope":
             unit = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
         elif t == "g":

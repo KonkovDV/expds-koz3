@@ -1,0 +1,266 @@
+{
+  "base_all": 0.3505878117817956,
+  "all": 0.3557786002154316,
+  "delta_all": 0.005190788433636018,
+  "base_new": 0.3182305499286017,
+  "new": 0.3170210806035221,
+  "delta_new": -0.0012094693250796484,
+  "base_optical": 0.19484806689463077,
+  "optical": 0.19501476089295344,
+  "delta_optical": 0.00016669399832267007,
+  "bootstrap": {
+    "mean": 0.005266378258630782,
+    "p5": -0.0010083924272012961,
+    "p50": 0.0046676850218013155,
+    "p95": 0.014743632980015353,
+    "p_gt0": 0.848
+  },
+  "accept": false,
+  "per_class": {
+    "kurgany_povrezhdennye": {
+      "f1": 0.3723129922027875,
+      "n_gt": 3620,
+      "groups": {
+        "ae": {
+          "threshold": 0.99053,
+          "kept": 371,
+          "tp": 71
+        },
+        "li": {
+          "threshold": 0.06415,
+          "kept": 2153,
+          "tp": 747
+        },
+        "li_ae": {
+          "threshold": 0.993061,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.214995,
+          "kept": 202,
+          "tp": 77
+        },
+        "li_mosaic": {
+          "threshold": 0.959005,
+          "kept": 66,
+          "tp": 32
+        },
+        "sp_focal": {
+          "threshold": 0.44695,
+          "kept": 673,
+          "tp": 135
+        },
+        "sp_focal2": {
+          "threshold": 0.5019,
+          "kept": 393,
+          "tp": 77
+        }
+      }
+    },
+    "kurgany_tselye": {
+      "f1": 0.4920380002274941,
+      "n_gt": 1577,
+      "groups": {
+        "ae": {
+          "threshold": 0.802255,
+          "kept": 811,
+          "tp": 291
+        },
+        "li": {
+          "threshold": 0.19422,
+          "kept": 588,
+          "tp": 238
+        },
+        "li_ae": {
+          "threshold": 1.000001,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.99956,
+          "kept": 5,
+          "tp": 1
+        },
+        "li_mosaic": {
+          "threshold": 0.17042,
+          "kept": 335,
+          "tp": 148
+        },
+        "sp_focal": {
+          "threshold": 0.472345,
+          "kept": 66,
+          "tp": 10
+        },
+        "sp_focal2": {
+          "threshold": 0.519485,
+          "kept": 53,
+          "tp": 15
+        }
+      }
+    },
+    "gorodishcha": {
+      "f1": 0.29069724026564486,
+      "n_gt": 118,
+      "groups": {
+        "li": {
+          "threshold": 0.993091,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.986425,
+          "kept": 24,
+          "tp": 8
+        },
+        "li_mask": {
+          "threshold": 0.99451,
+          "kept": 26,
+          "tp": 14
+        },
+        "sp_or": {
+          "threshold": 0.994085,
+          "kept": 33,
+          "tp": 3
+        }
+      }
+    },
+    "arkhitektury": {
+      "f1": 0.026058161269994405,
+      "n_gt": 407,
+      "groups": {
+        "sp_arch": {
+          "threshold": 0.199475,
+          "kept": 1321,
+          "tp": 14
+        }
+      }
+    },
+    "object_poly": {
+      "f1": 0.3172661772981342,
+      "n_gt": 1083,
+      "groups": {
+        "etgr": {
+          "threshold": 0.096635,
+          "kept": 387,
+          "tp": 144
+        },
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 146,
+          "tp": 78
+        },
+        "terfl": {
+          "threshold": 0.0,
+          "kept": 319,
+          "tp": 38
+        }
+      }
+    },
+    "fortifikatsii": {
+      "f1": 0.1877373589295957,
+      "n_gt": 696,
+      "groups": {
+        "ae_fort": {
+          "threshold": 0.998215,
+          "kept": 714,
+          "tp": 94
+        },
+        "li": {
+          "threshold": 0.999971,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.99926,
+          "kept": 21,
+          "tp": 3
+        },
+        "li_fort": {
+          "threshold": 0.987675,
+          "kept": 127,
+          "tp": 14
+        }
+      }
+    },
+    "finds_points": {
+      "f1": 0.5817537237622955,
+      "n_gt": 3478,
+      "groups": {
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 3732,
+          "tp": 1819
+        }
+      }
+    }
+  },
+  "thresholds": {
+    "ae": {
+      "kurgany_povrezhdennye": 0.99053,
+      "kurgany_tselye": 0.802255
+    },
+    "li": {
+      "kurgany_povrezhdennye": 0.06415,
+      "kurgany_tselye": 0.19422,
+      "gorodishcha": 0.993091,
+      "fortifikatsii": 0.999971
+    },
+    "li_ae": {
+      "kurgany_povrezhdennye": 0.993061,
+      "kurgany_tselye": 1.000001
+    },
+    "li_dev": {
+      "kurgany_povrezhdennye": 0.214995,
+      "kurgany_tselye": 0.99956
+    },
+    "li_mosaic": {
+      "kurgany_povrezhdennye": 0.959005,
+      "kurgany_tselye": 0.17042
+    },
+    "sp_focal": {
+      "kurgany_povrezhdennye": 0.44695,
+      "kurgany_tselye": 0.472345
+    },
+    "sp_focal2": {
+      "kurgany_povrezhdennye": 0.5019,
+      "kurgany_tselye": 0.519485
+    },
+    "li_coarse": {
+      "gorodishcha": 0.986425,
+      "fortifikatsii": 0.99926
+    },
+    "li_mask": {
+      "gorodishcha": 0.99451
+    },
+    "sp_or": {
+      "gorodishcha": 0.994085
+    },
+    "sp_arch": {
+      "arkhitektury": 0.199475
+    },
+    "etgr": {
+      "object_poly": 0.096635
+    },
+    "maggr": {
+      "object_poly": 0.0,
+      "finds_points": 0.0
+    },
+    "terfl": {
+      "object_poly": 0.0
+    },
+    "ae_fort": {
+      "fortifikatsii": 0.998215
+    },
+    "li_fort": {
+      "fortifikatsii": 0.987675
+    }
+  },
+  "add": [
+    "F:\\expds3\\work\\spor_focal_wide_asshipped.geojson:sp_focal2",
+    "F:\\expds3\\work\\li_dev_asshipped.geojson:li_dev"
+  ],
+  "replace": [],
+  "geo": "geo_cur.geojson",
+  "gt": "gt_train_v2.geojson"
+}

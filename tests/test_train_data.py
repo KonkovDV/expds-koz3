@@ -4,7 +4,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from expds.train import GpuTiles, TileDataset, paste_objects
+from expds.train import GpuTiles, TileDataset, paste_objects, photometric, resample_scale
 
 
 def test_dice_does_not_dilute_a_missed_class_with_an_empty_one():
@@ -141,6 +141,46 @@ def test_copy_paste_on_gpu_tiles(tmp_path):
         found = True
         break
     assert found
+
+
+def test_photometric_zero_is_identity():
+    x = torch.rand(2, 3, 8, 8)
+    assert torch.equal(photometric(x, 0, 0), x)
+
+
+def test_photometric_brightness_keeps_a_flat_field_flat():
+    torch.manual_seed(0)
+    x = torch.full((8, 3, 8, 8), 0.5)
+    y = photometric(x, brightness=0.08, contrast=0.0)
+    assert float(y.min()) >= 0.5 - 0.08 - 1e-5
+    assert float(y.max()) <= 0.5 + 0.08 + 1e-5
+    assert torch.allclose(y.std(dim=(1, 2, 3)), torch.zeros(8), atol=1e-5)
+    assert not torch.equal(y, x)
+
+
+def test_photo_changes_the_image_and_leaves_the_mask(tmp_path):
+    rows, _, _ = make_cache(tmp_path, n=4, t=8)
+    g = GpuTiles(tmp_path, rows, 5, flips=False, device=torch.device("cpu"), photo=True)
+    base_x, base_y = g.get(torch.arange(4), augment=False)
+    torch.manual_seed(1)
+    x, y = g.get(torch.arange(4), augment=True)
+    assert torch.equal(y, base_y)
+    assert not torch.allclose(x, base_x)
+
+
+def test_zoom_in_enlarges_the_center_blob():
+    x = torch.zeros(1, 1, 16, 16)
+    y = torch.zeros(1, 1, 16, 16)
+    x[0, 0, 7:9, 7:9] = 1
+    y[0, 0, 7:9, 7:9] = 1
+    _, ys = resample_scale(x, y, 0.5, scales=torch.tensor([0.5]))
+    assert float(ys.sum()) > float(y.sum())
+    assert float(ys[0, 0, 8, 8]) == 1.0
+    wide = torch.zeros(1, 1, 16, 16)
+    wide[0, 0, 4:12, 4:12] = 1
+    _, small = resample_scale(wide, wide.clone(), 0.5, scales=torch.tensor([4.0]))
+    assert float(small.sum()) < float(wide.sum()) / 2
+    assert float(small[0, 0, 8, 8]) == 1.0
 
 
 def test_epoch_covers_each_tile_once(tmp_path):

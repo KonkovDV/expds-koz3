@@ -1,0 +1,23 @@
+{
+  "frozen": true,
+  "base_all": 0.3505878117817956,
+  "all": 0.35152136010666973,
+  "delta_all": 0.0009335483248741339,
+  "base_new": 0.3182305499286017,
+  "new": 0.3182305499286017,
+  "delta_new": 0.0,
+  "base_optical": 0.19484806689463077,
+  "optical": 0.2010291737661315,
+  "delta_optical": 0.0061811068715007245,
+  "bootstrap": {
+    "mean": 0.001104664808363672,
+    "p5": -0.001603678459396421,
+    "p50": 0.0008668236959184228,
+    "p95": 0.004509872458550698,
+    "p_gt0": 0.694
+  },
+  "accept": false,
+  "note": "пороги старых групп с базы 0,350588; sp_focal2 и li_dev из конфига",
+  "wide": "F:\\expds3\\work\\spor_focal_wide_asshipped.geojson",
+  "dev": "F:\\expds3\\work\\li_dev_asshipped.geojson"
+}

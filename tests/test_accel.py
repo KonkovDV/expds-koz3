@@ -200,6 +200,33 @@ def test_lrm_xl_sees_a_wide_dome_without_changing_narrower_channels():
         relief_channels(d, 1.0, ("nope",))
 
 
+def test_local_dev_shrinks_when_the_neighbourhood_is_rougher():
+    from expds.lidar import Dem, relief_channels
+
+    n = 41
+    flat = np.zeros((n, n), np.float32)
+    flat[n // 2, n // 2] = 1.0
+    quiet = accel.local_dev(flat, 3, 0.05)
+    rough = flat.copy()
+    rough[::2, ::2] = 2.0
+    rough[1::2, 1::2] = -2.0
+    rough[n // 2, n // 2] = 1.0
+    noisy = accel.local_dev(rough, 3, 0.05)
+    assert quiet[n // 2, n // 2] > 5
+    assert noisy[n // 2, n // 2] < quiet[n // 2, n // 2] / 2
+    flat[0, :] = np.nan
+    assert np.isnan(accel.local_dev(flat, 2, 0.05)[0]).all()
+    mound = np.zeros((80, 80), np.float32)
+    mound[40, 40] = 1.0
+    mound[0, :] = np.nan
+    d = Dem(dem=mound, left=0.0, top=80.0, res=1.0, crs="EPSG:32636")
+    img, _ = relief_channels(d, 1.0, ("lrm_s", "dev_s"))
+    alone, _ = relief_channels(d, 1.0, ("lrm_s",))
+    assert np.array_equal(img[0], alone[0])
+    assert img[1, 0, 0] == 0
+    assert int(img[1, 40, 40]) > int(img[1, 5, 5]) + 20
+
+
 def test_openness_svf_matches_numpy_and_shape():
     z = accel.fill_pyramid(dem_with_holes(40, 52))
     z[:2, :] = np.nan

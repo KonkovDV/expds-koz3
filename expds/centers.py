@@ -20,12 +20,15 @@ from . import accel
 CENTER_POS_WEIGHT = 20.0
 
 
-def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False):
+def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike: bool = True):
     """Бинарные маски N×K×H×W → гауссианы в центрах связных компонент.
 
     Несколько насыпей в одном тайле дают несколько пиков. Центр масс всей маски
     лёг бы между ними, и метрика такой объект не засчитывает.
     by_radius: ширина пика равна радиусу компоненты / 3, а не фиксированным метрам.
+    spike=False оставляет центр между клетками (DARK, Zhang et al., CVPR 2020).
+    С шипом ближайшая клетка равна 1: так училась сданная карта центров, и
+    фокальная потеря видит положительный пиксель по порогу 0,999.
     """
     import torch
     from scipy import ndimage
@@ -55,9 +58,10 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False):
                     sigma = float(sigma_px)
                 sig2 = 2.0 * sigma * sigma
                 np.maximum(heat, np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / sig2), out=heat)
-                ry = min(max(int(round(cy)), 0), h - 1)
-                rx = min(max(int(round(cx)), 0), w - 1)
-                heat[ry, rx] = 1.0
+                if spike:
+                    ry = min(max(int(round(cy)), 0), h - 1)
+                    rx = min(max(int(round(cx)), 0), w - 1)
+                    heat[ry, rx] = 1.0
     return torch.from_numpy(out).to(device)
 
 
@@ -78,6 +82,19 @@ def init_focal_bias(model, prior: float = 0.01) -> None:
     torch.nn.init.constant_(conv.bias, -math.log((1.0 - prior) / prior))
 
 
+def _center_positives(target):
+    """Пиксели, которые потеря считает пиками.
+
+    Шип в единицу ловится порогом 0,999. Гауссиана без шипа не достигает
+    единицы, если центр между клетками: тогда пик — локальный максимум выше 0,5.
+    На цели с шипом это тот же пиксель, потеря сданного рецепта не меняется.
+    """
+    import torch.nn.functional as F
+
+    pooled = F.max_pool2d(target, 3, stride=1, padding=1)
+    return (target >= 0.999) | ((target + 1e-6 >= pooled) & (target > 0.5))
+
+
 def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     """Фокальная потеря карты центров (Law & Deng, 2018; Zhou et al., 2019).
 
@@ -87,7 +104,7 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     import torch
 
     p = logits.float().sigmoid().clamp(1e-4, 1 - 1e-4)
-    pos = target >= 0.999
+    pos = _center_positives(target)
     neg = ~pos
     pos_loss = -((1 - p) ** alpha) * torch.log(p)
     neg_loss = -((1 - target) ** beta) * (p ** alpha) * torch.log(1 - p)

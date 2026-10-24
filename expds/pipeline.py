@@ -7,11 +7,13 @@
 2. лидар: LAS → DEM → модель, иначе CPU-кандидаты; участки с LAS первыми;
 3. оптика (ae, sp_or, or) на оставшемся времени, только при наличии модели.
 
-Файл с тем, что уже найдено, записывается всегда.
+Файл результата записывается в конце и сторожем времени.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
+import signal
 import time
 import tomllib
 from dataclasses import fields
@@ -73,6 +75,15 @@ def model_specs(models: dict, markup: str) -> list[tuple[str | list[str], list[s
     return out
 
 
+def model_ensemble_only(models: dict, markup: str) -> list[list[str] | None]:
+    """Классы, по которым усредняется ансамбль. Нет ключа — среднее по всем классам."""
+    v = models.get(markup)
+    out = []
+    for it in v if isinstance(v, list) else ([v] if v else []):
+        out.append(list(it["ensemble_classes"]) if isinstance(it, dict) and it.get("ensemble_classes") else None)
+    return out
+
+
 def model_files(path: str | list[str]) -> list[str]:
     """Файлы весов одной записи model_specs."""
     return list(path) if isinstance(path, list) else [path]
@@ -82,14 +93,14 @@ def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
     from .infer_nn import Ensemble, Segmenter
 
     segs = []
-    for path, classes in model_specs(models, markup):
+    for (path, classes), only in zip(model_specs(models, markup), model_ensemble_only(models, markup)):
         files = [Path(f) if Path(f).is_absolute() else root / f for f in model_files(path)]
         missing = [f for f in files if not f.exists()]
         if missing:
             log.warning("модель %s не найдена: %s", markup, ", ".join(map(str, missing)))
             continue
         members = [Segmenter(f) for f in files]
-        seg = members[0] if len(members) == 1 else Ensemble(members)
+        seg = members[0] if len(members) == 1 else Ensemble(members, only=only)
         seg.keep = set(classes) if classes else None
         seg.tta = tta
         segs.append(seg)
@@ -109,10 +120,33 @@ def _kept(seg, feats: list[dict]) -> list[dict]:
     return feats if keep is None else [f for f in feats if f["class_name"] in keep]
 
 
+def region_crs(reg: Region, cfg: dict | None = None) -> str | None:
+    """CRS участка. Без [crs] policy это UTM.json, как в замере 0,353793."""
+    from .crs import resolve_region_crs
+
+    policy = ((cfg or {}).get("crs") or {}).get("policy", "utm_json")
+    utm = read_utm_json(reg.utm_json)
+    if policy == "utm_json":
+        return utm
+    rasters = [p for files in reg.rasters.values() for p in files]
+    return resolve_region_crs(utm, list(reg.las), rasters, policy)
+
+
+def _with_copies(feats: list[dict], reg: Region, cfg: dict) -> list[dict]:
+    rules = (cfg.get("fusion") or {}).get("copy") or []
+    if not rules:
+        return feats
+    try:
+        return feats + fusion.copy_layers(feats, reg.rasters, rules)
+    except Exception:
+        log.exception("%s: копии слоёв пропущены", reg.name)
+        return feats
+
+
 def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     """Классические finds_points и object_poly. Маски extra/ применяются после детектора."""
     feats: list[dict] = []
-    crs_region = read_utm_json(reg.utm_json)
+    crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
     for mt in ("maggr", "etgr", "terfl"):
         files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
@@ -173,6 +207,30 @@ def li_mask_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     return out
 
 
+def li_fort_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path, dem_for) -> list[dict]:
+    """Фортификации отдельной маской на DEM 1 м. Группа порога li_fort, не li и не li_coarse.
+
+    Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
+    Нет файла весов — пустой список, основной лидар не трогается.
+    """
+    from .lidar import hillshade_set
+
+    segs = _cached_segmenters(seg_cache, cfg, "li_fort", root)
+    out: list[dict] = []
+    for seg in segs:
+        d = dem_for(seg.meta)
+        if d.crs is None:
+            continue
+        found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set, None, None,
+                                          output_floors(cfg, "li_fort")))
+        for feat in found:
+            if feat.get("class_name") != "fortifikatsii":
+                continue
+            feat["threshold_group"] = "li_fort"
+            out.append(feat)
+    return out
+
+
 def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
                 prefetch=None) -> list[dict]:
     """LAS → объекты лидара и, где есть аэрофото, копии курганов в слой ae.
@@ -184,7 +242,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
 
     feats: list[dict] = []
     mosaic_kurgans: list[dict] = []
-    crs_region = read_utm_json(reg.utm_json)
+    crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
@@ -275,6 +333,10 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     feats += li_mask_feats(reg, las, cfg, seg_cache, root, dem_for)
                 except Exception:
                     log.exception("%s: маска городищ пропущена", las.name)
+                try:
+                    feats += li_fort_feats(reg, las, cfg, seg_cache, root, dem_for)
+                except Exception:
+                    log.exception("%s: маска фортификаций пропущена", las.name)
             continue
         try:
             d = dem_for(None)
@@ -298,7 +360,78 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     for f in mosaic_kurgans:
         if f.get("markup_type") == "li" and not f.get("threshold_group"):
             f["threshold_group"] = "li_mosaic"
-    return feats
+    return _with_copies(feats, reg, cfg)
+
+
+# Круги, которые принятый пакет уже оставляет. Новый круг ближе 12 м к такому
+# кругу того же участка и класса выбрасывается. Числа — совместный оптимум
+# замера 0,353793 (notes/pack_wide_dev_2026-10-23.json). sp_or и sp_focal —
+# одна карта центров: в сдаче группа читается из markup_type, в табло она
+# подписана sp_focal. Порог лидара в конфиге 0,05333 лежит на той же полке.
+KEPT_KURGAN_CONF = {
+    "ae": {"kurgany_povrezhdennye": 0.99053, "kurgany_tselye": 0.802255},
+    "li": {"kurgany_povrezhdennye": 0.06415, "kurgany_tselye": 0.19422},
+    "li_ae": {"kurgany_povrezhdennye": 0.993061, "kurgany_tselye": 1.000001},
+    "li_mosaic": {"kurgany_povrezhdennye": 0.959005, "kurgany_tselye": 0.17042},
+    "sp_focal": {"kurgany_povrezhdennye": 0.364475, "kurgany_tselye": 0.372525},
+    "sp_or": {"kurgany_povrezhdennye": 0.364475, "kurgany_tselye": 0.372525},
+}
+
+
+def ground_point(geom):
+    """Внутренняя точка в метрах.
+
+    Мелкие координаты уже метры. Крупные — веб-меркатор: вся фигура переводится
+    в зону UTM по центроиду, и только потом берётся внутренняя точка. Так же
+    устроен отбор 12 м в принятом пакете.
+    """
+    from shapely import get_coordinates
+
+    xs = get_coordinates(geom)[:, 0]
+    if xs.size == 0 or float(np.max(np.abs(xs))) <= 1_000_000:
+        return geom.representative_point()
+    from .crs import WEB_MERCATOR, to_crs, transformer, utm_for_lonlat
+
+    lon, lat = transformer(WEB_MERCATOR, "EPSG:4326").transform(geom.centroid.x, geom.centroid.y)
+    return to_crs(geom, WEB_MERCATOR, utm_for_lonlat(float(lon), float(lat))).representative_point()
+
+
+def kept_kurgan_anchors(feats: list[dict]) -> list[dict]:
+    """Круги курганов, которые сданный порог своей группы уже оставляет."""
+    kept = []
+    for feat in feats:
+        cls = feat.get("class_name")
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        thr = KEPT_KURGAN_CONF.get(group, {}).get(cls)
+        if thr is None or float(feat.get("confidence") or 0) < thr:
+            continue
+        kept.append(feat)
+    return kept
+
+
+def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12.0) -> list[dict]:
+    """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса."""
+    from shapely.strtree import STRtree
+
+    buckets: dict[tuple, list] = {}
+    for feat in anchors:
+        cls = feat.get("class_name")
+        if cls not in ("kurgany_povrezhdennye", "kurgany_tselye") or feat.get("geom") is None:
+            continue
+        buckets.setdefault((feat.get("region_name"), cls), []).append(ground_point(feat["geom"]))
+    trees = {key: STRtree(pts) for key, pts in buckets.items() if pts}
+    kept = []
+    for feat in cands:
+        pts = buckets.get((feat.get("region_name"), feat.get("class_name")))
+        if not pts or feat.get("geom") is None:
+            kept.append(feat)
+            continue
+        point = ground_point(feat["geom"])
+        key = (feat.get("region_name"), feat.get("class_name"))
+        near = any(pts[int(i)].distance(point) <= dist_m for i in trees[key].query(point.buffer(dist_m)))
+        if not near:
+            kept.append(feat)
+    return kept
 
 
 def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path) -> list[dict]:
@@ -322,7 +455,79 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                                                            min_conf=output_floors(cfg, mt)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
-    return feats
+    return _with_copies(_wide_without_lidar(reg, cfg, guard, seg_cache, root, feats), reg, cfg)
+
+
+def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+                        feats: list[dict]) -> list[dict]:
+    """Окно 256 м только там, где нет LAS.
+
+    Круг ближе 12 м к кругу карты центров, который сданный порог уже оставляет,
+    выбрасывается. Иначе совместный перебор поднимает порог сданной карты.
+    """
+    if reg.las or not cfg.get("models", {}).get("sp_focal2") or not reg.rasters.get("sp_or"):
+        return feats
+    try:
+        segs = _cached_segmenters(seg_cache, cfg, "sp_focal2", root)
+    except Exception:
+        log.exception("модель sp_focal2 не загрузилась")
+        seg_cache["sp_focal2"] = []
+        return feats
+    floors = output_floors(cfg, "sp_focal2")
+    added: list[dict] = []
+    for seg in segs:
+        for path in reg.rasters.get("sp_or", []):
+            if not guard.ok(60):
+                break
+            try:
+                found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors))
+            except Exception as exc:
+                log.exception("%s: ошибка окна 256 м (%s)", path.name, exc)
+                continue
+            for feat in found:
+                feat["threshold_group"] = "sp_focal2"
+            added += found
+    return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+
+
+def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+                 prefetch=None) -> list[dict]:
+    """Круги канала σ на пиках рельефа. Группа li_dev.
+
+    Отбор 12 м делает run: сюда попадают все круги выше пола выдачи.
+    Нет весов — пустой список.
+    """
+    from .lidar import build_dem, dem_params, hillshade_set
+
+    if not reg.las or not cfg.get("models", {}).get("li_dev"):
+        return []
+    try:
+        segs = _cached_segmenters(seg_cache, cfg, "li_dev", root)
+    except Exception:
+        log.exception("модель li_dev не загрузилась")
+        seg_cache["li_dev"] = []
+        return []
+    crs_region = region_crs(reg, cfg)
+    cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
+    floors = output_floors(cfg, "li_dev")
+    out: list[dict] = []
+    for las in reg.las:
+        if not guard.ok(60):
+            break
+        for seg in segs:
+            dp = dem_params(seg.meta, cfg)
+            d = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+            if d.crs is None:
+                continue
+            found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
+                                              cand_p, cfg.get("li"), floors))
+            for feat in found:
+                if feat.get("class_name") not in ("kurgany_povrezhdennye", "kurgany_tselye"):
+                    continue
+                feat["threshold_group"] = "li_dev"
+                out.append(feat)
+    return out
 
 
 def run_region(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
@@ -427,9 +632,18 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     stats = band_stats(str(path), markup)
     half = overlap // 2
     feats: list[dict] = []
-    with rasterio.open(path) as ds:
-        r = working_res(abs(ds.res[0]), seg.res, seg.meta.get("max_upsample") or MAX_UPSAMPLE)
-        scale = r / abs(ds.res[0])
+    from .raster import open_metric
+
+    with open_metric(path) as ds:
+        native = abs(ds.res[0])
+        if seg.meta.get("pixel_units") == "ground":
+            from .raster import ground_step, raster_kind_and_latitude
+
+            kind, lat = raster_kind_and_latitude(ds.crs, ds.transform, ds.width, ds.height)
+            r = ground_step(native, kind, lat, seg.res, seg.meta.get("max_upsample") or MAX_UPSAMPLE)
+        else:
+            r = working_res(native, seg.res, seg.meta.get("max_upsample") or MAX_UPSAMPLE)
+        scale = r / native
         w, h = max(1, int(ds.width / scale)), max(1, int(ds.height / scale))
         n = min(ds.count, 3)
         crs = ds.crs.to_string() if ds.crs else None
@@ -470,11 +684,18 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
-    """Полный прогон. Контрольные записи — после геофизики, после лидара и по сторожу времени."""
-    from .watchdog import RunState, arm_platform, checkpoint
+    """Полный прогон: геофизика, лидар, оптика, затем канал σ.
+
+    Круг канала σ остаётся, только если он дальше 12 м от кургана, который
+    сданный порог уже оставляет. Окно 256 м отбирается так же в optical_feats.
+    Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
+    контейнера, не после геофизики.
+    """
+    from .watchdog import RunState, arm_platform, arm_signal, checkpoint
 
     root = Path(root or Path(__file__).resolve().parents[1])
-    cfg = load_config(config_path or root / "configs" / "default.toml")
+    cfg_path = Path(config_path or root / "configs" / "default.toml")
+    cfg = load_config(cfg_path)
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime
@@ -484,52 +705,140 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         log.exception("точность видеокарты не настроена, дальше без моделей torch")
     guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
     log.info("ускоритель: %s", accel.backend())
+    torch_version, cuda_version = "нет", "нет"
+    try:
+        import torch
+        torch_version = torch.__version__
+        cuda_version = str(torch.version.cuda or "нет")
+        device = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+    except Exception:
+        device = "torch не загрузился"
+    log.info("устройство: %s", device)
     state = RunState(Path(output_path), cfg)
+    state.note.update({
+        "device": device,
+        "torch": torch_version,
+        "cuda": cuda_version,
+        "backend": accel.backend(),
+        "config_sha256": hashlib.sha256(cfg_path.read_bytes()).hexdigest() if cfg_path.is_file() else "нет файла",
+        "budget_s": cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S),
+        "reserve_s": cfg.get("time", {}).get("reserve_s", 120),
+    })
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))
     seg_cache: dict = {}
     summary = {"regions": 0, "raw": 0}
     prefetch = None
+    phases: list[tuple[str, int, float]] = []
+    previous_term = arm_signal(state)
     try:
         from .lidar import DemPrefetch
 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
+        n_las = sum(len(r.las) for r in regions)
+        by_raster: dict[str, int] = {}
+        n_skipped = 0
+        for reg in regions:
+            n_skipped += len(getattr(reg, "skipped", ()) or ())
+            for markup, files in getattr(reg, "rasters", {}).items():
+                by_raster[markup] = by_raster.get(markup, 0) + len(files)
+        n_rasters = sum(by_raster.values())
+        raster_text = ", ".join(f"{name} {by_raster[name]}" for name in sorted(by_raster)) or "нет"
+        log.info("к разбору: регионов %d, LAS %d, растров %d (%s), пропущено файлов %d",
+                 len(regions), n_las, n_rasters, raster_text, n_skipped)
+        try:
+            from .health import log_inventory, runtime_report
+
+            log.info("среда: %s", runtime_report(Path(output_path)))
+            log_inventory(regions, cfg, root)
+        except Exception:
+            log.exception("отчёт о среде пропущен")
+        state.note.update({
+            "regions": len(regions),
+            "regions_with_las": sum(1 for reg in regions if reg.las),
+            "las_files": n_las,
+            "rasters": raster_text,
+            "skipped": n_skipped,
+        })
         regions.sort(key=lambda r: (not r.las, r.name))
         depth = int(cfg.get("lidar", {}).get("prefetch", 2))
         if depth > 0:
-            prefetch = DemPrefetch([(las, read_utm_json(r.utm_json)) for r in regions for las in r.las], depth)
+            prefetch = DemPrefetch([(las, region_crs(r, cfg)) for r in regions for las in r.las], depth)
+        t_phase = time.monotonic()
+        n_phase = 0
         for reg in regions:
             found = geophys_feats(reg, cfg, guard)
             state.add(found)
+            n_phase += len(found)
             if found:
                 log.info("%s: геофизика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
-        checkpoint(state, "геофизика")
+        phases.append(("геофизика", n_phase, time.monotonic() - t_phase))
         reserve = cfg.get("time", {}).get("reserve_s", 120)
+        t_phase = time.monotonic()
+        n_phase = 0
         for reg in regions:
             if not guard.ok(reserve):
                 log.warning("бюджет времени исчерпан, оставшийся лидар пропущен")
                 break
             t = time.monotonic()
-            found = lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
+            try:
+                found = lidar_feats(reg, cfg, guard, seg_cache, root, prefetch)
+            except Exception:
+                log.exception("%s: лидар пропущен", reg.name)
+                found = []
             state.add(found)
+            n_phase += len(found)
             log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(found),
                      time.monotonic() - t, guard.elapsed())
-        checkpoint(state, "лидар")
+        phases.append(("лидар", n_phase, time.monotonic() - t_phase))
+        t_phase = time.monotonic()
+        n_phase = 0
         for reg in regions:
             if not guard.ok(60):
                 log.warning("на оптику времени не осталось")
                 break
-            found = optical_feats(reg, cfg, guard, seg_cache, root)
+            try:
+                found = optical_feats(reg, cfg, guard, seg_cache, root)
+            except Exception:
+                log.exception("%s: оптика пропущена", reg.name)
+                found = []
             state.add(found)
+            n_phase += len(found)
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+        t_phase = time.monotonic()
+        n_phase = 0
+        for reg in regions:
+            if not reg.las:
+                continue
+            if not guard.ok(60):
+                log.warning("на канал σ времени не осталось")
+                break
+            try:
+                fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
+                pool = [f for f in state.snapshot()
+                        if f.get("region_name") == reg.name and f.get("threshold_group") != "li_dev"]
+                kept = drop_near_kurgans(fresh, kept_kurgan_anchors(pool), 12.0)
+            except Exception:
+                log.exception("%s: канал σ пропущен", reg.name)
+                kept = []
+            state.add(kept)
+            n_phase += len(kept)
+            if kept:
+                log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+        phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
     finally:
+        signal.signal(signal.SIGTERM, previous_term)
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
+        summary["phases"] = {name: {"raw": n, "seconds": round(sec, 1)} for name, n, sec in phases}
+        state.note["phases"] = summary["phases"]
         summary["written"] = checkpoint(state, "конец")
         summary["seconds"] = round(guard.elapsed(), 1)
-        log.info("записано %d объектов в %s за %.1f с", summary["written"], output_path, guard.elapsed())
+        for handler in logging.getLogger().handlers:
+            handler.flush()
     return summary

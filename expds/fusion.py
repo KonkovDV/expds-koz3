@@ -94,3 +94,42 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None) ->
             out.append(dict(base, class_name=TSEL, confidence=float(min(pp + pt, 1.0)), markup_type="ae",
                             threshold_group="li_ae"))
     return out
+
+
+@dataclass
+class CopyRule:
+    """Копия объекта в другой слой там, где есть снимок этого слоя. По умолчанию правил нет."""
+
+    src: str = "li"
+    dst: str = "sp_or"
+    group: str = "li_sp"
+    min_conf: dict | None = None
+    src_groups: tuple = ("", "li", "li_coarse", "li_mosaic", "li_mask")
+
+    @classmethod
+    def from_cfg(cls, raw: dict) -> CopyRule:
+        src, dst = raw.get("src", "li"), raw.get("dst", "sp_or")
+        return cls(src=src, dst=dst, group=raw.get("group") or f"{src}_{dst}",
+                   min_conf=dict(raw.get("min") or {}),
+                   src_groups=tuple(raw.get("src_groups") or ("", "li", "li_coarse", "li_mosaic", "li_mask")))
+
+
+def copy_layers(feats: list[dict], rasters_by_markup: dict, rules: list, max_side: int = 1024) -> list[dict]:
+    """Копии по [[fusion.copy]]. Пустой список правил ничего не добавляет."""
+    out: list[dict] = []
+    for rule in rules or ():
+        if isinstance(rule, dict):
+            rule = CopyRule.from_cfg(rule)
+        rasters = rasters_by_markup.get(rule.dst) or []
+        if not rasters or not rule.min_conf:
+            continue
+        cand = [f for f in feats
+                if f.get("markup_type") == rule.src and f["class_name"] in rule.min_conf
+                and (f.get("threshold_group") or "") in rule.src_groups
+                and float(f.get("confidence", 1.0)) >= float(rule.min_conf[f["class_name"]])]
+        if not cand:
+            continue
+        pts = [f["geom"].representative_point() for f in cand]
+        hit = covered(np.array([p.x for p in pts]), np.array([p.y for p in pts]), rasters, max_side)
+        out += [dict(f, markup_type=rule.dst, threshold_group=rule.group) for f, ok in zip(cand, hit) if ok]
+    return out

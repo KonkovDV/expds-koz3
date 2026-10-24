@@ -13,10 +13,20 @@ Rust-ускоритель подключается из inference/lib/ (файл
 """
 from __future__ import annotations
 
+import faulthandler
+import os
+
+faulthandler.enable()
+os.environ["GDAL_PAM_ENABLED"] = "NO"
+os.environ["OMP_NUM_THREADS"] = "8"
+os.environ.setdefault("USER", "solution")
+os.environ.setdefault("LOGNAME", "solution")
+
 import json
 import logging
-import os
+import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -26,18 +36,51 @@ sys.path.insert(0, str(ROOT))
 import expds.watchdog  # старт отсчёта 30 минут до импорта моделей
 
 
+def _paths(argv: list[str]) -> tuple[Path, Path] | None:
+    """Аргументы, иначе EXPDS_INPUT/EXPDS_OUTPUT, иначе /data на платформе."""
+    if len(argv) >= 3:
+        input_dir, output = Path(argv[1]), Path(argv[2])
+    elif os.environ.get("EXPDS_INPUT") and os.environ.get("EXPDS_OUTPUT"):
+        input_dir, output = Path(os.environ["EXPDS_INPUT"]), Path(os.environ["EXPDS_OUTPUT"])
+    elif Path("/data/input").is_dir():
+        input_dir, output = Path("/data/input"), Path("/data/output/result.geojson")
+    else:
+        return None
+    if output.is_dir() or output.suffix.lower() != ".geojson":
+        output = output / "result.geojson"
+    return input_dir, output
+
+
+def _caches(output: Path) -> None:
+    """Кэши библиотек — в папку результата, не в домашний каталог. GeoJSON туда не пишется."""
+    tmp = output.parent / ".expds_tmp"
+    try:
+        tmp.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        tmp = Path(tempfile.gettempdir())
+    for key in ("TMPDIR", "TEMP", "TMP"):
+        os.environ[key] = str(tmp)
+    tempfile.tempdir = None
+    for key, sub in (("XDG_CACHE_HOME", "cache"), ("TORCH_HOME", "torch"), ("MPLCONFIGDIR", "mpl"),
+                     ("NUMBA_CACHE_DIR", "numba"), ("CUDA_CACHE_PATH", "nv")):
+        os.environ.setdefault(key, str(tmp / sub))
+    home = os.environ.get("HOME")
+    if not home or not os.access(home, os.W_OK):
+        os.environ["HOME"] = str(tmp)
+    os.environ["EXPDS_TMP"] = str(tmp)
+
+
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s",
                         stream=sys.stdout)
     log = logging.getLogger("main")
-    if len(sys.argv) < 3:
+    found = _paths(sys.argv)
+    if found is None:
         print("usage: python inference/main.py <input_dir> <output.geojson>")
         return 2
-    input_dir, output = Path(sys.argv[1]), Path(sys.argv[2])
-    if output.is_dir() or output.suffix.lower() != ".geojson":
-        output = output / "result.geojson"
+    input_dir, output = found
     t0 = time.monotonic()
-    os.environ["EXPDS_TMP"] = str(output.parent)
+    _caches(output)
     try:
         from expds.pipeline import run
 
@@ -48,7 +91,13 @@ def main() -> int:
         if not output.exists():
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text('{"type": "FeatureCollection", "features": []}', encoding="utf-8")
+    tmp = os.environ.get("EXPDS_TMP")
+    if tmp and Path(tmp).name == ".expds_tmp":
+        shutil.rmtree(tmp, ignore_errors=True)
     log.info("общее время %.1f с", time.monotonic() - t0)
+    for handler in logging.getLogger().handlers:
+        handler.flush()
+    sys.stdout.flush()
     return 0
 
 

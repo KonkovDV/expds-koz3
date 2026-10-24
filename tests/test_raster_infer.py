@@ -1,4 +1,6 @@
 """Инференс растров окнами: тот же результат, что целиком, без дублей на стыках."""
+import math
+
 import numpy as np
 import rasterio
 from rasterio.transform import from_origin
@@ -55,3 +57,33 @@ def test_windowed_inference_matches_whole(tmp_path):
     cw = sorted((round(f["geom"].centroid.x, 1), round(f["geom"].centroid.y, 1)) for f in whole)
     cs = sorted((round(f["geom"].centroid.x, 1), round(f["geom"].centroid.y, 1)) for f in small)
     assert cw == cs
+
+
+def test_web_mercator_pixel_becomes_one_ground_meter_at_demidovka():
+    """1,588 м в файле на 54,7° с.ш. — это 0,92 м на земле. Шаг кэша возвращает 1 м."""
+    from expds.raster import ground_step
+
+    step = ground_step(1.588, "3857", 54.7, 1.0)
+    cos = math.cos(math.radians(54.7))
+    assert abs(step * cos - 1.0) < 1e-6
+    assert abs(ground_step(1.588, "meter", 54.7, 1.0) - 1.0) < 1e-9
+
+
+def test_web_mercator_circle_is_four_ground_meters():
+    """В EPSG:3857 буфер 4 — не 4 м на земле. Круг строится в зоне UTM."""
+    import shapely
+    from pyproj import Transformer
+
+    from expds.raster import circle_3857
+
+    def _apply(tr, geom):
+        return shapely.transform(geom, lambda x, y: tr.transform(x, y), interleaved=False)
+
+    x, y = Transformer.from_crs(4326, 3857, always_xy=True).transform(37.6, 55.75)
+    poly = circle_3857(x, y, 4.0, "EPSG:3857")
+    local = _apply(Transformer.from_crs(3857, 32637, always_xy=True), poly)
+    disk = math.pi * 16
+    assert abs(local.area - disk * 0.9745) / disk < 0.04
+    naive = circle_3857(500000, 6000000, 4.0, "EPSG:32637")
+    back = _apply(Transformer.from_crs(3857, 32637, always_xy=True), naive)
+    assert abs(back.area - disk * 0.9745) / disk < 0.04

@@ -40,9 +40,9 @@ class GeoParams:
 
 def read_band(path: str | Path) -> tuple[np.ndarray, object, str | None, float]:
     """Первый канал как float32 с NaN вместо nodata."""
-    import rasterio
+    from .raster import open_metric
 
-    with rasterio.open(path) as ds:
+    with open_metric(path) as ds:
         a = ds.read(1, masked=True).astype(np.float32).filled(np.nan)
         crs = ds.crs.to_string() if ds.crs else None
         return a, ds.transform, crs, float(abs(ds.res[0]))

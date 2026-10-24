@@ -37,6 +37,10 @@ def test_mosaic_matches_full_dem_averaged_to_half_metre(tmp_path):
     close = np.abs(a - b) <= 0.05
     assert close[both].mean() > 0.99
     assert mosaic.info["factor"] == 1 and mosaic.res == pytest.approx(0.5)
+    assert mosaic.info["used_all"] is False
+    bare = write_las(tmp_path / "noclass2.las", n=8_000, ground_class=1)
+    fallen = build_dem_mosaic(bare, tile_m=40.0, halo_m=20.0)
+    assert fallen.info["used_all"] is True and np.isfinite(fallen.dem).any()
     las = write_las(tmp_path / "b.las", ground_class=1)   # нет класса 2
     dem, info = accel.las_grid(las, 0.5)
     assert info["used_all"] and np.isfinite(dem).any()
@@ -171,6 +175,45 @@ def test_dem_prefetch_matches_direct_build(tmp_path):
         ref = build_dem(path, res=0.1, fill="delaunay", crs=UTM)
         assert np.array_equal(got.dem, ref.dem, equal_nan=True)
         assert (got.left, got.top, got.res) == (ref.left, ref.top, ref.res)
+
+
+def test_dem_prefetch_does_not_rebuild_the_same_grid(tmp_path, monkeypatch):
+    """Другой шаг и повторный запрос не строят уже готовую сетку второй раз."""
+    import time
+    from pathlib import Path
+
+    import expds.lidar as lidar
+
+    calls: list[tuple[str, float]] = []
+    real = lidar.build_dem
+
+    def wrapped(path, res=0.1, fill="delaunay", crs=None, **kwargs):
+        calls.append((Path(path).name, float(res)))
+        return real(path, res=res, fill=fill, crs=crs, **kwargs)
+
+    monkeypatch.setattr(lidar, "build_dem", wrapped)
+    a = write_las(tmp_path / "a.las", n=8_000, seed=3)
+    b = write_las(tmp_path / "b.las", n=8_000, seed=4)
+    pf = lidar.DemPrefetch([(a, UTM), (b, UTM)], depth=2)
+    try:
+        pf.get(a, 0.1, "delaunay", UTM)
+        waited = (str(b), 0.1, "delaunay", UTM)
+        for _ in range(400):
+            fut = pf._jobs.get(waited)
+            if fut is not None and fut.done():
+                break
+            time.sleep(0.01)
+        pf.get(a, 1.0, "delaunay", UTM)
+        again = pf.get(a, 0.1, "delaunay", UTM)
+        other = pf.get(b, 0.1, "delaunay", UTM)
+    finally:
+        pf.close()
+    assert calls.count(("a.las", 0.1)) == 1
+    assert calls.count(("a.las", 1.0)) == 1
+    assert calls.count(("b.las", 0.1)) == 1
+    direct = real(a, res=0.1, fill="delaunay", crs=UTM)
+    assert np.array_equal(again.dem, direct.dem, equal_nan=True)
+    assert other.dem.shape == real(b, res=0.1, fill="delaunay", crs=UTM).dem.shape
 
 
 def test_mask_to_polygons_matches_shape_by_shape():

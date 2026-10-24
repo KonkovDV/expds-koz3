@@ -1,0 +1,205 @@
+{
+  "name": "заливка",
+  "base": [
+    0.3537933664077713,
+    0.3184414667720005,
+    0.20464236535185787
+  ],
+  "after": [
+    0.3537933664077713,
+    0.3184414667720005,
+    0.20464236535185787
+  ],
+  "delta": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "bootstrap": {
+    "mean": 0.0,
+    "p5": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "p_gt0": 0.0
+  },
+  "accept": false,
+  "per_class": {
+    "kurgany_povrezhdennye": {
+      "f1": 0.3628597097946832,
+      "n_gt": 3620,
+      "groups": {
+        "ae": {
+          "threshold": 0.99053,
+          "kept": 371,
+          "tp": 71
+        },
+        "li": {
+          "threshold": 0.06415,
+          "kept": 2153,
+          "tp": 746
+        },
+        "li_ae": {
+          "threshold": 0.993061,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.99131,
+          "kept": 39,
+          "tp": 16
+        },
+        "li_mosaic": {
+          "threshold": 0.959005,
+          "kept": 66,
+          "tp": 32
+        },
+        "sp_focal": {
+          "threshold": 0.364475,
+          "kept": 1014,
+          "tp": 203
+        },
+        "sp_focal2": {
+          "threshold": 0.501645,
+          "kept": 193,
+          "tp": 37
+        }
+      }
+    },
+    "kurgany_tselye": {
+      "f1": 0.49478029772142995,
+      "n_gt": 1577,
+      "groups": {
+        "ae": {
+          "threshold": 0.802255,
+          "kept": 811,
+          "tp": 291
+        },
+        "li": {
+          "threshold": 0.19422,
+          "kept": 588,
+          "tp": 238
+        },
+        "li_ae": {
+          "threshold": 1.000001,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.99957,
+          "kept": 12,
+          "tp": 4
+        },
+        "li_mosaic": {
+          "threshold": 0.17042,
+          "kept": 335,
+          "tp": 148
+        },
+        "sp_focal": {
+          "threshold": 0.372525,
+          "kept": 127,
+          "tp": 27
+        },
+        "sp_focal2": {
+          "threshold": 0.645505,
+          "kept": 10,
+          "tp": 3
+        }
+      }
+    },
+    "gorodishcha": {
+      "f1": 0.29069724026564486,
+      "n_gt": 118,
+      "groups": {
+        "li": {
+          "threshold": 0.993091,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.986425,
+          "kept": 24,
+          "tp": 8
+        },
+        "li_mask": {
+          "threshold": 0.99451,
+          "kept": 26,
+          "tp": 14
+        },
+        "sp_or": {
+          "threshold": 0.994085,
+          "kept": 33,
+          "tp": 3
+        }
+      }
+    },
+    "arkhitektury": {
+      "f1": 0.026058161269994405,
+      "n_gt": 407,
+      "groups": {
+        "sp_arch": {
+          "threshold": 0.199475,
+          "kept": 1321,
+          "tp": 14
+        }
+      }
+    },
+    "object_poly": {
+      "f1": 0.3172661772981342,
+      "n_gt": 1083,
+      "groups": {
+        "etgr": {
+          "threshold": 0.096635,
+          "kept": 387,
+          "tp": 144
+        },
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 146,
+          "tp": 78
+        },
+        "terfl": {
+          "threshold": 0.0,
+          "kept": 319,
+          "tp": 38
+        }
+      }
+    },
+    "fortifikatsii": {
+      "f1": 0.1877373589295957,
+      "n_gt": 696,
+      "groups": {
+        "ae_fort": {
+          "threshold": 0.998215,
+          "kept": 714,
+          "tp": 94
+        },
+        "li": {
+          "threshold": 0.999971,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.99926,
+          "kept": 21,
+          "tp": 3
+        },
+        "li_fort": {
+          "threshold": 0.987675,
+          "kept": 127,
+          "tp": 14
+        }
+      }
+    },
+    "finds_points": {
+      "f1": 0.5817537237622955,
+      "n_gt": 3478,
+      "groups": {
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 3732,
+          "tp": 1819
+        }
+      }
+    }
+  }
+}

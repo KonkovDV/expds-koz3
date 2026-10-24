@@ -1,0 +1,280 @@
+{
+  "name": "двойная метка",
+  "base": [
+    0.3537933664077713,
+    0.3184414667720005,
+    0.20464236535185787
+  ],
+  "after": [
+    0.3488380508688753,
+    0.32565826195644565,
+    0.1646673706674428
+  ],
+  "delta": [
+    -0.004955315538895999,
+    0.007216795184445124,
+    -0.039974994684415066
+  ],
+  "bootstrap": {
+    "mean": -0.005669403363147512,
+    "p5": -0.012043693249872062,
+    "p50": -0.005234015970730144,
+    "p95": -0.0005766109911284429,
+    "p_gt0": 0.028
+  },
+  "accept": false,
+  "thresholds": {
+    "ae": {
+      "kurgany_povrezhdennye": 0.99053,
+      "kurgany_tselye": 0.837805
+    },
+    "kur_twin": {
+      "kurgany_povrezhdennye": 0.950001,
+      "kurgany_tselye": 0.950001
+    },
+    "li": {
+      "kurgany_povrezhdennye": 0.06415,
+      "kurgany_tselye": 0.464685,
+      "gorodishcha": 0.993091,
+      "fortifikatsii": 0.999971
+    },
+    "li_ae": {
+      "kurgany_povrezhdennye": 0.993061,
+      "kurgany_tselye": 1.000001
+    },
+    "li_dev": {
+      "kurgany_povrezhdennye": 0.99131,
+      "kurgany_tselye": 0.994995
+    },
+    "li_mosaic": {
+      "kurgany_povrezhdennye": 0.959005,
+      "kurgany_tselye": 0.768025
+    },
+    "sp_focal": {
+      "kurgany_povrezhdennye": 0.557745,
+      "kurgany_tselye": 0.738201
+    },
+    "sp_focal2": {
+      "kurgany_povrezhdennye": 0.5268,
+      "kurgany_tselye": 0.818611
+    },
+    "li_coarse": {
+      "gorodishcha": 0.986425,
+      "fortifikatsii": 0.99926
+    },
+    "li_mask": {
+      "gorodishcha": 0.99451
+    },
+    "sp_or": {
+      "gorodishcha": 0.994085
+    },
+    "sp_arch": {
+      "arkhitektury": 0.199475
+    },
+    "etgr": {
+      "object_poly": 0.096635
+    },
+    "maggr": {
+      "object_poly": 0.0,
+      "finds_points": 0.0
+    },
+    "terfl": {
+      "object_poly": 0.0
+    },
+    "ae_fort": {
+      "fortifikatsii": 0.998215
+    },
+    "li_fort": {
+      "fortifikatsii": 0.987675
+    }
+  },
+  "per_class": {
+    "kurgany_povrezhdennye": {
+      "f1": 0.31956168549161973,
+      "n_gt": 3620,
+      "groups": {
+        "ae": {
+          "threshold": 0.99053,
+          "kept": 371,
+          "tp": 71
+        },
+        "kur_twin": {
+          "threshold": 0.950001,
+          "kept": 0,
+          "tp": 0
+        },
+        "li": {
+          "threshold": 0.06415,
+          "kept": 2153,
+          "tp": 709
+        },
+        "li_ae": {
+          "threshold": 0.993061,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.99131,
+          "kept": 39,
+          "tp": 16
+        },
+        "li_mosaic": {
+          "threshold": 0.959005,
+          "kept": 66,
+          "tp": 32
+        },
+        "sp_focal": {
+          "threshold": 0.557745,
+          "kept": 398,
+          "tp": 56
+        },
+        "sp_focal2": {
+          "threshold": 0.5268,
+          "kept": 156,
+          "tp": 21
+        }
+      }
+    },
+    "kurgany_tselye": {
+      "f1": 0.4671911173717959,
+      "n_gt": 1577,
+      "groups": {
+        "ae": {
+          "threshold": 0.837805,
+          "kept": 795,
+          "tp": 288
+        },
+        "kur_twin": {
+          "threshold": 0.950001,
+          "kept": 0,
+          "tp": 0
+        },
+        "li": {
+          "threshold": 0.464685,
+          "kept": 486,
+          "tp": 211
+        },
+        "li_ae": {
+          "threshold": 1.000001,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.994995,
+          "kept": 78,
+          "tp": 13
+        },
+        "li_mosaic": {
+          "threshold": 0.768025,
+          "kept": 198,
+          "tp": 111
+        },
+        "sp_focal": {
+          "threshold": 0.738201,
+          "kept": 0,
+          "tp": 0
+        },
+        "sp_focal2": {
+          "threshold": 0.818611,
+          "kept": 0,
+          "tp": 0
+        }
+      }
+    },
+    "gorodishcha": {
+      "f1": 0.29069724026564486,
+      "n_gt": 118,
+      "groups": {
+        "li": {
+          "threshold": 0.993091,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.986425,
+          "kept": 24,
+          "tp": 8
+        },
+        "li_mask": {
+          "threshold": 0.99451,
+          "kept": 26,
+          "tp": 14
+        },
+        "sp_or": {
+          "threshold": 0.994085,
+          "kept": 33,
+          "tp": 3
+        }
+      }
+    },
+    "arkhitektury": {
+      "f1": 0.026058161269994405,
+      "n_gt": 407,
+      "groups": {
+        "sp_arch": {
+          "threshold": 0.199475,
+          "kept": 1321,
+          "tp": 14
+        }
+      }
+    },
+    "object_poly": {
+      "f1": 0.3172661772981342,
+      "n_gt": 1083,
+      "groups": {
+        "etgr": {
+          "threshold": 0.096635,
+          "kept": 387,
+          "tp": 144
+        },
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 146,
+          "tp": 78
+        },
+        "terfl": {
+          "threshold": 0.0,
+          "kept": 319,
+          "tp": 38
+        }
+      }
+    },
+    "fortifikatsii": {
+      "f1": 0.1877373589295957,
+      "n_gt": 696,
+      "groups": {
+        "ae_fort": {
+          "threshold": 0.998215,
+          "kept": 714,
+          "tp": 94
+        },
+        "li": {
+          "threshold": 0.999971,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.99926,
+          "kept": 21,
+          "tp": 3
+        },
+        "li_fort": {
+          "threshold": 0.987675,
+          "kept": 127,
+          "tp": 14
+        }
+      }
+    },
+    "finds_points": {
+      "f1": 0.5817537237622955,
+      "n_gt": 3478,
+      "groups": {
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 3732,
+          "tp": 1819
+        }
+      }
+    }
+  }
+}

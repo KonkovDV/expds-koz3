@@ -70,6 +70,15 @@ def test_read_utm_json_hemisphere(tmp_path):
         p = tmp_path / f"{value.replace(' ', '_')}.json"
         p.write_text(json.dumps({"utm": value}), encoding="utf-8")
         assert read_utm_json(p) == epsg, value
+    bare = tmp_path / "bare.json"
+    bare.write_text(json.dumps({"crs": "EPSG", "utm": "36N"}), encoding="utf-8")
+    assert read_utm_json(bare) == "EPSG:32636"
+    only = tmp_path / "only.json"
+    only.write_text(json.dumps({"crs": "EPSG"}), encoding="utf-8")
+    assert read_utm_json(only) is None
+    coded = tmp_path / "coded.json"
+    coded.write_text(json.dumps({"crs": "EPSG:32646"}), encoding="utf-8")
+    assert read_utm_json(coded) == "EPSG:32646"
 
 
 def test_gt_diagnostics(tmp_path):

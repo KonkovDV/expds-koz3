@@ -44,6 +44,36 @@ def test_main_accepts_output_dir_like_organizer_examples(tmp_path):
         assert r.returncode == 0 and writer.validate(target / "result.geojson")["ok"]
 
 
+def test_result_file_is_not_written_after_geophysics_alone(tmp_path, monkeypatch, caplog):
+    """Площадка забирает первый файл. До конца прогона result.geojson не появляется."""
+    from types import SimpleNamespace
+
+    from expds import pipeline, watchdog
+
+    reg = SimpleNamespace(name="r", las=[], rasters={}, utm_json=None, boundaries=[], noise=[])
+    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
+    monkeypatch.setattr(pipeline, "geophys_feats", lambda *_a, **_k: [])
+    monkeypatch.setattr(pipeline, "lidar_feats", lambda *_a, **_k: [])
+    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: [])
+    out = tmp_path / "out.geojson"
+    seen = []
+    real = watchdog.checkpoint
+
+    def spy(state, reason):
+        seen.append((reason, out.exists()))
+        return real(state, reason)
+
+    monkeypatch.setattr(watchdog, "checkpoint", spy)
+    cfg = tmp_path / "t.toml"
+    cfg.write_text("[time]\nwatchdog = false\n", encoding="utf-8")
+    with caplog.at_level("INFO", logger="expds.watchdog"):
+        pipeline.run(tmp_path, out, cfg)
+    assert seen == [("конец", False)]
+    assert out.exists()
+    assert "ПРОТОКОЛ ПРОГОНА" in caplog.text
+    assert "после порога по классам" in caplog.text
+
+
 def test_exhausted_budget_still_visits_geophys_before_lidar(tmp_path, monkeypatch):
     """Нулевой бюджет не отменяет геофизику: она идёт раньше лидара и не ждёт запас в 120 с."""
     from types import SimpleNamespace
@@ -70,6 +100,40 @@ def test_exhausted_budget_still_visits_geophys_before_lidar(tmp_path, monkeypatc
     cfg.write_text("[time]\nbudget_s = 0\nreserve_s = 120\n", encoding="utf-8")
     pipeline.run(tmp_path, tmp_path / "out.geojson", cfg)
     assert calls == ["geo"]
+
+
+def test_lidar_failure_still_runs_optics(tmp_path, monkeypatch):
+    """Исключение в лидаре не отменяет оптику и не обрывает прогон."""
+    from types import SimpleNamespace
+
+    from expds import pipeline
+
+    calls = []
+    reg = SimpleNamespace(name="r", las=[tmp_path / "a.las"], rasters={"sp_or": []}, utm_json=None,
+                          boundaries=[], noise=[])
+    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
+    monkeypatch.setattr(pipeline, "geophys_feats", lambda *_a, **_k: calls.append("geo") or [])
+
+    def boom(*_a, **_k):
+        calls.append("li")
+        raise RuntimeError("лидар")
+
+    monkeypatch.setattr(pipeline, "lidar_feats", boom)
+    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: calls.append("opt") or [])
+    monkeypatch.setattr(pipeline, "li_dev_feats", lambda *_a, **_k: calls.append("sig") or [])
+
+    class Dummy:
+        def __init__(self, *_a, **_k):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("expds.lidar.DemPrefetch", Dummy)
+    cfg = tmp_path / "t.toml"
+    cfg.write_text("[time]\nwatchdog = false\n", encoding="utf-8")
+    pipeline.run(tmp_path, tmp_path / "out.geojson", cfg)
+    assert calls == ["geo", "li", "opt", "sig"]
 
 
 def test_missing_torch_still_keeps_geophysics(tmp_path, monkeypatch):
@@ -244,6 +308,131 @@ def test_hillfort_mask_keeps_its_own_group(monkeypatch, tmp_path):
     assert out[0]["class_name"] == "gorodishcha" and out[0]["threshold_group"] == "li_mask"
 
 
+def test_fort_mask_keeps_its_own_group(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import pipeline
+
+    dem = SimpleNamespace(crs="EPSG:32636", info={})
+    seg = SimpleNamespace(meta={"dem_res": 1.0, "dem_fill": "delaunay"}, keep={"fortifikatsii"})
+
+    def segs(cache, cfg, markup, root, tta=1):
+        assert markup == "li_fort"
+        return [seg]
+
+    def predict(seg_arg, d, region, source, hillshade, cand_p, li_cfg, floors):
+        assert d is dem and cand_p is None
+        assert floors["fortifikatsii"] == 0.987675
+        return [
+            {"class_name": "fortifikatsii", "markup_type": "li", "confidence": 0.99,
+             "geom": Point(0, 0).buffer(20), "region_name": region, "source": source},
+            {"class_name": "kurgany_povrezhdennye", "markup_type": "li", "confidence": 0.9,
+             "geom": Point(1, 1).buffer(4), "region_name": region, "source": source},
+        ]
+
+    monkeypatch.setattr(pipeline, "_cached_segmenters", segs)
+    monkeypatch.setattr(pipeline, "_li_with_model", predict)
+    reg = SimpleNamespace(name="021_Новенькое")
+    cfg = {"thresholds_by_markup": {"li_fort": {"fortifikatsii": 0.987675}}}
+    out = pipeline.li_fort_feats(reg, tmp_path / "a.las", cfg, {}, tmp_path, lambda meta: dem)
+    assert len(out) == 1
+    assert out[0]["class_name"] == "fortifikatsii" and out[0]["threshold_group"] == "li_fort"
+
+
+def test_wide_window_runs_only_without_lidar(monkeypatch):
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import pipeline
+
+    calls = []
+
+    def segs(cache, cfg, markup, root, tta=1):
+        calls.append(markup)
+        if markup != "sp_focal2":
+            return []
+        return [SimpleNamespace(keep={"kurgany_povrezhdennye"})]
+
+    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None):
+        assert min_conf["kurgany_povrezhdennye"] == 0.501645
+        return [{"class_name": "kurgany_povrezhdennye", "markup_type": markup, "confidence": 0.6,
+                 "geom": Point(0, 0).buffer(4), "region_name": region}]
+
+    monkeypatch.setattr(pipeline, "_cached_segmenters", segs)
+    monkeypatch.setattr(pipeline, "_raster_with_model", raster)
+    cfg = {"models": {"sp_focal2": {"path": "m.pt"}},
+           "thresholds_by_markup": {"sp_focal2": {"kurgany_povrezhdennye": 0.501645}}}
+    guard = pipeline.TimeGuard(10_000)
+    bare = SimpleNamespace(name="site", las=[], rasters={"sp_or": [SimpleNamespace()]})
+    out = pipeline.optical_feats(bare, cfg, guard, {}, SimpleNamespace())
+    assert out[0]["threshold_group"] == "sp_focal2" and "sp_focal2" in calls
+    calls.clear()
+    with_las = SimpleNamespace(name="site", las=[SimpleNamespace()], rasters={"sp_or": [SimpleNamespace()]})
+    assert pipeline.optical_feats(with_las, cfg, guard, {}, SimpleNamespace()) == []
+    assert "sp_focal2" not in calls
+
+
+def test_sigma_circle_within_12m_is_dropped():
+    from shapely.geometry import Point
+
+    from expds.pipeline import drop_near_kurgans
+
+    anchor = {"class_name": "kurgany_povrezhdennye", "region_name": "a", "geom": Point(0, 0).buffer(4)}
+    near = {"class_name": "kurgany_povrezhdennye", "region_name": "a", "geom": Point(5, 0).buffer(4)}
+    far = {"class_name": "kurgany_povrezhdennye", "region_name": "a", "geom": Point(30, 0).buffer(4)}
+    other = {"class_name": "kurgany_tselye", "region_name": "a", "geom": Point(1, 0).buffer(4)}
+    kept = drop_near_kurgans([near, far, other], [anchor], 12.0)
+    assert kept == [far, other]
+
+
+def test_sigma_anchor_below_the_shipped_threshold_is_ignored():
+    from shapely.geometry import Point
+
+    from expds.pipeline import drop_near_kurgans, kept_kurgan_anchors
+
+    low = {"class_name": "kurgany_povrezhdennye", "region_name": "a", "markup_type": "li",
+           "confidence": 0.01, "geom": Point(0, 0).buffer(4)}
+    high = dict(low, confidence=0.2)
+    near = {"class_name": "kurgany_povrezhdennye", "region_name": "a", "threshold_group": "li_dev",
+            "confidence": 0.999, "geom": Point(5, 0).buffer(4)}
+    assert drop_near_kurgans([near], kept_kurgan_anchors([low]), 12.0) == [near]
+    assert drop_near_kurgans([near], kept_kurgan_anchors([high]), 12.0) == []
+
+
+def test_wide_circle_within_12m_of_a_kept_center_is_dropped(monkeypatch):
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import pipeline
+
+    def segs(cache, cfg, markup, root, tta=1):
+        return [SimpleNamespace(keep={"kurgany_povrezhdennye"})]
+
+    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None):
+        return [
+            {"class_name": "kurgany_povrezhdennye", "markup_type": markup, "confidence": 0.8,
+             "geom": Point(0, 0).buffer(4), "region_name": region},
+            {"class_name": "kurgany_povrezhdennye", "markup_type": markup, "confidence": 0.8,
+             "geom": Point(40, 0).buffer(4), "region_name": region},
+        ]
+
+    monkeypatch.setattr(pipeline, "_cached_segmenters", segs)
+    monkeypatch.setattr(pipeline, "_raster_with_model", raster)
+    anchor = {"class_name": "kurgany_povrezhdennye", "region_name": "site", "markup_type": "sp_or",
+              "confidence": 0.5, "geom": Point(0, 0).buffer(4)}
+    cfg = {"models": {"sp_focal2": {"path": "m.pt"}},
+           "thresholds_by_markup": {"sp_focal2": {"kurgany_povrezhdennye": 0.501645}}}
+    out = pipeline._wide_without_lidar(
+        SimpleNamespace(name="site", las=[], rasters={"sp_or": [SimpleNamespace()]}),
+        cfg, pipeline.TimeGuard(10_000), {}, SimpleNamespace(), [anchor])
+    wide = [f for f in out if f.get("threshold_group") == "sp_focal2"]
+    assert len(wide) == 1 and abs(wide[0]["geom"].centroid.x - 40) < 1e-6
+
+
 def test_broken_lidar_model_uses_cpu_detector(monkeypatch, tmp_path):
     from types import SimpleNamespace
 
@@ -341,3 +530,19 @@ def test_two_las_tiles_in_one_folder_are_both_kept():
         (folder / "b.las", (10.0, 0.0, 110.0, 100.0)),
     ])
     assert len(overlap) == 1
+
+
+def test_sigterm_writes_only_the_result_file(tmp_path):
+    import signal
+
+    from expds.watchdog import RunState, arm_signal
+
+    out = tmp_path / "result.geojson"
+    state = RunState(out, {})
+    previous = arm_signal(state, exit_fn=lambda _code: None)
+    try:
+        signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+    assert out.is_file()
+    assert [p.name for p in tmp_path.iterdir()] == ["result.geojson"]

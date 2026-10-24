@@ -68,8 +68,16 @@ class Segmenter:
         self.res: float = ck["res"]
         self.tile: int = ck["tile"]
         self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
-        self.model = smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
-                              in_channels=ck["in_channels"], classes=len(self.classes))
+        arch = ck.get("arch") or "Unet"
+        arch_kwargs = ck.get("arch_kwargs") or {}
+        # Сданные веса без поля arch — тот же U-Net, что и раньше. Другой декодер только из чекпойнта.
+        if arch == "Unet" and not arch_kwargs:
+            self.model = smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
+                                  in_channels=ck["in_channels"], classes=len(self.classes))
+        else:
+            self.model = smp.create_model(arch, encoder_name=ck["encoder"], encoder_weights=None,
+                                          in_channels=ck["in_channels"], classes=len(self.classes),
+                                          **arch_kwargs)
         self.model.load_state_dict(ck["state_dict"])
         self.model.to(self.device).eval()
         self.amp = inference_amp(self.device)
@@ -208,7 +216,8 @@ class Ensemble:
 
     _SAME = ("classes", "res", "tile", "in_channels", "li_tags", "li_source", "dem_res", "dem_fill", "markup")
 
-    def __init__(self, members: list[Segmenter]):
+    def __init__(self, members: list[Segmenter], only: list[str] | None = None):
+        """only — классы, по которым карты усредняются. Остальные берутся у первой модели."""
         if not members:
             raise ValueError("пустой ансамбль")
         first = members[0].meta
@@ -222,6 +231,10 @@ class Ensemble:
         self.res = members[0].res
         self.tile = members[0].tile
         self.keep = None
+        unknown = [c for c in (only or []) if c not in self.classes]
+        if unknown:
+            raise ValueError(f"классы ансамбля не из модели: {unknown}")
+        self.only = [self.classes.index(c) for c in only] if only else None
 
     @property
     def tta(self) -> int:
@@ -234,8 +247,15 @@ class Ensemble:
 
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
         acc = self.members[0].predict(img, overlap, batch)
-        for m in self.members[1:]:
-            acc += m.predict(img, overlap, batch)
+        if self.only is not None:
+            idx = self.only
+            part = acc[idx].copy()
+            for member in self.members[1:]:
+                part += member.predict(img, overlap, batch)[idx]
+            acc[idx] = part / np.float32(len(self.members))
+            return acc
+        for member in self.members[1:]:
+            acc += member.predict(img, overlap, batch)
         return acc / np.float32(len(self.members))
 
 

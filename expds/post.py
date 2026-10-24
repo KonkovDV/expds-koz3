@@ -13,10 +13,12 @@
 """
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 
+from shapely.geometry import Polygon
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import unary_union
+from shapely.ops import polylabel, unary_union
 from shapely.strtree import STRtree
 from shapely.validation import make_valid
 
@@ -214,3 +216,50 @@ def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
 def only_known_classes(feats: list[dict]) -> list[dict]:
     """Отбрасывает объекты с неизвестным классом (иначе платформа отклонит файл)."""
     return [f for f in feats if f["class_name"] in CLASSES]
+
+
+def _ground_scale(y_3857: float) -> float:
+    """Метры на земле = единицы EPSG:3857 × cos φ."""
+    lat = math.atan(math.sinh(y_3857 / 6378137.0))
+    return max(math.cos(lat), 1e-6)
+
+
+def fill_holes(feats: list[dict], classes) -> list[dict]:
+    """Убирает дыры у полигонов указанных классов. По умолчанию выключено."""
+    classes = set(classes or ())
+    out = []
+    for feat in feats:
+        geom = feat["geom"]
+        if feat["class_name"] in classes and geom.geom_type == "Polygon" and geom.interiors:
+            feat = dict(feat, geom=Polygon(geom.exterior))
+        out.append(feat)
+    return out
+
+
+def core_of(geom: BaseGeometry, frac: float, min_r_m: float = 0.0) -> BaseGeometry:
+    """Круг в полюсе недоступности, целиком внутри полигона. По умолчанию выключено."""
+    if geom.geom_type != "Polygon" or geom.is_empty or geom.area <= 0:
+        return geom
+    tol = max(0.25, math.sqrt(geom.area) / 200.0)
+    center = polylabel(geom, tolerance=tol)
+    radius_in = geom.boundary.distance(center)
+    if radius_in <= 0:
+        return geom
+    radius = math.sqrt(max(frac, 0.0) * geom.area / math.pi)
+    radius = max(radius, min_r_m / _ground_scale(center.y))
+    radius = min(radius, radius_in)
+    return center.buffer(radius, quad_segs=8) if radius > 0 else geom
+
+
+def shape_cores(feats: list[dict], spec: dict) -> list[dict]:
+    """Заменяет полигоны на ядра. spec = {класс: {frac, min_r_m, groups}}."""
+    out = []
+    for feat in feats:
+        rule = (spec or {}).get(feat["class_name"])
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        if not rule or (rule.get("groups") and group not in rule["groups"]):
+            out.append(feat)
+            continue
+        core = core_of(feat["geom"], float(rule.get("frac", 0.3)), float(rule.get("min_r_m", 0.0)))
+        out.append(dict(feat, geom=core) if core is not feat["geom"] else feat)
+    return out

@@ -25,6 +25,9 @@ log = logging.getLogger(__name__)
 
 #: Классы, чьи пиксели Simple Copy-Paste переносит на другой тайл.
 PASTE_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+#: Освещение одного снимка: яркость и контраст в долях диапазона [0, 1].
+PHOTO_BRIGHTNESS = 0.08
+PHOTO_CONTRAST = 0.15
 
 
 def load_index(cache: Path) -> list[dict]:
@@ -84,12 +87,53 @@ def paste_objects(x, y, channels: tuple[int, ...], p: float):
     return torch.where(alpha, sx, x), torch.where(alpha, sy, y)
 
 
+def photometric(x, brightness: float = PHOTO_BRIGHTNESS, contrast: float = PHOTO_CONTRAST):
+    """Яркость и контраст кадра. x — N×C×H×W в [0, 1], маска не меняется.
+
+    Контраст считается вокруг середины диапазона. Нулевые амплитуды оставляют
+    снимок как есть. На проверке функцию не вызывают.
+    """
+    import torch
+
+    if x.shape[0] == 0 or (brightness <= 0 and contrast <= 0):
+        return x
+    n = x.shape[0]
+    c = 1 + (torch.rand(n, 1, 1, 1, device=x.device, dtype=x.dtype) * 2 - 1) * contrast
+    b = (torch.rand(n, 1, 1, 1, device=x.device, dtype=x.dtype) * 2 - 1) * brightness
+    return ((x - 0.5) * c + 0.5 + b).clamp(0, 1)
+
+
+def resample_scale(x, y, amount: float, scales=None):
+    """Случайный масштаб вокруг центра тайла, размер кадра тот же.
+
+    amount=0.15 даёт масштаб 0.85–1.15. Масштаб меньше 1 увеличивает объект,
+    больше 1 уменьшает. Снимок пересчитывается билинейно с повторением края,
+    маска — ближайшим соседом, пустота снаружи остаётся пустой.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    if amount <= 0 or x.shape[0] == 0:
+        return x, y
+    n = x.shape[0]
+    if scales is None:
+        scales = 1 + (torch.rand(n, device=x.device, dtype=x.dtype) * 2 - 1) * amount
+    theta = torch.zeros(n, 2, 3, device=x.device, dtype=x.dtype)
+    theta[:, 0, 0] = scales
+    theta[:, 1, 1] = scales
+    grid = F.affine_grid(theta, x.size(), align_corners=False)
+    xs = F.grid_sample(x, grid, mode="bilinear", padding_mode="border", align_corners=False)
+    ys = F.grid_sample(y, grid, mode="nearest", padding_mode="zeros", align_corners=False)
+    return xs, (ys > 0.5).to(y.dtype)
+
+
 class TileDataset:
     """Тайлы из .npy-шардов (memmap); маски — биты классов → K каналов float."""
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool,
-                 class_bits: list[int] | None = None):
+                 class_bits: list[int] | None = None, photo: bool = False, scale: float = 0.0):
         self.cache, self.rows, self.k, self.flips = cache, rows, n_classes, flips
+        self.photo, self.scale = photo, scale
         self.bits = class_bits if class_bits is not None else list(range(n_classes))
         self._img: dict[int, np.ndarray] = {}
         self._msk: dict[int, np.ndarray] = {}
@@ -118,6 +162,16 @@ class TileDataset:
                 x, y = x[:, ::-1], y[:, ::-1]
             k = np.random.randint(4)
             x, y = np.rot90(x, k, (1, 2)), np.rot90(y, k, (1, 2))
+        if self.scale > 0 or self.photo:
+            import torch
+
+            xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
+            yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
+            if self.scale > 0:
+                xt, yt = resample_scale(xt, yt, self.scale)
+            if self.photo:
+                xt = photometric(xt)
+            x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
         x = (x - 0.5) / 0.25
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
@@ -130,7 +184,8 @@ class GpuTiles:
     """
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None,
-                 copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None):
+                 copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None,
+                 photo: bool = False, scale: float = 0.0):
         import torch
 
         self.memory_format = memory_format or torch.contiguous_format
@@ -148,6 +203,7 @@ class GpuTiles:
         self.shift = torch.tensor(bits, device=device, dtype=self.m.dtype).view(1, -1, 1, 1)
         self.flips, self.device = flips, device
         self.copy_paste, self.paste_channels = copy_paste, paste_channels
+        self.photo, self.scale = photo, scale
 
     def __len__(self) -> int:
         return int(self.x.shape[0])
@@ -162,15 +218,20 @@ class GpuTiles:
     def get(self, idx, augment: bool):
         import torch
 
-        x = self.x[idx].float().div_(255.0).sub_(0.5).div_(0.25)
+        x = self.x[idx].float().div_(255.0)
         y = ((self.m[idx].unsqueeze(1) >> self.shift) & 1).float()
         if augment and self.flips:
             # два отражения и транспонирование с p = 0,5 дают все 8 поворотов и отражений квадрата
             for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
                 w = (torch.rand(len(idx), device=self.device) < 0.5).view(-1, 1, 1, 1)
                 x, y = torch.where(w, op(x), x), torch.where(w, op(y), y)
+        if augment and self.scale > 0:
+            x, y = resample_scale(x, y, self.scale)
         if augment and self.copy_paste > 0 and self.paste_channels:
             x, y = paste_objects(x, y, self.paste_channels, self.copy_paste)
+        if augment and self.photo:
+            x = photometric(x)
+        x = x.sub(0.5).div(0.25)
         return x.contiguous(memory_format=self.memory_format), y
 
     def batches(self, batch: int, shuffle: bool, drop_last: bool):
@@ -200,12 +261,48 @@ def dice_loss(logits, target, eps: float = 1.0):
     return logits.sum() * 0
 
 
+def augment_batch(x, y, scale: float = 0.0, photo: float = 0.0):
+    """Масштаб и яркость батча на устройстве. Оба нуля — батч не меняется."""
+    import torch
+    import torch.nn.functional as F
+
+    if scale > 0:
+        lo, hi = math.log(1.0 / (1.0 + scale)), math.log(1.0 + scale)
+        s = math.exp(float(torch.empty(1).uniform_(lo, hi)))
+        t = x.shape[-1]
+        n = max(8, round(t * s))
+        if n != t:
+            x = F.interpolate(x, size=(n, n), mode="bilinear", align_corners=False)
+            y = F.interpolate(y, size=(n, n), mode="nearest")
+            if n > t:
+                o = (n - t) // 2
+                x, y = x[..., o:o + t, o:o + t], y[..., o:o + t, o:o + t]
+            else:
+                a = (t - n) // 2
+                pad = (a, t - n - a, a, t - n - a)
+                x = F.pad(x, pad, mode="replicate")
+                y = F.pad(y, pad, value=0.0)
+    if photo > 0:
+        b = x.shape[0]
+        dev = x.device
+        x01 = (x * 0.25 + 0.5).clamp(0, 1)
+        gamma = torch.exp(torch.empty(b, 1, 1, 1, device=dev).uniform_(-photo, photo))
+        contrast = 1 + torch.empty(b, 1, 1, 1, device=dev).uniform_(-photo, photo)
+        bright = torch.empty(b, 1, 1, 1, device=dev).uniform_(-photo, photo)
+        mean = x01.mean(dim=(-1, -2), keepdim=True)
+        x01 = ((x01.pow(gamma) - mean) * contrast + mean + bright).clamp(0, 1)
+        x = (x01 - 0.5) / 0.25
+    return x.contiguous(), y
+
+
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
           gpu_data: bool | None = None, copy_paste: float = 0.0, seed: int | None = None,
           target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0,
-          center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0) -> dict:
+          center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0,
+          center_spike: bool = True, photo: bool = False, scale: float = 0.0,
+          arch: str = "Unet", ema: float = 0.0, scale_aug: float = 0.0, photo_aug: float = 0.0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -253,8 +350,17 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
     # channels_last ускоряет только тензорные ядра в FP16; в FP32 на GTX 1650 он в 4,4 раза медленнее
     fmt = torch.channels_last if use_amp else torch.contiguous_format
-    model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
-                     in_channels=c, classes=k).to(dev).to(memory_format=fmt)
+    if arch == "Unet":
+        model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+                         in_channels=c, classes=k).to(dev).to(memory_format=fmt)
+    else:
+        model = smp.create_model(arch, encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+                                 in_channels=c, classes=k).to(dev).to(memory_format=fmt)
+    ema_model = None
+    if ema > 0:
+        from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
+
+        ema_model = AveragedModel(model, multi_avg_fn=get_ema_multi_avg_fn(float(ema)), use_buffers=True)
     if center and center_loss_name == "focal":
         from .centers import init_focal_bias
         init_focal_bias(model)
@@ -268,7 +374,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         ch = ()
     if gpu_data:
         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
-                        class_bits=class_bits)
+                        class_bits=class_bits, photo=photo, scale=scale)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits)
         n_steps = len(g_tr) // batch
 
@@ -278,7 +384,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         def val_batches():
             return g_va.batches(batch, shuffle=False, drop_last=False)
     else:
-        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits), batch_size=batch, shuffle=True,
+        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale),
+                           batch_size=batch, shuffle=True,
                            num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
         dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch, num_workers=workers)
         n_steps = len(dl_tr)
@@ -305,7 +412,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             from .centers import center_loss, focal_center_loss, gaussians_from_binary, heatmap_counts
 
             def prepare(y):
-                return gaussians_from_binary(y, sigma_px, by_radius=center_sigma_m <= 0)
+                return gaussians_from_binary(y, sigma_px, by_radius=center_sigma_m <= 0,
+                                              spike=center_spike)
 
             def batch_loss(logits, y):
                 y = prepare(y)
@@ -321,6 +429,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         tl = torch.zeros((), device=dev)
         n = 0
         for x, y in train_batches():
+            if scale_aug > 0 or photo_aug > 0:
+                x, y = augment_batch(x, y, scale_aug, photo_aug)
             with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x)
                 loss, _ = batch_loss(logits, y)
@@ -329,16 +439,19 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             scaler.step(opt)
             scaler.update()
             sched.step()
+            if ema_model is not None:
+                ema_model.update_parameters(model)
             tl += loss.detach() * len(x)
             n += len(x)
-        model.eval()
+        net = ema_model.module if ema_model is not None else model
+        net.eval()
         vl = torch.zeros((), device=dev)
         vn = 0
         tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
         with torch.inference_mode():
             for x, y in val_batches():
                 with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
-                    logits = model(x)
+                    logits = net(x)
                 loss, y = batch_loss(logits, y)
                 vl += loss * len(x)
                 vn += len(x)
@@ -378,7 +491,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         if better:
             best_f1, best_loss = f1_mean, vl
             Path(out).parent.mkdir(parents=True, exist_ok=True)
-            torch.save({"state_dict": model.state_dict(), "encoder": encoder, "in_channels": c,
+            torch.save({"state_dict": net.state_dict(), "encoder": encoder, "arch": arch, "in_channels": c,
                         "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
                         "tile": meta["tile"], "li_tags": meta.get("li_tags"),
                         "li_source": meta.get("li_source"), "dem_res": meta.get("dem_res"),
@@ -386,6 +499,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "target": target, "center_sigma_m": center_sigma_m if center else None,
                         "center_radius_m": center_radius_m if center else None,
                         "min_dist_m": min_dist_m if center else None,
+                        "pixel_units": meta.get("pixel_units"),
+                        "photo": photo, "scale": scale,
                         "epoch": ep + 1,
                         "val_loss": vl}, out)
     return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "history": history, "out": out,
@@ -408,6 +523,10 @@ def _cli() -> None:
     ap.add_argument("--cpu-data", action="store_true", help="тайлы через DataLoader, а не из видеопамяти")
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность вставить курган с другого тайла (Simple Copy-Paste)")
+    ap.add_argument("--photo", action="store_true",
+                    help="на обучении яркость ±0,08 и контраст ±0,15")
+    ap.add_argument("--scale", type=float, default=0.0,
+                    help="случайный масштаб тайла, доля; вместе с --photo не включать")
     ap.add_argument("--seed", type=int, default=None, help="зерно инициализации и порядка батчей (ансамбль)")
     ap.add_argument("--target", choices=("mask", "centers"), default="mask",
                     help="mask — маска класса; centers — гауссиана в центре объекта")
@@ -419,13 +538,20 @@ def _cli() -> None:
                     help="focal — потеря карты центров Law & Deng / CenterNet")
     ap.add_argument("--all-data", action="store_true",
                     help="все тайлы в обучении, в файл весов пишется последняя эпоха")
+    ap.add_argument("--arch", default="Unet",
+                    help="декодер smp: Unet, UnetPlusPlus, FPN, DeepLabV3Plus, UPerNet, MAnet")
+    ap.add_argument("--ema", type=float, default=0.0, help="экспоненциальное среднее весов, 0 — выключено")
+    ap.add_argument("--scale-aug", type=float, default=0.0, help="случайный масштаб батча, 0 — выключено")
+    ap.add_argument("--photo-aug", type=float, default=0.0, help="яркость и гамма батча, 0 — выключено")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
                 gpu_data=False if args.cpu_data else None, copy_paste=args.copy_paste, seed=args.seed,
                 target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
-                center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist)
+                center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist,
+                photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
+                scale_aug=args.scale_aug, photo_aug=args.photo_aug)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

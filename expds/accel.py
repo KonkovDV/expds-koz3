@@ -420,6 +420,24 @@ def local_relief(z: np.ndarray, radius: int) -> np.ndarray:
     return (z - box_mean(z, radius)).astype(np.float32)
 
 
+def local_dev(z: np.ndarray, radius: int, std_floor: float = 0.05) -> np.ndarray:
+    """(высота − среднее окна) / σ того же окна.
+
+    Перед квадратом высота сдвигается на своё среднее: иначе z² абсолютной
+    отметки съедает в float32 разницу в дециметры. На ровном поле σ не
+    опускается ниже std_floor, иначе шум лидара становится бесконечным сигналом.
+    """
+    z64 = np.ascontiguousarray(z, np.float64)
+    fin = np.isfinite(z64)
+    ref = float(z64[fin].mean()) if fin.any() else 0.0
+    shifted = np.where(fin, z64 - ref, np.nan).astype(np.float32)
+    mean = box_mean(shifted, int(radius))
+    sq = np.where(np.isfinite(shifted), shifted * shifted, np.nan).astype(np.float32)
+    var = np.maximum(box_mean(sq, int(radius)) - mean * mean, 0.0)
+    std = np.maximum(np.sqrt(var), np.float32(std_floor))
+    return ((shifted - mean) / std).astype(np.float32)
+
+
 def find_peaks(img: np.ndarray, radius: int, min_value: float,
                max_peaks: int = 1_000_000) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Локальные максимумы окна (2r+1)² не ниже min_value с подавлением ближе r пикселей."""

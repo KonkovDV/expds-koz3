@@ -106,6 +106,10 @@ def main() -> None:
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
+    ap.add_argument("--photo", action="store_true",
+                    help="на обучении яркость ±0,08 и контраст ±0,15; проверка без этого")
+    ap.add_argument("--scale", type=float, default=0.0,
+                    help="случайный масштаб тайла, доля; 0,15 даёт 0,85–1,15. Отдельный опыт, вместе с --photo не включать")
     ap.add_argument("--seeds", type=int, default=1,
                     help="моделей на фолд с разными зёрнами; предсказание — их среднее (ансамбль)")
     ap.add_argument("--target", choices=("mask", "centers"), default="mask",
@@ -115,11 +119,15 @@ def main() -> None:
     ap.add_argument("--center-min-dist", type=float, default=12.0,
                     help="минимальное расстояние между центрами, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
+    ap.add_argument("--center-unbiased", action="store_true",
+                    help="гауссиана центра между клетками, без шипа в 1 (отдельный опыт, не рецепт сдачи)")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="префикс классов кэша: биты маски идут в этом порядке")
     ap.add_argument("--repeat-regions", default=None,
                     help="файл участков, чьи тайлы повторяются в обучении (семья проверки — нет)")
     ap.add_argument("--repeat", type=int, default=1, help="сколько раз такой тайл входит в эпоху")
+    ap.add_argument("--arch", default="Unet", help="декодер; Unet — рецепт сданных весов")
+    ap.add_argument("--ema", type=float, default=0.0, help="экспоненциальное среднее весов, 0 — выключено")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -196,7 +204,9 @@ def main() -> None:
                             batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
                             seed=s if s else None, target=args.target,
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
-                            center_loss_name=args.center_loss, min_dist_m=args.center_min_dist)
+                            center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
+                            center_spike=not args.center_unbiased,
+                            photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

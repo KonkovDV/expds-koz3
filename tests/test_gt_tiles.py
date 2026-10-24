@@ -82,6 +82,28 @@ def test_tile_cache_only_classes(tmp_path):
                           only_classes=["finds_points"])
 
 
+def test_min_area_drops_small_mounds(tmp_path):
+    root = make_train(tmp_path / "train")
+    gt = str(_gt_file(root, tmp_path))
+    # Два целых кургана лидара: радиусы 2,5 и 2 м, площади около 20 и 13 м².
+    kept = tiles.build_cache(str(root), gt, "li", str(tmp_path / "big"), res=0.5, tile=64,
+                             min_area_m2=16)
+    none = tiles.build_cache(str(root), gt, "li", str(tmp_path / "none"), res=0.5, tile=64,
+                             min_area_m2=10_000)
+    assert kept["min_area_m2"] == 16 and kept["positive"] >= 1
+    assert none["positive"] == 0
+
+
+def test_ground_area_ignores_mercator_stretch():
+    g = Point(X0, Y0).buffer(10)
+    merc = to_crs(g, UTM, WEB_MERCATOR)
+    utm_area = tiles.ground_area_m2(g, UTM)
+    merc_area = tiles.ground_area_m2(merc, WEB_MERCATOR)
+    assert abs(utm_area - 3.1416 * 100) < 5
+    assert abs(merc_area - utm_area) / utm_area < 0.05
+    assert merc.area > utm_area * 2
+
+
 def test_shrink_separates_touching_mounds():
     a, b = Point(0, 0).buffer(5), Point(10, 0).buffer(5)
     assert a.buffer(1e-6).intersects(b)

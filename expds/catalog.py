@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -173,11 +174,39 @@ def scan_region(path: Path) -> Region:
     return reg
 
 
+def _has_data(reg: Region) -> bool:
+    return bool(reg.las or reg.rasters or reg.annotations or reg.li_rasters)
+
+
+def _looks_like_region(name: str) -> bool:
+    """Папка участка, а не модальности: region_*, NNN_Название или *_FINAL."""
+    return name.lower().startswith("region") or name.endswith("_FINAL") or bool(re.match(r"^\d{3}_", name))
+
+
 def scan_root(root: str | Path) -> list[Region]:
-    """Все регионы в корне выборки (папки первого уровня с файлами внутри)."""
+    """Регионы в корне. Если папок участков нет, корень сам считается одним участком.
+
+    Обычная раскладка (папки первого уровня с данными) не меняется. Запасные:
+    участки на уровень глубже одной обёртки и плоская папка с файлами.
+    """
     root = Path(root)
-    regions = [scan_region(d) for d in sorted(root.iterdir()) if d.is_dir() and not d.name.startswith(".")]
-    regions = [r for r in regions if r.las or r.rasters or r.annotations or r.li_rasters]
+    dirs = [d for d in sorted(root.iterdir()) if d.is_dir() and not d.name.startswith(".")]
+    regions = [r for r in (scan_region(d) for d in dirs) if _has_data(r)]
+    if regions and len(dirs) == 1 and not _looks_like_region(dirs[0].name):
+        inner_dirs = [d for d in sorted(dirs[0].iterdir()) if d.is_dir() and _looks_like_region(d.name)]
+        inner = [r for r in (scan_region(d) for d in inner_dirs) if _has_data(r)]
+        if len(inner) > 1:
+            log.warning("участки лежат на уровень глубже: %s", dirs[0].name)
+            regions = inner
+    modality_dirs = [r for r in regions if re.match(r"^\d{2}_", r.path.name)]
+    if regions and len(modality_dirs) == len(regions):
+        log.warning("во входной папке папки модальностей — это один участок: %s", root.name)
+        regions = []
+    if not regions:
+        flat = scan_region(root)
+        if _has_data(flat):
+            log.warning("во входной папке нет подпапок участков — обрабатываю её как один участок")
+            regions = [flat]
     log.info("найдено регионов: %d в %s", len(regions), root)
     return regions
 
@@ -194,11 +223,19 @@ def read_utm_json(path: Path | None) -> str | None:
     crs = data.get("crs") or data.get("CRS")
     if crs:
         text = str(crs).strip()
-        if text.lower().startswith("urn:ogc:def:crs:epsg::"):
-            return f"EPSG:{text.split('::')[-1]}"
-        if text.lower().startswith("epsg") and ":" not in text:
-            return f"EPSG:{text[4:].strip(': ')}"
-        return text
+        low = text.lower()
+        # «EPSG» без кода не должно становиться строкой «EPSG:»: такой CRS ломает участок.
+        if low not in ("epsg", "epsg:"):
+            if low.startswith("urn:ogc:def:crs:epsg::"):
+                code = text.split("::")[-1].strip()
+                if code.isdigit():
+                    return f"EPSG:{code}"
+            elif low.startswith("epsg") and ":" not in text:
+                code = text[4:].strip(": ")
+                if code.isdigit():
+                    return f"EPSG:{code}"
+            else:
+                return text
     utm = data.get("utm") or data.get("UTM")
     if not utm:
         return None

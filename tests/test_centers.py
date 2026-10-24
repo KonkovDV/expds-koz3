@@ -36,6 +36,27 @@ def test_focal_bias_starts_the_map_near_empty():
     assert float(focal_center_loss(missed, target)) > float(focal_center_loss(hit, target))
 
 
+def test_unbiased_gaussian_stays_between_pixels_and_the_loss_still_sees_it():
+    from expds.centers import focal_center_loss
+
+    mask = torch.zeros(1, 1, 16, 16)
+    mask[0, 0, 5, 5] = 1
+    mask[0, 0, 5, 6] = 1
+    mask[0, 0, 6, 5] = 1
+    heat = gaussians_from_binary(mask, 1.5, spike=False)[0, 0]
+    assert float(heat.max()) < 0.999
+    assert float(heat.max()) > 0.5
+    row, col = np.unravel_index(int(torch.argmax(heat)), heat.shape)
+    assert abs(row - 5.333) <= 0.51
+    assert abs(col - 5.333) <= 0.51
+    missed = torch.full((1, 1, 16, 16), -6.0)
+    hit = missed.clone()
+    hit[0, 0, row, col] = 6.0
+    assert float(focal_center_loss(missed, heat[None, None])) > float(focal_center_loss(hit, heat[None, None]))
+    spiked = gaussians_from_binary(mask, 1.5)[0, 0]
+    assert float(spiked.max()) == pytest.approx(1.0)
+
+
 def test_wide_mound_gets_a_wider_gaussian():
     small = torch.zeros(1, 1, 32, 32)
     large = torch.zeros(1, 1, 32, 32)

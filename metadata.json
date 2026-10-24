@@ -1,4 +1,4 @@
 {
-  "image": "ВАШ_ЛОГИН/ВАШ_ОБРАЗ:ТЕГ",
+  "image": "pantum/n7q:20261024",
   "entry_point": "python inference/main.py"
 }
