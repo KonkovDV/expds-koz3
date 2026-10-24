@@ -189,3 +189,39 @@ def test_epoch_covers_each_tile_once(tmp_path):
     sizes = [len(x) for x, _ in g.batches(3, shuffle=False, drop_last=False)]
     assert sizes == [3, 3, 3, 1]
     assert [len(x) for x, _ in g.batches(3, shuffle=True, drop_last=True)] == [3, 3, 3]
+
+
+@pytest.mark.parametrize("mode,expected", [("auto", True), ("none", False), ("all", True)])
+def test_flips_mode_overrides_the_cache(tmp_path, monkeypatch, mode, expected):
+    """--flips none выключает повороты и отражения даже там, где кэш их разрешает (снимки)."""
+    pytest.importorskip("torch")
+    pytest.importorskip("segmentation_models_pytorch")
+    import json
+
+    from expds import train as tr
+
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    rng = np.random.default_rng(0)
+    n, t = 8, 32
+    np.save(cache / "images_0000.npy", rng.integers(0, 255, (n, 3, t, t), dtype=np.uint8))
+    masks = np.zeros((n, t, t), np.uint8)
+    masks[:, 10:14, 10:14] = 1
+    np.save(cache / "masks_0000.npy", masks)
+    rows = "shard,idx,region,family,file,cx,cy,positive\n" + "".join(
+        f"0,{i},r{i % 2},{'A' if i % 2 else 'B'},f.tif,0,0,1\n" for i in range(n))
+    (cache / "index.csv").write_text(rows, encoding="utf-8")
+    meta = {"markup": "sp_or", "classes": ["kurgany_povrezhdennye"], "res": 1.0, "tile": t,
+            "flips": True, "channels": 3}
+    (cache / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    seen = []
+    real = tr.TileDataset.__init__
+
+    def spy(self, cache_, rows_, k, flips, *a, **kw):
+        seen.append(flips)
+        real(self, cache_, rows_, k, flips, *a, **kw)
+
+    monkeypatch.setattr(tr.TileDataset, "__init__", spy)
+    tr.train(str(cache), str(tmp_path / "m.pt"), epochs=1, batch=4, val_families=["B"], workers=0,
+             pretrained=False, gpu_data=False, flips_mode=mode)
+    assert seen and seen[0] is expected

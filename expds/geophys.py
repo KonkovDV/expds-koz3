@@ -329,6 +329,57 @@ def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams,
                "rank": merged.get("confidence", "strength") == "rank"}
 
 
+def source_crs(path: str | Path) -> str | None:
+    """CRS растра строкой или None (нет привязки или файл не читается)."""
+    import rasterio
+
+    try:
+        with rasterio.open(path) as ds:
+            return ds.crs.to_string() if ds.crs else None
+    except Exception:
+        return None
+
+
+def layer_copies(feats: list[dict], sources: dict[str, str | None], decay: float = 1.0,
+                 group: str = "etgr_copy") -> list[dict]:
+    """Копии объектов в остальные слои того же участка (срезы глубины и профили EtGr).
+
+    Каждый слой EtGr — отдельный эталон (письмо организаторов 20.10), а яма, очаг или
+    фундамент видны на соседних глубинах. Объект, найденный в одном слое, выдаётся и в
+    остальных: копия засчитывается против эталона своего слоя. Копия не ставится в слой,
+    где уже есть объект того же класса, накрывающий её внутреннюю точку; из нескольких
+    копий в одно место остаётся самая уверенная. Копируются только слои с той же CRS:
+    профиль без привязки в плане с картой не совмещается.
+    Уверенность копии — исходная × decay, группа порога — group (своя, подбирается табло).
+    sources — {имя файла слоя: CRS}; слой без CRS не получает и не отдаёт копий.
+    """
+    from shapely.strtree import STRtree
+
+    if not feats or len(sources) < 2:
+        return []
+    by_layer: dict[tuple, list[dict]] = {}
+    for f in feats:
+        by_layer.setdefault((f.get("region_name"), f.get("source"), f["class_name"]), []).append(f)
+    trees = {k: (STRtree([f["geom"] for f in v]), [f["geom"] for f in v]) for k, v in by_layer.items()}
+    best: dict[tuple, dict] = {}
+    for f in sorted(feats, key=lambda f: -float(f.get("confidence", 0.0))):
+        region, src, cls = f.get("region_name"), f.get("source"), f["class_name"]
+        pt = f["geom"].representative_point()
+        src_crs = sources.get(src)
+        for dst, dst_crs in sources.items():
+            if dst == src or src_crs is None or dst_crs != src_crs:
+                continue
+            hit = trees.get((region, dst, cls))
+            if hit is not None and any(hit[1][int(i)].contains(pt) for i in hit[0].query(pt)):
+                continue
+            key = (region, dst, cls, round(pt.x, 1), round(pt.y, 1))
+            if key in best:
+                continue
+            best[key] = dict(f, source=dst, confidence=float(f.get("confidence", 1.0)) * decay,
+                             threshold_group=group, copied_from=src)
+    return list(best.values())
+
+
 def apply_masks(feats: list[dict], boundary=None, noise=None) -> list[dict]:
     """Оставляет объекты внутри границ съёмки и вне шума (по внутренней точке)."""
     from shapely.prepared import prep

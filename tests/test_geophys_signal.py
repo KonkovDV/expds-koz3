@@ -187,3 +187,47 @@ def test_site_overlap_finds_the_neighbouring_train_site(tmp_path):
     assert res.returncode == 0, res.stderr
     rows = json.loads(out.read_text(encoding="utf-8"))
     assert rows[0]["region"] == "val_000" and rows[0]["family"] == "Гнёздово" and rows[0]["gap_m"] < 50
+
+
+def test_layer_copies_fill_other_slices_once():
+    from shapely.geometry import Point
+
+    def f(x, src, conf=0.5, crs="EPSG:32636"):
+        return {"geom": Point(x, 0).buffer(1.0), "class_name": "object_poly", "confidence": conf,
+                "region_name": "r", "markup_type": "etgr", "source": src, "original_crs": crs}
+
+    feats = [f(0, "карта_1_0.75.tif", 0.9), f(0, "карта_2_1.0.tif", 0.6), f(10, "карта_2_1.0.tif", 0.4),
+             f(50, "профиль_1.tif", 0.7, crs=None)]
+    sources = {"карта_1_0.75.tif": "EPSG:32636", "карта_2_1.0.tif": "EPSG:32636",
+               "карта_3_1.25.tif": "EPSG:32636", "профиль_1.tif": None}
+    out = geophys.layer_copies(feats, sources, decay=0.5, group="etgr_copy")
+    where = sorted((c["source"], round(c["geom"].centroid.x)) for c in out)
+    # x=0 уже есть в срезах 1 и 2 → копия только в срез 3 (одна, от самого уверенного);
+    # x=10 из среза 2 → в срезы 1 и 3; профиль без CRS не смешивается с картами
+    assert where == [("карта_1_0.75.tif", 10), ("карта_3_1.25.tif", 0), ("карта_3_1.25.tif", 10)]
+    top = next(c for c in out if c["source"] == "карта_3_1.25.tif" and round(c["geom"].centroid.x) == 0)
+    assert top["confidence"] == 0.45 and top["threshold_group"] == "etgr_copy" and top["copied_from"] == "карта_1_0.75.tif"
+    assert geophys.layer_copies(feats, {"один.tif": "EPSG:32636"}) == []
+
+
+def test_layer_copy_is_off_by_default_in_the_pipeline(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import pipeline
+
+    files = [tmp_path / "x_EtGr_карта_1_0.75.tif", tmp_path / "x_EtGr_карта_2_1.0.tif"]
+    reg = SimpleNamespace(name="r", las=[], rasters={"etgr": files}, boundaries=[], noise=[], utm_json=None)
+
+    def polys(path, region, mt, p):
+        return [{"geom": Point(0, 0).buffer(1), "class_name": "object_poly", "confidence": 0.9,
+                 "region_name": region, "markup_type": mt, "source": Path(path).name,
+                 "original_crs": "EPSG:32636"}] if "карта_1" in Path(path).name else []
+
+    monkeypatch.setattr(pipeline.geophys, "object_polys", polys)
+    monkeypatch.setattr(pipeline.geophys, "load_mask", lambda *a, **k: None)
+    monkeypatch.setattr(pipeline.geophys, "source_crs", lambda path: "EPSG:32636")
+    off = pipeline.geophys_feats(reg, {"geophys": {}}, pipeline.TimeGuard(1000))
+    on = pipeline.geophys_feats(reg, {"geophys": {"etgr": {"layer_copy": True}}}, pipeline.TimeGuard(1000))
+    assert len(off) == 1 and len(on) == 2 and on[1]["threshold_group"] == "etgr_copy"

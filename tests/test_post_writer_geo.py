@@ -157,3 +157,21 @@ def test_geophys_points_and_polys(tmp_path):
     areas = [to_crs(f["geom"], WEB_MERCATOR, UTM).area for f in polys]
     assert any(2.0 < a < 10.0 for a in areas)
     assert np.isfinite([f["confidence"] for f in polys]).all()
+
+
+def test_split_large_cuts_only_big_polygons_of_the_class():
+    from shapely.geometry import box
+
+    from expds.post import split_large
+
+    big = {"geom": box(0, 0, 100, 20), "class_name": "fortifikatsii", "confidence": 0.7, "markup_type": "ae"}
+    small = {"geom": box(200, 0, 210, 10), "class_name": "fortifikatsii", "confidence": 0.6, "markup_type": "ae"}
+    other = {"geom": box(0, 100, 100, 120), "class_name": "gorodishcha", "confidence": 0.9, "markup_type": "ae"}
+    spec = {"fortifikatsii": {"cell_m": 25, "min_area_m2": 50, "max_area_m2": 500}}
+    out = split_large([big, small, other], spec)
+    forts = [f for f in out if f["class_name"] == "fortifikatsii"]
+    assert len(forts) == 5                      # 4 куска по 25×20 и маленький полигон без изменений
+    assert all(f["confidence"] in (0.7, 0.6) for f in forts)
+    assert sum(f["geom"].area for f in forts) == 100 * 20 + 100
+    assert next(f for f in out if f["class_name"] == "gorodishcha")["geom"].equals(other["geom"])
+    assert split_large([big], {}) == [big]

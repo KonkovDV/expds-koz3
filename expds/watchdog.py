@@ -69,6 +69,8 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):
         out = post.shape_cores(out, post_cfg["core"])
+    if post_cfg.get("split"):
+        out = post.split_large(out, post_cfg["split"])
     out = post.finalize(out)
     return post.cap_features(out)
 

@@ -52,6 +52,10 @@ RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m":
           "dev_clip": 3.0, "dev_std_floor_m": 0.05}
 #: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
 FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
+#: Канал int — яркость отражения лазера (интенсивность) точек земли: шкала по перцентилям облака,
+#: пустые ячейки — среднее окна INTENSITY_FILL_M. Сданные веса его не используют.
+INTENSITY_PCT = (2.0, 98.0)
+INTENSITY_FILL_M = 2.0
 
 
 @dataclass
@@ -151,7 +155,7 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
     dem = fill_interior_holes(dem, method=fill)
     t2 = time.perf_counter()
     info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
-                backend=accel.backend())
+                backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
     if crs is None:
         from .crs import las_crs
 
@@ -316,7 +320,7 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
         from .crs import las_crs
         crs = las_crs(las_path)
     info = dict(spec, res=work_res, factor=1, tiled=True, fine_res=res,
-                width=out_w, height=out_h, used_all=use_all)
+                width=out_w, height=out_h, used_all=use_all, las_path=str(las_path), ground_class=ground_class)
     return Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
 
 
@@ -438,6 +442,57 @@ def slope_deg(z: np.ndarray, res: float) -> np.ndarray:
     return accel.slope_deg(z, res)
 
 
+def intensity_grid(las_path: str | Path, left: float, top: float, step: float, shape: tuple[int, int],
+                   ground_class: int = DEFAULTS["ground_class"], chunk: int = 2_000_000) -> np.ndarray:
+    """Средняя интенсивность точек земли в ячейках сетки (север вверху), NaN — пусто.
+
+    Без точек класса земли берутся все точки, как в мозаике. Сетка — та же, что у DEM
+    на рабочем шаге: ячейка (r, c) покрывает x ∈ [left + c·step, …), y ∈ (top − (r+1)·step, …].
+    """
+    import laspy
+
+    h, w = shape
+    sums = np.zeros(h * w, np.float64)
+    cnts = np.zeros(h * w, np.float64)
+    use_all = not has_class(las_path, ground_class)
+    with laspy.open(str(las_path)) as f:
+        for pts in f.chunk_iterator(chunk):
+            keep = slice(None) if use_all else np.asarray(pts.classification) == ground_class
+            x = np.asarray(pts.x)[keep]
+            y = np.asarray(pts.y)[keep]
+            v = np.asarray(pts.intensity, np.float64)[keep]
+            c = np.floor((x - left) / step)
+            r = np.floor((top - y) / step)
+            ok = (c >= 0) & (r >= 0) & (c < w) & (r < h)
+            flat = r[ok].astype(np.int64) * w + c[ok].astype(np.int64)
+            sums += np.bincount(flat, weights=v[ok], minlength=h * w)
+            cnts += np.bincount(flat, minlength=h * w)
+    return np.where(cnts > 0, sums / np.maximum(cnts, 1), np.nan).astype(np.float32).reshape(h, w)
+
+
+def intensity_unit(d: Dem, step: float, shape: tuple[int, int]) -> np.ndarray:
+    """Канал int в долях 0…1: перцентили INTENSITY_PCT облака, пустоты — среднее окна.
+
+    У DEM без пути к LAS (собран не build_dem) канал постоянный 0,5 с предупреждением:
+    модель с int на таком входе работает, но без этого канала.
+    """
+    path = d.info.get("las_path")
+    if not path:
+        log.warning("канал int: у DEM нет пути к LAS, канал постоянный")
+        return np.full(shape, 0.5, np.float32)
+    g = intensity_grid(path, d.left, d.top, step, shape, int(d.info.get("ground_class", DEFAULTS["ground_class"])))
+    ok = np.isfinite(g)
+    if not ok.any():
+        log.warning("канал int: в %s нет точек на сетке, канал постоянный", Path(path).name)
+        return np.full(shape, 0.5, np.float32)
+    lo, hi = np.percentile(g[ok], INTENSITY_PCT)
+    unit = np.clip((g - lo) / max(float(hi - lo), 1e-6), 0, 1).astype(np.float32)
+    if not ok.all():
+        near = accel.box_mean(unit, max(1, round(INTENSITY_FILL_M / step)))
+        unit = np.where(ok, unit, np.where(np.isfinite(near), near, 0.5)).astype(np.float32)
+    return unit
+
+
 def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     """Каналы модели li из DEM на рабочем шаге: C×H×W uint8 и привязка (север вверху).
 
@@ -448,7 +503,8 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     lrm_s, lrm_l — локальный рельеф (высота − среднее окна радиусом 8 и 30 м,
     под курганы лесной и степной зон); lrm_xl — то же окно 100 м под городища,
     в сданных весах курганов его нет; slope — уклон; g — серая отмывка;
-    opns, svf — положительная открытость и фактор вида на небо (насыпь и ров).
+    opns, svf — положительная открытость и фактор вида на небо (насыпь и ров);
+    int — интенсивность отражения точек земли (intensity_unit), читается из LAS.
     dev_s, dev_l, dev_xl — то же окно, но делённое на σ окрестности и обрезанное
     к ±3: низкая насыпь в ровном поле не тонет, а в шумном лесу не сливается
     с клипом в метрах. Сданные каналы этот тег не использует.
@@ -459,14 +515,20 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     from .candidates import to_work_grid
 
     rs = accel._rs
-    if rs is not None and hasattr(rs, "relief_channels") and set(tags) <= FUSED_TAGS:
+    tags = tuple(tags)
+    fused = [t for t in tags if t != "int"]
+    if rs is not None and hasattr(rs, "relief_channels") and fused and set(fused) <= FUSED_TAGS:
         try:
             img, step = rs.relief_channels(
-                np.ascontiguousarray(d.dem, np.float32), float(d.res), float(res), list(tags),
+                np.ascontiguousarray(d.dem, np.float32), float(d.res), float(res), fused,
                 float(RELIEF["lrm_s_m"]), float(RELIEF["lrm_s_clip_m"]),
                 float(RELIEF["lrm_l_m"]), float(RELIEF["lrm_l_clip_m"]),
                 float(RELIEF["slope_max_deg"]))
             step = float(step)
+            if "int" in tags:
+                unit = intensity_unit(d, step, img.shape[1:])
+                ch = np.where(img[0] > 0, np.rint(1 + unit * 254), 0).astype(np.uint8)
+                img = np.insert(img, tags.index("int"), ch, axis=0)
             return img, from_origin(d.left, d.top, step, step)
         except Exception as exc:
             log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
@@ -497,6 +559,8 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             v = opn_svf[0] if t == "opns" else opn_svf[1]
             lo, hi = RELIEF[f"{t}_range"]
             unit = np.clip((np.nan_to_num(v, nan=lo) - lo) / (hi - lo), 0, 1)
+        elif t == "int":
+            unit = intensity_unit(d, step, z.shape)
         else:
             raise ValueError(f"неизвестный канал li: {t}")
         out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))

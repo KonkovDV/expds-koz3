@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 import tomllib
@@ -70,7 +71,13 @@ def main() -> None:
             print(f"{reg.name}: {len(found)}", flush=True)
         feats += found
     out = post.finalize(post.merge_within_markup(feats))
-    writer.write_geojson(out, args.out)
+    # Табло читает группу порога из свойств: копии по слоям идут своей группой (etgr_copy).
+    fc = writer.to_feature_collection(out)
+    for feat, src in zip(fc["features"], out):
+        for key in ("threshold_group", "source"):
+            if src.get(key):
+                feat["properties"][key] = src[key]
+    Path(args.out).write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
     print(f"записано {len(out)} объектов за {time.monotonic() - t0:.0f} с → {args.out}")
 
 

@@ -9,9 +9,14 @@
                  (то же, что [[fusion.copy]] на инференсе);
   core           замена полигонов «ядром» — кругом в полюсе недоступности
                  (то же, что [post.core]);
+  split          крупные полигоны режутся сеткой на куски размером с эталон
+                 (то же, что [post.split]): одна маска на сеть траншей иначе
+                 засчитывает не больше одного окопа;
   fill-holes     заливка дыр у полигонов класса ([post] fill_holes);
   merge-classes  классы из файла A, остальные из B (ансамбль только по курганам,
-                 [models] … ensemble_classes).
+                 [models] … ensemble_classes);
+  pick           объекты выбранных типов снимков (и классов): файл общей сети
+                 (scripts/cache_merge.py) делится по группам порога, как в сдаче.
 
 Примеры (пути — как в docs/AGENT_PLAN.md):
 
@@ -98,6 +103,14 @@ def cmd_core(a) -> None:
     write_feats(shape_cores(feats, spec), Path(a.out))
 
 
+def cmd_split(a) -> None:
+    from expds.post import split_large
+
+    spec = {c: {"cell_m": a.cell, "min_area_m2": a.min_area, "max_area_m2": a.max_area,
+                "groups": a.groups or None} for c in a.classes}
+    write_feats(split_large(read_feats(Path(a.src)), spec), Path(a.out))
+
+
 def cmd_fill(a) -> None:
     from expds.post import fill_holes
 
@@ -109,6 +122,14 @@ def cmd_merge(a) -> None:
     fa = [f for f in read_feats(Path(a.a)) if f["class_name"] in keep]
     fb = [f for f in read_feats(Path(a.b)) if f["class_name"] not in keep]
     write_feats(fa + fb, Path(a.out))
+
+
+def cmd_pick(a) -> None:
+    keep_mt = set(a.markups)
+    keep_cls = set(a.classes or [])
+    feats = [f for f in read_feats(Path(a.src))
+             if f.get("markup_type") in keep_mt and (not keep_cls or f["class_name"] in keep_cls)]
+    write_feats(feats, Path(a.out))
 
 
 def main() -> None:
@@ -133,6 +154,15 @@ def main() -> None:
     k.add_argument("--groups", nargs="*", default=[])
     k.add_argument("--out", required=True)
     k.set_defaults(fn=cmd_core)
+    sp = sub.add_parser("split", help="крупные полигоны → куски размером с эталон (сетка cell_m)")
+    sp.add_argument("--src", required=True)
+    sp.add_argument("--classes", nargs="+", required=True)
+    sp.add_argument("--cell", type=float, default=30.0, help="сторона клетки на земле, м")
+    sp.add_argument("--min-area", type=float, default=20.0, help="куски мельче, м², отбрасываются")
+    sp.add_argument("--max-area", type=float, default=1500.0, help="резать только полигоны крупнее, м²")
+    sp.add_argument("--groups", nargs="*", default=[])
+    sp.add_argument("--out", required=True)
+    sp.set_defaults(fn=cmd_split)
     h = sub.add_parser("fill-holes")
     h.add_argument("--src", required=True)
     h.add_argument("--classes", nargs="+", required=True)
@@ -144,6 +174,12 @@ def main() -> None:
     m.add_argument("--classes", nargs="+", required=True)
     m.add_argument("--out", required=True)
     m.set_defaults(fn=cmd_merge)
+    pk = sub.add_parser("pick", help="только объекты этих типов снимков (и классов)")
+    pk.add_argument("--src", required=True)
+    pk.add_argument("--markups", nargs="+", required=True)
+    pk.add_argument("--classes", nargs="*", default=[])
+    pk.add_argument("--out", required=True)
+    pk.set_defaults(fn=cmd_pick)
     a = ap.parse_args()
     a.fn(a)
 

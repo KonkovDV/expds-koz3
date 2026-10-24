@@ -159,6 +159,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
         boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
         noise = geophys.load_mask(reg.noise, mt, crs_region)
+        mine: list[dict] = []
         for path in files:
             if not guard.ok(5):
                 log.warning("время на исходе: геофизика %s пропущена", path.name)
@@ -171,9 +172,17 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                     if o["rank"]:
                         found = geophys.rank_within_source(found)
                     found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
-                    feats += [f for f in found if f["confidence"] >= o["min_confidence"]]
+                    mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
+        mt_cfg = geo_cfg.get(mt) or {}
+        if mt_cfg.get("layer_copy", False):
+            try:
+                layers = {f.name: geophys.source_crs(f) for f in files}
+                mine += geophys.layer_copies(mine, layers, float(mt_cfg.get("layer_copy_decay", 1.0)), f"{mt}_copy")
+            except Exception:
+                log.exception("%s: копии по слоям %s пропущены", reg.name, mt)
+        feats += mine
     return feats
 
 

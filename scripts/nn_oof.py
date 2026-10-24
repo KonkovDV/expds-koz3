@@ -95,12 +95,39 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
     return feats
 
 
+def predict_with_weights(args, predict_mts: list[str]) -> None:
+    """Режим --weights: одна модель на все участки, без фолдов и обучения."""
+    from expds.infer_nn import Ensemble, Segmenter
+
+    cfg = load_config(args.config)
+    members = [Segmenter(Path(w)) for w in args.weights]
+    seg = members[0] if len(members) == 1 else Ensemble(members)
+    seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
+    rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
+    cand_p = _params(candidates.CandidateParams, cfg.get("candidates")) if rescore else None
+    feats: list[dict] = []
+    n_reg = 0
+    for reg in scan_root(args.root):
+        if not (reg.las if args.markup == "li" else any(reg.rasters.get(mt) for mt in predict_mts)):
+            continue
+        try:
+            for mt in predict_mts:
+                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"))
+            n_reg += 1
+        except Exception:
+            log.exception("%s: предсказание пропущено", reg.name)
+    out = post.finalize(post.merge_within_markup(feats))
+    writer.write_geojson(out, args.out)
+    print(json.dumps({"written": len(out), "regions": n_reg, "weights": args.weights, "markups": predict_mts},
+                     ensure_ascii=False))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--markup", default="li")
     ap.add_argument("--root", required=True, help="корень обучающей выборки")
-    ap.add_argument("--cache", required=True, help="кэш тайлов модальности по всем участкам (expds.tiles)")
-    ap.add_argument("--work", required=True, help="папка для кэшей и моделей фолдов")
+    ap.add_argument("--cache", default=None, help="кэш тайлов модальности по всем участкам (expds.tiles)")
+    ap.add_argument("--work", default=None, help="папка для кэшей и моделей фолдов")
     ap.add_argument("--out", required=True, help="GeoJSON предсказаний вне обучения")
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--epochs", type=int, default=30)
@@ -133,8 +160,24 @@ def main() -> None:
     ap.add_argument("--repeat", type=int, default=1, help="сколько раз такой тайл входит в эпоху")
     ap.add_argument("--arch", default="Unet", help="декодер; Unet — рецепт сданных весов")
     ap.add_argument("--ema", type=float, default=0.0, help="экспоненциальное среднее весов, 0 — выключено")
+    ap.add_argument("--flips", choices=("auto", "none", "all"), default="auto",
+                    help="повороты и отражения тайлов на обучении; none — направление солнца на снимке сохраняется")
+    ap.add_argument("--predict-markups", nargs="+", default=None,
+                    help="типы снимков, которые предсказывает модель фолда (общий кэш scripts/cache_merge.py); "
+                         "по умолчанию — только --markup")
+    ap.add_argument("--weights", nargs="+", default=None,
+                    help="готовые веса без обучения: все участки предсказывает эта модель (несколько — ансамбль). "
+                         "Не вне обучения, если модель видела эти семьи; для переноса на другой тип снимков")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    predict_mts = args.predict_markups or [args.markup]
+    if args.markup == "li" and predict_mts != ["li"]:
+        raise SystemExit("--predict-markups — только для снимков и геофизики, не для li")
+    if args.weights:
+        predict_with_weights(args, predict_mts)
+        return
+    if not args.cache or not args.work:
+        raise SystemExit("нужны --cache и --work (или --weights без обучения)")
 
     from expds.infer_nn import Ensemble, Segmenter
     from expds.train import train
@@ -170,7 +213,8 @@ def main() -> None:
     cfg = load_config(args.config)
     rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates")) if rescore else None
-    regions = [r for r in scan_root(args.root) if (r.las if args.markup == "li" else r.rasters.get(args.markup))]
+    regions = [r for r in scan_root(args.root)
+               if (r.las if args.markup == "li" else any(r.rasters.get(mt) for mt in predict_mts))]
     feats: list[dict] = []
     report = []
     for k in sorted(set(fold.values())):
@@ -211,7 +255,8 @@ def main() -> None:
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
                             center_spike=not args.center_unbiased,
-                            photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema)
+                            photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
+                            flips_mode=args.flips)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
@@ -226,7 +271,9 @@ def main() -> None:
         try:
             for reg in fold_regions:
                 try:
-                    got = predict_region(seg, reg, args.markup, cand_p, cfg.get("li"), prefetch)
+                    got = []
+                    for mt in predict_mts:
+                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch)
                 except Exception:
                     log.exception("%s: предсказание пропущено", reg.name)
                     continue

@@ -302,7 +302,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           target: str = "mask", center_sigma_m: float = 4.0, center_radius_m: float = 6.0,
           center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0,
           center_spike: bool = True, photo: bool = False, scale: float = 0.0,
-          arch: str = "Unet", ema: float = 0.0, scale_aug: float = 0.0, photo_aug: float = 0.0) -> dict:
+          arch: str = "Unet", ema: float = 0.0, scale_aug: float = 0.0, photo_aug: float = 0.0,
+          flips_mode: str = "auto") -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -364,7 +365,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     if center and center_loss_name == "focal":
         from .centers import init_focal_bias
         init_focal_bias(model)
-    flips = meta.get("flips", False)
+    # auto — как в кэше: повороты и отражения у всего, кроме лидара с направленной отмывкой.
+    # none — без них: на снимке тень кургана лежит против солнца, и поворот на 90° учит сеть
+    # не смотреть на этот признак (у лидара с отмывкой g повороты выключены по той же причине).
+    flips = {"auto": meta.get("flips", False), "none": False, "all": True}[flips_mode]
     torch.backends.cudnn.benchmark = dev.type == "cuda"
     if gpu_data is None:
         gpu_data = dev.type == "cuda" and GpuTiles.nbytes(cache_p, rows) < 0.25 * torch.cuda.mem_get_info(dev)[0]
@@ -543,6 +547,9 @@ def _cli() -> None:
     ap.add_argument("--ema", type=float, default=0.0, help="экспоненциальное среднее весов, 0 — выключено")
     ap.add_argument("--scale-aug", type=float, default=0.0, help="случайный масштаб батча, 0 — выключено")
     ap.add_argument("--photo-aug", type=float, default=0.0, help="яркость и гамма батча, 0 — выключено")
+    ap.add_argument("--flips", choices=("auto", "none", "all"), default="auto",
+                    help="повороты и отражения тайлов: auto — как в кэше; none — сохранить направление "
+                         "солнца на снимке (опыт 25.10)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
@@ -551,7 +558,7 @@ def _cli() -> None:
                 target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                 center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist,
                 photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
-                scale_aug=args.scale_aug, photo_aug=args.photo_aug)
+                scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

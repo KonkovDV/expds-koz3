@@ -178,6 +178,8 @@ sp_focal2 = {path = "models/spor_focal_wide_r18.pt", classes = ["kurgany_povrezh
 # Фортификации аэрофото: маска одного класса, 20 эпох на всех тайлах (медиана лучших эпох фолдов).
 ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
 # or = "models/or_r18.pt"
+# Ортофото сданной сетью архитектуры спутника (план 25.10, раздел 2.7, W1), только с порогом группы or:
+# or = {path = "models/spor_arch_r18.pt", classes = ["arkhitektury"]}
 # Сеть на картах геофизики (pipeline.geo_model_feats), только вместе с порогом группы maggr_nn:
 # maggr = {path = "models/maggr_finds_r18.pt", classes = ["finds_points"]}
 
@@ -202,6 +204,9 @@ point_circle_m = 0.3
 #   [geophys.<модальность>.object_poly] polarity = "abs" | "pos" | "neg".
 #   [geophys.<модальность>] classic = false — классику модальности считает сеть [models] <модальность>,
 #     группа порога <модальность>_nn. Без [thresholds_by_markup.<модальность>_nn] сеть не включать.
+#   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
+#     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
+#     layer_copy_decay — множитель уверенности копий.
 # Подбор: scripts/geo_tune.py --k-min / --band-mode / --signals / --polarities; файл для табло —
 # scripts/geo_predict.py --set ...; приёмка — scripts/scoreboard.py --honest 10.
 

@@ -263,3 +263,46 @@ def shape_cores(feats: list[dict], spec: dict) -> list[dict]:
         core = core_of(feat["geom"], float(rule.get("frac", 0.3)), float(rule.get("min_r_m", 0.0)))
         out.append(dict(feat, geom=core) if core is not feat["geom"] else feat)
     return out
+
+
+def split_large(feats: list[dict], spec: dict) -> list[dict]:
+    """Режет крупные полигоны на куски размером с эталон. По умолчанию выключено.
+
+    Метрика сопоставляет один к одному: сеть траншей, выданная одним полигоном, засчитает
+    не больше одного эталона, даже если в эталоне она нарезана на отдельные окопы.
+    Полигон площадью больше max_area_m2 режется квадратной сеткой со стороной cell_m метров
+    на земле; куски мельче min_area_m2 отбрасываются. Уверенность и группа — от родителя.
+    spec = {класс: {cell_m, min_area_m2, max_area_m2, groups}}.
+    """
+    from shapely.geometry import box
+
+    out = []
+    for feat in feats:
+        rule = (spec or {}).get(feat["class_name"])
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        geom = feat["geom"]
+        if not rule or (rule.get("groups") and group not in rule["groups"]) or geom.is_empty:
+            out.append(feat)
+            continue
+        minx, miny, maxx, maxy = geom.bounds
+        scale = _ground_scale((miny + maxy) / 2) if abs(maxx) > 1_000_000 else 1.0
+        area_m2 = geom.area * scale * scale
+        if area_m2 <= float(rule.get("max_area_m2", 0.0)):
+            out.append(feat)
+            continue
+        step = float(rule.get("cell_m", 30.0)) / scale
+        min_area = float(rule.get("min_area_m2", 0.0)) / (scale * scale)
+        pieces = []
+        x = minx
+        while x < maxx:
+            y = miny
+            while y < maxy:
+                part = geom.intersection(box(x, y, x + step, y + step))
+                pieces += [g for g in polygons_of(part) if g.area >= min_area]
+                y += step
+            x += step
+        if not pieces:
+            out.append(feat)
+            continue
+        out += [dict(feat, geom=g) for g in pieces]
+    return out
