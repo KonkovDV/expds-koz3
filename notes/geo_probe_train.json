@@ -1,0 +1,4296 @@
+[
+ {
+  "region": "200_Судьбищи_2",
+  "markup": "maggr",
+  "file": "01_Судьбищи_2_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32637",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   14084,
+   9034
+  ],
+  "res": 0.0328,
+  "crs": "EPSG:32637",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.504,
+  "top_value": 255.0,
+  "area_m2": 96078.5,
+  "peaks": {
+   "0.5": 1172,
+   "0.75": 1172,
+   "1.0": 1172,
+   "1.5": 1172,
+   "2.0": 1172
+  },
+  "peaks_per_1000m2": {
+   "0.5": 12.198,
+   "0.75": 12.198,
+   "1.0": 12.198,
+   "1.5": 12.198,
+   "2.0": 12.198
+  },
+  "gt_finds": 216,
+  "recall_ceiling": {
+   "0.5": 0.8333,
+   "0.75": 0.8333,
+   "1.0": 0.8333,
+   "1.5": 0.8333,
+   "2.0": 0.8333
+  },
+  "gt_strength_mad": {
+   "n": 216,
+   "p10": 86.383,
+   "p25": 106.0,
+   "p50": 132.187,
+   "p75": 153.038,
+   "p90": 178.392,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "200_Судьбищи_2",
+  "markup": "maggr",
+  "file": "02_Судьбищи_2_MagGr_цвет.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32637",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   14082,
+   9036
+  ],
+  "res": 0.0329,
+  "crs": "EPSG:32637",
+  "identity_transform": false,
+  "channels_differ": 0.1952,
+  "top_value_share": 0.5288,
+  "top_value": 255.0,
+  "area_m2": 96293.4,
+  "peaks": {
+   "0.5": 1164,
+   "0.75": 1164,
+   "1.0": 1164,
+   "1.5": 1164,
+   "2.0": 1164
+  },
+  "peaks_per_1000m2": {
+   "0.5": 12.088,
+   "0.75": 12.088,
+   "1.0": 12.088,
+   "1.5": 12.088,
+   "2.0": 12.088
+  },
+  "gt_finds": 216,
+  "recall_ceiling": {
+   "0.5": 0.8056,
+   "0.75": 0.8056,
+   "1.0": 0.8056,
+   "1.5": 0.8056,
+   "2.0": 0.8056
+  },
+  "gt_strength_mad": {
+   "n": 216,
+   "p10": 93.308,
+   "p25": 121.634,
+   "p50": 139.047,
+   "p75": 159.695,
+   "p90": 185.669,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "201_Семибратнее_Городище_1",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_1_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   484,
+   1100
+  ],
+  "res": 0.1015,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.3068,
+  "top_value": 255.0,
+  "area_m2": 5488.9,
+  "peaks": {
+   "0.5": 152,
+   "0.75": 109,
+   "1.0": 23,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 27.692,
+   "0.75": 19.858,
+   "1.0": 4.19,
+   "1.5": 0.0,
+   "2.0": 0.0
+  },
+  "gt_finds": 155,
+  "recall_ceiling": {
+   "0.5": 0.6194,
+   "0.75": 0.4452,
+   "1.0": 0.129,
+   "1.5": 0.0,
+   "2.0": 0.0
+  },
+  "gt_strength_mad": {
+   "n": 155,
+   "p10": 0.487,
+   "p25": 0.654,
+   "p50": 0.824,
+   "p75": 0.958,
+   "p90": 1.053,
+   "share_ge_0.5": 0.8774,
+   "share_ge_0.75": 0.6516,
+   "share_ge_1.0": 0.2129,
+   "share_ge_1.5": 0.0,
+   "share_ge_2.0": 0.0
+  }
+ },
+ {
+  "region": "202_Семибратнее_Городище_2",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_2_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1753,
+   3221
+  ],
+  "res": 0.1016,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0016,
+  "top_value_share": 0.2664,
+  "top_value": 255.0,
+  "area_m2": 58290.8,
+  "peaks": {
+   "0.5": 1698,
+   "0.75": 1306,
+   "1.0": 912,
+   "1.5": 583,
+   "2.0": 96
+  },
+  "peaks_per_1000m2": {
+   "0.5": 29.13,
+   "0.75": 22.405,
+   "1.0": 15.646,
+   "1.5": 10.002,
+   "2.0": 1.647
+  },
+  "gt_finds": 518,
+  "recall_ceiling": {
+   "0.5": 0.8726,
+   "0.75": 0.8707,
+   "1.0": 0.8514,
+   "1.5": 0.5907,
+   "2.0": 0.1042
+  },
+  "gt_strength_mad": {
+   "n": 518,
+   "p10": 1.197,
+   "p25": 1.396,
+   "p50": 1.7,
+   "p75": 1.884,
+   "p90": 2.101,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 0.9981,
+   "share_ge_1.0": 0.9788,
+   "share_ge_1.5": 0.6892,
+   "share_ge_2.0": 0.1409
+  }
+ },
+ {
+  "region": "203_Семибратнее_Городище_3",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_3_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1489,
+   2323
+  ],
+  "res": 0.1016,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0061,
+  "top_value_share": 0.2224,
+  "top_value": 255.0,
+  "area_m2": 35735.4,
+  "peaks": {
+   "0.5": 1155,
+   "0.75": 1057,
+   "1.0": 889,
+   "1.5": 605,
+   "2.0": 394
+  },
+  "peaks_per_1000m2": {
+   "0.5": 32.321,
+   "0.75": 29.579,
+   "1.0": 24.877,
+   "1.5": 16.93,
+   "2.0": 11.025
+  },
+  "gt_finds": 438,
+  "recall_ceiling": {
+   "0.5": 0.8379,
+   "0.75": 0.8379,
+   "1.0": 0.8356,
+   "1.5": 0.7671,
+   "2.0": 0.5411
+  },
+  "gt_strength_mad": {
+   "n": 438,
+   "p10": 1.499,
+   "p25": 1.803,
+   "p50": 2.104,
+   "p75": 2.285,
+   "p90": 2.574,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 0.9977,
+   "share_ge_1.5": 0.8995,
+   "share_ge_2.0": 0.6164
+  }
+ },
+ {
+  "region": "204_Семибратнее_Городище_4",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_4_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1182,
+   1014
+  ],
+  "res": 0.1018,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0067,
+  "top_value_share": 0.1311,
+  "top_value": 0.0,
+  "area_m2": 12427.4,
+  "peaks": {
+   "0.5": 470,
+   "0.75": 470,
+   "1.0": 459,
+   "1.5": 356,
+   "2.0": 280
+  },
+  "peaks_per_1000m2": {
+   "0.5": 37.82,
+   "0.75": 37.82,
+   "1.0": 36.935,
+   "1.5": 28.646,
+   "2.0": 22.531
+  },
+  "gt_finds": 233,
+  "recall_ceiling": {
+   "0.5": 0.8326,
+   "0.75": 0.8326,
+   "1.0": 0.8326,
+   "1.5": 0.8326,
+   "2.0": 0.7554
+  },
+  "gt_strength_mad": {
+   "n": 233,
+   "p10": 2.116,
+   "p25": 2.729,
+   "p50": 3.501,
+   "p75": 3.776,
+   "p90": 4.088,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 0.9142
+  }
+ },
+ {
+  "region": "205_Семибратнее_Городище_5",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_5_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1200,
+   1361
+  ],
+  "res": 0.1017,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0043,
+  "top_value_share": 0.1434,
+  "top_value": 0.0,
+  "area_m2": 16884.4,
+  "peaks": {
+   "0.5": 631,
+   "0.75": 630,
+   "1.0": 609,
+   "1.5": 557,
+   "2.0": 471
+  },
+  "peaks_per_1000m2": {
+   "0.5": 37.372,
+   "0.75": 37.313,
+   "1.0": 36.069,
+   "1.5": 32.989,
+   "2.0": 27.896
+  },
+  "gt_finds": 454,
+  "recall_ceiling": {
+   "0.5": 0.7423,
+   "0.75": 0.7423,
+   "1.0": 0.7423,
+   "1.5": 0.7269,
+   "2.0": 0.6652
+  },
+  "gt_strength_mad": {
+   "n": 454,
+   "p10": 2.078,
+   "p25": 2.56,
+   "p50": 2.784,
+   "p75": 2.964,
+   "p90": 3.222,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 0.9802,
+   "share_ge_2.0": 0.9141
+  }
+ },
+ {
+  "region": "206_Семибратнее_Городище_6",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_6_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   888,
+   897
+  ],
+  "res": 0.1021,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0004,
+  "top_value_share": 0.1337,
+  "top_value": 0.0,
+  "area_m2": 8303.6,
+  "peaks": {
+   "0.5": 328,
+   "0.75": 328,
+   "1.0": 328,
+   "1.5": 304,
+   "2.0": 246
+  },
+  "peaks_per_1000m2": {
+   "0.5": 39.501,
+   "0.75": 39.501,
+   "1.0": 39.501,
+   "1.5": 36.611,
+   "2.0": 29.626
+  },
+  "gt_finds": 145,
+  "recall_ceiling": {
+   "0.5": 0.8552,
+   "0.75": 0.8552,
+   "1.0": 0.8552,
+   "1.5": 0.8552,
+   "2.0": 0.8414
+  },
+  "gt_strength_mad": {
+   "n": 145,
+   "p10": 2.566,
+   "p25": 2.944,
+   "p50": 3.431,
+   "p75": 3.717,
+   "p90": 3.943,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 0.9862
+  }
+ },
+ {
+  "region": "207_Семибратнее_Городище_7",
+  "markup": "maggr",
+  "file": "01_Семибратнее_Городище_уч7_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32637",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   887,
+   1884
+  ],
+  "res": 0.1016,
+  "crs": "EPSG:32637",
+  "identity_transform": false,
+  "channels_differ": 0.0023,
+  "top_value_share": 0.3184,
+  "top_value": 0.0,
+  "area_m2": 17261.5,
+  "peaks": {
+   "0.5": 522,
+   "0.75": 471,
+   "1.0": 366,
+   "1.5": 42,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 30.241,
+   "0.75": 27.286,
+   "1.0": 21.203,
+   "1.5": 2.433,
+   "2.0": 0.116
+  },
+  "gt_finds": 427,
+  "recall_ceiling": {
+   "0.5": 0.6698,
+   "0.75": 0.6651,
+   "1.0": 0.5574,
+   "1.5": 0.0304,
+   "2.0": 0.0
+  },
+  "gt_strength_mad": {
+   "n": 427,
+   "p10": 0.928,
+   "p25": 1.059,
+   "p50": 1.194,
+   "p75": 1.3,
+   "p90": 1.413,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 0.9906,
+   "share_ge_1.0": 0.829,
+   "share_ge_1.5": 0.0656,
+   "share_ge_2.0": 0.0
+  }
+ },
+ {
+  "region": "208_Гнёздово_Пойма",
+  "markup": "maggr",
+  "file": "01_Гнёздово_Пойма_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   797,
+   630
+  ],
+  "res": 0.0577,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.3884,
+  "top_value": 255.0,
+  "area_m2": 1672.6,
+  "peaks": {
+   "0.5": 33,
+   "0.75": 21,
+   "1.0": 17,
+   "1.5": 8,
+   "2.0": 1
+  },
+  "peaks_per_1000m2": {
+   "0.5": 19.729,
+   "0.75": 12.555,
+   "1.0": 10.164,
+   "1.5": 4.783,
+   "2.0": 0.598
+  },
+  "gt_finds": 13,
+  "recall_ceiling": {
+   "0.5": 0.9231,
+   "0.75": 0.9231,
+   "1.0": 0.9231,
+   "1.5": 0.3846,
+   "2.0": 0.0
+  },
+  "gt_strength_mad": {
+   "n": 13,
+   "p10": 1.29,
+   "p25": 1.353,
+   "p50": 1.494,
+   "p75": 1.752,
+   "p90": 1.771,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 0.4615,
+   "share_ge_2.0": 0.0
+  }
+ },
+ {
+  "region": "208_Гнёздово_Пойма",
+  "markup": "maggr",
+  "file": "02_Гнёздово_Пойма_MagGr_цвет.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   797,
+   630
+  ],
+  "res": 0.0577,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6325,
+  "top_value_share": 0.5834,
+  "top_value": 255.0,
+  "area_m2": 1672.6,
+  "peaks": {
+   "0.5": 48,
+   "0.75": 48,
+   "1.0": 48,
+   "1.5": 48,
+   "2.0": 48
+  },
+  "peaks_per_1000m2": {
+   "0.5": 28.697,
+   "0.75": 28.697,
+   "1.0": 28.697,
+   "1.5": 28.697,
+   "2.0": 28.697
+  },
+  "gt_finds": 13,
+  "recall_ceiling": {
+   "0.5": 0.8462,
+   "0.75": 0.8462,
+   "1.0": 0.8462,
+   "1.5": 0.8462,
+   "2.0": 0.8462
+  },
+  "gt_strength_mad": {
+   "n": 13,
+   "p10": 70.598,
+   "p25": 83.944,
+   "p50": 160.98,
+   "p75": 167.353,
+   "p90": 170.008,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "209_Гнёздово_Терраса_1",
+  "markup": "maggr",
+  "file": "01_Гнёздово_Терраса_1_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   937,
+   705
+  ],
+  "res": 0.1833,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.7795,
+  "top_value": 255.0,
+  "area_m2": 22196.3,
+  "peaks": {
+   "0.5": 215,
+   "0.75": 215,
+   "1.0": 215,
+   "1.5": 215,
+   "2.0": 215
+  },
+  "peaks_per_1000m2": {
+   "0.5": 9.686,
+   "0.75": 9.686,
+   "1.0": 9.686,
+   "1.5": 9.686,
+   "2.0": 9.686
+  },
+  "gt_finds": 233,
+  "recall_ceiling": {
+   "0.5": 0.5408,
+   "0.75": 0.5408,
+   "1.0": 0.5408,
+   "1.5": 0.5408,
+   "2.0": 0.5408
+  },
+  "gt_strength_mad": {
+   "n": 233,
+   "p10": 27.609,
+   "p25": 33.408,
+   "p50": 47.163,
+   "p75": 57.853,
+   "p90": 93.538,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "209_Гнёздово_Терраса_1",
+  "markup": "maggr",
+  "file": "02_Гнёздово_Терраса_1_MagGr_цвет.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   937,
+   705
+  ],
+  "res": 0.1833,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.2238,
+  "top_value_share": 0.865,
+  "top_value": 255.0,
+  "area_m2": 22196.3,
+  "peaks": {
+   "0.5": 195,
+   "0.75": 195,
+   "1.0": 195,
+   "1.5": 195,
+   "2.0": 195
+  },
+  "peaks_per_1000m2": {
+   "0.5": 8.785,
+   "0.75": 8.785,
+   "1.0": 8.785,
+   "1.5": 8.785,
+   "2.0": 8.785
+  },
+  "gt_finds": 233,
+  "recall_ceiling": {
+   "0.5": 0.4549,
+   "0.75": 0.4549,
+   "1.0": 0.4549,
+   "1.5": 0.4549,
+   "2.0": 0.4549
+  },
+  "gt_strength_mad": {
+   "n": 233,
+   "p10": 15.135,
+   "p25": 34.223,
+   "p50": 50.764,
+   "p75": 68.55,
+   "p90": 92.132,
+   "share_ge_0.5": 0.9914,
+   "share_ge_0.75": 0.9871,
+   "share_ge_1.0": 0.9871,
+   "share_ge_1.5": 0.9785,
+   "share_ge_2.0": 0.9785
+  }
+ },
+ {
+  "region": "210_Гнёздово_Терраса_2",
+  "markup": "maggr",
+  "file": "01_Гнёздово_Терраса_2_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   937,
+   705
+  ],
+  "res": 0.1833,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.5001,
+  "top_value": 255.0,
+  "area_m2": 22196.3,
+  "peaks": {
+   "0.5": 446,
+   "0.75": 446,
+   "1.0": 446,
+   "1.5": 446,
+   "2.0": 446
+  },
+  "peaks_per_1000m2": {
+   "0.5": 20.093,
+   "0.75": 20.093,
+   "1.0": 20.093,
+   "1.5": 20.093,
+   "2.0": 20.093
+  },
+  "gt_finds": 159,
+  "recall_ceiling": {
+   "0.5": 0.8176,
+   "0.75": 0.8176,
+   "1.0": 0.8176,
+   "1.5": 0.8176,
+   "2.0": 0.8176
+  },
+  "gt_strength_mad": {
+   "n": 159,
+   "p10": 22.574,
+   "p25": 29.837,
+   "p50": 44.645,
+   "p75": 65.108,
+   "p90": 124.339,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "210_Гнёздово_Терраса_2",
+  "markup": "maggr",
+  "file": "02_Гнёздово_Терраса_2_MagGr_цвет.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   937,
+   705
+  ],
+  "res": 0.1833,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.5361,
+  "top_value_share": 0.6606,
+  "top_value": 255.0,
+  "area_m2": 22196.3,
+  "peaks": {
+   "0.5": 425,
+   "0.75": 425,
+   "1.0": 425,
+   "1.5": 425,
+   "2.0": 425
+  },
+  "peaks_per_1000m2": {
+   "0.5": 19.147,
+   "0.75": 19.147,
+   "1.0": 19.147,
+   "1.5": 19.147,
+   "2.0": 19.147
+  },
+  "gt_finds": 159,
+  "recall_ceiling": {
+   "0.5": 0.6289,
+   "0.75": 0.6289,
+   "1.0": 0.6289,
+   "1.5": 0.6289,
+   "2.0": 0.6289
+  },
+  "gt_strength_mad": {
+   "n": 159,
+   "p10": 20.371,
+   "p25": 28.863,
+   "p50": 50.106,
+   "p75": 90.829,
+   "p90": 147.118,
+   "share_ge_0.5": 0.9874,
+   "share_ge_0.75": 0.9874,
+   "share_ge_1.0": 0.9874,
+   "share_ge_1.5": 0.9874,
+   "share_ge_2.0": 0.9874
+  }
+ },
+ {
+  "region": "211_Гнёздово_Терраса_3",
+  "markup": "maggr",
+  "file": "01_Гнёздово_Терраса_3_MagGr_серый.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1022,
+   341
+  ],
+  "res": 0.0823,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.0,
+  "top_value_share": 0.3444,
+  "top_value": 255.0,
+  "area_m2": 2363.0,
+  "peaks": {
+   "0.5": 85,
+   "0.75": 74,
+   "1.0": 70,
+   "1.5": 61,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 35.971,
+   "0.75": 31.316,
+   "1.0": 29.623,
+   "1.5": 25.815,
+   "2.0": 0.0
+  },
+  "gt_finds": 409,
+  "recall_ceiling": {
+   "0.5": 0.0685,
+   "0.75": 0.0122,
+   "1.0": 0.0049,
+   "1.5": 0.0,
+   "2.0": 0.0
+  },
+  "gt_strength_mad": {
+   "n": 409,
+   "p10": 0.134,
+   "p25": 0.156,
+   "p50": 0.209,
+   "p75": 0.486,
+   "p90": 0.722,
+   "share_ge_0.5": 0.2372,
+   "share_ge_0.75": 0.088,
+   "share_ge_1.0": 0.0367,
+   "share_ge_1.5": 0.0024,
+   "share_ge_2.0": 0.0
+  }
+ },
+ {
+  "region": "211_Гнёздово_Терраса_3",
+  "markup": "maggr",
+  "file": "02_Гнёздово_Терраса_3_MagGr_цвет.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1021,
+   342
+  ],
+  "res": 0.0823,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6905,
+  "top_value_share": 0.5949,
+  "top_value": 255.0,
+  "area_m2": 2363.8,
+  "peaks": {
+   "0.5": 116,
+   "0.75": 116,
+   "1.0": 116,
+   "1.5": 116,
+   "2.0": 116
+  },
+  "peaks_per_1000m2": {
+   "0.5": 49.073,
+   "0.75": 49.073,
+   "1.0": 49.073,
+   "1.5": 49.073,
+   "2.0": 49.073
+  },
+  "gt_finds": 409,
+  "recall_ceiling": {
+   "0.5": 0.3716,
+   "0.75": 0.3716,
+   "1.0": 0.3716,
+   "1.5": 0.3716,
+   "2.0": 0.3716
+  },
+  "gt_strength_mad": {
+   "n": 409,
+   "p10": 13.482,
+   "p25": 22.743,
+   "p50": 30.341,
+   "p75": 46.264,
+   "p90": 85.377,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 0.9976,
+   "share_ge_1.0": 0.9951,
+   "share_ge_1.5": 0.9878,
+   "share_ge_2.0": 0.9853
+  }
+ },
+ {
+  "region": "211_Гнёздово_Терраса_3",
+  "markup": "maggr",
+  "file": "03_Гнёздово_Терраса_3_MagGr_цвет_2.tif",
+  "used_by_detector": false,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   4037,
+   1427
+  ],
+  "res": 0.022,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.5801,
+  "top_value_share": 0.6382,
+  "top_value": 255.0,
+  "area_m2": 2794.6,
+  "peaks": {
+   "0.5": 118,
+   "0.75": 118,
+   "1.0": 118,
+   "1.5": 118,
+   "2.0": 118
+  },
+  "peaks_per_1000m2": {
+   "0.5": 42.224,
+   "0.75": 42.224,
+   "1.0": 42.224,
+   "1.5": 42.224,
+   "2.0": 42.224
+  },
+  "gt_finds": 409,
+  "recall_ceiling": {
+   "0.5": 0.5037,
+   "0.75": 0.5037,
+   "1.0": 0.5037,
+   "1.5": 0.5037,
+   "2.0": 0.5037
+  },
+  "gt_strength_mad": {
+   "n": 409,
+   "p10": 231.363,
+   "p25": 236.456,
+   "p50": 239.648,
+   "p75": 242.827,
+   "p90": 247.19,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "maggr",
+  "file": "01_Гнёздово_Усадьба_MagGr_цвет_2.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   5505,
+   8541
+  ],
+  "res": 0.022,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8297,
+  "top_value_share": 0.2061,
+  "top_value": 91.0,
+  "area_m2": 22811.0,
+  "peaks": {
+   "0.5": 613,
+   "0.75": 601,
+   "1.0": 601,
+   "1.5": 601,
+   "2.0": 601
+  },
+  "peaks_per_1000m2": {
+   "0.5": 26.873,
+   "0.75": 26.347,
+   "1.0": 26.347,
+   "1.5": 26.347,
+   "2.0": 26.347
+  },
+  "gt_finds": 78,
+  "recall_ceiling": {
+   "0.5": 0.5641,
+   "0.75": 0.5641,
+   "1.0": 0.5641,
+   "1.5": 0.5641,
+   "2.0": 0.5641
+  },
+  "gt_strength_mad": {
+   "n": 78,
+   "p10": 3.494,
+   "p25": 3.881,
+   "p50": 4.439,
+   "p75": 4.826,
+   "p90": 5.177,
+   "share_ge_0.5": 1.0,
+   "share_ge_0.75": 1.0,
+   "share_ge_1.0": 1.0,
+   "share_ge_1.5": 1.0,
+   "share_ge_2.0": 1.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Усадьба_EtGr_профиль_14.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   744,
+   195
+  ],
+  "res": 0.0298,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6742,
+  "top_value_share": 0.4161,
+  "top_value": 0.0,
+  "area_m2": 128.4,
+  "peaks": {
+   "0.5": 7,
+   "0.75": 7,
+   "1.0": 7,
+   "1.5": 7,
+   "2.0": 7
+  },
+  "peaks_per_1000m2": {
+   "0.5": 54.507,
+   "0.75": 54.507,
+   "1.0": 54.507,
+   "1.5": 54.507,
+   "2.0": 54.507
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Усадьба_EtGr_профиль_15.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   743,
+   151
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6879,
+  "top_value_share": 0.3508,
+  "top_value": 0.0,
+  "area_m2": 99.0,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 6,
+   "2.0": 5
+  },
+  "peaks_per_1000m2": {
+   "0.5": 60.596,
+   "0.75": 60.596,
+   "1.0": 60.596,
+   "1.5": 60.596,
+   "2.0": 50.497
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Усадьба_EtGr_профиль_16.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   147
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6887,
+  "top_value_share": 0.3725,
+  "top_value": 0.0,
+  "area_m2": 96.3,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 5,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 62.327,
+   "0.75": 62.327,
+   "1.0": 62.327,
+   "1.5": 51.939,
+   "2.0": 20.776
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Усадьба_EtGr_профиль_17.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   131
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6848,
+  "top_value_share": 0.3628,
+  "top_value": 0.0,
+  "area_m2": 85.5,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 4,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 70.137,
+   "0.75": 70.137,
+   "1.0": 46.758,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Усадьба_EtGr_профиль_18.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   133
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.686,
+  "top_value_share": 0.3437,
+  "top_value": 0.0,
+  "area_m2": 86.9,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 69.079,
+   "0.75": 69.079,
+   "1.0": 69.079,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Усадьба_EtGr_профиль_19.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   135
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6869,
+  "top_value_share": 0.3638,
+  "top_value": 0.0,
+  "area_m2": 88.2,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 5,
+   "1.5": 1,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 56.715,
+   "0.75": 56.715,
+   "1.0": 56.715,
+   "1.5": 11.343,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "07_Гнёздово_Усадьба_EtGr_профиль_20.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   138
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6813,
+  "top_value_share": 0.3575,
+  "top_value": 0.0,
+  "area_m2": 90.4,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 4,
+   "1.5": 2,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 55.313,
+   "0.75": 55.313,
+   "1.0": 44.251,
+   "1.5": 22.125,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "08_Гнёздово_Усадьба_EtGr_профиль_21.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   741,
+   132
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6856,
+  "top_value_share": 0.3451,
+  "top_value": 0.0,
+  "area_m2": 86.3,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 4,
+   "1.5": 1,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 57.919,
+   "0.75": 57.919,
+   "1.0": 46.335,
+   "1.5": 11.584,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "09_Гнёздово_Усадьба_EtGr_профиль_22.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   744,
+   123
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6718,
+  "top_value_share": 0.3549,
+  "top_value": 0.0,
+  "area_m2": 80.8,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 3,
+   "1.5": 1,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 61.91,
+   "0.75": 61.91,
+   "1.0": 37.146,
+   "1.5": 12.382,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "10_Гнёздово_Усадьба_EtGr_профиль_23.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   742,
+   119
+  ],
+  "res": 0.0297,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.678,
+  "top_value_share": 0.3535,
+  "top_value": 0.0,
+  "area_m2": 77.7,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 5,
+   "1.5": 1,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 64.341,
+   "0.75": 64.341,
+   "1.0": 64.341,
+   "1.5": 12.868,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "11_Гнёздово_Усадьба_EtGr_профиль_24.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   383,
+   2890
+  ],
+  "res": 0.0168,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8025,
+  "top_value_share": 0.5475,
+  "top_value": 0.0,
+  "area_m2": 313.4,
+  "peaks": {
+   "0.5": 21,
+   "0.75": 21,
+   "1.0": 21,
+   "1.5": 21,
+   "2.0": 21
+  },
+  "peaks_per_1000m2": {
+   "0.5": 67.014,
+   "0.75": 67.014,
+   "1.0": 67.014,
+   "1.5": 67.014,
+   "2.0": 67.014
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "etgr",
+  "file": "12_Гнёздово_Усадьба_EtGr_профиль_25.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   555,
+   2916
+  ],
+  "res": 0.0168,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.5536,
+  "top_value_share": 0.6776,
+  "top_value": 0.0,
+  "area_m2": 458.9,
+  "peaks": {
+   "0.5": 14,
+   "0.75": 14,
+   "1.0": 14,
+   "1.5": 14,
+   "2.0": 14
+  },
+  "peaks_per_1000m2": {
+   "0.5": 30.506,
+   "0.75": 30.506,
+   "1.0": 30.506,
+   "1.5": 30.506,
+   "2.0": 30.506
+  }
+ },
+ {
+  "region": "212_Гнёздово_Усадьба",
+  "markup": "terfl",
+  "file": "01_Гнёздово_Усадьба_TerFl.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   536,
+   909
+  ],
+  "res": 0.2984,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8855,
+  "top_value_share": 0.136,
+  "top_value": 0.0,
+  "area_m2": 38431.2,
+  "peaks": {
+   "0.5": 1654,
+   "0.75": 1650,
+   "1.0": 1635,
+   "1.5": 1575,
+   "2.0": 1379
+  },
+  "peaks_per_1000m2": {
+   "0.5": 43.038,
+   "0.75": 42.934,
+   "1.0": 42.544,
+   "1.5": 40.982,
+   "2.0": 35.882
+  }
+ },
+ {
+  "region": "213_Гнёздово_Лесная_1",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Лесная_1_EtGr_профиль_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   2853,
+   2228
+  ],
+  "res": 0.0061,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.1492,
+  "top_value_share": 0.7353,
+  "top_value": 0.0,
+  "area_m2": 69.1,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 57.868,
+   "0.75": 57.868,
+   "1.0": 57.868,
+   "1.5": 57.868,
+   "2.0": 57.868
+  }
+ },
+ {
+  "region": "213_Гнёздово_Лесная_1",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Лесная_1_EtGr_профиль_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   2093,
+   2689
+  ],
+  "res": 0.0059,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.1551,
+  "top_value_share": 0.7603,
+  "top_value": 0.0,
+  "area_m2": 196.7,
+  "peaks": {
+   "0.5": 5,
+   "0.75": 5,
+   "1.0": 5,
+   "1.5": 5,
+   "2.0": 5
+  },
+  "peaks_per_1000m2": {
+   "0.5": 25.418,
+   "0.75": 25.418,
+   "1.0": 25.418,
+   "1.5": 25.418,
+   "2.0": 25.418
+  }
+ },
+ {
+  "region": "213_Гнёздово_Лесная_1",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Лесная_1_EtGr_профиль_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   2770,
+   2129
+  ],
+  "res": 0.0078,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.2058,
+  "top_value_share": 0.7003,
+  "top_value": 0.0,
+  "area_m2": 357.2,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 6,
+   "2.0": 6
+  },
+  "peaks_per_1000m2": {
+   "0.5": 16.797,
+   "0.75": 16.797,
+   "1.0": 16.797,
+   "1.5": 16.797,
+   "2.0": 16.797
+  }
+ },
+ {
+  "region": "213_Гнёздово_Лесная_1",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Лесная_1_EtGr_профиль_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   1288,
+   2953
+  ],
+  "res": 0.0061,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.2849,
+  "top_value_share": 0.5688,
+  "top_value": 0.0,
+  "area_m2": 62.4,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 6,
+   "2.0": 6
+  },
+  "peaks_per_1000m2": {
+   "0.5": 96.16,
+   "0.75": 96.16,
+   "1.0": 96.16,
+   "1.5": 96.16,
+   "2.0": 96.16
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Лесная_2_EtGr_карта_01_0.2.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   2025,
+   1777
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6228,
+  "top_value_share": 0.4372,
+  "top_value": 0.0,
+  "area_m2": 402.4,
+  "peaks": {
+   "0.5": 10,
+   "0.75": 9,
+   "1.0": 6,
+   "1.5": 5,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 24.848,
+   "0.75": 22.364,
+   "1.0": 14.909,
+   "1.5": 12.424,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Лесная_2_EtGr_карта_02_0.5.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   2000,
+   1742
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6432,
+  "top_value_share": 0.396,
+  "top_value": 0.0,
+  "area_m2": 389.6,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 7,
+   "1.0": 6,
+   "1.5": 1,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 23.099,
+   "0.75": 17.966,
+   "1.0": 15.4,
+   "1.5": 2.567,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Лесная_2_EtGr_карта_03_1.0.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   2000,
+   1734
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6462,
+  "top_value_share": 0.374,
+  "top_value": 0.0,
+  "area_m2": 387.8,
+  "peaks": {
+   "0.5": 7,
+   "0.75": 6,
+   "1.0": 5,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 18.049,
+   "0.75": 15.471,
+   "1.0": 12.892,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Лесная_2_EtGr_карта_04_1.4.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1987,
+   1723
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6546,
+  "top_value_share": 0.3763,
+  "top_value": 0.0,
+  "area_m2": 382.9,
+  "peaks": {
+   "0.5": 8,
+   "0.75": 8,
+   "1.0": 4,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 20.895,
+   "0.75": 20.895,
+   "1.0": 10.447,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Лесная_2_EtGr_карта_05_1.6.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1985,
+   1731
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6513,
+  "top_value_share": 0.3978,
+  "top_value": 0.0,
+  "area_m2": 384.8,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 8,
+   "1.0": 8,
+   "1.5": 5,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 23.391,
+   "0.75": 20.792,
+   "1.0": 20.792,
+   "1.5": 12.995,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Лесная_2_EtGr_карта_06_2.0.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1980,
+   1724
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.656,
+  "top_value_share": 0.4955,
+  "top_value": 0.0,
+  "area_m2": 382.0,
+  "peaks": {
+   "0.5": 7,
+   "0.75": 7,
+   "1.0": 7,
+   "1.5": 7,
+   "2.0": 7
+  },
+  "peaks_per_1000m2": {
+   "0.5": 18.326,
+   "0.75": 18.326,
+   "1.0": 18.326,
+   "1.5": 18.326,
+   "2.0": 18.326
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Лесная_2_EtGr_профиль_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1768,
+   777
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4532,
+  "top_value_share": 0.8108,
+  "top_value": 0.0,
+  "area_m2": 155.6,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 19.28,
+   "0.75": 19.28,
+   "1.0": 19.28,
+   "1.5": 19.28,
+   "2.0": 19.28
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Лесная_2_EtGr_профиль_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1748,
+   656
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3974,
+  "top_value_share": 0.7745,
+  "top_value": 0.0,
+  "area_m2": 129.7,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 30.851,
+   "0.75": 30.851,
+   "1.0": 30.851,
+   "1.5": 30.851,
+   "2.0": 30.851
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Лесная_2_EtGr_профиль_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1771,
+   778
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4615,
+  "top_value_share": 0.7875,
+  "top_value": 0.0,
+  "area_m2": 155.8,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 25.675,
+   "0.75": 25.675,
+   "1.0": 25.675,
+   "1.5": 25.675,
+   "2.0": 25.675
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Лесная_2_EtGr_профиль_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1764,
+   748
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4564,
+  "top_value_share": 0.7969,
+  "top_value": 0.0,
+  "area_m2": 149.3,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 20.089,
+   "0.75": 20.089,
+   "1.0": 20.089,
+   "1.5": 20.089,
+   "2.0": 20.089
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Лесная_2_EtGr_профиль_05.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1774,
+   781
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4722,
+  "top_value_share": 0.8033,
+  "top_value": 0.0,
+  "area_m2": 156.6,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 25.537,
+   "0.75": 25.537,
+   "1.0": 25.537,
+   "1.5": 25.537,
+   "2.0": 25.537
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Лесная_2_EtGr_профиль_06.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1748,
+   665
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.376,
+  "top_value_share": 0.7795,
+  "top_value": 0.0,
+  "area_m2": 131.5,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 22.807,
+   "0.75": 22.807,
+   "1.0": 22.807,
+   "1.5": 22.807,
+   "2.0": 22.807
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "07_Гнёздово_Лесная_2_EtGr_профиль_07.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1736,
+   621
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3483,
+  "top_value_share": 0.7773,
+  "top_value": 0.0,
+  "area_m2": 121.9,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 24.616,
+   "0.75": 24.616,
+   "1.0": 24.616,
+   "1.5": 24.616,
+   "2.0": 24.616
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "08_Гнёздово_Лесная_2_EtGr_профиль_08.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1745,
+   675
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3953,
+  "top_value_share": 0.7669,
+  "top_value": 0.0,
+  "area_m2": 133.2,
+  "peaks": {
+   "0.5": 2,
+   "0.75": 2,
+   "1.0": 2,
+   "1.5": 2,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 15.015,
+   "0.75": 15.015,
+   "1.0": 15.015,
+   "1.5": 15.015,
+   "2.0": 15.015
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "09_Гнёздово_Лесная_2_EtGr_профиль_09.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1739,
+   653
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3746,
+  "top_value_share": 0.7684,
+  "top_value": 0.0,
+  "area_m2": 128.5,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 23.346,
+   "0.75": 23.346,
+   "1.0": 23.346,
+   "1.5": 23.346,
+   "2.0": 23.346
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "10_Гнёздово_Лесная_2_EtGr_профиль_10.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1739,
+   637
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3616,
+  "top_value_share": 0.7623,
+  "top_value": 0.0,
+  "area_m2": 125.3,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 31.929,
+   "0.75": 31.929,
+   "1.0": 31.929,
+   "1.5": 31.929,
+   "2.0": 31.929
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "11_Гнёздово_Лесная_2_EtGr_профиль_11.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1740,
+   640
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3702,
+  "top_value_share": 0.7363,
+  "top_value": 0.0,
+  "area_m2": 125.6,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 23.891,
+   "0.75": 23.891,
+   "1.0": 23.891,
+   "1.5": 23.891,
+   "2.0": 23.891
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "12_Гнёздово_Лесная_2_EtGr_профиль_12.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1732,
+   632
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3385,
+  "top_value_share": 0.763,
+  "top_value": 0.0,
+  "area_m2": 123.1,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 32.497,
+   "0.75": 32.497,
+   "1.0": 32.497,
+   "1.5": 32.497,
+   "2.0": 32.497
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "13_Гнёздово_Лесная_2_EtGr_профиль_13.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1738,
+   635
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3506,
+  "top_value_share": 0.7661,
+  "top_value": 0.0,
+  "area_m2": 123.2,
+  "peaks": {
+   "0.5": 3,
+   "0.75": 3,
+   "1.0": 3,
+   "1.5": 3,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 24.345,
+   "0.75": 24.345,
+   "1.0": 24.345,
+   "1.5": 24.345,
+   "2.0": 24.345
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "14_Гнёздово_Лесная_2_EtGr_профиль_14.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1730,
+   621
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3387,
+  "top_value_share": 0.7744,
+  "top_value": 0.0,
+  "area_m2": 120.5,
+  "peaks": {
+   "0.5": 4,
+   "0.75": 4,
+   "1.0": 4,
+   "1.5": 4,
+   "2.0": 4
+  },
+  "peaks_per_1000m2": {
+   "0.5": 33.189,
+   "0.75": 33.189,
+   "1.0": 33.189,
+   "1.5": 33.189,
+   "2.0": 33.189
+  }
+ },
+ {
+  "region": "214_Гнёздово_Лесная_2",
+  "markup": "etgr",
+  "file": "15_Гнёздово_Лесная_2_EtGr_профиль_15.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   1727,
+   650
+  ],
+  "res": 0.0106,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.3687,
+  "top_value_share": 0.8181,
+  "top_value": 0.0,
+  "area_m2": 126.7,
+  "peaks": {
+   "0.5": 2,
+   "0.75": 2,
+   "1.0": 2,
+   "1.5": 2,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 15.779,
+   "0.75": 15.779,
+   "1.0": 15.779,
+   "1.5": 15.779,
+   "2.0": 15.779
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Селище_1_EtGr_карта_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   261,
+   813
+  ],
+  "res": 0.0678,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7589,
+  "top_value_share": 0.255,
+  "top_value": 255.0,
+  "area_m2": 975.7,
+  "peaks": {
+   "0.5": 34,
+   "0.75": 31,
+   "1.0": 27,
+   "1.5": 14,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 34.845,
+   "0.75": 31.77,
+   "1.0": 27.671,
+   "1.5": 14.348,
+   "2.0": 3.075
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Селище_1_EtGr_карта_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   272,
+   819
+  ],
+  "res": 0.0679,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7213,
+  "top_value_share": 0.3574,
+  "top_value": 255.0,
+  "area_m2": 1026.7,
+  "peaks": {
+   "0.5": 51,
+   "0.75": 43,
+   "1.0": 31,
+   "1.5": 15,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 49.674,
+   "0.75": 41.882,
+   "1.0": 30.194,
+   "1.5": 14.61,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Селище_1_EtGr_карта_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   271,
+   825
+  ],
+  "res": 0.0679,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7186,
+  "top_value_share": 0.346,
+  "top_value": 255.0,
+  "area_m2": 1030.5,
+  "peaks": {
+   "0.5": 27,
+   "0.75": 13,
+   "1.0": 3,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 26.201,
+   "0.75": 12.615,
+   "1.0": 2.911,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Селище_1_EtGr_карта_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   274,
+   814
+  ],
+  "res": 0.0679,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7204,
+  "top_value_share": 0.3887,
+  "top_value": 255.0,
+  "area_m2": 1028.0,
+  "peaks": {
+   "0.5": 40,
+   "0.75": 39,
+   "1.0": 38,
+   "1.5": 25,
+   "2.0": 13
+  },
+  "peaks_per_1000m2": {
+   "0.5": 38.912,
+   "0.75": 37.939,
+   "1.0": 36.966,
+   "1.5": 24.32,
+   "2.0": 12.646
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Селище_1_EtGr_карта_05.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   261,
+   817
+  ],
+  "res": 0.0679,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7535,
+  "top_value_share": 0.5103,
+  "top_value": 255.0,
+  "area_m2": 983.0,
+  "peaks": {
+   "0.5": 38,
+   "0.75": 38,
+   "1.0": 38,
+   "1.5": 38,
+   "2.0": 38
+  },
+  "peaks_per_1000m2": {
+   "0.5": 38.658,
+   "0.75": 38.658,
+   "1.0": 38.658,
+   "1.5": 38.658,
+   "2.0": 38.658
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Селище_1_EtGr_профиль_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   176,
+   1058
+  ],
+  "res": 0.0523,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.493,
+  "top_value_share": 0.4894,
+  "top_value": 0.0,
+  "area_m2": 510.2,
+  "peaks": {
+   "0.5": 10,
+   "0.75": 10,
+   "1.0": 10,
+   "1.5": 10,
+   "2.0": 10
+  },
+  "peaks_per_1000m2": {
+   "0.5": 19.599,
+   "0.75": 19.599,
+   "1.0": 19.599,
+   "1.5": 19.599,
+   "2.0": 19.599
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Селище_1_EtGr_профиль_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   188,
+   1057
+  ],
+  "res": 0.0523,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4854,
+  "top_value_share": 0.5045,
+  "top_value": 0.0,
+  "area_m2": 544.3,
+  "peaks": {
+   "0.5": 11,
+   "0.75": 11,
+   "1.0": 11,
+   "1.5": 11,
+   "2.0": 11
+  },
+  "peaks_per_1000m2": {
+   "0.5": 20.209,
+   "0.75": 20.209,
+   "1.0": 20.209,
+   "1.5": 20.209,
+   "2.0": 20.209
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Селище_1_EtGr_профиль_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   181,
+   1058
+  ],
+  "res": 0.0516,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4694,
+  "top_value_share": 0.5028,
+  "top_value": 0.0,
+  "area_m2": 510.8,
+  "peaks": {
+   "0.5": 11,
+   "0.75": 11,
+   "1.0": 11,
+   "1.5": 11,
+   "2.0": 11
+  },
+  "peaks_per_1000m2": {
+   "0.5": 21.536,
+   "0.75": 21.536,
+   "1.0": 21.536,
+   "1.5": 21.536,
+   "2.0": 21.536
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Селище_1_EtGr_профиль_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   170,
+   1058
+  ],
+  "res": 0.0523,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4535,
+  "top_value_share": 0.4975,
+  "top_value": 0.0,
+  "area_m2": 491.6,
+  "peaks": {
+   "0.5": 14,
+   "0.75": 14,
+   "1.0": 14,
+   "1.5": 14,
+   "2.0": 14
+  },
+  "peaks_per_1000m2": {
+   "0.5": 28.48,
+   "0.75": 28.48,
+   "1.0": 28.48,
+   "1.5": 28.48,
+   "2.0": 28.48
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Селище_1_EtGr_профиль_05.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   196,
+   1065
+  ],
+  "res": 0.052,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4697,
+  "top_value_share": 0.4581,
+  "top_value": 0.0,
+  "area_m2": 563.5,
+  "peaks": {
+   "0.5": 16,
+   "0.75": 16,
+   "1.0": 16,
+   "1.5": 14,
+   "2.0": 13
+  },
+  "peaks_per_1000m2": {
+   "0.5": 28.394,
+   "0.75": 28.394,
+   "1.0": 28.394,
+   "1.5": 24.844,
+   "2.0": 23.07
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Селище_1_EtGr_профиль_06.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   200,
+   1225
+  ],
+  "res": 0.0447,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4609,
+  "top_value_share": 0.4342,
+  "top_value": 0.0,
+  "area_m2": 488.9,
+  "peaks": {
+   "0.5": 15,
+   "0.75": 15,
+   "1.0": 10,
+   "1.5": 4,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 30.68,
+   "0.75": 30.68,
+   "1.0": 20.453,
+   "1.5": 8.181,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "07_Гнёздово_Селище_1_EtGr_профиль_07.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   368,
+   2104
+  ],
+  "res": 0.0258,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4936,
+  "top_value_share": 0.4305,
+  "top_value": 0.0,
+  "area_m2": 517.2,
+  "peaks": {
+   "0.5": 16,
+   "0.75": 16,
+   "1.0": 12,
+   "1.5": 5,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 30.937,
+   "0.75": 30.937,
+   "1.0": 23.203,
+   "1.5": 9.668,
+   "2.0": 3.867
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "08_Гнёздово_Селище_1_EtGr_профиль_08.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   360,
+   2062
+  ],
+  "res": 0.0264,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.4963,
+  "top_value_share": 0.4201,
+  "top_value": 0.0,
+  "area_m2": 518.9,
+  "peaks": {
+   "0.5": 14,
+   "0.75": 14,
+   "1.0": 13,
+   "1.5": 4,
+   "2.0": 1
+  },
+  "peaks_per_1000m2": {
+   "0.5": 26.981,
+   "0.75": 26.981,
+   "1.0": 25.054,
+   "1.5": 7.709,
+   "2.0": 1.927
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "09_Гнёздово_Селище_1_EtGr_профиль_09.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   174,
+   977
+  ],
+  "res": 0.0276,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.5662,
+  "top_value_share": 0.3571,
+  "top_value": 0.0,
+  "area_m2": 129.2,
+  "peaks": {
+   "0.5": 6,
+   "0.75": 6,
+   "1.0": 6,
+   "1.5": 4,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 46.441,
+   "0.75": 46.441,
+   "1.0": 46.441,
+   "1.5": 30.961,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "215_Гнёздово_Селище_1",
+  "markup": "etgr",
+  "file": "10_Гнёздово_Селище_1_EtGr_профиль_10.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   672,
+   846
+  ],
+  "res": 0.0193,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.1547,
+  "top_value_share": 0.8085,
+  "top_value": 0.0,
+  "area_m2": 210.8,
+  "peaks": {
+   "0.5": 2,
+   "0.75": 2,
+   "1.0": 2,
+   "1.5": 2,
+   "2.0": 2
+  },
+  "peaks_per_1000m2": {
+   "0.5": 9.489,
+   "0.75": 9.489,
+   "1.0": 9.489,
+   "1.5": 9.489,
+   "2.0": 9.489
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Селище_2_EtGr_карта_01_0.25.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   717,
+   441
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.9022,
+  "top_value_share": 0.3097,
+  "top_value": 0.0,
+  "area_m2": 861.5,
+  "peaks": {
+   "0.5": 24,
+   "0.75": 20,
+   "1.0": 19,
+   "1.5": 15,
+   "2.0": 15
+  },
+  "peaks_per_1000m2": {
+   "0.5": 27.859,
+   "0.75": 23.216,
+   "1.0": 22.055,
+   "1.5": 17.412,
+   "2.0": 17.412
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Селище_2_EtGr_карта_02_0.5.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   716,
+   447
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8914,
+  "top_value_share": 0.1612,
+  "top_value": 0.0,
+  "area_m2": 871.5,
+  "peaks": {
+   "0.5": 23,
+   "0.75": 17,
+   "1.0": 15,
+   "1.5": 14,
+   "2.0": 14
+  },
+  "peaks_per_1000m2": {
+   "0.5": 26.39,
+   "0.75": 19.506,
+   "1.0": 17.211,
+   "1.5": 16.063,
+   "2.0": 16.063
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Селище_2_EtGr_карта_03_0.75.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   717,
+   454
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8764,
+  "top_value_share": 0.1122,
+  "top_value": 255.0,
+  "area_m2": 886.8,
+  "peaks": {
+   "0.5": 30,
+   "0.75": 21,
+   "1.0": 17,
+   "1.5": 17,
+   "2.0": 16
+  },
+  "peaks_per_1000m2": {
+   "0.5": 33.829,
+   "0.75": 23.68,
+   "1.0": 19.17,
+   "1.5": 19.17,
+   "2.0": 18.042
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Селище_2_EtGr_карта_04_1.0.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   718,
+   449
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8833,
+  "top_value_share": 0.1126,
+  "top_value": 255.0,
+  "area_m2": 878.4,
+  "peaks": {
+   "0.5": 30,
+   "0.75": 19,
+   "1.0": 15,
+   "1.5": 15,
+   "2.0": 14
+  },
+  "peaks_per_1000m2": {
+   "0.5": 34.153,
+   "0.75": 21.63,
+   "1.0": 17.077,
+   "1.5": 17.077,
+   "2.0": 15.938
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Селище_2_EtGr_карта_05_1.25.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   717,
+   451
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8816,
+  "top_value_share": 0.1516,
+  "top_value": 255.0,
+  "area_m2": 881.7,
+  "peaks": {
+   "0.5": 29,
+   "0.75": 18,
+   "1.0": 16,
+   "1.5": 14,
+   "2.0": 13
+  },
+  "peaks_per_1000m2": {
+   "0.5": 32.891,
+   "0.75": 20.415,
+   "1.0": 18.147,
+   "1.5": 15.878,
+   "2.0": 14.744
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Селище_2_EtGr_карта_06_1.75.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   713,
+   453
+  ],
+  "res": 0.0522,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8825,
+  "top_value_share": 0.3319,
+  "top_value": 255.0,
+  "area_m2": 881.0,
+  "peaks": {
+   "0.5": 26,
+   "0.75": 25,
+   "1.0": 20,
+   "1.5": 14,
+   "2.0": 13
+  },
+  "peaks_per_1000m2": {
+   "0.5": 29.511,
+   "0.75": 28.376,
+   "1.0": 22.701,
+   "1.5": 15.891,
+   "2.0": 14.756
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Селище_2_EtGr_профиль_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   731,
+   147
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6558,
+  "top_value_share": 0.3347,
+  "top_value": 0.0,
+  "area_m2": 262.7,
+  "peaks": {
+   "0.5": 11,
+   "0.75": 11,
+   "1.0": 11,
+   "1.5": 6,
+   "2.0": 3
+  },
+  "peaks_per_1000m2": {
+   "0.5": 41.869,
+   "0.75": 41.869,
+   "1.0": 41.869,
+   "1.5": 22.837,
+   "2.0": 11.419
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Селище_2_EtGr_профиль_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   728,
+   134
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6653,
+  "top_value_share": 0.3157,
+  "top_value": 0.0,
+  "area_m2": 238.5,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 9,
+   "1.0": 8,
+   "1.5": 3,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 37.738,
+   "0.75": 37.738,
+   "1.0": 33.545,
+   "1.5": 12.579,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Селище_2_EtGr_профиль_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   732,
+   141
+  ],
+  "res": 0.0495,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6834,
+  "top_value_share": 0.378,
+  "top_value": 0.0,
+  "area_m2": 252.4,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 9,
+   "1.0": 6,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 35.656,
+   "0.75": 35.656,
+   "1.0": 23.771,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Селище_2_EtGr_профиль_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   731,
+   139
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6761,
+  "top_value_share": 0.3868,
+  "top_value": 0.0,
+  "area_m2": 248.4,
+  "peaks": {
+   "0.5": 10,
+   "0.75": 9,
+   "1.0": 6,
+   "1.5": 0,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 40.256,
+   "0.75": 36.231,
+   "1.0": 24.154,
+   "1.5": 0.0,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Селище_2_EtGr_профиль_05.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   732,
+   135
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6827,
+  "top_value_share": 0.4056,
+  "top_value": 0.0,
+  "area_m2": 241.6,
+  "peaks": {
+   "0.5": 10,
+   "0.75": 10,
+   "1.0": 10,
+   "1.5": 2,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 41.386,
+   "0.75": 41.386,
+   "1.0": 41.386,
+   "1.5": 8.277,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Селище_2_EtGr_профиль_06.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   730,
+   137
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6864,
+  "top_value_share": 0.4289,
+  "top_value": 0.0,
+  "area_m2": 244.5,
+  "peaks": {
+   "0.5": 10,
+   "0.75": 10,
+   "1.0": 10,
+   "1.5": 9,
+   "2.0": 5
+  },
+  "peaks_per_1000m2": {
+   "0.5": 40.894,
+   "0.75": 40.894,
+   "1.0": 40.894,
+   "1.5": 36.805,
+   "2.0": 20.447
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "07_Гнёздово_Селище_2_EtGr_профиль_07.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   729,
+   137
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.6942,
+  "top_value_share": 0.4237,
+  "top_value": 0.0,
+  "area_m2": 243.5,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 9,
+   "1.0": 9,
+   "1.5": 7,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 36.957,
+   "0.75": 36.957,
+   "1.0": 36.957,
+   "1.5": 28.744,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "08_Гнёздово_Селище_2_EtGr_профиль_22.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   725,
+   134
+  ],
+  "res": 0.0495,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7061,
+  "top_value_share": 0.3927,
+  "top_value": 0.0,
+  "area_m2": 238.2,
+  "peaks": {
+   "0.5": 7,
+   "0.75": 7,
+   "1.0": 7,
+   "1.5": 4,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 29.391,
+   "0.75": 29.391,
+   "1.0": 29.391,
+   "1.5": 16.795,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "216_Гнёздово_Селище_2",
+  "markup": "etgr",
+  "file": "09_Гнёздово_Селище_2_EtGr_профиль_23.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 3,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue"
+  ],
+  "size": [
+   725,
+   137
+  ],
+  "res": 0.0494,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.7096,
+  "top_value_share": 0.4,
+  "top_value": 0.0,
+  "area_m2": 242.9,
+  "peaks": {
+   "0.5": 9,
+   "0.75": 9,
+   "1.0": 9,
+   "1.5": 7,
+   "2.0": 1
+  },
+  "peaks_per_1000m2": {
+   "0.5": 37.059,
+   "0.75": 37.059,
+   "1.0": 37.059,
+   "1.5": 28.824,
+   "2.0": 4.118
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "01_Гнёздово_Селище_3_EtGr_карта_01.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   575,
+   1503
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8562,
+  "top_value_share": 0.3485,
+  "top_value": 255.0,
+  "area_m2": 1862.0,
+  "peaks": {
+   "0.5": 42,
+   "0.75": 21,
+   "1.0": 15,
+   "1.5": 13,
+   "2.0": 13
+  },
+  "peaks_per_1000m2": {
+   "0.5": 22.557,
+   "0.75": 11.278,
+   "1.0": 8.056,
+   "1.5": 6.982,
+   "2.0": 6.982
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "02_Гнёздово_Селище_3_EtGr_карта_02.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   573,
+   1500
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8615,
+  "top_value_share": 0.3438,
+  "top_value": 255.0,
+  "area_m2": 1851.7,
+  "peaks": {
+   "0.5": 55,
+   "0.75": 40,
+   "1.0": 34,
+   "1.5": 30,
+   "2.0": 30
+  },
+  "peaks_per_1000m2": {
+   "0.5": 29.702,
+   "0.75": 21.601,
+   "1.0": 18.361,
+   "1.5": 16.201,
+   "2.0": 16.201
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "03_Гнёздово_Селище_3_EtGr_карта_03.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   574,
+   1508
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8546,
+  "top_value_share": 0.3424,
+  "top_value": 255.0,
+  "area_m2": 1864.9,
+  "peaks": {
+   "0.5": 58,
+   "0.75": 44,
+   "1.0": 38,
+   "1.5": 34,
+   "2.0": 34
+  },
+  "peaks_per_1000m2": {
+   "0.5": 31.101,
+   "0.75": 23.594,
+   "1.0": 20.376,
+   "1.5": 18.231,
+   "2.0": 18.231
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "04_Гнёздово_Селище_3_EtGr_карта_04.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   583,
+   1503
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8438,
+  "top_value_share": 0.3314,
+  "top_value": 255.0,
+  "area_m2": 1888.1,
+  "peaks": {
+   "0.5": 54,
+   "0.75": 43,
+   "1.0": 36,
+   "1.5": 33,
+   "2.0": 32
+  },
+  "peaks_per_1000m2": {
+   "0.5": 28.6,
+   "0.75": 22.774,
+   "1.0": 19.067,
+   "1.5": 17.478,
+   "2.0": 16.948
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "05_Гнёздово_Селище_3_EtGr_карта_05.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   573,
+   1508
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8565,
+  "top_value_share": 0.3091,
+  "top_value": 255.0,
+  "area_m2": 1861.6,
+  "peaks": {
+   "0.5": 50,
+   "0.75": 41,
+   "1.0": 36,
+   "1.5": 33,
+   "2.0": 32
+  },
+  "peaks_per_1000m2": {
+   "0.5": 26.858,
+   "0.75": 22.024,
+   "1.0": 19.338,
+   "1.5": 17.726,
+   "2.0": 17.189
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "06_Гнёздово_Селище_3_EtGr_карта_06.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   572,
+   1506
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8587,
+  "top_value_share": 0.2769,
+  "top_value": 255.0,
+  "area_m2": 1855.9,
+  "peaks": {
+   "0.5": 28,
+   "0.75": 19,
+   "1.0": 16,
+   "1.5": 15,
+   "2.0": 12
+  },
+  "peaks_per_1000m2": {
+   "0.5": 15.087,
+   "0.75": 10.238,
+   "1.0": 8.621,
+   "1.5": 8.082,
+   "2.0": 6.466
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "07_Гнёздово_Селище_3_EtGr_карта_07.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   573,
+   1509
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8553,
+  "top_value_share": 0.2385,
+  "top_value": 255.0,
+  "area_m2": 1862.9,
+  "peaks": {
+   "0.5": 25,
+   "0.75": 17,
+   "1.0": 16,
+   "1.5": 12,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 13.42,
+   "0.75": 9.126,
+   "1.0": 8.589,
+   "1.5": 6.442,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "08_Гнёздово_Селище_3_EtGr_карта_08.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   577,
+   1503
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8529,
+  "top_value_share": 0.2126,
+  "top_value": 255.0,
+  "area_m2": 1868.5,
+  "peaks": {
+   "0.5": 19,
+   "0.75": 14,
+   "1.0": 12,
+   "1.5": 9,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 10.169,
+   "0.75": 7.493,
+   "1.0": 6.422,
+   "1.5": 4.817,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "etgr",
+  "file": "09_Гнёздово_Селище_3_EtGr_карта_09.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   592,
+   1508
+  ],
+  "res": 0.0467,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8286,
+  "top_value_share": 0.2338,
+  "top_value": 0.0,
+  "area_m2": 1923.9,
+  "peaks": {
+   "0.5": 35,
+   "0.75": 31,
+   "1.0": 29,
+   "1.5": 21,
+   "2.0": 0
+  },
+  "peaks_per_1000m2": {
+   "0.5": 18.192,
+   "0.75": 16.113,
+   "1.0": 15.074,
+   "1.5": 10.915,
+   "2.0": 0.0
+  }
+ },
+ {
+  "region": "217_Гнёздово_Селище_3",
+  "markup": "terfl",
+  "file": "01_Гнёздово_Селище_3_TerFl.tif",
+  "used_by_detector": true,
+  "utm_json": "EPSG:32636",
+  "bands": 4,
+  "dtype": "uint8",
+  "nodata": null,
+  "colorinterp": [
+   "red",
+   "green",
+   "blue",
+   "alpha"
+  ],
+  "size": [
+   187,
+   475
+  ],
+  "res": 0.2984,
+  "crs": "EPSG:32636",
+  "identity_transform": false,
+  "channels_differ": 0.8049,
+  "top_value_share": 0.2041,
+  "top_value": 0.0,
+  "area_m2": 6367.6,
+  "peaks": {
+   "0.5": 299,
+   "0.75": 299,
+   "1.0": 298,
+   "1.5": 290,
+   "2.0": 271
+  },
+  "peaks_per_1000m2": {
+   "0.5": 46.956,
+   "0.75": 46.956,
+   "1.0": 46.799,
+   "1.5": 45.543,
+   "2.0": 42.559
+  }
+ }
+]
