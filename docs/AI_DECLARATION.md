@@ -89,6 +89,7 @@
 | 24.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Группа копий ae | В табло копии мелкой сетки без своей группы, порог ae. В сдаче им ставилась группа li_ae и целые выпадали. Теперь группа ae, мозаика остаётся li_ae | `expds/fusion.py`, `expds/pipeline.py` | _ФИО_ |
 | 24.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Замена карты центров | Пять файлов вместо сданной карты, база 0,350588. Все ниже, без лидара хуже на 0,026–0,065. В конфиг не ставилось | `notes/repl_sp_r34.json`, `notes/repl_sp_r05.json`, `notes/repl_sp_scale.json`, `notes/repl_sp_photo.json`, `notes/repl_sp_hrrep.json` | _ФИО_ |
 | 24.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Канал геофизики | На оставшихся картах каналы разные. Детектор оставлен на первом канале, балл с него уже снят. В код не переносилось | `expds/geophys.py` | _ФИО_ |
+| 24.10.2026 | Grok 4.7, Cursor | xAI / Cursor | Срез документов | README, архитектура и планы называют архив 0,32850 и следующий архив разными хешами. Порог лидара в README приведён к 0,06415. Код сдачи не менялся | `README.md`, `docs/ARCHITECTURE.md`, `docs/PLAN.md`, `docs/AGENT_PLAN.md`, `docs/FOR_REVIEW.md`, `models/README.md` | _ФИО_ |
 
 ## Правила ведения
 

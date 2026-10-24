@@ -1,10 +1,14 @@
 # models/
 
-Сюда кладутся обученные модели:
+Сюда кладутся обученные модели. В текущем конфиге:
 
-- `li_r18.pt`, `ae_r18.pt`, `spor_focal_r18.pt` — U-Net из `python -m expds.train`;
-- `spor_gor_r18.pt` — городища спутника, только класс `gorodishcha`;
-- `kurgan_lgbm.txt` — оценщик CPU-кандидатов из `python -m expds.candidates train`.
+- `li_r18_hard2.pt` — курганы лидара;
+- `li_gor_mask_r18.pt`, `li_fort_mask_r18.pt`, `li_dev_r18.pt` — городища, фортификации и канал σ лидара;
+- `spor_gor_r18.pt`, `spor_focal_r18.pt`, `spor_arch_r18.pt`, `spor_focal_wide_r18.pt` — спутник;
+- `ae_fort_mask_r18.pt` — фортификации аэрофото;
+- `kurgan_lgbm.txt` — запасной оценщик, если сеть лидара не загрузилась.
+
+Ранние файлы вроде `li_r18.pt` и `ae_r18.pt` в конфиге не стоят. В архив они не попадают.
 
 Подключение — в `configs/default.toml`, секции `[models]` и `[candidates]`. В архив платформы попадают только модели, указанные в конфиге (`scripts/build_submission.py`).
 
