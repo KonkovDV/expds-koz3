@@ -81,11 +81,11 @@ def write_feats(feats: list[dict], path: Path) -> None:
 
 
 def cmd_copy(a) -> None:
-    from expds.catalog import scan_root
+    from expds.catalog import read_utm_json, scan_root
     from expds.fusion import CopyRule, copy_layers
 
     feats = [f for src in a.src for f in read_feats(Path(src))]
-    rasters = {r.name: r.rasters for r in scan_root(a.train)}
+    regs = {r.name: r for r in scan_root(a.train)}
     rule = CopyRule(src=a.src_markup, dst=a.dst, group=a.group, min_conf={c: a.min for c in a.classes},
                     src_groups=tuple(a.src_groups))
     by_region: dict[str, list[dict]] = defaultdict(list)
@@ -93,10 +93,10 @@ def cmd_copy(a) -> None:
         by_region[f.get("region_name")].append(f)
     out = []
     for region, items in by_region.items():
-        rs = rasters.get(region)
-        if rs and rs.get(a.dst):
-            out += copy_layers(items, rs, [rule])
-    print(f"участков с {a.dst}: {sum(1 for r in by_region if (rasters.get(r) or {}).get(a.dst))}, копий {len(out)}")
+        reg = regs.get(region)
+        if reg and reg.rasters.get(a.dst):
+            out += copy_layers(items, reg.rasters, [rule], fallback_crs=read_utm_json(reg.utm_json))
+    print(f"участков с {a.dst}: {sum(1 for r in by_region if (regs.get(r) and regs[r].rasters.get(a.dst)))}, копий {len(out)}")
     write_feats(out, Path(a.out))
 
 

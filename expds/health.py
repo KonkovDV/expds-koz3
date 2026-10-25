@@ -87,6 +87,7 @@ def model_report(cfg: dict, root: Path) -> dict:
 
 
 def log_inventory(regions: list, cfg: dict, root: Path) -> dict:
+    from .crs import to_3857_ok
     from .pipeline import region_crs
     from .raster import needs_warp
 
@@ -102,6 +103,9 @@ def log_inventory(regions: list, cfg: dict, root: Path) -> dict:
                     import rasterio
 
                     with rasterio.open(f) as ds:
+                        declared = ds.crs.to_string() if ds.crs else None
+                        if not to_3857_ok(declared):
+                            warp["crs_не_переводится"] += 1
                         warp[needs_warp(ds) or "ok"] += 1
                 except Exception:
                     warp["не открылся"] += 1

@@ -138,7 +138,9 @@ def coverage(base: list[dict], others: list[list[dict]], root: Path) -> np.ndarr
                             if box[0] <= x <= box[2] and box[1] <= y <= box[3]:
                                 out[k, i] = True
                 elif reg.rasters.get(mt):
-                    out[k, i] |= bool(fusion.covered(np.array([pt.x]), np.array([pt.y]), reg.rasters[mt])[0])
+                    fb = read_utm_json(reg.utm_json)
+                    out[k, i] |= bool(fusion.covered(
+                        np.array([pt.x]), np.array([pt.y]), reg.rasters[mt], fallback_crs=fb)[0])
                 if out[k, i]:
                     break
     return out
