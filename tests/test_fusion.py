@@ -95,3 +95,19 @@ def test_geographic_photo_coverage_is_read_in_utm(tmp_path):
     _valid, tr, crs = fusion.coverage(str(path))
     assert crs == "EPSG:32637"
     assert abs(tr.a) > 1.0
+
+
+def test_tile_source_of_a_degree_photo_is_utm(tmp_path):
+    from types import SimpleNamespace
+
+    from expds.tiles import iter_sources
+
+    path = tmp_path / "ae.tif"
+    image = np.full((16, 16), 40, np.uint8)
+    with rasterio.open(path, "w", driver="GTiff", height=16, width=16, count=1, dtype="uint8",
+                       transform=from_origin(37.6, 55.76, 0.0001, 0.0001), crs="EPSG:4326") as ds:
+        ds.write(image, 1)
+    reg = SimpleNamespace(name="r", rasters={"ae": [path]}, li_rasters=[], utm_json=None, noise=[])
+    name, crs, bnd, _read = next(iter_sources(reg, "ae", [], "las", 1.0, 8))
+    assert name == "ae.tif" and crs == "EPSG:32637"
+    assert bnd.bounds[0] > 100_000

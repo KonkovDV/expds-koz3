@@ -78,7 +78,9 @@ def band_stats(path: str, markup: str, max_side: int = 2048) -> tuple | None:
     """
     import math
 
-    with rasterio.open(path) as ds:
+    from .raster import open_metric
+
+    with open_metric(path) as ds:
         if ds.dtypes[0] == "uint8":
             return None
         n = min(ds.count, 3)
@@ -198,13 +200,15 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
         return
     for files in sources_for(reg, markup, li_tags, exclude):
         utm = read_utm_json(reg.utm_json)
-        with rasterio.open(files[0]) as ds:
-            # Безымянная LOCAL_CS с метрами UTM получает UTM.json участка, как на инференсе.
-            crs = usable_raster_crs(raster_crs(files[0]), ds.bounds, utm) or utm
-        if crs is None:
-            log.warning("%s: нет CRS у %s — пропуск", reg.name, files[0].name)
-            continue
-        with rasterio.open(files[0]) as ds:
+        from .raster import open_metric
+
+        with open_metric(files[0]) as ds:
+            # Градусная сетка уже в UTM. Безымянная LOCAL_CS с метрами зоны получает UTM.json.
+            declared = ds.crs.to_string() if ds.crs else None
+            crs = usable_raster_crs(declared, ds.bounds, utm) or utm
+            if crs is None:
+                log.warning("%s: нет CRS у %s — пропуск", reg.name, files[0].name)
+                continue
             bnd = box(*ds.bounds)
             native = abs(ds.res[0])
             if ground_pixels:
@@ -212,14 +216,13 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
 
                 from .raster import ground_step, raster_kind_and_latitude
 
-                declared = ds.crs.to_string() if ds.crs else None
                 kind_crs = ds.crs if to_3857_ok(declared) else (RioCRS.from_user_input(crs) if crs else None)
                 kind, lat = raster_kind_and_latitude(kind_crs, ds.transform, ds.width, ds.height)
-                r = ground_step(native, kind, lat, res)
+                step = ground_step(native, kind, lat, res)
             else:
-                r = working_res(native, res)
+                step = working_res(native, res)
         stats = band_stats(str(files[0]), markup) if len(files) == 1 else None
-        yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=r, st=stats: (
+        yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=step, st=stats: (
             to_uint8(read_window(f, cx, cy, r, tile), markup, st),
             from_origin(cx - tile * r / 2, cy + tile * r / 2, r, r))
 
@@ -232,11 +235,16 @@ def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
 
 
 def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) -> np.ndarray:
-    """Окно tile×tile с центром (cx, cy) в CRS растра и шагом res; все каналы файлов подряд."""
+    """Окно tile×tile с центром (cx, cy) в CRS растра и шагом res; все каналы файлов подряд.
+
+    Градусный снимок читается уже в UTM, как на инференсе.
+    """
+    from .raster import open_metric
+
     chans = []
     half = tile * res / 2
     for f in files:
-        with rasterio.open(f) as ds:
+        with open_metric(f) as ds:
             inv = ~ds.transform
             x0, y0, x1, y1 = cx - half, cy + half, cx + half, cy - half
             col0, row0 = inv.a * x0 + inv.b * y0 + inv.c, inv.d * x0 + inv.e * y0 + inv.f
