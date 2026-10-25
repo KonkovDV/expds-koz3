@@ -334,13 +334,18 @@ def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams,
                "rank": merged.get("confidence", "strength") == "rank"}
 
 
-def source_crs(path: str | Path) -> str | None:
-    """CRS растра строкой или None (нет привязки или файл не читается)."""
+def source_crs(path: str | Path, fallback_crs: str | None = None) -> str | None:
+    """CRS растра строкой или None (нет привязки или файл не читается).
+
+    Безымянная LOCAL_CS с метрами зоны получает fallback_crs. Рабочая CRS возвращается как есть.
+    """
     import rasterio
+
+    from .crs import usable_raster_crs
 
     try:
         with rasterio.open(path) as ds:
-            return ds.crs.to_string() if ds.crs else None
+            return usable_raster_crs(ds.crs.to_string() if ds.crs else None, ds.bounds, fallback_crs)
     except Exception:
         return None
 

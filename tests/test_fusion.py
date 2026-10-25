@@ -47,6 +47,26 @@ def test_copies_follow_gates_coverage_and_class_shift(tmp_path):
     assert fusion.li_to_ae(feats, [], fusion.FusionParams()) == []
 
 
+def test_local_cs_photo_copies_the_same_kurgans_as_the_utm_photo(tmp_path):
+    """Аэрофото с безымянной LOCAL_CS и метрами зоны даёт те же копии, что исходный снимок в UTM."""
+    from rasterio.crs import CRS
+
+    utm = write_ae(tmp_path / "utm.tif")
+    local = 'LOCAL_CS["unnamed",UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]'
+    loc = tmp_path / "local.tif"
+    with rasterio.open(utm) as ds:
+        a, tr = ds.read(1), ds.transform
+    with rasterio.open(loc, "w", driver="GTiff", height=a.shape[0], width=a.shape[1], count=1, dtype="uint8",
+                       transform=tr, crs=CRS.from_wkt(local)) as out:
+        out.write(a, 1)
+    feats = kurgan(X0 + 20, Y0 + 50, 0.995, 0.004)
+    ref = fusion.li_to_ae(feats, [utm])
+    got = fusion.li_to_ae(feats, [loc], fallback_crs=UTM)
+    assert [(f["class_name"], round(f["confidence"], 3), f["threshold_group"]) for f in got] == [
+        (f["class_name"], round(f["confidence"], 3), f["threshold_group"]) for f in ref]
+    assert ref and fusion.li_to_ae(feats, [loc]) == []
+
+
 def test_mosaic_copies_keep_their_own_group(tmp_path):
     """Копия кургана мозаики — группа li_ae, копия мелкой сетки — ae. Без этого целые копии
     мелкой сетки уходили под порог li_ae 1,000001 и выпадали все."""

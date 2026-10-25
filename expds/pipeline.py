@@ -137,7 +137,7 @@ def _with_copies(feats: list[dict], reg: Region, cfg: dict) -> list[dict]:
     if not rules:
         return feats
     try:
-        return feats + fusion.copy_layers(feats, reg.rasters, rules)
+        return feats + fusion.copy_layers(feats, reg.rasters, rules, fallback_crs=region_crs(reg, cfg))
     except Exception:
         log.exception("%s: копии слоёв пропущены", reg.name)
         return feats
@@ -180,7 +180,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         mt_cfg = geo_cfg.get(mt) or {}
         if mt_cfg.get("layer_copy", False):
             try:
-                layers = {f.name: geophys.source_crs(f) for f in files}
+                layers = {f.name: geophys.source_crs(f, crs_region) for f in files}
                 mine += geophys.layer_copies(mine, layers, float(mt_cfg.get("layer_copy_decay", 1.0)), f"{mt}_copy")
             except Exception:
                 log.exception("%s: копии по слоям %s пропущены", reg.name, mt)
@@ -380,7 +380,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
     if fp.li_to_ae and reg.rasters.get("ae"):
         try:
-            feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp)
+            feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
         except Exception as exc:
             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
     return _with_copies(feats, reg, cfg)

@@ -33,7 +33,7 @@ from shapely.geometry import box, shape
 
 from .catalog import Region, read_utm_json, scan_root
 from .constants import GEO_CLASSES, GEO_MARKUP, RS_CLASSES
-from .crs import WEB_MERCATOR, raster_crs, to_crs, usable_raster_crs
+from .crs import WEB_MERCATOR, raster_crs, to_3857_ok, to_crs, usable_raster_crs
 from .naming import site_family
 
 log = logging.getLogger(__name__)
@@ -204,9 +204,13 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
             bnd = box(*ds.bounds)
             native = abs(ds.res[0])
             if ground_pixels:
+                from rasterio.crs import CRS as RioCRS
+
                 from .raster import ground_step, raster_kind_and_latitude
 
-                kind, lat = raster_kind_and_latitude(ds.crs, ds.transform, ds.width, ds.height)
+                declared = ds.crs.to_string() if ds.crs else None
+                kind_crs = ds.crs if to_3857_ok(declared) else (RioCRS.from_user_input(crs) if crs else None)
+                kind, lat = raster_kind_and_latitude(kind_crs, ds.transform, ds.width, ds.height)
                 r = ground_step(native, kind, lat, res)
             else:
                 r = working_res(native, res)

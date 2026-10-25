@@ -227,7 +227,7 @@ def test_layer_copy_is_off_by_default_in_the_pipeline(monkeypatch, tmp_path):
 
     monkeypatch.setattr(pipeline.geophys, "object_polys", polys)
     monkeypatch.setattr(pipeline.geophys, "load_mask", lambda *a, **k: None)
-    monkeypatch.setattr(pipeline.geophys, "source_crs", lambda path: "EPSG:32636")
+    monkeypatch.setattr(pipeline.geophys, "source_crs", lambda path, *a, **k: "EPSG:32636")
     off = pipeline.geophys_feats(reg, {"geophys": {}}, pipeline.TimeGuard(1000))
     on = pipeline.geophys_feats(reg, {"geophys": {"etgr": {"layer_copy": True}}}, pipeline.TimeGuard(1000))
     assert len(off) == 1 and len(on) == 2 and on[1]["threshold_group"] == "etgr_copy"
