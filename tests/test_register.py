@@ -207,3 +207,27 @@ def test_oof_shift_reads_both_report_formats(tmp_path):
         {"region": "r", "markup": "sp_or", "n": 50, "dx_m": 8.0, "dy_m": 0.0, "systematic": True}]}),
         encoding="utf-8")
     assert ot.load_shifts(b, "li:ae", "ae") == {"r": (3.0, -6.0)}          # юг → минус север
+
+
+def test_image_label_shift_runs_on_a_set_without_ground_truth(tmp_path):
+    """Публичная выборка: эталона нет, якоря — курганы лидара из своего result.geojson."""
+    import subprocess
+    import sys
+
+    centers = field(seed=6, n=40, spacing=20.0)
+    reg = tmp_path / "set" / "region_0001"
+    reg.mkdir(parents=True)
+    (reg / "UTM.json").write_text(json.dumps({"utm": "36N"}), encoding="utf-8")
+    blob_photo(reg / "01_x_Ae_аэрофото.tif", [(x + 6.0, y - 3.0) for x, y in centers])
+    feats = [{"type": "Feature", "geometry": g.__geo_interface__,
+              "properties": {"class_name": "kurgany_povrezhdennye", "markup_type": "li", "confidence": 0.9,
+                             "region_name": "region_0001"}} for g in label_geoms(centers)]
+    labels = tmp_path / "result.geojson"
+    labels.write_text(json.dumps({"type": "FeatureCollection", "features": feats}), encoding="utf-8")
+    out = tmp_path / "shift.json"
+    run = subprocess.run([sys.executable, str(ROOT / "scripts" / "image_label_shift.py"), "--root", str(tmp_path / "set"),
+                          "--labels", str(labels), "--labels-min", "0.5", "--radius", "5", "--markups", "ae",
+                          "--max-shift", "12", "--out", str(out)], capture_output=True, text=True, timeout=300, check=False)
+    assert run.returncode == 0, run.stderr
+    row = json.loads(out.read_text(encoding="utf-8"))["rasters"][0]
+    assert row["systematic"] and abs(row["dx_m"] - 6.0) <= 1.0 and abs(row["dn_m"] + 3.0) <= 1.0

@@ -19,6 +19,12 @@
 С --labels вместо эталона берутся объекты файла (курганы лидара вне обучения, уверенность
 от --labels-min): это сдвиг самого снимка относительно земли — тот, что [fusion] register
 меряет на инференсе без эталона, и его можно сравнить со сдвигом слоёв эталона.
+С --labels эталон не нужен (--gt можно не давать), поэтому так же меряется публичная
+выборка по курганам лидара из своего result.geojson. Вывод с именами её участков в
+notes/ и в git не класть.
+
+    python scripts/image_label_shift.py --root <папка выборки> --labels <result.geojson> \
+        --labels-min 0.5 --radius 5 --markups ae sp_or --out <рабочая папка>/public_photo_shift.json
 
 dx — на восток, dy — на юг (строки растра), dn = −dy — на север, метры.
 """
@@ -64,8 +70,8 @@ def scan_raster(path: Path, geoms: list, res_m: float, max_shift_m: float, fallb
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", required=True, help="корень трейна")
-    ap.add_argument("--gt", required=True)
+    ap.add_argument("--root", required=True, help="корень выборки (трейн или публичная)")
+    ap.add_argument("--gt", default="", help="эталон; не нужен вместе с --labels")
     ap.add_argument("--markups", nargs="*", default=["ae", "sp_or", "or"])
     ap.add_argument("--classes", nargs="*", default=list(KURGANS))
     ap.add_argument("--res", type=float, default=1.0, help="шаг чтения снимка на земле, м")
@@ -79,6 +85,8 @@ def main() -> None:
                     help="радиус пятна, м (по умолчанию — медианный полигон; для кругов --labels задать 5)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
+    if not args.gt and not args.labels:
+        ap.error("нужен --gt или --labels")
     from expds.catalog import read_utm_json, scan_root
 
     if args.labels:
