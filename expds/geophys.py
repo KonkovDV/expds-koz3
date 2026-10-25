@@ -146,6 +146,9 @@ def rank_within_source(feats: list[dict]) -> list[dict]:
         v = np.array([feats[i]["confidence"] for i in idx])
         ranks = np.searchsorted(np.sort(v), v, side="right") / len(v)
         for i, r in zip(idx, ranks):
+            # Ранг сравнивает пики одной карты. Между картами остаётся сила до ранга:
+            # у шумной карты единственный пик имеет ранг 1 и иначе заглушает сильную соседку.
+            out[i]["_strength"] = float(feats[i]["confidence"])
             out[i]["confidence"] = float(r)
     return out
 
@@ -211,7 +214,7 @@ def polarity_image(hp: np.ndarray, polarity: str = "abs") -> np.ndarray:
 
 
 def plateau_centers(a: np.ndarray, hp: np.ndarray, res: float, max_area_m2: float = 60.0,
-                    min_area_m2: float = 3.0, min_share: float = 0.005, min_strength: float = 0.0):
+                    min_area_m2: float = 3.0, min_share: float = 0.0, min_strength: float = 0.0):
     """Центры пятен насыщения карты: строки, столбцы, сила (MAD) и маска всех принятых пятен.
 
     Карта MagGr — визуализация с растяжкой контраста. Сильная аномалия упирается в край
@@ -223,9 +226,10 @@ def plateau_centers(a: np.ndarray, hp: np.ndarray, res: float, max_area_m2: floa
     Гнёздова, Терраса 1, белый фон — 78 % пикселей). Пятна мельче min_area_m2 (радиус
     около 1 м) замены не требуют: пики их кромки и так ближе 2 м к центру, а крапинки
     шума у края шкалы такого размера не бывают.
-    Крайнее значение учитывается, только если его доля не меньше min_share. Пятно с кромкой
-    слабее min_strength — крапинка шума у края шкалы, а не аномалия: оно не выдаётся и не
-    подавляет соседние пики.
+    Доля крайнего значения по всей карте пятно не отсекает: на пересвеченном листе с потолком
+    0,54 ядра значения 0 занимают 0,49 % пикселей, и порог 0,5 % выбрасывал все пять.
+    min_share оставлен для явного вызова; по умолчанию 0. Пятно мельче min_area_m2 или с кромкой
+    слабее min_strength — крапинка шума: оно не выдаётся и не подавляет соседние пики.
     """
     from scipy import ndimage
 
@@ -242,7 +246,7 @@ def plateau_centers(a: np.ndarray, hp: np.ndarray, res: float, max_area_m2: floa
     accepted = np.zeros(a.shape, bool)
     for v in (lo, hi):
         m = fin & (a == v)
-        if m.mean() < min_share:
+        if min_share > 0 and float(m.mean()) < min_share:
             continue
         lab, n = ndimage.label(m)
         if n == 0:
@@ -251,6 +255,8 @@ def plateau_centers(a: np.ndarray, hp: np.ndarray, res: float, max_area_m2: floa
         boxes = ndimage.find_objects(lab)
         for k in np.nonzero((sizes >= min_area_m2) & (sizes <= max_area_m2))[0]:
             sl = boxes[k]
+            if sl is None:
+                continue
             r0, c0 = max(0, sl[0].start - 2), max(0, sl[1].start - 2)
             r1, c1 = min(a.shape[0], sl[0].stop + 2), min(a.shape[1], sl[1].stop + 2)
             sub = lab[r0:r1, c0:c1] == k + 1
@@ -391,8 +397,10 @@ def dedupe_points(feats: list[dict], radius_m: float, crs: str | None = None,
     """Находки разных карт одного участка ближе radius_m метров — один объект с наибольшей уверенностью.
 
     Одна находка на серой и на цветной карте даёт два круга рядом; метрика засчитает
-    один, второй станет ложным. Расстояние — на земле: в CRS участка (метры UTM), иначе
-    в EPSG:3857 с поправкой cos(широты). Остальные классы проходят как есть.
+    один, второй станет ложным. Остаётся объект с большей силой до перевода в ранг
+    (поле _strength): ранги разных карт между собой не сравнимы. Расстояние — на земле,
+    в CRS участка (метры UTM), иначе в EPSG:3857 с поправкой cos(широты). Остальные классы
+    проходят как есть. Запись GeoJSON это поле не берёт.
     """
     import math
 
@@ -410,7 +418,8 @@ def dedupe_points(feats: list[dict], radius_m: float, crs: str | None = None,
     else:
         lat = math.degrees(math.atan(math.sinh(float(np.mean(xy[:, 1])) / 6378137.0)))
         xy = xy * math.cos(math.radians(lat))
-    order = sorted(range(len(pts)), key=lambda k: -float(feats[pts[k]].get("confidence", 0.0)))
+    order = sorted(range(len(pts)), key=lambda k: -float(
+        feats[pts[k]]["_strength"] if "_strength" in feats[pts[k]] else feats[pts[k]].get("confidence", 0.0)))
     tree = cKDTree(xy)
     dropped = np.zeros(len(pts), bool)
     for k in order:

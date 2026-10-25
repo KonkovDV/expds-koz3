@@ -35,6 +35,19 @@ def test_dedupe_points_merges_only_across_maps():
                            ("finds_points", "color", 0.6), ("object_poly", "color", 0.5)])
 
 
+def test_dedupe_keeps_the_stronger_map_not_the_higher_rank():
+    def f(x, conf, strength, src):
+        return {"geom": Point(x, 6_100_000.0).buffer(0.3), "class_name": "finds_points",
+                "confidence": conf, "_strength": strength, "source": src}
+
+    from expds.crs import WEB_MERCATOR, to_crs
+
+    feats = [f(500_000.0, 0.4, 0.85, "gray"), f(500_000.4, 1.0, 0.15, "color")]
+    feats = [dict(x, geom=to_crs(x["geom"], UTM, WEB_MERCATOR)) for x in feats]
+    out = geophys.dedupe_points(feats, 2.0, UTM)
+    assert [(x["source"], x["confidence"]) for x in out] == [("gray", 0.4)]
+
+
 def test_pipeline_all_maps_does_not_double_the_finds(tmp_path):
     src, _ = write_mag_tif(tmp_path / "src.tif")
     gray = tmp_path / "01_r_MagGr_серый.tif"

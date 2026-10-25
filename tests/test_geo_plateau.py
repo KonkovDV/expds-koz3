@@ -70,3 +70,29 @@ def test_plateau_off_by_default_and_harmless_on_float_maps(tmp_path):
     same = geophys.finds_points(path, "r", "maggr", p)
     assert geophys.GeoParams().plateau is False
     assert len(same) == len(base)                               # без срезанных краёв шкалы пятен нет
+
+
+def test_core_below_half_percent_of_the_map_is_kept():
+    """Ядро на большом листе занимает меньше 0,5 % пикселей. Порог доли его выбрасывал."""
+    res = 0.5
+    n = 240                                                      # 120 м, 57600 пикселей
+    a = np.full((n, n), 180, np.float32)
+    a[4, 4] = 0                                                  # крапинка 0,25 м²
+    yy, xx = np.mgrid[0:n, 0:n]
+    core = (xx - 180) ** 2 + (yy - 180) ** 2 <= (8) ** 2         # радиус 4 м, около 50 м²
+    a[core] = 0
+    share = float((a == 0).mean())
+    assert share < 0.005
+    hp = np.zeros_like(a)
+    hp[core] = 0
+    rim = ndimage_ring(core)
+    hp[rim] = 30
+    kept, *_ = geophys.plateau_centers(a, hp, res, min_strength=1.0)
+    dropped, *_ = geophys.plateau_centers(a, hp, res, min_share=0.005, min_strength=1.0)
+    assert len(kept) == 1 and len(dropped) == 0
+
+
+def ndimage_ring(mask: np.ndarray) -> np.ndarray:
+    from scipy import ndimage
+
+    return ndimage.binary_dilation(mask, iterations=2) & ~mask
