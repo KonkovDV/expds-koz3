@@ -33,7 +33,7 @@ from shapely.geometry import box, shape
 
 from .catalog import Region, read_utm_json, scan_root
 from .constants import GEO_CLASSES, GEO_MARKUP, RS_CLASSES
-from .crs import WEB_MERCATOR, raster_crs, to_crs
+from .crs import WEB_MERCATOR, raster_crs, to_crs, usable_raster_crs
 from .naming import site_family
 
 log = logging.getLogger(__name__)
@@ -193,7 +193,10 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
             yield las.name, d.crs, bnd, lambda cx, cy, a=arr, t=tr: cut_window(a, t, cx, cy, tile)
         return
     for files in sources_for(reg, markup, li_tags):
-        crs = raster_crs(files[0]) or read_utm_json(reg.utm_json)
+        utm = read_utm_json(reg.utm_json)
+        with rasterio.open(files[0]) as ds:
+            # Безымянная LOCAL_CS с метрами UTM получает UTM.json участка, как на инференсе.
+            crs = usable_raster_crs(raster_crs(files[0]), ds.bounds, utm) or utm
         if crs is None:
             log.warning("%s: нет CRS у %s — пропуск", reg.name, files[0].name)
             continue

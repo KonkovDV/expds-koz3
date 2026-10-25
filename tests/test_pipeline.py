@@ -356,7 +356,7 @@ def test_wide_window_runs_only_without_lidar(monkeypatch):
             return []
         return [SimpleNamespace(keep={"kurgany_povrezhdennye"})]
 
-    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None):
+    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None, fallback_crs=None):
         assert min_conf["kurgany_povrezhdennye"] == 0.501645
         return [{"class_name": "kurgany_povrezhdennye", "markup_type": markup, "confidence": 0.6,
                  "geom": Point(0, 0).buffer(4), "region_name": region}]
@@ -412,7 +412,7 @@ def test_wide_circle_within_12m_of_a_kept_center_is_dropped(monkeypatch):
     def segs(cache, cfg, markup, root, tta=1):
         return [SimpleNamespace(keep={"kurgany_povrezhdennye"})]
 
-    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None):
+    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None, fallback_crs=None):
         return [
             {"class_name": "kurgany_povrezhdennye", "markup_type": markup, "confidence": 0.8,
              "geom": Point(0, 0).buffer(4), "region_name": region},

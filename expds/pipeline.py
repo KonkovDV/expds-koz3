@@ -125,7 +125,7 @@ def region_crs(reg: Region, cfg: dict | None = None) -> str | None:
     from .crs import resolve_region_crs
 
     policy = ((cfg or {}).get("crs") or {}).get("policy", "utm_json")
-    utm = read_utm_json(reg.utm_json)
+    utm = read_utm_json(getattr(reg, "utm_json", None))
     if policy == "utm_json":
         return utm
     rasters = [p for files in reg.rasters.values() for p in files]
@@ -165,13 +165,15 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 log.warning("время на исходе: геофизика %s пропущена", path.name)
                 break
             try:
+                b_map, n_map = geophys.sane_masks(path, boundary, noise, geo_cfg, crs_region)
                 for cls in classes:
                     p, o = opts[cls]
-                    found = (geophys.finds_points(path, reg.name, mt, p) if cls == "finds_points"
-                             else geophys.object_polys(path, reg.name, mt, p))
+                    found = (geophys.finds_points(path, reg.name, mt, p, fallback_crs=crs_region)
+                             if cls == "finds_points"
+                             else geophys.object_polys(path, reg.name, mt, p, fallback_crs=crs_region))
                     if o["rank"]:
                         found = geophys.rank_within_source(found)
-                    found = geophys.apply_masks(found, boundary, noise if o["use_noise"] else None)
+                    found = geophys.apply_masks(found, b_map, n_map if o["use_noise"] else None)
                     mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
@@ -330,6 +332,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                             fresh = found
                     mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
                     feats += fresh
+                hf = cfg.get("hillfort") or {}
+                if hf.get("enabled", False):
+                    # Городища по форме рельефа (expds.hillfort), группа gor_phys. По умолчанию выключено.
+                    try:
+                        from . import hillfort
+                        feats += hillfort.candidates(d, reg.name, las.name, hillfort.params_from(hf))
+                    except Exception:
+                        log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True
             except Exception:
                 log.exception("%s: инференс li упал, запасной детектор", las.name)
@@ -466,7 +476,8 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                     break
                 try:
                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
-                                                           min_conf=output_floors(cfg, mt)))
+                                                           min_conf=output_floors(cfg, mt),
+                                                           fallback_crs=region_crs(reg, cfg)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
@@ -509,7 +520,8 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
                     log.warning("время на исходе: сеть %s пропущена на %s", mt, path.name)
                     break
                 try:
-                    found = _kept(seg, _raster_with_model(seg, path, reg.name, mt, min_conf=floors))
+                    found = _kept(seg, _raster_with_model(seg, path, reg.name, mt, min_conf=floors,
+                                                          fallback_crs=region_crs(reg, cfg)))
                 except Exception as exc:
                     log.exception("%s: ошибка сети %s (%s)", path.name, mt, exc)
                     continue
@@ -541,7 +553,8 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
             if not guard.ok(60):
                 break
             try:
-                found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors))
+                found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
+                                                      fallback_crs=region_crs(reg, cfg)))
             except Exception as exc:
                 log.exception("%s: ошибка окна 256 м (%s)", path.name, exc)
                 continue
@@ -677,14 +690,18 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
 
 
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
-                       overlap: int = 256, min_conf: dict[str, float] | None = None) -> list[dict]:
-    """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно)."""
+                       overlap: int = 256, min_conf: dict[str, float] | None = None,
+                       fallback_crs: str | None = None) -> list[dict]:
+    """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
+
+    CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
+    """
     import rasterio
     from rasterio.enums import Resampling
     from rasterio.windows import Window
     from shapely.geometry import box
 
-    from .crs import WEB_MERCATOR, to_crs
+    from .crs import WEB_MERCATOR, to_crs, usable_raster_crs
     from .infer_nn import probs_to_features
     from .tiles import MAX_UPSAMPLE, band_stats, fix_channels, to_uint8, working_res
 
@@ -707,7 +724,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         scale = r / native
         w, h = max(1, int(ds.width / scale)), max(1, int(ds.height / scale))
         n = min(ds.count, 3)
-        crs = ds.crs.to_string() if ds.crs else None
+        crs = usable_raster_crs(ds.crs.to_string() if ds.crs else None, ds.bounds, fallback_crs)
         step = block - overlap
         xs = list(range(0, max(w - overlap, 1), step))
         ys = list(range(0, max(h - overlap, 1), step))

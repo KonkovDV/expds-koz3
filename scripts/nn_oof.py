@@ -91,7 +91,7 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
 
         files = geophys.select_rasters(files, markup)    # те же карты, что у сдачи
     for path in files:
-        feats += _raster_with_model(seg, path, reg.name, markup)
+        feats += _raster_with_model(seg, path, reg.name, markup, fallback_crs=read_utm_json(reg.utm_json))
     return feats
 
 

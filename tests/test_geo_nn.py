@@ -27,7 +27,7 @@ def test_network_uses_gray_map_and_its_own_group(monkeypatch, tmp_path):
     def segs(cache, cfg, markup, root, tta=1):
         return [SimpleNamespace(keep=None)] if markup == "maggr" else []
 
-    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None):
+    def raster(seg, path, region, markup, block=4096, overlap=256, min_conf=None, fallback_crs=None):
         seen.append((Path(path).name, markup, min_conf["finds_points"]))
         return [{"class_name": "finds_points", "markup_type": markup, "confidence": 0.7,
                  "geom": Point(0, 0).buffer(0.3), "region_name": region}]

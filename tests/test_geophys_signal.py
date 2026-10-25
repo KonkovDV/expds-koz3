@@ -220,7 +220,7 @@ def test_layer_copy_is_off_by_default_in_the_pipeline(monkeypatch, tmp_path):
     files = [tmp_path / "x_EtGr_карта_1_0.75.tif", tmp_path / "x_EtGr_карта_2_1.0.tif"]
     reg = SimpleNamespace(name="r", las=[], rasters={"etgr": files}, boundaries=[], noise=[], utm_json=None)
 
-    def polys(path, region, mt, p):
+    def polys(path, region, mt, p, **kw):
         return [{"geom": Point(0, 0).buffer(1), "class_name": "object_poly", "confidence": 0.9,
                  "region_name": region, "markup_type": mt, "source": Path(path).name,
                  "original_crs": "EPSG:32636"}] if "карта_1" in Path(path).name else []

@@ -159,3 +159,25 @@ def test_oof_transform_pick_splits_a_joint_file_by_markup(tmp_path, monkeypatch)
     m.main()
     got = json.loads(out.read_text(encoding="utf-8"))["features"]
     assert [(f["properties"]["markup_type"], f["properties"]["class_name"]) for f in got] == [("or", "arkhitektury")]
+
+
+def test_rescue_takes_the_best_candidate_only_where_nothing_passed():
+    from shapely.geometry import Point
+
+    spec = importlib.util.spec_from_file_location("oof_transform", ROOT / "scripts" / "oof_transform.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+
+    def f(region, group, conf, x=0.0):
+        return {"geom": Point(x, 0).buffer(1), "class_name": "gorodishcha", "region_name": region,
+                "threshold_group": group, "confidence": conf}
+
+    feats = [f("A", "sp_or", 0.995), f("A", "sp_or", 0.90),
+             f("B", "sp_or", 0.98, 1), f("B", "li_mask", 0.97, 2),
+             f("C", "sp_or", 0.10)]
+    taus = {"sp_or": {"gorodishcha": 0.99}, "li_mask": {"gorodishcha": 0.995}}
+    out = m.rescue(feats, taus, ["gorodishcha"], k=1, floor=0.5)
+    assert [(o["region_name"], o["rescued_from"], o["confidence"]) for o in out] == [("B", "li_mask", 1.0)]
+    assert all(o["threshold_group"] == "gorodishcha_rescue" for o in out)
+    both = m.rescue(feats, taus, ["gorodishcha"], k=2, floor=0.0)
+    assert sorted(o["region_name"] for o in both) == ["B", "B", "C"]

@@ -93,11 +93,15 @@ def scalar_from_bands(bands: np.ndarray, mode: str = "first") -> np.ndarray:
     return np.where(valid, out, np.nan).astype(np.float32)
 
 
-def read_band(path: str | Path, mode: str = "first") -> tuple[np.ndarray, object, str | None, float]:
+def read_band(path: str | Path, mode: str = "first",
+              fallback_crs: str | None = None) -> tuple[np.ndarray, object, str | None, float]:
     """Одно число на пиксель (scalar_from_bands) как float32 с NaN вместо nodata.
 
     Альфа-канал, если он есть, только маскирует пиксели: прозрачное — нет данных.
+    CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает
+    fallback_crs (UTM.json участка), а не роняет детектор на переводе в EPSG:3857.
     """
+    from .crs import usable_raster_crs
     from .raster import open_metric
 
     with open_metric(path) as ds:
@@ -110,7 +114,7 @@ def read_band(path: str | Path, mode: str = "first") -> tuple[np.ndarray, object
             if alpha:
                 bands[:, ds.read(alpha[0]) == 0] = np.nan
             a = scalar_from_bands(bands, mode)
-        crs = ds.crs.to_string() if ds.crs else None
+        crs = usable_raster_crs(ds.crs.to_string() if ds.crs else None, ds.bounds, fallback_crs)
         return a, ds.transform, crs, float(abs(ds.res[0]))
 
 
@@ -245,18 +249,19 @@ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
 
 
 def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None,
-                 k_min: float | None = None) -> list[dict]:
+                 k_min: float | None = None, fallback_crs: str | None = None) -> list[dict]:
     """Точечные аномалии → круги класса finds_points."""
     p = p or GeoParams()
-    a, tr, crs, res = read_band(path, p.band_mode)
+    a, tr, crs, res = read_band(path, p.band_mode, fallback_crs)
     return peaks_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
                       Path(path).name, p, k_min)
 
 
-def object_polys(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None) -> list[dict]:
+def object_polys(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None,
+                 fallback_crs: str | None = None) -> list[dict]:
     """Площадные аномалии → полигоны класса object_poly."""
     p = p or GeoParams()
-    a, tr, crs, res = read_band(path, p.band_mode)
+    a, tr, crs, res = read_band(path, p.band_mode, fallback_crs)
     return polys_from(highpass(robust_z(a), res, p.background_m), tr, crs, res, region, markup_type,
                       Path(path).name, p)
 
@@ -378,6 +383,46 @@ def layer_copies(feats: list[dict], sources: dict[str, str | None], decay: float
             best[key] = dict(f, source=dst, confidence=float(f.get("confidence", 1.0)) * decay,
                              threshold_group=group, copied_from=src)
     return list(best.values())
+
+
+def map_footprint(path: str | Path, fallback_crs: str | None = None):
+    """Рамка растра в EPSG:3857 (shapely) или None, если CRS не определить (crs.usable_raster_crs)."""
+    import rasterio
+    from rasterio.warp import transform_bounds
+    from shapely.geometry import box
+
+    from .crs import to_3857_ok, usable_raster_crs
+
+    with rasterio.open(path) as ds:
+        crs = usable_raster_crs(ds.crs.to_string() if ds.crs else None, ds.bounds, fallback_crs)
+        if not to_3857_ok(crs):
+            return None
+        return box(*transform_bounds(crs, "EPSG:3857", *ds.bounds, densify_pts=5))
+
+
+def sane_masks(path: str | Path, boundary, noise, cfg: dict | None = None, fallback_crs: str | None = None):
+    """Маски, которым можно верить на этой карте. По умолчанию — те же маски.
+
+    [geophys] boundary_min_cover: граница, закрывающая меньше этой доли рамки карты, —
+    вероятно, прочитана не в той CRS; на этой карте она не применяется.
+    [geophys] noise_max_cover: шум, закрывающий больше этой доли рамки, — вероятно,
+    перевёрнутый полигон или контур съёмки под именем шума; на этой карте не применяется.
+    Без этих ключей в конфиге маски не меняются.
+    """
+    cfg = cfg or {}
+    lo, hi = cfg.get("boundary_min_cover"), cfg.get("noise_max_cover")
+    if lo is None and hi is None or (boundary is None and noise is None):
+        return boundary, noise
+    fp = map_footprint(path, fallback_crs)
+    if fp is None or fp.area <= 0:
+        return boundary, noise
+    if lo is not None and boundary is not None and fp.intersection(boundary).area / fp.area < float(lo):
+        log.warning("%s: граница закрывает меньше %.0f%% карты — не применяется", Path(path).name, 100 * float(lo))
+        boundary = None
+    if hi is not None and noise is not None and fp.intersection(noise).area / fp.area > float(hi):
+        log.warning("%s: шум закрывает больше %.0f%% карты — не применяется", Path(path).name, 100 * float(hi))
+        noise = None
+    return boundary, noise
 
 
 def apply_masks(feats: list[dict], boundary=None, noise=None) -> list[dict]:

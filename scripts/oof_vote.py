@@ -19,6 +19,18 @@
         --radius 6 --mode rank-mean --out F:/expds3/work/spor_vote.geojson
     python scripts/scoreboard.py ... --replace sp_focal=F:/expds3/work/spor_vote.geojson --honest 10
 
+Голоса разных типов данных (курганы спутника и лидара) — разные признаки: тон и тень снимка
+против высоты рельефа. Там, где у другой модели нет данных (участок без LAS, край снимка),
+её молчание — не голос «против». --coverage-root <корень участков> включает воздержание:
+модель, чей тип данных не покрывает точку, в среднее и в число голосов не входит.
+Без флага счёт тот же, что раньше. Голосование шести карт центров уже отвергнуто
+(notes/vote_mean_2026-10-25.json, notes/vote_votes_2026-10-25.json). Пример нового опыта,
+ещё не измеренного:
+
+    python scripts/oof_vote.py --base F:/expds3/work/spor_focal_oof.geojson `
+        --others F:/expds3/work/fusion/li_hard2_fused.geojson --coverage-root F:/expds3/train-expds-3 `
+        --radius 8 --mode rank-mean --out F:/expds3/work/spor_vote_li.geojson
+
 Группа порога и геометрия базовых объектов не меняются: табло подбирает новый порог
 сданной группе. Файлы предсказаний — конкурсные данные, в git их не класть.
 """
@@ -97,8 +109,48 @@ def neighbour_rank(base: list[dict], bxy: np.ndarray, other: list[dict], oxy: np
     return out
 
 
-def fuse(base: list[dict], others: list[list[dict]], radius: float, mode: str, vote_rank: float = 0.5) -> list[float]:
-    """Новая уверенность базовых объектов по согласию моделей."""
+def coverage(base: list[dict], others: list[list[dict]], root: Path) -> np.ndarray:
+    """[модель, объект] — покрывает ли тип данных другой модели точку базового объекта.
+
+    Тип данных модели — markup_type её объектов. li — рамка облака LAS участка,
+    остальные — непустые пиксели снимков участка (как у копий слоёв, fusion.covered).
+    """
+    from expds import fusion
+    from expds.catalog import read_utm_json, scan_root
+    from expds.crs import WEB_MERCATOR, las_box, transformer
+
+    regs = {r.name: r for r in scan_root(root)}
+    pts = [o["geom"].representative_point() for o in base]
+    out = np.zeros((len(others), len(base)), bool)
+    for k, other in enumerate(others):
+        kinds = {o["props"].get("markup_type") for o in other}
+        for i, (b, pt) in enumerate(zip(base, pts)):
+            reg = regs.get(b["props"].get("region_name"))
+            if reg is None:
+                continue
+            for mt in kinds:
+                if mt == "li":
+                    crs = read_utm_json(reg.utm_json)
+                    for las in reg.las:
+                        box = las_box(las)
+                        if crs and box is not None:
+                            x, y = transformer(WEB_MERCATOR, crs).transform(pt.x, pt.y)
+                            if box[0] <= x <= box[2] and box[1] <= y <= box[3]:
+                                out[k, i] = True
+                elif reg.rasters.get(mt):
+                    out[k, i] |= bool(fusion.covered(np.array([pt.x]), np.array([pt.y]), reg.rasters[mt])[0])
+                if out[k, i]:
+                    break
+    return out
+
+
+def fuse(base: list[dict], others: list[list[dict]], radius: float, mode: str, vote_rank: float = 0.5,
+         cover: np.ndarray | None = None) -> list[float]:
+    """Новая уверенность базовых объектов по согласию моделей.
+
+    cover[модель, объект] = False — модель здесь воздерживается (нет её данных).
+    Без cover счёт совпадает с прежним: каждая модель голосует.
+    """
     if mode not in MODES:
         raise ValueError(f"неизвестный режим: {mode}")
     brank = ranks(base)
@@ -107,10 +159,12 @@ def fuse(base: list[dict], others: list[list[dict]], radius: float, mode: str, v
     for other in others:
         cols.append(neighbour_rank(base, bxy, other, ground_xy(other), ranks(other), radius))
     m = np.vstack(cols)
+    seen = np.vstack([np.ones(len(base), bool), cover if cover is not None else np.ones((len(others), len(base)), bool)])
+    n = seen.sum(axis=0)
     if mode == "rank-mean":
-        return [float(v) for v in m.mean(axis=0)]
-    votes = (m[1:] >= vote_rank).sum(axis=0) if len(m) > 1 else np.zeros(len(base))
-    return [float((v + r) / (len(others) + 1)) for v, r in zip(votes, brank)]
+        return [float(v) for v in (m * seen).sum(axis=0) / n]
+    votes = ((m[1:] >= vote_rank) & seen[1:]).sum(axis=0) if len(m) > 1 else np.zeros(len(base))
+    return [float((v + r) / k) for v, r, k in zip(votes, brank, n)]
 
 
 def main() -> None:
@@ -120,12 +174,17 @@ def main() -> None:
     ap.add_argument("--radius", type=float, default=6.0, help="сосед ближе стольких метров на земле")
     ap.add_argument("--mode", choices=MODES, default="rank-mean")
     ap.add_argument("--vote-rank", type=float, default=0.5, help="votes: ранг соседа, с которого он считается голосом")
+    ap.add_argument("--coverage-root", default=None,
+                    help="корень участков: модель без своих данных в точке воздерживается, а не голосует против")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
     base = load(Path(args.base))
     others = [load(Path(p)) for p in args.others]
-    conf = fuse(base, others, args.radius, args.mode, args.vote_rank)
+    cover = coverage(base, others, Path(args.coverage_root)) if args.coverage_root else None
+    conf = fuse(base, others, args.radius, args.mode, args.vote_rank, cover)
+    if cover is not None:
+        print(f"доля объектов, где голосует каждая модель: {[round(float(c.mean()), 3) for c in cover]}")
     from shapely.geometry import mapping
 
     feats = []

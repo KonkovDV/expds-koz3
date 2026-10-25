@@ -215,6 +215,40 @@ def coords_kind(xs: list[float], ys: list[float], fallback_utm: str | None = Non
     return "local"
 
 
+@lru_cache(maxsize=256)
+def to_3857_ok(crs: str | None) -> bool:
+    """pyproj переводит эту CRS в EPSG:3857. Безымянная LOCAL_CS и инженерные системы — нет."""
+    if not crs:
+        return False
+    try:
+        transformer(crs, WEB_MERCATOR)
+    except Exception:
+        return False
+    return True
+
+
+def usable_raster_crs(declared: str | None, bounds, fallback_utm: str | None) -> str | None:
+    """CRS растра для перевода в EPSG:3857.
+
+    Объявленная CRS, если pyproj её переводит. Иначе (её нет или это безымянная LOCAL_CS)
+    — догадка по габаритам, как у файлов разметки: метры в пределах зоны UTM → UTM.json
+    участка, большие метры — веб-меркатор, правдоподобные градусы — WGS 84. Без догадки
+    остаётся объявленная: такой растр, как и раньше, падает с ошибкой или выходит в своих
+    координатах. Растр с рабочей CRS не меняется. Чужой подсчёт «217 таких растров»
+    на нашей копии трейна не повторился: карты, которые читает сдача, переводятся.
+    """
+    if declared and to_3857_ok(declared):
+        return declared
+    left, bottom, right, top = bounds
+    kind = coords_kind([left, right], [min(bottom, top), max(bottom, top)], fallback_utm)
+    guess = {"utm": fallback_utm, "webmercator": WEB_MERCATOR, "wgs84": "EPSG:4326"}.get(kind)
+    if guess:
+        log.warning("CRS растра %s не переводится в EPSG:3857, координаты похожи на %s — беру %s",
+                    (declared or "нет")[:40], kind, guess)
+        return guess
+    return declared
+
+
 def guess_geojson_crs(data: dict, fallback_utm: str | None) -> str | None:
     """CRS файла разметки: поле "crs", иначе по величине координат; None — координаты локальные.
 

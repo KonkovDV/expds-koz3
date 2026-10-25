@@ -16,7 +16,12 @@
   merge-classes  классы из файла A, остальные из B (ансамбль только по курганам,
                  [models] … ensemble_classes);
   pick           объекты выбранных типов снимков (и классов): файл общей сети
-                 (scripts/cache_merge.py) делится по группам порога, как в сдаче.
+                 (scripts/cache_merge.py) делится по группам порога, как в сдаче;
+  rescue         лучший кандидат участка там, где класс после порогов групп пуст
+                 (городища: вес 15, выгодно добавлять уже при 8 % попаданий).
+                 Пороги — из JSON табло (--taus notes/<опыт>.json, поле thresholds),
+                 уверенность — ранг внутри своей группы, группа порога — <класс>_rescue.
+                 В сдачу не входит, пока честное табло не примет файл.
 
 Примеры (пути — как в docs/AGENT_PLAN.md):
 
@@ -124,6 +129,42 @@ def cmd_merge(a) -> None:
     write_feats(fa + fb, Path(a.out))
 
 
+def rescue(feats: list[dict], taus: dict, classes: list[str], k: int = 1, floor: float = 0.0) -> list[dict]:
+    """Лучшие k кандидатов (по рангу в своей группе) там, где у класса на участке ничего не прошло порог."""
+    import numpy as np
+
+    def group(f: dict) -> str:
+        return f.get("threshold_group") or f.get("markup_type") or ""
+
+    by_gc: dict[tuple, list[int]] = defaultdict(list)
+    for i, f in enumerate(feats):
+        by_gc[(group(f), f["class_name"])].append(i)
+    rank = np.zeros(len(feats))
+    for idx in by_gc.values():
+        v = np.array([feats[i]["confidence"] for i in idx])
+        rank[idx] = np.searchsorted(np.sort(v), v, side="right") / len(v)
+    by_rc: dict[tuple, list[int]] = defaultdict(list)
+    for i, f in enumerate(feats):
+        if f["class_name"] in classes:
+            by_rc[(f.get("region_name"), f["class_name"])].append(i)
+    out = []
+    for (_, cls), idx in by_rc.items():
+        kept = any(feats[i]["confidence"] >= taus.get(group(feats[i]), {}).get(cls, float("inf")) for i in idx)
+        if kept:
+            continue
+        pool = sorted((i for i in idx if feats[i]["confidence"] >= floor), key=lambda i: -rank[i])[:k]
+        for i in pool:
+            out.append({**feats[i], "confidence": float(rank[i]), "threshold_group": f"{cls}_rescue",
+                        "rescued_from": group(feats[i])})
+    return out
+
+
+def cmd_rescue(a) -> None:
+    taus = json.loads(Path(a.taus).read_text(encoding="utf-8")).get("thresholds", {})
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    write_feats(rescue(feats, taus, a.classes, a.k, a.floor), Path(a.out))
+
+
 def cmd_pick(a) -> None:
     keep_mt = set(a.markups)
     keep_cls = set(a.classes or [])
@@ -180,6 +221,14 @@ def main() -> None:
     pk.add_argument("--classes", nargs="*", default=[])
     pk.add_argument("--out", required=True)
     pk.set_defaults(fn=cmd_pick)
+    rs = sub.add_parser("rescue", help="лучший кандидат участка, где класс после порогов пуст")
+    rs.add_argument("--src", nargs="+", required=True, help="OOF-файлы всех групп класса (как в табло)")
+    rs.add_argument("--taus", required=True, help="JSON табло с полем thresholds (scoreboard.py --out)")
+    rs.add_argument("--classes", nargs="+", required=True)
+    rs.add_argument("--k", type=int, default=1)
+    rs.add_argument("--floor", type=float, default=0.0, help="кандидаты слабее этой уверенности не спасаются")
+    rs.add_argument("--out", required=True)
+    rs.set_defaults(fn=cmd_rescue)
     a = ap.parse_args()
     a.fn(a)
 

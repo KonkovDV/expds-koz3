@@ -183,6 +183,13 @@ ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
 # Сеть на картах геофизики (pipeline.geo_model_feats), только вместе с порогом группы maggr_nn:
 # maggr = {path = "models/maggr_finds_r18.pt", classes = ["finds_points"]}
 
+# Городища по форме рельефа (expds/hillfort.py): площадка выше окрестности с обрывом по краю.
+# По умолчанию выключено. Включать вместе с порогом группы gor_phys из табло:
+# [hillfort]
+# enabled = true
+# [thresholds_by_markup.gor_phys]
+# gorodishcha = <порог>
+
 [candidates]
 work_res = 0.5
 relief_radius_m = 15.0
