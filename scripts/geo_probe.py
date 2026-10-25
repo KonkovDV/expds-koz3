@@ -59,8 +59,13 @@ def raster_passport(path: Path) -> dict:
         }
 
 
-def peaks_at_floors(path: Path, mode: str, background_m: float, radius_m: float) -> tuple[dict, tuple]:
-    """Число пиков |высоких частот| выше каждой отсечки и сами пики самой низкой."""
+def peaks_at_floors(path: Path, mode: str, background_m: float, radius_m: float,
+                    plateau: bool = False) -> tuple[dict, tuple]:
+    """Число пиков |высоких частот| выше каждой отсечки и сами пики самой низкой.
+
+    plateau — пики у пятен насыщения заменяются центрами пятен (geophys.with_plateaus), как
+    у детектора с [geophys.maggr.finds_points] plateau = true.
+    """
     a, tr, crs, res = geophys.read_band(path, mode)
     valid = np.isfinite(a)
     area_m2 = float(valid.sum()) * res * res
@@ -68,6 +73,9 @@ def peaks_at_floors(path: Path, mode: str, background_m: float, radius_m: float)
     hp = geophys.highpass(z, res, background_m)
     mag = np.where(np.isfinite(hp), np.abs(hp), np.nan).astype(np.float32)
     rows, cols, vals = geophys.accel.find_peaks(mag, max(1, round(radius_m / res)), min(FLOORS))
+    if plateau:
+        rows, cols, vals = geophys.with_plateaus(rows, cols, vals, a, hp, res, max(1, round(radius_m / res)),
+                                                 min(FLOORS))
     xs, ys = pixel_to_xy(tr, rows, cols)
     counts = {str(k): int((vals >= k).sum()) for k in FLOORS}
     dens = {str(k): round(counts[str(k)] / max(area_m2, 1e-9) * 1000.0, 3) for k in FLOORS}
@@ -141,6 +149,8 @@ def main() -> None:
     ap.add_argument("--band-mode", default="first", choices=geophys.BAND_MODES)
     ap.add_argument("--background-m", type=float, default=2.0, help="как [geophys.maggr.finds_points]")
     ap.add_argument("--radius-m", type=float, default=2.0, help="подавление пиков, как в сдаче")
+    ap.add_argument("--plateau", action="store_true",
+                    help="центры пятен насыщения вместо пиков на их кромке (потолок для plateau = true)")
     ap.add_argument("--anonymize", choices=("auto", "yes", "no"), default="auto")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
@@ -158,7 +168,8 @@ def main() -> None:
                        "used_by_detector": path in chosen, "utm_json": read_utm_json(reg.utm_json)}
                 try:
                     rec.update(raster_passport(path))
-                    stats, peaks = peaks_at_floors(path, args.band_mode, args.background_m, args.radius_m)
+                    stats, peaks = peaks_at_floors(path, args.band_mode, args.background_m, args.radius_m,
+                                                   args.plateau)
                     rec.update(stats)
                     if gt is not None and mt == "maggr":
                         pts = gt_points(gt, reg.name, mt, peaks[3])

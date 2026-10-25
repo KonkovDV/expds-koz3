@@ -149,7 +149,8 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
     for mt in ("maggr", "etgr", "terfl"):
-        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
+        maps = (geo_cfg.get(mt) or {}).get("maps", "gray")
+        files = geophys.select_rasters(reg.rasters.get(mt, []), mt, maps)
         if not files:
             continue
         if (geo_cfg.get(mt) or {}).get("classic", True) is False:
@@ -177,6 +178,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                     mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
+        if maps == "all" and "finds_points" in classes and len(files) > 1:
+            # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
+            mine = geophys.dedupe_points(mine, opts["finds_points"][0].peak_radius_m, crs_region)
         mt_cfg = geo_cfg.get(mt) or {}
         if mt_cfg.get("layer_copy", False):
             try:
@@ -503,7 +507,8 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
     for mt in GEO_NN:
         if not models.get(mt):
             continue
-        files = geophys.select_rasters(reg.rasters.get(mt, []), mt)
+        maps = ((cfg.get("geophys") or {}).get(mt) or {}).get("maps", "gray")
+        files = geophys.select_rasters(reg.rasters.get(mt, []), mt, maps)
         if not files:
             continue
         try:
@@ -528,6 +533,9 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
                 for feat in found:
                     feat["threshold_group"] = group
                 out += found
+        if maps == "all" and len(files) > 1:
+            # Находки серой и цветной карты в одном месте — один объект, как у классики.
+            out = geophys.dedupe_points(out, 2.0, region_crs(reg, cfg))
     return out
 
 

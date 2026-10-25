@@ -135,6 +135,8 @@ kurgany_tselye = 0.0096
 li_to_ae = true
 povr_min = 0.99
 tselye_min = 0.8
+# register = true — копии переносятся на сдвиг снимка относительно курганов лидара (по пятнам
+# самого снимка). Выключено до табло: план, раздел 2.9.
 
 [li]
 # rescore — курганы по пикам рельефа с уверенностью модели li (на отложенном Гнёздово 0,674
@@ -214,6 +216,11 @@ point_circle_m = 0.3
 #   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
 #     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
 #     layer_copy_decay — множитель уверенности копий.
+#   [geophys.maggr] maps = "gray" | "all" — только серая карта участка (сдача) или все карты с
+#     дедупликацией находок ближе 2 м.
+#   [geophys.maggr.finds_points] plateau = true — центры пятен насыщения вместо пиков их кромки;
+#     peak_density_min = <пиков на 1000 м²> — на карте с редкими пиками отсечка опускается до
+#     peak_k_min (0,5). Оценка: scripts/geo_silent_maps.py notes/geo_probe_train.json --density 5,10,20.
 # Подбор: scripts/geo_tune.py --k-min / --band-mode / --signals / --polarities; файл для табло —
 # scripts/geo_predict.py --set ...; приёмка — scripts/scoreboard.py --honest 10.
 

@@ -85,6 +85,17 @@ def test_writer_roundtrip_and_validation(tmp_path):
     assert not rep["ok"] and len(rep["errors"]) == 2
 
 
+def test_writer_leaves_only_answer(tmp_path):
+    out = tmp_path / "result.geojson"
+    tmp = writer.tmp_path_for(out)
+    assert not tmp.name.startswith("result") and not tmp.name.endswith(".geojson")
+    assert writer.tmp_path_for(out) != tmp
+    writer.write_geojson(post.finalize([feat(sq(0, 0))]), out)
+    writer.write_geojson(post.finalize([feat(sq(0, 0)), feat(sq(10, 0))]), out)
+    assert [p.name for p in tmp_path.iterdir()] == ["result.geojson"]
+    assert len(json.loads(out.read_text(encoding="utf-8"))["features"]) == 2
+
+
 def test_thresholds_and_cap():
     feats = [feat(sq(i * 10, 0), conf=c) for i, c in enumerate([0.05, 0.2, 0.9])]
     assert len(post.apply_thresholds(feats, {"kurgany_tselye": 0.15})) == 2

@@ -73,8 +73,13 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
         w.writerows(rows)
 
 
-def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None) -> list[dict]:
-    """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region."""
+def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None,
+                   geo_maps: str = "gray") -> list[dict]:
+    """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region.
+
+    geo_maps="all" — карты геофизики все, и серые, и цветные; находки в одном месте
+    разных карт сливаются в один объект (как [geophys.<модальность>] maps = "all" сдачи).
+    """
     feats: list[dict] = []
     if markup == "li":
         dp = dem_params(seg.meta)
@@ -89,9 +94,13 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
     if markup in ("maggr", "etgr", "terfl"):
         from expds import geophys
 
-        files = geophys.select_rasters(files, markup)    # те же карты, что у сдачи
+        files = geophys.select_rasters(files, markup, geo_maps)    # те же карты, что у сдачи
     for path in files:
         feats += _raster_with_model(seg, path, reg.name, markup, fallback_crs=read_utm_json(reg.utm_json))
+    if markup in ("maggr", "etgr", "terfl") and geo_maps == "all" and len(files) > 1:
+        from expds import geophys
+
+        feats = geophys.dedupe_points(feats, 2.0, read_utm_json(reg.utm_json))
     return feats
 
 
@@ -112,7 +121,7 @@ def predict_with_weights(args, predict_mts: list[str]) -> None:
             continue
         try:
             for mt in predict_mts:
-                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"))
+                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps)
             n_reg += 1
         except Exception:
             log.exception("%s: предсказание пропущено", reg.name)
@@ -165,6 +174,8 @@ def main() -> None:
     ap.add_argument("--predict-markups", nargs="+", default=None,
                     help="типы снимков, которые предсказывает модель фолда (общий кэш scripts/cache_merge.py); "
                          "по умолчанию — только --markup")
+    ap.add_argument("--geo-maps", choices=("gray", "all"), default="gray",
+                    help="геофизика: только серая карта участка (как в сдаче) или все карты с дедупликацией находок")
     ap.add_argument("--weights", nargs="+", default=None,
                     help="готовые веса без обучения: все участки предсказывает эта модель (несколько — ансамбль). "
                          "Не вне обучения, если модель видела эти семьи; для переноса на другой тип снимков")
@@ -273,7 +284,7 @@ def main() -> None:
                 try:
                     got = []
                     for mt in predict_mts:
-                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch)
+                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps)
                 except Exception:
                     log.exception("%s: предсказание пропущено", reg.name)
                     continue

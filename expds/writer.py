@@ -9,6 +9,7 @@ markup_type, fid — рекомендуемые поля.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import math
 import os
@@ -37,13 +38,29 @@ def to_feature_collection(feats: list[dict]) -> dict:
     return {"type": "FeatureCollection", "features": out}
 
 
+#: Номер записи в процессе: сторож и основной поток не делят временный файл.
+_TMP_SEQ = itertools.count()
+
+
+def tmp_path_for(path: Path) -> Path:
+    """Временный файл рядом с ответом. Имя не начинается с имени ответа и не кончается на .geojson:
+    площадка опрашивает каталог вывода и забирает первый появившийся result.geojson."""
+    return path.parent / f"temp_{path.name}.{os.getpid()}.{next(_TMP_SEQ)}.tmp"
+
+
 def write_geojson(feats: list[dict], path: str | Path) -> Path:
-    """Атомарная запись: сначала временный файл, затем переименование."""
+    """Атомарная запись: временный файл, fsync, затем переименование."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(to_feature_collection(feats), ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, path)
+    tmp = tmp_path_for(path)
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(to_feature_collection(feats), ensure_ascii=False))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
     return path
 
 

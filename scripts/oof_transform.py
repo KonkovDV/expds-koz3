@@ -22,6 +22,10 @@
                  Пороги — из JSON табло (--taus notes/<опыт>.json, поле thresholds),
                  уверенность — ранг внутри своей группы, группа порога — <класс>_rescue.
                  В сдачу не входит, пока честное табло не примет файл.
+  shift          перенос объектов слоя на устойчивый сдвиг участка из
+                 scripts/layer_shift.py (копии лидара в слой снимка, привязанного
+                 со сдвигом); остальные объекты файла не меняются. Это верхняя
+                 оценка: на закрытой выборке сдвиг придётся мерить по снимку.
 
 Примеры (пути — как в docs/AGENT_PLAN.md):
 
@@ -173,6 +177,56 @@ def cmd_pick(a) -> None:
     write_feats(feats, Path(a.out))
 
 
+def shift_feats(feats: list[dict], shifts: dict[str, tuple[float, float]], markup: str,
+                groups: list[str] | None = None) -> tuple[list[dict], int]:
+    """Объекты слоя markup (и групп groups) переносятся на сдвиг своего участка (метры UTM)."""
+    import numpy as np
+
+    from expds.register import shift_geoms_3857, utm_of
+
+    moved = 0
+    by_region: dict[str, list[int]] = defaultdict(list)
+    for i, f in enumerate(feats):
+        if (f.get("markup_type") == markup and f.get("region_name") in shifts
+                and (not groups or (f.get("threshold_group") or "") in groups)):
+            by_region[f["region_name"]].append(i)
+    out = list(feats)
+    for region, idx in by_region.items():
+        dx, dy = shifts[region]
+        pts = [feats[i]["geom"].representative_point() for i in idx]
+        utm = utm_of(np.array([p.x for p in pts]), np.array([p.y for p in pts]))
+        for i, g in zip(idx, shift_geoms_3857([feats[i]["geom"] for i in idx], dx, dy, utm)):
+            out[i] = dict(feats[i], geom=g)
+        moved += len(idx)
+    return out, moved
+
+
+def load_shifts(path: Path, pair: str, markup: str, all_regions: bool = False) -> dict[str, tuple[float, float]]:
+    """Сдвиги участков (на восток, на север) из JSON scripts/layer_shift.py или scripts/image_label_shift.py.
+
+    У image_label_shift.py сдвиг меряется по снимку слоя markup; на участке с несколькими снимками
+    берётся снимок с большим числом точек.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if "rasters" in data:
+        best: dict[str, dict] = {}
+        for r in data["rasters"]:
+            if r.get("markup") != markup or "dx_m" not in r or not (r.get("systematic") or all_regions):
+                continue
+            if r["region"] not in best or r.get("n", 0) > best[r["region"]].get("n", 0):
+                best[r["region"]] = r
+        return {k: (float(r["dx_m"]), -float(r["dy_m"])) for k, r in best.items()}
+    rep = data["report"][pair]["regions"]
+    return {r["region"]: (r["dx"], r["dy"]) for r in rep if r["systematic"] or all_regions}
+
+
+def cmd_shift(a) -> None:
+    shifts = load_shifts(Path(a.shifts), a.pair, a.markup, a.all_regions)
+    feats, moved = shift_feats(read_feats(Path(a.src)), shifts, a.markup, a.groups or None)
+    print(f"участков со сдвигом {len(shifts)}, перенесено объектов {moved}")
+    write_feats(feats, Path(a.out))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -229,6 +283,16 @@ def main() -> None:
     rs.add_argument("--floor", type=float, default=0.0, help="кандидаты слабее этой уверенности не спасаются")
     rs.add_argument("--out", required=True)
     rs.set_defaults(fn=cmd_rescue)
+    sh = sub.add_parser("shift", help="перенос объектов слоя на сдвиг участка (scripts/layer_shift.py)")
+    sh.add_argument("--src", required=True)
+    sh.add_argument("--shifts", required=True,
+                    help="JSON scripts/layer_shift.py --out или scripts/image_label_shift.py --out")
+    sh.add_argument("--pair", default="li:ae", help="ключ отчёта, например li:ae")
+    sh.add_argument("--markup", default="ae", help="какой слой файла переносить")
+    sh.add_argument("--groups", nargs="*", default=[], help="только эти группы порога (пусто — все)")
+    sh.add_argument("--all-regions", action="store_true", help="и неустойчивые сдвиги тоже")
+    sh.add_argument("--out", required=True)
+    sh.set_defaults(fn=cmd_shift)
     a = ap.parse_args()
     a.fn(a)
 
