@@ -42,6 +42,8 @@ class GeoParams:
     plateau: bool = False           # finds_points: центры пятен насыщения вместо пиков на их кромке
     plateau_min_m2: float = 3.0     # пятно мельче (радиус около 1 м) — пики кромки и так ближе 2 м к центру
     plateau_max_m2: float = 60.0    # пятно крупнее — фон, а не аномалия
+    peak_density_min: float = 0.0   # finds_points: пиков на 1000 м² карты не меньше; 0 — выключено
+    peak_k_min: float = 0.5         # ниже этого порога (в MAD) отсечка не опускается
 
 
 #: Как цветная или «серая» RGB-карта сводится к одному числу на пиксель. Сданный балл снят с "first".
@@ -293,16 +295,40 @@ def with_plateaus(rows, cols, vals, raw: np.ndarray, hp: np.ndarray, res: float,
             np.concatenate([vals_a[keep], pv]))
 
 
+def density_floor(vals: np.ndarray, floor: float, lo: float, n_target: float) -> float:
+    """Отсечка пиков с поправкой на густое поле.
+
+    Шум в MAD считается по всей карте. Где аномалий много, MAD растёт, и слабые находки уходят
+    под отсечку. Если пиков не ниже floor меньше n_target, отсечка опускается до силы
+    n_target-го по силе пика, но не ниже lo. vals — пики, найденные с отсечкой lo.
+    """
+    vals = np.asarray(vals, np.float32)
+    need = int(np.ceil(n_target))
+    if need <= 0 or int((vals >= floor).sum()) >= need:
+        return float(floor)
+    if len(vals) <= need:
+        return float(lo)
+    return float(max(lo, np.sort(vals)[::-1][need - 1]))
+
+
 def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
                p: GeoParams, k_min: float | None = None, raw: np.ndarray | None = None) -> list[dict]:
     """Пики карты обнаружения (detection_image) не ниже k_min (по умолчанию peak_k) → круги finds_points.
 
     С p.plateau и сырой картой raw пики у пятен насыщения заменяются центрами пятен (plateau_centers).
+    С p.peak_density_min отсечка карты с редкими пиками опускается до p.peak_k_min (density_floor).
+    При peak_density_min = 0 пики ищутся с прежней отсечкой.
     """
     mag = detection_image(hp, res, p.signal)
     floor = p.peak_k if k_min is None else k_min
     radius = max(1, round(p.peak_radius_m / res))
-    rows, cols, vals = accel.find_peaks(mag, radius, floor)
+    lo = min(floor, p.peak_k_min) if p.peak_density_min > 0 else floor
+    rows, cols, vals = accel.find_peaks(mag, radius, lo)
+    if lo < floor:
+        area_m2 = float(np.isfinite(mag).sum()) * res * res
+        floor = density_floor(vals, floor, lo, p.peak_density_min * area_m2 / 1000.0)
+        keep = np.asarray(vals) >= floor
+        rows, cols, vals = np.asarray(rows)[keep], np.asarray(cols)[keep], np.asarray(vals)[keep]
     if p.plateau and raw is not None:
         rows, cols, vals = with_plateaus(rows, cols, vals, raw, mag, res, radius, floor, p.plateau_max_m2,
                                          p.plateau_min_m2)
