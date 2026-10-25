@@ -39,6 +39,13 @@ class FusionParams:
     povr_min: float = 0.99       # копия «повреждённый» при p_повр ≥
     tselye_min: float = 0.8      # копия «целый» при p_повр + p_целый ≥
     coverage_side: int = 1024
+    # Сдвиг снимка относительно земли: копии переносятся туда, где пятна курганов лидара
+    # лежат на самом снимке (expds.register.raster_label_shift). Выключено.
+    register: bool = False
+    register_min: float = 0.99
+    register_res_m: float = 1.0
+    register_max_m: float = 15.0
+    register_radius_m: float = 5.0
 
 
 @lru_cache(maxsize=32)
@@ -117,6 +124,55 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None,
         if pp + pt >= p.tselye_min:
             out.append(dict(base, class_name=TSEL, confidence=float(min(pp + pt, 1.0)), markup_type="ae",
                             threshold_group=group))
+    if p.register and out:
+        out = registered(out, groups, rasters, p, fallback_crs)
+    return out
+
+
+def registered(copies: list[dict], groups: dict[tuple, dict], rasters: list, p: FusionParams,
+               fallback_crs: str | None = None) -> list[dict]:
+    """Копии на снимке со сдвигом переносятся на этот сдвиг; снимки без устойчивого сдвига не трогаются.
+
+    Якоря — уверенные курганы лидара (p_повр + p_целый ≥ register_min) на этом снимке. Сдвиг
+    меряется по пятнам самого снимка, эталон не нужен. Копия относится к первому снимку,
+    который её покрывает. При register = false эта функция не вызывается.
+    """
+    from .register import raster_label_shift, shift_geoms_3857, utm_of
+
+    anchors = []
+    for g in groups.values():
+        conf = sum(g[c]["confidence"] for c in (POVR, TSEL) if c in g)
+        if conf >= p.register_min:
+            anchors.append(next(iter(g.values()))["geom"])
+    if not anchors:
+        return copies
+    ax = np.array([a.centroid.x for a in anchors])
+    ay = np.array([a.centroid.y for a in anchors])
+    cx = np.array([c["geom"].centroid.x for c in copies])
+    cy = np.array([c["geom"].centroid.y for c in copies])
+    done = np.zeros(len(copies), bool)
+    out = list(copies)
+    for path in rasters:
+        mine = covered(cx, cy, [path], p.coverage_side, fallback_crs) & ~done
+        if not mine.any():
+            continue
+        done |= mine
+        on = covered(ax, ay, [path], p.coverage_side, fallback_crs)
+        try:
+            row = raster_label_shift(path, [a for a, k in zip(anchors, on) if k], p.register_res_m,
+                                     p.register_max_m, fallback_crs, p.register_radius_m)
+        except Exception:
+            log.exception("%s: сдвиг снимка не измерен", Path(path).name)
+            continue
+        if not row.get("systematic"):
+            continue
+        idx = np.flatnonzero(mine)
+        utm = utm_of(cx[idx], cy[idx])
+        moved = shift_geoms_3857([copies[i]["geom"] for i in idx], row["dx_m"], row["dn_m"], utm)
+        for i, geom in zip(idx, moved):
+            out[i] = dict(copies[i], geom=geom)
+        log.info("%s: снимок сдвинут на (%.1f, %.1f) м к востоку и северу, z %.1f, якорей %d; копий перенесено %d",
+                 Path(path).name, row["dx_m"], row["dn_m"], row["z_peak"], row["n"], len(idx))
     return out
 
 

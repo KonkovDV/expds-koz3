@@ -270,6 +270,28 @@ def ground_area_m2(g, crs: str) -> float:
     return float(to_crs(g, crs, utm).area)
 
 
+def shift_labels(local: list[tuple], shift_m: tuple[float, float], crs: str, bnd) -> list[tuple]:
+    """Перенос эталона снимка на (восток, юг) метров на земле в единицах CRS снимка."""
+    import math
+
+    from shapely import affinity
+
+    unit = 1.0
+    if str(crs).upper().endswith(":3857"):
+        lat = math.degrees(math.atan(math.sinh(bnd.centroid.y / 6378137.0)))
+        unit = 1.0 / max(math.cos(math.radians(lat)), 0.2)
+    dx, dy = float(shift_m[0]) * unit, -float(shift_m[1]) * unit
+    return [(affinity.translate(g, dx, dy), c) for g, c in local]
+
+
+def load_label_shifts(path: str | None) -> dict[str, tuple[float, float]]:
+    """Устойчивые сдвиги меток по файлам снимков из JSON scripts/image_label_shift.py --out."""
+    if not path:
+        return {}
+    rows = json.loads(Path(path).read_text(encoding="utf-8")).get("rasters", [])
+    return {r["file"]: (float(r["dx_m"]), float(r["dy_m"])) for r in rows if r.get("systematic")}
+
+
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
@@ -277,13 +299,16 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 ground_pixels: bool = False,
                 only_classes: list[str] | None = None, pos_repeat: int = 1,
                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
-                exclude_files: list[str] | None = None) -> dict:
+                exclude_files: list[str] | None = None,
+                label_shifts: dict[str, tuple[float, float]] | None = None) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
     только эти классы (например, городища на грубом шаге); pos_repeat — тайлов на
     объект (каждый со своим случайным сдвигом), для редких классов.
     min_area_m2 — не брать полигоны мельче этого размера на земле; точки остаются.
+    label_shifts — {имя файла: (на восток, на юг) метров}: эталон этого снимка переносится
+    на пятна самого снимка; снимков без записи перенос не касается.
     """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
@@ -323,6 +348,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                                                      ground_pixels=ground_pixels,
                                                      exclude=tuple(exclude_files or ())):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
+            if label_shifts and src_name in label_shifts:
+                local = shift_labels(local, label_shifts[src_name], crs, bnd)
             local = [(g, c) for g, c in local if g.intersects(bnd)]
             if min_area_m2 > 0:
                 local = [(g, c) for g, c in local
@@ -380,6 +407,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE,
             "pixel_units": "ground" if ground_pixels else "native",
             "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
+    if label_shifts:
+        meta["label_shifts"] = {k: list(v) for k, v in label_shifts.items()}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -409,6 +438,8 @@ def _cli() -> None:
     ap.add_argument("--ground-pixels", action="store_true",
                     help="шаг тайла в метрах на земле: веб-меркатор делится на cos(широты)")
     ap.add_argument("--regions", nargs="*", default=None, help="только эти участки")
+    ap.add_argument("--label-shifts", default=None,
+                    help="JSON scripts/image_label_shift.py: эталон снимка переносится на его пятна (только устойчивые)")
     ap.add_argument("--exclude-files", nargs="*", default=None,
                     help="подстроки имён растров, которые в кэш не идут (scripts/geo_silent_maps.py)")
     ap.add_argument("--min-area", type=float, default=0.0,
@@ -423,7 +454,8 @@ def _cli() -> None:
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
                        shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
                        only_classes=args.classes, pos_repeat=args.pos_repeat,
-                       only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files)
+                       only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
+                       label_shifts=load_label_shifts(args.label_shifts))
     print(json.dumps(meta, ensure_ascii=False))
 
 
