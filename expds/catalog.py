@@ -66,53 +66,50 @@ def _overlap_ratio(a: tuple, b: tuple) -> float:
 
 
 def _same_cloud(a: Path, box_a: tuple | None, b: Path, box_b: tuple | None) -> bool:
-    """Сырой и ground одного охвата — одно облако. Разные тайлы — нет.
+    """Сырой и ground одного охвата — одно облако, даже если файлы лежат в разных папках.
 
-    Непрочитанная рамка склеивается только с таким же именем или с другой
-    непрочитанной рамкой. Иначе один битый заголовок забрал бы все тайлы папки.
+    Разные тайлы с пересечением меньшей рамки меньше 80 % остаются оба.
+    Две непрочитанные рамки склеиваются только в одной папке: битый заголовок
+    в другой папке не забирает чужой тайл.
     """
     if _bare_stem(a) == _bare_stem(b):
         return True
     if box_a is None and box_b is None:
-        return True
+        return a.parent == b.parent
     if box_a is None or box_b is None:
         return False
     return _overlap_ratio(box_a, box_b) >= 0.8
 
 
 def choose_las_boxes(records: list[tuple[Path, tuple | None]]) -> list[Path]:
-    """По одному файлу на облако. Тайлы одной папки с разным охватом сохраняются.
+    """По одному файлу на облако. Тайлы с разным охватом сохраняются.
 
-    Из пары берётся имя с «ground». Пересечение считается по цепочке: если
-    средний файл накрывает оба края, остаётся один проход.
+    Из пары берётся имя с «ground». Пересечение считается по цепочке и по всему
+    участку: копия того же облака в другой папке не даёт второй проход.
     """
-    by_parent: dict[Path, list[tuple[Path, tuple | None]]] = defaultdict(list)
-    for path, box in records:
-        by_parent[path.parent].append((path, box))
+    parent = list(range(len(records)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for i, (path_i, box_i) in enumerate(records):
+        for j in range(i):
+            path_j, box_j = records[j]
+            if _same_cloud(path_i, box_i, path_j, box_j):
+                parent[find(i)] = find(j)
+    clusters: dict[int, list[Path]] = defaultdict(list)
+    for i, (path, _box) in enumerate(records):
+        clusters[find(i)].append(path)
     chosen: list[Path] = []
-    for group in by_parent.values():
-        parent = list(range(len(group)))
-
-        def find(i: int) -> int:
-            while parent[i] != i:
-                parent[i] = parent[parent[i]]
-                i = parent[i]
-            return i
-
-        for i, (path_i, box_i) in enumerate(group):
-            for j in range(i):
-                path_j, box_j = group[j]
-                if _same_cloud(path_i, box_i, path_j, box_j):
-                    parent[find(i)] = find(j)
-        clusters: dict[int, list[Path]] = defaultdict(list)
-        for i, (path, _box) in enumerate(group):
-            clusters[find(i)].append(path)
-        for paths in clusters.values():
-            best = paths[0]
-            for path in paths[1:]:
-                if "ground" in path.name.lower() and "ground" not in best.name.lower():
-                    best = path
-            chosen.append(best)
+    for paths in clusters.values():
+        best = paths[0]
+        for path in paths[1:]:
+            if "ground" in path.name.lower() and "ground" not in best.name.lower():
+                best = path
+        chosen.append(best)
     return chosen
 
 

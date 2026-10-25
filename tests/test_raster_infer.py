@@ -87,3 +87,18 @@ def test_web_mercator_circle_is_four_ground_meters():
     naive = circle_3857(500000, 6000000, 4.0, "EPSG:32637")
     back = _apply(Transformer.from_crs(3857, 32637, always_xy=True), naive)
     assert abs(back.area - disk * 0.9745) / disk < 0.04
+
+
+def test_geographic_raster_is_opened_in_utm_meters(tmp_path):
+    """Градусная сетка до модели становится метрами зоны, не долями градуса."""
+    from expds.raster import open_metric
+
+    path = tmp_path / "deg.tif"
+    image = np.zeros((1, 8, 8), np.uint8)
+    with rasterio.open(path, "w", driver="GTiff", height=8, width=8, count=1, dtype="uint8",
+                       transform=from_origin(37.6, 55.76, 0.0001, 0.0001), crs="EPSG:4326") as ds:
+        ds.write(image)
+    with open_metric(path) as ds:
+        assert ds.crs.to_epsg() == 32637
+        assert abs(ds.res[0]) > 1.0
+        assert ds.bounds.left > 100_000

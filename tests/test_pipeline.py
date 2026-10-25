@@ -532,6 +532,21 @@ def test_two_las_tiles_in_one_folder_are_both_kept():
     assert len(overlap) == 1
 
 
+def test_same_cloud_in_two_folders_is_one_file():
+    from pathlib import Path
+
+    from expds.catalog import choose_las_boxes
+
+    folder = Path("region")
+    raw = (folder / "a" / "site.las", (0.0, 0.0, 100.0, 100.0))
+    ground = (folder / "b" / "site_ground.las", (0.0, 0.0, 100.0, 100.0))
+    east = (folder / "c" / "east.las", (500.0, 0.0, 600.0, 100.0))
+    kept = choose_las_boxes([raw, ground, east])
+    assert sorted(p.name for p in kept) == ["east.las", "site_ground.las"]
+    blind = choose_las_boxes([(folder / "a" / "x.las", None), (folder / "b" / "y.las", None)])
+    assert sorted(p.name for p in blind) == ["x.las", "y.las"]
+
+
 def test_sigterm_writes_only_the_result_file(tmp_path):
     import signal
 
