@@ -236,7 +236,8 @@ def read_utm_json(path: Path | None) -> str | None:
                 if code.isdigit():
                     return f"EPSG:{code}"
             else:
-                return text
+                from .crs import valid_crs
+                return valid_crs(text)
     utm = data.get("utm") or data.get("UTM")
     if not utm:
         return None

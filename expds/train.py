@@ -500,6 +500,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "tile": meta["tile"], "li_tags": meta.get("li_tags"),
                         "li_source": meta.get("li_source"), "dem_res": meta.get("dem_res"),
                         "dem_fill": meta.get("dem_fill"), "max_upsample": meta.get("max_upsample"),
+                        "ema": float(ema),
                         "target": target, "center_sigma_m": center_sigma_m if center else None,
                         "center_radius_m": center_radius_m if center else None,
                         "min_dist_m": min_dist_m if center else None,
