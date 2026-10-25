@@ -271,16 +271,31 @@ def ground_area_m2(g, crs: str) -> float:
 
 
 def shift_labels(local: list[tuple], shift_m: tuple[float, float], crs: str, bnd) -> list[tuple]:
-    """Перенос эталона снимка на (восток, юг) метров на земле в единицах CRS снимка."""
+    """Перенос эталона снимка на (восток, юг) метров на земле.
+
+    В UTM единицы уже метры. В веб-меркаторе метр на земле длиннее единицы карты.
+    В градусах перенос идёт через зону UTM: пять единиц CRS здесь были бы пятью градусами.
+    """
     import math
 
     from shapely import affinity
 
+    from .crs import is_geographic, to_crs, utm_for_lonlat
+
+    east, south = float(shift_m[0]), float(shift_m[1])
+    if is_geographic(crs):
+        c = bnd.centroid
+        utm = utm_for_lonlat(float(c.x), float(c.y))
+        out = []
+        for geom, cls in local:
+            moved = affinity.translate(to_crs(geom, crs, utm), east, -south)
+            out.append((to_crs(moved, utm, crs), cls))
+        return out
     unit = 1.0
     if str(crs).upper().endswith(":3857"):
         lat = math.degrees(math.atan(math.sinh(bnd.centroid.y / 6378137.0)))
         unit = 1.0 / max(math.cos(math.radians(lat)), 0.2)
-    dx, dy = float(shift_m[0]) * unit, -float(shift_m[1]) * unit
+    dx, dy = east * unit, -south * unit
     return [(affinity.translate(g, dx, dy), c) for g, c in local]
 
 

@@ -142,6 +142,14 @@ def test_cache_label_shift_moves_east_and_south_in_ground_meters(tmp_path):
     out3 = shift_labels([(g3, "k")], (5.0, 0.0), "EPSG:3857", g3.buffer(50).envelope)
     back = to_crs(out3[0][0], WEB_MERCATOR, UTM).centroid
     assert abs(back.x - (X0 + 5)) < 0.1 and abs(back.y - Y0) < 0.1     # метры на земле, не единицы 3857
+    gdeg = Point(37.6, 55.75)
+    outdeg = shift_labels([(gdeg, "k")], (100.0, 0.0), "EPSG:4326", gdeg.buffer(0.02).envelope)
+    from pyproj import Transformer
+    fwd = Transformer.from_crs(4326, 32637, always_xy=True)
+    backd = Transformer.from_crs(32637, 4326, always_xy=True)
+    ux, uy = fwd.transform(37.6, 55.75)
+    elon, elat = backd.transform(ux + 100.0, uy)
+    assert abs(outdeg[0][0].x - elon) < 1e-5 and abs(outdeg[0][0].y - elat) < 1e-5
     p = tmp_path / "shifts.json"
     p.write_text(json.dumps({"rasters": [{"file": "a.tif", "dx_m": 5.0, "dy_m": 3.0, "systematic": True},
                                          {"file": "b.tif", "dx_m": 9.0, "dy_m": 0.0, "systematic": False}]}),
