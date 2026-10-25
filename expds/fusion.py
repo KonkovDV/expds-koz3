@@ -52,13 +52,15 @@ class FusionParams:
 def coverage(path: str | Path, max_side: int = 1024, fallback_crs: str | None = None):
     """Маска непустых пикселей снимка на обзоре ≤ max_side, её привязка и CRS.
 
-    Безымянная LOCAL_CS с метрами зоны получает fallback_crs. Снимок с рабочей CRS
-    возвращает её же строку, что и раньше.
+    Градусная сетка сначала переводится в UTM, как у детектора (`open_metric`).
+    Безымянная LOCAL_CS с метрами зоны получает fallback_crs. Снимок с рабочей
+    метровой CRS возвращает её же строку, что и раньше.
     """
-    import rasterio
     from rasterio.enums import Resampling
 
-    with rasterio.open(path) as ds:
+    from .raster import open_metric
+
+    with open_metric(path) as ds:
         f = max(1, math.ceil(max(ds.width, ds.height) / max_side))
         n = min(ds.count, 3)
         a = ds.read(list(range(1, n + 1)), out_shape=(n, max(1, ds.height // f), max(1, ds.width // f)),

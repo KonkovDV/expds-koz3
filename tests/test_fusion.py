@@ -82,3 +82,16 @@ def test_mosaic_copies_keep_their_own_group(tmp_path):
     kept = post.apply_thresholds(out, {}, 0.15, taus)
     assert sorted((f["threshold_group"], f["class_name"]) for f in kept) == [
         ("ae", fusion.POVR), ("ae", fusion.TSEL), ("li_ae", fusion.POVR)]
+
+
+def test_geographic_photo_coverage_is_read_in_utm(tmp_path):
+    """Градусный снимок для копий читается в той же зоне, что и детектор."""
+    path = tmp_path / "deg.tif"
+    image = np.full((20, 20), 128, np.uint8)
+    with rasterio.open(path, "w", driver="GTiff", height=20, width=20, count=1, dtype="uint8",
+                       transform=from_origin(37.6, 55.76, 0.0001, 0.0001), crs="EPSG:4326") as ds:
+        ds.write(image, 1)
+    fusion.coverage.cache_clear()
+    _valid, tr, crs = fusion.coverage(str(path))
+    assert crs == "EPSG:32637"
+    assert abs(tr.a) > 1.0
