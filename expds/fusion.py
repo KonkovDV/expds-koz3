@@ -134,8 +134,9 @@ def registered(copies: list[dict], groups: dict[tuple, dict], rasters: list, p: 
     """Копии на снимке со сдвигом переносятся на этот сдвиг; снимки без устойчивого сдвига не трогаются.
 
     Якоря — уверенные курганы лидара (p_повр + p_целый ≥ register_min) на этом снимке. Сдвиг
-    меряется по пятнам самого снимка, эталон не нужен. Копия относится к первому снимку,
-    который её покрывает. При register = false эта функция не вызывается.
+    меряется по пятнам самого снимка, эталон не нужен. Снимок с большим числом якорей
+    забирает копию первым: снимок без устойчивого сдвига её не занимает. При register = false
+    эта функция не вызывается.
     """
     from .register import raster_label_shift, shift_geoms_3857, utm_of
 
@@ -150,13 +151,8 @@ def registered(copies: list[dict], groups: dict[tuple, dict], rasters: list, p: 
     ay = np.array([a.centroid.y for a in anchors])
     cx = np.array([c["geom"].centroid.x for c in copies])
     cy = np.array([c["geom"].centroid.y for c in copies])
-    done = np.zeros(len(copies), bool)
-    out = list(copies)
+    measured = []
     for path in rasters:
-        mine = covered(cx, cy, [path], p.coverage_side, fallback_crs) & ~done
-        if not mine.any():
-            continue
-        done |= mine
         on = covered(ax, ay, [path], p.coverage_side, fallback_crs)
         try:
             row = raster_label_shift(path, [a for a, k in zip(anchors, on) if k], p.register_res_m,
@@ -164,8 +160,17 @@ def registered(copies: list[dict], groups: dict[tuple, dict], rasters: list, p: 
         except Exception:
             log.exception("%s: сдвиг снимка не измерен", Path(path).name)
             continue
+        measured.append((int(row.get("n") or 0), str(path), path, row))
+    measured.sort(key=lambda item: (-item[0], item[1]))
+    done = np.zeros(len(copies), bool)
+    out = list(copies)
+    for _n, _key, path, row in measured:
         if not row.get("systematic"):
             continue
+        mine = covered(cx, cy, [path], p.coverage_side, fallback_crs) & ~done
+        if not mine.any():
+            continue
+        done |= mine
         idx = np.flatnonzero(mine)
         utm = utm_of(cx[idx], cy[idx])
         moved = shift_geoms_3857([copies[i]["geom"] for i in idx], row["dx_m"], row["dn_m"], utm)
