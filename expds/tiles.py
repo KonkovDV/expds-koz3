@@ -44,10 +44,14 @@ def classes_for(markup: str) -> list[str]:
     return list(GEO_CLASSES) if markup in GEO_MARKUP else list(RS_CLASSES)
 
 
-def sources_for(reg: Region, markup: str, li_tags: list[str]) -> list[list[Path]]:
-    """Наборы файлов-каналов для модальности: для li — по тегам (g, c, ch), иначе по файлу."""
+def sources_for(reg: Region, markup: str, li_tags: list[str], exclude: tuple[str, ...] = ()) -> list[list[Path]]:
+    """Наборы файлов-каналов для модальности: для li — по тегам (g, c, ch), иначе по файлу.
+
+    exclude — подстроки имён файлов, которые в кэш не идут (карта без сигнала в эталоне
+    учит сеть срабатывать на пустом месте; список — scripts/geo_silent_maps.py).
+    """
     if markup != "li":
-        return [[p] for p in reg.rasters.get(markup, [])]
+        return [[p] for p in reg.rasters.get(markup, []) if not any(e in p.name for e in exclude)]
     sets: dict[str, dict[str, Path]] = {}
     for p in reg.li_rasters:
         stem, _, tag = p.stem.rpartition("_")
@@ -170,7 +174,7 @@ def shrink_polygon(g, shrink: float):
 
 
 def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, res: float, tile: int,
-                 dem: dict | None = None, ground_pixels: bool = False):
+                 dem: dict | None = None, ground_pixels: bool = False, exclude: tuple[str, ...] = ()):
     """Источники тайлов региона: (имя, CRS, рамка, read(cx, cy) → (окно, привязка))."""
     if markup == "li" and li_source == "las":
         from .lidar import MODEL_DEM, build_dem, relief_channels
@@ -192,7 +196,7 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
             bnd = box(tr.c, tr.f - h * tr.a, tr.c + w * tr.a, tr.f)
             yield las.name, d.crs, bnd, lambda cx, cy, a=arr, t=tr: cut_window(a, t, cx, cy, tile)
         return
-    for files in sources_for(reg, markup, li_tags):
+    for files in sources_for(reg, markup, li_tags, exclude):
         utm = read_utm_json(reg.utm_json)
         with rasterio.open(files[0]) as ds:
             # Безымянная LOCAL_CS с метрами UTM получает UTM.json участка, как на инференсе.
@@ -272,7 +276,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
                 ground_pixels: bool = False,
                 only_classes: list[str] | None = None, pos_repeat: int = 1,
-                only_regions: list[str] | None = None, min_area_m2: float = 0.0) -> dict:
+                only_regions: list[str] | None = None, min_area_m2: float = 0.0,
+                exclude_files: list[str] | None = None) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
@@ -315,7 +320,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             continue
         objs = by_region.get(reg.name, [])
         for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem,
-                                                     ground_pixels=ground_pixels):
+                                                     ground_pixels=ground_pixels,
+                                                     exclude=tuple(exclude_files or ())):
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             local = [(g, c) for g, c in local if g.intersects(bnd)]
             if min_area_m2 > 0:
@@ -373,7 +379,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
             "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE,
             "pixel_units": "ground" if ground_pixels else "native",
-            "min_area_m2": min_area_m2, **total}
+            "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -403,6 +409,8 @@ def _cli() -> None:
     ap.add_argument("--ground-pixels", action="store_true",
                     help="шаг тайла в метрах на земле: веб-меркатор делится на cos(широты)")
     ap.add_argument("--regions", nargs="*", default=None, help="только эти участки")
+    ap.add_argument("--exclude-files", nargs="*", default=None,
+                    help="подстроки имён растров, которые в кэш не идут (scripts/geo_silent_maps.py)")
     ap.add_argument("--min-area", type=float, default=0.0,
                     help="не брать полигоны мельче этого размера, м² на земле; точки остаются")
     args = ap.parse_args()
@@ -415,7 +423,7 @@ def _cli() -> None:
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
                        shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
                        only_classes=args.classes, pos_repeat=args.pos_repeat,
-                       only_regions=args.regions, min_area_m2=args.min_area)
+                       only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files)
     print(json.dumps(meta, ensure_ascii=False))
 
 
