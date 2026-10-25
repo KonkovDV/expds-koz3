@@ -1,4 +1,4 @@
-"""Канал int: интенсивность отражения точек земли из LAS (приём mlart, этап «Сканирование»)."""
+"""Канал int: интенсивность отражения точек земли из LAS."""
 from __future__ import annotations
 
 from contextlib import contextmanager
