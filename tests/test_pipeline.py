@@ -545,6 +545,12 @@ def test_same_cloud_in_two_folders_is_one_file():
     assert sorted(p.name for p in kept) == ["east.las", "site_ground.las"]
     blind = choose_las_boxes([(folder / "a" / "x.las", None), (folder / "b" / "y.las", None)])
     assert sorted(p.name for p in blind) == ["x.las", "y.las"]
+    # Одинаковое имя в двух папках при разных охватах — два тайла, не одна копия.
+    tiles = choose_las_boxes([
+        (folder / "a" / "east.las", (0.0, 0.0, 100.0, 100.0)),
+        (folder / "b" / "east.las", (500.0, 0.0, 600.0, 100.0)),
+    ])
+    assert len(tiles) == 2
 
 
 def test_sigterm_writes_only_the_result_file(tmp_path):

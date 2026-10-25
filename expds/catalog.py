@@ -66,16 +66,20 @@ def _overlap_ratio(a: tuple, b: tuple) -> float:
 
 
 def _same_cloud(a: Path, box_a: tuple | None, b: Path, box_b: tuple | None) -> bool:
-    """Сырой и ground одного охвата — одно облако, даже если файлы лежат в разных папках.
+    """Сырой и ground одного охвата — одно облако.
 
-    Разные тайлы с пересечением меньшей рамки меньше 80 % остаются оба.
-    Две непрочитанные рамки склеиваются только в одной папке: битый заголовок
-    в другой папке не забирает чужой тайл.
+    В одной папке одинаковое имя решает само: так сырой файл и ground не
+    расходятся из-за кривого заголовка. В разных папках одного участка то же
+    имя склеивается только при пересечении меньшей рамки не меньше 80 % или
+    если рамка не прочиталась. Два тайла с одним именем и разными охватами
+    остаются оба. Две непрочитанные рамки склеиваются только в одной папке.
     """
-    if _bare_stem(a) == _bare_stem(b):
+    same_name = _bare_stem(a) == _bare_stem(b)
+    same_dir = a.parent == b.parent
+    if same_name and same_dir:
         return True
     if box_a is None and box_b is None:
-        return a.parent == b.parent
+        return same_dir
     if box_a is None or box_b is None:
         return False
     return _overlap_ratio(box_a, box_b) >= 0.8
