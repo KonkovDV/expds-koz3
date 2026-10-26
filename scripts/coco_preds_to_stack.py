@@ -50,8 +50,23 @@ def _cover(a: tuple, b: tuple) -> float:
     return w * h / small if small > 0 else 0.0
 
 
+def ground_per_unit(crs: str | None, y: float) -> float:
+    """Метров на земле в одной единице CRS. У UTM это 1, у EPSG:3857 — cos(широты)."""
+    if crs and str(crs).upper().endswith(":3857"):
+        from expds.open_ideas import mercator_scale
+
+        return 1.0 / mercator_scale(y)
+    return 1.0
+
+
+def ground_gap(a: dict, b: dict) -> float:
+    """Расстояние центров рамок в метрах на земле, не в единицах карты."""
+    unit = ground_per_unit(a["im"].get("crs"), (a["y"] + b["y"]) / 2.0)
+    return math.hypot(a["x"] - b["x"], a["y"] - b["y"]) * unit
+
+
 def same_object(a: dict, b: dict, merge_m: float) -> bool:
-    return math.hypot(a["x"] - b["x"], a["y"] - b["y"]) <= merge_m or _cover(a["box"], b["box"]) >= 0.5
+    return ground_gap(a, b) <= merge_m or _cover(a["box"], b["box"]) >= 0.5
 
 
 def convert(coco: dict, preds: list[dict], group: str, radius: float, merge_m: float,
@@ -102,7 +117,8 @@ def convert(coco: dict, preds: list[dict], group: str, radius: float, merge_m: f
             res, tile = float(im["res"]), int(im["tile"])
             f = circle_from_box(best["bbox"], im["cx"], im["cy"], res, tile,
                                 radius_by_class.get(cls, radius), im["crs"], cls, max(c["score"] for c in cl))
-            w_m, h_m = float(best["bbox"][2]) * res, float(best["bbox"][3]) * res
+            unit = ground_per_unit(im.get("crs"), best["y"])
+            w_m, h_m = float(best["bbox"][2]) * res * unit, float(best["bbox"][3]) * res * unit
             feats.append({"type": "Feature", "geometry": f["geometry"].__geo_interface__,
                           "properties": {"class_name": cls, "confidence": round(f["confidence"], 6),
                                          "region_name": region, "markup_type": im.get("markup") or "",

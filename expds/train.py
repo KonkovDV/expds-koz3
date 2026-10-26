@@ -218,9 +218,9 @@ class TileDataset:
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool,
                  class_bits: list[int] | None = None, photo: bool = False, scale: float = 0.0,
-                 channel_dropout: float = 0.0):
+                 channel_dropout: float = 0.0, elastic: float = 0.0):
         self.cache, self.rows, self.k, self.flips = cache, rows, n_classes, flips
-        self.photo, self.scale, self.channel_dropout = photo, scale, channel_dropout
+        self.photo, self.scale, self.channel_dropout, self.elastic = photo, scale, channel_dropout, elastic
         self.bits = class_bits if class_bits is not None else list(range(n_classes))
         self._img: dict[int, np.ndarray] = {}
         self._msk: dict[int, np.ndarray] = {}
@@ -261,6 +261,11 @@ class TileDataset:
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
         if self.channel_dropout > 0 and np.random.rand() < self.channel_dropout and x.shape[0] > 0:
             x[np.random.randint(x.shape[0])] = CHANNEL_DROP_FILL
+        if self.elastic > 0:
+            xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
+            yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
+            xt, yt = elastic_deform(xt, yt, self.elastic)
+            x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
         x = (x - 0.5) / 0.25
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
@@ -501,7 +506,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             return g_va.batches(batch, shuffle=False, drop_last=False)
     else:
         dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale,
-                                       channel_dropout=channel_dropout),
+                                       channel_dropout=channel_dropout, elastic=elastic),
                            batch_size=batch, shuffle=True,
                            num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
         dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch, num_workers=workers)

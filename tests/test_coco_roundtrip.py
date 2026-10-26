@@ -49,6 +49,21 @@ def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_p
         assert p["threshold_group"] == "maggr_det" and p["markup_type"] == "maggr" and p["views"] >= 1
 
 
+def test_merge_distance_uses_ground_meters_in_web_mercator():
+    """6 м EPSG:3857 на 55° с. ш. — около 3,4 м на земле и должны склеиться при пороге 4 м."""
+    y0 = 7_500_000.0
+    conv = load("coco_preds_to_stack")
+    coco = {"images": [
+        {"id": 1, "region": "r", "cx": 0.0, "cy": y0, "res": 1.0, "tile": 8, "crs": "EPSG:3857"},
+        {"id": 2, "region": "r", "cx": 6.0, "cy": y0, "res": 1.0, "tile": 8, "crs": "EPSG:3857"},
+    ], "categories": [{"id": 1, "name": "kurgany_tselye"}]}
+    preds = [{"image_id": i, "category_id": 1, "bbox": [3, 3, 2, 2], "score": 0.9}
+             for i in (1, 2)]
+    out = conv.convert(coco, preds, "sp", radius=4.0, merge_m=4.0)
+    assert len(out["features"]) == 1
+    assert out["features"][0]["properties"]["box_w_m"] < 1.5
+
+
 def test_old_cache_without_crs_is_refused(tmp_path):
     conv = load("coco_preds_to_stack")
     coco = {"images": [{"id": 1, "region": "r", "cx": 0.0, "cy": 0.0, "res": 1.0, "tile": 8, "crs": None}],

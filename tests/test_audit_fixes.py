@@ -52,6 +52,24 @@ def test_elastic_keeps_a_mound_in_one_piece():
         assert abs(float(yd[i, 0].sum()) - float(y[i, 0].sum())) < 0.25 * float(y[i, 0].sum())
 
 
+def test_cpu_dataset_applies_elastic(tmp_path):
+    """Без видеокарты --elastic не должен молча пропадать: маска сдвигается до нормировки."""
+    from expds.train import TileDataset
+
+    img = np.zeros((1, 3, 32, 32), np.uint8)
+    msk = np.zeros((1, 32, 32), np.uint16)
+    msk[:, 8:24, 8:24] = 1
+    np.save(tmp_path / "images_0000.npy", img)
+    np.save(tmp_path / "masks_0000.npy", msk)
+    rows = [{"shard": 0, "idx": 0}]
+    plain = TileDataset(tmp_path, rows, 1, flips=False)
+    torch.manual_seed(0)
+    moved = TileDataset(tmp_path, rows, 1, flips=False, elastic=0.25)
+    _, y0 = plain[0]
+    _, y1 = moved[0]
+    assert y0.sum() == 16 * 16 and not torch.equal(y0, y1)
+
+
 def test_dropped_channel_is_mid_scale():
     torch.manual_seed(1)
     x = torch.rand(8, 3, 4, 4)
