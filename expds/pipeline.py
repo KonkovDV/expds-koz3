@@ -338,12 +338,12 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     feats += fresh
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
-                    # Тот же рецепт, что у файла табло 26.10: шаг 0,5 м и пирамида,
-                    # не ЦМР курганов. Иначе круги на площадке не те, что измерены.
+                    # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
+                    # relief_radius_l_m, берутся из конфига: принятое табло — один проход.
                     try:
                         from . import hillfort
-                        d_hf = build_dem(las, res=0.5, fill="pyramid", crs=crs_region)
-                        feats += hillfort.candidates(d_hf, reg.name, las.name, hillfort.params_from(hf))
+                        hp = hillfort.params_from(hf)
+                        feats += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
                     except Exception:
                         log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True

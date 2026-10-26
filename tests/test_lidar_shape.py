@@ -32,3 +32,29 @@ def test_roughness_and_curvature_follow_the_mound_and_rotate_with_it():
     edge = Dem(dem=holed, left=0.0, top=81.0, res=1.0, crs="EPSG:32636")
     masked, _ = relief_channels(edge, 1.0, ("rough", "curv"))
     assert masked[:, 0, :].sum() == 0
+
+
+def _noisy(noise: float, slope: float = 0.0, n: int = 160, seed: int = 0) -> np.ndarray:
+    rng = np.random.default_rng(seed)
+    xx = np.arange(n)[None, :] * 0.5
+    return (slope * xx + rng.normal(0, noise, (n, n))).astype(np.float32)
+
+
+def test_roughness_ignores_slope_and_ranks_texture():
+    def rough(z):
+        img, _ = relief_channels(Dem(dem=z, left=0.0, top=80.0, res=0.5, crs="EPSG:32636"), 0.5, ("rough",))
+        return float(np.median(img[0, 10:-10, 10:-10]))
+
+    flat, steep = rough(_noisy(0.02)), rough(_noisy(0.02, slope=0.3))
+    assert abs(flat - steep) <= 2                                   # уклон 17° не меняет шероховатость
+    assert rough(_noisy(0.01)) + 15 < flat < rough(_noisy(0.05)) - 15
+
+
+def test_curvature_marks_a_low_mound_on_a_noisy_dem_without_saturating():
+    z = _noisy(0.03, slope=0.035)
+    yy, xx = (np.mgrid[0:160, 0:160] + 0.5) * 0.5
+    z = z + (0.3 * np.exp(-((xx - 40) ** 2 + (yy - 40) ** 2) / (2 * 1.5 ** 2))).astype(np.float32)
+    img, _ = relief_channels(Dem(dem=z, left=0.0, top=80.0, res=0.5, crs="EPSG:32636"), 0.5, ("curv",))
+    bg = img[0, 10:-10, 10:-10].astype(int)
+    assert np.mean((bg <= 1) | (bg >= 255)) < 0.01
+    assert int(img[0, 80, 80]) < int(np.median(bg)) - 40            # купол 0,3 м радиусом 3 м

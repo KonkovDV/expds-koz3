@@ -50,7 +50,8 @@ RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m":
           "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0),
           "dev_s_m": 8.0, "dev_l_m": 30.0, "dev_xl_m": 100.0,
           "dev_clip": 3.0, "dev_std_floor_m": 0.05,
-          "rough_clip_m": 1.0, "curv_clip": 0.05}
+          "rough_hp_m": 1.0, "rough_win_m": 1.5, "rough_clip_m": 0.25,
+          "curv_sigma_m": 1.5, "curv_clip": 0.1}
 #: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
 FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
 #: Канал int — яркость отражения лазера (интенсивность) точек земли: шкала по перцентилям облака,
@@ -494,23 +495,33 @@ def intensity_unit(d: Dem, step: float, shape: tuple[int, int]) -> np.ndarray:
     return unit
 
 
-def _window_std(z: np.ndarray) -> np.ndarray:
-    """СКО высоты в окне 3×3. От азимута не зависит."""
-    from scipy.ndimage import uniform_filter
+def _smooth_valid(z: np.ndarray, valid: np.ndarray, sigma_px: float) -> np.ndarray:
+    """Гаусс только по пикселям съёмки (нормированная свёртка), float64: край облака не тянет к среднему."""
+    from scipy.ndimage import gaussian_filter
 
-    mean = uniform_filter(z, size=3, mode="nearest")
-    mean2 = uniform_filter(z * z, size=3, mode="nearest")
-    return np.sqrt(np.clip(mean2 - mean * mean, 0, None)).astype(np.float32)
+    w = gaussian_filter(valid.astype(np.float64), sigma_px, mode="constant")
+    s = gaussian_filter(np.where(valid, z, 0.0).astype(np.float64), sigma_px, mode="constant")
+    return np.where(w > 1e-6, s / np.maximum(w, 1e-6), 0.0)
 
 
-def _laplacian(z: np.ndarray, step: float) -> np.ndarray:
-    """Лапласиан высоты, 1/м. Купол даёт отрицательное значение, яма — положительное."""
-    out = np.zeros_like(z, dtype=np.float32)
-    center = z[1:-1, 1:-1]
-    out[1:-1, 1:-1] = (
-        z[:-2, 1:-1] + z[2:, 1:-1] + z[1:-1, :-2] + z[1:-1, 2:] - 4.0 * center
-    ) / np.float32(step * step)
-    return out
+def _roughness(z: np.ndarray, valid: np.ndarray, step: float) -> np.ndarray:
+    """RMS высоты над гладкой поверхностью, м. Плоскость любого уклона даёт ноль, азимута нет.
+
+    Остаток после гаусса rough_hp_m, RMS в окне rough_win_m. СКО окна 3×3 без вычета
+    поверхности на шаге 0,5 м — это тот же уклон, а шкала 1 м занимала 4–21 уровень из 255.
+    """
+    hp = np.where(valid, z - _smooth_valid(z, valid, RELIEF["rough_hp_m"] / step), 0.0)
+    return np.sqrt(np.clip(_smooth_valid(hp * hp, valid, RELIEF["rough_win_m"] / step), 0, None))
+
+
+def _curvature(z: np.ndarray, valid: np.ndarray, step: float) -> np.ndarray:
+    """Лапласиан поверхности, сглаженной гауссом curv_sigma_m, 1/м. Купол меньше нуля, яма больше.
+
+    Лапласиан 3×3 сырой ЦМР на шаге 0,5 м — это шум: при шуме высоты 1–5 см 78–96 %
+    фона упирались в край шкалы. Гаусс 1,5 м держит курган радиусом от 3 м.
+    """
+    p = np.pad(_smooth_valid(z, valid, RELIEF["curv_sigma_m"] / step), 1, mode="edge")
+    return (p[:-2, 1:-1] + p[2:, 1:-1] + p[1:-1, :-2] + p[1:-1, 2:] - 4.0 * p[1:-1, 1:-1]) / (step * step)
 
 
 def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
@@ -528,8 +539,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     dev_s, dev_l, dev_xl — то же окно, но делённое на σ окрестности и обрезанное
     к ±3: низкая насыпь в ровном поле не тонет, а в шумном лесу не сливается
     с клипом в метрах. Сданные каналы этот тег не использует.
-    rough — СКО высоты в окне 3×3, curv — лапласиан высоты. Оба не зависят от
-    азимута солнца. В сданных весах их нет: канал появляется, только если кэш
+    rough — RMS высоты над гладкой поверхностью (корневая шкала до 0,25 м),
+    curv — лапласиан поверхности после гаусса 1,5 м (±0,1 1/м). Оба не зависят
+    от азимута солнца. В сданных весах их нет: канал появляется, только если кэш
     или инференс попросили этот тег.
     Только g зависит от направления света: без него допустимы повороты.
     """
@@ -585,9 +597,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
         elif t == "int":
             unit = intensity_unit(d, step, z.shape)
         elif t == "rough":
-            unit = np.clip(_window_std(filled) / RELIEF["rough_clip_m"], 0, 1)
+            unit = np.sqrt(np.clip(_roughness(z, valid, step) / RELIEF["rough_clip_m"], 0, 1))
         elif t == "curv":
-            unit = np.clip(_laplacian(filled, step) / RELIEF["curv_clip"], -1, 1) * 0.5 + 0.5
+            unit = np.clip(_curvature(z, valid, step) / RELIEF["curv_clip"], -1, 1) * 0.5 + 0.5
         else:
             raise ValueError(f"неизвестный канал li: {t}")
         out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))

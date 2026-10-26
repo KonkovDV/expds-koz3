@@ -237,6 +237,8 @@ def main() -> None:
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
+    ap.add_argument("--dump-kept", default=None,
+                    help="база после подобранных порогов — вход scripts/error_types.py (в рабочую папку)")
     args = ap.parse_args()
     global OFFICIAL
     OFFICIAL = args.official
@@ -247,6 +249,8 @@ def main() -> None:
     for spec in args.base_add:
         feats += added(spec)
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
+    if args.dump_kept:
+        Path(args.dump_kept).write_text(json.dumps(kept_b, ensure_ascii=False), encoding="utf-8")
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
     honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None

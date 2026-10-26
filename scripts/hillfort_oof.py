@@ -5,16 +5,13 @@
 (`expds.hillfort.HillfortParams`) не подбирались по эталону. Табло подбирает порог
 группы `gor_phys`; если площадки попадают реже 7,8 %, порог выключит группу.
 
-Этот файл строится не из той ЦМР, что сдача. Здесь шаг 0,5 м и заполнение
-пирамидой. Включённый `[hillfort]` в пайплайне берёт ЦМР модели курганов:
-0,1 м и триангуляцию, а на большом облаке — огрублённую сетку. Табло этого
-файла не доказывает, что строка `enabled = true` даст те же круги. Принимать
-можно только вместе с правкой пайплайна на тот же рецепт ЦМР. Табло —
-`--honest 10 --honest-by region`, одно, когда файл уже записан.
+ЦМР строит `expds.hillfort.build_dem` — та же функция, что у включённого
+`[hillfort]` в сдаче. Без `--set` скрипт берёт параметры кода, включая второе
+окно 300 м. Принятый файл и строка конфига — один проход: `--set relief_radius_l_m=0`.
+Новый режим — отдельный файл и отдельное табло `--honest 10 --honest-by region`.
 
-    python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
-    python scripts/scoreboard.py ... --add F:/expds3/work/gor_phys.geojson:gor_phys --honest 10
-    python scripts/hillfort_oof.py ... --set scarp_min_deg=15 --set min_rel_height_m=1.0 --out ...
+    python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson --set relief_radius_l_m=0
+    python scripts/hillfort_oof.py ... --set relief_radius_l_m=150 --out F:/expds3/work/gor_phys_wide.geojson
 
 Тот же файл годится источником для `oof_transform.py rescue` (лучшая площадка участка).
 """
@@ -33,14 +30,12 @@ log = logging.getLogger("hillfort_oof")
 
 from expds import hillfort, post, writer
 from expds.catalog import read_utm_json, scan_root
-from expds.lidar import build_dem
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--dem-res", type=float, default=0.5, help="шаг ЦМР из LAS, м (генератор работает на 1 м)")
     ap.add_argument("--set", action="append", default=[], help="параметр=значение HillfortParams (литерал TOML)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -56,7 +51,7 @@ def main() -> None:
         crs = read_utm_json(reg.utm_json)
         for las in reg.las:
             try:
-                d = build_dem(las, res=args.dem_res, fill="pyramid", crs=crs)
+                d = hillfort.build_dem(las, crs, p)
                 feats += hillfort.candidates(d, reg.name, las.name, p)
                 n_las += 1
             except Exception:

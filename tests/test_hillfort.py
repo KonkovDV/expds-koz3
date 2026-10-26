@@ -61,8 +61,8 @@ def test_hillfort_oof_script_runs_over_a_root(val_dir, tmp_path):
 
 
 def test_pipeline_hillfort_is_off_by_default_and_on_by_config(val_dir, monkeypatch):
-    """Сдача зовёт генератор только при [hillfort] enabled = true и на ЦМР 0,5 м с пирамидой."""
-    from expds import hillfort, lidar, pipeline
+    """Сдача зовёт генератор только при [hillfort] enabled = true; ЦМР — своя, как в hillfort_oof.py."""
+    from expds import hillfort, pipeline
     from expds.catalog import scan_root
 
     class FakeSeg:
@@ -71,26 +71,55 @@ def test_pipeline_hillfort_is_off_by_default_and_on_by_config(val_dir, monkeypat
             self.classes = ["kurgany_povrezhdennye"]
 
     calls = []
-    dems = []
     monkeypatch.setattr(pipeline, "_cached_segmenters", lambda *a, **k: [FakeSeg()])
     monkeypatch.setattr(pipeline, "_li_with_model", lambda *a, **k: [])
-    monkeypatch.setattr(hillfort, "candidates", lambda d, region, source, p=None: (
-        dems.append(d) or calls.append(p) or [
-            {"class_name": "gorodishcha", "threshold_group": "gor_phys"}]))
+    dems = []
+    monkeypatch.setattr(hillfort, "candidates", lambda d, region, source, p=None: calls.append(p) or dems.append(d) or [
+        {"class_name": "gorodishcha", "threshold_group": "gor_phys"}])
     reg = next(r for r in scan_root(val_dir) if r.las)
     off = pipeline.lidar_feats(reg, {}, pipeline.TimeGuard(1000), {}, val_dir)
     assert calls == [] and not any(f.get("threshold_group") == "gor_phys" for f in off)
-    built = []
-    real = lidar.build_dem
-
-    def wrapped(*args, **kwargs):
-        built.append(kwargs)
-        return real(*args, **kwargs)
-
-    monkeypatch.setattr(lidar, "build_dem", wrapped)
     on = pipeline.lidar_feats(reg, {"hillfort": {"enabled": True, "scarp_min_deg": 15}},
                               pipeline.TimeGuard(1000), {}, val_dir)
     assert len(calls) == 1 and calls[0].scarp_min_deg == 15
     assert any(f.get("threshold_group") == "gor_phys" for f in on)
-    assert dems[0].res == 0.5
-    assert any(kw.get("res") == 0.5 and kw.get("fill") == "pyramid" for kw in built)
+    las = reg.las[0]
+    same = hillfort.build_dem(las, pipeline.region_crs(reg, {}), calls[0])
+    assert dems[0].res == same.res == HillfortParams().dem_res                  # не ЦМР модели курганов 0,1 м
+    assert np.array_equal(np.nan_to_num(dems[0].dem, nan=-1), np.nan_to_num(same.dem, nan=-1))
+
+
+def cape(size: int, n: int = 700) -> tuple[np.ndarray, np.ndarray]:
+    """Мыс size×size м на 6 м выше поймы, обрыв 4 м с трёх сторон, с напольной — ров 6 м и коренной берег."""
+    rng = np.random.default_rng(1)
+    z = np.full((n, n), 100.0) + rng.normal(0, 0.03, (n, n))
+    top = np.zeros((n, n), bool)
+    r0 = c0 = (n - size) // 2
+    top[r0:r0 + size, c0:c0 + size] = True
+    top[: r0 - 60, :] = True
+    top[r0 - 60: r0, c0 - 20: c0 + size + 20] = True
+    z += 6.0 * np.clip(1 - ndimage.distance_transform_edt(~top) / 4.0, 0, 1)
+    z[r0 - 3: r0 + 3, c0: c0 + size] -= 2.0
+    site = np.zeros((n, n), bool)
+    site[r0 + 3: r0 + size, c0: c0 + size] = True
+    return z.astype(np.float32), site
+
+
+def test_wide_cape_keeps_its_middle_and_its_score():
+    """Площадка 3,2 га шире окна 120 м: второй проход держит её целиком, а не подковой у края."""
+    z, site = cape(180)
+    one = find(z, 1.0, HillfortParams(relief_radius_l_m=0))
+    two = find(z, 1.0, HillfortParams())
+    b1 = next(c for c in one if site[c["row"], c["col"]])
+    b2 = next(c for c in two if site[c["row"], c["col"]])
+    assert two[0] is b2
+    assert b1["area_m2"] < 0.5 * site.sum() < b2["area_m2"]
+    assert b2["enclosure"] > b1["enclosure"] + 0.15 and b2["confidence"] > b1["confidence"] + 0.1
+
+
+def test_small_cape_is_not_swallowed_by_the_upland():
+    """Широкое окно сливает мыс 0,16 га с коренным берегом через дно рва; остаётся более обрывистый мыс."""
+    z, site = cape(40)
+    found = find(z, 1.0, HillfortParams())
+    assert site[found[0]["row"], found[0]["col"]] and found[0]["enclosure"] > 0.6
+    assert sum(site[c["row"], c["col"]] for c in found) == 1
