@@ -78,17 +78,17 @@ def family_of_group(group: str) -> str:
 
 
 def _shape(g) -> tuple[float, float]:
-    """Компактность 4πA/P² и отношение сторон минимального прямоугольника."""
+    """Компактность 4πA/P² и отношение сторон описанного прямоугольника.
+
+    Повёрнутый прямоугольник на миллионе полигонов не заканчивается. Прямоугольник
+    по осям для круга даёт 1, для вытянутого вала — больше единицы.
+    """
     if g.geom_type == "Point" or g.area <= 0:
         return 1.0, 1.0
     compact = 4 * math.pi * g.area / max(g.length ** 2, 1e-9)
-    try:
-        rect = g.minimum_rotated_rectangle
-        xs, ys = rect.exterior.coords.xy
-        sides = sorted(math.hypot(xs[i + 1] - xs[i], ys[i + 1] - ys[i]) for i in range(2))
-        axis = sides[1] / max(sides[0], 1e-6)
-    except Exception:
-        axis = 1.0
+    minx, miny, maxx, maxy = g.bounds
+    width, height = maxx - minx, maxy - miny
+    axis = max(width, height) / max(min(width, height), 1e-6)
     return float(compact), float(axis)
 
 
@@ -99,7 +99,11 @@ def collect(stack: dict, gt: dict, metric_path: str | None) -> tuple[list[dict],
     mod = load_official(metric_path)
     calc = mod.F1Calculator()
     rows: list[dict] = []
-    for idx, feature in enumerate(stack.get("features", [])):
+    raw = stack.get("features", [])
+    print(f"кандидатов в стеке {len(raw)}", file=sys.stderr, flush=True)
+    for idx, feature in enumerate(raw):
+        if idx and idx % 200_000 == 0:
+            print(f"  геометрия {idx}/{len(raw)}", file=sys.stderr, flush=True)
         props = feature.get("properties", {}) or {}
         cls = mod.normalize_class_name(props.get("class_name", "unknown"))
         if cls is None or cls not in calc.target_classes:
@@ -123,12 +127,16 @@ def collect(stack: dict, gt: dict, metric_path: str | None) -> tuple[list[dict],
             gts[cls].append(mod._to_utm(g, calc.input_crs_mode))
     trees = {c: STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in v])
              for c, v in gts.items() if v}
+    print(f"геометрий {len(rows)}, ставлю метки", file=sys.stderr, flush=True)
     y = np.zeros(len(rows), np.int8)
     for i, r in enumerate(rows):
+        if i and i % 200_000 == 0:
+            print(f"  метки {i}/{len(rows)}", file=sys.stderr, flush=True)
         tree = trees.get(r["cls"])
         if tree is None:
             continue
         y[i] = any(calc._match_quality(r["geom"], gts[r["cls"]][int(j)])[0] for j in tree.query(r["geom"]))
+    print(f"меток {int(y.sum())} из {len(rows)}", file=sys.stderr, flush=True)
     return rows, y
 
 
@@ -177,37 +185,67 @@ def features(rows: list[dict]) -> np.ndarray:
                 X[idx[k], col["reg_top"]] = top
         n_groups = len(set(grp))
         has_li = float(any(f == "relief" for f in fam))
-        near100 = tree.query_ball_point(xy[idx], 100.0)
-        near200 = tree.query_ball_point(xy[idx], 200.0)
-        for k, i in enumerate(idx):
-            rel = RELATED.get(cls[k], ())
-            rel_near = [j for j in near200[k] if cls[j] in rel]
-            X[i, col["rel_max200"]] = float(conf[idx[rel_near]].max()) if rel_near else 0.0
-            X[i, col["n200_all"]] = float(len(near200[k]) - 1)
-            X[i, col["reg_groups"]] = n_groups
-            X[i, col["reg_has_li"]] = has_li
-            X[i, col["reg_log_n"]] = math.log1p(len(idx))
-            p = xy[i]
-            same = [j for j in near100[k] if j != k and grp[j] == grp[k] and sup[j] == sup[k]]
-            d = np.hypot(*(xy[idx[same]] - p).T) if same else np.zeros(0)
-            X[i, col["n10"]] = float((d <= 10).sum())
-            X[i, col["n30"]] = float((d <= 30).sum())
-            X[i, col["n100"]] = float(len(same))
-            near30 = [j for j, dj in zip(same, d) if dj <= 30]
-            X[i, col["nbr_max30"]] = float(conf[idx[near30]].max()) if near30 else 0.0
-            if cls[k] in KURGANS:
-                twins = [j for j in near100[k] if j != k and grp[j] == grp[k] and cls[j] in KURGANS
-                         and cls[j] != cls[k] and math.hypot(*(xy[idx[j]] - p)) <= 1.5]
-                X[i, col["twin"]] = float(conf[idx[twins]].max()) if twins else -1.0
-            radius = SUPPORT_M.get(cls[k], 10.0)
-            near = [j for j in tree.query_ball_point(p, radius) if j != k]
-            other = [j for j in near if grp[j] != grp[k]]
-            x_same = [j for j in other if sup[j] == sup[k]]
-            X[i, col["x_max"]] = float(conf[idx[x_same]].max()) if x_same else 0.0
-            X[i, col["x_groups"]] = float(len({grp[j] for j in x_same}))
-            X[i, col["x_any"]] = float(conf[idx[other]].max()) if other else 0.0
-            xf = [j for j in x_same if fam[j] != fam[k]]
-            X[i, col["xf_max"]] = float(conf[idx[xf]].max()) if xf else 0.0
+        local_conf = conf[idx]
+        n_loc = len(idx)
+        k_near = min(64, n_loc)
+        dists, neigh = tree.query(xy[idx], k=k_near, distance_upper_bound=200.0, workers=-1)
+        dists = np.atleast_2d(dists)
+        neigh = np.atleast_2d(neigh)
+        if dists.shape[0] == 1 and n_loc > 1:
+            dists, neigh = dists.T, neigh.T
+        in_tree = (neigh >= 0) & (neigh < n_loc)
+        valid = np.isfinite(dists) & in_tree & (neigh != np.arange(n_loc)[:, None])
+        neigh_c = np.clip(neigh, 0, n_loc - 1)
+        cls_n = cls[neigh_c]
+        grp_n = grp[neigh_c]
+        sup_n = sup[neigh_c]
+        fam_n = fam[neigh_c]
+        conf_n = local_conf[neigh_c]
+        X[idx, col["n200_all"]] = valid.sum(axis=1)
+        X[idx, col["reg_groups"]] = n_groups
+        X[idx, col["reg_has_li"]] = has_li
+        X[idx, col["reg_log_n"]] = math.log1p(n_loc)
+        rel_max = np.zeros(n_loc, np.float64)
+        for source, related in RELATED.items():
+            src = cls == source
+            if not src.any():
+                continue
+            hit = valid[src] & np.isin(cls_n[src], related)
+            picked = np.where(hit, conf_n[src], -np.inf).max(axis=1)
+            rel_max[src] = np.where(np.isfinite(picked), picked, 0.0)
+        X[idx, col["rel_max200"]] = rel_max
+        same = valid & (grp_n == grp[:, None]) & (sup_n == sup[:, None])
+        d_same = np.where(same, dists, np.inf)
+        X[idx, col["n10"]] = (d_same <= 10).sum(axis=1)
+        X[idx, col["n30"]] = (d_same <= 30).sum(axis=1)
+        X[idx, col["n100"]] = same.sum(axis=1)
+        nbr = np.where(d_same <= 30, conf_n, -np.inf).max(axis=1)
+        X[idx, col["nbr_max30"]] = np.where(np.isfinite(nbr), nbr, 0.0)
+        is_kurgan = np.isin(cls, list(KURGANS))
+        twin = (valid & is_kurgan[:, None] & np.isin(cls_n, list(KURGANS)) & (cls_n != cls[:, None])
+                & (grp_n == grp[:, None]) & (dists <= 1.5))
+        twin_max = np.where(twin, conf_n, -np.inf).max(axis=1)
+        X[idx[is_kurgan], col["twin"]] = np.where(np.isfinite(twin_max[is_kurgan]), twin_max[is_kurgan], -1.0)
+        radius = np.array([SUPPORT_M.get(c, 10.0) for c in cls], np.float64)
+        other = valid & (dists <= radius[:, None]) & (grp_n != grp[:, None])
+        x_same = other & (sup_n == sup[:, None])
+        x_max = np.where(x_same, conf_n, -np.inf).max(axis=1)
+        X[idx, col["x_max"]] = np.where(np.isfinite(x_max), x_max, 0.0)
+        X[idx, col["x_any"]] = np.where(np.isfinite(np.where(other, conf_n, -np.inf).max(axis=1)),
+                                        np.where(other, conf_n, -np.inf).max(axis=1), 0.0)
+        # Число разных групп и семей среди соседей того же надкласса. 64 соседа хватает:
+        # дальше список всех точек в 200 м на плотном участке не помещается в память.
+        x_groups = np.zeros(n_loc, np.float64)
+        xf_max = np.full(n_loc, -np.inf)
+        for i in range(n_loc):
+            js = np.flatnonzero(x_same[i])
+            if js.size:
+                x_groups[i] = len(set(grp_n[i, js]))
+            js_f = js[fam_n[i, js] != fam[i]] if js.size else js
+            if js_f.size:
+                xf_max[i] = conf_n[i, js_f].max()
+        X[idx, col["x_groups"]] = x_groups
+        X[idx, col["xf_max"]] = np.where(np.isfinite(xf_max), xf_max, 0.0)
     return X
 
 
@@ -258,11 +296,16 @@ def auc(score: np.ndarray, y: np.ndarray) -> float:
     return float((ranks[: len(pos)].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 
-def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5, min_pos: int = 30) -> tuple[dict, dict]:
+def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5, min_pos: int = 30,
+           write: bool = True, only_classes: set[str] | None = None) -> tuple[dict | None, dict]:
     rows, y = collect(stack, gt, metric_path)
+    print("считаю признаки", file=sys.stderr, flush=True)
     X = features(rows)
     new, report = oof_scores(rows, X, y, folds, min_pos)
-    feats = [dict(f, properties=dict(f.get("properties") or {})) for f in stack.get("features", [])]
+    if not write:
+        feats = stack.get("features", [])
+    else:
+        feats = [dict(f, properties=dict(f.get("properties") or {})) for f in stack.get("features", [])]
     cls = np.array([r["cls"] for r in rows])
     base = np.array([r["conf"] for r in rows])
     for c, rep in report.items():
@@ -270,6 +313,10 @@ def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5
         rep["auc_base"] = round(auc(base[m], y[m]), 4)
         rep["auc_rerank"] = round(auc(new[m], y[m]), 4)
     done = {c for c, rep in report.items() if rep["reranked"]}
+    if only_classes is not None:
+        done &= set(only_classes)
+    if not write:
+        return None, report
     for f in feats:
         f["properties"]["confidence_base"] = f["properties"].get("confidence")
     for r, s in zip(rows, new):
@@ -283,16 +330,25 @@ def main() -> None:
     ap.add_argument("--stack", required=True, help="стек кандидатов до порогов (scoreboard.py --dump-stack)")
     ap.add_argument("--gt", required=True)
     ap.add_argument("--metric", default=str(ROOT / "materials" / "compute_metrics.py"))
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--out", default=None, help="стек с новой уверенностью; не нужен вместе с --report-only")
     ap.add_argument("--folds", type=int, default=5, help="фолды по семьям участков")
     ap.add_argument("--min-pos", type=int, default=30, help="меньше попаданий в классе — класс не переоценивается")
+    ap.add_argument("--classes", nargs="*", default=None,
+                    help="переоценить только эти классы; остальные уверенности остаются")
+    ap.add_argument("--report-only", action="store_true",
+                    help="только площади под кривой, без второго GeoJSON на гигабайт")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    if not args.report_only and not args.out:
+        ap.error("нужен --out или --report-only")
+    print("читаю стек", file=sys.stderr, flush=True)
     stack = json.loads(Path(args.stack).read_text(encoding="utf-8"))
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8"))
-    out, report = rerank(stack, gt, args.metric, args.folds, args.min_pos)
-    Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps(report, ensure_ascii=False, indent=1))
+    out, report = rerank(stack, gt, args.metric, args.folds, args.min_pos, write=not args.report_only,
+                         only_classes=set(args.classes) if args.classes else None)
+    if out is not None:
+        Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    print(json.dumps(report, ensure_ascii=False, indent=1), flush=True)
 
 
 if __name__ == "__main__":
