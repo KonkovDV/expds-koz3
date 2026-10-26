@@ -338,10 +338,12 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     feats += fresh
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
-                    # Городища по форме рельефа (expds.hillfort), группа gor_phys. По умолчанию выключено.
+                    # Тот же рецепт, что у файла табло 26.10: шаг 0,5 м и пирамида,
+                    # не ЦМР курганов. Иначе круги на площадке не те, что измерены.
                     try:
                         from . import hillfort
-                        feats += hillfort.candidates(d, reg.name, las.name, hillfort.params_from(hf))
+                        d_hf = build_dem(las, res=0.5, fill="pyramid", crs=crs_region)
+                        feats += hillfort.candidates(d_hf, reg.name, las.name, hillfort.params_from(hf))
                     except Exception:
                         log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True

@@ -61,8 +61,8 @@ def test_hillfort_oof_script_runs_over_a_root(val_dir, tmp_path):
 
 
 def test_pipeline_hillfort_is_off_by_default_and_on_by_config(val_dir, monkeypatch):
-    """Сдача зовёт генератор только при [hillfort] enabled = true; ЦМР — та же, что у модели лидара."""
-    from expds import hillfort, pipeline
+    """Сдача зовёт генератор только при [hillfort] enabled = true и на ЦМР 0,5 м с пирамидой."""
+    from expds import hillfort, lidar, pipeline
     from expds.catalog import scan_root
 
     class FakeSeg:
@@ -71,14 +71,26 @@ def test_pipeline_hillfort_is_off_by_default_and_on_by_config(val_dir, monkeypat
             self.classes = ["kurgany_povrezhdennye"]
 
     calls = []
+    dems = []
     monkeypatch.setattr(pipeline, "_cached_segmenters", lambda *a, **k: [FakeSeg()])
     monkeypatch.setattr(pipeline, "_li_with_model", lambda *a, **k: [])
-    monkeypatch.setattr(hillfort, "candidates", lambda d, region, source, p=None: calls.append(p) or [
-        {"class_name": "gorodishcha", "threshold_group": "gor_phys"}])
+    monkeypatch.setattr(hillfort, "candidates", lambda d, region, source, p=None: (
+        dems.append(d) or calls.append(p) or [
+            {"class_name": "gorodishcha", "threshold_group": "gor_phys"}]))
     reg = next(r for r in scan_root(val_dir) if r.las)
     off = pipeline.lidar_feats(reg, {}, pipeline.TimeGuard(1000), {}, val_dir)
     assert calls == [] and not any(f.get("threshold_group") == "gor_phys" for f in off)
+    built = []
+    real = lidar.build_dem
+
+    def wrapped(*args, **kwargs):
+        built.append(kwargs)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(lidar, "build_dem", wrapped)
     on = pipeline.lidar_feats(reg, {"hillfort": {"enabled": True, "scarp_min_deg": 15}},
                               pipeline.TimeGuard(1000), {}, val_dir)
     assert len(calls) == 1 and calls[0].scarp_min_deg == 15
     assert any(f.get("threshold_group") == "gor_phys" for f in on)
+    assert dems[0].res == 0.5
+    assert any(kw.get("res") == 0.5 and kw.get("fill") == "pyramid" for kw in built)
