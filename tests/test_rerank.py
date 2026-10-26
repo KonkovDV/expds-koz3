@@ -112,6 +112,43 @@ def test_related_class_nearby_is_a_feature():
     assert list(X[:, rr.FEATURES.index("n200_all")]) == [1.0, 1.0, 0.0]
 
 
+def test_choose_gt_follows_the_metric_not_the_index_order():
+    """Лучшее покрытие побеждает, даже если индекс отдал его вторым. При равенстве — меньший индекс."""
+    rr = load_script()
+    assert rr.choose_gt([(0.51, 1), (0.9, 0)], set()) == 0
+    assert rr.choose_gt([(0.9, 0), (0.51, 1)], {0}) == 1
+    assert rr.choose_gt([(0.8, 3), (0.8, 1)], set()) == 1
+    assert rr.choose_gt([(0.2, 0)], {0}) is None
+
+
+def test_first_labels_match_the_official_assignment():
+    """Круг, накрывший два эталона, забирает тот, у которого покрытие больше, и оставляет второй следующему."""
+    from shapely.geometry import box
+
+    rr = load_script()
+    wide = box(0, 0, 40, 20)
+    narrow = box(28, 0, 48, 20)
+    high = box(0, 0, 36, 20)
+    low = box(30, 0, 48, 20)
+
+    def item(geom, conf):
+        return {"type": "Feature", "geometry": geom.__geo_interface__,
+                "properties": {"class_name": "gorodishcha", "region_name": "101_Альфа_1",
+                               "markup_type": "li", "confidence": conf, "threshold_group": "li_mask"}}
+
+    stack = {"type": "FeatureCollection", "features": [item(low, 0.4), item(high, 0.9)]}
+    gt = {"type": "FeatureCollection", "features": [item(wide, 1.0), item(narrow, 1.0)]}
+    rows, y = rr.collect(stack, gt, METRIC, labels="first")
+    mod = rr.load_official(METRIC)
+    calc = mod.F1Calculator()
+    order = sorted(range(len(rows)), key=lambda i: -rows[i]["conf"])
+    preds = [(rows[i]["geom"], rows[i]["conf"]) for i in order]
+    gts = [mod._to_utm(mod._extract_geometry(f), calc.input_crs_mode) for f in gt["features"]]
+    tp, _, _, matches = calc._soft_match(preds, [(g, 1.0) for g in gts])
+    assert int(y.sum()) == tp == 2
+    assert len(matches) == 2
+
+
 def test_first_hit_labels_stop_promoting_duplicates():
     """В сцене спутник и лидар стоят на одних курганах. Метка «любое попадание» учит, что дубль —
     попадание; метка «первый на эталоне», как метрика один к одному, — нет."""

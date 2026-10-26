@@ -109,7 +109,7 @@ def test_wide_cape_keeps_its_middle_and_its_score():
     """Площадка 3,2 га шире окна 120 м: второй проход держит её целиком, а не подковой у края."""
     z, site = cape(180)
     one = find(z, 1.0, HillfortParams(relief_radius_l_m=0))
-    two = find(z, 1.0, HillfortParams())
+    two = find(z, 1.0, HillfortParams(relief_radius_l_m=150))
     b1 = next(c for c in one if site[c["row"], c["col"]])
     b2 = next(c for c in two if site[c["row"], c["col"]])
     assert two[0] is b2
@@ -120,6 +120,6 @@ def test_wide_cape_keeps_its_middle_and_its_score():
 def test_small_cape_is_not_swallowed_by_the_upland():
     """Широкое окно сливает мыс 0,16 га с коренным берегом через дно рва; остаётся более обрывистый мыс."""
     z, site = cape(40)
-    found = find(z, 1.0, HillfortParams())
+    found = find(z, 1.0, HillfortParams(relief_radius_l_m=150))
     assert site[found[0]["row"], found[0]["col"]] and found[0]["enclosure"] > 0.6
     assert sum(site[c["row"], c["col"]] for c in found) == 1

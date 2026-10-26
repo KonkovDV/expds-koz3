@@ -6,11 +6,11 @@
 группы `gor_phys`; если площадки попадают реже 7,8 %, порог выключит группу.
 
 ЦМР строит `expds.hillfort.build_dem` — та же функция, что у включённого
-`[hillfort]` в сдаче. Без `--set` скрипт берёт параметры кода, включая второе
-окно 300 м. Принятый файл и строка конфига — один проход: `--set relief_radius_l_m=0`.
-Новый режим — отдельный файл и отдельное табло `--honest 10 --honest-by region`.
+`[hillfort]` в сдаче. Без `--set` это один проход, как в конфиге.
+Второе окно 300 м замерено 27.10 и не принято: 0,338881 → 0,337312. Строка
+с `150` только воспроизводит тот файл, табло по нему повторно не запускать.
 
-    python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson --set relief_radius_l_m=0
+    python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
     python scripts/hillfort_oof.py ... --set relief_radius_l_m=150 --out F:/expds3/work/gor_phys_wide.geojson
 
 Тот же файл годится источником для `oof_transform.py rescue` (лучшая площадка участка).

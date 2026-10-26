@@ -105,12 +105,32 @@ def _shape(g) -> tuple[float, float]:
     return float(compact), float(min(axis, 1e3))
 
 
+def choose_gt(hits: list[tuple[float, int]], taken: set[int]) -> int | None:
+    """Индекс эталона, который забрала бы метрика. Порядок hits не важен.
+
+    Пространственный индекс отдаёт попадания не по качеству. Калькулятор идёт по
+    списку эталонов и обновляет выбор, только если оценка лучше больше чем на 1e-9.
+    Поэтому при равенстве остаётся меньший индекс.
+    """
+    best_j = -1
+    best_score = float("-inf")
+    for score, j in sorted(hits, key=lambda item: item[1]):
+        if j in taken:
+            continue
+        if score > best_score + 1e-9:
+            best_score = score
+            best_j = j
+    return None if best_j < 0 else best_j
+
+
 def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first") -> tuple[list[dict], np.ndarray]:
     """Кандидаты в метрах UTM (как в метрике) и метка попадания.
 
     labels="any": метка 1 у каждого кандидата, который прошёл бы правило с эталоном своего класса.
     labels="first": как в метрике, один к одному. Кандидаты класса идут по убыванию своей
-    уверенности, и эталон забирает первый попавший; второй и дальше на том же эталоне — 0.
+    уверенности. Среди свободных эталонов берётся лучший: у полигона — большее покрытие,
+    у точки — меньшее расстояние. При равной оценке остаётся эталон с меньшим индексом,
+    как при обходе списка в калькуляторе. Второй кандидат на том же эталоне — 0.
     Иначе стекер учится, что кучка источников на одном месте — попадание, и поднимает дубли,
     а метрика считает их ложными.
     """
@@ -160,13 +180,18 @@ def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first
         tree = trees.get(r["cls"])
         if tree is None:
             continue
-        hits = [int(j) for j in tree.query(r["geom"]) if calc._match_quality(r["geom"], gts[r["cls"]][int(j)])[0]]
+        hits = []
+        for j in tree.query(r["geom"]):
+            j = int(j)
+            ok, score = calc._match_quality(r["geom"], gts[r["cls"]][j])
+            if ok:
+                hits.append((float(score), j))
         if labels == "any":
             y[i] = bool(hits)
             continue
-        free = [j for j in hits if j not in taken[r["cls"]]]
-        if free:
-            taken[r["cls"]].add(free[0])
+        chosen = choose_gt(hits, taken[r["cls"]])
+        if chosen is not None:
+            taken[r["cls"]].add(chosen)
             y[i] = 1
     print(f"меток {int(y.sum())} из {len(rows)}", file=sys.stderr, flush=True)
     return rows, y
@@ -248,6 +273,8 @@ def features(rows: list[dict]) -> np.ndarray:
         X[idx, col["rel_max200"]] = rel_max
         same = valid & (grp_n == grp[:, None]) & (sup_n == sup[:, None])
         d_same = np.where(same, dists, np.inf)
+        # Радиусы точные среди не более чем 64 ближайших в 200 м. На участке,
+        # где своего класса в 100 м больше 64, n100 занижен: полный список не помещался в память.
         X[idx, col["n10"]] = (d_same <= 10).sum(axis=1)
         X[idx, col["n30"]] = (d_same <= 30).sum(axis=1)
         X[idx, col["n100"]] = (d_same <= 100).sum(axis=1)
