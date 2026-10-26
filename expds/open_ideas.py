@@ -187,13 +187,34 @@ def window_box(west: float, south: float, east: float, north: float):
     return box(west, south, east, north)
 
 
-def medial_fort_circles(feats: list[dict], radius_m: float) -> list[dict]:
-    """Фортификацию заменяет кругами вдоль оси стены. Остальные объекты не трогает.
+def mercator_scale(y: float) -> float:
+    """Метров EPSG:3857 в метре на земле на широте точки y: 1 / cos(широты)."""
+    lat = np.arctan(np.sinh(float(y) / 6378137.0))
+    return float(1.0 / max(np.cos(lat), 1e-6))
 
+
+def thin_peaks(peaks: list[tuple[int, int]], value: np.ndarray, min_px: float) -> list[tuple[int, int]]:
+    """Пики по убыванию value; пик ближе min_px к уже взятому выбрасывается."""
+    order = sorted(peaks, key=lambda rc: -float(value[rc]))
+    kept: list[tuple[int, int]] = []
+    for r, c in order:
+        if all((r - r2) ** 2 + (c - c2) ** 2 >= min_px * min_px for r2, c2 in kept):
+            kept.append((r, c))
+    return kept
+
+
+def medial_fort_circles(feats: list[dict], radius_m: float, spacing_m: float = 25.0) -> list[dict]:
+    """Фортификацию заменяет кругами вдоль оси стены, не чаще одного на spacing_m. Остальное не трогает.
+
+    Метрика сопоставляет один к одному: круги на одном эталонном вале — одно попадание и ложные.
+    Выигрыш возможен, только если маска сливает несколько эталонных отрезков вала, поэтому шаг
+    кругов — порядок длины отрезка, а не пиксель. Геометрии в EPSG:3857: шаг растра, радиус и
+    шаг кругов переводятся из метров на земле множителем 1 / cos(широты).
     Короткий объект и слишком большая рамка остаются как были: ось там не надёжнее центра.
     """
     from rasterio.features import rasterize
     from rasterio.transform import from_origin
+    from scipy import ndimage as ndi_
 
     out = []
     for feat in feats:
@@ -201,20 +222,21 @@ def medial_fort_circles(feats: list[dict], radius_m: float) -> list[dict]:
         if feat.get("class_name") != "fortifikatsii" or geom is None or geom.is_empty:
             out.append(feat)
             continue
+        k = mercator_scale(geom.centroid.y) if abs(geom.centroid.y) > 1e4 else 1.0
         minx, miny, maxx, maxy = geom.bounds
-        step = 1.0
+        step = 1.0 * k
         width = int((maxx - minx) / step) + 2
         height = int((maxy - miny) / step) + 2
         if width < 3 or height < 3 or width * height > 2_000_000:
             out.append(feat)
             continue
         transform = from_origin(minx, maxy, step, step)
-        mask = rasterize([(geom, 1)], out_shape=(height, width), transform=transform, dtype="uint8")
-        peaks = medial_peaks(mask > 0)
+        mask = rasterize([(geom, 1)], out_shape=(height, width), transform=transform, dtype="uint8") > 0
+        peaks = thin_peaks(medial_peaks(mask), ndi_.distance_transform_edt(mask), max(1.0, spacing_m))
         if len(peaks) < 2:
             out.append(feat)
             continue
         for row, col in peaks:
-            x, y = transform * (col + 0.5, row + 0.5)
-            out.append(dict(feat, geom=Point(x, y).buffer(radius_m, quad_segs=4)))
+            x, y = minx + (col + 0.5) * step, maxy - (row + 0.5) * step
+            out.append(dict(feat, geom=Point(x, y).buffer(radius_m * k, quad_segs=4)))
     return out

@@ -13,9 +13,18 @@
 Признаки считаются только из самого стека, растры не читаются. Оценщик — LightGBM
 на класс, рост уверенности объекта не может понизить оценку (монотонное
 ограничение). Каждая семья участков оценивается моделью, обученной без неё
-(`expds.metric.family_folds`). Метка — «прошёл бы правило метрики хоть с одним
-эталоном своего класса» (`F1Calculator._match_quality`), без сопоставления
-один к одному. Классы, где попаданий меньше `--min-pos`, остаются как были.
+(`expds.metric.family_folds`). Классы, где попаданий меньше `--min-pos`, остаются как были.
+
+Табло 26.10 (две метки кургана, метка «хоть с одним эталоном», сырая вероятность):
+честно по участкам 0,338881 → 0,293299, без лидара −0,065. Два вероятных механизма, оба
+исправлены по умолчанию с 27.10:
+- метка «любое попадание» ставит 1 каждому дублю на одном эталоне; признаки подтверждения
+  (`x_max`, `x_groups`) учат «кучка источников = попадание», и стекер поднимает дубли, которые
+  метрика один к одному считает ложными. Сильнее всего это на участках без лидара, где
+  несколько групп спутника стоят на одних и тех же курганах. Теперь `--labels first`;
+- вероятности моделей разных фолдов на разной шкале, а порог группы подбирается на участках,
+  оценённых другими моделями. Теперь `--calibrate quantile`.
+Старое поведение — `--labels any --calibrate none`. Новое табло обязательно до любого вывода.
 
 Выход — тот же стек с новой `confidence` и старой в `confidence_base`. Пороги групп
 подбирает табло заново:
@@ -78,22 +87,33 @@ def family_of_group(group: str) -> str:
 
 
 def _shape(g) -> tuple[float, float]:
-    """Компактность 4πA/P² и отношение сторон описанного прямоугольника.
+    """Компактность 4πA/P² и вытянутость по вторым моментам вершин контура.
 
-    Повёрнутый прямоугольник на миллионе полигонов не заканчивается. Прямоугольник
-    по осям для круга даёт 1, для вытянутого вала — больше единицы.
+    Повёрнутый прямоугольник на миллионе полигонов не заканчивается, а рамка по осям
+    не видит вал, идущий по диагонали: у неё отношение сторон около 1. Корень отношения
+    собственных чисел ковариации вершин от поворота не зависит: круг даёт 1, вал — много.
     """
     if g.geom_type == "Point" or g.area <= 0:
         return 1.0, 1.0
     compact = 4 * math.pi * g.area / max(g.length ** 2, 1e-9)
-    minx, miny, maxx, maxy = g.bounds
-    width, height = maxx - minx, maxy - miny
-    axis = max(width, height) / max(min(width, height), 1e-6)
-    return float(compact), float(axis)
+    ring = g.exterior if g.geom_type == "Polygon" else max(g.geoms, key=lambda p: p.area).exterior
+    xy = np.asarray(ring.coords)[:-1]
+    if len(xy) < 3:
+        return float(compact), 1.0
+    ev = np.linalg.eigvalsh(np.cov((xy - xy.mean(axis=0)).T))
+    axis = math.sqrt(max(ev[-1], 0.0) / max(ev[0], 1e-12))
+    return float(compact), float(min(axis, 1e3))
 
 
-def collect(stack: dict, gt: dict, metric_path: str | None) -> tuple[list[dict], np.ndarray]:
-    """Кандидаты в метрах UTM (как в метрике) и метка «прошёл бы правило с эталоном своего класса»."""
+def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first") -> tuple[list[dict], np.ndarray]:
+    """Кандидаты в метрах UTM (как в метрике) и метка попадания.
+
+    labels="any": метка 1 у каждого кандидата, который прошёл бы правило с эталоном своего класса.
+    labels="first": как в метрике, один к одному. Кандидаты класса идут по убыванию своей
+    уверенности, и эталон забирает первый попавший; второй и дальше на том же эталоне — 0.
+    Иначе стекер учится, что кучка источников на одном месте — попадание, и поднимает дубли,
+    а метрика считает их ложными.
+    """
     from shapely.strtree import STRtree
 
     mod = load_official(metric_path)
@@ -128,14 +148,26 @@ def collect(stack: dict, gt: dict, metric_path: str | None) -> tuple[list[dict],
     trees = {c: STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in v])
              for c, v in gts.items() if v}
     print(f"геометрий {len(rows)}, ставлю метки", file=sys.stderr, flush=True)
+    if labels not in ("any", "first"):
+        raise ValueError(f"labels: any или first, не {labels}")
     y = np.zeros(len(rows), np.int8)
-    for i, r in enumerate(rows):
-        if i and i % 200_000 == 0:
-            print(f"  метки {i}/{len(rows)}", file=sys.stderr, flush=True)
+    order = sorted(range(len(rows)), key=lambda i: -rows[i]["conf"]) if labels == "first" else range(len(rows))
+    taken: dict[str, set[int]] = defaultdict(set)
+    for n_done, i in enumerate(order):
+        if n_done and n_done % 200_000 == 0:
+            print(f"  метки {n_done}/{len(rows)}", file=sys.stderr, flush=True)
+        r = rows[i]
         tree = trees.get(r["cls"])
         if tree is None:
             continue
-        y[i] = any(calc._match_quality(r["geom"], gts[r["cls"]][int(j)])[0] for j in tree.query(r["geom"]))
+        hits = [int(j) for j in tree.query(r["geom"]) if calc._match_quality(r["geom"], gts[r["cls"]][int(j)])[0]]
+        if labels == "any":
+            y[i] = bool(hits)
+            continue
+        free = [j for j in hits if j not in taken[r["cls"]]]
+        if free:
+            taken[r["cls"]].add(free[0])
+            y[i] = 1
     print(f"меток {int(y.sum())} из {len(rows)}", file=sys.stderr, flush=True)
     return rows, y
 
@@ -218,7 +250,7 @@ def features(rows: list[dict]) -> np.ndarray:
         d_same = np.where(same, dists, np.inf)
         X[idx, col["n10"]] = (d_same <= 10).sum(axis=1)
         X[idx, col["n30"]] = (d_same <= 30).sum(axis=1)
-        X[idx, col["n100"]] = same.sum(axis=1)
+        X[idx, col["n100"]] = (d_same <= 100).sum(axis=1)
         nbr = np.where(d_same <= 30, conf_n, -np.inf).max(axis=1)
         X[idx, col["nbr_max30"]] = np.where(np.isfinite(nbr), nbr, 0.0)
         is_kurgan = np.isin(cls, list(KURGANS))
@@ -250,8 +282,16 @@ def features(rows: list[dict]) -> np.ndarray:
 
 
 def oof_scores(rows: list[dict], X: np.ndarray, y: np.ndarray, folds: int = 5, min_pos: int = 30,
-               rounds: int = 300, seed: int = 0) -> tuple[np.ndarray, dict]:
-    """Оценки вне обучения по семьям участков; класс с малым числом попаданий не трогается."""
+               rounds: int = 300, seed: int = 0, calibrate: str = "quantile") -> tuple[np.ndarray, dict]:
+    """Оценки вне обучения по семьям участков; класс с малым числом попаданий не трогается.
+
+    calibrate="quantile": оценка фолда — доля обучающих строк того же класса, у которых модель
+    этого фолда дала меньше. Вероятности моделей разных фолдов на разной шкале (своя доля
+    попаданий в обучении), а порог группы табло подбирает на участках, оценённых другими
+    моделями. Квантиль своей модели переводит все фолды на одну шкалу. "none" — сырая вероятность.
+    Если хоть один фолд класса нельзя обучить (одни нули или одни единицы), класс не трогается:
+    иначе часть строк осталась бы на старой шкале.
+    """
     import lightgbm as lgb
 
     from expds.naming import site_family
@@ -268,22 +308,35 @@ def oof_scores(rows: list[dict], X: np.ndarray, y: np.ndarray, folds: int = 5, m
               "feature_fraction": 0.8, "bagging_fraction": 0.8, "bagging_freq": 1, "lambda_l2": 1.0,
               "monotone_constraints": mono, "verbose": -1, "seed": seed, "num_threads": 0}
     cat = [FEATURES.index(c) for c in CATEGORICAL]
+    if calibrate not in ("quantile", "none"):
+        raise ValueError(f"calibrate: quantile или none, не {calibrate}")
     for c in sorted(set(cls)):
         m = cls == c
         pos = int(y[m].sum())
         if pos < min_pos or len(set(fold[m])) < 2:
             report[c] = {"rows": int(m.sum()), "pos": pos, "reranked": False}
             continue
+        scores: dict[int, np.ndarray] = {}
         for k in sorted(set(fold[m])):
             tr = m & (fold != k)
             te = m & (fold == k)
             if not te.any():
                 continue
             if y[tr].sum() == 0 or y[tr].sum() == tr.sum():
-                continue
+                scores = {}
+                break
             ds = lgb.Dataset(X[tr], label=y[tr], categorical_feature=cat, free_raw_data=False)
             booster = lgb.train(params, ds, num_boost_round=rounds)
-            out[te] = booster.predict(X[te])
+            p_te = booster.predict(X[te])
+            if calibrate == "quantile":
+                ref = np.sort(booster.predict(X[tr]))
+                p_te = np.searchsorted(ref, p_te, side="right") / max(len(ref), 1)
+            scores[k] = p_te
+        if not scores:
+            report[c] = {"rows": int(m.sum()), "pos": pos, "reranked": False, "note": "фолд без обеих меток"}
+            continue
+        for k, s in scores.items():
+            out[m & (fold == k)] = s
         report[c] = {"rows": int(m.sum()), "pos": pos, "reranked": True}
     return out, report
 
@@ -297,11 +350,12 @@ def auc(score: np.ndarray, y: np.ndarray) -> float:
 
 
 def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5, min_pos: int = 30,
-           write: bool = True, only_classes: set[str] | None = None) -> tuple[dict | None, dict]:
-    rows, y = collect(stack, gt, metric_path)
+           write: bool = True, only_classes: set[str] | None = None, labels: str = "first",
+           calibrate: str = "quantile") -> tuple[dict | None, dict]:
+    rows, y = collect(stack, gt, metric_path, labels)
     print("считаю признаки", file=sys.stderr, flush=True)
     X = features(rows)
-    new, report = oof_scores(rows, X, y, folds, min_pos)
+    new, report = oof_scores(rows, X, y, folds, min_pos, calibrate=calibrate)
     if not write:
         feats = stack.get("features", [])
     else:
@@ -335,6 +389,10 @@ def main() -> None:
     ap.add_argument("--min-pos", type=int, default=30, help="меньше попаданий в классе — класс не переоценивается")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="переоценить только эти классы; остальные уверенности остаются")
+    ap.add_argument("--labels", choices=["first", "any"], default="first",
+                    help="first — один к одному, как метрика (дубли на одном эталоне — 0); any — как до 27.10")
+    ap.add_argument("--calibrate", choices=["quantile", "none"], default="quantile",
+                    help="quantile — квантиль обучающих строк своей модели (одна шкала у всех фолдов)")
     ap.add_argument("--report-only", action="store_true",
                     help="только площади под кривой, без второго GeoJSON на гигабайт")
     args = ap.parse_args()
@@ -345,7 +403,8 @@ def main() -> None:
     stack = json.loads(Path(args.stack).read_text(encoding="utf-8"))
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8"))
     out, report = rerank(stack, gt, args.metric, args.folds, args.min_pos, write=not args.report_only,
-                         only_classes=set(args.classes) if args.classes else None)
+                         only_classes=set(args.classes) if args.classes else None,
+                         labels=args.labels, calibrate=args.calibrate)
     if out is not None:
         Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=1), flush=True)

@@ -72,7 +72,7 @@ def test_context_rerank_separates_cemeteries_from_lone_peaks():
     stack, gt = scene()
     out, report = rr.rerank(stack, gt, METRIC, folds=4, min_pos=30)
     pv = report["kurgany_povrezhdennye"]
-    assert pv["reranked"] and pv["auc_base"] < 0.65 and pv["auc_rerank"] > pv["auc_base"] + 0.2
+    assert pv["reranked"] and pv["auc_base"] < 0.7 and pv["auc_rerank"] > pv["auc_base"] + 0.2
     assert report["kurgany_tselye"]["reranked"] is False                      # попаданий нет — класс не трогается
     props = [f["properties"] for f in out["features"]]
     assert all("confidence_base" in q for q in props)
@@ -110,3 +110,48 @@ def test_related_class_nearby_is_a_feature():
     rel = X[:, rr.FEATURES.index("rel_max200")]
     assert list(rel) == [0.8, 0.3, 0.0]
     assert list(X[:, rr.FEATURES.index("n200_all")]) == [1.0, 1.0, 0.0]
+
+
+def test_first_hit_labels_stop_promoting_duplicates():
+    """В сцене спутник и лидар стоят на одних курганах. Метка «любое попадание» учит, что дубль —
+    попадание; метка «первый на эталоне», как метрика один к одному, — нет."""
+    rr = load_script()
+    stack, gt = scene()
+    out_any, _ = rr.rerank(stack, gt, METRIC, folds=4, min_pos=30, labels="any", calibrate="none")
+    out_first, _ = rr.rerank(stack, gt, METRIC, folds=4, min_pos=30, labels="first", calibrate="none")
+    assert best_score(out_first, gt) > best_score(out_any, gt) + 0.02
+
+
+def test_quantile_scores_are_on_one_scale():
+    rr = load_script()
+    stack, gt = scene(seed=2)
+    out, rep = rr.rerank(stack, gt, METRIC, folds=4, min_pos=30, calibrate="quantile")
+    vals = [f["properties"]["confidence"] for f in out["features"]
+            if f["properties"]["class_name"] == "kurgany_povrezhdennye"]
+    assert rep["kurgany_povrezhdennye"]["reranked"] and min(vals) >= 0.0 and max(vals) <= 1.0
+
+
+def test_elongation_does_not_depend_on_rotation():
+    from shapely.affinity import rotate
+    from shapely.geometry import box
+
+    rr = load_script()
+    wall = box(0, 0, 100, 4)
+    _, straight = rr._shape(wall)
+    _, diagonal = rr._shape(rotate(wall, 45, origin="center"))
+    _, disc = rr._shape(Point(0, 0).buffer(10))
+    assert abs(straight - diagonal) < 1e-6 * straight and straight > 10 and abs(disc - 1.0) < 0.05
+
+
+def test_neighbour_counts_keep_their_radii():
+    """Соседи своего класса считаются в 10, 30 и 100 м, хотя дерево ищет до 200 м."""
+    rr = load_script()
+
+    def row(x, conf=0.5):
+        return {"cls": "kurgany_tselye", "geom": Point(x, 0.0).buffer(1.5), "conf": conf,
+                "region": "101_Альфа_1", "group": "li", "markup": "li"}
+
+    rows = [row(0.0), row(8.0), row(25.0), row(90.0), row(150.0)]
+    X = rr.features(rows)
+    get = {f: X[0, rr.FEATURES.index(f)] for f in ("n10", "n30", "n100", "n200_all")}
+    assert get == {"n10": 1.0, "n30": 2.0, "n100": 3.0, "n200_all": 4.0}

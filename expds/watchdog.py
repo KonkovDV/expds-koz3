@@ -78,7 +78,8 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = [dict(f, geom=open_ideas.ellipse_of(f["geom"])) if f.get("class_name") in names else f
                    for f in out]
         if post_cfg.get("fort_medial"):
-            out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)))
+            out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)),
+                                                 float(post_cfg.get("fort_medial_spacing_m", 25.0)))
     out = post.finalize(out)
     return post.cap_features(out)
 

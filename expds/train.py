@@ -106,8 +106,13 @@ def paste_objects(x, y, channels: tuple[int, ...], p: float,
     return a * sx + (1.0 - a) * x, torch.where(a > 0.5, sy, y)
 
 
+#: Значение выключенного канала до нормировки (x − 0,5) / 0,25: середина шкалы, то есть 0 после
+#: нормировки. Чёрный 0 стал бы −2σ — сигналом, которого в данных нет.
+CHANNEL_DROP_FILL = 0.5
+
+
 def drop_channel(x, p: float):
-    """С вероятностью p зануляет один канал кадра. p <= 0 не меняет батч."""
+    """С вероятностью p заменяет один канал кадра серединой шкалы. p <= 0 не меняет батч."""
     import torch
 
     if p <= 0 or x.shape[1] == 0:
@@ -118,19 +123,27 @@ def drop_channel(x, p: float):
     which = torch.randint(x.shape[1], (x.shape[0],), device=x.device)
     out = x.clone()
     for i in torch.where(take)[0].tolist():
-        out[i, int(which[i])] = 0
+        out[i, int(which[i])] = CHANNEL_DROP_FILL
     return out
 
 
-def elastic_deform(x, y, sigma: float):
-    """Лёгкий сдвиг сетки. sigma <= 0 возвращает батч как есть."""
+def elastic_deform(x, y, sigma: float, cell_px: int = 32):
+    """Упругая деформация (Simard et al., 2003): гладкое поле сдвига, sigma — его амплитуда
+    в долях полукадра (0,02 на тайле 256 — около 2,5 пикселя). sigma <= 0 возвращает батч как есть.
+
+    Шум задаётся на грубой сетке с шагом cell_px и интерполируется: соседние пиксели сдвигаются
+    вместе. Независимый шум в каждом пикселе рвал бы маску на крошки, и карта центров получила
+    бы пик на каждой крошке.
+    """
     import torch
     import torch.nn.functional as F
 
     if sigma <= 0:
         return x, y
     n, _, h, w = x.shape
-    noise = torch.randn(n, h, w, 2, device=x.device) * float(sigma)
+    gh, gw = max(2, h // max(1, int(cell_px)) + 1), max(2, w // max(1, int(cell_px)) + 1)
+    coarse = torch.randn(n, 2, gh, gw, device=x.device) * float(sigma)
+    noise = F.interpolate(coarse, size=(h, w), mode="bicubic", align_corners=True).permute(0, 2, 3, 1)
     base_y = torch.linspace(-1, 1, h, device=x.device).view(1, h, 1)
     base_x = torch.linspace(-1, 1, w, device=x.device).view(1, 1, w)
     grid = torch.stack([
@@ -142,7 +155,11 @@ def elastic_deform(x, y, sigma: float):
 
 
 def emphasize_small(y, weight: float, max_frac: float = 0.002):
-    """Умножает положительные пиксели кадра, если их доля меньше max_frac. weight == 1 не меняет y."""
+    """Умножает положительные пиксели кадра, если их доля меньше max_frac. weight == 1 не меняет y.
+
+    Для карты центров не годится: цель порогуется по 0,5, и умноженная маска даёт ту же цель.
+    Обучение берёт вес мелких насыпей в потерю (`centers.small_component_weights`).
+    """
     import torch
 
     if weight == 1.0:
@@ -243,7 +260,7 @@ class TileDataset:
                 xt = photometric(xt)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
         if self.channel_dropout > 0 and np.random.rand() < self.channel_dropout and x.shape[0] > 0:
-            x[np.random.randint(x.shape[0])] = 0
+            x[np.random.randint(x.shape[0])] = CHANNEL_DROP_FILL
         x = (x - 0.5) / 0.25
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
@@ -397,8 +414,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     число эпох тогда берётся из уже посчитанных фолдов.
     gpu_data: кэш целиком в видеопамяти (GpuTiles); None — если влезает в четверть свободной.
     """
-    import torch
+    if small_object_weight != 1.0 and target != "centers":
+        raise ValueError("вес мелких насыпей входит в потерю карты центров: нужен target=centers")
     import segmentation_models_pytorch as smp
+    import torch
     from torch.utils.data import DataLoader
 
     if seed is not None:
@@ -507,12 +526,16 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     bce = torch.nn.BCEWithLogitsLoss()
     if center:
         if center:
-            from .centers import center_loss, focal_center_loss, gaussians_from_binary, heatmap_counts
+            from .centers import (
+                center_loss,
+                focal_center_loss,
+                gaussians_from_binary,
+                heatmap_counts,
+                small_component_weights,
+            )
 
             def prepare(y):
                 src = y[:, :k]
-                if small_object_weight != 1.0:
-                    src = emphasize_small(src, small_object_weight)
                 t = gaussians_from_binary(src, sigma_px, by_radius=center_sigma_m <= 0,
                                           spike=center_spike, edge_ignore=center_edge_ignore)
                 if ign_bit is not None:
@@ -520,8 +543,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 return t
 
             def batch_loss(logits, y):
+                wmap = small_component_weights(y[:, :k], small_object_weight)
                 y = prepare(y)
-                loss = focal_center_loss(logits, y) if center_loss_name == "focal" else center_loss(logits, y)
+                loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
+                        else center_loss(logits, y, weight=wmap))
                 return loss, y
     else:
         def batch_loss(logits, y):
@@ -664,7 +689,7 @@ def _cli() -> None:
     ap.add_argument("--elastic", type=float, default=0.0,
                     help="сила упругого сдвига сетки; 0 — без него")
     ap.add_argument("--small-object-weight", type=float, default=1.0,
-                    help="множитель цели, если объект мельче 0,2 %% кадра; 1 — без него")
+                    help="вес потери насыпи мельче 0,2 %% кадра (карта центров); 1 — без него")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,

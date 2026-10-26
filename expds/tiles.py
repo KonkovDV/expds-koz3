@@ -329,7 +329,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
                 exclude_files: list[str] | None = None,
                 label_shifts: dict[str, tuple[float, float]] | None = None,
-                ignore_other_layers: bool = False, min_clip_frac: float = 0.0) -> dict:
+                ignore_other_layers: bool = False, min_clip_frac: float = 0.0,
+                grid_overlap: float | None = None) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
@@ -341,6 +342,12 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     ignore_other_layers — объект тех же классов из разметки другого слоя там, где своей
     разметки нет, пишется битом IGNORE_BIT: «не учить», а не фон. Обучение читает бит
     только с флагом (`expds.train`, `use_ignore`).
+    min_clip_frac — объект, от которого в окне меньше этой доли площади, пишется тем же битом.
+    grid_overlap — вместо выборки вокруг объектов сплошная сетка окон по всему источнику с этим
+    перекрытием (0–0,9), как на инференсе: кэш для честной оценки детектора рамок на целых
+    участках (`scripts/coco_from_cache.py`). Пустые окна (вне съёмки) пропускаются.
+    В meta.json пишется CRS каждого источника (`crs_by_source`): рамку из окна по нему
+    возвращают на землю.
     """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
@@ -352,7 +359,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     if not classes:
         raise ValueError(f"нет классов {only_classes} в модальности {markup}")
     gt = json.loads(Path(gt_path).read_text(encoding="utf-8"))["features"]
-    if ignore_other_layers and len(classes) > IGNORE_BIT:
+    if (ignore_other_layers or min_clip_frac > 0) and len(classes) > IGNORE_BIT:
         raise ValueError(f"бит «не учить» {IGNORE_BIT} занят: классов {len(classes)}")
     by_region: dict[str, list[tuple]] = {}
     others: dict[str, list] = {}
@@ -365,6 +372,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     imgs, masks, rows = [], [], []
+    crs_by_source: dict[str, str] = {}
     shard = 0
     total = {"tiles": 0, "positive": 0}
 
@@ -384,6 +392,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
         for src_name, crs, bnd, read in iter_sources(reg, markup, li_tags, li_source, res, tile, dem,
                                                      ground_pixels=ground_pixels,
                                                      exclude=tuple(exclude_files or ())):
+            crs_by_source[f"{reg.name}|{src_name}"] = str(crs)
             local = [(to_crs(g, WEB_MERCATOR, crs), c) for g, c in objs]
             if label_shifts and src_name in label_shifts:
                 local = shift_labels(local, label_shifts[src_name], crs, bnd)
@@ -393,13 +402,19 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             if min_area_m2 > 0:
                 local = [(g, c) for g, c in local
                          if g.geom_type == "Point" or ground_area_m2(g, crs) >= min_area_m2]
-            centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local] * pos_repeat
-            rng.shuffle(centers)
-            centers = centers[:max_per_region]
-            n_neg = max(5, int(len(centers) * neg_per_pos))
             minx, miny, maxx, maxy = bnd.bounds
-            centers += [(rng.uniform(minx, maxx), rng.uniform(miny, maxy), 0) for _ in range(n_neg)]
-            for noise in reg.noise:
+            if grid_overlap is not None:
+                step = tile * res * (1.0 - min(max(grid_overlap, 0.0), 0.9))
+                half = tile * res / 2
+                centers = [(x, y, 0) for y in np.arange(maxy - half, miny - half + 1e-9, -step)
+                           for x in np.arange(minx + half, maxx + half - 1e-9, step)]
+            else:
+                centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local] * pos_repeat
+                rng.shuffle(centers)
+                centers = centers[:max_per_region]
+                n_neg = max(5, int(len(centers) * neg_per_pos))
+                centers += [(rng.uniform(minx, maxx), rng.uniform(miny, maxy), 0) for _ in range(n_neg)]
+            for noise in (reg.noise if grid_overlap is None else []):
                 try:
                     data = json.loads(noise.read_text(encoding="utf-8"))
                     for nf in data.get("features", [])[:200]:
@@ -467,8 +482,13 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
     if label_shifts:
         meta["label_shifts"] = {k: list(v) for k, v in label_shifts.items()}
-    if ignore_other_layers:
+    if ignore_other_layers or min_clip_frac > 0:
         meta["ignore_bit"] = IGNORE_BIT
+    if min_clip_frac > 0:
+        meta["min_clip_frac"] = min_clip_frac
+    if grid_overlap is not None:
+        meta["grid_overlap"] = grid_overlap
+    meta["crs_by_source"] = crs_by_source
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -508,6 +528,8 @@ def _cli() -> None:
                     help="объекты тех же классов из разметки других слоёв — бит «не учить», а не фон")
     ap.add_argument("--clip-ignore", type=float, default=0.0,
                     help="доля площади объекта в окне, ниже которой пиксели — «не учить», а не фон; 0 — как раньше")
+    ap.add_argument("--grid-overlap", type=float, default=None,
+                    help="сплошная сетка окон с этим перекрытием вместо выборки вокруг объектов (оценка детектора)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -521,7 +543,7 @@ def _cli() -> None:
                        only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
                        label_shifts=load_label_shifts(args.label_shifts),
                        ignore_other_layers=args.ignore_other_layers,
-                       min_clip_frac=args.clip_ignore)
+                       min_clip_frac=args.clip_ignore, grid_overlap=args.grid_overlap)
     print(json.dumps(meta, ensure_ascii=False))
 
 

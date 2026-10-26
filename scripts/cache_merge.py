@@ -75,6 +75,7 @@ def merge(sources: list[Path], out: Path) -> dict:
     meta["sources"] = [str(s) for s in sources]
     meta["flips"] = all(m.get("flips", False) for m in metas)
     meta["min_area_m2"] = min((m.get("min_area_m2") or 0) for m in metas)
+    meta["crs_by_source"] = {k: v for m in metas for k, v in (m.get("crs_by_source") or {}).items()}
     for key in ("tiles", "positive"):
         if all(key in m for m in metas):
             meta[key] = sum(int(m[key]) for m in metas)

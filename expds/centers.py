@@ -76,6 +76,36 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike:
     return torch.from_numpy(out).to(device)
 
 
+def small_component_weights(mask, weight: float, max_frac: float = 0.002, grow_px: int = 2):
+    """Вес потери N×K×H×W: связная компонента мельче max_frac кадра (с запасом grow_px) получает weight.
+
+    Цель карты центров порогуется (> 0,5), поэтому умножать саму маску бесполезно: вес
+    мелкой насыпи должен войти в потерю. weight == 1 даёт None — потеря как раньше.
+    """
+    import torch
+    from scipy import ndimage
+
+    if float(weight) == 1.0:
+        return None
+    binary = mask.detach().cpu().numpy() > 0.5
+    n, k, h, w = binary.shape
+    out = np.ones((n, k, h, w), np.float32)
+    limit = float(max_frac) * h * w
+    for i in range(n):
+        for c in range(k):
+            if not binary[i, c].any():
+                continue
+            labels, nlab = ndimage.label(binary[i, c])
+            sizes = ndimage.sum_labels(np.ones_like(labels), labels, index=np.arange(1, nlab + 1))
+            small = np.flatnonzero(sizes < limit) + 1
+            if small.size:
+                zone = np.isin(labels, small)
+                if grow_px > 0:
+                    zone = ndimage.binary_dilation(zone, iterations=int(grow_px))
+                out[i, c][zone] = float(weight)
+    return torch.from_numpy(out).to(mask.device)
+
+
 def init_focal_bias(model, prior: float = 0.01) -> None:
     """Стартовая вероятность пика около prior, а не 0,5.
 
@@ -106,11 +136,12 @@ def _center_positives(target):
     return (target >= 0.999) | ((target + 1e-6 >= pooled) & (target > 0.5))
 
 
-def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
+def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, weight=None):
     """Фокальная потеря карты центров (Law & Deng, 2018; Zhou et al., 2019).
 
     У пика (target = 1) штраф (1 − p)^α. Рядом с пиком фон почти не штрафуется:
     множитель (1 − target)^β. Нормировка — на число пиков в батче, не на все пиксели.
+    weight (N×K×H×W) умножает штраф пика: мелкая насыпь весит больше (`small_component_weights`).
     """
     import torch
 
@@ -120,21 +151,28 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     pos = _center_positives(target)
     neg = ~pos & valid
     pos_loss = -((1 - p) ** alpha) * torch.log(p)
+    if weight is not None:
+        pos_loss = pos_loss * weight
     neg_loss = -((1 - target) ** beta) * (p ** alpha) * torch.log(1 - p)
     n_pos = pos.sum().clamp(min=1).to(pos_loss.dtype)
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
-def center_loss(logits, target):
-    """BCE с весом на пике плюс Dice только по классам, которые есть в батче."""
+def center_loss(logits, target, weight=None):
+    """BCE с весом на пике плюс Dice только по классам, которые есть в батче.
+
+    weight (N×K×H×W) дополнительно умножает вес BCE: мелкая насыпь весит больше.
+    """
     import torch.nn.functional as F
 
     from .train import dice_loss
 
     valid = (target >= 0).float()
     target = target.clamp(min=0)
-    weight = (1.0 + CENTER_POS_WEIGHT * target) * valid
-    return (F.binary_cross_entropy_with_logits(logits.float(), target, weight=weight)
+    w = (1.0 + CENTER_POS_WEIGHT * target) * valid
+    if weight is not None:
+        w = w * weight
+    return (F.binary_cross_entropy_with_logits(logits.float(), target, weight=w)
             + dice_loss(logits.float() * valid - 20.0 * (1 - valid), target))
 
 
@@ -144,7 +182,6 @@ def heatmap_counts(pred, target, radius: int):
     pred и target — вероятности N×K×H×W. Пик — локальный максимум окна
     (2r+1) выше 0,5. Совпадение — в том же радиусе, в пикселях.
     """
-    import torch
     import torch.nn.functional as F
 
     r = max(int(radius), 1)
