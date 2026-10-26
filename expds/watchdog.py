@@ -71,6 +71,14 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         out = post.shape_cores(out, post_cfg["core"])
     if post_cfg.get("split"):
         out = post.split_large(out, post_cfg["split"])
+    if post_cfg.get("ellipse_classes") or post_cfg.get("fort_medial"):
+        from . import open_ideas
+        if post_cfg.get("ellipse_classes"):
+            names = set(post_cfg["ellipse_classes"])
+            out = [dict(f, geom=open_ideas.ellipse_of(f["geom"])) if f.get("class_name") in names else f
+                   for f in out]
+        if post_cfg.get("fort_medial"):
+            out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)))
     out = post.finalize(out)
     return post.cap_features(out)
 

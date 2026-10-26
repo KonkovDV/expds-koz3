@@ -47,7 +47,7 @@ class GeoParams:
 
 
 #: Как цветная или «серая» RGB-карта сводится к одному числу на пиксель. Сданный балл снят с "first".
-BAND_MODES = ("first", "mean", "luma", "pca", "auto")
+BAND_MODES = ("first", "mean", "luma", "pca", "auto", "diff")
 
 
 def scalar_from_bands(bands: np.ndarray, mode: str = "first") -> np.ndarray:
@@ -78,6 +78,8 @@ def scalar_from_bands(bands: np.ndarray, mode: str = "first") -> np.ndarray:
         mode = "pca"
     if mode == "mean":
         out = rgb.mean(axis=0)
+    elif mode == "diff":
+        out = rgb[0] - rgb[-1]
     elif mode == "luma":
         w = np.array([0.299, 0.587, 0.114], np.float32)[: rgb.shape[0]]
         out = np.tensordot(w / w.sum(), rgb, axes=1)

@@ -41,7 +41,8 @@ def paste_channels(classes: list[str]) -> tuple[int, ...]:
     return tuple(i for i, name in enumerate(classes) if name in PASTE_CLASSES)
 
 
-def paste_objects(x, y, channels: tuple[int, ...], p: float):
+def paste_objects(x, y, channels: tuple[int, ...], p: float,
+                  blend: float = 0.0, scale: tuple[float, float] = (1.0, 1.0)):
     """Simple Copy-Paste: пиксели объекта с тайла-донора заменяют фон приёмника.
 
     x — N×C×H×W, y — N×K×H×W. Объект — пиксели каналов `channels`. Вставка только
@@ -49,6 +50,8 @@ def paste_objects(x, y, channels: tuple[int, ...], p: float):
     а пустой фон, где модель даёт ложные насыпи, получает настоящую форму.
     Донор — случайный тайл батча, где объект есть. Насыпь сдвигается так, чтобы её
     центр масс попал в случайный пиксель. Фон донора не копируется. Ghiasi et al., CVPR 2021.
+    blend > 0 размывает край вставки окном усреднения. scale — случайный множитель
+    размера вставленного объекта. Оба значения по умолчанию оставляют жёсткую вставку.
     """
     import torch
     import torch.nn.functional as F
@@ -84,7 +87,73 @@ def paste_objects(x, y, channels: tuple[int, ...], p: float):
     sx = F.grid_sample(x[src], grid, mode="nearest", padding_mode="zeros", align_corners=True)
     sy = F.grid_sample(y[src], grid, mode="nearest", padding_mode="zeros", align_corners=True)
     alpha = (sy[:, list(channels)].sum(dim=1, keepdim=True) > 0.5) & do.view(n, 1, 1, 1)
-    return torch.where(alpha, sx, x), torch.where(alpha, sy, y)
+    if blend <= 0 and scale[0] == 1.0 and scale[1] == 1.0:
+        return torch.where(alpha, sx, x), torch.where(alpha, sy, y)
+    if scale[0] != scale[1] or scale[0] != 1.0:
+        factor = torch.empty(n, 1, 1, 1, device=x.device).uniform_(scale[0], scale[1])
+        zoom = torch.zeros(n, h, w, 2, device=x.device)
+        gy = torch.linspace(-1, 1, h, device=x.device).view(1, h, 1)
+        gx = torch.linspace(-1, 1, w, device=x.device).view(1, 1, w)
+        zoom[..., 0] = gx / factor
+        zoom[..., 1] = gy / factor
+        sx = F.grid_sample(sx, zoom, mode="bilinear", padding_mode="zeros", align_corners=True)
+        sy = F.grid_sample(sy, zoom, mode="nearest", padding_mode="zeros", align_corners=True)
+        alpha = (sy[:, list(channels)].sum(dim=1, keepdim=True) > 0.5) & do.view(n, 1, 1, 1)
+    a = alpha.to(x.dtype)
+    if blend > 0:
+        k = int(blend) * 2 + 1
+        a = F.avg_pool2d(a, k, stride=1, padding=k // 2)
+    return a * sx + (1.0 - a) * x, torch.where(a > 0.5, sy, y)
+
+
+def drop_channel(x, p: float):
+    """С вероятностью p зануляет один канал кадра. p <= 0 не меняет батч."""
+    import torch
+
+    if p <= 0 or x.shape[1] == 0:
+        return x
+    take = torch.rand(x.shape[0], device=x.device) < p
+    if not bool(take.any()):
+        return x
+    which = torch.randint(x.shape[1], (x.shape[0],), device=x.device)
+    out = x.clone()
+    for i in torch.where(take)[0].tolist():
+        out[i, int(which[i])] = 0
+    return out
+
+
+def elastic_deform(x, y, sigma: float):
+    """Лёгкий сдвиг сетки. sigma <= 0 возвращает батч как есть."""
+    import torch
+    import torch.nn.functional as F
+
+    if sigma <= 0:
+        return x, y
+    n, _, h, w = x.shape
+    noise = torch.randn(n, h, w, 2, device=x.device) * float(sigma)
+    base_y = torch.linspace(-1, 1, h, device=x.device).view(1, h, 1)
+    base_x = torch.linspace(-1, 1, w, device=x.device).view(1, 1, w)
+    grid = torch.stack([
+        base_x.expand(n, h, w) + noise[..., 0],
+        base_y.expand(n, h, w) + noise[..., 1],
+    ], dim=-1).clamp(-1, 1)
+    return (F.grid_sample(x, grid, mode="bilinear", padding_mode="border", align_corners=True),
+            F.grid_sample(y, grid, mode="nearest", padding_mode="zeros", align_corners=True))
+
+
+def emphasize_small(y, weight: float, max_frac: float = 0.002):
+    """Умножает положительные пиксели кадра, если их доля меньше max_frac. weight == 1 не меняет y."""
+    import torch
+
+    if weight == 1.0:
+        return y
+    flat = (y > 0.5).flatten(2).sum(dim=2)
+    small = (flat > 0) & (flat < max_frac * y.shape[-1] * y.shape[-2])
+    if not bool(small.any()):
+        return y
+    factor = torch.ones(y.shape[0], y.shape[1], 1, 1, device=y.device, dtype=y.dtype)
+    factor[small] = float(weight)
+    return y * factor
 
 
 def photometric(x, brightness: float = PHOTO_BRIGHTNESS, contrast: float = PHOTO_CONTRAST):
@@ -131,9 +200,10 @@ class TileDataset:
     """Тайлы из .npy-шардов (memmap); маски — биты классов → K каналов float."""
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool,
-                 class_bits: list[int] | None = None, photo: bool = False, scale: float = 0.0):
+                 class_bits: list[int] | None = None, photo: bool = False, scale: float = 0.0,
+                 channel_dropout: float = 0.0):
         self.cache, self.rows, self.k, self.flips = cache, rows, n_classes, flips
-        self.photo, self.scale = photo, scale
+        self.photo, self.scale, self.channel_dropout = photo, scale, channel_dropout
         self.bits = class_bits if class_bits is not None else list(range(n_classes))
         self._img: dict[int, np.ndarray] = {}
         self._msk: dict[int, np.ndarray] = {}
@@ -172,6 +242,8 @@ class TileDataset:
             if self.photo:
                 xt = photometric(xt)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
+        if self.channel_dropout > 0 and np.random.rand() < self.channel_dropout and x.shape[0] > 0:
+            x[np.random.randint(x.shape[0])] = 0
         x = (x - 0.5) / 0.25
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
@@ -185,7 +257,9 @@ class GpuTiles:
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool, device, memory_format=None,
                  copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None,
-                 photo: bool = False, scale: float = 0.0):
+                 photo: bool = False, scale: float = 0.0, channel_dropout: float = 0.0,
+                 paste_blend: float = 0.0, paste_scale: tuple[float, float] = (1.0, 1.0),
+                 elastic: float = 0.0):
         import torch
 
         self.memory_format = memory_format or torch.contiguous_format
@@ -204,6 +278,8 @@ class GpuTiles:
         self.flips, self.device = flips, device
         self.copy_paste, self.paste_channels = copy_paste, paste_channels
         self.photo, self.scale = photo, scale
+        self.channel_dropout, self.paste_blend = channel_dropout, paste_blend
+        self.paste_scale, self.elastic = paste_scale, elastic
 
     def __len__(self) -> int:
         return int(self.x.shape[0])
@@ -228,7 +304,12 @@ class GpuTiles:
         if augment and self.scale > 0:
             x, y = resample_scale(x, y, self.scale)
         if augment and self.copy_paste > 0 and self.paste_channels:
-            x, y = paste_objects(x, y, self.paste_channels, self.copy_paste)
+            x, y = paste_objects(x, y, self.paste_channels, self.copy_paste,
+                                 blend=self.paste_blend, scale=self.paste_scale)
+        if augment and self.channel_dropout > 0:
+            x = drop_channel(x, self.channel_dropout)
+        if augment and self.elastic > 0:
+            x, y = elastic_deform(x, y, self.elastic)
         if augment and self.photo:
             x = photometric(x)
         x = x.sub(0.5).div(0.25)
@@ -303,7 +384,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0,
           center_spike: bool = True, photo: bool = False, scale: float = 0.0,
           arch: str = "Unet", ema: float = 0.0, scale_aug: float = 0.0, photo_aug: float = 0.0,
-          flips_mode: str = "auto", center_edge_ignore: bool = False, use_ignore: bool = False) -> dict:
+          flips_mode: str = "auto", center_edge_ignore: bool = False, use_ignore: bool = False,
+          channel_dropout: float = 0.0, paste_blend: float = 0.0,
+          paste_scale: tuple[float, float] = (1.0, 1.0), elastic: float = 0.0,
+          small_object_weight: float = 1.0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -385,7 +469,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         ch = ()
     if gpu_data:
         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
-                        class_bits=class_bits, photo=photo, scale=scale)
+                        class_bits=class_bits, photo=photo, scale=scale,
+                        channel_dropout=channel_dropout, paste_blend=paste_blend,
+                        paste_scale=paste_scale, elastic=elastic)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits)
         n_steps = len(g_tr) // batch
 
@@ -395,7 +481,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         def val_batches():
             return g_va.batches(batch, shuffle=False, drop_last=False)
     else:
-        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale),
+        dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale,
+                                       channel_dropout=channel_dropout),
                            batch_size=batch, shuffle=True,
                            num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
         dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch, num_workers=workers)
@@ -423,7 +510,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             from .centers import center_loss, focal_center_loss, gaussians_from_binary, heatmap_counts
 
             def prepare(y):
-                t = gaussians_from_binary(y[:, :k], sigma_px, by_radius=center_sigma_m <= 0,
+                src = y[:, :k]
+                if small_object_weight != 1.0:
+                    src = emphasize_small(src, small_object_weight)
+                t = gaussians_from_binary(src, sigma_px, by_radius=center_sigma_m <= 0,
                                           spike=center_spike, edge_ignore=center_edge_ignore)
                 if ign_bit is not None:
                     t = torch.where((y[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
@@ -567,6 +657,14 @@ def _cli() -> None:
                     help="насыпь, обрезанную краем тайла, не учить: без пика, область −1 (отдельный опыт)")
     ap.add_argument("--use-ignore", action="store_true",
                     help="читать бит «не учить» кэша (--ignore-other-layers): объекты других слоёв — не фон")
+    ap.add_argument("--channel-dropout", type=float, default=0.0,
+                    help="вероятность занулить один канал кадра; 0 — как раньше")
+    ap.add_argument("--paste-blend", type=float, default=0.0,
+                    help="размер окна размытия края copy-paste; 0 — жёсткая вставка")
+    ap.add_argument("--elastic", type=float, default=0.0,
+                    help="сила упругого сдвига сетки; 0 — без него")
+    ap.add_argument("--small-object-weight", type=float, default=1.0,
+                    help="множитель цели, если объект мельче 0,2 %% кадра; 1 — без него")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
@@ -576,7 +674,9 @@ def _cli() -> None:
                 center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist,
                 photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
                 scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips,
-                center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore)
+                center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
+                channel_dropout=args.channel_dropout, paste_blend=args.paste_blend,
+                elastic=args.elastic, small_object_weight=args.small_object_weight)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

@@ -600,6 +600,16 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             unit = np.sqrt(np.clip(_roughness(z, valid, step) / RELIEF["rough_clip_m"], 0, 1))
         elif t == "curv":
             unit = np.clip(_curvature(z, valid, step) / RELIEF["curv_clip"], -1, 1) * 0.5 + 0.5
+        elif t == "prod":
+            slope_u = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
+            radius = max(1, round(RELIEF["lrm_s_m"] / step))
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            lr_u = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF["lrm_s_clip_m"], -1, 1) * 0.5 + 0.5
+            unit = np.clip(slope_u * lr_u, 0, 1)
+        elif t == "ndi":
+            slope_u = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
+            inten = intensity_unit(d, step, z.shape)
+            unit = np.clip((slope_u - inten) / (slope_u + inten + 1e-6), -1, 1) * 0.5 + 0.5
         else:
             raise ValueError(f"неизвестный канал li: {t}")
         out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))

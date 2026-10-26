@@ -211,8 +211,8 @@ lgbm_model = "models/kurgan_lgbm.txt"
 [geophys]
 point_circle_m = 0.3
 # Опыты 25.10, по умолчанию выключены (поведение сдачи то же):
-#   band_mode = "first" | "mean" | "luma" | "pca" | "auto" — как RGB-карта сводится к числу;
-#     сданный балл снят с "first". "auto" — pca, если каналы различаются (цветная шкала).
+#   band_mode = "first" | "mean" | "luma" | "pca" | "auto" | "diff" — как RGB-карта сводится к числу;
+#     сданный балл снят с "first". "diff" — разность крайних каналов цветной карты. "auto" — pca, если каналы различаются.
 #   [geophys.maggr.finds_points] signal = "abs" | "asa" — пики |hp| или аналитического сигнала.
 #   [geophys.<модальность>.object_poly] polarity = "abs" | "pos" | "neg".
 #   [geophys.<модальность>] classic = false — классику модальности считает сеть [models] <модальность>,

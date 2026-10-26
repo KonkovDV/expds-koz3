@@ -329,7 +329,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
                 exclude_files: list[str] | None = None,
                 label_shifts: dict[str, tuple[float, float]] | None = None,
-                ignore_other_layers: bool = False) -> dict:
+                ignore_other_layers: bool = False, min_clip_frac: float = 0.0) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
@@ -416,10 +416,24 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 if not img.any():
                     continue
                 m = np.zeros((tile, tile), np.uint8)
+                if min_clip_frac > 0:
+                    from rasterio.transform import array_bounds
+                    from shapely.geometry import box as shape_box
+
+                    from .open_ideas import split_clipped
+
+                    west, south, east, north = array_bounds(tile, tile, tr)
+                    window = shape_box(west, south, east, north)
                 for k, cls in enumerate(classes):
                     shp = [(g.buffer(1.0) if g.geom_type == "Point"
                             else shrink_polygon(g, shrink) if cls in SHRINK_CLASSES else g)
                            for g, c in local if c == cls]
+                    if min_clip_frac > 0 and shp:
+                        shp, skipped = split_clipped(shp, window, min_clip_frac)
+                        if skipped:
+                            r = rasterize(((g, 1) for g in skipped), out_shape=(tile, tile), transform=tr,
+                                          all_touched=True, dtype="uint8")
+                            m |= ((r.astype(bool) & (m == 0)).astype(np.uint8) << IGNORE_BIT)
                     if shp:
                         r = rasterize(((g, 1) for g in shp), out_shape=(tile, tile), transform=tr,
                                       all_touched=True, dtype="uint8")
@@ -492,6 +506,8 @@ def _cli() -> None:
                     help="не брать полигоны мельче этого размера, м² на земле; точки остаются")
     ap.add_argument("--ignore-other-layers", action="store_true",
                     help="объекты тех же классов из разметки других слоёв — бит «не учить», а не фон")
+    ap.add_argument("--clip-ignore", type=float, default=0.0,
+                    help="доля площади объекта в окне, ниже которой пиксели — «не учить», а не фон; 0 — как раньше")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -504,7 +520,8 @@ def _cli() -> None:
                        only_classes=args.classes, pos_repeat=args.pos_repeat,
                        only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
                        label_shifts=load_label_shifts(args.label_shifts),
-                       ignore_other_layers=args.ignore_other_layers)
+                       ignore_other_layers=args.ignore_other_layers,
+                       min_clip_frac=args.clip_ignore)
     print(json.dumps(meta, ensure_ascii=False))
 
 
