@@ -239,6 +239,10 @@ def main() -> None:
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
     ap.add_argument("--dump-kept", default=None,
                     help="база после подобранных порогов — вход scripts/error_types.py (в рабочую папку)")
+    ap.add_argument("--dump-stack", default=None,
+                    help="стек базы до порогов — вход scripts/rerank_oof.py (в рабочую папку)")
+    ap.add_argument("--rerank", default=None,
+                    help="опыт — весь стек из файла scripts/rerank_oof.py вместо стека базы")
     args = ap.parse_args()
     global OFFICIAL
     OFFICIAL = args.official
@@ -251,11 +255,14 @@ def main() -> None:
     base, _, kept_b, per_b = evaluate("база", feats, gt, new, optical, args.metric)
     if args.dump_kept:
         Path(args.dump_kept).write_text(json.dumps(kept_b, ensure_ascii=False), encoding="utf-8")
+    if args.dump_stack:
+        Path(args.dump_stack).write_text(json.dumps({"type": "FeatureCollection", "features": feats},
+                                                    ensure_ascii=False), encoding="utf-8")
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
     honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
-    if not args.add and not args.replace and not swap_li:
+    if not args.add and not args.replace and not swap_li and not args.rerank:
         if args.out:
             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
                                                   "honest_base": honest_b[0] if honest_b else None},
@@ -278,6 +285,9 @@ def main() -> None:
         mixed += fresh
     for spec in args.add:
         mixed += added(spec)
+    if args.rerank:
+        # Переоценённый стек заменяет базу целиком; --add и --replace к нему не применяются.
+        mixed = load(Path(args.rerank))["features"]
     from expds.metric import build_curves, paired_bootstrap
 
     after, taus, kept_a, per_a = evaluate("опыт", mixed, gt, new, optical, args.metric)

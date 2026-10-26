@@ -20,7 +20,8 @@ from . import accel
 CENTER_POS_WEIGHT = 20.0
 
 
-def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike: bool = True):
+def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike: bool = True,
+                          edge_ignore: bool = False):
     """Бинарные маски N×K×H×W → гауссианы в центрах связных компонент.
 
     Несколько насыпей в одном тайле дают несколько пиков. Центр масс всей маски
@@ -29,6 +30,9 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike:
     spike=False оставляет центр между клетками (DARK, Zhang et al., CVPR 2020).
     С шипом ближайшая клетка равна 1: так училась сданная карта центров, и
     фокальная потеря видит положительный пиксель по порогу 0,999.
+    edge_ignore: насыпь, которую режет край тайла, пика не получает, а её область
+    (с запасом в σ) получает −1 — «не учить». Центр масс обрезка лежит не в центре
+    кургана, а если центр вне тайла, пика в окне нет вовсе. Потери пропускают −1.
     """
     import torch
     from scipy import ndimage
@@ -48,6 +52,7 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike:
                 continue
             labels, nlab = ndimage.label(binary[i, c])
             heat = out[i, c]
+            ignore = np.zeros((h, w), bool)
             for lab in range(1, int(nlab) + 1):
                 ys, xs = np.nonzero(labels == lab)
                 cy = float(ys.mean())
@@ -56,12 +61,18 @@ def gaussians_from_binary(mask, sigma_px: float, by_radius: bool = False, spike:
                     sigma = max(1.0, float(np.sqrt(len(ys) / np.pi)) / 3.0)
                 else:
                     sigma = float(sigma_px)
+                if edge_ignore and (ys.min() == 0 or xs.min() == 0 or ys.max() == h - 1 or xs.max() == w - 1):
+                    grow = max(1, int(np.ceil(sigma)))
+                    ignore |= ndimage.binary_dilation(labels == lab, iterations=grow)
+                    continue
                 sig2 = 2.0 * sigma * sigma
                 np.maximum(heat, np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / sig2), out=heat)
                 if spike:
                     ry = min(max(int(round(cy)), 0), h - 1)
                     rx = min(max(int(round(cx)), 0), w - 1)
                     heat[ry, rx] = 1.0
+            if edge_ignore and ignore.any():
+                heat[ignore & (heat < 0.5)] = -1.0
     return torch.from_numpy(out).to(device)
 
 
@@ -104,8 +115,10 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0):
     import torch
 
     p = logits.float().sigmoid().clamp(1e-4, 1 - 1e-4)
+    valid = target >= 0
+    target = target.clamp(min=0)
     pos = _center_positives(target)
-    neg = ~pos
+    neg = ~pos & valid
     pos_loss = -((1 - p) ** alpha) * torch.log(p)
     neg_loss = -((1 - target) ** beta) * (p ** alpha) * torch.log(1 - p)
     n_pos = pos.sum().clamp(min=1).to(pos_loss.dtype)
@@ -118,9 +131,11 @@ def center_loss(logits, target):
 
     from .train import dice_loss
 
-    weight = 1.0 + CENTER_POS_WEIGHT * target
+    valid = (target >= 0).float()
+    target = target.clamp(min=0)
+    weight = (1.0 + CENTER_POS_WEIGHT * target) * valid
     return (F.binary_cross_entropy_with_logits(logits.float(), target, weight=weight)
-            + dice_loss(logits.float(), target))
+            + dice_loss(logits.float() * valid - 20.0 * (1 - valid), target))
 
 
 def heatmap_counts(pred, target, radius: int):
@@ -139,8 +154,8 @@ def heatmap_counts(pred, target, radius: int):
         pooled = F.max_pool2d(p, k, stride=1, padding=r)
         return (p + 1e-6 >= pooled) & (p > 0.5)
 
-    gt = peaks(target)
-    pr = peaks(pred)
+    pr = peaks(pred) & (target >= 0)
+    gt = peaks(target.clamp(min=0))
     gt_near = F.max_pool2d(gt.float(), k, stride=1, padding=r) > 0
     pr_near = F.max_pool2d(pr.float(), k, stride=1, padding=r) > 0
     dims = (0, 2, 3)

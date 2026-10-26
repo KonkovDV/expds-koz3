@@ -303,7 +303,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           center_loss_name: str = "bce", all_data: bool = False, min_dist_m: float = 12.0,
           center_spike: bool = True, photo: bool = False, scale: float = 0.0,
           arch: str = "Unet", ema: float = 0.0, scale_aug: float = 0.0, photo_aug: float = 0.0,
-          flips_mode: str = "auto") -> dict:
+          flips_mode: str = "auto", center_edge_ignore: bool = False) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -417,7 +417,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
 
             def prepare(y):
                 return gaussians_from_binary(y, sigma_px, by_radius=center_sigma_m <= 0,
-                                              spike=center_spike)
+                                              spike=center_spike, edge_ignore=center_edge_ignore)
 
             def batch_loss(logits, y):
                 y = prepare(y)
@@ -504,6 +504,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "target": target, "center_sigma_m": center_sigma_m if center else None,
                         "center_radius_m": center_radius_m if center else None,
                         "min_dist_m": min_dist_m if center else None,
+                        "center_edge_ignore": bool(center_edge_ignore) if center else None,
                         "pixel_units": meta.get("pixel_units"),
                         "photo": photo, "scale": scale,
                         "epoch": ep + 1,
@@ -551,6 +552,8 @@ def _cli() -> None:
     ap.add_argument("--flips", choices=("auto", "none", "all"), default="auto",
                     help="повороты и отражения тайлов: auto — как в кэше; none — сохранить направление "
                          "солнца на снимке (опыт 25.10)")
+    ap.add_argument("--center-edge-ignore", action="store_true",
+                    help="насыпь, обрезанную краем тайла, не учить: без пика, область −1 (отдельный опыт)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
@@ -559,7 +562,8 @@ def _cli() -> None:
                 target=args.target, center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                 center_loss_name=args.center_loss, all_data=args.all_data, min_dist_m=args.center_min_dist,
                 photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
-                scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips)
+                scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips,
+                center_edge_ignore=args.center_edge_ignore)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 
