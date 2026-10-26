@@ -5,7 +5,7 @@
 (`expds.hillfort.HillfortParams`) не подбирались по эталону. Табло подбирает порог
 группы `gor_phys`; если площадки попадают реже 7,8 %, порог выключит группу.
 
-    python scripts/hillfort_oof.py --root F:/expds3/train-expds-3 --out F:/expds3/work/gor_phys.geojson
+    python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
     python scripts/scoreboard.py ... --add F:/expds3/work/gor_phys.geojson:gor_phys --honest 10
     python scripts/hillfort_oof.py ... --set scarp_min_deg=15 --set min_rel_height_m=1.0 --out ...
 
