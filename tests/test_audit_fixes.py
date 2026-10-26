@@ -113,6 +113,14 @@ def test_clip_ignore_records_the_bit(val_dir, tmp_path):
     assert meta["crs_by_source"] and all(v for v in meta["crs_by_source"].values())
 
 
+def test_grid_centers_end_flush_with_the_source():
+    """Шаг, который не доходит до конца, дописывает окно встык с краем, а не за ним."""
+    from expds.tiles import grid_centers
+
+    xs = sorted({round(x, 6) for x, _ in grid_centers(0, 0, 50, 50, 16, 8)})
+    assert xs == [8.0, 16.0, 24.0, 32.0, 40.0, 42.0]
+
+
 def test_grid_cache_covers_the_source(val_dir, tmp_path):
     from expds.tiles import build_cache
 
@@ -123,7 +131,7 @@ def test_grid_cache_covers_the_source(val_dir, tmp_path):
     import csv
 
     rows = list(csv.DictReader((tmp_path / "g" / "index.csv").open(encoding="utf-8")))
-    # Карта 40 м при окне 16 м и шаге 8 м: по 5 центров на сторону.
-    assert meta["grid_overlap"] == 0.5 and len(rows) == 25
+    # Карта 40 м при окне 16 м и шаге 8 м: инференс ставит 4 окна встык, не 5 с выносом за край.
+    assert meta["grid_overlap"] == 0.5 and len(rows) == 16
     xs = sorted({float(r["cx"]) for r in rows})
     assert np.allclose(np.diff(xs), 8.0)

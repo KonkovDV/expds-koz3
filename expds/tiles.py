@@ -320,6 +320,28 @@ IGNORE_BIT = 7
 CLASS_BITS_MASK = (1 << IGNORE_BIT) - 1
 
 
+def grid_centers(minx: float, miny: float, maxx: float, maxy: float, span: float, step: float) -> list[tuple[float, float]]:
+    """Центры окон, как у инференса: первое встык с ближним краем, последнее — с дальним.
+
+    `infer_nn.Segmenter.predict` ставит окно в пиксель 0 и дописывает окно встык с концом
+    кадра, если шаг его не достал. Здесь то же в метрах источника. Окно, чей центр лежит
+    на дальнем крае, наполовину выходит за источник — инференс так не режет.
+    """
+    def starts(length: float) -> list[float]:
+        if length <= span + 1e-6:
+            return [0.0]
+        out = list(np.arange(0.0, max(length - span, 0.0) + 1e-6, step))
+        if not out:
+            out = [0.0]
+        if out[-1] + span < length - 1e-6:
+            out.append(length - span)
+        return out
+
+    half = span / 2.0
+    return [(minx + sx + half, maxy - sy - half)
+            for sy in starts(maxy - miny) for sx in starts(maxx - minx)]
+
+
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
@@ -405,9 +427,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             minx, miny, maxx, maxy = bnd.bounds
             if grid_overlap is not None:
                 step = tile * res * (1.0 - min(max(grid_overlap, 0.0), 0.9))
-                half = tile * res / 2
-                centers = [(x, y, 0) for y in np.arange(maxy - half, miny - half + 1e-9, -step)
-                           for x in np.arange(minx + half, maxx + half - 1e-9, step)]
+                centers = [(x, y, 0) for x, y in grid_centers(minx, miny, maxx, maxy, tile * res, step)]
             else:
                 centers = [(g.representative_point().x, g.representative_point().y, 1) for g, _ in local] * pos_repeat
                 rng.shuffle(centers)

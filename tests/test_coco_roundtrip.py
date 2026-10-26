@@ -30,7 +30,7 @@ def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_p
     build_cache(str(val_dir), str(gt), "maggr", str(cache), res=0.25, tile=64, grid_overlap=0.5, seed=0)
     out = tmp_path / "coco"
     summary = load("coco_from_cache").export(cache, out, layout="rfdetr", images=True, all_valid=True)
-    assert summary["parts"]["valid"]["images"] == 25 and "warning" not in summary
+    assert summary["parts"]["valid"]["images"] == 16 and "warning" not in summary
     coco = json.loads((out / "valid" / "_annotations.coco.json").read_text(encoding="utf-8"))
     assert all((out / "valid" / im["file_name"]).exists() for im in coco["images"])
     assert (out / "test" / "_annotations.coco.json").exists()
