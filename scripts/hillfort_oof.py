@@ -5,6 +5,13 @@
 (`expds.hillfort.HillfortParams`) не подбирались по эталону. Табло подбирает порог
 группы `gor_phys`; если площадки попадают реже 7,8 %, порог выключит группу.
 
+Этот файл строится не из той ЦМР, что сдача. Здесь шаг 0,5 м и заполнение
+пирамидой. Включённый `[hillfort]` в пайплайне берёт ЦМР модели курганов:
+0,1 м и триангуляцию, а на большом облаке — огрублённую сетку. Табло этого
+файла не доказывает, что строка `enabled = true` даст те же круги. Принимать
+можно только вместе с правкой пайплайна на тот же рецепт ЦМР. Табло —
+`--honest 10 --honest-by region`, одно, когда файл уже записан.
+
     python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
     python scripts/scoreboard.py ... --add F:/expds3/work/gor_phys.geojson:gor_phys --honest 10
     python scripts/hillfort_oof.py ... --set scarp_min_deg=15 --set min_rel_height_m=1.0 --out ...
