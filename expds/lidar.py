@@ -49,7 +49,8 @@ RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m":
           "lrm_xl_m": 100.0, "lrm_xl_clip_m": 4.0, "slope_max_deg": 45.0,
           "opns_r_m": 10.0, "opns_dirs": 16, "opns_range": (75.0, 92.0), "svf_range": (0.75, 1.0),
           "dev_s_m": 8.0, "dev_l_m": 30.0, "dev_xl_m": 100.0,
-          "dev_clip": 3.0, "dev_std_floor_m": 0.05}
+          "dev_clip": 3.0, "dev_std_floor_m": 0.05,
+          "rough_clip_m": 1.0, "curv_clip": 0.05}
 #: Каналы, которые Rust собирает одним вызовом (expds_core.relief_channels).
 FUSED_TAGS = {"lrm_s", "lrm_l", "slope", "g"}
 #: Канал int — яркость отражения лазера (интенсивность) точек земли: шкала по перцентилям облака,
@@ -493,6 +494,25 @@ def intensity_unit(d: Dem, step: float, shape: tuple[int, int]) -> np.ndarray:
     return unit
 
 
+def _window_std(z: np.ndarray) -> np.ndarray:
+    """СКО высоты в окне 3×3. От азимута не зависит."""
+    from scipy.ndimage import uniform_filter
+
+    mean = uniform_filter(z, size=3, mode="nearest")
+    mean2 = uniform_filter(z * z, size=3, mode="nearest")
+    return np.sqrt(np.clip(mean2 - mean * mean, 0, None)).astype(np.float32)
+
+
+def _laplacian(z: np.ndarray, step: float) -> np.ndarray:
+    """Лапласиан высоты, 1/м. Купол даёт отрицательное значение, яма — положительное."""
+    out = np.zeros_like(z, dtype=np.float32)
+    center = z[1:-1, 1:-1]
+    out[1:-1, 1:-1] = (
+        z[:-2, 1:-1] + z[2:, 1:-1] + z[1:-1, :-2] + z[1:-1, 2:] - 4.0 * center
+    ) / np.float32(step * step)
+    return out
+
+
 def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     """Каналы модели li из DEM на рабочем шаге: C×H×W uint8 и привязка (север вверху).
 
@@ -508,6 +528,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     dev_s, dev_l, dev_xl — то же окно, но делённое на σ окрестности и обрезанное
     к ±3: низкая насыпь в ровном поле не тонет, а в шумном лесу не сливается
     с клипом в метрах. Сданные каналы этот тег не использует.
+    rough — СКО высоты в окне 3×3, curv — лапласиан высоты. Оба не зависят от
+    азимута солнца. В сданных весах их нет: канал появляется, только если кэш
+    или инференс попросили этот тег.
     Только g зависит от направления света: без него допустимы повороты.
     """
     from rasterio.transform import from_origin
@@ -561,6 +584,10 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             unit = np.clip((np.nan_to_num(v, nan=lo) - lo) / (hi - lo), 0, 1)
         elif t == "int":
             unit = intensity_unit(d, step, z.shape)
+        elif t == "rough":
+            unit = np.clip(_window_std(filled) / RELIEF["rough_clip_m"], 0, 1)
+        elif t == "curv":
+            unit = np.clip(_laplacian(filled, step) / RELIEF["curv_clip"], -1, 1) * 0.5 + 0.5
         else:
             raise ValueError(f"неизвестный канал li: {t}")
         out.append(np.where(valid, np.rint(1 + unit * 254), 0).astype(np.uint8))

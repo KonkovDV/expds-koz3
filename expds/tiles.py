@@ -448,7 +448,7 @@ def _cli() -> None:
     ap.add_argument("--li-source", choices=["las", "tif"], default="las",
                     help="li: каналы из LAS (как на инференсе) или готовые карты Li трейна")
     ap.add_argument("--li-tags", nargs="*", default=None,
-                    help="las: lrm_s lrm_l lrm_xl slope g dev_s dev_l dev_xl; tif: g i c ch")
+                    help="las: lrm_s lrm_l lrm_xl slope g dev_s dev_l dev_xl rough curv int opns svf; tif: g i c ch")
     ap.add_argument("--max-per-region", type=int, default=3000)
     ap.add_argument("--shrink", type=float, default=0.0,
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")

@@ -2,7 +2,7 @@
 
 Срез 22.10.2026, вечер. План v3 (`docs/IMPROVEMENT_PLAN.md`) — справочник по закрытым опытам. Этот файл — порядок работы и правила приёмки. Журнал результатов — `docs/PLAN.md`.
 
-**С 25.10 сессия начинает с `docs/AI_WORK_PLAN_2026-10-25.md`.** Приёмка опытов — по честному баллу: `scripts/scoreboard.py --honest 10`, строка «честная приёмка». Пункт 4 раздела 0 ниже — прежнее правило; оно печатается, но решения не принимает (`docs/AUDIT_2026-10-24.md`, раздел 4). Загрузка на площадке — до 11.11, 23:59 МСК.
+**С 26.10 выборка — `F:\2\train-expds-3`, папки `F:\expds3\train-expds-3` нет. Сеть находок честное табло не приняла.** С 25.10 сессия начинает с `docs/AI_WORK_PLAN_2026-10-25.md`. Приёмка опытов — по честному баллу: `scripts/scoreboard.py --honest 10`, строка «честная приёмка». Пункт 4 раздела 0 ниже — прежнее правило; оно печатается, но решения не принимает (`docs/AUDIT_2026-10-24.md`, раздел 4). Загрузка на площадке — до 11.11, 23:59 МСК.
 
 **До 25.10 сессия начинала с `docs/AI_WORK_PLAN_2026-10-23.md`.** Отбор кругов окна 256 м и канала σ уже совпадает с баллом 0,353793. Образ опубликован. Вторая посылка 24.10 дала 0,32850 за 3 мин 14 с, архив `7697e0c0…`. Третья, 13:45, дала те же 0,32850 за 3 мин 11 с, хэша в логе нет. Это совпало с честным баллом 0,329489, а не с баллом фолдов 0,353793. Пороги по публичному баллу не двигать. Пять замен карты центров 24.10 хуже базы 0,350588. Другой канал геофизики не измерялся табло и в код не ставился.
 
@@ -34,7 +34,7 @@
 
    ```powershell
    $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
-   .venv\Scripts\python -X utf8 -u scripts\scoreboard.py --work F:\expds3\work --train F:\expds3\train-expds-3 `
+   .venv\Scripts\python -X utf8 -u scripts\scoreboard.py --work F:\expds3\work --train F:\2\train-expds-3 `
      --metric C:\Sloi\files\materials\compute_metrics.py --gt F:\expds3\work\gt_train_v2.geojson `
      --geo F:\expds3\work\geo_cur.geojson `
      --base-add F:\expds3\work\ae_fort_mask_oof.geojson:ae_fort:fortifikatsii:ae `
@@ -193,7 +193,7 @@ docker run --rm --gpus all --network none -m 96g -v F:\expds3\mock_val:/data/inp
 - **Запуск:**
 
   ```powershell
-  scripts\nn_oof.py --markup sp_or --root F:\expds3\train-expds-3 --cache F:\expds3\work\cache\spor_gor_r2_t384 `
+  scripts\nn_oof.py --markup sp_or --root F:\2\train-expds-3 --cache F:\expds3\work\cache\spor_gor_r2_t384 `
     --work F:\expds3\work\spor_gor_wide --out F:\expds3\work\spor_gor_wide_oof.geojson --folds 5 --epochs 24 --batch 8 `
     --classes gorodishcha
   ```

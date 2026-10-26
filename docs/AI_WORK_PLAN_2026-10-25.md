@@ -14,7 +14,7 @@
 
 ```powershell
 $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
-.venv\Scripts\python -X utf8 -u scripts\scoreboard.py --work F:\expds3\work --train F:\expds3\train-expds-3 `
+.venv\Scripts\python -X utf8 -u scripts\scoreboard.py --work F:\expds3\work --train F:\2\train-expds-3 `
   --metric C:\Sloi\files\materials\compute_metrics.py --gt F:\expds3\work\gt_train_v2.geojson `
   --geo F:\expds3\work\geo_cur.geojson `
   --base-add F:\expds3\work\ae_fort_mask_oof.geojson:ae_fort:fortifikatsii:ae `
@@ -43,7 +43,7 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 От ответа зависит, чем мерить опыты. Если участки выборки лежат рядом с участками трейна, честная оценка по семьям занижает всё, что выучивает конкретный памятник, и тогда правильна оценка по участкам.
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\site_overlap.py --train F:\expds3\train-expds-3 --val <папка публичной выборки> --out notes\site_overlap_public.json
+.venv\Scripts\python -X utf8 scripts\site_overlap.py --train F:\2\train-expds-3 --val <папка публичной выборки> --out notes\site_overlap_public.json
 ```
 
 - Больше половины участков выборки ближе 2 км к участку трейна (`<= 2000 m` в сводке) → во всех командах табло `--honest 10 --honest-by region`.
@@ -61,7 +61,7 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 **G0. Паспорт растров.** Без эталона на публичной выборке, с эталоном на трейне:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_probe.py --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson --out notes\geo_probe_train.json
+.venv\Scripts\python -X utf8 scripts\geo_probe.py --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson --out notes\geo_probe_train.json
 .venv\Scripts\python -X utf8 scripts\geo_probe.py --root <папка публичной выборки> --out notes\geo_probe_public.json
 ```
 
@@ -76,7 +76,7 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 **G1. База геофизики воспроизводится текущим кодом.**
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_default.geojson
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_default.geojson
 # табло из раздела 0 с --geo F:\expds3\work\geo_default.geojson: база обязана совпасть с --expect
 ```
 
@@ -85,16 +85,16 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 **G2. Отсечка пиков и радиус подавления.** Сравнение — по `f1_lofo_pooled`, не по `f1_in_sample`:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_tune.py --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_tune.py --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --only maggr/finds_points --k-min 1.0 --out F:\expds3\work\geo_k10.json      # база: f1_lofo_pooled 0,4614
-.venv\Scripts\python -X utf8 scripts\geo_tune.py --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_tune.py --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --only maggr/finds_points --k-min 0.5 0.75 1.0 --out F:\expds3\work\geo_k.json
 ```
 
 Если `f1_lofo_pooled` выросла: взять из `best_cfg` фон, радиус, `peak_k`, `use_noise`, `confidence` и `tau` и собрать файл:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_k.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_k.geojson `
   --set geophys.maggr.finds_points.peak_k=<k> --set geophys.maggr.finds_points.peak_radius_m=<r> `
   --set geophys.maggr.finds_points.background_m=<bg> --set geophys.maggr.finds_points.min_confidence=<tau>
 ```
@@ -119,11 +119,11 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 
 ## 2.4. Что из чужих схем ещё собирать нашим U-Net
 
-Код и веса чужих команд не копировать. Ultralytics и YOLO не брать: AGPL. Ниже только то, что ещё не закрыто замером. Сеть находок возобновлена 25.10 той же командой с `--resume`. Флаги этого прогона не менять.
+Код и веса чужих команд не копировать. Ultralytics и YOLO не брать: AGPL. Их собственная метрика пересечения в EPSG:3857 не официальная, классы курганов не склеивать. Ниже только то, что ещё не закрыто замером. Сеть находок досчитана 25.10 и честное табло не приняла. Повторно её не запускать.
 
 | Идея | Откуда | У нас | Решение |
 |---|---|---|---|
-| Сеть находок по магниторазведке | классика не закрывает полноту | классика; два лога 24.10 не говорят, были ли у находок попадания | **идёт последний фолд**. Кэш 9834 тайла, шаг 0,5 м, тайл 256. Семей три, фолдов три. В конфиг после честного табло |
+| Сеть находок по магниторазведке | классика не закрывает полноту | честное табло 25.10: по участкам 0,334157 → 0,333466 | **не принята**. Кэш и веса лежат, в конфиг не ставить и не учить заново |
 | Сеть архитектуры, обученная на ортофото | узкий класс на своих снимках | перенос весов спутника дал 84 круга и 0 попаданий | учить на ортофото, перенос не повторять |
 | Узкая сеть `object_poly` | отдельная сеть на редкий класс | классика уже даёт основной кусок геофизики | после находок, отдельным опытом |
 | Общая сеть спутника и ортофото | одна сеть на оба типа снимков | `cache_merge.py` и `--predict-markups` есть, обучения не было | после узкой архитектуры на ортофото |
@@ -171,7 +171,7 @@ $env:PYTHONPATH = "C:\Sloi\expds-koz3_v0.2.0\expds-koz3"
 **Копии по слоям EtGr.** Каждый срез и профиль — отдельный эталон (письмо организаторов 20.10). Аномалия, найденная на срезе 0,5 м, обычно есть и на срезе 1 м того же планшета, но классика находит её не на всех слоях. Копия ставится только в слой с той же привязкой и только туда, где на этом месте объекта ещё нет.
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_etgr_copy.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_etgr_copy.geojson `
   --set geophys.etgr.layer_copy=true
 # табло из раздела 0 с --geo F:\expds3\work\geo_etgr_copy.geojson; новая группа порога — etgr_copy
 ```
@@ -207,7 +207,7 @@ groups = ["ae_fort", "li_fort"]
 Команда, которая это измерила:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --root F:\expds3\train-expds-3 `
+.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --root F:\2\train-expds-3 `
   --weights models\spor_arch_r18.pt --out F:\expds3\work\or_arch_from_spor.geojson
 # табло: --add F:\expds3\work\or_arch_from_spor.geojson:or:arkhitektury:or --honest 10
 ```
@@ -224,14 +224,14 @@ arkhitektury = <порог из табло>
 **W2. Узкая сеть архитектуры на спутнике и ортофото вместе (ночь GTX 1650).**
 
 ```powershell
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --markup sp_or --out F:\expds3\work\cache\spor_arch_r05 --res 0.5 --tile 256 --classes arkhitektury
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --markup or --out F:\expds3\work\cache\or_arch_r05 --res 0.5 --tile 256 --classes arkhitektury
 .venv\Scripts\python -X utf8 scripts\cache_merge.py --src F:\expds3\work\cache\spor_arch_r05 F:\expds3\work\cache\or_arch_r05 `
   --out F:\expds3\work\cache\surf_arch_r05
 .venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --predict-markups sp_or or `
-  --root F:\expds3\train-expds-3 --cache F:\expds3\work\cache\surf_arch_r05 --work F:\expds3\work\surf_arch `
+  --root F:\2\train-expds-3 --cache F:\expds3\work\cache\surf_arch_r05 --work F:\expds3\work\surf_arch `
   --out F:\expds3\work\surf_arch_oof.geojson --folds 5 --epochs 30 --batch 16 --classes arkhitektury `
   --target centers --center-loss focal --center-sigma 0 --center-radius 2.0 --center-min-dist 4.0
 .venv\Scripts\python -X utf8 scripts\oof_transform.py pick --src F:\expds3\work\surf_arch_oof.geojson --markups sp_or `
@@ -248,7 +248,7 @@ arkhitektury = <порог из табло>
 **До W3 и до аренды — видны ли курганы на снимке вообще (CPU, минуты).** Сеть курганов аэрофото уже дала 3 попадания на 521 705 кругов. Прежде чем тратить ночи на новую, проверить, сидят ли эталонные курганы каждого слоя на пятнах своего снимка:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\image_label_shift.py --root F:\expds3\train-expds-3 `
+.venv\Scripts\python -X utf8 scripts\image_label_shift.py --root F:\2\train-expds-3 `
   --gt F:\expds3\work\gt_train_v2.geojson --markups ae sp_or or --out notes\image_label_shift.json
 ```
 
@@ -282,7 +282,7 @@ arkhitektury = <порог из табло>
 
 ```powershell
 # 1) классика по всем картам — файл геофизики для табло
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_allmaps.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_allmaps.geojson `
   --set geophys.maggr.maps="all"
 # табло из раздела 0 с --geo F:\expds3\work\geo_allmaps.geojson --honest 10
 
@@ -295,10 +295,10 @@ arkhitektury = <порог из табло>
 **Пересвет на других картах.** У 209 (Гнёздово, Терраса 1) у всех 233 эталонных находок сильный сигнал (медиана 47 MAD), но потолок 0,54: на карте при любой отсечке 215 пиков, 78 % пикселей ровно 255. У 212 и 207 потолок 0,56 при сигнале у эталона. Сильная аномалия на растянутой карте — ровное пятно в краю шкалы; максимум |hp| у него на кромке, и находка в центре пятна радиусом больше 2 м пика в допуске не получает. Опция `[geophys.maggr.finds_points] plateau = true` ставит кандидата в полюс недоступности пятна 3–60 м² и снимает пики его кромки (`geophys.plateau_centers`; на синтетике находит все три ядра, которые пики кромки пропускают). Порог «край шкалы не меньше 0,5 % пикселей» на листе с потолком 0,54 отбрасывал сами ядра: значение 0 там 0,49 % пикселей, пять пятен с кромкой 17–141 MAD. Этого порога нет. Потолок на трёх листах, где он был 0,54–0,56, после замены пиков центрами не вырос: 0,5408 → 0,5365, 0,5574 → 0,5527, 0,5641 → 0,5513. Центр пятна оказался дальше эталона, чем пик кромки. В конфиг не ставить, пока полный прогон ниже не покажет иное. Сначала потолок, потом табло:
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_probe.py --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_probe.py --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --plateau --out notes\geo_probe_train_plateau.json
 # сравнить recall_ceiling с notes/geo_probe_train.json по 209, 212, 207; если вырос —
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_plateau.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_plateau.geojson `
   --set geophys.maggr.finds_points.plateau=true
 # табло с --geo F:\expds3\work\geo_plateau.geojson --honest 10
 ```
@@ -315,7 +315,7 @@ arkhitektury = <порог из табло>
 При 5–15 добавляется около сотни пиков, и примерно половина из них в допуске эталона. Это выше точки, где при точности 0,79 новый кандидат окупается. Решает честное табло, не эта таблица.
 
 ```powershell
-.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\expds3\train-expds-3 --out F:\expds3\work\geo_dens10.geojson `
+.venv\Scripts\python -X utf8 scripts\geo_predict.py --root F:\2\train-expds-3 --out F:\expds3\work\geo_dens10.geojson `
   --set geophys.maggr.finds_points.peak_density_min=10
 # табло с --geo F:\expds3\work\geo_dens10.geojson --honest 10
 ```
@@ -364,7 +364,7 @@ arkhitektury = <порог из табло>
 # 1) сдвиг слоёв эталона относительно лидара
 .venv\Scripts\python -X utf8 scripts\layer_shift.py --gt F:\expds3\work\gt_train_v2.geojson --out notes\layer_shift.json
 # 2) стоят ли метки на пятнах снимка; --labels — сдвиг по курганам лидара, без эталона снимка
-.venv\Scripts\python -X utf8 scripts\image_label_shift.py --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson --out notes\image_label_shift.json
+.venv\Scripts\python -X utf8 scripts\image_label_shift.py --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson --out notes\image_label_shift.json
 # 3) если сдвиг устойчивый: табло переноса предсказаний
 .venv\Scripts\python -X utf8 scripts\oof_transform.py shift --src F:\expds3\work\ae_from_li.geojson --shifts notes\layer_shift.json --pair li:ae --markup ae --out F:\expds3\work\ae_shifted.geojson
 ```
@@ -375,14 +375,14 @@ arkhitektury = <порог из табло>
 
 Это самая подтверждённая ставка по постановке задачи: сеть на картах магниторазведки. Это не наш замер прироста. У нас вся геофизика на площадке имеет точность 0,791 и полноту 0,259. Задача — карта центров с фокальной потерей. Сдача запускает сеть строкой `[models] maggr` (`pipeline.geo_model_feats`, группа `maggr_nn`). В конфиге строки нет.
 
-**Идёт сейчас, флаги не менять.** Кэш `F:\expds3\work\cache\maggr_finds_r05_t256`: шаг 0,5 м, тайл 256, 9834 тайла. Команда — `--folds 5 --epochs 30 --batch 16 --target centers --center-loss focal --center-sigma 0 --center-radius 1 --center-min-dist 2` и `--resume`. Семей с находками три, поэтому фолдов три, а не пять. Два фолда записаны. Последний учится заново: он был оборван на восьмой эпохе. Эпоха около 10 минут, до конца фолда около пяти часов, если компьютер не уснёт. В конфиг не ставить до честного табло.
+**Закрыто 25.10, в конфиг не ставить.** Кэш `F:\expds3\work\cache\maggr_finds_r05_t256`: шаг 0,5 м, тайл 256, 9834 тайла. Команда была `--folds 5 --epochs 30 --batch 16 --target centers --center-loss focal --center-sigma 0 --center-radius 1 --center-min-dist 2` и `--resume`. Семей с находками три, поэтому фолдов три, а не пять. Честно по участкам 0,334157 → 0,333466. Повторно не запускать.
 
 Черновик ниже, шаг 0,1 м и круг 0,3 м, не запускался. Его не подменять вместо идущей команды.
 
 ```powershell
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --markup maggr --out F:\expds3\work\cache\maggr_finds_r01_t256 --res 0.1 --tile 256 --classes finds_points
-.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup maggr --root F:\expds3\train-expds-3 `
+.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup maggr --root F:\2\train-expds-3 `
   --cache F:\expds3\work\cache\maggr_finds_r01_t256 --work F:\expds3\work\maggr_finds `
   --out F:\expds3\work\maggr_finds_oof.geojson --folds 3 --epochs 30 --batch 16 `
   --classes finds_points --target centers --center-loss focal --center-sigma 0 `
@@ -416,9 +416,9 @@ finds_points = <порог из табло>
 Вес 10, на площадке 0 попаданий. На трейне архитектура — 210 объектов на спутнике (медиана 182 м²) и 178 на ортофото четырёх участков (медиана 15 м², десятая перцентиль 0,1 м²). На публичной выборке одно ортофото 2,7 ГБ с эталоном не меньше 40–50 объектов.
 
 ```powershell
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\expds3\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
+.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
   --markup or --out F:\expds3\work\cache\or_arch_r01_t256 --res 0.1 --tile 256 --classes arkhitektury
-.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --root F:\expds3\train-expds-3 `
+.venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --root F:\2\train-expds-3 `
   --cache F:\expds3\work\cache\or_arch_r01_t256 --work F:\expds3\work\or_arch `
   --out F:\expds3\work\or_arch_oof.geojson --folds 3 --epochs 30 --batch 16 `
   --classes arkhitektury --target centers --center-loss focal --center-sigma 0 `
@@ -449,8 +449,8 @@ finds_points = <порог из табло>
 | Даты | CPU | GPU ночью | Посылки |
 |---|---|---|---|
 | 25.10 | голосование и W1 отвергнуты. Кэш находок 9834 тайла, шаг 0,5 м. Два фолда готовы, последний возобновлён. Правка `LOCAL_CS` в коде, на картах сдачи она ничего не меняет. Архив не пересобран | не ставить сеть MagGr в конфиг до табло | ничего не грузить |
-| 26–27.10 | G3, G4, разделы 2.6 и 5 | сеть MagGr, фолды; W2 (архитектура спутник+ортофото) | G2/G3/G4, если приняты |
-| 28–30.10 | сеть MagGr в табло | кэш и фолды ортофото | сеть MagGr, если принята |
+| 26–27.10 | спасение городищ, городища по рельефу, копии срезов EtGr. Сеть находок уже не принята | не учить находки заново. Ночь лидара — пять новых облаков и, отдельно, `rough`/`curv` | ничего, пока честная приёмка не прошла |
+| 28–30.10 | табло этих опытов по одному | кэш и фолды ортофото, если очередь дошла | только принятую ветку |
 | 31.10–04.11 | ортофото в табло, только если новая сеть на ортофото принята; письмо по ImageNet | веса всех тайлов | не грузить отвергнутый перенос весов спутника |
 | 01–07.11 | — | аренда: курганы спутника, аэрофото | ветки по одной |
 | 08–09.11 | заморозка двух версий A и B | — | A и B |
