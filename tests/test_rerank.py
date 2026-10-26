@@ -94,3 +94,19 @@ def test_rerank_cli_writes_the_stack_with_base_confidence(tmp_path):
     out = json.loads((tmp_path / "o.geojson").read_text(encoding="utf-8"))
     assert len(out["features"]) == len(stack["features"])
     assert json.loads(run.stdout)["kurgany_povrezhdennye"]["reranked"] is True
+
+
+def test_related_class_nearby_is_a_feature():
+    """Вал у городища видит городище в 200 м; одиночный вал в поле — нет."""
+    rr = load_script()
+
+    def row(cls, x, r, conf, group):
+        return {"cls": cls, "geom": Point(x, 0.0).buffer(r), "conf": conf, "region": "101_Альфа_1",
+                "group": group, "markup": "li"}
+
+    rows = [row("fortifikatsii", 0.0, 5.0, 0.3, "li_fort"), row("gorodishcha", 150.0, 20.0, 0.8, "li_mask"),
+            row("fortifikatsii", 5000.0, 5.0, 0.3, "li_fort")]
+    X = rr.features(rows)
+    rel = X[:, rr.FEATURES.index("rel_max200")]
+    assert list(rel) == [0.8, 0.3, 0.0]
+    assert list(X[:, rr.FEATURES.index("n200_all")]) == [1.0, 1.0, 0.0]

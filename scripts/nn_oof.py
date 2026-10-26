@@ -164,6 +164,8 @@ def main() -> None:
                     help="гауссиана центра между клетками, без шипа в 1 (отдельный опыт, не рецепт сдачи)")
     ap.add_argument("--center-edge-ignore", action="store_true",
                     help="насыпь, обрезанную краем тайла, не учить: без пика, область −1 (отдельный опыт)")
+    ap.add_argument("--use-ignore", action="store_true",
+                    help="читать бит «не учить» кэша (--ignore-other-layers): объекты других слоёв — не фон")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="префикс классов кэша: биты маски идут в этом порядке")
     ap.add_argument("--repeat-regions", default=None,
@@ -267,7 +269,7 @@ def main() -> None:
                             seed=s if s else None, target=args.target,
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
-                            center_spike=not args.center_unbiased, center_edge_ignore=args.center_edge_ignore,
+                            center_spike=not args.center_unbiased, center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                             photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
                             flips_mode=args.flips)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}

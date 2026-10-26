@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 #: Поля meta.json, которые обязаны совпасть у всех источников.
-SAME = ("classes", "res", "tile", "channels", "pixel_units", "li_source")
+SAME = ("classes", "res", "tile", "channels", "pixel_units", "li_source", "ignore_bit")
 
 
 def _link(src: Path, dst: Path) -> None:

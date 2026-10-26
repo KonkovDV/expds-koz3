@@ -7,7 +7,8 @@
 - кандидат, который подтверждает другой слой или другая модель, вероятнее;
 - у кургана есть пара другой метки на том же месте (сдача выдаёт обе);
 - ранг объекта внутри своего участка и группы, а не абсолютная уверенность;
-- форма маски: фортификация вытянута, городище и курган компактны.
+- форма маски: фортификация вытянута, городище и курган компактны;
+- рядом с фортификацией стоят городище и постройки, одиночный вал в поле чаще ложный.
 
 Признаки считаются только из самого стека, растры не читаются. Оценщик — LightGBM
 на класс, рост уверенности объекта не может понизить оценку (монотонное
@@ -51,9 +52,13 @@ KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
 #: Радиус подтверждения другим источником, м: курган — своя насыпь, городище — площадка.
 SUPPORT_M = {"kurgany_povrezhdennye": 8.0, "kurgany_tselye": 8.0, "gorodishcha": 60.0, "fortifikatsii": 20.0,
              "arkhitektury": 10.0, "object_poly": 5.0, "finds_points": 2.0}
+#: Классы, которые стоят рядом на одном памятнике: вал и ров у городища, постройки внутри.
+RELATED = {"fortifikatsii": ("gorodishcha", "arkhitektury"), "gorodishcha": ("fortifikatsii", "arkhitektury"),
+           "arkhitektury": ("gorodishcha", "fortifikatsii"), "object_poly": ("finds_points",),
+           "finds_points": ("object_poly",)}
 FEATURES = ["conf", "logit", "group", "markup", "log_area", "compact", "axis", "rank_pct", "log_n_rgc",
             "n10", "n30", "n100", "nbr_max30", "twin", "x_max", "x_groups", "x_any", "xf_max",
-            "reg_groups", "reg_has_li", "reg_log_n", "reg_top"]
+            "rel_max200", "n200_all", "reg_groups", "reg_has_li", "reg_log_n", "reg_top"]
 CATEGORICAL = ("group", "markup")
 
 
@@ -173,7 +178,12 @@ def features(rows: list[dict]) -> np.ndarray:
         n_groups = len(set(grp))
         has_li = float(any(f == "relief" for f in fam))
         near100 = tree.query_ball_point(xy[idx], 100.0)
+        near200 = tree.query_ball_point(xy[idx], 200.0)
         for k, i in enumerate(idx):
+            rel = RELATED.get(cls[k], ())
+            rel_near = [j for j in near200[k] if cls[j] in rel]
+            X[i, col["rel_max200"]] = float(conf[idx[rel_near]].max()) if rel_near else 0.0
+            X[i, col["n200_all"]] = float(len(near200[k]) - 1)
             X[i, col["reg_groups"]] = n_groups
             X[i, col["reg_has_li"]] = has_li
             X[i, col["reg_log_n"]] = math.log1p(len(idx))

@@ -315,6 +315,11 @@ def load_label_shifts(path: str | None) -> dict[str, tuple[float, float]]:
     return {r["file"]: (float(r["dx_m"]), float(r["dy_m"])) for r in rows if r.get("systematic")}
 
 
+#: Бит маски «не учить»: классов в кэше не больше семи, старший бит свободен.
+IGNORE_BIT = 7
+CLASS_BITS_MASK = (1 << IGNORE_BIT) - 1
+
+
 def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5, tile: int = 256,
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
@@ -323,7 +328,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 only_classes: list[str] | None = None, pos_repeat: int = 1,
                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
                 exclude_files: list[str] | None = None,
-                label_shifts: dict[str, tuple[float, float]] | None = None) -> dict:
+                label_shifts: dict[str, tuple[float, float]] | None = None,
+                ignore_other_layers: bool = False) -> dict:
     """Строит кэш тайлов и возвращает сводку.
 
     dem — {res, fill} DEM для li из LAS (по умолчанию MODEL_DEM); only_classes — учить
@@ -332,6 +338,9 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     min_area_m2 — не брать полигоны мельче этого размера на земле; точки остаются.
     label_shifts — {имя файла: (на восток, на юг) метров}: эталон этого снимка переносится
     на пятна самого снимка; снимков без записи перенос не касается.
+    ignore_other_layers — объект тех же классов из разметки другого слоя там, где своей
+    разметки нет, пишется битом IGNORE_BIT: «не учить», а не фон. Обучение читает бит
+    только с флагом (`expds.train`, `use_ignore`).
     """
     from .lidar import MODEL_DEM, RELIEF_TAGS
 
@@ -343,11 +352,16 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
     if not classes:
         raise ValueError(f"нет классов {only_classes} в модальности {markup}")
     gt = json.loads(Path(gt_path).read_text(encoding="utf-8"))["features"]
+    if ignore_other_layers and len(classes) > IGNORE_BIT:
+        raise ValueError(f"бит «не учить» {IGNORE_BIT} занят: классов {len(classes)}")
     by_region: dict[str, list[tuple]] = {}
+    others: dict[str, list] = {}
     for f in gt:
         pr = f["properties"]
         if pr.get("markup_type") == markup and pr["class_name"] in classes:
             by_region.setdefault(pr["region_name"], []).append((shape(f["geometry"]), pr["class_name"]))
+        elif ignore_other_layers and pr["class_name"] in classes:
+            others.setdefault(pr["region_name"], []).append(shape(f["geometry"]))
     out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     imgs, masks, rows = [], [], []
@@ -374,6 +388,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             if label_shifts and src_name in label_shifts:
                 local = shift_labels(local, label_shifts[src_name], crs, bnd)
             local = [(g, c) for g, c in local if g.intersects(bnd)]
+            foreign = [g.buffer(1.0) if g.geom_type == "Point" else g
+                       for g in (to_crs(g, WEB_MERCATOR, crs) for g in others.get(reg.name, [])) if g.intersects(bnd)]
             if min_area_m2 > 0:
                 local = [(g, c) for g, c in local
                          if g.geom_type == "Point" or ground_area_m2(g, crs) >= min_area_m2]
@@ -408,12 +424,17 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                         r = rasterize(((g, 1) for g in shp), out_shape=(tile, tile), transform=tr,
                                       all_touched=True, dtype="uint8")
                         m |= (r.astype(np.uint8) << k)
+                if foreign:
+                    r = rasterize(((g, 1) for g in foreign), out_shape=(tile, tile), transform=tr,
+                                  all_touched=True, dtype="uint8")
+                    m |= ((r.astype(bool) & (m == 0)).astype(np.uint8) << IGNORE_BIT)
                 imgs.append(fix_channels(to_uint8(img, markup), n_ch))
                 masks.append(m)
+                own = bool((m & CLASS_BITS_MASK).any())
                 rows.append([shard, len(imgs) - 1, reg.name, site_family(reg.name), src_name,
-                             round(cx, 2), round(cy, 2), int(m.any())])
+                             round(cx, 2), round(cy, 2), int(own)])
                 total["tiles"] += 1
-                total["positive"] += int(m.any())
+                total["positive"] += int(own)
                 if len(imgs) >= shard_size:
                     flush()
         log.info("%s: тайлов всего %d", reg.name, total["tiles"])
@@ -432,6 +453,8 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
     if label_shifts:
         meta["label_shifts"] = {k: list(v) for k, v in label_shifts.items()}
+    if ignore_other_layers:
+        meta["ignore_bit"] = IGNORE_BIT
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return meta
 
@@ -467,6 +490,8 @@ def _cli() -> None:
                     help="подстроки имён растров, которые в кэш не идут (scripts/geo_silent_maps.py)")
     ap.add_argument("--min-area", type=float, default=0.0,
                     help="не брать полигоны мельче этого размера, м² на земле; точки остаются")
+    ap.add_argument("--ignore-other-layers", action="store_true",
+                    help="объекты тех же классов из разметки других слоёв — бит «не учить», а не фон")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from .lidar import MODEL_DEM
@@ -478,7 +503,8 @@ def _cli() -> None:
                        shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
                        only_classes=args.classes, pos_repeat=args.pos_repeat,
                        only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
-                       label_shifts=load_label_shifts(args.label_shifts))
+                       label_shifts=load_label_shifts(args.label_shifts),
+                       ignore_other_layers=args.ignore_other_layers)
     print(json.dumps(meta, ensure_ascii=False))
 
 
