@@ -93,6 +93,27 @@ def mosaic_kurgans(folder: Path) -> tuple[set[str], list[dict]]:
     return names, kept
 
 
+GEO_MARKUPS = {"maggr", "etgr", "terfl"}
+
+
+def is_geophysics(feat: dict) -> bool:
+    """Объект файла геофизики: модальность или её группа порога (в том числе etgr_copy)."""
+    p = feat.get("properties") or {}
+    mark = str(p.get("markup_type") or "")
+    group = str(p.get("threshold_group") or "")
+    if mark in GEO_MARKUPS or group in GEO_MARKUPS:
+        return True
+    head = group.split("_", 1)[0]
+    return head in GEO_MARKUPS and group != head
+
+
+def swap_geophysics(feats: list[dict], path: Path) -> list[dict]:
+    """База остаётся на своём файле геофизики; в опыте он заменён целиком."""
+    kept = [f for f in feats if not is_geophysics(f)]
+    kept.extend(load(path)["features"])
+    return kept
+
+
 def satellite_centers(fc: dict) -> list[dict]:
     out = []
     for f in fc["features"]:
@@ -215,7 +236,9 @@ def main() -> None:
     ap.add_argument("--work", required=True, help="папка с предсказаниями вне обучения")
     ap.add_argument("--train", required=True, help="корень трейна: рамки LAS для li_coarse")
     ap.add_argument("--metric", default=str(ROOT / "materials" / "compute_metrics.py"))
-    ap.add_argument("--geo", default=None, help="геофизика; по умолчанию <work>/geo_cur.geojson")
+    ap.add_argument("--geo", default=None, help="геофизика базы; по умолчанию <work>/geo_cur.geojson")
+    ap.add_argument("--geo-experiment", default=None,
+                    help="файл геофизики только для опыта; база остаётся на --geo")
     ap.add_argument("--gt", default=None,
                     help="эталон; по умолчанию <work>/gt_train_v2.geojson (слои EtGr не склеены)")
     ap.add_argument("--expect", type=float, default=None, help="база должна совпасть с точностью 0,0005")
@@ -262,7 +285,7 @@ def main() -> None:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
     honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
-    if not args.add and not args.replace and not swap_li and not args.rerank:
+    if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment:
         if args.out:
             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
                                                   "honest_base": honest_b[0] if honest_b else None},
@@ -285,6 +308,8 @@ def main() -> None:
         mixed += fresh
     for spec in args.add:
         mixed += added(spec)
+    if args.geo_experiment:
+        mixed = swap_geophysics(mixed, Path(args.geo_experiment))
     if args.rerank:
         # Переоценённый стек заменяет базу целиком; --add и --replace к нему не применяются.
         mixed = load(Path(args.rerank))["features"]

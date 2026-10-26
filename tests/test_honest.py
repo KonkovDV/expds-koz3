@@ -107,6 +107,26 @@ def test_family_bootstrap_is_certain_when_a_wins_everywhere():
     assert res["p_gt0"] == 1.0 and res["families"] == 5 and res["mean"] > 0
 
 
+def test_geophysics_swap_replaces_only_those_markups(tmp_path):
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.spec_from_file_location("scoreboard", Path(__file__).resolve().parents[1] / "scripts" / "scoreboard.py")
+    sb = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sb)
+    fresh = tmp_path / "geo.geojson"
+    fresh.write_text(
+        '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"markup_type":"etgr","threshold_group":"etgr_copy","class_name":"object_poly"}}]}',
+        encoding="utf-8")
+    base = [
+        {"properties": {"markup_type": "maggr", "class_name": "finds_points"}},
+        {"properties": {"markup_type": "li", "threshold_group": "li", "class_name": "kurgany_povrezhdennye"}},
+        {"properties": {"threshold_group": "etgr_copy", "markup_type": "etgr", "class_name": "object_poly"}},
+    ]
+    out = sb.swap_geophysics(base, fresh)
+    assert [f["properties"].get("threshold_group") for f in out] == ["li", "etgr_copy"]
+
+
 def test_scoreboard_honest_uses_the_stored_curves(monkeypatch):
     import importlib.util
     from pathlib import Path
