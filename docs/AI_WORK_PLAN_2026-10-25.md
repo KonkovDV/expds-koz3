@@ -229,8 +229,6 @@ groups = ["ae_fort", "li_fort"]
 
 **W1. Ортофото сданной сетью архитектуры — отвергнуто 25.10.** Три участка, 84 круга. Порог группы `or` 0,900841 не оставил ни одного, попаданий 0, балл без изменения. Посылку «ортофото вкл» не делать. Числа — `notes/or_arch_from_spor_2026-10-25.json`. Следующая архитектура ортофото должна учиться на ортофото, а не на весах спутника.
 
-**W1. Ортофото сданной сетью архитектуры — отвергнуто 25.10.** Три участка, 84 круга. Порог группы `or` 0,900841 не оставил ни одного, попаданий 0, балл без изменения. Посылку «ортофото вкл» не делать. Числа — `notes/or_arch_from_spor_2026-10-25.json`. Следующая архитектура ортофото должна учиться на ортофото, а не на весах спутника.
-
 Команда, которая это измерила:
 
 ```powershell
@@ -248,18 +246,12 @@ or = {path = "models/spor_arch_r18.pt", classes = ["arkhitektury"]}
 arkhitektury = <порог из табло>
 ```
 
-**W2. Узкая сеть архитектуры на спутнике и ортофото вместе (ночь GTX 1650).**
+**W2. Узкая сеть архитектуры на спутнике и ортофото вместе (ночь GTX 1650).** Кэши собраны 27.10 с `--pos-repeat 3 --ground-pixels`: ортофото 819 тайлов (589 с объектом), спутник 2082 (934), склейка `surf_arch_r05_t256` — 2901 тайл и 1523 с объектом. Повторно не собирать. Старый `spor_r05_arch` (окно 128, сжатие маски 0,4) не подмешивать. Обучение не начато. На GTX 1650 4 ГБ окно 256 не влезет пачкой 16: начинать с `--batch 4`, поднимать только если первая эпоха помещается.
 
 ```powershell
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
-  --markup sp_or --out F:\expds3\work\cache\spor_arch_r05 --res 0.5 --tile 256 --classes arkhitektury
-.venv\Scripts\python -X utf8 -m expds.tiles --root F:\2\train-expds-3 --gt F:\expds3\work\gt_train_v2.geojson `
-  --markup or --out F:\expds3\work\cache\or_arch_r05 --res 0.5 --tile 256 --classes arkhitektury
-.venv\Scripts\python -X utf8 scripts\cache_merge.py --src F:\expds3\work\cache\spor_arch_r05 F:\expds3\work\cache\or_arch_r05 `
-  --out F:\expds3\work\cache\surf_arch_r05
 .venv\Scripts\python -X utf8 scripts\nn_oof.py --markup or --predict-markups sp_or or `
-  --root F:\2\train-expds-3 --cache F:\expds3\work\cache\surf_arch_r05 --work F:\expds3\work\surf_arch `
-  --out F:\expds3\work\surf_arch_oof.geojson --folds 5 --epochs 30 --batch 16 --classes arkhitektury `
+  --root F:\2\train-expds-3 --cache F:\expds3\work\cache\surf_arch_r05_t256 --work F:\expds3\work\surf_arch `
+  --out F:\expds3\work\surf_arch_oof.geojson --folds 5 --epochs 30 --batch 4 --classes arkhitektury `
   --target centers --center-loss focal --center-sigma 0 --center-radius 2.0 --center-min-dist 4.0
 .venv\Scripts\python -X utf8 scripts\oof_transform.py pick --src F:\expds3\work\surf_arch_oof.geojson --markups sp_or `
   --out F:\expds3\work\surf_arch_sp.geojson
@@ -268,7 +260,7 @@ arkhitektury = <порог из табло>
 # табло: --replace sp_arch=F:\expds3\work\surf_arch_sp.geojson --add F:\expds3\work\surf_arch_or.geojson:or:arkhitektury:or
 ```
 
-Рецепт тот же, что у сданной `spor_arch_r18.pt` (центры, круг 2 м, шаг 0,5 м), меняются только данные (спутник + ортофото) и окно (256 вместо 128 пикселей). Второй опыт — редкий класс чаще в эпохе: `expds.tiles ... --pos-repeat 3` (три тайла на объект с разными сдвигами) у обоих кэшей. Флаги `--ground-pixels` и `--res` у двух кэшей обязаны совпасть — `cache_merge.py` иначе откажет. Принято → `python -m expds.train --cache F:\expds3\work\cache\surf_arch_r05 ...` на всех тайлах, одни и те же веса в `[models] sp_or` (вместо `spor_arch_r18.pt`) и `[models] or`.
+Рецепт тот же, что у сданной `spor_arch_r18.pt` (центры, круг 2 м, шаг 0,5 м), меняются только данные (спутник + ортофото) и окно (256 вместо 128 пикселей). Три тайла на объект уже в кэше. Принято → `python -m expds.train --cache F:\expds3\work\cache\surf_arch_r05_t256` на всех тайлах, одни и те же веса в `[models] sp_or` (вместо `spor_arch_r18.pt`) и `[models] or`.
 
 **W3. Общая сеть курганов, городищ и фортификаций на аэрофото, спутнике и ортофото** — тот же путь с `--classes kurgany_povrezhdennye kurgany_tselye` (карта центров, как `sp_focal`) и отдельно `gorodishcha` / `fortifikatsii` (маска). Здесь у нас уже сданы отдельные сети, поэтому общая идёт заменой через `--replace` и проходит честную приёмку против каждой. На GTX 1650 — шаг 0,5 м; шаг 0,3 м и тайл 512–1024 — на арендованной карте (раздел 6).
 
