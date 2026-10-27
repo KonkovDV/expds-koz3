@@ -57,6 +57,7 @@ def maybe_verify(feats: list[dict], regions: dict, cfg: dict) -> list[dict] | No
     probs = _predict(feats, chosen, regions, path, markup, opts.get("tile"), opts.get("res"))
     if probs is None:
         return None
+    probs = fill_group_median(feats, chosen, probs)
     out = [dict(f) for f in feats]
     for i, prob in zip(chosen, probs):
         if prob is None or not np.isfinite(prob):
@@ -68,12 +69,28 @@ def maybe_verify(feats: list[dict], regions: dict, cfg: dict) -> list[dict] | No
     return out
 
 
-def _predict(feats, indexes, regions, weights: Path, markup: str, tile, res):
+def fill_group_median(feats: list[dict], chosen: list[int], probs: list) -> list:
+    """Выбранный круг без окна получает медиану своей группы и класса, как в `crop_verify.py`.
+
+    Табло мерило именно такое правило; без него сдача и табло расходятся. Группа, где ни
+    одно окно не прочитано, остаётся без вероятности — уверенности её кругов не меняются.
+    """
+    keys = [(feats[i].get("threshold_group") or feats[i].get("markup_type"), feats[i].get("class_name"))
+            for i in chosen]
+    vals: dict[tuple, list[float]] = {}
+    for key, p in zip(keys, probs):
+        if p is not None and np.isfinite(p):
+            vals.setdefault(key, []).append(float(p))
+    med = {k: float(np.median(v)) for k, v in vals.items()}
+    return [p if (p is not None and np.isfinite(p)) else med.get(k) for k, p in zip(keys, probs)]
+
+
+def _predict(feats, indexes, regions, weights: Path, markup: str, tile, res, batch: int = 64):
     """Вероятности кропа. Ошибка чтения или торча — None, сдача остаётся прежней.
 
-    Шаг и окно по умолчанию — из файла весов: те же, на которых учился классификатор.
-    Из нескольких снимков участка берётся тот, где окно заполнено сильнее, как в
-    `scripts/crop_verify.extract_crops`.
+    Шаг, окно и каналы рельефа по умолчанию — из файла весов: те же, на которых учился
+    классификатор. Из нескольких снимков участка берётся тот, где окно заполнено сильнее,
+    как в `scripts/crop_verify.extract_crops`. Окна одного участка идут в сеть пачками.
     """
     try:
         import torch
@@ -91,6 +108,11 @@ def _predict(feats, indexes, regions, weights: Path, markup: str, tile, res):
         return None
     tile = int(tile or blob.get("tile") or 96)
     res = float(res or blob.get("res") or 0.5)
+    li_tags = list(blob.get("li_tags") or ())
+    if markup == "li" and not li_tags:
+        from .lidar import RELIEF_TAGS
+
+        li_tags = list(RELIEF_TAGS)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device).eval()
     probs = [None] * len(indexes)
@@ -105,7 +127,7 @@ def _predict(feats, indexes, regions, weights: Path, markup: str, tile, res):
             continue
         best: dict[int, tuple[int, np.ndarray]] = {}
         try:
-            for _src, crs, bnd, read in iter_sources(reg, markup, [], "las", res, tile):
+            for _src, crs, bnd, read in iter_sources(reg, markup, li_tags, "las", res, tile):
                 for n in todo:
                     geom = feats[indexes[n]].get("geom")
                     if geom is None:
@@ -121,8 +143,11 @@ def _predict(feats, indexes, regions, weights: Path, markup: str, tile, res):
                         best[n] = (filled, fix_channels(img, 3))
         except Exception:
             log.exception("%s: окна проверки кропа не прочитаны", name)
-        for n, (_filled, arr) in best.items():
-            probs[n] = _probability(model, arr, device)
+        order = sorted(best)
+        for s in range(0, len(order), batch):
+            part = order[s:s + batch]
+            for n, p in zip(part, _probabilities(model, np.stack([best[n][1] for n in part]), device)):
+                probs[n] = p
     return probs
 
 
@@ -144,11 +169,16 @@ def _network(encoder: str, pretrained: bool):
     return Net()
 
 
-def _probability(model, image: np.ndarray, device) -> float:
+def _probabilities(model, images: np.ndarray, device) -> list[float]:
+    """Вероятности пачки окон N×3×H×W: среднее по четырём отражениям, как в `crop_verify.predict`."""
     import torch
 
-    x = torch.from_numpy(np.ascontiguousarray(image)).to(device).float().unsqueeze(0)
+    x = torch.from_numpy(np.ascontiguousarray(images)).to(device).float()
     x = (x / 255.0 - 0.5) / 0.25
     with torch.inference_mode():
         views = (x, x.flip(-1), x.flip(-2), x.flip(-1).flip(-2))
-        return float((sum(torch.sigmoid(model(v)) for v in views) / 4).cpu())
+        return [float(v) for v in (sum(torch.sigmoid(model(v)) for v in views) / 4).cpu()]
+
+
+def _probability(model, image: np.ndarray, device) -> float:
+    return _probabilities(model, image[None], device)[0]

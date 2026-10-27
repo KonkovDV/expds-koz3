@@ -338,6 +338,10 @@ def oof_scores(rows: list[dict], X: np.ndarray, y: np.ndarray, folds: int = 5, m
     этого фолда дала меньше. Вероятности моделей разных фолдов на разной шкале (своя доля
     попаданий в обучении), а порог группы табло подбирает на участках, оценённых другими
     моделями. Квантиль своей модели переводит все фолды на одну шкалу. "none" — сырая вероятность.
+    "quantile-group": квантиль среди обучающих строк той же группы порога. Порог стоит внутри
+    группы, а общий квантиль класса ставит круги спутника на шкалу, которую задают круги лидара:
+    модель другого фолда сдвигает её по-своему, и порог группы, подобранный на других участках,
+    переносится плохо.
     Если хоть один фолд класса нельзя обучить (одни нули или одни единицы), класс не трогается:
     иначе часть строк осталась бы на старой шкале.
     """
@@ -357,8 +361,9 @@ def oof_scores(rows: list[dict], X: np.ndarray, y: np.ndarray, folds: int = 5, m
               "feature_fraction": 0.8, "bagging_fraction": 0.8, "bagging_freq": 1, "lambda_l2": 1.0,
               "monotone_constraints": mono, "verbose": -1, "seed": seed, "num_threads": 0}
     cat = [FEATURES.index(c) for c in CATEGORICAL]
-    if calibrate not in ("quantile", "none"):
-        raise ValueError(f"calibrate: quantile или none, не {calibrate}")
+    if calibrate not in ("quantile", "quantile-group", "none"):
+        raise ValueError(f"calibrate: quantile, quantile-group или none, не {calibrate}")
+    grp = np.array([r["group"] for r in rows])
     for c in sorted(set(cls)):
         m = cls == c
         pos = int(y[m].sum())
@@ -380,6 +385,17 @@ def oof_scores(rows: list[dict], X: np.ndarray, y: np.ndarray, folds: int = 5, m
             if calibrate == "quantile":
                 ref = np.sort(booster.predict(X[tr]))
                 p_te = np.searchsorted(ref, p_te, side="right") / max(len(ref), 1)
+            elif calibrate == "quantile-group":
+                p_tr = booster.predict(X[tr])
+                g_tr, g_te = grp[tr], grp[te]
+                q = np.empty_like(p_te)
+                for g in set(g_te):
+                    ref = np.sort(p_tr[g_tr == g])
+                    sel = g_te == g
+                    # Группа, которой нет в обучении фолда: общий квантиль класса.
+                    ref = ref if ref.size else np.sort(p_tr)
+                    q[sel] = np.searchsorted(ref, p_te[sel], side="right") / max(len(ref), 1)
+                p_te = q
             scores[k] = p_te
         if not scores:
             report[c] = {"rows": int(m.sum()), "pos": pos, "reranked": False, "note": "фолд без обеих меток"}
@@ -398,9 +414,33 @@ def auc(score: np.ndarray, y: np.ndarray) -> float:
     return float((ranks[: len(pos)].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 
+def group_report(cls: np.ndarray, grp: np.ndarray, base: np.ndarray, new: np.ndarray, y: np.ndarray,
+                 min_pos: int = 20) -> dict:
+    """Различимость внутри каждой группы порога: (класс, группа) → строки, попадания, base, rerank.
+
+    Порог стоит внутри группы, поэтому решает различимость внутри неё. Общая по классу
+    смешивает группы: «лидар выше спутника» её поднимает, а внутри группы спутника
+    порядок может стать хуже. Так и вышло 27.10: общая 0,9348 → 0,9593, балл вниз.
+    """
+    out: dict = {}
+    for c in sorted(set(cls)):
+        for g in sorted(set(grp[cls == c])):
+            m = (cls == c) & (grp == g)
+            pos = int(y[m].sum())
+            rec = {"rows": int(m.sum()), "pos": pos}
+            if pos >= min_pos and pos < m.sum():
+                rec["auc_base"] = round(auc(base[m], y[m]), 4)
+                rec["auc_rerank"] = round(auc(new[m], y[m]), 4)
+            out.setdefault(c, {})[g] = rec
+    return out
+
+
 def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5, min_pos: int = 30,
            write: bool = True, only_classes: set[str] | None = None, labels: str = "first",
-           calibrate: str = "quantile") -> tuple[dict | None, dict]:
+           calibrate: str = "quantile", gate: float | None = None) -> tuple[dict | None, dict]:
+    """Переоценка стека. gate — переписать только группы, где различимость внутри группы
+    выросла хотя бы на gate (и попаданий не меньше 20); остальные группы класса — как были.
+    """
     rows, y = collect(stack, gt, metric_path, labels)
     print("считаю признаки", file=sys.stderr, flush=True)
     X = features(rows)
@@ -415,15 +455,25 @@ def rerank(stack: dict, gt: dict, metric_path: str | None = None, folds: int = 5
         m = cls == c
         rep["auc_base"] = round(auc(base[m], y[m]), 4)
         rep["auc_rerank"] = round(auc(new[m], y[m]), 4)
+    grp = np.array([r["group"] for r in rows])
+    by_group = group_report(cls, grp, base, new, y)
+    for c, rep in report.items():
+        rep["groups"] = by_group.get(c, {})
     done = {c for c, rep in report.items() if rep["reranked"]}
     if only_classes is not None:
         done &= set(only_classes)
+    allowed: set[tuple[str, str]] | None = None
+    if gate is not None:
+        allowed = {(c, g) for c in done for g, rec in by_group.get(c, {}).items()
+                   if "auc_rerank" in rec and rec["auc_rerank"] >= rec["auc_base"] + gate}
+        for c in done:
+            report[c]["gated_groups"] = sorted(g for cc, g in allowed if cc == c)
     if not write:
         return None, report
     for f in feats:
         f["properties"]["confidence_base"] = f["properties"].get("confidence")
     for r, s in zip(rows, new):
-        if r["cls"] in done:
+        if r["cls"] in done and (allowed is None or (r["cls"], r["group"]) in allowed):
             feats[r["idx"]]["properties"]["confidence"] = round(float(s), 6)
     return {"type": "FeatureCollection", "features": feats}, report
 
@@ -440,8 +490,10 @@ def main() -> None:
                     help="переоценить только эти классы; остальные уверенности остаются")
     ap.add_argument("--labels", choices=["first", "any"], default="first",
                     help="first — один к одному, как метрика (дубли на одном эталоне — 0); any — как до 27.10")
-    ap.add_argument("--calibrate", choices=["quantile", "none"], default="quantile",
-                    help="quantile — квантиль обучающих строк своей модели (одна шкала у всех фолдов)")
+    ap.add_argument("--calibrate", choices=["quantile", "quantile-group", "none"], default="quantile",
+                    help="quantile — квантиль обучающих строк своей модели; quantile-group — внутри своей группы порога")
+    ap.add_argument("--gate", type=float, default=None,
+                    help="переписать только группы, где различимость внутри группы выросла хотя бы на столько (0.01)")
     ap.add_argument("--report-only", action="store_true",
                     help="только площади под кривой, без второго GeoJSON на гигабайт")
     args = ap.parse_args()
@@ -453,7 +505,7 @@ def main() -> None:
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8"))
     out, report = rerank(stack, gt, args.metric, args.folds, args.min_pos, write=not args.report_only,
                          only_classes=set(args.classes) if args.classes else None,
-                         labels=args.labels, calibrate=args.calibrate)
+                         labels=args.labels, calibrate=args.calibrate, gate=args.gate)
     if out is not None:
         Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=1), flush=True)

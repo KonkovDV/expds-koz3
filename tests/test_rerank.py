@@ -217,3 +217,29 @@ def test_neighbour_counts_keep_their_radii():
     X = rr.features(rows)
     get = {f: X[0, rr.FEATURES.index(f)] for f in ("n10", "n30", "n100", "n200_all")}
     assert get == {"n10": 1.0, "n30": 2.0, "n100": 3.0, "n200_all": 4.0}
+
+
+def test_group_report_and_gate_keep_a_group_that_got_worse():
+    """Общая различимость растёт, а внутри одной группы падает: ворота оставляют её как была."""
+    rr = load_script()
+    cls = np.array(["k"] * 80)
+    grp = np.array(["li"] * 40 + ["sp"] * 40)
+    y = np.array(([1, 0] * 20) + ([1, 0] * 20))
+    base = np.where(y == 1, 0.6, 0.4) + np.r_[np.zeros(40), np.linspace(-0.3, 0.3, 40)]
+    new = np.r_[np.where(y[:40] == 1, 0.9, 0.5), np.where(y[40:] == 1, 0.2, 0.3)]
+    rep = rr.group_report(cls, grp, base, new, y, min_pos=10)
+    assert rep["k"]["li"]["auc_rerank"] >= rep["k"]["li"]["auc_base"]
+    assert rep["k"]["sp"]["auc_rerank"] < rep["k"]["sp"]["auc_base"]
+
+
+def test_rerank_gate_and_group_quantile_run_on_the_scene():
+    rr = load_script()
+    stack, gt = scene()
+    out, rep = rr.rerank(stack, gt, METRIC, folds=4, min_pos=30, calibrate="quantile-group", gate=0.0)
+    pv = rep["kurgany_povrezhdennye"]
+    assert pv["reranked"] and set(pv["groups"]) >= {"li", "sp_or"}
+    assert "gated_groups" in pv
+    changed = {f["properties"].get("threshold_group") for f in out["features"]
+               if f["properties"]["class_name"] == "kurgany_povrezhdennye"
+               and f["properties"]["confidence"] != f["properties"]["confidence_base"]}
+    assert changed <= set(pv["gated_groups"])

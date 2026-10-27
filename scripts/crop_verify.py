@@ -199,13 +199,17 @@ def fit_predict(Xtr: np.ndarray, ytr: np.ndarray, Xte: np.ndarray, epochs: int =
 
 
 def save_model(path: str, X: np.ndarray, y: np.ndarray, markup: str, res: float, tile: int,
-               encoder: str = "resnet18", pretrained: bool = True, **kw) -> dict:
-    """Веса на всех кропах для `[verify] weights`. Метка — «есть объект», без эталона на выходе."""
+               encoder: str = "resnet18", pretrained: bool = True, li_tags: tuple[str, ...] = (), **kw) -> dict:
+    """Веса на всех кропах для `[verify] weights`. Метка — «есть объект», без эталона на выходе.
+
+    В файл пишутся тип данных, шаг, окно и каналы рельефа: сдача режет кроп с ними же.
+    """
     import torch
 
     model = fit(X, y, encoder=encoder, pretrained=pretrained, **kw)
     blob = {"state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
             "encoder": encoder, "pretrained": False, "markup": markup, "res": res, "tile": tile,
+            "li_tags": list(li_tags),
             "positives": int(np.sum(y)), "crops": int(len(y))}
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     torch.save(blob, path)
@@ -310,7 +314,7 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
                     "hits": int(y_first.sum()), "blend": mode, "demote_with_gt": bool(demote_with_gt),
                     "groups": {}}
     if save_path and idx.size:
-        report["saved"] = save_model(save_path, X[idx], y[idx], markup, res, tile, **kw)
+        report["saved"] = save_model(save_path, X[idx], y[idx], markup, res, tile, li_tags=li_tags, **kw)
     m = np.isfinite(scored)
     if m.any() and 0 < y_first[m].sum() < m.sum():
         report["auc_stack"] = round(rr.auc(conf[m], y_first[m]), 4)

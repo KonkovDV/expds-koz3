@@ -192,3 +192,52 @@ def test_lidar_crops_come_from_the_las_relief(tmp_path):
     X, ok = cv.extract_crops(str(tmp_path), stack, list(range(len(feats))), "li", 0.5, 32, RELIEF_TAGS)
     assert ok[: len(MOUNDS)].all() and not ok[-1]           # последний кандидат вне облака
     assert X.shape == (len(feats), 3, 32, 32) and X[0].std() > 0
+
+
+def test_inference_hook_matches_the_board_crops_and_scores(tmp_path):
+    """Сдача (`expds.crop_model`) режет те же окна и даёт ту же вероятность, что табло (`crop_verify`).
+
+    Кандидат без окна получает медиану группы и там, и там: иначе табло мерит не то, что сдаётся.
+    """
+    pytest.importorskip("segmentation_models_pytorch")
+    from shapely.geometry import shape
+
+    from expds.catalog import scan_root
+    from expds.crop_model import maybe_verify
+
+    cv = load()
+    root, stack, _ = scene(tmp_path)
+    picked = cv.select(stack, {"kurgany_povrezhdennye"}, "sp_or", {"sp_focal"}, 0.05)
+    X, ok = cv.extract_crops(str(root), stack, picked, "sp_or", 1.0, 24, ())
+    y = np.array([1 if i % 2 == 0 else 0 for i in range(len(picked))])
+    weights = tmp_path / "crop.pt"
+    cv.save_model(str(weights), X[ok], y[ok], "sp_or", 1.0, 24, epochs=1, batch=8, pretrained=False, device="cpu")
+    import torch
+
+    from expds.crop_model import _network
+
+    blob = torch.load(weights, weights_only=False)
+    net = _network(blob["encoder"], False)
+    net.load_state_dict(blob["state_dict"])
+    expected = cv.predict(net.eval(), X[ok])
+    raw = []
+    for f in stack["features"]:
+        p = f["properties"]
+        raw.append({**p, "geom": shape(f["geometry"])})
+    raw.append({**raw[picked[0]], "geom": shape(f["geometry"]).buffer(0).centroid.buffer(1e-3),
+                "region_name": "999_Нет_1"})                                    # участка нет — не трогается
+    cfg = {"verify": {"enabled": True, "weights": str(weights), "markup": "sp_or", "groups": ["sp_focal"],
+                      "classes": ["kurgany_povrezhdennye"], "min_conf": 0.05}}
+    out = maybe_verify(raw, {r.name: r for r in scan_root(str(root))}, cfg)
+    got = np.array([out[i]["verify_p"] for i in picked])
+    assert np.allclose(got[ok], expected, atol=1e-5)
+    assert all(np.isclose(out[i]["confidence"], np.sqrt(raw[i]["confidence"] * out[i]["verify_p"]), atol=1e-6)
+               for i in picked)
+    assert "verify_p" not in out[-1]
+
+
+def test_missing_window_takes_the_group_median_like_the_board():
+    from expds.crop_model import fill_group_median
+
+    feats = [{"threshold_group": "sp_focal", "class_name": "k"}] * 3 + [{"threshold_group": "li", "class_name": "k"}]
+    assert fill_group_median(feats, [0, 1, 2, 3], [0.2, None, 0.6, None]) == [0.2, 0.4, 0.6, None]
