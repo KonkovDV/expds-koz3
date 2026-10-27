@@ -28,6 +28,25 @@ def test_finish_without_post_keeps_the_polygon():
     assert abs(out[0]["geom"].area - 400) < 1
 
 
+def test_only_classes_is_a_subset_and_the_default_is_unchanged():
+    """Без ключа выход прежний. С ключом — те же объекты оставленного класса, не новый детектор."""
+    hill = {"class_name": "gorodishcha", "geom": box(0, 0, 20, 20), "confidence": 0.99,
+            "markup_type": "li", "region_name": "r", "threshold_group": "li_mask"}
+    mound = {"class_name": "kurgany_tselye", "geom": box(40, 0, 50, 10), "confidence": 0.8,
+             "markup_type": "li", "region_name": "r", "threshold_group": "li"}
+    cfg = {"default_threshold": 0.15}
+    plain = finish([hill, mound], cfg)
+    empty_post = finish([hill, mound], {**cfg, "post": {}})
+    assert [f["class_name"] for f in plain] == [f["class_name"] for f in empty_post] == [
+        "gorodishcha", "kurgany_tselye"]
+    assert all(a["geom"].equals(b["geom"]) and a["confidence"] == b["confidence"]
+               for a, b in zip(plain, empty_post))
+    only = finish([hill, mound], {**cfg, "post": {"only_classes": ["gorodishcha"]}})
+    assert [f["class_name"] for f in only] == ["gorodishcha"]
+    assert only[0]["geom"].equals(plain[0]["geom"]) and only[0]["confidence"] == plain[0]["confidence"]
+    assert finish([hill, mound], {**cfg, "post": {"only_classes": []}}) == []
+
+
 def test_copy_rules_absent_add_nothing():
     feat = {"class_name": "kurgany_povrezhdennye", "geom": box(0, 0, 4, 4), "confidence": 0.9,
             "markup_type": "li", "threshold_group": "li"}

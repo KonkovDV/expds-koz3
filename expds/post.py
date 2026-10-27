@@ -218,6 +218,19 @@ def only_known_classes(feats: list[dict]) -> list[dict]:
     return [f for f in feats if f["class_name"] in CLASSES]
 
 
+def keep_classes(feats: list[dict], names) -> list[dict]:
+    """Оставляет только перечисленные классы. Пустой список оставляет пустой выход.
+
+    Строка принимается как один класс. Фильтр ставится последним, после порогов,
+    склейки и лимита файла: иначе копия лидара в аэрофото и квота лимита
+    посчитались бы по другому составу классов.
+    """
+    if isinstance(names, str):
+        names = [names]
+    wanted = set(names or ())
+    return [f for f in feats if f.get("class_name") in wanted]
+
+
 def _ground_scale(y_3857: float) -> float:
     """Метры на земле = единицы EPSG:3857 × cos φ."""
     lat = math.atan(math.sinh(y_3857 / 6378137.0))

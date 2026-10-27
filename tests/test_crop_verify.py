@@ -80,6 +80,43 @@ def test_crop_classifier_beats_stack_confidence(tmp_path):
     low = [p for p in props if p["confidence_base"] == 0.01]
     assert len(low) == 4 and all("verify_p" not in p and p["confidence"] == 0.01 for p in low)
     assert all(0.0 <= p["confidence"] <= 1.0 for p in props)
+    assert rep["demote_with_gt"] is False
+
+
+def test_default_output_does_not_read_the_ground_truth(tmp_path):
+    """Без --demote-with-gt второй круг на эталоне не обнуляется: эталона на площадке нет."""
+    pytest.importorskip("segmentation_models_pytorch")
+    cv = load()
+    root, stack, gt = scene(tmp_path)
+    twin = json.loads(json.dumps(stack["features"][0]))
+    twin["properties"]["confidence"] = 0.1
+    stack["features"].append(twin)
+    kw = dict(res=1.0, tile=24, li_tags=(), folds=2, mode="p",
+              metric_path=str(ROOT / "materials" / "compute_metrics.py"),
+              epochs=2, batch=16, lr=1e-3, encoder="resnet18", pretrained=False, device="cpu")
+    out, _ = cv.run(str(root), stack, gt, "sp_or", {"kurgany_povrezhdennye"}, {"sp_focal"}, 0.05, **kw)
+    assert float(out["features"][-1]["properties"]["verify_p"]) > 0.0
+    leaked, rep = cv.run(str(root), stack, gt, "sp_or", {"kurgany_povrezhdennye"}, {"sp_focal"}, 0.05,
+                         demote_with_gt=True, **kw)
+    assert float(leaked["features"][-1]["properties"]["verify_p"]) == 0.0 and rep["demote_with_gt"]
+
+
+def test_saved_weights_load_in_the_inference_hook(tmp_path):
+    pytest.importorskip("segmentation_models_pytorch")
+    from expds.crop_model import _network
+
+    import torch
+
+    cv = load()
+    X = np.zeros((8, 3, 16, 16), np.uint8)
+    X[:4] = 200
+    y = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+    info = cv.save_model(str(tmp_path / "crop.pt"), X, y, "sp_or", 0.5, 16, epochs=1, batch=4,
+                         pretrained=False, device="cpu")
+    assert info["crops"] == 8 and info["positives"] == 4 and info["pretrained"] is False
+    blob = torch.load(tmp_path / "crop.pt", weights_only=False)
+    net = _network(blob["encoder"], blob["pretrained"])
+    net.load_state_dict(blob["state_dict"])
 
 
 def test_blend_modes():

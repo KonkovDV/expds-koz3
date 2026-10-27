@@ -19,6 +19,7 @@ import argparse
 import csv
 import json
 import logging
+import math
 import random
 from functools import lru_cache
 from pathlib import Path
@@ -221,10 +222,26 @@ def iter_sources(reg: Region, markup: str, li_tags: list[str], li_source: str, r
                 step = ground_step(native, kind, lat, res)
             else:
                 step = working_res(native, res)
-        stats = band_stats(str(files[0]), markup) if len(files) == 1 else None
-        yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=step, st=stats: (
-            to_uint8(read_window(f, cx, cy, r, tile), markup, st),
-            from_origin(cx - tile * r / 2, cy + tile * r / 2, r, r))
+            stats = band_stats(str(files[0]), markup) if len(files) == 1 else None
+            if len(files) > 1:
+                # Каналы лежат в разных файлах (карты Li трейна): каждый файл открывается заново.
+                yield files[0].name, crs, bnd, lambda cx, cy, f=files, r=step, st=stats: (
+                    to_uint8(read_window(f, cx, cy, r, tile), markup, st),
+                    from_origin(cx - tile * r / 2, cy + tile * r / 2, r, r))
+                continue
+            # Файл остаётся открытым, пока вызывающий читает окна этого источника.
+            # Иначе каждый тайл заново строит WarpedVRT большого ортофото.
+            strips = StripGrid(ds, step) if StripGrid.applies(ds) else None
+            log.info("%s: источник %s%s", reg.name, files[0].name, ", полосы в рабочем шаге" if strips else "")
+
+            def read_open(cx, cy, ds=ds, r=step, st=stats, strips=strips):
+                if strips is not None:
+                    img, x0, y0 = strips.window(cx, cy, tile)
+                    return to_uint8(img, markup, st), from_origin(x0, y0, strips.step_x, strips.step_y)
+                return (to_uint8(window_from_dataset(ds, cx, cy, r, tile), markup, st),
+                        from_origin(cx - tile * r / 2, cy + tile * r / 2, r, r))
+
+            yield files[0].name, crs, bnd, read_open
 
 
 def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
@@ -232,6 +249,129 @@ def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
     if img.shape[0] >= c:
         return img[:c]
     return np.concatenate([img, np.repeat(img[-1:], c - img.shape[0], axis=0)], axis=0)
+
+
+def _read_resampled(ds, win: Window, n: int, tile: int, resampling) -> np.ndarray:
+    """Окно в кадр tile×tile. За краем — нули.
+
+    Обычный растр читается с boundless. WarpedVRT так не умеет: читается только
+    перекрытие с кадром, остальное остаётся нулём. Пиксели внутри кадра те же.
+    """
+    bands = list(range(1, n + 1))
+    try:
+        return ds.read(bands, window=win, out_shape=(n, tile, tile), boundless=True,
+                       fill_value=0, resampling=resampling)
+    except ValueError:
+        # Тип пикселя снимка: uint8 без растяжки идёт в сеть как есть, как на инференсе.
+        out = np.zeros((n, tile, tile), ds.dtypes[0])
+        col0, row0 = float(win.col_off), float(win.row_off)
+        width, height = float(win.width), float(win.height)
+        if width <= 0 or height <= 0:
+            return out
+        left, top = max(col0, 0.0), max(row0, 0.0)
+        right = min(col0 + width, float(ds.width))
+        bottom = min(row0 + height, float(ds.height))
+        if right <= left or bottom <= top:
+            return out
+        c0 = max(0, int(math.floor((left - col0) / width * tile)))
+        c1 = min(tile, int(math.ceil((right - col0) / width * tile)))
+        r0 = max(0, int(math.floor((top - row0) / height * tile)))
+        r1 = min(tile, int(math.ceil((bottom - row0) / height * tile)))
+        if c1 <= c0 or r1 <= r0:
+            return out
+        part = ds.read(bands, window=Window(left, top, right - left, bottom - top),
+                       out_shape=(n, r1 - r0, c1 - c0), resampling=resampling)
+        out[:, r0:r1, c0:c1] = part
+        return out
+
+
+class StripGrid:
+    """Полосатый снимок, прочитанный на всю ширину сразу в рабочем шаге.
+
+    Строка такого файла — отдельный блок на всю ширину, уменьшенных копий нет.
+    Окно 128 м на шаге 7 мм — это 17 500 исходных строк: читать их на каждое окно
+    заново — часы на файл. Здесь строки рабочей сетки читаются один раз, со
+    средним по исходным пикселям, как у сдачи (`Resampling.average`). Окно
+    привязано к этой сетке: сдвиг центра не больше половины рабочего пикселя,
+    маска строится по той же привязке.
+    """
+
+    def __init__(self, ds, step: float):
+        t = ds.transform
+        self.ds = ds
+        self.bands = list(range(1, min(ds.count, 3) + 1))
+        self.scale_x = step / abs(t.a)
+        self.scale_y = step / abs(t.e)
+        self.step_x = abs(t.a) * self.scale_x
+        self.step_y = abs(t.e) * self.scale_y
+        self.width = max(1, int(ds.width / self.scale_x))
+        self.height = max(1, int(ds.height / self.scale_y))
+        self.dtype = ds.dtypes[0]
+        self.rows: dict[int, np.ndarray] = {}
+
+    @staticmethod
+    def applies(ds) -> bool:
+        """Обычный файл без поворота, строка — блок на всю ширину, без уменьшенных копий."""
+        from rasterio.vrt import WarpedVRT
+
+        if isinstance(ds, WarpedVRT):
+            return False
+        t = ds.transform
+        if t.b != 0 or t.d != 0 or t.e >= 0:
+            return False
+        try:
+            block_h, block_w = ds.block_shapes[0]
+            overviews = ds.overviews(1)
+        except Exception:
+            return False
+        return block_h == 1 and block_w >= ds.width and not overviews
+
+    def _read_rows(self, start: int, end: int) -> None:
+        start, end = max(start, 0), min(end, self.height)
+        if end <= start:
+            return
+        native = Window(0, start * self.scale_y, self.width * self.scale_x, (end - start) * self.scale_y)
+        block = self.ds.read(self.bands, window=native, out_shape=(len(self.bands), end - start, self.width),
+                             resampling=Resampling.average)
+        for i, row in enumerate(range(start, end)):
+            self.rows[row] = block[:, i, :]
+
+    def window(self, cx: float, cy: float, tile: int) -> tuple[np.ndarray, float, float]:
+        """Окно tile×tile и левый верхний угол его привязки."""
+        t = self.ds.transform
+        col = (cx - t.c) / (t.a * self.scale_x)
+        row = (cy - t.f) / (t.e * self.scale_y)
+        j0 = int(round(col - tile / 2))
+        i0 = int(round(row - tile / 2))
+        # Держим только строки текущего окна: память — одна полоса окна на всю ширину.
+        self.rows = {k: v for k, v in self.rows.items() if i0 <= k < i0 + tile}
+        missing = [k for k in range(i0, i0 + tile) if k not in self.rows and 0 <= k < self.height]
+        if missing:
+            self._read_rows(missing[0], missing[-1] + 1)
+        out = np.zeros((len(self.bands), tile, tile), self.dtype)
+        c0, c1 = max(j0, 0), min(j0 + tile, self.width)
+        if c1 > c0:
+            for i, k in enumerate(range(i0, i0 + tile)):
+                line = self.rows.get(k)
+                if line is not None:
+                    out[:, i, c0 - j0:c1 - j0] = line[:, c0:c1]
+        x0 = t.c + j0 * self.scale_x * t.a
+        y0 = t.f + i0 * self.scale_y * t.e
+        return out, x0, y0
+
+
+def window_from_dataset(ds, cx: float, cy: float, res: float, tile: int) -> np.ndarray:
+    """Окно tile×tile уже открытого растра. За краем — нули."""
+    half = tile * res / 2
+    inv = ~ds.transform
+    x0, y0, x1, y1 = cx - half, cy + half, cx + half, cy - half
+    col0, row0 = inv.a * x0 + inv.b * y0 + inv.c, inv.d * x0 + inv.e * y0 + inv.f
+    col1, row1 = inv.a * x1 + inv.b * y1 + inv.c, inv.d * x1 + inv.e * y1 + inv.f
+    win = Window(col0, row0, col1 - col0, row1 - row0)
+    n = min(ds.count, 3)
+    scale = res / abs(ds.res[0])
+    resampling = Resampling.average if scale > 1 else Resampling.bilinear
+    return _read_resampled(ds, win, n, tile, resampling)
 
 
 def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) -> np.ndarray:
@@ -242,19 +382,9 @@ def read_window(files: list[Path], cx: float, cy: float, res: float, tile: int) 
     from .raster import open_metric
 
     chans = []
-    half = tile * res / 2
     for f in files:
         with open_metric(f) as ds:
-            inv = ~ds.transform
-            x0, y0, x1, y1 = cx - half, cy + half, cx + half, cy - half
-            col0, row0 = inv.a * x0 + inv.b * y0 + inv.c, inv.d * x0 + inv.e * y0 + inv.f
-            col1, row1 = inv.a * x1 + inv.b * y1 + inv.c, inv.d * x1 + inv.e * y1 + inv.f
-            win = Window(col0, row0, col1 - col0, row1 - row0)
-            n = min(ds.count, 3)
-            scale = res / abs(ds.res[0])
-            a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, tile, tile), boundless=True,
-                        fill_value=0, resampling=Resampling.average if scale > 1 else Resampling.bilinear)
-            chans.append(a)
+            chans.append(window_from_dataset(ds, cx, cy, res, tile))
     return np.concatenate(chans, axis=0)
 
 
@@ -443,10 +573,16 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                             centers.append((p.x, p.y, 0))
                 except Exception:
                     pass
+            ordered = []
             for cx, cy, pos in centers:
                 j = tile * res * jitter
-                cx += rng.uniform(-j, j) if pos else 0
-                cy += rng.uniform(-j, j) if pos else 0
+                if pos:
+                    cx += rng.uniform(-j, j)
+                    cy += rng.uniform(-j, j)
+                ordered.append((cy, cx, pos))
+            # С севера на юг: строки снимка идут сверху вниз, полоса не перечитывается.
+            ordered.sort(key=lambda item: (-item[0], item[1]))
+            for cy, cx, pos in ordered:
                 img, tr = read(cx, cy)
                 if not img.any():
                     continue

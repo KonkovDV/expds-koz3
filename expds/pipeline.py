@@ -158,7 +158,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             continue
         classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
         opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
-        boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
+        boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
         noise = geophys.load_mask(reg.noise, mt, crs_region)
         mine: list[dict] = []
         for path in files:
@@ -821,6 +821,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     summary = {"regions": 0, "raw": 0}
     prefetch = None
     phases: list[tuple[str, int, float]] = []
+    regions = []
     previous_term = arm_signal(state)
     try:
         from .lidar import DemPrefetch
@@ -925,6 +926,16 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
+        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120):
+            # Ошибка проверки кропа не должна оставить площадку без файла ответа.
+            try:
+                from .crop_model import maybe_verify
+
+                checked = maybe_verify(state.snapshot(), {r.name: r for r in regions}, cfg)
+                if checked is not None:
+                    state.replace(checked)
+            except Exception:
+                log.exception("проверка кропа пропущена")
         summary["phases"] = {name: {"raw": n, "seconds": round(sec, 1)} for name, n, sec in phases}
         state.note["phases"] = summary["phases"]
         summary["written"] = checkpoint(state, "конец")

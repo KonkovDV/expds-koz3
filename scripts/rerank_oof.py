@@ -32,7 +32,7 @@
     python scripts/scoreboard.py <флаги раздела 0> --dump-stack F:/expds3/work/stack_base.geojson
     python scripts/rerank_oof.py --stack F:/expds3/work/stack_base.geojson --gt F:/expds3/work/gt_train_v2.geojson \
         --out F:/expds3/work/stack_rerank.geojson
-    python scripts/scoreboard.py <те же флаги> --rerank F:/expds3/work/stack_rerank.geojson --honest 10 --honest-by region
+    python scripts/scoreboard.py <те же флаги> --rerank F:/expds3/work/stack_rerank.geojson --honest 10
 
 Остаточная утечка второго порядка: порог фолда подбирают участки, чьи оценки дала
 модель, видевшая этот фолд. Порог — одно число на группу и класс, поэтому она мала;
@@ -123,17 +123,8 @@ def choose_gt(hits: list[tuple[float, int]], taken: set[int]) -> int | None:
     return None if best_j < 0 else best_j
 
 
-def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first") -> tuple[list[dict], np.ndarray]:
-    """Кандидаты в метрах UTM (как в метрике) и метка попадания.
-
-    labels="any": метка 1 у каждого кандидата, который прошёл бы правило с эталоном своего класса.
-    labels="first": как в метрике, один к одному. Кандидаты класса идут по убыванию своей
-    уверенности. Среди свободных эталонов берётся лучший: у полигона — большее покрытие,
-    у точки — меньшее расстояние. При равной оценке остаётся эталон с меньшим индексом,
-    как при обходе списка в калькуляторе. Второй кандидат на том же эталоне — 0.
-    Иначе стекер учится, что кучка источников на одном месте — попадание, и поднимает дубли,
-    а метрика считает их ложными.
-    """
+def _stack_rows(stack: dict, gt: dict, metric_path: str | None):
+    """Кандидаты и эталон в метрах UTM. Геометрия стека считается один раз."""
     from shapely.strtree import STRtree
 
     mod = load_official(metric_path)
@@ -167,12 +158,19 @@ def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first
             gts[cls].append(mod._to_utm(g, calc.input_crs_mode))
     trees = {c: STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in v])
              for c, v in gts.items() if v}
-    print(f"геометрий {len(rows)}, ставлю метки", file=sys.stderr, flush=True)
-    if labels not in ("any", "first"):
-        raise ValueError(f"labels: any или first, не {labels}")
-    y = np.zeros(len(rows), np.int8)
-    order = sorted(range(len(rows)), key=lambda i: -rows[i]["conf"]) if labels == "first" else range(len(rows))
+    return rows, gts, trees, calc
+
+
+def _mark_both(rows: list[dict], gts: dict, trees: dict, calc) -> tuple[np.ndarray, np.ndarray]:
+    """Один обход: «есть попадание» и «первый на эталоне».
+
+    Порядок по уверенности нужен только второй метке. Первая от порядка не зависит:
+    кандидат либо проходит правило с эталоном своего класса, либо нет.
+    """
+    y_any = np.zeros(len(rows), np.int8)
+    y_first = np.zeros(len(rows), np.int8)
     taken: dict[str, set[int]] = defaultdict(set)
+    order = sorted(range(len(rows)), key=lambda i: -rows[i]["conf"])
     for n_done, i in enumerate(order):
         if n_done and n_done % 200_000 == 0:
             print(f"  метки {n_done}/{len(rows)}", file=sys.stderr, flush=True)
@@ -186,15 +184,39 @@ def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first
             ok, score = calc._match_quality(r["geom"], gts[r["cls"]][j])
             if ok:
                 hits.append((float(score), j))
-        if labels == "any":
-            y[i] = bool(hits)
-            continue
+        y_any[i] = bool(hits)
         chosen = choose_gt(hits, taken[r["cls"]])
         if chosen is not None:
             taken[r["cls"]].add(chosen)
-            y[i] = 1
-    print(f"меток {int(y.sum())} из {len(rows)}", file=sys.stderr, flush=True)
-    return rows, y
+            y_first[i] = 1
+    return y_any, y_first
+
+
+def collect_pair(stack: dict, gt: dict, metric_path: str | None) -> tuple[list[dict], np.ndarray, np.ndarray]:
+    """Обе метки за один проход геометрии. Массивы выровнены по ``rows``, не по стеку."""
+    rows, gts, trees, calc = _stack_rows(stack, gt, metric_path)
+    print(f"геометрий {len(rows)}, ставлю обе метки", file=sys.stderr, flush=True)
+    y_any, y_first = _mark_both(rows, gts, trees, calc)
+    print(f"меток any {int(y_any.sum())}, first {int(y_first.sum())} из {len(rows)}",
+          file=sys.stderr, flush=True)
+    return rows, y_any, y_first
+
+
+def collect(stack: dict, gt: dict, metric_path: str | None, labels: str = "first") -> tuple[list[dict], np.ndarray]:
+    """Кандидаты в метрах UTM (как в метрике) и метка попадания.
+
+    labels="any": метка 1 у каждого кандидата, который прошёл бы правило с эталоном своего класса.
+    labels="first": как в метрике, один к одному. Кандидаты класса идут по убыванию своей
+    уверенности. Среди свободных эталонов берётся лучший: у полигона — большее покрытие,
+    у точки — меньшее расстояние. При равной оценке остаётся эталон с меньшим индексом,
+    как при обходе списка в калькуляторе. Второй кандидат на том же эталоне — 0.
+    Иначе стекер учится, что кучка источников на одном месте — попадание, и поднимает дубли,
+    а метрика считает их ложными.
+    """
+    if labels not in ("any", "first"):
+        raise ValueError(f"labels: any или first, не {labels}")
+    rows, y_any, y_first = collect_pair(stack, gt, metric_path)
+    return rows, y_any if labels == "any" else y_first
 
 
 def features(rows: list[dict]) -> np.ndarray:

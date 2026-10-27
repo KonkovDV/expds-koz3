@@ -57,6 +57,10 @@ class RunState:
         with self.lock:
             return list(self.feats)
 
+    def replace(self, feats: list[dict]) -> None:
+        with self.lock:
+            self.feats = list(feats)
+
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
@@ -81,7 +85,12 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)),
                                                  float(post_cfg.get("fort_medial_spacing_m", 25.0)))
     out = post.finalize(out)
-    return post.cap_features(out)
+    out = post.cap_features(out)
+    # Перепись одного класса. Без ключа список тот же, что у полной сдачи.
+    only = post_cfg.get("only_classes")
+    if only is not None:
+        out = post.keep_classes(out, only)
+    return out
 
 
 _write_lock = threading.Lock()

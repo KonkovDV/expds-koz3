@@ -180,6 +180,31 @@ def test_elongation_does_not_depend_on_rotation():
     assert abs(straight - diagonal) < 1e-6 * straight and straight > 10 and abs(disc - 1.0) < 0.05
 
 
+def test_pair_labels_match_each_mode():
+    """Обе метки за один проход совпадают с отдельными проходами. Дубль — any, не first."""
+    from shapely.geometry import box
+
+    rr = load_script()
+    wide = box(0, 0, 40, 20)
+    narrow = box(28, 0, 48, 20)
+    high = box(0, 0, 36, 20)
+    low = box(30, 0, 48, 20)
+
+    def item(geom, conf):
+        return {"type": "Feature", "geometry": geom.__geo_interface__,
+                "properties": {"class_name": "gorodishcha", "region_name": "101_Альфа_1",
+                               "markup_type": "li", "confidence": conf, "threshold_group": "li_mask"}}
+
+    stack = {"type": "FeatureCollection", "features": [item(high, 0.9), item(low, 0.4), item(high, 0.2)]}
+    gt = {"type": "FeatureCollection", "features": [item(wide, 1.0), item(narrow, 1.0)]}
+    rows_any, y_any = rr.collect(stack, gt, METRIC, labels="any")
+    rows_first, y_first = rr.collect(stack, gt, METRIC, labels="first")
+    rows, pair_any, pair_first = rr.collect_pair(stack, gt, METRIC)
+    assert [r["idx"] for r in rows] == [r["idx"] for r in rows_any] == [r["idx"] for r in rows_first]
+    assert list(pair_any) == list(y_any) and list(pair_first) == list(y_first)
+    assert int(y_any.sum()) == 3 and int(y_first.sum()) == 2
+
+
 def test_neighbour_counts_keep_their_radii():
     """Соседи своего класса считаются в 10, 30 и 100 м, хотя дерево ищет до 200 м."""
     rr = load_script()

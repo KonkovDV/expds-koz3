@@ -460,6 +460,27 @@ def dedupe_points(feats: list[dict], radius_m: float, crs: str | None = None,
     return [f for i, f in enumerate(feats) if i not in drop]
 
 
+def uses_survey_boundary(markup_type: str, geo_cfg: dict | None = None) -> bool:
+    """Читать ли файл границ съёмки.
+
+    У MagGr и TerFl — да. У EtGr в сдаче граница не применяется: так снят текущий
+    выход. На публичной выборке у каждого слоя свой файл границ. Включить то же
+    чтение, что у остальных модальностей: ``[geophys.etgr] use_boundary = true``
+    (``geo_predict.py --set geophys.etgr.use_boundary=true``). Без ключа выход прежний.
+    """
+    if markup_type != "etgr":
+        return True
+    return bool(((geo_cfg or {}).get("etgr") or {}).get("use_boundary", False))
+
+
+def survey_boundary(files: list[Path], markup_type: str, fallback_crs: str | None,
+                    geo_cfg: dict | None = None):
+    """Граница съёмки в EPSG:3857 или None, если модальность её не применяет."""
+    if not uses_survey_boundary(markup_type, geo_cfg):
+        return None
+    return load_mask(files, markup_type, fallback_crs)
+
+
 def load_mask(files: list[Path], markup_type: str, fallback_crs: str | None):
     """Объединение полигонов масок (extra/*_границы, *_шум) нужной модальности в EPSG:3857; None — нет масок."""
     import json

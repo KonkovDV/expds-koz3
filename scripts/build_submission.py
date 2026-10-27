@@ -48,11 +48,22 @@ def collect() -> list[Path]:
     return files
 
 
+def toml_with_only_classes(text: str, classes: list[str]) -> str:
+    """Дописывает [post] only_classes в текст конфига. Файл репозитория не трогает.
+
+    Ключ нужен переписи одного класса. Без него архив совпадает с обычной сборкой.
+    """
+    quoted = ", ".join(json.dumps(name, ensure_ascii=False) for name in classes)
+    return text.rstrip() + f"\n\n[post]\nonly_classes = [{quoted}]\n"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Сборка архива решения")
     ap.add_argument("--out", default=str(ROOT / "dist" / "submission.zip"))
     ap.add_argument("--local", action="store_true",
                     help="для проверки распакованного архива в контейнере: без проверки поля image")
+    ap.add_argument("--only-class", action="append", default=[],
+                    help="перепись: в архивный конфиг дописать [post] only_classes, репозиторий не менять")
     args = ap.parse_args()
     meta = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))
     problems = []
@@ -73,9 +84,17 @@ def main() -> None:
         sys.exit("\n".join(problems))
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
+    config_text = None
+    if args.only_class:
+        config_text = toml_with_only_classes(
+            (ROOT / "configs" / "default.toml").read_text(encoding="utf-8"), args.only_class)
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for f in files:
-            z.write(f, f.relative_to(ROOT).as_posix())
+            name = f.relative_to(ROOT).as_posix()
+            if config_text is not None and name == "configs/default.toml":
+                z.writestr(name, config_text)
+            else:
+                z.write(f, name)
     size = out.stat().st_size
     if size > LIMIT:
         sys.exit(f"архив {size / 2**20:.0f} МБ больше 2 ГБ")

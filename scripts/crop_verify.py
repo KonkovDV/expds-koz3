@@ -9,9 +9,12 @@
 Здесь то же на нашем стеке и нашими окнами: `expds.tiles.iter_sources` режет кроп тем же чтением
 и теми же каналами, что кэш обучения (снимок — RGB, лидар — каналы рельефа из LAS).
 
-Метка для обучения — «есть ли здесь объект». Кто из кругов забирает эталон, решается по всему стеку:
-второй круг не усиливается. Порог группы сам по себе дубли не снимает. Если ни одного кропа нет,
-уверенность группы не меняется. Модель — энкодер smp (по умолчанию ResNet-18, веса ImageNet;
+Метка для обучения — «есть ли здесь объект». Метка «первый по метрике» считается по всему стеку
+и идёт только в различимость отчёта. Прогон 27.10 ещё обнулял второй круг на эталоне, глядя
+в сам эталон: это утечка, и его табло (0,311053 → 0,318330) не честное. Теперь по умолчанию
+выход — только вероятность картинки; старое поведение — `--demote-with-gt`, только для
+диагностики. Если ни одного кропа нет, уверенность группы не меняется. `--save-model` пишет
+веса на всех кропах для `[verify] weights` (`expds.crop_model`). Модель — энкодер smp (по умолчанию ResNet-18, веса ImageNet;
 `--no-pretrained` — без них) и линейная голова; повороты на 90° и отражения. Каждая семья
 участков оценивается моделью без неё.
 
@@ -29,7 +32,7 @@
         --gt F:/expds3/work/gt_train_v2.geojson --markup sp_or --groups sp_focal sp_focal2 \
         --classes kurgany_povrezhdennye kurgany_tselye --res 0.5 --tile 96 --min-conf 0.05 \
         --out F:/expds3/work/stack_verify_sp.geojson --report notes/verify_sp.json
-    python scripts/scoreboard.py <те же флаги> --rerank F:/expds3/work/stack_verify_sp.geojson --honest 10 --honest-by region
+    python scripts/scoreboard.py <те же флаги> --rerank F:/expds3/work/stack_verify_sp.geojson --honest 10
 
 Лидар — `--markup li --groups li li_dev li_mosaic --res 0.5 --tile 64`: ЦМР строится заново из LAS,
 это минуты на облако. Приёмка — только табло; различимость в отчёте — подсказка, не доказательство.
@@ -140,10 +143,9 @@ def _tensor(x: np.ndarray, device):
     return (torch.from_numpy(np.ascontiguousarray(x)).to(device).float() / 255.0 - 0.5) / 0.25
 
 
-def fit_predict(Xtr: np.ndarray, ytr: np.ndarray, Xte: np.ndarray, epochs: int = 8, batch: int = 64,
-                lr: float = 3e-4, encoder: str = "resnet18", pretrained: bool = True, seed: int = 0,
-                device: str | None = None) -> np.ndarray:
-    """Учит классификатор кропа на (Xtr, ytr) и возвращает вероятности для Xte (среднее по 4 отражениям)."""
+def fit(Xtr: np.ndarray, ytr: np.ndarray, epochs: int = 8, batch: int = 64, lr: float = 3e-4,
+        encoder: str = "resnet18", pretrained: bool = True, seed: int = 0, device: str | None = None):
+    """Классификатор кропа, обученный на (Xtr, ytr). Модель в режиме оценки."""
     import torch
 
     torch.manual_seed(seed)
@@ -159,6 +161,8 @@ def fit_predict(Xtr: np.ndarray, ytr: np.ndarray, Xte: np.ndarray, epochs: int =
         order = rng.permutation(len(ytr))
         for s in range(0, len(order), batch):
             b = order[s:s + batch]
+            if len(b) < 2:
+                continue  # BatchNorm в режиме обучения не принимает пачку из одного окна
             x = _tensor(Xtr[b], dev)
             k = int(rng.integers(4))
             x = torch.rot90(x, k, dims=(2, 3))
@@ -168,14 +172,44 @@ def fit_predict(Xtr: np.ndarray, ytr: np.ndarray, Xte: np.ndarray, epochs: int =
             opt.zero_grad(set_to_none=True)
             loss_fn(model(x), y).backward()
             opt.step()
-    model.eval()
-    out = np.zeros(len(Xte), np.float64)
+    return model.eval()
+
+
+def predict(model, X: np.ndarray, batch: int = 64) -> np.ndarray:
+    """Вероятность кропа: среднее по четырём отражениям, как `expds.crop_model` на инференсе."""
+    import torch
+
+    dev = next(model.parameters()).device
+    out = np.zeros(len(X), np.float64)
     with torch.inference_mode():
-        for s in range(0, len(Xte), batch):
-            x = _tensor(Xte[s:s + batch], dev)
+        for s in range(0, len(X), batch):
+            x = _tensor(X[s:s + batch], dev)
             p = sum(torch.sigmoid(model(v)) for v in (x, x.flip(-1), x.flip(-2), x.flip(-1).flip(-2))) / 4
             out[s:s + batch] = p.cpu().numpy()
     return out
+
+
+def fit_predict(Xtr: np.ndarray, ytr: np.ndarray, Xte: np.ndarray, epochs: int = 8, batch: int = 64,
+                lr: float = 3e-4, encoder: str = "resnet18", pretrained: bool = True, seed: int = 0,
+                device: str | None = None) -> np.ndarray:
+    """Учит классификатор кропа на (Xtr, ytr) и возвращает вероятности для Xte."""
+    model = fit(Xtr, ytr, epochs=epochs, batch=batch, lr=lr, encoder=encoder, pretrained=pretrained,
+                seed=seed, device=device)
+    return predict(model, Xte, batch)
+
+
+def save_model(path: str, X: np.ndarray, y: np.ndarray, markup: str, res: float, tile: int,
+               encoder: str = "resnet18", pretrained: bool = True, **kw) -> dict:
+    """Веса на всех кропах для `[verify] weights`. Метка — «есть объект», без эталона на выходе."""
+    import torch
+
+    model = fit(X, y, encoder=encoder, pretrained=pretrained, **kw)
+    blob = {"state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
+            "encoder": encoder, "pretrained": False, "markup": markup, "res": res, "tile": tile,
+            "positives": int(np.sum(y)), "crops": int(len(y))}
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    torch.save(blob, path)
+    return {k: v for k, v in blob.items() if k != "state_dict"}
 
 
 def oof_verify(X: np.ndarray, y: np.ndarray, regions: list[str], folds: int, **kw) -> np.ndarray:
@@ -201,16 +235,15 @@ def labels_of(rr, stack: dict, gt: dict, metric_path: str | None, picked: list[i
 
     Сопоставление один к одному идёт по всем кругам класса. Если считать его только
     внутри проверяемой группы, круг спутника усилится, хотя эталон уже забрал лидар.
+    Обе метки считаются за один проход геометрии: стек — около полутора миллионов кругов.
     """
     n = len(stack.get("features", []))
     y_any = np.zeros(n, np.int8)
     y_first = np.zeros(n, np.int8)
-    rows_any, vals_any = rr.collect(stack, gt, metric_path, labels="any")
-    rows_first, vals_first = rr.collect(stack, gt, metric_path, labels="first")
-    for row, value in zip(rows_any, vals_any):
-        y_any[int(row["idx"])] = int(bool(value))
-    for row, value in zip(rows_first, vals_first):
-        y_first[int(row["idx"])] = int(bool(value))
+    rows, vals_any, vals_first = rr.collect_pair(stack, gt, metric_path)
+    for row, any_hit, first_hit in zip(rows, vals_any, vals_first):
+        y_any[int(row["idx"])] = int(bool(any_hit))
+        y_first[int(row["idx"])] = int(bool(first_hit))
     ix = np.asarray(picked, np.int64)
     return y_any[ix], y_first[ix]
 
@@ -252,7 +285,8 @@ def blend(conf: np.ndarray, p: np.ndarray, mode: str) -> np.ndarray:
 
 def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups: set[str] | None,
         min_conf: float, res: float, tile: int, li_tags: tuple[str, ...], folds: int, mode: str,
-        metric_path: str | None = None, **kw) -> tuple[dict, dict]:
+        metric_path: str | None = None, demote_with_gt: bool = False, save_path: str | None = None,
+        **kw) -> tuple[dict, dict]:
     rr = load_rerank()
     picked = select(stack, classes, markup, groups, min_conf)
     if not picked:
@@ -269,9 +303,14 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     keys = [(feats[i]["properties"].get("threshold_group") or feats[i]["properties"].get("markup_type"),
              feats[i]["properties"].get("class_name")) for i in picked]
     med = group_median(p, keys)
-    scored = demote_duplicates(p, y, y_first)
+    # Обнуление дубля смотрит в эталон проверяемого участка. На площадке эталона нет,
+    # а на табло это утечка: ложные круги снимаются знанием ответа.
+    scored = demote_duplicates(p, y, y_first) if demote_with_gt else p
     report: dict = {"candidates": len(picked), "with_crop": int(ok.sum()), "verified": int(np.isfinite(p).sum()),
-                    "hits": int(y_first.sum()), "blend": mode, "groups": {}}
+                    "hits": int(y_first.sum()), "blend": mode, "demote_with_gt": bool(demote_with_gt),
+                    "groups": {}}
+    if save_path and idx.size:
+        report["saved"] = save_model(save_path, X[idx], y[idx], markup, res, tile, **kw)
     m = np.isfinite(scored)
     if m.any() and 0 < y_first[m].sum() < m.sum():
         report["auc_stack"] = round(rr.auc(conf[m], y_first[m]), 4)
@@ -314,6 +353,10 @@ def main() -> None:
     ap.add_argument("--encoder", default="resnet18")
     ap.add_argument("--no-pretrained", action="store_true")
     ap.add_argument("--blend", choices=["geo", "p", "none"], default="geo")
+    ap.add_argument("--demote-with-gt", action="store_true",
+                    help="диагностика: обнулить второй круг на эталоне по самому эталону. Утечка, не для табло приёмки")
+    ap.add_argument("--save-model", default=None,
+                    help="веса на всех кропах для [verify] weights (models/sp_crop.pt)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", default=None)
     args = ap.parse_args()
@@ -325,6 +368,7 @@ def main() -> None:
     out, report = run(args.root, stack, gt, args.markup, set(args.classes),
                       set(args.groups) if args.groups else None, args.min_conf, args.res, args.tile,
                       tuple(args.li_tags or RELIEF_TAGS), args.folds, args.blend, args.metric,
+                      demote_with_gt=args.demote_with_gt, save_path=args.save_model,
                       epochs=args.epochs, batch=args.batch, lr=args.lr, encoder=args.encoder,
                       pretrained=not args.no_pretrained)
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")

@@ -17,7 +17,7 @@
     python scripts/coco_preds_to_stack.py --coco O_grid/valid/_annotations.coco.json \
         --preds rfdetr_valid.json --group sp_rfdetr --radius 4 --out F:/expds3/work/sp_rfdetr_f0.geojson
     python scripts/scoreboard.py <флаги раздела 0> --replace sp_focal=F:/expds3/work/sp_rfdetr.geojson \
-        --honest 10 --honest-by region
+        --honest 10
 
 Формат --preds — список {"image_id", "category_id", "bbox": [x, y, w, h], "score"} в пикселях PNG,
 как пишет `pycocotools` и большинство детекторов. Номера классов — как в `categories` файла --coco.

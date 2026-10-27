@@ -110,7 +110,10 @@ def main() -> None:
                 continue
             files = geophys.select_rasters(all_files, mt)
             classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
-            boundary = geophys.load_mask(reg.boundaries, mt, crs_region) if mt != "etgr" else None
+            on_file = geophys.load_mask(reg.boundaries, mt, crs_region)
+            # Доля рамки под файлом границ видна и у EtGr. Детектор применяет её
+            # только вместе со сдачей: [geophys.etgr] use_boundary, по умолчанию нет.
+            applied = on_file if geophys.uses_survey_boundary(mt, geo_cfg) else None
             noise = geophys.load_mask(reg.noise, mt, crs_region)
             for j, path in enumerate(all_files):
                 rec = {"region": reg.name if args.names else f"region_{i:03d}", "markup": mt,
@@ -120,10 +123,11 @@ def main() -> None:
                 try:
                     fp, info = footprint_3857(path, crs_region)
                     rec.update(info)
-                    rec["boundary_cover"] = cover_share(fp, boundary)
+                    rec["boundary_cover"] = cover_share(fp, on_file)
+                    rec["boundary_applied"] = applied is not None
                     rec["noise_cover"] = cover_share(fp, noise)
                     if path in files:
-                        b_map, n_map = geophys.sane_masks(path, boundary, noise, geo_cfg, crs_region)
+                        b_map, n_map = geophys.sane_masks(path, applied, noise, geo_cfg, crs_region)
                         rec["masks_used"] = {"boundary": b_map is not None, "noise": n_map is not None}
                         for cls in classes:
                             p, o = geophys.params_for(geo_cfg, mt, cls)

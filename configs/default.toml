@@ -225,7 +225,10 @@ point_circle_m = 0.3
 #     scripts/geo_silent_maps.py notes/geo_probe_train.json --density 5,10,20.
 #   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
 #     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
-#     layer_copy_decay — множитель уверенности копий.
+#     layer_copy_decay — множитель уверенности копий. Табло 27.10 не приняло.
+#   [geophys.etgr] use_boundary = true — читать файл границ EtGr, как у MagGr и TerFl.
+#     Без ключа граница не применяется: так снята сдача. Файл для табло:
+#     geo_predict.py --set geophys.etgr.use_boundary=true. В конфиг ставить только после табло.
 # Подбор: scripts/geo_tune.py --k-min / --band-mode / --signals / --polarities; файл для табло —
 # scripts/geo_predict.py --set ...; приёмка — scripts/scoreboard.py --honest 10.
 
@@ -278,3 +281,16 @@ min_confidence = 0.1426
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
+
+# Проверка кропа на инференсе. Табло 27.10 (0,311053 → 0,318330) не считается: тот прогон
+# обнулял второй круг на эталоне по самому эталону — утечка. Нужен повтор без этого
+# (crop_verify.py без --demote-with-gt) и веса --save-model. Без ключа сдача прежняя.
+# [verify]
+# enabled = true
+# weights = "models/sp_crop.pt"
+# markup = "sp_or"
+# groups = ["sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+# tile = 96
+# res = 0.5
+# min_conf = 0.05

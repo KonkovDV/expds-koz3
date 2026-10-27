@@ -194,3 +194,82 @@ def test_li_las_model_runs_in_pipeline(tmp_path):
     kur = [f for f in feats if f["class_name"].startswith("kurgany")]
     assert n > 0 and len(kur) == 2 * n
     assert all(0.0 <= f["confidence"] <= 1.0 for f in kur)
+
+
+def _write_strip(path, data, step=1.0):
+    import rasterio
+    from rasterio.transform import from_origin
+
+    n, h, w = data.shape
+    with rasterio.open(path, "w", driver="GTiff", height=h, width=w, count=n, dtype=data.dtype.name,
+                       crs=UTM, transform=from_origin(X0, Y0 + h * step, step, step),
+                       tiled=False, blockxsize=w, blockysize=1) as dst:
+        dst.write(data)
+
+
+def test_strip_grid_matches_the_tiled_read_and_keeps_the_pixel_type(tmp_path):
+    """Полосатый файл: окно в рабочем шаге совпадает с обычным чтением, тип пикселя тот же."""
+    import rasterio
+
+    rng = np.random.default_rng(0)
+    data = rng.integers(0, 255, (3, 64, 96), dtype=np.uint8)
+    path = tmp_path / "strip.tif"
+    _write_strip(path, data, step=0.25)
+    with rasterio.open(path) as ds:
+        assert tiles.StripGrid.applies(ds)
+        grid = tiles.StripGrid(ds, 1.0)
+        img, x0, y0 = grid.window(X0 + 12.0, Y0 + 8.0, 8)
+        assert img.dtype == np.uint8 and img.shape == (3, 8, 8)
+        assert (x0, y0) == (X0 + 8.0, Y0 + 12.0)
+        ref = ds.read([1, 2, 3], window=rasterio.windows.Window(32, 16, 32, 32), out_shape=(3, 8, 8),
+                      resampling=rasterio.enums.Resampling.average)
+        assert np.abs(img.astype(int) - ref.astype(int)).max() <= 1
+
+
+def test_strip_grid_memory_is_one_window_and_edges_are_zero(tmp_path):
+    import rasterio
+
+    data = np.full((3, 48, 64), 200, np.uint8)
+    path = tmp_path / "strip.tif"
+    _write_strip(path, data)
+    with rasterio.open(path) as ds:
+        grid = tiles.StripGrid(ds, 1.0)
+        corner, _, _ = grid.window(X0, Y0 + 48.0, 8)
+        assert int(corner[:, 0, 0].max()) == 0 and int(corner[:, -1, -1].min()) == 200
+        for cy in (Y0 + 40.0, Y0 + 30.0, Y0 + 20.0, Y0 + 10.0):
+            grid.window(X0 + 32.0, cy, 8)
+            assert len(grid.rows) <= 8
+
+
+def test_tiled_file_is_not_a_strip(tmp_path):
+    import rasterio
+    from rasterio.transform import from_origin
+
+    path = tmp_path / "tiled.tif"
+    with rasterio.open(path, "w", driver="GTiff", height=64, width=64, count=3, dtype="uint8", crs=UTM,
+                       transform=from_origin(X0, Y0 + 64, 1, 1), tiled=True, blockxsize=16, blockysize=16) as dst:
+        dst.write(np.zeros((3, 64, 64), np.uint8))
+    with rasterio.open(path) as ds:
+        assert not tiles.StripGrid.applies(ds)
+
+
+def test_geographic_window_hanging_off_the_edge_is_padded(tmp_path):
+    """Градусный снимок идёт через WarpedVRT. Окно с угла не должно падать."""
+    import rasterio
+    from rasterio.transform import from_bounds
+
+    from expds.raster import open_metric
+
+    path = tmp_path / "geo.tif"
+    data = np.full((3, 24, 24), 180, np.uint8)
+    transform = from_bounds(37.0, 55.0, 37.02, 55.02, 24, 24)
+    with rasterio.open(path, "w", driver="GTiff", height=24, width=24, count=3, dtype="uint8",
+                       crs="EPSG:4326", transform=transform) as dst:
+        dst.write(data)
+    with open_metric(path) as ds:
+        cx, cy = ds.bounds.left, ds.bounds.top
+        step = abs(float(ds.res[0]))
+    img = tiles.read_window([path], cx, cy, step, 32)
+    assert img.shape == (3, 32, 32) and img.dtype == np.uint8
+    assert int(img.max()) > 0
+    assert int(img[:, 0, 0].max()) == 0

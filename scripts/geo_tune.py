@@ -174,7 +174,7 @@ def main() -> None:
                 continue
             utm = read_utm_json(reg.utm_json)
             data[reg.name] = {"rasters": files, "family": site_family(reg.name),
-                              "boundary": geophys.load_mask(reg.boundaries, mt, utm) if mt != "etgr" else None,
+                              "boundary": geophys.survey_boundary(reg.boundaries, mt, utm, {}),
                               "noise": geophys.load_mask(reg.noise, mt, utm)}
         g = {**gt, "features": [f for f in gt["features"] if f["properties"]["markup_type"] == mt
                                 and f["properties"]["class_name"] == cls and f["properties"]["region_name"] in data]}

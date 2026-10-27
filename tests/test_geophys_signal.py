@@ -210,6 +210,20 @@ def test_layer_copies_fill_other_slices_once():
     assert geophys.layer_copies(feats, {"один.tif": "EPSG:32636"}) == []
 
 
+def test_etgr_boundary_stays_off_until_asked(monkeypatch):
+    """Сдача не читает границы EtGr. Ключ включает то же чтение, что у MagGr."""
+    from expds import geophys
+
+    monkeypatch.setattr(geophys, "load_mask", lambda *a, **k: "MASK")
+    assert geophys.uses_survey_boundary("maggr", {}) is True
+    assert geophys.uses_survey_boundary("etgr", {}) is False
+    assert geophys.uses_survey_boundary("etgr", {"etgr": {}}) is False
+    assert geophys.survey_boundary(["a.geojson"], "etgr", "EPSG:32636", {}) is None
+    assert geophys.survey_boundary(["a.geojson"], "etgr", "EPSG:32636",
+                                   {"etgr": {"use_boundary": True}}) == "MASK"
+    assert geophys.survey_boundary(["a.geojson"], "maggr", "EPSG:32636", {}) == "MASK"
+
+
 def test_layer_copy_is_off_by_default_in_the_pipeline(monkeypatch, tmp_path):
     from types import SimpleNamespace
 
