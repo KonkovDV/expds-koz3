@@ -36,3 +36,22 @@ def test_census_toml_appends_only_classes_and_leaves_the_rest():
     text = _submission().toml_with_only_classes("default_threshold = 0.15\n", ["gorodishcha"])
     assert "default_threshold = 0.15" in text
     assert 'only_classes = ["gorodishcha"]' in text
+
+
+def test_census_from_an_uploaded_zip_changes_only_the_config(tmp_path):
+    import tomllib
+    import zipfile
+
+    src, out = tmp_path / "sent.zip", tmp_path / "census.zip"
+    with zipfile.ZipFile(src, "w") as z:
+        z.writestr("metadata.json", '{"image": "x/y:1"}')
+        z.writestr("configs/default.toml", "default_threshold = 0.15\n# [post]\n# core = true\n")
+        z.writestr("models/a.pt", b"\x00\x01weights")
+    _submission().census_from_zip(src, out, ["finds_points"])
+    with zipfile.ZipFile(src) as a, zipfile.ZipFile(out) as b:
+        assert a.namelist() == b.namelist()
+        for name in a.namelist():
+            if name != "configs/default.toml":
+                assert a.read(name) == b.read(name)
+        cfg = tomllib.loads(b.read("configs/default.toml").decode("utf-8"))
+    assert cfg["post"]["only_classes"] == ["finds_points"] and cfg["default_threshold"] == 0.15

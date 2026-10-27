@@ -57,6 +57,28 @@ def toml_with_only_classes(text: str, classes: list[str]) -> str:
     return text.rstrip() + f"\n\n[post]\nonly_classes = [{quoted}]\n"
 
 
+def census_from_zip(src: Path, out: Path, classes: list[str]) -> str:
+    """Перепись из уже оценённого архива: все файлы те же байты, меняется только конфиг.
+
+    Дерево репозитория после загрузки уходит вперёд, а перепись должна мерить тот самый архив.
+    """
+    name = "configs/default.toml"
+    with zipfile.ZipFile(src) as zin:
+        text = zin.read(name).decode("utf-8")
+        if "post" in tomllib.loads(text):
+            sys.exit(f"{src}: в конфиге уже есть [post], ключ переписи не дописать")
+        config_text = toml_with_only_classes(text, classes)
+        tomllib.loads(config_text)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:
+            for info in zin.infolist():
+                if info.filename == name:
+                    zout.writestr(name, config_text)
+                else:
+                    zout.writestr(info, zin.read(info.filename), compress_type=zipfile.ZIP_DEFLATED)
+    return hashlib.sha256(out.read_bytes()).hexdigest()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Сборка архива решения")
     ap.add_argument("--out", default=str(ROOT / "dist" / "submission.zip"))
@@ -64,7 +86,17 @@ def main() -> None:
                     help="для проверки распакованного архива в контейнере: без проверки поля image")
     ap.add_argument("--only-class", action="append", default=[],
                     help="перепись: в архивный конфиг дописать [post] only_classes, репозиторий не менять")
+    ap.add_argument("--from-zip", default=None,
+                    help="перепись из уже загруженного архива: код и веса оттуда, меняется только конфиг")
     args = ap.parse_args()
+    if args.from_zip:
+        if not args.only_class:
+            sys.exit("--from-zip нужен только переписи: задайте --only-class")
+        out = Path(args.out)
+        digest = census_from_zip(Path(args.from_zip), out, args.only_class)
+        print(f"архив: {out} — перепись {args.only_class} из {args.from_zip}, "
+              f"{out.stat().st_size / 2**20:.1f} МБ, sha256 {digest}")
+        return
     meta = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))
     problems = []
     if not args.local and ("ВАШ_" in meta.get("image", "") or not meta.get("image")):
