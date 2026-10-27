@@ -103,7 +103,8 @@ def extract_crops(root: str, stack: dict, picked: list[int], markup: str, res: f
                 if not bnd.contains(q):
                     continue
                 img, _ = read(q.x, q.y)
-                n = int(np.count_nonzero(img))
+                spatial = np.any(img, axis=0) if getattr(img, "ndim", 0) == 3 else img
+                n = int(np.count_nonzero(spatial))
                 if n <= fill[k]:
                     continue
                 X[k] = fix_channels(np.asarray(img), 3)
@@ -192,6 +193,25 @@ def oof_verify(X: np.ndarray, y: np.ndarray, regions: list[str], folds: int, **k
     return p
 
 
+def labels_of(rr, stack: dict, gt: dict, metric_path: str | None, picked: list[int]) -> tuple[np.ndarray, np.ndarray]:
+    """Метки «есть объект» и «первый по метрике» для picked, по всему стеку.
+
+    Сопоставление один к одному идёт по всем кругам класса. Если считать его только
+    внутри проверяемой группы, круг спутника усилится, хотя эталон уже забрал лидар.
+    """
+    n = len(stack.get("features", []))
+    y_any = np.zeros(n, np.int8)
+    y_first = np.zeros(n, np.int8)
+    rows_any, vals_any = rr.collect(stack, gt, metric_path, labels="any")
+    rows_first, vals_first = rr.collect(stack, gt, metric_path, labels="first")
+    for row, value in zip(rows_any, vals_any):
+        y_any[int(row["idx"])] = int(bool(value))
+    for row, value in zip(rows_first, vals_first):
+        y_first[int(row["idx"])] = int(bool(value))
+    ix = np.asarray(picked, np.int64)
+    return y_any[ix], y_first[ix]
+
+
 def demote_duplicates(p: np.ndarray, y_any: np.ndarray, y_first: np.ndarray) -> np.ndarray:
     """Второй круг на эталоне, который метрика уже отдала более уверенному, не усиливать.
 
@@ -221,15 +241,7 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     picked = select(stack, classes, markup, groups, min_conf)
     if not picked:
         raise SystemExit("нет кандидатов под фильтр: проверьте --classes, --groups, --min-conf")
-    sub = {"type": "FeatureCollection", "features": [stack["features"][i] for i in picked]}
-    rows_any, y_any_rows = rr.collect(sub, gt, metric_path, labels="any")
-    rows_first, y_first_rows = rr.collect(sub, gt, metric_path, labels="first")
-    y = np.zeros(len(picked), np.int8)
-    y_first = np.zeros(len(picked), np.int8)
-    for r, v in zip(rows_any, y_any_rows):
-        y[r["idx"]] = v
-    for r, v in zip(rows_first, y_first_rows):
-        y_first[r["idx"]] = v
+    y, y_first = labels_of(rr, stack, gt, metric_path, picked)
     X, ok = extract_crops(root, stack, picked, markup, res, tile, li_tags)
     regions = [str((stack["features"][i].get("properties") or {}).get("region_name")) for i in picked]
     p = np.full(len(picked), np.nan)
@@ -244,13 +256,14 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     for key in set(keys):
         vals = [p[k] for k in range(len(picked)) if keys[k] == key and np.isfinite(p[k])]
         med[key] = float(np.median(vals)) if vals else 0.5
+    scored = demote_duplicates(p, y, y_first)
     report: dict = {"candidates": len(picked), "with_crop": int(ok.sum()), "verified": int(np.isfinite(p).sum()),
-                    "hits": int(y.sum()), "blend": mode, "groups": {}}
-    m = np.isfinite(p)
-    if m.any() and 0 < y[m].sum() < m.sum():
-        report["auc_stack"] = round(rr.auc(conf[m], y[m]), 4)
-        report["auc_crop"] = round(rr.auc(p[m], y[m]), 4)
-        report["auc_blend"] = round(rr.auc(blend(conf[m], p[m], "geo"), y[m]), 4)
+                    "hits": int(y_first.sum()), "blend": mode, "groups": {}}
+    m = np.isfinite(scored)
+    if m.any() and 0 < y_first[m].sum() < m.sum():
+        report["auc_stack"] = round(rr.auc(conf[m], y_first[m]), 4)
+        report["auc_crop"] = round(rr.auc(np.nan_to_num(p[m]), y_first[m]), 4)
+        report["auc_blend"] = round(rr.auc(blend(conf[m], scored[m], "geo"), y_first[m]), 4)
     for f in feats:
         f["properties"]["confidence_base"] = f["properties"].get("confidence")
     # Вся группа и класс, затронутые проверкой, переводятся на новую шкалу, включая кандидатов без кропа.
@@ -261,7 +274,6 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
         if key in touched:
             pr["confidence"] = round(float(blend(np.array([float(pr.get("confidence") or 0.0)]),
                                                  np.array([med[key]]), mode)[0]), 6)
-    scored = demote_duplicates(p, y, y_first)
     for k, i in enumerate(picked):
         pr = feats[i]["properties"]
         pk = scored[k] if np.isfinite(scored[k]) else med[keys[k]]

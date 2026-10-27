@@ -89,6 +89,18 @@ def test_blend_modes():
     assert np.allclose(cv.blend(c, p, "p"), p) and np.allclose(cv.blend(c, p, "none"), c)
 
 
+def test_a_stronger_circle_outside_the_group_keeps_the_mound():
+    cv = load()
+    strong = feat(10, 10, 4.0, 0.9, "101_Альфа_1", "li")
+    strong["properties"]["markup_type"] = "li"
+    weak = feat(10, 10, 4.0, 0.4, "101_Альфа_1", "sp_focal")
+    stack = {"type": "FeatureCollection", "features": [strong, weak]}
+    gt = {"type": "FeatureCollection", "features": [feat(10, 10, 6.0, region="101_Альфа_1")]}
+    y_any, y_first = cv.labels_of(cv.load_rerank(), stack, gt,
+                                  str(ROOT / "materials" / "compute_metrics.py"), [1])
+    assert int(y_any[0]) == 1 and int(y_first[0]) == 0
+
+
 def test_the_fuller_image_wins(tmp_path):
     """Кромка первого снимка не забирает кроп, если второй снимок покрывает окно целиком."""
     import rasterio
