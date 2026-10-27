@@ -40,12 +40,15 @@ def collect() -> list[Path]:
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+    seen = set()
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model")]:
-        if rel:
-            p = ROOT / rel
-            if not p.exists():
-                sys.exit(f"модель из конфига не найдена: {rel}")
-            files.append(p)
+        if not rel or rel in seen:
+            continue
+        seen.add(rel)
+        p = ROOT / rel
+        if not p.exists():
+            sys.exit(f"модель из конфига не найдена: {rel}")
+        files.append(p)
     return files
 
 

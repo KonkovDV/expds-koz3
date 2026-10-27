@@ -96,10 +96,12 @@ gorodishcha = 0.994085
 kurgany_povrezhdennye = 0.3645
 kurgany_tselye = 0.3725
 # Круги архитектуры 2 м. В табло группа называлась sp_arch; в сдаче это единственный
-# источник класса на спутнике, поэтому порог лежит здесь. Пакет с маской li_fort:
-# 0,347318 → 0,350588, 34 новых +0,0007, без лидара +0,0027, A > B в 0,998.
-# 1321 круг, 14 попаданий из 407 (notes/e5_pack_2026-10-23.json).
-arkhitektury = 0.199475
+# источник класса на спутнике, поэтому порог лежит здесь. Сеть surf_arch, 27.10:
+# 227 кругов, 21 попадание, честно 0,311053 → 0,314615.
+arkhitektury = 0.286725
+
+[thresholds_by_markup.or]
+arkhitektury = 0.065565
 
 # Окно 256 м только на участках без лидара, вместе с каналом σ дальше 12 м.
 # 0,350588 → 0,353793, 34 новых +0,0002, без лидара +0,0098, A > B в 0,993.
@@ -168,7 +170,7 @@ li_mask = {path = "models/li_gor_mask_r18.pt", classes = ["gorodishcha"]}
 sp_or = [
   {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]},
   {path = "models/spor_focal_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]},
-  {path = "models/spor_arch_r18.pt", classes = ["arkhitektury"]},
+  {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]},
 ]
 # Фортификации лидара отдельной маской. Свой DEM 1 м и группа li_fort.
 li_fort = {path = "models/li_fort_mask_r18.pt", classes = ["fortifikatsii"]}
@@ -179,9 +181,9 @@ li_dev = {path = "models/li_dev_r18.pt", classes = ["kurgany_povrezhdennye", "ku
 sp_focal2 = {path = "models/spor_focal_wide_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
 # Фортификации аэрофото: маска одного класса, 20 эпох на всех тайлах (медиана лучших эпох фолдов).
 ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
-# or = "models/or_r18.pt"
-# Ортофото сданной сетью архитектуры спутника (план 25.10, раздел 2.7, W1), только с порогом группы or:
-# or = {path = "models/spor_arch_r18.pt", classes = ["arkhitektury"]}
+# Ортофото той же сетью, что архитектура спутника. Честно по семьям 27.10:
+# 0,311053 → 0,314615, без лидара +0,0062, A > B в 0,897. Порог группы or — ниже.
+or = {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]}
 # Сеть на картах геофизики (pipeline.geo_model_feats), только вместе с порогом группы maggr_nn:
 # maggr = {path = "models/maggr_finds_r18.pt", classes = ["finds_points"]}
 

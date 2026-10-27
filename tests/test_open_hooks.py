@@ -32,6 +32,13 @@ def test_geometric_blend():
     assert abs(blend_geo(0.16, 0.64) - 0.32) < 1e-9
 
 
+def test_shared_weights_are_packed_once():
+    files = _submission().collect()
+    names = [p.as_posix() for p in files]
+    assert len(names) == len(set(names))
+    assert sum(n.endswith("surf_arch_r18.pt") for n in names) == 1
+
+
 def test_census_toml_appends_only_classes_and_leaves_the_rest():
     text = _submission().toml_with_only_classes("default_threshold = 0.15\n", ["gorodishcha"])
     assert "default_threshold = 0.15" in text
