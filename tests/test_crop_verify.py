@@ -89,6 +89,37 @@ def test_blend_modes():
     assert np.allclose(cv.blend(c, p, "p"), p) and np.allclose(cv.blend(c, p, "none"), c)
 
 
+def test_the_fuller_image_wins(tmp_path):
+    """Кромка первого снимка не забирает кроп, если второй снимок покрывает окно целиком."""
+    import rasterio
+    from rasterio.transform import from_origin
+
+    cv = load()
+    region = "101_Альфа_1"
+    folder = tmp_path / region / "05_SpOr_снимок"
+    folder.mkdir(parents=True)
+    (tmp_path / region / "UTM.json").write_text(json.dumps({"crs": UTM}), encoding="utf-8")
+
+    def write(path, left, top, size, value):
+        with rasterio.open(path, "w", driver="GTiff", height=size, width=size, count=3, dtype="uint8",
+                           transform=from_origin(left, top, 1.0, 1.0), crs=UTM) as ds:
+            ds.write(np.full((3, size, size), value, np.uint8))
+
+    write(folder / "01_edge_SpOr.tif", X0, Y0 + 8, 8, 1)
+    write(folder / "02_full_SpOr.tif", X0 - 20, Y0 + 40, 64, 200)
+    stack = {"type": "FeatureCollection", "features": [feat(4, 4, 2.0, 0.5, region, "sp_focal")]}
+    X, ok = cv.extract_crops(str(tmp_path), stack, [0], "sp_or", 1.0, 16, ())
+    assert ok[0] and float(X[0].mean()) > 100
+
+
+def test_a_second_circle_on_the_same_mound_is_not_boosted():
+    cv = load()
+    p = np.array([0.9, 0.9, 0.2])
+    y_any = np.array([1, 1, 0])
+    y_first = np.array([1, 0, 0])
+    assert np.allclose(cv.demote_duplicates(p, y_any, y_first), [0.9, 0.0, 0.2])
+
+
 def test_lidar_crops_come_from_the_las_relief(tmp_path):
     from conftest import MOUNDS, write_las
 

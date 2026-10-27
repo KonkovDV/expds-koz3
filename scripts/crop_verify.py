@@ -85,6 +85,7 @@ def extract_crops(root: str, stack: dict, picked: list[int], markup: str, res: f
 
     X = np.zeros((len(picked), 3, tile, tile), np.uint8)
     ok = np.zeros(len(picked), bool)
+    fill = np.zeros(len(picked), np.int64)
     by_region: dict[str, dict[int, object]] = defaultdict(dict)
     feats = stack["features"]
     for k, i in enumerate(picked):
@@ -97,18 +98,17 @@ def extract_crops(root: str, stack: dict, picked: list[int], markup: str, res: f
             log.warning("участка %s нет в %s", name, root)
             continue
         for _, crs, bnd, read in iter_sources(reg, markup, list(li_tags), "las", res, tile, dem):
-            for k, pt in list(todo.items()):
+            for k, pt in todo.items():
                 q = to_crs(pt, WEB_MERCATOR, crs)
                 if not bnd.contains(q):
                     continue
                 img, _ = read(q.x, q.y)
-                if not img.any():
+                n = int(np.count_nonzero(img))
+                if n <= fill[k]:
                     continue
                 X[k] = fix_channels(np.asarray(img), 3)
                 ok[k] = True
-                del todo[k]
-            if not todo:
-                break
+                fill[k] = n
     return X, ok
 
 
@@ -192,6 +192,18 @@ def oof_verify(X: np.ndarray, y: np.ndarray, regions: list[str], folds: int, **k
     return p
 
 
+def demote_duplicates(p: np.ndarray, y_any: np.ndarray, y_first: np.ndarray) -> np.ndarray:
+    """Второй круг на эталоне, который метрика уже отдала более уверенному, не усиливать.
+
+    Метка «есть объект» учит классификатор картинке. Порог группы такие дубли не снимает:
+    у них та же картинка и после смешения та же высокая уверенность, а сопоставление
+    один к одному считает их ложными. Поэтому вероятность дубля обнуляется.
+    """
+    out = np.array(p, np.float64, copy=True)
+    out[(np.asarray(y_any) == 1) & (np.asarray(y_first) == 0)] = 0.0
+    return out
+
+
 def blend(conf: np.ndarray, p: np.ndarray, mode: str) -> np.ndarray:
     if mode == "p":
         return p
@@ -210,10 +222,14 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     if not picked:
         raise SystemExit("нет кандидатов под фильтр: проверьте --classes, --groups, --min-conf")
     sub = {"type": "FeatureCollection", "features": [stack["features"][i] for i in picked]}
-    rows, y_rows = rr.collect(sub, gt, metric_path, labels="any")
+    rows_any, y_any_rows = rr.collect(sub, gt, metric_path, labels="any")
+    rows_first, y_first_rows = rr.collect(sub, gt, metric_path, labels="first")
     y = np.zeros(len(picked), np.int8)
-    for r, v in zip(rows, y_rows):
+    y_first = np.zeros(len(picked), np.int8)
+    for r, v in zip(rows_any, y_any_rows):
         y[r["idx"]] = v
+    for r, v in zip(rows_first, y_first_rows):
+        y_first[r["idx"]] = v
     X, ok = extract_crops(root, stack, picked, markup, res, tile, li_tags)
     regions = [str((stack["features"][i].get("properties") or {}).get("region_name")) for i in picked]
     p = np.full(len(picked), np.nan)
@@ -245,9 +261,10 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
         if key in touched:
             pr["confidence"] = round(float(blend(np.array([float(pr.get("confidence") or 0.0)]),
                                                  np.array([med[key]]), mode)[0]), 6)
+    scored = demote_duplicates(p, y, y_first)
     for k, i in enumerate(picked):
         pr = feats[i]["properties"]
-        pk = p[k] if np.isfinite(p[k]) else med[keys[k]]
+        pk = scored[k] if np.isfinite(scored[k]) else med[keys[k]]
         pr["verify_p"] = round(float(pk), 6)
         pr["confidence"] = round(float(blend(np.array([conf[k]]), np.array([pk]), mode)[0]), 6)
     for key in sorted(touched, key=str):
