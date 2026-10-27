@@ -19,8 +19,10 @@
 - geo — среднее геометрическое уверенности стека и вероятности кропа (по умолчанию);
 - p — только вероятность кропа;
 - none — уверенность прежняя, вероятность в свойстве `verify_p`.
-Кандидат группы, у которого кропа нет (ниже `--min-conf`, вне снимка), получает вместо p медиану p
-своей группы и класса: шкала группы не рвётся. Старая уверенность — в `confidence_base`.
+Кандидат, который выбран для проверки, но кропа не имеет, получает медиану своей группы,
+если хоть одно окно группы прочитано. Остальные круги группы не двигаются: иначе слабый
+круг поднимается к медиане и на низком пороге лидара становится ложным. Старая уверенность
+проверенных — в `confidence_base`.
 
     python scripts/scoreboard.py <флаги раздела 0> --dump-stack F:/expds3/work/stack_base.geojson
     python scripts/crop_verify.py --root F:/2/train-expds-3 --stack F:/expds3/work/stack_base.geojson \
@@ -277,14 +279,6 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
         report["auc_blend"] = round(rr.auc(blend(conf[m], scored[m], "geo"), y_first[m]), 4)
     for f in feats:
         f["properties"]["confidence_base"] = f["properties"].get("confidence")
-    # Вся группа и класс, затронутые проверкой, переводятся на новую шкалу, включая кандидатов без кропа.
-    touched = set(keys)
-    for f in feats:
-        pr = f["properties"]
-        key = (pr.get("threshold_group") or pr.get("markup_type"), pr.get("class_name"))
-        if key in med:
-            pr["confidence"] = round(float(blend(np.array([float(pr.get("confidence") or 0.0)]),
-                                                 np.array([med[key]]), mode)[0]), 6)
     for k, i in enumerate(picked):
         pr = feats[i]["properties"]
         if np.isfinite(scored[k]):

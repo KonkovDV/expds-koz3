@@ -78,7 +78,7 @@ def test_crop_classifier_beats_stack_confidence(tmp_path):
     props = [f["properties"] for f in out["features"]]
     assert all("confidence_base" in p for p in props)
     low = [p for p in props if p["confidence_base"] == 0.01]
-    assert len(low) == 4 and all("verify_p" not in p for p in low)
+    assert len(low) == 4 and all("verify_p" not in p and p["confidence"] == 0.01 for p in low)
     assert all(0.0 <= p["confidence"] <= 1.0 for p in props)
 
 
