@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import tomllib
 import zipfile
@@ -57,18 +58,58 @@ def toml_with_only_classes(text: str, classes: list[str]) -> str:
     return text.rstrip() + f"\n\n[post]\nonly_classes = [{quoted}]\n"
 
 
-def census_from_zip(src: Path, out: Path, classes: list[str]) -> str:
-    """Перепись из уже оценённого архива: все файлы те же байты, меняется только конфиг.
+_HEADER = re.compile(r"^\s*\[([^\]]+)\]\s*(#.*)?$")
+_KEY = re.compile(r"^(\s*)([A-Za-z_]+)(\s*=\s*)([0-9.eE+-]+)(.*)$")
 
-    Дерево репозитория после загрузки уходит вперёд, а перепись должна мерить тот самый архив.
+
+def toml_with_thresholds(text: str, changes: dict[str, dict[str, tuple[float, float]]]) -> str:
+    """Меняет значения в `[thresholds_by_markup.<группа>]`: {группа: {класс: (было, стало)}}.
+
+    Строка правится на месте, комментарии остаются. Значение в файле должно совпасть с «было»:
+    иначе вариант посчитан не от этого конфига.
+    """
+    table, done, out = None, set(), []
+    for line in text.splitlines(keepends=True):
+        head = _HEADER.match(line)
+        if head:
+            table = head.group(1).strip()
+        key = _KEY.match(line.rstrip("\r\n"))
+        group = table.split(".", 1)[1] if table and table.startswith("thresholds_by_markup.") else None
+        if key and group in changes and key.group(2) in changes[group]:
+            old, new = changes[group][key.group(2)]
+            if abs(float(key.group(4)) - old) > 1e-9:
+                sys.exit(f"[{table}] {key.group(2)} = {key.group(4)}, а вариант считали от {old}")
+            end = line[len(line.rstrip("\r\n")):]
+            line = f"{key.group(1)}{key.group(2)}{key.group(3)}{round(new, 6)!r}{key.group(5)}{end}"
+            done.add((group, key.group(2)))
+        out.append(line)
+    missing = {(g, c) for g, cls in changes.items() for c in cls} - done
+    if missing:
+        sys.exit(f"в конфиге нет порогов {sorted(missing)}")
+    return "".join(out)
+
+
+def variant_from_zip(src: Path, out: Path, classes: list[str] | None = None,
+                     thresholds: dict[str, dict[str, tuple[float, float]]] | None = None) -> str:
+    """Перепись или вариант порогов из уже оценённого архива: все файлы те же байты, меняется только конфиг.
+
+    Дерево репозитория после загрузки уходит вперёд, а замер должен мерить тот самый архив.
     """
     name = "configs/default.toml"
     with zipfile.ZipFile(src) as zin:
         text = zin.read(name).decode("utf-8")
-        if "post" in tomllib.loads(text):
-            sys.exit(f"{src}: в конфиге уже есть [post], ключ переписи не дописать")
-        config_text = toml_with_only_classes(text, classes)
-        tomllib.loads(config_text)
+        config_text = text
+        if thresholds:
+            config_text = toml_with_thresholds(config_text, thresholds)
+        if classes:
+            if "post" in tomllib.loads(text):
+                sys.exit(f"{src}: в конфиге уже есть [post], ключ переписи не дописать")
+            config_text = toml_with_only_classes(config_text, classes)
+        cfg = tomllib.loads(config_text)
+        for group, cls in (thresholds or {}).items():
+            for c, (_old, new) in cls.items():
+                if abs(cfg["thresholds_by_markup"][group][c] - round(new, 6)) > 1e-9:
+                    sys.exit(f"[thresholds_by_markup.{group}] {c}: после правки не {new}")
         out.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:
             for info in zin.infolist():
@@ -79,6 +120,17 @@ def census_from_zip(src: Path, out: Path, classes: list[str]) -> str:
     return hashlib.sha256(out.read_bytes()).hexdigest()
 
 
+def census_from_zip(src: Path, out: Path, classes: list[str]) -> str:
+    return variant_from_zip(src, out, classes=classes)
+
+
+def density_changes(path: Path) -> dict[str, dict[str, tuple[float, float]]]:
+    """Пороги из отчёта `scripts/density_thresholds.py`: только те, что сдвинулись."""
+    variant = json.loads(Path(path).read_text(encoding="utf-8"))["variant"]
+    return {g: {c: (r["tau"], r["tau_new"]) for c, r in cls.items() if r["tau_new"] != r["tau"]}
+            for g, cls in variant.items() if any(r["tau_new"] != r["tau"] for r in cls.values())}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Сборка архива решения")
     ap.add_argument("--out", default=str(ROOT / "dist" / "submission.zip"))
@@ -87,14 +139,19 @@ def main() -> None:
     ap.add_argument("--only-class", action="append", default=[],
                     help="перепись: в архивный конфиг дописать [post] only_classes, репозиторий не менять")
     ap.add_argument("--from-zip", default=None,
-                    help="перепись из уже загруженного архива: код и веса оттуда, меняется только конфиг")
+                    help="перепись или вариант порогов из уже загруженного архива: код и веса оттуда, меняется только конфиг")
+    ap.add_argument("--thresholds", default=None,
+                    help="с --from-zip: пороги из отчёта scripts/density_thresholds.py (вариант раздела 5)")
     args = ap.parse_args()
     if args.from_zip:
-        if not args.only_class:
-            sys.exit("--from-zip нужен только переписи: задайте --only-class")
+        changes = density_changes(Path(args.thresholds)) if args.thresholds else None
+        if not args.only_class and not changes:
+            sys.exit("--from-zip меняет только конфиг: задайте --only-class или --thresholds")
         out = Path(args.out)
-        digest = census_from_zip(Path(args.from_zip), out, args.only_class)
-        print(f"архив: {out} — перепись {args.only_class} из {args.from_zip}, "
+        digest = variant_from_zip(Path(args.from_zip), out, args.only_class or None, changes)
+        what = [f"перепись {args.only_class}"] if args.only_class else []
+        what += [f"порогов {sum(len(c) for c in changes.values())}"] if changes else []
+        print(f"архив: {out} — {', '.join(what)} из {args.from_zip}, "
               f"{out.stat().st_size / 2**20:.1f} МБ, sha256 {digest}")
         return
     meta = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))

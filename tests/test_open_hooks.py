@@ -55,3 +55,28 @@ def test_census_from_an_uploaded_zip_changes_only_the_config(tmp_path):
                 assert a.read(name) == b.read(name)
         cfg = tomllib.loads(b.read("configs/default.toml").decode("utf-8"))
     assert cfg["post"]["only_classes"] == ["finds_points"] and cfg["default_threshold"] == 0.15
+
+
+def test_threshold_variant_edits_only_the_listed_values_and_keeps_comments():
+    import tomllib
+
+    text = ("[thresholds_by_markup.li]\n# пояснение\nkurgany_povrezhdennye = 0.06415\nkurgany_tselye = 0.19422\n"
+            "\n[thresholds_by_markup.sp_or]\nkurgany_povrezhdennye = 0.3645  # карта центров\n")
+    sub = _submission()
+    out = sub.toml_with_thresholds(text, {"li": {"kurgany_povrezhdennye": (0.06415, 0.031579)},
+                                          "sp_or": {"kurgany_povrezhdennye": (0.3645, 0.29355)}})
+    cfg = tomllib.loads(out)
+    assert cfg["thresholds_by_markup"]["li"] == {"kurgany_povrezhdennye": 0.031579, "kurgany_tselye": 0.19422}
+    assert cfg["thresholds_by_markup"]["sp_or"]["kurgany_povrezhdennye"] == 0.29355
+    assert "# пояснение" in out and "# карта центров" in out
+
+
+def test_threshold_variant_refuses_a_config_it_was_not_computed_from():
+    import pytest
+
+    with pytest.raises(SystemExit):
+        _submission().toml_with_thresholds("[thresholds_by_markup.li]\nkurgany_tselye = 0.5\n",
+                                           {"li": {"kurgany_tselye": (0.19422, 0.1)}})
+    with pytest.raises(SystemExit):
+        _submission().toml_with_thresholds("[thresholds_by_markup.li]\nkurgany_tselye = 0.5\n",
+                                           {"li": {"gorodishcha": (0.99, 0.98)}})
