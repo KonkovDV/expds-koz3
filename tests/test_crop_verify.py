@@ -89,6 +89,13 @@ def test_blend_modes():
     assert np.allclose(cv.blend(c, p, "p"), p) and np.allclose(cv.blend(c, p, "none"), c)
 
 
+def test_missing_crops_do_not_invent_a_median():
+    cv = load()
+    p = np.array([np.nan, np.nan, 0.2])
+    keys = [("sp_focal", "a"), ("sp_focal", "a"), ("sp_focal", "b")]
+    assert cv.group_median(p, keys) == {("sp_focal", "b"): 0.2}
+
+
 def test_a_stronger_circle_outside_the_group_keeps_the_mound():
     cv = load()
     strong = feat(10, 10, 4.0, 0.9, "101_Альфа_1", "li")

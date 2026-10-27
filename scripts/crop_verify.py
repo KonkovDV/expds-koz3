@@ -9,9 +9,9 @@
 Здесь то же на нашем стеке и нашими окнами: `expds.tiles.iter_sources` режет кроп тем же чтением
 и теми же каналами, что кэш обучения (снимок — RGB, лидар — каналы рельефа из LAS).
 
-Метка — официальное правило попадания с эталоном своего класса (как `rerank_oof.py --labels any`):
-классификатор отвечает, есть ли здесь объект, а не первый ли это круг на нём. Дубли снимают
-пороги групп. Модель — энкодер smp (по умолчанию ResNet-18, веса ImageNet; `--no-pretrained` — без них)
+Метка для обучения — «есть ли здесь объект». Кто из кругов забирает эталон, решается по всему стеку:
+второй круг не усиливается. Порог группы сам по себе дубли не снимает. Если ни одного кропа нет,
+уверенность группы не меняется.
 и линейная голова; повороты на 90° и отражения. Каждая семья участков оценивается моделью без неё.
 
 Новая уверенность (`--blend`):
@@ -224,6 +224,19 @@ def demote_duplicates(p: np.ndarray, y_any: np.ndarray, y_first: np.ndarray) -> 
     return out
 
 
+def group_median(p: np.ndarray, keys: list[tuple]) -> dict[tuple, float]:
+    """Медиана вероятности кропа по группе и классу. Нет ни одного кропа — ключа нет.
+
+    Подставлять 0,5 значит переписать уверенность всей группы, хотя картинку никто не видел.
+    """
+    med: dict[tuple, float] = {}
+    for key in set(keys):
+        vals = [float(p[k]) for k in range(len(p)) if keys[k] == key and np.isfinite(p[k])]
+        if vals:
+            med[key] = float(np.median(vals))
+    return med
+
+
 def blend(conf: np.ndarray, p: np.ndarray, mode: str) -> np.ndarray:
     if mode == "p":
         return p
@@ -252,10 +265,7 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     conf = np.array([float(feats[i]["properties"].get("confidence", 0.0)) for i in picked])
     keys = [(feats[i]["properties"].get("threshold_group") or feats[i]["properties"].get("markup_type"),
              feats[i]["properties"].get("class_name")) for i in picked]
-    med: dict[tuple, float] = {}
-    for key in set(keys):
-        vals = [p[k] for k in range(len(picked)) if keys[k] == key and np.isfinite(p[k])]
-        med[key] = float(np.median(vals)) if vals else 0.5
+    med = group_median(p, keys)
     scored = demote_duplicates(p, y, y_first)
     report: dict = {"candidates": len(picked), "with_crop": int(ok.sum()), "verified": int(np.isfinite(p).sum()),
                     "hits": int(y_first.sum()), "blend": mode, "groups": {}}
@@ -271,15 +281,20 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     for f in feats:
         pr = f["properties"]
         key = (pr.get("threshold_group") or pr.get("markup_type"), pr.get("class_name"))
-        if key in touched:
+        if key in med:
             pr["confidence"] = round(float(blend(np.array([float(pr.get("confidence") or 0.0)]),
                                                  np.array([med[key]]), mode)[0]), 6)
     for k, i in enumerate(picked):
         pr = feats[i]["properties"]
-        pk = scored[k] if np.isfinite(scored[k]) else med[keys[k]]
-        pr["verify_p"] = round(float(pk), 6)
+        if np.isfinite(scored[k]):
+            pk = float(scored[k])
+        elif keys[k] in med:
+            pk = med[keys[k]]
+        else:
+            continue
+        pr["verify_p"] = round(pk, 6)
         pr["confidence"] = round(float(blend(np.array([conf[k]]), np.array([pk]), mode)[0]), 6)
-    for key in sorted(touched, key=str):
+    for key in sorted(med, key=str):
         report["groups"][f"{key[0]}:{key[1]}"] = {"median_p": round(med[key], 4)}
     return {"type": "FeatureCollection", "features": feats}, report
 
