@@ -45,8 +45,18 @@ FIND_R_M = 0.5
 
 # ───────────────────────────── потоки и бэкенды predict ─────────────────────────────
 
+def avail_cores() -> int:
+    """Ядра, доступные процессу: len(os.sched_getaffinity(0)) (учитывает taskset/cpuset контейнера),
+    где его нет (macOS, Windows) или он падает — os.cpu_count(). Не меньше 1."""
+    try:
+        n = len(os.sched_getaffinity(0))
+    except (AttributeError, OSError):
+        n = os.cpu_count() or 1
+    return max(1, int(n or 1))
+
+
 def pix_threads() -> int:
-    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, os.cpu_count())."""
+    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, avail_cores())."""
     for k in ("EXPDS_PIXGBM_THREADS", "EXPDS_THREADS"):
         v = os.environ.get(k, "").strip()
         if v:
@@ -56,7 +66,16 @@ def pix_threads() -> int:
                     return n
             except ValueError:
                 log.warning("%s=%r не число — пропущено", k, v)
-    return max(1, min(8, os.cpu_count() or 1))
+    return max(1, min(8, avail_cores()))
+
+
+def pix_procs(pix: dict | None, nt: int) -> int:
+    """Процессы пула признаков окон: [geophys.pixgbm] procs > 0 — как задано, иначе min(nt, 4, avail_cores())."""
+    try:
+        n = int((pix or {}).get("procs", 0) or 0)
+    except (TypeError, ValueError):
+        n = 0
+    return n if n > 0 else max(1, min(int(nt), 4, avail_cores()))
 
 
 def _sha256(path) -> str:
@@ -133,10 +152,20 @@ class SoForest:
         return out
 
 
+def resolve_model_dir(model_dir) -> Path:
+    """Путь к моделям: абсолютный или существующий от cwd — как есть, иначе <корень решения>/model_dir."""
+    md = Path(model_dir)
+    if md.is_absolute() or md.exists():
+        return md
+    alt = Path(__file__).resolve().parents[1] / md
+    return alt if alt.exists() else md
+
+
 def load_models(model_dir, backend: str = "lightgbm", names=("poly", "finds")) -> dict:
     """{имя: модель}. backend = lightgbm | lleaves | treelite. lleaves — <k>.lleaves.so рядом с <k>.txt,
-    sha256 .txt должен совпасть с <k>.lleaves.json (иначе .so устарел). Любая ошибка → lightgbm (лог)."""
-    md = Path(model_dir)
+    sha256 .txt должен совпасть с <k>.lleaves.json (иначе .so устарел). Любая ошибка → lightgbm (лог).
+    Относительный model_dir — от текущего каталога, а если там его нет — от корня решения (как веса НС)."""
+    md = resolve_model_dir(model_dir)
     out = {}
     for k in names:
         txt = md / f"{k}.txt"
@@ -637,7 +666,10 @@ PRIOR_S_PER_MPX = {
 
 
 def process_t0() -> float:
-    """Старт процесса в шкале time.monotonic(): psutil create_time, иначе момент импорта модуля."""
+    """Старт процесса в шкале time.monotonic(): psutil create_time, иначе момент импорта модуля (_T_IMPORT).
+    psutil не обязателен (в requirements.lock образа его нет): ImportError → _T_IMPORT. Импорт expds.geo_pixgbm
+    идёт из pipeline в начале прогона, так что срок без psutil отсчитывается чуть позже старта процесса
+    (на время импорта torch/rasterio и т. п.); pix_deadline всё равно берёт min(с guard.t0), если guard есть."""
     try:
         import psutil
         return time.monotonic() - max(0.0, time.time() - psutil.Process().create_time())
@@ -654,12 +686,14 @@ def pix_deadline(guard, budget_s: float) -> float:
     return t0 + float(budget_s)
 
 
-def _rate(mt, mode, nt, backend="lightgbm"):
+def _rate(mt, mode, nt, backend="lightgbm", procs=None):
+    """с/Мпикс: замер этого процесса, иначе априорная скорость / число процессов признаков (по умолчанию min(nt, 4))."""
     r = PHASE["rate"].get((mt, mode))
     if r:
         return r[0] / max(r[1], 1e-9)
     pr = PRIOR_S_PER_MPX.get(backend, PRIOR_S_PER_MPX["lightgbm"])
-    return pr.get((mt, mode), pr.get((mt, "full"), 57.1)) / max(1, min(nt, 4))
+    np_ = int(procs) if procs else min(nt, 4)
+    return pr.get((mt, mode), pr.get((mt, "full"), 57.1)) / max(1, np_)
 
 
 def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) -> list[dict]:
@@ -674,6 +708,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
 
     pix = (cfg.get("geophys", {}) or {}).get("pixgbm") or {}
     nt = pix_threads()
+    npr = pix_procs(pix, nt)
     backend = os.environ.get("EXPDS_PIXGBM_BACKEND", "") or pix.get("backend", "lightgbm")
     budget = float(os.environ.get("PIXGBM_BUDGET_S", "") or pix.get("budget_s", 300))
     reserve = float(pix.get("guard_reserve_s", 0))
@@ -715,9 +750,9 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
                 left = deadline - time.monotonic()
                 lvl = PHASE["level"]
-                if lvl == 0 and mpxv * _rate(mt, "full", nt, bk) > left:
+                if lvl == 0 and mpxv * _rate(mt, "full", nt, bk, npr) > left:
                     lvl = 1
-                if lvl == 1 and (mt != "maggr" or "finds" not in allk or mpxv * _rate(mt, "finds_only", nt, bk) > left):
+                if lvl == 1 and (mt != "maggr" or "finds" not in allk or mpxv * _rate(mt, "finds_only", nt, bk, npr) > left):
                     lvl = 2
                 if lvl > PHASE["level"]:
                     log.warning("pixgbm: прогноз %.1f Мпикс × скорость > остатка %.0f с — ступень %s с %s",
@@ -729,7 +764,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
                 else:
                     mode = "full" if lvl == 0 else "finds_only"
                     t0 = time.perf_counter()
-                    Pm = prob_map(d, mt, use, threads=nt, procs=int(pix.get("procs", 0) or min(nt, 4)), deadline=deadline,
+                    Pm = prob_map(d, mt, use, threads=nt, procs=npr, deadline=deadline,
                                   timing=PHASE["timing"])
                     if "poly" in Pm:
                         out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix)
