@@ -116,8 +116,34 @@ def cmd_apply(a) -> None:
                 pr["class_name_base"] = pr.get("class_name")
                 pr["class_name"] = new
                 n += 1
+    dropped = 0
+    if a.dedup_m > 0:
+        # Лидар ставит курган сразу в оба подкласса в 0 м (docs/TEAM_REPORTS_2026-10-28.md:51–70).
+        # После переразметки пара становится двумя кругами одного класса: один из них — лишний.
+        feats = stack["features"]
+        idx = [i for i, f in enumerate(feats) if (f.get("properties") or {}).get("class_name") in (POVR, TSEL)
+               and "subclass_p_povr" in f["properties"]]
+        groups: dict = {}
+        for i in idx:
+            pr = feats[i]["properties"]
+            groups.setdefault((pr.get("region_name"), pr["class_name"]), []).append(i)
+        drop = set()
+        for ii in groups.values():
+            ii = sorted(ii, key=lambda i: -float(feats[i]["properties"].get("confidence", 0)))
+            xy = np.array(_xy3857([feats[i]["geometry"] for i in ii]))
+            lim2 = (a.dedup_m / _merc_scale(xy[0][1])) ** 2
+            alive = np.ones(len(ii), bool)
+            for k in range(len(ii)):  # жадный NMS по уверенности
+                if not alive[k]:
+                    continue
+                d2 = ((xy[k + 1:] - xy[k]) ** 2).sum(1)
+                kill = np.flatnonzero((d2 <= lim2) & alive[k + 1:]) + k + 1
+                alive[kill] = False
+            drop.update(i for i, al in zip(ii, alive) if not al)
+        stack["features"] = [f for i, f in enumerate(feats) if i not in drop]
+        dropped = len(drop)
     Path(a.out).write_text(json.dumps(stack, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps({"out": a.out, "relabeled": n, "thr": a.thr}, ensure_ascii=False))
+    print(json.dumps({"out": a.out, "relabeled": n, "dedup_dropped": dropped, "thr": a.thr}, ensure_ascii=False))
 
 
 def main() -> None:
@@ -139,6 +165,8 @@ def main() -> None:
     p.add_argument("--stack", required=True)
     p.add_argument("--oof", required=True)
     p.add_argument("--thr", type=float, default=0.5, help="0,5 при потере 30:20 (≡ 0,4 без весов)")
+    p.add_argument("--dedup-m", type=float, default=2.0,
+                   help="после переразметки оставить один круг класса в радиусе, м (0 — выкл.)")
     p.add_argument("--out", required=True)
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
