@@ -94,3 +94,24 @@ def test_verify_weights_resolve_from_archive_root_not_cwd(tmp_path, monkeypatch)
     got = rooted_verify(cfg, ROOT)
     assert got["verify"]["weights"] == str(ROOT / "models/sp_crop.pt") and got["x"] == 1
     assert cfg["verify"]["weights"] == "models/sp_crop.pt"
+
+
+def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
+    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
+    from shapely.geometry import Point
+
+    from expds import post
+    from expds.watchdog import safe_finish
+
+    def boom(_feats, *a, **k):
+        raise RuntimeError("GEOS упал в склейке")
+
+    monkeypatch.setattr(post, "merge_within_markup", boom)
+    big = Point(X0 + 50, Y0 + 50).buffer(2.0 / post._ground_scale(Y0), quad_segs=8)
+    f = {"geom": big, "class_name": "kurgany_tselye", "confidence": 0.9, "markup_type": "li", "region_name": "r"}
+    cfg = {"thresholds": {}, "default_threshold": 0.0,
+           "post": {"micro_circles": {"radius_m": {"kurgany_tselye": 0.5}}}}
+    out = safe_finish([f], cfg)
+    assert len(out) == 1
+    assert out[0]["geom"].area < big.area * 0.1        # 0,5 м вместо 2 м: площадь в 16 раз меньше
+    assert out[0]["geom"].centroid.distance(big.centroid) < 1e-6
