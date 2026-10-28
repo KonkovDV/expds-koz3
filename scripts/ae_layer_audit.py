@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""Аудит слоя аэрофото по эталону, без растров и без видеокарты (секунды CPU).
+
+Отвечает на вопрос «почему канал аэрофото почти ничего не находит»:
+- состав эталона ae по классам и участкам;
+- сколько курганов ae вообще достижимо копиями лидара (li_to_ae): внутри полигона ae
+  лежит внутренняя точка хоть одного кургана слоя li (потолок для копий при идеальном лидаре);
+- сколько курганов ae на участках без слоя li (копий там нет вовсе);
+- эквивалентный радиус курганов ae и li, м.
+
+Сдвиг слоёв ae относительно li — отдельно: scripts/layer_shift.py --gt <out_gt> --pairs li:ae.
+
+    python scripts/ae_layer_audit.py --root F:/2/train-expds-3 --out-gt work/gt_raw.geojson --out work/ae_audit.json
+
+Вход — сырые папки участков (06_*разметка/*_{Li,Ae,SpOr,Or}_<класс>.geojson, любая CRS из заголовка).
+"""
+from __future__ import annotations
+
+import argparse
+import collections
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+
+CLS = {"курганы_поврежденные": "kurgany_povrezhdennye", "курганы_целые": "kurgany_tselye",
+       "городища": "gorodishcha", "фортификации": "fortifikatsii", "архитектуры": "arkhitektury"}
+MT = {"Li": "li", "Ae": "ae", "SpOr": "sp_or", "Or": "or"}
+K = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def build_gt(root: Path) -> list[dict]:
+    from pyproj import Transformer
+    from shapely import transform as sh_transform
+    from shapely.geometry import mapping, shape
+
+    feats = []
+    for f in sorted(root.glob("*/06_*разметка/*.geojson")):
+        m = re.search(r"_(Li|Ae|SpOr|Or)_(.+)\.geojson$", f.name)
+        if not m or m.group(2) not in CLS:
+            continue
+        fc = json.loads(f.read_text(encoding="utf-8"))
+        crs = ((fc.get("crs") or {}).get("properties") or {}).get("name", "")
+        tr = None
+        if crs and "3857" not in crs:
+            tr = Transformer.from_crs("OGC:CRS84" if "CRS84" in crs else crs, "EPSG:3857", always_xy=True)
+        for ft in fc.get("features", []):
+            if not ft.get("geometry"):
+                continue
+            geom = ft["geometry"]
+            if tr is not None:
+                geom = mapping(sh_transform(shape(geom), lambda xy: np.column_stack(tr.transform(xy[:, 0], xy[:, 1]))))
+            feats.append({"type": "Feature", "geometry": geom,
+                          "properties": {"region_name": f.parts[-3], "markup_type": MT[m.group(1)],
+                                         "class_name": CLS[m.group(2)]}})
+    return feats
+
+
+def audit(feats: list[dict]) -> dict:
+    from pyproj import Transformer
+    from shapely import STRtree
+    from shapely.geometry import shape
+
+    by: dict = collections.defaultdict(lambda: collections.defaultdict(list))
+    for f in feats:
+        p = f["properties"]
+        by[p["region_name"]][(p["markup_type"], p["class_name"])].append(shape(f["geometry"]))
+    to_ll = Transformer.from_crs(3857, 4326, always_xy=True)
+    tot: collections.Counter = collections.Counter()
+    radii: dict = collections.defaultdict(list)
+    rows = []
+    for region, layers in sorted(by.items()):
+        ae = {c: layers.get(("ae", c), []) for c in CLS.values()}
+        if not any(ae.values()):
+            continue
+        li = [g for c in K for g in layers.get(("li", c), [])]
+        aek = [g for c in K for g in ae[c]]
+        anyg = (aek or li or [g for v in ae.values() for g in v])[0]
+        lat = to_ll.transform(*anyg.representative_point().coords[0])[1]
+        k = float(np.cos(np.radians(lat)))  # масштаб EPSG:3857 → метры
+        for c in K:
+            radii[f"ae:{c}"] += [float(np.sqrt(g.area / np.pi) * k) for g in ae[c]]
+            radii[f"li:{c}"] += [float(np.sqrt(g.area / np.pi) * k) for g in layers.get(("li", c), [])]
+        reach = 0
+        if li and aek:
+            tree = STRtree([g.representative_point() for g in li])
+            reach = sum(1 for g in aek if len(tree.query(g, predicate="contains")))
+        rows.append({"region": region, "li_kurgans": len(li), **{c: len(v) for c, v in ae.items()},
+                     "ae_kurgans_reachable_by_li_copy": reach})
+        for c, v in ae.items():
+            tot[c] += len(v)
+        tot["ae_kurgans"] += len(aek)
+        tot["ae_kurgans_reachable_by_li_copy"] += reach
+        tot["ae_kurgans_in_regions_without_li"] += 0 if li else len(aek)
+        tot["ae_regions"] += 1
+        tot["ae_regions_without_li"] += 0 if li else 1
+    rad = {key: {"n": len(v), "median_m": round(float(np.median(v)), 2),
+                 "p10_m": round(float(np.percentile(v, 10)), 2), "p90_m": round(float(np.percentile(v, 90)), 2)}
+           for key, v in sorted(radii.items()) if v}
+    return {"totals": dict(tot), "eq_radius": rad, "regions": rows}
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--root", required=True, help="папка трейна с участками")
+    ap.add_argument("--out-gt", default="", help="куда записать сводный эталон EPSG:3857 (для layer_shift.py)")
+    ap.add_argument("--out", default="")
+    args = ap.parse_args()
+    feats = build_gt(Path(args.root))
+    if args.out_gt:
+        Path(args.out_gt).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out_gt).write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False),
+                                     encoding="utf-8")
+    rep = audit(feats)
+    t = rep["totals"]
+    print(f"эталон: объектов {len(feats)}; участков с ae {t.get('ae_regions', 0)}, из них без li "
+          f"{t.get('ae_regions_without_li', 0)}")
+    print("ae по классам:", {c: t.get(c, 0) for c in CLS.values()})
+    print(f"курганов ae {t.get('ae_kurgans', 0)}: достижимо копией li {t.get('ae_kurgans_reachable_by_li_copy', 0)}, "
+          f"на участках без li {t.get('ae_kurgans_in_regions_without_li', 0)}")
+    for key, r in rep["eq_radius"].items():
+        print(f"  радиус {key}: n {r['n']}, медиана {r['median_m']} м, p10–p90 {r['p10_m']}–{r['p90_m']} м")
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()
