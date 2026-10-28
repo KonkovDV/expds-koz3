@@ -348,6 +348,45 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
     return out
 
 
+def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
+    """Сырые компоненты P ≥ t (для каждого t из levels) — полные полигоны EPSG:3857 (для валидации bot-6).
+    Свойства: score — средняя P компоненты, max_p, t_pix, area_m2 (в метрах CRS карты), pole_x/pole_y (EPSG:3857)."""
+    from shapely.geometry import Point
+    from shapely.ops import polylabel
+    from .raster import mask_to_polygons, to_crs, WEB_MERCATOR
+
+    out = []
+    for t in levels:
+        m = ndi.binary_opening(P >= t)
+        lab, n = ndi.label(m, structure=np.ones((3, 3)))
+        if not n:
+            continue
+        idx = np.arange(1, n + 1)
+        cnt = ndi.sum(np.ones_like(P), lab, idx)
+        mean = ndi.mean(P, lab, idx)
+        mxp = ndi.maximum(P, lab, idx)
+        keep = np.zeros(n + 1, np.int32)
+        keep[idx[cnt >= min_px]] = idx[cnt >= min_px]
+        lab = keep[lab]
+        native = mask_to_polygons(lab, d["T"], None)
+        for g, v in native:
+            if g.is_empty or not g.is_valid:
+                g = g.buffer(0)
+                if g.is_empty:
+                    continue
+                if g.geom_type == "MultiPolygon":
+                    g = max(g.geoms, key=lambda x: x.area)
+            try:
+                pt = polylabel(g, tolerance=0.02)
+            except Exception:
+                pt = g.representative_point()
+            g3, p3 = (to_crs(g, d["crs"], WEB_MERCATOR), to_crs(pt, d["crs"], WEB_MERCATOR)) if d["crs"] else (g, pt)
+            out.append(dict(geom=g3, score=float(mean[v - 1]), max_p=float(mxp[v - 1]), t_pix=float(t),
+                            area_m2=float(g.area), pole_x=float(p3.x), pole_y=float(p3.y),
+                            region=region, markup_type=mt, raster=source))
+    return out
+
+
 def finds_candidates(P, d, region, mt, source):
     from scipy.spatial import cKDTree
     from .raster import circle_3857
