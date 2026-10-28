@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "username": "dmitrijkv",
+      "kernel_ref": "dmitrijkv/koz3-li-tin-59-t128-dual-t4",
+      "dataset_ref": "dmitrijkv/koz3-li-tin-59-t128-bundle",
+      "token": "<SET_KAGGLE_API_TOKEN_HERE>"
+    },
+    {
+      "id": 0,
+      "username": "usertest1234",
+      "kernel_ref": "usertest1234/koz3-li-tin-59-t128-dual-t4",
+      "dataset_ref": "usertest1234/koz3-li-tin-59-t128-bundle",
+      "token": "<SET_KAGGLE_API_TOKEN_HERE>"
+    },
+    {
+      "id": 0,
+      "username": "aaaa0000004",
+      "kernel_ref": "aaaa0000004/koz3-li-tin-59-t128-dual-t4",
+      "dataset_ref": "aaaa0000004/koz3-li-tin-59-t128-bundle",
+      "token": "<SET_KAGGLE_API_TOKEN_HERE>"
+    },
+    {
+      "id": 0,
+      "username": "aaaadg4gg4g4g",
+      "kernel_ref": "aaaadg4gg4g4g/koz3-li-tin-59-t128-dual-t4",
+      "dataset_ref": "aaaadg4gg4g4g/koz3-li-tin-59-t128-bundle",
+      "token": "<SET_KAGGLE_API_TOKEN_HERE>"
+    }
+  ]
+}
