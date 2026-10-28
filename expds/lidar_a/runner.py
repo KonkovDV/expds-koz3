@@ -57,14 +57,20 @@ def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), 
     kinds = list(dict.fromkeys(k for _, k, _ in models))
     stacks, vmask = stacks_for(dtm, valid, cell, kinds, dev)
     tta = guard_tta(tta, deadline)
+    return blend_stacks(stacks, models, n_out, tta, dev, log, accumulate), vmask
+
+
+def blend_stacks(stacks, models, n_out, tta=True, dev="cuda", log=print, accumulate=None):
+    """Weighted ensemble of tiled-inference maps over ready input stacks {kind: (C, h, w)} → (n_out, h, w) float32.
+    accumulate: host | device_exact | device (default LIDAR_A_ACC)."""
     mode = accumulate or ACCUMULATE
     if mode == "host":
         maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
             m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
-        return ensemble(maps, models), vmask
+        return ensemble(maps, models)
     infer = _DeviceInfer(n_out, tta, dev, log)
     if mode == "device_exact":
-        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models), vmask
+        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models)
     if mode != "device":
         raise ValueError(f"LIDAR_A_ACC {mode!r}")
     wts = np.array([w for _, _, w in models], np.float32)
@@ -74,7 +80,7 @@ def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), 
         part = infer(m, stacks[k]).mul_(float(wt))     # a float32 weight is exact as a python float
         total = part if total is None else total.add_(part)
         del part
-    return total.cpu().numpy(), vmask
+    return total.cpu().numpy()
 
 
 class _DeviceInfer:
