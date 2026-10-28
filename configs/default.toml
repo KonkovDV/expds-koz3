@@ -101,7 +101,8 @@ kurgany_tselye = 0.3725
 arkhitektury = 0.286725
 
 [thresholds_by_markup.or]
-arkhitektury = 0.065565
+# 0,065565 до пакета; 0,060125 — после micro_circles (bot-7/work3/insample_tau.json)
+arkhitektury = 0.060125
 
 # Окно 256 м только на участках без лидара, вместе с каналом σ дальше 12 м.
 # 0,350588 → 0,353793, 34 новых +0,0002, без лидара +0,0098, A > B в 0,993.
@@ -285,8 +286,11 @@ min_confidence = 0.1426
 # Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
 # Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
 # (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
-# [post.micro_circles]
-# radius_m = { arkhitektury = 0.25, kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# Кандидат bot-7 (28.10, bot-7/REPORT3.md): пакет включён. Пороги групп пересчитаны той же
+# процедурой, что пороги базы (sweep_groups в выборке по OOF после micro): изменился только
+# [thresholds_by_markup.or] arkhitektury 0,065565 → 0,060125 (bot-7/work3/insample_tau.json).
+[post.micro_circles]
+radius_m = { arkhitektury = 0.25, kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 
 # [post]
 # fill_holes = ["gorodishcha"]
