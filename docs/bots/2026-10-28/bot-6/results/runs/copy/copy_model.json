@@ -1,0 +1,213 @@
+{
+ "oracle": {
+  "A": 0.3146153226828423,
+  "B": 0.3224056399634133,
+  "delta": 0.007790317280571002,
+  "d_new34": 0.01009580581998537,
+  "d_optical": 0.0032820079419344783,
+  "boot": {
+   "mean": 0.007600581019146553,
+   "p5": 0.004017046576465422,
+   "p50": 0.0076629295125575925,
+   "p95": 0.01082386376155968,
+   "p_gt0": 1.0,
+   "samples": 1000,
+   "families": 103
+  },
+  "P_A_gt_B": 0.0,
+  "P4": {
+   "kurgany_povrezhdennye": 0.003454550141103818,
+   "kurgany_tselye": 0.001320854791145043,
+   "gorodishcha": 0.0
+  },
+  "rule": {
+   "P1": true,
+   "P2": true,
+   "P3": null,
+   "P4": true,
+   "P5_package_only": false
+  },
+  "dTP_dFP": {
+   "kurgany_povrezhdennye": [
+    73,
+    331
+   ],
+   "kurgany_tselye": [
+    26,
+    83
+   ],
+   "object_poly": [
+    -1,
+    1
+   ],
+   "finds_points": [
+    117,
+    -78
+   ]
+  }
+ },
+ "blind": {
+  "A": 0.3146153226828423,
+  "B": 0.30488081472898143,
+  "delta": -0.009734507953860883,
+  "d_new34": -0.0023833501768313337,
+  "d_optical": -0.0014996665244543794,
+  "boot": {
+   "mean": -0.00940471902289682,
+   "p5": -0.01328541531096052,
+   "p50": -0.009971085837221283,
+   "p95": -0.002998522196450605,
+   "p_gt0": 0.0,
+   "samples": 1000,
+   "families": 103
+  },
+  "P_A_gt_B": 1.0,
+  "P4": {
+   "kurgany_povrezhdennye": -0.002171987125783997,
+   "kurgany_tselye": -0.006261681317198753,
+   "gorodishcha": 0.0
+  },
+  "rule": {
+   "P1": false,
+   "P2": false,
+   "P3": null,
+   "P4": false,
+   "P5_package_only": true
+  },
+  "dTP_dFP": {
+   "kurgany_povrezhdennye": [
+    -24,
+    15
+   ],
+   "kurgany_tselye": [
+    -43,
+    103
+   ],
+   "object_poly": [
+    4,
+    64
+   ],
+   "finds_points": [
+    21,
+    460
+   ]
+  }
+ },
+ "model": {
+  "A": 0.3146153226828423,
+  "B": 0.31258971941072705,
+  "delta": -0.0020256032721152617,
+  "d_new34": 0.0007816502712346685,
+  "d_optical": -0.00020602016111437305,
+  "boot": {
+   "mean": -0.002428752184610325,
+   "p5": -0.004158950570834308,
+   "p50": -0.0025975946386032345,
+   "p95": 0.00011789615454760565,
+   "p_gt0": 0.066,
+   "samples": 1000,
+   "families": 103
+  },
+  "P_A_gt_B": 0.9339999999999999,
+  "P4": {
+   "kurgany_povrezhdennye": -0.001787636628757311,
+   "kurgany_tselye": -3.365344613232013e-05,
+   "gorodishcha": 0.0
+  },
+  "rule": {
+   "P1": false,
+   "P2": false,
+   "P3": false,
+   "P4": false,
+   "P5_package_only": true
+  },
+  "dTP_dFP": {
+   "kurgany_povrezhdennye": [
+    6,
+    295
+   ],
+   "kurgany_tselye": [
+    0,
+    2
+   ],
+   "object_poly": [
+    0,
+    38
+   ]
+  },
+  "d_rand": [
+   -0.0010497699282198125,
+   -0.0013192512515362576,
+   -0.0017580676381421245,
+   -0.0017375585374670988,
+   -0.0003345547825738815
+  ],
+  "d_lofo": -0.0005695268460446101,
+  "auc": 0.5954787662249341,
+  "ap": 0.12699002690883512,
+  "features": [
+   "conf",
+   "logconf",
+   "grp",
+   "cls",
+   "area",
+   "bw",
+   "bh",
+   "nv",
+   "max_ae",
+   "max_geo",
+   "max_li",
+   "max_sp",
+   "n_ae",
+   "n_ae_same",
+   "n_geo",
+   "n_geo_same",
+   "n_li",
+   "n_li_same",
+   "n_other_grp",
+   "n_sp",
+   "n_sp_same",
+   "mod_La",
+   "mod_Li",
+   "mod_Ae",
+   "mod_SpOr",
+   "mod_Or",
+   "mod_MagGr",
+   "mod_EtGr",
+   "mod_TerFl",
+   "n_mods"
+  ],
+  "importance_gain": {
+   "bh": 4957.8,
+   "bw": 3086.6,
+   "grp": 2266.3,
+   "conf": 1853.1,
+   "area": 1659.7,
+   "max_ae": 1519.2,
+   "mod_Ae": 1518.4,
+   "logconf": 1513.0,
+   "n_mods": 1453.3,
+   "cls": 1086.9,
+   "max_li": 930.1,
+   "n_geo": 897.6,
+   "max_geo": 646.4,
+   "nv": 627.6,
+   "n_li_same": 395.3,
+   "mod_EtGr": 320.2,
+   "n_ae": 308.0,
+   "mod_SpOr": 282.8,
+   "mod_La": 230.1,
+   "mod_MagGr": 176.0,
+   "n_ae_same": 79.4,
+   "n_geo_same": 74.0,
+   "mod_TerFl": 50.9,
+   "n_other_grp": 50.0,
+   "mod_Li": 35.3,
+   "n_li": 13.6,
+   "max_sp": 0.0,
+   "n_sp": 0.0,
+   "n_sp_same": 0.0,
+   "mod_Or": 0.0
+  }
+ }
+}

@@ -3,7 +3,7 @@
 set -u
 cd /workspace/koz3_shared/bot-3/repo
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMBA_NUM_THREADS=1
-ulimit -v 3000000
+ulimit -v 2200000
 OUT=/workspace/koz3_shared/bot-3/geo_gap/r
 REGS="${REGS:-$(ls /workspace/data/train-expds-3 | grep -E '^2(0[1-9]|1[0-7])_' | tr '\n' ' ')}"
 COMMON="--root /workspace/data/train-expds-3"

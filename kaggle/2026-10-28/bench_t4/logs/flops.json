@@ -1,0 +1,1 @@
+{"GFLOP_per_forward_(2*MAC)": {"cnx_li12": 289.2, "dfine_l": "RuntimeError('Tensor.item() cannot be called on meta tensors')", "rtdetrv2_r50": "RuntimeError('Tensor.item() cannot be called on meta tensors')"}}

@@ -1,0 +1,22 @@
+{
+ "autocast_cuda_dtype_None_disabled": "ok",
+ "warn": [],
+ "dfine_l_cpu_bf16_autocast": [
+  [
+   1,
+   300,
+   5
+  ],
+  "torch.bfloat16",
+  0
+ ],
+ "rtdetrv2_r50_cpu_bf16_autocast": [
+  [
+   1,
+   300,
+   5
+  ],
+  "torch.bfloat16",
+  0
+ ]
+}

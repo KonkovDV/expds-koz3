@@ -3,8 +3,22 @@ import sys, json, collections
 from evlib import *
 c = 'object_poly'
 REGS = {l for l in os.listdir('/workspace/data/train-expds-3') if l[:3].isdigit() and 201 <= int(l[:3]) <= 217}
-def keep_stack(p): return p[2] not in REGS or (p[2].startswith('212') and p[3] == 'maggr')
+import re
+def bad_regions(name):
+    """участки, где в логе варианта были ошибки файлов (ошибки идут перед строкой 'участок: N'), кроме известной 212/MagGr цвет_2"""
+    bad, err = set(), False
+    for l in open(f'r/{name}.log'):
+        if 'ошибка' in l and not ('Усадьба_MagGr_цвет_2' in l): err = True
+        m = re.match(r'^(2\d\d_\S+): \d+$', l.strip())
+        if m:
+            if err: bad.add(m.group(1))
+            err = False
+    return bad
+EXCL = set()
+def keep_stack(p): return p[2] not in REGS or p[2] in EXCL or (p[2].startswith('212') and p[3] == 'maggr')
+import anchors
 def build(name):
+    if name.endswith('H1'): return anchors.apply(build(name[:-2]), 'H1')
     fp = file_preds(f'r/{name}.geojson').get(c, [])
     new = [p for p in fp if not keep_stack(p)]
     return [p for p in stack_preds(c) if keep_stack(p)] + new
@@ -18,7 +32,10 @@ out = {}
 for scope in ['global', 'site']:
     cS = curves_of({c: stack_preds(c), 'finds_points': FP}, scope)
     cB = curves_of({c: PB, 'finds_points': FP}, scope)
-    for name in ['RB'] + sys.argv[1:]:
+    for name in ['RB'] + [n for n in sys.argv[1:] if os.path.exists(f'r/{n.removesuffix("H1")}.geojson')]:
+        EXCL.clear(); EXCL.update(bad_regions(name.removesuffix('H1')) | bad_regions('RB'))
+        if EXCL: print(name, 'участки из стека (ошибки файлов):', sorted(EXCL))
+        cB = curves_of({c: build('RB'), 'finds_points': FP}, scope)
         cV = cB if name == 'RB' else curves_of({c: build(name), 'finds_points': FP}, scope)
         for unseen in ['drop', 'keep']:
             r = criteria(cV, cS if name == 'RB' else cB, unseen); key = f'{name}|{scope}|{unseen}'; out[key] = r

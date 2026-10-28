@@ -1,2 +1,5 @@
 start 21:28:40
 fam D1 21:31:12 {"gf_point": 5077, "gf_floor_drop": 0, "kur_drop": 0, "kur_twins": 0}
+curves D1 21:35:29 100 100
+fam D2 21:38:13 {"gf_point": 0, "gf_floor_drop": 0, "kur_drop": 582425, "kur_twins": 603273}
+curves D2 21:40:23 100 100

@@ -1,0 +1,33 @@
+kurgan 53009 1640 spearman 0.1791
+   verifier {'auc': 0.5858673780191052, 'ap': 0.09286744001955223}
+   conf {'auc': 0.7249806932528825, 'ap': 0.14222460393102138}
+   rankavg_global {'auc': 0.6878213240974318, 'ap': 0.10976807492221895}
+   rankavg_infold {'auc': 0.7203606236844942, 'ap': 0.1409234319074688}
+   logreg_LOFO {'auc': 0.644579237549077, 'ap': 0.09103687571935745}
+   prevalence 0.030938142579561963
+  fold 0 283 3 1 {'verifier': 0.331, 'conf': 0.902, 'rankavg_infold': 0.655, 'logreg_LOFO': 0.902}
+  fold 1 9475 407 12 {'verifier': 0.728, 'conf': 0.758, 'rankavg_infold': 0.784, 'logreg_LOFO': 0.74}
+  fold 2 16353 735 10 {'verifier': 0.585, 'conf': 0.727, 'rankavg_infold': 0.685, 'logreg_LOFO': 0.688}
+  fold 3 9093 142 9 {'verifier': 0.845, 'conf': 0.706, 'rankavg_infold': 0.824, 'logreg_LOFO': 0.746}
+  fold 4 17805 353 15 {'verifier': 0.573, 'conf': 0.708, 'rankavg_infold': 0.683, 'logreg_LOFO': 0.713}
+  macro {'verifier': 0.687, 'conf': 0.7437, 'rankavg_global': 0.773, 'rankavg_infold': 0.753, 'logreg_LOFO': 0.754}
+  macro_by_fold {0: {'verifier': 0.331, 'conf': 0.9018, 'rankavg_global': 0.9012, 'rankavg_infold': 0.6548, 'logreg_LOFO': 0.9024}, 1: {'verifier': 0.7314, 'conf': 0.7766, 'rankavg_global': 0.8108, 'rankavg_infold': 0.7984, 'logreg_LOFO': 0.765}, 2: {'verifier': 0.6295, 'conf': 0.7428, 'rankavg_global': 0.7101, 'rankavg_infold': 0.7025, 'logreg_LOFO': 0.7428}, 3: {'verifier': 0.8225, 'conf': 0.7007, 'rankavg_global': 0.7891, 'rankavg_infold': 0.807, 'logreg_LOFO': 0.7358}, 4: {'verifier': 0.6495, 'conf': 0.6909, 'rankavg_global': 0.7056, 'rankavg_infold': 0.7049, 'logreg_LOFO': 0.7157}}
+  boot {'verifier': [-0.2057, -0.1324, 0.0017], 'rankavg_infold': [-0.0417, -0.003, 0.0533], 'logreg_LOFO': [-0.1386, -0.0692, 0.0358]}
+  coefs {0: [5.4997, 0.0331, -4.2304], 1: [5.4847, -0.0144, -4.3686], 2: [4.0987, 0.207, -4.2764], 3: [5.606, 0.0264, -4.1492], 4: [6.3532, 0.0827, -4.0848]}
+gor 846 18 spearman 0.1394
+   verifier {'auc': 0.6984702093397746, 'ap': 0.04393120861660877}
+   conf {'auc': 0.6188942565754161, 'ap': 0.05445598268165726}
+   rankavg_global {'auc': 0.6892444981213097, 'ap': 0.09742792483468138}
+   rankavg_infold {'auc': 0.7045088566827699, 'ap': 0.1400648056902467}
+   logreg_LOFO {'auc': 0.6262748255501879, 'ap': 0.036560760928285}
+   prevalence 0.02127659574468085
+  fold 0 31 0 1 {'verifier': None, 'conf': None, 'rankavg_infold': None, 'logreg_LOFO': None}
+  fold 1 110 2 8 {'verifier': 0.579, 'conf': 0.699, 'rankavg_infold': 0.711, 'logreg_LOFO': 0.579}
+  fold 2 190 2 8 {'verifier': 0.902, 'conf': 0.62, 'rankavg_infold': 0.863, 'logreg_LOFO': 0.862}
+  fold 3 368 9 8 {'verifier': 0.589, 'conf': 0.518, 'rankavg_infold': 0.55, 'logreg_LOFO': 0.596}
+  fold 4 147 5 10 {'verifier': 0.892, 'conf': 0.801, 'rankavg_infold': 0.906, 'logreg_LOFO': 0.917}
+  macro {'verifier': 0.6183, 'conf': 0.4967, 'rankavg_global': 0.5625, 'rankavg_infold': 0.5629, 'logreg_LOFO': 0.5923}
+  macro_by_fold {0: {}, 1: {}, 2: {}, 3: {'verifier': 0.6183, 'conf': 0.4967, 'rankavg_global': 0.5625, 'rankavg_infold': 0.5629, 'logreg_LOFO': 0.5923}, 4: {}}
+  boot {'verifier': [-0.09, 0.0815, 0.1698], 'rankavg_infold': [0.0162, 0.0828, 0.141], 'logreg_LOFO': [-0.0858, 0.0201, 0.1149]}
+  coefs {0: [0.8009, 0.2108, -3.7831], 1: [0.7383, 0.3033, -3.7182], 2: [0.905, 0.1974, -3.6607], 3: [0.7964, 0.3392, -4.0984], 4: [0.3472, 0.1456, -3.8149]}
+{'n_rows_csv': 53855, 'by_group': {'gor': 846, 'kurgan': 53009}, 'has_crop0': 0, 'p_missing': 0, 'markup': {'sp_or': 53855}}

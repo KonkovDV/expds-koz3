@@ -1,0 +1,62 @@
+{
+ "torch": "2.11.0+cpu",
+ "transformers": "5.16.1",
+ "timm": "1.0.29",
+ "smp": "0.6.0",
+ "has_DFine": true,
+ "has_RTDetrV2": true,
+ "allow_tf32_attr": true,
+ "OOMError": true,
+ "tf32_warnings": [],
+ "cnx_li9": {
+  "arch": "smp.Unet(tu-convnext_tiny)",
+  "n_params": 31938839
+ },
+ "cnx_li12": {
+  "arch": "smp.Unet(tu-convnext_tiny)",
+  "n_params": 31943447,
+  "fwd256_shape": [
+   1,
+   7,
+   256,
+   256
+  ],
+  "fwd256_s": 2.34
+ },
+ "cnx_sp3": {
+  "arch": "smp.Unet(tu-convnext_tiny)",
+  "n_params": 31929623
+ },
+ "dfine_l": {
+  "arch": "DFineForObjectDetection config=local:../kernel/hf_configs/dfine_l",
+  "n_params": 31090027,
+  "fwd320_logits": [
+   1,
+   300,
+   5
+  ],
+  "fwd320_boxes": [
+   1,
+   300,
+   4
+  ],
+  "fwd320_s": 2.66,
+  "nonfinite": 0
+ },
+ "rtdetrv2_r50": {
+  "arch": "RTDetrV2ForObjectDetection config=local:../kernel/hf_configs/rtdetrv2_r50",
+  "n_params": 42737247,
+  "fwd320_logits": [
+   1,
+   300,
+   5
+  ],
+  "fwd320_boxes": [
+   1,
+   300,
+   4
+  ],
+  "fwd320_s": 2.72,
+  "nonfinite": 0
+ }
+}

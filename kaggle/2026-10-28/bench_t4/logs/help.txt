@@ -1,0 +1,22 @@
+usage: bench_tile.py [-h] [--models MODELS] [--dtypes DTYPES]
+                     [--batches BATCHES] [--tile TILE] [--chip CHIP]
+                     [--warmup WARMUP] [--iters ITERS]
+                     [--per-view-batches PER_VIEW_BATCHES] [--device DEVICE]
+                     [--cudnn-benchmark CUDNN_BENCHMARK]
+                     [--hf-config-dir HF_CONFIG_DIR] [--out OUT]
+
+options:
+  -h, --help            show this help message and exit
+  --models MODELS
+  --dtypes DTYPES
+  --batches BATCHES
+  --tile TILE
+  --chip CHIP
+  --warmup WARMUP
+  --iters ITERS
+  --per-view-batches PER_VIEW_BATCHES
+                        для каких batch мерить все 8 видов d8 по отдельности
+  --device DEVICE
+  --cudnn-benchmark CUDNN_BENCHMARK
+  --hf-config-dir HF_CONFIG_DIR
+  --out OUT

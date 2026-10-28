@@ -5,10 +5,10 @@
 | Каталог | Что | Статус |
 |---|---|---|
 | `nolidar_verifier/` | верификатор «объект/фон» для участков без лидара (см. `docs/bots/2026-10-28/bot-9/NOLIDAR_VERIFIER.md`) | собранное ядро не коммитится: в нём таблица кандидатов, производная от эталона. Пересобрать: `build_candidates.py` → `add_gt.py` → `build.py` |
-| `dfine_spor/` | D-FINE на спутнике и ортофото, `smoke/` и `full/` | только обучение и замер; в сдачу — после письма организаторов о предобученных весах |
+| `dfine_spor/` | D-FINE на спутнике и ортофото, `smoke/` и `full/` (см. `bot-9/DFINE.md`) | только обучение и замер; в сдачу — после письма организаторов о предобученных весах |
 | `matanerdy_repro/` | своя реализация по описанному рецепту MataNerdy (DeepLabV3+ R34, без предобучения) | отменено (`bot-9/REPRO.md`); чужой код не копировался |
 | `01_kurgan_subclass/`, `notebooks/` | подкласс кургана; ячейки ноутбуков k01 (`notebooks/k01/c*.py` склеивает `build.py`, конфиги — `configs/2026-10-28/bot-9/`) | отклонено (AUC 0,6) |
-| `bench_t4/` | HF-конфиги D-FINE-L и RT-DETRv2 для замера скорости на T4 | инструмент |
+| `bench_t4/` | замер тайлов бота 8 на T4 (`src/bench_main.py`, `build.py`, HF-конфиги D-FINE-L и RT-DETRv2, `logs/` с проверками на CPU); см. `docs/bots/2026-10-28/bot-9/BENCH_T4.md` | подготовлено, не запущено. Собранное ядро `koz3-bench-t4.py` и pip-отчёты `dry_report*.json` не коммитятся: `build.py` пересобирает ядро из `src/`, `kernel/bench_tile.py` и конфигов |
 
 **Ключи S3.** Порядок: Kaggle Secrets `KOZ3_S3_ACCESS_KEY_ID`/`KOZ3_S3_SECRET_ACCESS_KEY` → env `AWS_*` → `/kaggle/input/**/cred.json` (приватный датасет; поля `id`/`key`). Значения в лог не пишутся. В репозитории ключей нет.
 

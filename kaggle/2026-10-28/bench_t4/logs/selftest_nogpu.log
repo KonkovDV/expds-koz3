@@ -1,0 +1,4 @@
+[    0.0s] bench_tile.py sha256 OK 70b37afb82e124a6 | hf_configs: ['dfine_l', 'rtdetrv2_r50']
+[    0.0s] nvidia-smi -L: FileNotFoundError(2, 'No such file or directory')
+[    0.0s] FATAL: --require-gpu: nvidia-smi не видит GPU (сессия без GPU?). Останов, без CPU-фолбэка.
+--require-gpu: nvidia-smi не видит GPU (сессия без GPU?). Останов, без CPU-фолбэка.

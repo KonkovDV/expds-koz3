@@ -23,3 +23,4 @@
 - nolidar_verifier: ГОТОВ К ПУШУ, не запушен → NOLIDAR_VERIFIER.md (pip в чистом venv OK, сухой прогон на 3 участках из S3 OK).
 - nolidar_seg: следующий шаг (после resume).
 - 21:25 MSK: повторный CPU-сухой прогон nolidar_verifier (версия бота 1) — OK, maxrss 1898 МБ (dryrun2/dryrun.log). nolidar_seg — ОТЛОЖЕН. Дальше: dfine_spor.
+- 21:38 MSK: dfine_spor — ядра smoke/full собраны (kaggle/dfine_spor/{smoke,full}), НЕ запушены. pip в чистом venv OK (pip_clean.log). CPU-мини-прогон end-to-end OK: 446 детекций, maxrss 1269 МБ (dryrun/dryrun.log). Исправлен boundless-read WarpedVRT. Отчёт DFINE.md. Тренера бота 5 пока нет — используется встроенный, хук dfine_train_bot5.py. ConvNeXt-T / RELIEF / nolidar_seg не начаты.

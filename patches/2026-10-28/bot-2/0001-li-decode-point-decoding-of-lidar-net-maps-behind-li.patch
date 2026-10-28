@@ -1,0 +1,684 @@
+From 78588f695ef6c3a619b5dceb20e5a86e58ddf62a Mon Sep 17 00:00:00 2001
+From: bot-2 <bot-2@local>
+Date: Wed, 28 Oct 2026 21:36:44 +0300
+Subject: [PATCH] li-decode: point decoding of lidar-net maps behind [li]
+ decode="peaks" (default legacy), EXPDS_LI_DUMP map dump, nn_oof
+ --predict-only, offline stack proxy + dump splice scripts, synthetic tests
+ (bot-2)
+
+---
+ configs/default.toml       |   3 +
+ expds/li_decode.py         | 206 +++++++++++++++++++++++++++++++++++++
+ expds/pipeline.py          |  16 ++-
+ scripts/li_decode_dump.py  | 140 +++++++++++++++++++++++++
+ scripts/li_decode_stack.py | 126 +++++++++++++++++++++++
+ scripts/nn_oof.py          |   4 +
+ tests/test_li_decode.py    |  88 ++++++++++++++++
+ 7 files changed, 582 insertions(+), 1 deletion(-)
+ create mode 100644 expds/li_decode.py
+ create mode 100644 scripts/li_decode_dump.py
+ create mode 100644 scripts/li_decode_stack.py
+ create mode 100644 tests/test_li_decode.py
+
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..b9b34c0 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -144,6 +144,9 @@ tselye_min = 0.8
+ # rescore — курганы по пикам рельефа с уверенностью модели li (на отложенном Гнёздово 0,674
+ # против 0,538 у масок); segment — все классы масками модели.
+ mode = "rescore"
++# decode = "peaks" — точечное декодирование карт сетей li (expds/li_decode.py, REPORT2 bot-2 §7).
++# По умолчанию "legacy" (как было). Параметры — [li.peaks]. EXPDS_LI_DUMP=<папка> пишет карты в .npz.
++decode = "legacy"
+ # Пики вероятности модели (nn_peaks) на том же OOF хуже: балл 0,283. Не включать.
+ 
+ # DEM для запасного детектора курганов (без модели li). С моделью li параметры берутся
+diff --git a/expds/li_decode.py b/expds/li_decode.py
+new file mode 100644
+index 0000000..eb7e970
+--- /dev/null
++++ b/expds/li_decode.py
+@@ -0,0 +1,206 @@
++"""Point decoding of lidar-net probability maps (off by default: ``[li] decode = "peaks"``).
++
++Idea (recipe studied in EhimenNathan-EXpedition, re-implemented here, see REPORT2.md §7):
++the metric accepts a predicted polygon when its representative point lies inside the reference
++object and the overlap / min(area) >= 0.5, so a small circle placed at a reliable interior point
++scores like a perfect polygon. Hence objects are decoded as points, not as mask outlines:
++
++* kurgans: local maxima of the kurgan score map S = max(p_povr, p_tsel), suppressed within
++  ``nms_m`` (Euclidean, strongest first); the class is the one with the larger mean probability in
++  a small window; the other class is emitted too only when its share >= ``dual``.
++  confidence = S(peak) * share(class).
++* mask classes listed in ``radius_m`` (gor/fort by default): connected components of p >= ``comp_thr``
++  with true area >= ``min_area_m2[cls]``; one circle at the component pixel farthest from the
++  component edge (always inside the component); confidence = mean p over the component.
++* every other class falls back to ``infer_nn.probs_to_features`` (unchanged behaviour).
++
++Circles are built in the map's own metric CRS (UTM), so ``radius_m`` is in true metres, and are then
++projected to EPSG:3857 like every other candidate. Thresholds on confidence are NOT set here: they
++are fit per (group, class) downstream (expds.metric sweeps, nested within folds in evaluation).
++
++Optional dump for offline evaluation: env ``EXPDS_LI_DUMP=<dir>`` makes ``dump_probs`` write one
++compressed .npz per (region, source) with float16 maps, transform, CRS and the relief candidates.
++"""
++from __future__ import annotations
++
++import os
++import re
++from pathlib import Path
++
++import numpy as np
++
++KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
++
++DEFAULTS: dict = {
++    "peak_min": 0.10,       # minimum kurgan score at a peak
++    "nms_m": 2.5,           # centre-NMS distance between kurgan peaks
++    "share_win_px": 2,      # half-size of the class-share window ((2w+1)^2 pixels)
++    "dual": 0.30,           # emit the minority kurgan class when its share >= dual
++    "comp_thr": 0.50,       # mask threshold for component classes
++    "radius_m": {"kurgany_povrezhdennye": 1.0, "kurgany_tselye": 1.0,
++                 "gorodishcha": 1.0, "fortifikatsii": 1.0},
++    "min_area_m2": {"gorodishcha": 150.0, "fortifikatsii": 7.5},
++}
++
++
++def params(li_cfg: dict | None) -> dict:
++    """DEFAULTS overridden by ``[li.peaks]`` (nested dicts merged one level deep)."""
++    p = {k: (dict(v) if isinstance(v, dict) else v) for k, v in DEFAULTS.items()}
++    for k, v in ((li_cfg or {}).get("peaks") or {}).items():
++        if isinstance(v, dict) and isinstance(p.get(k), dict):
++            p[k].update(v)
++        else:
++            p[k] = v
++    return p
++
++
++def enabled(li_cfg: dict | None) -> bool:
++    return str((li_cfg or {}).get("decode", "legacy")).lower() == "peaks"
++
++
++def find_peaks(score: np.ndarray, min_height: float, min_dist_px: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
++    """Local maxima (3x3 plateau-safe) >= min_height, then greedy Euclidean NMS, strongest first.
++
++    Returns rows, cols, heights sorted by height (descending).
++    """
++    from scipy.ndimage import maximum_filter
++    from scipy.spatial import cKDTree
++
++    s = np.nan_to_num(np.asarray(score, np.float32), nan=0.0)
++    cand = (s >= min_height) & (s == maximum_filter(s, size=3, mode="constant", cval=-1.0))
++    rows, cols = np.nonzero(cand)
++    if rows.size == 0:
++        return rows, cols, np.zeros(0, np.float32)
++    h = s[rows, cols]
++    order = np.lexsort((cols, rows, -h))          # deterministic: height desc, then row, col
++    rows, cols, h = rows[order], cols[order], h[order]
++    if min_dist_px <= 1.0 or rows.size == 1:
++        return rows, cols, h
++    tree = cKDTree(np.column_stack([rows, cols]).astype(np.float64))
++    alive = np.ones(rows.size, bool)
++    for i in range(rows.size):
++        if not alive[i]:
++            continue
++        for j in tree.query_ball_point((rows[i], cols[i]), r=min_dist_px - 1e-9):
++            if j > i:
++                alive[j] = False
++    return rows[alive], cols[alive], h[alive]
++
++
++def _window_mean(p: np.ndarray, rows: np.ndarray, cols: np.ndarray, w: int) -> np.ndarray:
++    H, W = p.shape
++    out = np.empty(rows.size, np.float32)
++    for i, (r, c) in enumerate(zip(rows, cols)):
++        out[i] = float(np.nanmean(p[max(0, r - w):min(H, r + w + 1), max(0, c - w):min(W, c + w + 1)]))
++    return out
++
++
++def decode_kurgans(kp: np.ndarray, classes: list[str], res: float, prm: dict):
++    """kp: 2xHxW (povr, tsel order of ``classes``) → list of (row, col, class, confidence)."""
++    rows, cols, h = find_peaks(kp.max(axis=0), float(prm["peak_min"]), float(prm["nms_m"]) / res)
++    if rows.size == 0:
++        return []
++    m = np.stack([_window_mean(kp[i], rows, cols, int(prm["share_win_px"])) for i in range(len(classes))], 1)
++    share = m / np.maximum(m.sum(1, keepdims=True), 1e-12)
++    best = share.argmax(1)
++    out = []
++    for i in range(rows.size):
++        for k, cls in enumerate(classes):
++            if k == best[i] or share[i, k] >= float(prm["dual"]):
++                out.append((int(rows[i]), int(cols[i]), cls, float(h[i] * share[i, k])))
++    return out
++
++
++def decode_components(p: np.ndarray, res: float, thr: float, min_area_m2: float):
++    """Components of p >= thr with area >= min_area_m2 → list of (row, col, mean_prob)."""
++    from scipy.ndimage import distance_transform_edt, label
++
++    lab, n = label(np.nan_to_num(p, nan=0.0) >= thr, structure=np.ones((3, 3), bool))
++    if n == 0:
++        return []
++    min_px = max(1, int(np.ceil(min_area_m2 / (res * res))))
++    sizes = np.bincount(lab.ravel(), minlength=n + 1)
++    sums = np.bincount(lab.ravel(), weights=np.nan_to_num(p, nan=0.0).ravel(), minlength=n + 1)
++    dist = distance_transform_edt(np.pad(lab > 0, 1))[1:-1, 1:-1]
++    out = []
++    flat_lab, flat_d = lab.ravel(), dist.ravel()
++    order = np.lexsort((-flat_d, flat_lab))       # within each label, deepest pixel first
++    first = np.r_[True, flat_lab[order][1:] != flat_lab[order][:-1]]
++    for idx in order[first]:
++        k = flat_lab[idx]
++        if k == 0 or sizes[k] < min_px:
++            continue
++        r, c = divmod(int(idx), p.shape[1])
++        out.append((r, c, float(sums[k] / sizes[k])))
++    return out
++
++
++def _circles(pts, transform, crs, radius_of) -> list:
++    from shapely import buffer, points
++
++    from .crs import WEB_MERCATOR, to_crs
++
++    if not pts:
++        return []
++    rows = np.array([q[0] for q in pts], np.float64)
++    cols = np.array([q[1] for q in pts], np.float64)
++    xs = transform.c + (cols + 0.5) * transform.a
++    ys = transform.f + (rows + 0.5) * transform.e
++    rad = np.array([radius_of(q) for q in pts], np.float64)
++    geoms = buffer(points(xs, ys), rad, quad_segs=8)
++    if crs and crs != WEB_MERCATOR:
++        geoms = to_crs(geoms, crs, WEB_MERCATOR)
++    return list(geoms)
++
++
++def decode_li(probs: np.ndarray, classes: list[str], transform, crs: str | None, res: float, region: str,
++              markup: str, source: str, li_cfg: dict | None = None,
++              min_conf: dict[str, float] | None = None) -> list[dict]:
++    """KxHxW probabilities of one lidar net → pipeline features with point-style decoding."""
++    prm = params(li_cfg)
++    rad = prm["radius_m"]
++    feats: list[dict] = []
++    base = {"region_name": region, "markup_type": markup, "source": source, "original_crs": crs}
++    kur = [c for c in KURGANS if c in classes and c in rad]
++    if kur:
++        kp = np.stack([probs[classes.index(c)] for c in kur]).astype(np.float32)
++        pts = decode_kurgans(kp, kur, res, prm)
++        for g, (_, _, cls, conf) in zip(_circles(pts, transform, crs, lambda q: rad[q[2]]), pts):
++            feats.append({"geom": g, "class_name": cls, "confidence": conf, **base})
++    comp = [c for c in classes if c in rad and c not in KURGANS]
++    for cls in comp:
++        pts = decode_components(probs[classes.index(cls)], res, float(prm["comp_thr"]),
++                                float(prm["min_area_m2"].get(cls, 0.0)))
++        for g, (_, _, conf) in zip(_circles(pts, transform, crs, lambda q, c=cls: rad[c]), pts):
++            feats.append({"geom": g, "class_name": cls, "confidence": conf, **base})
++    rest = [c for c in classes if c not in kur and c not in comp]
++    if rest:
++        from .infer_nn import probs_to_features
++
++        feats += probs_to_features(probs[[classes.index(c) for c in rest]], rest, transform, crs, res,
++                                   region, markup, source, min_conf=min_conf)
++    if min_conf:
++        feats = [f for f in feats if f["confidence"] >= min_conf.get(f["class_name"], -1.0)]
++    return feats
++
++
++def dump_probs(probs: np.ndarray, classes: list[str], transform, crs: str | None, region: str, source: str,
++               cand: dict | None = None, model_tag: str = "") -> Path | None:
++    """Write maps for offline decoding when EXPDS_LI_DUMP is set; returns the path or None."""
++    root = os.environ.get("EXPDS_LI_DUMP")
++    if not root:
++        return None
++    d = Path(root)
++    d.mkdir(parents=True, exist_ok=True)
++    org = f"{int(round(transform.c))}_{int(round(transform.f))}"   # mosaic pieces of one LAS get distinct files
++    safe = re.sub(r"[^\w.-]+", "_", f"{region}__{Path(source).stem}__{model_tag}__{org}")
++    dst = d / f"{safe}.npz"
++    extra = {}
++    if cand is not None and len(cand.get("x", [])):
++        extra = {"cand_x": np.asarray(cand["x"], np.float64), "cand_y": np.asarray(cand["y"], np.float64)}
++    tmp = dst.with_suffix(".tmp.npz")
++    np.savez_compressed(tmp, probs=np.asarray(probs, np.float16), classes=np.array(classes),
++                        transform=np.array(tuple(transform)[:6], np.float64), crs=np.array(crs or ""),
++                        region=np.array(region), source=np.array(source), **extra)
++    os.replace(tmp, dst)
++    return dst
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..2600f72 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -13,6 +13,7 @@ from __future__ import annotations
+ 
+ import hashlib
+ import logging
++import os
+ import signal
+ import time
+ import tomllib
+@@ -673,12 +674,25 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+                 radius_m=float(seg.meta.get("center_radius_m") or 6.0),
+                 min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
+                 min_conf=min_conf)
++        from . import li_decode
++
++        if li_decode.enabled(li_cfg):     # [li] decode = "peaks": point decoding of the maps (off by default)
++            idx = [seg.classes.index(c) for c in out_classes]
++            li_decode.dump_probs(probs[idx], out_classes, tr, d.crs, region, source,
++                                 candidates.detect(d, cand_p) if cand_p and os.environ.get("EXPDS_LI_DUMP") else None,
++                                 str(seg.meta.get("target") or "mask"))
++            return li_decode.decode_li(probs[idx], out_classes, tr, d.crs, float(tr.a), region, "li", source,
++                                       li_cfg, min_conf)
+         kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in out_classes] if cand_p else []
+         rest = [c for c in out_classes if c not in kur]
+         feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
+                                   region, "li", source, min_conf=min_conf) if rest else []
++        c = candidates.detect(d, cand_p) if kur else None
++        if os.environ.get("EXPDS_LI_DUMP"):   # maps for offline decoding (legacy decode output unchanged)
++            idx = [seg.classes.index(k) for k in out_classes]
++            li_decode.dump_probs(probs[idx], out_classes, tr, d.crs, region, source, c,
++                                 str(seg.meta.get("target") or "mask"))
+         if kur:
+-            c = candidates.detect(d, cand_p)
+             kp = probs[[seg.classes.index(k) for k in kur]]
+             lc = li_cfg or {}
+             if lc.get("nn_peaks", False):
+diff --git a/scripts/li_decode_dump.py b/scripts/li_decode_dump.py
+new file mode 100644
+index 0000000..605865b
+--- /dev/null
++++ b/scripts/li_decode_dump.py
+@@ -0,0 +1,140 @@
++#!/usr/bin/env python3
++"""Decode dumped li prob maps (EXPDS_LI_DUMP=...) and splice them into the family JSONL stack.
++
++Replaces ONLY the features of one threshold group (default: li) by the re-decoded ones; every other
++feature is copied unchanged. Output = family JSONL dir for bot-10 scripts/family_curves.py.
++
++  --mode legacy  as pipeline._li_with_model today: kurgans = relief candidates (dumped cand_x/cand_y)
++                 as circle_m circles in both classes with the net prob (5 px max); other classes = masks.
++  --mode peaks   expds.li_decode.decode_li (net-peak kurgans + centre-NMS + dual, gor/fort points).
++  --mode hybrid  relief candidates kept as kurgan locations, but class choice/dual and confidence of
++                 li_decode (share rule); gor/fort points as in peaks.
++
++    python scripts/li_decode_dump.py --dump D --fam-src FAM --fam-dst OUT --mode peaks [--config cfg.toml]
++"""
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++import tomllib
++from collections import defaultdict
++from pathlib import Path
++
++import numpy as np
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT))
++
++from expds import li_decode as L  # noqa: E402
++from expds.naming import site_family  # noqa: E402
++
++
++def affine(t):
++    from rasterio import Affine
++    return Affine(*[float(v) for v in t[:6]])
++
++
++def hybrid(probs, classes, tr, crs, region, source, cand, li_cfg, circle_m):
++    """Relief candidates as locations + li_decode share/dual rule; non-kurgan classes as in peaks."""
++    from expds import candidates
++    from expds.crs import WEB_MERCATOR, to_crs
++    from shapely import buffer, points
++
++    prm = L.params(li_cfg)
++    kur = [c for c in L.KURGANS if c in classes]
++    other = [c for c in classes if c not in kur]
++    feats = L.decode_li(probs[[classes.index(c) for c in other]], other, tr, crs, float(tr.a), region, "li",
++                        source, li_cfg) if other else []
++    if not kur or cand is None or len(cand["x"]) == 0:
++        return feats
++    kp = probs[[classes.index(c) for c in kur]].astype(np.float32)
++    s = candidates.sample_probs(cand, kp, tr)                       # N x 2, as legacy
++    share = s / np.maximum(s.sum(1, keepdims=True), 1e-12)
++    geoms = buffer(points(np.asarray(cand["x"]), np.asarray(cand["y"])), float(circle_m), quad_segs=4)
++    if crs and crs != WEB_MERCATOR:
++        geoms = to_crs(geoms, crs, WEB_MERCATOR)
++    best = share.argmax(1)
++    for i, g in enumerate(geoms):
++        for k, cls in enumerate(kur):
++            if k == best[i] or share[i, k] >= float(prm["dual"]):
++                feats.append({"geom": g, "class_name": cls, "confidence": float(s[i].max() * share[i, k]),
++                              "region_name": region, "markup_type": "li", "source": source, "original_crs": crs})
++    return feats
++
++
++def legacy(probs, classes, tr, crs, region, source, cand, circle_m):
++    from expds import candidates
++    from expds.infer_nn import probs_to_features
++
++    kur = [c for c in L.KURGANS if c in classes] if cand is not None else []
++    rest = [c for c in classes if c not in kur]
++    feats = probs_to_features(probs[[classes.index(c) for c in rest]], rest, tr, crs, tr.a, region, "li",
++                              source) if rest else []
++    if kur:
++        s = candidates.sample_probs(cand, probs[[classes.index(k) for k in kur]].astype(np.float32), tr)
++        p = candidates.CandidateParams(circle_m=circle_m)
++        feats += candidates.to_features(cand, np.column_stack([np.zeros(len(s), np.float32), s]), crs, region, p,
++                                        classes=tuple(kur), source=source)
++    return feats
++
++
++def main() -> None:
++    from shapely.geometry import mapping
++
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--dump", required=True)
++    ap.add_argument("--fam-src", required=True)
++    ap.add_argument("--fam-dst", required=True)
++    ap.add_argument("--mode", choices=["legacy", "peaks", "hybrid"], required=True)
++    ap.add_argument("--group", default="li", help="threshold group of the stack to replace")
++    ap.add_argument("--config", default=None, help="TOML with [li] / [li.peaks] (default: configs/default.toml)")
++    ap.add_argument("--circle-m", type=float, default=2.0, help="legacy kurgan circle radius (default.toml:210)")
++    a = ap.parse_args()
++    cfg = tomllib.loads(Path(a.config or ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
++    li_cfg = {**cfg.get("li", {}), "decode": "peaks"}
++    new: dict[str, list] = defaultdict(list)
++    n_maps = 0
++    for z in sorted(Path(a.dump).glob("*.npz")):
++        d = np.load(z, allow_pickle=False)
++        probs = d["probs"].astype(np.float32)
++        classes = [str(c) for c in d["classes"]]
++        tr, crs = affine(d["transform"]), (str(d["crs"]) or None)
++        region, source = str(d["region"]), str(d["source"])
++        cand = {"x": d["cand_x"], "y": d["cand_y"]} if "cand_x" in d.files else None
++        if a.mode == "legacy":
++            feats = legacy(probs, classes, tr, crs, region, source, cand, a.circle_m)
++        elif a.mode == "peaks":
++            feats = L.decode_li(probs, classes, tr, crs, float(tr.a), region, "li", source, li_cfg)
++        else:
++            feats = hybrid(probs, classes, tr, crs, region, source, cand, li_cfg, a.circle_m)
++        for f in feats:
++            pr = {"class_name": f["class_name"], "confidence": round(float(f["confidence"]), 6),
++                  "region_name": region, "crs": "EPSG:3857", "markup_type": "li", "original_crs": crs}
++            if a.group != "li":
++                pr["threshold_group"] = a.group
++            new[site_family(region)].append({"type": "Feature", "geometry": mapping(f["geom"]), "properties": pr})
++        n_maps += 1
++    dst = Path(a.fam_dst)
++    dst.mkdir(parents=True, exist_ok=True)
++    src_fams = {p.stem for p in Path(a.fam_src).glob("*.jsonl")}
++    kept = dropped = 0
++    for fam in sorted(src_fams | set(new)):
++        with open(dst / f"{fam}.jsonl", "w", encoding="utf-8") as fo:
++            sp = Path(a.fam_src) / f"{fam}.jsonl"
++            if sp.exists():
++                for line in open(sp, encoding="utf-8"):
++                    pr = json.loads(line).get("properties") or {}
++                    if str(pr.get("threshold_group") or pr.get("markup_type") or "") == a.group:
++                        dropped += 1
++                        continue
++                    fo.write(line if line.endswith("\n") else line + "\n")
++                    kept += 1
++            for f in new.get(fam, []):
++                fo.write(json.dumps(f, ensure_ascii=False) + "\n")
++    print(json.dumps({"maps": n_maps, "new": sum(map(len, new.values())), "kept": kept, "dropped": dropped,
++                      "mode": a.mode, "group": a.group}))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/li_decode_stack.py b/scripts/li_decode_stack.py
+new file mode 100644
+index 0000000..1b0ad51
+--- /dev/null
++++ b/scripts/li_decode_stack.py
+@@ -0,0 +1,126 @@
++#!/usr/bin/env python3
++"""Offline proxy for the li "peak/point" decoding: rewrite ONLY lidar-net candidates in the family JSONL stack.
++
++Raw per-pixel probability maps of our li nets are not on the box, so the map-level decoder
++(expds/li_decode.py) cannot be evaluated here. What can be evaluated from existing polygons:
++
++  D1 gf_point  gor/fort polygons of lidar-net groups -> circle of R_OUT m (true metres) at the polygon's
++               representative point; confidence unchanged.
++  D2 kur_dual  povr/tselye twins (same centre, same region, same group) of lidar-net groups: keep the
++               larger-confidence class; keep the other only if its share conf/(sum) >= DUAL.
++  D3 combo     D2 + area floor on gor/fort polygons (true m^2) + D1.
++
++Everything else (other groups, all non-lidar sources) is copied byte-for-byte.
++Thresholds are NOT touched here: they are refit per fold by honest_counts downstream.
++
++    python scripts/li_decode_stack.py --src FAM_DIR --dst OUT_DIR --variant D1
++"""
++from __future__ import annotations
++
++import argparse
++import json
++import math
++import os
++from pathlib import Path
++
++from shapely.geometry import mapping, shape
++
++R_EARTH = 6378137.0
++KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
++GF = ("gorodishcha", "fortifikatsii")
++KUR_GROUPS = {"li", "li_dev", "li_mosaic"}           # lidar nets that emit kurgan twins
++GF_GROUPS = {"li", "li_coarse", "li_mask", "li_fort"}  # lidar nets that emit gor/fort masks (gor_phys is physics, not a net)
++R_OUT = 1.0
++DUAL = 0.3
++MIN_AREA = {"gorodishcha": 150.0, "fortifikatsii": 7.5}   # = 600 / 30 px at 0.5 m
++
++
++def group(pr: dict) -> str:   # same rule as expds.metric.threshold_group
++    return str(pr.get("threshold_group") or pr.get("markup_type") or "")
++
++
++def merc_k(y: float) -> float:
++    """EPSG:3857 scale factor at northing y (1 true metre = k map units)."""
++    lat = 2.0 * math.atan(math.exp(y / R_EARTH)) - math.pi / 2.0
++    return 1.0 / math.cos(lat)
++
++
++def true_area(g) -> float:
++    return g.area / merc_k(g.centroid.y) ** 2
++
++
++def to_point_circle(f: dict) -> dict:
++    g = shape(f["geometry"])
++    p = g.representative_point()
++    c = p.buffer(R_OUT * merc_k(p.y), quad_segs=8)
++    return {**f, "geometry": mapping(c)}
++
++
++def transform(feats: list[dict], variant: str) -> tuple[list[dict], dict]:
++    do_point = variant in ("D1", "D3")
++    do_dual = variant in ("D2", "D3")
++    do_floor = variant == "D3"
++    st = {"gf_point": 0, "gf_floor_drop": 0, "kur_drop": 0, "kur_twins": 0}
++    out: list[dict] = []
++    twins: dict[tuple, list[int]] = {}
++    for f in feats:
++        pr = f.get("properties") or {}
++        g, c = group(pr), pr.get("class_name")
++        if c in GF and g in GF_GROUPS and (do_point or do_floor):
++            if do_floor and true_area(shape(f["geometry"])) < MIN_AREA[c]:
++                st["gf_floor_drop"] += 1
++                continue
++            if do_point:
++                f = to_point_circle(f)
++                st["gf_point"] += 1
++        if do_dual and c in KUR and g in KUR_GROUPS:
++            ctr = shape(f["geometry"]).centroid
++            key = (g, pr.get("region_name"), round(ctr.x, 2), round(ctr.y, 2))
++            twins.setdefault(key, []).append(len(out))
++        out.append(f)
++    if do_dual:
++        drop = set()
++        for idx in twins.values():
++            cls = {out[i]["properties"]["class_name"] for i in idx}
++            if len(idx) != 2 or cls != set(KUR):
++                continue
++            st["kur_twins"] += 1
++            a, b = idx
++            ca, cb = (float(out[i]["properties"]["confidence"]) for i in idx)
++            lo = b if cb < ca else a          # tie -> drop the first (povr/tselye order is arbitrary but fixed)
++            if min(ca, cb) / max(ca + cb, 1e-12) < DUAL:
++                drop.add(lo)
++        st["kur_drop"] = len(drop)
++        out = [f for i, f in enumerate(out) if i not in drop]
++    return out, st
++
++
++def main() -> None:
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--src", required=True)
++    ap.add_argument("--dst", required=True)
++    ap.add_argument("--variant", choices=["D1", "D2", "D3"], required=True)
++    a = ap.parse_args()
++    dst = Path(a.dst)
++    dst.mkdir(parents=True, exist_ok=True)
++    tot: dict[str, int] = {}
++    for src in sorted(Path(a.src).glob("*.jsonl")):
++        with open(src, encoding="utf-8") as fh:
++            feats = [json.loads(line) for line in fh]
++        out, st = transform(feats, a.variant)
++        for k, v in st.items():
++            tot[k] = tot.get(k, 0) + v
++        tmp = dst / (src.name + ".tmp")
++        with open(tmp, "w", encoding="utf-8") as fo:
++            for f in out:
++                fo.write(json.dumps(f, ensure_ascii=False) + "\n")
++        os.replace(tmp, dst / src.name)
++        print(f"{src.stem}\t{len(feats)}->{len(out)}\t{st}", flush=True)
++        del feats, out
++    (dst / "_transform.json").write_text(json.dumps({"variant": a.variant, "src": a.src, **tot}, ensure_ascii=False, indent=1),
++                                         encoding="utf-8")
++    print(json.dumps(tot))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/nn_oof.py b/scripts/nn_oof.py
+index 9835f33..981f6ea 100644
+--- a/scripts/nn_oof.py
++++ b/scripts/nn_oof.py
+@@ -156,6 +156,8 @@ def main() -> None:
+                     help="запустить несколько фолдов параллельно на cuda:0 и cuda:1 (2×T4 Kaggle)")
+     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
+     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
++    ap.add_argument("--predict-only", action="store_true",
++                    help="только предсказание готовыми весами фолдов (с --resume); нет весов фолда — ошибка, без обучения")
+     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
+     ap.add_argument("--copy-paste", type=float, default=0.0,
+                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
+@@ -317,6 +319,8 @@ def main() -> None:
+             model, done = fc / f"{args.markup}{tag}.pt", fc / f"done{tag}.json"
+             if args.resume and done.exists() and model.exists():
+                 res = json.loads(done.read_text(encoding="utf-8"))
++            elif args.predict_only:
++                raise SystemExit(f"--predict-only: нет готовых весов {model} / {done}")
+             else:
+                 train_rows = [r for r in rows if r["family"] not in test]
+                 if repeat_regions and args.repeat > 1:
+diff --git a/tests/test_li_decode.py b/tests/test_li_decode.py
+new file mode 100644
+index 0000000..a1cbc75
+--- /dev/null
++++ b/tests/test_li_decode.py
+@@ -0,0 +1,88 @@
++"""Synthetic checks of expds.li_decode (point decoding of lidar-net maps)."""
++import numpy as np
++from shapely.geometry import Point
++
++from expds import li_decode as L
++
++try:
++    from affine import Affine
++except ImportError:                      # minimal stand-in for boxes without rasterio/affine
++    from collections import namedtuple
++
++    Affine = namedtuple("Affine", "a b c d e f")
++
++RES = 0.5
++TR = Affine(RES, 0, 1000.0, 0, -RES, 2000.0)
++
++
++def blob(h, w, r, c, sigma, amp):
++    yy, xx = np.mgrid[0:h, 0:w]
++    return amp * np.exp(-((yy - r) ** 2 + (xx - c) ** 2) / (2 * sigma ** 2))
++
++
++def test_find_peaks_nms_keeps_strongest():
++    s = np.maximum.reduce([blob(60, 60, 20, 20, 1, 0.9), blob(60, 60, 20, 23, 1, 0.6), blob(60, 60, 45, 45, 1, 0.5)])
++    r, c, h = L.find_peaks(s, 0.1, 2.5 / RES)       # 5 px NMS: the 3-px neighbour is suppressed
++    assert list(zip(r, c)) == [(20, 20), (45, 45)]
++    assert h[0] > h[1]
++    r2, _, _ = L.find_peaks(s, 0.1, 1.0)            # no NMS beyond the 3x3 local-max test
++    assert len(r2) >= 2
++
++
++def test_kurgan_class_and_dual():
++    p = np.zeros((2, 60, 60), np.float32)
++    p[0] += blob(60, 60, 15, 15, 2, 0.8)            # povr-dominated mound
++    p[1] += blob(60, 60, 15, 15, 2, 0.1)
++    p[0] += blob(60, 60, 45, 45, 2, 0.45)           # ambiguous mound: both classes
++    p[1] += blob(60, 60, 45, 45, 2, 0.40)
++    out = L.decode_kurgans(p, list(L.KURGANS), RES, L.params(None))
++    at = {}
++    for r, c, cls, conf in out:
++        at.setdefault((r, c), {})[cls] = conf
++    assert set(at[(15, 15)]) == {"kurgany_povrezhdennye"}
++    assert set(at[(45, 45)]) == set(L.KURGANS)
++    assert at[(45, 45)]["kurgany_povrezhdennye"] > at[(45, 45)]["kurgany_tselye"]
++
++
++def test_components_area_floor_and_interior_point():
++    p = np.zeros((200, 200), np.float32)
++    yy, xx = np.mgrid[0:200, 0:200]
++    ring = (np.hypot(yy - 100, xx - 100) < 40) & (np.hypot(yy - 100, xx - 100) > 25)   # gor-like ring
++    p[ring] = 0.8
++    p[5:8, 5:8] = 0.9                                  # 9 px = 2.25 m^2: below the gor floor
++    out = L.decode_components(p, RES, 0.5, 150.0)
++    assert len(out) == 1
++    r, c, conf = out[0]
++    assert ring[r, c] and abs(conf - 0.8) < 1e-6      # the point is inside the component, not in the hole
++
++
++def test_decode_li_features_and_radius():
++    classes = ["kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "fortifikatsii"]
++    p = np.zeros((4, 80, 80), np.float32)
++    p[0] = blob(80, 80, 20, 20, 2, 0.7)
++    p[2, 40:75, 40:75] = 0.9                           # 35x35 px = 306 m^2 >= 150
++    p[3, 2:4, 70:72] = 0.9                             # 4 px = 1 m^2 < 7.5: dropped
++    f = L.decode_li(p, classes, TR, None, RES, "r", "li", "x.las",
++                    {"decode": "peaks", "peaks": {"radius_m": {"gorodishcha": 3.0}}})
++    by = {}
++    for x in f:
++        by.setdefault(x["class_name"], []).append(x)
++    assert len(by["kurgany_povrezhdennye"]) == 1 and "fortifikatsii" not in by
++    k = by["kurgany_povrezhdennye"][0]["geom"]
++    assert k.contains(Point(TR.c + 20.5 * RES, TR.f - 20.5 * RES))
++    assert abs(np.sqrt(k.area / np.pi) - 1.0) < 0.05
++    g = by["gorodishcha"][0]["geom"]
++    assert abs(np.sqrt(g.area / np.pi) - 3.0) < 0.1
++    assert L.enabled({"decode": "peaks"}) and not L.enabled({}) and not L.enabled({"decode": "legacy"})
++
++
++def test_dump_roundtrip(tmp_path, monkeypatch):
++    monkeypatch.setenv("EXPDS_LI_DUMP", str(tmp_path))
++    p = np.random.default_rng(0).random((2, 10, 12)).astype(np.float32)
++    path = L.dump_probs(p, list(L.KURGANS), TR, "EPSG:32637", "001_X", "a b.las", {"x": [1.0], "y": [2.0]}, "mask")
++    z = np.load(path)
++    assert z["probs"].shape == (2, 10, 12) and z["probs"].dtype == np.float16
++    assert list(z["classes"]) == list(L.KURGANS) and str(z["crs"]) == "EPSG:32637"
++    assert tuple(z["transform"]) == tuple(TR)[:6] and z["cand_x"][0] == 1.0
++    monkeypatch.delenv("EXPDS_LI_DUMP")
++    assert L.dump_probs(p, list(L.KURGANS), TR, None, "r", "s", None) is None
+-- 
+2.47.3
+
