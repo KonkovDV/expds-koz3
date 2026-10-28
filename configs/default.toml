@@ -133,6 +133,8 @@ object_poly = 0.096635
 # sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
 # те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
 # Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
+# bot-10 REPORT9_v2.md §B выбрал именно эти (T9) против bot-3 thresholds_v2.toml (T3: maggr_pix finds 0,93 /
+# op 0,686, etgr_pix 0, terfl_pix 1,01): T3−T9 = −0,000924, P(T3>T9) 0,259 — шум, процедура T9 чище.
 [thresholds_by_markup.maggr_pix]
 finds_points = 0.902915
 object_poly = 0.684725
@@ -262,8 +264,10 @@ point_circle_m = 0.3
 # bot-10 PREREG_pixgbm.md / REPORT7_geo.md: ACCEPTED → v2 (global keep +0,011935, P 0,965, 5/5; site +0,014110).
 # Флаг независим от sota_stack6 ([post] multipole_object_poly / filter_finds_points). Порядок при обоих
 # включённых — pix → stack6 сам по себе: pix — источник кандидатов в geophys_feats (инференс), stack6 — постобработка.
-# ОГОВОРКА bot-10: S поверх stack6 sep на коробке keep −0,001587 (bot-10/work7/paired_g_pix_s6.log) —
-# пакет S+stack6 перемерить на ПК до сдачи (bot-7/REPORT4.md §5). Выключить: enabled = false.
+# Оговорка bot-10 «S поверх stack6 −0,001587» снята: артефакт порядка; в порядке сдачи Ss6−S keep +0,001304,
+# Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
+# Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
+# потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
 enabled = true
 model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
 classes = ["finds_points", "object_poly"]

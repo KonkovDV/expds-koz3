@@ -25,7 +25,7 @@ def test_flags_independent_and_as_documented(cfg):
     pix = cfg["geophys"]["pixgbm"]
     assert pix["enabled"] is True and pix["replace"] is True          # вариант S (bot-10 PREREG/REPORT7)
     assert set(pix["classes"]) == {"finds_points", "object_poly"} and pix["union_name_re"] == ""
-    assert float(pix["budget_s"]) > 0
+    assert float(pix["budget_s"]) == 600 and pix.get("backend", "lightgbm") == "lightgbm"   # REPORT4 §9; без .so
     post = cfg["post"]
     assert post["multipole_object_poly"] is True and post["filter_finds_points"] is True   # stack6 sep
     assert post.get("kurgan_twins_only") is True and not post.get("kurgan_twins")   # twins-only: bot-10 work8/twins78_stats.log
@@ -87,8 +87,9 @@ def test_replace_S_then_stack6_sees_pix(cfg, monkeypatch):
     _patch_classic(monkeypatch, CLASSIC)
     seen = {}
 
-    def fake(reg, c, md, stop=None):
+    def fake(reg, c, md, guard=None, status=None):
         seen["md"] = Path(md)
+        status["done"] = {("finds_points", "maggr"): {"a.tif"}, ("object_poly", "maggr"): {"a.tif"}}
         return [dict(f) for f in PIX]
 
     monkeypatch.setattr(geo_pixgbm, "region_feats", fake)
@@ -119,41 +120,66 @@ def test_flags_off_independently(cfg, monkeypatch):
     assert [f for f in out if f.get("threshold_group") == "maggr_pix" and f["class_name"] == "object_poly"]
 
 
-def test_pix_time_cap_keeps_classic(cfg, monkeypatch):
-    """Потолок budget_s: stop() истинен — region_feats отдаёт [] и классика остаётся (замены нет)."""
+def test_pix_fell_raster_keeps_classic(cfg, monkeypatch):
+    """bot-3 5deb94a: растр, где pix не отработал (срок/ошибка, status["fell"]), сохраняет классику своего
+    (класс, метод); где отработал (status["done"]) — классика заменена."""
     from expds import geo_pixgbm
     _patch_classic(monkeypatch, CLASSIC)
-    calls = {}
 
-    def fake(reg, c, md, stop=None):
-        calls["stop"] = stop()
-        return [] if calls["stop"] else [dict(f) for f in PIX]
+    def fake(reg, c, md, guard=None, status=None):
+        status["done"] = {("finds_points", "maggr"): {"a.tif"}}
+        status["fell"] = {("object_poly", "maggr"): {"a.tif"}}
+        return [dict(f) for f in PIX if f["class_name"] == "finds_points"] + [dict(PIX[2])]
 
     monkeypatch.setattr(geo_pixgbm, "region_feats", fake)
-    g = pipeline.TimeGuard(1500)
-    g.pix_spent = 10_000.0
-    feats = pipeline.geophys_feats(_region(), cfg, g)
-    assert calls["stop"] is True and len(feats) == 3
+    feats = pipeline.geophys_feats(_region(), cfg, pipeline.TimeGuard(1500))
+    classic = sorted((f["class_name"], f["markup_type"]) for f in feats if f.get("threshold_group") is None)
+    assert classic == [("object_poly", "etgr"), ("object_poly", "maggr")]   # finds maggr заменены, op maggr — нет
 
 
-def test_region_feats_stop_drops_partial(monkeypatch, tmp_path):
+def _rf_env(monkeypatch, tmp_path, prob_calls):
     from expds import geo_pixgbm
-    import types
-    lgb = types.SimpleNamespace(Booster=lambda model_file: object())
-    monkeypatch.setitem(__import__("sys").modules, "lightgbm", lgb)
-    (tmp_path / "poly.txt").write_text("x")
+    import numpy as np
+
+    class M:
+        backend = "lightgbm"
+
+        def feature_name(self):
+            return []
+
+    monkeypatch.setitem(geo_pixgbm.PHASE, "level", 0)          # лестница липкая на процесс — не портить другим тестам
+    monkeypatch.setitem(geo_pixgbm.PHASE, "rate", {})
+    monkeypatch.setitem(geo_pixgbm.PHASE, "steps", dict.fromkeys(geo_pixgbm.PHASE["steps"], 0))
+    monkeypatch.setattr(geo_pixgbm, "load_models", lambda md, be="lightgbm": {"poly": M()} if Path(md).exists() else {})
     monkeypatch.setattr(geo_pixgbm, "pick_rasters", lambda files: list(files))
     monkeypatch.setattr(geophys, "survey_boundary", lambda *a, **k: None)
     monkeypatch.setattr(geophys, "load_mask", lambda *a, **k: None)
     monkeypatch.setattr(pipeline, "region_crs", lambda reg, cfg=None: "EPSG:3857")
-    monkeypatch.setattr(geo_pixgbm, "load_map", lambda *a, **k: {"crs": "EPSG:3857"})
-    monkeypatch.setattr(geo_pixgbm, "prob_map", lambda d, mt, use: {"poly": 1})
+    v = np.ones((10, 10), bool)
+    monkeypatch.setattr(geo_pixgbm, "load_map", lambda *a, **k: {"crs": "EPSG:3857", "valid": v, "noise": ~v})
+    monkeypatch.setattr(geo_pixgbm, "prob_map", lambda d, mt, use, **k: prob_calls.append(mt) or {"poly": 1})
     monkeypatch.setattr(geo_pixgbm, "poly_candidates", lambda *a, **k: [{"class_name": "object_poly"}])
-    reg = Region(name="r", path=Path("."), rasters={"etgr": [Path("a.tif"), Path("b.tif")]})
-    n = iter([False, True])
-    assert geo_pixgbm.region_feats(reg, {}, tmp_path, stop=lambda: next(n)) == []
-    assert len(geo_pixgbm.region_feats(reg, {}, tmp_path, stop=lambda: False)) == 2
-    assert geo_pixgbm.region_feats(reg, {}, tmp_path / "nope") == []
+    return Region(name="r", path=Path("."), rasters={"etgr": [Path("a.tif"), Path("b.tif")]})
+
+
+def test_region_feats_deadline_and_no_models(monkeypatch, tmp_path):
+    """Срок вышел (budget 0) — pix не считается, оба растра в status["fell"]; в срок — full, оба в done;
+    нет моделей — [] без чтения растров (bot-7)."""
+    from expds import geo_pixgbm
+    calls = []
+    reg = _rf_env(monkeypatch, tmp_path, calls)
+    monkeypatch.setenv("PIXGBM_BUDGET_S", "1e6")
+    st = {}
+    assert len(geo_pixgbm.region_feats(reg, {}, tmp_path, status=st)) == 2 and calls == ["etgr", "etgr"]
+    assert st["done"] == {("object_poly", "etgr"): {"a.tif", "b.tif"}} and not st["fell"]
+    reg = _rf_env(monkeypatch, tmp_path, calls)
+    monkeypatch.setenv("PIXGBM_BUDGET_S", "-1")
+    st, calls[:] = {}, []
+    assert geo_pixgbm.region_feats(reg, {}, tmp_path, status=st) == [] and calls == []
+    assert st["fell"] == {("object_poly", "etgr"): {"a.tif", "b.tif"}}
+    assert geo_pixgbm.PHASE["steps"]["classic_budget"] == 2
+    monkeypatch.setitem(geo_pixgbm.PHASE, "level", 0)
+    assert geo_pixgbm.region_feats(reg, {}, tmp_path / "nope") == [] and calls == []
 
 
 def test_check_submission_pixgbm_model_dir(tmp_path):
