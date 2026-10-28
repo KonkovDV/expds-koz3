@@ -298,6 +298,8 @@ min_confidence = 0.1426
 [post]
 multipole_object_poly = true
 filter_finds_points = true
+# kurgan_twins_only (bot-6, ad8ae9b): копии целый -> повреждённый без межтипового dedup. ВЫКЛЮЧЕН:
+# решение после перемера на ПК (bot-7/REPORT3.md, вариант «twins»). Включить: kurgan_twins_only = true
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).

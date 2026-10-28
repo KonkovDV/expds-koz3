@@ -57,3 +57,20 @@ def test_safe_finish_fallback_keeps_stack6(monkeypatch):
     cfg = {"thresholds": {}, "default_threshold": 0.0, "post": {"multipole_object_poly": True, "filter_finds_points": True}}
     out = watchdog.safe_finish([f], cfg)
     assert calls == ["mp", "ff"] and len(out) == 1
+
+
+def test_candidate_twins_only_off_by_default_and_in_fallback(monkeypatch):
+    """bot-7: в конфиге кандидата kurgan_twins_only выключен; при включении запасная цепочка его тоже делает (dedup ae/li = 0)."""
+    import tomllib
+    from pathlib import Path
+
+    from expds import post, watchdog
+
+    cfg = tomllib.loads((Path(__file__).resolve().parents[1] / "configs" / "default.toml").read_text(encoding="utf-8"))
+    assert not cfg["post"].get("kurgan_twins_only") and not cfg["post"].get("kurgan_twins")
+    seen = {}
+    monkeypatch.setattr(post, "merge_within_markup", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(post, "kurgan_cross_modal_twins", lambda fs, spec: seen.setdefault("spec", spec) and fs)
+    f = _f(Point(4_000_000, 7_000_000).buffer(1.0), cls="kurgany_tselye", conf=0.9)
+    watchdog.safe_finish([f], {"thresholds": {}, "default_threshold": 0.0, "post": {"kurgan_twins_only": {"dedup_ae_vs_li_m": 3.0}}})
+    assert seen["spec"]["dedup_ae_vs_li_m"] == 0.0

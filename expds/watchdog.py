@@ -142,6 +142,14 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
                 out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
             except Exception:
                 log.exception("%s в запасной цепочке упал, шаг пропущен", key)
+    # bot-7: [post] kurgan_twins_only (bot-6, по умолчанию выкл.) — и в запасной цепочке, как в finish()
+    if not pc.get("kurgan_twins") and pc.get("kurgan_twins_only"):
+        try:
+            spec = dict(pc["kurgan_twins_only"]) if isinstance(pc["kurgan_twins_only"], dict) else {}
+            spec["dedup_ae_vs_li_m"] = 0.0
+            out = post.kurgan_cross_modal_twins(out, spec)
+        except Exception:
+            log.exception("kurgan_twins_only в запасной цепочке упал, шаг пропущен")
     mc = pc.get("micro_circles")
     if mc:
         # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
