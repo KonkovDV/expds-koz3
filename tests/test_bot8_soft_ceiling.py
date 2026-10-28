@@ -187,3 +187,16 @@ def test_run_disabled_ceiling_runs_all(tmp_path, monkeypatch, capsys):
     assert "wide" in calls and "sigma" in calls and "verify" in calls
     assert "soft_skipped" not in summary
     assert "мягкий потолок выключен" in capsys.readouterr().err
+
+
+def test_pixgbm_deadline_uses_guard_t0_monotonic():
+    """bot-3 geo_pixgbm.pix_deadline: T0 = min(старт процесса, guard.t0) — та же шкала time.monotonic."""
+    import time as _time
+    from expds import geo_pixgbm, watchdog
+    g = pipeline.TimeGuard(1500).set_soft(process_start=watchdog.PROCESS_START, soft_ceiling_s=1200.0)
+    assert g.clock is _time.monotonic and g.t0 <= _time.monotonic()
+    t0 = min(geo_pixgbm.process_t0(), g.t0)
+    assert abs(geo_pixgbm.pix_deadline(g, 300) - (t0 + 300)) < 1e-6
+    assert geo_pixgbm.pix_deadline(g, 300) <= g.t0 + 300 + 1e-6
+    g.t0 = g.t0 - 1000.0  # более ранний guard.t0 побеждает
+    assert abs(geo_pixgbm.pix_deadline(g, 300) - (g.t0 + 300)) < 1e-6
