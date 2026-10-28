@@ -46,6 +46,7 @@ class GeoParams:
     peak_k_min: float = 0.5         # ниже этого порога (в MAD) отсечка не опускается
     split: str = "none"             # object_poly: разрезать слипшиеся области водоразделом: "none", "field", "dt"
     split_h: float = 0.1            # "field": глубина седловины в долях poly_k; "dt": в метрах радиуса вписанного круга
+    split_res_m: float = 0.1        # сетка разрезания не мельче этой, м
     pole_circle_m: float = 0.0      # object_poly: > 0 — вместо контура круг этого радиуса в полюсе недоступности
 
 
@@ -426,33 +427,56 @@ def split_merged(lab: np.ndarray, sm: np.ndarray, res: float, p: GeoParams) -> t
     Метрика сопоставляет один к одному: две ямы, слипшиеся по порогу poly_k в одну область,
     дают не больше одного TP. "field" — маркеры на вершинах сглаженной |hp| (sm) с седловиной
     глубже split_h × poly_k; "dt" — на вершинах карты расстояния до края области (перешейки
-    формы), split_h в метрах. Куски мельче min_area_m2 присоединяются к соседу.
+    формы), split_h в метрах. Маркеры и водораздел считаются на сетке не мельче split_res_m
+    (карты MagGr бывают 0,03 м, а сглаживание у них 0,5 м), метки переносятся на исходную
+    сетку ближайшей ячейкой. Куски мельче min_area_m2 присоединяются к соседу.
     Возвращает новые метки (1..n) и n.
     """
     from scipy.ndimage import distance_transform_edt, find_objects, watershed_ift
 
     out = np.zeros(lab.shape, np.int32)
     n_out = 0
-    min_px = max(1, int(np.ceil(p.min_area_m2 / (res * res))))
+    d = max(1, int(round(p.split_res_m / res))) if p.split_res_m > res else 1
+    cres = res * d
+    min_px = max(1, int(np.ceil(p.min_area_m2 / (cres * cres))))
     for k, sl in enumerate(find_objects(lab), 1):
         if sl is None:
             continue
-        sl = tuple(slice(max(0, q.start - 1), q.stop + 1) for q in sl)
+        sl = tuple(slice(max(0, q.start - d), q.stop + d) for q in sl)
         comp = lab[sl] == k
-        if p.split == "dt":
-            s, h = distance_transform_edt(comp) * res, p.split_h
+        H, W = comp.shape
+        Hc, Wc = -(-H // d), -(-W // d)
+        if d > 1:
+            pad = ((0, Hc * d - H), (0, Wc * d - W))
+            cc = np.pad(comp, pad).reshape(Hc, d, Wc, d).mean(axis=(1, 3)) >= 0.5
+            cs = np.pad(np.where(comp, sm[sl], 0), pad).reshape(Hc, d, Wc, d).mean(axis=(1, 3))
         else:
-            s, h = sm[sl].astype(np.float64), p.split_h * p.poly_k
-        markers, m = h_maxima_labels(s, comp, h) if comp.sum() > min_px else (None, 1)
-        if m > 1:
-            vals = np.where(comp, s, s[comp].min())
-            lo, hi = float(vals.min()), float(vals.max())
-            cost = np.round((hi - vals) / max(hi - lo, 1e-12) * 65000).astype(np.uint16)
-            mk = np.where(comp, markers, -1).astype(np.int32)
-            seg = np.where(comp, watershed_ift(cost, mk, structure=np.ones((3, 3), int)), 0)
-            seg = _absorb_small(seg, m, min_px)
-        else:
+            cc, cs = comp, sm[sl]
+        seg_c = None
+        if cc.sum() > min_px:
+            if p.split == "dt":
+                s, h = distance_transform_edt(cc) * cres, p.split_h
+            else:
+                s, h = cs.astype(np.float64), p.split_h * p.poly_k
+            markers, m = h_maxima_labels(s, cc, h)
+            if m > 1:
+                vals = np.where(cc, s, s[cc].min())
+                lo, hi = float(vals.min()), float(vals.max())
+                cost = np.round((hi - vals) / max(hi - lo, 1e-12) * 65000).astype(np.uint16)
+                mk = np.where(cc, markers, -1).astype(np.int32)
+                seg_c = np.where(cc, watershed_ift(cost, mk, structure=np.ones((3, 3), int)), 0)
+                seg_c = _absorb_small(seg_c, min_px)
+                if len(np.unique(seg_c[seg_c > 0])) <= 1:
+                    seg_c = None
+        if seg_c is None:
             seg = comp.astype(np.int32)
+        else:
+            seg = np.repeat(np.repeat(seg_c, d, axis=0), d, axis=1)[:H, :W] if d > 1 else seg_c
+            hole = comp & (seg <= 0)
+            if hole.any():   # пиксели области вне грубой маски — к ближайшему куску
+                idx = distance_transform_edt(seg <= 0, return_distances=False, return_indices=True)
+                seg = seg[idx[0], idx[1]]
+            seg = np.where(comp, seg, 0)
         ids = np.unique(seg[seg > 0])
         remap = np.zeros(int(seg.max()) + 1, np.int32)
         remap[ids] = np.arange(n_out + 1, n_out + 1 + len(ids))
@@ -462,7 +486,7 @@ def split_merged(lab: np.ndarray, sm: np.ndarray, res: float, p: GeoParams) -> t
     return out, n_out
 
 
-def _absorb_small(seg: np.ndarray, m: int, min_px: int) -> np.ndarray:
+def _absorb_small(seg: np.ndarray, min_px: int) -> np.ndarray:
     """Куски водораздела мельче min_px пикселей отдаются соседнему куску с самой длинной общей границей."""
     from scipy.ndimage import binary_dilation
 
