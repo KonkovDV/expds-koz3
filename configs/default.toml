@@ -129,6 +129,20 @@ kurgany_tselye = 1.000001
 [thresholds_by_markup.etgr]
 object_poly = 0.096635
 
+# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — bot-3/pixgbm/pc/thr_pix_full.json (bot-9, fit_thr.py:
+# sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
+# те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
+# Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
+[thresholds_by_markup.maggr_pix]
+finds_points = 0.902915
+object_poly = 0.684725
+
+[thresholds_by_markup.etgr_pix]
+object_poly = 0.545825
+
+[thresholds_by_markup.terfl_pix]
+object_poly = 0.746421
+
 # Запасной путь без модели li: пики рельефа + LightGBM (3 класса); пороги — по его предсказаниям
 # вне обучения (F1 0,455 и 0,344).
 [thresholds_by_markup.li_cpu]
@@ -244,11 +258,21 @@ point_circle_m = 0.3
 # у EtGr и TerFl одна «семья», проверка только на тех же данных (0,201 и 0,171).
 [geophys.pixgbm]
 # bot-3 PIXGBM: пиксельный LightGBM-источник кандидатов (finds_points + object_poly), см. PIXGBM_REPORT.md.
-enabled = false
-model_dir = "models/pixgbm/all"
+# Кандидат v2 (bot-7): ВКЛЮЧЁН вариант S (enabled + replace, оба класса, без R3, без union_name_re) —
+# bot-10 PREREG_pixgbm.md / REPORT7_geo.md: ACCEPTED → v2 (global keep +0,011935, P 0,965, 5/5; site +0,014110).
+# Флаг независим от sota_stack6 ([post] multipole_object_poly / filter_finds_points). Порядок при обоих
+# включённых — pix → stack6 сам по себе: pix — источник кандидатов в geophys_feats (инференс), stack6 — постобработка.
+# ОГОВОРКА bot-10: S поверх stack6 sep на коробке keep −0,001587 (bot-10/work7/paired_g_pix_s6.log) —
+# пакет S+stack6 перемерить на ПК до сдачи (bot-7/REPORT4.md §5). Выключить: enabled = false.
+enabled = true
+model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
 classes = ["finds_points", "object_poly"]
-replace = false   # true — вариант S (замена классики того же класса и метода), иначе объединение
+replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
+# bot-7: потолок суммарного времени PIXGBM на прогон (с). Геофизика идёт до лидара; дальше растры без pix
+# остаются с классикой (замена S только там, где pix что-то выдал). Оценка bot-3 на площадке 258–431 с при
+# 2 потоках (bot-3/pixgbm/BUDGET_PIXGBM.md §4, [оц]) — потолок при норме не срабатывает. 0 — без потолка.
+budget_s = 600
 
 [geophys.maggr.finds_points]
 background_m = 2.0
@@ -306,8 +330,10 @@ min_confidence = 0.1426
 [post]
 multipole_object_poly = true
 filter_finds_points = true
-# kurgan_twins_only (bot-6, ad8ae9b): копии целый -> повреждённый без межтипового dedup. ВЫКЛЮЧЕН:
-# решение после перемера на ПК (bot-7/REPORT3.md, вариант «twins»). Включить: kurgan_twins_only = true
+# kurgan_twins_only (bot-6, ad8ae9b + починка масштаба 78add0e = 92ab33e здесь: один cos φ на участок,
+# bot-10 REPORT6_twins §2): копии целый -> повреждённый без межтипового dedup. ВЫКЛЮЧЕН: приёмка bot-10
+# починенного кода не задокументирована (bot-10/STATUS.md «Следующее: twins 78add0e», EXPERIMENTS.md
+# «PENDING»). Включить после приёмки: kurgan_twins_only = true
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
