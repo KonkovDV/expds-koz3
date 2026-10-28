@@ -326,6 +326,27 @@ fn flatten_polygons<'py>(py: Python<'py>, geoms: &Bound<'py, PyList>)
         Array1::from(taken).into_pyarray(py)))
 }
 
+/// Есть ли в байтах `n` и более ASCII-цифр подряд (проверка перед orjson: длинное целое
+/// orjson превратил бы во float, а json — в int; тогда scoreboard читает стандартным json).
+#[pyfunction]
+fn has_digit_run(data: &[u8], n: usize) -> bool {
+    if n == 0 {
+        return true;
+    }
+    let mut run = 0usize;
+    for &b in data {
+        if b.is_ascii_digit() {
+            run += 1;
+            if run >= n {
+                return true;
+            }
+        } else {
+            run = 0;
+        }
+    }
+    false
+}
+
 #[pymodule]
 fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     cpu::init();
@@ -349,5 +370,6 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sample_window_max, m)?)?;
     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
     m.add_function(wrap_pyfunction!(flatten_polygons, m)?)?;
+    m.add_function(wrap_pyfunction!(has_digit_run, m)?)?;
     Ok(())
 }

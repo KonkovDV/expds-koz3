@@ -34,14 +34,23 @@ def enabled() -> bool:
     return _rs is not None and os.environ.get("EXPDS_FASTGEOM", "1") != "0"
 
 
-def extract_many(mod, features: list[dict]) -> list:
-    """[официальная _extract_geometry(f) for f in features], пакетно."""
+def flatten(gdicts: list):
+    """expds_core.flatten_polygons(gdicts) или None без Rust-модуля."""
+    if not enabled() or not gdicts:
+        return None
+    return _rs.flatten_polygons(gdicts)
+
+
+def extract_many(mod, features: list[dict], flat=None) -> list:
+    """[официальная _extract_geometry(f) for f in features], пакетно.
+    flat — уже посчитанный flatten([f.get("geometry") for f in features]) (чтобы не разбирать дважды)."""
     if not enabled() or not features:
         return [mod._extract_geometry(f) for f in features]
     import shapely
 
-    gdicts = [f.get("geometry") for f in features]
-    coords, ring_off, geom_off, taken = _rs.flatten_polygons(gdicts)
+    if flat is None:
+        flat = _rs.flatten_polygons([f.get("geometry") for f in features])
+    coords, ring_off, geom_off, taken = flat
     out: list = [None] * len(features)
     done = np.zeros(len(features), dtype=bool)
     if taken.size:
