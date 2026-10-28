@@ -1,121 +1,214 @@
 {
   "date": "2026-10-28",
   "node": "dmitrijkv",
+  "status": "ALL_17_MODELS_COMPLETE",
   "kernel_s1": "dmitrijkv/koz3-gpu-s1",
   "kernel_s2": "dmitrijkv/koz3-gpu-s2",
-  "detected_gpus": 2,
+  "detected_gpus_per_session": 2,
   "gpu_names": [
     "Tesla T4",
     "Tesla T4"
   ],
-  "hyperparameters": {
-    "batch_size": 64,
-    "lr": 0.0014,
-    "epochs": 30,
-    "enable_internet": false,
-    "parallel_gpus": 2
-  },
-  "speed_comparison_vs_cpu": {
-    "cpu_4core_epoch_sec_r18": 250.0,
-    "gpu_t4_epoch_sec_r18": 3.85,
-    "gpu_t4_epoch_sec_r34_fpn": 5.55,
-    "single_model_30ep_cpu_sec": 7500.0,
-    "single_model_30ep_gpu_r18_sec": 138.8,
-    "single_model_30ep_gpu_r34_fpn_sec": 168.5,
-    "speedup_per_gpu_x": 54.0,
-    "speedup_dual_t4_node_x": 108.0,
-    "total_10_models_300ep_gpu_sec": 923.8,
-    "total_10_models_300ep_cpu_seq_est_sec": 75000.0
-  },
-  "session_1_wave1": {
-    "dev0": "cuda:0",
-    "dev1": "cuda:1",
-    "slot0": [
-      {
-        "step": 0,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
-        "rc": 0,
-        "elapsed_sec": 138.8,
-        "log": "wave1_slot0_step0.log"
-      },
-      {
-        "step": 1,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r18_hard2_59_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
-        "rc": 0,
-        "elapsed_sec": 156.6,
-        "log": "wave1_slot0_step1.log"
-      },
-      {
-        "step": 2,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r18_hard2_59_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
-        "rc": 0,
-        "elapsed_sec": 152.5,
-        "log": "wave1_slot0_step2.log"
-      }
+  "total_models_trained": 17,
+  "total_epochs_trained": 510,
+  "session_1_elapsed_sec": 923.8,
+  "session_2_elapsed_sec": 2237.8,
+  "wall_clock_both_concurrent_sessions_sec": 2237.8,
+  "session_1_summary": {
+    "node_id": 0,
+    "username": "dmitrijkv",
+    "detected_gpus": 2,
+    "gpu_names": [
+      "Tesla T4",
+      "Tesla T4"
     ],
-    "slot1": [
-      {
-        "step": 0,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
-        "rc": 0,
-        "elapsed_sec": 172.2,
-        "log": "wave1_slot1_step0.log"
-      },
-      {
-        "step": 1,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r18_hard2_59_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
-        "rc": 0,
-        "elapsed_sec": 163.4,
-        "log": "wave1_slot1_step1.log"
-      },
-      {
-        "step": 2,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
-        "rc": 0,
-        "elapsed_sec": 196.4,
-        "log": "wave1_slot1_step2.log"
-      }
-    ],
-    "elapsed_sec": 532.0
+    "wave1": {
+      "dev0": "cuda:0",
+      "dev1": "cuda:1",
+      "slot0": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 138.8,
+          "log": "wave1_slot0_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r18_hard2_59_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 156.6,
+          "log": "wave1_slot0_step1.log"
+        },
+        {
+          "step": 2,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r18_hard2_59_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 152.5,
+          "log": "wave1_slot0_step2.log"
+        }
+      ],
+      "slot1": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 172.2,
+          "log": "wave1_slot1_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r18_hard2_59_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 163.4,
+          "log": "wave1_slot1_step1.log"
+        },
+        {
+          "step": 2,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 196.4,
+          "log": "wave1_slot1_step2.log"
+        }
+      ],
+      "elapsed_sec": 532.0
+    },
+    "wave2": {
+      "dev0": "cuda:0",
+      "dev1": "cuda:1",
+      "slot0": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_mask_59_fold0.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 149.1,
+          "log": "wave2_slot0_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_mask_59_fold2.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 188.9,
+          "log": "wave2_slot0_step1.log"
+        }
+      ],
+      "slot1": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_mask_59_fold1.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 197.3,
+          "log": "wave2_slot1_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_mask_59_fold3.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 194.4,
+          "log": "wave2_slot1_step1.log"
+        }
+      ],
+      "elapsed_sec": 391.8
+    },
+    "saved_checkpoints": [
+      "li_r18_hard2_59_final.pt",
+      "li_r18_hard2_59_fold0.pt",
+      "li_r18_hard2_59_fold1.pt",
+      "li_r18_hard2_59_fold2.pt",
+      "li_r18_hard2_59_fold3.pt",
+      "li_r18_hard2_59_fold4.pt",
+      "li_r34_fpn_mask_59_fold0.pt",
+      "li_r34_fpn_mask_59_fold1.pt",
+      "li_r34_fpn_mask_59_fold2.pt",
+      "li_r34_fpn_mask_59_fold3.pt"
+    ]
   },
-  "session_1_wave2": {
-    "dev0": "cuda:0",
-    "dev1": "cuda:1",
-    "slot0": [
-      {
-        "step": 0,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_mask_59_fold0.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
-        "rc": 0,
-        "elapsed_sec": 149.1,
-        "log": "wave2_slot0_step0.log"
-      },
-      {
-        "step": 1,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_mask_59_fold2.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
-        "rc": 0,
-        "elapsed_sec": 188.9,
-        "log": "wave2_slot0_step1.log"
-      }
+  "session_2_summary": {
+    "node_id": 0,
+    "username": "dmitrijkv",
+    "detected_gpus": 2,
+    "gpu_names": [
+      "Tesla T4",
+      "Tesla T4"
     ],
-    "slot1": [
-      {
-        "step": 0,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_mask_59_fold1.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
-        "rc": 0,
-        "elapsed_sec": 197.3,
-        "log": "wave2_slot1_step0.log"
-      },
-      {
-        "step": 1,
-        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_mask_59_fold3.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
-        "rc": 0,
-        "elapsed_sec": 194.4,
-        "log": "wave2_slot1_step1.log"
-      }
-    ],
-    "elapsed_sec": 391.8
+    "wave1": {
+      "dev0": "cuda:0",
+      "dev1": "cuda:1",
+      "slot1": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_edge_59_fold1.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 858.7,
+          "log": "wave1_slot1_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_edge_59_fold3.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 841.3,
+          "log": "wave1_slot1_step1.log"
+        }
+      ],
+      "slot0": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_edge_59_fold0.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 415.6,
+          "log": "wave1_slot0_step0.log"
+        },
+        {
+          "step": 1,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_edge_59_fold2.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 779.2,
+          "log": "wave1_slot0_step1.log"
+        },
+        {
+          "step": 2,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_edge_59_fold4.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 814.9,
+          "log": "wave1_slot0_step2.log"
+        }
+      ],
+      "elapsed_sec": 2009.7
+    },
+    "wave2": {
+      "dev0": "cuda:0",
+      "dev1": "cuda:1",
+      "slot0": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_mask_59_fold4.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:0",
+          "rc": 0,
+          "elapsed_sec": 180.7,
+          "log": "wave2_slot0_step0.log"
+        }
+      ],
+      "slot1": [
+        {
+          "step": 0,
+          "cmd": "/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r34_fpn_mask_59_final.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families <auto_val_family> --device cuda:1",
+          "rc": 0,
+          "elapsed_sec": 228.1,
+          "log": "wave2_slot1_step0.log"
+        }
+      ],
+      "elapsed_sec": 228.1
+    },
+    "saved_checkpoints": [
+      "li_r34_fpn_edge_59_fold0.pt",
+      "li_r34_fpn_edge_59_fold1.pt",
+      "li_r34_fpn_edge_59_fold2.pt",
+      "li_r34_fpn_edge_59_fold3.pt",
+      "li_r34_fpn_edge_59_fold4.pt",
+      "li_r34_fpn_mask_59_final.pt",
+      "li_r34_fpn_mask_59_fold4.pt"
+    ]
   },
-  "session_1_model_metrics": {
+  "all_17_model_metrics": {
     "li_r18_hard2_59_fold0.pt": {
       "best_val_loss": 0.755647,
       "best_pixel_f1": 0.480629,
@@ -215,6 +308,76 @@
       "mean_epoch_sec": 6.2,
       "min_epoch_sec": 5.8,
       "max_epoch_sec": 16.2
+    },
+    "li_r34_fpn_edge_59_fold0.pt": {
+      "best_val_loss": 4.515808,
+      "best_pixel_f1": 0.0,
+      "train_tiles": 2787,
+      "val_tiles": 240,
+      "device": "cuda:0",
+      "mean_epoch_sec": 12.96,
+      "min_epoch_sec": 12.4,
+      "max_epoch_sec": 24.7
+    },
+    "li_r34_fpn_edge_59_fold2.pt": {
+      "best_val_loss": 6.509189,
+      "best_pixel_f1": 0.0,
+      "train_tiles": 3555,
+      "val_tiles": 383,
+      "device": "cuda:0",
+      "mean_epoch_sec": 25.64,
+      "min_epoch_sec": 24.9,
+      "max_epoch_sec": 36.5
+    },
+    "li_r34_fpn_edge_59_fold4.pt": {
+      "best_val_loss": 1050.66547,
+      "best_pixel_f1": 0.002352,
+      "train_tiles": 3405,
+      "val_tiles": 383,
+      "device": "cuda:0",
+      "mean_epoch_sec": 26.91,
+      "min_epoch_sec": 25.5,
+      "max_epoch_sec": 38.8
+    },
+    "li_r34_fpn_edge_59_fold1.pt": {
+      "best_val_loss": 5.622657,
+      "best_pixel_f1": 0.019465,
+      "train_tiles": 3573,
+      "val_tiles": 383,
+      "device": "cuda:1",
+      "mean_epoch_sec": 27.83,
+      "min_epoch_sec": 26.9,
+      "max_epoch_sec": 39.4
+    },
+    "li_r34_fpn_edge_59_fold3.pt": {
+      "best_val_loss": 2.587535,
+      "best_pixel_f1": 0.045297,
+      "train_tiles": 3631,
+      "val_tiles": 240,
+      "device": "cuda:1",
+      "mean_epoch_sec": 27.7,
+      "min_epoch_sec": 26.9,
+      "max_epoch_sec": 38.1
+    },
+    "li_r34_fpn_mask_59_fold4.pt": {
+      "best_val_loss": 0.957216,
+      "best_pixel_f1": 0.171283,
+      "train_tiles": 3405,
+      "val_tiles": 383,
+      "device": "cuda:0",
+      "mean_epoch_sec": 5.68,
+      "min_epoch_sec": 5.2,
+      "max_epoch_sec": 15.9
+    },
+    "li_r34_fpn_mask_59_final.pt": {
+      "best_val_loss": 0.824197,
+      "best_pixel_f1": 0.20858,
+      "train_tiles": 4505,
+      "val_tiles": 140,
+      "device": "cuda:1",
+      "mean_epoch_sec": 7.33,
+      "min_epoch_sec": 6.6,
+      "max_epoch_sec": 17.2
     }
   },
   "saved_checkpoints": [
@@ -224,9 +387,16 @@
     "li_r18_hard2_59_fold2.pt",
     "li_r18_hard2_59_fold3.pt",
     "li_r18_hard2_59_fold4.pt",
+    "li_r34_fpn_edge_59_fold0.pt",
+    "li_r34_fpn_edge_59_fold1.pt",
+    "li_r34_fpn_edge_59_fold2.pt",
+    "li_r34_fpn_edge_59_fold3.pt",
+    "li_r34_fpn_edge_59_fold4.pt",
+    "li_r34_fpn_mask_59_final.pt",
     "li_r34_fpn_mask_59_fold0.pt",
     "li_r34_fpn_mask_59_fold1.pt",
     "li_r34_fpn_mask_59_fold2.pt",
-    "li_r34_fpn_mask_59_fold3.pt"
+    "li_r34_fpn_mask_59_fold3.pt",
+    "li_r34_fpn_mask_59_fold4.pt"
   ]
 }
