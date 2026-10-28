@@ -15,6 +15,8 @@
     ... --only maggr/finds_points --band-mode auto --out work/geo_band.json      # RGB-карты через PCA
     ... --only maggr/finds_points --signals abs asa --out work/geo_asa.json      # аналитический сигнал
     ... --only maggr/object_poly --polarities abs pos --out work/geo_pol.json    # ямы — положительные
+    ... --only maggr/object_poly --splits none field:0.1 field:0.2 dt:0.5 --pole-circle 0 0.05 --out work/geo_split.json
+                                       # bot-3: разрезание слипшихся областей и круги в полюсе
 """
 from __future__ import annotations
 
@@ -79,7 +81,7 @@ def detect_all(data: dict, mt: str, cls: str, grid: dict, band_mode: str = "firs
                 peaks: dict[tuple, tuple] = {}
                 images: dict[str, np.ndarray] = {}
                 for c in (c for c in configs if c["background_m"] == bg):
-                    p = geophys.GeoParams(**c)
+                    p = geophys.GeoParams(**geophys.split_spec_params(c))
                     p.min_area_m2, p.max_area_m2 = geophys.AREA_M2[mt]
                     if cls == "finds_points":
                         floor = min(grid.get("peak_k", [K_MIN]))
@@ -157,6 +159,10 @@ def main() -> None:
                     help="finds_points: abs (сдача) и/или asa — аналитический сигнал")
     ap.add_argument("--polarities", nargs="*", default=None, choices=geophys.POLARITIES,
                     help="object_poly: abs (сдача), pos, neg")
+    ap.add_argument("--splits", nargs="*", default=None,
+                    help="object_poly: none и/или режим:глубина, например field:0.1 dt:0.5 (geophys.split_merged)")
+    ap.add_argument("--pole-circle", type=float, nargs="*", default=None,
+                    help="object_poly: 0 — контур (сдача); > 0 — круг этого радиуса, м, в полюсе недоступности")
     args = ap.parse_args()
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
 
@@ -189,6 +195,10 @@ def main() -> None:
             grid = {**grid, "signal": list(args.signals)}
         if cls == "object_poly" and args.polarities:
             grid = {**grid, "polarity": list(args.polarities)}
+        if cls == "object_poly" and args.splits:
+            grid = {**grid, "split_spec": list(args.splits)}
+        if cls == "object_poly" and args.pole_circle:
+            grid = {**grid, "pole_circle_m": sorted(args.pole_circle)}
         det = detect_all(data, mt, cls, grid, args.band_mode)
         curves = []
         for key, by_region in det.items():
