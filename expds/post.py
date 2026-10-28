@@ -319,3 +319,192 @@ def split_large(feats: list[dict], spec: dict) -> list[dict]:
             continue
         out += [dict(feat, geom=g) for g in pieces]
     return out
+
+
+def multipole_object_poly(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Декомпозиция слипшихся полигонов object_poly (Multi-Pole Peeling) + ядро polylabel.
+
+    Для каждого контура object_poly строится круг радиуса r_circle_m в полюсе недоступности
+    polylabel(P), а для крупных полигонов (area >= min_area_m2) последовательно вырезаются
+    найденные полюса и извлекаются вторичные ядра из оставшихся долей.
+    """
+    from collections import defaultdict
+    from shapely.geometry import MultiPolygon, Polygon
+
+    cfg = spec or {}
+    r_circle_m = float(cfg.get("circle_radius_m", 0.05))
+    drop_terfl_above = int(cfg.get("drop_cluttered_terfl_above", 150))
+    unified_group = cfg.get("unified_group")
+
+    reg_mod_counts: dict[tuple, int] = defaultdict(int)
+    for f in feats:
+        if f.get("class_name") == "object_poly":
+            reg_mod_counts[(f.get("region_name"), f.get("markup_type"))] += 1
+
+    out: list[dict] = []
+    for f in feats:
+        if f.get("class_name") != "object_poly":
+            out.append(f)
+            continue
+        reg = f.get("region_name")
+        mt = f.get("markup_type")
+        if drop_terfl_above > 0 and mt == "terfl" and reg_mod_counts[(reg, "terfl")] > drop_terfl_above:
+            continue
+        g = f["geom"]
+        g_v = g if g.is_valid else g.buffer(0)
+        if g_v.is_empty:
+            continue
+        if g_v.geom_type == "MultiPolygon":
+            g_v = max(g_v.geoms, key=lambda p: p.area)
+        if g_v.geom_type != "Polygon" or g_v.area <= 0:
+            out.append(f)
+            continue
+        s = _ground_scale(g_v.centroid.y)
+        area_m2 = g_v.area * s * s
+        t_grp = unified_group if unified_group else ("maggr_poly" if mt == "maggr" else (f.get("threshold_group") or mt))
+
+        p1 = polylabel(g_v, tolerance=0.01)
+        f1 = dict(f, geom=p1.buffer(r_circle_m / s, quad_segs=8), threshold_group=t_grp)
+        out.append(f1)
+        emitted_pts = [p1]
+
+        max_p = 5 if mt == "etgr" else (3 if mt == "maggr" else 1)
+        min_a = 12.0 if mt == "etgr" else 15.0
+        min_lobe = 3.0 if mt == "etgr" else 3.5
+
+        if max_p > 1 and area_m2 >= min_a:
+            rem = g_v
+            cur_pole = p1
+            for k_pole in range(2, max_p + 1):
+                b_dist = rem.boundary.distance(cur_pole)
+                r_peel = max(b_dist * 1.0, 1.5 / s)
+                rem = rem.difference(cur_pole.buffer(r_peel, quad_segs=16))
+                if rem.is_empty:
+                    break
+                if isinstance(rem, MultiPolygon):
+                    parts = [p for p in rem.geoms if p.area * s * s >= min_lobe]
+                    if not parts:
+                        break
+                    rem_best = max(parts, key=lambda p: p.area)
+                elif isinstance(rem, Polygon):
+                    if rem.area * s * s < min_lobe:
+                        break
+                    rem_best = rem
+                else:
+                    break
+                pk = polylabel(rem_best, tolerance=0.01)
+                if all(pk.distance(ep) * s >= 0.8 for ep in emitted_pts):
+                    conf_k = round(max(float(f.get("confidence", 0.5)) * (0.60 ** (k_pole - 1)), 0.12), 6)
+                    out.append(dict(f, geom=pk.buffer(r_circle_m / s, quad_segs=8),
+                                    confidence=conf_k, threshold_group=t_grp))
+                    emitted_pts.append(pk)
+                cur_pole = pk
+
+        if mt in ("etgr", "terfl"):
+            rp = g_v.representative_point()
+            if all(rp.distance(ep) * s >= 1.2 for ep in emitted_pts):
+                conf_rp = round(max(float(f.get("confidence", 0.5)) * 0.55, 0.12), 6)
+                out.append(dict(f, geom=rp.buffer(r_circle_m / s, quad_segs=8),
+                                confidence=conf_rp, threshold_group=t_grp))
+    return out
+
+
+def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Режимная очистка хвоста finds_points на крупных съёмках и плотных поселениях."""
+    from collections import defaultdict
+    from shapely.geometry import MultiPoint
+
+    cfg = spec or {}
+    max_hull_ha = float(cfg.get("large_survey_ha", 4.0))
+    large_survey_min_conf = float(cfg.get("large_survey_min_conf", 0.60))
+    settlement_op_count = int(cfg.get("settlement_maggr_poly_ge", 50))
+    settlement_min_conf = float(cfg.get("settlement_min_conf", 0.89))
+
+    reg_pts: dict[str, list] = defaultdict(list)
+    reg_op_mag: dict[str, int] = defaultdict(int)
+    for f in feats:
+        reg = f.get("region_name") or ""
+        if f.get("class_name") == "finds_points":
+            reg_pts[reg].append(f["geom"].centroid)
+        elif f.get("class_name") == "object_poly" and f.get("markup_type") == "maggr":
+            reg_op_mag[reg] += 1
+
+    reg_hull_ha: dict[str, float] = {}
+    for reg, pts in reg_pts.items():
+        if len(pts) >= 3:
+            s = _ground_scale(pts[0].y)
+            reg_hull_ha[reg] = MultiPoint(pts).convex_hull.area * s * s / 10000.0
+        else:
+            reg_hull_ha[reg] = 0.01
+
+    out: list[dict] = []
+    for f in feats:
+        if f.get("class_name") != "finds_points":
+            out.append(f)
+            continue
+        reg = f.get("region_name") or ""
+        conf = float(f.get("confidence", 1.0))
+        if reg_hull_ha.get(reg, 0.0) > max_hull_ha and conf < large_survey_min_conf:
+            continue
+        if reg_op_mag.get(reg, 0) >= settlement_op_count and conf < settlement_min_conf:
+            continue
+        out.append(f)
+    return out
+
+
+def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
+    from collections import defaultdict
+    from scipy.spatial import cKDTree
+    import numpy as np
+
+    cfg = spec or {}
+    use_ae = bool(cfg.get("ae_twin", True))
+    use_sp = bool(cfg.get("sp_twin", True))
+    li_dedup_m = float(cfg.get("li_dedup_m", 4.0))
+    sp_dedup_m = float(cfg.get("sp_dedup_m", 2.0))
+
+    li_povr_pts: dict[str, list] = defaultdict(list)
+    ae_povr_pts: dict[str, list] = defaultdict(list)
+    sp_povr_pts: dict[str, list] = defaultdict(list)
+
+    for f in feats:
+        if f.get("class_name") != "kurgany_povrezhdennye":
+            continue
+        reg = f.get("region_name") or ""
+        grp = f.get("threshold_group") or f.get("markup_type")
+        conf = float(f.get("confidence", 0.0))
+        c = f["geom"].centroid
+        s = _ground_scale(c.y)
+        xy = (c.x * s, c.y * s)
+        if grp == "li" and conf >= 0.06415:
+            li_povr_pts[reg].append(xy)
+        elif grp == "ae":
+            ae_povr_pts[reg].append(xy)
+        elif grp == "sp_focal" and conf >= 0.05:
+            sp_povr_pts[reg].append(xy)
+
+    li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
+    ae_trees = {r: cKDTree(np.asarray(pts)) for r, pts in ae_povr_pts.items() if pts}
+    sp_trees = {r: cKDTree(np.asarray(pts)) for r, pts in sp_povr_pts.items() if pts}
+
+    out = list(feats)
+    for f in feats:
+        if f.get("class_name") != "kurgany_tselye":
+            continue
+        reg = f.get("region_name") or ""
+        grp = f.get("threshold_group") or f.get("markup_type")
+        c = f["geom"].centroid
+        s = _ground_scale(c.y)
+        xy = (c.x * s, c.y * s)
+        if use_ae and grp == "ae":
+            if reg in ae_trees and ae_trees[reg].query_ball_point(xy, 0.5):
+                continue
+            if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
+                continue
+            out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
+        elif use_sp and grp == "sp_focal":
+            if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
+                continue
+            out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
+    return out

@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-28",
+  "baseline": {
+    "all": 0.365994,
+    "new_34": 0.325175,
+    "no_lidar": 0.216517,
+    "honest_10": 0.317135,
+    "honest_10_new_34": 0.316222,
+    "honest_10_no_lidar": 0.150492,
+    "oracle_ceiling": 0.985313
+  },
+  "verified_components": {
+    "geophys_multipole_polylabel_separate_groups": {
+      "all_delta": 0.012678,
+      "new_34_delta": 0.021888,
+      "honest_10_delta": 0.006767,
+      "object_poly_f1": [
+        0.3173,
+        0.4187
+      ],
+      "finds_points_f1_honest10": [
+        0.5536,
+        0.6061
+      ],
+      "p_a_gt_b": 0.951,
+      "honest_accept": true
+    },
+    "geophys_multipole_polylabel_unified_group": {
+      "honest_10_delta": 0.033748,
+      "unseen_dropped": [
+        723,
+        1
+      ],
+      "p_a_gt_b": 0.951,
+      "honest_accept": true
+    },
+    "selective_polygon_cores_gor_spor_fort_f015_arch_rescue": {
+      "all": 0.371683,
+      "all_delta": 0.005689,
+      "honest_10": 0.320428,
+      "honest_10_delta": 0.003294,
+      "p_a_gt_b_all": 1.0,
+      "p_a_gt_b_honest": 0.953,
+      "accept": true,
+      "honest_accept": true
+    },
+    "kurgan_cross_modal_twins_ae_sp_focal": {
+      "all": 0.367455,
+      "all_delta": 0.001461,
+      "honest_10": 0.318668,
+      "honest_10_delta": 0.001533,
+      "p_a_gt_b_honest": 1.0
+    },
+    "combined_stack6": {
+      "all": 0.382186,
+      "all_delta": 0.016192,
+      "honest_10": 0.355856,
+      "honest_10_delta": 0.038721
+    }
+  }
+}
