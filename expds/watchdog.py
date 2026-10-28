@@ -75,6 +75,11 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
     if post_cfg.get("kurgan_twins"):
         out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
+    elif post_cfg.get("kurgan_twins_only"):
+        # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
+        spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
+        spec["dedup_ae_vs_li_m"] = 0.0
+        out = post.kurgan_cross_modal_twins(out, spec)
     if post_cfg.get("fill_holes"):
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):

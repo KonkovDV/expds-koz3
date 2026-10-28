@@ -452,6 +452,11 @@ def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) -> 
     return out
 
 
+# Карта центров спутника: в табло группа подписана sp_focal, в сдаче читается из markup_type = sp_or
+# (pipeline.py, комментарий у KEPT_KURGAN_CONF). Без sp_or ветка sp_twin в сдаче не срабатывает.
+SP_TWIN_GROUPS = ("sp_focal", "sp_or")
+
+
 def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
     from collections import defaultdict
@@ -481,7 +486,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
             li_povr_pts[reg].append(xy)
         elif grp == "ae":
             ae_povr_pts[reg].append(xy)
-        elif grp == "sp_focal" and conf >= 0.05:
+        elif grp in SP_TWIN_GROUPS and conf >= 0.05:
             sp_povr_pts[reg].append(xy)
 
     li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
@@ -513,7 +518,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
             if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
-        elif use_sp and grp == "sp_focal":
+        elif use_sp and grp in SP_TWIN_GROUPS:
             if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
