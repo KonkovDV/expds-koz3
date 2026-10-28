@@ -41,3 +41,19 @@ def test_feature_cap(tmp_path):
     out = writer.enforce_limits(fc)
     assert len(out["features"]) == MAX_FEATURES
     assert [f["properties"]["fid"] for f in out["features"][:3]] == [0, 1, 2]
+
+
+def test_safe_finish_fallback_keeps_stack6(monkeypatch):
+    """bot-7: при сбое finish() запасная цепочка тоже делает sota_stack6 (multipole + filter_finds_points); сбой шага не роняет её."""
+    from expds import post, watchdog
+
+    calls = []
+    monkeypatch.setattr(post, "merge_within_markup", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(post, "multipole_object_poly", lambda fs, spec: calls.append("mp") or fs)
+    def bad(fs, spec):
+        calls.append("ff"); raise RuntimeError("GEOS")
+    monkeypatch.setattr(post, "filter_finds_points_regimes", bad)
+    f = _f(Point(4_000_000, 7_000_000).buffer(1.0), cls="kurgany_tselye", conf=0.9)
+    cfg = {"thresholds": {}, "default_threshold": 0.0, "post": {"multipole_object_poly": True, "filter_finds_points": True}}
+    out = watchdog.safe_finish([f], cfg)
+    assert calls == ["mp", "ff"] and len(out) == 1
