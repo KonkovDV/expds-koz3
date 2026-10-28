@@ -141,7 +141,15 @@ def match_scope(scope: str | None = None) -> str:
     s = (scope or os.environ.get("EXPDS_MATCH_SCOPE") or "global").strip().lower()
     if s not in ("global", "site"):
         raise ValueError(f"EXPDS_MATCH_SCOPE/scope: ожидается global или site, получено {s!r}")
+    if s == "site" and not _SCOPE_WARNED:
+        # site — только диагностика; официальная метрика сопоставляет глобально. Не молча.
+        _SCOPE_WARNED.append(1)
+        print("expds.metric: ВНИМАНИЕ — scope=site (диагностика), не как официальная метрика (global)",
+              file=sys.stderr, flush=True)
     return s
+
+
+_SCOPE_WARNED: list = []
 
 
 def _collect(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
