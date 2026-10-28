@@ -1,0 +1,33 @@
+{
+  "node_id": 0,
+  "username": "dmitrijkv",
+  "detected_gpus": 0,
+  "gpu_names": [],
+  "wave1": {
+    "dev0": "cpu",
+    "dev1": "cpu",
+    "slot0": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 --val-families Муравлево --device cpu",
+        "rc": 0,
+        "elapsed_sec": 9186.8,
+        "log": "wave1_slot0_step0.log"
+      }
+    ],
+    "slot1": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 --val-families Боровичи --device cpu",
+        "rc": 0,
+        "elapsed_sec": 11927.4,
+        "log": "wave1_slot1_step0.log"
+      }
+    ],
+    "elapsed_sec": 21114.2
+  },
+  "saved_checkpoints": [
+    "li_r18_hard2_59_fold0.pt",
+    "li_r18_hard2_59_fold1.pt"
+  ]
+}

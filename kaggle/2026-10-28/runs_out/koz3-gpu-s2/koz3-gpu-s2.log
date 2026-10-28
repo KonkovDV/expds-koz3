@@ -1,0 +1,93 @@
+[{"stream_name":"stdout","time":7.13098405,"data":"{\"node_id\": 0, \"username\": \"dmitrijkv\", \"gpus\": 2, \"gpu_names\": [\"Tesla T4\", \"Tesla T4\"]}\n"}
+,{"stream_name":"stdout","time":2246.486596747,"data":"{\n"}
+,{"stream_name":"stdout","time":2246.486647306,"data":"  \"node_id\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486651567,"data":"  \"username\": \"dmitrijkv\",\n"}
+,{"stream_name":"stdout","time":2246.486654614,"data":"  \"detected_gpus\": 2,\n"}
+,{"stream_name":"stdout","time":2246.486657583,"data":"  \"gpu_names\": [\n"}
+,{"stream_name":"stdout","time":2246.486660386,"data":"    \"Tesla T4\",\n"}
+,{"stream_name":"stdout","time":2246.486663224,"data":"    \"Tesla T4\"\n"}
+,{"stream_name":"stdout","time":2246.486666133,"data":"  ],\n"}
+,{"stream_name":"stdout","time":2246.486668868,"data":"  \"wave1\": {\n"}
+,{"stream_name":"stdout","time":2246.486671625,"data":"    \"dev0\": \"cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486674539,"data":"    \"dev1\": \"cuda:1\",\n"}
+,{"stream_name":"stdout","time":2246.486677401,"data":"    \"slot1\": [\n"}
+,{"stream_name":"stdout","time":2246.486680156,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486682968,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486686023,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_edge_59_fold1.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":2246.486691513,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486694266,"data":"        \"elapsed_sec\": 858.7,\n"}
+,{"stream_name":"stdout","time":2246.486697147,"data":"        \"log\": \"wave1_slot1_step0.log\"\n"}
+,{"stream_name":"stdout","time":2246.486700011,"data":"      },\n"}
+,{"stream_name":"stdout","time":2246.486702696,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486705373,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":2246.486708205,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_edge_59_fold3.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":2246.486711685,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486714403,"data":"        \"elapsed_sec\": 841.3,\n"}
+,{"stream_name":"stdout","time":2246.486717198,"data":"        \"log\": \"wave1_slot1_step1.log\"\n"}
+,{"stream_name":"stdout","time":2246.486720015,"data":"      }\n"}
+,{"stream_name":"stdout","time":2246.486722695,"data":"    ],\n"}
+,{"stream_name":"stdout","time":2246.486725375,"data":"    \"slot0\": [\n"}
+,{"stream_name":"stdout","time":2246.486728138,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486730819,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486733607,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_edge_59_fold0.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486737059,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486739788,"data":"        \"elapsed_sec\": 415.6,\n"}
+,{"stream_name":"stdout","time":2246.486751623,"data":"        \"log\": \"wave1_slot0_step0.log\"\n"}
+,{"stream_name":"stdout","time":2246.48675416,"data":"      },\n"}
+,{"stream_name":"stdout","time":2246.486756247,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486758416,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":2246.486760594,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_edge_59_fold2.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486763427,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486765598,"data":"        \"elapsed_sec\": 779.2,\n"}
+,{"stream_name":"stdout","time":2246.486768945,"data":"        \"log\": \"wave1_slot0_step1.log\"\n"}
+,{"stream_name":"stdout","time":2246.486771244,"data":"      },\n"}
+,{"stream_name":"stdout","time":2246.486773353,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486775659,"data":"        \"step\": 2,\n"}
+,{"stream_name":"stdout","time":2246.486777855,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_edge_59_fold4.pt --encoder resnet34 --arch FPN --target centers --center-loss focal --center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486780729,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486782894,"data":"        \"elapsed_sec\": 814.9,\n"}
+,{"stream_name":"stdout","time":2246.486785083,"data":"        \"log\": \"wave1_slot0_step2.log\"\n"}
+,{"stream_name":"stdout","time":2246.486787299,"data":"      }\n"}
+,{"stream_name":"stdout","time":2246.486789384,"data":"    ],\n"}
+,{"stream_name":"stdout","time":2246.486791482,"data":"    \"elapsed_sec\": 2009.7\n"}
+,{"stream_name":"stdout","time":2246.486793671,"data":"  },\n"}
+,{"stream_name":"stdout","time":2246.486795763,"data":"  \"wave2\": {\n"}
+,{"stream_name":"stdout","time":2246.486797923,"data":"    \"dev0\": \"cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486800145,"data":"    \"dev1\": \"cuda:1\",\n"}
+,{"stream_name":"stdout","time":2246.486802342,"data":"    \"slot0\": [\n"}
+,{"stream_name":"stdout","time":2246.486804504,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486806592,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486808862,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_mask_59_fold4.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":2246.486811627,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486813833,"data":"        \"elapsed_sec\": 180.7,\n"}
+,{"stream_name":"stdout","time":2246.486816061,"data":"        \"log\": \"wave2_slot0_step0.log\"\n"}
+,{"stream_name":"stdout","time":2246.486818343,"data":"      }\n"}
+,{"stream_name":"stdout","time":2246.48682043,"data":"    ],\n"}
+,{"stream_name":"stdout","time":2246.48682253,"data":"    \"slot1\": [\n"}
+,{"stream_name":"stdout","time":2246.486824756,"data":"      {\n"}
+,{"stream_name":"stdout","time":2246.486826859,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":2246.48682903,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r34_fpn_mask_59_final.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Эрентуна --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":2246.486834093,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":2246.486836486,"data":"        \"elapsed_sec\": 228.1,\n"}
+,{"stream_name":"stdout","time":2246.486838753,"data":"        \"log\": \"wave2_slot1_step0.log\"\n"}
+,{"stream_name":"stdout","time":2246.486840996,"data":"      }\n"}
+,{"stream_name":"stdout","time":2246.486843074,"data":"    ],\n"}
+,{"stream_name":"stdout","time":2246.486845164,"data":"    \"elapsed_sec\": 228.1\n"}
+,{"stream_name":"stdout","time":2246.486847371,"data":"  },\n"}
+,{"stream_name":"stdout","time":2246.486849633,"data":"  \"saved_checkpoints\": [\n"}
+,{"stream_name":"stdout","time":2246.486851959,"data":"    \"li_r34_fpn_edge_59_fold0.pt\",\n"}
+,{"stream_name":"stdout","time":2246.486854267,"data":"    \"li_r34_fpn_edge_59_fold1.pt\",\n"}
+,{"stream_name":"stdout","time":2246.486856479,"data":"    \"li_r34_fpn_edge_59_fold2.pt\",\n"}
+,{"stream_name":"stdout","time":2246.486858666,"data":"    \"li_r34_fpn_edge_59_fold3.pt\",\n"}
+,{"stream_name":"stdout","time":2246.4868609,"data":"    \"li_r34_fpn_edge_59_fold4.pt\",\n"}
+,{"stream_name":"stdout","time":2246.486863078,"data":"    \"li_r34_fpn_mask_59_final.pt\",\n"}
+,{"stream_name":"stdout","time":2246.486865273,"data":"    \"li_r34_fpn_mask_59_fold4.pt\"\n"}
+,{"stream_name":"stdout","time":2246.486867481,"data":"  ]\n"}
+,{"stream_name":"stdout","time":2246.486869647,"data":"}\n"}
+,{"stream_name":"stderr","time":2248.914365153,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":2248.914413145,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":2249.128617787,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":2249.128642048,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":2249.907051377,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":2250.879019115,"data":"[NbConvertApp] Writing 318567 bytes to __results__.html\n"}
+]

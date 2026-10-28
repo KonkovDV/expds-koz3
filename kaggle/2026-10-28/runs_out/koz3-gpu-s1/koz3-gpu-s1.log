@@ -1,0 +1,117 @@
+[{"stream_name":"stdout","time":6.998321159,"data":"{\"node_id\": 0, \"username\": \"dmitrijkv\", \"gpus\": 2, \"gpu_names\": [\"Tesla T4\", \"Tesla T4\"]}\n"}
+,{"stream_name":"stdout","time":931.547922291,"data":"{\n"}
+,{"stream_name":"stdout","time":931.547974319,"data":"  \"node_id\": 0,\n"}
+,{"stream_name":"stdout","time":931.54797871,"data":"  \"username\": \"dmitrijkv\",\n"}
+,{"stream_name":"stdout","time":931.547982574,"data":"  \"detected_gpus\": 2,\n"}
+,{"stream_name":"stdout","time":931.547985641,"data":"  \"gpu_names\": [\n"}
+,{"stream_name":"stdout","time":931.547988614,"data":"    \"Tesla T4\",\n"}
+,{"stream_name":"stdout","time":931.547991706,"data":"    \"Tesla T4\"\n"}
+,{"stream_name":"stdout","time":931.547994569,"data":"  ],\n"}
+,{"stream_name":"stdout","time":931.547997374,"data":"  \"wave1\": {\n"}
+,{"stream_name":"stdout","time":931.548000225,"data":"    \"dev0\": \"cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548003276,"data":"    \"dev1\": \"cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.54800622,"data":"    \"slot0\": [\n"}
+,{"stream_name":"stdout","time":931.548009121,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548011958,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":931.548015044,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548019921,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548022792,"data":"        \"elapsed_sec\": 138.8,\n"}
+,{"stream_name":"stdout","time":931.548025745,"data":"        \"log\": \"wave1_slot0_step0.log\"\n"}
+,{"stream_name":"stdout","time":931.548028712,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548031508,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548034394,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":931.548037296,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r18_hard2_59_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548040718,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548043635,"data":"        \"elapsed_sec\": 156.6,\n"}
+,{"stream_name":"stdout","time":931.548046578,"data":"        \"log\": \"wave1_slot0_step1.log\"\n"}
+,{"stream_name":"stdout","time":931.548049695,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548052546,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548055375,"data":"        \"step\": 2,\n"}
+,{"stream_name":"stdout","time":931.548058288,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r18_hard2_59_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548061629,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548064463,"data":"        \"elapsed_sec\": 152.5,\n"}
+,{"stream_name":"stdout","time":931.548067334,"data":"        \"log\": \"wave1_slot0_step2.log\"\n"}
+,{"stream_name":"stdout","time":931.548070254,"data":"      }\n"}
+,{"stream_name":"stdout","time":931.548073029,"data":"    ],\n"}
+,{"stream_name":"stdout","time":931.548075834,"data":"    \"slot1\": [\n"}
+,{"stream_name":"stdout","time":931.548078656,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548081476,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":931.548092638,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548095584,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548097816,"data":"        \"elapsed_sec\": 172.2,\n"}
+,{"stream_name":"stdout","time":931.548100093,"data":"        \"log\": \"wave1_slot1_step0.log\"\n"}
+,{"stream_name":"stdout","time":931.548102363,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548104513,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548106659,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":931.548108893,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r18_hard2_59_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548111574,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548113773,"data":"        \"elapsed_sec\": 163.4,\n"}
+,{"stream_name":"stdout","time":931.548116034,"data":"        \"log\": \"wave1_slot1_step1.log\"\n"}
+,{"stream_name":"stdout","time":931.548119709,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548121958,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548124111,"data":"        \"step\": 2,\n"}
+,{"stream_name":"stdout","time":931.548126356,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Эрентуна --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548129018,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548131199,"data":"        \"elapsed_sec\": 196.4,\n"}
+,{"stream_name":"stdout","time":931.548133455,"data":"        \"log\": \"wave1_slot1_step2.log\"\n"}
+,{"stream_name":"stdout","time":931.548135709,"data":"      }\n"}
+,{"stream_name":"stdout","time":931.548137854,"data":"    ],\n"}
+,{"stream_name":"stdout","time":931.548140005,"data":"    \"elapsed_sec\": 532.0\n"}
+,{"stream_name":"stdout","time":931.548142274,"data":"  },\n"}
+,{"stream_name":"stdout","time":931.548144629,"data":"  \"wave2\": {\n"}
+,{"stream_name":"stdout","time":931.548146864,"data":"    \"dev0\": \"cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548149178,"data":"    \"dev1\": \"cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548151411,"data":"    \"slot0\": [\n"}
+,{"stream_name":"stdout","time":931.54815361,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548155774,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":931.548158188,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_mask_59_fold0.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.54816103,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548163241,"data":"        \"elapsed_sec\": 149.1,\n"}
+,{"stream_name":"stdout","time":931.548165493,"data":"        \"log\": \"wave2_slot0_step0.log\"\n"}
+,{"stream_name":"stdout","time":931.548167779,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548169946,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548174549,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":931.548176971,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_mask_59_fold2.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0\",\n"}
+,{"stream_name":"stdout","time":931.548179689,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548181892,"data":"        \"elapsed_sec\": 188.9,\n"}
+,{"stream_name":"stdout","time":931.548184136,"data":"        \"log\": \"wave2_slot0_step1.log\"\n"}
+,{"stream_name":"stdout","time":931.548186611,"data":"      }\n"}
+,{"stream_name":"stdout","time":931.548188745,"data":"    ],\n"}
+,{"stream_name":"stdout","time":931.548190898,"data":"    \"slot1\": [\n"}
+,{"stream_name":"stdout","time":931.548193169,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548195318,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":931.548197538,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_mask_59_fold1.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548200298,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548202496,"data":"        \"elapsed_sec\": 197.3,\n"}
+,{"stream_name":"stdout","time":931.54820476,"data":"        \"log\": \"wave2_slot1_step0.log\"\n"}
+,{"stream_name":"stdout","time":931.548207022,"data":"      },\n"}
+,{"stream_name":"stdout","time":931.548209249,"data":"      {\n"}
+,{"stream_name":"stdout","time":931.548211395,"data":"        \"step\": 1,\n"}
+,{"stream_name":"stdout","time":931.548213623,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_mask_59_fold3.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:1\",\n"}
+,{"stream_name":"stdout","time":931.548216304,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":931.548218486,"data":"        \"elapsed_sec\": 194.4,\n"}
+,{"stream_name":"stdout","time":931.548220732,"data":"        \"log\": \"wave2_slot1_step1.log\"\n"}
+,{"stream_name":"stdout","time":931.548223014,"data":"      }\n"}
+,{"stream_name":"stdout","time":931.548225158,"data":"    ],\n"}
+,{"stream_name":"stdout","time":931.548227583,"data":"    \"elapsed_sec\": 391.8\n"}
+,{"stream_name":"stdout","time":931.548229874,"data":"  },\n"}
+,{"stream_name":"stdout","time":931.548232031,"data":"  \"saved_checkpoints\": [\n"}
+,{"stream_name":"stdout","time":931.548234303,"data":"    \"li_r18_hard2_59_final.pt\",\n"}
+,{"stream_name":"stdout","time":931.548236568,"data":"    \"li_r18_hard2_59_fold0.pt\",\n"}
+,{"stream_name":"stdout","time":931.548238788,"data":"    \"li_r18_hard2_59_fold1.pt\",\n"}
+,{"stream_name":"stdout","time":931.548241021,"data":"    \"li_r18_hard2_59_fold2.pt\",\n"}
+,{"stream_name":"stdout","time":931.548279835,"data":"    \"li_r18_hard2_59_fold3.pt\",\n"}
+,{"stream_name":"stdout","time":931.548286784,"data":"    \"li_r18_hard2_59_fold4.pt\",\n"}
+,{"stream_name":"stdout","time":931.548290315,"data":"    \"li_r34_fpn_mask_59_fold0.pt\",\n"}
+,{"stream_name":"stdout","time":931.548295223,"data":"    \"li_r34_fpn_mask_59_fold1.pt\",\n"}
+,{"stream_name":"stdout","time":931.548302049,"data":"    \"li_r34_fpn_mask_59_fold2.pt\",\n"}
+,{"stream_name":"stdout","time":931.548304348,"data":"    \"li_r34_fpn_mask_59_fold3.pt\"\n"}
+,{"stream_name":"stdout","time":931.54831027,"data":"  ]\n"}
+,{"stream_name":"stdout","time":931.548312597,"data":"}\n"}
+,{"stream_name":"stderr","time":933.903027245,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":933.903057883,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":934.136679879,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":934.136716259,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":934.868377599,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":935.75657972,"data":"[NbConvertApp] Writing 319033 bytes to __results__.html\n"}
+]

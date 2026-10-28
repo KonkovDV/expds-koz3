@@ -1,0 +1,90 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+prefilter A 14713 18 s
+prefilter kur 14728 35 s
+gt collected
+k10 A 0.319519 {}
+k10 TO 0.319867 {'twins': 118, 'dropped': 0}
+k10 TOae 0.319479 {'twins': 5, 'dropped': 0}
+k10 TOsp 0.319907 {'twins': 113, 'dropped': 0}
+k10 F 0.319987 {'twins': 118, 'dropped': 302}
+k10 kur 0.320888 {}
+k10 kurTO 0.321223 {'twins': 118, 'dropped': 0}
+k10 TOfix 0.321238 {'twins': 198, 'dropped': 0}
+k10 TOaefix 0.320868 {'twins': 85, 'dropped': 0}
+k10 Ffix 0.321489 {'twins': 198, 'dropped': 302}
+k10 kurTOfix 0.322585 {'twins': 198, 'dropped': 0}
+k10 time 12 s
+lofo A 0.318488 {}
+lofo TO 0.318736 {'twins': 118, 'dropped': 0}
+lofo TOae 0.318448 {'twins': 5, 'dropped': 0}
+lofo TOsp 0.318776 {'twins': 113, 'dropped': 0}
+lofo F 0.318864 {'twins': 118, 'dropped': 302}
+lofo kur 0.318552 {}
+lofo kurTO 0.318928 {'twins': 101, 'dropped': 0}
+lofo TOfix 0.320091 {'twins': 198, 'dropped': 0}
+lofo TOaefix 0.319819 {'twins': 85, 'dropped': 0}
+lofo Ffix 0.320347 {'twins': 198, 'dropped': 302}
+lofo kurTOfix 0.320277 {'twins': 181, 'dropped': 0}
+lofo time 7 s
+seed0 A 0.319698 {}
+seed0 TO 0.320134 {'twins': 119, 'dropped': 0}
+seed0 TOae 0.31983 {'twins': 7, 'dropped': 0}
+seed0 TOsp 0.320003 {'twins': 112, 'dropped': 0}
+seed0 F 0.320137 {'twins': 119, 'dropped': 69}
+seed0 kur 0.32081 {}
+seed0 kurTO 0.321237 {'twins': 119, 'dropped': 0}
+seed0 TOfix 0.321898 {'twins': 222, 'dropped': 0}
+seed0 TOaefix 0.321617 {'twins': 110, 'dropped': 0}
+seed0 Ffix 0.321913 {'twins': 222, 'dropped': 69}
+seed0 kurTOfix 0.323089 {'twins': 222, 'dropped': 0}
+seed0 time 8 s
+seed1 A 0.310923 {}
+seed1 TO 0.311124 {'twins': 125, 'dropped': 0}
+seed1 TOae 0.310884 {'twins': 5, 'dropped': 0}
+seed1 TOsp 0.311163 {'twins': 120, 'dropped': 0}
+seed1 F 0.311226 {'twins': 125, 'dropped': 302}
+seed1 kur 0.312073 {}
+seed1 kurTO 0.312259 {'twins': 126, 'dropped': 0}
+seed1 TOfix 0.312477 {'twins': 205, 'dropped': 0}
+seed1 TOaefix 0.312253 {'twins': 85, 'dropped': 0}
+seed1 Ffix 0.312706 {'twins': 205, 'dropped': 302}
+seed1 kurTOfix 0.313607 {'twins': 206, 'dropped': 0}
+seed1 time 8 s
+seed2 A 0.321865 {}
+seed2 TO 0.322033 {'twins': 127, 'dropped': 0}
+seed2 TOae 0.321824 {'twins': 5, 'dropped': 0}
+seed2 TOsp 0.322073 {'twins': 122, 'dropped': 0}
+seed2 F 0.322183 {'twins': 127, 'dropped': 302}
+seed2 kur 0.323059 {}
+seed2 kurTO 0.323219 {'twins': 127, 'dropped': 0}
+seed2 TOfix 0.323389 {'twins': 207, 'dropped': 0}
+seed2 TOaefix 0.323197 {'twins': 85, 'dropped': 0}
+seed2 Ffix 0.323668 {'twins': 207, 'dropped': 302}
+seed2 kurTOfix 0.324577 {'twins': 207, 'dropped': 0}
+seed2 time 7 s
+seed3 A 0.313506 {}
+seed3 TO 0.313812 {'twins': 118, 'dropped': 0}
+seed3 TOae 0.313474 {'twins': 4, 'dropped': 0}
+seed3 TOsp 0.313843 {'twins': 114, 'dropped': 0}
+seed3 F 0.313786 {'twins': 118, 'dropped': 298}
+seed3 kur 0.314676 {}
+seed3 kurTO 0.314973 {'twins': 118, 'dropped': 0}
+seed3 TOfix 0.315087 {'twins': 195, 'dropped': 0}
+seed3 TOaefix 0.314766 {'twins': 81, 'dropped': 0}
+seed3 Ffix 0.315193 {'twins': 195, 'dropped': 298}
+seed3 kurTOfix 0.316241 {'twins': 195, 'dropped': 0}
+seed3 time 7 s
+seed4 A 0.294177 {}
+seed4 TO 0.294375 {'twins': 123, 'dropped': 0}
+seed4 TOae 0.294145 {'twins': 4, 'dropped': 0}
+seed4 TOsp 0.294407 {'twins': 119, 'dropped': 0}
+seed4 F 0.294492 {'twins': 123, 'dropped': 298}
+seed4 kur 0.295535 {}
+seed4 kurTO 0.295723 {'twins': 123, 'dropped': 0}
+seed4 TOfix 0.295483 {'twins': 199, 'dropped': 0}
+seed4 TOaefix 0.295266 {'twins': 80, 'dropped': 0}
+seed4 Ffix 0.295721 {'twins': 199, 'dropped': 298}
+seed4 kurTOfix 0.296822 {'twins': 199, 'dropped': 0}
+seed4 time 5 s
+done
+alldone

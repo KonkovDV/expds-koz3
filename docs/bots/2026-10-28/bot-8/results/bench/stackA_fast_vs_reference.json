@@ -1,0 +1,12 @@
+{
+ "clusters": true,
+ "curve_sha": true,
+ "base": true,
+ "honest": true,
+ "taus": true,
+ "counts_all": true,
+ "honest_counts_repr_sha": true,
+ "folds": true,
+ "n_clusters": 60,
+ "all": true
+}

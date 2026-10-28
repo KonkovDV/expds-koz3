@@ -1,0 +1,812 @@
+{
+ "n_scenes": 214,
+ "scene_km2": 1443.5,
+ "n_scenes_nonlidar": 180,
+ "km2_nonlidar": 1235.9,
+ "gt_all": 99,
+ "gt_nonlidar": 73,
+ "by_budget": {
+  "1": {
+   "honest10": {
+    "recall_all": "48/99",
+    "recall_nonlidar": "33/73",
+    "n_cand": 1902,
+    "km2": 1443.5,
+    "per_km2": 1.3,
+    "picks": {
+     "frst_abs": 8,
+     "frst_bright": 1,
+     "log_bright": 1
+    }
+   },
+   "lofo": {
+    "recall_all": "48/99",
+    "recall_nonlidar": "33/73",
+    "n_cand": 1902,
+    "km2": 1443.5,
+    "per_km2": 1.3,
+    "picks": {
+     "frst_abs": 101,
+     "log_bright": 1,
+     "frst_bright": 1
+    }
+   },
+   "seeds_nonlidar": [
+    "33/73",
+    "33/73",
+    "33/73",
+    "33/73",
+    "33/73"
+   ]
+  },
+  "3": {
+   "honest10": {
+    "recall_all": "51/99",
+    "recall_nonlidar": "36/73",
+    "n_cand": 2327,
+    "km2": 1443.5,
+    "per_km2": 1.6,
+    "picks": {
+     "frst_dark": 8,
+     "frst_abs": 1,
+     "log_bright": 1
+    }
+   },
+   "lofo": {
+    "recall_all": "52/99",
+    "recall_nonlidar": "37/73",
+    "n_cand": 2330,
+    "km2": 1443.5,
+    "per_km2": 1.6,
+    "picks": {
+     "frst_dark": 101,
+     "log_bright": 1,
+     "frst_abs": 1
+    }
+   },
+   "seeds_nonlidar": [
+    "35/73",
+    "37/73",
+    "40/73",
+    "40/73",
+    "37/73"
+   ]
+  },
+  "5": {
+   "honest10": {
+    "recall_all": "50/99",
+    "recall_nonlidar": "35/73",
+    "n_cand": 2642,
+    "km2": 1443.5,
+    "per_km2": 1.8,
+    "picks": {
+     "log_bright": 7,
+     "frst_abs": 1,
+     "grad": 1,
+     "frst_dark": 1
+    }
+   },
+   "lofo": {
+    "recall_all": "50/99",
+    "recall_nonlidar": "35/73",
+    "n_cand": 2621,
+    "km2": 1443.5,
+    "per_km2": 1.8,
+    "picks": {
+     "log_bright": 100,
+     "frst_abs": 2,
+     "grad": 1
+    }
+   },
+   "seeds_nonlidar": [
+    "35/73",
+    "36/73",
+    "35/73",
+    "35/73",
+    "36/73"
+   ]
+  },
+  "10": {
+   "honest10": {
+    "recall_all": "53/99",
+    "recall_nonlidar": "38/73",
+    "n_cand": 3598,
+    "km2": 1443.5,
+    "per_km2": 2.5,
+    "picks": {
+     "grad": 9,
+     "log_bright": 1
+    }
+   },
+   "lofo": {
+    "recall_all": "53/99",
+    "recall_nonlidar": "38/73",
+    "n_cand": 3608,
+    "km2": 1443.5,
+    "per_km2": 2.5,
+    "picks": {
+     "grad": 102,
+     "log_bright": 1
+    }
+   },
+   "seeds_nonlidar": [
+    "38/73",
+    "38/73",
+    "38/73",
+    "38/73",
+    "40/73"
+   ]
+  },
+  "20": {
+   "honest10": {
+    "recall_all": "51/99",
+    "recall_nonlidar": "36/73",
+    "n_cand": 5166,
+    "km2": 1443.5,
+    "per_km2": 3.6,
+    "picks": {
+     "frst_abs": 6,
+     "log_bright": 1,
+     "grad": 3
+    }
+   },
+   "lofo": {
+    "recall_all": "53/99",
+    "recall_nonlidar": "38/73",
+    "n_cand": 5391,
+    "km2": 1443.5,
+    "per_km2": 3.7,
+    "picks": {
+     "frst_abs": 99,
+     "log_bright": 1,
+     "grad": 3
+    }
+   },
+   "seeds_nonlidar": [
+    "38/73",
+    "40/73",
+    "38/73",
+    "36/73",
+    "39/73"
+   ]
+  },
+  "50": {
+   "honest10": {
+    "recall_all": "59/99",
+    "recall_nonlidar": "44/73",
+    "n_cand": 9387,
+    "km2": 1443.5,
+    "per_km2": 6.5,
+    "picks": {
+     "frst_abs": 7,
+     "frst_dark": 2,
+     "grad@all": 1
+    }
+   },
+   "lofo": {
+    "recall_all": "61/99",
+    "recall_nonlidar": "46/73",
+    "n_cand": 9074,
+    "km2": 1443.5,
+    "per_km2": 6.3,
+    "picks": {
+     "frst_abs": 101,
+     "frst_bright": 1,
+     "frst_dark": 1
+    }
+   },
+   "seeds_nonlidar": [
+    "46/73",
+    "43/73",
+    "43/73",
+    "54/73",
+    "43/73"
+   ]
+  }
+ },
+ "fixed": {
+  "1": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "12/99",
+    "nonlidar": "6/73",
+    "n": 214
+   },
+   "pure_top5_nonlidar": [
+    [
+     "frst_abs|15",
+     [
+      9,
+      9,
+      214
+     ]
+    ],
+    [
+     "grad|15",
+     [
+      8,
+      9,
+      214
+     ]
+    ],
+    [
+     "frst_dark|15",
+     [
+      7,
+      7,
+      214
+     ]
+    ],
+    [
+     "grad|40",
+     [
+      6,
+      6,
+      214
+     ]
+    ],
+    [
+     "grad|90",
+     [
+      6,
+      8,
+      214
+     ]
+    ]
+   ]
+  },
+  "3": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "1/99",
+    "nonlidar": "1/73",
+    "n": 611
+   },
+   "pure_top5_nonlidar": [
+    [
+     "frst_dark|15",
+     [
+      13,
+      14,
+      642
+     ]
+    ],
+    [
+     "frst_abs|15",
+     [
+      12,
+      12,
+      641
+     ]
+    ],
+    [
+     "all@all|15,25,40,60,90,140",
+     [
+      11,
+      11,
+      642
+     ]
+    ],
+    [
+     "frst_abs|60",
+     [
+      10,
+      10,
+      642
+     ]
+    ],
+    [
+     "frst_abs@all|15,25,40,60,90,140",
+     [
+      10,
+      10,
+      642
+     ]
+    ]
+   ]
+  },
+  "5": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "5/99",
+    "nonlidar": "5/73",
+    "n": 1225
+   },
+   "pure_top5_nonlidar": [
+    [
+     "frst_dark|15",
+     [
+      16,
+      18,
+      1066
+     ]
+    ],
+    [
+     "frst_abs|15",
+     [
+      14,
+      15,
+      1061
+     ]
+    ],
+    [
+     "grad|25",
+     [
+      14,
+      18,
+      1052
+     ]
+    ],
+    [
+     "frst_bright@all|15,25,40,60,90,140",
+     [
+      13,
+      13,
+      1070
+     ]
+    ],
+    [
+     "frst_abs@all|15,25,40,60,90,140",
+     [
+      12,
+      12,
+      1070
+     ]
+    ]
+   ]
+  },
+  "10": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "21/99",
+    "nonlidar": "14/73",
+    "n": 2269
+   },
+   "pure_top5_nonlidar": [
+    [
+     "grad|40",
+     [
+      25,
+      32,
+      1961
+     ]
+    ],
+    [
+     "frst_dark|25",
+     [
+      22,
+      24,
+      2076
+     ]
+    ],
+    [
+     "grad|60",
+     [
+      22,
+      29,
+      1963
+     ]
+    ],
+    [
+     "frst_bright|15",
+     [
+      21,
+      26,
+      2076
+     ]
+    ],
+    [
+     "frst_dark|15",
+     [
+      21,
+      25,
+      2080
+     ]
+    ]
+   ]
+  },
+  "20": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "30/99",
+    "nonlidar": "24/73",
+    "n": 4291
+   },
+   "pure_top5_nonlidar": [
+    [
+     "frst_dark|25",
+     [
+      36,
+      38,
+      3950
+     ]
+    ],
+    [
+     "frst_abs|25",
+     [
+      35,
+      40,
+      3902
+     ]
+    ],
+    [
+     "frst_dark|15",
+     [
+      34,
+      38,
+      4004
+     ]
+    ],
+    [
+     "grad|40",
+     [
+      33,
+      40,
+      3402
+     ]
+    ],
+    [
+     "grad@all|15,25,40,60,90,140",
+     [
+      33,
+      40,
+      4135
+     ]
+    ]
+   ]
+  },
+  "50": {
+   "centre+stack": {
+    "all": "48/99",
+    "nonlidar": "33/73",
+    "n": 1688
+   },
+   "grid_only": {
+    "all": "52/99",
+    "nonlidar": "40/73",
+    "n": 10684
+   },
+   "pure_top5_nonlidar": [
+    [
+     "frst_dark|40",
+     [
+      47,
+      58,
+      7549
+     ]
+    ],
+    [
+     "frst_abs@all|15,25,40,60,90,140",
+     [
+      46,
+      51,
+      9673
+     ]
+    ],
+    [
+     "frst_dark@all|15,25,40,60,90,140",
+     [
+      46,
+      53,
+      9671
+     ]
+    ],
+    [
+     "frst_abs|15",
+     [
+      45,
+      53,
+      7505
+     ]
+    ],
+    [
+     "frst_bright|15",
+     [
+      45,
+      53,
+      7613
+     ]
+    ]
+   ]
+  }
+ },
+ "decomp": {
+  "centre_only": {
+   "all": "28/99",
+   "nonlidar": "23/73",
+   "n": 214
+  },
+  "stack_only": {
+   "all": "32/99",
+   "nonlidar": "17/73",
+   "n": 1474
+  }
+ },
+ "volume_honest10": {
+  "1": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 1194,
+    "km2": 157.8,
+    "per_scene": 7.4,
+    "per_km2": 7.6
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 111,
+    "km2": 187.7,
+    "per_scene": 5.5,
+    "per_km2": 0.6
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 232,
+    "km2": 19.4,
+    "per_scene": 17.8,
+    "per_km2": 12.0
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 357,
+    "km2": 1076.5,
+    "per_scene": 22.3,
+    "per_km2": 0.3
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 4,
+    "km2": 1.6,
+    "per_scene": 2.0,
+    "per_km2": 2.5
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 4,
+    "km2": 0.5,
+    "per_scene": 4.0,
+    "per_km2": 8.2
+   }
+  },
+  "3": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 1515,
+    "km2": 157.8,
+    "per_scene": 9.4,
+    "per_km2": 9.6
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 151,
+    "km2": 187.7,
+    "per_scene": 7.5,
+    "per_km2": 0.8
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 258,
+    "km2": 19.4,
+    "per_scene": 19.8,
+    "per_km2": 13.3
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 389,
+    "km2": 1076.5,
+    "per_scene": 24.3,
+    "per_km2": 0.4
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 8,
+    "km2": 1.6,
+    "per_scene": 4.0,
+    "per_km2": 5.0
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 6,
+    "km2": 0.5,
+    "per_scene": 6.0,
+    "per_km2": 12.2
+   }
+  },
+  "5": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 1745,
+    "km2": 157.8,
+    "per_scene": 10.8,
+    "per_km2": 11.1
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 179,
+    "km2": 187.7,
+    "per_scene": 8.9,
+    "per_km2": 1.0
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 280,
+    "km2": 19.4,
+    "per_scene": 21.5,
+    "per_km2": 14.5
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 418,
+    "km2": 1076.5,
+    "per_scene": 26.1,
+    "per_km2": 0.4
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 12,
+    "km2": 1.6,
+    "per_scene": 6.0,
+    "per_km2": 7.5
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 8,
+    "km2": 0.5,
+    "per_scene": 8.0,
+    "per_km2": 16.3
+   }
+  },
+  "10": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 2466,
+    "km2": 157.8,
+    "per_scene": 15.2,
+    "per_km2": 15.6
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 257,
+    "km2": 187.7,
+    "per_scene": 12.8,
+    "per_km2": 1.4
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 348,
+    "km2": 19.4,
+    "per_scene": 26.8,
+    "per_km2": 18.0
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 500,
+    "km2": 1076.5,
+    "per_scene": 31.2,
+    "per_km2": 0.5
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 14,
+    "km2": 1.6,
+    "per_scene": 7.0,
+    "per_km2": 8.7
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 13,
+    "km2": 0.5,
+    "per_scene": 13.0,
+    "per_km2": 26.5
+   }
+  },
+  "20": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 3575,
+    "km2": 157.8,
+    "per_scene": 22.1,
+    "per_km2": 22.7
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 418,
+    "km2": 187.7,
+    "per_scene": 20.9,
+    "per_km2": 2.2
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 477,
+    "km2": 19.4,
+    "per_scene": 36.7,
+    "per_km2": 24.6
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 656,
+    "km2": 1076.5,
+    "per_scene": 41.0,
+    "per_km2": 0.6
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 17,
+    "km2": 1.6,
+    "per_scene": 8.5,
+    "per_km2": 10.6
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 23,
+    "km2": 0.5,
+    "per_scene": 23.0,
+    "per_km2": 46.9
+   }
+  },
+  "50": {
+   "SpOr|noli": {
+    "scenes": 162,
+    "cand": 6648,
+    "km2": 157.8,
+    "per_scene": 41.0,
+    "per_km2": 42.1
+   },
+   "Ae|li": {
+    "scenes": 20,
+    "cand": 825,
+    "km2": 187.7,
+    "per_scene": 41.2,
+    "per_km2": 4.4
+   },
+   "SpOr|li": {
+    "scenes": 13,
+    "cand": 746,
+    "km2": 19.4,
+    "per_scene": 57.4,
+    "per_km2": 38.5
+   },
+   "Ae|noli": {
+    "scenes": 16,
+    "cand": 1081,
+    "km2": 1076.5,
+    "per_scene": 67.6,
+    "per_km2": 1.0
+   },
+   "Or|noli": {
+    "scenes": 2,
+    "cand": 54,
+    "km2": 1.6,
+    "per_scene": 27.0,
+    "per_km2": 33.5
+   },
+   "Or|li": {
+    "scenes": 1,
+    "cand": 33,
+    "km2": 0.5,
+    "per_scene": 33.0,
+    "per_km2": 67.3
+   }
+  }
+ },
+ "mode": "K"
+}

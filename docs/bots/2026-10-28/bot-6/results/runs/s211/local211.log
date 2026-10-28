@@ -1,0 +1,4 @@
+maps=gray object_poly: кандидатов 0, tp 0, fp 0, GT 8, P 0.000, R 0.000
+maps=gray finds_points: кандидатов 0, tp 0, fp 0, GT 409, P 0.000, R 0.000
+maps=all object_poly: кандидатов 2, tp 0, fp 2, GT 8, P 0.000, R 0.000
+maps=all finds_points: кандидатов 63, tp 56, fp 7, GT 409, P 0.941, R 0.137

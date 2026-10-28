@@ -1,0 +1,109 @@
+{
+  "node_id": 0,
+  "username": "dmitrijkv",
+  "detected_gpus": 2,
+  "gpu_names": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "wave1": {
+    "dev0": "cuda:0",
+    "dev1": "cuda:1",
+    "slot0": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:0",
+        "rc": 0,
+        "elapsed_sec": 138.8,
+        "log": "wave1_slot0_step0.log"
+      },
+      {
+        "step": 1,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r18_hard2_59_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0",
+        "rc": 0,
+        "elapsed_sec": 156.6,
+        "log": "wave1_slot0_step1.log"
+      },
+      {
+        "step": 2,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold4 --out /kaggle/working/li_r18_hard2_59_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0",
+        "rc": 0,
+        "elapsed_sec": 152.5,
+        "log": "wave1_slot0_step2.log"
+      }
+    ],
+    "slot1": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:1",
+        "rc": 0,
+        "elapsed_sec": 172.2,
+        "log": "wave1_slot1_step0.log"
+      },
+      {
+        "step": 1,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r18_hard2_59_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:1",
+        "rc": 0,
+        "elapsed_sec": 163.4,
+        "log": "wave1_slot1_step1.log"
+      },
+      {
+        "step": 2,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --val-families Эрентуна --device cuda:1",
+        "rc": 0,
+        "elapsed_sec": 196.4,
+        "log": "wave1_slot1_step2.log"
+      }
+    ],
+    "elapsed_sec": 532.0
+  },
+  "wave2": {
+    "dev0": "cuda:0",
+    "dev1": "cuda:1",
+    "slot0": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_mask_59_fold0.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:0",
+        "rc": 0,
+        "elapsed_sec": 149.1,
+        "log": "wave2_slot0_step0.log"
+      },
+      {
+        "step": 1,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_mask_59_fold2.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:0",
+        "rc": 0,
+        "elapsed_sec": 188.9,
+        "log": "wave2_slot0_step1.log"
+      }
+    ],
+    "slot1": [
+      {
+        "step": 0,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_mask_59_fold1.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Боровичи --device cuda:1",
+        "rc": 0,
+        "elapsed_sec": 197.3,
+        "log": "wave2_slot1_step0.log"
+      },
+      {
+        "step": 1,
+        "cmd": "/usr/bin/python3 -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_mask_59_fold3.pt --encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --val-families Муравлево --device cuda:1",
+        "rc": 0,
+        "elapsed_sec": 194.4,
+        "log": "wave2_slot1_step1.log"
+      }
+    ],
+    "elapsed_sec": 391.8
+  },
+  "saved_checkpoints": [
+    "li_r18_hard2_59_final.pt",
+    "li_r18_hard2_59_fold0.pt",
+    "li_r18_hard2_59_fold1.pt",
+    "li_r18_hard2_59_fold2.pt",
+    "li_r18_hard2_59_fold3.pt",
+    "li_r18_hard2_59_fold4.pt",
+    "li_r34_fpn_mask_59_fold0.pt",
+    "li_r34_fpn_mask_59_fold1.pt",
+    "li_r34_fpn_mask_59_fold2.pt",
+    "li_r34_fpn_mask_59_fold3.pt"
+  ]
+}

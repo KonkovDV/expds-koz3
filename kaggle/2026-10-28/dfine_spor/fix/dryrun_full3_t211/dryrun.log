@@ -1,0 +1,92 @@
+  torch 2.11.0+cpu
+  torchvision 0.26.0+cpu
+  huggingface_hub 2.3.0
+  safetensors 0.8.0
+  transformers 5.21.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  cv2 4.11.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "full", "res": 0.5, "tile": 256, "overlap": 160, "max_windows": 6, "bs": 1, "iters": 3, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 0, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 2, "smoke_test_regions": 1, "deadline_h": 5.0, "folds": "4,2,1", "regions": "161_Курганы_32,051_Воронеж_2", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[      1s] S3 OK
+[      1s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  58%|█████▊    | 695/1197 [00:00<00:00, 6622.61it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 5841.86it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[      6s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 5 с
+[      6s] фолды OK: 189 участков, 96 семей
+[      7s] участков со SpOr в фолдах: 2; вне фолдов (пропуск): 0
+[      7s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55
+[     10s] чипов: 21 (объектных 13), участков 2, 3 с; классы: {'kurgany_povrezhdennye': 12, 'kurgany_tselye': 1}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  53%|█████▎    | 633/1197 [00:00<00:00, 5261.38it/s]Loading weights:  97%|█████████▋| 1160/1197 [00:00<00:00, 4655.13it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 4851.84it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[     12s] [gpu0 f4] train чипов 21, test участков 0, бюджет обучения 1.17 ч
+[     34s] [gpu0 f4] [bot5] {'it': 3, 'loss': 366.0854, 's_it': 5.5868}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  5.84it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  5.81it/s]
+[     35s] [gpu0 f4] готово {"trainer": "bot5", "iters": 3, "planned": 3, "s_it_median": 4.384047031402588, "sec": 22, "loss_first": 416.12115478515625, "loss_last": 325.8544006347656, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 21, "test_regions": [], "n_det": 0, "infer_sec": 0}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 17254.04it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[     35s] [gpu0 f2] train чипов 13, test участков 1, бюджет обучения 1.91 ч
+[     45s] [gpu0 f2] [bot5] {'it': 3, 'loss': 604.8203, 's_it': 3.1853}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  8.10it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  8.07it/s]
+[     45s] [infer] 161_Курганы_32 01_Курганы_32_SpOr_спутник.tif: 1575x1395 px, окон 6
+[     59s] [infer] 161_Курганы_32: готово 6 окон за 13 с
+[     59s] [gpu0 f2] готово {"trainer": "bot5", "iters": 3, "planned": 3, "s_it_median": 2.5191032886505127, "sec": 10, "loss_first": 688.5272827148438, "loss_last": 515.6686401367188, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 13, "test_regions": ["161_Курганы_32"], "n_det": 981, "infer_sec": 14}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 16528.83it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[     61s] [gpu0 f1] train чипов 8, test участков 1, бюджет обучения 4.15 ч
+[     83s] [gpu0 f1] [bot5] {'it': 3, 'loss': 424.2385, 's_it': 5.8946}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 12.43it/s]
+[     83s] [infer] 051_Воронеж_2 01_Воронеж_2_SpOr_спутник.tif: 4029x3712 px, окон 6
+[    106s] [infer] 051_Воронеж_2: готово 6 окон за 23 с
+[    107s] [gpu0 f1] готово {"trainer": "bot5", "iters": 3, "planned": 3, "s_it_median": 10.877209424972534, "sec": 22, "loss_first": 468.5787048339844, "loss_last": 387.5265808105469, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 8, "test_regions": ["051_Воронеж_2"], "n_det": 426, "infer_sec": 23}
+[    107s] ПРОГНОЗ full: с/ит 5.927 → 8000 ит × 5 фолдов / 2 GPU ≈ 32.93 ч (+инференс)
+[    107s] ГОТОВО 1407 детекций; ошибки фолдов: []
+rc=0 watchdog_peak_kB=1517496

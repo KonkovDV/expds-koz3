@@ -1,0 +1,117 @@
+versions torch 2.15.0+cpu transformers 5.21.0 hub 2.3.0
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 19366.61it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+RESULT single t0 meta: 0 [] tied: True to(cpu) OK
+versions torch 2.15.0+cpu transformers 5.21.0 hub 2.3.0
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s][ALoading weights:  47%|████▋     | 563/1197 [00:00<00:00, 5629.51it/s]
+Loading weights:  24%|██▍       | 291/1197 [00:00<00:00, 2909.38it/s][ALoading weights: 100%|██████████| 1197/1197 [00:00<00:00, 9121.40it/s]
+Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 8241.24it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+RESULT threads t0 meta: 0 [] tied: True to(cpu) OK
+RESULT threads t1 meta: 0 [] tied: True to(cpu) OK
+versions torch 2.15.0+cpu transformers 5.21.0 hub 2.3.0
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s][ALoading weights:  91%|█████████ | 1092/1197 [00:00<00:00, 10917.02it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 12142.41it/s]
+Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 11198.51it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+RESULT threads t0 meta: 0 [] tied: True to(cpu) OK
+RESULT threads t1 meta: 0 [] tied: True to(cpu) OK
+versions torch 2.15.0+cpu transformers 5.21.0 hub 2.3.0
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s][ALoading weights:   0%|          | 0/1197 [00:00<?, ?it/s]
+Loading weights:  43%|████▎     | 510/1197 [00:00<00:00, 5099.11it/s][ALoading weights:  60%|██████    | 722/1197 [00:00<00:00, 7184.57it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 9972.65it/s]
+Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 8594.06it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                   | Status   |                                                                                        
+------------------------------------------------------+----------+----------------------------------------------------------------------------------------
+bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        
+class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        
+bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        
+class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+
+Notes:
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                   | Status   |                                                                                        
+------------------------------------------------------+----------+----------------------------------------------------------------------------------------
+bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        
+class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        
+bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        
+class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+
+Notes:
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+RESULT threads t0 meta: 48 ['class_embed.0.weight', 'class_embed.0.bias', 'class_embed.1.weight', 'class_embed.1.bias'] tied: False to(cpu) FAIL NotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.n
+RESULT threads t1 meta: 48 ['class_embed.0.weight', 'class_embed.0.bias', 'class_embed.1.weight', 'class_embed.1.bias'] tied: False to(cpu) FAIL NotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.n

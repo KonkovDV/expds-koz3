@@ -17,3 +17,12 @@
 - Готово 25 участков с LAS: `work/dem/out/*.geojson` (кандидаты gor_coarse_dem), лог `work/dem/run.log`. Не обработаны (крупные LAZ): 004, 007, 028 и всё, что докачается позже.
 - Возобновление: `nohup work/dem/run.sh >> work/dem/run.log &` (пропускает готовые), затем `venv/bin/python work/dem/dem_eval.py` (оценка написана, не запускалась).
 - Процессов DEM не осталось.
+
+## 28.10 22:22 МСК — пороги класс×группа поверх реранкера (R) + OFF-пары
+- [x] THR.md (21:31): A/R/N/RN/P1/P2 на 5 раскладках, `work/thr/res_thr_seed0_..._seed4.json`, `log_seeds.txt`. RN−R по семенам: +0,00067 / −0,00392 / −0,00100 / +0,00221 / −0,00276 → вложенные пороги поверх R не стабильны.
+- [~] thr_off.py (OFF-пары, бот 1): идёт (pid 272296, nice 10). Готово canon и seed0 → `work/thr/res_off_canon_seed0_..._seed4.json` (частично), `log_off.txt`.
+  - canon: R 0,324359; R_OFFn +0,00002; R_EXp −0,02863; R_HT −0,00469; R_OrBroad −0,00255.
+  - seed0: R_OFFn +0,00125; R_HT −0,00229; R_EXp −0,02491.
+  - Предварительно: фикс. выключения как у EXpedition/huntertomo вредят; вложенный OFFn ≈0.
+- [~] LOFO (thr_eval.py --layouts lofo, pid 184326): 80+ семей за 69 мин.
+- Блокеров нет. ETA: OFF seed1–4 ≈ 45 мин (~23:10 МСК), затем обновление THR.md; потом POST (п. 3–5 из COMPETITORS_DEEP.md).

@@ -1,0 +1,41 @@
+[{"stream_name":"stdout","time":6.721281998,"data":"{\"node_id\": 0, \"username\": \"dmitrijkv\", \"gpus\": 0, \"gpu_names\": []}\n"}
+,{"stream_name":"stdout","time":21122.63256907,"data":"{\n"}
+,{"stream_name":"stdout","time":21122.632609635,"data":"  \"node_id\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632616156,"data":"  \"username\": \"dmitrijkv\",\n"}
+,{"stream_name":"stdout","time":21122.632621092,"data":"  \"detected_gpus\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632625444,"data":"  \"gpu_names\": [],\n"}
+,{"stream_name":"stdout","time":21122.632629939,"data":"  \"wave1\": {\n"}
+,{"stream_name":"stdout","time":21122.632635347,"data":"    \"dev0\": \"cpu\",\n"}
+,{"stream_name":"stdout","time":21122.632640414,"data":"    \"dev1\": \"cpu\",\n"}
+,{"stream_name":"stdout","time":21122.632645403,"data":"    \"slot0\": [\n"}
+,{"stream_name":"stdout","time":21122.632650335,"data":"      {\n"}
+,{"stream_name":"stdout","time":21122.632655712,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632660742,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 --val-families Муравлево --device cpu\",\n"}
+,{"stream_name":"stdout","time":21122.632668186,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632673027,"data":"        \"elapsed_sec\": 9186.8,\n"}
+,{"stream_name":"stdout","time":21122.632677956,"data":"        \"log\": \"wave1_slot0_step0.log\"\n"}
+,{"stream_name":"stdout","time":21122.632682936,"data":"      }\n"}
+,{"stream_name":"stdout","time":21122.632687783,"data":"    ],\n"}
+,{"stream_name":"stdout","time":21122.632692354,"data":"    \"slot1\": [\n"}
+,{"stream_name":"stdout","time":21122.632697066,"data":"      {\n"}
+,{"stream_name":"stdout","time":21122.632701711,"data":"        \"step\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632705108,"data":"        \"cmd\": \"/usr/bin/python3 -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 --val-families Боровичи --device cpu\",\n"}
+,{"stream_name":"stdout","time":21122.632708574,"data":"        \"rc\": 0,\n"}
+,{"stream_name":"stdout","time":21122.632711468,"data":"        \"elapsed_sec\": 11927.4,\n"}
+,{"stream_name":"stdout","time":21122.632714463,"data":"        \"log\": \"wave1_slot1_step0.log\"\n"}
+,{"stream_name":"stdout","time":21122.632718308,"data":"      }\n"}
+,{"stream_name":"stdout","time":21122.632722803,"data":"    ],\n"}
+,{"stream_name":"stdout","time":21122.632727316,"data":"    \"elapsed_sec\": 21114.2\n"}
+,{"stream_name":"stdout","time":21122.63273229,"data":"  },\n"}
+,{"stream_name":"stdout","time":21122.632737414,"data":"  \"saved_checkpoints\": [\n"}
+,{"stream_name":"stdout","time":21122.632742209,"data":"    \"li_r18_hard2_59_fold0.pt\",\n"}
+,{"stream_name":"stdout","time":21122.632747199,"data":"    \"li_r18_hard2_59_fold1.pt\"\n"}
+,{"stream_name":"stdout","time":21122.63275202,"data":"  ]\n"}
+,{"stream_name":"stdout","time":21122.63275677,"data":"}\n"}
+,{"stream_name":"stderr","time":21125.690147932,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":21125.690215732,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":21126.023829637,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":21126.023862411,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":21127.056900287,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":21128.603800188,"data":"[NbConvertApp] Writing 317114 bytes to __results__.html\n"}
+]

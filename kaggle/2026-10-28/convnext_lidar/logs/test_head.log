@@ -1,0 +1,128 @@
+{
+ "equiv": {
+  "d8_points==d8_objs": 0.0,
+  "tile_origins": true,
+  "block_any==valid_to_stride": true
+ },
+ "heat": {
+  "stride": 1,
+  "circle_r_m": null,
+  "targets": {
+   "hm": [
+    2,
+    128,
+    128
+   ]
+  },
+  "d8_hm_maxabs": 0.0,
+  "d8_off_maxabs": null,
+  "out_shapes": {
+   "hm": [
+    2,
+    2,
+    128,
+    128
+   ],
+   "mask": [
+    2,
+    3,
+    128,
+    128
+   ]
+  },
+  "loss": 65.0445,
+  "parts": {
+   "heat": 65.0445
+  },
+  "no_grad_modules(без mask_loss)": [],
+  "grad_finite": true,
+  "untta_scalar_maxabs": 0.0,
+  "decode_n": 8,
+  "decode_dist_max_m": 0.2693,
+  "cols": [
+   "X",
+   "Y",
+   "cls",
+   "score"
+  ]
+ },
+ "centerhead": {
+  "stride": 4,
+  "circle_r_m": 0.5,
+  "targets": {
+   "hm": [
+    2,
+    32,
+    32
+   ],
+   "wh": [
+    1,
+    32,
+    32
+   ],
+   "off": [
+    2,
+    32,
+    32
+   ],
+   "reg_mask": [
+    32,
+    32
+   ]
+  },
+  "d8_hm_maxabs": 0.0,
+  "d8_off_maxabs": 0.0,
+  "out_shapes": {
+   "hm": [
+    2,
+    2,
+    32,
+    32
+   ],
+   "wh": [
+    2,
+    1,
+    32,
+    32
+   ],
+   "off": [
+    2,
+    2,
+    32,
+    32
+   ],
+   "mask": [
+    2,
+    3,
+    128,
+    128
+   ]
+  },
+  "loss": 2.4814,
+  "parts": {
+   "loss_hm": 2.1431,
+   "loss_wh": 0.5971,
+   "loss_off": 0.2786
+  },
+  "no_grad_modules(без mask_loss)": [
+   "decoder.blocks.3.conv1",
+   "decoder.blocks.3.conv2",
+   "decoder.blocks.4.conv1",
+   "decoder.blocks.4.conv2",
+   "mask_head"
+  ],
+  "grad_finite": true,
+  "untta_scalar_maxabs": 0.0,
+  "decode_n": 8,
+  "decode_dist_max_m": 0.0,
+  "cols": [
+   "X",
+   "Y",
+   "cls",
+   "col",
+   "radius_m",
+   "row",
+   "score"
+  ]
+ }
+}

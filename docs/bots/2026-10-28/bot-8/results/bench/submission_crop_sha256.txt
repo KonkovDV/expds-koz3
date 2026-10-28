@@ -1,0 +1,2 @@
+dcad2ddd76492a797b2258af4caa49dd4a3a92b868fe3e90721f4358c294da54  dist/koz3_submission_crop_2f530a8_1e8f8e68.zip
+dcad2ddd76492a797b2258af4caa49dd4a3a92b868fe3e90721f4358c294da54  /tmp/bot8_dist2/koz3_submission_crop_2f530a8_1e8f8e68.zip

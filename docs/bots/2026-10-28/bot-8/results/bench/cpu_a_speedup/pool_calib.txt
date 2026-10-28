@@ -1,0 +1,6 @@
+# dtm.build peak RSS, fresh process (base 70 MB after numpy/scipy/laspy import), box, 2 threads, 2026-10-28 ~22:50 MSK
+016_Хога Mpt 0.27 Mcell 2.77 base 70 peak 266 wall 0.55
+005_Боровичи_2 Mpt 2.73 Mcell 2.49 base 70 peak 450 wall 1.31
+040_Примаки_1.3км Mpt 2.06 Mcell 4.69 base 70 peak 494 wall 1.69
+001_Гнёздово_Нивленское Mpt 7.4 Mcell 6.41 base 70 peak 678 wall 3.22
+022_Лихуша Mpt 8.92 Mcell 13.5 base 70 peak 1120 wall 4.89

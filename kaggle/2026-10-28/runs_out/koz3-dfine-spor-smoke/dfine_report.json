@@ -1,0 +1,44 @@
+{
+ "cfg": {
+  "mode": "smoke",
+  "res": 0.5,
+  "tile": 640,
+  "overlap": 160,
+  "max_windows": 0,
+  "bs": 8,
+  "iters": 10,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 2,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 8,
+  "smoke_test_regions": 1,
+  "deadline_h": 11.3,
+  "folds": "0,1,2,3,4",
+  "regions": ""
+ },
+ "hf": "ustc-community/dfine-large-coco@aa8f8211545e4cff5adf52ea512f9ac74a9824ec",
+ "folds": {
+  "2": {
+   "error": "NotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.')",
+   "tb": "Traceback (most recent call last):\n  File \"/kaggle/src/script.py\", line 422, in gpu_worker\n    torch.manual_seed(100 + k); model = make_model().to(dev)\n                                        ~~~~~~~~~~~~~~~^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_utils.py\", line 3710, in to\n    return super().to(*args, **kwargs)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1384, in to\n    return self._apply(convert)\n           ~~~~~~~~~~~^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 934, in _apply\n    module._apply(fn)\n    ~~~~~~~~~~~~~^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 934, in _apply\n    module._apply(fn)\n    ~~~~~~~~~~~~~^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 965, in _apply\n    param_applied = fn(param)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1377, in convert\n    raise NotImplementedError(\n    ...<2 lines>...\n    ) from None\nNotImplementedError: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.\n"
+  },
+  "3": {
+   "error": "NotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.')",
+   "tb": "Traceback (most recent call last):\n  File \"/kaggle/src/script.py\", line 422, in gpu_worker\n    torch.manual_seed(100 + k); model = make_model().to(dev)\n                                        ~~~~~~~~~~~~~~~^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_utils.py\", line 3710, in to\n    return super().to(*args, **kwargs)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1384, in to\n    return self._apply(convert)\n           ~~~~~~~~~~~^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 934, in _apply\n    module._apply(fn)\n    ~~~~~~~~~~~~~^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 934, in _apply\n    module._apply(fn)\n    ~~~~~~~~~~~~~^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 965, in _apply\n    param_applied = fn(param)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1377, in convert\n    raise NotImplementedError(\n    ...<2 lines>...\n    ) from None\nNotImplementedError: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.\n"
+  }
+ },
+ "skipped_regions_no_fold": [],
+ "total_sec": 51
+}

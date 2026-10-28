@@ -1,0 +1,9 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+thresholds 135 s; kept union 12591
+A 0.319519 new34 0.308155 opt 0.144437 lofo 0.318488 0 s
+MC05_gor moved 108 delta -0.001546 new34 -0.003556 opt +0.000000 lofo +0.000000 rand [0.0, 0.0, 0.0, 0.0, 0.0] P(A>B) 1.000 CI90 [-0.00433;+0.00000] dTP/dFP {'gorodishcha': (-1, 1)} rule {'P1': False, 'P2': False, 'P3': False, 'P4': False, 'P5_package_only': True} 0 s
+MC05_fort moved 1276 delta 0.000257 new34 +0.000233 opt +0.000254 lofo +0.000471 rand [0.00061, 0.00059, 0.00039, 0.00045, 0.00047] P(A>B) 0.250 CI90 [-0.00032;+0.00101] dTP/dFP {'fortifikatsii': (3, -3)} rule {'P1': False, 'P2': False, 'P3': True, 'P4': True, 'P5_package_only': True} 1 s
+MC05_arch moved 1439 delta 0.000229 new34 +0.000000 opt +0.000336 lofo +0.000229 rand [0.00023, 0.00022, 0.00018, 0.00019, 0.00022] P(A>B) 0.363 CI90 [+0.00000;+0.00070] dTP/dFP {'arkhitektury': (1, -1)} rule {'P1': False, 'P2': False, 'P3': True, 'P4': True, 'P5_package_only': True} 1 s
+MC_kurfort moved 7193 delta 0.001468 new34 +0.000233 opt +0.000000 lofo +0.001682 rand [0.00183, 0.00174, 0.00162, 0.0017, 0.00168] P(A>B) 0.055 CI90 [+0.00000;+0.00261] dTP/dFP {'kurgany_povrezhdennye': (10, -10), 'kurgany_tselye': (3, -3), 'fortifikatsii': (2, -2)} rule {'P1': False, 'P2': True, 'P3': True, 'P4': True, 'P5_package_only': True} 1 s
+MC_kurfortarch moved 8632 delta 0.001697 new34 +0.000233 opt +0.000336 lofo +0.001910 rand [0.00206, 0.00196, 0.0018, 0.00189, 0.0019] P(A>B) 0.031 CI90 [+0.00026;+0.00290] dTP/dFP {'kurgany_povrezhdennye': (10, -10), 'kurgany_tselye': (3, -3), 'arkhitektury': (1, -1), 'fortifikatsii': (2, -2)} rule {'P1': False, 'P2': True, 'P3': True, 'P4': True, 'P5_package_only': True} 1 s
+done

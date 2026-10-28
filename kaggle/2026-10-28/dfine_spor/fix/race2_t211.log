@@ -1,0 +1,3 @@
+tie_weights patched after race: False
+model0 meta before 0 after ORIG.tie_weights 0; tied True
+model1 meta before 0 after ORIG.tie_weights 0; tied True

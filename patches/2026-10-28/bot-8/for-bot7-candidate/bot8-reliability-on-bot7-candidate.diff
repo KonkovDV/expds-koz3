@@ -15,7 +15,7 @@ index 6f0f946..29c0bb5 100644
  # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
  # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
 diff --git a/expds/pipeline.py b/expds/pipeline.py
-index 8de6e3a..92c9def 100644
+index 8de6e3a..4f8a604 100644
 --- a/expds/pipeline.py
 +++ b/expds/pipeline.py
 @@ -29,14 +29,24 @@ log = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ index 8de6e3a..92c9def 100644
  
      def left(self) -> float:
          return self.budget - self.elapsed()
-@@ -44,6 +54,28 @@ class TimeGuard:
+@@ -44,6 +54,33 @@ class TimeGuard:
      def ok(self, need_s: float = 0.0) -> bool:
          return self.left() > need_s
  
@@ -66,6 +66,11 @@ index 8de6e3a..92c9def 100644
 +DEFAULT_WINDOW_RESERVE_S = 30.0
 +
 +
++#: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
++#: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
++_WINDOW_GUARD: "TimeGuard | None" = None
++
++
 +def window_reserve(cfg: dict) -> float | None:
 +    """[time] window_deadline (true) / window_reserve_s (30). window_deadline = false — без проверки в цикле окон."""
 +    t = cfg.get("time") or {}
@@ -76,34 +81,7 @@ index 8de6e3a..92c9def 100644
  
  def load_config(path: str | Path | None) -> dict:
      """Конфиг TOML (configs/default.toml); отсутствующий файл → пустой словарь."""
-@@ -492,7 +524,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
-                 try:
-                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
-                                                            min_conf=output_floors(cfg, mt),
--                                                           fallback_crs=region_crs(reg, cfg)))
-+                                                           fallback_crs=region_crs(reg, cfg), guard=guard))
-                 except Exception as exc:
-                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
-     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
-@@ -538,7 +570,7 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
-                     break
-                 try:
-                     found = _kept(seg, _raster_with_model(seg, path, reg.name, mt, min_conf=floors,
--                                                          fallback_crs=region_crs(reg, cfg)))
-+                                                          fallback_crs=region_crs(reg, cfg), guard=guard))
-                 except Exception as exc:
-                     log.exception("%s: ошибка сети %s (%s)", path.name, mt, exc)
-                     continue
-@@ -575,7 +607,7 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
-                 break
-             try:
-                 found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
--                                                      fallback_crs=region_crs(reg, cfg)))
-+                                                      fallback_crs=region_crs(reg, cfg), guard=guard))
-             except Exception as exc:
-                 log.exception("%s: ошибка окна 256 м (%s)", path.name, exc)
-                 continue
-@@ -712,10 +744,12 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+@@ -712,11 +749,16 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
  
  def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                         overlap: int = 256, min_conf: dict[str, float] | None = None,
@@ -113,11 +91,15 @@ index 8de6e3a..92c9def 100644
  
      CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
 +    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
-+    по файлу (объекты уже пройденных окон), запись в guard.partial. Без guard — как раньше.
++    по файлу (объекты уже пройденных окон), запись в guard.partial. По умолчанию — guard текущего
++    run() (_WINDOW_GUARD); вне run() проверки нет, как раньше.
      """
++    if guard is None:
++        guard = _WINDOW_GUARD
      import rasterio
      from rasterio.enums import Resampling
-@@ -751,6 +785,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+     from rasterio.windows import Window
+@@ -751,6 +793,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
          ys = list(range(0, max(h - overlap, 1), step))
          for iy, y0 in enumerate(ys):
              for ix, x0 in enumerate(xs):
@@ -132,7 +114,7 @@ index 8de6e3a..92c9def 100644
                  bw, bh = min(block, w - x0), min(block, h - y0)
                  win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
                  a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
-@@ -790,7 +832,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -790,7 +840,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
      Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
      контейнера, не после геофизики.
      """
@@ -141,7 +123,7 @@ index 8de6e3a..92c9def 100644
  
      root = Path(root or Path(__file__).resolve().parents[1])
      cfg_path = Path(config_path or root / "configs" / "default.toml")
-@@ -802,7 +844,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -802,7 +852,13 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
                            bool(infer.get("deterministic", True)))
      except Exception:
          log.exception("точность видеокарты не настроена, дальше без моделей torch")
@@ -151,10 +133,12 @@ index 8de6e3a..92c9def 100644
 +    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
 +    guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
 +                      hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
++    global _WINDOW_GUARD
++    _WINDOW_GUARD = guard
      log.info("ускоритель: %s", accel.backend())
      torch_version, cuda_version = "нет", "нет"
      try:
-@@ -869,7 +915,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -869,7 +925,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
          t_phase = time.monotonic()
          n_phase = 0
          for reg in regions:
@@ -168,7 +152,7 @@ index 8de6e3a..92c9def 100644
              state.add(found)
              n_phase += len(found)
              if found:
-@@ -909,6 +960,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -909,6 +970,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
              if found:
                  log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
          phases.append(("оптика", n_phase, time.monotonic() - t_phase))
@@ -179,7 +163,15 @@ index 8de6e3a..92c9def 100644
          t_phase = time.monotonic()
          n_phase = 0
          for reg in regions:
-@@ -949,6 +1004,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -931,6 +996,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                 log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+         phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
+     finally:
++        _WINDOW_GUARD = None
+         signal.signal(signal.SIGTERM, previous_term)
+         if prefetch is not None:
+             prefetch.close()
+@@ -949,6 +1015,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
          state.note["phases"] = summary["phases"]
          summary["written"] = checkpoint(state, "конец")
          summary["seconds"] = round(guard.elapsed(), 1)
@@ -1463,10 +1455,10 @@ index 0000000..7f72c54
 +    assert _key(fb) == _key(good)
 diff --git a/tests/test_bot8_window_deadline.py b/tests/test_bot8_window_deadline.py
 new file mode 100644
-index 0000000..a975fd0
+index 0000000..2565edf
 --- /dev/null
 +++ b/tests/test_bot8_window_deadline.py
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,121 @@
 +"""bot-8: дедлайн внутри цикла окон снимков — медленные окна, поддельные часы, частичный результат.
 +
 +Рецепт: competitors/NOTES_KateBuikina-expds-solution.md §5 (segmenter._deadline_hit в начале цикла окон).
@@ -1587,3 +1579,4 @@ index 0000000..a975fd0
 +    assert rep["ok"], rep["errors"]
 +    n = len(json.loads(out.read_text())["features"])
 +    assert 0 < n < len(SPOTS)
++    assert pipeline._WINDOW_GUARD is None                  # вне run() проверки в цикле окон нет

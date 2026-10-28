@@ -1,0 +1,67 @@
+[      4s] TPU: {"torch": "2.8.0+cpu", "torch_xla": "2.8.0", "pjrt": "CPU", "device_type": "CPU", "n_dev": 1, "global_devices": 1, "ok": true, "t_s": 3.1, "accel_type": null, "istpuvm": null, "hw": "CPU", "tpu_version": "ModuleNotFoundError(\"No module named 'torch_xla.tpu'\")", "dev_nodes": []}
+  torch 2.8.0+cpu
+  torchvision 0.23.0+cpu
+  numpy 2.1.3
+  timm 1.0.29
+  segmentation_models_pytorch 0.6.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  scipy 1.16.3
+  laspy 2.7.0
+  rvt.vis 2.2.1
+[      7s] вендор OK: 0.1.0 avx2=true/true threads=8 rvt 2.2.1 relief_ext 21194f67903a
+[      7s] CFG {"mode": "smoke", "res": 0.5, "crop": 128, "bs": 2, "iters": 10, "lr": 0.0003, "wd": 0.0001, "warmup": 1, "ema": 0.999, "workers": 0, "amp": true, "obj_frac": 0.6, "cls_w": [2.0, 1.0, 1.0, 2.0, 1.0], "sigma_k": 0.15, "sigma_min_px": 1.0, "default_diam_m": 8.0, "p_height": 0.5, "height": [0.5, 2.2], "p_scale": 0.5, "scale": [0.7, 1.45], "p_noise": 0.5, "noise_m": [0.02, 0.05], "p_paste": 0.5, "paste_max": 3, "paste_bank": 1500, "infer_stride": 128, "tta": 1, "infer_bs": 4, "peak_k": 11, "min_score": 0.05, "mask_thr": 0.5, "gor_min_px": 600, "fort_min_px": 30, "arch_min_px": 30, "max_det": 20000, "circle_r_m": 1.0, "deadline_h": 2.0, "min_iter_frac": 0.25, "infer_reserve_h": 0.6, "jobs": "c3-sc:3", "regions": "191_Осечки_1.3км,016_Хога", "build_relief": 0, "seed": 0, "log_every": 2}
+/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/koz3-cnx-li-tpu-smoke/koz3-cnx-li-tpu-smoke.py:188: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  l, parts = HEAD.loss(o, tb, torch.ones(2, 64, 64)); l.backward(); assert math.isfinite(float(l)), parts
+[      8s] голова: centerhead {"head": "centerhead", "stride": 4, "out_shapes": {"hm": [2, 2, 16, 16], "wh": [2, 1, 16, 16], "off": [2, 2, 16, 16], "mask": [2, 3, 64, 64]}, "loss_parts": {"loss_hm": 2.1912238597869873, "loss_wh": 0.20440007746219635, "loss_off": 0.2742175757884979}}
+[      9s] TPU-процессы: 1 чипов (проба): 1 роль: главный устройство: xla:0
+[      9s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[     11s] S3 OK
+[     11s] фолды OK: 59 участков, 44 семей; кластеры k5 не пересекают фолды
+[     11s] S3-инвентарь: 2 участков, LAS 0.01 ГБ, файлов разметки Li 2
+[     11s] prep-выход: /workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/_scratch/prep/cnx_relief 2 участков
+[     11s] разметка: {'kurgany_tselye': 18, 'kurgany_povrezhdennye': 3, 'gorodishcha': 0, 'fortifikatsii': 0, 'arkhitektury': 0}
+[     11s] полосы: [['c3-sc:3']]
+[     12s] [xla:0 c3-sc_f3] train: 1 участков, объектов 18, банк copy-paste 18; test ['191_Осечки_1.3км']; bf16=True, workers=0
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+WARNING:root:You are trying to use a feature that requires jax/pallas.You can install Jax/Pallas via pip install torch_xla[pallas]
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/koz3-cnx-li-tpu-smoke/koz3-cnx-li-tpu-smoke.py", line 808, in lane
+    model, info = train_job(job, dev, left, lj); t = time.time(); feats = []
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/koz3-cnx-li-tpu-smoke/koz3-cnx-li-tpu-smoke.py", line 650, in train_job
+    opt.zero_grad(); loss.backward(); opt.step(sc[0])
+                     ^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/_scratch/venv/lib/python3.12/site-packages/torch/_tensor.py", line 647, in backward
+    torch.autograd.backward(
+  File "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/_scratch/venv/lib/python3.12/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/_scratch/venv/lib/python3.12/site-packages/torch/autograd/graph.py", line 829, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: 0 <= device.index() && device.index() < static_cast<c10::DeviceIndex>(device_ready_queues_.size()) INTERNAL ASSERT FAILED at "/pytorch/torch/csrc/autograd/engine.cpp":1539, please report a bug to PyTorch. 
+[     12s] [xla:0 c3-sc_f3] ОШИБКА RuntimeError('0 <= device.index() && device.index() < static_cast<c10::DeviceIndex>(device_ready_queues_.size()) INTERNAL ASSERT FAILED at "/pytorch/torch/csrc/autograd/engine.cpp":1539, please report a bug to PyTorch. ')
+[     12s] ИТОГ: ошибки [('c3-sc_f3', 'RuntimeError(\'0 <= device.index() && device.index() < static_cast<c10::DeviceIndex>(device_ready_queues_.size()) INTERNAL ASSERT FAILED at "/pytorch/torch/csrc/autograd/engine.cpp":1539, please report a bug to PyTorch. \')')] за 12.0 с
+exit=1

@@ -1,0 +1,12 @@
+{
+  "node_id": 0,
+  "gpus": 2,
+  "gpu_names": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "rcs": {
+    "r18_scratch": 0,
+    "r18_imnet": 0
+  }
+}

@@ -1,40 +1,40 @@
 {
  "totals": {
-  "kurgany_povrezhdennye": 1061,
-  "kurgany_tselye": 559,
-  "gorodishcha": 32,
-  "fortifikatsii": 401,
-  "arkhitektury": 1,
-  "ae_kurgans": 1620,
-  "ae_kurgans_reachable_by_li_copy": 592,
-  "ae_kurgans_in_regions_without_li": 545,
-  "ae_regions": 29,
-  "ae_regions_without_li": 15
+  "kurgany_povrezhdennye": 1162,
+  "kurgany_tselye": 587,
+  "gorodishcha": 19,
+  "fortifikatsii": 393,
+  "arkhitektury": 18,
+  "ae_kurgans": 1749,
+  "ae_kurgans_reachable_by_li_copy": 595,
+  "ae_kurgans_in_regions_without_li": 554,
+  "ae_regions": 32,
+  "ae_regions_without_li": 17
  },
  "eq_radius": {
   "ae:kurgany_povrezhdennye": {
-   "n": 1061,
-   "median_m": 4.6,
-   "p10_m": 2.92,
-   "p90_m": 13.22
+   "n": 1162,
+   "median_m": 5.0,
+   "p10_m": 3.17,
+   "p90_m": 21.88
   },
   "ae:kurgany_tselye": {
-   "n": 559,
-   "median_m": 4.26,
-   "p10_m": 2.57,
-   "p90_m": 10.3
+   "n": 587,
+   "median_m": 4.44,
+   "p10_m": 2.6,
+   "p90_m": 10.24
   },
   "li:kurgany_povrezhdennye": {
    "n": 1026,
-   "median_m": 4.25,
-   "p10_m": 2.44,
-   "p90_m": 7.04
+   "median_m": 4.3,
+   "p10_m": 2.57,
+   "p90_m": 7.06
   },
   "li:kurgany_tselye": {
-   "n": 286,
-   "median_m": 3.03,
-   "p10_m": 1.85,
-   "p90_m": 5.64
+   "n": 302,
+   "median_m": 3.21,
+   "p10_m": 2.0,
+   "p90_m": 6.29
   }
  },
  "regions": [
@@ -50,7 +50,7 @@
   },
   {
    "region": "005_Боровичи_2",
-   "li_kurgans": 14,
+   "li_kurgans": 8,
    "kurgany_povrezhdennye": 15,
    "kurgany_tselye": 11,
    "gorodishcha": 0,
@@ -79,6 +79,16 @@
    "ae_kurgans_reachable_by_li_copy": 0
   },
   {
+   "region": "017_Юшково",
+   "li_kurgans": 44,
+   "kurgany_povrezhdennye": 41,
+   "kurgany_tselye": 0,
+   "gorodishcha": 0,
+   "fortifikatsii": 0,
+   "arkhitektury": 0,
+   "ae_kurgans_reachable_by_li_copy": 3
+  },
+  {
    "region": "019_Селяне",
    "li_kurgans": 21,
    "kurgany_povrezhdennye": 9,
@@ -91,10 +101,20 @@
   {
    "region": "020_Романово",
    "li_kurgans": 0,
-   "kurgany_povrezhdennye": 11,
+   "kurgany_povrezhdennye": 9,
    "kurgany_tselye": 0,
    "gorodishcha": 0,
    "fortifikatsii": 11,
+   "arkhitektury": 0,
+   "ae_kurgans_reachable_by_li_copy": 0
+  },
+  {
+   "region": "029_Вышегжа_3",
+   "li_kurgans": 0,
+   "kurgany_povrezhdennye": 20,
+   "kurgany_tselye": 0,
+   "gorodishcha": 0,
+   "fortifikatsii": 0,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
   },
@@ -121,10 +141,10 @@
   {
    "region": "041_Миловидово",
    "li_kurgans": 1,
-   "kurgany_povrezhdennye": 0,
+   "kurgany_povrezhdennye": 78,
    "kurgany_tselye": 0,
    "gorodishcha": 0,
-   "fortifikatsii": 11,
+   "fortifikatsii": 10,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
   },
@@ -143,9 +163,9 @@
    "li_kurgans": 0,
    "kurgany_povrezhdennye": 0,
    "kurgany_tselye": 0,
-   "gorodishcha": 3,
+   "gorodishcha": 2,
    "fortifikatsii": 11,
-   "arkhitektury": 0,
+   "arkhitektury": 17,
    "ae_kurgans_reachable_by_li_copy": 0
   },
   {
@@ -164,7 +184,17 @@
    "kurgany_povrezhdennye": 0,
    "kurgany_tselye": 54,
    "gorodishcha": 0,
-   "fortifikatsii": 6,
+   "fortifikatsii": 3,
+   "arkhitektury": 0,
+   "ae_kurgans_reachable_by_li_copy": 0
+  },
+  {
+   "region": "065_Шниткино",
+   "li_kurgans": 0,
+   "kurgany_povrezhdennye": 1,
+   "kurgany_tselye": 27,
+   "gorodishcha": 0,
+   "fortifikatsii": 0,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
   },
@@ -184,7 +214,7 @@
    "kurgany_povrezhdennye": 0,
    "kurgany_tselye": 0,
    "gorodishcha": 0,
-   "fortifikatsii": 49,
+   "fortifikatsii": 48,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
   },
@@ -221,9 +251,9 @@
   {
    "region": "105_Вщиж",
    "li_kurgans": 0,
-   "kurgany_povrezhdennye": 77,
+   "kurgany_povrezhdennye": 44,
    "kurgany_tselye": 0,
-   "gorodishcha": 6,
+   "gorodishcha": 2,
    "fortifikatsii": 0,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
@@ -232,8 +262,8 @@
    "region": "106_Верхмарево",
    "li_kurgans": 1,
    "kurgany_povrezhdennye": 0,
-   "kurgany_tselye": 0,
-   "gorodishcha": 10,
+   "kurgany_tselye": 1,
+   "gorodishcha": 2,
    "fortifikatsii": 0,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
@@ -281,7 +311,7 @@
   {
    "region": "183_Сарское",
    "li_kurgans": 0,
-   "kurgany_povrezhdennye": 15,
+   "kurgany_povrezhdennye": 11,
    "kurgany_tselye": 5,
    "gorodishcha": 1,
    "fortifikatsii": 0,
@@ -304,7 +334,7 @@
    "kurgany_povrezhdennye": 48,
    "kurgany_tselye": 7,
    "gorodishcha": 2,
-   "fortifikatsii": 21,
+   "fortifikatsii": 18,
    "arkhitektury": 0,
    "ae_kurgans_reachable_by_li_copy": 0
   },
@@ -320,7 +350,7 @@
   },
   {
    "region": "189_Макеево",
-   "li_kurgans": 37,
+   "li_kurgans": 15,
    "kurgany_povrezhdennye": 0,
    "kurgany_tselye": 14,
    "gorodishcha": 0,

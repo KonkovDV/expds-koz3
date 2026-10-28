@@ -1,0 +1,225 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_geophys_exception_in_one_region_does_not_skip_lidar ___________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_geophys_exception_in_one_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8fae962450>
+
+    def test_geophys_exception_in_one_region_does_not_skip_lidar(tmp_path, monkeypatch):
+        """pipeline.py:862-867 — геофизика без try: сбой одного региона не должен отменять лидар/оптику."""
+        from expds import pipeline
+    
+        out = tmp_path / "o" / "result.geojson"
+        regs = [SimpleNamespace(name=n, las=[], rasters={}, utm_json=None, boundaries=[], noise=[]) for n in ("a", "b")]
+        calls = {"li": 0}
+    
+        def geo(reg, *_a, **_k):
+            if reg.name == "a":
+                raise ValueError("битый регион")
+            return [_f("object_poly", mt="maggr")]
+    
+        def li(*_a, **_k):
+            calls["li"] += 1
+            return [_f(d=100)]
+    
+        monkeypatch.setattr(pipeline, "scan_root", lambda _p: regs)
+        monkeypatch.setattr(pipeline, "geophys_feats", geo)
+        monkeypatch.setattr(pipeline, "lidar_feats", li)
+        monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: [])
+        monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
+        cfg = tmp_path / "t.toml"
+        cfg.write_text("[time]\nwatchdog = false\n[verify]\nenabled = false\n", encoding="utf-8")
+        try:
+            pipeline.run(tmp_path, out, cfg)
+        except Exception:
+            pass
+>       assert calls["li"] == 2, "лидар пропущен из-за сбоя геофизики одного региона"
+E       AssertionError: лидар пропущен из-за сбоя геофизики одного региона
+E       assert 0 == 2
+
+tests/test_bot8_faults.py:45: AssertionError
+_______________ test_checkpoint_survives_failing_postprocessing ________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_checkpoint_survives_faili0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8f9ceba060>
+
+    def test_checkpoint_survives_failing_postprocessing(tmp_path, monkeypatch):
+        """watchdog.py:140-147 — исключение в finish() не должно оставлять ответ пустым."""
+        from expds import post
+        from expds.watchdog import RunState, checkpoint
+    
+        def boom(_feats, *a, **k):
+            raise RuntimeError("GEOS упал в склейке")
+    
+        monkeypatch.setattr(post, "merge_within_markup", boom)
+        st = RunState(tmp_path / "result.geojson", {"thresholds": {}, "default_threshold": 0.0})
+        st.add([_f(), _f(d=20)])
+        try:
+            checkpoint(st, "конец")
+        except Exception:
+            pass
+        p = tmp_path / "result.geojson"
+>       assert p.exists() and writer.validate(p)["ok"]
+E       AssertionError: assert (False)
+E        +  where False = exists()
+E        +    where exists = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_checkpoint_survives_faili0/result.geojson').exists
+
+tests/test_bot8_faults.py:66: AssertionError
+_________________________ test_writer_never_emits_nan __________________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_writer_never_emits_nan0')
+
+    def test_writer_never_emits_nan(tmp_path):
+        """writer.py:23-67 — NaN в координатах даёт невалидный JSON («NaN»); такой объект надо отбросить."""
+        import numpy as np
+        import shapely
+        c = shapely.get_coordinates(box(X0, Y0, X0 + 3, Y0 + 3))
+        c[1, 0] = math.nan                                   # средняя вершина, кольцо остаётся замкнутым
+        g = shapely.set_coordinates(box(X0, Y0, X0 + 3, Y0 + 3), c)
+        bad = {"geom": g, "class_name": "kurgany_tselye",
+               "confidence": 0.5, "region_name": "r"}
+        p = writer.write_geojson([bad, _f()], tmp_path / "result.geojson")
+        txt = p.read_text()
+>       assert "NaN" not in txt
+E       assert 'NaN' not in '{"type": "F...e": "li"}}]}'
+E         
+E         'NaN' is contained here:
+E         ?           ^
+E           0000.0], [NaN, 6100003.0], [500000.0, 6100003.0], [500000.0, 6100000.0], [500003.0, 6100000.0]]]}, "properties": {"fid": 0, "class_name": "kurgany_tselye", "confidence": 0.5, "region_name": "r", "crs": "EPSG:3857"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[500005.0, 6100000.0], [500005.0, 6100005.0], [500000.0, 6100005.0], [500000.0, 6100000.0], [500005.0, 6100000.0]]]}, "properties": {"fid": 1, "class_name": "kurgany_tselye", "confidence": 0.9, "region_name": "r", "crs": "EPSG:3857", "markup_type": "li"}}]}
+E         ?           ^^^^
+
+tests/test_bot8_faults.py:81: AssertionError
+____________ test_verify_weights_resolve_from_archive_root_not_cwd _____________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_verify_weights_resolve_fr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8f9cb24980>
+
+    def test_verify_weights_resolve_from_archive_root_not_cwd(tmp_path, monkeypatch):
+        """crop_model.py:32-34 — Path(weights) от текущей папки; запуск не из корня молча выключал проверку."""
+        from conftest import ROOT
+    
+>       from expds.pipeline import rooted_verify
+E       ImportError: cannot import name 'rooted_verify' from 'expds.pipeline' (/workspace/koz3_shared/bot-8/wt-base-b7/expds/pipeline.py)
+
+tests/test_bot8_faults.py:90: ImportError
+______________ test_safe_finish_fallback_keeps_bot7_micro_circles ______________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_safe_finish_fallback_keep0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8f9c165e50>
+
+    def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
+        """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
+        from shapely.geometry import Point
+    
+        from expds import post
+>       from expds.watchdog import safe_finish
+E       ImportError: cannot import name 'safe_finish' from 'expds.watchdog' (/workspace/koz3_shared/bot-8/wt-base-b7/expds/watchdog.py)
+
+tests/test_bot8_faults.py:104: ImportError
+___________ test_window_loop_stops_near_deadline_with_partial_result ___________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_window_loop_stops_near_de0')
+
+    def test_window_loop_stops_near_deadline_with_partial_result(tmp_path):
+        p = write_raster(tmp_path / "ae.tif")
+        full = _raster_with_model(SlowSeg(Clock()), p, "r", "ae", block=64, overlap=16)
+        assert len(full) == len(SPOTS)
+        clk = Clock()
+        seg = SlowSeg(clk)
+>       guard = TimeGuard(250, window_reserve_s=30, clock=clk)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: TimeGuard.__init__() got an unexpected keyword argument 'window_reserve_s'
+
+tests/test_bot8_window_deadline.py:49: TypeError
+______________ test_window_deadline_off_or_far_keeps_full_result _______________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_window_deadline_off_or_fa0')
+
+    def test_window_deadline_off_or_far_keeps_full_result(tmp_path):
+        p = write_raster(tmp_path / "ae.tif")
+        clk = Clock()
+>       off = TimeGuard(250, window_reserve_s=None, clock=clk)    # [time] window_deadline = false
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: TimeGuard.__init__() got an unexpected keyword argument 'window_reserve_s'
+
+tests/test_bot8_window_deadline.py:63: TypeError
+__________________________ test_window_reserve_config __________________________
+
+    def test_window_reserve_config():
+>       assert pipeline.window_reserve({}) == pipeline.DEFAULT_WINDOW_RESERVE_S
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'expds.pipeline' has no attribute 'window_reserve'
+
+tests/test_bot8_window_deadline.py:72: AttributeError
+__________________ test_watchdog_deadline_bounds_window_loop ___________________
+
+    def test_watchdog_deadline_bounds_window_loop():
+        """Если сторож (1800 − guard_margin_s от старта процесса) ближе бюджета — решает он."""
+        clk = Clock(watchdog.PROCESS_START)
+>       assert watchdog.deadline_left(180, clock=clk) == watchdog.PLATFORM_LIMIT_S - 180    # 1620 с
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'expds.watchdog' has no attribute 'deadline_left'
+
+tests/test_bot8_window_deadline.py:80: AttributeError
+___________ test_run_writes_valid_partial_output_and_exits_normally ____________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/regr-b7/test_run_writes_valid_partial_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8f807ffc20>
+
+    def test_run_writes_valid_partial_output_and_exits_normally(tmp_path, monkeypatch):
+        """Весь run(): окна медленные → частичный файл через обычный конец (checkpoint → safe_finish → writer)."""
+        p = write_raster(tmp_path / "ae.tif")
+        clk = Clock()
+        seg = SlowSeg(clk)
+        reg = SimpleNamespace(name="r", las=[], rasters={"ae": [p]}, utm_json=None, boundaries=[], noise=[])
+    
+        class FakeClockGuard(TimeGuard):
+            def __init__(self, budget_s, window_reserve_s=None, hard_left=None, clock=None):
+                assert hard_left is None                       # watchdog = false в конфиге теста
+                super().__init__(budget_s, window_reserve_s, None, clock=clk)
+    
+        orig = pipeline._raster_with_model
+        monkeypatch.setattr(pipeline, "_raster_with_model",
+                            lambda *a, **k: orig(*a, **{**k, "block": 64, "overlap": 16}))
+        monkeypatch.setattr(pipeline, "TimeGuard", FakeClockGuard)
+        monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
+        monkeypatch.setattr(pipeline, "_cached_segmenters", lambda cache, cfg, mt, root: [seg] if mt == "ae" else [])
+        exits = []
+        monkeypatch.setattr(watchdog.os, "_exit", lambda code: exits.append(code))
+        monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
+        cfg = tmp_path / "t.toml"
+        cfg.write_text("[time]\nbudget_s = 250\nreserve_s = 10\nwatchdog = false\nwindow_reserve_s = 30\n"
+                       "[verify]\nenabled = false\n", encoding="utf-8")
+        out = tmp_path / "o" / "result.geojson"
+>       summary = pipeline.run(tmp_path, out, cfg)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_window_deadline.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/pipeline.py:796: in run
+    guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_bot8_window_deadline.test_run_writes_valid_partial_output_and_exits_normally.<locals>.FakeClockGuard object at 0x7f8f82bf2f00>
+budget_s = 250, window_reserve_s = None, hard_left = None, clock = None
+
+    def __init__(self, budget_s, window_reserve_s=None, hard_left=None, clock=None):
+        assert hard_left is None                       # watchdog = false в конфиге теста
+>       super().__init__(budget_s, window_reserve_s, None, clock=clk)
+E       TypeError: TimeGuard.__init__() got an unexpected keyword argument 'clock'
+
+tests/test_bot8_window_deadline.py:98: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_bot8_faults.py::test_geophys_exception_in_one_region_does_not_skip_lidar
+FAILED tests/test_bot8_faults.py::test_checkpoint_survives_failing_postprocessing
+FAILED tests/test_bot8_faults.py::test_writer_never_emits_nan - assert 'NaN' ...
+FAILED tests/test_bot8_faults.py::test_verify_weights_resolve_from_archive_root_not_cwd
+FAILED tests/test_bot8_faults.py::test_safe_finish_fallback_keeps_bot7_micro_circles
+FAILED tests/test_bot8_window_deadline.py::test_window_loop_stops_near_deadline_with_partial_result
+FAILED tests/test_bot8_window_deadline.py::test_window_deadline_off_or_far_keeps_full_result
+FAILED tests/test_bot8_window_deadline.py::test_window_reserve_config - Attri...
+FAILED tests/test_bot8_window_deadline.py::test_watchdog_deadline_bounds_window_loop
+FAILED tests/test_bot8_window_deadline.py::test_run_writes_valid_partial_output_and_exits_normally
+10 failed in 4.63s
+exit 1

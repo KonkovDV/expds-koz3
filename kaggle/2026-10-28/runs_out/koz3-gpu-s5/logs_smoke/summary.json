@@ -1,0 +1,10 @@
+[
+ {
+  "gpu": 0,
+  "step": 0,
+  "cmd": "python -m expds.train --cache cache/fold0 --out /kaggle/working/out/smoke_centers_fold0.pt --encoder resnet18 --arch Unet --center-radius 4.0 --target centers --center-loss focal --center-sigma 0 --center-min-dist 4.0 --epochs 1 --batch 64 --lr 1.4e-3 --select-min-epoch 1 --center-match-m 2.0 --center-peak-thrs 0.05 0.1 0.2 0.3 0.5 --center-pre-flip --limit 512 --require-gpu --min-gpus 1 --device cuda:0",
+  "rc": 0,
+  "elapsed_sec": 54.3,
+  "log": "/kaggle/working/logs_smoke/gpu0_step0.log"
+ }
+]

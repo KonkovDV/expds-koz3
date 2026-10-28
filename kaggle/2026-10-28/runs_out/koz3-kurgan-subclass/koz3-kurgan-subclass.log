@@ -1,0 +1,54 @@
+[{"stream_name":"stderr","time":10.760056824,"data":"/usr/local/lib/python3.13/dist-packages/nbformat/validator.py:434: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":10.760098996,"data":"  _validate(nbdict, ref, version, version_minor, relax_add_props)\n"}
+,{"stream_name":"stderr","time":12.361893156,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":12.361923095,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":12.361927889,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":12.361931715,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":13.150256614,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":13.150282128,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":13.150286886,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":13.150290509,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":30.226382347,"data":"GPU OK: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":39.432413289,"data":"/kaggle/input/koz3-kurgan-subclass-crops нет, датасет найден в /kaggle/input/datasets/dmitrijkv/koz3-kurgan-subclass-crops\n"}
+,{"stream_name":"stdout","time":44.035897896,"data":"{\"npz\": \"/kaggle/input/datasets/dmitrijkv/koz3-kurgan-subclass-crops/kurgan_subclass_crops.npz\", \"N\": 9322, \"shape\": [9322, 3, 64, 64], \"labeled\": 4704, \"povr_share\": 0.5821, \"kinds\": {\"cand\": 6109, \"gt\": 3213}, \"regions\": 56}\n"}
+,{"stream_name":"stderr","time":62.733425471,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":62.73396876,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":62.733985244,"data":"    import sys;import papermill as pm;pm.execute_notebook(\"__notebook__.ipynb\",\"__notebook__.ipynb\",progress_bar=False,log_output=True,stdout_file=sys.stdout,stderr_file=sys.stderr,allow_errors=False,timeout=43200)\n"}
+,{"stream_name":"stderr","time":62.733992904,"data":"                                      ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":62.733998665,"data":"  File \"/usr/local/lib/python3.13/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":62.734003318,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":62.734007981,"data":"    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":62.734020394,"data":"  File \"/usr/local/lib/python3.13/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":62.734026284,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":62.734060725,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":62.734069846,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":62.734081454,"data":"Exception encountered at \"In [3]\":\n"}
+,{"stream_name":"stderr","time":62.734084248,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":62.734086667,"data":"ModuleNotFoundError                       Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":62.734089036,"data":"/tmp/ipykernel_24/2159489586.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":62.734091533,"data":"     73     return found\n"}
+,{"stream_name":"stderr","time":62.734093949,"data":"     74 \n"}
+,{"stream_name":"stderr","time":62.734096324,"data":"---\u003e 75 SMP_FROM = setup_smp()\n"}
+,{"stream_name":"stderr","time":62.734098712,"data":"     76 HF = setup_hf_cache() if CFG[\"pretrained\"] else {}\n"}
+,{"stream_name":"stderr","time":62.734101233,"data":"     77 print(\"smp:\", SMP_FROM, \"| imagenet в кэше:\", json.dumps(HF, ensure_ascii=False), flush=True)\n"}
+,{"stream_name":"stderr","time":62.734104452,"data":"\n"}
+,{"stream_name":"stderr","time":62.734106668,"data":"/tmp/ipykernel_24/2159489586.py in setup_smp()\n"}
+,{"stream_name":"stderr","time":62.73410911,"data":"     29                                 f\"(expds_code.tar.gz). Содержимое {CODE_DIR}: {_ls(CODE_DIR, 30)}\")\n"}
+,{"stream_name":"stderr","time":62.734111713,"data":"     30     sys.path.insert(0, str(dst))\n"}
+,{"stream_name":"stderr","time":62.73411402,"data":"---\u003e 31     import segmentation_models_pytorch  # noqa: F401\n"}
+,{"stream_name":"stderr","time":62.734116404,"data":"     32     return str(tars[0] if tars else dirs[0])\n"}
+,{"stream_name":"stderr","time":62.734118874,"data":"     33 \n"}
+,{"stream_name":"stderr","time":62.734121122,"data":"\n"}
+,{"stream_name":"stderr","time":62.734123355,"data":"ModuleNotFoundError: No module named 'segmentation_models_pytorch'\n"}
+,{"stream_name":"stderr","time":62.734125788,"data":"\n"}
+,{"stream_name":"stderr","time":64.983809456,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":64.983852209,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":65.194226435,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":65.194251988,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":65.997877959,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":66.075697246,"data":"[NbConvertApp] Writing 40744 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":68.481301133,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":81.938683346,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/highlight.py:161: UserWarning: IPython3 lexer unavailable, falling back on Python 3\n"}
+,{"stream_name":"stderr","time":81.938716026,"data":"  warn(\"IPython3 lexer unavailable, falling back on Python 3\")\n"}
+,{"stream_name":"stderr","time":82.251613078,"data":"[NbConvertApp] Writing 444113 bytes to __results__.html\n"}
+]

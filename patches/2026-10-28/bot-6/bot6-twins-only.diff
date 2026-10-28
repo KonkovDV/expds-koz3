@@ -1,5 +1,5 @@
 diff --git a/expds/post.py b/expds/post.py
-index eb7ce26..11586df 100644
+index eb7ce26..224e546 100644
 --- a/expds/post.py
 +++ b/expds/post.py
 @@ -452,6 +452,11 @@ def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) ->
@@ -14,7 +14,29 @@ index eb7ce26..11586df 100644
  def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
      """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
      from collections import defaultdict
-@@ -481,7 +486,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+@@ -464,6 +469,14 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+     li_dedup_m = float(cfg.get("li_dedup_m", 4.0))
+     sp_dedup_m = float(cfg.get("sp_dedup_m", 2.0))
+ 
++    # Один масштаб cos φ на участок (по среднему y его объектов). Масштаб для каждой точки, s(y)·y, не изометрия:
++    # на 55° расстояния по меридиану сжимаются примерно в 16 раз (bot-10 REPORT6_twins.md §2, ae-двойников 5 вместо 85).
++    ys: dict[str, list] = defaultdict(list)
++    for f in feats:
++        if f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye"):
++            ys[f.get("region_name") or ""].append(f["geom"].centroid.y)
++    scale = {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
++
+     li_povr_pts: dict[str, list] = defaultdict(list)
+     ae_povr_pts: dict[str, list] = defaultdict(list)
+     sp_povr_pts: dict[str, list] = defaultdict(list)
+@@ -475,13 +488,13 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+         grp = f.get("threshold_group") or f.get("markup_type")
+         conf = float(f.get("confidence", 0.0))
+         c = f["geom"].centroid
+-        s = _ground_scale(c.y)
++        s = scale[reg]
+         xy = (c.x * s, c.y * s)
+         if grp == "li" and conf >= 0.06415:
              li_povr_pts[reg].append(xy)
          elif grp == "ae":
              ae_povr_pts[reg].append(xy)
@@ -23,7 +45,25 @@ index eb7ce26..11586df 100644
              sp_povr_pts[reg].append(xy)
  
      li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
-@@ -513,7 +518,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+@@ -495,7 +508,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+                 and (f.get("threshold_group") or f.get("markup_type")) == "ae"):
+             reg = f.get("region_name") or ""
+             c = f["geom"].centroid
+-            s = _ground_scale(c.y)
++            s = scale[reg]
+             if reg in li_trees and li_trees[reg].query_ball_point((c.x * s, c.y * s), dedup_ae_vs_li_m):
+                 continue
+         out.append(f)
+@@ -505,7 +518,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+         reg = f.get("region_name") or ""
+         grp = f.get("threshold_group") or f.get("markup_type")
+         c = f["geom"].centroid
+-        s = _ground_scale(c.y)
++        s = scale[reg]
+         xy = (c.x * s, c.y * s)
+         if use_ae and grp == "ae":
+             if reg in ae_trees and ae_trees[reg].query_ball_point(xy, 0.5):
+@@ -513,7 +526,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
              if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
                  continue
              out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
@@ -50,10 +90,10 @@ index 2e15b2d..59c84b5 100644
      if post_cfg.get("core"):
 diff --git a/tests/test_bot6_twins_only.py b/tests/test_bot6_twins_only.py
 new file mode 100644
-index 0000000..1687a29
+index 0000000..1f926fc
 --- /dev/null
 +++ b/tests/test_bot6_twins_only.py
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,46 @@
 +from shapely.geometry import Point
 +from expds import post, watchdog
 +
@@ -81,3 +121,22 @@ index 0000000..1687a29
 +    cfg = {"post": {"kurgan_twins_only": {"dedup_ae_vs_li_m": 3.0}}, "thresholds": {}, "default_threshold": 0.0}
 +    watchdog.finish([], cfg)
 +    assert seen["spec"]["dedup_ae_vs_li_m"] == 0.0
++
++
++def test_scale_is_isometric_per_region():
++    """Регресс (bot-10 REPORT6_twins.md §2): масштаб на точку, (x·s(y), y·s(y)), не изометрия. На 55° смещение
++    (на восток 0,53·d, на север d) сжимается примерно в 24 раза, и li-повреждённый в 22,6 м «гасил» ae-двойника
++    (в сдаче 5 вместо 85). С одним cos φ на участок все 20 двойников на месте; старый код даёт 0."""
++    import math
++    y0 = 7.4e6
++    m = 1.0 / math.cos(math.atan(math.sinh(y0 / 6378137.0)))  # единиц 3857 на метр
++    feats = []
++    for k in range(20):
++        x, y = 4.1e6 + k * 100.0 * m, y0
++        a = _f("kurgany_tselye", "ae", 0.0)
++        a["geom"] = Point(x, y).buffer(1.0)
++        b = _f("kurgany_povrezhdennye", "li", 0.0, 0.5)
++        b["geom"] = Point(x + 10.56 * m, y + 20.0 * m).buffer(1.0)  # 22,6 м на земле, дальше li_dedup_m = 4
++        feats += [a, b]
++    out = post.kurgan_cross_modal_twins(feats, {"dedup_ae_vs_li_m": 0.0})
++    assert sum(1 for f in out if f["threshold_group"] == "ae_twin") == 20

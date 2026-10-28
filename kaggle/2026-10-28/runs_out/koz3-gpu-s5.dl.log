@@ -1,0 +1,1173 @@
+Downloading 02_centers_fixed_out.tar.gz to /workspace/kaggle_out/koz3-gpu-s5
+  0%|          | 0.00/847M [00:00<?, ?B/s]  0%|          | 4.00M/847M [00:00<00:34, 25.6MB/s]  1%|          | 7.00M/847M [00:00<00:38, 23.0MB/s]  1%|          | 10.0M/847M [00:00<00:39, 22.5MB/s]  2%|▏         | 13.0M/847M [00:00<00:45, 19.3MB/s]  2%|▏         | 16.0M/847M [00:00<00:43, 19.9MB/s]  2%|▏         | 19.0M/847M [00:00<00:42, 20.4MB/s]  2%|▏         | 21.0M/847M [00:01<00:45, 19.1MB/s]  3%|▎         | 24.0M/847M [00:01<00:43, 19.7MB/s]  3%|▎         | 26.0M/847M [00:01<00:46, 18.7MB/s]  3%|▎         | 29.0M/847M [00:01<00:43, 19.5MB/s]  4%|▍         | 32.0M/847M [00:01<00:42, 20.0MB/s]  4%|▍         | 34.0M/847M [00:01<00:45, 18.9MB/s]  4%|▍         | 37.0M/847M [00:01<00:43, 19.7MB/s]  5%|▍         | 39.0M/847M [00:02<00:45, 18.6MB/s]  5%|▍         | 42.0M/847M [00:02<00:43, 19.4MB/s]  5%|▌         | 44.0M/847M [00:02<00:45, 18.3MB/s]  6%|▌         | 47.0M/847M [00:02<00:43, 19.2MB/s]  6%|▌         | 50.0M/847M [00:02<00:41, 20.0MB/s]  6%|▌         | 52.0M/847M [00:02<00:44, 18.7MB/s]  6%|▋         | 55.0M/847M [00:02<00:42, 19.6MB/s]  7%|▋         | 57.0M/847M [00:03<00:44, 18.5MB/s]  7%|▋         | 60.0M/847M [00:03<00:42, 19.5MB/s]  7%|▋         | 62.0M/847M [00:03<00:44, 18.4MB/s]  8%|▊         | 65.0M/847M [00:03<00:42, 19.3MB/s]  8%|▊         | 68.0M/847M [00:03<00:41, 19.8MB/s]  8%|▊         | 70.0M/847M [00:03<00:43, 18.7MB/s]  9%|▊         | 73.0M/847M [00:03<00:41, 19.4MB/s]  9%|▉         | 75.0M/847M [00:04<00:44, 18.2MB/s]  9%|▉         | 78.0M/847M [00:04<00:41, 19.4MB/s] 10%|▉         | 81.0M/847M [00:04<00:40, 20.0MB/s] 10%|▉         | 83.0M/847M [00:04<00:42, 18.8MB/s] 10%|█         | 86.0M/847M [00:04<00:41, 19.3MB/s] 10%|█         | 88.0M/847M [00:04<00:42, 18.6MB/s] 11%|█         | 91.0M/847M [00:04<00:40, 19.5MB/s] 11%|█         | 94.0M/847M [00:05<00:39, 20.0MB/s] 11%|█▏        | 96.0M/847M [00:05<00:41, 19.0MB/s] 12%|█▏        | 99.0M/847M [00:05<00:39, 19.7MB/s] 12%|█▏        | 101M/847M [00:05<00:41, 18.7MB/s]  12%|█▏        | 104M/847M [00:05<00:39, 19.5MB/s] 13%|█▎        | 106M/847M [00:05<00:42, 18.4MB/s] 13%|█▎        | 109M/847M [00:05<00:40, 19.3MB/s] 13%|█▎        | 112M/847M [00:06<00:38, 20.0MB/s] 13%|█▎        | 114M/847M [00:06<00:40, 18.8MB/s] 14%|█▍        | 117M/847M [00:06<00:39, 19.6MB/s] 14%|█▍        | 119M/847M [00:06<00:41, 18.5MB/s] 14%|█▍        | 122M/847M [00:06<00:39, 19.4MB/s] 15%|█▍        | 124M/847M [00:06<00:41, 18.3MB/s] 15%|█▍        | 127M/847M [00:06<00:39, 19.3MB/s] 15%|█▌        | 130M/847M [00:07<00:37, 20.1MB/s] 16%|█▌        | 132M/847M [00:07<00:39, 18.8MB/s] 16%|█▌        | 135M/847M [00:07<00:37, 19.7MB/s] 16%|█▌        | 137M/847M [00:07<00:40, 18.5MB/s] 17%|█▋        | 140M/847M [00:07<00:38, 19.4MB/s] 17%|█▋        | 143M/847M [00:07<00:36, 20.0MB/s] 17%|█▋        | 145M/847M [00:07<00:39, 18.9MB/s] 17%|█▋        | 148M/847M [00:08<00:37, 19.6MB/s] 18%|█▊        | 150M/847M [00:08<00:39, 18.6MB/s] 18%|█▊        | 153M/847M [00:08<00:37, 19.3MB/s] 18%|█▊        | 155M/847M [00:08<00:39, 18.4MB/s] 19%|█▊        | 158M/847M [00:08<00:37, 19.3MB/s] 19%|█▉        | 161M/847M [00:08<00:36, 19.9MB/s] 19%|█▉        | 163M/847M [00:08<00:37, 19.0MB/s] 20%|█▉        | 166M/847M [00:08<00:36, 19.7MB/s] 20%|█▉        | 168M/847M [00:09<00:38, 18.5MB/s] 20%|██        | 171M/847M [00:09<00:36, 19.4MB/s] 20%|██        | 173M/847M [00:09<00:38, 18.3MB/s] 21%|██        | 176M/847M [00:09<00:36, 19.4MB/s] 21%|██        | 179M/847M [00:09<00:35, 20.0MB/s] 21%|██▏       | 181M/847M [00:09<00:37, 18.7MB/s] 22%|██▏       | 184M/847M [00:09<00:35, 19.6MB/s] 22%|██▏       | 186M/847M [00:10<00:37, 18.4MB/s] 22%|██▏       | 188M/847M [00:10<00:36, 19.0MB/s] 22%|██▏       | 190M/847M [00:10<00:36, 19.0MB/s] 23%|██▎       | 192M/847M [00:10<00:39, 17.3MB/s] 23%|██▎       | 195M/847M [00:10<00:35, 19.1MB/s] 23%|██▎       | 198M/847M [00:10<00:34, 19.7MB/s] 24%|██▎       | 201M/847M [00:10<00:33, 20.4MB/s] 24%|██▍       | 203M/847M [00:11<00:35, 19.0MB/s] 24%|██▍       | 206M/847M [00:11<00:34, 19.7MB/s] 25%|██▍       | 208M/847M [00:11<00:35, 18.6MB/s] 25%|██▍       | 211M/847M [00:11<00:34, 19.6MB/s] 25%|██▌       | 214M/847M [00:11<00:32, 20.1MB/s] 25%|██▌       | 216M/847M [00:11<00:35, 18.7MB/s] 26%|██▌       | 219M/847M [00:11<00:33, 19.5MB/s] 26%|██▌       | 221M/847M [00:12<00:35, 18.4MB/s] 26%|██▋       | 224M/847M [00:12<00:33, 19.3MB/s] 27%|██▋       | 226M/847M [00:12<00:35, 18.3MB/s] 27%|██▋       | 229M/847M [00:12<00:34, 18.9MB/s] 27%|██▋       | 232M/847M [00:12<00:32, 20.1MB/s] 28%|██▊       | 234M/847M [00:12<00:34, 18.8MB/s] 28%|██▊       | 237M/847M [00:12<00:32, 19.7MB/s] 28%|██▊       | 239M/847M [00:13<00:34, 18.6MB/s] 29%|██▊       | 242M/847M [00:13<00:32, 19.4MB/s] 29%|██▉       | 245M/847M [00:13<00:31, 20.1MB/s] 29%|██▉       | 247M/847M [00:13<00:33, 18.9MB/s] 30%|██▉       | 250M/847M [00:13<00:32, 19.6MB/s] 30%|██▉       | 252M/847M [00:13<00:33, 18.6MB/s] 30%|███       | 255M/847M [00:13<00:31, 19.4MB/s] 30%|███       | 257M/847M [00:14<00:33, 18.4MB/s] 31%|███       | 260M/847M [00:14<00:31, 19.3MB/s] 31%|███       | 263M/847M [00:14<00:30, 20.0MB/s] 31%|███▏      | 265M/847M [00:14<00:32, 18.7MB/s] 32%|███▏      | 268M/847M [00:14<00:31, 19.3MB/s] 32%|███▏      | 270M/847M [00:14<00:33, 18.3MB/s] 32%|███▏      | 273M/847M [00:14<00:30, 19.4MB/s] 33%|███▎      | 276M/847M [00:15<00:29, 20.1MB/s] 33%|███▎      | 278M/847M [00:15<00:31, 18.8MB/s] 33%|███▎      | 281M/847M [00:15<00:30, 19.5MB/s] 33%|███▎      | 283M/847M [00:15<00:31, 18.5MB/s] 34%|███▍      | 286M/847M [00:15<00:30, 19.3MB/s] 34%|███▍      | 289M/847M [00:15<00:29, 20.1MB/s] 34%|███▍      | 291M/847M [00:15<00:31, 18.8MB/s] 35%|███▍      | 294M/847M [00:15<00:29, 19.6MB/s] 35%|███▍      | 296M/847M [00:16<00:31, 18.5MB/s] 35%|███▌      | 299M/847M [00:16<00:29, 19.5MB/s] 36%|███▌      | 301M/847M [00:16<00:31, 18.3MB/s] 36%|███▌      | 304M/847M [00:16<00:29, 19.3MB/s] 36%|███▌      | 307M/847M [00:16<00:28, 19.9MB/s] 36%|███▋      | 309M/847M [00:16<00:30, 18.8MB/s] 37%|███▋      | 312M/847M [00:16<00:28, 19.5MB/s] 37%|███▋      | 314M/847M [00:17<00:30, 18.5MB/s] 37%|███▋      | 317M/847M [00:17<00:28, 19.4MB/s] 38%|███▊      | 320M/847M [00:17<00:27, 20.0MB/s] 38%|███▊      | 322M/847M [00:17<00:29, 18.8MB/s] 38%|███▊      | 325M/847M [00:17<00:27, 19.6MB/s] 39%|███▊      | 327M/847M [00:17<00:29, 18.6MB/s] 39%|███▉      | 330M/847M [00:17<00:28, 19.2MB/s] 39%|███▉      | 332M/847M [00:18<00:29, 18.5MB/s] 40%|███▉      | 335M/847M [00:18<00:27, 19.5MB/s] 40%|███▉      | 338M/847M [00:18<00:27, 19.4MB/s] 40%|████      | 340M/847M [00:18<00:28, 18.8MB/s] 40%|████      | 343M/847M [00:18<00:26, 19.7MB/s] 41%|████      | 345M/847M [00:18<00:28, 18.5MB/s] 41%|████      | 348M/847M [00:18<00:26, 19.5MB/s] 41%|████▏     | 351M/847M [00:19<00:26, 20.0MB/s] 42%|████▏     | 353M/847M [00:19<00:27, 18.9MB/s] 42%|████▏     | 356M/847M [00:19<00:26, 19.7MB/s] 42%|████▏     | 358M/847M [00:19<00:27, 18.6MB/s] 43%|████▎     | 361M/847M [00:19<00:26, 19.4MB/s] 43%|████▎     | 364M/847M [00:19<00:25, 19.8MB/s] 43%|████▎     | 366M/847M [00:19<00:26, 18.7MB/s] 44%|████▎     | 369M/847M [00:20<00:25, 19.7MB/s] 44%|████▍     | 371M/847M [00:20<00:26, 18.6MB/s] 44%|████▍     | 374M/847M [00:20<00:25, 19.3MB/s] 45%|████▍     | 377M/847M [00:20<00:24, 20.1MB/s] 45%|████▍     | 379M/847M [00:20<00:26, 18.8MB/s] 45%|████▌     | 382M/847M [00:20<00:24, 19.6MB/s] 45%|████▌     | 384M/847M [00:20<00:26, 18.6MB/s] 46%|████▌     | 387M/847M [00:21<00:24, 19.4MB/s] 46%|████▌     | 389M/847M [00:21<00:26, 18.4MB/s] 46%|████▋     | 392M/847M [00:21<00:24, 19.3MB/s] 47%|████▋     | 395M/847M [00:21<00:23, 20.1MB/s] 47%|████▋     | 397M/847M [00:21<00:25, 18.8MB/s] 47%|████▋     | 400M/847M [00:21<00:23, 19.6MB/s] 47%|████▋     | 402M/847M [00:21<00:25, 18.4MB/s] 48%|████▊     | 405M/847M [00:22<00:24, 19.3MB/s] 48%|████▊     | 408M/847M [00:22<00:23, 19.8MB/s] 48%|████▊     | 410M/847M [00:22<00:24, 18.8MB/s] 49%|████▊     | 412M/847M [00:22<00:24, 19.0MB/s] 49%|████▉     | 414M/847M [00:22<00:25, 18.1MB/s] 49%|████▉     | 417M/847M [00:22<00:23, 19.5MB/s] 49%|████▉     | 419M/847M [00:22<00:25, 17.9MB/s] 50%|████▉     | 422M/847M [00:23<00:23, 19.3MB/s] 50%|█████     | 424M/847M [00:23<00:24, 18.3MB/s] 50%|█████     | 427M/847M [00:23<00:22, 19.3MB/s] 51%|█████     | 430M/847M [00:23<00:21, 20.0MB/s] 51%|█████     | 432M/847M [00:23<00:23, 18.3MB/s] 51%|█████▏    | 435M/847M [00:23<00:22, 19.4MB/s] 52%|█████▏    | 437M/847M [00:23<00:23, 18.7MB/s] 52%|█████▏    | 440M/847M [00:23<00:21, 19.6MB/s] 52%|█████▏    | 443M/847M [00:24<00:21, 20.0MB/s] 53%|█████▎    | 445M/847M [00:24<00:22, 19.0MB/s] 53%|█████▎    | 448M/847M [00:24<00:21, 19.8MB/s] 53%|█████▎    | 450M/847M [00:24<00:22, 18.5MB/s] 53%|█████▎    | 453M/847M [00:24<00:21, 19.1MB/s] 54%|█████▎    | 455M/847M [00:24<00:22, 18.5MB/s] 54%|█████▍    | 458M/847M [00:24<00:21, 19.4MB/s] 54%|█████▍    | 461M/847M [00:25<00:20, 19.9MB/s] 55%|█████▍    | 463M/847M [00:25<00:21, 18.8MB/s] 55%|█████▌    | 466M/847M [00:25<00:20, 19.4MB/s] 55%|█████▌    | 468M/847M [00:25<00:21, 18.5MB/s] 56%|█████▌    | 471M/847M [00:25<00:20, 19.3MB/s] 56%|█████▌    | 474M/847M [00:25<00:19, 20.0MB/s] 56%|█████▌    | 476M/847M [00:25<00:20, 18.7MB/s] 57%|█████▋    | 479M/847M [00:26<00:20, 19.2MB/s] 57%|█████▋    | 481M/847M [00:26<00:20, 18.5MB/s] 57%|█████▋    | 484M/847M [00:26<00:19, 19.3MB/s] 57%|█████▋    | 487M/847M [00:26<00:18, 20.0MB/s] 58%|█████▊    | 489M/847M [00:26<00:19, 18.8MB/s] 58%|█████▊    | 492M/847M [00:26<00:19, 19.6MB/s] 58%|█████▊    | 494M/847M [00:26<00:19, 18.5MB/s] 59%|█████▊    | 497M/847M [00:27<00:19, 19.3MB/s] 59%|█████▉    | 499M/847M [00:27<00:20, 17.9MB/s] 59%|█████▉    | 502M/847M [00:27<00:19, 18.5MB/s] 60%|█████▉    | 505M/847M [00:27<00:18, 19.9MB/s] 60%|█████▉    | 507M/847M [00:27<00:18, 18.8MB/s] 60%|██████    | 510M/847M [00:27<00:18, 19.6MB/s] 60%|██████    | 512M/847M [00:27<00:19, 18.5MB/s] 61%|██████    | 515M/847M [00:28<00:18, 19.2MB/s] 61%|██████    | 517M/847M [00:28<00:18, 18.4MB/s] 61%|██████▏   | 520M/847M [00:28<00:17, 19.3MB/s] 62%|██████▏   | 523M/847M [00:28<00:16, 20.0MB/s] 62%|██████▏   | 525M/847M [00:28<00:17, 18.8MB/s] 62%|██████▏   | 528M/847M [00:28<00:17, 19.6MB/s] 63%|██████▎   | 530M/847M [00:28<00:17, 18.6MB/s] 63%|██████▎   | 533M/847M [00:29<00:16, 19.4MB/s] 63%|██████▎   | 536M/847M [00:29<00:16, 20.1MB/s] 64%|██████▎   | 538M/847M [00:29<00:17, 18.9MB/s] 64%|██████▍   | 541M/847M [00:29<00:16, 19.5MB/s] 64%|██████▍   | 543M/847M [00:29<00:17, 18.4MB/s] 64%|██████▍   | 546M/847M [00:29<00:16, 19.4MB/s] 65%|██████▍   | 548M/847M [00:29<00:17, 18.4MB/s] 65%|██████▍   | 550M/847M [00:30<00:18, 17.0MB/s] 65%|██████▌   | 554M/847M [00:30<00:15, 20.4MB/s] 66%|██████▌   | 556M/847M [00:30<00:15, 19.2MB/s] 66%|██████▌   | 559M/847M [00:30<00:15, 19.8MB/s] 66%|██████▌   | 561M/847M [00:30<00:16, 18.7MB/s] 67%|██████▋   | 564M/847M [00:30<00:15, 19.6MB/s] 67%|██████▋   | 567M/847M [00:30<00:14, 20.1MB/s] 67%|██████▋   | 569M/847M [00:31<00:15, 18.9MB/s] 68%|██████▊   | 572M/847M [00:31<00:14, 19.7MB/s] 68%|██████▊   | 574M/847M [00:31<00:15, 18.6MB/s] 68%|██████▊   | 577M/847M [00:31<00:14, 19.5MB/s] 68%|██████▊   | 579M/847M [00:31<00:15, 18.3MB/s] 69%|██████▊   | 582M/847M [00:31<00:14, 19.3MB/s] 69%|██████▉   | 585M/847M [00:31<00:13, 19.8MB/s] 69%|██████▉   | 587M/847M [00:32<00:14, 18.9MB/s] 70%|██████▉   | 590M/847M [00:32<00:13, 19.7MB/s] 70%|██████▉   | 592M/847M [00:32<00:14, 18.4MB/s] 70%|███████   | 595M/847M [00:32<00:15, 17.1MB/s] 71%|███████   | 599M/847M [00:32<00:12, 20.1MB/s] 71%|███████   | 601M/847M [00:32<00:13, 19.0MB/s] 71%|███████▏  | 604M/847M [00:32<00:13, 19.6MB/s] 72%|███████▏  | 607M/847M [00:33<00:12, 20.3MB/s] 72%|███████▏  | 609M/847M [00:33<00:13, 19.0MB/s] 72%|███████▏  | 612M/847M [00:33<00:12, 19.7MB/s] 72%|███████▏  | 614M/847M [00:33<00:13, 18.4MB/s] 73%|███████▎  | 617M/847M [00:33<00:12, 19.5MB/s] 73%|███████▎  | 619M/847M [00:33<00:12, 18.4MB/s] 73%|███████▎  | 622M/847M [00:33<00:12, 19.4MB/s] 74%|███████▍  | 625M/847M [00:34<00:11, 19.9MB/s] 74%|███████▍  | 627M/847M [00:34<00:12, 18.9MB/s] 74%|███████▍  | 630M/847M [00:34<00:11, 19.8MB/s] 75%|███████▍  | 632M/847M [00:34<00:12, 18.6MB/s] 75%|███████▍  | 635M/847M [00:34<00:11, 19.2MB/s] 75%|███████▌  | 638M/847M [00:34<00:10, 20.2MB/s] 76%|███████▌  | 640M/847M [00:34<00:11, 19.0MB/s] 76%|███████▌  | 643M/847M [00:35<00:10, 19.7MB/s] 76%|███████▌  | 645M/847M [00:35<00:11, 18.6MB/s] 76%|███████▋  | 648M/847M [00:35<00:10, 19.3MB/s] 77%|███████▋  | 650M/847M [00:35<00:11, 18.5MB/s] 77%|███████▋  | 653M/847M [00:35<00:10, 19.4MB/s] 77%|███████▋  | 656M/847M [00:35<00:10, 19.9MB/s] 78%|███████▊  | 658M/847M [00:35<00:10, 19.0MB/s] 78%|███████▊  | 661M/847M [00:36<00:09, 19.7MB/s] 78%|███████▊  | 663M/847M [00:36<00:10, 18.5MB/s] 79%|███████▊  | 666M/847M [00:36<00:09, 19.4MB/s] 79%|███████▉  | 668M/847M [00:36<00:10, 18.4MB/s] 79%|███████▉  | 671M/847M [00:36<00:09, 18.8MB/s] 80%|███████▉  | 674M/847M [00:36<00:09, 20.0MB/s] 80%|███████▉  | 676M/847M [00:36<00:09, 19.0MB/s] 80%|████████  | 679M/847M [00:37<00:08, 19.7MB/s] 80%|████████  | 681M/847M [00:37<00:09, 18.6MB/s] 81%|████████  | 684M/847M [00:37<00:08, 19.4MB/s] 81%|████████  | 686M/847M [00:37<00:09, 17.9MB/s] 81%|████████▏ | 689M/847M [00:37<00:08, 19.0MB/s] 82%|████████▏ | 692M/847M [00:37<00:08, 19.4MB/s] 82%|████████▏ | 694M/847M [00:37<00:08, 18.7MB/s] 82%|████████▏ | 697M/847M [00:38<00:08, 19.5MB/s] 83%|████████▎ | 699M/847M [00:38<00:08, 18.3MB/s] 83%|████████▎ | 702M/847M [00:38<00:09, 16.7MB/s] 83%|████████▎ | 706M/847M [00:38<00:07, 20.1MB/s] 84%|████████▎ | 708M/847M [00:38<00:07, 19.0MB/s] 84%|████████▍ | 711M/847M [00:38<00:07, 19.6MB/s] 84%|████████▍ | 714M/847M [00:39<00:07, 19.9MB/s] 85%|████████▍ | 716M/847M [00:39<00:07, 19.2MB/s] 85%|████████▍ | 719M/847M [00:39<00:06, 19.4MB/s] 85%|████████▌ | 721M/847M [00:39<00:07, 18.1MB/s] 85%|████████▌ | 724M/847M [00:39<00:06, 19.3MB/s] 86%|████████▌ | 726M/847M [00:39<00:06, 18.3MB/s] 86%|████████▌ | 729M/847M [00:39<00:06, 19.4MB/s] 86%|████████▋ | 732M/847M [00:39<00:06, 19.9MB/s] 87%|████████▋ | 734M/847M [00:40<00:06, 18.8MB/s] 87%|████████▋ | 737M/847M [00:40<00:05, 19.6MB/s] 87%|████████▋ | 739M/847M [00:40<00:06, 18.5MB/s] 88%|████████▊ | 742M/847M [00:40<00:05, 19.4MB/s] 88%|████████▊ | 745M/847M [00:40<00:05, 19.9MB/s] 88%|████████▊ | 747M/847M [00:40<00:05, 18.9MB/s] 89%|████████▊ | 750M/847M [00:40<00:05, 19.0MB/s] 89%|████████▉ | 752M/847M [00:41<00:05, 18.7MB/s] 89%|████████▉ | 755M/847M [00:41<00:04, 19.4MB/s] 89%|████████▉ | 757M/847M [00:41<00:05, 18.4MB/s] 90%|████████▉ | 760M/847M [00:41<00:04, 19.4MB/s] 90%|█████████ | 763M/847M [00:41<00:04, 20.1MB/s] 90%|█████████ | 765M/847M [00:41<00:04, 18.9MB/s] 91%|█████████ | 768M/847M [00:41<00:04, 19.7MB/s] 91%|█████████ | 770M/847M [00:42<00:04, 18.5MB/s] 91%|█████████ | 773M/847M [00:42<00:04, 19.4MB/s] 92%|█████████▏| 776M/847M [00:42<00:03, 20.2MB/s] 92%|█████████▏| 778M/847M [00:42<00:03, 18.9MB/s] 92%|█████████▏| 781M/847M [00:42<00:03, 19.7MB/s] 92%|█████████▏| 783M/847M [00:42<00:03, 18.7MB/s] 93%|█████████▎| 786M/847M [00:42<00:03, 19.5MB/s] 93%|█████████▎| 788M/847M [00:43<00:03, 18.4MB/s] 93%|█████████▎| 791M/847M [00:43<00:03, 19.2MB/s] 94%|█████████▎| 794M/847M [00:43<00:02, 19.5MB/s] 94%|█████████▍| 796M/847M [00:43<00:02, 18.9MB/s] 94%|█████████▍| 799M/847M [00:43<00:02, 19.4MB/s] 95%|█████████▍| 801M/847M [00:43<00:02, 18.6MB/s] 95%|█████████▍| 804M/847M [00:43<00:02, 19.5MB/s] 95%|█████████▌| 806M/847M [00:44<00:02, 18.3MB/s] 95%|█████████▌| 809M/847M [00:44<00:02, 19.1MB/s] 96%|█████████▌| 812M/847M [00:44<00:01, 20.0MB/s] 96%|█████████▌| 814M/847M [00:44<00:01, 18.8MB/s] 96%|█████████▋| 817M/847M [00:44<00:01, 19.6MB/s] 97%|█████████▋| 819M/847M [00:44<00:01, 18.6MB/s] 97%|█████████▋| 822M/847M [00:44<00:01, 19.4MB/s] 97%|█████████▋| 825M/847M [00:45<00:01, 20.0MB/s] 98%|█████████▊| 827M/847M [00:45<00:01, 18.6MB/s] 98%|█████████▊| 829M/847M [00:45<00:01, 17.1MB/s] 98%|█████████▊| 832M/847M [00:45<00:00, 18.8MB/s] 99%|█████████▊| 835M/847M [00:45<00:00, 19.5MB/s] 99%|█████████▉| 837M/847M [00:45<00:00, 18.5MB/s] 99%|█████████▉| 840M/847M [00:45<00:00, 19.4MB/s]100%|█████████▉| 843M/847M [00:46<00:00, 19.9MB/s]100%|█████████▉| 845M/847M [00:46<00:00, 18.8MB/s]100%|██████████| 847M/847M [00:46<00:00, 19.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/02_centers_fixed_out.tar.gz
+Downloading bot9_kaggle_common.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/__pycache__
+  0%|          | 0.00/13.0k [00:00<?, ?B/s]100%|██████████| 13.0k/13.0k [00:00<00:00, 3.86MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/__pycache__/bot9_kaggle_common.cpython-313.pyc
+Downloading bot9_kaggle_common.py to /workspace/kaggle_out/koz3-gpu-s5
+  0%|          | 0.00/7.67k [00:00<?, ?B/s]100%|██████████| 7.67k/7.67k [00:00<00:00, 31.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/bot9_kaggle_common.py
+Downloading index.csv to /workspace/kaggle_out/koz3-gpu-s5/cache/fold0
+  0%|          | 0.00/304k [00:00<?, ?B/s]100%|██████████| 304k/304k [00:00<00:00, 9.66MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/cache/fold0/index.csv
+Downloading index.csv to /workspace/kaggle_out/koz3-gpu-s5/cache/fold1
+  0%|          | 0.00/454k [00:00<?, ?B/s]100%|██████████| 454k/454k [00:00<00:00, 3.43MB/s]100%|██████████| 454k/454k [00:00<00:00, 3.42MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/cache/fold1/index.csv
+Downloading index.csv to /workspace/kaggle_out/koz3-gpu-s5/cache/fold2
+  0%|          | 0.00/464k [00:00<?, ?B/s]100%|██████████| 464k/464k [00:00<00:00, 5.13MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/cache/fold2/index.csv
+Downloading index.csv to /workspace/kaggle_out/koz3-gpu-s5/cache/fold3
+  0%|          | 0.00/442k [00:00<?, ?B/s]100%|██████████| 442k/442k [00:00<00:00, 3.50MB/s]100%|██████████| 442k/442k [00:00<00:00, 3.48MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/cache/fold3/index.csv
+Downloading index.csv to /workspace/kaggle_out/koz3-gpu-s5/cache/fold4
+  0%|          | 0.00/436k [00:00<?, ?B/s]100%|██████████| 436k/436k [00:00<00:00, 3.87MB/s]100%|██████████| 436k/436k [00:00<00:00, 3.86MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/cache/fold4/index.csv
+Downloading default.toml to /workspace/kaggle_out/koz3-gpu-s5/configs
+  0%|          | 0.00/18.2k [00:00<?, ?B/s]100%|██████████| 18.2k/18.2k [00:00<00:00, 5.26MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/configs/default.toml
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/1.77k [00:00<?, ?B/s]100%|██████████| 1.77k/1.77k [00:00<00:00, 8.86MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/1.91k [00:00<?, ?B/s]100%|██████████| 1.91k/1.91k [00:00<00:00, 9.11MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/__init__.cpython-313.pyc
+Downloading accel.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/40.8k [00:00<?, ?B/s]100%|██████████| 40.8k/40.8k [00:00<00:00, 3.99MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/accel.cpython-313.pyc
+Downloading centers.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/21.1k [00:00<?, ?B/s]100%|██████████| 21.1k/21.1k [00:00<00:00, 2.87MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/centers.cpython-313.pyc
+Downloading crs.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/17.4k [00:00<?, ?B/s]100%|██████████| 17.4k/17.4k [00:00<00:00, 61.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/crs.cpython-313.pyc
+Downloading infer_nn.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/24.7k [00:00<?, ?B/s]100%|██████████| 24.7k/24.7k [00:00<00:00, 4.24MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/infer_nn.cpython-313.pyc
+Downloading raster.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/15.2k [00:00<?, ?B/s]100%|██████████| 15.2k/15.2k [00:00<00:00, 52.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/raster.cpython-313.pyc
+Downloading train.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__
+  0%|          | 0.00/68.0k [00:00<?, ?B/s]100%|██████████| 68.0k/68.0k [00:00<00:00, 4.72MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/__pycache__/train.cpython-313.pyc
+Downloading accel.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/22.9k [00:00<?, ?B/s]100%|██████████| 22.9k/22.9k [00:00<00:00, 3.42MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/accel.py
+Downloading blobs.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/9.46k [00:00<?, ?B/s]100%|██████████| 9.46k/9.46k [00:00<00:00, 38.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/blobs.py
+Downloading candidates.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/19.2k [00:00<?, ?B/s]100%|██████████| 19.2k/19.2k [00:00<00:00, 4.21MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/candidates.py
+Downloading catalog.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/11.6k [00:00<?, ?B/s]100%|██████████| 11.6k/11.6k [00:00<00:00, 10.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/catalog.py
+Downloading centers.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/14.7k [00:00<?, ?B/s]100%|██████████| 14.7k/14.7k [00:00<00:00, 2.22MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/centers.py
+Downloading coarse.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/3.56k [00:00<?, ?B/s]100%|██████████| 3.56k/3.56k [00:00<00:00, 16.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/coarse.py
+Downloading constants.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/3.52k [00:00<?, ?B/s]100%|██████████| 3.52k/3.52k [00:00<00:00, 15.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/constants.py
+Downloading crop_model.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/8.41k [00:00<?, ?B/s]100%|██████████| 8.41k/8.41k [00:00<00:00, 33.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/crop_model.py
+Downloading crs.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/11.2k [00:00<?, ?B/s]100%|██████████| 11.2k/11.2k [00:00<00:00, 35.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/crs.py
+Downloading det_boxes.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/3.78k [00:00<?, ?B/s]100%|██████████| 3.78k/3.78k [00:00<00:00, 14.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/det_boxes.py
+Downloading fusion.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/11.6k [00:00<?, ?B/s]100%|██████████| 11.6k/11.6k [00:00<00:00, 23.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/fusion.py
+Downloading geophys.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/35.1k [00:00<?, ?B/s]100%|██████████| 35.1k/35.1k [00:00<00:00, 5.32MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/geophys.py
+Downloading gt.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/18.2k [00:00<?, ?B/s]100%|██████████| 18.2k/18.2k [00:00<00:00, 2.82MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/gt.py
+Downloading health.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/4.17k [00:00<?, ?B/s]100%|██████████| 4.17k/4.17k [00:00<00:00, 21.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/health.py
+Downloading hillfort.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/9.46k [00:00<?, ?B/s]100%|██████████| 9.46k/9.46k [00:00<00:00, 41.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/hillfort.py
+Downloading infer_nn.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/16.1k [00:00<?, ?B/s]100%|██████████| 16.1k/16.1k [00:00<00:00, 63.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/infer_nn.py
+Downloading lidar.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/39.1k [00:00<?, ?B/s]100%|██████████| 39.1k/39.1k [00:00<00:00, 5.84MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/lidar.py
+Downloading metric.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/41.5k [00:00<?, ?B/s]100%|██████████| 41.5k/41.5k [00:00<00:00, 4.61MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/metric.py
+Downloading naming.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/5.18k [00:00<?, ?B/s]100%|██████████| 5.18k/5.18k [00:00<00:00, 21.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/naming.py
+Downloading open_ideas.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/11.4k [00:00<?, ?B/s]100%|██████████| 11.4k/11.4k [00:00<00:00, 45.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/open_ideas.py
+Downloading pipeline.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/47.0k [00:00<?, ?B/s]100%|██████████| 47.0k/47.0k [00:00<00:00, 6.97MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/pipeline.py
+Downloading post.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/14.2k [00:00<?, ?B/s]100%|██████████| 14.2k/14.2k [00:00<00:00, 42.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/post.py
+Downloading raster.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/9.57k [00:00<?, ?B/s]100%|██████████| 9.57k/9.57k [00:00<00:00, 36.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/raster.py
+Downloading register.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/12.3k [00:00<?, ?B/s]100%|██████████| 12.3k/12.3k [00:00<00:00, 14.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/register.py
+Downloading tiles.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/38.3k [00:00<?, ?B/s]100%|██████████| 38.3k/38.3k [00:00<00:00, 3.46MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/tiles.py
+Downloading train.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/48.9k [00:00<?, ?B/s]100%|██████████| 48.9k/48.9k [00:00<00:00, 4.40MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/train.py
+Downloading watchdog.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/8.93k [00:00<?, ?B/s]100%|██████████| 8.93k/8.93k [00:00<00:00, 35.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/watchdog.py
+Downloading writer.py to /workspace/kaggle_out/koz3-gpu-s5/expds
+  0%|          | 0.00/5.88k [00:00<?, ?B/s]100%|██████████| 5.88k/5.88k [00:00<00:00, 28.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/expds/writer.py
+Downloading gpu0_step0.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.4k [00:00<?, ?B/s]100%|██████████| 10.4k/10.4k [00:00<00:00, 50.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step0.log
+Downloading gpu0_step1.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.4k [00:00<?, ?B/s]100%|██████████| 10.4k/10.4k [00:00<00:00, 51.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step1.log
+Downloading gpu0_step2.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.0k [00:00<?, ?B/s]100%|██████████| 10.0k/10.0k [00:00<00:00, 45.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step2.log
+Downloading gpu0_step3.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.5k [00:00<?, ?B/s]100%|██████████| 10.5k/10.5k [00:00<00:00, 38.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step3.log
+Downloading gpu0_step4.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.5k [00:00<?, ?B/s]100%|██████████| 10.5k/10.5k [00:00<00:00, 40.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step4.log
+Downloading gpu0_step5.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.5k [00:00<?, ?B/s]100%|██████████| 10.5k/10.5k [00:00<00:00, 36.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu0_step5.log
+Downloading gpu1_step0.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.3k [00:00<?, ?B/s]100%|██████████| 10.3k/10.3k [00:00<00:00, 43.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step0.log
+Downloading gpu1_step1.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.3k [00:00<?, ?B/s]100%|██████████| 10.3k/10.3k [00:00<00:00, 37.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step1.log
+Downloading gpu1_step2.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.3k [00:00<?, ?B/s]100%|██████████| 10.3k/10.3k [00:00<00:00, 39.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step2.log
+Downloading gpu1_step3.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.4k [00:00<?, ?B/s]100%|██████████| 10.4k/10.4k [00:00<00:00, 48.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step3.log
+Downloading gpu1_step4.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.3k [00:00<?, ?B/s]100%|██████████| 10.3k/10.3k [00:00<00:00, 44.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step4.log
+Downloading gpu1_step5.log to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/10.4k [00:00<?, ?B/s]100%|██████████| 10.4k/10.4k [00:00<00:00, 40.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/gpu1_step5.log
+Downloading summary.json to /workspace/kaggle_out/koz3-gpu-s5/logs
+  0%|          | 0.00/6.71k [00:00<?, ?B/s]100%|██████████| 6.71k/6.71k [00:00<00:00, 33.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs/summary.json
+Downloading gpu0_step0.log to /workspace/kaggle_out/koz3-gpu-s5/logs_smoke
+  0%|          | 0.00/1.05k [00:00<?, ?B/s]100%|██████████| 1.05k/1.05k [00:00<00:00, 5.53MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs_smoke/gpu0_step0.log
+Downloading summary.json to /workspace/kaggle_out/koz3-gpu-s5/logs_smoke
+  0%|          | 0.00/540 [00:00<?, ?B/s]100%|██████████| 540/540 [00:00<00:00, 3.58MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/logs_smoke/summary.json
+Downloading li_r18_unet_centers_fix_final.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  4%|▎         | 2.00M/54.8M [00:00<00:02, 20.1MB/s]  9%|▉         | 5.00M/54.8M [00:00<00:02, 24.2MB/s] 15%|█▍        | 8.00M/54.8M [00:00<00:01, 24.6MB/s] 20%|██        | 11.0M/54.8M [00:00<00:01, 24.6MB/s] 26%|██▌       | 14.0M/54.8M [00:00<00:01, 24.5MB/s] 31%|███       | 17.0M/54.8M [00:00<00:01, 24.4MB/s] 37%|███▋      | 20.0M/54.8M [00:00<00:01, 24.4MB/s] 42%|████▏     | 23.0M/54.8M [00:01<00:01, 23.6MB/s] 47%|████▋     | 26.0M/54.8M [00:01<00:01, 23.8MB/s] 53%|█████▎    | 29.0M/54.8M [00:01<00:01, 23.9MB/s] 58%|█████▊    | 32.0M/54.8M [00:01<00:01, 23.8MB/s] 64%|██████▍   | 35.0M/54.8M [00:01<00:00, 24.4MB/s] 69%|██████▉   | 38.0M/54.8M [00:01<00:00, 24.4MB/s] 75%|███████▍  | 41.0M/54.8M [00:01<00:00, 24.4MB/s] 80%|████████  | 44.0M/54.8M [00:01<00:00, 24.4MB/s] 86%|████████▌ | 47.0M/54.8M [00:02<00:00, 24.3MB/s] 91%|█████████▏| 50.0M/54.8M [00:02<00:00, 24.3MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 21.4MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 23.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_final.pt
+Downloading li_r18_unet_centers_fix_fold0.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  2%|▏         | 1.00M/54.8M [00:00<00:22, 2.51MB/s]  4%|▎         | 2.00M/54.8M [00:00<00:12, 4.42MB/s]  7%|▋         | 4.00M/54.8M [00:00<00:06, 7.84MB/s] 13%|█▎        | 7.00M/54.8M [00:00<00:04, 12.4MB/s] 18%|█▊        | 10.0M/54.8M [00:00<00:03, 15.5MB/s] 24%|██▎       | 13.0M/54.8M [00:01<00:02, 17.6MB/s] 29%|██▉       | 16.0M/54.8M [00:01<00:02, 19.1MB/s] 33%|███▎      | 18.0M/54.8M [00:01<00:02, 18.3MB/s] 38%|███▊      | 21.0M/54.8M [00:01<00:01, 19.7MB/s] 44%|████▍     | 24.0M/54.8M [00:01<00:01, 19.4MB/s] 49%|████▉     | 27.0M/54.8M [00:01<00:01, 20.9MB/s] 55%|█████▍    | 30.0M/54.8M [00:01<00:01, 21.3MB/s] 60%|██████    | 33.0M/54.8M [00:02<00:01, 19.5MB/s] 66%|██████▌   | 36.0M/54.8M [00:02<00:00, 20.3MB/s] 71%|███████   | 39.0M/54.8M [00:02<00:00, 20.9MB/s] 77%|███████▋  | 42.0M/54.8M [00:02<00:00, 21.3MB/s] 82%|████████▏ | 45.0M/54.8M [00:02<00:00, 21.7MB/s] 88%|████████▊ | 48.0M/54.8M [00:02<00:00, 21.9MB/s] 93%|█████████▎| 51.0M/54.8M [00:03<00:00, 19.9MB/s] 99%|█████████▊| 54.0M/54.8M [00:03<00:00, 20.5MB/s]100%|██████████| 54.8M/54.8M [00:03<00:00, 18.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_fold0.pt
+Downloading li_r18_unet_centers_fix_fold1.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  2%|▏         | 1.00M/54.8M [00:00<00:25, 2.24MB/s]  4%|▎         | 2.00M/54.8M [00:00<00:13, 4.07MB/s]  7%|▋         | 4.00M/54.8M [00:00<00:07, 7.53MB/s] 15%|█▍        | 8.00M/54.8M [00:00<00:03, 15.3MB/s] 22%|██▏       | 12.0M/54.8M [00:00<00:02, 21.6MB/s] 27%|██▋       | 15.0M/54.8M [00:01<00:01, 23.7MB/s] 35%|███▍      | 19.0M/54.8M [00:01<00:01, 26.7MB/s] 42%|████▏     | 23.0M/54.8M [00:01<00:01, 28.6MB/s] 47%|████▋     | 26.0M/54.8M [00:01<00:01, 28.9MB/s] 53%|█████▎    | 29.0M/54.8M [00:01<00:00, 28.2MB/s] 60%|██████    | 33.0M/54.8M [00:01<00:00, 29.6MB/s] 68%|██████▊   | 37.0M/54.8M [00:01<00:00, 30.7MB/s] 75%|███████▍  | 41.0M/54.8M [00:01<00:00, 31.1MB/s] 82%|████████▏ | 45.0M/54.8M [00:02<00:00, 31.8MB/s] 89%|████████▉ | 49.0M/54.8M [00:02<00:00, 32.2MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 32.4MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 24.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_fold1.pt
+Downloading li_r18_unet_centers_fix_fold2.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  2%|▏         | 1.00M/54.8M [00:00<00:14, 3.96MB/s]  4%|▎         | 2.00M/54.8M [00:00<00:09, 6.12MB/s]  7%|▋         | 4.00M/54.8M [00:00<00:05, 9.92MB/s] 13%|█▎        | 7.00M/54.8M [00:00<00:03, 15.9MB/s] 16%|█▋        | 9.00M/54.8M [00:00<00:02, 16.8MB/s] 22%|██▏       | 12.0M/54.8M [00:00<00:02, 18.9MB/s] 26%|██▌       | 14.0M/54.8M [00:01<00:02, 17.1MB/s] 31%|███       | 17.0M/54.8M [00:01<00:01, 20.0MB/s] 37%|███▋      | 20.0M/54.8M [00:01<00:01, 20.5MB/s] 42%|████▏     | 23.0M/54.8M [00:01<00:01, 21.6MB/s] 47%|████▋     | 26.0M/54.8M [00:01<00:01, 22.1MB/s] 53%|█████▎    | 29.0M/54.8M [00:01<00:01, 22.4MB/s] 58%|█████▊    | 32.0M/54.8M [00:01<00:01, 22.1MB/s] 64%|██████▍   | 35.0M/54.8M [00:01<00:00, 22.8MB/s] 69%|██████▉   | 38.0M/54.8M [00:02<00:00, 22.6MB/s] 75%|███████▍  | 41.0M/54.8M [00:02<00:00, 22.9MB/s] 80%|████████  | 44.0M/54.8M [00:02<00:00, 22.9MB/s] 86%|████████▌ | 47.0M/54.8M [00:02<00:00, 22.2MB/s] 91%|█████████▏| 50.0M/54.8M [00:02<00:00, 21.9MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 20.7MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 19.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_fold2.pt
+Downloading li_r18_unet_centers_fix_fold3.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  2%|▏         | 1.00M/54.8M [00:00<00:11, 4.95MB/s]  4%|▎         | 2.00M/54.8M [00:00<00:08, 6.32MB/s]  7%|▋         | 4.00M/54.8M [00:00<00:05, 10.4MB/s] 13%|█▎        | 7.00M/54.8M [00:00<00:03, 16.6MB/s] 20%|██        | 11.0M/54.8M [00:00<00:02, 20.1MB/s] 26%|██▌       | 14.0M/54.8M [00:00<00:01, 22.2MB/s] 31%|███       | 17.0M/54.8M [00:00<00:01, 22.5MB/s] 37%|███▋      | 20.0M/54.8M [00:01<00:01, 22.0MB/s] 42%|████▏     | 23.0M/54.8M [00:01<00:01, 21.4MB/s] 47%|████▋     | 26.0M/54.8M [00:01<00:01, 21.9MB/s] 53%|█████▎    | 29.0M/54.8M [00:01<00:01, 22.2MB/s] 60%|██████    | 33.0M/54.8M [00:01<00:00, 24.3MB/s] 66%|██████▌   | 36.0M/54.8M [00:01<00:00, 24.0MB/s] 71%|███████   | 39.0M/54.8M [00:01<00:00, 23.3MB/s] 77%|███████▋  | 42.0M/54.8M [00:02<00:00, 22.1MB/s] 84%|████████▍ | 46.0M/54.8M [00:02<00:00, 24.0MB/s] 89%|████████▉ | 49.0M/54.8M [00:02<00:00, 23.9MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 25.2MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 21.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_fold3.pt
+Downloading li_r18_unet_centers_fix_fold4.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  4%|▎         | 2.00M/54.8M [00:00<00:04, 11.3MB/s]  7%|▋         | 4.00M/54.8M [00:00<00:03, 15.2MB/s] 13%|█▎        | 7.00M/54.8M [00:00<00:02, 19.4MB/s] 20%|██        | 11.0M/54.8M [00:00<00:02, 22.4MB/s] 26%|██▌       | 14.0M/54.8M [00:00<00:01, 23.3MB/s] 31%|███       | 17.0M/54.8M [00:00<00:01, 23.2MB/s] 37%|███▋      | 20.0M/54.8M [00:00<00:01, 25.2MB/s] 42%|████▏     | 23.0M/54.8M [00:01<00:01, 25.5MB/s] 47%|████▋     | 26.0M/54.8M [00:01<00:01, 25.0MB/s] 53%|█████▎    | 29.0M/54.8M [00:01<00:01, 24.1MB/s] 60%|██████    | 33.0M/54.8M [00:01<00:00, 25.0MB/s] 66%|██████▌   | 36.0M/54.8M [00:01<00:00, 25.7MB/s] 71%|███████   | 39.0M/54.8M [00:01<00:00, 24.1MB/s] 79%|███████▊  | 43.0M/54.8M [00:01<00:00, 25.8MB/s] 84%|████████▍ | 46.0M/54.8M [00:02<00:00, 24.8MB/s] 91%|█████████▏| 50.0M/54.8M [00:02<00:00, 26.1MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 25.2MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 24.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r18_unet_centers_fix_fold4.pt
+Downloading li_r34_fpn_centers_fix_final.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  2%|▏         | 2.00M/88.5M [00:00<00:07, 12.4MB/s]  6%|▌         | 5.00M/88.5M [00:00<00:04, 19.4MB/s]  8%|▊         | 7.00M/88.5M [00:00<00:04, 17.9MB/s] 14%|█▎        | 12.0M/88.5M [00:00<00:03, 25.8MB/s] 17%|█▋        | 15.0M/88.5M [00:00<00:03, 25.5MB/s] 20%|██        | 18.0M/88.5M [00:00<00:02, 25.4MB/s] 24%|██▎       | 21.0M/88.5M [00:00<00:02, 25.3MB/s] 28%|██▊       | 25.0M/88.5M [00:01<00:02, 27.1MB/s] 32%|███▏      | 28.0M/88.5M [00:01<00:02, 25.4MB/s] 35%|███▌      | 31.0M/88.5M [00:01<00:02, 26.2MB/s] 38%|███▊      | 34.0M/88.5M [00:01<00:02, 25.8MB/s] 42%|████▏     | 37.0M/88.5M [00:01<00:02, 24.6MB/s] 46%|████▋     | 41.0M/88.5M [00:01<00:01, 27.5MB/s] 50%|████▉     | 44.0M/88.5M [00:01<00:01, 26.7MB/s] 53%|█████▎    | 47.0M/88.5M [00:01<00:01, 26.3MB/s] 57%|█████▋    | 50.0M/88.5M [00:02<00:01, 26.0MB/s] 60%|█████▉    | 53.0M/88.5M [00:02<00:01, 25.7MB/s] 64%|██████▍   | 57.0M/88.5M [00:02<00:01, 27.0MB/s] 68%|██████▊   | 60.0M/88.5M [00:02<00:01, 26.5MB/s] 71%|███████   | 63.0M/88.5M [00:02<00:01, 26.0MB/s] 75%|███████▍  | 66.0M/88.5M [00:02<00:00, 25.6MB/s] 78%|███████▊  | 69.0M/88.5M [00:02<00:00, 25.6MB/s] 82%|████████▏ | 73.0M/88.5M [00:02<00:00, 27.2MB/s] 86%|████████▌ | 76.0M/88.5M [00:03<00:00, 26.5MB/s] 89%|████████▉ | 79.0M/88.5M [00:03<00:00, 25.5MB/s] 93%|█████████▎| 82.0M/88.5M [00:03<00:00, 25.8MB/s] 96%|█████████▌| 85.0M/88.5M [00:03<00:00, 25.7MB/s]100%|██████████| 88.5M/88.5M [00:03<00:00, 26.2MB/s]100%|██████████| 88.5M/88.5M [00:03<00:00, 25.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_final.pt
+Downloading li_r34_fpn_centers_fix_fold0.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  2%|▏         | 2.00M/88.5M [00:00<00:04, 18.5MB/s]  6%|▌         | 5.00M/88.5M [00:00<00:03, 23.5MB/s] 11%|█▏        | 10.0M/88.5M [00:00<00:02, 30.7MB/s] 16%|█▌        | 14.0M/88.5M [00:00<00:02, 32.1MB/s] 20%|██        | 18.0M/88.5M [00:00<00:02, 33.0MB/s] 25%|██▍       | 22.0M/88.5M [00:00<00:02, 33.2MB/s] 29%|██▉       | 26.0M/88.5M [00:00<00:01, 33.3MB/s] 34%|███▍      | 30.0M/88.5M [00:00<00:01, 33.9MB/s] 38%|███▊      | 34.0M/88.5M [00:01<00:01, 34.4MB/s] 43%|████▎     | 38.0M/88.5M [00:01<00:01, 34.4MB/s] 47%|████▋     | 42.0M/88.5M [00:01<00:01, 32.2MB/s] 52%|█████▏    | 46.0M/88.5M [00:01<00:01, 32.7MB/s] 57%|█████▋    | 50.0M/88.5M [00:01<00:01, 33.4MB/s] 61%|██████    | 54.0M/88.5M [00:01<00:01, 33.9MB/s] 66%|██████▌   | 58.0M/88.5M [00:01<00:00, 34.0MB/s] 70%|███████   | 62.0M/88.5M [00:01<00:00, 33.9MB/s] 75%|███████▍  | 66.0M/88.5M [00:02<00:00, 34.4MB/s] 79%|███████▉  | 70.0M/88.5M [00:02<00:00, 34.4MB/s] 84%|████████▎ | 74.0M/88.5M [00:02<00:00, 34.4MB/s] 88%|████████▊ | 78.0M/88.5M [00:02<00:00, 34.5MB/s] 93%|█████████▎| 82.0M/88.5M [00:02<00:00, 32.0MB/s] 97%|█████████▋| 86.0M/88.5M [00:02<00:00, 32.8MB/s]100%|██████████| 88.5M/88.5M [00:02<00:00, 33.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_fold0.pt
+Downloading li_r34_fpn_centers_fix_fold1.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  3%|▎         | 3.00M/88.5M [00:00<00:02, 30.3MB/s]  7%|▋         | 6.00M/88.5M [00:00<00:03, 26.1MB/s] 10%|█         | 9.00M/88.5M [00:00<00:03, 25.1MB/s] 14%|█▎        | 12.0M/88.5M [00:00<00:03, 21.3MB/s] 17%|█▋        | 15.0M/88.5M [00:00<00:03, 22.1MB/s] 20%|██        | 18.0M/88.5M [00:00<00:03, 22.5MB/s] 24%|██▎       | 21.0M/88.5M [00:00<00:03, 20.6MB/s] 27%|██▋       | 24.0M/88.5M [00:01<00:03, 21.4MB/s] 31%|███       | 27.0M/88.5M [00:01<00:02, 22.0MB/s] 34%|███▍      | 30.0M/88.5M [00:01<00:02, 22.6MB/s] 37%|███▋      | 33.0M/88.5M [00:01<00:02, 20.7MB/s] 41%|████      | 36.0M/88.5M [00:01<00:02, 21.5MB/s] 44%|████▍     | 39.0M/88.5M [00:01<00:02, 22.0MB/s] 47%|████▋     | 42.0M/88.5M [00:02<00:02, 20.5MB/s] 51%|█████     | 45.0M/88.5M [00:02<00:02, 21.4MB/s] 54%|█████▍    | 48.0M/88.5M [00:02<00:01, 21.9MB/s] 58%|█████▊    | 51.0M/88.5M [00:02<00:01, 22.5MB/s] 61%|██████    | 54.0M/88.5M [00:02<00:01, 20.7MB/s] 64%|██████▍   | 57.0M/88.5M [00:02<00:01, 21.5MB/s] 68%|██████▊   | 60.0M/88.5M [00:02<00:01, 22.0MB/s] 71%|███████   | 63.0M/88.5M [00:03<00:01, 20.5MB/s] 75%|███████▍  | 66.0M/88.5M [00:03<00:01, 21.3MB/s] 78%|███████▊  | 69.0M/88.5M [00:03<00:00, 21.9MB/s] 81%|████████▏ | 72.0M/88.5M [00:03<00:00, 20.4MB/s] 85%|████████▍ | 75.0M/88.5M [00:03<00:00, 21.3MB/s] 88%|████████▊ | 78.0M/88.5M [00:03<00:00, 22.0MB/s] 92%|█████████▏| 81.0M/88.5M [00:03<00:00, 22.4MB/s] 95%|█████████▍| 84.0M/88.5M [00:04<00:00, 20.7MB/s] 98%|█████████▊| 87.0M/88.5M [00:04<00:00, 21.5MB/s]100%|██████████| 88.5M/88.5M [00:04<00:00, 21.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_fold1.pt
+Downloading li_r34_fpn_centers_fix_fold2.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  1%|          | 1.00M/88.5M [00:00<00:16, 5.58MB/s]  3%|▎         | 3.00M/88.5M [00:00<00:09, 9.27MB/s]  7%|▋         | 6.00M/88.5M [00:00<00:05, 15.6MB/s] 10%|█         | 9.00M/88.5M [00:00<00:04, 18.9MB/s] 14%|█▎        | 12.0M/88.5M [00:00<00:03, 21.0MB/s] 18%|█▊        | 16.0M/88.5M [00:00<00:03, 23.7MB/s] 21%|██▏       | 19.0M/88.5M [00:01<00:03, 23.7MB/s] 26%|██▌       | 23.0M/88.5M [00:01<00:02, 25.0MB/s] 29%|██▉       | 26.0M/88.5M [00:01<00:02, 24.4MB/s] 33%|███▎      | 29.0M/88.5M [00:01<00:03, 20.3MB/s] 37%|███▋      | 33.0M/88.5M [00:01<00:02, 23.1MB/s] 41%|████      | 36.0M/88.5M [00:01<00:02, 23.7MB/s] 45%|████▌     | 40.0M/88.5M [00:01<00:01, 25.5MB/s] 49%|████▊     | 43.0M/88.5M [00:02<00:01, 25.4MB/s] 53%|█████▎    | 47.0M/88.5M [00:02<00:01, 26.8MB/s] 57%|█████▋    | 50.0M/88.5M [00:02<00:01, 26.5MB/s] 60%|█████▉    | 53.0M/88.5M [00:02<00:01, 26.0MB/s] 64%|██████▍   | 57.0M/88.5M [00:02<00:01, 26.2MB/s] 68%|██████▊   | 60.0M/88.5M [00:02<00:01, 27.3MB/s] 72%|███████▏  | 64.0M/88.5M [00:02<00:00, 28.2MB/s] 76%|███████▌  | 67.0M/88.5M [00:02<00:00, 26.9MB/s] 80%|████████  | 71.0M/88.5M [00:03<00:00, 28.4MB/s] 84%|████████▎ | 74.0M/88.5M [00:03<00:00, 25.9MB/s] 87%|████████▋ | 77.0M/88.5M [00:03<00:00, 26.3MB/s] 92%|█████████▏| 81.0M/88.5M [00:03<00:00, 27.9MB/s] 95%|█████████▍| 84.0M/88.5M [00:03<00:00, 27.8MB/s] 99%|█████████▉| 88.0M/88.5M [00:03<00:00, 27.6MB/s]100%|██████████| 88.5M/88.5M [00:03<00:00, 24.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_fold2.pt
+Downloading li_r34_fpn_centers_fix_fold3.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  3%|▎         | 3.00M/88.5M [00:00<00:04, 21.5MB/s]  7%|▋         | 6.00M/88.5M [00:00<00:03, 22.0MB/s] 10%|█         | 9.00M/88.5M [00:00<00:04, 19.8MB/s] 12%|█▏        | 11.0M/88.5M [00:00<00:04, 18.8MB/s] 16%|█▌        | 14.0M/88.5M [00:00<00:03, 20.2MB/s] 18%|█▊        | 16.0M/88.5M [00:00<00:04, 17.9MB/s] 21%|██▏       | 19.0M/88.5M [00:01<00:03, 19.4MB/s] 24%|██▎       | 21.0M/88.5M [00:01<00:03, 19.1MB/s] 27%|██▋       | 24.0M/88.5M [00:01<00:03, 20.2MB/s] 29%|██▉       | 26.0M/88.5M [00:01<00:03, 18.4MB/s] 33%|███▎      | 29.0M/88.5M [00:01<00:03, 20.0MB/s] 35%|███▌      | 31.0M/88.5M [00:01<00:03, 19.3MB/s] 37%|███▋      | 33.0M/88.5M [00:01<00:03, 18.7MB/s] 41%|████      | 36.0M/88.5M [00:01<00:02, 20.0MB/s] 43%|████▎     | 38.0M/88.5M [00:02<00:03, 16.7MB/s] 46%|████▋     | 41.0M/88.5M [00:02<00:02, 18.4MB/s] 49%|████▊     | 43.0M/88.5M [00:02<00:02, 17.4MB/s] 52%|█████▏    | 46.0M/88.5M [00:02<00:02, 18.9MB/s] 54%|█████▍    | 48.0M/88.5M [00:02<00:02, 18.9MB/s] 57%|█████▋    | 50.0M/88.5M [00:02<00:02, 17.8MB/s] 60%|█████▉    | 53.0M/88.5M [00:02<00:01, 18.6MB/s] 63%|██████▎   | 56.0M/88.5M [00:03<00:01, 20.8MB/s] 67%|██████▋   | 59.0M/88.5M [00:03<00:01, 17.9MB/s] 70%|███████   | 62.0M/88.5M [00:03<00:01, 19.4MB/s] 72%|███████▏  | 64.0M/88.5M [00:03<00:01, 18.2MB/s] 75%|███████▍  | 66.0M/88.5M [00:03<00:01, 17.9MB/s] 78%|███████▊  | 69.0M/88.5M [00:03<00:01, 19.4MB/s] 80%|████████  | 71.0M/88.5M [00:03<00:00, 18.8MB/s] 84%|████████▎ | 74.0M/88.5M [00:04<00:00, 18.5MB/s] 86%|████████▌ | 76.0M/88.5M [00:04<00:00, 18.2MB/s] 89%|████████▉ | 79.0M/88.5M [00:04<00:00, 19.9MB/s] 92%|█████████▏| 81.0M/88.5M [00:04<00:00, 18.7MB/s] 95%|█████████▍| 84.0M/88.5M [00:04<00:00, 20.0MB/s] 97%|█████████▋| 86.0M/88.5M [00:04<00:00, 19.0MB/s] 99%|█████████▉| 88.0M/88.5M [00:04<00:00, 18.7MB/s]100%|██████████| 88.5M/88.5M [00:04<00:00, 19.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_fold3.pt
+Downloading li_r34_fpn_centers_fix_fold4.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/88.5M [00:00<?, ?B/s]  1%|          | 1.00M/88.5M [00:00<00:25, 3.53MB/s]  2%|▏         | 2.00M/88.5M [00:00<00:17, 5.19MB/s]  6%|▌         | 5.00M/88.5M [00:00<00:07, 11.8MB/s]  9%|▉         | 8.00M/88.5M [00:00<00:05, 16.2MB/s] 12%|█▏        | 11.0M/88.5M [00:00<00:04, 18.7MB/s] 16%|█▌        | 14.0M/88.5M [00:00<00:03, 20.6MB/s] 19%|█▉        | 17.0M/88.5M [00:01<00:03, 21.6MB/s] 23%|██▎       | 20.0M/88.5M [00:01<00:03, 22.3MB/s] 26%|██▌       | 23.0M/88.5M [00:01<00:02, 23.0MB/s] 29%|██▉       | 26.0M/88.5M [00:01<00:02, 23.3MB/s] 33%|███▎      | 29.0M/88.5M [00:01<00:02, 23.5MB/s] 36%|███▌      | 32.0M/88.5M [00:01<00:02, 23.7MB/s] 40%|███▉      | 35.0M/88.5M [00:01<00:02, 23.8MB/s] 43%|████▎     | 38.0M/88.5M [00:01<00:02, 23.9MB/s] 46%|████▋     | 41.0M/88.5M [00:02<00:02, 24.0MB/s] 50%|████▉     | 44.0M/88.5M [00:02<00:01, 24.0MB/s] 53%|█████▎    | 47.0M/88.5M [00:02<00:01, 23.0MB/s] 57%|█████▋    | 50.0M/88.5M [00:02<00:01, 23.0MB/s] 60%|█████▉    | 53.0M/88.5M [00:02<00:01, 23.4MB/s] 63%|██████▎   | 56.0M/88.5M [00:02<00:01, 23.7MB/s] 67%|██████▋   | 59.0M/88.5M [00:02<00:01, 23.8MB/s] 70%|███████   | 62.0M/88.5M [00:03<00:01, 23.6MB/s] 73%|███████▎  | 65.0M/88.5M [00:03<00:01, 24.0MB/s] 77%|███████▋  | 68.0M/88.5M [00:03<00:00, 24.0MB/s] 80%|████████  | 71.0M/88.5M [00:03<00:00, 24.1MB/s] 84%|████████▎ | 74.0M/88.5M [00:03<00:00, 24.1MB/s] 87%|████████▋ | 77.0M/88.5M [00:03<00:00, 24.1MB/s] 90%|█████████ | 80.0M/88.5M [00:03<00:00, 24.0MB/s] 94%|█████████▍| 83.0M/88.5M [00:03<00:00, 24.1MB/s] 97%|█████████▋| 86.0M/88.5M [00:04<00:00, 24.0MB/s]100%|██████████| 88.5M/88.5M [00:04<00:00, 23.2MB/s]100%|██████████| 88.5M/88.5M [00:04<00:00, 21.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/li_r34_fpn_centers_fix_fold4.pt
+Downloading smoke_centers_fold0.pt to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/54.8M [00:00<?, ?B/s]  7%|▋         | 4.00M/54.8M [00:00<00:01, 33.6MB/s] 15%|█▍        | 8.00M/54.8M [00:00<00:01, 26.9MB/s] 22%|██▏       | 12.0M/54.8M [00:00<00:01, 27.3MB/s] 27%|██▋       | 15.0M/54.8M [00:00<00:01, 27.1MB/s] 33%|███▎      | 18.0M/54.8M [00:00<00:01, 24.8MB/s] 38%|███▊      | 21.0M/54.8M [00:00<00:01, 26.1MB/s] 44%|████▍     | 24.0M/54.8M [00:00<00:01, 25.6MB/s] 49%|████▉     | 27.0M/54.8M [00:01<00:01, 25.7MB/s] 57%|█████▋    | 31.0M/54.8M [00:01<00:00, 26.3MB/s] 62%|██████▏   | 34.0M/54.8M [00:01<00:00, 26.3MB/s] 68%|██████▊   | 37.0M/54.8M [00:01<00:00, 25.3MB/s] 73%|███████▎  | 40.0M/54.8M [00:01<00:00, 25.7MB/s] 79%|███████▊  | 43.0M/54.8M [00:01<00:00, 25.3MB/s] 84%|████████▍ | 46.0M/54.8M [00:01<00:00, 25.2MB/s] 91%|█████████▏| 50.0M/54.8M [00:02<00:00, 26.3MB/s] 97%|█████████▋| 53.0M/54.8M [00:02<00:00, 25.9MB/s]100%|██████████| 54.8M/54.8M [00:02<00:00, 26.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/smoke_centers_fold0.pt
+Downloading train_summary.json to /workspace/kaggle_out/koz3-gpu-s5/out
+  0%|          | 0.00/3.64k [00:00<?, ?B/s]100%|██████████| 3.64k/3.64k [00:00<00:00, 17.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/out/train_summary.json
+Downloading pyproject.toml to /workspace/kaggle_out/koz3-gpu-s5
+  0%|          | 0.00/469 [00:00<?, ?B/s]100%|██████████| 469/469 [00:00<00:00, 3.00MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/pyproject.toml
+Downloading requirements.txt to /workspace/kaggle_out/koz3-gpu-s5
+  0%|          | 0.00/271 [00:00<?, ?B/s]100%|██████████| 271/271 [00:00<00:00, 1.46MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/requirements.txt
+Downloading audit_crs.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/4.85k [00:00<?, ?B/s]100%|██████████| 4.85k/4.85k [00:00<00:00, 24.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/audit_crs.py
+Downloading audit_rasters.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/4.14k [00:00<?, ?B/s]100%|██████████| 4.14k/4.14k [00:00<00:00, 17.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/audit_rasters.py
+Downloading bench_gpu.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/8.73k [00:00<?, ?B/s]100%|██████████| 8.73k/8.73k [00:00<00:00, 27.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/bench_gpu.py
+Downloading bot9_kurgan_subclass.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/9.47k [00:00<?, ?B/s]100%|██████████| 9.47k/9.47k [00:00<00:00, 42.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/bot9_kurgan_subclass.py
+Downloading build_rust.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/4.16k [00:00<?, ?B/s]100%|██████████| 4.16k/4.16k [00:00<00:00, 20.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/build_rust.py
+Downloading build_submission.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/10.5k [00:00<?, ?B/s]100%|██████████| 10.5k/10.5k [00:00<00:00, 41.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/build_submission.py
+Downloading cache_merge.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/4.86k [00:00<?, ?B/s]100%|██████████| 4.86k/4.86k [00:00<00:00, 19.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/cache_merge.py
+Downloading check_groups.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.17k [00:00<?, ?B/s]100%|██████████| 3.17k/3.17k [00:00<00:00, 17.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/check_groups.py
+Downloading cloud_gpu_farm.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/6.90k [00:00<?, ?B/s]100%|██████████| 6.90k/6.90k [00:00<00:00, 26.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/cloud_gpu_farm.py
+Downloading coco_from_cache.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/9.55k [00:00<?, ?B/s]100%|██████████| 9.55k/9.55k [00:00<00:00, 13.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/coco_from_cache.py
+Downloading coco_preds_to_stack.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/8.69k [00:00<?, ?B/s]100%|██████████| 8.69k/8.69k [00:00<00:00, 30.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/coco_preds_to_stack.py
+Downloading crop_verify.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/21.6k [00:00<?, ?B/s]100%|██████████| 21.6k/21.6k [00:00<00:00, 4.48MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/crop_verify.py
+Downloading density_thresholds.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/6.74k [00:00<?, ?B/s]100%|██████████| 6.74k/6.74k [00:00<00:00, 2.32MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/density_thresholds.py
+Downloading error_types.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/12.5k [00:00<?, ?B/s]100%|██████████| 12.5k/12.5k [00:00<00:00, 47.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/error_types.py
+Downloading etgr_layers.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.59k [00:00<?, ?B/s]100%|██████████| 3.59k/3.59k [00:00<00:00, 17.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/etgr_layers.py
+Downloading geo_predict.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.87k [00:00<?, ?B/s]100%|██████████| 3.87k/3.87k [00:00<00:00, 17.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_predict.py
+Downloading geo_probe.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/9.69k [00:00<?, ?B/s]100%|██████████| 9.69k/9.69k [00:00<00:00, 43.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_probe.py
+Downloading geo_rank.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/9.03k [00:00<?, ?B/s]100%|██████████| 9.03k/9.03k [00:00<00:00, 35.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_rank.py
+Downloading geo_regime.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/7.59k [00:00<?, ?B/s]100%|██████████| 7.59k/7.59k [00:00<00:00, 36.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_regime.py
+Downloading geo_silent_maps.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/4.62k [00:00<?, ?B/s]100%|██████████| 4.62k/4.62k [00:00<00:00, 19.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_silent_maps.py
+Downloading geo_stages.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/8.66k [00:00<?, ?B/s]100%|██████████| 8.66k/8.66k [00:00<00:00, 23.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_stages.py
+Downloading geo_tune.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/12.7k [00:00<?, ?B/s]100%|██████████| 12.7k/12.7k [00:00<00:00, 56.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/geo_tune.py
+Downloading hillfort_oof.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.16k [00:00<?, ?B/s]100%|██████████| 3.16k/3.16k [00:00<00:00, 15.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/hillfort_oof.py
+Downloading image_label_shift.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/7.59k [00:00<?, ?B/s]100%|██████████| 7.59k/7.59k [00:00<00:00, 39.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/image_label_shift.py
+Downloading kaggle_dual_t4_orchestrator.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/35.8k [00:00<?, ?B/s]100%|██████████| 35.8k/35.8k [00:00<00:00, 3.93MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/kaggle_dual_t4_orchestrator.py
+Downloading layer_shift.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/7.89k [00:00<?, ?B/s]100%|██████████| 7.89k/7.89k [00:00<00:00, 35.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/layer_shift.py
+Downloading lb_counts.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/6.36k [00:00<?, ?B/s]100%|██████████| 6.36k/6.36k [00:00<00:00, 28.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/lb_counts.py
+Downloading make_mock_val.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/5.65k [00:00<?, ?B/s]100%|██████████| 5.65k/5.65k [00:00<00:00, 24.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/make_mock_val.py
+Downloading nn_oof.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/23.8k [00:00<?, ?B/s]100%|██████████| 23.8k/23.8k [00:00<00:00, 1.84MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/nn_oof.py
+Downloading oof_full.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/5.04k [00:00<?, ?B/s]100%|██████████| 5.04k/5.04k [00:00<00:00, 27.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/oof_full.py
+Downloading oof_transform.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/16.1k [00:00<?, ?B/s]100%|██████████| 16.1k/16.1k [00:00<00:00, 2.14MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/oof_transform.py
+Downloading oof_vote.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/11.1k [00:00<?, ?B/s]100%|██████████| 11.1k/11.1k [00:00<00:00, 7.84MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/oof_vote.py
+Downloading oracle_ceiling.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/8.17k [00:00<?, ?B/s]100%|██████████| 8.17k/8.17k [00:00<00:00, 39.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/oracle_ceiling.py
+Downloading pack_for_review.ps1 to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.19k [00:00<?, ?B/s]100%|██████████| 3.19k/3.19k [00:00<00:00, 16.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/pack_for_review.ps1
+Downloading platform_sim.ps1 to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/2.74k [00:00<?, ?B/s]100%|██████████| 2.74k/2.74k [00:00<00:00, 10.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/platform_sim.ps1
+Downloading platform_sim.sh to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/1.48k [00:00<?, ?B/s]100%|██████████| 1.48k/1.48k [00:00<00:00, 7.94MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/platform_sim.sh
+Downloading profile_run.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/3.28k [00:00<?, ?B/s]100%|██████████| 3.28k/3.28k [00:00<00:00, 17.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/profile_run.py
+Downloading rerank_oof.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/30.2k [00:00<?, ?B/s]100%|██████████| 30.2k/30.2k [00:00<00:00, 6.95MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/rerank_oof.py
+Downloading scene_split.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/5.47k [00:00<?, ?B/s]100%|██████████| 5.47k/5.47k [00:00<00:00, 26.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/scene_split.py
+Downloading scoreboard.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/21.4k [00:00<?, ?B/s]100%|██████████| 21.4k/21.4k [00:00<00:00, 3.54MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/scoreboard.py
+Downloading site_overlap.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/5.69k [00:00<?, ?B/s]100%|██████████| 5.69k/5.69k [00:00<00:00, 27.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/site_overlap.py
+Downloading val_memory.py to /workspace/kaggle_out/koz3-gpu-s5/scripts
+  0%|          | 0.00/11.7k [00:00<?, ?B/s]100%|██████████| 11.7k/11.7k [00:00<00:00, 30.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/scripts/val_memory.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch
+  0%|          | 0.00/2.07k [00:00<?, ?B/s]100%|██████████| 2.07k/2.07k [00:00<00:00, 11.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__pycache__
+  0%|          | 0.00/2.41k [00:00<?, ?B/s]100%|██████████| 2.41k/2.41k [00:00<00:00, 11.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__pycache__/__init__.cpython-313.pyc
+Downloading __version__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__pycache__
+  0%|          | 0.00/181 [00:00<?, ?B/s]100%|██████████| 181/181 [00:00<00:00, 691kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__pycache__/__version__.cpython-313.pyc
+Downloading __version__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch
+  0%|          | 0.00/22.0 [00:00<?, ?B/s]100%|██████████| 22.0/22.0 [00:00<00:00, 119kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/__version__.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/263 [00:00<?, ?B/s]100%|██████████| 263/263 [00:00<00:00, 1.28MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/397 [00:00<?, ?B/s]100%|██████████| 397/397 [00:00<00:00, 2.07MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/__init__.cpython-313.pyc
+Downloading heads.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/2.34k [00:00<?, ?B/s]100%|██████████| 2.34k/2.34k [00:00<00:00, 11.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/heads.cpython-313.pyc
+Downloading hub_mixin.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/6.83k [00:00<?, ?B/s]100%|██████████| 6.83k/6.83k [00:00<00:00, 17.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/hub_mixin.cpython-313.pyc
+Downloading initialization.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/2.24k [00:00<?, ?B/s]100%|██████████| 2.24k/2.24k [00:00<00:00, 12.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/initialization.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/9.94k [00:00<?, ?B/s]100%|██████████| 9.94k/9.94k [00:00<00:00, 41.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/model.cpython-313.pyc
+Downloading modules.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/9.20k [00:00<?, ?B/s]100%|██████████| 9.20k/9.20k [00:00<00:00, 40.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/modules.cpython-313.pyc
+Downloading utils.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__
+  0%|          | 0.00/741 [00:00<?, ?B/s]100%|██████████| 741/741 [00:00<00:00, 3.26MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/__pycache__/utils.cpython-313.pyc
+Downloading heads.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/1.28k [00:00<?, ?B/s]100%|██████████| 1.28k/1.28k [00:00<00:00, 7.26MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/heads.py
+Downloading hub_mixin.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/4.70k [00:00<?, ?B/s]100%|██████████| 4.70k/4.70k [00:00<00:00, 19.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/hub_mixin.py
+Downloading initialization.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/891 [00:00<?, ?B/s]100%|██████████| 891/891 [00:00<00:00, 5.89MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/initialization.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/7.74k [00:00<?, ?B/s]100%|██████████| 7.74k/7.74k [00:00<00:00, 35.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/model.py
+Downloading modules.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/6.08k [00:00<?, ?B/s]100%|██████████| 6.08k/6.08k [00:00<00:00, 33.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/modules.py
+Downloading utils.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base
+  0%|          | 0.00/298 [00:00<?, ?B/s]100%|██████████| 298/298 [00:00<00:00, 1.94MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/base/utils.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets
+  0%|          | 0.00/123 [00:00<?, ?B/s]100%|██████████| 123/123 [00:00<00:00, 854kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/__pycache__
+  0%|          | 0.00/286 [00:00<?, ?B/s]100%|██████████| 286/286 [00:00<00:00, 2.10MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/__pycache__/__init__.cpython-313.pyc
+Downloading oxford_pet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/__pycache__
+  0%|          | 0.00/8.14k [00:00<?, ?B/s]100%|██████████| 8.14k/8.14k [00:00<00:00, 37.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/__pycache__/oxford_pet.cpython-313.pyc
+Downloading oxford_pet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets
+  0%|          | 0.00/4.11k [00:00<?, ?B/s]100%|██████████| 4.11k/4.11k [00:00<00:00, 22.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/datasets/oxford_pet.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders
+0.00B [00:00, ?B/s]0.00B [00:00, ?B/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/__pycache__
+  0%|          | 0.00/161 [00:00<?, ?B/s]100%|██████████| 161/161 [00:00<00:00, 1.20MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/__pycache__/__init__.cpython-313.pyc
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3
+  0%|          | 0.00/86.0 [00:00<?, ?B/s]100%|██████████| 86.0/86.0 [00:00<00:00, 587kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__
+  0%|          | 0.00/274 [00:00<?, ?B/s]100%|██████████| 274/274 [00:00<00:00, 1.93MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__
+  0%|          | 0.00/11.5k [00:00<?, ?B/s]100%|██████████| 11.5k/11.5k [00:00<00:00, 49.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__
+  0%|          | 0.00/11.1k [00:00<?, ?B/s]100%|██████████| 11.1k/11.1k [00:00<00:00, 48.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3
+  0%|          | 0.00/8.07k [00:00<?, ?B/s]100%|██████████| 8.07k/8.07k [00:00<00:00, 31.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3
+  0%|          | 0.00/11.1k [00:00<?, ?B/s]100%|██████████| 11.1k/11.1k [00:00<00:00, 37.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/deeplabv3/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt
+  0%|          | 0.00/42.0 [00:00<?, ?B/s]100%|██████████| 42.0/42.0 [00:00<00:00, 256kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__
+  0%|          | 0.00/228 [00:00<?, ?B/s]100%|██████████| 228/228 [00:00<00:00, 1.75MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__
+  0%|          | 0.00/14.5k [00:00<?, ?B/s]100%|██████████| 14.5k/14.5k [00:00<00:00, 42.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__
+  0%|          | 0.00/8.72k [00:00<?, ?B/s]100%|██████████| 8.72k/8.72k [00:00<00:00, 34.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt
+  0%|          | 0.00/10.9k [00:00<?, ?B/s]100%|██████████| 10.9k/10.9k [00:00<00:00, 6.71MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt
+  0%|          | 0.00/8.05k [00:00<?, ?B/s]100%|██████████| 8.05k/8.05k [00:00<00:00, 27.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/dpt/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn
+  0%|          | 0.00/42.0 [00:00<?, ?B/s]100%|██████████| 42.0/42.0 [00:00<00:00, 292kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__
+  0%|          | 0.00/228 [00:00<?, ?B/s]100%|██████████| 228/228 [00:00<00:00, 1.84MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__
+  0%|          | 0.00/7.92k [00:00<?, ?B/s]100%|██████████| 7.92k/7.92k [00:00<00:00, 38.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__
+  0%|          | 0.00/5.67k [00:00<?, ?B/s]100%|██████████| 5.67k/5.67k [00:00<00:00, 27.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn
+  0%|          | 0.00/4.51k [00:00<?, ?B/s]100%|██████████| 4.51k/4.51k [00:00<00:00, 20.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn
+  0%|          | 0.00/5.26k [00:00<?, ?B/s]100%|██████████| 5.26k/5.26k [00:00<00:00, 24.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/fpn/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet
+  0%|          | 0.00/50.0 [00:00<?, ?B/s]100%|██████████| 50.0/50.0 [00:00<00:00, 354kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__
+  0%|          | 0.00/236 [00:00<?, ?B/s]100%|██████████| 236/236 [00:00<00:00, 1.69MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__
+  0%|          | 0.00/4.57k [00:00<?, ?B/s]100%|██████████| 4.57k/4.57k [00:00<00:00, 22.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__
+  0%|          | 0.00/6.23k [00:00<?, ?B/s]100%|██████████| 6.23k/6.23k [00:00<00:00, 24.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet
+  0%|          | 0.00/3.05k [00:00<?, ?B/s]100%|██████████| 3.05k/3.05k [00:00<00:00, 16.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet
+  0%|          | 0.00/5.73k [00:00<?, ?B/s]100%|██████████| 5.73k/5.73k [00:00<00:00, 24.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/linknet/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet
+  0%|          | 0.00/46.0 [00:00<?, ?B/s]100%|██████████| 46.0/46.0 [00:00<00:00, 368kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__
+  0%|          | 0.00/232 [00:00<?, ?B/s]100%|██████████| 232/232 [00:00<00:00, 1.79MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__
+  0%|          | 0.00/9.43k [00:00<?, ?B/s]100%|██████████| 9.43k/9.43k [00:00<00:00, 39.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__
+  0%|          | 0.00/6.72k [00:00<?, ?B/s]100%|██████████| 6.72k/6.72k [00:00<00:00, 32.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet
+  0%|          | 0.00/7.12k [00:00<?, ?B/s]100%|██████████| 7.12k/7.12k [00:00<00:00, 25.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet
+  0%|          | 0.00/6.36k [00:00<?, ?B/s]100%|██████████| 6.36k/6.36k [00:00<00:00, 23.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/manet/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan
+  0%|          | 0.00/42.0 [00:00<?, ?B/s]100%|██████████| 42.0/42.0 [00:00<00:00, 294kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__
+  0%|          | 0.00/228 [00:00<?, ?B/s]100%|██████████| 228/228 [00:00<00:00, 1.09MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__
+  0%|          | 0.00/8.99k [00:00<?, ?B/s]100%|██████████| 8.99k/8.99k [00:00<00:00, 34.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__
+  0%|          | 0.00/5.86k [00:00<?, ?B/s]100%|██████████| 5.86k/5.86k [00:00<00:00, 29.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan
+  0%|          | 0.00/7.37k [00:00<?, ?B/s]100%|██████████| 7.37k/7.37k [00:00<00:00, 36.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan
+  0%|          | 0.00/5.49k [00:00<?, ?B/s]100%|██████████| 5.49k/5.49k [00:00<00:00, 26.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pan/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet
+  0%|          | 0.00/48.0 [00:00<?, ?B/s]100%|██████████| 48.0/48.0 [00:00<00:00, 330kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__
+  0%|          | 0.00/234 [00:00<?, ?B/s]100%|██████████| 234/234 [00:00<00:00, 1.67MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__
+  0%|          | 0.00/5.06k [00:00<?, ?B/s]100%|██████████| 5.06k/5.06k [00:00<00:00, 19.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__
+  0%|          | 0.00/6.34k [00:00<?, ?B/s]100%|██████████| 6.34k/6.34k [00:00<00:00, 33.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet
+  0%|          | 0.00/3.07k [00:00<?, ?B/s]100%|██████████| 3.07k/3.07k [00:00<00:00, 7.23MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet
+  0%|          | 0.00/5.92k [00:00<?, ?B/s]100%|██████████| 5.92k/5.92k [00:00<00:00, 25.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/pspnet/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer
+  0%|          | 0.00/54.0 [00:00<?, ?B/s]100%|██████████| 54.0/54.0 [00:00<00:00, 438kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__
+  0%|          | 0.00/240 [00:00<?, ?B/s]100%|██████████| 240/240 [00:00<00:00, 1.72MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__
+  0%|          | 0.00/4.04k [00:00<?, ?B/s]100%|██████████| 4.04k/4.04k [00:00<00:00, 18.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__
+  0%|          | 0.00/4.71k [00:00<?, ?B/s]100%|██████████| 4.71k/4.71k [00:00<00:00, 18.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer
+  0%|          | 0.00/2.33k [00:00<?, ?B/s]100%|██████████| 2.33k/2.33k [00:00<00:00, 12.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer
+  0%|          | 0.00/4.24k [00:00<?, ?B/s]100%|██████████| 4.24k/4.24k [00:00<00:00, 20.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/segformer/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet
+  0%|          | 0.00/44.0 [00:00<?, ?B/s]100%|██████████| 44.0/44.0 [00:00<00:00, 292kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__
+  0%|          | 0.00/230 [00:00<?, ?B/s]100%|██████████| 230/230 [00:00<00:00, 1.63MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__
+  0%|          | 0.00/6.54k [00:00<?, ?B/s]100%|██████████| 6.54k/6.54k [00:00<00:00, 22.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__
+  0%|          | 0.00/7.66k [00:00<?, ?B/s]100%|██████████| 7.66k/7.66k [00:00<00:00, 36.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet
+  0%|          | 0.00/5.57k [00:00<?, ?B/s]100%|██████████| 5.57k/5.57k [00:00<00:00, 24.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet
+  0%|          | 0.00/7.39k [00:00<?, ?B/s]100%|██████████| 7.39k/7.39k [00:00<00:00, 33.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unet/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus
+  0%|          | 0.00/60.0 [00:00<?, ?B/s]100%|██████████| 60.0/60.0 [00:00<00:00, 367kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__
+  0%|          | 0.00/247 [00:00<?, ?B/s]100%|██████████| 247/247 [00:00<00:00, 1.94MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__
+  0%|          | 0.00/7.92k [00:00<?, ?B/s]100%|██████████| 7.92k/7.92k [00:00<00:00, 29.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__
+  0%|          | 0.00/7.10k [00:00<?, ?B/s]100%|██████████| 7.10k/7.10k [00:00<00:00, 27.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus
+  0%|          | 0.00/6.37k [00:00<?, ?B/s]100%|██████████| 6.37k/6.37k [00:00<00:00, 35.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus
+  0%|          | 0.00/6.67k [00:00<?, ?B/s]100%|██████████| 6.67k/6.67k [00:00<00:00, 35.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/unetplusplus/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet
+  0%|          | 0.00/50.0 [00:00<?, ?B/s]100%|██████████| 50.0/50.0 [00:00<00:00, 320kB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__
+  0%|          | 0.00/236 [00:00<?, ?B/s]100%|██████████| 236/236 [00:00<00:00, 1.59MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__/__init__.cpython-313.pyc
+Downloading decoder.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__
+  0%|          | 0.00/8.37k [00:00<?, ?B/s]100%|██████████| 8.37k/8.37k [00:00<00:00, 37.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__/decoder.cpython-313.pyc
+Downloading model.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__
+  0%|          | 0.00/5.58k [00:00<?, ?B/s]100%|██████████| 5.58k/5.58k [00:00<00:00, 25.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/__pycache__/model.cpython-313.pyc
+Downloading decoder.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet
+  0%|          | 0.00/7.35k [00:00<?, ?B/s]100%|██████████| 7.35k/7.35k [00:00<00:00, 32.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/decoder.py
+Downloading model.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet
+  0%|          | 0.00/5.15k [00:00<?, ?B/s]100%|██████████| 5.15k/5.15k [00:00<00:00, 25.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/decoders/upernet/model.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/6.06k [00:00<?, ?B/s]100%|██████████| 6.06k/6.06k [00:00<00:00, 31.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.18k [00:00<?, ?B/s]100%|██████████| 7.18k/7.18k [00:00<00:00, 23.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/__init__.cpython-313.pyc
+Downloading _base.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/3.14k [00:00<?, ?B/s]100%|██████████| 3.14k/3.14k [00:00<00:00, 17.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_base.cpython-313.pyc
+Downloading _dpn.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/14.7k [00:00<?, ?B/s]100%|██████████| 14.7k/14.7k [00:00<00:00, 40.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_dpn.cpython-313.pyc
+Downloading _efficientnet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/30.7k [00:00<?, ?B/s]100%|██████████| 30.7k/30.7k [00:00<00:00, 4.96MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_efficientnet.cpython-313.pyc
+Downloading _inceptionresnetv2.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/14.2k [00:00<?, ?B/s]100%|██████████| 14.2k/14.2k [00:00<00:00, 54.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_inceptionresnetv2.cpython-313.pyc
+Downloading _inceptionv4.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/13.8k [00:00<?, ?B/s]100%|██████████| 13.8k/13.8k [00:00<00:00, 58.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_inceptionv4.cpython-313.pyc
+Downloading _preprocessing.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/800 [00:00<?, ?B/s]100%|██████████| 800/800 [00:00<00:00, 3.85MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_preprocessing.cpython-313.pyc
+Downloading _senet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/13.3k [00:00<?, ?B/s]100%|██████████| 13.3k/13.3k [00:00<00:00, 54.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_senet.cpython-313.pyc
+Downloading _utils.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/2.63k [00:00<?, ?B/s]100%|██████████| 2.63k/2.63k [00:00<00:00, 15.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_utils.cpython-313.pyc
+Downloading _xception.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/9.03k [00:00<?, ?B/s]100%|██████████| 9.03k/9.03k [00:00<00:00, 40.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/_xception.cpython-313.pyc
+Downloading densenet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.27k [00:00<?, ?B/s]100%|██████████| 7.27k/7.27k [00:00<00:00, 32.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/densenet.cpython-313.pyc
+Downloading dpn.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.58k [00:00<?, ?B/s]100%|██████████| 7.58k/7.58k [00:00<00:00, 35.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/dpn.cpython-313.pyc
+Downloading efficientnet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.67k [00:00<?, ?B/s]100%|██████████| 7.67k/7.67k [00:00<00:00, 29.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/efficientnet.cpython-313.pyc
+Downloading inceptionresnetv2.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/5.94k [00:00<?, ?B/s]100%|██████████| 5.94k/5.94k [00:00<00:00, 17.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/inceptionresnetv2.cpython-313.pyc
+Downloading inceptionv4.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/5.04k [00:00<?, ?B/s]100%|██████████| 5.04k/5.04k [00:00<00:00, 23.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/inceptionv4.cpython-313.pyc
+Downloading mix_transformer.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/29.7k [00:00<?, ?B/s]100%|██████████| 29.7k/29.7k [00:00<00:00, 4.56MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/mix_transformer.cpython-313.pyc
+Downloading mobilenet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/4.62k [00:00<?, ?B/s]100%|██████████| 4.62k/4.62k [00:00<00:00, 24.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/mobilenet.cpython-313.pyc
+Downloading mobileone.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/20.9k [00:00<?, ?B/s]100%|██████████| 20.9k/20.9k [00:00<00:00, 3.73MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/mobileone.cpython-313.pyc
+Downloading resnet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.97k [00:00<?, ?B/s]100%|██████████| 7.97k/7.97k [00:00<00:00, 33.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/resnet.cpython-313.pyc
+Downloading senet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/6.36k [00:00<?, ?B/s]100%|██████████| 6.36k/6.36k [00:00<00:00, 30.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/senet.cpython-313.pyc
+Downloading timm_efficientnet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/13.7k [00:00<?, ?B/s]100%|██████████| 13.7k/13.7k [00:00<00:00, 51.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/timm_efficientnet.cpython-313.pyc
+Downloading timm_sknet.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/4.26k [00:00<?, ?B/s]100%|██████████| 4.26k/4.26k [00:00<00:00, 22.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/timm_sknet.cpython-313.pyc
+Downloading timm_universal.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/10.2k [00:00<?, ?B/s]100%|██████████| 10.2k/10.2k [00:00<00:00, 43.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/timm_universal.cpython-313.pyc
+Downloading timm_vit.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/8.17k [00:00<?, ?B/s]100%|██████████| 8.17k/8.17k [00:00<00:00, 32.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/timm_vit.cpython-313.pyc
+Downloading vgg.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/7.83k [00:00<?, ?B/s]100%|██████████| 7.83k/7.83k [00:00<00:00, 32.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/vgg.cpython-313.pyc
+Downloading xception.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__
+  0%|          | 0.00/4.16k [00:00<?, ?B/s]100%|██████████| 4.16k/4.16k [00:00<00:00, 18.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/__pycache__/xception.cpython-313.pyc
+Downloading _base.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/1.93k [00:00<?, ?B/s]100%|██████████| 1.93k/1.93k [00:00<00:00, 8.69MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_base.py
+Downloading _dpn.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/11.3k [00:00<?, ?B/s]100%|██████████| 11.3k/11.3k [00:00<00:00, 45.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_dpn.py
+Downloading _efficientnet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/29.2k [00:00<?, ?B/s]100%|██████████| 29.2k/29.2k [00:00<00:00, 2.01MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_efficientnet.py
+Downloading _inceptionresnetv2.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/9.13k [00:00<?, ?B/s]100%|██████████| 9.13k/9.13k [00:00<00:00, 47.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_inceptionresnetv2.py
+Downloading _inceptionv4.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/8.94k [00:00<?, ?B/s]100%|██████████| 8.94k/8.94k [00:00<00:00, 40.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_inceptionv4.py
+Downloading _preprocessing.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/452 [00:00<?, ?B/s]100%|██████████| 452/452 [00:00<00:00, 2.60MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_preprocessing.py
+Downloading _senet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/10.7k [00:00<?, ?B/s]100%|██████████| 10.7k/10.7k [00:00<00:00, 32.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_senet.py
+Downloading _utils.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/1.88k [00:00<?, ?B/s]100%|██████████| 1.88k/1.88k [00:00<00:00, 10.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_utils.py
+Downloading _xception.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/6.60k [00:00<?, ?B/s]100%|██████████| 6.60k/6.60k [00:00<00:00, 18.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/_xception.py
+Downloading densenet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/5.88k [00:00<?, ?B/s]100%|██████████| 5.88k/5.88k [00:00<00:00, 26.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/densenet.py
+Downloading dpn.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/7.39k [00:00<?, ?B/s]100%|██████████| 7.39k/7.39k [00:00<00:00, 28.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/dpn.py
+Downloading efficientnet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/8.37k [00:00<?, ?B/s]100%|██████████| 8.37k/8.37k [00:00<00:00, 30.9MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/efficientnet.py
+Downloading inceptionresnetv2.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/4.32k [00:00<?, ?B/s]100%|██████████| 4.32k/4.32k [00:00<00:00, 21.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/inceptionresnetv2.py
+Downloading inceptionv4.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/3.91k [00:00<?, ?B/s]100%|██████████| 3.91k/3.91k [00:00<00:00, 20.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/inceptionv4.py
+Downloading mix_transformer.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/22.9k [00:00<?, ?B/s]100%|██████████| 22.9k/22.9k [00:00<00:00, 2.03MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/mix_transformer.py
+Downloading mobilenet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/3.30k [00:00<?, ?B/s]100%|██████████| 3.30k/3.30k [00:00<00:00, 16.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/mobilenet.py
+Downloading mobileone.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/18.7k [00:00<?, ?B/s]100%|██████████| 18.7k/18.7k [00:00<00:00, 18.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/mobileone.py
+Downloading resnet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/10.1k [00:00<?, ?B/s]100%|██████████| 10.1k/10.1k [00:00<00:00, 38.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/resnet.py
+Downloading senet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/7.14k [00:00<?, ?B/s]100%|██████████| 7.14k/7.14k [00:00<00:00, 37.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/senet.py
+Downloading timm_efficientnet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/17.7k [00:00<?, ?B/s]100%|██████████| 17.7k/17.7k [00:00<00:00, 3.81MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/timm_efficientnet.py
+Downloading timm_sknet.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/3.45k [00:00<?, ?B/s]100%|██████████| 3.45k/3.45k [00:00<00:00, 16.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/timm_sknet.py
+Downloading timm_universal.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/9.20k [00:00<?, ?B/s]100%|██████████| 9.20k/9.20k [00:00<00:00, 40.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/timm_universal.py
+Downloading timm_vit.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/6.91k [00:00<?, ?B/s]100%|██████████| 6.91k/6.91k [00:00<00:00, 33.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/timm_vit.py
+Downloading vgg.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/9.90k [00:00<?, ?B/s]100%|██████████| 9.90k/9.90k [00:00<00:00, 44.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/vgg.py
+Downloading xception.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders
+  0%|          | 0.00/2.58k [00:00<?, ?B/s]100%|██████████| 2.58k/2.58k [00:00<00:00, 13.4MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/encoders/xception.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/575 [00:00<?, ?B/s]100%|██████████| 575/575 [00:00<00:00, 3.59MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/695 [00:00<?, ?B/s]100%|██████████| 695/695 [00:00<00:00, 4.47MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/__init__.cpython-313.pyc
+Downloading _functional.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/11.0k [00:00<?, ?B/s]100%|██████████| 11.0k/11.0k [00:00<00:00, 49.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/_functional.cpython-313.pyc
+Downloading constants.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/355 [00:00<?, ?B/s]100%|██████████| 355/355 [00:00<00:00, 2.13MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/constants.cpython-313.pyc
+Downloading dice.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/7.02k [00:00<?, ?B/s]100%|██████████| 7.02k/7.02k [00:00<00:00, 18.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/dice.cpython-313.pyc
+Downloading focal.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/5.38k [00:00<?, ?B/s]100%|██████████| 5.38k/5.38k [00:00<00:00, 23.7MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/focal.cpython-313.pyc
+Downloading jaccard.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/6.26k [00:00<?, ?B/s]100%|██████████| 6.26k/6.26k [00:00<00:00, 31.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/jaccard.cpython-313.pyc
+Downloading lovasz.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/9.94k [00:00<?, ?B/s]100%|██████████| 9.94k/9.94k [00:00<00:00, 39.6MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/lovasz.cpython-313.pyc
+Downloading mcc.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/2.97k [00:00<?, ?B/s]100%|██████████| 2.97k/2.97k [00:00<00:00, 15.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/mcc.cpython-313.pyc
+Downloading soft_bce.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/3.08k [00:00<?, ?B/s]100%|██████████| 3.08k/3.08k [00:00<00:00, 14.5MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/soft_bce.cpython-313.pyc
+Downloading soft_ce.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/2.19k [00:00<?, ?B/s]100%|██████████| 2.19k/2.19k [00:00<00:00, 9.90MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/soft_ce.cpython-313.pyc
+Downloading tversky.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__
+  0%|          | 0.00/3.95k [00:00<?, ?B/s]100%|██████████| 3.95k/3.95k [00:00<00:00, 16.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/__pycache__/tversky.cpython-313.pyc
+Downloading _functional.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/8.86k [00:00<?, ?B/s]100%|██████████| 8.86k/8.86k [00:00<00:00, 41.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/_functional.py
+Downloading constants.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/1.04k [00:00<?, ?B/s]100%|██████████| 1.04k/1.04k [00:00<00:00, 6.57MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/constants.py
+Downloading dice.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/6.08k [00:00<?, ?B/s]100%|██████████| 6.08k/6.08k [00:00<00:00, 20.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/dice.py
+Downloading focal.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/4.84k [00:00<?, ?B/s]100%|██████████| 4.84k/4.84k [00:00<00:00, 21.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/focal.py
+Downloading jaccard.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/5.50k [00:00<?, ?B/s]100%|██████████| 5.50k/5.50k [00:00<00:00, 26.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/jaccard.py
+Downloading lovasz.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/7.63k [00:00<?, ?B/s]100%|██████████| 7.63k/7.63k [00:00<00:00, 34.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/lovasz.py
+Downloading mcc.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/1.58k [00:00<?, ?B/s]100%|██████████| 1.58k/1.58k [00:00<00:00, 2.21MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/mcc.py
+Downloading soft_bce.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/2.38k [00:00<?, ?B/s]100%|██████████| 2.38k/2.38k [00:00<00:00, 12.1MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/soft_bce.py
+Downloading soft_ce.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/1.42k [00:00<?, ?B/s]100%|██████████| 1.42k/1.42k [00:00<00:00, 7.81MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/soft_ce.py
+Downloading tversky.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses
+  0%|          | 0.00/3.02k [00:00<?, ?B/s]100%|██████████| 3.02k/3.02k [00:00<00:00, 17.0MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/losses/tversky.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics
+  0%|          | 0.00/858 [00:00<?, ?B/s]100%|██████████| 858/858 [00:00<00:00, 3.67MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/__init__.py
+Downloading __init__.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/__pycache__
+  0%|          | 0.00/707 [00:00<?, ?B/s]100%|██████████| 707/707 [00:00<00:00, 4.45MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/__pycache__/__init__.cpython-313.pyc
+Downloading functional.cpython-313.pyc to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/__pycache__
+  0%|          | 0.00/26.9k [00:00<?, ?B/s]100%|██████████| 26.9k/26.9k [00:00<00:00, 4.99MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/__pycache__/functional.cpython-313.pyc
+Downloading functional.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics
+  0%|          | 0.00/24.2k [00:00<?, ?B/s]100%|██████████| 24.2k/24.2k [00:00<00:00, 5.00MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/metrics/functional.py
+Downloading __init__.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/244 [00:00<?, ?B/s]100%|██████████| 244/244 [00:00<00:00, 1.87MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/__init__.py
+Downloading base.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/1.78k [00:00<?, ?B/s]100%|██████████| 1.78k/1.78k [00:00<00:00, 10.3MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/base.py
+Downloading functional.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/3.78k [00:00<?, ?B/s]100%|██████████| 3.78k/3.78k [00:00<00:00, 17.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/functional.py
+Downloading losses.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/1.52k [00:00<?, ?B/s]100%|██████████| 1.52k/1.52k [00:00<00:00, 7.98MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/losses.py
+Downloading meter.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/1.62k [00:00<?, ?B/s]100%|██████████| 1.62k/1.62k [00:00<00:00, 9.44MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/meter.py
+Downloading metrics.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/2.99k [00:00<?, ?B/s]100%|██████████| 2.99k/2.99k [00:00<00:00, 15.2MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/metrics.py
+Downloading train.py to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils
+  0%|          | 0.00/3.26k [00:00<?, ?B/s]100%|██████████| 3.26k/3.26k [00:00<00:00, 13.8MB/s]
+
+Output file downloaded to /workspace/kaggle_out/koz3-gpu-s5/segmentation_models_pytorch/utils/train.py
+Kernel log downloaded to /workspace/kaggle_out/koz3-gpu-s5/koz3-gpu-s5.log 

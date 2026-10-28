@@ -1,0 +1,130 @@
+{
+ "cfg": {
+  "mode": "full",
+  "res": 0.5,
+  "tile": 256,
+  "overlap": 160,
+  "max_windows": 6,
+  "bs": 1,
+  "iters": 3,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 5.0,
+  "folds": "4,2,1",
+  "regions": "161_Курганы_32,051_Воронеж_2",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "hf": "ustc-community/dfine-large-coco@aa8f8211545e4cff5adf52ea512f9ac74a9824ec",
+ "folds": {
+  "4": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 4.384047031402588,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 366.0854,
+     "s_it": 5.5868
+    }
+   ],
+   "sec": 22,
+   "loss_first": 416.12115478515625,
+   "loss_last": 325.8544006347656,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 21,
+   "test_regions": [],
+   "n_det": 0,
+   "infer_sec": 0
+  },
+  "2": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 2.5191032886505127,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 604.8203,
+     "s_it": 3.1853
+    }
+   ],
+   "sec": 10,
+   "loss_first": 688.5272827148438,
+   "loss_last": 515.6686401367188,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 13,
+   "test_regions": [
+    "161_Курганы_32"
+   ],
+   "n_det": 981,
+   "infer_sec": 14
+  },
+  "1": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 10.877209424972534,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 424.2385,
+     "s_it": 5.8946
+    }
+   ],
+   "sec": 22,
+   "loss_first": 468.5787048339844,
+   "loss_last": 387.5265808105469,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 8,
+   "test_regions": [
+    "051_Воронеж_2"
+   ],
+   "n_det": 426,
+   "infer_sec": 23
+  }
+ },
+ "skipped_regions_no_fold": [],
+ "projection_full_h": 32.93,
+ "total_sec": 107
+}

@@ -1,0 +1,34 @@
+INFO данные: в видеопамяти, тайлов обучения 3555, проверки 383
+/tmp/koz3_run_node_0/expds/train.py:615: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+INFO {"epoch": 1, "train_loss": 125.8672, "val_loss": 728.7081, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 36.5}
+INFO {"epoch": 2, "train_loss": 7.0706, "val_loss": 37.3975, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 3, "train_loss": 5.2852, "val_loss": 8.991, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.0}
+INFO {"epoch": 4, "train_loss": 4.288, "val_loss": 8.1023, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 5, "train_loss": 3.3484, "val_loss": 8.3197, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 6, "train_loss": 3.0241, "val_loss": 8.388, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.4}
+INFO {"epoch": 7, "train_loss": 2.6923, "val_loss": 8.3871, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 8, "train_loss": 2.5607, "val_loss": 8.3571, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 9, "train_loss": 2.4949, "val_loss": 8.3113, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.4}
+INFO {"epoch": 10, "train_loss": 2.3682, "val_loss": 8.251, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.3}
+INFO {"epoch": 11, "train_loss": 2.2876, "val_loss": 8.1847, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.0}
+INFO {"epoch": 12, "train_loss": 2.2384, "val_loss": 8.1141, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.0}
+INFO {"epoch": 13, "train_loss": 2.2269, "val_loss": 8.0371, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 14, "train_loss": 2.2049, "val_loss": 7.9592, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 15, "train_loss": 2.1051, "val_loss": 7.8801, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 16, "train_loss": 2.0882, "val_loss": 7.804, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.4}
+INFO {"epoch": 17, "train_loss": 2.0478, "val_loss": 7.728, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.3}
+INFO {"epoch": 18, "train_loss": 2.0471, "val_loss": 7.6545, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 19, "train_loss": 1.9957, "val_loss": 7.5819, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 20, "train_loss": 1.979, "val_loss": 7.5012, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.0}
+INFO {"epoch": 21, "train_loss": 1.9611, "val_loss": 7.4065, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 22, "train_loss": 1.9311, "val_loss": 7.3032, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 23, "train_loss": 1.928, "val_loss": 7.1942, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 24.9}
+INFO {"epoch": 24, "train_loss": 1.9222, "val_loss": 7.0846, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 25, "train_loss": 1.9065, "val_loss": 6.9825, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 26, "train_loss": 1.9001, "val_loss": 6.8807, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.4}
+INFO {"epoch": 27, "train_loss": 1.9018, "val_loss": 6.7812, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.2}
+INFO {"epoch": 28, "train_loss": 1.8825, "val_loss": 6.689, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 25.1}
+INFO {"epoch": 29, "train_loss": 1.8889, "val_loss": 6.599, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 27.0}
+INFO {"epoch": 30, "train_loss": 1.9043, "val_loss": 6.5092, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 26.2}
+{"best_val_loss": 6.509189376631854, "best_pixel_f1": 0.0, "out": "/kaggle/working/li_r34_fpn_edge_59_fold2.pt", "train_tiles": 3555, "val_tiles": 383, "device": "cuda:0"}

@@ -23,7 +23,8 @@ import argparse, json, os, platform, statistics, subprocess, sys, threading, tim
 
 import torch
 
-SCHEMA = "koz3.bench_tile.v1"
+SCHEMA = "koz3.bench_tile.v1"      # схема JSON не менялась: v1.1 только добавляет поля
+BENCH_VERSION = "1.1"              # 1.1 (28.10.2026): частоты только в замере (без warmup); освобождение входа после OOM/ошибки
 CNX = {"cnx_li9": 9, "cnx_li12": 12, "cnx_sp3": 3}
 DET = {"dfine_l": "ustc-community/dfine-large-coco", "rtdetrv2_r50": "PekingU/rtdetr_v2_r50vd"}
 N_OUT = 7          # N_HM 3 + N_MK 4 (li_train.py:33)
@@ -45,16 +46,28 @@ SMI_DYN = "clocks.sm,clocks.mem,power.draw,temperature.gpu,utilization.gpu,clock
 
 
 class ClockSampler:
-    """nvidia-smi каждые period с во время замера: частота SM, мощность, температура, причины троттлинга."""
-    def __init__(self, idx, period=0.5):
+    """nvidia-smi каждые period с: частота SM, мощность, температура, причины троттлинга.
+    gated=True (v1.1): строки пишутся только между resume() и pause(), т.е. только в замере timeit, без warmup.
+    gated=False — поведение v1 (сэмплируется всё время внутри with)."""
+    def __init__(self, idx, period=0.5, gated=True):
         self.idx, self.period, self.rows, self._stop = idx, period, [], threading.Event()
+        self.gated, self._active, self.n_skipped = gated, threading.Event(), 0
+        if not gated: self._active.set()
 
     def __enter__(self):
         self.t = threading.Thread(target=self._run, daemon=True); self.t.start(); return self
 
+    def resume(self): self._active.set()
+
+    def pause(self):
+        if self.gated: self._active.clear()
+
     def _run(self):
         while not self._stop.is_set():
-            self.rows.append(smi(self.idx, SMI_DYN)); self._stop.wait(self.period)
+            r = smi(self.idx, SMI_DYN)
+            if self._active.is_set(): self.rows.append(r)
+            else: self.n_skipped += 1
+            self._stop.wait(self.period)
 
     def __exit__(self, *a):
         self._stop.set(); self.t.join(timeout=5)
@@ -70,7 +83,8 @@ class ClockSampler:
         thr = sorted({r[5] for r in self.rows if len(r) > 5})
         f = lambda v: None if not v else {"min": min(v), "median": statistics.median(v), "max": max(v)}
         return {"n_samples": len(self.rows), "sm_clock_mhz": f(sm), "power_w": f(pw), "temp_c": f(tp),
-                "throttle_reasons_active": thr}
+                "throttle_reasons_active": thr,
+                "sampling": "timed_only" if self.gated else "warmup+timed", "n_samples_skipped_warmup": self.n_skipped}
 
 
 def env_info(dev):
@@ -179,15 +193,19 @@ def view_name(k, fl):
 
 
 # ---------------------------------------------------------------- таймер
-def timeit(fn, warmup, iters, sync_dev):
+def timeit(fn, warmup, iters, sync_dev, sampler=None):
     for _ in range(warmup):
         fn()
     torch.cuda.synchronize(sync_dev)
     ev_ms, wall_ms = [], []
-    for _ in range(iters):
-        s, e = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-        t0 = time.perf_counter(); s.record(); out = fn(); e.record(); torch.cuda.synchronize(sync_dev)
-        wall_ms.append((time.perf_counter() - t0) * 1e3); ev_ms.append(s.elapsed_time(e))
+    if sampler is not None: sampler.resume()          # v1.1: частоты пишутся только здесь
+    try:
+        for _ in range(iters):
+            s, e = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+            t0 = time.perf_counter(); s.record(); out = fn(); e.record(); torch.cuda.synchronize(sync_dev)
+            wall_ms.append((time.perf_counter() - t0) * 1e3); ev_ms.append(s.elapsed_time(e))
+    finally:
+        if sampler is not None: sampler.pause()
     return stats(ev_ms), stats(wall_ms), out
 
 
@@ -234,6 +252,7 @@ def run_model(name, args, dev):
         for bs in args.batches:
             cfg = {"dtype": dname, "autocast": dname != "fp32", "batch": bs, "input": [bs, in_ch, tile, tile],
                    "warmup": args.warmup, "iters": args.iters}
+            x = out = _ = None                                  # v1.1: ничего от прошлой конфигурации
             try:
                 torch.cuda.empty_cache(); torch.cuda.reset_peak_memory_stats(dev)
                 x = torch.rand(bs, in_ch, tile, tile, device=dev)
@@ -247,8 +266,8 @@ def run_model(name, args, dev):
                                 a = m(x); b = m(torch.flip(x, [3]))
                             return a, b
                         with ClockSampler(dev.index or 0) as cs:
-                            ev, wall, out = timeit(one, args.warmup, args.iters, dev)
-                            ev2, wall2, _ = timeit(flip2, args.warmup // 2, args.iters, dev)
+                            ev, wall, out = timeit(one, args.warmup, args.iters, dev, cs)
+                            ev2, wall2, _ = timeit(flip2, args.warmup // 2, args.iters, dev, cs)
                         cfg["views"] = {"single": {"cuda_event_ms": ev, "wall_ms": wall},
                                         "flip2_total": {"cuda_event_ms": ev2, "wall_ms": wall2}}
                         cfg["ms_per_chip_single_median"] = round(ev["median"] / bs, 3)
@@ -258,7 +277,7 @@ def run_model(name, args, dev):
                         views = {}
                         with ClockSampler(dev.index or 0) as cs:
                             for k, fl in (D8 if bs in args.per_view_batches else D8[:1]):
-                                ev, wall, out = timeit(lambda: view_fwd(m, x, k, fl, amp), args.warmup, args.iters, dev)
+                                ev, wall, out = timeit(lambda: view_fwd(m, x, k, fl, amp), args.warmup, args.iters, dev, cs)
                                 views[view_name(k, fl)] = {"cuda_event_ms": ev, "wall_ms": wall}
                             def d8():
                                 acc = 0
@@ -268,8 +287,8 @@ def run_model(name, args, dev):
                                 acc = 0
                                 for k, fl in FLIP3: acc = acc + view_fwd(m, x, k, fl, amp)
                                 return acc / len(FLIP3)
-                            ev8, wall8, out = timeit(d8, max(2, args.warmup // 4), max(5, args.iters // 4), dev)
-                            ev3, wall3, _ = timeit(f3, max(2, args.warmup // 4), max(5, args.iters // 4), dev)
+                            ev8, wall8, out = timeit(d8, max(2, args.warmup // 4), max(5, args.iters // 4), dev, cs)
+                            ev3, wall3, _ = timeit(f3, max(2, args.warmup // 4), max(5, args.iters // 4), dev, cs)
                         views["d8_total"] = {"cuda_event_ms": ev8, "wall_ms": wall8}
                         views["flip3_total"] = {"cuda_event_ms": ev3, "wall_ms": wall3}
                         cfg["views"] = views
@@ -282,11 +301,14 @@ def run_model(name, args, dev):
                 cfg["peak_vram_mb"] = {"max_memory_allocated": round(torch.cuda.max_memory_allocated(dev) / 2**20, 1),
                                        "max_memory_reserved": round(torch.cuda.max_memory_reserved(dev) / 2**20, 1)}
                 cfg["clocks_during_timing"] = cs.summary()
-                del x, out
             except torch.cuda.OutOfMemoryError as e:
-                cfg["oom"] = str(e).splitlines()[0]; torch.cuda.empty_cache()
+                cfg["oom"] = str(e).splitlines()[0]
             except Exception as e:  # noqa
                 cfg["error"] = f"{type(e).__name__}: {e}"; rec["errors"].append(traceback.format_exc(limit=3))
+            finally:                                            # v1.1: вход/выход освобождаются и после OOM/ошибки
+                x = out = _ = None
+                try: torch.cuda.synchronize(dev); torch.cuda.empty_cache()
+                except Exception: pass                          # после фатальной CUDA-ошибки не маскировать исходную
             rec["configs"].append(cfg)
             print(json.dumps({k: cfg.get(k) for k in ("dtype", "batch", "ms_per_tile_d8_median", "ms_per_chip_flip2_median",
                                                        "peak_vram_mb", "oom", "error")}, ensure_ascii=False), flush=True)
@@ -314,7 +336,7 @@ def main():
     dev = torch.device(a.device); torch.cuda.set_device(dev)
     torch.backends.cudnn.benchmark = bool(a.cudnn_benchmark)
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False   # как наш default.toml (tf32=false)
-    res = {"schema": SCHEMA, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    res = {"schema": SCHEMA, "bench_version": BENCH_VERSION, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "argv": sys.argv, "settings": {k: v for k, v in vars(a).items()}, "env": env_info(dev),
            "note": "random weights; forward only; ms = CUDA events, wall = perf_counter после synchronize", "models": []}
     t0 = time.time()

@@ -1,0 +1,83 @@
+From 9ae4c3346d0df94a72801583a2d5a36392b966a9 Mon Sep 17 00:00:00 2001
+From: bot-8 <bot-8@local>
+Date: Wed, 28 Oct 2026 21:08:11 +0300
+Subject: [PATCH 3/5] =?UTF-8?q?bot-8:=20safe=5Ffinish=20=E2=80=94=20=D0=B7?=
+ =?UTF-8?q?=D0=B0=D0=BF=D0=B0=D1=81=D0=BD=D0=B0=D1=8F=20=D1=86=D0=B5=D0=BF?=
+ =?UTF-8?q?=D0=BE=D1=87=D0=BA=D0=B0=20=D1=81=D0=BE=D1=85=D1=80=D0=B0=D0=BD?=
+ =?UTF-8?q?=D1=8F=D0=B5=D1=82=20=D0=BF=D0=BE=D0=B2=D0=B5=D0=B4=D0=B5=D0=BD?=
+ =?UTF-8?q?=D0=B8=D0=B5=20bot-7:=20[post.micro=5Fcircles]=20=D0=B8=20[rera?=
+ =?UTF-8?q?nk=5Farch]=20(=D0=B5=D1=81=D0=BB=D0=B8=20=D0=B2=D0=BA=D0=BB?=
+ =?UTF-8?q?=D1=8E=D1=87=D0=B5=D0=BD=D1=8B);=20=D1=82=D0=B5=D1=81=D1=82?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ expds/watchdog.py         | 19 +++++++++++++++++++
+ tests/test_bot8_faults.py | 21 +++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index dba81c4..ff16d84 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -108,8 +108,27 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
+     except Exception:
+         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
+     out = post.only_known_classes(feats)
++    reranked: list[dict] = []
++    rr = cfg.get("rerank_arch") or {}
++    if rr.get("enabled"):
++        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
++        try:
++            from . import rerank_arch
++
++            out, reranked = rerank_arch.apply(out, rr)
++        except Exception:
++            log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
++            reranked = []
+     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                 cfg.get("thresholds_by_markup", {}))
++    out = out + reranked
++    mc = (cfg.get("post") or {}).get("micro_circles")
++    if mc:
++        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
++        try:
++            out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
++        except Exception:
++            log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
+     kept: list[dict] = []
+     for f in out:
+         try:
+diff --git a/tests/test_bot8_faults.py b/tests/test_bot8_faults.py
+index db77aa7..d012985 100644
+--- a/tests/test_bot8_faults.py
++++ b/tests/test_bot8_faults.py
+@@ -94,3 +94,24 @@ def test_verify_weights_resolve_from_archive_root_not_cwd(tmp_path, monkeypatch)
+     got = rooted_verify(cfg, ROOT)
+     assert got["verify"]["weights"] == str(ROOT / "models/sp_crop.pt") and got["x"] == 1
+     assert cfg["verify"]["weights"] == "models/sp_crop.pt"
++
++
++def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
++    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
++    from shapely.geometry import Point
++
++    from expds import post
++    from expds.watchdog import safe_finish
++
++    def boom(_feats, *a, **k):
++        raise RuntimeError("GEOS упал в склейке")
++
++    monkeypatch.setattr(post, "merge_within_markup", boom)
++    big = Point(X0 + 50, Y0 + 50).buffer(2.0 / post._ground_scale(Y0), quad_segs=8)
++    f = {"geom": big, "class_name": "kurgany_tselye", "confidence": 0.9, "markup_type": "li", "region_name": "r"}
++    cfg = {"thresholds": {}, "default_threshold": 0.0,
++           "post": {"micro_circles": {"radius_m": {"kurgany_tselye": 0.5}}}}
++    out = safe_finish([f], cfg)
++    assert len(out) == 1
++    assert out[0]["geom"].area < big.area * 0.1        # 0,5 м вместо 2 м: площадь в 16 раз меньше
++    assert out[0]["geom"].centroid.distance(big.centroid) < 1e-6
+-- 
+2.47.3
+

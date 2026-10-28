@@ -1,8 +1,20 @@
 diff --git a/configs/default.toml b/configs/default.toml
-index 6a95c82..6f0f946 100644
+index 6a95c82..61c9b77 100644
 --- a/configs/default.toml
 +++ b/configs/default.toml
-@@ -275,6 +275,33 @@ min_confidence = 0.1426
+@@ -7,6 +7,11 @@ budget_s = 1500      # 25 минут из 30: запас на запуск ко
+ reserve_s = 120      # не начинать тяжёлый шаг, если осталось меньше
+ watchdog = true      # за 3 минуты до 30 минут записать уже найденное и выйти
+ guard_margin_s = 180 # запас сторожа до снятия контейнера; сверить с первым логом платформы
++# bot-8: дедлайн внутри цикла окон снимков (ae/sp_or/or, sp_focal2, сети геофизики). Окно не начинается,
++# если до конца budget_s или до сторожа (1800 − guard_margin_s = 1620 с) осталось ≤ window_reserve_s;
++# файл отдаёт объекты пройденных окон, дальше обычный конец прогона и запись. false — как раньше.
++window_deadline = true
++window_reserve_s = 30
+ 
+ # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
+ # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
+@@ -275,6 +280,44 @@ min_confidence = 0.1426
  # src_groups = ["li", "li_coarse", "li_mosaic"]
  # min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
  
@@ -16,6 +28,17 @@ index 6a95c82..6f0f946 100644
 +# Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
 +# Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
 +# (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
++# sota_stack6, режим separate (кандидат bot-7 по сводке bot-10: EXPERIMENTS.md «Сводка решений» 21:15 МСК,
++# bot-10/REPORT4.md): post.multipole_object_poly без unified_group (группы maggr_poly/etgr/terfl раздельно)
++# + post.filter_finds_points_regimes, как в bot-10/work4/stack6_fam.py --mode separate.
++# Честно: keep +0,015057, drop +0,006703, P 0,948 (bot-10/work4/stack6_global.json). kurgan_twins не мерен — не включён.
++# Выключить: обе строки = false.
++[post]
++multipole_object_poly = true
++filter_finds_points = true
++# kurgan_twins_only (bot-6, ad8ae9b): копии целый -> повреждённый без межтипового dedup. ВЫКЛЮЧЕН:
++# решение после перемера на ПК (bot-7/REPORT3.md, вариант «twins»). Включить: kurgan_twins_only = true
++
 +# Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 +# поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
 +# Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются
@@ -37,10 +60,73 @@ index 6a95c82..6f0f946 100644
  # fill_holes = ["gorodishcha"]
  # [post.core.gorodishcha]
 diff --git a/expds/pipeline.py b/expds/pipeline.py
-index 2657c29..8de6e3a 100644
+index 2657c29..4f8a604 100644
 --- a/expds/pipeline.py
 +++ b/expds/pipeline.py
-@@ -89,6 +89,15 @@ def model_files(path: str | list[str]) -> list[str]:
+@@ -29,14 +29,24 @@ log = logging.getLogger(__name__)
+ 
+ 
+ class TimeGuard:
+-    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг."""
++    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
+ 
+-    def __init__(self, budget_s: float):
+-        self.t0 = time.monotonic()
++    bot-8: дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
++    бюджета [time] budget_s или до сторожа (watchdog.deadline_left: 1800 − guard_margin_s = 1620 с
++    от старта процесса) осталось не больше window_reserve_s. None — проверка выключена.
++    clock — для тестов (поддельные часы); по умолчанию time.monotonic.
++    """
++
++    def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
++        self.clock = clock or time.monotonic
++        self.t0 = self.clock()
+         self.budget = budget_s
++        self.window_reserve_s = window_reserve_s
++        self.hard_left = hard_left
++        self.partial: list[dict] = []
+ 
+     def elapsed(self) -> float:
+-        return time.monotonic() - self.t0
++        return self.clock() - self.t0
+ 
+     def left(self) -> float:
+         return self.budget - self.elapsed()
+@@ -44,6 +54,33 @@ class TimeGuard:
+     def ok(self, need_s: float = 0.0) -> bool:
+         return self.left() > need_s
+ 
++    def window_left(self) -> float:
++        """Секунд до ближайшего из: конец бюджета, срабатывание сторожа."""
++        left = self.left()
++        if self.hard_left is not None:
++            left = min(left, float(self.hard_left()))
++        return left
++
++    def window_ok(self) -> bool:
++        return self.window_reserve_s is None or self.window_left() > float(self.window_reserve_s)
++
++
++#: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
++DEFAULT_WINDOW_RESERVE_S = 30.0
++
++
++#: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
++#: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
++_WINDOW_GUARD: "TimeGuard | None" = None
++
++
++def window_reserve(cfg: dict) -> float | None:
++    """[time] window_deadline (true) / window_reserve_s (30). window_deadline = false — без проверки в цикле окон."""
++    t = cfg.get("time") or {}
++    if not t.get("window_deadline", True):
++        return None
++    return float(t.get("window_reserve_s", DEFAULT_WINDOW_RESERVE_S))
++
+ 
+ def load_config(path: str | Path | None) -> dict:
+     """Конфиг TOML (configs/default.toml); отсутствующий файл → пустой словарь."""
+@@ -89,6 +126,15 @@ def model_files(path: str | list[str]) -> list[str]:
      return list(path) if isinstance(path, list) else [path]
  
  
@@ -56,7 +142,97 @@ index 2657c29..8de6e3a 100644
  def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
      from .infer_nn import Ensemble, Segmenter
  
-@@ -931,7 +940,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -703,11 +749,16 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+ 
+ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
+                        overlap: int = 256, min_conf: dict[str, float] | None = None,
+-                       fallback_crs: str | None = None) -> list[dict]:
++                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None) -> list[dict]:
+     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
+ 
+     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
++    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
++    по файлу (объекты уже пройденных окон), запись в guard.partial. По умолчанию — guard текущего
++    run() (_WINDOW_GUARD); вне run() проверки нет, как раньше.
+     """
++    if guard is None:
++        guard = _WINDOW_GUARD
+     import rasterio
+     from rasterio.enums import Resampling
+     from rasterio.windows import Window
+@@ -742,6 +793,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+         ys = list(range(0, max(h - overlap, 1), step))
+         for iy, y0 in enumerate(ys):
+             for ix, x0 in enumerate(xs):
++                if guard is not None and not guard.window_ok():
++                    done, total = iy * len(xs) + ix, len(xs) * len(ys)
++                    log.warning("%s: дедлайн в цикле окон (%s, осталось %.0f с ≤ %s с) — частичный результат: "
++                                "окон %d из %d, объектов %d", path.name, markup, guard.window_left(),
++                                guard.window_reserve_s, done, total, len(feats))
++                    guard.partial.append({"file": path.name, "region": region, "markup": markup,
++                                          "windows_done": done, "windows_total": total, "feats": len(feats)})
++                    return feats
+                 bw, bh = min(block, w - x0), min(block, h - y0)
+                 win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
+                 a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+@@ -781,7 +840,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+     Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
+     контейнера, не после геофизики.
+     """
+-    from .watchdog import RunState, arm_platform, arm_signal, checkpoint
++    from .watchdog import RunState, arm_platform, arm_signal, checkpoint, deadline_left
+ 
+     root = Path(root or Path(__file__).resolve().parents[1])
+     cfg_path = Path(config_path or root / "configs" / "default.toml")
+@@ -793,7 +852,13 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                           bool(infer.get("deterministic", True)))
+     except Exception:
+         log.exception("точность видеокарты не настроена, дальше без моделей torch")
+-    guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
++    t_cfg = cfg.get("time", {})
++    margin_s = float(t_cfg.get("guard_margin_s", 180))
++    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
++    guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
++                      hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
++    global _WINDOW_GUARD
++    _WINDOW_GUARD = guard
+     log.info("ускоритель: %s", accel.backend())
+     torch_version, cuda_version = "нет", "нет"
+     try:
+@@ -860,7 +925,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         t_phase = time.monotonic()
+         n_phase = 0
+         for reg in regions:
+-            found = geophys_feats(reg, cfg, guard)
++            try:
++                found = geophys_feats(reg, cfg, guard)
++            except Exception:
++                # bot-8: сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
++                log.exception("%s: геофизика упала, регион пропущен", reg.name)
++                continue
+             state.add(found)
+             n_phase += len(found)
+             if found:
+@@ -900,6 +970,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+             if found:
+                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
++        if guard.partial:
++            state.note["partial_files"] = list(guard.partial)
++            log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),
++                        ", ".join(f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in guard.partial))
+         t_phase = time.monotonic()
+         n_phase = 0
+         for reg in regions:
+@@ -922,6 +996,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                 log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+         phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
+     finally:
++        _WINDOW_GUARD = None
+         signal.signal(signal.SIGTERM, previous_term)
+         if prefetch is not None:
+             prefetch.close()
+@@ -931,7 +1006,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
              try:
                  from .crop_model import maybe_verify
  
@@ -65,8 +241,16 @@ index 2657c29..8de6e3a 100644
                  if checked is not None:
                      state.replace(checked)
              except Exception:
+@@ -940,6 +1015,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         state.note["phases"] = summary["phases"]
+         summary["written"] = checkpoint(state, "конец")
+         summary["seconds"] = round(guard.elapsed(), 1)
++        summary["partial_files"] = list(guard.partial)
+         for handler in logging.getLogger().handlers:
+             handler.flush()
+     return summary
 diff --git a/expds/post.py b/expds/post.py
-index eb7ce26..4f0f6cc 100644
+index eb7ce26..4d3007c 100644
 --- a/expds/post.py
 +++ b/expds/post.py
 @@ -237,6 +237,42 @@ def _ground_scale(y_3857: float) -> float:
@@ -112,6 +296,36 @@ index eb7ce26..4f0f6cc 100644
  def fill_holes(feats: list[dict], classes) -> list[dict]:
      """Убирает дыры у полигонов указанных классов. По умолчанию выключено."""
      classes = set(classes or ())
+@@ -452,6 +488,11 @@ def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) ->
+     return out
+ 
+ 
++# Карта центров спутника: в табло группа подписана sp_focal, в сдаче читается из markup_type = sp_or
++# (pipeline.py, комментарий у KEPT_KURGAN_CONF). Без sp_or ветка sp_twin в сдаче не срабатывает.
++SP_TWIN_GROUPS = ("sp_focal", "sp_or")
++
++
+ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
+     """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
+     from collections import defaultdict
+@@ -481,7 +522,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+             li_povr_pts[reg].append(xy)
+         elif grp == "ae":
+             ae_povr_pts[reg].append(xy)
+-        elif grp == "sp_focal" and conf >= 0.05:
++        elif grp in SP_TWIN_GROUPS and conf >= 0.05:
+             sp_povr_pts[reg].append(xy)
+ 
+     li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
+@@ -513,7 +554,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+             if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
+-        elif use_sp and grp == "sp_focal":
++        elif use_sp and grp in SP_TWIN_GROUPS:
+             if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
 diff --git a/expds/rerank_arch.py b/expds/rerank_arch.py
 new file mode 100644
 index 0000000..b9c9ae9
@@ -338,7 +552,7 @@ index 0000000..b9c9ae9
 +        log.exception("реранк архитектуры упал — без реранка")
 +        return feats, []
 diff --git a/expds/watchdog.py b/expds/watchdog.py
-index 2e15b2d..726b8d0 100644
+index 2e15b2d..44995ba 100644
 --- a/expds/watchdog.py
 +++ b/expds/watchdog.py
 @@ -65,8 +65,14 @@ class RunState:
@@ -356,15 +570,198 @@ index 2e15b2d..726b8d0 100644
      out = post.merge_within_markup(out)
      post_cfg = cfg.get("post") or {}
      if post_cfg.get("multipole_object_poly"):
-@@ -75,6 +81,8 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+@@ -75,6 +81,13 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
          out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
      if post_cfg.get("kurgan_twins"):
          out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
++    elif post_cfg.get("kurgan_twins_only"):
++        # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
++        spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
++        spec["dedup_ae_vs_li_m"] = 0.0
++        out = post.kurgan_cross_modal_twins(out, spec)
 +    if post_cfg.get("micro_circles"):
 +        out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
      if post_cfg.get("fill_holes"):
          out = post.fill_holes(out, post_cfg["fill_holes"])
      if post_cfg.get("core"):
+@@ -99,6 +112,62 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+     return out
+ 
+ 
++def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
++    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
++    try:
++        return finish(feats, cfg)
++    except Exception:
++        log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
++    out = post.only_known_classes(feats)
++    reranked: list[dict] = []
++    rr = cfg.get("rerank_arch") or {}
++    if rr.get("enabled"):
++        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
++        try:
++            from . import rerank_arch
++
++            out, reranked = rerank_arch.apply(out, rr)
++        except Exception:
++            log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
++            reranked = []
++    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
++                                cfg.get("thresholds_by_markup", {}))
++    out = out + reranked
++    pc = cfg.get("post") or {}
++    # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
++    for key, fn in (("multipole_object_poly", post.multipole_object_poly),
++                    ("filter_finds_points", post.filter_finds_points_regimes)):
++        if pc.get(key):
++            try:
++                out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
++            except Exception:
++                log.exception("%s в запасной цепочке упал, шаг пропущен", key)
++    # bot-7: [post] kurgan_twins_only (bot-6, по умолчанию выкл.) — и в запасной цепочке, как в finish()
++    if not pc.get("kurgan_twins") and pc.get("kurgan_twins_only"):
++        try:
++            spec = dict(pc["kurgan_twins_only"]) if isinstance(pc["kurgan_twins_only"], dict) else {}
++            spec["dedup_ae_vs_li_m"] = 0.0
++            out = post.kurgan_cross_modal_twins(out, spec)
++        except Exception:
++            log.exception("kurgan_twins_only в запасной цепочке упал, шаг пропущен")
++    mc = pc.get("micro_circles")
++    if mc:
++        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
++        try:
++            out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
++        except Exception:
++            log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
++    kept: list[dict] = []
++    for f in out:
++        try:
++            kept += post.finalize([f])
++        except Exception:
++            continue
++    kept = post.cap_features(kept)
++    only = (cfg.get("post") or {}).get("only_classes")
++    return post.keep_classes(kept, only) if only is not None else kept
++
++
+ _write_lock = threading.Lock()
+ 
+ 
+@@ -127,6 +196,9 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
+              note.get("las_files", "нет"), note.get("rasters", "нет"),
+              note.get("skipped", "нет"))
+     log.info("фазы: %s", phase_text)
++    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
++        log.info("частично (дедлайн в цикле окон): %s", ", ".join(
++            f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
+     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
+     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
+     log.info("записано %d, файл %d байт", len(kept), size)
+@@ -141,7 +213,7 @@ def checkpoint(state: RunState, reason: str) -> int:
+     """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
+     feats = state.snapshot()
+     with _write_lock:
+-        kept = finish(feats, state.cfg)
++        kept = safe_finish(feats, state.cfg)
+         writer.write_geojson(kept, state.output)
+         _emit_protocol(state, feats, kept, reason)
+         return len(kept)
+@@ -199,9 +271,14 @@ def arm_signal(state: RunState, exit_fn=os._exit):
+     return previous
+ 
+ 
++def deadline_left(margin_s: float | None = None, clock=None) -> float:
++    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
++    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
++    return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
++
++
+ def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
+     """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
+-    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+-    left = PLATFORM_LIMIT_S - margin - (time.monotonic() - PROCESS_START)
++    left = deadline_left(margin_s)
+     log.info("сторож сработает через %.0f с", max(0.0, left))
+     return arm(state, left, exit_fn)
+diff --git a/expds/writer.py b/expds/writer.py
+index c3372e2..e00736d 100644
+--- a/expds/writer.py
++++ b/expds/writer.py
+@@ -10,6 +10,7 @@ from __future__ import annotations
+ 
+ import argparse
+ import itertools
++import logging
+ import json
+ import math
+ import os
+@@ -19,14 +20,18 @@ from shapely.geometry import mapping, shape
+ 
+ from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VERTICES
+ 
++log = logging.getLogger(__name__)
++
+ 
+ def to_feature_collection(feats: list[dict]) -> dict:
+     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
+     out = []
+-    for k, f in enumerate(feats):
++    for f in feats:
+         geom = mapping(f["geom"])
+         geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
+-        props = {"fid": k, "class_name": f["class_name"],
++        if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy):
++            continue                    # bot-8: NaN/inf дают невалидный JSON — объект отбрасывается
++        props = {"fid": len(out), "class_name": f["class_name"],
+                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
+                  "region_name": f.get("region_name", "default_source"),
+                  "crs": "EPSG:3857"}
+@@ -51,6 +56,36 @@ def tmp_path_for(path: Path) -> Path:
+     return path.parent / f"writing.{os.getpid()}.{next(_TMP_SEQ)}.tmp"
+ 
+ 
++def enforce_limits(fc: dict) -> dict:
++    """Последний рубеж перед записью (bot-7): только Polygon, ≤ MAX_VERTICES вершин, ≤ MAX_FEATURES объектов.
++
++    В норме ничего не делает: post.finalize/limit_vertices и post.cap_features уже держат лимиты.
++    Срабатывает, если в обход них прошло лишнее (запасная оболочка limit_vertices, новый шаг после cap).
++    Лишнее отбрасывается с предупреждением в лог, ответ остаётся допустимым для метрики.
++    """
++    feats = fc.get("features", [])
++    good = []
++    bad_type = too_many_vertices = 0
++    for f in feats:
++        geom = f.get("geometry") or {}
++        if geom.get("type") != "Polygon":
++            bad_type += 1
++            continue
++        if sum(len(ring) for ring in geom["coordinates"]) > MAX_VERTICES:
++            too_many_vertices += 1
++            continue
++        good.append(f)
++    over = max(0, len(good) - MAX_FEATURES)
++    if over:   # cap_features уже оставил квоты по классам; здесь просто срез хвоста
++        good = good[:MAX_FEATURES]
++    if bad_type or too_many_vertices or over:
++        log.warning("лимиты выдачи: отброшено не-Polygon %d, вершин > %d: %d, сверх %d объектов: %d",
++                    bad_type, MAX_VERTICES, too_many_vertices, MAX_FEATURES, over)
++        for k, f in enumerate(good):
++            f["properties"]["fid"] = k
++    return {"type": "FeatureCollection", "features": good}
++
++
+ def write_geojson(feats: list[dict], path: str | Path) -> Path:
+     """Атомарная запись: временный файл, fsync, затем переименование."""
+     path = Path(path)
+@@ -58,7 +93,7 @@ def write_geojson(feats: list[dict], path: str | Path) -> Path:
+     tmp = tmp_path_for(path)
+     try:
+         with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+-            fh.write(json.dumps(to_feature_collection(feats), ensure_ascii=False))
++            fh.write(json.dumps(enforce_limits(to_feature_collection(feats)), ensure_ascii=False, allow_nan=False))
+             fh.flush()
+             os.fsync(fh.fileno())
+         os.replace(tmp, path)
 diff --git a/models/rerank_arch_lgbm.json b/models/rerank_arch_lgbm.json
 new file mode 100644
 index 0000000..d3aeec3
@@ -6416,6 +6813,1031 @@ index 69ce568..90185c7 100644
          if not rel or rel in seen:
              continue
          seen.add(rel)
+diff --git a/scripts/build_submission_git.py b/scripts/build_submission_git.py
+new file mode 100755
+index 0000000..f15bf8f
+--- /dev/null
++++ b/scripts/build_submission_git.py
+@@ -0,0 +1,190 @@
++#!/usr/bin/env python3
++"""Быстрая воспроизводимая сборка архива КОЗ №3 под эксперимент (bot-8).
++
++Файлы берутся из git-коммита (--ref, по умолчанию HEAD), а не из рабочей папки:
++незакоммиченные правки и чужие черновики в архив не попадают, один и тот же ввод
++даёт байт-в-байт один и тот же zip (фиксированные даты, порядок, права).
++
++    python scripts/build_submission_git.py --repo . --label base                     # HEAD как есть
++    python scripts/build_submission_git.py --repo . --label thr2 --config my.toml    # свой default.toml
++    python scripts/build_submission_git.py --repo . --label newli \
++        --weight models/li_r18_hard2.pt=/path/li_new.pt                     # подмена весов
++    python scripts/build_submission_git.py --repo . --label kur --only-classes kurgany_tselye kurgany_povrezhdennye
++    python build_submission.py ... --check                                  # сразу check_submission.py
++
++Имя: <out-dir>/koz3_<label>_<git7>_<cfg8>[_w<wts8>].zip + .manifest.json (sha256 каждого файла).
++В архив: metadata.json, inference/main.py, inference/lib/expds_core*.so, expds/**/*.py,
++configs/default.toml (единственный конфиг, который читает main.py:86) и только веса,
++на которые ссылается этот конфиг. .pt/.so кладутся без сжатия (ZIP_STORED) — быстрее, размер почти тот же.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import io
++import json
++import re
++import subprocess
++import sys
++import time
++import tomllib
++import zipfile
++from pathlib import Path, PurePosixPath
++
++CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury", "fortifikatsii",
++           "object_poly", "finds_points")  # expds/constants.py
++
++LIMIT = 2 * 1024 ** 3
++FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
++             ".shp", ".gpkg", ".zip", ".ipynb", ".pkl"}
++STORED = {".pt", ".pth", ".so", ".onnx", ".ckpt", ".bin"}
++EPOCH = (1980, 1, 1, 0, 0, 0)
++
++
++def git(repo: Path, *args: str, binary: bool = False):
++    r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, check=False)
++    if r.returncode:
++        sys.exit(f"git {' '.join(args)}: {r.stderr.decode(errors='replace').strip()}")
++    return r.stdout if binary else r.stdout.decode().strip()
++
++
++def model_refs(cfg: dict) -> list[str]:
++    """Те же правила, что scripts/build_submission.py:38-53 (model_specs/model_files), без импорта expds."""
++    out = []
++    for spec in (cfg.get("models") or {}).values():
++        for it in spec if isinstance(spec, list) else ([spec] if spec else []):
++            path = it if isinstance(it, str) else (it.get("path") if isinstance(it, dict) else None)
++            out += path if isinstance(path, list) else ([path] if path else [])
++    lg = (cfg.get("candidates") or {}).get("lgbm_model")
++    v = cfg.get("verify") or {}
++    out += [lg] if lg else []
++    out += [v["weights"]] if v.get("enabled") and v.get("weights") else []
++    rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
++    out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
++    seen, uniq = set(), []
++    for p in out:
++        if p not in seen:
++            seen.add(p)
++            uniq.append(p)
++    return uniq
++
++
++def main() -> int:
++    ap = argparse.ArgumentParser(description="Сборка архива КОЗ №3 из git-коммита (воспроизводимо)")
++    ap.add_argument("--repo", type=Path, default=Path("repo"), help="git-репозиторий expds-koz3")
++    ap.add_argument("--ref", default="HEAD", help="коммит/ветка (HEAD)")
++    ap.add_argument("--label", required=True, help="метка эксперимента в имени файла [a-z0-9_-]")
++    ap.add_argument("--config", type=Path, help="свой TOML вместо configs/default.toml из коммита")
++    ap.add_argument("--only-classes", nargs="+", help="дописать [post] only_classes (перепись классов)")
++    ap.add_argument("--weight", action="append", default=[], metavar="ARCHIVE_PATH=LOCAL_FILE",
++                    help="подменить/добавить файл весов (можно несколько раз)")
++    ap.add_argument("--so", type=Path, help="свой expds_core.abi3.so вместо закоммиченного")
++    ap.add_argument("--out-dir", type=Path, default=Path("dist"))
++    ap.add_argument("--check", action="store_true", help="после сборки запустить check_submission.py")
++    ap.add_argument("--check-args", default="", help="доп. аргументы check_submission.py, одной строкой")
++    args = ap.parse_args()
++    t0 = time.monotonic()
++    if not all(c.isalnum() or c in "_-" for c in args.label):
++        sys.exit("label: только буквы, цифры, _ и -")
++    repo = args.repo.resolve()
++    sha = git(repo, "rev-parse", args.ref)
++    tracked = git(repo, "ls-tree", "-r", "--name-only", sha).splitlines()
++
++    def blob(path: str) -> bytes:
++        return git(repo, "show", f"{sha}:{path}", binary=True)
++
++    files: dict[str, bytes] = {}
++    pick = ["metadata.json", "inference/main.py"]
++    pick += [p for p in tracked if p.startswith("inference/lib/expds_core") and p.endswith(".so")]
++    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")]
++    for p in pick:
++        files[p] = blob(p)
++    if args.so:
++        for p in [p for p in files if p.startswith("inference/lib/")]:
++            del files[p]
++        files[f"inference/lib/{args.so.name}"] = args.so.read_bytes()
++    cfg_text = args.config.read_text(encoding="utf-8") if args.config else blob("configs/default.toml").decode("utf-8")
++    if args.only_classes:
++        bad = sorted(set(args.only_classes) - set(CLASSES))
++        if bad:
++            sys.exit(f"нет таких классов: {bad}; допустимы {CLASSES}")
++        line = "only_classes = [" + ", ".join(json.dumps(c) for c in args.only_classes) + "]"
++        post = tomllib.loads(cfg_text).get("post")  # строка «# [post]» в комментарии — не секция
++        if post is None:
++            cfg_text = cfg_text.rstrip() + "\n\n[post]\n" + line + "\n"
++        elif "only_classes" in post:
++            sys.exit("в [post] уже есть only_classes — правьте конфиг вручную (--config)")
++        else:  # ключ сразу под заголовком секции, чтобы не попасть в подтаблицу
++            cfg_text, n = re.subn(r"(?m)^\[post\][ \t]*$", "[post]\n" + line, cfg_text, count=1)
++            if n != 1:
++                sys.exit("не нашёл заголовок [post] — правьте конфиг вручную (--config)")
++    try:
++        cfg = tomllib.loads(cfg_text)
++    except tomllib.TOMLDecodeError as exc:
++        sys.exit(f"конфиг не TOML: {exc}")
++    files["configs/default.toml"] = cfg_text.encode("utf-8")
++    meta = json.loads(files["metadata.json"])
++    if not meta.get("image") or "<" in str(meta.get("image")) or not meta.get("entry_point"):
++        sys.exit(f"metadata.json не заполнен: {meta}")
++    overrides = {}
++    for spec in args.weight:
++        dst, _, src = spec.partition("=")
++        if not src or not Path(src).is_file():
++            sys.exit(f"--weight {spec}: нужен ARCHIVE_PATH=существующий_файл")
++        overrides[dst] = Path(src)
++    missing = []
++    for rel in model_refs(cfg):
++        if rel in overrides:
++            files[rel] = overrides[rel].read_bytes()
++        elif rel in tracked:
++            files[rel] = blob(rel)
++        else:
++            missing.append(rel)
++    if missing:
++        sys.exit(f"веса из конфига не найдены ни в коммите, ни в --weight: {missing}")
++    unused = sorted(set(overrides) - set(files))
++    if unused:
++        print(f"ВНИМАНИЕ: --weight {unused} не упомянуты в конфиге — в архив не попадут", file=sys.stderr)
++    bad = [p for p in files if PurePosixPath(p).suffix.lower() in FORBIDDEN]
++    if bad:
++        sys.exit(f"запрещённые файлы: {bad}")
++    dirty = git(repo, "status", "--porcelain", "--untracked-files=no", "--", *sorted(set(pick) & set(tracked)))
++    cfg_sha = hashlib.sha256(files["configs/default.toml"]).hexdigest()
++    w_sha = hashlib.sha256(b"".join(k.encode() + hashlib.sha256(v.read_bytes()).digest()
++                                    for k, v in sorted(overrides.items()))).hexdigest() if overrides else ""
++    name = f"koz3_{args.label}_{sha[:7]}_{cfg_sha[:8]}" + (f"_w{w_sha[:8]}" if w_sha else "") + ".zip"
++    args.out_dir.mkdir(parents=True, exist_ok=True)
++    out = args.out_dir / name
++    tmp = out.with_suffix(".zip.part")
++    with zipfile.ZipFile(tmp, "w") as z:
++        for p in sorted(files):
++            zi = zipfile.ZipInfo(p, EPOCH)
++            zi.external_attr = 0o644 << 16
++            zi.create_system = 3
++            stored = PurePosixPath(p).suffix in STORED
++            zi.compress_type = zipfile.ZIP_STORED if stored else zipfile.ZIP_DEFLATED
++            z.writestr(zi, files[p], compresslevel=None if stored else 6)
++    size = tmp.stat().st_size
++    if size > LIMIT:
++        tmp.unlink()
++        sys.exit(f"архив {size / 2**20:.0f} МиБ > 2048 МиБ — уберите веса из конфига")
++    tmp.replace(out)
++    zsha = hashlib.sha256(out.read_bytes()).hexdigest()
++    manifest = {"zip": name, "sha256": zsha, "bytes": size, "git": sha, "ref": args.ref, "label": args.label,
++                "config_sha256": cfg_sha, "config_source": str(args.config) if args.config else f"{sha[:7]}:configs/default.toml",
++                "only_classes": args.only_classes, "weight_overrides": {k: str(v) for k, v in overrides.items()},
++                "so_override": str(args.so) if args.so else None,
++                "files": {p: hashlib.sha256(b).hexdigest() for p, b in sorted(files.items())},
++                "built": time.strftime("%Y-%m-%d %H:%M:%S %Z")}
++    out.with_suffix(".manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
++    print(f"{out}  {size / 2**20:.1f} МиБ  {len(files)} файлов  sha256 {zsha}  ({time.monotonic() - t0:.1f} с)")
++    if dirty:
++        print(f"ВНИМАНИЕ: в рабочей папке есть незакоммиченные правки, в архив НЕ вошли:\n{dirty}", file=sys.stderr)
++    if args.check:
++        chk = Path(__file__).with_name("check_submission.py")
++        return subprocess.call([sys.executable, str(chk), str(out), *args.check_args.split()])
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/scripts/build_submission_git.sh b/scripts/build_submission_git.sh
+new file mode 100755
+index 0000000..80bc508
+--- /dev/null
++++ b/scripts/build_submission_git.sh
+@@ -0,0 +1,13 @@
++#!/usr/bin/env bash
++# Собрать архив из git-коммита и сразу проверить (bot-8).
++#   scripts/build_submission_git.sh base                       # HEAD репозитория
++#   scripts/build_submission_git.sh thr2 --config my.toml --weight models/li_r18_hard2.pt=/x/li.pt
++#   REF=bot8-reliability-on-bot7 scripts/build_submission_git.sh rel
++# Переменные: REPO (корень этого репо), PY (python3), OUT (./dist), REF (HEAD), CHECK_ARGS (например "--no-smoke").
++set -euo pipefail
++HERE="$(cd "$(dirname "$0")" && pwd)"
++REPO="${REPO:-$(git -C "$HERE" rev-parse --show-toplevel)}"; PY="${PY:-python3}"
++label="$1"; shift
++export OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 RAYON_NUM_THREADS=2
++exec nice -n 10 "$PY" "$HERE/build_submission_git.py" --repo "$REPO" --ref "${REF:-HEAD}" --out-dir "${OUT:-$PWD/dist}" \
++    --label "$label" "$@" --check --check-args "--python $PY ${CHECK_ARGS:-}"
+diff --git a/scripts/check_submission.py b/scripts/check_submission.py
+new file mode 100755
+index 0000000..10140a6
+--- /dev/null
++++ b/scripts/check_submission.py
+@@ -0,0 +1,804 @@
++#!/usr/bin/env python3
++"""Проверка архива КОЗ №3 перед отправкой на платформу (bot-8).
++
++    python check_submission.py dist/submission.zip                  # всё, включая CPU-смоук
++    python check_submission.py dist/submission.zip --no-smoke       # только статика (~секунды)
++    python check_submission.py dist/x.zip --python venv/bin/python --timeout 900 --input /path/small_region
++
++Проверки (каждая печатает PASS / WARN / FAIL):
++  zip       — архив читается, CRC, нет абсолютных путей и «..», нет дублей, файлы в корне архива;
++  layout    — metadata.json, inference/main.py, configs/default.toml, expds/, inference/lib/expds_core*.so;
++  forbidden — нет данных выборок (.las .tif .geojson .npy ...), .git, __pycache__, секретов;
++  size      — архив ≤ 2 ГиБ (WARN с 1,9 ГиБ);
++  metadata  — image не шаблон, entry_point = «python inference/main.py»;
++  config    — TOML читается; пути моделей в архиве; классы/группы/режимы из списков кода; бюджет < 30 мин − запас;
++  imports   — модули, достижимые из inference/main.py, импортируются в целевом python; нет сетевых модулей;
++  weights   — каждый .pt открывается кодом архива (Segmenter / кроп), LightGBM читается;
++  so        — ELF x86-64, без AVX-512 (zmm), версия GLIBC;
++  smoke     — inference/main.py на синтетическом регионе (LAS + MagGr + SpOr) на CPU: без сети
++              (unshare -rn), с таймаутом, 2 ядра (taskset), nice, контроль RSS; затем формат ответа
++              по лимитам compute_metrics.py (≤20000 объектов, Polygon, ≤3000 вершин, 7 классов, ≤100 МБ),
++              строгий JSON без NaN, пустой HOME/кэш (ничего не скачано), нет временных файлов.
++Код возврата: 0 — FAIL нет; 1 — есть FAIL; 2 — ошибка аргументов.
++"""
++from __future__ import annotations
++
++import argparse
++import ast
++import json
++import math
++import os
++import shutil
++import signal
++import stat
++import subprocess
++import sys
++import tempfile
++import time
++import tomllib
++import zipfile
++from pathlib import Path, PurePosixPath
++
++LIMIT_ZIP = 2 * 1024 ** 3
++WARN_ZIP = int(1.9 * 1024 ** 3)
++PLATFORM_S = 1800
++# Лимиты materials/compute_metrics.py:200-204
++MAX_FEATURES, MAX_POINTS, MAX_FILE_MB = 20000, 3000, 100
++CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury",
++           "object_poly", "finds_points", "fortifikatsii")
++FORBIDDEN_EXT = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".jpeg", ".png",
++                 ".jp2", ".shp", ".gpkg", ".zip", ".ipynb", ".pkl", ".parquet"}
++FORBIDDEN_PARTS = {".git", ".venv", "venv", "__pycache__", "node_modules", ".ipynb_checkpoints"}
++SECRET_NAMES = {".env", "kaggle.json", "id_rsa", "id_ed25519", ".netrc", "credentials", ".git-credentials"}
++NET_MODULES = {"socket", "requests", "httpx", "aiohttp", "urllib3", "ftplib", "smtplib", "paramiko", "boto3",
++               "huggingface_hub", "wandb", "mlflow", "kaggle", "http.client", "urllib.request", "websocket"}
++NET_CALLS = {"load_state_dict_from_url", "hf_hub_download", "from_pretrained", "download_url_to_file", "urlopen"}
++
++RESULTS: list[tuple[str, str, str]] = []
++
++
++def report(status: str, check: str, msg: str) -> None:
++    RESULTS.append((status, check, msg))
++    color = {"PASS": "\033[32m", "WARN": "\033[33m", "FAIL": "\033[31m", "INFO": "\033[36m"}.get(status, "")
++    end = "\033[0m" if color and sys.stdout.isatty() else ""
++    print(f"{color if end else ''}[{status}]{end} {check:9s} {msg}", flush=True)
++
++
++# ---------------------------------------------------------------- архив
++def check_zip(zpath: Path) -> zipfile.ZipFile | None:
++    try:
++        z = zipfile.ZipFile(zpath)
++    except (zipfile.BadZipFile, OSError) as exc:
++        report("FAIL", "zip", f"архив не читается: {exc}")
++        return None
++    bad = z.testzip()
++    if bad:
++        report("FAIL", "zip", f"CRC не сошёлся: {bad}")
++    names = z.namelist()
++    unsafe = [n for n in names if n.startswith("/") or "\\" in n or ".." in PurePosixPath(n).parts]
++    if unsafe:
++        report("FAIL", "zip", f"опасные пути: {unsafe[:5]}")
++    dups = {n for n in names if names.count(n) > 1}
++    if dups:
++        report("FAIL", "zip", f"дубли имён: {sorted(dups)[:5]}")
++    links = [i.filename for i in z.infolist() if stat.S_ISLNK(i.external_attr >> 16)]
++    if links:
++        report("FAIL", "zip", f"симлинки в архиве: {links[:5]}")
++    if not (bad or unsafe or dups or links):
++        report("PASS", "zip", f"{len(names)} файлов, CRC ок, пути безопасны")
++    return z
++
++
++def check_layout(z: zipfile.ZipFile) -> None:
++    names = set(z.namelist())
++    need = ["metadata.json", "inference/main.py", "configs/default.toml", "expds/__init__.py", "expds/pipeline.py"]
++    miss = [n for n in need if n not in names]
++    if miss:
++        tops = sorted({n.split("/")[0] for n in names})
++        hint = f" (верхний уровень архива: {tops[:5]} — файлы должны лежать в корне, не в подпапке)" if \
++            any(f"{t}/inference/main.py" in names for t in tops) else ""
++        report("FAIL", "layout", f"нет обязательных файлов: {miss}{hint}")
++    else:
++        report("PASS", "layout", "metadata.json, inference/main.py, configs/default.toml, expds/ на месте")
++    so = [n for n in names if n.startswith("inference/lib/expds_core") and n.endswith(".so")]
++    if so:
++        report("PASS", "layout", f"ускоритель: {so[0]}")
++    else:
++        report("WARN", "layout", "нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)")
++    extra_entry = [n for n in names if n.startswith("inference/") and n.endswith(".py") and n != "inference/main.py"]
++    if extra_entry:
++        report("WARN", "layout", f"лишние .py в inference/: {extra_entry[:5]}")
++
++
++def check_forbidden(z: zipfile.ZipFile) -> None:
++    hits, warn = [], []
++    for n in z.namelist():
++        p = PurePosixPath(n)
++        if p.suffix.lower() in FORBIDDEN_EXT:
++            hits.append(n)
++        elif p.name in SECRET_NAMES or p.suffix in {".pem", ".key"}:
++            hits.append(n)
++        elif FORBIDDEN_PARTS & set(p.parts[:-1]) or p.suffix == ".pyc":
++            warn.append(n)
++    if hits:
++        report("FAIL", "forbidden", f"{len(hits)} запрещённых файлов (данные/секреты, п. 7.7 ТР): {hits[:8]}")
++    else:
++        report("PASS", "forbidden", "нет данных выборок и секретов")
++    if warn:
++        report("WARN", "forbidden", f"{len(warn)} лишних служебных файлов: {warn[:5]}")
++
++
++def check_size(zpath: Path, z: zipfile.ZipFile) -> None:
++    size = zpath.stat().st_size
++    raw = sum(i.file_size for i in z.infolist())
++    msg = f"архив {size / 2**20:.1f} МиБ ({size} Б), распакованный {raw / 2**20:.1f} МиБ, лимит 2048 МиБ"
++    if size > LIMIT_ZIP:
++        report("FAIL", "size", msg)
++    elif size > WARN_ZIP:
++        report("WARN", "size", msg + " — запас < 100 МиБ")
++    else:
++        report("PASS", "size", msg)
++    big = sorted(((i.file_size, i.filename) for i in z.infolist()), reverse=True)[:3]
++    report("INFO", "size", "крупнейшие: " + ", ".join(f"{n} {s / 2**20:.0f} МиБ" for s, n in big))
++
++
++def check_metadata(z: zipfile.ZipFile) -> None:
++    try:
++        meta = json.loads(z.read("metadata.json"))
++    except KeyError:
++        return
++    except Exception as exc:
++        report("FAIL", "metadata", f"metadata.json не JSON: {exc}")
++        return
++    image, entry = str(meta.get("image") or ""), str(meta.get("entry_point") or "")
++    ok = True
++    if not image or "<" in image or image.lower() in {"todo", "image", "your/image:tag"} or ":" not in image:
++        report("FAIL", "metadata", f"image не задан или шаблон: {image!r}")
++        ok = False
++    elif image.endswith(":latest"):
++        report("WARN", "metadata", f"image с тегом latest — не воспроизводимо: {image}")
++    if entry.split() != ["python", "inference/main.py"]:
++        report("FAIL" if "inference/main.py" not in entry else "WARN", "metadata",
++               f"entry_point {entry!r}, ожидается 'python inference/main.py'")
++        ok = False
++    if ok:
++        report("PASS", "metadata", f"image={image}, entry_point={entry!r}")
++
++
++# ---------------------------------------------------------------- конфиг (статически)
++def _strings(obj, path=""):
++    if isinstance(obj, dict):
++        for k, v in obj.items():
++            yield from _strings(v, f"{path}.{k}" if path else k)
++    elif isinstance(obj, list):
++        for i, v in enumerate(obj):
++            yield from _strings(v, f"{path}[{i}]")
++    elif isinstance(obj, str):
++        yield path, obj
++
++
++def check_config_static(z: zipfile.ZipFile) -> dict | None:
++    names = set(z.namelist())
++    cfg = None
++    for n in sorted(x for x in names if x.startswith("configs/") and x.endswith(".toml")):
++        try:
++            c = tomllib.loads(z.read(n).decode("utf-8"))
++        except Exception as exc:
++            report("FAIL", "config", f"{n} не читается как TOML: {exc}")
++            continue
++        if n == "configs/default.toml":
++            cfg = c
++    if cfg is None:
++        return None
++    refs = sorted({(k, v) for k, v in _strings(cfg) if v.startswith("models/") or
++                   PurePosixPath(v).suffix in {".pt", ".pth", ".onnx", ".ckpt"}})
++    verify = cfg.get("verify") or {}
++    rr = cfg.get("rerank_arch") or {}
++    if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
++        refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
++                                   ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
++    missing = [f"{k}={v}" for k, v in refs if v not in names
++               and not (k.startswith("verify.") and not verify.get("enabled"))
++               and not (k.startswith("rerank_arch.") and not rr.get("enabled"))]
++    if missing:
++        report("FAIL", "config", f"файлы из default.toml отсутствуют в архиве (модель молча выключится, "
++                                 f"pipeline.py:98-101 на 24bd916): {missing}")
++    else:
++        report("PASS", "config", f"все {len(refs)} путей к весам из default.toml есть в архиве")
++    models_in_zip = {n for n in names if n.startswith("models/") and not n.endswith("/")}
++    unused = sorted(models_in_zip - {v for _, v in refs})
++    if unused:
++        report("WARN", "config", f"в архиве веса, на которые нет ссылок в конфиге (лишний объём): {unused[:6]}")
++    t = cfg.get("time") or {}
++    budget, margin = float(t.get("budget_s", 1500)), float(t.get("guard_margin_s", 180))
++    if budget + 0 >= PLATFORM_S - margin:
++        report("FAIL", "config", f"[time] budget_s={budget} ≥ 1800 − guard_margin_s={margin}: сторож сработает раньше бюджета")
++    elif not t.get("watchdog", True):
++        report("WARN", "config", "[time] watchdog=false — при превышении 30 мин ответа не будет")
++    else:
++        report("PASS", "config", f"[time] budget_s={budget:g}, guard_margin_s={margin:g}, watchdog включён")
++    bad, off = [], []
++    tables = [("thresholds", cfg.get("thresholds") or {})] + \
++        [(f"thresholds_by_markup.{g}", t or {}) for g, t in (cfg.get("thresholds_by_markup") or {}).items()]
++    for name, tbl in tables:
++        for k, v in tbl.items():
++            if k not in CLASSES:
++                bad.append(f"{name}.{k} (нет такого класса — порог молча игнорируется)")
++            elif isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0:
++                bad.append(f"{name}.{k}={v!r}")
++            elif v > 1:
++                off.append(f"{name}.{k}={v}")
++    dt = cfg.get("default_threshold", 0.15)
++    if isinstance(dt, bool) or not isinstance(dt, (int, float)) or not 0 <= dt <= 1:
++        bad.append(f"default_threshold={dt!r}")
++    if off:
++        report("INFO", "config", f"порог > 1 — класс в группе выключен: {off}")
++    only = (cfg.get("post") or {}).get("only_classes")
++    if only is not None and (not isinstance(only, list) or set(only) - set(CLASSES)):
++        bad.append(f"post.only_classes={only}")
++    for mt, spec in (cfg.get("models") or {}).items():
++        for it in spec if isinstance(spec, list) else [spec]:
++            if isinstance(it, dict):
++                extra = set(it.get("classes") or []) - set(CLASSES)
++                if extra:
++                    bad.append(f"models.{mt}.classes {sorted(extra)}")
++    if bad:
++        report("FAIL", "config", "ошибки значений: " + "; ".join(bad[:10]))
++    else:
++        report("PASS", "config", "пороги в [0,1], имена классов из 7 допустимых")
++    return cfg
++
++
++# ---------------------------------------------------------------- импорты (статически)
++def _module_of(rel: str) -> str | None:
++    p = PurePosixPath(rel)
++    if p.parts[0] == "expds":
++        parts = list(p.with_suffix("").parts)
++        if parts[-1] == "__init__":
++            parts = parts[:-1]
++        return ".".join(parts)
++    return None
++
++
++def scan_imports(root: Path) -> tuple[dict, dict]:
++    """{модуль: (третьи пакеты, локальные модули, сетевые находки)}; граф достижимости от main.py."""
++    info = {}
++    files = {"__main__": root / "inference" / "main.py"}
++    for f in (root / "expds").rglob("*.py"):
++        files[_module_of(f.relative_to(root).as_posix())] = f
++    local = set(files) | {"expds_core"}
++    for mod, f in files.items():
++        tree = ast.parse(f.read_text(encoding="utf-8"), filename=str(f))
++        pkg = mod.rsplit(".", 1)[0] if mod != "__main__" and not f.name == "__init__.py" else mod
++        third, deps, net = set(), set(), []
++        for node in ast.walk(tree):
++            names = []
++            if isinstance(node, ast.Import):
++                names = [a.name for a in node.names]
++            elif isinstance(node, ast.ImportFrom):
++                if node.level:
++                    base = pkg.split(".")
++                    base = base[: len(base) - node.level + 1]
++                    head = ".".join(base + ([node.module] if node.module else []))
++                    names = [head] + [f"{head}.{a.name}" for a in node.names]
++                else:
++                    names = [node.module] + [f"{node.module}.{a.name}" for a in node.names]
++            elif isinstance(node, ast.Call):
++                fn = node.func
++                nm = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", "")
++                if nm in NET_CALLS:
++                    net.append((node.lineno, f"вызов {nm}()"))
++                if isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Attribute) and fn.value.attr == "hub":
++                    net.append((node.lineno, f"torch.hub.{nm}()"))
++                for kw in node.keywords:
++                    if kw.arg == "pretrained" and isinstance(kw.value, ast.Constant) and kw.value.value is True:
++                        net.append((node.lineno, "pretrained=True (скачивание весов)"))
++                    if kw.arg in ("encoder_weights", "weights") and isinstance(kw.value, ast.Constant) \
++                            and isinstance(kw.value.value, str) and kw.value.value.lower() in ("imagenet", "default"):
++                        net.append((node.lineno, f"{kw.arg}={kw.value.value!r} (скачивание весов)"))
++            for n in names:
++                if not n:
++                    continue
++                if n in local or n.split(".")[0] in ("expds", "expds_core"):
++                    if n in local:
++                        deps.add(n)
++                    continue
++                top = n.split(".")[0]
++                if n in NET_MODULES or top in NET_MODULES or ".".join(n.split(".")[:2]) in NET_MODULES:
++                    net.append((node.lineno, f"import {n}"))
++                if top not in sys.stdlib_module_names:
++                    third.add(top)
++                elif top in ("urllib", "http") and ".".join(n.split(".")[:2]) in NET_MODULES:
++                    pass
++        info[mod] = (third, deps, net, f)
++    reach, todo = set(), ["__main__", "expds.pipeline"]
++    while todo:
++        m = todo.pop()
++        if m in reach or m not in info:
++            continue
++        reach.add(m)
++        todo += list(info[m][1])
++        parts = m.split(".")
++        for i in range(1, len(parts)):          # импорт подмодуля исполняет __init__ пакета
++            todo.append(".".join(parts[:i]))
++    return info, reach
++
++
++def check_imports_static(root: Path) -> tuple[set, set]:
++    info, reach = scan_imports(root)
++    third_reach = set().union(*(info[m][0] for m in reach))
++    fails, warns = [], []
++    for m, (_t, _d, net, f) in sorted(info.items()):
++        for line, what in net:
++            loc = f"{f.relative_to(root)}:{line} {what}"
++            is_import = what.startswith("import ")
++            (fails if (m in reach and is_import) else warns).append(loc)
++    if fails:
++        report("FAIL", "imports", "сетевые модули в коде инференса: " + "; ".join(fails[:8]))
++    else:
++        report("PASS", "imports", f"в {len(reach)} модулях, достижимых из inference/main.py, нет сетевых импортов")
++    if warns:
++        report("WARN", "imports", "проверить вручную (вероятно, только обучение): " + "; ".join(warns[:8]))
++    report("INFO", "imports", f"сторонние пакеты инференса: {sorted(third_reach)}")
++    return reach, third_reach
++
++
++# ---------------------------------------------------------------- проба кодом архива (подпроцесс)
++PROBE = r'''
++import importlib, json, sys, traceback, tomllib
++from pathlib import Path
++root = Path(sys.argv[1]); reach = json.loads(sys.argv[2]); third = json.loads(sys.argv[3]); load_w = sys.argv[4] == "1"
++sys.path[:0] = [str(root), str(root / "inference" / "lib")]
++out = {"import_fail": {}, "third_fail": {}, "weights": [], "cfg": [], "dists": {}}
++import importlib.util, importlib.metadata as md
++pd = md.packages_distributions()
++for t in third:
++    try:
++        if importlib.util.find_spec(t) is None:
++            out["third_fail"][t] = "не найден"
++        else:
++            out["dists"][t] = pd.get(t, [t])
++    except Exception as e:
++        out["third_fail"][t] = repr(e)
++for m in reach:
++    if m == "__main__":
++        continue
++    try:
++        importlib.import_module(m)
++    except BaseException as e:
++        out["import_fail"][m] = "".join(traceback.format_exception_only(type(e), e)).strip()
++try:
++    import expds_core
++    out["backend"] = str(getattr(expds_core, "__file__", ""))
++except BaseException as e:
++    out["backend_err"] = repr(e)
++try:
++    from expds.constants import CLASSES
++    from expds.geophys import MAP_MODES
++    from expds.pipeline import model_specs, model_files
++    cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
++    for name, sub in (cfg.get("geophys") or {}).items():
++        if isinstance(sub, dict) and "maps" in sub and sub["maps"] not in MAP_MODES:
++            out["cfg"].append(f"geophys.{name}.maps={sub['maps']!r} не из {MAP_MODES} — ValueError, регион без геофизики")
++    if "maps" in (cfg.get("geophys") or {}) and cfg["geophys"]["maps"] not in MAP_MODES:
++        out["cfg"].append(f"geophys.maps={cfg['geophys']['maps']!r} не из {MAP_MODES}")
++    if load_w:
++        import gc, torch
++        from expds.infer_nn import Segmenter
++        models = cfg.get("models") or {}
++        for mt in models:
++            for path, classes in model_specs(models, mt):
++                for f in model_files(path):
++                    rec = {"markup": mt, "file": f}
++                    try:
++                        s = Segmenter(root / f, device="cpu")
++                        rec["classes"] = list(s.classes)
++                        rec["ok"] = True
++                        if classes and set(classes) - set(s.classes):
++                            rec["warn"] = f"config classes {sorted(set(classes) - set(s.classes))} нет у модели"
++                        del s
++                    except Exception as e:
++                        rec["ok"] = False; rec["err"] = repr(e)[:300]
++                    gc.collect()
++                    out["weights"].append(rec)
++        lg = (cfg.get("candidates") or {}).get("lgbm_model")
++        if lg:
++            try:
++                import lightgbm as lgb
++                b = lgb.Booster(model_file=str(root / lg))
++                out["weights"].append({"markup": "lgbm", "file": lg, "ok": True, "classes": [f"{b.num_trees()} деревьев"]})
++            except Exception as e:
++                out["weights"].append({"markup": "lgbm", "file": lg, "ok": False, "err": repr(e)[:300]})
++        rr = cfg.get("rerank_arch") or {}
++        if rr.get("enabled"):
++            try:
++                import lightgbm as lgb
++                rm = rr.get("model", "models/rerank_arch_lgbm.txt")
++                b = lgb.Booster(model_file=str(root / rm))
++                json.loads((root / rr.get("meta", "models/rerank_arch_lgbm.json")).read_text(encoding="utf-8"))
++                out["weights"].append({"markup": "rerank_arch", "file": rm, "ok": True, "classes": [f"{b.num_trees()} деревьев"]})
++            except Exception as e:
++                out["weights"].append({"markup": "rerank_arch", "file": rr.get("model"), "ok": False, "err": repr(e)[:300]})
++        v = cfg.get("verify") or {}
++        if v.get("enabled") and v.get("weights"):
++            try:
++                from expds.crop_model import _network
++                blob = torch.load(root / v["weights"], map_location="cpu", weights_only=False)
++                _network(str(blob.get("encoder") or "resnet18"), False).load_state_dict(blob["state_dict"])
++                out["weights"].append({"markup": "verify", "file": v["weights"], "ok": True, "classes": []})
++            except Exception as e:
++                out["weights"].append({"markup": "verify", "file": v["weights"], "ok": False, "err": repr(e)[:300]})
++except BaseException as e:
++    out["probe_err"] = traceback.format_exc()[-1500:]
++print("PROBE_JSON=" + json.dumps(out, ensure_ascii=False))
++'''
++
++
++def sandbox_cmd(cmd: list[str], cpus: str, net: bool) -> list[str]:
++    pre = []
++    if net and shutil.which("unshare") and subprocess.run(["unshare", "-rn", "true"], capture_output=True).returncode == 0:
++        pre = ["unshare", "-rn"]
++    if shutil.which("nice"):
++        pre += ["nice", "-n", "10"]
++    if cpus and shutil.which("taskset"):
++        pre += ["taskset", "-c", cpus]
++    return pre + cmd
++
++
++def child_env(home: Path, threads: int) -> dict:
++    env = {k: v for k, v in os.environ.items() if not k.startswith(("EXPDS_", "PYTHONPATH", "CUDA_VISIBLE"))}
++    env.update(HOME=str(home), XDG_CACHE_HOME=str(home / ".cache"), TORCH_HOME=str(home / ".cache" / "torch"),
++               HF_HOME=str(home / ".cache" / "hf"), MPLCONFIGDIR=str(home / ".mpl"),
++               PYTHONDONTWRITEBYTECODE="1", OMP_NUM_THREADS=str(threads), MKL_NUM_THREADS=str(threads),
++               OPENBLAS_NUM_THREADS=str(threads), RAYON_NUM_THREADS=str(threads), CUDA_VISIBLE_DEVICES="",
++               EXPDS_DEVICE="cpu", HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", NO_PROXY="*")
++    return env
++
++
++def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
++    home = Path(tempfile.mkdtemp(prefix="b8home_"))
++    cmd = sandbox_cmd([py, "-c", PROBE, str(root), json.dumps(sorted(reach)), json.dumps(sorted(third)),
++                       "1" if args.weights else "0"], args.cpus, not args.allow_net)
++    t0 = time.monotonic()
++    try:
++        r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout, env=child_env(home, args.threads),
++                           cwd=str(root))
++    except subprocess.TimeoutExpired:
++        report("FAIL", "imports", f"проба импорта/весов не уложилась в {args.timeout} с")
++        return
++    line = next((x for x in r.stdout.splitlines() if x.startswith("PROBE_JSON=")), None)
++    if line is None:
++        report("FAIL", "imports", f"проба упала (код {r.returncode}): {(r.stderr or r.stdout)[-800:]}")
++        return
++    out = json.loads(line[len("PROBE_JSON="):])
++    dt = time.monotonic() - t0
++    if out["third_fail"]:
++        report("FAIL", "imports", f"не установлены в {py}: {out['third_fail']}")
++    if out["import_fail"]:
++        report("FAIL", "imports", "модули инференса не импортируются: " +
++               "; ".join(f"{m}: {e}" for m, e in out["import_fail"].items())[:1200])
++    if not out["third_fail"] and not out["import_fail"]:
++        report("PASS", "imports", f"{len(reach) - 1} модулей и {len(third)} сторонних пакетов импортируются без сети ({dt:.1f} с)")
++    if args.lock:
++        lock = Path(args.lock).read_text(encoding="utf-8").lower().replace("_", "-")
++        pinned = {ln.split("==")[0].strip() for ln in lock.splitlines() if "==" in ln and not ln.lstrip().startswith("#")}
++        notpinned = sorted({d.lower().replace("_", "-") for t, ds in out["dists"].items() for d in ds} - pinned - {"torch", "torchvision"})
++        if notpinned:
++            report("FAIL", "imports", f"пакеты не из {Path(args.lock).name} (в образе их может не быть): {notpinned}")
++        else:
++            report("PASS", "imports", f"все сторонние пакеты закреплены в {Path(args.lock).name}")
++    if "backend_err" in out:
++        report("WARN", "so", f"expds_core не импортируется: {out['backend_err']}")
++    if out.get("probe_err"):
++        report("FAIL", "config", f"проба конфига упала: {out['probe_err']}")
++    for msg in out["cfg"]:
++        report("FAIL", "config", msg)
++    if args.weights:
++        bad = [w for w in out["weights"] if not w["ok"]]
++        warn = [w for w in out["weights"] if w.get("warn")]
++        for w in bad:
++            report("FAIL", "weights", f"{w['markup']}: {w['file']} не открывается: {w.get('err')}")
++        for w in warn:
++            report("WARN", "weights", f"{w['markup']}: {w['file']}: {w['warn']}")
++        if not bad:
++            report("PASS", "weights", f"{len(out['weights'])} файлов весов открываются кодом архива на CPU")
++    shutil.rmtree(home, ignore_errors=True)
++
++
++# ---------------------------------------------------------------- .so
++def check_so(root: Path) -> None:
++    for so in sorted((root / "inference" / "lib").glob("expds_core*.so")):
++        head = so.read_bytes()[:20]
++        if head[:4] != b"\x7fELF" or head[4] != 2 or int.from_bytes(head[18:20], "little") != 62:
++            report("FAIL", "so", f"{so.name}: не ELF64 x86-64")
++            continue
++        data = so.read_bytes()
++        import re
++        glibc = sorted({tuple(map(int, m.decode().split(".")[1:])) for m in re.findall(rb"GLIBC_2\.[0-9]+(?:\.[0-9]+)?", data)})
++        gl = "2." + ".".join(map(str, glibc[-1][0:])) if glibc else "?"
++        msg = f"{so.name}: ELF x86-64, максимум GLIBC_{gl}"
++        if shutil.which("objdump"):
++            dis = subprocess.run(["objdump", "-d", "--no-show-raw-insn", str(so)], capture_output=True, text=True).stdout
++            zmm = dis.count("%zmm")
++            if zmm:
++                report("FAIL", "so", f"{msg}; {zmm} инструкций AVX-512 (zmm) — SIGILL на CPU без AVX-512")
++                continue
++            msg += f"; AVX-512 нет, ymm-инструкций {dis.count('%ymm')}"
++        report("PASS", "so", msg)
++
++
++# ---------------------------------------------------------------- смоук
++GEN = r'''
++import json, sys
++from pathlib import Path
++import numpy as np
++root = Path(sys.argv[1]); X0, Y0 = 500000.0, 6100000.0; UTM = "EPSG:32636"
++MOUNDS = [(30.0, 40.0, 1.2, 5.0), (70.0, 60.0, 0.8, 4.0), (45.0, 85.0, 1.0, 6.0)]
++def surf(x, y):
++    z = 150.0 + 0.02 * x + 0.01 * y
++    for mx, my, h, r in MOUNDS:
++        z = z + h * np.exp(-((x - mx) ** 2 + (y - my) ** 2) / (2 * (r / 2) ** 2))
++    return z
++import laspy, rasterio
++from pyproj import CRS
++from rasterio.transform import from_origin
++r1 = root / "region_0001"
++rng = np.random.default_rng(0); n = 120000
++x = rng.uniform(0, 100, n); y = rng.uniform(0, 100, n); z = surf(x, y)
++cls = np.full(n, 2, np.uint8); veg = rng.random(n) < 0.1; z = np.where(veg, z + rng.uniform(2, 10, n), z); cls[veg] = 5
++hdr = laspy.LasHeader(point_format=6, version="1.4"); hdr.scales = np.array([0.001] * 3); hdr.offsets = np.array([X0, Y0, 0.0])
++hdr.add_crs(CRS.from_user_input(UTM)); las = laspy.LasData(hdr); las.x, las.y, las.z = x + X0, y + Y0, z; las.classification = cls
++p = r1 / "01_region_0001_La_точки" / "01_region_0001_La_точки.las"; p.parent.mkdir(parents=True); las.write(str(p))
++(r1 / "UTM.json").write_text(json.dumps({"utm": "36N"}), encoding="utf-8")
++# SpOr: RGB 0,5 м с тёмными кругами на местах курганов
++res = 0.5; m = int(100 / res); yy, xx = (np.mgrid[0:m, 0:m] + 0.5) * res
++img = np.stack([np.full((m, m), v, np.float32) for v in (120, 130, 110)])
++for mx, my, h, r in MOUNDS:
++    img -= 40 * (((xx - mx) ** 2 + ((100 - yy) - my) ** 2) < r ** 2)
++p = r1 / "02_region_0001_SpOr_снимок" / "02_region_0001_SpOr.tif"; p.parent.mkdir(parents=True)
++with rasterio.open(p, "w", driver="GTiff", height=m, width=m, count=3, dtype="uint8", transform=from_origin(X0, Y0 + 100, res, res), crs=UTM) as ds:
++    ds.write(np.clip(img, 0, 255).astype(np.uint8))
++# MagGr: диполи, 0,25 м
++r2 = root / "region_0002"; res = 0.25; m = int(40 / res); yy, xx = np.mgrid[0:m, 0:m] * res
++a = np.random.default_rng(1).normal(0, 1.0, (m, m)).astype(np.float32)
++for px, py in [(8.0, 9.0), (25.0, 30.0), (31.0, 12.0)]:
++    a += 25 * np.exp(-((xx - px) ** 2 + (yy - py) ** 2) / 0.18); a -= 12 * np.exp(-((xx - px - 0.8) ** 2 + (yy - py) ** 2) / 0.18)
++p = r2 / "07_region_0002_MagGr_карты" / "01_region_0002_MagGr.tif"; p.parent.mkdir(parents=True)
++with rasterio.open(p, "w", driver="GTiff", height=m, width=m, count=1, dtype="float32", transform=from_origin(X0, Y0 + 40, res, res), crs=UTM) as ds:
++    ds.write(a, 1)
++(r2 / "UTM.json").write_text(json.dumps({"utm": "36N"}), encoding="utf-8")
++print("ok")
++'''
++
++
++def _tree_rss_kb(pid: int) -> int:
++    kids: dict[int, list[int]] = {}
++    for d in os.listdir("/proc"):
++        if d.isdigit():
++            try:
++                with open(f"/proc/{d}/stat", "rb") as fh:
++                    ppid = int(fh.read().rsplit(b")", 1)[1].split()[1])
++                kids.setdefault(ppid, []).append(int(d))
++            except (OSError, ValueError, IndexError):
++                pass
++    total, todo = 0, [pid]
++    while todo:
++        p = todo.pop()
++        todo += kids.get(p, [])
++        try:
++            with open(f"/proc/{p}/status") as fh:
++                for ln in fh:
++                    if ln.startswith("VmRSS:"):
++                        total += int(ln.split()[1])
++        except OSError:
++            pass
++    return total
++
++
++def validate_output(path: Path) -> None:
++    if not path.is_file():
++        report("FAIL", "smoke", f"нет файла ответа {path}")
++        return
++    size_mb = path.stat().st_size / 2 ** 20
++    text = path.read_text(encoding="utf-8")
++
++    def no_const(c):
++        raise ValueError(f"нестандартная константа JSON {c}")
++    try:
++        fc = json.loads(text, parse_constant=no_const)
++    except ValueError as exc:
++        report("FAIL", "format", f"ответ — не строгий JSON: {exc}")
++        return
++    errs, by_class = [], {}
++    if fc.get("type") != "FeatureCollection":
++        errs.append("type != FeatureCollection")
++    feats = fc.get("features") or []
++    if len(feats) > MAX_FEATURES:
++        errs.append(f"объектов {len(feats)} > {MAX_FEATURES}")
++    if size_mb > MAX_FILE_MB:
++        errs.append(f"файл {size_mb:.1f} МБ > {MAX_FILE_MB}")
++    crs = (fc.get("crs") or {}).get("properties", {}).get("name")
++    for i, f in enumerate(feats):
++        pr, g = f.get("properties") or {}, f.get("geometry") or {}
++        c = pr.get("class_name")
++        if c not in CLASSES:
++            errs.append(f"#{i}: class_name {c!r}")
++            continue
++        by_class[c] = by_class.get(c, 0) + 1
++        if g.get("type") != "Polygon":
++            errs.append(f"#{i}: geometry {g.get('type')!r}")
++            continue
++        rings = g.get("coordinates") or []
++        npts = sum(len(r) for r in rings)
++        if not rings or npts > MAX_POINTS:
++            errs.append(f"#{i}: вершин {npts}")
++        for r in rings:
++            if len(r) < 4 or r[0] != r[-1]:
++                errs.append(f"#{i}: кольцо не замкнуто/короче 4 точек")
++                break
++            if not all(isinstance(v, (int, float)) and math.isfinite(v) for xy in r for v in xy[:2]):
++                errs.append(f"#{i}: нечисловые координаты")
++                break
++            if any(abs(xy[0]) > 20037508.35 or abs(xy[1]) > 20048966.11 for xy in r):
++                errs.append(f"#{i}: координаты вне EPSG:3857")
++                break
++        conf = pr.get("confidence")
++        if conf is not None and not (isinstance(conf, (int, float)) and 0 <= conf <= 1):
++            errs.append(f"#{i}: confidence {conf}")
++    if errs:
++        report("FAIL", "format", f"{len(errs)} нарушений: {errs[:6]}")
++    else:
++        report("PASS", "format", f"FeatureCollection, {len(feats)} Polygon (≤{MAX_FEATURES}), {size_mb:.3f} МБ, "
++                                 f"по классам {by_class}{'' if not crs else ', crs ' + crs}")
++    if not feats:
++        report("WARN" if ALLOW_EMPTY else "FAIL", "format",
++               "ответ пуст — на синтетике ожидаются объекты (геофизика/лидар); пустой ответ тратит попытку дня. "
++               "Проверьте лог (--allow-empty — понизить до WARN)")
++
++
++ALLOW_EMPTY = False
++
++
++def smoke(z: zipfile.ZipFile, args) -> None:
++    work = Path(tempfile.mkdtemp(prefix="b8smoke_", dir=args.workdir))
++    code, home, out_dir = work / "code", work / "home", work / "out"
++    for d in (home, out_dir):
++        d.mkdir()
++    z.extractall(code)
++    # Платформа: --read-only; код пишет только рядом с ответом (main.py:54-70)
++    for p in sorted(code.rglob("*"), reverse=True):
++        p.chmod(0o555 if p.is_dir() else 0o444)
++    code.chmod(0o555)
++    if args.input:
++        inp = Path(args.input).resolve()
++    else:
++        inp = work / "input"
++        g = subprocess.run([args.python, "-c", GEN, str(inp)], capture_output=True, text=True, timeout=300,
++                           env=child_env(home, args.threads))
++        if g.returncode:
++            report("FAIL", "smoke", f"синтетика не создана (нужны numpy/laspy/rasterio/pyproj): {g.stderr[-600:]}")
++            return
++    output = out_dir / "result.geojson"
++    cmd = sandbox_cmd([args.python, "inference/main.py", str(inp), str(output)], args.cpus, not args.allow_net)
++    isolated = cmd[:2] == ["unshare", "-rn"]
++    report("INFO", "smoke", f"запуск: {' '.join(cmd[:8])} ... (сеть {'отключена' if isolated else 'НЕ изолирована'}, "
++                            f"таймаут {args.timeout} с, лимит RSS {args.max_rss_mb} МиБ)")
++    if not isolated and not args.allow_net:
++        report("WARN", "smoke", "unshare -rn недоступен — офлайн проверен только статически")
++    log_path = work / "run.log"
++    t0, peak, killed = time.monotonic(), 0, None
++    with open(log_path, "w", encoding="utf-8") as logf:
++        proc = subprocess.Popen(cmd, cwd=str(code), stdout=logf, stderr=subprocess.STDOUT,
++                                env=child_env(home, args.threads), start_new_session=True)
++        while proc.poll() is None:
++            time.sleep(0.25)
++            peak = max(peak, _tree_rss_kb(proc.pid))
++            if peak > args.max_rss_mb * 1024:
++                killed = f"RSS {peak // 1024} МиБ > {args.max_rss_mb}"
++            elif time.monotonic() - t0 > args.timeout:
++                killed = f"таймаут {args.timeout} с"
++            if killed:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++                break
++    wall = time.monotonic() - t0
++    log = log_path.read_text(encoding="utf-8", errors="replace")
++    if killed:
++        report("FAIL", "smoke", f"прогон снят: {killed}; хвост лога:\n{log[-1500:]}")
++    elif proc.returncode != 0:
++        report("FAIL", "smoke", f"код возврата {proc.returncode} за {wall:.1f} с; хвост лога:\n{log[-1500:]}")
++    else:
++        report("PASS", "smoke", f"main.py завершился за {wall:.1f} с, пик RSS {peak / 1024:.0f} МиБ, "
++                                f"CPU {args.cpus or 'все'}")
++    for ln in log.splitlines():
++        if "фазы:" in ln or "общее время" in ln or "записано" in ln or "ускоритель" in ln:
++            report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
++    problems = [ln for ln in log.splitlines() if any(k in ln for k in (
++        "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
++        "упала", "запасной детектор", "MemoryError"))]
++    if problems:
++        report("WARN" if "сбой пайплайна" not in log else "FAIL", "smoke",
++               f"{len(problems)} тревожных строк лога: " + " | ".join(p[-200:] for p in problems[:5]))
++    if not killed:
++        validate_output(output)
++        leftovers = [p.name for p in out_dir.iterdir() if p.name != "result.geojson"]
++        if leftovers:
++            report("WARN", "smoke", f"рядом с ответом остались файлы: {leftovers}")
++        cached = [str(p.relative_to(home)) for p in home.rglob("*") if p.is_file()]
++        if cached:
++            report("FAIL", "smoke", f"во время прогона что-то записано/скачано в HOME/кэш: {cached[:5]}")
++        else:
++            report("PASS", "smoke", "HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода")
++    if args.keep:
++        report("INFO", "smoke", f"рабочая папка сохранена: {work}")
++    else:
++        for p in code.rglob("*"):
++            p.chmod(0o755 if p.is_dir() else 0o644)
++        code.chmod(0o755)
++        shutil.rmtree(work, ignore_errors=True)
++
++
++def main() -> int:
++    ap = argparse.ArgumentParser(description="Проверка архива КОЗ №3 перед отправкой (PASS/FAIL, код ≠0 при FAIL)")
++    ap.add_argument("zip", type=Path, help="путь к submission.zip")
++    ap.add_argument("--no-smoke", dest="smoke", action="store_false", help="без прогона main.py")
++    ap.add_argument("--no-weights", dest="weights", action="store_false", help="не открывать .pt (быстрее)")
++    ap.add_argument("--python", default=sys.executable, help="интерпретатор с пакетами образа (по умолчанию текущий)")
++    ap.add_argument("--input", help="своя папка входа вместо синтетики (маленький регион!)")
++    ap.add_argument("--timeout", type=int, default=900, help="таймаут смоука и пробы, с (900)")
++    ap.add_argument("--max-rss-mb", type=int, default=2000, help="снять прогон, если RSS дерева процессов больше (2000)")
++    ap.add_argument("--allow-empty", action="store_true", help="пустой ответ смоука — WARN, а не FAIL")
++    ap.add_argument("--cpus", default="0,1", help="taskset -c (0,1); пусто — без привязки")
++    ap.add_argument("--threads", type=int, default=2, help="OMP/MKL/RAYON потоки (2); main.py:21 сам ставит OMP=8")
++    ap.add_argument("--lock", help="requirements.lock: все сторонние пакеты должны быть в нём")
++    ap.add_argument("--allow-net", action="store_true", help="не изолировать сеть")
++    ap.add_argument("--workdir", default=None, help="где распаковывать (по умолчанию $TMPDIR)")
++    ap.add_argument("--keep", action="store_true", help="не удалять рабочую папку смоука")
++    args = ap.parse_args()
++    global ALLOW_EMPTY
++    ALLOW_EMPTY = args.allow_empty
++    import shutil as _sh
++    py = args.python if os.sep in args.python else (_sh.which(args.python) or args.python)
++    args.python = os.path.abspath(py)  # cwd смоука — папка кода, относительный путь там не найдётся
++    if args.workdir:
++        Path(args.workdir).mkdir(parents=True, exist_ok=True)
++    if not args.zip.is_file():
++        print(f"нет файла {args.zip}", file=sys.stderr)
++        return 2
++    print(f"== check_submission: {args.zip} ({time.strftime('%Y-%m-%d %H:%M:%S %Z')})")
++    t0 = time.monotonic()
++    z = check_zip(args.zip)
++    if z is None:
++        return 1
++    check_layout(z)
++    check_forbidden(z)
++    check_size(args.zip, z)
++    check_metadata(z)
++    cfg = check_config_static(z)
++    if "inference/main.py" in z.namelist() and "expds/pipeline.py" in z.namelist():
++        tmp = Path(tempfile.mkdtemp(prefix="b8static_", dir=args.workdir))
++        try:
++            for n in z.namelist():
++                if n.endswith(".py") or n.endswith(".so") or n.endswith(".toml"):
++                    z.extract(n, tmp)
++            for n in z.namelist():                       # веса нужны пробе
++                if args.weights and n.startswith("models/"):
++                    z.extract(n, tmp)
++            reach, third = check_imports_static(tmp)
++            check_so(tmp)
++            run_probe(tmp, args.python, reach, third, args)
++        finally:
++            shutil.rmtree(tmp, ignore_errors=True)
++    if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
++        smoke(z, args)
++    elif not args.smoke:
++        report("INFO", "smoke", "пропущен (--no-smoke)")
++    n_fail = sum(s == "FAIL" for s, _, _ in RESULTS)
++    n_warn = sum(s == "WARN" for s, _, _ in RESULTS)
++    verdict = "FAIL" if n_fail else "PASS"
++    print(f"== ИТОГ: {verdict} — FAIL {n_fail}, WARN {n_warn}, проверок {len(RESULTS)}, {time.monotonic() - t0:.1f} с")
++    return 1 if n_fail else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
 diff --git a/scripts/oof_transform.py b/scripts/oof_transform.py
 index be6f3f4..232fd55 100644
 --- a/scripts/oof_transform.py
@@ -6532,12 +7954,127 @@ index 0000000..d391008
 +            base_taus={g: float(gv["threshold"]) for g, gv in base[R.CLASS]["groups"].items()})
 +out.with_suffix(".json").write_text(json.dumps(meta, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
 +print("rows", meta["train"]["rows"], "pos", meta["train"]["positives"], "taus", taus, "base", meta["base_taus"])
+diff --git a/tests/test_bot6_twins_only.py b/tests/test_bot6_twins_only.py
+new file mode 100644
+index 0000000..1687a29
+--- /dev/null
++++ b/tests/test_bot6_twins_only.py
+@@ -0,0 +1,27 @@
++from shapely.geometry import Point
++from expds import post, watchdog
++
++
++def _f(cls, grp, x, conf=0.9, markup=None):
++    return {"class_name": cls, "threshold_group": grp, "markup_type": markup or grp, "confidence": conf,
++            "region_name": "r", "geom": Point(4.1e6 + x, 7.4e6).buffer(2.0)}  # EPSG:3857
++
++
++def test_twins_only_keeps_ae_near_li_and_adds_copies():
++    feats = [_f("kurgany_povrezhdennye", "li", 0.0, 0.5), _f("kurgany_povrezhdennye", "ae", 0.1),
++             _f("kurgany_tselye", "ae", 50.0), _f("kurgany_tselye", None, 90.0, markup="sp_or")]
++    out = post.kurgan_cross_modal_twins(feats, {"dedup_ae_vs_li_m": 0.0})
++    assert sum(1 for f in out if f["threshold_group"] == "ae" and f["class_name"] == "kurgany_povrezhdennye") == 1
++    tw = [f for f in out if f["threshold_group"] in ("ae_twin", "sp_focal_twin")]
++    assert {f["threshold_group"] for f in tw} == {"ae_twin", "sp_focal_twin"}
++    assert all(f["class_name"] == "kurgany_povrezhdennye" for f in tw)
++    assert {f["markup_type"] for f in tw} == {"ae", "sp_or"}
++    assert len(out) == len(feats) + 2  # ничего не удалено, исходные целые на месте
++
++
++def test_watchdog_flag_forces_no_dedup(monkeypatch):
++    seen = {}
++    monkeypatch.setattr(post, "kurgan_cross_modal_twins", lambda out, spec: seen.setdefault("spec", spec) and out)
++    cfg = {"post": {"kurgan_twins_only": {"dedup_ae_vs_li_m": 3.0}}, "thresholds": {}, "default_threshold": 0.0}
++    watchdog.finish([], cfg)
++    assert seen["spec"]["dedup_ae_vs_li_m"] == 0.0
+diff --git a/tests/test_bot7_limits.py b/tests/test_bot7_limits.py
+new file mode 100644
+index 0000000..ab3a5f9
+--- /dev/null
++++ b/tests/test_bot7_limits.py
+@@ -0,0 +1,76 @@
++"""bot-7: последний рубеж лимитов выдачи в writer.write_geojson (≤ 20000 объектов, ≤ 3000 вершин, только Polygon)."""
++import json
++import math
++
++from shapely.geometry import Point, Polygon
++
++from expds import writer
++from expds.constants import MAX_FEATURES, MAX_VERTICES
++
++
++def _f(geom, cls="finds_points", conf=0.5):
++    return {"geom": geom, "class_name": cls, "confidence": conf, "region_name": "r", "markup_type": "maggr"}
++
++
++def _ring(n, r=50.0, x0=4_000_000.0, y0=7_000_000.0):
++    return Polygon([(x0 + r * math.cos(2 * math.pi * k / n), y0 + r * math.sin(2 * math.pi * k / n)) for k in range(n)])
++
++
++def test_normal_output_untouched(tmp_path):
++    feats = [_f(Point(4_000_000 + 10 * i, 7_000_000).buffer(1.0)) for i in range(5)]
++    p = writer.write_geojson(feats, tmp_path / "result.geojson")
++    fc = json.loads(p.read_text(encoding="utf-8"))
++    assert fc == writer.to_feature_collection(feats)
++    assert writer.validate(p)["ok"]
++
++
++def test_too_many_vertices_dropped(tmp_path):
++    big = _ring(MAX_VERTICES + 50)            # в обход finalize/limit_vertices
++    ok = _ring(100, x0=4_001_000.0)
++    p = writer.write_geojson([_f(big), _f(ok)], tmp_path / "result.geojson")
++    fc = json.loads(p.read_text(encoding="utf-8"))
++    assert len(fc["features"]) == 1 and fc["features"][0]["properties"]["fid"] == 0
++    assert writer.validate(p)["ok"]
++
++
++def test_feature_cap(tmp_path):
++    sq = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
++    fc = {"type": "FeatureCollection", "features": [
++        {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [list(map(list, sq.exterior.coords))]},
++         "properties": {"fid": k, "class_name": "finds_points"}} for k in range(MAX_FEATURES + 7)]}
++    out = writer.enforce_limits(fc)
++    assert len(out["features"]) == MAX_FEATURES
++    assert [f["properties"]["fid"] for f in out["features"][:3]] == [0, 1, 2]
++
++
++def test_safe_finish_fallback_keeps_stack6(monkeypatch):
++    """bot-7: при сбое finish() запасная цепочка тоже делает sota_stack6 (multipole + filter_finds_points); сбой шага не роняет её."""
++    from expds import post, watchdog
++
++    calls = []
++    monkeypatch.setattr(post, "merge_within_markup", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("boom")))
++    monkeypatch.setattr(post, "multipole_object_poly", lambda fs, spec: calls.append("mp") or fs)
++    def bad(fs, spec):
++        calls.append("ff"); raise RuntimeError("GEOS")
++    monkeypatch.setattr(post, "filter_finds_points_regimes", bad)
++    f = _f(Point(4_000_000, 7_000_000).buffer(1.0), cls="kurgany_tselye", conf=0.9)
++    cfg = {"thresholds": {}, "default_threshold": 0.0, "post": {"multipole_object_poly": True, "filter_finds_points": True}}
++    out = watchdog.safe_finish([f], cfg)
++    assert calls == ["mp", "ff"] and len(out) == 1
++
++
++def test_candidate_twins_only_off_by_default_and_in_fallback(monkeypatch):
++    """bot-7: в конфиге кандидата kurgan_twins_only выключен; при включении запасная цепочка его тоже делает (dedup ae/li = 0)."""
++    import tomllib
++    from pathlib import Path
++
++    from expds import post, watchdog
++
++    cfg = tomllib.loads((Path(__file__).resolve().parents[1] / "configs" / "default.toml").read_text(encoding="utf-8"))
++    assert not cfg["post"].get("kurgan_twins_only") and not cfg["post"].get("kurgan_twins")
++    seen = {}
++    monkeypatch.setattr(post, "merge_within_markup", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("boom")))
++    monkeypatch.setattr(post, "kurgan_cross_modal_twins", lambda fs, spec: seen.setdefault("spec", spec) and fs)
++    f = _f(Point(4_000_000, 7_000_000).buffer(1.0), cls="kurgany_tselye", conf=0.9)
++    watchdog.safe_finish([f], {"thresholds": {}, "default_threshold": 0.0, "post": {"kurgan_twins_only": {"dedup_ae_vs_li_m": 3.0}}})
++    assert seen["spec"]["dedup_ae_vs_li_m"] == 0.0
 diff --git a/tests/test_bot7_rerank_arch.py b/tests/test_bot7_rerank_arch.py
 new file mode 100644
-index 0000000..61fbfbf
+index 0000000..a6683b0
 --- /dev/null
 +++ b/tests/test_bot7_rerank_arch.py
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,99 @@
 +"""bot-7: флаг [rerank_arch] (по умолчанию выключен) и конфиг кандидата."""
 +import json
 +import tomllib
@@ -6583,6 +8120,13 @@ index 0000000..61fbfbf
 +    assert cfg["post"]["micro_circles"]["radius_m"] == {"kurgany_povrezhdennye": 0.5, "kurgany_tselye": 0.5}
 +    assert cfg["thresholds_by_markup"]["or"]["arkhitektury"] == 0.065565
 +    assert cfg["verify"]["enabled"] is True
++    # финальный состав (bot-1 по сводке bot-10): sota_stack6 separate, без kurgan_twins и без unified_group
++    post_cfg = cfg["post"]
++    assert post_cfg["multipole_object_poly"] is True and post_cfg["filter_finds_points"] is True
++    assert "kurgan_twins" not in post_cfg
++    # маска фортификаций ae — в базе и включена
++    assert cfg["models"]["ae"]["path"] == "models/ae_fort_mask_r18.pt" and (ROOT / cfg["models"]["ae"]["path"]).is_file()
++    assert cfg["thresholds_by_markup"]["ae"]["fortifikatsii"] == 0.998215
 +
 +
 +def test_flag_off_and_missing_files_are_noop(tmp_path):
@@ -6651,3 +8195,265 @@ index 0000000..4266b16
 +    got = rooted_verify(cfg, ROOT)
 +    assert got["verify"]["weights"] == str(ROOT / "models/sp_crop.pt") and got["x"] == 1
 +    assert cfg["verify"]["weights"] == "models/sp_crop.pt"
+diff --git a/tests/test_bot8_faults.py b/tests/test_bot8_faults.py
+new file mode 100644
+index 0000000..7f72c54
+--- /dev/null
++++ b/tests/test_bot8_faults.py
+@@ -0,0 +1,129 @@
++"""bot-8: инъекции отказов — один сбой не должен обнулять или урезать весь прогон."""
++import json
++import math
++from types import SimpleNamespace
++
++from conftest import X0, Y0
++from shapely.geometry import box
++
++from expds import writer
++
++
++def _f(cls="kurgany_tselye", d=0.0, conf=0.9, mt="li"):
++    return {"geom": box(X0 + d, Y0, X0 + d + 5, Y0 + 5), "class_name": cls, "confidence": conf,
++            "markup_type": mt, "region_name": "r"}
++
++
++def test_geophys_exception_in_one_region_does_not_skip_lidar(tmp_path, monkeypatch):
++    """pipeline.py:862-867 — геофизика без try: сбой одного региона не должен отменять лидар/оптику."""
++    from expds import pipeline
++
++    out = tmp_path / "o" / "result.geojson"
++    regs = [SimpleNamespace(name=n, las=[], rasters={}, utm_json=None, boundaries=[], noise=[]) for n in ("a", "b")]
++    calls = {"li": 0}
++
++    def geo(reg, *_a, **_k):
++        if reg.name == "a":
++            raise ValueError("битый регион")
++        return [_f("object_poly", mt="maggr")]
++
++    def li(*_a, **_k):
++        calls["li"] += 1
++        return [_f(d=100)]
++
++    monkeypatch.setattr(pipeline, "scan_root", lambda _p: regs)
++    monkeypatch.setattr(pipeline, "geophys_feats", geo)
++    monkeypatch.setattr(pipeline, "lidar_feats", li)
++    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: [])
++    monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
++    cfg = tmp_path / "t.toml"
++    cfg.write_text("[time]\nwatchdog = false\n[verify]\nenabled = false\n", encoding="utf-8")
++    try:
++        pipeline.run(tmp_path, out, cfg)
++    except Exception:
++        pass
++    assert calls["li"] == 2, "лидар пропущен из-за сбоя геофизики одного региона"
++    classes = sorted(f["properties"]["class_name"] for f in json.loads(out.read_text())["features"])
++    assert classes == ["kurgany_tselye", "kurgany_tselye", "object_poly"]
++
++
++def test_checkpoint_survives_failing_postprocessing(tmp_path, monkeypatch):
++    """watchdog.py:140-147 — исключение в finish() не должно оставлять ответ пустым."""
++    from expds import post
++    from expds.watchdog import RunState, checkpoint
++
++    def boom(_feats, *a, **k):
++        raise RuntimeError("GEOS упал в склейке")
++
++    monkeypatch.setattr(post, "merge_within_markup", boom)
++    st = RunState(tmp_path / "result.geojson", {"thresholds": {}, "default_threshold": 0.0})
++    st.add([_f(), _f(d=20)])
++    try:
++        checkpoint(st, "конец")
++    except Exception:
++        pass
++    p = tmp_path / "result.geojson"
++    assert p.exists() and writer.validate(p)["ok"]
++    assert len(json.loads(p.read_text())["features"]) == 2
++
++
++def test_writer_never_emits_nan(tmp_path):
++    """writer.py:23-67 — NaN в координатах даёт невалидный JSON («NaN»); такой объект надо отбросить."""
++    import numpy as np
++    import shapely
++    c = shapely.get_coordinates(box(X0, Y0, X0 + 3, Y0 + 3))
++    c[1, 0] = math.nan                                   # средняя вершина, кольцо остаётся замкнутым
++    g = shapely.set_coordinates(box(X0, Y0, X0 + 3, Y0 + 3), c)
++    bad = {"geom": g, "class_name": "kurgany_tselye",
++           "confidence": 0.5, "region_name": "r"}
++    p = writer.write_geojson([bad, _f()], tmp_path / "result.geojson")
++    txt = p.read_text()
++    assert "NaN" not in txt
++    json.loads(txt, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
++    assert writer.validate(p)["ok"]
++
++
++def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
++    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
++    from shapely.geometry import Point
++
++    from expds import post
++    from expds.watchdog import safe_finish
++
++    def boom(_feats, *a, **k):
++        raise RuntimeError("GEOS упал в склейке")
++
++    monkeypatch.setattr(post, "merge_within_markup", boom)
++    big = Point(X0 + 50, Y0 + 50).buffer(2.0 / post._ground_scale(Y0), quad_segs=8)
++    f = {"geom": big, "class_name": "kurgany_tselye", "confidence": 0.9, "markup_type": "li", "region_name": "r"}
++    cfg = {"thresholds": {}, "default_threshold": 0.0,
++           "post": {"micro_circles": {"radius_m": {"kurgany_tselye": 0.5}}}}
++    out = safe_finish([f], cfg)
++    assert len(out) == 1
++    assert out[0]["geom"].area < big.area * 0.1        # 0,5 м вместо 2 м: площадь в 16 раз меньше
++    assert out[0]["geom"].centroid.distance(big.centroid) < 1e-6
++
++
++def test_safe_finish_fallback_keeps_bot7_rerank_arch(tmp_path, monkeypatch):
++    """watchdog.safe_finish на bot7-candidate: при сбое finish() архитектура идёт через [rerank_arch] со своими порогами."""
++    import importlib.util
++
++    import pytest
++    if importlib.util.find_spec("expds.rerank_arch") is None:
++        pytest.skip("нет expds.rerank_arch (ветка bot7-bundle)")
++    from test_bot7_rerank_arch import _cfg, _feats, _key, _model
++
++    from expds import post, watchdog
++
++    fs = _feats()
++    rr = _model(tmp_path, {"sp_arch": 0.0})
++    good = watchdog.finish(fs, _cfg(rerank_arch=rr))
++
++    def boom(_feats, *a, **k):
++        raise RuntimeError("GEOS упал в склейке")
++
++    monkeypatch.setattr(post, "merge_within_markup", boom)
++    fb = watchdog.safe_finish(fs, _cfg(rerank_arch=rr))
++    arch = [f for f in fb if f["class_name"] == "arkhitektury"]
++    assert len(arch) == 20 and all("conf_stack" in f for f in arch)   # базовый порог 1.01 не применён
++    assert _key(fb) == _key(good)
+diff --git a/tests/test_bot8_window_deadline.py b/tests/test_bot8_window_deadline.py
+new file mode 100644
+index 0000000..2565edf
+--- /dev/null
++++ b/tests/test_bot8_window_deadline.py
+@@ -0,0 +1,121 @@
++"""bot-8: дедлайн внутри цикла окон снимков — медленные окна, поддельные часы, частичный результат.
++
++Рецепт: competitors/NOTES_KateBuikina-expds-solution.md §5 (segmenter._deadline_hit в начале цикла окон).
++У нас — те же бюджет [time] budget_s и дедлайн сторожа (watchdog.deadline_left), без новых часов.
++"""
++import json
++from types import SimpleNamespace
++
++import numpy as np
++
++from test_raster_infer import SPOTS, write_raster
++from expds import pipeline, watchdog, writer
++from expds.pipeline import TimeGuard, _raster_with_model
++
++
++class Clock:
++    def __init__(self, t=1000.0):
++        self.t = t
++
++    def __call__(self):
++        return self.t
++
++
++class SlowSeg:
++    """Яркость первого канала = вероятность; каждое окно «идёт» step секунд по поддельным часам."""
++    classes = ["kurgany_tselye"]
++    res = 0.5
++    meta = {"in_channels": 3, "max_upsample": 2.0}
++
++    def __init__(self, clock, step=100.0):
++        self.clock, self.step, self.calls = clock, step, 0
++
++    def predict(self, img):
++        self.calls += 1
++        self.clock.t += self.step
++        return img[:1].astype(np.float32) / 255.0
++
++
++def _centers(feats):
++    return sorted((round(f["geom"].centroid.x, 1), round(f["geom"].centroid.y, 1)) for f in feats)
++
++
++def test_window_loop_stops_near_deadline_with_partial_result(tmp_path):
++    p = write_raster(tmp_path / "ae.tif")
++    full = _raster_with_model(SlowSeg(Clock()), p, "r", "ae", block=64, overlap=16)
++    assert len(full) == len(SPOTS)
++    clk = Clock()
++    seg = SlowSeg(clk)
++    guard = TimeGuard(250, window_reserve_s=30, clock=clk)
++    part = _raster_with_model(seg, p, "r", "ae", block=64, overlap=16, guard=guard)
++    # 250 → 150 → 50 → −50 с: три окна, четвёртое не начинается (осталось ≤ 30 с)
++    assert seg.calls == 3
++    assert len(guard.partial) == 1
++    info = guard.partial[0]
++    assert info["windows_done"] == 3 and info["windows_total"] > 3 and info["file"] == "ae.tif"
++    assert 0 < len(part) < len(full) and info["feats"] == len(part)
++    assert set(_centers(part)) <= set(_centers(full))      # частичный результат — подмножество полного
++
++
++def test_window_deadline_off_or_far_keeps_full_result(tmp_path):
++    p = write_raster(tmp_path / "ae.tif")
++    clk = Clock()
++    off = TimeGuard(250, window_reserve_s=None, clock=clk)    # [time] window_deadline = false
++    assert len(_raster_with_model(SlowSeg(clk), p, "r", "ae", block=64, overlap=16, guard=off)) == len(SPOTS)
++    clk2 = Clock()
++    far = TimeGuard(10 ** 6, window_reserve_s=30, clock=clk2)
++    assert len(_raster_with_model(SlowSeg(clk2), p, "r", "ae", block=64, overlap=16, guard=far)) == len(SPOTS)
++    assert not off.partial and not far.partial
++
++
++def test_window_reserve_config():
++    assert pipeline.window_reserve({}) == pipeline.DEFAULT_WINDOW_RESERVE_S
++    assert pipeline.window_reserve({"time": {"window_reserve_s": 45}}) == 45.0
++    assert pipeline.window_reserve({"time": {"window_deadline": False, "window_reserve_s": 45}}) is None
++
++
++def test_watchdog_deadline_bounds_window_loop():
++    """Если сторож (1800 − guard_margin_s от старта процесса) ближе бюджета — решает он."""
++    clk = Clock(watchdog.PROCESS_START)
++    assert watchdog.deadline_left(180, clock=clk) == watchdog.PLATFORM_LIMIT_S - 180    # 1620 с
++    clk.t += 1600
++    assert watchdog.deadline_left(180, clock=clk) == 20
++    guard = TimeGuard(10 ** 6, window_reserve_s=30, hard_left=lambda: watchdog.deadline_left(180, clock=clk),
++                      clock=clk)
++    assert guard.ok(60) and not guard.window_ok()
++
++
++def test_run_writes_valid_partial_output_and_exits_normally(tmp_path, monkeypatch):
++    """Весь run(): окна медленные → частичный файл через обычный конец (checkpoint → safe_finish → writer)."""
++    p = write_raster(tmp_path / "ae.tif")
++    clk = Clock()
++    seg = SlowSeg(clk)
++    reg = SimpleNamespace(name="r", las=[], rasters={"ae": [p]}, utm_json=None, boundaries=[], noise=[])
++
++    class FakeClockGuard(TimeGuard):
++        def __init__(self, budget_s, window_reserve_s=None, hard_left=None, clock=None):
++            assert hard_left is None                       # watchdog = false в конфиге теста
++            super().__init__(budget_s, window_reserve_s, None, clock=clk)
++
++    orig = pipeline._raster_with_model
++    monkeypatch.setattr(pipeline, "_raster_with_model",
++                        lambda *a, **k: orig(*a, **{**k, "block": 64, "overlap": 16}))
++    monkeypatch.setattr(pipeline, "TimeGuard", FakeClockGuard)
++    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
++    monkeypatch.setattr(pipeline, "_cached_segmenters", lambda cache, cfg, mt, root: [seg] if mt == "ae" else [])
++    exits = []
++    monkeypatch.setattr(watchdog.os, "_exit", lambda code: exits.append(code))
++    monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
++    cfg = tmp_path / "t.toml"
++    cfg.write_text("[time]\nbudget_s = 250\nreserve_s = 10\nwatchdog = false\nwindow_reserve_s = 30\n"
++                   "[verify]\nenabled = false\n", encoding="utf-8")
++    out = tmp_path / "o" / "result.geojson"
++    summary = pipeline.run(tmp_path, out, cfg)
++    assert exits == []                                     # обычный конец, не аварийный выход сторожа
++    assert seg.calls == 3
++    assert [x["windows_done"] for x in summary["partial_files"]] == [3]
++    rep = writer.validate(out)
++    assert rep["ok"], rep["errors"]
++    n = len(json.loads(out.read_text())["features"])
++    assert 0 < n < len(SPOTS)
++    assert pipeline._WINDOW_GUARD is None                  # вне run() проверки в цикле окон нет

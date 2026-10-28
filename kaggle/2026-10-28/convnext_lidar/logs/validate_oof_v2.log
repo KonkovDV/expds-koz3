@@ -1,0 +1,20 @@
+== out_ch c5-in_f4 (VAL_R=0.5)
+OOF: 1669 объектов {'kurgany_povrezhdennye': 796, 'kurgany_tselye': 873} регионы ['016_Хога']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0348963257
+score идеальных кругов r=0.5 м (контроль формата): 0.9999994444 на 18 объектах GT
+== out_ch c3-sc_f3 (VAL_R=0.5)
+OOF: 448 объектов {'fortifikatsii': 20, 'kurgany_tselye': 214, 'kurgany_povrezhdennye': 214} регионы ['191_Осечки_1.3км']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0000000000
+score идеальных кругов r=0.5 м (контроль формата): 0.9999991667 на 3 объектах GT
+== out_heat c5-in_f4 (VAL_R=1.0)
+OOF: 942 объектов {'kurgany_povrezhdennye': 933, 'kurgany_tselye': 9} регионы ['016_Хога']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0000000000
+score идеальных кругов r=1.0 м (контроль формата): 0.9999994444 на 18 объектах GT
+== out_heat c3-sc_f3 (VAL_R=1.0)
+OOF: 242 объектов {'kurgany_tselye': 209, 'kurgany_povrezhdennye': 33} регионы ['191_Осечки_1.3км']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0000000000
+score идеальных кругов r=1.0 м (контроль формата): 0.9999991667 на 3 объектах GT

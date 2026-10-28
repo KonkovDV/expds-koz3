@@ -1,0 +1,26 @@
+{
+ "Гнёздово": {
+  "before": {
+   "object_poly|maggr": 80,
+   "finds_points|maggr": 1137,
+   "object_poly|etgr": 403,
+   "object_poly|terfl": 319
+  },
+  "after": {
+   "object_poly|maggr_poly": 147,
+   "object_poly|etgr": 721,
+   "object_poly|terfl": 95,
+   "finds_points|maggr": 735
+  }
+ },
+ "Семибратнее": {
+  "before": {
+   "object_poly|maggr": 66,
+   "finds_points|maggr": 2256
+  },
+  "after": {
+   "object_poly|maggr_poly": 100,
+   "finds_points|maggr": 2256
+  }
+ }
+}

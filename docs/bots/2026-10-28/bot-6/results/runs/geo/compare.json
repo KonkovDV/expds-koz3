@@ -1,0 +1,149 @@
+[
+ {
+  "cmp": "stack LOSO_orig_a0 − keep_all",
+  "delta": -0.002404,
+  "p5": -0.007209,
+  "p95": -2.4e-05,
+  "p_gt0": 0.037
+ },
+ {
+  "cmp": "stack LOSO_hull_a0.0 − keep_all",
+  "delta": -0.000713,
+  "p5": -0.005681,
+  "p95": 0.002674,
+  "p_gt0": 0.431
+ },
+ {
+  "cmp": "stack LOSO_pole0.05_a0.0 − keep_all",
+  "delta": 0.000266,
+  "p5": -0.005285,
+  "p95": 0.004909,
+  "p_gt0": 0.586
+ },
+ {
+  "cmp": "stack LOSO_nested(var,amin,τ) − keep_all",
+  "delta": 0.000381,
+  "p5": -0.004392,
+  "p95": 0.004403,
+  "p_gt0": 0.609
+ },
+ {
+  "cmp": "stack fixed_cfg_etgr0.096635_terfl=keep − keep_all",
+  "delta": 4.2e-05,
+  "p5": -7.8e-05,
+  "p95": 0.000228,
+  "p_gt0": 0.705
+ },
+ {
+  "cmp": "stack pole0.05 − orig (LOSO)",
+  "delta": 0.00267,
+  "p5": 0.000457,
+  "p95": 0.005582,
+  "p_gt0": 0.994
+ },
+ {
+  "cmp": "stack hull − orig (LOSO)",
+  "delta": 0.00169,
+  "p5": 0.000725,
+  "p95": 0.003056,
+  "p_gt0": 0.998
+ },
+ {
+  "cmp": "pixS LOSO_orig_a0 − A_drop",
+  "delta": 0.017943,
+  "p5": 0.003929,
+  "p95": 0.035992,
+  "p_gt0": 0.99
+ },
+ {
+  "cmp": "pixS LOSO_orig_a0 − stack LOSO_orig_a0",
+  "delta": 0.001717,
+  "p5": -0.004316,
+  "p95": 0.010768,
+  "p_gt0": 0.656
+ },
+ {
+  "cmp": "pixS LOSO_pole0.05_a0.0 − A_drop",
+  "delta": 0.021068,
+  "p5": 0.007469,
+  "p95": 0.038079,
+  "p_gt0": 0.997
+ },
+ {
+  "cmp": "pixS LOSO_pole0.05_a0.0 − stack LOSO_pole0.05_a0.0",
+  "delta": 0.002173,
+  "p5": -0.001754,
+  "p95": 0.008581,
+  "p_gt0": 0.713
+ },
+ {
+  "cmp": "pixS LOSO_nested(var,amin,τ) − A_drop",
+  "delta": 0.020788,
+  "p5": 0.005963,
+  "p95": 0.040149,
+  "p_gt0": 0.993
+ },
+ {
+  "cmp": "pixS LOSO_nested(var,amin,τ) − stack LOSO_nested(var,amin,τ)",
+  "delta": 0.001777,
+  "p5": -0.003551,
+  "p95": 0.009989,
+  "p_gt0": 0.688
+ },
+ {
+  "cmp": "pixS keep_all − stack keep_all",
+  "delta": -0.006797,
+  "p5": -0.013075,
+  "p95": 0.001365,
+  "p_gt0": 0.081
+ },
+ {
+  "cmp": "pixU LOSO_orig_a0 − A_drop",
+  "delta": 0.018663,
+  "p5": 0.004542,
+  "p95": 0.036901,
+  "p_gt0": 0.99
+ },
+ {
+  "cmp": "pixU LOSO_orig_a0 − stack LOSO_orig_a0",
+  "delta": 0.002437,
+  "p5": -0.003823,
+  "p95": 0.011414,
+  "p_gt0": 0.711
+ },
+ {
+  "cmp": "pixU LOSO_pole0.05_a0.0 − A_drop",
+  "delta": 0.021699,
+  "p5": 0.007869,
+  "p95": 0.039215,
+  "p_gt0": 0.997
+ },
+ {
+  "cmp": "pixU LOSO_pole0.05_a0.0 − stack LOSO_pole0.05_a0.0",
+  "delta": 0.002803,
+  "p5": -0.000884,
+  "p95": 0.009094,
+  "p_gt0": 0.842
+ },
+ {
+  "cmp": "pixU LOSO_nested(var,amin,τ) − A_drop",
+  "delta": 0.01969,
+  "p5": 0.004838,
+  "p95": 0.039917,
+  "p_gt0": 0.989
+ },
+ {
+  "cmp": "pixU LOSO_nested(var,amin,τ) − stack LOSO_nested(var,amin,τ)",
+  "delta": 0.00068,
+  "p5": -0.00556,
+  "p95": 0.010474,
+  "p_gt0": 0.61
+ },
+ {
+  "cmp": "pixU keep_all − stack keep_all",
+  "delta": -0.007351,
+  "p5": -0.013872,
+  "p95": 0.000991,
+  "p_gt0": 0.075
+ }
+]

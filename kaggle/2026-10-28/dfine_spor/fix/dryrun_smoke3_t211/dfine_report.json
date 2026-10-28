@@ -1,0 +1,80 @@
+{
+ "cfg": {
+  "mode": "smoke",
+  "res": 0.5,
+  "tile": 256,
+  "overlap": 160,
+  "max_windows": 6,
+  "bs": 1,
+  "iters": 3,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 11.3,
+  "folds": "0,1,2,3,4",
+  "regions": "161_Курганы_32,051_Воронеж_2",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "hf": "ustc-community/dfine-large-coco@aa8f8211545e4cff5adf52ea512f9ac74a9824ec",
+ "folds": {
+  "1": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 1.943350076675415,
+   "hist": [
+    {
+     "it": 1,
+     "loss": 468.5787,
+     "s_it": 2.813
+    },
+    {
+     "it": 2,
+     "loss": 416.6103,
+     "s_it": 2.2195
+    },
+    {
+     "it": 3,
+     "loss": 387.5266,
+     "s_it": 1.9434
+    }
+   ],
+   "sec": 6,
+   "loss_first": 468.5787048339844,
+   "loss_last": 387.5265808105469,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 8,
+   "test_regions": [
+    "051_Воронеж_2"
+   ],
+   "n_det": 426,
+   "infer_sec": 5
+  }
+ },
+ "skipped_regions_no_fold": [],
+ "projection_full_h": 10.8,
+ "total_sec": 16
+}

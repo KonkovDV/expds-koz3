@@ -20,3 +20,26 @@
 - 200 и 212(auto) не измерены (OOM при 2 ГБ) — команды в отчёте.
 - Разбор FN object_poly: geo_gap/gap_poly.json; геометрия стека G1–G3: geo_gap/eval_geom.out (≤ +0,0014, не проходят П1/П2).
 - Идут растровые R1–R3 (split dt:0.5 / pole_circle 0.05) на 201–217: geo_gap/run_r.sh, 1 поток.
+
+## 2026-10-28 22:05 МСК — ehimen (находки MagGr по рецепту EN)
+- Отчёт: bot-3/ehimen/EHIMEN_REPORT.md, вердикт: EHIMEN_VERDICT.md, diff: bot-3/ehimen/ehimen_port.diff (ветка bot3-ehimen, 88cc077, без push).
+- «0,72» EN = leave-one-region-out. У нашего порта под LORO F1 находок 0,688 (+0,0135), под leave-family-out Δ итога от −0,0026 до +0,0037, ни один вариант не проходит П2 (work/eval_*.out). Лучший — 0,05 м/px: +0,0037, P 0,625.
+- Аудит 01 (A3): +0,0060, П1–П4 ✔ — лучше порта. В сдачу порт не брать.
+- D8-аугментации в train.py:246–252/:332–336 (flips=True для maggr, tiles.py:635) ломают диполь N−S, но только у сети maggr, а её в сдаче нет.
+- census_finds.zip — посылка-перепись на LB (только на ПК), на метки не влияет; не отправлялась.
+
+## 2026-10-28 22:20 MSK — GEO_GAP_REPORT.md готов (разделы A–E)
+- Лучший пакет: A2 (finds, maps=all без склейки) + R3 (pole_circle_m=0.05): honest-10 global drop +0,004037 / keep +0,006048, site +0,004077 / +0,006117; П1–П4 ✓, P(Δ>0) 0,869 (geo_gap/eval_pkg.out).
+- Якоря по рецепту EhimenNathan (H1): keep +0,0021, drop −0,0002, П2 ✗ (geo_gap/eval_anchor.out). layer_copy R4 −0,016, split R2 −0,0029 (geo_gap/r/eval_r34.out, eval_r2.out). R1 — OOM на 211.
+- Фильтр EtGr > 2 м: 0 из 76 tif на трейне.
+
+## 2026-10-28 23:05 МСК — PIXGBM готов
+- Отчёт: bot-3/PIXGBM_REPORT.md. Ветка bot3-pixgbm (b1ea251, без push), diff: bot-3/pixgbm/pixgbm.diff.
+- S (pix заменяет классику): honest-10 +0,0110 / +0,0119 / +0,0099 / +0,0141, P 0,95, П1–П4 ✔ во всех 4 режимах, Δ ≥ MDE (pixgbm/honest_lofo.json). Выигрыш в основном от находок (Sf +0,0091…+0,0098). U и AU: П2 ✘.
+- Адресно (site keep, S): object_poly A 37/153 (Гн 10), D 91/406 (Гн 87), +482 FP; finds A 255/624, B 365/803, C 261/436; Гнёздово finds ΔTP −1 (pixgbm/targeted_lofo.json).
+- OOF для bot-6: pixgbm/oof/ (21 файл, READY_<участок>, READY_ALL, README.md).
+- 200 и 212 цвет_2 измерены. Пик RSS 1,0 ГБ.
+
+## 28.10 ~23:35 МСК — H и бюджет PIXGBM
+- Вариант H (S вне Гнёздово, U в Гнёздово) **отклонён**: H vs stack в режимах drop не проходит П2 (P = 0.737 / 0.827); в drop H уступает S. Подробности — `PIXGBM_REPORT.md` («Дополнение … вариант H») и `pixgbm/honest_lofo_H.json`. Код: ветка bot3-pixgbm, коммит 7cdace5, `union_name_re`; `pixgbm.diff` обновлён.
+- Бюджет: `pixgbm/BUDGET_PIXGBM.md`. [изм] 7 регионов: 420 с при 1 потоке, 275 с при 2, пик 706 МБ, predict = 73 %. [оц] Площадка при 2 потоках: +258–431 с.

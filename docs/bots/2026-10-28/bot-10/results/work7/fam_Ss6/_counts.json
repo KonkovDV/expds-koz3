@@ -1,0 +1,36 @@
+{
+ "Гнёздово": {
+  "before": {
+   "object_poly|maggr_pix": 405,
+   "finds_points|maggr_pix": 1169,
+   "object_poly|etgr_pix": 675,
+   "object_poly|terfl_pix": 314
+  },
+  "after": {
+   "object_poly|maggr_poly": 405,
+   "finds_points|maggr_pix": 539,
+   "object_poly|etgr_pix": 675,
+   "object_poly|terfl_pix": 32
+  }
+ },
+ "Семибратнее": {
+  "before": {
+   "object_poly|maggr_pix": 7276,
+   "finds_points|maggr_pix": 12340
+  },
+  "after": {
+   "object_poly|maggr_poly": 7276,
+   "finds_points|maggr_pix": 3162
+  }
+ },
+ "Судьбищи": {
+  "before": {
+   "object_poly|maggr_pix": 551,
+   "finds_points|maggr_pix": 3377
+  },
+  "after": {
+   "object_poly|maggr_poly": 551,
+   "finds_points|maggr_pix": 890
+  }
+ }
+}

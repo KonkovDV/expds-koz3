@@ -6,6 +6,12 @@
 # Значения ключей никогда не печатаются и не пишутся в /kaggle/working.
 # ТОЧКА ПОДКЛЮЧЕНИЯ ТРЕНЕРА БОТА 5: если найден файл dfine_train_bot5.py (рядом со скриптом или в /kaggle/input/**),
 # из него берётся функция train(model, batches, cfg, device, log) -> model вместо встроенной train_loop (тот же контракт).
+# DFINE_TRAINER = bot5 (по умолчанию: тренер бота 5 @0256251, встроенная копия dfine_train_bot5.py) | builtin (train_loop ниже).
+# DFINE_AUG = ours (по умолчанию, §6.1 с QAUG) | bot5 (jitter() бота 5 вместо наших аугментаций; сдвиг окна ±1/3 — наш).
+# Фикс 28.10 (Kaggle smoke v1: «Cannot copy out of meta tensor»): from_pretrained в transformers 5 подменяет
+# PreTrainedModel.tie_weights глобально (init.no_tie_weights) — два потока gpu_worker грузили модель одновременно, привязка
+# class_embed/bbox_embed ↔ model.decoder.* пропускалась и 48 тензоров оставались на meta. Теперь загрузка под замком,
+# с проверкой meta/формы головы/привязки до .to(), и пробная загрузка + forward на CPU до построения чипов.
 import os, sys, subprocess, importlib
 PINS = {"transformers": "transformers==5.21.0", "rasterio": "rasterio==1.4.3", "pyproj": "pyproj==3.7.1",
         "shapely": "shapely==2.1.1", "boto3": "boto3==1.40.61", "cv2": "opencv-python-headless==4.11.0.86", "scipy": "scipy==1.16.3"}
@@ -24,11 +30,15 @@ def _deps():
         for k in [k for k in sys.modules if k.split(".")[0] in ("transformers", "huggingface_hub", "tokenizers")]: del sys.modules[k]
         importlib.invalidate_caches()
     bad = []
-    for mod in ["torch", "torchvision", *PINS]:
+    for mod in ["torch", "torchvision", "huggingface_hub", "safetensors", *PINS]:
         try: m = importlib.import_module(mod); print(f"  {mod} {getattr(m, '__version__', '?')}", flush=True)
         except Exception as e: bad.append(f"{mod}: {e!r}")
     try: from transformers import DFineForObjectDetection  # noqa
     except Exception as e: bad.append(f"DFineForObjectDetection: {e!r}")
+    try:
+        import transformers as _t
+        if _t.__version__ != PINS["transformers"].split("==")[1]: bad.append(f"transformers {_t.__version__} != пин {PINS['transformers']}")
+    except Exception as e: bad.append(f"transformers: {e!r}")
     if bad: raise SystemExit("импорт-чек не пройден: " + "; ".join(bad))
 _deps()
 import json, time, re, math, glob, random, threading, argparse, collections, concurrent.futures as cf
@@ -41,12 +51,14 @@ AP.add_argument("--allow-cpu", action="store_true")
 ARGS, _ = AP.parse_known_args()
 E = lambda k, d: type(d)(os.environ.get(k, d))
 CFG = dict(mode=MODE, res=0.5, tile=E("DFINE_TILE", 640), overlap=E("DFINE_OVERLAP", 160), max_windows=E("DFINE_MAX_WINDOWS", 0), bs=E("DFINE_BS", 8),
-           iters=E("DFINE_ITERS", 10 if MODE == "smoke" else 8000), lr=1e-4, bb_mult=0.1, wd=1e-4, pct=0.05, clip=0.1,
+           iters=E("DFINE_ITERS", 10 if MODE == "smoke" else globals().get("FULL_ITERS_DEFAULT", 8000)), lr=1e-4, bb_mult=0.1, wd=1e-4, pct=0.05, clip=0.1,
            num_dn=E("DFINE_NUM_DN", -1), obj_frac=0.6, cls_cap=4.0, shift=1 / 3, qaug=0.5, workers=E("DFINE_WORKERS", 2),
            max_obj_chips_region=400, min_score=0.05, nms_iou=0.5, max_det=100,
            smoke_train_regions=E("DFINE_SMOKE_TRAIN_REGIONS", 8), smoke_test_regions=E("DFINE_SMOKE_TEST_REGIONS", 1),
-           deadline_h=E("DFINE_DEADLINE_H", 11.3), folds=os.environ.get("DFINE_FOLDS", "0,1,2,3,4"),
-           regions=os.environ.get("DFINE_REGIONS", ""))
+           deadline_h=E("DFINE_DEADLINE_H", float(globals().get("DEADLINE_H_DEFAULT", 11.3))), folds=os.environ.get("DFINE_FOLDS", globals().get("FOLDS_DEFAULT", "0,1,2,3,4")),
+           regions=os.environ.get("DFINE_REGIONS", ""), trainer=os.environ.get("DFINE_TRAINER", "bot5"),
+           aug=os.environ.get("DFINE_AUG", "ours"))
+assert CFG["trainer"] in ("bot5", "builtin") and CFG["aug"] in ("ours", "bot5"), "DFINE_TRAINER=bot5|builtin, DFINE_AUG=ours|bot5"
 OUT = Path(os.environ.get("DFINE_OUT", "/kaggle/working")); OUT.mkdir(parents=True, exist_ok=True)
 CACHE = Path(os.environ.get("DFINE_CACHE", "/tmp/s3cache")); CHIPS = Path(os.environ.get("DFINE_CHIPS", "/tmp/chips"))
 BUCKET, ENDPOINT = "train-expds-3", os.environ.get("DFINE_S3_ENDPOINT", "https://s3.ru-7.storage.selcloud.ru")
@@ -105,6 +117,76 @@ try:
 except Exception as e:
     raise SystemExit(f"веса {HF_REPO}@{HF_REV[:8]} не скачались: {e!r}")
 log("веса HF OK", HF_REPO, HF_REV[:8], "(Apache-2.0)")
+
+# >>> MODEL (блок тестируется отдельно: kaggle/dfine_spor/fix/test_model_block.py)
+from transformers import PreTrainedModel as _PTM
+_PTM_ORIG = {n: _PTM.__dict__[n] for n in ("tie_weights", "init_weights") if n in _PTM.__dict__}  # снято в главном потоке до загрузок
+MODEL_LOCK = threading.Lock()
+def _meta_names(m):
+    return [n for n, p in m.named_parameters(remove_duplicate=False) if p.is_meta] + \
+           [n for n, b in m.named_buffers(remove_duplicate=False) if b.is_meta]
+def _repair_meta(m, meta):
+    # 1) повторная привязка весов исходной tie_weights (class_embed/bbox_embed → model.decoder.*)
+    log(f"модель: на meta {len(meta)} тензоров ({', '.join(meta[:3])}…) — tie_weights()")
+    _PTM_ORIG.get("tie_weights", type(m).tie_weights)(m)
+    meta = _meta_names(m)
+    if meta:  # 2) материализация оставшихся: to_empty + _init_weights модуля, затем снова привязка
+        log(f"модель: после tie_weights на meta ещё {len(meta)} — to_empty + _init_weights")
+        mods = {n.rsplit(".", 1)[0] if "." in n else "" for n in meta}
+        for mn in sorted(mods):
+            mod = m.get_submodule(mn); mod.to_empty(device="cpu", recurse=False); m._init_weights(mod)
+        _PTM_ORIG.get("tie_weights", type(m).tie_weights)(m)
+        meta = _meta_names(m)
+    return meta
+def check_model(m):
+    """Жёсткие проверки ДО .to(device): нет meta, голова на 5 классов, привязка верхних голов к декодеру."""
+    meta = _meta_names(m)
+    if meta: raise RuntimeError(f"D-FINE: {len(meta)} параметров/буферов на meta ({', '.join(meta[:4])}…): "
+                                "веса не материализованы (гонка from_pretrained/tie_weights?) — .to(device) упадёт")
+    assert not any(p.is_meta for p in m.parameters()) and not any(b.is_meta for b in m.buffers())
+    K, d = len(CLASSES), m.config.d_model; dec = m.model.decoder
+    assert m.config.num_labels == K, f"num_labels {m.config.num_labels} != {K}"
+    for i, l in enumerate(dec.class_embed):
+        assert tuple(l.weight.shape) == (K, d) and tuple(l.bias.shape) == (K,), f"decoder.class_embed[{i}] {tuple(l.weight.shape)}"
+    assert tuple(m.model.enc_score_head.weight.shape) == (K, d), f"enc_score_head {tuple(m.model.enc_score_head.weight.shape)}"
+    if m.config.num_denoising > 0:
+        assert m.model.denoising_class_embed.num_embeddings == K + 1, f"denoising_class_embed {m.model.denoising_class_embed.num_embeddings}"
+    assert len(m.class_embed) == len(dec.class_embed) and len(m.bbox_embed) == len(dec.bbox_embed)
+    for a, b in [(m.class_embed, dec.class_embed), (m.bbox_embed, dec.bbox_embed)]:
+        for pa, pb in zip(a.parameters(), b.parameters()):
+            assert pa.data_ptr() == pb.data_ptr(), "class_embed/bbox_embed не привязаны к model.decoder.*"
+    return {"params_M": round(sum(p.numel() for p in m.parameters()) / 1e6, 2), "num_labels": K,
+            "heads": [len(dec.class_embed), K, d]}
+def make_model(seed=None):
+    from transformers import DFineForObjectDetection, PreTrainedModel
+    kw = dict(num_labels=len(CLASSES), id2label=dict(enumerate(CLASSES)), label2id={c: i for i, c in enumerate(CLASSES)},
+              ignore_mismatched_sizes=True, device_map=None)
+    if CFG["num_dn"] >= 0: kw["num_denoising"] = CFG["num_dn"]
+    # transformers 5: from_pretrained временно подменяет PreTrainedModel.tie_weights/init_weights на уровне класса —
+    # это глобальное состояние процесса, поэтому загрузка строго по одной (замок) и с восстановлением оригиналов.
+    with MODEL_LOCK:
+        for n, f in _PTM_ORIG.items():
+            if PreTrainedModel.__dict__.get(n) is not f:
+                log(f"ВНИМАНИЕ: PreTrainedModel.{n} был подменён — восстанавливаю"); setattr(PreTrainedModel, n, f)
+        if seed is not None: torch.manual_seed(seed)
+        m = DFineForObjectDetection.from_pretrained(CKPT, **kw)
+        meta = _meta_names(m)
+        if meta:
+            meta = _repair_meta(m, meta)
+        info = check_model(m)
+    return m, info
+# <<< MODEL
+
+# ── Шаг 2б. Ранний фейл модели: загрузка на CPU, проверки meta/головы/привязки, один forward — ДО чипов ───────────
+_t = time.time()
+try:
+    _m, _info = make_model(seed=0); _m.eval()
+    with torch.no_grad(): _o = _m(pixel_values=torch.rand(1, 3, 128, 128))
+    assert tuple(_o.logits.shape[-1:]) == (len(CLASSES),) and _o.pred_boxes.shape[-1] == 4, f"logits {tuple(_o.logits.shape)}"
+    _info["logits"] = list(_o.logits.shape); del _m, _o
+except Exception as e:
+    raise SystemExit(f"модель D-FINE не прошла ранний чек: {e!r}")
+log("модель OK (CPU):", json.dumps(_info), f"{time.time() - _t:.0f} с")
 
 # ── Шаг 3. Фолды по семьям (проверка) и инвентарь участков ─────────────────────────────────────────────────────
 FAM = FOLDS["family_of"]; FOLD = {r: f["fold"] for f in FOLDS["folds"] for r in f["test_regions"]}
@@ -214,9 +296,15 @@ class Scene:
 
 # ── Шаг 4. Банк обучающих чипов (центр на объекте ±1/3 окна хранится как запас поля; фон — случайные окна) ──────────
 BIG = int(round(CFG["tile"] * (1 + 2 * CFG["shift"])))
+# Фикс 28.10 (smoke v2): раньше окно BIG всегда центрировалось на объекте и чип выбрасывался при >50 % nodata —
+# на растрах меньше BIG (≈1067 px при tile 640) и у краёв терялись ВСЕ объекты (8 smoke-участков: 38 из 89 GT).
+# Теперь окно сдвигается внутрь растра (объект остаётся внутри), центр объекта в чипе хранится в rec["c"],
+# объектный чип отбрасывается только если в самой рамке >50 % nodata, фоновый — если валидных пикселей < T²/2.
+def _clamp0(v, n):  # левый край окна BIG внутри растра длины n (если растр меньше окна — растр по центру окна)
+    return int(min(max(v, 0), n - BIG)) if n >= BIG else int((n - BIG) // 2)
 def build_chips(inv):
-    import cv2
-    rng = random.Random(hash(inv["region"]) & 0xFFFF); rec = []
+    import cv2, zlib
+    rng = random.Random(zlib.crc32(inv["region"].encode())); rec = []; drop = collections.Counter()  # детерминированно (hash() солёный)
     for key, size in inv["tifs"]:
         try:
             sc = Scene(inv, key, size); gt = load_gt(inv, sc.crs)
@@ -224,19 +312,26 @@ def build_chips(inv):
             boxes = [(b, c) for b, c in boxes if b[2] > 0 and b[3] > 0 and b[0] < sc.W and b[1] < sc.H]
             objs = rng.sample(boxes, min(len(boxes), CFG["max_obj_chips_region"]))
             nb = max(2, int(len(objs) * (1 - CFG["obj_frac"]) / CFG["obj_frac"]))
-            cents = [((b[0] + b[2]) / 2, (b[1] + b[3]) / 2, c) for b, c in objs] + \
-                    [(rng.uniform(0, sc.W), rng.uniform(0, sc.H), -1) for _ in range(nb)]
-            for j, (cx, cy, c) in enumerate(cents):
-                x0, y0 = int(cx - BIG / 2), int(cy - BIG / 2); img = sc.read(x0, y0, BIG)
-                if (img.max(2) == 0).mean() > 0.5: continue
+            cents = [((b[0] + b[2]) / 2, (b[1] + b[3]) / 2, c, b) for b, c in objs] + \
+                    [(rng.uniform(0, sc.W), rng.uniform(0, sc.H), -1, None) for _ in range(nb)]
+            for j, (cx, cy, c, ob) in enumerate(cents):
+                x0, y0 = _clamp0(cx - BIG / 2, sc.W), _clamp0(cy - BIG / 2, sc.H); img = sc.read(x0, y0, BIG)
+                valid = img.max(2) > 0
+                if ob is None:
+                    if valid.sum() < 0.5 * CFG["tile"] ** 2: drop["bg_nodata"] += 1; continue
+                else:
+                    a0, b0 = max(0, int(ob[0] - x0)), max(0, int(ob[1] - y0)); a1, b1 = min(BIG, int(math.ceil(ob[2] - x0))), min(BIG, int(math.ceil(ob[3] - y0)))
+                    if a1 <= a0 or b1 <= b0 or valid[b0:b1, a0:a1].mean() < 0.5: drop["obj_nodata"] += 1; continue
                 bx = [[b[0] - x0, b[1] - y0, b[2] - x0, b[3] - y0, cc] for b, cc in boxes
                       if b[2] > x0 and b[3] > y0 and b[0] < x0 + BIG and b[1] < y0 + BIG]
                 p = CHIPS / f"{inv['region']}__{Path(key).stem}__{j}.jpg"; p.parent.mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(str(p), img[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])
-                rec.append({"path": str(p), "region": inv["region"], "fold": FOLD[inv["region"]], "cls": c, "boxes": bx})
+                rec.append({"path": str(p), "region": inv["region"], "fold": FOLD[inv["region"]], "cls": c, "boxes": bx,
+                            "c": (cx - x0, cy - y0) if ob is not None else None})
             sc.close()
         except Exception as e:
             log("чипы: ошибка", inv["region"], key.rsplit("/", 1)[-1], repr(e)[:200])
+    if drop: log("чипы:", inv["region"], "отброшено", dict(drop))
     return rec
 
 # ── Шаг 5. Датасет с аугментациями (по рецепту §6.1) ─────────────────────────────────────────────────────────────
@@ -250,17 +345,35 @@ class ChipSet(torch.utils.data.IterableDataset):
     def __iter__(self):
         import cv2
         wi = torch.utils.data.get_worker_info(); rs = np.random.RandomState(self.seed + (wi.id if wi else 0))
+        prng = random.Random(self.seed + (wi.id if wi else 0))
         T = CFG["tile"]
         while True:
             use_obj = self.obj and (not self.bg or rs.rand() < CFG["obj_frac"])
             r = self.obj[rs.choice(len(self.obj), p=self.w)] if use_obj else self.bg[rs.randint(len(self.bg))]
             img = cv2.imread(r["path"])[:, :, ::-1]; S = img.shape[0]
-            ox, oy = rs.randint(0, S - T + 1), rs.randint(0, S - T + 1); img = img[oy:oy + T, ox:ox + T].astype(np.float32)
+            if r.get("c") is not None:  # объект в центре кадра ±shift·T (как раньше при центрированном чипе), в пределах чипа
+                sh = CFG["shift"] * T
+                ox, oy = [int(min(max(v - T / 2 + rs.uniform(-sh, sh), 0), S - T)) for v in r["c"]]
+            else:
+                ox, oy = rs.randint(0, S - T + 1), rs.randint(0, S - T + 1)
+            img = img[oy:oy + T, ox:ox + T].astype(np.float32)
             bx = []
             for x0, y0, x1, y1, c in r["boxes"]:
                 a = max(1e-6, (x1 - x0) * (y1 - y0)); cx0, cy0, cx1, cy1 = max(x0 - ox, 0), max(y0 - oy, 0), min(x1 - ox, T), min(y1 - oy, T)
                 if cx1 > cx0 and cy1 > cy0 and (cx1 - cx0) * (cy1 - cy0) >= 0.5 * a: bx.append([cx0, cy0, cx1, cy1, c])
             bx = np.array(bx, np.float32).reshape(-1, 5)
+            if CFG["aug"] == "bot5":  # jitter() бота 5 (xywh px), без --strong-aug, как в его dfine_folds.sh
+                ji, jb = BOT5.jitter(img.astype(np.uint8), np.stack([bx[:, 0], bx[:, 1], bx[:, 2] - bx[:, 0], bx[:, 3] - bx[:, 1]], 1), prng, False)
+                img = ji.astype(np.float32); bx = np.concatenate([jb[:, :2], jb[:, :2] + jb[:, 2:4], bx[:, 4:5]], 1).astype(np.float32)
+            else:
+                img, bx = self._ours(img, bx, rs, T)
+            img = np.ascontiguousarray(np.clip(img, 0, 255).transpose(2, 0, 1), dtype=np.float32) / 255.0
+            cxcywh = np.stack([(bx[:, 0] + bx[:, 2]) / 2, (bx[:, 1] + bx[:, 3]) / 2, bx[:, 2] - bx[:, 0], bx[:, 3] - bx[:, 1]], 1) / T
+            yield torch.from_numpy(img), {"class_labels": torch.from_numpy(bx[:, 4].astype(np.int64)),
+                                          "boxes": torch.from_numpy(np.clip(cxcywh, 0, 1).astype(np.float32))}
+    @staticmethod
+    def _ours(img, bx, rs, T):
+            import cv2
             if rs.rand() < 0.3: img = cv2.GaussianBlur(img, (0, 0), rs.uniform(0.5, 1.5))
             img = img * rs.uniform(0.75, 1.3) * rs.uniform(0.85, 1.15, 3) + rs.uniform(-20, 20)
             img = np.clip(img, 0, 255)
@@ -276,10 +389,7 @@ class ChipSet(torch.utils.data.IterableDataset):
             for _ in range(k):  # rot90 против часовой: (x, y) -> (y, T - x)
                 img = np.rot90(img); bx = bx[:, [1, 2, 3, 0, 4]].copy(); bx[:, [1, 3]] = T - bx[:, [1, 3]]
                 bx[:, [1, 3]] = np.sort(bx[:, [1, 3]], 1)
-            img = np.ascontiguousarray(np.clip(img, 0, 255).transpose(2, 0, 1), dtype=np.float32) / 255.0
-            cxcywh = np.stack([(bx[:, 0] + bx[:, 2]) / 2, (bx[:, 1] + bx[:, 3]) / 2, bx[:, 2] - bx[:, 0], bx[:, 3] - bx[:, 1]], 1) / T
-            yield torch.from_numpy(img), {"class_labels": torch.from_numpy(bx[:, 4].astype(np.int64)),
-                                          "boxes": torch.from_numpy(np.clip(cxcywh, 0, 1).astype(np.float32))}
+            return img, bx
 
 def batches(recs, seed, dev):
     dl = torch.utils.data.DataLoader(ChipSet(recs, seed), batch_size=CFG["bs"], num_workers=CFG["workers"],
@@ -288,13 +398,6 @@ def batches(recs, seed, dev):
     for x, y in dl: yield x.to(dev, non_blocking=True), [{k: v.to(dev) for k, v in t.items()} for t in y]
 
 # ── Шаг 6. Модель и встроенный тренер ────────────────────────────────────────────────────────────────────────────
-def make_model():
-    from transformers import DFineForObjectDetection
-    kw = dict(num_labels=len(CLASSES), id2label=dict(enumerate(CLASSES)), label2id={c: i for i, c in enumerate(CLASSES)},
-              ignore_mismatched_sizes=True)
-    if CFG["num_dn"] >= 0: kw["num_denoising"] = CFG["num_dn"]
-    return DFineForObjectDetection.from_pretrained(CKPT, **kw)
-
 def train_loop(model, it, cfg, dev, log, budget_s=None, tag=""):
     bb = [p for n, p in model.named_parameters() if "backbone" in n and p.requires_grad]
     rest = [p for n, p in model.named_parameters() if "backbone" not in n and p.requires_grad]
@@ -332,13 +435,25 @@ def train_loop(model, it, cfg, dev, log, budget_s=None, tag=""):
                           "hist": hist, "sec": round(time.time() - t0)}
     return model
 
-TRAIN = train_loop
-for p in [Path(__file__).with_name("dfine_train_bot5.py") if "__file__" in globals() else None,
-          *map(Path, glob.glob("/kaggle/input/**/dfine_train_bot5.py", recursive=True))]:
-    if p and p.exists():
-        spec = importlib.util.spec_from_file_location("dfine_train_bot5", p); m = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(m); TRAIN = lambda model, it, cfg, dev, log, budget_s=None, tag="": m.train(model, it, cfg, dev, log)
-        log("тренер бота 5 подключён:", p); break
+TRAIN, TRAIN_SRC = train_loop, "builtin train_loop"
+if CFG["trainer"] == "bot5" or CFG["aug"] == "bot5":
+    import types, hashlib
+    BOT5 = None
+    for p in [Path(__file__).with_name("dfine_train_bot5.py") if "__file__" in globals() else None,
+              *map(Path, glob.glob("/kaggle/input/**/dfine_train_bot5.py", recursive=True))]:
+        if p and p.exists():
+            spec = importlib.util.spec_from_file_location("dfine_train_bot5", p); BOT5 = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(BOT5); TRAIN_SRC = f"{p} sha256 {hashlib.sha256(p.read_bytes()).hexdigest()[:16]}"; break
+    if BOT5 is None and "BOT5_TRAINER_SRC" in globals():  # встроенная копия (build.py), Kaggle загружает только файл кода
+        BOT5 = types.ModuleType("dfine_train_bot5"); exec(compile(BOT5_TRAINER_SRC, "<dfine_train_bot5.py>", "exec"), BOT5.__dict__)
+        TRAIN_SRC = f"встроенная копия sha256 {hashlib.sha256(BOT5_TRAINER_SRC.encode('utf-8')).hexdigest()[:16]}"
+    if BOT5 is None: raise SystemExit("DFINE_TRAINER/AUG=bot5, но dfine_train_bot5.py не найден (ни встроенного, ни файла)")
+    if CFG["trainer"] == "bot5":
+        TRAIN = lambda model, it, cfg, dev, log, budget_s=None, tag="": BOT5.train(
+            model, it, dict(cfg, budget_s=budget_s, stop_ts=DEADLINE - 1800, tag=tag), dev, log)
+    log("тренер:", CFG["trainer"], "| аугментации:", CFG["aug"], "| бот 5:", TRAIN_SRC)
+else:
+    log("тренер: builtin train_loop | аугментации:", CFG["aug"])
 
 # ── Шаг 7. Инференс OOF на полном растре (окна 640, перекрытие 160, flip-TTA, NMS) → полигоны EPSG:3857 ───────────
 @torch.no_grad()
@@ -417,19 +532,21 @@ def gpu_worker(gi, dev):
             if MODE == "smoke": test = sorted(test, key=lambda i: sum(s for _, s in i["tifs"]))[:CFG["smoke_test_regions"]]
             per_gpu_left = math.ceil((left + 1) / len(DEVS))
             budget = (DEADLINE - time.time() - 1800) / per_gpu_left - 1200  # минус ~20 мин на инференс фолда
-            torch.manual_seed(100 + k); model = make_model().to(dev)
+            model, minfo = make_model(seed=100 + k); model = model.to(dev)  # check_model уже прошёл (нет meta, 5 классов)
             log(tag, f"train чипов {len(tr)}, test участков {len(test)}, бюджет обучения {budget / 3600:.2f} ч")
-            model = TRAIN(model, batches(tr, 1000 + k, dev), CFG, dev, log, budget_s=budget, tag=tag) if TRAIN is train_loop else TRAIN(model, batches(tr, 1000 + k, dev), CFG, dev, log)
-            rep = dict(getattr(model, "train_report", {}))
+            model = TRAIN(model, batches(tr, 1000 + k, dev), CFG, dev, log, budget_s=budget, tag=tag)
+            rep = dict(getattr(model, "train_report", {})); rep["model_check"] = minfo; rep["trainer"] = CFG["trainer"]
             if MODE == "full": model.save_pretrained(OUT / f"dfine_f{k}", safe_serialization=True)
             ti = time.time(); feats = []
             for inv in test:
+                if time.time() > DEADLINE: log(tag, "инференс: потолок времени, пропуск", inv["region"]); rep.setdefault("infer_skipped", []).append(inv["region"]); continue
                 try: feats += infer_region(model, inv, dev)
                 except Exception as e: log(tag, "инференс: ошибка", inv["region"], repr(e)[:200])
             json.dump({"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::3857"}},
                        "features": feats}, open(OUT / f"oof_dfine_f{k}.geojson", "w", encoding="utf-8"), ensure_ascii=False)
             rep.update({"n_train_chips": len(tr), "test_regions": [i["region"] for i in test], "n_det": len(feats),
                         "infer_sec": round(time.time() - ti)})
+            if dev.type == "cuda": rep["peak_vram_gb"] = round(torch.cuda.max_memory_allocated(dev) / 2**30, 2)
             log(tag, "готово", json.dumps({a: b for a, b in rep.items() if a != "hist"}, ensure_ascii=False))
             del model; torch.cuda.empty_cache() if dev.type == "cuda" else None
         except Exception as e:

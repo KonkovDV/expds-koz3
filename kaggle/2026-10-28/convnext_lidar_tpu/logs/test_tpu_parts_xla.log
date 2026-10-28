@@ -1,0 +1,6 @@
+/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/tests/test_tpu_parts.py:43: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  dmax = max(float((pa - pb.cpu()).abs().max()) for pa, pb in zip(a.parameters(), b.parameters()))
+TEST_TPU_PARTS {"loss": {"ref": 2.340294361114502, "nosync": 2.3402926921844482, "abs_diff": 1.6689300537109375e-06, "parts_ref": {"loss_hm": 2.0531504154205322, "loss_wh": 0.4322010278701782, "loss_off": 0.2439238280057907}, "parts_abs_diff": {"loss_hm": 1.6689300537109375e-06, "loss_wh": 2.9802322387695312e-08, "loss_off": 1.4901161193847656e-08}, "parts_are_tensors": true}, "xadamw_max_abs_diff": 2.9802322387695312e-08, "pad_bs": [8, 2, 4, 4], "device": "xla:0"}
+OK
+exit=0

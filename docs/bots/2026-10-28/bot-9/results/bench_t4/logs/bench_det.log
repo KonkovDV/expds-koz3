@@ -1,0 +1,15 @@
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+{"dtype": "fp16", "batch": 1, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 97.361, "peak_vram_mb": {"max_memory_allocated": 245.1, "max_memory_reserved": 298.0}, "oom": null, "error": null}
+{"dtype": "fp16", "batch": 4, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 45.01, "peak_vram_mb": {"max_memory_allocated": 601.2, "max_memory_reserved": 816.0}, "oom": null, "error": null}
+{"dtype": "fp16", "batch": 8, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 43.83, "peak_vram_mb": {"max_memory_allocated": 2022.8, "max_memory_reserved": 2104.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 1, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 91.839, "peak_vram_mb": {"max_memory_allocated": 11215.3, "max_memory_reserved": 11238.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 4, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 78.594, "peak_vram_mb": {"max_memory_allocated": 11959.2, "max_memory_reserved": 12010.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 8, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 80.023, "peak_vram_mb": {"max_memory_allocated": 12948.1, "max_memory_reserved": 13030.0}, "oom": null, "error": null}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+{"dtype": "fp16", "batch": 1, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 79.997, "peak_vram_mb": {"max_memory_allocated": 290.2, "max_memory_reserved": 364.0}, "oom": null, "error": null}
+{"dtype": "fp16", "batch": 4, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 57.956, "peak_vram_mb": {"max_memory_allocated": 1201.9, "max_memory_reserved": 1250.0}, "oom": null, "error": null}
+{"dtype": "fp16", "batch": 8, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 55.572, "peak_vram_mb": {"max_memory_allocated": 1826.8, "max_memory_reserved": 2048.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 1, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 110.327, "peak_vram_mb": {"max_memory_allocated": 8964.9, "max_memory_reserved": 9002.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 4, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 102.763, "peak_vram_mb": {"max_memory_allocated": 9192.9, "max_memory_reserved": 9474.0}, "oom": null, "error": null}
+{"dtype": "fp32", "batch": 8, "ms_per_tile_d8_median": null, "ms_per_chip_flip2_median": 101.234, "peak_vram_mb": {"max_memory_allocated": 9815.2, "max_memory_reserved": 10482.0}, "oom": null, "error": null}
+written bench_t4_det.json

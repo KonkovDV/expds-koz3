@@ -1,0 +1,29 @@
+{
+  "markup": "li",
+  "classes": [
+    "kurgany_povrezhdennye",
+    "kurgany_tselye",
+    "gorodishcha",
+    "arkhitektury",
+    "fortifikatsii"
+  ],
+  "res": 0.5,
+  "tile": 128,
+  "li_tags": [
+    "lrm_s",
+    "lrm_l",
+    "slope"
+  ],
+  "dem_res": 0.1,
+  "dem_fill": "delaunay",
+  "li_source": "las",
+  "flips": true,
+  "channels": 3,
+  "shrink": 0.0,
+  "max_upsample": 2.0,
+  "pixel_units": "native",
+  "min_area_m2": 0.0,
+  "exclude_files": [],
+  "tiles": 4645,
+  "positive": 3518
+}

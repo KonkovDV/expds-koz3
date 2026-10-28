@@ -1,0 +1,1322 @@
+[
+{
+"region": "015_Демидовка",
+"fold": 2,
+"fam": "Демидовка",
+"marked": true,
+"wins": 15,
+"mpx": 3.449213,
+"err": null,
+"gt": 1
+},
+{
+"region": "026_Золотаревка",
+"fold": 2,
+"fam": "Золотаревка",
+"marked": true,
+"wins": 12,
+"mpx": 2.497185,
+"err": null,
+"gt": 1
+},
+{
+"region": "031_Новотитаровская",
+"fold": 2,
+"fam": "Новотитаровская",
+"marked": true,
+"wins": 6,
+"mpx": 0.977508,
+"err": null,
+"gt": 2
+},
+{
+"region": "033_Елизаветинское",
+"fold": 3,
+"fam": "Елизаветинское",
+"marked": true,
+"wins": 8,
+"mpx": 2.012643,
+"err": null,
+"gt": 2
+},
+{
+"region": "034_Усть_река",
+"fold": 2,
+"fam": "Усть",
+"marked": true,
+"wins": 9,
+"mpx": 1.473895,
+"err": null,
+"gt": 2
+},
+{
+"region": "035_Шумгора",
+"fold": 4,
+"fam": "Шумгора",
+"marked": true,
+"wins": 56,
+"mpx": 12.267603000000001,
+"err": null,
+"gt": 12
+},
+{
+"region": "040_Примаки_1.3км",
+"fold": 3,
+"fam": "Миловидово",
+"marked": true,
+"wins": 28,
+"mpx": 5.659668,
+"err": null,
+"gt": 3
+},
+{
+"region": "041_Миловидово",
+"fold": 3,
+"fam": "Миловидово",
+"marked": true,
+"wins": 132,
+"mpx": 31.433495,
+"err": null,
+"gt": 60
+},
+{
+"region": "042_Тору_Айгыр",
+"fold": 3,
+"fam": "Тору",
+"marked": true,
+"wins": 24,
+"mpx": 4.448772,
+"err": null,
+"gt": 92
+},
+{
+"region": "043_Гочево",
+"fold": 3,
+"fam": "Гочево",
+"marked": true,
+"wins": 70,
+"mpx": 15.444,
+"err": null,
+"gt": 2
+},
+{
+"region": "046_Тыва_1",
+"fold": 1,
+"fam": "Тыва",
+"marked": true,
+"wins": 8,
+"mpx": 1.633562,
+"err": null,
+"gt": 28
+},
+{
+"region": "047_Тыва_2",
+"fold": 1,
+"fam": "Тыва",
+"marked": true,
+"wins": 45,
+"mpx": 8.385175,
+"err": null,
+"gt": 189
+},
+{
+"region": "048_Калмыкия_1",
+"fold": 4,
+"fam": "Калмыкия",
+"marked": true,
+"wins": 55,
+"mpx": 11.884494,
+"err": null,
+"gt": 176
+},
+{
+"region": "049_Калмыкия_2",
+"fold": 4,
+"fam": "Калмыкия",
+"marked": true,
+"wins": 40,
+"mpx": 8.083828,
+"err": null,
+"gt": 116
+},
+{
+"region": "050_Воронеж_1",
+"fold": 1,
+"fam": "Воронеж",
+"marked": true,
+"wins": 6,
+"mpx": 0.834705,
+"err": null,
+"gt": 1
+},
+{
+"region": "051_Воронеж_2",
+"fold": 1,
+"fam": "Воронеж",
+"marked": true,
+"wins": 72,
+"mpx": 14.955648,
+"err": null,
+"gt": 8
+},
+{
+"region": "052_Воронеж_3",
+"fold": 1,
+"fam": "Воронеж",
+"marked": true,
+"wins": 40,
+"mpx": 9.238899,
+"err": null,
+"gt": 4
+},
+{
+"region": "053_Воронеж_4",
+"fold": 1,
+"fam": "Воронеж",
+"marked": true,
+"wins": 40,
+"mpx": 9.236767,
+"err": null,
+"gt": 125
+},
+{
+"region": "054_Воронеж_5",
+"fold": 1,
+"fam": "Воронеж",
+"marked": true,
+"wins": 32,
+"mpx": 7.376776,
+"err": null,
+"gt": 56
+},
+{
+"region": "055_Курменту",
+"fold": 1,
+"fam": "Курменту",
+"marked": true,
+"wins": 104,
+"mpx": 23.052889999999998,
+"err": null,
+"gt": 352
+},
+{
+"region": "057_Кабардино_Балкария",
+"fold": 4,
+"fam": "Кабардино",
+"marked": true,
+"wins": 227,
+"mpx": 52.351040999999995,
+"err": null,
+"gt": 531
+},
+{
+"region": "062_Каменка",
+"fold": 4,
+"fam": "Каменка",
+"marked": true,
+"wins": 24,
+"mpx": 4.942428,
+"err": null,
+"gt": 1
+},
+{
+"region": "063_Верхнее_Казачье",
+"fold": 2,
+"fam": "Верхнее",
+"marked": true,
+"wins": 12,
+"mpx": 2.626444,
+"err": null,
+"gt": 1
+},
+{
+"region": "064_Ксизово",
+"fold": 3,
+"fam": "Ксизово",
+"marked": true,
+"wins": 6,
+"mpx": 1.026414,
+"err": null,
+"gt": 1
+},
+{
+"region": "070_Архангельское",
+"fold": 4,
+"fam": "Архангельское",
+"marked": true,
+"wins": 72,
+"mpx": 16.693544,
+"err": null,
+"gt": 2
+},
+{
+"region": "071_Сторожевое",
+"fold": 1,
+"fam": "Сторожевое",
+"marked": true,
+"wins": 88,
+"mpx": 19.05931,
+"err": null,
+"gt": 2
+},
+{
+"region": "072_Белая_Гора",
+"fold": 4,
+"fam": "Белая",
+"marked": true,
+"wins": 20,
+"mpx": 3.860624,
+"err": null,
+"gt": 2
+},
+{
+"region": "073_Тоссор",
+"fold": 4,
+"fam": "Тоссор",
+"marked": true,
+"wins": 6,
+"mpx": 1.282776,
+"err": null,
+"gt": 1
+},
+{
+"region": "074_Солдатское",
+"fold": 1,
+"fam": "Солдатское",
+"marked": true,
+"wins": 160,
+"mpx": 34.355845,
+"err": null,
+"gt": 8
+},
+{
+"region": "075_Мостище",
+"fold": 4,
+"fam": "Мостище",
+"marked": true,
+"wins": 75,
+"mpx": 15.802619,
+"err": null,
+"gt": 4
+},
+{
+"region": "076_Маяцкая_крепость",
+"fold": 4,
+"fam": "Маяцкая",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 1
+},
+{
+"region": "077_Русская_Тростянка",
+"fold": 2,
+"fam": "Русская",
+"marked": true,
+"wins": 48,
+"mpx": 10.723526,
+"err": null,
+"gt": 1
+},
+{
+"region": "078_Верхняя_Покровка",
+"fold": 1,
+"fam": "Верхняя",
+"marked": true,
+"wins": 48,
+"mpx": 10.723526,
+"err": null,
+"gt": 1
+},
+{
+"region": "079_Городище",
+"fold": 2,
+"fam": "Городище",
+"marked": true,
+"wins": 28,
+"mpx": 5.4654,
+"err": null,
+"gt": 2
+},
+{
+"region": "080_Верхний_Карабут",
+"fold": 4,
+"fam": "Верхний",
+"marked": true,
+"wins": 6,
+"mpx": 1.542784,
+"err": null,
+"gt": 1
+},
+{
+"region": "081_Костомаровское",
+"fold": 2,
+"fam": "Костомаровское",
+"marked": true,
+"wins": 6,
+"mpx": 1.535275,
+"err": null,
+"gt": 1
+},
+{
+"region": "082_Артпозиции_Иссык_Куль",
+"fold": 2,
+"fam": "Артпозиции",
+"marked": true,
+"wins": 8,
+"mpx": 1.648424,
+"err": null,
+"gt": 64
+},
+{
+"region": "083_Барскоон",
+"fold": 4,
+"fam": "Барскоон",
+"marked": true,
+"wins": 15,
+"mpx": 2.780658,
+"err": null,
+"gt": 1
+},
+{
+"region": "084_Булан_Соготту",
+"fold": 1,
+"fam": "Булан",
+"marked": true,
+"wins": 6,
+"mpx": 0.791388,
+"err": null,
+"gt": 1
+},
+{
+"region": "085_Каджы_Саз",
+"fold": 3,
+"fam": "Иссык",
+"marked": true,
+"wins": 15,
+"mpx": 2.780658,
+"err": null,
+"gt": 2
+},
+{
+"region": "086_Кан_Дебе",
+"fold": 1,
+"fam": "Кан",
+"marked": true,
+"wins": 15,
+"mpx": 3.78235,
+"err": null,
+"gt": 1
+},
+{
+"region": "087_Кароол_Дюбе",
+"fold": 2,
+"fam": "Кароол",
+"marked": true,
+"wins": 54,
+"mpx": 11.118294,
+"err": null,
+"gt": 1
+},
+{
+"region": "088_Кель_Тор_Х",
+"fold": 3,
+"fam": "Кель",
+"marked": true,
+"wins": 15,
+"mpx": 3.78235,
+"err": null,
+"gt": 1
+},
+{
+"region": "089_Конур_Елен",
+"fold": 4,
+"fam": "Конур",
+"marked": true,
+"wins": 15,
+"mpx": 3.78235,
+"err": null,
+"gt": 1
+},
+{
+"region": "090_Корумду",
+"fold": 1,
+"fam": "Корумду",
+"marked": true,
+"wins": 6,
+"mpx": 1.23633,
+"err": null,
+"gt": 1
+},
+{
+"region": "091_Сакские_курганы",
+"fold": 2,
+"fam": "Сакские",
+"marked": true,
+"wins": 4,
+"mpx": 0.513675,
+"err": null,
+"gt": 27
+},
+{
+"region": "092_Шаты",
+"fold": 1,
+"fam": "Шаты",
+"marked": true,
+"wins": 1,
+"mpx": 0.048416,
+"err": null,
+"gt": 1
+},
+{
+"region": "094_Иссык_Куль_курганы_и_выкладки",
+"fold": 3,
+"fam": "Иссык",
+"marked": true,
+"wins": 4,
+"mpx": 0.666406,
+"err": null,
+"gt": 20
+},
+{
+"region": "095_Иссык_Куль_курганы_и_постройки_1",
+"fold": 3,
+"fam": "Иссык",
+"marked": true,
+"wins": 4,
+"mpx": 0.677768,
+"err": null,
+"gt": 9
+},
+{
+"region": "096_Иссык_Куль_курганы_и_постройки_2",
+"fold": 3,
+"fam": "Иссык",
+"marked": true,
+"wins": 4,
+"mpx": 0.670221,
+"err": null,
+"gt": 40
+},
+{
+"region": "097_Орнок",
+"fold": 3,
+"fam": "Орнок",
+"marked": true,
+"wins": 6,
+"mpx": 1.018082,
+"err": null,
+"gt": 26
+},
+{
+"region": "098_Таш_Коро_1",
+"fold": 2,
+"fam": "Таш",
+"marked": true,
+"wins": 1,
+"mpx": 0.167606,
+"err": null,
+"gt": 1
+},
+{
+"region": "099_Таш_Коро_2",
+"fold": 2,
+"fam": "Таш",
+"marked": true,
+"wins": 4,
+"mpx": 0.666406,
+"err": null,
+"gt": 3
+},
+{
+"region": "100_Торт_Куль",
+"fold": 2,
+"fam": "Торт",
+"marked": true,
+"wins": 4,
+"mpx": 0.677768,
+"err": null,
+"gt": 2
+},
+{
+"region": "101_Гнёздово_Днепровская",
+"fold": 0,
+"fam": "Гнёздово",
+"marked": true,
+"wins": 64,
+"mpx": 14.17081,
+"err": null,
+"gt": 69
+},
+{
+"region": "103_Гнёздово_Ольшанская",
+"fold": 0,
+"fam": "Гнёздово",
+"marked": true,
+"wins": 40,
+"mpx": 8.007376,
+"err": null,
+"gt": 14
+},
+{
+"region": "107_Сары_Булун",
+"fold": 4,
+"fam": "Сары",
+"marked": true,
+"wins": 1,
+"mpx": 0.226431,
+"err": null,
+"gt": 17
+},
+{
+"region": "108_Скупая_Полудань",
+"fold": 3,
+"fam": "Скупая",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 1
+},
+{
+"region": "109_Россошки",
+"fold": 1,
+"fam": "Россошки",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 1
+},
+{
+"region": "111_Каменные_выкладки_1",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.664762,
+"err": null,
+"gt": 10
+},
+{
+"region": "112_Каменные_выкладки_2",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.667128,
+"err": null,
+"gt": 2
+},
+{
+"region": "113_Каменные_выкладки_3",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.667128,
+"err": null,
+"gt": 3
+},
+{
+"region": "114_Каменные_выкладки_4",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.667128,
+"err": null,
+"gt": 1
+},
+{
+"region": "115_Каменные_выкладки_5",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 1,
+"mpx": 0.166782,
+"err": null,
+"gt": 1
+},
+{
+"region": "116_Каменные_выкладки_6",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 12,
+"mpx": 2.665624,
+"err": null,
+"gt": 36
+},
+{
+"region": "117_Каменные_выкладки_7",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 12,
+"mpx": 2.665624,
+"err": null,
+"gt": 3
+},
+{
+"region": "118_Каменные_выкладки_8",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.66056,
+"err": null,
+"gt": 2
+},
+{
+"region": "119_Каменные_выкладки_9",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 1,
+"mpx": 0.167606,
+"err": null,
+"gt": 2
+},
+{
+"region": "120_Каменные_выкладки_10",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.668976,
+"err": null,
+"gt": 6
+},
+{
+"region": "121_Каменные_выкладки_11",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.666406,
+"err": null,
+"gt": 6
+},
+{
+"region": "122_Каменные_выкладки_12",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.666406,
+"err": null,
+"gt": 7
+},
+{
+"region": "123_Каменные_выкладки_13",
+"fold": 4,
+"fam": "Каменные",
+"marked": true,
+"wins": 4,
+"mpx": 0.670625,
+"err": null,
+"gt": 8
+},
+{
+"region": "124_Постройки_1",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 4,
+"mpx": 0.66384,
+"err": null,
+"gt": 3
+},
+{
+"region": "125_Постройки_2",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 1,
+"mpx": 0.16514,
+"err": null,
+"gt": 1
+},
+{
+"region": "126_Постройки_3",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 1,
+"mpx": 0.16016,
+"err": null,
+"gt": 1
+},
+{
+"region": "127_Постройки_4",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 1,
+"mpx": 0.16514,
+"err": null,
+"gt": 1
+},
+{
+"region": "128_Постройки_5",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 1,
+"mpx": 0.168069,
+"err": null,
+"gt": 3
+},
+{
+"region": "129_Постройки_6",
+"fold": 1,
+"fam": "Постройки",
+"marked": true,
+"wins": 1,
+"mpx": 0.167504,
+"err": null,
+"gt": 1
+},
+{
+"region": "130_Курганы_1",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 12,
+"mpx": 2.577722,
+"err": null,
+"gt": 33
+},
+{
+"region": "131_Курганы_2",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 48,
+"mpx": 10.307242,
+"err": null,
+"gt": 52
+},
+{
+"region": "132_Курганы_3",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 12,
+"mpx": 2.713338,
+"err": null,
+"gt": 28
+},
+{
+"region": "133_Курганы_4",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 35,
+"mpx": 8.092852,
+"err": null,
+"gt": 27
+},
+{
+"region": "134_Курганы_5",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 12,
+"mpx": 2.023213,
+"err": null,
+"gt": 13
+},
+{
+"region": "135_Курганы_6",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.953952,
+"err": null,
+"gt": 17
+},
+{
+"region": "136_Курганы_7",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.953952,
+"err": null,
+"gt": 2
+},
+{
+"region": "137_Курганы_8",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.96365,
+"err": null,
+"gt": 14
+},
+{
+"region": "138_Курганы_9",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 2,
+"mpx": 0.488488,
+"err": null,
+"gt": 14
+},
+{
+"region": "139_Курганы_10",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 35,
+"mpx": 7.79574,
+"err": null,
+"gt": 18
+},
+{
+"region": "140_Курганы_11",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.953952,
+"err": null,
+"gt": 15
+},
+{
+"region": "141_Курганы_12",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.955184,
+"err": null,
+"gt": 6
+},
+{
+"region": "142_Курганы_13",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 12,
+"mpx": 2.016574,
+"err": null,
+"gt": 30
+},
+{
+"region": "143_Курганы_14",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.937784,
+"err": null,
+"gt": 5
+},
+{
+"region": "144_Курганы_15",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.940591,
+"err": null,
+"gt": 6
+},
+{
+"region": "145_Курганы_16",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.940591,
+"err": null,
+"gt": 40
+},
+{
+"region": "146_Курганы_17",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 35,
+"mpx": 7.759906,
+"err": null,
+"gt": 24
+},
+{
+"region": "147_Курганы_18",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 35,
+"mpx": 7.759906,
+"err": null,
+"gt": 23
+},
+{
+"region": "148_Курганы_19",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.939362,
+"err": null,
+"gt": 21
+},
+{
+"region": "149_Курганы_20",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.940591,
+"err": null,
+"gt": 11
+},
+{
+"region": "150_Курганы_21",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 1.940591,
+"err": null,
+"gt": 45
+},
+{
+"region": "151_Курганы_22",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 12,
+"mpx": 2.673662,
+"err": null,
+"gt": 32
+},
+{
+"region": "152_Курганы_23",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 4,
+"mpx": 0.54889,
+"err": null,
+"gt": 6
+},
+{
+"region": "153_Курганы_24",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 4,
+"mpx": 0.55104,
+"err": null,
+"gt": 20
+},
+{
+"region": "154_Курганы_25",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 4,
+"mpx": 0.5502,
+"err": null,
+"gt": 15
+},
+{
+"region": "155_Курганы_26",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 54,
+"mpx": 12.15931,
+"err": null,
+"gt": 9
+},
+{
+"region": "156_Курганы_27",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 54,
+"mpx": 12.14696,
+"err": null,
+"gt": 10
+},
+{
+"region": "157_Курганы_28",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 54,
+"mpx": 12.128314,
+"err": null,
+"gt": 1
+},
+{
+"region": "158_Курганы_29",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 216,
+"mpx": 48.61737,
+"err": null,
+"gt": 9
+},
+{
+"region": "159_Курганы_30",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 15,
+"mpx": 3.037344,
+"err": null,
+"gt": 4
+},
+{
+"region": "160_Курганы_31",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 18,
+"mpx": 3.650944,
+"err": null,
+"gt": 11
+},
+{
+"region": "161_Курганы_32",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 9,
+"mpx": 2.197125,
+"err": null,
+"gt": 5
+},
+{
+"region": "162_Курганы_33",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 6,
+"mpx": 1.4504,
+"err": null,
+"gt": 9
+},
+{
+"region": "163_Курганы_34",
+"fold": 2,
+"fam": "Курганы",
+"marked": true,
+"wins": 104,
+"mpx": 23.127005,
+"err": null,
+"gt": 88
+},
+{
+"region": "164_Кисловодская_котловина_1",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 51
+},
+{
+"region": "165_Кисловодская_котловина_2",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 9,
+"mpx": 1.86792,
+"err": null,
+"gt": 2
+},
+{
+"region": "166_Кисловодская_котловина_3",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 2
+},
+{
+"region": "167_Кисловодская_котловина_4",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 1
+},
+{
+"region": "168_Кисловодская_котловина_5",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 24,
+"mpx": 4.765725,
+"err": null,
+"gt": 1
+},
+{
+"region": "169_Кисловодская_котловина_6",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 15,
+"mpx": 3.050064,
+"err": null,
+"gt": 1
+},
+{
+"region": "170_Кисловодская_котловина_7",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 1
+},
+{
+"region": "171_Кисловодская_котловина_8",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 1
+},
+{
+"region": "172_Кисловодская_котловина_9",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 2
+},
+{
+"region": "173_Кисловодская_котловина_10",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 2
+},
+{
+"region": "174_Кисловодская_котловина_11",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 1.715661,
+"err": null,
+"gt": 2
+},
+{
+"region": "175_Кисловодская_котловина_12",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 20,
+"mpx": 3.860624,
+"err": null,
+"gt": 2
+},
+{
+"region": "176_Кисловодская_котловина_13",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 20,
+"mpx": 3.860624,
+"err": null,
+"gt": 2
+},
+{
+"region": "177_Кисловодская_котловина_14",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 20,
+"mpx": 3.860624,
+"err": null,
+"gt": 2
+},
+{
+"region": "178_Кисловодская_котловина_15",
+"fold": 4,
+"fam": "Кисловодская",
+"marked": true,
+"wins": 6,
+"mpx": 0.96556,
+"err": null,
+"gt": 1
+},
+{
+"region": "183_Сарское",
+"fold": 3,
+"fam": "Сарское",
+"marked": true,
+"wins": 100,
+"mpx": 24.48225,
+"err": null,
+"gt": 24
+},
+{
+"region": "184_Шурскол",
+"fold": 3,
+"fam": "Шурскол",
+"marked": true,
+"wins": 28,
+"mpx": 6.018636,
+"err": null,
+"gt": 1
+},
+{
+"region": "185_Изборск",
+"fold": 4,
+"fam": "Изборск",
+"marked": true,
+"wins": 48,
+"mpx": 9.198891999999999,
+"err": null,
+"gt": 138
+},
+{
+"region": "186_Семибратнее_1",
+"fold": 3,
+"fam": "Семибратнее",
+"marked": true,
+"wins": 15,
+"mpx": 2.620845,
+"err": null,
+"gt": 6
+},
+{
+"region": "192_КЧР",
+"fold": 2,
+"fam": "КЧР",
+"marked": true,
+"wins": 6,
+"mpx": 1.10618,
+"err": null,
+"gt": 7
+}
+]

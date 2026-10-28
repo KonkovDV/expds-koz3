@@ -1,0 +1,200 @@
+From 9316b5fdb624029062e43fe16e97af141068fab0 Mon Sep 17 00:00:00 2001
+From: bot-8 <bot-8@local>
+Date: Wed, 28 Oct 2026 19:31:17 +0300
+Subject: [PATCH 1/3] =?UTF-8?q?bot-8:=20=D1=83=D1=81=D1=82=D0=BE=D0=B9?=
+ =?UTF-8?q?=D1=87=D0=B8=D0=B2=D0=BE=D1=81=D1=82=D1=8C=20=E2=80=94=20try=20?=
+ =?UTF-8?q?=D0=B2=D0=BE=D0=BA=D1=80=D1=83=D0=B3=20=D0=B3=D0=B5=D0=BE=D1=84?=
+ =?UTF-8?q?=D0=B8=D0=B7=D0=B8=D0=BA=D0=B8,=20=D0=B7=D0=B0=D0=BF=D0=B0?=
+ =?UTF-8?q?=D1=81=D0=BD=D0=B0=D1=8F=20=D0=BF=D0=BE=D1=81=D1=82=D0=BE=D0=B1?=
+ =?UTF-8?q?=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=BA=D0=B0=20=D0=B2=20checkpoin?=
+ =?UTF-8?q?t,=20=D0=B1=D0=B5=D0=B7=20NaN=20=D0=B2=20GeoJSON?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ expds/pipeline.py         |  7 +++-
+ expds/watchdog.py         | 22 ++++++++++-
+ expds/writer.py           |  8 ++--
+ tests/test_bot8_faults.py | 83 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 115 insertions(+), 5 deletions(-)
+ create mode 100644 tests/test_bot8_faults.py
+
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..a466411 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -860,7 +860,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         t_phase = time.monotonic()
+         n_phase = 0
+         for reg in regions:
+-            found = geophys_feats(reg, cfg, guard)
++            try:
++                found = geophys_feats(reg, cfg, guard)
++            except Exception:
++                # bot-8: сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
++                log.exception("%s: геофизика упала, регион пропущен", reg.name)
++                continue
+             state.add(found)
+             n_phase += len(found)
+             if found:
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 2e15b2d..e51e462 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -99,6 +99,26 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+     return out
+ 
+ 
++def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
++    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
++    try:
++        return finish(feats, cfg)
++    except Exception:
++        log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
++    out = post.only_known_classes(feats)
++    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
++                                cfg.get("thresholds_by_markup", {}))
++    kept: list[dict] = []
++    for f in out:
++        try:
++            kept += post.finalize([f])
++        except Exception:
++            continue
++    kept = post.cap_features(kept)
++    only = (cfg.get("post") or {}).get("only_classes")
++    return post.keep_classes(kept, only) if only is not None else kept
++
++
+ _write_lock = threading.Lock()
+ 
+ 
+@@ -141,7 +161,7 @@ def checkpoint(state: RunState, reason: str) -> int:
+     """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
+     feats = state.snapshot()
+     with _write_lock:
+-        kept = finish(feats, state.cfg)
++        kept = safe_finish(feats, state.cfg)
+         writer.write_geojson(kept, state.output)
+         _emit_protocol(state, feats, kept, reason)
+         return len(kept)
+diff --git a/expds/writer.py b/expds/writer.py
+index c3372e2..70cdd20 100644
+--- a/expds/writer.py
++++ b/expds/writer.py
+@@ -23,10 +23,12 @@ from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VER
+ def to_feature_collection(feats: list[dict]) -> dict:
+     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
+     out = []
+-    for k, f in enumerate(feats):
++    for f in feats:
+         geom = mapping(f["geom"])
+         geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
+-        props = {"fid": k, "class_name": f["class_name"],
++        if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy):
++            continue                    # bot-8: NaN/inf дают невалидный JSON — объект отбрасывается
++        props = {"fid": len(out), "class_name": f["class_name"],
+                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
+                  "region_name": f.get("region_name", "default_source"),
+                  "crs": "EPSG:3857"}
+@@ -58,7 +60,7 @@ def write_geojson(feats: list[dict], path: str | Path) -> Path:
+     tmp = tmp_path_for(path)
+     try:
+         with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+-            fh.write(json.dumps(to_feature_collection(feats), ensure_ascii=False))
++            fh.write(json.dumps(to_feature_collection(feats), ensure_ascii=False, allow_nan=False))
+             fh.flush()
+             os.fsync(fh.fileno())
+         os.replace(tmp, path)
+diff --git a/tests/test_bot8_faults.py b/tests/test_bot8_faults.py
+new file mode 100644
+index 0000000..10ddc62
+--- /dev/null
++++ b/tests/test_bot8_faults.py
+@@ -0,0 +1,83 @@
++"""bot-8: инъекции отказов — один сбой не должен обнулять или урезать весь прогон."""
++import json
++import math
++from types import SimpleNamespace
++
++from conftest import X0, Y0
++from shapely.geometry import box
++
++from expds import writer
++
++
++def _f(cls="kurgany_tselye", d=0.0, conf=0.9, mt="li"):
++    return {"geom": box(X0 + d, Y0, X0 + d + 5, Y0 + 5), "class_name": cls, "confidence": conf,
++            "markup_type": mt, "region_name": "r"}
++
++
++def test_geophys_exception_in_one_region_does_not_skip_lidar(tmp_path, monkeypatch):
++    """pipeline.py:862-867 — геофизика без try: сбой одного региона не должен отменять лидар/оптику."""
++    from expds import pipeline
++
++    out = tmp_path / "o" / "result.geojson"
++    regs = [SimpleNamespace(name=n, las=[], rasters={}, utm_json=None, boundaries=[], noise=[]) for n in ("a", "b")]
++    calls = {"li": 0}
++
++    def geo(reg, *_a, **_k):
++        if reg.name == "a":
++            raise ValueError("битый регион")
++        return [_f("object_poly", mt="maggr")]
++
++    def li(*_a, **_k):
++        calls["li"] += 1
++        return [_f(d=100)]
++
++    monkeypatch.setattr(pipeline, "scan_root", lambda _p: regs)
++    monkeypatch.setattr(pipeline, "geophys_feats", geo)
++    monkeypatch.setattr(pipeline, "lidar_feats", li)
++    monkeypatch.setattr(pipeline, "optical_feats", lambda *_a, **_k: [])
++    monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
++    cfg = tmp_path / "t.toml"
++    cfg.write_text("[time]\nwatchdog = false\n[verify]\nenabled = false\n", encoding="utf-8")
++    try:
++        pipeline.run(tmp_path, out, cfg)
++    except Exception:
++        pass
++    assert calls["li"] == 2, "лидар пропущен из-за сбоя геофизики одного региона"
++    classes = sorted(f["properties"]["class_name"] for f in json.loads(out.read_text())["features"])
++    assert classes == ["kurgany_tselye", "kurgany_tselye", "object_poly"]
++
++
++def test_checkpoint_survives_failing_postprocessing(tmp_path, monkeypatch):
++    """watchdog.py:140-147 — исключение в finish() не должно оставлять ответ пустым."""
++    from expds import post
++    from expds.watchdog import RunState, checkpoint
++
++    def boom(_feats, *a, **k):
++        raise RuntimeError("GEOS упал в склейке")
++
++    monkeypatch.setattr(post, "merge_within_markup", boom)
++    st = RunState(tmp_path / "result.geojson", {"thresholds": {}, "default_threshold": 0.0})
++    st.add([_f(), _f(d=20)])
++    try:
++        checkpoint(st, "конец")
++    except Exception:
++        pass
++    p = tmp_path / "result.geojson"
++    assert p.exists() and writer.validate(p)["ok"]
++    assert len(json.loads(p.read_text())["features"]) == 2
++
++
++def test_writer_never_emits_nan(tmp_path):
++    """writer.py:23-67 — NaN в координатах даёт невалидный JSON («NaN»); такой объект надо отбросить."""
++    import numpy as np
++    import shapely
++    c = shapely.get_coordinates(box(X0, Y0, X0 + 3, Y0 + 3))
++    c[1, 0] = math.nan                                   # средняя вершина, кольцо остаётся замкнутым
++    g = shapely.set_coordinates(box(X0, Y0, X0 + 3, Y0 + 3), c)
++    bad = {"geom": g, "class_name": "kurgany_tselye",
++           "confidence": 0.5, "region_name": "r"}
++    p = writer.write_geojson([bad, _f()], tmp_path / "result.geojson")
++    txt = p.read_text()
++    assert "NaN" not in txt
++    json.loads(txt, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
++    assert writer.validate(p)["ok"]
+-- 
+2.47.3
+

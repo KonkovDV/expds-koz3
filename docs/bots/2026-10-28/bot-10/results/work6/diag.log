@@ -1,0 +1,21 @@
+('kurgany_povrezhdennye', 'ae', None, 'ae') 302
+('kurgany_povrezhdennye', 'li', None, 'li') 2006
+('kurgany_povrezhdennye', 'li_dev', 'li_dev', 'li') 305
+('kurgany_povrezhdennye', 'li_mosaic', 'li_mosaic', 'li') 70
+('kurgany_povrezhdennye', 'sp_focal', 'sp_focal', 'sp_or') 820
+('kurgany_povrezhdennye', 'sp_focal2', 'sp_focal2', 'sp_or') 185
+('kurgany_tselye', 'ae', None, 'ae') 807
+('kurgany_tselye', 'li', None, 'li') 585
+('kurgany_tselye', 'li_ae', 'li_ae', 'ae') 5
+('kurgany_tselye', 'li_dev', 'li_dev', 'li') 34
+('kurgany_tselye', 'li_mosaic', 'li_mosaic', 'li') 330
+('kurgany_tselye', 'sp_focal', 'sp_focal', 'sp_or') 118
+('kurgany_tselye', 'sp_focal2', 'sp_focal2', 'sp_or') 13
+ae tselye kept 807 ae povr<=0.5 304 li<=4 802 twins 5
+ae dist quantiles [0.         0.         1.41924749 3.20065557]
+== raw
+ae tselye kept 807 ae povr<=0.5 302 li<=4 722 twins 85
+ae dist quantiles [ 0.          0.         14.76303316 24.90182819]
+== utm
+ae tselye kept 807 ae povr<=0.5 302 li<=4 722 twins 85
+ae dist quantiles [ 0.          0.          8.43305995 14.02685275]

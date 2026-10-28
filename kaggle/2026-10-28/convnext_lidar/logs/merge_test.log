@@ -1,0 +1,4 @@
+40000 признаков, 2 участков → _scratch/dry/merged_test.geojson
+регион 016_Хога в _scratch/dry/out/oof_cnx_c5-in_f4.geojson и _scratch/dry/out/oof_cnx_c5-in_f4.geojson
+dup rc=1
+40000 ['class_name', 'confidence', 'crs', 'fid', 'markup_type', 'original_crs', 'region_name'] 40000

@@ -1,8 +1,87 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..1f6ac26 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -7,6 +7,11 @@ budget_s = 1500      # 25 минут из 30: запас на запуск ко
+ reserve_s = 120      # не начинать тяжёлый шаг, если осталось меньше
+ watchdog = true      # за 3 минуты до 30 минут записать уже найденное и выйти
+ guard_margin_s = 180 # запас сторожа до снятия контейнера; сверить с первым логом платформы
++# bot-8: дедлайн внутри цикла окон снимков (ae/sp_or/or, sp_focal2, сети геофизики). Окно не начинается,
++# если до конца budget_s или до сторожа (1800 − guard_margin_s = 1620 с) осталось ≤ window_reserve_s;
++# файл отдаёт объекты пройденных окон, дальше обычный конец прогона и запись. false — как раньше.
++window_deadline = true
++window_reserve_s = 30
+ 
+ # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
+ # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
 diff --git a/expds/pipeline.py b/expds/pipeline.py
-index 2657c29..87162c1 100644
+index 2657c29..4f8a604 100644
 --- a/expds/pipeline.py
 +++ b/expds/pipeline.py
-@@ -89,6 +89,15 @@ def model_files(path: str | list[str]) -> list[str]:
+@@ -29,14 +29,24 @@ log = logging.getLogger(__name__)
+ 
+ 
+ class TimeGuard:
+-    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг."""
++    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
+ 
+-    def __init__(self, budget_s: float):
+-        self.t0 = time.monotonic()
++    bot-8: дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
++    бюджета [time] budget_s или до сторожа (watchdog.deadline_left: 1800 − guard_margin_s = 1620 с
++    от старта процесса) осталось не больше window_reserve_s. None — проверка выключена.
++    clock — для тестов (поддельные часы); по умолчанию time.monotonic.
++    """
++
++    def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
++        self.clock = clock or time.monotonic
++        self.t0 = self.clock()
+         self.budget = budget_s
++        self.window_reserve_s = window_reserve_s
++        self.hard_left = hard_left
++        self.partial: list[dict] = []
+ 
+     def elapsed(self) -> float:
+-        return time.monotonic() - self.t0
++        return self.clock() - self.t0
+ 
+     def left(self) -> float:
+         return self.budget - self.elapsed()
+@@ -44,6 +54,33 @@ class TimeGuard:
+     def ok(self, need_s: float = 0.0) -> bool:
+         return self.left() > need_s
+ 
++    def window_left(self) -> float:
++        """Секунд до ближайшего из: конец бюджета, срабатывание сторожа."""
++        left = self.left()
++        if self.hard_left is not None:
++            left = min(left, float(self.hard_left()))
++        return left
++
++    def window_ok(self) -> bool:
++        return self.window_reserve_s is None or self.window_left() > float(self.window_reserve_s)
++
++
++#: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
++DEFAULT_WINDOW_RESERVE_S = 30.0
++
++
++#: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
++#: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
++_WINDOW_GUARD: "TimeGuard | None" = None
++
++
++def window_reserve(cfg: dict) -> float | None:
++    """[time] window_deadline (true) / window_reserve_s (30). window_deadline = false — без проверки в цикле окон."""
++    t = cfg.get("time") or {}
++    if not t.get("window_deadline", True):
++        return None
++    return float(t.get("window_reserve_s", DEFAULT_WINDOW_RESERVE_S))
++
+ 
+ def load_config(path: str | Path | None) -> dict:
+     """Конфиг TOML (configs/default.toml); отсутствующий файл → пустой словарь."""
+@@ -89,6 +126,15 @@ def model_files(path: str | list[str]) -> list[str]:
      return list(path) if isinstance(path, list) else [path]
  
  
@@ -18,7 +97,64 @@ index 2657c29..87162c1 100644
  def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
      from .infer_nn import Ensemble, Segmenter
  
-@@ -860,7 +869,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -703,11 +749,16 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+ 
+ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
+                        overlap: int = 256, min_conf: dict[str, float] | None = None,
+-                       fallback_crs: str | None = None) -> list[dict]:
++                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None) -> list[dict]:
+     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
+ 
+     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
++    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
++    по файлу (объекты уже пройденных окон), запись в guard.partial. По умолчанию — guard текущего
++    run() (_WINDOW_GUARD); вне run() проверки нет, как раньше.
+     """
++    if guard is None:
++        guard = _WINDOW_GUARD
+     import rasterio
+     from rasterio.enums import Resampling
+     from rasterio.windows import Window
+@@ -742,6 +793,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+         ys = list(range(0, max(h - overlap, 1), step))
+         for iy, y0 in enumerate(ys):
+             for ix, x0 in enumerate(xs):
++                if guard is not None and not guard.window_ok():
++                    done, total = iy * len(xs) + ix, len(xs) * len(ys)
++                    log.warning("%s: дедлайн в цикле окон (%s, осталось %.0f с ≤ %s с) — частичный результат: "
++                                "окон %d из %d, объектов %d", path.name, markup, guard.window_left(),
++                                guard.window_reserve_s, done, total, len(feats))
++                    guard.partial.append({"file": path.name, "region": region, "markup": markup,
++                                          "windows_done": done, "windows_total": total, "feats": len(feats)})
++                    return feats
+                 bw, bh = min(block, w - x0), min(block, h - y0)
+                 win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
+                 a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+@@ -781,7 +840,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+     Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
+     контейнера, не после геофизики.
+     """
+-    from .watchdog import RunState, arm_platform, arm_signal, checkpoint
++    from .watchdog import RunState, arm_platform, arm_signal, checkpoint, deadline_left
+ 
+     root = Path(root or Path(__file__).resolve().parents[1])
+     cfg_path = Path(config_path or root / "configs" / "default.toml")
+@@ -793,7 +852,13 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                           bool(infer.get("deterministic", True)))
+     except Exception:
+         log.exception("точность видеокарты не настроена, дальше без моделей torch")
+-    guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
++    t_cfg = cfg.get("time", {})
++    margin_s = float(t_cfg.get("guard_margin_s", 180))
++    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
++    guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
++                      hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
++    global _WINDOW_GUARD
++    _WINDOW_GUARD = guard
+     log.info("ускоритель: %s", accel.backend())
+     torch_version, cuda_version = "нет", "нет"
+     try:
+@@ -860,7 +925,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
          t_phase = time.monotonic()
          n_phase = 0
          for reg in regions:
@@ -32,7 +168,26 @@ index 2657c29..87162c1 100644
              state.add(found)
              n_phase += len(found)
              if found:
-@@ -931,7 +945,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+@@ -900,6 +970,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+             if found:
+                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
++        if guard.partial:
++            state.note["partial_files"] = list(guard.partial)
++            log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),
++                        ", ".join(f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in guard.partial))
+         t_phase = time.monotonic()
+         n_phase = 0
+         for reg in regions:
+@@ -922,6 +996,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                 log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+         phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
+     finally:
++        _WINDOW_GUARD = None
+         signal.signal(signal.SIGTERM, previous_term)
+         if prefetch is not None:
+             prefetch.close()
+@@ -931,7 +1006,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
              try:
                  from .crop_model import maybe_verify
  
@@ -41,8 +196,16 @@ index 2657c29..87162c1 100644
                  if checked is not None:
                      state.replace(checked)
              except Exception:
+@@ -940,6 +1015,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         state.note["phases"] = summary["phases"]
+         summary["written"] = checkpoint(state, "конец")
+         summary["seconds"] = round(guard.elapsed(), 1)
++        summary["partial_files"] = list(guard.partial)
+         for handler in logging.getLogger().handlers:
+             handler.flush()
+     return summary
 diff --git a/expds/watchdog.py b/expds/watchdog.py
-index 2e15b2d..e51e462 100644
+index 2e15b2d..69151f4 100644
 --- a/expds/watchdog.py
 +++ b/expds/watchdog.py
 @@ -99,6 +99,26 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
@@ -72,7 +235,17 @@ index 2e15b2d..e51e462 100644
  _write_lock = threading.Lock()
  
  
-@@ -141,7 +161,7 @@ def checkpoint(state: RunState, reason: str) -> int:
+@@ -127,6 +147,9 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
+              note.get("las_files", "нет"), note.get("rasters", "нет"),
+              note.get("skipped", "нет"))
+     log.info("фазы: %s", phase_text)
++    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
++        log.info("частично (дедлайн в цикле окон): %s", ", ".join(
++            f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
+     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
+     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
+     log.info("записано %d, файл %d байт", len(kept), size)
+@@ -141,7 +164,7 @@ def checkpoint(state: RunState, reason: str) -> int:
      """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
      feats = state.snapshot()
      with _write_lock:
@@ -81,6 +254,23 @@ index 2e15b2d..e51e462 100644
          writer.write_geojson(kept, state.output)
          _emit_protocol(state, feats, kept, reason)
          return len(kept)
+@@ -199,9 +222,14 @@ def arm_signal(state: RunState, exit_fn=os._exit):
+     return previous
+ 
+ 
++def deadline_left(margin_s: float | None = None, clock=None) -> float:
++    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
++    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
++    return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
++
++
+ def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
+     """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
+-    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+-    left = PLATFORM_LIMIT_S - margin - (time.monotonic() - PROCESS_START)
++    left = deadline_left(margin_s)
+     log.info("сторож сработает через %.0f с", max(0.0, left))
+     return arm(state, left, exit_fn)
 diff --git a/expds/writer.py b/expds/writer.py
 index c3372e2..70cdd20 100644
 --- a/expds/writer.py
@@ -211,3 +401,130 @@ index 0000000..db77aa7
 +    got = rooted_verify(cfg, ROOT)
 +    assert got["verify"]["weights"] == str(ROOT / "models/sp_crop.pt") and got["x"] == 1
 +    assert cfg["verify"]["weights"] == "models/sp_crop.pt"
+diff --git a/tests/test_bot8_window_deadline.py b/tests/test_bot8_window_deadline.py
+new file mode 100644
+index 0000000..2565edf
+--- /dev/null
++++ b/tests/test_bot8_window_deadline.py
+@@ -0,0 +1,121 @@
++"""bot-8: дедлайн внутри цикла окон снимков — медленные окна, поддельные часы, частичный результат.
++
++Рецепт: competitors/NOTES_KateBuikina-expds-solution.md §5 (segmenter._deadline_hit в начале цикла окон).
++У нас — те же бюджет [time] budget_s и дедлайн сторожа (watchdog.deadline_left), без новых часов.
++"""
++import json
++from types import SimpleNamespace
++
++import numpy as np
++
++from test_raster_infer import SPOTS, write_raster
++from expds import pipeline, watchdog, writer
++from expds.pipeline import TimeGuard, _raster_with_model
++
++
++class Clock:
++    def __init__(self, t=1000.0):
++        self.t = t
++
++    def __call__(self):
++        return self.t
++
++
++class SlowSeg:
++    """Яркость первого канала = вероятность; каждое окно «идёт» step секунд по поддельным часам."""
++    classes = ["kurgany_tselye"]
++    res = 0.5
++    meta = {"in_channels": 3, "max_upsample": 2.0}
++
++    def __init__(self, clock, step=100.0):
++        self.clock, self.step, self.calls = clock, step, 0
++
++    def predict(self, img):
++        self.calls += 1
++        self.clock.t += self.step
++        return img[:1].astype(np.float32) / 255.0
++
++
++def _centers(feats):
++    return sorted((round(f["geom"].centroid.x, 1), round(f["geom"].centroid.y, 1)) for f in feats)
++
++
++def test_window_loop_stops_near_deadline_with_partial_result(tmp_path):
++    p = write_raster(tmp_path / "ae.tif")
++    full = _raster_with_model(SlowSeg(Clock()), p, "r", "ae", block=64, overlap=16)
++    assert len(full) == len(SPOTS)
++    clk = Clock()
++    seg = SlowSeg(clk)
++    guard = TimeGuard(250, window_reserve_s=30, clock=clk)
++    part = _raster_with_model(seg, p, "r", "ae", block=64, overlap=16, guard=guard)
++    # 250 → 150 → 50 → −50 с: три окна, четвёртое не начинается (осталось ≤ 30 с)
++    assert seg.calls == 3
++    assert len(guard.partial) == 1
++    info = guard.partial[0]
++    assert info["windows_done"] == 3 and info["windows_total"] > 3 and info["file"] == "ae.tif"
++    assert 0 < len(part) < len(full) and info["feats"] == len(part)
++    assert set(_centers(part)) <= set(_centers(full))      # частичный результат — подмножество полного
++
++
++def test_window_deadline_off_or_far_keeps_full_result(tmp_path):
++    p = write_raster(tmp_path / "ae.tif")
++    clk = Clock()
++    off = TimeGuard(250, window_reserve_s=None, clock=clk)    # [time] window_deadline = false
++    assert len(_raster_with_model(SlowSeg(clk), p, "r", "ae", block=64, overlap=16, guard=off)) == len(SPOTS)
++    clk2 = Clock()
++    far = TimeGuard(10 ** 6, window_reserve_s=30, clock=clk2)
++    assert len(_raster_with_model(SlowSeg(clk2), p, "r", "ae", block=64, overlap=16, guard=far)) == len(SPOTS)
++    assert not off.partial and not far.partial
++
++
++def test_window_reserve_config():
++    assert pipeline.window_reserve({}) == pipeline.DEFAULT_WINDOW_RESERVE_S
++    assert pipeline.window_reserve({"time": {"window_reserve_s": 45}}) == 45.0
++    assert pipeline.window_reserve({"time": {"window_deadline": False, "window_reserve_s": 45}}) is None
++
++
++def test_watchdog_deadline_bounds_window_loop():
++    """Если сторож (1800 − guard_margin_s от старта процесса) ближе бюджета — решает он."""
++    clk = Clock(watchdog.PROCESS_START)
++    assert watchdog.deadline_left(180, clock=clk) == watchdog.PLATFORM_LIMIT_S - 180    # 1620 с
++    clk.t += 1600
++    assert watchdog.deadline_left(180, clock=clk) == 20
++    guard = TimeGuard(10 ** 6, window_reserve_s=30, hard_left=lambda: watchdog.deadline_left(180, clock=clk),
++                      clock=clk)
++    assert guard.ok(60) and not guard.window_ok()
++
++
++def test_run_writes_valid_partial_output_and_exits_normally(tmp_path, monkeypatch):
++    """Весь run(): окна медленные → частичный файл через обычный конец (checkpoint → safe_finish → writer)."""
++    p = write_raster(tmp_path / "ae.tif")
++    clk = Clock()
++    seg = SlowSeg(clk)
++    reg = SimpleNamespace(name="r", las=[], rasters={"ae": [p]}, utm_json=None, boundaries=[], noise=[])
++
++    class FakeClockGuard(TimeGuard):
++        def __init__(self, budget_s, window_reserve_s=None, hard_left=None, clock=None):
++            assert hard_left is None                       # watchdog = false в конфиге теста
++            super().__init__(budget_s, window_reserve_s, None, clock=clk)
++
++    orig = pipeline._raster_with_model
++    monkeypatch.setattr(pipeline, "_raster_with_model",
++                        lambda *a, **k: orig(*a, **{**k, "block": 64, "overlap": 16}))
++    monkeypatch.setattr(pipeline, "TimeGuard", FakeClockGuard)
++    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [reg])
++    monkeypatch.setattr(pipeline, "_cached_segmenters", lambda cache, cfg, mt, root: [seg] if mt == "ae" else [])
++    exits = []
++    monkeypatch.setattr(watchdog.os, "_exit", lambda code: exits.append(code))
++    monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
++    cfg = tmp_path / "t.toml"
++    cfg.write_text("[time]\nbudget_s = 250\nreserve_s = 10\nwatchdog = false\nwindow_reserve_s = 30\n"
++                   "[verify]\nenabled = false\n", encoding="utf-8")
++    out = tmp_path / "o" / "result.geojson"
++    summary = pipeline.run(tmp_path, out, cfg)
++    assert exits == []                                     # обычный конец, не аварийный выход сторожа
++    assert seg.calls == 3
++    assert [x["windows_done"] for x in summary["partial_files"]] == [3]
++    rep = writer.validate(out)
++    assert rep["ok"], rep["errors"]
++    n = len(json.loads(out.read_text())["features"])
++    assert 0 < n < len(SPOTS)
++    assert pipeline._WINDOW_GUARD is None                  # вне run() проверки в цикле окон нет

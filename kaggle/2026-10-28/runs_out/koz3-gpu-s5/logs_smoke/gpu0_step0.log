@@ -1,0 +1,5 @@
+INFO данные: в видеопамяти, тайлов обучения 461, проверки 51
+/kaggle/working/expds/train.py:669: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+INFO {"epoch": 1, "train_loss": 27.0587, "val_loss": 4.4702, "center_f1": {"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.034, "gorodishcha": 0.0, "arkhitektury": 0.0, "fortifikatsii": 0.0}, "seconds": 14.0, "center_f1_mean_by_thr": {"0.05": 0.0112, "0.1": 0.0, "0.2": 0.0, "0.3": 0.0, "0.5": 0.0}, "peak_thr": 0.05}
+{"best_val_loss": 4.4702495500153185, "best_pixel_f1": 0.01120448112487793, "best_peak_thr": 0.05, "out": "/kaggle/working/out/smoke_centers_fold0.pt", "train_tiles": 461, "val_tiles": 51, "device": "cuda:0"}

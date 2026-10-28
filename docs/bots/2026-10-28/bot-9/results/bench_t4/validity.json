@@ -1,0 +1,339 @@
+{
+ "rule": "ConvNeXt-T fp16 тайл <5 мс или >500 мс → замер ошибочный; median SM <1300 МГц или power cap/HW slowdown → троттлинг (BUDGET.md §7.8 п.4–5)",
+ "configs": [
+  {
+   "cfg": "cnx_li9/fp16/b1",
+   "ms_single_per_item": 59.793,
+   "ms_d8_or_flip2_per_item": 502.836,
+   "sm_clock_median_mhz": 1125.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp16/b2",
+   "ms_single_per_item": 60.422,
+   "ms_d8_or_flip2_per_item": 499.087,
+   "sm_clock_median_mhz": 1050.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp16/b4",
+   "ms_single_per_item": 61.242,
+   "ms_d8_or_flip2_per_item": 516.214,
+   "sm_clock_median_mhz": 960.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp32/b1",
+   "ms_single_per_item": 128.815,
+   "ms_d8_or_flip2_per_item": 1038.252,
+   "sm_clock_median_mhz": 885.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp32/b2",
+   "ms_single_per_item": 127.912,
+   "ms_d8_or_flip2_per_item": 1036.28,
+   "sm_clock_median_mhz": 885.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp32/b4",
+   "ms_single_per_item": 126.593,
+   "ms_d8_or_flip2_per_item": 1027.793,
+   "sm_clock_median_mhz": 840.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp16/b1",
+   "ms_single_per_item": 65.23,
+   "ms_d8_or_flip2_per_item": 535.602,
+   "sm_clock_median_mhz": 1005.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp16/b2",
+   "ms_single_per_item": 63.92,
+   "ms_d8_or_flip2_per_item": 521.794,
+   "sm_clock_median_mhz": 975.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp16/b4",
+   "ms_single_per_item": 61.874,
+   "ms_d8_or_flip2_per_item": 509.908,
+   "sm_clock_median_mhz": 960.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp32/b1",
+   "ms_single_per_item": 129.989,
+   "ms_d8_or_flip2_per_item": 1052.579,
+   "sm_clock_median_mhz": 870.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp32/b2",
+   "ms_single_per_item": 128.298,
+   "ms_d8_or_flip2_per_item": 1040.862,
+   "sm_clock_median_mhz": 862.5,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li12/fp32/b4",
+   "ms_single_per_item": 127.094,
+   "ms_d8_or_flip2_per_item": 1034.821,
+   "sm_clock_median_mhz": 840.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp16/b1",
+   "ms_single_per_item": 64.182,
+   "ms_d8_or_flip2_per_item": 522.826,
+   "sm_clock_median_mhz": 1005.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp16/b2",
+   "ms_single_per_item": 62.487,
+   "ms_d8_or_flip2_per_item": 506.634,
+   "sm_clock_median_mhz": 975.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp16/b4",
+   "ms_single_per_item": 60.942,
+   "ms_d8_or_flip2_per_item": 495.382,
+   "sm_clock_median_mhz": 960.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp32/b1",
+   "ms_single_per_item": 129.037,
+   "ms_d8_or_flip2_per_item": 1038.957,
+   "sm_clock_median_mhz": 870.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp32/b2",
+   "ms_single_per_item": 127.522,
+   "ms_d8_or_flip2_per_item": 1028.053,
+   "sm_clock_median_mhz": 825.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_sp3/fp32/b4",
+   "ms_single_per_item": 126.605,
+   "ms_d8_or_flip2_per_item": 1024.999,
+   "sm_clock_median_mhz": 825.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp16/b1",
+   "ms_single_per_item": 49.458,
+   "ms_d8_or_flip2_per_item": 97.361,
+   "sm_clock_median_mhz": 585.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp16/b4",
+   "ms_single_per_item": 22.363,
+   "ms_d8_or_flip2_per_item": 45.01,
+   "sm_clock_median_mhz": 1245.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp16/b8",
+   "ms_single_per_item": 21.851,
+   "ms_d8_or_flip2_per_item": 43.83,
+   "sm_clock_median_mhz": 1140.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp32/b1",
+   "ms_single_per_item": 46.212,
+   "ms_d8_or_flip2_per_item": 91.839,
+   "sm_clock_median_mhz": 1170.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp32/b4",
+   "ms_single_per_item": 39.552,
+   "ms_d8_or_flip2_per_item": 78.594,
+   "sm_clock_median_mhz": 960.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp32/b8",
+   "ms_single_per_item": 39.252,
+   "ms_d8_or_flip2_per_item": 80.023,
+   "sm_clock_median_mhz": 870.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp16/b1",
+   "ms_single_per_item": 40.15,
+   "ms_d8_or_flip2_per_item": 79.997,
+   "sm_clock_median_mhz": 1350.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp16/b4",
+   "ms_single_per_item": 28.926,
+   "ms_d8_or_flip2_per_item": 57.956,
+   "sm_clock_median_mhz": 1080.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp16/b8",
+   "ms_single_per_item": 27.906,
+   "ms_d8_or_flip2_per_item": 55.572,
+   "sm_clock_median_mhz": 1050.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp32/b1",
+   "ms_single_per_item": 55.381,
+   "ms_d8_or_flip2_per_item": 110.327,
+   "sm_clock_median_mhz": 1042.5,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp32/b4",
+   "ms_single_per_item": 51.269,
+   "ms_d8_or_flip2_per_item": 102.763,
+   "sm_clock_median_mhz": 900.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "rtdetrv2_r50/fp32/b8",
+   "ms_single_per_item": 50.587,
+   "ms_d8_or_flip2_per_item": 101.234,
+   "sm_clock_median_mhz": 855.0,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  }
+ ],
+ "broken": [],
+ "throttled": [
+  "cnx_li9/fp16/b1: SM median 1125.0 МГц, ['sw_power_cap']",
+  "cnx_li9/fp16/b2: SM median 1050.0 МГц, ['sw_power_cap']",
+  "cnx_li9/fp16/b4: SM median 960.0 МГц, ['sw_power_cap']",
+  "cnx_li9/fp32/b1: SM median 885.0 МГц, ['sw_power_cap']",
+  "cnx_li9/fp32/b2: SM median 885.0 МГц, ['sw_power_cap']",
+  "cnx_li9/fp32/b4: SM median 840.0 МГц, ['sw_power_cap']",
+  "cnx_li12/fp16/b1: SM median 1005.0 МГц, ['sw_power_cap']",
+  "cnx_li12/fp16/b2: SM median 975.0 МГц, ['sw_power_cap']",
+  "cnx_li12/fp16/b4: SM median 960.0 МГц, ['sw_power_cap']",
+  "cnx_li12/fp32/b1: SM median 870.0 МГц, ['sw_power_cap']",
+  "cnx_li12/fp32/b2: SM median 862.5 МГц, ['sw_power_cap']",
+  "cnx_li12/fp32/b4: SM median 840.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp16/b1: SM median 1005.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp16/b2: SM median 975.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp16/b4: SM median 960.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp32/b1: SM median 870.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp32/b2: SM median 825.0 МГц, ['sw_power_cap']",
+  "cnx_sp3/fp32/b4: SM median 825.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp16/b1: SM median 585.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp16/b4: SM median 1245.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp16/b8: SM median 1140.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp32/b1: SM median 1170.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp32/b4: SM median 960.0 МГц, ['sw_power_cap']",
+  "dfine_l/fp32/b8: SM median 870.0 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp16/b1: SM median 1350.0 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp16/b4: SM median 1080.0 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp16/b8: SM median 1050.0 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp32/b1: SM median 1042.5 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp32/b4: SM median 900.0 МГц, ['sw_power_cap']",
+  "rtdetrv2_r50/fp32/b8: SM median 855.0 МГц, ['sw_power_cap']"
+ ],
+ "verdict": "THROTTLED"
+}

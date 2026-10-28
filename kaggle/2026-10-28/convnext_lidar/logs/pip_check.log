@@ -1,0 +1,3 @@
+rvt-py 2.2.1 requires gdal, which is not installed.
+rvt-py 2.2.1 requires matplotlib, which is not installed.
+rc=1

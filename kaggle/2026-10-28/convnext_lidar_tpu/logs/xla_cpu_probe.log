@@ -1,0 +1,9 @@
+/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/_scratch/venv/lib/python3.12/site-packages/torch_xla/experimental/gru.py:113: SyntaxWarning: invalid escape sequence '\_'
+  * **h_n**: tensor of shape :math:`(D * \text{num\_layers}, H_{out})` or
+torch 2.8.0+cpu torch_xla 2.8.0 device_type CPU
+device xla:0
+timm 1.0.29 smp 0.6.0
+/workspace/koz3_shared/bot-9/kaggle/convnext_lidar_tpu/tests/xla_cpu_probe.py:23: DeprecationWarning: Use torch_xla.sync instead
+  opt.zero_grad(); loss.backward(); opt.step(); xm.mark_step()
+it 0 dt 46.23 {'hm': ((2, 2, 16, 16), 'torch.bfloat16'), 'wh': ((2, 1, 16, 16), 'torch.bfloat16'), 'off': ((2, 2, 16, 16), 'torch.bfloat16'), 'mask': ((2, 3, 64, 64), 'torch.bfloat16')}
+RSS 2155764 КБ > 2000000 — убито

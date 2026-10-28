@@ -1,0 +1,38 @@
+=== 2026-10-28 22:21:53 bot-7: старт продолжения (34 LAZ: 004,007,028 + 034…200)
+22:21:55 191_Осечки_1.3км rc=0 2s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:21:56 039_Примаки_0.7км rc=0 1s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:21:56 041_Миловидово rc=0 0s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:21:58 044_Новотитаровская_1.8км rc=0 1s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:21:59 181_Гнёздово_Лесная_3 rc=0 1s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:00 180_Гнёздово_Лесная_2 rc=0 1s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:01 045_Новотитаровская_2.8км rc=0 1s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:03 179_Гнёздово_Лесная_1 rc=0 2s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:05 182_Красносельская_1.7км rc=0 2s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:07 189_Макеево rc=0 2s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:11 061_Граборг rc=0 4s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:14 040_Примаки_1.3км rc=0 3s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:17 036_Тимерево rc=0 3s {"las": 1, "written": 1, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:21 038_Копанское rc=0 4s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:24 188_Руна rc=0 3s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:30 034_Усть_река rc=0 6s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:33 192_КЧР rc=0 3s {"las": 1, "written": 1, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:41 102_Гнёздово_Заольшанская rc=0 8s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:22:51 104_Шетнево rc=0 10s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:23:00 068_Стеклянуха_1 rc=0 9s {"las": 1, "written": 1, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:23:23 101_Гнёздово_Днепровская rc=0 23s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:23:36 069_Стеклянуха_2 rc=0 13s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:23:48 035_Шумгора rc=0 12s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:23:58 200_Судьбищи_2 rc=0 10s {"las": 1, "written": 2, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:24:16 105_Вщиж rc=0 17s {"las": 1, "written": 1, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:24:32 066_Московиты rc=0 16s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:25:08 106_Верхмарево rc=0 36s {"las": 1, "written": 2, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:26:21 004_Боровичи_1 rc=0 73s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:26:21 037_Никола_Ленивец жду память: 2065 МБ
+22:26:51 037_Никола_Ленивец ждал 30s
+22:28:41 037_Никола_Ленивец rc=0 110s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:29:50 007_Армиево rc=0 69s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:30:31 186_Семибратнее_1 rc=0 41s {"las": 1, "written": 1, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:31:53 028_Вышегжа_2 rc=0 82s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:34:15 187_Судьбищи_1 rc=0 142s {"las": 1, "written": 3, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+22:36:30 190_Муравлево rc=0 135s {"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height
+ALLDONE

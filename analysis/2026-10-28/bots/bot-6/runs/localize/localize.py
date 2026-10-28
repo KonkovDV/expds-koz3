@@ -22,11 +22,11 @@ CL = T['CL']; cid = {c: i for i, c in enumerate(CL)}
 cls, conf, reg, grp, cx, cy = T['cls'], T['conf'], T['reg'], T['grp'], T['cx'], T['cy']
 KUR = ['kurgany_povrezhdennye', 'kurgany_tselye']
 PL0 = {}
-for (pc, gc), (P, J, S) in T['pairs'].items():
+for (pc, gc_), (P, J, S) in T['pairs'].items():
     d = {}
     o = np.lexsort((J, P))  # порядок эталонов как в официальном цикле: при равном покрытии берётся меньший j
     for p, j, s in zip(P[o], J[o], S[o]): d.setdefault(int(p), []).append((int(j), float(s)))
-    PL0[(pc, gc)] = d
+    PL0[(pc, gc_)] = d
 del T['pairs']; gc.collect()
 GREG = {c: Counter(T['greg'][c]) for c in CL}
 GTW = pickle.load(open(W/'work/gt_wkb.pkl', 'rb')); GT = {c: shapely.from_wkb(v) if len(v) else np.array([]) for c, v in GTW.items()}; del GTW
@@ -91,7 +91,8 @@ def evaluate(cv):
 
 def repair(newgeom):
     """newgeom: {p: geometry}; returns PL with pairs of these p recomputed."""
-    PL = {k: dict(v) for k, v in PL0.items()}
+    touched = {CL[cls[p]] for p in newgeom}
+    PL = {k: (dict(v) if k[0] in touched else v) for k, v in PL0.items()}
     for p in newgeom:
         pc = CL[cls[p]]
         for gc_ in (KUR if pc in KUR else [pc]):
@@ -124,22 +125,29 @@ def micro(classes):
     return {int(p): G[int(p)].representative_point().buffer(0.25, 16) for p in selidx if cls[p] in ids and G[int(p)].geom_type == 'Polygon'}
 
 VARS = [('A', None)]
+VARS.append(('MC_object_poly', lambda: micro(['object_poly'])))
+VARS.append(('MC_all_poly', lambda: micro([c for c in CL if c != 'finds_points'])))
+for nm, cc in (('kurgany', KUR), ('fort', ['fortifikatsii']), ('gor', ['gorodishcha']), ('arch', ['arkhitektury'])):
+    VARS.append((f'MC_{nm}', lambda cc=cc: micro(cc)))
+VARS.append(('MC_nokur', lambda: micro([c for c in CL if c not in KUR and c != 'finds_points'])))
 for r in (2.0, 3.0, 5.0): VARS.append((f'C{r:g}_kurgany', lambda r=r: consensus(KUR, r)))
 for r in (2.0, 3.0): VARS.append((f'C{r:g}_finds', lambda r=r: consensus(['finds_points'], r)))
 for r in (2.0, 3.0): VARS.append((f'C{r:g}_object_poly', lambda r=r: consensus(['object_poly'], r)))
 VARS.append(('C3_fort', lambda: consensus(['fortifikatsii'], 3.0)))
-VARS.append(('MC_object_poly', lambda: micro(['object_poly'])))
-VARS.append(('MC_all_poly', lambda: micro([c for c in CL if c != 'finds_points'])))
 only = set(sys.argv[1:])
 RES = {}; CNT = {}
 den = 100.0
-out_path = '/workspace/koz3_shared/bot-6/work/localize/localize.json'
+out_path = '/workspace/koz3_shared/bot-6/work/localize/' + __import__('os').environ.get('LOC_OUT', 'localize') + '.json'
 for name, fn in VARS:
     if only and name not in only and name != 'A': continue
     t = time.time()
     if fn is None: cv = CV0; nmoved = 0
     else:
-        ng = fn(); nmoved = len(ng); cv = curves(repair(ng)); del ng
+        ng = fn(); nmoved = len(ng); PLn = repair(ng)
+        sh = np.array([np.hypot(*(np.array(ng[p].centroid.coords[0]) - np.array(G[p].centroid.coords[0]))) for p in ng]) if ng else np.zeros(1)
+        nchg = sum(1 for p in ng for gc_ in (KUR if CL[cls[p]] in KUR else [CL[cls[p]]]) if [j for j, _ in PLn.get((CL[cls[p]], gc_), {}).get(p, [])] != [j for j, _ in PL0.get((CL[cls[p]], gc_), {}).get(p, [])])
+        print(name, 'shift3857 p50 %.3f p90 %.3f max %.3f; pairs changed (по составу эталонов) %d' % (np.median(sh), np.percentile(sh, 90), sh.max(), nchg), flush=True)
+        cv = curves(PLn); del ng, PLn
     RES[name], CNT[name] = evaluate(cv); RES[name]['moved'] = nmoved
     if name != 'A':
         A, B = RES['A'], RES[name]

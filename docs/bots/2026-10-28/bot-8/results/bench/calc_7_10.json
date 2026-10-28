@@ -1,0 +1,341 @@
+{
+ "per_unit_ms": {
+  "cnx_li9/ms_per_tile_single_median": {
+   "t4": 61.24,
+   "f_med": 960.0,
+   "upper": 15.31,
+   "nom": 19.14,
+   "clocknorm": [
+    11.56,
+    14.56
+   ]
+  },
+  "cnx_li9/ms_per_tile_d8_median": {
+   "t4": 516.21,
+   "f_med": 960.0,
+   "upper": 129.05,
+   "nom": 161.32,
+   "clocknorm": [
+    97.4,
+    122.71
+   ]
+  },
+  "cnx_li9/ms_per_tile_flip3_median": {
+   "t4": 189.75,
+   "f_med": 960.0,
+   "upper": 47.44,
+   "nom": 59.3,
+   "clocknorm": [
+    35.8,
+    45.1
+   ]
+  },
+  "cnx_li12/ms_per_tile_single_median": {
+   "t4": 61.87,
+   "f_med": 960.0,
+   "upper": 15.47,
+   "nom": 19.34,
+   "clocknorm": [
+    11.67,
+    14.71
+   ]
+  },
+  "cnx_li12/ms_per_tile_d8_median": {
+   "t4": 509.91,
+   "f_med": 960.0,
+   "upper": 127.48,
+   "nom": 159.35,
+   "clocknorm": [
+    96.21,
+    121.21
+   ]
+  },
+  "cnx_li12/ms_per_tile_flip3_median": {
+   "t4": 188.56,
+   "f_med": 960.0,
+   "upper": 47.14,
+   "nom": 58.93,
+   "clocknorm": [
+    35.58,
+    44.82
+   ]
+  },
+  "cnx_sp3/ms_per_tile_single_median": {
+   "t4": 60.94,
+   "f_med": 960.0,
+   "upper": 15.24,
+   "nom": 19.04,
+   "clocknorm": [
+    11.5,
+    14.49
+   ]
+  },
+  "cnx_sp3/ms_per_tile_d8_median": {
+   "t4": 495.38,
+   "f_med": 960.0,
+   "upper": 123.85,
+   "nom": 154.81,
+   "clocknorm": [
+    93.47,
+    117.76
+   ]
+  },
+  "cnx_sp3/ms_per_tile_flip3_median": {
+   "t4": 184.79,
+   "f_med": 960.0,
+   "upper": 46.2,
+   "nom": 57.75,
+   "clocknorm": [
+    34.87,
+    43.93
+   ]
+  },
+  "dfine_l/ms_per_chip_single_median": {
+   "t4": 22.36,
+   "f_med": 1245.0,
+   "upper": 6.39,
+   "nom": 7.99,
+   "clocknorm": [
+    5.47,
+    6.89
+   ]
+  },
+  "dfine_l/ms_per_chip_flip2_median": {
+   "t4": 45.01,
+   "f_med": 1245.0,
+   "upper": 12.86,
+   "nom": 16.07,
+   "clocknorm": [
+    11.01,
+    13.88
+   ]
+  },
+  "rtdetrv2_r50/ms_per_chip_single_median": {
+   "t4": 28.93,
+   "f_med": 1080.0,
+   "upper": 8.26,
+   "nom": 10.33,
+   "clocknorm": [
+    6.14,
+    7.74
+   ]
+  },
+  "rtdetrv2_r50/ms_per_chip_flip2_median": {
+   "t4": 57.96,
+   "f_med": 1080.0,
+   "upper": 16.56,
+   "nom": 20.7,
+   "clocknorm": [
+    12.3,
+    15.5
+   ]
+  }
+ },
+ "per_tile_a_ms": {
+  "upper": 514.63,
+  "nom": 643.31,
+  "cn_lo": 388.41,
+  "cn_hi": 489.34
+ },
+ "per_chip_det5_ms": {
+  "upper": 68.0,
+  "nom": 84.98,
+  "cn_lo": 56.34,
+  "cn_hi": 71.02000000000001
+ },
+ "per_chip_det2_ms": {
+  "upper": 29.419999999999998,
+  "nom": 36.769999999999996,
+  "cn_lo": 23.310000000000002,
+  "cn_hi": 29.380000000000003
+ },
+ "hm_tile_ms": {
+  "upper": 46.2,
+  "nom": 57.75,
+  "cn_lo": 34.87,
+  "cn_hi": 43.93
+ },
+ "tiles_a": {
+  "nom": 53,
+  "lo": 18,
+  "hi": 132
+ },
+ "chips": {
+  "nom": 4340,
+  "lo": 2200,
+  "hi": 6500
+ },
+ "hm_tiles": {
+  "nom": 954,
+  "lo": 477,
+  "hi": 2160
+ },
+ "gpu_stage_s": {
+  "a_gpu_s": {
+   "upper": 27.3,
+   "nom": 34.1,
+   "clocknorm": [
+    20.6,
+    25.9
+   ],
+   "range": [
+    7.0,
+    84.9
+   ]
+  },
+  "b_det5_s": {
+   "upper": 295.1,
+   "nom": 368.8,
+   "clocknorm": [
+    244.5,
+    308.2
+   ],
+   "range": [
+    123.9,
+    552.4
+   ]
+  },
+  "b_det2_s": {
+   "upper": 127.7,
+   "nom": 159.6,
+   "clocknorm": [
+    101.2,
+    127.5
+   ],
+   "range": [
+    51.3,
+    239.0
+   ]
+  },
+  "b_hm_s": {
+   "upper": 44.1,
+   "nom": 55.1,
+   "range": [
+    16.6,
+    124.7
+   ]
+  },
+  "per_dfine_detector_s": {
+   "upper": 55.8,
+   "nom": 69.7
+  }
+ },
+ "scenarios_add_s": {
+  "a": [
+   92,
+   99,
+   39,
+   211
+  ],
+  "a_net": [
+   47,
+   54,
+   -21,
+   181
+  ],
+  "b_full": [
+   404,
+   489,
+   172,
+   772
+  ],
+  "b_net": [
+   359,
+   444,
+   112,
+   742
+  ],
+  "bcut_net": [
+   192,
+   235,
+   39,
+   429
+  ],
+  "bcut_gross": [
+   237,
+   280,
+   99,
+   459
+  ],
+  "c": [
+   10,
+   10,
+   5,
+   20
+  ],
+  "all_full": [
+   507,
+   598,
+   216,
+   1003
+  ],
+  "all_net_bcut": [
+   249,
+   299,
+   23,
+   630
+  ]
+ },
+ "scenarios_total_s": {
+  "a": [
+   294,
+   301,
+   241,
+   413
+  ],
+  "a_net": [
+   249,
+   256,
+   181,
+   383
+  ],
+  "b_full": [
+   606,
+   691,
+   374,
+   974
+  ],
+  "b_net": [
+   561,
+   646,
+   314,
+   944
+  ],
+  "bcut_net": [
+   394,
+   437,
+   241,
+   631
+  ],
+  "bcut_gross": [
+   439,
+   482,
+   301,
+   661
+  ],
+  "c": [
+   212,
+   212,
+   207,
+   222
+  ],
+  "all_full": [
+   708,
+   800,
+   418,
+   1205
+  ],
+  "all_net_bcut": [
+   451,
+   501,
+   225,
+   832
+  ]
+ },
+ "columns": [
+  "upper_k",
+  "nominal_k",
+  "low",
+  "high"
+ ]
+}

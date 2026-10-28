@@ -24,3 +24,11 @@
 - EXPERIMENTS.md: П6 (одинаковый unseen), вторичная site-проверка, перенос строки задачи 2, исправлен П3 у rerank_arch, 9 новых строк, сводка ACCEPTED/REJECTED/PENDING с командами.
 - COMMON.md: дописана строка-поправка про потолок 0,985. REPORT4.md, REVIEW.md обновлены.
 - В работе (не блокирует вывод): site-кривые bot-7 kur (queue2), xcheck bot-8 (queue3).
+
+## 28.10 22:14 МСК — задача 4 (twins-only bot-6) закрыта
+- REPORT6_twins.md.
+- Код ветки `bot6-twins-only` ad8ae9b как есть: +0,000347, P 0,766 (П1 и П2 ✗). Причина — ошибка масштаба `_ground_scale(c.y)` для каждой точки в `post.kurgan_cross_modal_twins`: ae-двойников 5 вместо 85 (`work6/diag.log`).
+- С починкой: +0,001718, P 0,986, LOFO +0,0016, 5/5 (= заявка bot-6). Полная с починкой: +0,001969 (заявка +0,00285 не подтверждена). С kur 0,5 м складываются: +0,003065, P 1,0.
+- Site-scope подтверждает (`work6/stats_site.log`). Фоновые: queue2 (bot-7 site) готово — kur site +0,001574, LOFO +0,001482; xcheck bot-8 убит по памяти после 2/8 семей, обе совпали.
+- EXPERIMENTS.md: 4 новые строки, обновлена строка полной twins, сводка (+2 строки, kur site). Копия до правки: `work6/EXPERIMENTS.bak_*.md`.
+- Начата задача 5 (A2+R3 bot-3): `work7/`.

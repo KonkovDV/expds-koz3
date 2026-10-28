@@ -1,0 +1,21 @@
+{
+ "id": "dmitrijkv/koz3-cnx-li-tpu-c3sc",
+ "title": "koz3-cnx-li-tpu-c3sc",
+ "code_file": "koz3-cnx-li-tpu-c3sc.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": false,
+ "enable_tpu": true,
+ "enable_internet": true,
+ "machine_shape": "TpuV5E8",
+ "docker_image_pinning_type": "latest",
+ "dataset_sources": [
+  "dmitrijkv/koz3-s3-cred"
+ ],
+ "competition_sources": [],
+ "kernel_sources": [
+  "dmitrijkv/koz3-cnx-li-prep"
+ ],
+ "model_sources": []
+}

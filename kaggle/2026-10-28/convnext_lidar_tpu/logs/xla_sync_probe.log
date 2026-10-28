@@ -1,0 +1,2 @@
+SYNC_PROBE {"s0_fwd": 0, "s0_loss": 0, "s0_bwd": 0, "s0_opt": 0, "s0_sync": 0, "s1_fwd": 0, "s1_loss": 0, "s1_bwd": 0, "s1_opt": 0, "s1_sync": 0} fallbacks {'aten::upsample_nearest2d_backward': 10}
+exit=0

@@ -1,0 +1,146 @@
+[
+ {
+  "log": "/kaggle/working/logs/gpu0_step0.log",
+  "result": {
+   "best_val_loss": 2.8460952758789064,
+   "best_pixel_f1": 0.399634450674057,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_fold0.pt",
+   "train_tiles": 2787,
+   "val_tiles": 240,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu0_step1.log",
+  "result": {
+   "best_val_loss": 5.040857539164491,
+   "best_pixel_f1": 0.1739952564239502,
+   "best_peak_thr": 0.3,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_fold1.pt",
+   "train_tiles": 3573,
+   "val_tiles": 383,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu0_step2.log",
+  "result": {
+   "best_val_loss": 5.449899539001305,
+   "best_pixel_f1": 0.18492119014263153,
+   "best_peak_thr": 0.2,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_fold2.pt",
+   "train_tiles": 3555,
+   "val_tiles": 383,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu0_step3.log",
+  "result": {
+   "best_val_loss": 4.9849187215169275,
+   "best_pixel_f1": 0.36660170555114746,
+   "best_peak_thr": 0.2,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_fold3.pt",
+   "train_tiles": 3631,
+   "val_tiles": 240,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu0_step4.log",
+  "result": {
+   "best_val_loss": 4.8259650247837795,
+   "best_pixel_f1": 0.18899130821228027,
+   "best_peak_thr": 0.2,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_fold4.pt",
+   "train_tiles": 3405,
+   "val_tiles": 383,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu0_step5.log",
+  "result": {
+   "best_val_loss": 1.2470858097076416,
+   "best_pixel_f1": 0.6462283134460449,
+   "best_peak_thr": 0.2,
+   "out": "/kaggle/working/out/li_r18_unet_centers_fix_final.pt",
+   "train_tiles": 4645,
+   "val_tiles": 64,
+   "device": "cuda:0"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step0.log",
+  "result": {
+   "best_val_loss": 3.6380900065104167,
+   "best_pixel_f1": 0.32875171303749084,
+   "best_peak_thr": 0.05,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_fold0.pt",
+   "train_tiles": 2787,
+   "val_tiles": 240,
+   "device": "cuda:1"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step1.log",
+  "result": {
+   "best_val_loss": 5.160447561398499,
+   "best_pixel_f1": 0.11459515243768692,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_fold1.pt",
+   "train_tiles": 3573,
+   "val_tiles": 383,
+   "device": "cuda:1"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step2.log",
+  "result": {
+   "best_val_loss": 5.55930003671671,
+   "best_pixel_f1": 0.14420853555202484,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_fold2.pt",
+   "train_tiles": 3555,
+   "val_tiles": 383,
+   "device": "cuda:1"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step3.log",
+  "result": {
+   "best_val_loss": 2.681043497721354,
+   "best_pixel_f1": 0.25631701946258545,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_fold3.pt",
+   "train_tiles": 3631,
+   "val_tiles": 240,
+   "device": "cuda:1"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step4.log",
+  "result": {
+   "best_val_loss": 6.058884423955614,
+   "best_pixel_f1": 0.13686026632785797,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_fold4.pt",
+   "train_tiles": 3405,
+   "val_tiles": 383,
+   "device": "cuda:1"
+  }
+ },
+ {
+  "log": "/kaggle/working/logs/gpu1_step5.log",
+  "result": {
+   "best_val_loss": 2.9108402729034424,
+   "best_pixel_f1": 0.3160516023635864,
+   "best_peak_thr": 0.1,
+   "out": "/kaggle/working/out/li_r34_fpn_centers_fix_final.pt",
+   "train_tiles": 4645,
+   "val_tiles": 64,
+   "device": "cuda:1"
+  }
+ }
+]

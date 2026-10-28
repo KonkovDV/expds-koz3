@@ -170,47 +170,121 @@ povr→tselye Δ −0,00142 (P 0,034); tselye→povr +0,00019 (P 0,678). Их «
 
 **Шагов для бокса с заметным выигрышем нет**: всё крупное требует растров (на боксе 15 из 242) и/или GPU.
 
-### 6.1 Рецепт для bot 9 (Kaggle, 2×T4)
+### 6.1 Рецепт для bot 9 (Kaggle, 2×T4) — финальный (обновлено 28.10, 21:50 МСК)
 
-**Перед стартом (решает bot 1):** раздел 2.15 docs/AI_WORK_PLAN_2026-10-25.md: «не запускать до письма о весах»; веса `ustc-community/dfine-large-coco`, `PekingU/rtdetr_v2_r50vd` — проверить лицензию в карточке HF; код EhimenNathan не копировать — свой тренер (~150 строк на `transformers.AutoModelForObjectDetection`).
+**Только честный замер; ничего не идёт в сдачу до письма организаторов.** Полностью: `bot-5/FOR_BOT9.md` и `repo/kaggle/README_KAGGLE.md` (ветка `bot5-dfine-kaggle`, коммит `3027dc7`, не запушен). Свой тренер `repo/scripts/det_train_hf.py` (transformers; код EhimenNathan не копировался).
 
-**Шаг 0 — данные (CPU, машина с полными данными), флаги проверены:**
 ```bash
-# учебный кэш спутника, 0,5 м, окно 640 (320 м как у них), все 5 классов спутника
-python -m expds.tiles --root <DATA>/train-expds-3 --gt work/gt_train_v2.geojson --markup sp_or \
-  --out cache/spor_det05 --res 0.5 --tile 640 \
+# 0. машина с данными (CPU): кэш 0,5 м / 640 + сплошная сетка, COCO по 5 семейным фолдам
+python -m expds.tiles --root <DATA>/train-expds-3 --gt work/gt_train_v2.geojson --markup sp_or --out cache/spor_det05 --res 0.5 --tile 640 \
   --classes kurgany_povrezhdennye kurgany_tselye gorodishcha arkhitektury fortifikatsii
-# проверочная сплошная сетка (без неё сравнение не доказательно, AI_WORK_PLAN 2.15)
-python -m expds.tiles ... --out cache/spor_det05_grid --res 0.5 --tile 640 --grid-overlap 0.25
-# COCO по тем же семьям, что U-Net (5 фолдов = default nn_oof)
-for f in 0 1 2 3 4; do
-  python scripts/coco_from_cache.py --cache cache/spor_det05 --out det/f$f --layout rfdetr --images --folds 5 --fold $f
+python -m expds.tiles ... --out cache/spor_det05_grid --res 0.5 --tile 640 --grid-overlap 0.25 --classes (те же)
+for k in 0 1 2 3 4; do
+  python scripts/coco_from_cache.py --cache cache/spor_det05      --out det/f$k      --layout rfdetr --images --folds 5 --fold $k
+  python scripts/coco_from_cache.py --cache cache/spor_det05_grid --out det/grid_f$k --layout rfdetr --images --folds 5 --fold $k
 done
-python scripts/coco_from_cache.py --cache cache/spor_det05_grid --out det/grid --layout rfdetr --images --all-valid
+# 1. smoke на T4 (первый шаг bot 9) → runs/smoke/timing.json
+python scripts/det_train_hf.py --data det/f0 --out runs/smoke --model dfine-l --size 640 --fp16 --smoke
+# 2–3. 5 фолдов, 2 полосы GPU; на фолд: обучение + --load OUT/fk/model --pred-data det/grid_fk → OUT/fk/grid/preds_valid.json
+bash kaggle/dfine_folds.sh det runs/dfine dfine-l 8000          # затем: ... runs/rtv2 rtdetrv2-r50 8000
+# 4. машина с данными: в стек и табло
+for k in 0 1 2 3 4; do python scripts/coco_preds_to_stack.py --coco det/grid_f$k/valid/_annotations.coco.json \
+  --preds runs/dfine/f$k/grid/preds_valid.json --group sp_dfine --radius 4 --merge-m 4 --out work/sp_dfine_f$k.geojson; done
+# слияние 5 файлов в work/sp_dfine_oof.geojson — однострочник в README_KAGGLE шаг 4
+python scripts/scoreboard.py <флаги A> --add work/sp_dfine_oof.geojson:sp_dfine --honest 10
+python scripts/scoreboard.py <флаги A> --replace sp_focal=work/sp_dfine_oof.geojson --honest 10
 ```
-Кэш до 27.10 CRS окна не хранит — собирать заново (AI_WORK_PLAN:550).
-
-**Шаг 1 — smoke (10 мин):** 10 итераций D-FINE-L, bs 8, 640 → записать с/ит. Бюджет = с/ит × 8 000 × 5 фолдов / 2 GPU (+ инференс сетки). Их ядро проектировалось так: 2 полосы по GPU, все фолды за один запуск (experiments/codex/kaggle_reference/koz3-sp-det.py:85-98). Если не влезает в сессию — 6 000 ит. или 3 фолда за сессию.
-
-**Шаг 2 — обучение D-FINE-L (на фолд):** `--ckpt ustc-community/dfine-large-coco --chip 640 --bs 8 --iters 8000 --lr 1e-4`; backbone lr ×0,1; AdamW wd 1e-4; OneCycle pct 0,05; clip 0,1; fp16. Сэмплинг 60 % на объекте, вес класса 1/√n (кап 4×), сдвиг ±1/3 окна. Ауг.: blur p0,3, цвет/яркость, гамма, серый p0,15, rot90+flip; QAUG p0,5. Если loss NaN/коллапс — `num_denoising=0` (у них локально, EXPERIMENTS:180); на Kaggle у них работало с DN по умолчанию.
-
-**Шаг 3 — предсказание сетки фолда:** окна 640 / перекрытие 160 (сетка 0,25 даёт 160), flip-TTA, ≤100 детекций на окно, NMS IoU 0,5, min_score 0,05 → COCO results.
-
-**Шаг 4 — в стек и табло:**
-```bash
-python scripts/coco_preds_to_stack.py --coco det/grid/valid/_annotations.coco.json \
-  --preds det/grid_preds_oof.json --group sp_dfine --radius 4 --merge-m 4 --out work/sp_dfine_oof.geojson
-# A/B: замена и добавление отдельной группой (порог выберет honest-10)
-python scripts/scoreboard.py <флаги раздела 0> --replace sp_focal=work/sp_dfine_oof.geojson --honest 10
-python scripts/scoreboard.py <флаги раздела 0> --add work/sp_dfine_oof.geojson:sp_dfine --honest 10
-```
-Приёмка: Δ honest A ≥ +0,005 и LOFO без падения по семьям. Затем — RT-DETRv2 (`--ckpt PekingU/rtdetr_v2_r50vd`, те же флаги) и слияние 8 м с равными весами (как sp_fuse.py) с нашим sp_focal.
-
-**Шаг 5 — городища (параллельно, дёшево):** на машине с данными выделить малые снимки SpOr (W·H < 4 Мп, как sp_io.py:16); метка = «есть gorodishcha». timm `convnext_tiny` pretrained, 1 выход, drop_path 0,2; вход: длинная сторона 384, центр. паддинг, ImageNet-норм.; 3 000 ит., bs 8, lr 1e-4, wd 0,05, OneCycle pct 0,1; TTA flip (scene_cls.py:51,58-64; sp_or.py:80-86). OOF по нашим 5 семейным фолдам → правило: p ≥ g → городище в центре (conf = p), сдвиг к лучшему кандидату gor в 0,2·полуразмера (snap, EXPERIMENTS:541); g выбирать nested. Сначала на CPU проверить «голый» центр-прайор (без модели) — у них он не прошёл nested (:31), так что ожидать прирост только от классификатора.
-
-**Порядок и бюджет:** 0 (CPU) → 1 smoke → 5 (короткий) → 2–4 D-FINE → RT-DETRv2 → Or. Время GPU для D-FINE на T4 не измерено ни у нас, ни в их файлах — только после smoke. Для сравнения: наш Unet-r18 на T4 — 139–172 с на фолд, 30 эпох (notes/kaggle_gpu_s1_benchmark_2026-10-28.json).
+Приёмка П1–П6 (`/workspace/koz3_shared/EXPERIMENTS.md:13-20`). Гиперпараметры (по умолчанию в скрипте): AdamW 1e-4, backbone ×0,1, wd 1e-4, OneCycle 0,05, clip 0,1, fp16, bs 8, 60 % окон с объектами, вес 1/√n (кап 4), flip-TTA, NMS 0,5, ≤100 рамок, min_score 0,05; NaN → `--num-dn 0`. Городища-классификатор (бывший шаг 5) — см. раздел 9: бокс-версия не прошла, нужен образный классификатор с заранее объявленным правилом.
 
 ## 7. Не сделано / ограничения
 - Полные растры на боксе отсутствуют (15 из 242) → центр-прайор городищ, перезапуск декодера sp_focal2 с min_dist 12, image_label_shift полностью — только на машине с данными.
 - Перенос их OOF на наши фолды — оценка (50 %), не замер.
 - Код EhimenNathan и Kaggle не запускал (правила).
+
+## 8. D-FINE: состояние (28.10)
+Скрипт готов и проверен на CPU коробки (2 потока, `ulimit -v 4000000` + сторож RSS 2000 МБ, `work/run_smoke.sh`):
+smoke D-FINE-L 256 px bs 2 — 12,19 с/ит, 139,3 с всего, пик RSS 1577 МБ, 400 рамок на 4 окна (`tmp/dfl_smoke/timing.json`);
+dry-run D-FINE-L 841 МБ (`tmp/dfl_dry`); dry-run RT-DETRv2 42,7 M пар., forward 4,6 с, 867 МБ (`tmp/rtv2_dry.log`);
+dfine-s сохранение/`--load` 774/592 МБ (`tmp/dfs_save.log`, `tmp/dfs_load.log`); формат → coco_preds_to_stack: 68 объектов sp_dfine
+(`tmp/dfl_smoke/stack_sp_dfine.geojson`). Время T4 не измерено — smoke на Kaggle у bot 9.
+
+## 9. Городище по сцене (классификатор на боксе, П1–П5 по EXPERIMENTS.md:13-20)
+132 региона с SpOr, 49 с городищем; логрегрессия (numpy, L2) на 26 признаках рамок, строго вложенно. База A honest-10 = 0,3146153.
+Файлы: `work/hillfort/gor_scene.py`, `analysis/hillfort/gor_scene.json/.log`, `gor_scene_diag.json`, `gate_only_accept.json/.log`.
+
+| вариант | Δ honest-10 | П2 P(>0) | LOFO | 5 раскладок | new34 | итог |
+|---|---|---|---|---|---|---|
+| snap | 0 | — | 0 | −0,0016 / −0,0001 / 0 / −0,0007 / 0 | — | нет |
+| centre / csnap | −0,001288 | 0,381 | −0,00203 | все < 0 | −0,00123 | нет |
+| csnap+gate | +0,005573 | 0,822 (p5 −0,0055) ✗ | +0,006305 | 4/5 | −0,009364 ✗ | **не принят** (П2, П4; < MDE) |
+| gate_only (пост-хок) | +0,002089 | 0,999 | +0,002042 | 5/5 | +0,000626 | < MDE 0,006 → только пакетом; нужен перезамер с заранее объявленным правилом |
+
+csnap+gate: gor TP 25→36, FP 72→147; OOF AUC классификатора 0,435 (сцены по рамкам не различаются). gate_only: gor FP 72→55.
+
+## 10. Архитектура на Or: проверка трюка конкурентов (COMPETITORS_DEEP.md п. 6)
+Утверждение: «у нас Or arch F1 = 0; у них P/R 0,71/0,24 — спутниковый детектор на Or 0,5 м, только арх., порог ≥ 0,45».
+
+**Факты.**
+* «У нас 0» устарело: с коммита 38f0986 (LB 0,34796, `docs/LB_LOG.md:15`) пайплайн уже гонит `surf_arch_r18.pt` по Or (configs/default.toml, res 0,5, tile 256; пороги арх. 0,286725/0,065565, docs/ARCHITECTURE.md:3); LB «ортофото 0,368421 / 0,140000» (ранее 0/0).
+* Их 0,71/0,24 — только публичный LB (25 GT); их же LORO на train — точность 13 % (11 TP / 71 FP при 0,5; COMPETITORS_DEEP.md:119-120).
+* Or-растры на боксе: Герите (полный), Фалхан (пришёл 21:35), Изборск (арх. GT нет). Нет: Лешки (19 ГБ), Старый Барах (26,7 ГБ). Арх. GT на Or: Герите 45, Лешки 11, Фалхан 53, Барах 69.
+
+**Пилот (без обучения; `work/or_arch/run_or.py` через `expds.pipeline._raster_with_model`, 2 потока, 14–79 с на растр, пик RSS 686–1180 МБ; оценка `work/or_arch/score_or.py` — официальный `_match_quality`, жадно по conf, порог 0,45 объявлен заранее):**
+
+| регион | GT | spor_arch_r18 (вне выборки — честно) | surf_arch_r18 (В ВЫБОРКЕ: обучен на or+sp_or — не честно) | стек A, or-строки (OOF) |
+|---|---|---|---|---|
+| Герите | 45 | 5 рамок; при 0,45 0 TP / 3 FP; 0 TP при любом пороге | при 0,45 TP 4 / FP 4 (P 0,5, R 0,089) | 43 строки, conf ≤ 0,348; 0 TP при ≥ 0,2 |
+| Фалхан | 53 | 0 рамок | при 0,45 TP 18 / FP 13 (P 0,581, R 0,34) | 17 строк, conf ≤ 0,391; 0 TP при ≥ 0,2 |
+Файлы: `analysis/or_arch/score_or_ger.json/.log`, `score_or_fal.json/.log`, сырьё `analysis/or_arch/*.json`.
+
+**Честный замер порога ≥ 0,45 на стеке A** (`work/or_arch/or_thr_honest.py` → `analysis/or_arch/or_thr_honest.json/.log`): у группы `or` (арх.) 783 строки, макс. conf 0,484 ⇒ вариант ≈ «убрать or-арх.» (удалены все строки группы, включая единичные ≥ 0,45). Δ honest-10 **+0,00172** (< П1 0,002), бутстреп P 0,639 (П2 ✗), LOFO +0,00174, optical −0,00091. Честные счёты базы на Or-регионах (TP/FP/GT): Герите 3/27/45, Лешки 2/74/11, Фалхан 0/0/53, Барах 0/0 (LOFO 0/6)/69. **Не принят.** База — A, не A+R.
+
+**Вывод.** Трюк не воспроизводится: наш спутниковый spor_arch на Or вне выборки — 0 TP (согласуется с их LORO 13 %). Or-арх. уже в сдаче через surf_arch; честно оценить его порог на боксе нельзя — surf_arch в выборке на всех 4 Or-регионах, фолдовых весов surf_arch на боксе нет (`find` — только полные копии). Переносить трюк не рекомендую.
+
+**Что нужно с ПК** (фолдовые surf_arch_r05_t256, 5 фолдов, PLAN.md:20; растры Лешки и Старый Барах):
+```bash
+export OMP_NUM_THREADS=2
+for R in 014_Лешки 093_Старый_Барах 008_Герите 056_Фалхан; do  # модель — фолд, где семья R в valid
+  python work/or_arch/run_or.py models/<surf_arch фолд R>.pt <DATA>/train-expds-3/$R/05_<имя>_Or_ортофото/01_<имя>_Or_ортофото.tif $R analysis/or_arch/${R}_surf_arch.json
+  python work/or_arch/run_or.py models/spor_arch_r18.pt  <DATA>/train-expds-3/$R/05_<имя>_Or_ортофото/01_<имя>_Or_ортофото.tif $R analysis/or_arch/${R}_spor_arch.json
+done
+python work/or_arch/score_or.py $R $R   # читает analysis/or_arch/{PFX}_{spor,surf}_arch.json (пути внутри — bot-5 на боксе, поправить под ПК); порог 0,45 объявлен заранее + вложенный порог по остальным 3 Or-регионам
+```
+
+
+## 11. RF-DETR-M/L без COCO-чекпойнта: только энкодер DINOv2-S (28.10, 22:10 МСК)
+Задача: запасной спутниковый детектор с чистой лицензией на случай, если письма о весах не будет. Код: ветка `bot5-rfdetr-kaggle` b355e2c (не запушена),
+`scripts/rfdetr_train.py`; рецепт — `FOR_BOT9_RFDETR.md`, `repo/kaggle/README_KAGGLE_RFDETR.md`. **Только честный замер.**
+
+**Лицензии и что скачивается** (rfdetr 1.11.2 = github.com/roboflow/rf-detr @ f381551; номера строк — по колесу `tmp/rfdetr_src/whl/rfdetr/`):
+* Пакет — Apache-2.0 (METADATA; `config.py:737 license: str = "Apache-2.0"` для N/S/M/L; XL/2XL — PML, не трогаем).
+* `ModelConfig.pretrain_weights` по умолчанию None (`config.py:714`), но у M/L переопределён: `"rf-detr-medium.pth"` (`config.py:1044-1053`), `"rf-detr-large-2026.pth"` (`config.py:1057+`).
+  Эти файлы — с `storage.googleapis.com/rfdetr/...` (`assets/model_weights.py:211-212, 226-227`), качаются только при `pretrain_weights` ≠ None. Мы передаём None → не качается ничего (валидатор пишет предупреждение, `config.py:812`).
+* При None сборка просит веса DINOv2: `lwdetr.py:836 load_dinov2_weights=args.pretrain_weights is None`. Имя — `facebook/dinov2-small` (`models/backbone/dinov2.py:121`).
+  Но у M/L patch 16 и сетка позиций 36/44 ≠ 37 → `dinov2.py:164-171` и `:173-180` ставят `load_dinov2_weights = False`. Энкодер строится **случайным** (`:203`, а не `from_pretrained` на `:198`).
+  Проверено пробой `tmp/rf_probe.py`: оба предупреждения в логе. Только Base (patch 14, PE 37) скачал бы dinov2-small сам.
+* Поэтому веса DINOv2-S переносятся вручную: `facebook/dinov2-small` (карточка HF `license: apache-2.0`, https://huggingface.co/facebook/dinov2-small; github.com/facebookresearch/dinov2 LICENSE — Apache 2.0).
+  Ключи совпадают 223/223, отличаются две формы:
+  * `patch_embeddings.projection.weight` (384,3,14,14)→(384,3,16,16): псевдообратный ресайз (FlexiViT). Проверка на гладких картинках: cos отклика 0,99998, отн. ошибка 0,0073; простая билинейка — 0,9973 / 0,074 (одноразовая команда на боксе, 22:04 МСК).
+  * `position_embeddings` (1,1370,384)→(1,1+g²,384): бикубика 37²→g², где g = size/16 (40 при 640).
+* **Вердикт:** RF-DETR-M/L + `pretrain_weights=None` + ручной DINOv2-S — Apache-2.0 целиком. COCO/O365-чекпойнт не касается. Остаётся оговорка по данным предобучения DINOv2 (LVD-142M) — та же, что у любого бэкбона ImageNet-класса.
+
+**Рецепт DETECTORS_SOTA.md — где настраивается в RF-DETR, а где патч:**
+| пункт | RF-DETR | у нас |
+|---|---|---|
+| DN = 0 | денойзинга нет вообще (grep denois/dn пуст); вместо него group-DETR, `ModelConfig.group_detr` = 13 (`config.py:718`) | ничего не нужно; `--group-detr` |
+| MAL | нет; есть `ia_bce_loss` (по умолч.), varifocal, position-supervised (`criterion.py:617-780`) | **патч**: подмена `SetCriterion.loss_labels` (цель q^γ по IoU, вес p^γ у негативов, γ 1,5); быстрый CUDA-путь `criterion.py:1068-1090` выключен, чтобы не обойти патч. `--loss iabce` — контроль |
+| flat-cosine | только `lr_scheduler` step/cosine в `TrainConfig` (`config.py:519-548`) | свой цикл: warmup 500 → плато до 50 % → косинус до 5 %; последние 15 % без copy-paste |
+| copy-paste вместо Mosaic | нет | свой банк вырезок povr/tselye (поле 30 %, мягкий край, выравнивание яркости, без перекрытий), p 0,5, 1–4 штуки |
+| прочее | lr 1e-4 / энкодер 1,5e-4, layer decay 0,8, EMA, grad accum — есть в TrainConfig, но для PTL-цикла | повторено в своём цикле; EMA 0,999; fp16 с лоссом в fp32 |
+Своя петля вместо `RFDETR.train()`: там PTL, его нет в venv, и патчи лосса/данных проще в своём цикле. Код конкурентов не использовался.
+
+**Замеры на боксе** (CPU, 2 потока, nice 10, 256 px, сторож 2000 МБ):
+* M, MAL, bs 1, 10 ит.: 2,035 с/ит, пик 1798 МБ (`tmp/rf_smoke_m/timing.json`);
+* iabce: 2,427 с/ит, пик 1751 МБ;
+* L: 1,945 с/ит, пик 1796 МБ — та же сеть, что M (32,98 M пар.);
+* bs 2: снят сторожем (> 2000 МБ);
+* save → `--load`: 103 окна, 10300 рамок, совпадение;
+* формат → coco_preds_to_stack: 337 объектов.
+Скорость плавает с нагрузкой бокса (9,98 с/ит в первом прогоне). Для T4 это не оценка: s/ит и память меряет bot 9 в smoke.
+Качество не измерено (CPU не позволяет): ожидание −1…−3 п. F1 к COCO-предобученной версии — из DETECTORS_SOTA.md, не замер.

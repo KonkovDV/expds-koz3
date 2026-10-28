@@ -1,0 +1,111 @@
+[{"stream_name":"stdout","time":17.888371176,"data":"pip install: ['transformers==5.21.0']\n"}
+,{"stream_name":"stderr","time":31.62168936,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":31.621716948,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":38.567333535,"data":"  torch 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":44.456125709,"data":"  torchvision 0.26.0+cu128\n"}
+,{"stream_name":"stdout","time":47.248569279,"data":"  transformers 5.21.0\n"}
+,{"stream_name":"stdout","time":47.248602236,"data":"  rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":47.248607811,"data":"  pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":47.248612173,"data":"  shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":47.248616456,"data":"  boto3 1.41.5\n"}
+,{"stream_name":"stdout","time":47.248620364,"data":"  cv2 4.14.0\n"}
+,{"stream_name":"stdout","time":47.248624191,"data":"  scipy 1.16.3\n"}
+,{"stream_name":"stdout","time":49.587291099,"data":"[      0s] CFG {\"mode\": \"smoke\", \"res\": 0.5, \"tile\": 640, \"overlap\": 160, \"max_windows\": 0, \"bs\": 8, \"iters\": 10, \"lr\": 0.0001, \"bb_mult\": 0.1, \"wd\": 0.0001, \"pct\": 0.05, \"clip\": 0.1, \"num_dn\": -1, \"obj_frac\": 0.6, \"cls_cap\": 4.0, \"shift\": 0.3333333333333333, \"qaug\": 0.5, \"workers\": 2, \"max_obj_chips_region\": 400, \"min_score\": 0.05, \"nms_iou\": 0.5, \"max_det\": 100, \"smoke_train_regions\": 8, \"smoke_test_regions\": 1, \"deadline_h\": 11.3, \"folds\": \"0,1,2,3,4\", \"regions\": \"\"}\n"}
+,{"stream_name":"stdout","time":49.889757494,"data":"[      0s] GPU: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":49.977672136,"data":"[      0s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет\n"}
+,{"stream_name":"stdout","time":50.548288712,"data":"[      1s] ключи S3 из приватного датасета\n"}
+,{"stream_name":"stdout","time":52.100883967,"data":"[      3s] S3 OK\n"}
+,{"stream_name":"stderr","time":52.333639695,"data":"\rFetching 3 files:   0%|          | 0/3 [00:00\u003c?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":52.333667879,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":73.348333804,"data":"\rFetching 3 files:  33%|███▎      | 1/3 [00:00\u003c00:00,  7.83it/s]\rFetching 3 files: 100%|██████████| 3/3 [00:21\u003c00:00,  7.79s/it]\rFetching 3 files: 100%|██████████| 3/3 [00:21\u003c00:00,  7.02s/it]\n"}
+,{"stream_name":"stdout","time":73.348446113,"data":"[     24s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)\n"}
+,{"stream_name":"stdout","time":73.348737545,"data":"[     24s] фолды OK: 189 участков, 96 семей\n"}
+,{"stream_name":"stdout","time":78.269555848,"data":"[     29s] участков со SpOr в фолдах: 132; вне фолдов (пропуск): 0\n"}
+,{"stream_name":"stdout","time":97.247764098,"data":"[     48s] чипов: 62 (объектных 38), участков 8, 19 с; классы: {'gorodishcha': 5, 'kurgany_povrezhdennye': 32, 'kurgany_tselye': 1}\n"}
+,{"stream_name":"stderr","time":97.277198413,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":97.277252636,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":97.284389389,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":97.284408694,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":98.758308543,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  24%|██▍       | 287/1197 [00:00\u003c00:00, 2844.14it/s]\n"}
+,{"stream_name":"stderr","time":98.86080723,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\u001b[A\rLoading weights:  48%|████▊     | 572/1197 [00:00\u003c00:00, 1178.24it/s]\n"}
+,{"stream_name":"stderr","time":98.980164704,"data":"\rLoading weights:  16%|█▌        | 187/1197 [00:00\u003c00:00, 1857.77it/s]\u001b[A\rLoading weights:  62%|██████▏   | 739/1197 [00:00\u003c00:00, 1235.25it/s]\n"}
+,{"stream_name":"stderr","time":99.109063922,"data":"\rLoading weights:  31%|███       | 373/1197 [00:00\u003c00:00, 1669.42it/s]\u001b[A\rLoading weights:  75%|███████▍  | 892/1197 [00:00\u003c00:00, 1292.61it/s]\rLoading weights:  87%|████████▋ | 1042/1197 [00:00\u003c00:00, 1328.40it/s]\n"}
+,{"stream_name":"stderr","time":99.205063988,"data":"\rLoading weights:  45%|████▌     | 542/1197 [00:00\u003c00:00, 1493.02it/s]\u001b[A\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 1368.44it/s]\n"}
+,{"stream_name":"stderr","time":99.212642823,"data":"\n"}
+,{"stream_name":"stderr","time":99.312962987,"data":"\rLoading weights:  58%|█████▊    | 694/1197 [00:00\u003c00:00, 1483.80it/s]\u001b[A\n"}
+,{"stream_name":"stderr","time":99.400101144,"data":"\rLoading weights:  80%|████████  | 960/1197 [00:00\u003c00:00, 1872.84it/s]\u001b[A\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 1870.64it/s]\n"}
+,{"stream_name":"stderr","time":99.557099334,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":99.557125968,"data":"Key                                                   | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.557131438,"data":"------------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":99.557135761,"data":"class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.557140126,"data":"class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.557144569,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.557148985,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.55715365,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.557169587,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.557174017,"data":"model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.557178316,"data":"model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":99.557182498,"data":"model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.55718671,"data":"\n"}
+,{"stream_name":"stderr","time":99.557190301,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":99.557194143,"data":"- MISSING:\tthose params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":99.55719942,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":99.56202445,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":99.562045119,"data":"Key                                                   | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.562049953,"data":"------------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":99.562054144,"data":"class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.562058235,"data":"class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.562062488,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.562066721,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.562071113,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.562075268,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.562079588,"data":"model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.562084059,"data":"model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":99.562088335,"data":"model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.56210337,"data":"\n"}
+,{"stream_name":"stderr","time":99.562107329,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":99.562111029,"data":"- MISSING:\tthose params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":99.56211619,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":99.566716183,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":99.566735909,"data":"Key                                                   | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.56674626,"data":"------------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":99.56674921,"data":"class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566751689,"data":"class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566778644,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566782597,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566786323,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.56679020199999,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.566794216,"data":"model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.566797916,"data":"model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":99.566801516,"data":"model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.566805154,"data":"\n"}
+,{"stream_name":"stderr","time":99.566808266,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":99.566811844,"data":"- MISSING:\tthose params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":99.566816914,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":99.566825648,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":99.566835849,"data":"Key                                                   | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.56683844,"data":"------------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":99.566840973,"data":"class_embed.{0, 1, 2, 3, 4, 5}.bias                   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566843426,"data":"class_embed.{0, 1, 2, 3, 4, 5}.weight                 | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566845854,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.weight | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566848344,"data":"bbox_embed.{0, 1, 2, 3, 4, 5}.layers.{0, 1, 2}.bias   | MISSING  |                                                                                        \n"}
+,{"stream_name":"stderr","time":99.566857233,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias     | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.566873391,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.566877528,"data":"model.enc_score_head.weight                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":99.566881797,"data":"model.denoising_class_embed.weight                    | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":99.566886133,"data":"model.enc_score_head.bias                             | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":99.566890214,"data":"\n"}
+,{"stream_name":"stderr","time":99.566893413,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":99.566897331,"data":"- MISSING:\tthose params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":99.566900959,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":100.161296085,"data":"[     51s] [     51s] [gpu1 f3] ОШИБКА [gpu0 f2] ОШИБКАNotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.') \n"}
+,{"stream_name":"stdout","time":100.161326518,"data":"NotImplementedError('Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.')\n"}
+,{"stream_name":"stdout","time":100.175559238,"data":"[     51s] ГОТОВО 0 детекций; ошибки фолдов: [2, 3]\n"}
+,{"stream_name":"stderr","time":100.175928717,"data":"фолды с ошибкой: [2, 3]\n"}
+,{"stream_name":"stderr","time":106.398186485,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":106.398213531,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":106.628642356,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":106.628666377,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":107.378445599,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":108.510493698,"data":"[NbConvertApp] Writing 490511 bytes to __results__.html\n"}
+]

@@ -116,3 +116,43 @@ H1: **каждый** кандидат → якорь в полюсе недос�
 - Порог «по методу» (MagGr 0,75) не переносится: у нас уже отдельная группа порога на maggr/etgr/terfl, подбирается внутри фолда; их 0,75 — вероятность другой модели.
 - «Каждый срез — отдельный эталон»: метрика матчит в пределах region(+sub_region) × класс; кандидаты у нас и так по каждому файлу EtGr. Копия объектов в другие срезы — R4 (`layer_copy`), см. C3.
 
+### C3. Растровые варианты (ветка `bot3-geophys`, `bot-3/repo`, diff `bot-3/geophys.diff`), 201–217, все модальности — `geo_gap/run_r.sh` → `geo_gap/r/*.geojson`; оценка `geo_gap/eval_r.py` → `r/eval_r34.out`, `r/eval_r34.json`
+- RB (база этой ветки) по числу кандидатов object_poly на (участок, группа) **совпал со стеком** (`RB==stack по числу: True`) и даёт ровно базу (Δ = 0).
+- 200 не считался (OOM), 212/MagGr цвет_2 не считается при лимите памяти → взяты из стека; остальные участки 201–217 заменены выходом варианта.
+| вариант | global drop | global keep | site drop | site keep | P(Δ>0) keep | object_poly TP/FP (global keep; база 261/607) | П1–П4 |
+|---|---|---|---|---|---|---|---|
+| R3: pole_circle_m=0,05 (вместо контура — круг 5 см в полюсе) | +0,000011 | **+0,002021** | +0,000011 | **+0,002051** | **0,869** | 279/587 | keep: все ✓; drop: П1/П2 ✗ |
+| R4: etgr.layer_copy=true («каждый срез — эталон», копии) | 0 | **−0,015906** | 0 | −0,014212 | 0 | 325/**5423** | ✗ |
+| R4+H1 | −0,000162 | −0,015022 | −0,000162 | −0,013510 | 0 | 344/5404 | ✗ |
+| R2: split="dt", split_h=0,5 (`r/eval_r2.out`) | −0,000377 | **−0,002913** | −0,000377 | −0,002618 | 0 | 288/1262 | ✗ |
+| R1: split dt 0,5 + pole_circle 0,05 | не измерен: дважды убит на 211 (exit 137, глобальный OOM бокса), `r/R1.log`, `r/done.txt`; R2 (split) уже отрицателен → R1 не нужен | | | | | | |
+- R3 (мой патч pole_circle — та же идея «малого якоря», что у EhimenNathan, но радиус 5 см) лучше H1 (якорь 0,5–1 м / квадрат 0,25 м): +0,0020 при P 0,869 против +0,0021 при P 0,643 — мелкий якорь не плодит FP на соседних эталонах.
+- R4: копии в другие срезы дают +64 TP при +4800 FP — подтверждает отказ табло 27.10.
+
+### C4. Пакет (лучший) — `geo_gap/eval_pkg.py` → `eval_pkg.out`, `eval_pkg.json`
+| пакет | global drop | global keep | site drop | site keep | P(Δ>0) | LOFO / раскладки | П1–П4 | П5 |
+|---|---|---|---|---|---|---|---|---|
+| **A2 (finds, 201–211) + R3 (object_poly, 201–217)** | **+0,004037** | **+0,006048** | **+0,004077** | **+0,006117** | 0,869 | = honest10 / 5/5 > 0 | ✓ во всех 4 | keep ≥ MDE 0,006 (на грани), drop < MDE |
+| A2+H1 (для сравнения) | +0,003697 | +0,006017 | +0,003737 | +0,005751 | 0,869 | 5/5 | ✓ | — |
+- finds 1906/2070 (база 1641/1619), object_poly keep 279/587 (база 261/607), drop 78/66 (база 78/68). П4: povr/tselye/gor Δ = 0, новые 34 без изменений, оптика растёт.
+- **Рекомендация для bot-10: принять пакет A2+R3** (`[geophys.maggr] maps="all"`, `dedupe_maps=false`; `[geophys] pole_circle_m=0.05` из ветки bot3-geophys). Ожидаемый честный прирост +0,004 (drop) … +0,006 (keep). Обоснование: все 5 случайных раскладок > 0, бутстреп 0,869, классы П4 не задеты. Оговорка: вклад object_poly приходится на одну семью (Гнёздово, EtGr/TerFl), поэтому при unseen=drop он ≈ 0.
+- Ожидание «+0,01–0,02» из COMPETITORS_DEEP §6 п.2 честно не подтверждается: только геометрия даёт ≤ +0,0021. Остальной разрыв — в кандидатах (406 случаев «оба условия не выполнены»); нужны пиксельный классификатор/сеть (их P1), а не постобработка.
+
+## Раздел D. Патчи, ветки, diff
+- Аудит 01: worktree `bot-3/repo_audit01`, ветка `bot3-audit01` (c315a9b на 24bd916), `bot-3/audit01.diff` (29 строк).
+- Разрезание/полюс: `bot-3/repo`, ветка `bot3-geophys` (c573ea9, b8cfdf4 на 24bd916), `bot-3/geophys.diff` (expds/geophys.py, scripts/geo_tune.py, tests/test_geo_split.py; +263/−4). По умолчанию выключено (`split="none"`, `pole_circle_m=0`).
+- Якоря H1–H3 — только скрипт оценки `geo_gap/anchors.py` (в репо не вносились).
+- Ничего не пушилось, Kaggle/LB не трогались.
+
+## Раздел E. Что осталось и точные команды
+1. Не измерено на боксе (память 2 ГБ): участок 200 (14084×9034) во всех вариантах; 212/MagGr цвет_2 в A3 и в растровых прогонах (`Unable to allocate 359 MiB`). На ПК:
+```
+# ветка bot3-geophys + патч аудита 01 (git cherry-pick c315a9b; git merge-tree bot3-geophys bot3-audit01 — без конфликтов)
+python scripts/geo_predict.py --root F:/expds3/train-expds-3 --out F:/expds3/work/geo_A2_R3.geojson --set 'geophys.maggr.maps="all"' --set geophys.maggr.dedupe_maps=false --set geophys.pole_circle_m=0.05
+python scripts/scoreboard.py --geo F:/expds3/work/geo_A2_R3.geojson --honest 10 --honest-unseen keep
+python scripts/scoreboard.py --geo F:/expds3/work/geo_A2_R3.geojson --honest 10 --honest-unseen drop
+```
+   (флаги scoreboard — как в ветке bot-10 `bot10-site-scope-provisional`; для scope=site — `EXPDS_MATCH_SCOPE=site`.)
+2. Повтор всего на боксе: `bot-3/geo_gap/run_eval.sh` (OMP_NUM_THREADS=1, nice 10).
+3. Снять фильтр EtGr > 2 м (`ETGR_MAX_DEPTH_M`) — на трейне Δ = 0, только страховка.
+4. Дальше по object_poly: новые кандидаты (пиксельный классификатор на DoG/LoG-признаках), а не геометрия — 406 FN не лечатся якорями.

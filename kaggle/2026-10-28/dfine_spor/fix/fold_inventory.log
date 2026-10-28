@@ -1,0 +1,38 @@
+  torch 2.11.0+cpu
+  torchvision 0.26.0+cpu
+  huggingface_hub 2.3.0
+  safetensors 0.8.0
+  transformers 5.21.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  cv2 4.11.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "full", "res": 0.5, "tile": 640, "overlap": 160, "max_windows": 0, "bs": 8, "iters": 8000, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 2, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 8, "smoke_test_regions": 1, "deadline_h": 11.3, "folds": "0,1,2,3,4", "regions": "", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[      1s] S3 OK
+[      1s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 19170.21it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[      7s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 6 с
+[      7s] фолды OK: 189 участков, 96 семей
+[     11s] участков со SpOr в фолдах: 132; вне фолдов (пропуск): 0
+FOLD 0 {'regions': 2, 'marked': 2, 'wins': 104, 'gt': 83, 'err': 0} families 1
+FOLD 1 {'regions': 22, 'marked': 22, 'wins': 704, 'gt': 789, 'err': 0} families 12
+FOLD 2 {'regions': 49, 'marked': 49, 'wins': 1108, 'gt': 779, 'err': 0} families 15
+FOLD 3 {'regions': 16, 'marked': 16, 'wins': 483, 'gt': 290, 'err': 0} families 12
+FOLD 4 {'regions': 43, 'marked': 43, 'wins': 944, 'gt': 1164, 'err': 0} families 16
+ERRORS []

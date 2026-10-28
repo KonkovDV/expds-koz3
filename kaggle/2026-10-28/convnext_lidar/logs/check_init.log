@@ -1,0 +1,4 @@
+ch=3 weights=True: совпало с timm 178/178 тензоров; stem ['stem_0.weight'] (96, 3, 4, 4); out (1, 5, 64, 64)
+ch=3 weights=None: совпало с timm 0/178 тензоров; stem ['stem_0.weight'] (96, 3, 4, 4); out (1, 5, 64, 64)
+ch=5 weights=True: совпало с timm 177/177 тензоров; stem ['stem_0.weight'] (96, 5, 4, 4); out (1, 5, 64, 64)
+ch=5 weights=None: совпало с timm 0/177 тензоров; stem ['stem_0.weight'] (96, 5, 4, 4); out (1, 5, 64, 64)
