@@ -114,8 +114,27 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
     out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    rr = cfg.get("rerank_arch") or {}
+    if rr.get("enabled"):
+        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
+        try:
+            from . import rerank_arch
+
+            out, reranked = rerank_arch.apply(out, rr)
+        except Exception:
+            log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
+    out = out + reranked
+    mc = (cfg.get("post") or {}).get("micro_circles")
+    if mc:
+        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
+        try:
+            out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
+        except Exception:
+            log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
     kept: list[dict] = []
     for f in out:
         try:

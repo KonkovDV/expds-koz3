@@ -81,3 +81,49 @@ def test_writer_never_emits_nan(tmp_path):
     assert "NaN" not in txt
     json.loads(txt, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
     assert writer.validate(p)["ok"]
+
+
+def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
+    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
+    from shapely.geometry import Point
+
+    from expds import post
+    from expds.watchdog import safe_finish
+
+    def boom(_feats, *a, **k):
+        raise RuntimeError("GEOS упал в склейке")
+
+    monkeypatch.setattr(post, "merge_within_markup", boom)
+    big = Point(X0 + 50, Y0 + 50).buffer(2.0 / post._ground_scale(Y0), quad_segs=8)
+    f = {"geom": big, "class_name": "kurgany_tselye", "confidence": 0.9, "markup_type": "li", "region_name": "r"}
+    cfg = {"thresholds": {}, "default_threshold": 0.0,
+           "post": {"micro_circles": {"radius_m": {"kurgany_tselye": 0.5}}}}
+    out = safe_finish([f], cfg)
+    assert len(out) == 1
+    assert out[0]["geom"].area < big.area * 0.1        # 0,5 м вместо 2 м: площадь в 16 раз меньше
+    assert out[0]["geom"].centroid.distance(big.centroid) < 1e-6
+
+
+def test_safe_finish_fallback_keeps_bot7_rerank_arch(tmp_path, monkeypatch):
+    """watchdog.safe_finish на bot7-candidate: при сбое finish() архитектура идёт через [rerank_arch] со своими порогами."""
+    import importlib.util
+
+    import pytest
+    if importlib.util.find_spec("expds.rerank_arch") is None:
+        pytest.skip("нет expds.rerank_arch (ветка bot7-bundle)")
+    from test_bot7_rerank_arch import _cfg, _feats, _key, _model
+
+    from expds import post, watchdog
+
+    fs = _feats()
+    rr = _model(tmp_path, {"sp_arch": 0.0})
+    good = watchdog.finish(fs, _cfg(rerank_arch=rr))
+
+    def boom(_feats, *a, **k):
+        raise RuntimeError("GEOS упал в склейке")
+
+    monkeypatch.setattr(post, "merge_within_markup", boom)
+    fb = watchdog.safe_finish(fs, _cfg(rerank_arch=rr))
+    arch = [f for f in fb if f["class_name"] == "arkhitektury"]
+    assert len(arch) == 20 and all("conf_stack" in f for f in arch)   # базовый порог 1.01 не применён
+    assert _key(fb) == _key(good)
