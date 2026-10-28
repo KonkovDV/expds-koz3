@@ -26,6 +26,8 @@ def test_flags_independent_and_as_documented(cfg):
     assert pix["enabled"] is True and pix["replace"] is True          # вариант S (bot-10 PREREG/REPORT7)
     assert set(pix["classes"]) == {"finds_points", "object_poly"} and pix["union_name_re"] == ""
     assert float(pix["budget_s"]) == 600 and pix.get("backend", "lightgbm") == "lightgbm"   # REPORT4 §9; без .so
+    assert int(pix["procs"]) == 2                                      # решение bot 1: пул ≤ 2 (ОЗУ)
+    assert float(cfg["time"]["soft_ceiling_s"]) == 1200 and pipeline.soft_ceiling_from(cfg, environ={}) == 1200.0   # bot-8
     post = cfg["post"]
     assert post["multipole_object_poly"] is True and post["filter_finds_points"] is True   # stack6 sep
     assert post.get("kurgan_twins_only") is True and not post.get("kurgan_twins")   # twins-only: bot-10 work8/twins78_stats.log
