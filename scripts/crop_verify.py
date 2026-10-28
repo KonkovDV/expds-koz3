@@ -156,7 +156,8 @@ def fit(Xtr: np.ndarray, ytr: np.ndarray, epochs: int = 8, batch: int = 64, lr: 
     pos = max(1, int(ytr.sum()))
     neg = max(1, len(ytr) - pos)
     loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(neg / pos, device=dev))
-    for _ in range(epochs):
+    for epoch in range(epochs):
+        log.info("кроп: семя %s, эпоха %d/%d, окон %d, устройство %s", seed, epoch + 1, epochs, len(ytr), dev)
         model.train()
         order = rng.permutation(len(ytr))
         for s in range(0, len(order), batch):

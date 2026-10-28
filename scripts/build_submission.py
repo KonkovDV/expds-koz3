@@ -40,8 +40,9 @@ def collect() -> list[Path]:
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+    verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
     seen = set()
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model")]:
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify]:
         if not rel or rel in seen:
             continue
         seen.add(rel)

@@ -37,6 +37,7 @@ def test_shared_weights_are_packed_once():
     names = [p.as_posix() for p in files]
     assert len(names) == len(set(names))
     assert sum(n.endswith("surf_arch_r18.pt") for n in names) == 1
+    assert sum(n.endswith("sp_crop.pt") for n in names) == 1
 
 
 def test_census_toml_appends_only_classes_and_leaves_the_rest():

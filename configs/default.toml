@@ -284,15 +284,15 @@ min_confidence = 0.1426
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
 
-# Проверка кропа на инференсе. Табло 27.10 (0,311053 → 0,318330) не считается: тот прогон
-# обнулял второй круг на эталоне по самому эталону — утечка. Нужен повтор без этого
-# (crop_verify.py без --demote-with-gt) и веса --save-model. Без ключа сдача прежняя.
-# [verify]
-# enabled = true
-# weights = "models/sp_crop.pt"
-# markup = "sp_or"
-# groups = ["sp_focal", "sp_focal2"]
-# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
-# tile = 96
-# res = 0.5
-# min_conf = 0.05
+# Проверка кропа курганов спутника. Повтор 28.10 без утечки эталона: честно по семьям
+# 0,314615 → 0,318536, 34 новых +0,0015, без лидара +0,0079, A > B в 0,984.
+# На всех участках 0,367363 → 0,366844, старая приёмка не проходит; решает честная.
+[verify]
+enabled = true
+weights = "models/sp_crop.pt"
+markup = "sp_or"
+groups = ["sp_focal", "sp_focal2"]
+classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+tile = 96
+res = 0.5
+min_conf = 0.05
