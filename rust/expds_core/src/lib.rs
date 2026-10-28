@@ -8,6 +8,7 @@ mod channels;
 mod cpu;
 mod delaunay;
 mod fill;
+mod geo;
 mod grid;
 mod peaks;
 mod relief;
@@ -22,7 +23,7 @@ use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReado
             PyUntypedArrayMethods};
 use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use pyo3::types::{PyDict, PyList};
 
 /// Данные массива без копии, если он непрерывный (C-порядок); иначе — копия.
 fn to_vec_f32<'a>(a: &'a PyReadonlyArray2<'_, f32>) -> (Cow<'a, [f32]>, usize, usize) {
@@ -308,6 +309,23 @@ fn ring_stats<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, rows: PyReado
     Ok(Array2::from_shape_vec((n, 6), flat).unwrap().into_pyarray(py))
 }
 
+/// GeoJSON-словари геометрий → (coords float64 N×2, ring_offsets int64, geom_offsets int64, taken int64).
+///
+/// Вход для `shapely.from_ragged_array(POLYGON, coords, (ring_offsets, geom_offsets))`.
+/// `taken` — индексы входа, взятые быстрым путём (простые Polygon); остальные
+/// Python разбирает официальной `_extract_geometry`.
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+fn flatten_polygons<'py>(py: Python<'py>, geoms: &Bound<'py, PyList>)
+    -> PyResult<(Bound<'py, PyArray2<f64>>, Bound<'py, PyArray1<i64>>, Bound<'py, PyArray1<i64>>,
+                 Bound<'py, PyArray1<i64>>)> {
+    let (coords, ring_off, geom_off, taken) = geo::flatten(geoms);
+    let n = coords.len() / 2;
+    Ok((Array2::from_shape_vec((n, 2), coords).unwrap().into_pyarray(py),
+        Array1::from(ring_off).into_pyarray(py), Array1::from(geom_off).into_pyarray(py),
+        Array1::from(taken).into_pyarray(py)))
+}
+
 #[pymodule]
 fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     cpu::init();
@@ -330,5 +348,6 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(relief_channels, m)?)?;
     m.add_function(wrap_pyfunction!(sample_window_max, m)?)?;
     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
+    m.add_function(wrap_pyfunction!(flatten_polygons, m)?)?;
     Ok(())
 }
