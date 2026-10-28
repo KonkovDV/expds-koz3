@@ -860,7 +860,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         t_phase = time.monotonic()
         n_phase = 0
         for reg in regions:
-            found = geophys_feats(reg, cfg, guard)
+            try:
+                found = geophys_feats(reg, cfg, guard)
+            except Exception:
+                # bot-8: сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
+                log.exception("%s: геофизика упала, регион пропущен", reg.name)
+                continue
             state.add(found)
             n_phase += len(found)
             if found:
