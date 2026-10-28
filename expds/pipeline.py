@@ -245,22 +245,10 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             md = Path(pix.get("model_dir", "models/pixgbm/all"))
             if not md.is_absolute():
                 md = Path(__file__).resolve().parents[1] / md
-            # bot-7: потолок суммарного времени pix на прогон ([geophys.pixgbm] budget_s, 0 — нет) и общий
-            # запас бюджета; счётчик живёт на guard, чтобы суммироваться по участкам
-            cap = float(pix.get("budget_s", 0) or 0)
-            reserve = float(cfg.get("time", {}).get("reserve_s", 120))
-            t_pix = time.monotonic()
-            spent0 = float(getattr(guard, "pix_spent", 0.0))
-
-            def stop() -> bool:
-                spent = spent0 + time.monotonic() - t_pix
-                return (cap > 0 and spent >= cap) or (guard is not None and not guard.ok(reserve))
-
-            try:
-                new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, stop=stop) if f["class_name"] in cls]
-            finally:
-                if guard is not None:
-                    guard.pix_spent = spent0 + time.monotonic() - t_pix
+            # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
+            pst: dict = {}
+            new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
+                   if f["class_name"] in cls]
             import re
             ure = pix.get("union_name_re", "")
             if ure and re.search(ure, reg.name):
@@ -270,8 +258,16 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 new = geo_pixgbm.dedupe_union(feats, new)
             elif pix.get("replace", False):
                 # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
                 have = {(f["class_name"], f["markup_type"]) for f in new}
-                feats = [f for f in feats if (f.get("class_name"), f.get("markup_type")) not in have]
+                done, fell = pst.get("done", {}), pst.get("fell", {})
+
+                def _drop(f):
+                    key = (f.get("class_name"), f.get("markup_type"))
+                    if key not in have:
+                        return False
+                    return not fell.get(key) or f.get("source") in done.get(key, set())
+                feats = [f for f in feats if not _drop(f)]
             feats += new
         except Exception:
             log.exception("%s: pixgbm пропущен", reg.name)

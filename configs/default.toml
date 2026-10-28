@@ -269,10 +269,15 @@ model_dir = "models/pixgbm/all"   # относительный путь — от
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
-# bot-7: потолок суммарного времени PIXGBM на прогон (с). Геофизика идёт до лидара; дальше растры без pix
-# остаются с классикой (замена S только там, где pix что-то выдал). Оценка bot-3 на площадке 258–431 с при
-# 2 потоках (bot-3/pixgbm/BUDGET_PIXGBM.md §4, [оц]) — потолок при норме не срабатывает. 0 — без потолка.
-budget_s = 600
+maps = ["maggr", "etgr", "terfl"]   # методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
+t_pix = 0.5   # порог пикселя для object_poly
+backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
+                       # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
+# bot-7: срок фазы 600 с вместо 300 у bot-3 — см. bot-7/REPORT4.md §9 (лимит площадки, оценка bot-3 258–431 с).
+budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
+                 # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
+guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+procs = 0   # процессов (fork) для признаков окон; 0 — min(потоки, 4): каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2)
 
 [geophys.maggr.finds_points]
 background_m = 2.0
