@@ -296,3 +296,10 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 tile = 96
 res = 0.5
 min_conf = 0.05
+
+# [raster_fix]              # bot-6, опыт за флагом (bot6-optics), без секции — выключено
+# reproject_3857 = true     # снимок EPSG:3857 → UTM из UTM.json участка (трейн: 015 Демидовка, 029 Вышегжа_3)
+# int16_identity = true     # int16/uint16 со значениями 0–255 — как uint8, без растяжки p1–p99 (трейн: 106 ×3,04)
+# zero_nodata = true        # объект с внутренней точкой в поле нулей/nodata ≥ zero_nodata_px² выбрасывается (017, 036)
+# zero_nodata_px = 5
+# markups = ["ae"]
