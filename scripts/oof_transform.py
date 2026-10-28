@@ -22,6 +22,9 @@
                  Пороги — из JSON табло (--taus notes/<опыт>.json, поле thresholds),
                  уверенность — ранг внутри своей группы, группа порога — <класс>_rescue.
                  В сдачу не входит, пока честное табло не примет файл.
+  micro          круги класса → микрокруги в том же центре ([post.micro_circles]).
+                 Архитектура: попадание не теряется, промахи «центр внутри, покрытие
+                 круга 2 м < 0,5» (стены, узкие комнаты) становятся попаданиями.
   shift          перенос объектов слоя на устойчивый сдвиг участка
                  (scripts/layer_shift.py или scripts/image_label_shift.py).
                  Остальные объекты файла не меняются. В сдачу не входит.
@@ -117,6 +120,13 @@ def cmd_split(a) -> None:
     spec = {c: {"cell_m": a.cell, "min_area_m2": a.min_area, "max_area_m2": a.max_area,
                 "groups": a.groups or None} for c in a.classes}
     write_feats(split_large(read_feats(Path(a.src)), spec), Path(a.out))
+
+
+def cmd_micro(a) -> None:
+    from expds.post import micro_circles
+
+    spec = {"classes": a.classes, "radius_m": a.radius, "groups": a.groups or None}
+    write_feats(micro_circles(read_feats(Path(a.src)), spec), Path(a.out))
 
 
 def cmd_fill(a) -> None:
@@ -257,6 +267,13 @@ def main() -> None:
     sp.add_argument("--groups", nargs="*", default=[])
     sp.add_argument("--out", required=True)
     sp.set_defaults(fn=cmd_split)
+    mc = sub.add_parser("micro", help="круги класса → микрокруги в том же центре")
+    mc.add_argument("--src", required=True)
+    mc.add_argument("--classes", nargs="+", default=["arkhitektury"])
+    mc.add_argument("--radius", type=float, default=0.25, help="радиус, м на земле")
+    mc.add_argument("--groups", nargs="*", default=[])
+    mc.add_argument("--out", required=True)
+    mc.set_defaults(fn=cmd_micro)
     h = sub.add_parser("fill-holes")
     h.add_argument("--src", required=True)
     h.add_argument("--classes", nargs="+", required=True)

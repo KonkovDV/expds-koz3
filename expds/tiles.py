@@ -476,6 +476,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
+                shrink_classes: tuple[str, ...] | None = None,
                 ground_pixels: bool = False,
                 only_classes: list[str] | None = None, pos_repeat: int = 1,
                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
@@ -597,7 +598,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
                     window = shape_box(west, south, east, north)
                 for k, cls in enumerate(classes):
                     shp = [(g.buffer(1.0) if g.geom_type == "Point"
-                            else shrink_polygon(g, shrink) if cls in SHRINK_CLASSES else g)
+                            else shrink_polygon(g, shrink) if cls in (shrink_classes or SHRINK_CLASSES) else g)
                            for g, c in local if c == cls]
                     if min_clip_frac > 0 and shp:
                         shp, skipped = split_clipped(shp, window, min_clip_frac)
@@ -633,7 +634,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
             "li_tags": li_tags if markup == "li" else None,
             "dem_res": dem["res"] if li_src == "las" else None, "dem_fill": dem["fill"] if li_src == "las" else None,
             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
-            "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE,
+            "channels": n_ch, "shrink": shrink, "shrink_classes": list(shrink_classes or SHRINK_CLASSES), "max_upsample": MAX_UPSAMPLE,
             "pixel_units": "ground" if ground_pixels else "native",
             "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
     if label_shifts:
@@ -665,6 +666,10 @@ def _cli() -> None:
     ap.add_argument("--max-per-region", type=int, default=3000)
     ap.add_argument("--shrink", type=float, default=0.0,
                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
+    ap.add_argument("--shrink-classes", nargs="*", default=None,
+                    help="какие классы сжимать (по умолчанию курганы). Архитектура: касающиеся комнаты и "
+                         "стены иначе сливаются в одну компоненту, и цель карты центров ставит один пик "
+                         "в центре масс слитой фигуры, часто вне эталона")
     ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
     ap.add_argument("--thin", action="store_true",
@@ -695,6 +700,7 @@ def _cli() -> None:
     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
                        shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
+                       shrink_classes=tuple(args.shrink_classes) if args.shrink_classes else None,
                        only_classes=args.classes, pos_repeat=args.pos_repeat,
                        only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
                        label_shifts=load_label_shifts(args.label_shifts),

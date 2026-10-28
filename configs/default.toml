@@ -275,6 +275,14 @@ min_confidence = 0.1426
 # src_groups = ["li", "li_coarse", "li_mosaic"]
 # min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
 
+# Микрокруги архитектуры (bot-5, 28.10): тот же центр пика, радиус 0,25 м вместо 2 м.
+# Попаданий не меньше ни при каком центре; оракул официальной метрикой на эталоне
+# 2 м → 0,25 м: 257 → 269 из 407 при текущей цели, 0,914 → 1,000 у repr. point.
+# Включать после табло: oof_transform.py micro + scoreboard.py --honest 10.
+# [post.micro_circles]
+# classes = ["arkhitektury"]
+# radius_m = 0.25
+
 # [post]
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
