@@ -1,0 +1,33 @@
+{
+ "version": "01_kurgan_subclass v2 (bot-9, 2026-10-28)",
+ "input_dir": "/kaggle/input/koz3-kurgan-subclass-crops",
+ "npz_name": "kurgan_subclass_crops.npz",
+ "code_bundle_dir": "/kaggle/input/koz3-li-tin-59-t128-bundle",
+ "schema": {"required": ["X", "y", "region"], "channels": 3, "min_labeled": 50,
+            "optional_len_n": ["family", "kind", "stack_idx", "cand_class"]},
+ "require_gpu": true,
+ "min_gpus": 2,
+ "pretrained": true,
+ "models": [
+  {"name": "r18_imnet", "encoder": "resnet18", "gpu": 0, "seed": 1},
+  {"name": "r34_imnet", "encoder": "resnet34", "gpu": 1, "seed": 2}
+ ],
+ "lfo_folds": 10,
+ "epochs": 20,
+ "batch": 128,
+ "lr": 5e-4,
+ "weight_decay": 1e-4,
+ "warmup_frac": 0.15,
+ "dropout": 0.2,
+ "aug": {"scale": 0.1, "shift_px": 4, "gain": 0.1, "bias": 0.1, "noise": 0.03},
+ "tta": 8,
+ "bootstrap": 1000,
+ "apply_thr": 0.4,
+ "why_thr": "0.4 = 20/(30+20): ошибка на povr дороже: веса классов метрики (povr 30, tselye 20; materials/compute_metrics.py:84–85) — порог Байеса при откалиброванной BCE без весов; задан заранее, не подбирается по OOF",
+ "final_models": true,
+ "max_batches": 0,
+ "local_test_overrides": {"require_gpu": false, "pretrained": false, "epochs": 1, "max_batches": 1, "batch": 8,
+                          "lfo_folds": 3, "tta": 2, "bootstrap": 20, "final_models": true,
+                          "models": [{"name": "r18_cpu", "encoder": "resnet18", "gpu": 0, "seed": 1},
+                                     {"name": "r34_cpu", "encoder": "resnet34", "gpu": 1, "seed": 2}]}
+}

@@ -1,0 +1,31 @@
+{
+ "name": "03_seed_ensemble",
+ "min_gpus": 2,
+ "folds_file": "folds_li_tin_59_t128.json",
+ "why": "3 новых семени рецепта li_r18_hard2_59 (маска), чтобы на ПК проверить среднее вероятностей 2–4 семян; прошлый ансамбль двух семян −0,027 (docs/PLAN.md:207) — запуск только после 01/02",
+ "smoke": "python -m expds.train --cache cache/fold0 --out /kaggle/working/out/smoke_mask_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 1 --batch 64 --lr 1.4e-3 --limit 512 --seed 1 --require-gpu --min-gpus 1 --device cuda:0",
+ "gpu_cmds": {
+  "0": [
+   "python -m expds.train --cache cache/fold0 --out /kaggle/working/out/li_r18_hard2_59_s1_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold2 --out /kaggle/working/out/li_r18_hard2_59_s1_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold4 --out /kaggle/working/out/li_r18_hard2_59_s1_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold0 --out /kaggle/working/out/li_r18_hard2_59_s2_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold2 --out /kaggle/working/out/li_r18_hard2_59_s2_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold4 --out /kaggle/working/out/li_r18_hard2_59_s2_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold0 --out /kaggle/working/out/li_r18_hard2_59_s3_fold0.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold2 --out /kaggle/working/out/li_r18_hard2_59_s3_fold2.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0",
+   "python -m expds.train --cache cache/fold4 --out /kaggle/working/out/li_r18_hard2_59_s3_fold4.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:0"
+  ],
+  "1": [
+   "python -m expds.train --cache cache/fold1 --out /kaggle/working/out/li_r18_hard2_59_s1_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/fold3 --out /kaggle/working/out/li_r18_hard2_59_s1_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/full --out /kaggle/working/out/li_r18_hard2_59_s1_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 1 --all-data --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/fold1 --out /kaggle/working/out/li_r18_hard2_59_s2_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/fold3 --out /kaggle/working/out/li_r18_hard2_59_s2_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/full --out /kaggle/working/out/li_r18_hard2_59_s2_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 2 --all-data --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/fold1 --out /kaggle/working/out/li_r18_hard2_59_s3_fold1.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --val-families Боровичи --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/fold3 --out /kaggle/working/out/li_r18_hard2_59_s3_fold3.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --val-families Муравлево --require-gpu --min-gpus 1 --device cuda:1",
+   "python -m expds.train --cache cache/full --out /kaggle/working/out/li_r18_hard2_59_s3_final.pt --encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --seed 3 --all-data --require-gpu --min-gpus 1 --device cuda:1"
+  ]
+ }
+}

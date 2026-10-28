@@ -1,0 +1,4 @@
+[time]
+watchdog = false
+[verify]
+enabled = false

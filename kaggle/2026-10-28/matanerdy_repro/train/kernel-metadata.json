@@ -1,0 +1,17 @@
+{
+ "id": "dmitrijkv/koz3-mn-deeplab",
+ "title": "koz3 mn deeplab",
+ "code_file": "koz3-mn-deeplab.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "dataset_sources": [],
+ "competition_sources": [],
+ "kernel_sources": [
+  "dmitrijkv/koz3-mn-prep"
+ ],
+ "machine_shape": "NvidiaTeslaT4"
+}

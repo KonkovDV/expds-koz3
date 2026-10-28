@@ -1,0 +1,31 @@
+{
+ "n": 53855,
+ "sec": 59,
+ "skip_unknown_region": 0,
+ "by_markup_group_label": {
+  "sp_or/gor/0": 828,
+  "sp_or/gor/1": 18,
+  "sp_or/kurgan/0": 51369,
+  "sp_or/kurgan/1": 1640
+ },
+ "gt_nolidar": {
+  "gor": 73,
+  "kurgan": 1680
+ },
+ "regions": 121,
+ "families": 47,
+ "pos_by_fold": {
+  "3": 151,
+  "1": 409,
+  "4": 358,
+  "2": 737,
+  "0": 3
+ },
+ "n_by_fold": {
+  "4": 17952,
+  "3": 9461,
+  "1": 9585,
+  "2": 16543,
+  "0": 314
+ }
+}

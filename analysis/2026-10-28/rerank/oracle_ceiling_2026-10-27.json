@@ -1,0 +1,611 @@
+{
+ "bar": 0.9,
+ "shipped": {
+  "final_score": 0.985313,
+  "predictions": 10977,
+  "per_class": {
+   "kurgany_povrezhdennye": {
+    "recall": 0.9983,
+    "f1": 0.9988,
+    "tp": 3614,
+    "fp": 6,
+    "gt": 3620,
+    "predictions": 3620
+   },
+   "kurgany_tselye": {
+    "recall": 0.9949,
+    "f1": 0.9962,
+    "tp": 1569,
+    "fp": 8,
+    "gt": 1577,
+    "predictions": 1577
+   },
+   "gorodishcha": {
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 118,
+    "fp": 0,
+    "gt": 118,
+    "predictions": 118
+   },
+   "arkhitektury": {
+    "recall": 0.8747,
+    "f1": 0.903,
+    "tp": 356,
+    "fp": 51,
+    "gt": 407,
+    "predictions": 407
+   },
+   "object_poly": {
+    "recall": 0.9501,
+    "f1": 0.9626,
+    "tp": 1029,
+    "fp": 52,
+    "gt": 1083,
+    "predictions": 1081
+   },
+   "fortifikatsii": {
+    "recall": 0.9971,
+    "f1": 0.9978,
+    "tp": 694,
+    "fp": 2,
+    "gt": 696,
+    "predictions": 696
+   },
+   "finds_points": {
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 3478,
+    "fp": 0,
+    "gt": 3478,
+    "predictions": 3478
+   }
+  },
+  "size_categories": [
+   {
+    "max_area": 100.0,
+    "gt": 4358,
+    "tp": 4240,
+    "recall": 0.9729
+   },
+   {
+    "max_area": 500.0,
+    "gt": 1830,
+    "tp": 1828,
+    "recall": 0.9989
+   },
+   {
+    "max_area": 1000.0,
+    "gt": 474,
+    "tp": 474,
+    "recall": 1.0
+   },
+   {
+    "max_area": 5000.0,
+    "gt": 602,
+    "tp": 601,
+    "recall": 0.9983
+   },
+   {
+    "max_area": 10000.0,
+    "gt": 112,
+    "tp": 112,
+    "recall": 1.0
+   },
+   {
+    "max_area": null,
+    "gt": 125,
+    "tp": 125,
+    "recall": 1.0
+   }
+  ],
+  "size_by_class": {
+   "kurgany_povrezhdennye": [
+    {
+     "max_area": 100.0,
+     "gt": 1845,
+     "tp": 1839,
+     "recall": 0.9967
+    },
+    {
+     "max_area": 500.0,
+     "gt": 994,
+     "tp": 994,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 301,
+     "tp": 301,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 381,
+     "tp": 381,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 50,
+     "tp": 50,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 49,
+     "tp": 49,
+     "recall": 1.0
+    }
+   ],
+   "kurgany_tselye": [
+    {
+     "max_area": 100.0,
+     "gt": 1094,
+     "tp": 1086,
+     "recall": 0.9927
+    },
+    {
+     "max_area": 500.0,
+     "gt": 339,
+     "tp": 339,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 60,
+     "tp": 60,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 76,
+     "tp": 76,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 7,
+     "tp": 7,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    }
+   ],
+   "gorodishcha": [
+    {
+     "max_area": 100.0,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 26,
+     "tp": 26,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 38,
+     "tp": 38,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 52,
+     "tp": 52,
+     "recall": 1.0
+    }
+   ],
+   "arkhitektury": [
+    {
+     "max_area": 100.0,
+     "gt": 236,
+     "tp": 186,
+     "recall": 0.7881
+    },
+    {
+     "max_area": 500.0,
+     "gt": 116,
+     "tp": 115,
+     "recall": 0.9914
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 29,
+     "tp": 29,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 26,
+     "tp": 26,
+     "recall": 1.0
+    }
+   ],
+   "object_poly": [
+    {
+     "max_area": 100.0,
+     "gt": 1010,
+     "tp": 956,
+     "recall": 0.9465
+    },
+    {
+     "max_area": 500.0,
+     "gt": 62,
+     "tp": 62,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 8,
+     "tp": 8,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 3,
+     "tp": 3,
+     "recall": 1.0
+    }
+   ],
+   "finds_points": [],
+   "fortifikatsii": [
+    {
+     "max_area": 100.0,
+     "gt": 172,
+     "tp": 172,
+     "recall": 1.0
+    },
+    {
+     "max_area": 500.0,
+     "gt": 319,
+     "tp": 318,
+     "recall": 0.9969
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 75,
+     "tp": 75,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 90,
+     "tp": 89,
+     "recall": 0.9889
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 17,
+     "tp": 17,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 23,
+     "tp": 23,
+     "recall": 1.0
+    }
+   ]
+  }
+ },
+ "masks_as_circles": {
+  "final_score": 0.985043,
+  "predictions": 10977,
+  "per_class": {
+   "kurgany_povrezhdennye": {
+    "recall": 0.9983,
+    "f1": 0.9988,
+    "tp": 3614,
+    "fp": 6,
+    "gt": 3620,
+    "predictions": 3620
+   },
+   "kurgany_tselye": {
+    "recall": 0.9949,
+    "f1": 0.9962,
+    "tp": 1569,
+    "fp": 8,
+    "gt": 1577,
+    "predictions": 1577
+   },
+   "gorodishcha": {
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 118,
+    "fp": 0,
+    "gt": 118,
+    "predictions": 118
+   },
+   "arkhitektury": {
+    "recall": 0.8747,
+    "f1": 0.903,
+    "tp": 356,
+    "fp": 51,
+    "gt": 407,
+    "predictions": 407
+   },
+   "object_poly": {
+    "recall": 0.9501,
+    "f1": 0.9626,
+    "tp": 1029,
+    "fp": 52,
+    "gt": 1083,
+    "predictions": 1081
+   },
+   "fortifikatsii": {
+    "recall": 0.9899,
+    "f1": 0.9924,
+    "tp": 689,
+    "fp": 7,
+    "gt": 696,
+    "predictions": 696
+   },
+   "finds_points": {
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 3478,
+    "fp": 0,
+    "gt": 3478,
+    "predictions": 3478
+   }
+  },
+  "size_categories": [
+   {
+    "max_area": 100.0,
+    "gt": 4358,
+    "tp": 4238,
+    "recall": 0.9725
+   },
+   {
+    "max_area": 500.0,
+    "gt": 1830,
+    "tp": 1824,
+    "recall": 0.9967
+   },
+   {
+    "max_area": 1000.0,
+    "gt": 474,
+    "tp": 474,
+    "recall": 1.0
+   },
+   {
+    "max_area": 5000.0,
+    "gt": 602,
+    "tp": 602,
+    "recall": 1.0
+   },
+   {
+    "max_area": 10000.0,
+    "gt": 112,
+    "tp": 112,
+    "recall": 1.0
+   },
+   {
+    "max_area": null,
+    "gt": 125,
+    "tp": 125,
+    "recall": 1.0
+   }
+  ],
+  "size_by_class": {
+   "kurgany_povrezhdennye": [
+    {
+     "max_area": 100.0,
+     "gt": 1845,
+     "tp": 1839,
+     "recall": 0.9967
+    },
+    {
+     "max_area": 500.0,
+     "gt": 994,
+     "tp": 994,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 301,
+     "tp": 301,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 381,
+     "tp": 381,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 50,
+     "tp": 50,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 49,
+     "tp": 49,
+     "recall": 1.0
+    }
+   ],
+   "kurgany_tselye": [
+    {
+     "max_area": 100.0,
+     "gt": 1094,
+     "tp": 1086,
+     "recall": 0.9927
+    },
+    {
+     "max_area": 500.0,
+     "gt": 339,
+     "tp": 339,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 60,
+     "tp": 60,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 76,
+     "tp": 76,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 7,
+     "tp": 7,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    }
+   ],
+   "gorodishcha": [
+    {
+     "max_area": 100.0,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 1,
+     "tp": 1,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 26,
+     "tp": 26,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 38,
+     "tp": 38,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 52,
+     "tp": 52,
+     "recall": 1.0
+    }
+   ],
+   "arkhitektury": [
+    {
+     "max_area": 100.0,
+     "gt": 236,
+     "tp": 186,
+     "recall": 0.7881
+    },
+    {
+     "max_area": 500.0,
+     "gt": 116,
+     "tp": 115,
+     "recall": 0.9914
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 29,
+     "tp": 29,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 26,
+     "tp": 26,
+     "recall": 1.0
+    }
+   ],
+   "object_poly": [
+    {
+     "max_area": 100.0,
+     "gt": 1010,
+     "tp": 956,
+     "recall": 0.9465
+    },
+    {
+     "max_area": 500.0,
+     "gt": 62,
+     "tp": 62,
+     "recall": 1.0
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 8,
+     "tp": 8,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 3,
+     "tp": 3,
+     "recall": 1.0
+    }
+   ],
+   "finds_points": [],
+   "fortifikatsii": [
+    {
+     "max_area": 100.0,
+     "gt": 172,
+     "tp": 170,
+     "recall": 0.9884
+    },
+    {
+     "max_area": 500.0,
+     "gt": 319,
+     "tp": 314,
+     "recall": 0.9843
+    },
+    {
+     "max_area": 1000.0,
+     "gt": 75,
+     "tp": 75,
+     "recall": 1.0
+    },
+    {
+     "max_area": 5000.0,
+     "gt": 90,
+     "tp": 90,
+     "recall": 1.0
+    },
+    {
+     "max_area": 10000.0,
+     "gt": 17,
+     "tp": 17,
+     "recall": 1.0
+    },
+    {
+     "max_area": null,
+     "gt": 23,
+     "tp": 23,
+     "recall": 1.0
+    }
+   ]
+  }
+ },
+ "shipped_below_bar": [
+  "arkhitektury"
+ ],
+ "circles_below_bar": [
+  "arkhitektury"
+ ]
+}

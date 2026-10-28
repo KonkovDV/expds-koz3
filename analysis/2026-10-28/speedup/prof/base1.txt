@@ -1,0 +1,136 @@
+         12969 function calls (12871 primitive calls) in 0.233 seconds
+
+   Ordered by: cumulative time
+   List reduced from 536 to 70 due to restriction <70>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.226    0.226 /workspace/koz3_shared/speedup/base/expds/pipeline.py:775(run)
+        4    0.000    0.000    0.078    0.020 <frozen importlib._bootstrap>:1349(_find_and_load)
+        4    0.000    0.000    0.078    0.020 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+        4    0.000    0.000    0.078    0.019 <frozen importlib._bootstrap>:911(_load_unlocked)
+        4    0.000    0.000    0.078    0.019 <frozen importlib._bootstrap_external>:993(exec_module)
+        4    0.000    0.000    0.077    0.019 <frozen importlib._bootstrap_external>:1066(get_code)
+        1    0.000    0.000    0.068    0.068 /workspace/koz3_shared/speedup/base/expds/watchdog.py:140(checkpoint)
+        1    0.000    0.000    0.067    0.067 /workspace/koz3_shared/speedup/base/expds/writer.py:54(write_geojson)
+        1    0.067    0.067    0.067    0.067 {built-in method posix.fsync}
+        8    0.000    0.000    0.041    0.005 <frozen importlib._bootstrap_external>:1187(get_data)
+        6    0.040    0.007    0.040    0.007 {method 'read' of '_io.BufferedReader' objects}
+       12    0.000    0.000    0.036    0.003 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+        4    0.000    0.000    0.035    0.009 <frozen importlib._bootstrap_external>:1058(source_to_code)
+        4    0.035    0.009    0.035    0.009 {built-in method builtins.compile}
+        1    0.000    0.000    0.032    0.032 /workspace/koz3_shared/speedup/base/expds/health.py:43(runtime_report)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/platform.py:1220(platform)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/platform.py:862(__iter__)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/functools.py:982(__get__)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/platform.py:858(processor)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/platform.py:797(get)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/platform.py:819(from_subprocess)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:417(check_output)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:506(run)
+        1    0.000    0.000    0.031    0.031 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:807(__init__)
+        1    0.001    0.001    0.030    0.030 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:1791(_execute_child)
+        1    0.029    0.029    0.029    0.029 {built-in method _posixsubprocess.fork_exec}
+        1    0.000    0.000    0.016    0.016 /workspace/koz3_shared/speedup/base/expds/catalog.py:187(scan_root)
+      116    0.015    0.000    0.016    0.000 {built-in method posix.stat}
+       96    0.000    0.000    0.016    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:835(stat)
+        9    0.000    0.000    0.015    0.002 /workspace/koz3_shared/speedup/base/expds/catalog.py:136(scan_region)
+        1    0.000    0.000    0.015    0.015 /workspace/koz3_shared/speedup/base/expds/pipeline.py:48(load_config)
+        1    0.000    0.000    0.015    0.015 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:65(load)
+        1    0.000    0.000    0.015    0.015 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:77(loads)
+        9    0.000    0.000    0.014    0.002 /workspace/koz3_shared/speedup/base/expds/catalog.py:195(<genexpr>)
+      103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:331(key_value_rule)
+  121/103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:365(parse_key_value_pair)
+  140/103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:596(parse_value)
+        9    0.000    0.000    0.012    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:448(parse_inline_table)
+     12/9    0.000    0.000    0.012    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:424(parse_array)
+       34    0.000    0.000    0.012    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:419(parse_one_line_basic_str)
+       34    0.012    0.000    0.012    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:564(parse_basic_str)
+       53    0.000    0.000    0.010    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:886(is_file)
+        1    0.010    0.010    0.010    0.010 {built-in method _hashlib.openssl_sha256}
+      123    0.007    0.000    0.007    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1164(__new__)
+        1    0.000    0.000    0.006    0.006 /workspace/koz3_shared/speedup/base/expds/health.py:89(log_inventory)
+        1    0.000    0.000    0.005    0.005 /workspace/koz3_shared/speedup/base/expds/health.py:73(model_report)
+       12    0.000    0.000    0.005    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:852(exists)
+       12    0.000    0.000    0.005    0.000 {built-in method builtins.sorted}
+       59    0.000    0.000    0.004    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1097(rglob)
+       59    0.000    0.000    0.004    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:234(_select_from)
+       67    0.003    0.000    0.003    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:200(_select_from)
+       19    0.000    0.000    0.002    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1529(info)
+       20    0.000    0.000    0.002    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1660(_log)
+      7/4    0.000    0.000    0.001    0.000 {built-in method builtins.exec}
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1686(handle)
+        4    0.000    0.000    0.001    0.000 <frozen importlib._bootstrap_external>:1211(_cache_bytecode)
+        1    0.000    0.000    0.001    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:1688(_get_handles)
+        1    0.000    0.000    0.001    0.001 /workspace/koz3_shared/speedup/base/expds/watchdog.py:105(_emit_protocol)
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1746(callHandlers)
+        4    0.000    0.000    0.001    0.000 <frozen importlib._bootstrap_external>:1216(set_data)
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1011(handle)
+        2    0.001    0.000    0.001    0.000 {built-in method posix.pipe}
+        1    0.000    0.000    0.001    0.001 /workspace/koz3_shared/speedup/base/expds/watchdog.py:1(<module>)
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1645(makeRecord)
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1148(emit)
+        4    0.000    0.000    0.001    0.000 <frozen importlib._bootstrap_external>:195(_write_atomic)
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:298(__init__)
+        1    0.000    0.000    0.001    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/dataclasses.py:1247(dataclass)
+        1    0.000    0.000    0.001    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/dataclasses.py:1264(wrap)
+        1    0.000    0.000    0.001    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/dataclasses.py:921(_process_class)
+
+
+         12969 function calls (12871 primitive calls) in 0.233 seconds
+
+   Ordered by: internal time
+   List reduced from 536 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.067    0.067    0.067    0.067 {built-in method posix.fsync}
+        6    0.040    0.007    0.040    0.007 {method 'read' of '_io.BufferedReader' objects}
+        4    0.035    0.009    0.035    0.009 {built-in method builtins.compile}
+        1    0.029    0.029    0.029    0.029 {built-in method _posixsubprocess.fork_exec}
+      116    0.015    0.000    0.016    0.000 {built-in method posix.stat}
+       34    0.012    0.000    0.012    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:564(parse_basic_str)
+        1    0.010    0.010    0.010    0.010 {built-in method _hashlib.openssl_sha256}
+      123    0.007    0.000    0.007    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1164(__new__)
+       67    0.003    0.000    0.003    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:200(_select_from)
+        2    0.001    0.000    0.001    0.000 {built-in method posix.pipe}
+        1    0.001    0.001    0.030    0.030 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/subprocess.py:1791(_execute_child)
+        4    0.000    0.000    0.000    0.000 {built-in method marshal.dumps}
+        4    0.000    0.000    0.000    0.000 {method 'write' of '_io.FileIO' objects}
+      151    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:206(get_or_create_nest)
+      7/4    0.000    0.000    0.001    0.000 {built-in method builtins.exec}
+       20    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:298(__init__)
+        1    0.000    0.000    0.015    0.015 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:77(loads)
+        1    0.000    0.000    0.226    0.226 /workspace/koz3_shared/speedup/base/expds/pipeline.py:775(run)
+        1    0.000    0.000    0.000    0.000 {built-in method posix.listdir}
+      131    0.000    0.000    0.000    0.000 {method 'isdisjoint' of 'frozenset' objects}
+      103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:331(key_value_rule)
+     1308    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+     1031    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:240(skip_chars)
+        8    0.000    0.000    0.000    0.000 {built-in method _io.open}
+        5    0.000    0.000    0.000    0.000 {built-in method posix.open}
+      290    0.000    0.000    0.000    0.000 {method 'match' of 're.Pattern' objects}
+      123    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:358(__init__)
+       26    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1112(walk)
+  140/103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:596(parse_value)
+        9    0.000    0.000    0.015    0.002 /workspace/koz3_shared/speedup/base/expds/catalog.py:136(scan_region)
+      123    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1157(__init__)
+       74    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1065(_make_child_relpath)
+        8    0.000    0.000    0.000    0.000 {built-in method _io.open_code}
+       43    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:387(_parse_path)
+      278    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:437(__str__)
+  121/103    0.000    0.000    0.013    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:365(parse_key_value_pair)
+      151    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:381(parse_key)
+        5    0.000    0.000    0.000    0.000 {built-in method posix.replace}
+       13    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
+       23    0.000    0.000    0.000    0.000 {method 'flush' of '_io.TextIOWrapper' objects}
+       34    0.000    0.000    0.000    0.000 {built-in method posix.scandir}
+      286    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:496(_parts_normcase)
+      143    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:531(__lt__)
+        1    0.000    0.000    0.005    0.005 /workspace/koz3_shared/speedup/base/expds/health.py:73(model_report)
+       59    0.000    0.000    0.004    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:1097(rglob)
+       20    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/logging/__init__.py:1611(findCaller)
+       90    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:380(with_segments)
+      144    0.000    0.000    0.001    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/pathlib.py:447(__fspath__)
+      131    0.000    0.000    0.000    0.000 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py:249(skip_until)
+       20    0.000    0.000    0.000    0.000 {built-in method time.localtime}
+
+

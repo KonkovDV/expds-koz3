@@ -1,0 +1,7 @@
+[time]
+budget_s = 250
+reserve_s = 10
+watchdog = false
+window_reserve_s = 30
+[verify]
+enabled = false

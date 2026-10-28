@@ -1,0 +1,295 @@
+{
+  "base_all": 0.36073218906957827,
+  "all": 0.3531061383461976,
+  "delta_all": -0.007626050723380684,
+  "base_new": 0.3253859121462228,
+  "new": 0.356050689596,
+  "delta_new": 0.030664777449777192,
+  "base_optical": 0.2070486835349943,
+  "optical": 0.14093491320022986,
+  "delta_optical": -0.06611377033476445,
+  "bootstrap": {
+    "mean": -0.008914703930730116,
+    "p5": -0.023782062600850702,
+    "p50": -0.007765042038178488,
+    "p95": 0.0024235506287658285,
+    "p_gt0": 0.108
+  },
+  "accept": false,
+  "per_class": {
+    "kurgany_povrezhdennye": {
+      "f1": 0.3380088737834233,
+      "n_gt": 3620,
+      "groups": {
+        "ae": {
+          "threshold": 0.994669,
+          "kept": 294,
+          "tp": 35
+        },
+        "li": {
+          "threshold": 0.984488,
+          "kept": 2432,
+          "tp": 834
+        },
+        "li_ae": {
+          "threshold": 0.990773,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.998042,
+          "kept": 16,
+          "tp": 3
+        },
+        "li_mosaic": {
+          "threshold": 0.987622,
+          "kept": 372,
+          "tp": 53
+        },
+        "sp_focal": {
+          "threshold": 0.996536,
+          "kept": 224,
+          "tp": 36
+        },
+        "sp_focal2": {
+          "threshold": 0.992444,
+          "kept": 386,
+          "tp": 51
+        }
+      }
+    },
+    "kurgany_tselye": {
+      "f1": 0.4928039981894373,
+      "n_gt": 1577,
+      "groups": {
+        "ae": {
+          "threshold": 0.996658,
+          "kept": 799,
+          "tp": 278
+        },
+        "li": {
+          "threshold": 0.996234,
+          "kept": 720,
+          "tp": 274
+        },
+        "li_ae": {
+          "threshold": 0.999697,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_dev": {
+          "threshold": 0.998687,
+          "kept": 41,
+          "tp": 12
+        },
+        "li_mosaic": {
+          "threshold": 0.992251,
+          "kept": 282,
+          "tp": 138
+        },
+        "sp_focal": {
+          "threshold": 0.999736,
+          "kept": 0,
+          "tp": 0
+        },
+        "sp_focal2": {
+          "threshold": 0.999943,
+          "kept": 0,
+          "tp": 0
+        }
+      }
+    },
+    "gorodishcha": {
+      "f1": 0.32697501420373376,
+      "n_gt": 118,
+      "groups": {
+        "gor_phys": {
+          "threshold": 0.43049,
+          "kept": 18,
+          "tp": 5
+        },
+        "li": {
+          "threshold": 0.993091,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.986425,
+          "kept": 24,
+          "tp": 8
+        },
+        "li_mask": {
+          "threshold": 0.99451,
+          "kept": 26,
+          "tp": 14
+        },
+        "sp_or": {
+          "threshold": 0.994085,
+          "kept": 33,
+          "tp": 3
+        }
+      }
+    },
+    "arkhitektury": {
+      "f1": 0.026058161269994405,
+      "n_gt": 407,
+      "groups": {
+        "sp_arch": {
+          "threshold": 0.199475,
+          "kept": 1321,
+          "tp": 14
+        }
+      }
+    },
+    "object_poly": {
+      "f1": 0.3172661772981342,
+      "n_gt": 1083,
+      "groups": {
+        "etgr": {
+          "threshold": 0.096635,
+          "kept": 387,
+          "tp": 144
+        },
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 146,
+          "tp": 78
+        },
+        "terfl": {
+          "threshold": 0.0,
+          "kept": 319,
+          "tp": 38
+        }
+      }
+    },
+    "fortifikatsii": {
+      "f1": 0.1877373589295957,
+      "n_gt": 696,
+      "groups": {
+        "ae_fort": {
+          "threshold": 0.998215,
+          "kept": 714,
+          "tp": 94
+        },
+        "li": {
+          "threshold": 0.999971,
+          "kept": 0,
+          "tp": 0
+        },
+        "li_coarse": {
+          "threshold": 0.99926,
+          "kept": 21,
+          "tp": 3
+        },
+        "li_fort": {
+          "threshold": 0.987675,
+          "kept": 127,
+          "tp": 14
+        }
+      }
+    },
+    "finds_points": {
+      "f1": 0.5817537237622955,
+      "n_gt": 3478,
+      "groups": {
+        "maggr": {
+          "threshold": 0.0,
+          "kept": 3732,
+          "tp": 1819
+        }
+      }
+    }
+  },
+  "thresholds": {
+    "ae": {
+      "kurgany_povrezhdennye": 0.994669,
+      "kurgany_tselye": 0.996658
+    },
+    "li": {
+      "kurgany_povrezhdennye": 0.984488,
+      "kurgany_tselye": 0.996234,
+      "gorodishcha": 0.993091,
+      "fortifikatsii": 0.999971
+    },
+    "li_ae": {
+      "kurgany_povrezhdennye": 0.990773,
+      "kurgany_tselye": 0.999697
+    },
+    "li_dev": {
+      "kurgany_povrezhdennye": 0.998042,
+      "kurgany_tselye": 0.998687
+    },
+    "li_mosaic": {
+      "kurgany_povrezhdennye": 0.987622,
+      "kurgany_tselye": 0.992251
+    },
+    "sp_focal": {
+      "kurgany_povrezhdennye": 0.996536,
+      "kurgany_tselye": 0.999736
+    },
+    "sp_focal2": {
+      "kurgany_povrezhdennye": 0.992444,
+      "kurgany_tselye": 0.999943
+    },
+    "gor_phys": {
+      "gorodishcha": 0.43049
+    },
+    "li_coarse": {
+      "gorodishcha": 0.986425,
+      "fortifikatsii": 0.99926
+    },
+    "li_mask": {
+      "gorodishcha": 0.99451
+    },
+    "sp_or": {
+      "gorodishcha": 0.994085
+    },
+    "sp_arch": {
+      "arkhitektury": 0.199475
+    },
+    "etgr": {
+      "object_poly": 0.096635
+    },
+    "maggr": {
+      "object_poly": 0.0,
+      "finds_points": 0.0
+    },
+    "terfl": {
+      "object_poly": 0.0
+    },
+    "ae_fort": {
+      "fortifikatsii": 0.998215
+    },
+    "li_fort": {
+      "fortifikatsii": 0.987675
+    }
+  },
+  "add": [],
+  "replace": [],
+  "geo": "geo_cur.geojson",
+  "gt": "gt_train_v2.geojson",
+  "honest": {
+    "base": [
+      0.33888052777195454,
+      0.29659057214418155,
+      0.18742504348609854
+    ],
+    "after": [
+      0.3294952666181661,
+      0.33473731239135346,
+      0.12252159688770226
+    ],
+    "bootstrap_families": {
+      "mean": -0.010816357925005994,
+      "p5": -0.0356187713144414,
+      "p50": -0.009328451782166208,
+      "p95": 0.006612955526464962,
+      "p_gt0": 0.182,
+      "samples": 1000,
+      "families": 103
+    },
+    "accept": false,
+    "folds": 10,
+    "by": "region"
+  }
+}

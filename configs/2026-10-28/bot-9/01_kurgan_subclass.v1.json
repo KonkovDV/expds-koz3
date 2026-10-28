@@ -1,0 +1,27 @@
+{
+ "name": "01_kurgan_subclass",
+ "min_gpus": 2,
+ "input_npz_glob": "/kaggle/input/**/kurgan_subclass_crops.npz",
+ "why": "классификатор подкласса кургана (повреждённый=1 / целый=0) по окну рельефа 64×64 вокруг кандидата li",
+ "encoder": "resnet18",
+ "pretrained": true,
+ "epochs": 12,
+ "batch": 128,
+ "lr": 0.0003,
+ "weight_decay": 0.0001,
+ "loss_weights": {
+  "kurgany_povrezhdennye": 30,
+  "kurgany_tselye": 20
+ },
+ "apply_thr": 0.5,
+ "lfo_folds": 10,
+ "seeds_by_gpu": {
+  "0": [
+   0
+  ],
+  "1": [
+   1
+  ]
+ },
+ "honesty": "фолды — expds.metric.family_folds(регионы, site_family, 10), как scoreboard --honest 10; порог не подбирается (0,5 при весах 30:20)"
+}

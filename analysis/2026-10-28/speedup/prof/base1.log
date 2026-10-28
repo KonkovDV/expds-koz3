@@ -1,0 +1,20 @@
+2026-10-28 21:36:56,234 expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-28 21:36:56,236 expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=2
+2026-10-28 21:36:56,236 expds.pipeline: устройство: cpu
+2026-10-28 21:36:56,384 expds.catalog: найдено регионов: 8 в sample
+2026-10-28 21:36:56,384 expds.pipeline: к разбору: регионов 8, LAS 2, растров 19 (ae 1, etgr 9, maggr 3, sp_or 5, terfl 1), пропущено файлов 0
+2026-10-28 21:36:56,402 expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 3.9}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=2'}
+2026-10-28 21:36:56,621 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 21:36:56,771 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 21:36:57,227 expds.health: опись входа: {'regions': 8, 'rasters_by_modality': {'ae': 1, 'sp_or': 5, 'maggr': 3, 'etgr': 9, 'terfl': 1}, 'las_files': 2, 'las_region_crs': {'EPSG:32632': 1, 'EPSG:32633': 1}, 'raster_read': {'ok': 19}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-28 21:36:57,279 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 21:36:57,358 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 21:37:03,866 expds.pipeline: 217_Гнёздово_Селище_3: геофизика +113, прошло 8 с
+2026-10-28 21:37:03,954 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 21:37:25,155 expds.lidar: DEM 01_Хога_La_точки.laz: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 21:37:44,334 expds.lidar: DEM 01_Хога_La_точки.laz: 983x706 @ 0.5 м, точек 268836, пустот 497683, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 21:37:44,432 expds.hillfort: 01_Хога_La_точки.laz: кандидатов городищ по рельефу 4
+2026-10-28 21:37:47,099 expds.lidar: DEM 01_Хога_La_точки.laz: 493x354 @ 1 м, точек 268836, пустот 67851, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 21:37:54,392 expds.pipeline: 016_Хога: лидар +1572, 50.5 с, прошло 58 с
+2026-10-28 21:37:54,450 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 21:37:58,349 expds.lidar: DEM 01_Курган_Хога_La_точки.laz: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, rust 0.1.0 avx2=true/true threads=2
