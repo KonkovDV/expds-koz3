@@ -65,8 +65,14 @@ class RunState:
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
     out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    if (cfg.get("rerank_arch") or {}).get("enabled"):
+        from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
+
+        out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
+    out = out + reranked
     out = post.merge_within_markup(out)
     post_cfg = cfg.get("post") or {}
     if post_cfg.get("multipole_object_poly"):
