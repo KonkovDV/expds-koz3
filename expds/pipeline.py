@@ -240,7 +240,14 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
         try:
             from . import geo_pixgbm
-            feats += geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
+            cls = set(pix.get("classes", ["finds_points", "object_poly"]))
+            new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
+                   if f["class_name"] in cls]
+            if pix.get("replace", False):
+                # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+                have = {(f["class_name"], f["markup_type"]) for f in new}
+                feats = [f for f in feats if (f.get("class_name"), f.get("markup_type")) not in have]
+            feats += new
         except Exception:
             log.exception("%s: pixgbm пропущен", reg.name)
     return feats
