@@ -290,6 +290,15 @@ min_confidence = 0.1426
 # Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
 # Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
 # (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
+# sota_stack6, режим separate (кандидат bot-7 по сводке bot-10: EXPERIMENTS.md «Сводка решений» 21:15 МСК,
+# bot-10/REPORT4.md): post.multipole_object_poly без unified_group (группы maggr_poly/etgr/terfl раздельно)
+# + post.filter_finds_points_regimes, как в bot-10/work4/stack6_fam.py --mode separate.
+# Честно: keep +0,015057, drop +0,006703, P 0,948 (bot-10/work4/stack6_global.json). kurgan_twins не мерен — не включён.
+# Выключить: обе строки = false.
+[post]
+multipole_object_poly = true
+filter_finds_points = true
+
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
 # Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются

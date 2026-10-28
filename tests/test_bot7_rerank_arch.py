@@ -43,6 +43,13 @@ def test_default_config_candidate():
     assert cfg["post"]["micro_circles"]["radius_m"] == {"kurgany_povrezhdennye": 0.5, "kurgany_tselye": 0.5}
     assert cfg["thresholds_by_markup"]["or"]["arkhitektury"] == 0.065565
     assert cfg["verify"]["enabled"] is True
+    # финальный состав (bot-1 по сводке bot-10): sota_stack6 separate, без kurgan_twins и без unified_group
+    post_cfg = cfg["post"]
+    assert post_cfg["multipole_object_poly"] is True and post_cfg["filter_finds_points"] is True
+    assert "kurgan_twins" not in post_cfg
+    # маска фортификаций ae — в базе и включена
+    assert cfg["models"]["ae"]["path"] == "models/ae_fort_mask_r18.pt" and (ROOT / cfg["models"]["ae"]["path"]).is_file()
+    assert cfg["thresholds_by_markup"]["ae"]["fortifikatsii"] == 0.998215
 
 
 def test_flag_off_and_missing_files_are_noop(tmp_path):
