@@ -24,10 +24,18 @@ def guard_tta(tta, deadline):
     return True if tta == "d8" and time.time() > deadline - FLIPS_ONLY_LEFT_S else tta
 
 
-def stacks_for(dtm, valid, cell, kinds, dev):
-    """{kind: stack} for the kinds in use and the valid mask at NET_CELL."""
+def stacks_for(dtm, valid, cell, kinds, dev, share=True):
+    """{kind: stack} for the kinds in use and the valid mask at NET_CELL.
+
+    share (item (2)): the 9-channel stack is planes terrain.BASE_OF_EXTRA of the 12-channel one (same operations in
+    the same order), so with both '' and 'x' in use the 12-channel stack is computed once and sliced."""
     got, vmask = {}, None
-    for kind in kinds:
+    todo = list(kinds)
+    if share and "" in todo and "x" in todo:
+        got["x"], vmask = terrain.relief_stack_windowed(dtm, valid, cell, dev=dev, **KIND_ARGS["x"])
+        got[""] = got["x"][terrain.BASE_OF_EXTRA]
+        todo = [k for k in todo if k not in ("", "x")]
+    for kind in todo:
         got[kind], vk = terrain.relief_stack_windowed(dtm, valid, cell, dev=dev, **KIND_ARGS[kind])
         vmask = vk if vmask is None else vmask
     return got, vmask
