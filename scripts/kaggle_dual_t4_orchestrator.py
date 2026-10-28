@@ -166,12 +166,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "li_r18_hard2_59 (Unet + resnet18, target=mask, Folds 0 & 1)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold0 --out /kaggle/working/li_r18_hard2_59_fold0.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[0]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/fold1 --out /kaggle/working/li_r18_hard2_59_fold1.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[1]} --device {{DEV1}}"
             ],
         },
@@ -181,12 +181,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "li_r18_hard2_59 (Unet + resnet18, target=mask, Folds 2 & 3)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold2 --out /kaggle/working/li_r18_hard2_59_fold2.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[2]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/fold3 --out /kaggle/working/li_r18_hard2_59_fold3.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[3]} --device {{DEV1}}"
             ],
         },
@@ -196,12 +196,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "li_r18_hard2_59 (Fold 4 + финальные веса на всех 59 облаках LAS)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold4 --out /kaggle/working/li_r18_hard2_59_fold4.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[4]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt "
-                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 32 "
+                "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 "--val-families auto --device {DEV1}"
             ],
         },
@@ -213,25 +213,25 @@ def build_dual_gpu_plan() -> dict:
                 "python -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_edge_59_fold0.pt "
                 "--encoder resnet34 --arch FPN --target centers --center-loss focal "
                 "--center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 "
-                f"--epochs 30 --batch 32 --val-families {splits_val_map[0]} --device {{DEV0}}",
+                f"--epochs 30 --batch 64 --lr 1.4e-3 --require-gpu --val-families {splits_val_map[0]} --device {{DEV0}}",
                 "python -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_edge_59_fold1.pt "
                 "--encoder resnet34 --arch FPN --target centers --center-loss focal "
                 "--center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 "
-                f"--epochs 30 --batch 32 --val-families {splits_val_map[1]} --device {{DEV0}}",
+                f"--epochs 30 --batch 64 --lr 1.4e-3 --require-gpu --val-families {splits_val_map[1]} --device {{DEV0}}",
                 "python -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_edge_59_fold2.pt "
                 "--encoder resnet34 --arch FPN --target centers --center-loss focal "
                 "--center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 "
-                f"--epochs 30 --batch 32 --val-families {splits_val_map[2]} --device {{DEV0}}",
+                f"--epochs 30 --batch 64 --lr 1.4e-3 --require-gpu --val-families {splits_val_map[2]} --device {{DEV0}}",
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_edge_59_fold3.pt "
                 "--encoder resnet34 --arch FPN --target centers --center-loss focal "
                 "--center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 "
-                f"--epochs 30 --batch 32 --val-families {splits_val_map[3]} --device {{DEV1}}",
+                f"--epochs 30 --batch 64 --lr 1.4e-3 --require-gpu --val-families {splits_val_map[3]} --device {{DEV1}}",
                 "python -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_edge_59_fold4.pt "
                 "--encoder resnet34 --arch FPN --target centers --center-loss focal "
                 "--center-radius 4.0 --center-sigma 0.0 --center-edge-ignore --ema 0.999 "
-                f"--epochs 30 --batch 32 --val-families {splits_val_map[4]} --device {{DEV1}}",
+                f"--epochs 30 --batch 64 --lr 1.4e-3 --require-gpu --val-families {splits_val_map[4]} --device {{DEV1}}",
             ],
         },
     ]
@@ -242,12 +242,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "High-capacity mask rescore: resnet34 + FPN (target=mask, Folds 0 & 1)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold0 --out /kaggle/working/li_r34_fpn_mask_59_fold0.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[0]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/fold1 --out /kaggle/working/li_r34_fpn_mask_59_fold1.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[1]} --device {{DEV1}}"
             ],
         },
@@ -257,12 +257,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "High-capacity mask rescore: resnet34 + FPN (target=mask, Folds 2 & 3)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold2 --out /kaggle/working/li_r34_fpn_mask_59_fold2.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[2]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/fold3 --out /kaggle/working/li_r34_fpn_mask_59_fold3.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[3]} --device {{DEV1}}"
             ],
         },
@@ -272,12 +272,12 @@ def build_dual_gpu_plan() -> dict:
             "recipe": "High-capacity mask rescore: resnet34 + FPN (Fold 4 + all-data final)",
             "gpu0_cmds": [
                 "python -m expds.train --cache cache/fold4 --out /kaggle/working/li_r34_fpn_mask_59_fold4.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 f"--val-families {splits_val_map[4]} --device {{DEV0}}"
             ],
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r34_fpn_mask_59_final.pt "
-                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 32 "
+                "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
                 "--val-families auto --device {DEV1}"
             ],
         },
@@ -405,6 +405,7 @@ def run_cmd_sequence(cmds: list[str], dev: str, work_root: Path, out_dir: Path, 
     env["PYTHONPATH"] = str(work_root)
     env["HF_HUB_CACHE"] = str(work_root / "hf_hub_cache")
     env["HF_HUB_OFFLINE"] = "1"
+    env["EXPDS_REQUIRE_GPU"] = "1"
     for idx, raw_cmd in enumerate(cmds):
         cmd_str = raw_cmd.format(DEV0=dev, DEV1=dev).replace("/kaggle/working", str(out_dir))
         cmd = [sys.executable if tok == "python" else tok for tok in cmd_str.split()]
@@ -456,6 +457,11 @@ def main() -> None:
     n_gpus = torch.cuda.device_count()
     gpu_names = [torch.cuda.get_device_name(i) for i in range(n_gpus)]
     print(json.dumps({"node_id": NODE_ID, "username": USERNAME, "gpus": n_gpus, "gpu_names": gpu_names}), flush=True)
+    if n_gpus < 1 and os.environ.get("KOZ3_ALLOW_CPU_FALLBACK", "0") != "1":
+        raise RuntimeError(
+            f"На узле node_{NODE_ID} ({USERNAME}) не выделен GPU (detected_gpus=0)! "
+            "Отказ от тихого отката на CPU (правило 1 GPU-сессия на аккаунт)."
+        )
 
     bundle = find_input_bundle()
     work_root = Path(f"/tmp/koz3_run_node_{NODE_ID}")
@@ -593,7 +599,7 @@ def stage_bundles(nodes: list[dict]) -> dict:
             "enable_gpu": "true",
             "machine_shape": "NvidiaTeslaT4",
             "enable_tpu": "false",
-            "enable_internet": "true",
+            "enable_internet": "false",
             "dataset_sources": [f"{uname}/{DATASET_SLUG}"],
             "competition_sources": [],
             "kernel_sources": [],
@@ -618,6 +624,35 @@ def stage_bundles(nodes: list[dict]) -> dict:
         "cache_files": linked_files,
         "kernels": staged_kernels,
     }
+
+
+KNOWN_GPU_SLUGS = (
+    KERNEL_SLUG,
+    "koz3-gpu-s1",
+    "koz3-gpu-s2",
+    "koz3-gpu-s3",
+)
+
+
+def get_running_kernels_on_account(kbin: str, env: dict, uname: str, exclude_slug: str | None = None) -> list[str]:
+    """Проверяет, нет ли уже запущенной GPU-сессии на аккаунте (Kaggle даёт только 1 GPU-сессию на аккаунт).
+
+    При одновременном пуше второго ядра на тот же аккаунт Kaggle тихо сбрасывает второе ядро на CPU.
+    """
+    running = []
+    for slug in KNOWN_GPU_SLUGS:
+        if exclude_slug and slug == exclude_slug:
+            continue
+        ref = f"{uname}/{slug}"
+        try:
+            p = subprocess.run([kbin, "kernels", "status", ref],
+                               env=env, capture_output=True, text=True, timeout=15)
+            st = (p.stdout + " " + p.stderr).lower()
+            if "running" in st or "queued" in st:
+                running.append(ref)
+        except Exception:
+            continue
+    return running
 
 
 def wait_for_dataset_ready(kbin: str, env: dict, dataset_ref: str, max_wait_sec: int = 120) -> str:
@@ -662,6 +697,16 @@ def push_to_kaggle(nodes: list[dict], target_nodes: list[int] | None, push_ds: b
                 node_res["dataset_push"] = {"rc": p.returncode, "stdout": p.stdout.strip(), "stderr": p.stderr.strip()}
 
         if push_kn:
+            # Защита от одновременного запуска двух ядер на одном аккаунте (1 GPU-сессия на аккаунт)
+            busy = get_running_kernels_on_account(kbin, env, uname, exclude_slug=KERNEL_SLUG)
+            if busy and os.environ.get("KOZ3_FORCE_CONCURRENT_PUSH", "0") != "1":
+                node_res["kernel_push"] = {
+                    "rc": 1,
+                    "skipped": True,
+                    "reason": f"На аккаунте {uname} уже выполняется ядро {busy}; параллельный пуш второго ядра приведёт к откату на CPU.",
+                }
+                results.append(node_res)
+                continue
             # Дождёмся готовности датасета и при необходимости повторим kernels push с ретраями
             ds_state = wait_for_dataset_ready(kbin, env, ds_ref, max_wait_sec=90)
             node_res["dataset_ready_status"] = ds_state
