@@ -11,6 +11,7 @@
 | [`COMPETITORS_DEEP.md`](COMPETITORS_DEEP.md) | разбор EhimenNathan/EXpedition, maratgaliulin/EXpedition и связанных репо: идеи P0–P2 |
 | [`DETECTORS_SOTA.md`](DETECTORS_SOTA.md) | лучшие детекторы на конец 2026 г. под КОЗ №3: геофизика → спутник → декодинг лидара, Ae/Or, ансамбль, лицензии (только публичные источники) |
 | `audit/*.diff` | три правки по итогам аудита (геофизика `dedupe_maps`, якоря курганов, запасной путь `limit_vertices`); `git apply --check` на 24bd916 проходит |
+| [`speedup/SPEEDUP.md`](speedup/SPEEDUP.md), [`speedup/FINDINGS_EARLY.md`](speedup/FINDINGS_EARLY.md) | ускорение пайплайна: замеры и ранние находки |
 | `audit/runs/` | скрипты и JSON симуляции слоёв (etgr, recall по слоям) |
 
 Здесь только наши описания. Чужой код, клоны, слои образов и найденные в чужих репо ключи S3 в репозиторий не переносились.

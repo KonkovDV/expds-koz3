@@ -130,6 +130,15 @@ python -m expds.metric sweep --pred work/oof.geojson --gt work/gt_train.geojson 
 | `docs/THIRD_PARTY.md` | лицензии |
 | `docs/DATA_PROTOCOL.md` | конкурсные данные |
 | `docs/AI_DECLARATION.md` | журнал инструментов |
+| `docs/STATUS_2026-10-28.md` | статус, очередь Kaggle, прогноз на 11.11 |
+| `docs/EXPERIMENTS.md` | все замеры: Δ, P, LOFO, статус, ссылка на отчёт |
+| `docs/REASONING_AND_DISCOVERY_LOG_2026-10-28.md` | журнал рассуждений и находок |
+| `docs/research/2026-10-28/` | аудит, OSINT, SOTA, общие правила, ускорение |
+| `docs/bots/2026-10-28/` | отчёты ботов 2–10 и результаты замеров |
+| `analysis/2026-10-28/bots/` | скрипты анализа ботов |
+| `kaggle/2026-10-28/` | исходники Kaggle-ядер и логи прогонов |
+| `patches/2026-10-28/` | патчи ботов |
+| ветки `bots/*` | код ботов, не слитый в main |
 
 ## Ограничения
 
