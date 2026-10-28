@@ -7,6 +7,8 @@
 * `scripts/det_train_hf.py` — свой тренер на `transformers.AutoModelForObjectDetection` (код конкурентов не использовался).
 * `kaggle/dfine_folds.sh` — 5 фолдов, 2 полосы GPU (GPU0: f0 f2 f4, GPU1: f1 f3), обучение + предсказание сетки фолда.
 * `kaggle/dfine_kaggle.ipynb` — ноутбук: pip → smoke → фолды → архив предсказаний.
+* `kaggle/requirements_dfine.txt` — **точные версии: `transformers==5.21.0`, `timm==1.0.30`** (проверены на боксе). Ставить `pip install -r kaggle/requirements_dfine.txt`, не `>=`.
+  После загрузки модели `assert_no_meta` падает с понятной ошибкой, если параметр/буфер остался на meta (в transformers 5.x `from_pretrained` подменяет `tie_weights` на весь процесс — две модели в параллельных потоках не грузить; фолды у нас — отдельные процессы).
 
 ## Шаг 0 — данные (машина с полными данными, CPU)
 ```bash

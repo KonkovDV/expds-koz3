@@ -127,6 +127,20 @@ class Boxes:
         return w
 
 
+TRANSFORMERS_PIN = "5.21.0"  # проверено на боксе; см. kaggle/requirements_dfine.txt
+
+
+def assert_no_meta(model, where: str) -> None:
+    """Падает, если после загрузки хоть один параметр/буфер остался на meta (не материализован).
+    transformers 5.x на время from_pretrained подменяет tie_weights на весь процесс: при загрузке двух моделей
+    в параллельных потоках class_embed/bbox_embed D-FINE могут остаться на meta. Наши фолды — отдельные процессы."""
+    bad = [n for n, t in list(model.named_parameters()) + list(model.named_buffers()) if t.device.type == "meta"]
+    if bad:
+        import transformers
+        raise RuntimeError(f"{where}: {len(bad)} тензор(ов) на meta после загрузки (transformers {transformers.__version__}, "
+                           f"ожидается {TRANSFORMERS_PIN}; модели не грузить параллельно в потоках): {bad[:8]}")
+
+
 def build(args, K: int, id2label: dict):
     import torch
     from transformers import AutoImageProcessor, AutoModelForObjectDetection
@@ -240,6 +254,7 @@ def main() -> None:
         proc = AutoImageProcessor.from_pretrained(a.load); model = AutoModelForObjectDetection.from_pretrained(a.load)
     else:
         proc, model = build(a, len(cats), id2label)
+    assert_no_meta(model, a.load or a.model)
     model.to(dev)
     T["build_s"] = time.time() - T["t0"]
     T["params_M"] = sum(p.numel() for p in model.parameters()) / 1e6
