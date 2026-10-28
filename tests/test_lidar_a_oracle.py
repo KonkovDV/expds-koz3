@@ -29,10 +29,12 @@ def _bare_las(path, n=60_000, seed=3):
     return path
 
 
+@pytest.mark.parametrize("fill", ["exact", "exact_fast"])
 @pytest.mark.parametrize("case", ["class", "lowest", "bare"])
-def test_dtm_bitwise(tmp_path, case):
+def test_dtm_bitwise(tmp_path, case, fill, monkeypatch):
     from conftest import write_las
     from expds.lidar_a import ground
+    monkeypatch.setattr(ground, "FILL_MODE", fill)
     ref = oracle("dtm")
     if case == "bare":
         p = _bare_las(tmp_path / "b.las")
