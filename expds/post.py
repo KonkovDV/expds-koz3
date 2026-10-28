@@ -146,6 +146,27 @@ def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> Base
     return best if best is not None else geom.convex_hull
 
 
+GEO_HULL_MARKUPS = ("etgr", "terfl")
+
+
+def convex_hull_object_poly(feats: list[dict], spec=None) -> list[dict]:
+    """Выпуклая оболочка object_poly только для геофизики etgr/terfl ([post] geo_convex_hull, по умолчанию выкл.).
+
+    Честная проверка bot-6 (GEO.md, work/geo/geo_val.py, LOSO внутри Гнёздово): +0,0017 к исходной
+    геометрии, P 0,998. maggr и остальные классы не трогаются.
+    """
+    cfg = spec if isinstance(spec, dict) else {}
+    marks = set(cfg.get("markups", GEO_HULL_MARKUPS))
+    out = []
+    for f in feats:
+        if f.get("class_name") == "object_poly" and f.get("markup_type") in marks and not f["geom"].is_empty:
+            hull = f["geom"].convex_hull
+            if hull.geom_type == "Polygon":
+                f = dict(f, geom=hull)
+        out.append(f)
+    return out
+
+
 def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:
     """Валидные отдельные Polygon с допустимым числом вершин."""
     out = []
