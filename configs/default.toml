@@ -325,15 +325,17 @@ min_confidence = 0.1426
 # sota_stack6, режим separate (кандидат bot-7 по сводке bot-10: EXPERIMENTS.md «Сводка решений» 21:15 МСК,
 # bot-10/REPORT4.md): post.multipole_object_poly без unified_group (группы maggr_poly/etgr/terfl раздельно)
 # + post.filter_finds_points_regimes, как в bot-10/work4/stack6_fam.py --mode separate.
-# Честно: keep +0,015057, drop +0,006703, P 0,948 (bot-10/work4/stack6_global.json). kurgan_twins не мерен — не включён.
+# Честно: keep +0,015057, drop +0,006703, P 0,948 (bot-10/work4/stack6_global.json).
 # Выключить: обе строки = false.
 [post]
 multipole_object_poly = true
 filter_finds_points = true
 # kurgan_twins_only (bot-6, ad8ae9b + починка масштаба 78add0e = 92ab33e здесь: один cos φ на участок,
-# bot-10 REPORT6_twins §2): копии целый -> повреждённый без межтипового dedup. ВЫКЛЮЧЕН: приёмка bot-10
-# починенного кода не задокументирована (bot-10/STATUS.md «Следующее: twins 78add0e», EXPERIMENTS.md
-# «PENDING»). Включить после приёмки: kurgan_twins_only = true
+# bot-10 REPORT6_twins §2): копии целый -> повреждённый без межтипового dedup (dedup_ae_vs_li_m = 0).
+# ВКЛЮЧЁН (29.10): bot-10 принял twins-only 78add0e в пакет v2 — +0,001718 vs A, ДИ90 [+0,00039; +0,00377],
+# P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
+# bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
+kurgan_twins_only = true
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).

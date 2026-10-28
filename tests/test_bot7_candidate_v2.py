@@ -28,7 +28,7 @@ def test_flags_independent_and_as_documented(cfg):
     assert float(pix["budget_s"]) > 0
     post = cfg["post"]
     assert post["multipole_object_poly"] is True and post["filter_finds_points"] is True   # stack6 sep
-    assert not post.get("kurgan_twins_only")                           # twins: приёмка bot-10 не задокументирована
+    assert post.get("kurgan_twins_only") is True and not post.get("kurgan_twins")   # twins-only: bot-10 work8/twins78_stats.log
     assert "pixgbm" not in post and "multipole" not in str(pix)        # флаги в разных таблицах
 
 
