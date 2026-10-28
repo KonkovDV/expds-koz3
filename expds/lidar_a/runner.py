@@ -1,0 +1,67 @@
+"""Site procedure for the LiDAR expert (spec §4): DTM → relief stacks → tiled ensemble → probability maps.
+
+Decoding of the maps into objects is platform glue and is passed in as `decode(prob, valid, meta) → features`.
+models = [(net, kind, weight)], kind '' = 9-channel stack, 'x' = 12-channel, 'u' = 12-channel with asinh LRMs.
+"""
+from __future__ import annotations
+
+import time
+
+import numpy as np
+
+from . import ground, terrain, tiling
+
+KIND_ARGS = {"": dict(extra=False, unclip=False), "x": dict(extra=True, unclip=False), "u": dict(extra=True, unclip=True)}
+ONE_MODEL_LEFT_S = 120
+FLIPS_ONLY_LEFT_S = 300
+
+
+def guard_models(models, deadline):
+    return models[:1] if time.time() > deadline - ONE_MODEL_LEFT_S else models
+
+
+def guard_tta(tta, deadline):
+    return True if tta == "d8" and time.time() > deadline - FLIPS_ONLY_LEFT_S else tta
+
+
+def stacks_for(dtm, valid, cell, kinds, dev):
+    """{kind: stack} for the kinds in use and the valid mask at NET_CELL."""
+    got, vmask = {}, None
+    for kind in kinds:
+        got[kind], vk = terrain.relief_stack_windowed(dtm, valid, cell, dev=dev, **KIND_ARGS[kind])
+        vmask = vk if vmask is None else vmask
+    return got, vmask
+
+
+def ensemble(maps, models):
+    wts = np.array([w for _, _, w in models], np.float32)
+    return np.tensordot(wts / wts.sum(), np.stack(maps), axes=1)
+
+
+def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), dev="cuda", log=print):
+    """→ (blended maps (n_out, h, w) float32, valid (h, w) bool) at terrain.NET_CELL."""
+    models = guard_models(models, deadline)
+    kinds = list(dict.fromkeys(k for _, k, _ in models))
+    stacks, vmask = stacks_for(dtm, valid, cell, kinds, dev)
+    tta = guard_tta(tta, deadline)
+    maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
+        m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
+    return ensemble(maps, models), vmask
+
+
+def run_site(path, dtm, valid, origin, models, n_out, decode, meta, tta, deadline, dev, log):
+    t0 = time.time()
+    left, top, cell = origin
+    prob, vmask = site_maps(dtm, valid, cell, models, n_out, tta, deadline, dev, log)
+    feats = decode(prob, vmask, dict(meta, x0=left, ytop=top, res=terrain.NET_CELL))
+    log(f"lidar_a {getattr(path, 'name', path)}: dtm {dtm.shape} cell {cell} → {len(feats)} feats {time.time() - t0:.0f}s")
+    return feats
+
+
+def predict(paths, models, n_out, decode, meta=None, tta=True, deadline=float("inf"), dev="cuda", log=print):
+    """Sequential: one DTM after another, features in input order."""
+    feats = []
+    for p in paths:
+        d, v, origin = ground.make_dtm(p)
+        feats += run_site(p, d, v, origin, models, n_out, decode, meta or {}, tta, deadline, dev, log)
+    return feats
