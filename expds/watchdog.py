@@ -70,6 +70,9 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
+    if (cfg.get("post") or {}).get("sp_score_fusion"):
+        sf = cfg["post"]["sp_score_fusion"]
+        out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
