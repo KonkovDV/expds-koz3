@@ -174,6 +174,9 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
              note.get("las_files", "нет"), note.get("rasters", "нет"),
              note.get("skipped", "нет"))
     log.info("фазы: %s", phase_text)
+    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
+        log.info("частично (дедлайн в цикле окон): %s", ", ".join(
+            f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
     log.info("записано %d, файл %d байт", len(kept), size)
@@ -246,9 +249,14 @@ def arm_signal(state: RunState, exit_fn=os._exit):
     return previous
 
 
+def deadline_left(margin_s: float | None = None, clock=None) -> float:
+    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
+    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+    return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
+
+
 def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
     """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
-    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
-    left = PLATFORM_LIMIT_S - margin - (time.monotonic() - PROCESS_START)
+    left = deadline_left(margin_s)
     log.info("сторож сработает через %.0f с", max(0.0, left))
     return arm(state, left, exit_fn)

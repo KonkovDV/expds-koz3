@@ -29,20 +29,52 @@ log = logging.getLogger(__name__)
 
 
 class TimeGuard:
-    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг."""
+    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
 
-    def __init__(self, budget_s: float):
-        self.t0 = time.monotonic()
+    bot-8: дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
+    бюджета [time] budget_s или до сторожа (watchdog.deadline_left: 1800 − guard_margin_s = 1620 с
+    от старта процесса) осталось не больше window_reserve_s. None — проверка выключена.
+    clock — для тестов (поддельные часы); по умолчанию time.monotonic.
+    """
+
+    def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
+        self.clock = clock or time.monotonic
+        self.t0 = self.clock()
         self.budget = budget_s
+        self.window_reserve_s = window_reserve_s
+        self.hard_left = hard_left
+        self.partial: list[dict] = []
 
     def elapsed(self) -> float:
-        return time.monotonic() - self.t0
+        return self.clock() - self.t0
 
     def left(self) -> float:
         return self.budget - self.elapsed()
 
     def ok(self, need_s: float = 0.0) -> bool:
         return self.left() > need_s
+
+    def window_left(self) -> float:
+        """Секунд до ближайшего из: конец бюджета, срабатывание сторожа."""
+        left = self.left()
+        if self.hard_left is not None:
+            left = min(left, float(self.hard_left()))
+        return left
+
+    def window_ok(self) -> bool:
+        return self.window_reserve_s is None or self.window_left() > float(self.window_reserve_s)
+
+
+#: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
+DEFAULT_WINDOW_RESERVE_S = 30.0
+
+
+def window_reserve(cfg: dict) -> float | None:
+    """[time] window_deadline (true) / window_reserve_s (30). window_deadline = false — без проверки в цикле окон."""
+    t = cfg.get("time") or {}
+    if not t.get("window_deadline", True):
+        return None
+    return float(t.get("window_reserve_s", DEFAULT_WINDOW_RESERVE_S))
 
 
 def load_config(path: str | Path | None) -> dict:
@@ -492,7 +524,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 try:
                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
                                                            min_conf=output_floors(cfg, mt),
-                                                           fallback_crs=region_crs(reg, cfg)))
+                                                           fallback_crs=region_crs(reg, cfg), guard=guard))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
@@ -538,7 +570,7 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
                     break
                 try:
                     found = _kept(seg, _raster_with_model(seg, path, reg.name, mt, min_conf=floors,
-                                                          fallback_crs=region_crs(reg, cfg)))
+                                                          fallback_crs=region_crs(reg, cfg), guard=guard))
                 except Exception as exc:
                     log.exception("%s: ошибка сети %s (%s)", path.name, mt, exc)
                     continue
@@ -575,7 +607,7 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
                 break
             try:
                 found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
-                                                      fallback_crs=region_crs(reg, cfg)))
+                                                      fallback_crs=region_crs(reg, cfg), guard=guard))
             except Exception as exc:
                 log.exception("%s: ошибка окна 256 м (%s)", path.name, exc)
                 continue
@@ -712,10 +744,12 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
 
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                        overlap: int = 256, min_conf: dict[str, float] | None = None,
-                       fallback_crs: str | None = None) -> list[dict]:
+                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None) -> list[dict]:
     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
 
     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
+    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
+    по файлу (объекты уже пройденных окон), запись в guard.partial. Без guard — как раньше.
     """
     import rasterio
     from rasterio.enums import Resampling
@@ -751,6 +785,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         ys = list(range(0, max(h - overlap, 1), step))
         for iy, y0 in enumerate(ys):
             for ix, x0 in enumerate(xs):
+                if guard is not None and not guard.window_ok():
+                    done, total = iy * len(xs) + ix, len(xs) * len(ys)
+                    log.warning("%s: дедлайн в цикле окон (%s, осталось %.0f с ≤ %s с) — частичный результат: "
+                                "окон %d из %d, объектов %d", path.name, markup, guard.window_left(),
+                                guard.window_reserve_s, done, total, len(feats))
+                    guard.partial.append({"file": path.name, "region": region, "markup": markup,
+                                          "windows_done": done, "windows_total": total, "feats": len(feats)})
+                    return feats
                 bw, bh = min(block, w - x0), min(block, h - y0)
                 win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
                 a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
@@ -790,7 +832,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
     контейнера, не после геофизики.
     """
-    from .watchdog import RunState, arm_platform, arm_signal, checkpoint
+    from .watchdog import RunState, arm_platform, arm_signal, checkpoint, deadline_left
 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
@@ -802,7 +844,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                           bool(infer.get("deterministic", True)))
     except Exception:
         log.exception("точность видеокарты не настроена, дальше без моделей torch")
-    guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
+    t_cfg = cfg.get("time", {})
+    margin_s = float(t_cfg.get("guard_margin_s", 180))
+    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
+    guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
+                      hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
     log.info("ускоритель: %s", accel.backend())
     torch_version, cuda_version = "нет", "нет"
     try:
@@ -914,6 +960,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+        if guard.partial:
+            state.note["partial_files"] = list(guard.partial)
+            log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),
+                        ", ".join(f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in guard.partial))
         t_phase = time.monotonic()
         n_phase = 0
         for reg in regions:
@@ -954,6 +1004,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         state.note["phases"] = summary["phases"]
         summary["written"] = checkpoint(state, "конец")
         summary["seconds"] = round(guard.elapsed(), 1)
+        summary["partial_files"] = list(guard.partial)
         for handler in logging.getLogger().handlers:
             handler.flush()
     return summary
