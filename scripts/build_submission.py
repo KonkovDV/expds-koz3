@@ -42,7 +42,9 @@ def collect() -> list[Path]:
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
     verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
     seen = set()
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify]:
+    rr = cfg.get("rerank_arch") or {}
+    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank:
         if not rel or rel in seen:
             continue
         seen.add(rel)
