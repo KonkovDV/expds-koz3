@@ -211,10 +211,50 @@ def cmd_predict(a):
     Path(a.out).with_suffix(".stats.json").write_text(json.dumps(stats, ensure_ascii=False, indent=1))
 
 
+def cmd_oof(a):
+    """Сырые OOF-полигоны object_poly для bot-6: <out>/<участок>_<метод>.geojson, маркер READY_<участок>."""
+    import lightgbm as lgb
+    from shapely.geometry import mapping
+    cfg = load_config(a.config)
+    geo_cfg = cfg.get("geophys", {})
+    out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    levels = tuple(float(x) for x in a.levels.split(","))
+    for reg in regions(a.root, a.regions):
+        fam = site_family(reg.name)
+        bst = lgb.Booster(model_file=str(Path(a.models) / fam / "poly.txt"))
+        crs_region = region_crs(reg, cfg)
+        for mt in a.markups.split(","):
+            files = G.pick_rasters(reg.rasters.get(mt, []))
+            if not files:
+                continue
+            t0 = time.time(); feats = []
+            boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
+            noise = geophys.load_mask(reg.noise, mt, crs_region)
+            for f in files:
+                d = G.load_map(f, G.GSD[mt], crs_region, boundary, noise)
+                if not d["crs"]:
+                    continue
+                Pm = G.prob_map(d, mt, {"poly": bst})
+                for o in G.poly_components(Pm["poly"], d, reg.name, mt, f.name, levels):
+                    g = o.pop("geom")
+                    if g.geom_type != "Polygon":
+                        continue
+                    feats.append({"type": "Feature", "geometry": mapping(g),
+                                  "properties": dict(**{"class": "object_poly"}, **o, fold=fam, source="pixgbm")})
+                del d, Pm
+            fn = out / f"{reg.name}_{mt}.geojson"
+            fc = {"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "EPSG:3857"}},
+                  "features": feats}
+            tmp = fn.with_suffix(".tmp"); tmp.write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8"); tmp.rename(fn)
+            print(json.dumps(dict(region=reg.name, mt=mt, fold=fam, n=len(feats), sec=round(time.time() - t0, 1),
+                                  maxrss_mb=round(rss_mb())), ensure_ascii=False), flush=True)
+        (out / f"READY_{reg.name}").write_text("done\n")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
-    for n in ("extract", "train", "predict"):
+    for n in ("extract", "train", "predict", "oof"):
         p = sp.add_parser(n)
         p.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
         p.add_argument("--regions", nargs="*", default=None)
@@ -225,8 +265,11 @@ def main():
     pr.add_argument("--root", required=True); pr.add_argument("--models", required=True); pr.add_argument("--out", required=True)
     pr.add_argument("--t-pix", type=float, default=G.T_PIX); pr.add_argument("--all", action="store_true",
                     help="модель all (на всех семьях) — только для сдачи, не для оценки")
+    oo = sp.choices["oof"]
+    oo.add_argument("--root", required=True); oo.add_argument("--models", required=True); oo.add_argument("--out", required=True)
+    oo.add_argument("--markups", default="etgr,terfl"); oo.add_argument("--levels", default="0.3,0.5,0.7")
     a = ap.parse_args()
-    {"extract": cmd_extract, "train": cmd_train, "predict": cmd_predict}[a.cmd](a)
+    {"extract": cmd_extract, "train": cmd_train, "predict": cmd_predict, "oof": cmd_oof}[a.cmd](a)
 
 
 if __name__ == "__main__":
