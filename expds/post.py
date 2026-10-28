@@ -488,7 +488,17 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     ae_trees = {r: cKDTree(np.asarray(pts)) for r, pts in ae_povr_pts.items() if pts}
     sp_trees = {r: cKDTree(np.asarray(pts)) for r, pts in sp_povr_pts.items() if pts}
 
-    out = list(feats)
+    dedup_ae_vs_li_m = float(cfg.get("dedup_ae_vs_li_m", 3.0))
+    out = []
+    for f in feats:
+        if (dedup_ae_vs_li_m > 0 and f.get("class_name") == "kurgany_povrezhdennye"
+                and (f.get("threshold_group") or f.get("markup_type")) == "ae"):
+            reg = f.get("region_name") or ""
+            c = f["geom"].centroid
+            s = _ground_scale(c.y)
+            if reg in li_trees and li_trees[reg].query_ball_point((c.x * s, c.y * s), dedup_ae_vs_li_m):
+                continue
+        out.append(f)
     for f in feats:
         if f.get("class_name") != "kurgany_tselye":
             continue
