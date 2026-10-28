@@ -593,3 +593,77 @@ def drop_kurgans_in_hillforts(feats: list[dict]) -> list[dict]:
             continue
         out.append(f)
     return out
+
+
+SP_FUSION_GROUPS = ("sp_focal", "sp_focal2")
+SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Слияние уверенностей двух спутниковых групп для курганов (bot-6 ORSP, PREREG_ORSP.md).
+
+    Для кургана (povr или tselye) из sp_focal / sp_focal2: o = наибольшая уверенность курганов
+    (любого из двух классов) ДРУГОЙ sp-группы в радиусе radius_m метров на земле на том же
+    участке, иначе 0; новая уверенность = (conf + o) / 2. Объекты не добавляются и не
+    удаляются; применять ДО порогов, пороги групп подбирать заново. Работает и с плоскими
+    признаками (geom, поля в корне), и с GeoJSON (geometry, properties).
+    """
+    from collections import defaultdict
+    from scipy.spatial import cKDTree
+    import numpy as np
+    from shapely.geometry import shape
+
+    cfg = spec or {}
+    radius = float(cfg.get("radius_m", 8.0))
+    groups = tuple(cfg.get("groups", SP_FUSION_GROUPS))
+    if len(groups) != 2:
+        raise ValueError("sp_score_fusion: нужны ровно две группы")
+
+    def _p(f):
+        return f["properties"] if isinstance(f.get("properties"), dict) else f
+
+    def _c(f):
+        g = f.get("geom")
+        if g is None:
+            g = shape(f["geometry"])
+        return g.centroid
+
+    idx = []
+    for i, f in enumerate(feats):
+        p = _p(f)
+        grp = p.get("threshold_group") or p.get("markup_type")
+        if p.get("class_name") in SP_FUSION_CLASSES and grp in groups:
+            c = _c(f)
+            idx.append((i, p.get("region_name") or "", grp, c.x, c.y, float(p.get("confidence", 0.0))))
+    if not idx:
+        return list(feats)
+    # Один cos φ на участок (как в kurgan_cross_modal_twins): метры на земле.
+    ys = defaultdict(list)
+    for _, reg, _, _, y, _ in idx:
+        ys[reg].append(y)
+    scale = {reg: _ground_scale(float(np.median(v))) for reg, v in ys.items()}
+    pts = defaultdict(list)
+    for i, reg, grp, x, y, conf in idx:
+        pts[(reg, grp)].append((x * scale[reg], y * scale[reg], conf))
+    trees = {k: (cKDTree(np.asarray([(a, b) for a, b, _ in v])), np.asarray([c for _, _, c in v]))
+             for k, v in pts.items()}
+    new_conf = {}
+    for i, reg, grp, x, y, conf in idx:
+        other = groups[1] if grp == groups[0] else groups[0]
+        o = 0.0
+        t = trees.get((reg, other))
+        if t is not None:
+            hit = t[0].query_ball_point((x * scale[reg], y * scale[reg]), radius)
+            if hit:
+                o = float(t[1][hit].max())
+        new_conf[i] = (conf + o) / 2.0
+    out = []
+    for i, f in enumerate(feats):
+        if i in new_conf:
+            f = dict(f)
+            if isinstance(f.get("properties"), dict):
+                f["properties"] = dict(f["properties"], confidence=new_conf[i])
+            else:
+                f["confidence"] = new_conf[i]
+        out.append(f)
+    return out

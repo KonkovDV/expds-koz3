@@ -380,6 +380,9 @@ meta = "models/rerank_arch_lgbm.json"
 # [post.core.gorodishcha]
 # frac = 0.3
 # min_r_m = 8.0
+# Слияние уверенностей sp_focal/sp_focal2 для курганов (bot-6 ORSP), по умолчанию выключено:
+# sp_score_fusion = { radius_m = 8.0 }   # в [post]; пороги групп подобрать заново.
+# Честно-10 по семьям 0,314615 → 0,317978 (+0,0034), P 0,995; только пакетом (П5).
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
