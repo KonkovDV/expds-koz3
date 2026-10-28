@@ -334,10 +334,13 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                     mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
-        if maps == "all" and "finds_points" in classes and len(files) > 1:
-            # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
-            mine = geophys.dedupe_points(mine, 2.0, crs_region)
         mt_cfg = geo_cfg.get(mt) or {}
+        if (maps == "all" and "finds_points" in classes and len(files) > 1
+                and mt_cfg.get("dedupe_maps", True)):
+            # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
+            # dedupe_maps = false: эталон размечен по каждой карте отдельно (211: серая и цвет_2),
+            # метрика сводит класс по всем картам — дубль на другой карте может быть попаданием.
+            mine = geophys.dedupe_points(mine, 2.0, crs_region)
         if mt_cfg.get("layer_copy", False):
             try:
                 layers = {f.name: geophys.source_crs(f, crs_region) for f in files}
@@ -345,6 +348,38 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             except Exception:
                 log.exception("%s: копии по слоям %s пропущены", reg.name, mt)
         feats += mine
+    pix = geo_cfg.get("pixgbm") or {}
+    if pix.get("enabled", False):
+        # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        try:
+            from . import geo_pixgbm
+            cls = set(pix.get("classes", ["finds_points", "object_poly"]))
+            pst: dict = {}
+            new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"),
+                                                      guard=guard, status=pst)
+                   if f["class_name"] in cls]
+            import re
+            ure = pix.get("union_name_re", "")
+            if ure and re.search(ure, reg.name):
+                # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
+                # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
+                # или ≤1 м от классической находки (finds_points)
+                new = geo_pixgbm.dedupe_union(feats, new)
+            elif pix.get("replace", False):
+                # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
+                have = {(f["class_name"], f["markup_type"]) for f in new}
+                done, fell = pst.get("done", {}), pst.get("fell", {})
+
+                def _drop(f):
+                    key = (f.get("class_name"), f.get("markup_type"))
+                    if key not in have:
+                        return False
+                    return not fell.get(key) or f.get("source") in done.get(key, set())
+                feats = [f for f in feats if not _drop(f)]
+            feats += new
+        except Exception:
+            log.exception("%s: pixgbm пропущен", reg.name)
     return feats
 
 
@@ -692,7 +727,7 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
                 for feat in found:
                     feat["threshold_group"] = group
                 added += found
-        if maps == "all" and len(files) > 1:
+        if maps == "all" and len(files) > 1 and ((cfg.get("geophys") or {}).get(mt) or {}).get("dedupe_maps", True):
             # Только находки этой модальности: чужие классы в том же списке не склеиваются.
             added = geophys.dedupe_points(added, 2.0, region_crs(reg, cfg))
         out += added

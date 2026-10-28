@@ -44,6 +44,10 @@ class GeoParams:
     plateau_max_m2: float = 60.0    # пятно крупнее — фон, а не аномалия
     peak_density_min: float = 0.0   # finds_points: пиков на 1000 м² карты не меньше; 0 — выключено
     peak_k_min: float = 0.5         # ниже этого порога (в MAD) отсечка не опускается
+    split: str = "none"             # object_poly: разрезать слипшиеся области водоразделом: "none", "field", "dt"
+    split_h: float = 0.1            # "field": глубина седловины в долях poly_k; "dt": в метрах радиуса вписанного круга
+    split_res_m: float = 0.1        # сетка разрезания не мельче этой, м
+    pole_circle_m: float = 0.0      # object_poly: > 0 — вместо контура круг этого радиуса в полюсе недоступности
 
 
 #: Как цветная или «серая» RGB-карта сводится к одному числу на пиксель. Сданный балл снят с "first".
@@ -363,10 +367,168 @@ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     keep = (sizes >= p.min_area_m2) & (sizes <= p.max_area_m2)
     keep[0] = False
     lab = np.where(keep[lab], lab, 0)
+    if p.split in SPLITS[1:]:
+        lab, n = split_merged(lab, np.nan_to_num(sm, nan=0), res, p)
     peak = accel.label_max(lab, np.nan_to_num(sm, nan=0), n)
-    return [{"geom": poly, "class_name": "object_poly", "confidence": float(strength_confidence(peak[k])),
-             "region_name": region, "markup_type": markup_type, "source": source, "original_crs": crs}
+    base = {"class_name": "object_poly", "region_name": region, "markup_type": markup_type, "source": source,
+            "original_crs": crs}
+    if p.pole_circle_m > 0:
+        ks, rows, cols = label_poles(lab)
+        xs, ys = pixel_to_xy(tr, rows, cols)
+        return [{**base, "geom": circle_3857(float(x), float(y), p.pole_circle_m, crs),
+                 "confidence": float(strength_confidence(peak[k]))} for k, x, y in zip(ks, xs, ys)]
+    return [{**base, "geom": poly, "confidence": float(strength_confidence(peak[k]))}
             for poly, k in mask_to_polygons(lab, tr, crs)]
+
+
+#: Разрезание слипшихся object_poly: выключено; по седловинам сглаженной |hp|; по перешейкам формы.
+SPLITS = ("none", "field", "dt")
+
+
+def split_spec_params(cfg: dict) -> dict:
+    """{"split_spec": "field:0.1"} → {"split": "field", "split_h": 0.1}; "none" — без разрезания."""
+    cfg = dict(cfg)
+    spec = cfg.pop("split_spec", None)
+    if spec is not None:
+        mode, _, h = str(spec).partition(":")
+        if mode not in SPLITS:
+            raise ValueError(f"неизвестный режим разрезания: {spec}")
+        cfg["split"] = mode
+        if h:
+            cfg["split_h"] = float(h)
+    return cfg
+
+
+def _reconstruct(marker: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Морфологическая реконструкция дилатацией (marker <= mask), 8-связность."""
+    from scipy.ndimage import grey_dilation
+
+    cur = np.minimum(marker, mask)
+    while True:
+        nxt = np.minimum(grey_dilation(cur, size=(3, 3)), mask)
+        if np.array_equal(nxt, cur):
+            return cur
+        cur = nxt
+
+
+def h_maxima_labels(s: np.ndarray, inside: np.ndarray, h: float) -> tuple[np.ndarray, int]:
+    """Вершины с динамикой не меньше h (h-максимумы) внутри inside → метки маркеров."""
+    from scipy.ndimage import label as cc_label
+
+    f = np.where(inside, s, s[inside].min() if inside.any() else 0).astype(np.float64)
+    rec = _reconstruct(f - h, f)
+    tops = inside & (f - rec >= h - 1e-9 * max(1.0, abs(h)))
+    return cc_label(tops, structure=np.ones((3, 3), bool))
+
+
+def split_merged(lab: np.ndarray, sm: np.ndarray, res: float, p: GeoParams) -> tuple[np.ndarray, int]:
+    """Разрезает каждую связную область водоразделом по её h-максимумам.
+
+    Метрика сопоставляет один к одному: две ямы, слипшиеся по порогу poly_k в одну область,
+    дают не больше одного TP. "field" — маркеры на вершинах сглаженной |hp| (sm) с седловиной
+    глубже split_h × poly_k; "dt" — на вершинах карты расстояния до края области (перешейки
+    формы), split_h в метрах. Маркеры и водораздел считаются на сетке не мельче split_res_m
+    (карты MagGr бывают 0,03 м, а сглаживание у них 0,5 м), метки переносятся на исходную
+    сетку ближайшей ячейкой. Куски мельче min_area_m2 присоединяются к соседу.
+    Возвращает новые метки (1..n) и n.
+    """
+    from scipy.ndimage import distance_transform_edt, find_objects, watershed_ift
+
+    out = np.zeros(lab.shape, np.int32)
+    n_out = 0
+    d = max(1, int(round(p.split_res_m / res))) if p.split_res_m > res else 1
+    cres = res * d
+    min_px = max(1, int(np.ceil(p.min_area_m2 / (cres * cres))))
+    for k, sl in enumerate(find_objects(lab), 1):
+        if sl is None:
+            continue
+        sl = tuple(slice(max(0, q.start - d), q.stop + d) for q in sl)
+        comp = lab[sl] == k
+        H, W = comp.shape
+        Hc, Wc = -(-H // d), -(-W // d)
+        if d > 1:
+            pad = ((0, Hc * d - H), (0, Wc * d - W))
+            cc = np.pad(comp, pad).reshape(Hc, d, Wc, d).mean(axis=(1, 3)) >= 0.5
+            cs = np.pad(np.where(comp, sm[sl], 0), pad).reshape(Hc, d, Wc, d).mean(axis=(1, 3))
+        else:
+            cc, cs = comp, sm[sl]
+        seg_c = None
+        if cc.sum() > min_px:
+            if p.split == "dt":
+                s, h = distance_transform_edt(cc) * cres, p.split_h
+            else:
+                s, h = cs.astype(np.float64), p.split_h * p.poly_k
+            markers, m = h_maxima_labels(s, cc, h)
+            if m > 1:
+                vals = np.where(cc, s, s[cc].min())
+                lo, hi = float(vals.min()), float(vals.max())
+                cost = np.round((hi - vals) / max(hi - lo, 1e-12) * 65000).astype(np.uint16)
+                mk = np.where(cc, markers, -1).astype(np.int32)
+                seg_c = np.where(cc, watershed_ift(cost, mk, structure=np.ones((3, 3), int)), 0)
+                seg_c = _absorb_small(seg_c, min_px)
+                if len(np.unique(seg_c[seg_c > 0])) <= 1:
+                    seg_c = None
+        if seg_c is None:
+            seg = comp.astype(np.int32)
+        else:
+            seg = np.repeat(np.repeat(seg_c, d, axis=0), d, axis=1)[:H, :W] if d > 1 else seg_c
+            hole = comp & (seg <= 0)
+            if hole.any():   # пиксели области вне грубой маски — к ближайшему куску
+                idx = distance_transform_edt(seg <= 0, return_distances=False, return_indices=True)
+                seg = seg[idx[0], idx[1]]
+            seg = np.where(comp, seg, 0)
+        ids = np.unique(seg[seg > 0])
+        remap = np.zeros(int(seg.max()) + 1, np.int32)
+        remap[ids] = np.arange(n_out + 1, n_out + 1 + len(ids))
+        view = out[sl]
+        view[comp] = remap[seg[comp]]
+        n_out += len(ids)
+    return out, n_out
+
+
+def _absorb_small(seg: np.ndarray, min_px: int) -> np.ndarray:
+    """Куски водораздела мельче min_px пикселей отдаются соседнему куску с самой длинной общей границей."""
+    from scipy.ndimage import binary_dilation
+
+    seg = seg.copy()
+    while True:
+        ids, cnt = np.unique(seg[seg > 0], return_counts=True)
+        small = ids[cnt < min_px]
+        if len(ids) <= 1 or len(small) == 0:
+            return seg
+        k = int(small[np.argmin(cnt[cnt < min_px])])
+        ring = binary_dilation(seg == k, np.ones((3, 3), bool)) & (seg > 0) & (seg != k)
+        if not ring.any():
+            return seg
+        nb, nc = np.unique(seg[ring], return_counts=True)
+        seg[seg == k] = int(nb[np.argmax(nc)])
+
+
+def label_poles(lab: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Полюс недоступности каждой метки на растре: пиксель с наибольшим расстоянием до края метки
+    (с точностью до полпикселя; из равных — ближайший к центру тяжести).
+
+    Внутренняя точка такого круга всегда внутри своей области, и при попадании в эталон
+    покрытие маленького круга равно 1. Возвращает (метки, строки, столбцы).
+    """
+    from scipy.ndimage import distance_transform_edt, find_objects
+
+    ks, rows, cols = [], [], []
+    for k, sl in enumerate(find_objects(lab), 1):
+        if sl is None:
+            continue
+        r0, c0 = max(0, sl[0].start - 1), max(0, sl[1].start - 1)
+        sub = np.pad(lab[r0:sl[0].stop + 1, c0:sl[1].stop + 1] == k, 1)
+        dt = distance_transform_edt(sub)
+        # на гребне карты расстояний (вытянутая область) — точка гребня, ближайшая к центру тяжести
+        rr, cc = np.nonzero(dt >= dt.max() - 0.5)
+        ry, cx = np.nonzero(sub)
+        j = int(np.argmin((rr - ry.mean()) ** 2 + (cc - cx.mean()) ** 2))
+        r, c = rr[j], cc[j]
+        ks.append(k)
+        rows.append(r0 + r - 1)
+        cols.append(c0 + c - 1)
+    return np.asarray(ks, int), np.asarray(rows, int), np.asarray(cols, int)
 
 
 def finds_points(path: str | Path, region: str, markup_type: str, p: GeoParams | None = None,
@@ -518,7 +680,7 @@ def params_for(cfg: dict, markup_type: str, class_name: str) -> tuple[GeoParams,
     """
     base = {k: v for k, v in (cfg or {}).items() if not isinstance(v, dict)}
     over = ((cfg or {}).get(markup_type) or {}).get(class_name) or {}
-    merged = {**base, **over}
+    merged = split_spec_params({**base, **over})
     p = GeoParams(**{k: v for k, v in merged.items() if k in GeoParams.__dataclass_fields__})
     lo, hi = AREA_M2.get(markup_type, (p.min_area_m2, p.max_area_m2))
     p.min_area_m2, p.max_area_m2 = over.get("min_area_m2", lo), over.get("max_area_m2", hi)
