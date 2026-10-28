@@ -110,7 +110,8 @@ class DtmPool:
         outdir = tempfile.mkdtemp(prefix="lidar_a_dtm_", dir=base) if own else self.tmpdir
         env = dict(os.environ, **{k: str(self.worker_threads) for k in THREAD_VARS})
         root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        env["PYTHONPATH"] = root + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+        lib = os.path.join(root, "inference", "lib")      # expds_fast*.so (Rust LAS grid) for ground.rasterise
+        env["PYTHONPATH"] = os.pathsep.join([root, lib] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
         procs = [subprocess.Popen([sys.executable, "-m", "expds.lidar_a.dtm_workers", outdir], stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, text=True, env=env, cwd=root) for _ in range(self.workers)]
         self._running = 0
