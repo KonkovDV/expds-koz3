@@ -241,6 +241,8 @@ point_circle_m = 0.3
 # bot-3 PIXGBM: пиксельный LightGBM-источник кандидатов (finds_points + object_poly), см. PIXGBM_REPORT.md.
 enabled = false
 model_dir = "models/pixgbm/all"
+classes = ["finds_points", "object_poly"]
+replace = false   # true — вариант S (замена классики того же класса и метода), иначе объединение
 
 [geophys.maggr.finds_points]
 background_m = 2.0
