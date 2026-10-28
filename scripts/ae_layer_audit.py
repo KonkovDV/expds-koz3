@@ -22,6 +22,8 @@ import json
 import re
 from pathlib import Path
 
+import unicodedata
+
 import numpy as np
 
 CLS = {"курганы_поврежденные": "kurgany_povrezhdennye", "курганы_целые": "kurgany_tselye",
@@ -31,14 +33,19 @@ K = ("kurgany_povrezhdennye", "kurgany_tselye")
 
 
 def build_gt(root: Path) -> list[dict]:
+    from expds.naming import normalize_code_text
     from pyproj import Transformer
     from shapely import transform as sh_transform
     from shapely.geometry import mapping, shape
 
     feats = []
     for f in sorted(root.glob("*/06_*разметка/*.geojson")):
-        m = re.search(r"_(Li|Ae|SpOr|Or)_(.+)\.geojson$", f.name)
-        if not m or m.group(2) not in CLS:
+        # код модальности ищем после замены кириллических двойников («Ае» → «Ae», expds.naming),
+        # класс берём из исходного имени (замена 1:1 по символам, позиции совпадают)
+        name = unicodedata.normalize("NFC", f.name)
+        m = re.search(r"_(Li|Ae|SpOr|Or)_(.+)\.geojson$", normalize_code_text(name))
+        cls_ru = name[m.start(2):m.end(2)].replace("ё", "е") if m else None
+        if not m or cls_ru not in CLS:
             continue
         fc = json.loads(f.read_text(encoding="utf-8"))
         crs = ((fc.get("crs") or {}).get("properties") or {}).get("name", "")
@@ -46,14 +53,14 @@ def build_gt(root: Path) -> list[dict]:
         if crs and "3857" not in crs:
             tr = Transformer.from_crs("OGC:CRS84" if "CRS84" in crs else crs, "EPSG:3857", always_xy=True)
         for ft in fc.get("features", []):
-            if not ft.get("geometry"):
-                continue
+            if not ft.get("geometry") or not ft["geometry"].get("coordinates"):
+                continue        # пустые фигуры официальный _extract_geometry тоже отбрасывает
             geom = ft["geometry"]
             if tr is not None:
                 geom = mapping(sh_transform(shape(geom), lambda xy: np.column_stack(tr.transform(xy[:, 0], xy[:, 1]))))
             feats.append({"type": "Feature", "geometry": geom,
                           "properties": {"region_name": f.parts[-3], "markup_type": MT[m.group(1)],
-                                         "class_name": CLS[m.group(2)]}})
+                                         "class_name": CLS[cls_ru]}})
     return feats
 
 
