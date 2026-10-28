@@ -15,7 +15,9 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
+import time
 import unicodedata
 from pathlib import Path
 
@@ -39,6 +41,147 @@ POLE_R_M = 0.05
 FIND_NMS_M = 0.75
 FIND_FLOOR = 0.2
 FIND_R_M = 0.5
+
+
+# ───────────────────────────── потоки и бэкенды predict ─────────────────────────────
+
+def pix_threads() -> int:
+    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, os.cpu_count())."""
+    for k in ("EXPDS_PIXGBM_THREADS", "EXPDS_THREADS"):
+        v = os.environ.get(k, "").strip()
+        if v:
+            try:
+                n = int(v)
+                if n > 0:
+                    return n
+            except ValueError:
+                log.warning("%s=%r не число — пропущено", k, v)
+    return max(1, min(8, os.cpu_count() or 1))
+
+
+def _sha256(path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for blk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(blk)
+    return h.hexdigest()
+
+
+def _model_feature_names(txt) -> list[str]:
+    with open(txt, encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith("feature_names="):
+                return line.strip().split("=", 1)[1].split(" ")
+    raise ValueError(f"{txt}: нет feature_names")
+
+
+class LGBMModel:
+    """Обёртка lightgbm.Booster с тем же интерфейсом, что у SoForest."""
+    backend = "lightgbm"
+
+    def __init__(self, txt):
+        import lightgbm as lgb
+        self.bst = lgb.Booster(model_file=str(txt))
+        self.names = self.bst.feature_name()
+
+    def feature_name(self):
+        return self.names
+
+    def predict(self, X, num_threads=1):
+        return self.bst.predict(X, num_threads=num_threads)
+
+
+class SoForest:
+    """Скомпилированный lleaves лес (<k>.lleaves.so из scripts/pixgbm_compile.py) через ctypes.
+    В рантайме не нужны ни lleaves, ни llvmlite. forest_root(double* X, double* out, int start, int end)
+    отдаёт вероятность (sigmoid уже внутри). ctypes отпускает GIL — потоки идут параллельно."""
+    backend = "lleaves"
+
+    def __init__(self, txt, so, meta):
+        import ctypes
+        self.names = _model_feature_names(txt)
+        if meta.get("num_feature") != len(self.names):
+            raise ValueError(f"{so}: num_feature {meta.get('num_feature')} ≠ {len(self.names)}")
+        self._lib = ctypes.CDLL(str(so))
+        f = self._lib.forest_root
+        pd = ctypes.POINTER(ctypes.c_double)
+        f.argtypes = [pd, pd, ctypes.c_int, ctypes.c_int]
+        f.restype = None
+        self._f, self._pd = f, pd
+
+    def feature_name(self):
+        return self.names
+
+    def predict(self, X, num_threads=1):
+        X = np.ascontiguousarray(X, dtype=np.float64)
+        n = X.shape[0]
+        if X.ndim != 2 or X.shape[1] != len(self.names):
+            raise ValueError(f"X {X.shape}, нужно (N, {len(self.names)})")
+        if n >= 2 ** 31 - 1:
+            raise ValueError("слишком много строк")
+        out = np.zeros(n, np.float64)
+        px, po = X.ctypes.data_as(self._pd), out.ctypes.data_as(self._pd)
+        nt = max(1, int(num_threads))
+        if nt == 1 or n < 4096:
+            self._f(px, po, 0, n)
+        else:
+            from concurrent.futures import ThreadPoolExecutor
+            bs = -(-n // nt)
+            with ThreadPoolExecutor(max_workers=nt) as ex:
+                list(ex.map(lambda a: self._f(px, po, a, min(a + bs, n)), range(0, n, bs)))
+        return out
+
+
+def load_models(model_dir, backend: str = "lightgbm", names=("poly", "finds")) -> dict:
+    """{имя: модель}. backend = lightgbm | lleaves | treelite. lleaves — <k>.lleaves.so рядом с <k>.txt,
+    sha256 .txt должен совпасть с <k>.lleaves.json (иначе .so устарел). Любая ошибка → lightgbm (лог)."""
+    md = Path(model_dir)
+    out = {}
+    for k in names:
+        txt = md / f"{k}.txt"
+        if not txt.exists():
+            continue
+        m = None
+        if backend == "lleaves":
+            try:
+                import json
+                so, mj = md / f"{k}.lleaves.so", md / f"{k}.lleaves.json"
+                meta = json.loads(mj.read_text(encoding="utf-8"))
+                if meta.get("sha256") != _sha256(txt):
+                    raise ValueError(f"{so.name} собран для другой модели (sha256)")
+                m = SoForest(txt, so, meta)
+            except Exception as exc:
+                log.warning("pixgbm: бэкенд lleaves для %s недоступен (%s) — lightgbm", k, exc)
+        elif backend == "treelite":
+            try:
+                m = TreeliteModel(txt, md / f"{k}.tl2cgen.so")
+            except Exception as exc:
+                log.warning("pixgbm: бэкенд treelite для %s недоступен (%s) — lightgbm", k, exc)
+        elif backend != "lightgbm":
+            log.warning("pixgbm: неизвестный backend=%r — lightgbm", backend)
+        out[k] = m or LGBMModel(txt)
+    return out
+
+
+class TreeliteModel:
+    """tl2cgen-библиотека (<k>.tl2cgen.so); в рантайме нужен пакет tl2cgen."""
+    backend = "treelite"
+
+    def __init__(self, txt, so):
+        import tl2cgen
+        self.names = _model_feature_names(txt)
+        self._tl, self._pr = tl2cgen, {}
+        self._so = str(so)
+        if not Path(so).exists():
+            raise FileNotFoundError(so)
+
+    def feature_name(self):
+        return self.names
+
+    def predict(self, X, num_threads=1):
+        pr = self._pr.get(num_threads) or self._pr.setdefault(num_threads, self._tl.Predictor(self._so, nthread=num_threads))
+        return np.asarray(pr.predict(self._tl.DMatrix(np.ascontiguousarray(X, np.float64)))).reshape(-1)
 
 
 # ───────────────────────────── выбор карт ─────────────────────────────
@@ -259,26 +402,81 @@ def features_for(d: dict, mt: str, rows: np.ndarray, cols: np.ndarray):
     return names, X
 
 
-def prob_map(d: dict, mt: str, boosters: dict) -> dict:
-    """Карты вероятностей {имя: H×W float32} окнами; вне съёмки и в шуме — 0."""
-    (c5, c15), b = trends(d["z"], d["valid"], d["gsd"])
+_FW: dict = {}
+
+
+def _feat_window(args):
+    """Признаки одного окна (в процессе пула: карта в _FW досталась от fork). → (y0, x0, rr, cc, {имя: X})."""
+    ty, tx, (y0, x0, y1, x1) = args
+    w = _FW
+    d, (c5, c15), b, mt, use = w["d"], w["c"], w["b"], w["mt"], w["use"]
+    H, W = d["z"].shape
+    cy1, cx1 = min(ty + CORE, H), min(tx + CORE, W)
+    rr, cc = np.nonzero(use[ty:cy1, tx:cx1])
+    if not rr.size:
+        return y0, x0, rr, cc, None
+    rr, cc = rr + ty - y0, cc + tx - x0
+    h, ww = y1 - y0, x1 - x0
+    F = features_at(d["z"][y0:y1, x0:x1], d["zd"][y0:y1, x0:x1], d["valid"][y0:y1, x0:x1],
+                    _up(c5, b, y0, x0, h, ww), _up(c15, b, y0, x0, h, ww), d["gsd"], MT_ID[mt], rr, cc)
+    Xs, by = {}, {}
+    for k, names in w["names"].items():
+        key = tuple(names)
+        if key not in by:
+            by[key] = np.column_stack([F[n] for n in names])
+        Xs[k] = by[key]
+    return y0, x0, rr, cc, Xs
+
+
+class _Budget(Exception):
+    pass
+
+
+def prob_map(d: dict, mt: str, boosters: dict, threads: int | None = None, procs: int | None = None,
+             deadline: float | None = None, timing: dict | None = None) -> dict:
+    """Карты вероятностей {имя: H×W float32} окнами; вне съёмки и в шуме — 0.
+    threads — потоки predict (по умолчанию LGBM["num_threads"]); procs > 1 — признаки окон в пуле процессов (fork),
+    результат тот же (каждое окно считается тем же кодом, порядок записи не важен — окна не пересекаются по ядру).
+    deadline (time.monotonic) — перед каждым окном: просрочено → _Budget. timing — сюда копятся feat/pred, с."""
+    nt = int(threads or LGBM["num_threads"])
+    c, b = trends(d["z"], d["valid"], d["gsd"])
     H, W = d["z"].shape
     use = d["valid"] & ~d["noise"]
     out = {k: np.zeros((H, W), np.float32) for k in boosters}
-    for ty, tx, (y0, x0, y1, x1) in windows(H, W, d["gsd"]):
-        cy1, cx1 = min(ty + CORE, H), min(tx + CORE, W)
-        rr, cc = np.nonzero(use[ty:cy1, tx:cx1])
-        if not rr.size:
-            continue
-        rr, cc = rr + ty - y0, cc + tx - x0
-        h, w = y1 - y0, x1 - x0
-        F = features_at(d["z"][y0:y1, x0:x1], d["zd"][y0:y1, x0:x1], d["valid"][y0:y1, x0:x1],
-                        _up(c5, b, y0, x0, h, w), _up(c15, b, y0, x0, h, w), d["gsd"], MT_ID[mt], rr, cc)
-        for k, bst in boosters.items():
-            X = np.column_stack([F[n] for n in bst.feature_name()])
-            out[k][rr + y0, cc + x0] = bst.predict(X, num_threads=LGBM["num_threads"]).astype(np.float32)
-            del X
-        del F
+    wins = list(windows(H, W, d["gsd"]))
+    _FW.clear()
+    _FW.update(d=d, c=c, b=b, mt=mt, use=use, names={k: m.feature_name() for k, m in boosters.items()})
+    tm = timing if timing is not None else {}
+    pool = None
+    try:
+        np_ = min(int(procs or 1), len(wins))
+        if np_ > 1:
+            import multiprocessing as mp
+            try:
+                pool = mp.get_context("fork").Pool(np_)
+                it = pool.imap(_feat_window, wins)
+            except Exception as exc:
+                log.warning("pixgbm: пул процессов не поднялся (%s) — последовательно", exc)
+                pool, it = None, map(_feat_window, wins)
+        else:
+            it = map(_feat_window, wins)
+        t = time.perf_counter()
+        for y0, x0, rr, cc, Xs in it:
+            tm["feat"] = tm.get("feat", 0.0) + time.perf_counter() - t
+            if deadline is not None and time.monotonic() > deadline:
+                raise _Budget()
+            if Xs is not None:
+                for k, m in boosters.items():
+                    t = time.perf_counter()
+                    out[k][rr + y0, cc + x0] = m.predict(Xs[k], num_threads=nt).astype(np.float32)
+                    tm["pred_" + k] = tm.get("pred_" + k, 0.0) + time.perf_counter() - t
+            del Xs
+            t = time.perf_counter()
+    finally:
+        if pool is not None:
+            pool.terminate()
+            pool.join()
+        _FW.clear()
     return out
 
 
@@ -421,37 +619,144 @@ def finds_candidates(P, d, region, mt, source):
     return out
 
 
-def region_feats(reg, cfg, model_dir) -> list[dict]:
-    """Опциональный источник пайплайна: [geophys.pixgbm] enabled=true, model_dir (poly.txt, finds.txt)."""
-    import lightgbm as lgb
+_T_IMPORT = time.monotonic()
+
+# Счётчики фазы PIXGBM на процесс (лог и бюджет): прогнозная скорость с/Мпикс валидных по (метод, режим).
+PHASE = dict(spent_s=0.0, cpu_s=0.0, level=0, rasters=0, steps={"full": 0, "finds_only": 0, "classic": 0,
+                                                                  "classic_budget": 0, "error": 0},
+             rate={}, timing={})
+LEVELS = ("full", "finds_only", "classic")
+# Априорная скорость, с на Мпикс валидных (valid & ~noise) при 1 потоке, до первого измеренного растра (дальше — замер).
+# Замер коробки bot-3/pixgbm/bench2 (bench2.jsonl: wall участка, 1 поток; mpx.json): максимум по участкам с одним
+# методом, wall включает чтение растра. terfl отдельно не выделяется (212 смешанный) — взят как maggr. treelite — как lightgbm.
+# Делится на min(потоки, 4): признаки идут в min(потоки, 4) процессах (BUDGET_PIXGBM.md §8).
+PRIOR_S_PER_MPX = {
+    "lleaves": {("maggr", "full"): 16.4, ("maggr", "finds_only"): 14.1, ("etgr", "full"): 8.6, ("terfl", "full"): 16.4},
+    "lightgbm": {("maggr", "full"): 57.1, ("maggr", "finds_only"): 38.1, ("etgr", "full"): 17.5, ("terfl", "full"): 57.1},
+}
+
+
+def process_t0() -> float:
+    """Старт процесса в шкале time.monotonic(): psutil create_time, иначе момент импорта модуля."""
+    try:
+        import psutil
+        return time.monotonic() - max(0.0, time.time() - psutil.Process().create_time())
+    except Exception:
+        return _T_IMPORT
+
+
+def pix_deadline(guard, budget_s: float) -> float:
+    """Абсолютный срок фазы: T0 + budget_s; T0 — guard.t0 (TimeGuard) и старт процесса, что раньше."""
+    t0 = process_t0()
+    g0 = getattr(guard, "t0", None) if guard is not None else None
+    if isinstance(g0, (int, float)):
+        t0 = min(t0, float(g0))
+    return t0 + float(budget_s)
+
+
+def _rate(mt, mode, nt, backend="lightgbm"):
+    r = PHASE["rate"].get((mt, mode))
+    if r:
+        return r[0] / max(r[1], 1e-9)
+    pr = PRIOR_S_PER_MPX.get(backend, PRIOR_S_PER_MPX["lightgbm"])
+    return pr.get((mt, mode), pr.get((mt, "full"), 57.1)) / max(1, min(nt, 4))
+
+
+def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) -> list[dict]:
+    """Опциональный источник пайплайна: [geophys.pixgbm] enabled=true, model_dir (poly.txt, finds.txt).
+    Ключи: backend (lightgbm|lleaves|treelite), maps (методы), t_pix, budget_s (абсолютный срок от старта процесса,
+    env PIXGBM_BUDGET_S важнее), guard_reserve_s. Лестница при нехватке времени (монотонно, на весь процесс):
+    full → finds_only (только finds на maggr; poly — классика) → classic (pix не считается). Ошибка на растре —
+    классика для этого растра. status (если передан) ← {"done": {(класс, метод): {источники}},
+    "fell": {(класс, метод): {источники}}} — где pix не отработал и должна остаться классика."""
     from . import geophys
     from .pipeline import region_crs
 
-    md = Path(model_dir)
+    pix = (cfg.get("geophys", {}) or {}).get("pixgbm") or {}
+    nt = pix_threads()
+    backend = os.environ.get("EXPDS_PIXGBM_BACKEND", "") or pix.get("backend", "lightgbm")
+    budget = float(os.environ.get("PIXGBM_BUDGET_S", "") or pix.get("budget_s", 300))
+    reserve = float(pix.get("guard_reserve_s", 0))
+    deadline = pix_deadline(guard, budget)
+    if guard is not None and hasattr(guard, "left"):
+        deadline = min(deadline, time.monotonic() + guard.left() - reserve)
+    maps = list(pix.get("maps", ["maggr", "etgr", "terfl"]))
+    t_pix = float(pix.get("t_pix", T_PIX))
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
-    bst = {k: lgb.Booster(model_file=str(md / f"{k}.txt")) for k in ("poly", "finds") if (md / f"{k}.txt").exists()}
+    bst = load_models(model_dir, backend)
+    if not bst:
+        log.warning("pixgbm: в %s нет poly.txt/finds.txt — классика", model_dir)
+    bk = "lleaves" if bst and all(getattr(m, "backend", "") == "lleaves" for m in bst.values()) else "lightgbm"
+    st = status if status is not None else {}
+    st.setdefault("done", {}); st.setdefault("fell", {})
     out = []
+    cnt = {k: 0 for k in PHASE["steps"]}
     for mt in ("maggr", "etgr", "terfl"):
+        if mt not in maps:
+            continue
         files = pick_rasters(reg.rasters.get(mt, []))
         if not files:
             continue
         boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
         noise = geophys.load_mask(reg.noise, mt, crs_region)
-        use = {k: v for k, v in bst.items() if k == "poly" or mt == "maggr"}
+        allk = {k: v for k, v in bst.items() if k == "poly" or mt == "maggr"}
+        cls_of = {"poly": "object_poly", "finds": "finds_points"}
         for f in files:
+            t_r, c_r = time.perf_counter(), time.process_time()
+            ran = set()
+            step = "classic"
             try:
                 d = load_map(f, GSD[mt], crs_region, boundary, noise)
                 if not d["crs"]:
                     continue
-                Pm = prob_map(d, mt, use)
-                if "poly" in Pm:
-                    out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name)
-                if "finds" in Pm:
-                    out += finds_candidates(Pm["finds"], d, reg.name, mt, f.name)
-                del d, Pm
+                mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
+                left = deadline - time.monotonic()
+                lvl = PHASE["level"]
+                if lvl == 0 and mpxv * _rate(mt, "full", nt, bk) > left:
+                    lvl = 1
+                if lvl == 1 and (mt != "maggr" or "finds" not in allk or mpxv * _rate(mt, "finds_only", nt, bk) > left):
+                    lvl = 2
+                if lvl > PHASE["level"]:
+                    log.warning("pixgbm: прогноз %.1f Мпикс × скорость > остатка %.0f с — ступень %s с %s",
+                                mpxv, left, LEVELS[lvl], f.name)
+                PHASE["level"] = max(PHASE["level"], lvl)
+                use = allk if lvl == 0 else ({"finds": allk["finds"]} if lvl == 1 and mt == "maggr" else {})
+                if not use:
+                    step = "classic_budget" if allk else "error"
+                else:
+                    mode = "full" if lvl == 0 else "finds_only"
+                    t0 = time.perf_counter()
+                    Pm = prob_map(d, mt, use, threads=nt, procs=int(pix.get("procs", 0) or min(nt, 4)), deadline=deadline,
+                                  timing=PHASE["timing"])
+                    if "poly" in Pm:
+                        out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix)
+                    if "finds" in Pm:
+                        out += finds_candidates(Pm["finds"], d, reg.name, mt, f.name)
+                    r = PHASE["rate"].setdefault((mt, mode), [0.0, 0.0])
+                    r[0] += time.perf_counter() - t0; r[1] += max(mpxv, 1e-6)
+                    ran = {cls_of[k] for k in use}
+                    step = mode
+                    del Pm
+                del d
+            except _Budget:
+                step = "classic_budget"
+                PHASE["level"] = 2
+                log.warning("pixgbm: срок фазы вышел на %s — классика", f.name)
             except Exception:
-                log.exception("%s: pixgbm пропущен", f.name)
+                step = "error"
+                log.exception("%s: pixgbm пропущен — классика", f.name)
+            for k in allk:
+                c = cls_of[k]
+                (st["done"] if c in ran else st["fell"]).setdefault((c, mt), set()).add(f.name)
+            cnt[step] += 1
+            PHASE["steps"][step] += 1
+            PHASE["rasters"] += 1
+            PHASE["spent_s"] += time.perf_counter() - t_r
+            PHASE["cpu_s"] += time.process_time() - c_r
+    log.info("pixgbm %s: backend=%s потоков=%d ступени %s; фаза %.1f с (cpu родителя %.1f с), уровень %s",
+             reg.name, ",".join(sorted({m.backend for m in bst.values()})), nt,
+             {k: v for k, v in cnt.items() if v}, PHASE["spent_s"], PHASE["cpu_s"], LEVELS[PHASE["level"]])
     return out
 
 

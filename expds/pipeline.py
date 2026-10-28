@@ -198,7 +198,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         try:
             from . import geo_pixgbm
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
-            new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
+            pst: dict = {}
+            new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"),
+                                                      guard=guard, status=pst)
                    if f["class_name"] in cls]
             import re
             ure = pix.get("union_name_re", "")
@@ -209,8 +211,16 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 new = geo_pixgbm.dedupe_union(feats, new)
             elif pix.get("replace", False):
                 # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
                 have = {(f["class_name"], f["markup_type"]) for f in new}
-                feats = [f for f in feats if (f.get("class_name"), f.get("markup_type")) not in have]
+                done, fell = pst.get("done", {}), pst.get("fell", {})
+
+                def _drop(f):
+                    key = (f.get("class_name"), f.get("markup_type"))
+                    if key not in have:
+                        return False
+                    return not fell.get(key) or f.get("source") in done.get(key, set())
+                feats = [f for f in feats if not _drop(f)]
             feats += new
         except Exception:
             log.exception("%s: pixgbm пропущен", reg.name)
