@@ -5,6 +5,7 @@ models = [(net, kind, weight)], kind '' = 9-channel stack, 'x' = 12-channel, 'u'
 """
 from __future__ import annotations
 
+import os
 import time
 
 import numpy as np
@@ -14,6 +15,10 @@ from . import ground, terrain, tiling
 KIND_ARGS = {"": dict(extra=False, unclip=False), "x": dict(extra=True, unclip=False), "u": dict(extra=True, unclip=True)}
 ONE_MODEL_LEFT_S = 120
 FLIPS_ONLY_LEFT_S = 300
+# Item (5), where the blending happens: "host" = numpy per tile (spec §3); "device_exact" (default) = tile blending on
+# the model's device, then the host tensordot — bit-equal to "host"; "device" = also the ensemble as a running
+# weighted sum on the device (≤ 1 ulp from tensordot), one device→host copy per site.
+ACCUMULATE = os.environ.get("LIDAR_A_ACC", "device_exact")
 
 
 def guard_models(models, deadline):
@@ -46,15 +51,53 @@ def ensemble(maps, models):
     return np.tensordot(wts / wts.sum(), np.stack(maps), axes=1)
 
 
-def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), dev="cuda", log=print):
+def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), dev="cuda", log=print, accumulate=None):
     """→ (blended maps (n_out, h, w) float32, valid (h, w) bool) at terrain.NET_CELL."""
     models = guard_models(models, deadline)
     kinds = list(dict.fromkeys(k for _, k, _ in models))
     stacks, vmask = stacks_for(dtm, valid, cell, kinds, dev)
     tta = guard_tta(tta, deadline)
-    maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
-        m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
-    return ensemble(maps, models), vmask
+    mode = accumulate or ACCUMULATE
+    if mode == "host":
+        maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
+            m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
+        return ensemble(maps, models), vmask
+    infer = _DeviceInfer(n_out, tta, dev, log)
+    if mode == "device_exact":
+        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models), vmask
+    if mode != "device":
+        raise ValueError(f"LIDAR_A_ACC {mode!r}")
+    wts = np.array([w for _, _, w in models], np.float32)
+    wts = wts / wts.sum()
+    total = None
+    for (m, k, _), wt in zip(models, wts):
+        part = infer(m, stacks[k]).mul_(float(wt))     # a float32 weight is exact as a python float
+        total = part if total is None else total.add_(part)
+        del part
+    return total.cpu().numpy(), vmask
+
+
+class _DeviceInfer:
+    """Tiled inference with device-side blending; site-sized buffers fall back to host memory on CUDA OOM."""
+
+    def __init__(self, n_out, tta, dev, log):
+        self.n_out, self.tta, self.dev, self.log, self.acc_dev = n_out, tta, dev, log, None
+
+    def _run(self, model, stack, tile):
+        import torch
+        kw = dict(tile=tile, overlap=tiling.overlap_for(tile), tta=self.tta, dev=self.dev)
+        try:
+            return tiling.infer_map_on_device(model, stack, self.n_out, acc_dev=self.acc_dev, **kw)
+        except torch.OutOfMemoryError:
+            if self.acc_dev is not None:
+                raise
+            torch.cuda.empty_cache()
+            self.log("CUDA OOM with device blend buffers: blending in host memory")
+            self.acc_dev = "cpu"
+            return tiling.infer_map_on_device(model, stack, self.n_out, acc_dev="cpu", **kw)
+
+    def __call__(self, model, stack):
+        return tiling.with_oom_ladder(lambda t: self._run(model, stack, t), log=self.log)
 
 
 def run_site(path, dtm, valid, origin, models, n_out, decode, meta, tta, deadline, dev, log):
