@@ -1,0 +1,94 @@
+diff --git a/scripts/honest_bootstrap.py b/scripts/honest_bootstrap.py
+index febe95c..6bb1033 100644
+--- a/scripts/honest_bootstrap.py
++++ b/scripts/honest_bootstrap.py
+@@ -154,6 +154,9 @@ def main() -> None:
+     ap.add_argument("--lb", type=int, default=2000)
+     ap.add_argument("--lb-size", type=int, default=48)
+     ap.add_argument("--seeds", type=int, default=5, help="случайных раскладок семей на 10 фолдов")
++    ap.add_argument("--unseen", choices=("drop", "keep"), default="drop",
++                    help="группа без порога на обучающих фолдах: drop — выбросить, keep — оставить целиком "
++                         "(как сдача: etgr/terfl object_poly есть только в Гнёздово, в сдаче их пороги 0,096635/0,0)")
+     ap.add_argument("--out", required=True)
+     a = ap.parse_args()
+     t0 = time.time()
+@@ -169,20 +172,20 @@ def main() -> None:
+     folds10 = M.family_folds(regions, site_family, 10)
+     for nm, cv in variants.items():
+         ins = insample_counts(cv)
+-        c10, info10 = M.honest_counts(cv, folds10)
++        c10, info10 = M.honest_counts(cv, folds10, unseen=a.unseen)
+         canon[nm] = c10
+         v = {"preds": int(sum(c.conf.size for c in cv.values())),
+              "insample_all": M.score_counts(ins)[0], "insample_new34": M.score_counts(ins, new)[0],
+              "honest10_all": M.score_counts(c10)[0], "honest10_new34": M.score_counts(c10, new)[0],
+-             "honest10_unseen_dropped": info10["unseen_dropped"]}
++             "honest10_unseen_dropped": info10["unseen_dropped"], "honest10_unseen_kept": info10["unseen_kept"]}
+         for k in (5, 20, -1):
+-            ck, ik = M.honest_counts(cv, M.family_folds(regions, site_family, None if k < 0 else k))
++            ck, ik = M.honest_counts(cv, M.family_folds(regions, site_family, None if k < 0 else k), unseen=a.unseen)
+             if k < 0:
+                 lofo[nm] = ck
+             v[f"honest{'LOFO' if k < 0 else k}_all"] = M.score_counts(ck)[0]
+         v["honest10_random_seeds"] = []
+         for s in range(a.seeds):
+-            cs, _ = M.honest_counts(cv, random_family_folds(regions, 10, s))
++            cs, _ = M.honest_counts(cv, random_family_folds(regions, 10, s), unseen=a.unseen)
+             v["honest10_random_seeds"].append(M.score_counts(cs)[0])
+         v["per_class_honest10"] = {c: x for c, x in M.score_counts(c10)[1].items() if x["n_gt"] > 0}
+         rep["variants"][nm] = v
+diff --git a/scripts/scoreboard.py b/scripts/scoreboard.py
+index 0f4e8b5..ab35a45 100644
+--- a/scripts/scoreboard.py
++++ b/scripts/scoreboard.py
+@@ -214,7 +214,7 @@ def unit_of(by: str):
+     return site_family if by == "family" else (lambda r: r)
+ 
+ 
+-def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = "family"):
++def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = "family", unseen: str = "drop"):
+     """Порог группы подбирается на других фолдах и применяется к своему (как cross_family.json).
+ 
+     by="family" — фолд из целых семей: оценка для новых памятников. by="region" — фолд из
+@@ -226,11 +226,11 @@ def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str =
+     curves = LAST_CURVES[name]
+     regions = {r for c in curves.values() for r in c.pred_region} | {r for c in curves.values() for r in c.gt_regions}
+     folds = family_folds(regions, unit_of(by), None if folds_k < 0 else folds_k)
+-    counts, info = honest_counts(curves, folds)
++    counts, info = honest_counts(curves, folds, unseen=unseen)
+     scores = [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
+     unit = "семей" if by == "family" else "участков"
+     print(f"{name}, честно ({info['folds']} фолдов {unit}): все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; "
+-          f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}", flush=True)
++          f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}, оставлено {info['unseen_kept']}", flush=True)
+     return scores, counts
+ 
+ 
+@@ -260,6 +260,9 @@ def main() -> None:
+     ap.add_argument("--honest-by", choices=("family", "region"), default="family",
+                     help="фолды из семей (новые памятники, приёмка) или из участков (соседние планшеты). "
+                          "region — только после site_overlap.py на настоящих входах выборки, не на mock_val")
++    ap.add_argument("--honest-unseen", choices=("drop", "keep"), default="drop",
++                    help="группа без порога на обучающих фолдах: drop (как было) или keep (как сдача, уровень ближе к LB). "
++                         "Δ двух вариантов сравнимы, только если у них одинаковое число таких объектов")
+     ap.add_argument("--official", action="store_true",
+                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
+     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
+@@ -286,7 +289,7 @@ def main() -> None:
+                                                     ensure_ascii=False), encoding="utf-8")
+     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
+         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
+-    honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
++    honest_b = honest("база", new, optical, args.honest, args.honest_by, args.honest_unseen) if args.honest else None
+     swap_li = bool(args.fused or args.mosaic_dir)
+     if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment:
+         if args.out:
+@@ -333,7 +336,7 @@ def main() -> None:
+         from expds.metric import paired_bootstrap_counts
+         from expds.naming import site_family
+ 
+-        honest_a = honest("опыт", new, optical, args.honest, args.honest_by)
++        honest_a = honest("опыт", new, optical, args.honest, args.honest_by, args.honest_unseen)
+         # Бутстреп всегда по семьям: участки одной семьи не независимы при любой единице фолда.
+         hboot = paired_bootstrap_counts(honest_a[1], honest_b[1], site_family, args.bootstrap)
+         for label, b, a in zip(labels, honest_b[0], honest_a[0]):

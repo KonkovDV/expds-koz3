@@ -1,0 +1,1241 @@
+diff --git a/expds/post.py b/expds/post.py
+index eb7ce26..8d3685e 100644
+--- a/expds/post.py
++++ b/expds/post.py
+@@ -518,3 +518,112 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
+     return out
++
++
++# --- Калибровка по группам + WBF-слияние разных групп (bot-2, п. 5 REPORT.md) ---
++# Флаг выключен по умолчанию. Честная офлайн-проверка (LOFO по семьям, 7 вариантов)
++# не прошла honest_accept: все Δ < 0 (см. koz3_shared/bot-2/REPORT2.md, раздел п. 5).
++FUSION_CALIB_ENABLED = False
++
++
++def _group_of(f: dict) -> str:
++    return f.get("threshold_group") or f.get("markup_type") or ""
++
++
++def calibrate_group_conf(feats: list[dict], calib: dict | None = None,
++                         enabled: bool | None = None) -> list[dict]:
++    """Пересчёт уверенности по (класс, группа).
++
++    calib[(класс, группа)] = ("platt", a, b): c' = sigmoid(a*logit(c)+b)
++                           | ("iso", xs, ys): кусочно-линейная интерполяция с отсечкой.
++    Нет записи — уверенность не меняется. Исходная сохраняется в confidence_raw.
++    """
++    if not (FUSION_CALIB_ENABLED if enabled is None else enabled) or not calib:
++        return feats
++    import bisect
++    out = []
++    for f in feats:
++        spec = calib.get((f["class_name"], _group_of(f)))
++        c = float(f.get("confidence", 1.0))
++        if spec is None:
++            out.append(f); continue
++        if spec[0] == "platt":
++            x = min(max(c, 1e-6), 1 - 1e-6)
++            z = spec[1] * math.log(x / (1 - x)) + spec[2]
++            cn = 1.0 / (1.0 + math.exp(-z))
++        else:
++            xs, ys = spec[1], spec[2]
++            if c <= xs[0]:
++                cn = ys[0]
++            elif c >= xs[-1]:
++                cn = ys[-1]
++            else:
++                k = bisect.bisect_right(xs, c)
++                x0, x1, y0, y1 = xs[k - 1], xs[k], ys[k - 1], ys[k]
++                cn = y0 if x1 == x0 else y0 + (y1 - y0) * (c - x0) / (x1 - x0)
++        out.append(dict(f, confidence=float(cn), confidence_raw=c))
++    return out
++
++
++def fuse_cross_group(feats: list[dict], how: str = "wbf",
++                     enabled: bool | None = None) -> list[dict]:
++    """WBF-подобное слияние ТОЛЬКО кластеров, где есть объекты из РАЗНЫХ групп.
++
++    Внутри (регион, markup_type, класс): union-find по пересечению с площадью > 0
++    между объектами разных групп. Остаётся лучший член (геометрия и группа его),
++    уверенность: how="wbf" — mean_g(max c группы) * min(N,T)/T (N — групп в
++    кластере, T — групп в (регион, markup, класс)); how="max" — max c.
++    Кластеры одной группы и EtGr не трогаются.
++    """
++    if not (FUSION_CALIB_ENABLED if enabled is None else enabled):
++        return feats
++    buckets: dict[tuple, list[int]] = defaultdict(list)
++    for i, f in enumerate(feats):
++        buckets[(f.get("region_name"), f.get("markup_type"), f["class_name"])].append(i)
++    drop: set[int] = set()
++    new_conf: dict[int, float] = {}
++    for key, idx in buckets.items():
++        if key[1] == "etgr" or len(idx) < 2:
++            continue
++        T = len({_group_of(feats[i]) for i in idx})
++        if T < 2:
++            continue
++        geoms = [feats[i]["geom"] for i in idx]
++        tree = STRtree(geoms)
++        parent = list(range(len(idx)))
++
++        def find(a: int) -> int:
++            while parent[a] != a:
++                parent[a] = parent[parent[a]]
++                a = parent[a]
++            return a
++
++        for a, g in enumerate(geoms):
++            ga = _group_of(feats[idx[a]])
++            for b in tree.query(g):
++                b = int(b)
++                if b <= a or _group_of(feats[idx[b]]) == ga:
++                    continue
++                if g.intersection(geoms[b]).area > 0:
++                    parent[find(a)] = find(b)
++        comps: dict[int, list[int]] = defaultdict(list)
++        for a in range(len(idx)):
++            comps[find(a)].append(idx[a])
++        for mem in comps.values():
++            if len(mem) < 2:
++                continue
++            mem.sort(key=lambda i: (-float(feats[i].get("confidence", 1.0)), i))
++            best = mem[0]
++            if how == "max":
++                val = float(feats[best].get("confidence", 1.0))
++            else:
++                gmax: dict[str, float] = {}
++                for i in mem:
++                    g = _group_of(feats[i])
++                    gmax[g] = max(gmax.get(g, -1.0), float(feats[i].get("confidence", 1.0)))
++                n = len(gmax)
++                val = sum(gmax.values()) / n * min(n, T) / T
++            new_conf[best] = val
++            drop.update(mem[1:])
++    return [dict(f, confidence=new_conf[i], fused=True) if i in new_conf else f
++            for i, f in enumerate(feats) if i not in drop]
+diff --git a/scripts/fusion_calib_eval.py b/scripts/fusion_calib_eval.py
+new file mode 100644
+index 0000000..e8a4b45
+--- /dev/null
++++ b/scripts/fusion_calib_eval.py
+@@ -0,0 +1,190 @@
++"""Честная офлайн-оценка: калибровка уверенности по группам (OOF по семьям) и WBF только для
++кластеров из РАЗНЫХ групп порога (bot-2, п. 5 REPORT.md). Без переобучения моделей.
++
++Схема на каждый фолд семей F (фолды — из base_honest.pkl):
++  1) калибраторы (класс, группа) учатся на участках вне F; метка — попадание объекта
++     при исходных уверенностях (официальное жадное сопоставление);
++  2) калибровка применяется ко всем объектам; WBF (если включён) сливает кластеры;
++  3) жадное сопоставление заново (порядок по новым уверенностям);
++  4) пороги групп подбираются sweep_groups на участках вне F и применяются к F.
++Режимы пар: region — эталон только своего участка (как официальная метрика, режущая по участкам);
++            global — как expds.metric.build_curves (эталон любого участка того же класса).
++Запуск: OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/fusion_calib_eval.py
++"""
++import argparse, json, pickle, sys, time
++from collections import Counter
++from pathlib import Path
++import numpy as np
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--repo", default="/workspace/expds-koz3")
++ap.add_argument("--prep", default="/workspace/koz3_shared/bot-2/work/fusion_prep.pkl")
++ap.add_argument("--base", default="/workspace/rerank/work/base_honest.pkl")
++ap.add_argument("--modes", default="global,region")
++ap.add_argument("--variants", default="base,platt,iso,wbf_raw,platt_wbf,iso_wbf,platt_max")
++ap.add_argument("--boot", type=int, default=1000)
++ap.add_argument("--out", default="/workspace/koz3_shared/bot-2/work/fusion_calib_eval.json")
++a = ap.parse_args()
++sys.path.insert(0, a.repo)
++from expds.metric import ClassCurve, sweep_groups, curve_where, score_counts, paired_bootstrap_counts
++from expds.naming import site_family
++from sklearn.linear_model import LogisticRegression
++from sklearn.isotonic import IsotonicRegression
++
++R = pickle.load(open(a.prep, "rb"))
++B = pickle.load(open(a.base, "rb"))
++folds = B["folds"]; every = set().union(*folds)
++ROOT = Path(a.repo)
++boxes = json.loads((ROOT / "notes" / "las_boxes_59.json").read_text(encoding="utf-8"))
++gt_regions_all = {r for c in R["classes"] for r in R["gt_region"][c]}
++optical = {r for r in gt_regions_all if r} - set(boxes)
++new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
++CL = R["classes"]
++MIN_POS = 10
++
++def greedy(c, ceff, active, mode):
++    P, pr = R["P"][c], R["pairs"][c]
++    m = pr["same"] if mode == "region" else np.ones(len(pr["i"]), bool)
++    pi, pj, ps = pr["i"][m], pr["j"][m], pr["s"][m]
++    keep = active[pi]; pi, pj, ps = pi[keep], pj[keep], ps[keep]
++    hit = np.zeros(len(P["conf"]), bool)
++    if not len(pi):
++        return hit
++    o = np.lexsort((pj, pi)); pi, pj, ps = pi[o], pj[o], ps[o]
++    starts = np.r_[0, np.flatnonzero(np.diff(pi)) + 1]; ends = np.r_[starts[1:], len(pi)]
++    preds = pi[starts]
++    order = np.lexsort((P["ord"][preds], -P["conf"][preds], -ceff[preds]))
++    matched = set()
++    for k in order.tolist():
++        best, bj = -np.inf, -1
++        for q in range(starts[k], ends[k]):
++            j = int(pj[q])
++            if j in matched: continue
++            if ps[q] > best + 1e-9: best, bj = ps[q], j
++        if bj >= 0:
++            matched.add(bj); hit[preds[k]] = True
++    return hit
++
++def curve(c, ceff, active, hit):
++    P = R["P"][c]
++    idx = np.flatnonzero(active)
++    o = idx[np.lexsort((P["ord"][idx], -P["conf"][idx], -ceff[idx]))]
++    gtc = Counter(R["gt_region"][c])
++    return ClassCurve(conf=ceff[o].astype(float), hit=hit[o], pred_region=P["region"][o].tolist(),
++                      n_gt=sum(gtc.values()), gt_regions=gtc, pred_group=P["group"][o].tolist())
++
++def logit(x):
++    x = np.clip(x, 1e-6, 1 - 1e-6); return np.log(x / (1 - x))
++
++def calibrate(c, kind, train_mask, label):
++    P = R["P"][c]; out = P["conf"].copy(); info = {}
++    for g in np.unique(P["group"]):
++        gm = P["group"] == g; tm = gm & train_mask
++        y = label[tm]; npos = int(y.sum()); nneg = int(len(y) - npos)
++        if npos < MIN_POS or nneg < MIN_POS:
++            info[g] = "identity"; continue
++        x = P["conf"][tm]
++        if kind == "platt":
++            lr = LogisticRegression(C=1e4, max_iter=1000).fit(logit(x)[:, None], y)
++            out[gm] = lr.predict_proba(logit(P["conf"][gm])[:, None])[:, 1]
++        else:
++            ir = IsotonicRegression(y_min=0, y_max=1, out_of_bounds="clip").fit(x, y)
++            out[gm] = ir.predict(P["conf"][gm])
++        info[g] = "fit"
++    return out, info
++
++T_CACHE = {}
++def groups_present(c):
++    if c not in T_CACHE:
++        P = R["P"][c]
++        key = np.char.add(np.char.add(P["region"].astype(str), "|"), P["markup"].astype(str))
++        T = {}
++        for k, g in zip(key.tolist(), P["group"].tolist()): T.setdefault(k, set()).add(g)
++        T_CACHE[c] = np.array([len(T[k]) for k in key.tolist()])
++    return T_CACHE[c]
++
++def fuse(c, ceff, how):
++    """Кластеры из разных групп -> один объект (геометрия лучшего члена, его группа)."""
++    P = R["P"][c]; cl = P["cluster"]; active = np.ones(len(cl), bool); ce = ceff.copy()
++    idx = np.flatnonzero(cl >= 0)
++    if not len(idx): return ce, active, 0
++    o = idx[np.lexsort((P["ord"][idx], -ceff[idx], cl[idx]))]          # по кластеру, лучший первым
++    starts = np.r_[0, np.flatnonzero(np.diff(cl[o])) + 1]; ends = np.r_[starts[1:], len(o)]
++    T = groups_present(c)
++    for s, e in zip(starts.tolist(), ends.tolist()):
++        mem = o[s:e]; best = mem[0]
++        if how == "max":
++            val = ceff[best]
++        else:
++            gmax = {}
++            for m_ in mem.tolist():
++                g = P["group"][m_]; gmax[g] = max(gmax.get(g, -np.inf), ceff[m_])
++            n = len(gmax); t = max(int(T[best]), n)
++            val = float(np.mean(list(gmax.values()))) * min(n, t) / t
++        ce[best] = val; active[mem[1:]] = False
++    return ce, active, len(starts)
++
++def run(variant, mode):
++    cal = {"platt": "platt", "iso": "isotonic", "platt_wbf": "platt", "iso_wbf": "isotonic", "platt_max": "platt"}.get(variant)
++    fus = {"wbf_raw": "wbf", "platt_wbf": "wbf", "iso_wbf": "wbf", "platt_max": "max"}.get(variant)
++    base_hit = {c: greedy(c, R["P"][c]["conf"], np.ones(len(R["P"][c]["conf"]), bool), mode) for c in CL}
++    counts = {c: {} for c in CL}; meta = {"fused_clusters": {}, "calib": {}}
++    static = cal is None
++    cache = None
++    for fi, held in enumerate(folds):
++        train = every - held
++        if not static or cache is None:
++            curves = {}
++            for c in CL:
++                P = R["P"][c]; ceff = P["conf"].copy()
++                if cal:
++                    tm = np.fromiter((r in train for r in P["region"]), bool, len(P["region"]))
++                    ceff, info = calibrate(c, cal, tm, base_hit[c]); meta["calib"].setdefault(c, Counter()).update(info.values())
++                active = np.ones(len(ceff), bool)
++                if fus:
++                    ceff, active, nf = fuse(c, ceff, fus); meta["fused_clusters"][c] = nf
++                hit = greedy(c, ceff, active, mode) if (cal or fus) else base_hit[c]
++                curves[c] = curve(c, ceff, active, hit)
++            cache = curves
++        curves = cache
++        res = sweep_groups({c: curve_where(cv, train) for c, cv in curves.items()})
++        taus = {}
++        for c, v in res.items():
++            for g, gv in v["groups"].items(): taus.setdefault(g, {})[c] = gv["threshold"]
++        for c, cv in curves.items():
++            hc = curve_where(cv, held); per = counts[c]
++            for r, n in hc.gt_regions.items(): per.setdefault(r, [0, 0, 0])[2] += int(n)
++            if hc.conf.size == 0: continue
++            tau = np.array([taus.get(g, {}).get(c, np.inf) for g in hc.pred_group])
++            kept = hc.conf >= tau
++            for r, h in zip(np.asarray(hc.pred_region, dtype=object)[kept], hc.hit[kept]):
++                per.setdefault(r, [0, 0, 0])[0 if h else 1] += 1
++    meta["calib"] = {c: dict(v) for c, v in meta["calib"].items()}
++    return counts, meta
++
++out = {"n_new": len(new), "n_optical": len(optical), "base_pkl": B["scores"], "modes": {}}
++t0 = time.time()
++for mode in a.modes.split(","):
++    res = {}; cnts = {}
++    for v in a.variants.split(","):
++        counts, meta = run(v, mode); cnts[v] = counts
++        s = [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
++        per = score_counts(counts)[1]
++        res[v] = {"honest": s[0], "new34": s[1], "no_lidar": s[2], "meta": meta,
++                  "per_class": {c: {k: round(x, 5) for k, x in d.items()} for c, d in per.items()}}
++        if v != "base":
++            b = res["base"]
++            res[v].update(d_honest=s[0] - b["honest"], d_new34=s[1] - b["new34"], d_no_lidar=s[2] - b["no_lidar"])
++            bs = paired_bootstrap_counts(counts, cnts["base"], site_family, n=a.boot)
++            res[v]["boot"] = bs
++            res[v]["honest_accept"] = bool(res[v]["d_honest"] >= 0.002 and bs.get("p_gt0", 0) >= 0.8
++                                           and res[v]["d_new34"] >= -0.001 and res[v]["d_no_lidar"] >= -0.001)
++        print(mode, v, [round(x, 6) for x in s], {k: res[v][k] for k in ("d_honest", "honest_accept") if k in res[v]},
++              res[v]["boot"].get("p_gt0") if "boot" in res[v] else "", round(time.time() - t0), flush=True)
++    if mode == "global":
++        res["base"]["pkl_counts_equal"] = all(
++            {r: list(x) for r, x in cnts["base"][c].items()} == {r: list(x) for r, x in B["counts"][c].items()}
++            for c in CL if c in B["counts"])
++    out["modes"][mode] = res
++    json.dump(out, open(a.out, "w"), ensure_ascii=False, indent=1, default=str)
++print("done", round(time.time() - t0))
+diff --git a/scripts/fusion_calib_prep.py b/scripts/fusion_calib_prep.py
+new file mode 100644
+index 0000000..63bf364
+--- /dev/null
++++ b/scripts/fusion_calib_prep.py
+@@ -0,0 +1,122 @@
++"""Подготовка к офлайн-оценке калибровки и WBF (bot-2): один проход по участкам.
++
++Для каждого объекта стека: класс, уверенность, группа порога, markup, участок, порядок в файле.
++Пары (объект, эталон), прошедшие официальный _match_quality (cov ≥ 0.5 и точка внутри),
++с признаком «эталон того же участка» (официальная метрика режет по участкам; build_curves в репо — нет).
++Кластеры для WBF: пересекающиеся (площадь > 0) объекты одного (участок, markup, класс)
++из РАЗНЫХ групп порога, union-find.
++Читает work/stack_regions/*.jsonl (потоковая разбивка стека), эталон — целиком (он мал).
++"""
++import argparse, json, pickle, sys, time
++from collections import defaultdict
++from pathlib import Path
++import numpy as np
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--repo", default="/workspace/expds-koz3")
++ap.add_argument("--regions-dir", default="/workspace/koz3_shared/bot-2/work/stack_regions")
++ap.add_argument("--gt", default="/workspace/rerank/gt_train_v2.geojson")
++ap.add_argument("--shm", default="/workspace/koz3_shared/bot-2/work/shm")
++ap.add_argument("--out", default="/workspace/koz3_shared/bot-2/work/fusion_prep.pkl")
++a = ap.parse_args()
++sys.path.insert(0, a.repo)
++import shapely
++from shapely.strtree import STRtree
++import expds.metric as M
++M._SHM_CACHE_DIR = Path(a.shm)
++from expds.metric import load_official, _collect
++
++mod = load_official(str(Path(a.repo) / "materials" / "compute_metrics.py"))
++calc = mod.F1Calculator()
++CLASSES = list(calc.target_classes)
++SEP = "\x00"
++
++gtfc = json.loads(Path(a.gt).read_bytes())
++n_sub = sum(1 for f in gtfc["features"] if (f.get("properties") or {}).get("sub_region_name"))
++G = _collect(mod, calc, gtfc, True)
++gt_geom = {c: [x[0] for x in G.get(c, [])] for c in CLASSES}
++gt_reg = {c: [x[2] for x in G.get(c, [])] for c in CLASSES}
++gt_tree = {c: STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gt_geom[c]])
++           if gt_geom[c] else None for c in CLASSES}
++del gtfc
++M._UTM_GEOM_CACHE.clear()
++
++P = {c: defaultdict(list) for c in CLASSES}          # c -> поле -> список
++pairs = {c: [] for c in CLASSES}                     # (local_idx, gt_idx, score, same_region)
++n_cluster = 0; stats = defaultdict(int)
++t0 = time.time()
++files = sorted(Path(a.regions_dir).glob("*.jsonl"))
++for fi, fp in enumerate(files):
++    feats = [json.loads(l) for l in open(fp)]
++    markup_of = {}
++    for f in feats:
++        p = f["properties"]; markup_of[p["_ord"]] = str(p.get("markup_type") or "")
++        p["region_name"] = f'{p.get("region_name", "default_source")}{SEP}{p["_ord"]}'
++    out = _collect(mod, calc, {"features": feats}, False)
++    M._UTM_GEOM_CACHE.clear(); del feats
++    for c in CLASSES:
++        items = out.get(c, [])
++        if not items:
++            continue
++        base = len(P[c]["conf"])
++        geoms = [x[0] for x in items]
++        for g, conf, rr, grp in items:
++            reg, o = rr.rsplit(SEP, 1); o = int(o)
++            P[c]["conf"].append(conf); P[c]["ord"].append(o); P[c]["region"].append(reg)
++            P[c]["group"].append(grp); P[c]["markup"].append(markup_of[o])
++        # пары с эталоном (по всем участкам, отмечаем «свой» участок)
++        if gt_tree[c] is not None:
++            qp, qg = gt_tree[c].query(geoms)
++            for i, j in zip(qp.tolist(), qg.tolist()):
++                pg = geoms[i]
++                if pg.geom_type != "Polygon":
++                    continue
++                ok, s = calc._match_quality(pg, gt_geom[c][j])
++                if ok:
++                    same = gt_reg[c][j] == P[c]["region"][base + i]
++                    pairs[c].append((base + i, j, float(s), same)); stats["pairs_same" if same else "pairs_cross"] += 1
++        # кластеры из разных групп в пределах (markup) — участок и класс уже общие
++        cl = np.full(len(items), -1, dtype=np.int64)
++        grp_arr = np.array([x[3] for x in items], dtype=object)
++        mk_arr = np.array([markup_of[int(x[2].rsplit(SEP, 1)[1])] for x in items], dtype=object)
++        if len(set(grp_arr.tolist())) > 1:
++            garr = np.array(geoms, dtype=object)
++            tree = STRtree(garr)
++            qi, qj = tree.query(garr, predicate="intersects")
++            m = (qi < qj) & (grp_arr[qi] != grp_arr[qj]) & (mk_arr[qi] == mk_arr[qj])
++            qi, qj = qi[m], qj[m]
++            if len(qi):
++                area = shapely.area(shapely.intersection(garr[qi], garr[qj]))
++                keep = area > 0
++                qi, qj = qi[keep], qj[keep]
++                parent = np.arange(len(items))
++                def find(x):
++                    while parent[x] != x:
++                        parent[x] = parent[parent[x]]; x = parent[x]
++                    return x
++                for i, j in zip(qi.tolist(), qj.tolist()):
++                    ri, rj = find(i), find(j)
++                    if ri != rj: parent[ri] = rj
++                roots = np.array([find(i) for i in range(len(items))])
++                cnt = np.bincount(roots, minlength=len(items))
++                multi = np.flatnonzero(cnt[roots] > 1)
++                if len(multi):
++                    uniq, inv = np.unique(roots[multi], return_inverse=True)
++                    cl[multi] = n_cluster + inv; n_cluster += len(uniq)
++                    stats[f"clustered|{c}"] += len(multi)
++        P[c]["cluster"].extend(cl.tolist())
++    if fi % 20 == 0:
++        print(fi, len(files), fp.stem, round(time.time() - t0), flush=True)
++
++res = {"classes": CLASSES, "n_gt_sub_region": n_sub, "stats": dict(stats), "n_cluster": n_cluster,
++       "gt_region": gt_reg, "P": {}, "pairs": {}}
++for c in CLASSES:
++    d = P[c]
++    res["P"][c] = {"conf": np.array(d["conf"], float), "ord": np.array(d["ord"], np.int64),
++                   "region": np.array(d["region"], object), "group": np.array(d["group"], object),
++                   "markup": np.array(d["markup"], object), "cluster": np.array(d["cluster"], np.int64)}
++    pr = pairs[c]
++    res["pairs"][c] = {"i": np.array([x[0] for x in pr], np.int64), "j": np.array([x[1] for x in pr], np.int64),
++                       "s": np.array([x[2] for x in pr], float), "same": np.array([x[3] for x in pr], bool)}
++pickle.dump(res, open(a.out, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
++print("done", round(time.time() - t0), dict(stats), n_cluster, "gt_sub", n_sub)
+diff --git a/scripts/fusion_e2_eval.py b/scripts/fusion_e2_eval.py
+new file mode 100644
+index 0000000..f02023c
+--- /dev/null
++++ b/scripts/fusion_e2_eval.py
+@@ -0,0 +1,202 @@
++"""E2 (bot-2): заранее объявленные варианты из koz3_shared/bot-2/EXPERIMENTS.md (28.10.2026 20:14 МСК).
++
++Сопоставление только внутри своего участка (режим region). Калибратор isotonic.
++  nl_iso_wbf       — iso + WBF только на участках без лидара; отдельные пороги для них; лидарные = база;
++  all_iso_wbf_noli — iso везде + WBF везде, группы markup li для WBF — одна группа (не сливаются);
++  nl_iso           — как nl_iso_wbf, без WBF.
++Приёмка — правило bot-10 П1–П4 (/workspace/koz3_shared/EXPERIMENTS.md); П5 — в отчёте.
++Запуск: OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/fusion_e2_eval.py
++"""
++import argparse, json, pickle, sys, time
++from collections import Counter
++from pathlib import Path
++import numpy as np
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--repo", default="/workspace/expds-koz3")
++ap.add_argument("--prep", default="/workspace/koz3_shared/bot-2/work/fusion_prep.pkl")
++ap.add_argument("--base", default="/workspace/rerank/work/base_honest.pkl")
++ap.add_argument("--variants", default="base,nl_iso_wbf,all_iso_wbf_noli,nl_iso")
++ap.add_argument("--boot", type=int, default=1000)
++ap.add_argument("--seeds", type=int, default=5)
++ap.add_argument("--out", default="/workspace/koz3_shared/bot-2/work/fusion_e2_eval.json")
++a = ap.parse_args()
++sys.path.insert(0, a.repo)
++from expds.metric import ClassCurve, sweep_groups, curve_where, score_counts, paired_bootstrap_counts, family_folds
++from expds.naming import site_family
++from expds.constants import CLASS_WEIGHTS
++from sklearn.isotonic import IsotonicRegression
++
++MODE = "region"; MIN_POS = 10
++R = pickle.load(open(a.prep, "rb")); B = pickle.load(open(a.base, "rb"))
++CL = R["classes"]; folds10 = B["folds"]; every = set().union(*folds10)
++ROOT = Path(a.repo)
++boxes = set(json.loads((ROOT / "notes" / "las_boxes_59.json").read_text(encoding="utf-8")))
++gt_all = {r for c in CL for r in R["gt_region"][c]}
++optical = {r for r in gt_all if r} - boxes
++new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
++NL = {c: np.array([r not in boxes for r in R["P"][c]["region"]]) for c in CL}
++
++def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
++    fams = {}
++    for r in regions: fams.setdefault(site_family(r), set()).add(r)
++    names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k
++    return [set().union(*(fams[n] for n, l in zip(names, lab) if l == i)) for i in range(k)]
++
++def greedy(c, ceff, active):
++    P, pr = R["P"][c], R["pairs"][c]
++    m = pr["same"]; pi, pj, ps = pr["i"][m], pr["j"][m], pr["s"][m]
++    keep = active[pi]; pi, pj, ps = pi[keep], pj[keep], ps[keep]
++    hit = np.zeros(len(P["conf"]), bool)
++    if not len(pi): return hit
++    o = np.lexsort((pj, pi)); pi, pj, ps = pi[o], pj[o], ps[o]
++    starts = np.r_[0, np.flatnonzero(np.diff(pi)) + 1]; ends = np.r_[starts[1:], len(pi)]
++    preds = pi[starts]
++    order = np.lexsort((P["ord"][preds], -P["conf"][preds], -ceff[preds]))
++    matched = set()
++    for k in order.tolist():
++        best, bj = -np.inf, -1
++        for q in range(starts[k], ends[k]):
++            j = int(pj[q])
++            if j in matched: continue
++            if ps[q] > best + 1e-9: best, bj = ps[q], j
++        if bj >= 0: matched.add(bj); hit[preds[k]] = True
++    return hit
++
++def curve(c, ceff, active, hit, sel=None):
++    P = R["P"][c]; m = active if sel is None else (active & sel)
++    idx = np.flatnonzero(m)
++    o = idx[np.lexsort((P["ord"][idx], -P["conf"][idx], -ceff[idx]))]
++    gtc = Counter(R["gt_region"][c])
++    return ClassCurve(conf=ceff[o].astype(float), hit=hit[o], pred_region=P["region"][o].tolist(),
++                      n_gt=sum(gtc.values()), gt_regions=gtc, pred_group=P["group"][o].tolist())
++
++def calibrate_iso(c, fit_mask, apply_mask, label):
++    P = R["P"][c]; out = P["conf"].copy(); info = Counter()
++    for g in np.unique(P["group"][apply_mask]):
++        gm = P["group"] == g; tm = gm & fit_mask; am = gm & apply_mask
++        y = label[tm]; npos = int(y.sum()); nneg = int(len(y) - npos)
++        if npos < MIN_POS or nneg < MIN_POS: info["identity"] += 1; continue
++        ir = IsotonicRegression(y_min=0, y_max=1, out_of_bounds="clip").fit(P["conf"][tm], y)
++        out[am] = ir.predict(P["conf"][am]); info["fit"] += 1
++    return out, info
++
++T_CACHE = {}
++def groups_present(c):
++    if c not in T_CACHE:
++        P = R["P"][c]; key = [f"{r}|{m}" for r, m in zip(P["region"], P["markup"])]
++        T = {}
++        for k, g in zip(key, P["group"].tolist()): T.setdefault(k, set()).add(g)
++        T_CACHE[c] = np.array([len(T[k]) for k in key])
++    return T_CACHE[c]
++
++def fuse(c, ceff, cl):
++    P = R["P"][c]; active = np.ones(len(cl), bool); ce = ceff.copy()
++    idx = np.flatnonzero(cl >= 0)
++    if not len(idx): return ce, active, 0
++    o = idx[np.lexsort((P["ord"][idx], -ceff[idx], cl[idx]))]
++    starts = np.r_[0, np.flatnonzero(np.diff(cl[o])) + 1]; ends = np.r_[starts[1:], len(o)]
++    T = groups_present(c)
++    for s, e in zip(starts.tolist(), ends.tolist()):
++        mem = o[s:e]; best = mem[0]; gmax = {}
++        for m_ in mem.tolist():
++            g = P["group"][m_]; gmax[g] = max(gmax.get(g, -np.inf), ceff[m_])
++        n = len(gmax); t = max(int(T[best]), n)
++        ce[best] = float(np.mean(list(gmax.values()))) * min(n, t) / t; active[mem[1:]] = False
++    return ce, active, len(starts)
++
++BASE_HIT = {c: greedy(c, R["P"][c]["conf"], np.ones(len(R["P"][c]["conf"]), bool)) for c in CL}
++BASE_CURVES = {c: curve(c, R["P"][c]["conf"], np.ones(len(R["P"][c]["conf"]), bool), BASE_HIT[c]) for c in CL}
++
++def taus_of(curves, regions):
++    res = sweep_groups({c: curve_where(cv, regions) for c, cv in curves.items()}); t = {}
++    for c, v in res.items():
++        for g, gv in v["groups"].items(): t.setdefault(g, {})[c] = gv["threshold"]
++    return t
++
++def add_counts(counts, curves, held, taus):
++    for c, cv in curves.items():
++        hc = curve_where(cv, held); per = counts[c]
++        if hc.conf.size == 0: continue
++        tau = np.array([taus.get(g, {}).get(c, np.inf) for g in hc.pred_group])
++        kept = hc.conf >= tau
++        for r, h in zip(np.asarray(hc.pred_region, dtype=object)[kept], hc.hit[kept]):
++            per.setdefault(r, [0, 0, 0])[0 if h else 1] += 1
++
++def add_gt(counts, held):
++    for c in CL:
++        for r, n in Counter(R["gt_region"][c]).items():
++            if r in held: counts[c].setdefault(r, [0, 0, 0])[2] += int(n)
++
++def evaluate(variant, folds):
++    counts = {c: {} for c in CL}; meta = {"fused": Counter(), "calib": Counter()}
++    for held in folds:
++        train = every - held
++        add_gt(counts, held)
++        if variant == "base":
++            add_counts(counts, BASE_CURVES, held, taus_of(BASE_CURVES, train)); continue
++        curves = {}
++        for c in CL:
++            P = R["P"][c]; tm = np.fromiter((r in train for r in P["region"]), bool, len(P["region"]))
++            if variant.startswith("nl_"):
++                ceff, info = calibrate_iso(c, tm & NL[c], NL[c], BASE_HIT[c])
++                cl = np.where(NL[c], P["cluster"], -1)
++            else:
++                ceff, info = calibrate_iso(c, tm, np.ones(len(tm), bool), BASE_HIT[c])
++                cl = np.where(P["markup"] == "li", -1, P["cluster"])
++            meta["calib"].update(info)
++            active = np.ones(len(ceff), bool)
++            if variant.endswith("wbf") or variant.endswith("wbf_noli"):
++                ceff, active, nf = fuse(c, ceff, cl); meta["fused"][c] += nf
++            curves[c] = (ceff, active, greedy(c, ceff, active))
++        if variant.startswith("nl_"):
++            lid = {r for r in every if r in boxes}
++            nlr = every - lid
++            # лидарные участки — как в базе (сырые уверенности, пороги базы по всем train)
++            add_counts(counts, BASE_CURVES, held & lid, taus_of(BASE_CURVES, train))
++            cv_nl = {c: curve(c, *curves[c], sel=NL[c]) for c in CL}
++            add_counts(counts, cv_nl, held & nlr, taus_of(cv_nl, train & nlr))
++        else:
++            cvs = {c: curve(c, *curves[c]) for c in CL}
++            add_counts(counts, cvs, held, taus_of(cvs, train))
++    return counts, {k: dict(v) for k, v in meta.items()}
++
++def scores(counts):
++    return score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]
++
++def wdelta(ca, cb):
++    _, pa = score_counts(ca); _, pb = score_counts(cb)
++    den = sum(CLASS_WEIGHTS.get(c, 0.0) for c in pa if pa[c]["n_gt"] > 0)
++    return {c: CLASS_WEIGHTS.get(c, 0.0) * (pa[c]["f1"] - pb[c]["f1"]) / den for c in pa if pa[c]["n_gt"] > 0}
++
++lofo = family_folds(every, site_family, None)
++seed_folds = [random_family_folds(every, 10, s) for s in range(a.seeds)]
++out = {"declared": "koz3_shared/bot-2/EXPERIMENTS.md E2, 28.10.2026 20:14:08 MSK", "mode": MODE,
++       "n_lofo_folds": len(lofo), "n_new": len(new), "n_optical": len(optical), "variants": {}}
++t0 = time.time(); base = {}
++for v in a.variants.split(","):
++    c10, meta = evaluate(v, folds10)
++    cl_, _ = evaluate(v, lofo)
++    cs = [evaluate(v, f)[0] for f in seed_folds]
++    s10 = scores(c10); sl = score_counts(cl_)[0]; ss = [score_counts(x)[0] for x in cs]
++    r = {"honest10": s10[0], "new34": s10[1], "no_lidar": s10[2], "lofo": sl, "seeds": ss, "meta": meta,
++         "per_class": {c: {k: round(x, 5) for k, x in d.items()} for c, d in score_counts(c10)[1].items()}}
++    if v == "base":
++        base = {"c10": c10, "s10": s10, "sl": sl, "ss": ss}
++    else:
++        bs = paired_bootstrap_counts(c10, base["c10"], site_family, n=a.boot)
++        d = s10[0] - base["s10"][0]; wd = wdelta(c10, base["c10"])
++        sd = [x - y for x, y in zip(ss, base["ss"])]
++        heavy = {c: wd.get(c, 0.0) for c in ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha")}
++        P1 = d >= 0.002; P2 = bs.get("p_gt0", 0) >= 0.85
++        P3 = (sl - base["sl"] > 0) and sum(x > 0 for x in sd) >= 4
++        P4 = all(x >= -0.0005 for x in heavy.values()) and s10[1] >= base["s10"][1] - 0.001 and s10[2] >= base["s10"][2] - 0.001
++        r.update(d_honest10=d, d_new34=s10[1] - base["s10"][1], d_no_lidar=s10[2] - base["s10"][2], boot=bs,
++                 d_lofo=sl - base["sl"], seed_deltas=sd, weighted_class_delta=wd, heavy=heavy,
++                 P1=bool(P1), P2=bool(P2), P3=bool(P3), P4=bool(P4), accept_P1_P4=bool(P1 and P2 and P3 and P4),
++                 P5_package_only=bool(d < 0.006))
++    out["variants"][v] = r
++    print(v, round(s10[0], 6), round(s10[1], 6), round(s10[2], 6), "lofo", round(sl, 6),
++          {k: r[k] for k in ("d_honest10", "P1", "P2", "P3", "P4") if k in r}, round(time.time() - t0), flush=True)
++    json.dump(out, open(a.out, "w"), ensure_ascii=False, indent=1, default=str)
++print("done", round(time.time() - t0))
+diff --git a/scripts/fusion_e3_eval.py b/scripts/fusion_e3_eval.py
+new file mode 100644
+index 0000000..6b64942
+--- /dev/null
++++ b/scripts/fusion_e3_eval.py
+@@ -0,0 +1,156 @@
++"""E3 (bot-2): только отдельные пороги для участков без лидара; объявлено в
++koz3_shared/bot-2/EXPERIMENTS.md (28.10.2026 20:39:18 МСК).
++E3n — вложенный выбор по классам (внутр. family_folds(train,5)), решающий; E3p — без выбора, диагностика.
++Сопоставление global (как materials/compute_metrics.py: пулинг по всем источникам), region — диагностика.
++Запуск: OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/fusion_e3_eval.py
++"""
++import argparse, json, pickle, sys, time
++from collections import Counter
++from pathlib import Path
++import numpy as np
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--repo", default="/workspace/expds-koz3")
++ap.add_argument("--prep", default="/workspace/koz3_shared/bot-2/work/fusion_prep.pkl")
++ap.add_argument("--base", default="/workspace/rerank/work/base_honest.pkl")
++ap.add_argument("--boot", type=int, default=1000)
++ap.add_argument("--seeds", type=int, default=5)
++ap.add_argument("--inner", type=int, default=5)
++ap.add_argument("--out", default="/workspace/koz3_shared/bot-2/work/fusion_e3_eval.json")
++a = ap.parse_args()
++sys.path.insert(0, a.repo)
++from expds.metric import ClassCurve, sweep_groups, curve_where, score_counts, paired_bootstrap_counts, family_folds
++from expds.naming import site_family
++from expds.constants import CLASS_WEIGHTS
++
++R = pickle.load(open(a.prep, "rb")); B = pickle.load(open(a.base, "rb"))
++CL = R["classes"]; folds_pkl = B["folds"]; every = set().union(*folds_pkl)
++folds10 = family_folds(every, site_family, 10)
++FOLDS_EQUAL = sorted(map(sorted, folds10)) == sorted(map(sorted, folds_pkl))
++ROOT = Path(a.repo)
++boxes = set(json.loads((ROOT / "notes" / "las_boxes_59.json").read_text(encoding="utf-8")))
++NLR = {r for r in every if r not in boxes}
++gt_all = {r for c in CL for r in R["gt_region"][c]}
++optical = {r for r in gt_all if r} - boxes
++new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
++
++def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
++    fams = {}
++    for r in regions: fams.setdefault(site_family(r), set()).add(r)
++    names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k
++    return [set().union(*(fams[n] for n, l in zip(names, lab) if l == i)) for i in range(k)]
++
++def greedy(c, mode):
++    P, pr = R["P"][c], R["pairs"][c]; ceff = P["conf"]
++    m = pr["same"] if mode == "region" else np.ones(len(pr["i"]), bool)
++    pi, pj, ps = pr["i"][m], pr["j"][m], pr["s"][m]
++    hit = np.zeros(len(ceff), bool)
++    if not len(pi): return hit
++    o = np.lexsort((pj, pi)); pi, pj, ps = pi[o], pj[o], ps[o]
++    starts = np.r_[0, np.flatnonzero(np.diff(pi)) + 1]; ends = np.r_[starts[1:], len(pi)]
++    preds = pi[starts]; order = np.lexsort((P["ord"][preds], -ceff[preds]))
++    matched = set()
++    for k in order.tolist():
++        best, bj = -np.inf, -1
++        for q in range(starts[k], ends[k]):
++            j = int(pj[q])
++            if j in matched: continue
++            if ps[q] > best + 1e-9: best, bj = ps[q], j
++        if bj >= 0: matched.add(bj); hit[preds[k]] = True
++    return hit
++
++def curves_for(mode):
++    out = {}
++    for c in CL:
++        P = R["P"][c]; hit = greedy(c, mode)
++        o = np.lexsort((P["ord"], -P["conf"])); gtc = Counter(R["gt_region"][c])
++        out[c] = ClassCurve(conf=P["conf"][o].astype(float), hit=hit[o], pred_region=P["region"][o].tolist(),
++                            n_gt=sum(gtc.values()), gt_regions=gtc, pred_group=P["group"][o].tolist())
++    return out
++
++def taus_of(curves, regions):
++    res = sweep_groups({c: curve_where(cv, regions) for c, cv in curves.items()}); t = {}
++    for c, v in res.items():
++        for g, gv in v["groups"].items(): t.setdefault(g, {})[c] = gv["threshold"]
++    return t
++
++def add_counts(counts, curves, held, tb, tn, sel):
++    """Лидарные участки: tb. Без лидара: tn для классов из sel (если нет — tb). unseen = drop."""
++    for c, cv in curves.items():
++        hc = curve_where(cv, held); per = counts[c]
++        for r, n in hc.gt_regions.items(): per.setdefault(r, [0, 0, 0])[2] += int(n)
++        if hc.conf.size == 0: continue
++        use_nl = c in sel
++        tau = np.array([(tn.get(g, {}).get(c, tb.get(g, {}).get(c, np.inf)) if (use_nl and r in NLR)
++                         else tb.get(g, {}).get(c, np.inf)) for g, r in zip(hc.pred_group, hc.pred_region)])
++        kept = hc.conf >= tau
++        for r, h in zip(np.asarray(hc.pred_region, dtype=object)[kept], hc.hit[kept]):
++            per.setdefault(r, [0, 0, 0])[0 if h else 1] += 1
++
++def nested_select(curves, train):
++    cb = {c: {} for c in CL}; cn = {c: {} for c in CL}
++    for ih in family_folds(train, site_family, a.inner):
++        it = train - ih; tb = taus_of(curves, it); tn = taus_of(curves, it & NLR)
++        add_counts(cb, curves, ih, tb, tn, set()); add_counts(cn, curves, ih, tb, tn, set(CL))
++    pb, pn = score_counts(cb)[1], score_counts(cn)[1]
++    return {c for c in CL if c in pn and pn[c]["n_gt"] > 0 and pn[c]["f1"] > pb[c]["f1"]}
++
++def evaluate(curves, folds, nested=True):
++    out = {v: {c: {} for c in CL} for v in ("base", "E3n", "E3p")}; sels = Counter()
++    for held in folds:
++        train = every - held; tb = taus_of(curves, train); tn = taus_of(curves, train & NLR)
++        add_counts(out["base"], curves, held, tb, tn, set())
++        add_counts(out["E3p"], curves, held, tb, tn, set(CL))
++        if nested:
++            sel = nested_select(curves, train); sels.update(sel)
++            add_counts(out["E3n"], curves, held, tb, tn, sel)
++    return out, dict(sels)
++
++def sc(counts): return [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
++def wdelta(ca, cb):
++    _, pa = score_counts(ca); _, pb = score_counts(cb)
++    den = sum(CLASS_WEIGHTS.get(c, 0.0) for c in pa if pa[c]["n_gt"] > 0)
++    return {c: CLASS_WEIGHTS.get(c, 0.0) * (pa[c]["f1"] - pb[c]["f1"]) / den for c in pa if pa[c]["n_gt"] > 0}
++
++t0 = time.time()
++res = {"declared": "koz3_shared/bot-2/EXPERIMENTS.md E3, 28.10.2026 20:39:18 MSK", "folds10_equal_pkl": FOLDS_EQUAL,
++       "n_regions": len(every), "n_nl_regions": len(NLR), "modes": {}}
++for mode in ("global", "region"):
++    curves = curves_for(mode)
++    c10, sel10 = evaluate(curves, folds10)
++    s = {v: sc(c10[v]) for v in c10}
++    print(mode, "honest10", {v: [round(x, 6) for x in s[v]] for v in s}, "sel", sel10, round(time.time() - t0), flush=True)
++    M = {"sel_counts_honest10": sel10, "variants": {}}
++    if mode == "global":
++        M["base_counts_equal_pkl"] = all({r: list(x) for r, x in c10["base"][c].items()} ==
++                                         {r: list(x) for r, x in B["counts"][c].items()} for c in CL if c in B["counts"])
++        cl, sell = evaluate(curves, family_folds(every, site_family, None))
++        print(mode, "lofo", {v: round(score_counts(cl[v])[0], 6) for v in cl}, round(time.time() - t0), flush=True)
++        cs = []
++        for sd in range(a.seeds):
++            x, _ = evaluate(curves, random_family_folds(every, 10, sd)); cs.append(x)
++            print(mode, "seed", sd, {v: round(score_counts(x[v])[0], 6) for v in x}, round(time.time() - t0), flush=True)
++        M["sel_counts_lofo"] = sell
++    for v in ("base", "E3n", "E3p"):
++        r = {"honest10": s[v][0], "new34": s[v][1], "no_lidar": s[v][2],
++             "per_class": {c: {k: round(x, 5) for k, x in d.items()} for c, d in score_counts(c10[v])[1].items()}}
++        if v != "base":
++            bs = paired_bootstrap_counts(c10[v], c10["base"], site_family, n=a.boot)
++            d = s[v][0] - s["base"][0]; wd = wdelta(c10[v], c10["base"])
++            heavy = {c: wd.get(c, 0.0) for c in ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha")}
++            r.update(d_honest10=d, d_new34=s[v][1] - s["base"][1], d_no_lidar=s[v][2] - s["base"][2], boot=bs,
++                     weighted_class_delta=wd, heavy=heavy)
++            if mode == "global":
++                dl = score_counts(cl[v])[0] - score_counts(cl["base"])[0]
++                sdl = [score_counts(x[v])[0] - score_counts(x["base"])[0] for x in cs]
++                P1 = d >= 0.002; P2 = bs.get("p_gt0", 0) >= 0.85; P3 = dl > 0 and sum(x > 0 for x in sdl) >= 4
++                P4 = all(x >= -0.0005 for x in heavy.values()) and s[v][1] >= s["base"][1] - 0.001 and s[v][2] >= s["base"][2] - 0.001
++                r.update(lofo=score_counts(cl[v])[0], lofo_base=score_counts(cl["base"])[0], d_lofo=dl,
++                         seed_base=[score_counts(x["base"])[0] for x in cs], seed_deltas=sdl,
++                         seed_min=min(sdl), seed_std=float(np.std(sdl, ddof=1)), seeds_negative=[i for i, x in enumerate(sdl) if x < 0],
++                         P1=bool(P1), P2=bool(P2), P3=bool(P3), P4=bool(P4), accept_P1_P4=bool(P1 and P2 and P3 and P4),
++                         P5_package_only=bool(d < 0.006))
++        M["variants"][v] = r
++    res["modes"][mode] = M
++    json.dump(res, open(a.out, "w"), ensure_ascii=False, indent=1, default=str)
++print("done", round(time.time() - t0))
+diff --git a/scripts/merge_check.py b/scripts/merge_check.py
+new file mode 100644
+index 0000000..7e8105c
+--- /dev/null
++++ b/scripts/merge_check.py
+@@ -0,0 +1,264 @@
++"""bot-2, merge-check: сколько стоит post.merge_across_sources (expds/post.py:42-79) на честном A.
++
++Стек табло (scripts/scoreboard.py build_stack) НЕ проходит merge_within_markup, а сдача проходит
++(expds/watchdog.py:66-70: пороги -> merge). Здесь слияние моделируется поверх честных порогов:
++в каждом внешнем фолде пороги (группа, класс) — с train-семей (как base_honest.pkl), на held —
++объекты выше порога, склейка как в post.merge_across_sources, затем жадное сопоставление по всем
++кандидатам класса (как build_curves) с заменой склеенных членов на части объединения.
++Источник (source = имя файла) в стеке не сохранён -> прокси по листингу S3 (work/merge/s3_sources.json):
++склейка возможна только на участках, где у markup >1 входного файла;
++  U: ребро между любыми двумя пересекающимися (площадь>0) объектами (верхняя оценка);
++  L: только внутри одной группы порога (дубли одной модели с разных снимков).
++Режим сопоставления global — основной (база 0.314615), region — диагностика (0.312067).
++Запуск: OMP_NUM_THREADS=1 nice -n 10 /workspace/rerank/venv/bin/python scripts/merge_check.py
++"""
++import argparse, json, pickle, sys, time
++from collections import Counter, defaultdict
++from pathlib import Path
++import numpy as np
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--repo", default="/workspace/expds-koz3")
++ap.add_argument("--prep", default="/workspace/koz3_shared/bot-2/work/fusion_prep.pkl")
++ap.add_argument("--base", default="/workspace/rerank/work/base_honest.pkl")
++ap.add_argument("--subset", default="/workspace/koz3_shared/bot-2/work/merge/subset.pkl")
++ap.add_argument("--gt", default="/workspace/rerank/gt_train_v2.geojson")
++ap.add_argument("--variants", default="U,L")
++ap.add_argument("--full", action="store_true", help="LOFO + 5 раскладок + бутстреп (для приёмки)")
++ap.add_argument("--boot", type=int, default=1000)
++ap.add_argument("--seeds", type=int, default=5)
++ap.add_argument("--out", default="/workspace/koz3_shared/bot-2/work/merge/merge_check.json")
++a = ap.parse_args()
++sys.path.insert(0, a.repo)
++import shapely
++from shapely.ops import unary_union
++from shapely.strtree import STRtree
++import expds.metric as M
++from expds.metric import (ClassCurve, sweep_groups, curve_where, score_counts, paired_bootstrap_counts,
++                          family_folds, load_official, _collect)
++from expds.naming import site_family
++from expds.constants import CLASS_WEIGHTS
++from expds.post import polygons_of
++
++t0 = time.time()
++mod = load_official(str(Path(a.repo) / "materials" / "compute_metrics.py")); calc = mod.F1Calculator()
++R = pickle.load(open(a.prep, "rb")); B = pickle.load(open(a.base, "rb")); S = pickle.load(open(a.subset, "rb"))
++CL = R["classes"]; folds_pkl = B["folds"]; every = set().union(*folds_pkl)
++folds10 = family_folds(every, site_family, 10)
++assert sorted(map(sorted, folds10)) == sorted(map(sorted, folds_pkl))
++ROOT = Path(a.repo)
++boxes = set(json.loads((ROOT / "notes" / "las_boxes_59.json").read_text(encoding="utf-8")))
++gt_all = {r for c in CL for r in R["gt_region"][c]}
++optical = {r for r in gt_all if r} - boxes
++new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
++SEP = "\x00"
++
++# эталон — тем же _collect, что в fusion_calib_prep.py (индексы j совпадают)
++gtfc = json.loads(Path(a.gt).read_bytes()); G = _collect(mod, calc, gtfc, True); del gtfc
++M._UTM_GEOM_CACHE.clear()
++gt_geom = {c: [x[0] for x in G.get(c, [])] for c in CL}
++assert all(len(gt_geom[c]) == len(R["gt_region"][c]) for c in CL)
++gt_reg = R["gt_region"]
++gt_tree = {c: STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gt_geom[c]])
++           if gt_geom[c] else None for c in CL}
++gt_area = {c: np.array([g.area for g in gt_geom[c]]) for c in CL}
++
++# объекты подмножества в метрической СК (как у метрики)
++feats = S["features"]; mk_of = {}
++for f in feats:
++    p = f["properties"]; mk_of[p["_ord"]] = str(p.get("markup_type"))
++    p["region_name"] = f'{p["region_name"]}{SEP}{p["_ord"]}'
++SUB = _collect(mod, calc, {"features": feats}, False); del feats, S
++M._UTM_GEOM_CACHE.clear()
++idx_of = {c: {int(o): i for i, o in enumerate(R["P"][c]["ord"])} for c in CL}
++sub = {}   # c -> arrays
++for c in CL:
++    it = SUB.get(c, [])
++    if not it: continue
++    ords = np.array([int(x[2].rsplit(SEP, 1)[1]) for x in it])
++    sub[c] = {"geom": np.array([x[0] for x in it], object), "ord": ords,
++              "idx": np.array([idx_of[c][o] for o in ords]), "conf": np.array([x[1] for x in it], float),
++              "region": np.array([x[2].rsplit(SEP, 1)[0] for x in it], object),
++              "group": np.array([x[3] for x in it], object), "markup": np.array([mk_of[o] for o in ords], object)}
++    assert np.allclose(R["P"][c]["conf"][sub[c]["idx"]], sub[c]["conf"])
++print("subset", {c: len(v["ord"]) for c, v in sub.items()}, round(time.time() - t0), flush=True)
++
++# кандидатные рёбра (пересечение площадью > 0) внутри (участок, markup, класс) — один раз
++EDGES = {}
++for c, s in sub.items():
++    tree = STRtree(s["geom"]); qi, qj = tree.query(s["geom"], predicate="intersects")
++    m = (qi < qj) & (s["region"][qi] == s["region"][qj]) & (s["markup"][qi] == s["markup"][qj])
++    qi, qj = qi[m], qj[m]
++    if len(qi):
++        ar = shapely.area(shapely.intersection(s["geom"][qi], s["geom"][qj])); k = ar > 0; qi, qj = qi[k], qj[k]
++    EDGES[c] = (qi, qj, s["group"][qi] == s["group"][qj])
++print("edges", {c: len(v[0]) for c, v in EDGES.items()}, round(time.time() - t0), flush=True)
++
++def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
++    fams = {}
++    for r in regions: fams.setdefault(site_family(r), set()).add(r)
++    names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k
++    return [set().union(*(fams[n] for n, l in zip(names, lab) if l == i)) for i in range(k)]
++
++def pairs_for(c, geoms, regions):
++    """Пары (новый объект, эталон) по официальному _match_quality."""
++    out = []
++    if gt_tree[c] is None or not geoms: return out
++    qp, qg = gt_tree[c].query(geoms)
++    for i, j in zip(qp.tolist(), qg.tolist()):
++        if geoms[i].geom_type != "Polygon": continue
++        ok, s_ = calc._match_quality(geoms[i], gt_geom[c][j])
++        if ok: out.append((i, j, float(s_), gt_reg[c][j] == regions[i]))
++    return out
++
++def greedy_hits(conf, ordk, pi, pj, ps):
++    hit = np.zeros(len(conf), bool)
++    if not len(pi): return hit
++    o = np.lexsort((pj, pi)); pi, pj, ps = pi[o], pj[o], ps[o]
++    st = np.r_[0, np.flatnonzero(np.diff(pi)) + 1]; en = np.r_[st[1:], len(pi)]
++    preds = pi[st]; order = np.lexsort((ordk[preds], -conf[preds])); matched = set()
++    for k in order.tolist():
++        best, bj = -np.inf, -1
++        for q in range(st[k], en[k]):
++            j = int(pj[q])
++            if j in matched: continue
++            if ps[q] > best + 1e-9: best, bj = ps[q], j
++        if bj >= 0: matched.add(bj); hit[preds[k]] = True
++    return hit
++
++def base_pairs(c, mode):
++    pr = R["pairs"][c]; m = pr["same"] if mode == "region" else np.ones(len(pr["i"]), bool)
++    return pr["i"][m], pr["j"][m], pr["s"][m]
++
++BASE_HIT = {}
++def curves_for(mode):
++    out = {}
++    for c in CL:
++        P = R["P"][c]; hit = greedy_hits(P["conf"], P["ord"], *base_pairs(c, mode)); BASE_HIT[(mode, c)] = hit
++        o = np.lexsort((P["ord"], -P["conf"])); gtc = Counter(R["gt_region"][c])
++        out[c] = ClassCurve(conf=P["conf"][o].astype(float), hit=hit[o], pred_region=P["region"][o].tolist(),
++                            n_gt=sum(gtc.values()), gt_regions=gtc, pred_group=P["group"][o].tolist())
++    return out
++
++def taus_of(curves, regions):
++    res = sweep_groups({c: curve_where(cv, regions) for c, cv in curves.items()}); t = {}
++    for c, v in res.items():
++        for g, gv in v["groups"].items(): t.setdefault(g, {})[c] = gv["threshold"]
++    return t
++
++def merge_groups(c, held, tau, variant, rule=None):
++    """Группы склейки на held при порогах tau. Возвращает список списков локальных индексов sub[c]."""
++    s = sub[c]; qi, qj, same_g = EDGES[c]
++    th = np.array([tau.get(g, {}).get(c, np.inf) for g in s["group"]])
++    kept = (s["conf"] >= th) & np.array([r in held for r in s["region"]])
++    m = kept[qi] & kept[qj]
++    if variant == "L": m &= same_g
++    qi, qj = qi[m], qj[m]
++    if not len(qi): return []
++    parent = {}
++    def find(x):
++        parent.setdefault(x, x)
++        while parent[x] != x: parent[x] = parent[parent[x]]; x = parent[x]
++        return x
++    for i, j in zip(qi.tolist(), qj.tolist()):
++        ri, rj = find(i), find(j)
++        if ri != rj: parent[ri] = rj
++    gr = defaultdict(list)
++    for x in list(parent): gr[find(x)].append(x)
++    out = [sorted(v) for v in gr.values() if len(v) > 1]
++    if rule is not None: out = [g for g in out if rule(c, g)]
++    return out
++
++def add_counts(counts, c, held, tau, conf, region, group, hit, gt_regions):
++    per = counts[c]
++    for r, n in gt_regions.items():
++        if r in held: per.setdefault(r, [0, 0, 0])[2] += int(n)
++    th = np.array([tau.get(g, {}).get(c, np.inf) for g in group])
++    hm = np.array([r in held for r in region]); kept = hm & (conf >= th)
++    for r, h in zip(region[kept], hit[kept]): per.setdefault(r, [0, 0, 0])[0 if h else 1] += 1
++
++GDIAG = []   # (variant, mode, class, region, size, n_parts, n_gt_cov, n_gt_members, d_tp)
++def evaluate(curves, folds, mode, variants, diag=False, rule=None):
++    out = {v: {c: {} for c in CL} for v in ["base"] + variants}
++    gtc = {c: Counter(R["gt_region"][c]) for c in CL}
++    for held in folds:
++        tau = taus_of(curves, every - held)
++        for c in CL:
++            P = R["P"][c]; reg = P["region"]; hit0 = BASE_HIT[(mode, c)]
++            add_counts(out["base"], c, held, tau, P["conf"], reg, P["group"], hit0, gtc[c])
++            for v in variants:
++                grs = merge_groups(c, held, tau, v, rule) if c in sub else []
++                if not grs:
++                    add_counts(out[v], c, held, tau, P["conf"], reg, P["group"], hit0, gtc[c]); continue
++                s = sub[c]; drop = np.zeros(len(P["conf"]), bool); ng, nc, nr, ngp, no = [], [], [], [], []
++                info = []
++                for g in grs:
++                    drop[s["idx"][g]] = True
++                    best = g[int(np.argmax(s["conf"][g]))]
++                    parts = polygons_of(unary_union(list(s["geom"][g])))
++                    info.append((g, len(ng), len(parts)))
++                    for part in parts:
++                        ng.append(part); nc.append(s["conf"][best]); nr.append(s["region"][best])
++                        ngp.append(s["group"][best]); no.append(s["ord"][best])
++                keep = np.flatnonzero(~drop); K = len(keep)
++                conf = np.r_[P["conf"][keep], nc]; ordk = np.r_[P["ord"][keep], no]
++                region = np.r_[reg[keep], np.array(nr, object)]; group = np.r_[P["group"][keep], np.array(ngp, object)]
++                pi, pj, ps = base_pairs(c, mode); remap = -np.ones(len(P["conf"]), np.int64); remap[keep] = np.arange(K)
++                mm = remap[pi] >= 0; pi, pj, ps = remap[pi[mm]], pj[mm], ps[mm]
++                npairs = [x for x in pairs_for(c, ng, nr) if mode == "global" or x[3]]
++                if npairs:
++                    pi = np.r_[pi, [K + x[0] for x in npairs]]; pj = np.r_[pj, [x[1] for x in npairs]]
++                    ps = np.r_[ps, [x[2] for x in npairs]]
++                hit = greedy_hits(conf, ordk, pi, pj, ps)
++                add_counts(out[v], c, held, tau, conf, region, group, hit, gtc[c])
++                if diag:
++                    pr = R["pairs"][c]; same = pr["same"]
++                    for g, k0, npart in info:
++                        u = unary_union(list(s["geom"][g])); r0 = s["region"][g[0]]
++                        cov = 0
++                        if gt_tree[c] is not None:
++                            for j in gt_tree[c].query(u).tolist():
++                                if gt_reg[c][j] == r0 and gt_area[c][j] > 0 and u.intersection(gt_geom[c][j]).area >= 0.5 * gt_area[c][j]:
++                                    cov += 1
++                                elif gt_reg[c][j] == r0 and gt_geom[c][j].geom_type == "Point" and u.distance(gt_geom[c][j]) <= calc.r_tolerance:
++                                    cov += 1
++                        idxs = set(s["idx"][g].tolist()); sel = np.isin(pr["i"], list(idxs)) & same
++                        n_mem = len(set(pr["j"][sel].tolist()))
++                        tp_before = int(hit0[s["idx"][g]].sum()); tp_after = int(hit[K + k0:K + k0 + npart].sum())
++                        GDIAG.append((v, mode, c, r0, len(g), npart, cov, n_mem, tp_after - tp_before,
++                                      sorted(set(s["group"][g].tolist()))))
++    return out
++
++def sc(counts): return [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
++def wdelta(ca, cb):
++    _, pa = score_counts(ca); _, pb = score_counts(cb)
++    den = sum(CLASS_WEIGHTS.get(c, 0.0) for c in pa if pa[c]["n_gt"] > 0)
++    return {c: CLASS_WEIGHTS.get(c, 0.0) * (pa[c]["f1"] - pb[c]["f1"]) / den for c in pa if pa[c]["n_gt"] > 0}
++
++VARS = a.variants.split(",")
++res = {"modes": {}, "subset_sizes": {c: int(len(v["ord"])) for c, v in sub.items()},
++       "edges": {c: int(len(v[0])) for c, v in EDGES.items()}}
++RULE = None   # правило варианта объявляется в EXPERIMENTS.md до запуска (см. --rule)
++for mode in ("global", "region"):
++    curves = curves_for(mode)
++    c10 = evaluate(curves, folds10, mode, VARS, diag=True, rule=RULE)
++    s = {v: sc(c10[v]) for v in c10}
++    print(mode, "honest10", {v: [round(x, 6) for x in s[v]] for v in s}, round(time.time() - t0), flush=True)
++    Mo = {"variants": {}}
++    if mode == "global":
++        Mo["base_counts_equal_pkl"] = all({r: list(x) for r, x in c10["base"][c].items()} ==
++                                          {r: list(x) for r, x in B["counts"][c].items()} for c in CL if c in B["counts"])
++    for v in c10:
++        r = {"honest10": s[v][0], "new34": s[v][1], "no_lidar": s[v][2]}
++        if v != "base":
++            d = s[v][0] - s["base"][0]; wd = wdelta(c10[v], c10["base"]); r["delta"] = d
++            r["wdelta"] = {k: round(x, 6) for k, x in wd.items() if abs(x) > 1e-9}
++            bs = paired_bootstrap_counts(c10[v], c10["base"], site_family, n=a.boot); r["boot"] = bs
++        Mo["variants"][v] = r
++    res["modes"][mode] = Mo
++    json.dump(res, open(a.out, "w"), ensure_ascii=False, indent=1, default=float)
++
++# диагностика групп
++res["groups"] = [list(map(lambda x: x if not isinstance(x, (np.integer, np.floating)) else x.item(), g)) for g in GDIAG]
++json.dump(res, open(a.out, "w"), ensure_ascii=False, indent=1, default=float)
++print("done", round(time.time() - t0), flush=True)
+diff --git a/scripts/merge_extract.py b/scripts/merge_extract.py
+new file mode 100644
+index 0000000..058dc86
+--- /dev/null
++++ b/scripts/merge_extract.py
+@@ -0,0 +1,28 @@
++"""bot-2, merge-check: потоково (только чтение) вынимает из стека объекты участков, где у markup
++несколько входных файлов (источников) по листингу S3 — только там post.merge_across_sources
++может склеить объекты (source = имя файла, expds/pipeline.py:59,64 окна растра; li — один LAS на участок).
++python merge_extract.py <stack.geojson> <s3_sources.json> <out.pkl>"""
++import json, pickle, sys
++src, srcs, out = sys.argv[1:4]
++multi = json.load(open(srcs))["multi"]
++want = {m: set(v) for m, v in multi.items() if m not in ("etgr",) and v}   # etgr не склеивается (post.py:111)
++dec = json.JSONDecoder(); buf = ""; started = False; n = 0; keep = []
++with open(src, "r") as f:
++    while True:
++        chunk = f.read(8 << 20); buf += chunk
++        if not started:
++            i = buf.find('"features": ['); buf = buf[i + 13:]; started = True
++        pos = 0
++        while True:
++            while pos < len(buf) and buf[pos] in " ,\n\r\t": pos += 1
++            if pos >= len(buf) or buf[pos] == "]": break
++            try: obj, end = dec.raw_decode(buf, pos)
++            except json.JSONDecodeError: break
++            p = obj.get("properties") or {}
++            if p.get("region_name") in want.get(str(p.get("markup_type")), ()):
++                p["_ord"] = n; keep.append(obj)
++            n += 1; pos = end
++        buf = buf[pos:]
++        if not chunk: break
++pickle.dump({"n_stack": n, "features": keep, "want": {k: sorted(v) for k, v in want.items()}}, open(out, "wb"))
++print(n, len(keep))
+diff --git a/scripts/merge_mintau.py b/scripts/merge_mintau.py
+new file mode 100644
+index 0000000..695b854
+--- /dev/null
++++ b/scripts/merge_mintau.py
+@@ -0,0 +1,41 @@
++"""bot-2, merge-check: минимальный честный порог (группа, класс) по 10 фолдам A (оба режима сопоставления) —
++фильтр для чувствительности S (объекты ниже ни в одном фолде не выдаются и склеиться не могут)."""
++import json, pickle, sys
++from collections import Counter
++import numpy as np
++sys.path.insert(0, "/workspace/expds-koz3")
++from expds.metric import ClassCurve, sweep_groups, curve_where, family_folds
++from expds.naming import site_family
++R = pickle.load(open("/workspace/koz3_shared/bot-2/work/fusion_prep.pkl", "rb"))
++B = pickle.load(open("/workspace/rerank/work/base_honest.pkl", "rb"))
++CL = R["classes"]; every = set().union(*B["folds"]); folds = family_folds(every, site_family, 10)
++def greedy(c, mode):
++    P, pr = R["P"][c], R["pairs"][c]; ceff = P["conf"]
++    m = pr["same"] if mode == "region" else np.ones(len(pr["i"]), bool)
++    pi, pj, ps = pr["i"][m], pr["j"][m], pr["s"][m]; hit = np.zeros(len(ceff), bool)
++    if not len(pi): return hit
++    o = np.lexsort((pj, pi)); pi, pj, ps = pi[o], pj[o], ps[o]
++    st = np.r_[0, np.flatnonzero(np.diff(pi)) + 1]; en = np.r_[st[1:], len(pi)]
++    preds = pi[st]; order = np.lexsort((P["ord"][preds], -ceff[preds])); mt = set()
++    for k in order.tolist():
++        best, bj = -np.inf, -1
++        for q in range(st[k], en[k]):
++            j = int(pj[q])
++            if j in mt: continue
++            if ps[q] > best + 1e-9: best, bj = ps[q], j
++        if bj >= 0: mt.add(bj); hit[preds[k]] = True
++    return hit
++mn = {}
++for mode in ("global", "region"):
++    cur = {}
++    for c in CL:
++        P = R["P"][c]; h = greedy(c, mode); o = np.lexsort((P["ord"], -P["conf"])); g = Counter(R["gt_region"][c])
++        cur[c] = ClassCurve(conf=P["conf"][o].astype(float), hit=h[o], pred_region=P["region"][o].tolist(),
++                            n_gt=sum(g.values()), gt_regions=g, pred_group=P["group"][o].tolist())
++    for held in folds:
++        res = sweep_groups({c: curve_where(cv, every - held) for c, cv in cur.items()})
++        for c, v in res.items():
++            for g, gv in v["groups"].items():
++                k = f"{g}|{c}"; mn[k] = min(mn.get(k, np.inf), float(gv["threshold"]))
++json.dump(mn, open("/workspace/koz3_shared/bot-2/work/merge/min_tau.json", "w"), indent=1)
++print({k: v for k, v in sorted(mn.items())})
+diff --git a/scripts/stack_split_regions.py b/scripts/stack_split_regions.py
+new file mode 100644
+index 0000000..c666212
+--- /dev/null
++++ b/scripts/stack_split_regions.py
+@@ -0,0 +1,33 @@
++"""Потоковая разбивка большого стека (FeatureCollection) по участкам в JSONL без загрузки целиком.
++python stack_split_regions.py <stack.geojson> <outdir>   — открывает стек только на чтение."""
++import json, sys, os, collections
++src, outdir = sys.argv[1], sys.argv[2]
++os.makedirs(outdir, exist_ok=True)
++dec = json.JSONDecoder(); buf = ""; started = False; files = {}
++stat = collections.Counter(); keys = collections.Counter(); n = 0
++with open(src, "r") as f:
++    while True:
++        chunk = f.read(8 << 20); buf += chunk
++        if not started:
++            i = buf.find('"features": ['); buf = buf[i + 13:]; started = True
++        pos = 0
++        while True:
++            while pos < len(buf) and buf[pos] in " ,\n\r\t": pos += 1
++            if pos >= len(buf) or buf[pos] == "]": break
++            try: obj, end = dec.raw_decode(buf, pos)
++            except json.JSONDecodeError: break
++            p = obj.get("properties") or {}
++            r = str(p.get("region_name", "default_source"))
++            if p.get("sub_region_name"): stat["has_sub_region"] += 1
++            stat["|".join(map(str, (p.get("markup_type"), p.get("threshold_group") or "", p.get("class_name"))))] += 1
++            for k in p: keys[k] += 1
++            if r not in files: files[r] = open(os.path.join(outdir, r + ".jsonl"), "w")
++            p["_ord"] = n                                  # порядок в исходном файле (для тай-брейка как в build_curves)
++            files[r].write(json.dumps(obj, ensure_ascii=False) + "\n"); n += 1
++            pos = end
++        buf = buf[pos:]
++        if not chunk: break
++for v in files.values(): v.close()
++json.dump({"n": n, "regions": len(files), "counts": dict(stat), "prop_keys": dict(keys)},
++          open(os.path.join(outdir, "_summary.json"), "w"), ensure_ascii=False, indent=1)
++print(n, len(files))
+diff --git a/tests/test_fusion_calib.py b/tests/test_fusion_calib.py
+new file mode 100644
+index 0000000..3f4a05a
+--- /dev/null
++++ b/tests/test_fusion_calib.py
+@@ -0,0 +1,34 @@
++from shapely.geometry import box
++
++from expds import post
++
++
++def f(x, g, c, cls="kurgany_tselye"):
++    return {"geom": box(x, 0, x + 1, 1), "region_name": "r", "markup_type": "li",
++            "threshold_group": g, "class_name": cls, "confidence": c}
++
++
++def test_off_by_default():
++    feats = [f(0, "a", 0.9), f(0.5, "b", 0.3)]
++    assert post.fuse_cross_group(feats) == feats
++    assert post.calibrate_group_conf(feats, {("kurgany_tselye", "a"): ("platt", 1.0, 1.0)}) == feats
++
++
++def test_fuse_only_different_groups():
++    feats = [f(0, "a", 0.9), f(0.5, "b", 0.3), f(0.2, "a", 0.8), f(5, "a", 0.5)]
++    out = post.fuse_cross_group(feats, enabled=True)
++    # кластер {0,1,2} (разные группы через 1) -> один объект; 3 не тронут
++    assert len(out) == 2
++    fused = [o for o in out if o.get("fused")][0]
++    assert abs(fused["confidence"] - (0.9 + 0.3) / 2) < 1e-9   # N=T=2
++    same = [f(0, "a", 0.9), f(0.5, "a", 0.3)]
++    assert post.fuse_cross_group(same, enabled=True) == same
++
++
++def test_calib_iso_platt():
++    feats = [f(0, "a", 0.5), f(3, "b", 0.5)]
++    cal = {("kurgany_tselye", "a"): ("iso", [0.0, 1.0], [0.0, 0.2])}
++    out = post.calibrate_group_conf(feats, cal, enabled=True)
++    assert abs(out[0]["confidence"] - 0.1) < 1e-9 and out[1]["confidence"] == 0.5
++    out = post.calibrate_group_conf(feats, {("kurgany_tselye", "b"): ("platt", 1.0, 0.0)}, enabled=True)
++    assert abs(out[1]["confidence"] - 0.5) < 1e-9

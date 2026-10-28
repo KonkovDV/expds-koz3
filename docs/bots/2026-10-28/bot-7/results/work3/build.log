@@ -1,0 +1,6 @@
+   models/spor_focal_wide_r18.pt
+   models/ae_fort_mask_r18.pt
+   models/kurgan_lgbm.txt
+   models/sp_crop.pt
+   models/rerank_arch_lgbm.txt
+   models/rerank_arch_lgbm.json

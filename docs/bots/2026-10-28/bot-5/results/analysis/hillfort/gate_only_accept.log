@@ -1,0 +1,11 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[5s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[6s] SpOr tif regions 132 with sp_or candidates 132
+[6s] positive scenes 49 of 132
+[6s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[6s] variant snap rows 76 rows with an OK pair 7
+[6s] variant centre rows 132 rows with an OK pair 18
+[6s] variant csnap rows 132 rows with an OK pair 19
+[20s] honest-10 A 0.3146153226828423
+[20s] own gor routine == honest_counts gor: OK
+[21s] {'post_hoc': True, 'delta10': 0.0020888318696440367, 'delta_new34': 0.0006260546559202496, 'delta_optical': 0.0, 'bootstrap': {'mean': 0.0021825794642952134, 'p5': 0.0005709959642973439, 'p50': 0.002019211600119697, 'p95': 0.004387680739937749, 'p_gt0': 0.999, 'samples': 1000, 'families': 103}, 'gor': {'tp': 25, 'fp': 55, 'n_gt': 118, 'f1': 0.29325470231655926}}

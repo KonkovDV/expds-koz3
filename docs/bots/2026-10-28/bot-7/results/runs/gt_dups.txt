@@ -1,0 +1,8 @@
+class n_gt pairs_IoU>0.5 pairs_covmin>=0.5 gt_in_IoU_pairs
+kurgany_tselye 1577 35 75 70
+kurgany_povrezhdennye 3620 267 625 402
+gorodishcha 118 19 25 26
+fortifikatsii 696 4 25 8
+arkhitektury 407 0 0 0
+finds_points 0 0 0 0
+object_poly 1083 202 1464 175

@@ -1,0 +1,35 @@
+{
+ "floor": 0.003,
+ "all": {
+  "li|kurgany_povrezhdennye": 37601,
+  "li|kurgany_tselye": 37601,
+  "ae|kurgany_tselye": 812,
+  "ae|kurgany_povrezhdennye": 379,
+  "li_mosaic|kurgany_povrezhdennye": 241539,
+  "li_mosaic|kurgany_tselye": 241539,
+  "li_ae|kurgany_tselye": 24,
+  "li_ae|kurgany_povrezhdennye": 1,
+  "sp_focal|kurgany_povrezhdennye": 31941,
+  "sp_focal|kurgany_tselye": 6665,
+  "li_dev|kurgany_povrezhdennye": 324981,
+  "li_dev|kurgany_tselye": 326333,
+  "sp_focal2|kurgany_povrezhdennye": 13226,
+  "sp_focal2|kurgany_tselye": 4757
+ },
+ "kept": {
+  "li|kurgany_povrezhdennye": 18372,
+  "li|kurgany_tselye": 2234,
+  "ae|kurgany_tselye": 812,
+  "ae|kurgany_povrezhdennye": 379,
+  "li_mosaic|kurgany_povrezhdennye": 210404,
+  "li_mosaic|kurgany_tselye": 2678,
+  "li_ae|kurgany_tselye": 24,
+  "li_ae|kurgany_povrezhdennye": 1,
+  "sp_focal|kurgany_povrezhdennye": 31941,
+  "sp_focal|kurgany_tselye": 6665,
+  "li_dev|kurgany_povrezhdennye": 130043,
+  "li_dev|kurgany_tselye": 42795,
+  "sp_focal2|kurgany_povrezhdennye": 13226,
+  "sp_focal2|kurgany_tselye": 4757
+ }
+}

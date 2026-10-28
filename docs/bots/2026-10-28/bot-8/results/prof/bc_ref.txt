@@ -1,0 +1,58 @@
+def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
+                 scope: str | None = None) -> dict[str, ClassCurve]:
+    """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+
+    Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+    (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+    scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+    "site" — пара допускается только внутри одного участка (site_key), что равно сумме
+    счётчиков calculate_f1 по каждому участку отдельно.
+    """
+    from shapely.strtree import STRtree
+
+    mod = load_official(metric_path)
+    calc = mod.F1Calculator()
+    per_site = match_scope(scope) == "site"
+    p_sites: dict | None = {} if per_site else None
+    g_sites: dict | None = {} if per_site else None
+    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
+    curves: dict[str, ClassCurve] = {}
+    for cls in calc.target_classes:
+        p, g = preds.get(cls, []), gts.get(cls, [])
+        order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+        hits = np.zeros(len(p), dtype=bool)
+        if p and g:
+            gg = [x[0] for x in g]
+            tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+            pg_ord = [p[i][0] for i in order]
+            q_pred, q_gt = tree.query(pg_ord)
+            if per_site and len(q_pred):
+                site_ids: dict = {}
+                ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
+                gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)
+                same = ps_ord[q_pred] == gs[q_gt]
+                q_pred, q_gt = q_pred[same], q_gt[same]
+            if len(q_pred):
+                splits = np.flatnonzero(np.diff(q_pred)) + 1
+                rank_groups = np.split(q_gt, splits)
+                unique_ranks = q_pred[np.r_[0, splits]]
+                matched: set[int] = set()
+                for rank, cand_js in zip(unique_ranks, rank_groups):
+                    r_int = int(rank)
+                    pg = pg_ord[r_int]
+                    if pg.geom_type != "Polygon":
+                        continue
+                    best, best_j = float("-inf"), -1
+                    for j in sorted(int(k) for k in cand_js):
+                        if j in matched:
+                            continue
+                        ok, s = calc._match_quality(pg, gg[j])
+                        if ok and s > best + 1e-9:
+                            best, best_j = s, j
+                    if best_j >= 0:
+                        matched.add(best_j)
+                        hits[r_int] = True
+        curves[cls] = ClassCurve(conf=np.array([p[i][1] for i in order], dtype=np.float64), hit=hits,
+                                 pred_region=[p[i][2] for i in order], n_gt=len(g),
+                                 gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])
+    return curves

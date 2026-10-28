@@ -1,0 +1,676 @@
+{
+ "clusters": [
+  [
+   "Армиево"
+  ],
+  [
+   "Артпозиции",
+   "Барскоон",
+   "Булан",
+   "Герите",
+   "Городище",
+   "Елизаветинское",
+   "Иссык",
+   "КЧР",
+   "Кабардино",
+   "Каджы",
+   "Калмыкия",
+   "Каменные",
+   "Кан",
+   "Кароол",
+   "Кель",
+   "Кисловодская",
+   "Конур",
+   "Копанское",
+   "Корумду",
+   "Красносельская",
+   "Курганы",
+   "Курменту",
+   "Лешки",
+   "Миловидово",
+   "Новотитаровская",
+   "Орнок",
+   "Осечки",
+   "Постройки",
+   "Примаки",
+   "Сакские",
+   "Сары",
+   "Семибратнее",
+   "Старый",
+   "Стеклянуха",
+   "Таш",
+   "Торт",
+   "Тору",
+   "Тоссор",
+   "Фалхан",
+   "Шаты"
+  ],
+  [
+   "Архангельское"
+  ],
+  [
+   "Белая",
+   "Воронеж",
+   "Россошки"
+  ],
+  [
+   "Бервенец"
+  ],
+  [
+   "Боровичи"
+  ],
+  [
+   "Верхмарево"
+  ],
+  [
+   "Верхнее"
+  ],
+  [
+   "Верхний"
+  ],
+  [
+   "Верхняя"
+  ],
+  [
+   "Вщиж"
+  ],
+  [
+   "Вышегжа"
+  ],
+  [
+   "Вышенское"
+  ],
+  [
+   "Гнёздово"
+  ],
+  [
+   "Гочево"
+  ],
+  [
+   "Граборг"
+  ],
+  [
+   "Демидовка"
+  ],
+  [
+   "Золотаревка"
+  ],
+  [
+   "Изборск"
+  ],
+  [
+   "Каменка"
+  ],
+  [
+   "Костомаровское"
+  ],
+  [
+   "Ксизово"
+  ],
+  [
+   "Курган"
+  ],
+  [
+   "Лихуша"
+  ],
+  [
+   "Лубно"
+  ],
+  [
+   "Макеево"
+  ],
+  [
+   "Маяцкая"
+  ],
+  [
+   "Московиты"
+  ],
+  [
+   "Мостище"
+  ],
+  [
+   "Муравлево"
+  ],
+  [
+   "Никола"
+  ],
+  [
+   "Новенькое"
+  ],
+  [
+   "Нора"
+  ],
+  [
+   "Перынь"
+  ],
+  [
+   "Романово"
+  ],
+  [
+   "Руна"
+  ],
+  [
+   "Русская"
+  ],
+  [
+   "Саратов",
+   "Тыва"
+  ],
+  [
+   "Сарское"
+  ],
+  [
+   "Сельцо"
+  ],
+  [
+   "Селяне"
+  ],
+  [
+   "Скупая"
+  ],
+  [
+   "Сож"
+  ],
+  [
+   "Солдатское"
+  ],
+  [
+   "Сторожевое"
+  ],
+  [
+   "Стрекаловка"
+  ],
+  [
+   "Судьбищи"
+  ],
+  [
+   "Тешилово"
+  ],
+  [
+   "Тимерево"
+  ],
+  [
+   "Усть"
+  ],
+  [
+   "Хальвасборген",
+   "Эсбю"
+  ],
+  [
+   "Хога"
+  ],
+  [
+   "Чудово"
+  ],
+  [
+   "Шетнево"
+  ],
+  [
+   "Шишкино"
+  ],
+  [
+   "Шниткино"
+  ],
+  [
+   "Шумгора"
+  ],
+  [
+   "Шурскол"
+  ],
+  [
+   "Эрентуна"
+  ],
+  [
+   "Юшково"
+  ]
+ ],
+ "n_features": 69336,
+ "check": {
+  "curves_equal_all_clusters": true,
+  "taus_equal": true,
+  "honest_equal": true,
+  "base_equal": true,
+  "reference_base": [
+   0.06620789101387857,
+   0.08484146188978461,
+   0.03226017033770134
+  ],
+  "reference_honest": [
+   0.0513143153207549,
+   0.06647634953091151,
+   0.022847059125641948
+  ],
+  "official_clusters": [
+   {
+    "cluster": "Армиево",
+    "kept": 1,
+    "equal": true
+   },
+   {
+    "cluster": "Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты",
+    "kept": 1512,
+    "equal": true
+   },
+   {
+    "cluster": "Архангельское",
+    "kept": 55,
+    "equal": true
+   },
+   {
+    "cluster": "Белая+Воронеж+Россошки",
+    "kept": 54,
+    "equal": true
+   },
+   {
+    "cluster": "Бервенец",
+    "kept": 22,
+    "equal": true
+   },
+   {
+    "cluster": "Боровичи",
+    "kept": 73,
+    "equal": true
+   },
+   {
+    "cluster": "Верхмарево",
+    "kept": 22,
+    "equal": true
+   },
+   {
+    "cluster": "Верхнее",
+    "kept": 7,
+    "equal": true
+   },
+   {
+    "cluster": "Верхний",
+    "kept": 4,
+    "equal": true
+   },
+   {
+    "cluster": "Верхняя",
+    "kept": 13,
+    "equal": true
+   },
+   {
+    "cluster": "Вщиж",
+    "kept": 42,
+    "equal": true
+   },
+   {
+    "cluster": "Вышегжа",
+    "kept": 24,
+    "equal": true
+   },
+   {
+    "cluster": "Вышенское",
+    "kept": 13,
+    "equal": true
+   },
+   {
+    "cluster": "Гнёздово",
+    "kept": 396,
+    "equal": true
+   },
+   {
+    "cluster": "Гочево",
+    "kept": 55,
+    "equal": true
+   },
+   {
+    "cluster": "Граборг",
+    "kept": 28,
+    "equal": true
+   },
+   {
+    "cluster": "Демидовка",
+    "kept": 35,
+    "equal": true
+   },
+   {
+    "cluster": "Золотаревка",
+    "kept": 9,
+    "equal": true
+   },
+   {
+    "cluster": "Изборск",
+    "kept": 15,
+    "equal": true
+   },
+   {
+    "cluster": "Каменка",
+    "kept": 7,
+    "equal": true
+   },
+   {
+    "cluster": "Костомаровское",
+    "kept": 2,
+    "equal": true
+   },
+   {
+    "cluster": "Ксизово",
+    "kept": 2,
+    "equal": true
+   },
+   {
+    "cluster": "Курган",
+    "kept": 57,
+    "equal": true
+   },
+   {
+    "cluster": "Лихуша",
+    "kept": 1,
+    "equal": true
+   },
+   {
+    "cluster": "Лубно",
+    "kept": 60,
+    "equal": true
+   },
+   {
+    "cluster": "Макеево",
+    "kept": 6,
+    "equal": true
+   },
+   {
+    "cluster": "Маяцкая",
+    "kept": 5,
+    "equal": true
+   },
+   {
+    "cluster": "Московиты",
+    "kept": 45,
+    "equal": true
+   },
+   {
+    "cluster": "Мостище",
+    "kept": 109,
+    "equal": true
+   },
+   {
+    "cluster": "Муравлево",
+    "kept": 12,
+    "equal": true
+   },
+   {
+    "cluster": "Никола",
+    "kept": 2,
+    "equal": true
+   },
+   {
+    "cluster": "Новенькое",
+    "kept": 55,
+    "equal": true
+   },
+   {
+    "cluster": "Нора",
+    "kept": 25,
+    "equal": true
+   },
+   {
+    "cluster": "Перынь",
+    "kept": 8,
+    "equal": true
+   },
+   {
+    "cluster": "Романово",
+    "kept": 42,
+    "equal": true
+   },
+   {
+    "cluster": "Руна",
+    "kept": 15,
+    "equal": true
+   },
+   {
+    "cluster": "Русская",
+    "kept": 19,
+    "equal": true
+   },
+   {
+    "cluster": "Саратов+Тыва",
+    "kept": 42,
+    "equal": true
+   },
+   {
+    "cluster": "Сарское",
+    "kept": 161,
+    "equal": true
+   },
+   {
+    "cluster": "Сельцо",
+    "kept": 0,
+    "equal": true
+   },
+   {
+    "cluster": "Селяне",
+    "kept": 31,
+    "equal": true
+   },
+   {
+    "cluster": "Скупая",
+    "kept": 7,
+    "equal": true
+   },
+   {
+    "cluster": "Сож",
+    "kept": 19,
+    "equal": true
+   },
+   {
+    "cluster": "Солдатское",
+    "kept": 143,
+    "equal": true
+   },
+   {
+    "cluster": "Сторожевое",
+    "kept": 19,
+    "equal": true
+   },
+   {
+    "cluster": "Стрекаловка",
+    "kept": 0,
+    "equal": true
+   },
+   {
+    "cluster": "Судьбищи",
+    "kept": 36,
+    "equal": true
+   },
+   {
+    "cluster": "Тешилово",
+    "kept": 4,
+    "equal": true
+   },
+   {
+    "cluster": "Тимерево",
+    "kept": 86,
+    "equal": true
+   },
+   {
+    "cluster": "Усть",
+    "kept": 18,
+    "equal": true
+   },
+   {
+    "cluster": "Хальвасборген+Эсбю",
+    "kept": 151,
+    "equal": true
+   },
+   {
+    "cluster": "Хога",
+    "kept": 23,
+    "equal": true
+   },
+   {
+    "cluster": "Чудово",
+    "kept": 31,
+    "equal": true
+   },
+   {
+    "cluster": "Шетнево",
+    "kept": 7,
+    "equal": true
+   },
+   {
+    "cluster": "Шишкино",
+    "kept": 34,
+    "equal": true
+   },
+   {
+    "cluster": "Шниткино",
+    "kept": 0,
+    "equal": true
+   },
+   {
+    "cluster": "Шумгора",
+    "kept": 57,
+    "equal": true
+   },
+   {
+    "cluster": "Шурскол",
+    "kept": 37,
+    "equal": true
+   },
+   {
+    "cluster": "Эрентуна",
+    "kept": 34,
+    "equal": true
+   },
+   {
+    "cluster": "Юшково",
+    "kept": 29,
+    "equal": true
+   }
+  ],
+  "official_all_equal": true,
+  "official_all_score": 0.06620789101387857,
+  "official_score_equal": true
+ },
+ "base": [
+  0.06620789101387857,
+  0.08484146188978461,
+  0.03226017033770134
+ ],
+ "honest": [
+  0.0513143153207549,
+  0.06647634953091151,
+  0.022847059125641948
+ ],
+ "folds": 10,
+ "taus": {
+  "ae": {
+   "kurgany_povrezhdennye": 0.0,
+   "kurgany_tselye": 0.0
+  },
+  "li": {
+   "kurgany_povrezhdennye": 0.005555,
+   "kurgany_tselye": 0.000435,
+   "gorodishcha": 0.977051,
+   "fortifikatsii": 0.996541
+  },
+  "li_dev": {
+   "kurgany_povrezhdennye": 0.14983,
+   "kurgany_tselye": 0.060045
+  },
+  "li_mosaic": {
+   "kurgany_povrezhdennye": 0.11232,
+   "kurgany_tselye": 0.008515
+  },
+  "sp_focal": {
+   "kurgany_povrezhdennye": 0.073115,
+   "kurgany_tselye": 0.10316
+  },
+  "sp_focal2": {
+   "kurgany_povrezhdennye": 0.14919,
+   "kurgany_tselye": 0.261345
+  },
+  "li_ae": {
+   "kurgany_tselye": 0.985051
+  },
+  "gor_phys": {
+   "gorodishcha": 0.0
+  },
+  "li_coarse": {
+   "gorodishcha": 0.97574,
+   "fortifikatsii": 0.185385
+  },
+  "li_mask": {
+   "gorodishcha": 0.070875
+  },
+  "sp_or": {
+   "gorodishcha": 0.923705
+  },
+  "or": {
+   "arkhitektury": 0.108055
+  },
+  "sp_arch": {
+   "arkhitektury": 0.071725
+  },
+  "etgr": {
+   "object_poly": 0.0
+  },
+  "maggr": {
+   "object_poly": 0.0,
+   "finds_points": 0.176635
+  },
+  "terfl": {
+   "object_poly": 0.0
+  },
+  "ae_fort": {
+   "fortifikatsii": 0.97131
+  },
+  "li_fort": {
+   "fortifikatsii": 0.999755
+  }
+ },
+ "counts_all": {
+  "kurgany_povrezhdennye": [
+   154,
+   1555,
+   3466
+  ],
+  "kurgany_tselye": [
+   77,
+   556,
+   1500
+  ],
+  "gorodishcha": [
+   7,
+   22,
+   111
+  ],
+  "arkhitektury": [
+   9,
+   903,
+   398
+  ],
+  "object_poly": [
+   27,
+   15,
+   1056
+  ],
+  "fortifikatsii": [
+   18,
+   291,
+   678
+  ],
+  "finds_points": [
+   100,
+   87,
+   3378
+  ]
+ },
+ "times": {
+  "split": 1.43,
+  "bounds": 5.14,
+  "curves_fast": 1.13,
+  "curves_reference": 6.14,
+  "sweep_honest_fast": 0.15,
+  "sweep_honest_reference": 0.63,
+  "kept_fast": 1.05,
+  "kept_reference": 1.89,
+  "official": 12.41,
+  "total": 36.33
+ },
+ "peak_rss_mb": 438
+}

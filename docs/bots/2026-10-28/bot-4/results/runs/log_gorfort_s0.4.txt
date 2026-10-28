@@ -1,0 +1,112 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+table 19578 Counter({('fortifikatsii', 'ae_fort'): 13373, ('gorodishcha', 'li_coarse'): 2591, ('gorodishcha', 'sp_or'): 1006, ('fortifikatsii', 'li_coarse'): 775, ('gorodishcha', 'li'): 664, ('fortifikatsii', 'li'): 379, ('fortifikatsii', 'li_fort'): 375, ('gorodishcha', 'li_mask'): 293, ('gorodishcha', 'gor_phys'): 122}) 7s
+fort2gor: n 14902 pos 148 13s
+{"n": 14902, "pos": 148, "by_group_pos": {"li_fort": [375, 20], "li_coarse": [775, 102], "li": [379, 8], "ae_fort": [13373, 18]}, "auc_rule": 0.8564523500727242, "ap_rule": 0.1270302546538118, "auc_lr": 0.7821786304401188, "ap_lr": 0.16160101067345278, "auc_gbm": 0.9327101857856229, "ap_gbm": 0.33524842041078184, "auc_conf": 0.29270715408372994, "ap_conf": 0.012866748642260749}
+gor_coarse: clusters 2401 pos 41 21s
+{"n": 2401, "pos": 41, "auc_lr": 0.8697085572550642, "ap_lr": 0.20233482561787683, "auc_gbm": 0.8917476229847044, "ap_gbm": 0.2220070400968379}
+[base] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[base] HONEST(10 фолдов family): gorodishcha F1 0.2762 tp 25 fp 76; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.05041
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[fort2gor_rule] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[fort2gor_rule] HONEST(10 фолдов family): gorodishcha F1 0.2755 tp 25 fp 77; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.05030
+    gorod fort2gor   thr 0.399887 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[fort2gor_lr] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[fort2gor_lr] HONEST(10 фолдов family): gorodishcha F1 0.2762 tp 25 fp 76; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.05041
+    gorod fort2gor   thr 0.400001 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[fort2gor_gbm] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[fort2gor_gbm] HONEST(10 фолдов family): gorodishcha F1 0.2611 tp 25 fp 97; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.04814
+    gorod fort2gor   thr 0.358805 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[coarse_lr] ALL: gorodishcha F1 0.3316; fortifikatsii F1 0.1877 -> вклад 0.05912
+[coarse_lr] HONEST(10 фолдов family): gorodishcha F1 0.2710 tp 25 fp 83; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.04963
+    gorod gor_coarse thr 0.399728 kept     6 tp 1
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[coarse_gbm] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[coarse_gbm] HONEST(10 фолдов family): gorodishcha F1 0.2755 tp 25 fp 77; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.05030
+    gorod gor_coarse thr 0.345154 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[both_gbm] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[both_gbm] HONEST(10 фолдов family): gorodishcha F1 0.2604 tp 25 fp 98; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.04804
+    gorod fort2gor   thr 0.358805 kept     0 tp 0
+    gorod gor_coarse thr 0.345154 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+[both_lr] ALL: gorodishcha F1 0.3270; fortifikatsii F1 0.1877 -> вклад 0.05843
+[both_lr] HONEST(10 фолдов family): gorodishcha F1 0.2755 tp 25 fp 77; fortifikatsii F1 0.1796 tp 109 fp 818 -> вклад 0.05030
+    gorod fort2gor   thr 0.400001 kept     0 tp 0
+    gorod gor_coarse thr 0.400001 kept     0 tp 0
+    gorod gor_phys   thr 0.430490 kept    18 tp 5
+    gorod li         thr 0.993091 kept     0 tp 0
+    gorod li_coarse  thr 0.986425 kept    24 tp 8
+    gorod li_mask    thr 0.994510 kept    26 tp 14
+    gorod sp_or      thr 0.994085 kept    33 tp 3
+    forti ae_fort    thr 0.998215 kept   714 tp 94
+    forti li         thr 0.999971 kept     0 tp 0
+    forti li_coarse  thr 0.999260 kept    21 tp 3
+    forti li_fort    thr 0.987675 kept   127 tp 14
+base             all 0.05843 (+0.00000)  honest 0.05041 (+0.00000)
+fort2gor_rule    all 0.05843 (+0.00000)  honest 0.05030 (-0.00011)
+fort2gor_lr      all 0.05843 (+0.00000)  honest 0.05041 (+0.00000)
+fort2gor_gbm     all 0.05843 (+0.00000)  honest 0.04814 (-0.00227)
+coarse_lr        all 0.05912 (+0.00069)  honest 0.04963 (-0.00079)
+coarse_gbm       all 0.05843 (+0.00000)  honest 0.05030 (-0.00011)
+both_gbm         all 0.05843 (+0.00000)  honest 0.04804 (-0.00237)
+both_lr          all 0.05843 (+0.00000)  honest 0.05030 (-0.00011)
+done 52s

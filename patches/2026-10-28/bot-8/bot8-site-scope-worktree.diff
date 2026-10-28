@@ -1,0 +1,1602 @@
+diff --git a/expds/fastgeom.py b/expds/fastgeom.py
+new file mode 100644
+index 0000000..df62c6f
+--- /dev/null
++++ b/expds/fastgeom.py
+@@ -0,0 +1,143 @@
++"""Пакетное построение геометрий метрики: то же, что официальная `_extract_geometry`, но быстрее.
++
++Профиль `scripts/scoreboard.py --honest` (bot-8/prof/cprofile_build_curves.txt): ≈ 90 %
++времени build_curves уходит в `_extract_geometry` → конструктор `shapely.Polygon`
++(≈ 40 мкс на объект: обход вложенных списков, проверки типов, LinearRing).
++
++Здесь простые полигоны (тип "Polygon", кольца из пар чисел, ≥ 4 точек после
++замыкания) разбираются Rust-функцией `expds_core.flatten_polygons` в плоские
++массивы и создаются одним вызовом `shapely.from_ragged_array`; валидность
++проверяется векторно. Невалидные, MultiPolygon, Point и всё необычное идут
++через официальную `_extract_geometry` по одному — результат совпадает
++побайтно (WKB), см. tests/test_bot8_fast_metric.py.
++
++Без собранного Rust-модуля (или EXPDS_BACKEND=numpy / EXPDS_FASTGEOM=0) работает
++прежний путь: официальная функция на каждый объект.
++"""
++from __future__ import annotations
++
++import os
++
++import numpy as np
++
++_rs = None
++if os.environ.get("EXPDS_BACKEND", "auto").lower() != "numpy":
++    try:
++        import expds_core as _rs  # type: ignore
++        if not hasattr(_rs, "flatten_polygons"):
++            _rs = None
++    except ImportError:
++        _rs = None
++
++
++def enabled() -> bool:
++    return _rs is not None and os.environ.get("EXPDS_FASTGEOM", "1") != "0"
++
++
++def extract_many(mod, features: list[dict]) -> list:
++    """[официальная _extract_geometry(f) for f in features], пакетно."""
++    if not enabled() or not features:
++        return [mod._extract_geometry(f) for f in features]
++    import shapely
++
++    gdicts = [f.get("geometry") for f in features]
++    coords, ring_off, geom_off, taken = _rs.flatten_polygons(gdicts)
++    out: list = [None] * len(features)
++    done = np.zeros(len(features), dtype=bool)
++    if taken.size:
++        polys = shapely.from_ragged_array(shapely.GeometryType.POLYGON, coords, (ring_off, geom_off))
++        valid = par_is_valid(polys)
++        for i, g, ok in zip(taken.tolist(), polys, valid.tolist()):
++            if ok:
++                out[i] = g
++                done[i] = True
++    for i in np.flatnonzero(~done).tolist():
++        out[i] = mod._extract_geometry(features[i])
++    return out
++
++
++def max_abs_x(geoms: list) -> np.ndarray:
++    """Векторная `_geom_max_abs_x`: max(|minx|, |maxx|) с той же семантикой max() у NaN."""
++    import shapely
++
++    b = shapely.bounds(np.asarray(geoms, dtype=object))
++    a, c = np.abs(b[:, 0]), np.abs(b[:, 2])
++    return np.where(c > a, c, a)
++
++
++# ───────────── параллельный пересчёт координат в UTM (тот же PROJ, по кускам) ─────────────
++
++import threading as _threading
++
++_TLS = _threading.local()
++_POOL = None  # общий пул потоков метрики
++
++
++def metric_threads() -> int:
++    """Потоки метрики: EXPDS_METRIC_THREADS, иначе EXPDS_THREADS (как у expds_core), иначе min(CPU, 8)."""
++    for var in ("EXPDS_METRIC_THREADS", "EXPDS_THREADS"):
++        try:
++            n = int(os.environ.get(var, "0"))
++        except ValueError:
++            n = 0
++        if n > 0:
++            return n
++    return max(1, min(os.cpu_count() or 1, 8))
++
++
++def _pool(n_thr: int):
++    global _POOL
++    if _POOL is None or _POOL._max_workers != n_thr:
++        from concurrent.futures import ThreadPoolExecutor
++        _POOL = ThreadPoolExecutor(max_workers=n_thr, thread_name_prefix="expds-metric")
++    return _POOL
++
++
++def par_is_valid(polys: np.ndarray, min_chunk: int = 20_000) -> np.ndarray:
++    """shapely.is_valid кусками в потоках (GEOS отпускает GIL; каждый объект независим)."""
++    import shapely
++
++    n, n_thr = len(polys), metric_threads()
++    if n_thr <= 1 or n < 2 * min_chunk:
++        return shapely.is_valid(polys)
++    bounds = np.linspace(0, n, min(n_thr, n // min_chunk) + 1).astype(int)
++    parts = list(_pool(n_thr).map(lambda ab: shapely.is_valid(polys[ab[0]:ab[1]]), zip(bounds[:-1], bounds[1:])))
++    return np.concatenate(parts)
++
++
++def _local_transformer(src: int, dst: int):
++    from pyproj import Transformer
++
++    cache = getattr(_TLS, "tr", None)
++    if cache is None:
++        cache = _TLS.tr = {}
++    tr = cache.get((src, dst))
++    if tr is None:   # объекты PROJ не потокобезопасны — у каждого потока свой, с теми же параметрами
++        tr = cache[(src, dst)] = Transformer.from_crs(src, dst, always_xy=True)
++    return tr
++
++
++def utm_coords_fn(base_tr, dst_epsg: int, src_epsg: int = 3857, min_chunk: int = 50_000):
++    """Функция для shapely.transform: как `np.column_stack(tr.transform(x, y))`, но кусками в потоках.
++
++    PROJ считает каждую точку независимо, поэтому результат побайтно тот же
++    (проверяется тестом); pyproj отпускает GIL на время расчёта.
++    """
++    n_thr = metric_threads()
++
++    def fn(c):
++        n = c.shape[0]
++        if n_thr <= 1 or n < 2 * min_chunk or not enabled():
++            return np.column_stack(base_tr.transform(c[:, 0], c[:, 1]))
++        bounds = np.linspace(0, n, min(n_thr, n // min_chunk) + 1).astype(int)
++        out = np.empty((n, 2), dtype=np.float64)
++
++        def work(a, b):
++            x, y = _local_transformer(src_epsg, dst_epsg).transform(c[a:b, 0], c[a:b, 1])
++            out[a:b, 0] = x
++            out[a:b, 1] = y
++
++        list(_pool(n_thr).map(lambda ab: work(*ab), zip(bounds[:-1], bounds[1:])))
++        return out
++
++    return fn
+diff --git a/expds/metric.py b/expds/metric.py
+index bc4e6d2..d58e4aa 100644
+--- a/expds/metric.py
++++ b/expds/metric.py
+@@ -31,6 +31,7 @@ from pathlib import Path
+ 
+ import numpy as np
+ 
++from . import fastgeom as _fastgeom
+ from .constants import CLASS_WEIGHTS, CLASSES
+ 
+ EPS = 1e-6
+@@ -57,6 +58,34 @@ def score(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
+     return mod.F1Calculator().calculate_f1(pred, gt)
+ 
+ 
++def score_by_site(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
++    """Эталон для режима scope="site": официальный calculate_f1 отдельно на каждом участке
++    (разбиение — официальной split_merged_by_source_and_class), TP/FP/FN классов складываются,
++    F1 и взвешивание — формулами calculate_f1 (те же epsilon и нормировка на классы с эталоном)."""
++    mod = load_official(metric_path)
++    calc = mod.F1Calculator()
++    ps, gs = mod.split_merged_by_source_and_class(pred), mod.split_merged_by_source_and_class(gt)
++    tot = {c: [0, 0, 0] for c in calc.target_classes}
++    for site in list(ps) + [k for k in gs if k not in ps]:
++        pf = [f for fc in ps.get(site, {}).values() for f in fc["features"]]
++        gf = [f for fc in gs.get(site, {}).values() for f in fc["features"]]
++        r = calc.calculate_f1({"type": "FeatureCollection", "features": pf},
++                              {"type": "FeatureCollection", "features": gf})["per_class"]
++        for c in calc.target_classes:
++            for k, key in enumerate(("tp", "fp", "fn")):
++                tot[c][k] += r[c][key]
++    per, num, den = {}, 0.0, 0.0
++    for c, (tp, fp, fn) in tot.items():
++        precision = tp / (tp + 0.5 * fp + calc.epsilon)
++        recall = tp / (tp + fn + calc.epsilon)
++        f1 = 2 * precision * recall / (precision + recall + calc.epsilon)
++        per[c] = {"f1": f1, "tp": tp, "fp": fp, "fn": fn, "num_ground_truth": tp + fn}
++        if tp + fn > 0:
++            num += f1 * mod.CLASS_WEIGHTS.get(c, 0.0)
++            den += mod.CLASS_WEIGHTS.get(c, 0.0)
++    return {"final_score": num / den if den > 0 else 0.0, "per_class": per}
++
++
+ # ─────────────────────────── один проход сопоставления ───────────────────────
+ 
+ @dataclass
+@@ -94,8 +123,41 @@ def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool,
+     return h.hexdigest()
+ 
+ 
+-def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
++def site_key(props: dict):
++    """Ключ участка, как в официальной split_merged_by_source_and_class:
++    region_name (по умолчанию "default_source"), а при непустом sub_region_name — "region__sub"."""
++    region_name = props.get("region_name", "default_source")
++    sub_region_name = props.get("sub_region_name", "")
++    if sub_region_name and sub_region_name.strip():
++        return f"{region_name}__{sub_region_name}"
++    return region_name
++
++
++def match_scope(scope: str | None = None) -> str:
++    """Область сопоставления: "global" — один пул на весь файл, как F1Calculator.calculate_f1
++    (по умолчанию); "site" — эталон только своего участка (site_key), как если бы метрика
++    считалась отдельно по каждому источнику split_merged_by_source_and_class и счётчики складывались.
++    Переключатель: аргумент scope или переменная EXPDS_MATCH_SCOPE."""
++    s = (scope or os.environ.get("EXPDS_MATCH_SCOPE") or "global").strip().lower()
++    if s not in ("global", "site"):
++        raise ValueError(f"EXPDS_MATCH_SCOPE/scope: ожидается global или site, получено {s!r}")
++    return s
++
++
++def _collect(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
+     """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
++    import gc
++
++    gc_was = gc.isenabled()
++    gc.disable()   # циклов здесь не создаётся; сборщик на миллионах списков GeoJSON съедал ~30 % времени
++    try:
++        return _collect_impl(mod, calc, fc, is_gt, sites_out)
++    finally:
++        if gc_was:
++            gc.enable()
++
++
++def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
+     import pickle
+     import shapely
+ 
+@@ -109,6 +171,144 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+     todo_meta: list[tuple[str, float, str, str, int]] = []
+     ordered_slots: list[tuple[str, object, float, str, str]] = []
+ 
++    norm_cache: dict = {}
++    slot_sites: list = []
++    for feature in fc.get("features", []):
++        props = feature.get("properties", {}) or {}
++        raw_cls = props.get("class_name", "unknown")
++        if type(raw_cls) is str:   # кэш только для str: у 1/True/1.0 общий хэш, но разный str()
++            cls = norm_cache.get(raw_cls, norm_cache)
++            if cls is norm_cache:
++                cls = norm_cache[raw_cls] = mod.normalize_class_name(raw_cls)
++        else:
++            cls = mod.normalize_class_name(raw_cls)
++        if cls is None or cls not in target_set:
++            continue
++        gdict = feature.get("geometry")
++        if not gdict:
++            continue
++        conf = mod._get_confidence(feature)
++        reg = str(props.get("region_name", "default_source"))
++        grp = threshold_group(props)
++        if sites_out is not None:
++            slot_sites.append(site_key(props))
++        gid = id(gdict)
++        hit = sub_cache.get(gid)
++        if hit is not None and hit[0] is gdict:
++            ordered_slots.append((cls, hit[1], conf, reg, grp))
++        else:
++            slot_idx = len(ordered_slots)
++            ordered_slots.append((cls, None, conf, reg, grp))
++            todo_feats.append((feature, gdict, gid))
++            todo_meta.append((cls, conf, reg, grp, slot_idx))
++
++    if todo_feats:
++        shm_loaded = False
++        shm_file = None
++        if len(todo_feats) >= 200 and Path("/dev/shm").is_dir():
++            try:
++                bhash = _todo_batch_hash(todo_feats, todo_meta, mode, is_gt, r_tol, c_pts)
++                shm_file = _SHM_CACHE_DIR / f"{bhash}.wkb.pkl"
++                if shm_file.exists():
++                    valid_idx, wkbs = pickle.loads(shm_file.read_bytes())
++                    geoms = shapely.from_wkb(wkbs)
++                    for g, idx in zip(geoms, valid_idx):
++                        _, gdict, gid = todo_feats[idx]
++                        sub_cache[gid] = (gdict, g)
++                        cls, conf, reg, grp, slot_idx = todo_meta[idx]
++                        ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
++                    shm_loaded = True
++            except Exception:
++                shm_loaded = False
++
++        if not shm_loaded:
++            raw_geoms = []
++            valid_idx = []
++            extracted = _fastgeom.extract_many(mod, [t[0] for t in todo_feats])
++            for idx, g in enumerate(extracted):
++                if g is not None:
++                    raw_geoms.append(g)
++                    valid_idx.append(idx)
++            if raw_geoms:
++                if mode == "utm":
++                    proj_geoms = raw_geoms
++                else:
++                    proj_geoms = list(raw_geoms)
++                    if mode == "webmercator":
++                        need_idx = list(range(len(raw_geoms)))
++                    elif _fastgeom.enabled():
++                        need_idx = np.flatnonzero(
++                            _fastgeom.max_abs_x(raw_geoms) > mod._UTM_ABS_X_THRESHOLD).tolist()
++                    else:
++                        need_idx = [k_i for k_i, g in enumerate(raw_geoms)
++                                    if mod._geom_max_abs_x(g) > mod._UTM_ABS_X_THRESHOLD]
++                    if need_idx:
++                        try:
++                            sub_raw = [raw_geoms[k_i] for k_i in need_idx]
++                            cents = shapely.centroid(sub_raw)
++                            xs = shapely.get_x(cents)
++                            ys = shapely.get_y(cents)
++                            lons, lats = mod._get_transformer_3857_to_wgs84().transform(xs, ys)
++                            zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
++                            epsgs = np.where(np.asarray(lats) >= 0, 32600, 32700) + zones
++                            for epsg in np.unique(epsgs):
++                                z_mask = np.nonzero(epsgs == epsg)[0]
++                                tr = mod._get_transformer_3857_to_utm(int(epsg))
++                                z_geoms = [sub_raw[z_i] for z_i in z_mask]
++                                z_proj = shapely.transform(z_geoms, _fastgeom.utm_coords_fn(tr, int(epsg)))
++                                for z_i, pg in zip(z_mask, z_proj):
++                                    proj_geoms[need_idx[z_i]] = pg
++                        except Exception:
++                            for k_i in need_idx:
++                                proj_geoms[k_i] = mod._to_utm(raw_geoms[k_i], mode)
++                final_geoms = []
++                is_point = (shapely.get_type_id(np.asarray(proj_geoms, dtype=object)) == 0).tolist()
++                for g, idx, pt in zip(proj_geoms, valid_idx, is_point):
++                    if pt and not is_gt:
++                        g = mod._point_to_circle(g, r_tol, c_pts)
++                    final_geoms.append(g)
++                    _, gdict, gid = todo_feats[idx]
++                    sub_cache[gid] = (gdict, g)
++                    cls, conf, reg, grp, slot_idx = todo_meta[idx]
++                    ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
++                if shm_file is not None and final_geoms:
++                    try:
++                        _SHM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
++                        wkbs = shapely.to_wkb(final_geoms)
++                        tmp = shm_file.with_suffix(f".tmp.{os.getpid()}")
++                        tmp.write_bytes(pickle.dumps((valid_idx, wkbs), protocol=pickle.HIGHEST_PROTOCOL))
++                        tmp.replace(shm_file)
++                    except Exception:
++                        pass
++
++    if sites_out is not None:
++        for (cls, g, conf, reg, grp), site in zip(ordered_slots, slot_sites):
++            if g is not None:
++                out.setdefault(cls, []).append((g, conf, reg, grp))
++                sites_out.setdefault(cls, []).append(site)
++        return out
++    for cls, g, conf, reg, grp in ordered_slots:
++        if g is not None:
++            out.setdefault(cls, []).append((g, conf, reg, grp))
++    return out
++
++
++def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
++    """Прежняя реализация _collect (эталон для тестов bot-8). Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
++    import pickle
++    import shapely
++
++    out: dict[str, list[tuple]] = {}
++    mode, r_tol, c_pts = calc.input_crs_mode, calc.r_tolerance, calc.circle_points
++    sub_cache = _UTM_GEOM_CACHE.setdefault((mode, is_gt, r_tol, c_pts), {})
++    if len(sub_cache) > 1_200_000:
++        sub_cache.clear()
++    target_set = set(calc.target_classes)
++    todo_feats: list[tuple[dict, object, int]] = []
++    todo_meta: list[tuple[str, float, str, str, int]] = []
++    ordered_slots: list[tuple[str, object, float, str, str]] = []
++    slot_sites: list[str] = []
++
+     for feature in fc.get("features", []):
+         props = feature.get("properties", {}) or {}
+         cls = mod.normalize_class_name(props.get("class_name", "unknown"))
+@@ -120,6 +320,8 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+         conf = mod._get_confidence(feature)
+         reg = str(props.get("region_name", "default_source"))
+         grp = threshold_group(props)
++        if sites_out is not None:
++            slot_sites.append(site_key(props))
+         gid = id(gdict)
+         hit = sub_cache.get(gid)
+         if hit is not None and hit[0] is gdict:
+@@ -206,23 +408,32 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+                     except Exception:
+                         pass
+ 
+-    for cls, g, conf, reg, grp in ordered_slots:
++    for k, (cls, g, conf, reg, grp) in enumerate(ordered_slots):
+         if g is not None:
+             out.setdefault(cls, []).append((g, conf, reg, grp))
++            if sites_out is not None:
++                sites_out.setdefault(cls, []).append(slot_sites[k])
+     return out
+ 
+ 
+-def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[str, ClassCurve]:
++def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
++                 scope: str | None = None) -> dict[str, ClassCurve]:
+     """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+ 
+     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+     (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
++    scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
++    "site" — пара допускается только внутри одного участка (site_key), что равно сумме
++    счётчиков calculate_f1 по каждому участку отдельно.
+     """
+     from shapely.strtree import STRtree
+ 
+     mod = load_official(metric_path)
+     calc = mod.F1Calculator()
+-    preds, gts = _collect(mod, calc, pred, False), _collect(mod, calc, gt, True)
++    per_site = match_scope(scope) == "site"
++    p_sites: dict | None = {} if per_site else None
++    g_sites: dict | None = {} if per_site else None
++    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
+     curves: dict[str, ClassCurve] = {}
+     for cls in calc.target_classes:
+         p, g = preds.get(cls, []), gts.get(cls, [])
+@@ -233,6 +444,12 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[s
+             tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+             pg_ord = [p[i][0] for i in order]
+             q_pred, q_gt = tree.query(pg_ord)
++            if per_site and len(q_pred):
++                site_ids: dict = {}
++                ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
++                gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)
++                same = ps_ord[q_pred] == gs[q_gt]
++                q_pred, q_gt = q_pred[same], q_gt[same]
+             if len(q_pred):
+                 splits = np.flatnonzero(np.diff(q_pred)) + 1
+                 rank_groups = np.split(q_gt, splits)
+@@ -292,7 +509,7 @@ def _plateau_indices(groups: list[str], cuts: dict, k: dict, n_gt: int) -> dict:
+     return chosen
+ 
+ 
+-def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
++def sweep_groups_reference(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
+     """Пороги по (группа, класс), максимизирующие общий F1 класса по всем группам.
+ 
+     Метрика сводит класс по всем модальностям и участкам: F1 ≈ 2TP / (TP + 0,5·FP + GT).
+@@ -447,7 +664,7 @@ def score_group_thresholds(curves: dict[str, ClassCurve], taus: dict[str, dict[s
+     return (num / den if den else 0.0), per
+ 
+ 
+-def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
++def bootstrap_reference(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
+     """Устойчивость порогов: регионы выбираются с возвращением, оптимум ищется заново.
+ 
+     Регионы в пространстве не пересекаются, поэтому попадания из общего прохода
+@@ -475,7 +692,7 @@ def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dic
+             for cls, v in taus.items() if v}
+ 
+ 
+-def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
++def paired_bootstrap_reference(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
+                      tau_b: dict[str, float], n: int = 1000, seed: int = 0) -> dict:
+     """Разница баллов A − B на одних и тех же выборках регионов с возвращением.
+ 
+@@ -556,7 +773,7 @@ def family_folds(regions, family_of, k: int | None = None) -> list[set[str]]:
+     return [b for b in bins if b]
+ 
+ 
+-def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
++def honest_counts_reference(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
+                   unseen: str = "drop") -> tuple[dict[str, dict[str, list[int]]], dict]:
+     """TP, FP и эталоны каждого участка при порогах, подобранных без его фолда.
+ 
+@@ -572,7 +789,7 @@ def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: st
+     info = {"folds": len(folds), "unseen_dropped": 0, "unseen_kept": 0}
+     for held in folds:
+         train = every - held
+-        res = sweep_groups({cls: curve_where(c, train) for cls, c in curves.items()}, pick=pick)
++        res = sweep_groups_reference({cls: curve_where(c, train) for cls, c in curves.items()}, pick=pick)
+         taus: dict[str, dict[str, float]] = {}
+         for cls, v in res.items():
+             for g, gv in v["groups"].items():
+@@ -618,7 +835,7 @@ def score_counts(counts: dict[str, dict[str, list[int]]], regions: set[str] | No
+     return (num / den if den else 0.0), per
+ 
+ 
+-def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
++def paired_bootstrap_counts_reference(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
+                             regions: set[str] | None = None) -> dict:
+     """A − B по честным счётчикам. Выборка с возвращением — семьи, не участки.
+ 
+@@ -646,6 +863,323 @@ def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: in
+             "families": len(names)}
+ 
+ 
++# ─────────────── быстрые версии (bot-8): те же результаты, без циклов Python по объектам ───────────────
++#
++# Прежние реализации сохранены с суффиксом _reference; tests/test_bot8_fast_metric.py
++# сверяет их побайтно. EXPDS_FAST_METRIC=0 возвращает прежний путь целиком.
++#
++# Почему результат совпадает точно. Счётчики TP/FP/GT — целые числа, а их взвешенные
++# суммы (веса бутстрепа тоже целые) в float64 точны в любом порядке сложения, пока
++# меньше 2^53. Поэтому суммы по объектам можно заменить суммами по участкам, а циклы —
++# матричным умножением. F1 считается той же формулой и в том же порядке операций
++# (IEEE-754 одинаков для скаляров Python и массивов NumPy); взвешенное среднее
++# накапливается по классам в прежнем порядке. Генератор случайных чисел вызывается
++# теми же вызовами в том же порядке.
++
++def _fast_on() -> bool:
++    return os.environ.get("EXPDS_FAST_METRIC", "1") != "0"
++
++
++def _curve_codes(c: ClassCurve):
++    """Коды участков (по первому появлению) и групп (по алфавиту) кривой; кэшируется на объекте."""
++    cache = c.__dict__.get("_bot8_codes")
++    if (cache is not None and cache[0] is c.pred_region and cache[1] is c.pred_group
++            and cache[2] == (len(c.pred_region), len(c.pred_group))):
++        return cache[3]
++    rmap: dict[str, int] = {}
++    rcodes = np.fromiter((rmap.setdefault(r, len(rmap)) for r in c.pred_region), dtype=np.int64,
++                         count=len(c.pred_region))
++    gnames = sorted(set(c.pred_group)) if c.pred_group else []
++    gmap = {g: i for i, g in enumerate(gnames)}
++    gcodes = np.fromiter((gmap[g] for g in c.pred_group), dtype=np.int64, count=len(c.pred_group))
++    val = (list(rmap), rcodes, gnames, gcodes)
++    c.__dict__["_bot8_codes"] = (c.pred_region, c.pred_group, (len(c.pred_region), len(c.pred_group)), val)
++    return val
++
++
++def _sweep_one(conf: np.ndarray, hit: np.ndarray, gcodes: np.ndarray, gnames: list[str], n_gt: int,
++               rounds: int, pick: str):
++    """Тело sweep_groups_reference для одного класса; группы заданы кодами. None — класс пропускается."""
++    if n_gt == 0:
++        return None
++    if gcodes.size == 0:
++        return {"f1": 0.0, "n_gt": n_gt, "groups": {}}
++    order = np.argsort(gcodes, kind="stable")      # внутри группы порядок (по убыванию conf) сохраняется
++    gs = gcodes[order]
++    present, starts = np.unique(gs, return_index=True)
++    ends = np.r_[starts[1:], gs.size]
++    cs, hs = conf[order], hit[order]
++    groups = [gnames[int(k)] for k in present]
++    cuts = {g: _group_cuts(cs[a:b], hs[a:b]) for g, a, b in zip(groups, starts, ends)}
++
++    def f1_of(k: dict) -> float:
++        tp = sum(cuts[g][1][k[g]] for g in groups)
++        n = sum(cuts[g][0][k[g]] for g in groups)
++        return float(_f1(tp, n - tp, n_gt - tp)) if n else 0.0
++
++    best_k, best_f = None, -1.0
++    for start in ("none", "all"):
++        k = {g: 0 if start == "none" else len(cuts[g][0]) - 1 for g in groups}
++        for _ in range(rounds):
++            changed = False
++            for g in groups:
++                f = _f1_along(groups, cuts, k, g, n_gt)
++                j = int(np.argmax(f))
++                if j != k[g] and f[j] > f[k[g]] + 1e-12:
++                    k[g], changed = j, True
++            if not changed:
++                break
++        f = f1_of(k)
++        if f > best_f:
++            best_f, best_k = f, dict(k)
++    if pick == "plateau" and best_k is not None:
++        best_k = _plateau_indices(groups, cuts, best_k, n_gt)
++        best_f = f1_of(best_k)
++    elif pick != "max":
++        raise ValueError(f"неизвестный выбор порога: {pick}")
++    return {"f1": best_f, "n_gt": n_gt,
++            "groups": {g: {"threshold": round(float(cuts[g][2][best_k[g]]), 6),
++                           "kept": int(cuts[g][0][best_k[g]]), "tp": int(cuts[g][1][best_k[g]])}
++                       for g in groups}}
++
++
++def _groups_ok(c: ClassCurve) -> bool:
++    return (not c.pred_group and c.conf.size == 0) or len(c.pred_group) == c.conf.size
++
++
++def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
++    """Как sweep_groups_reference (см. её описание), но группы — целые коды, а не массив строк."""
++    if not _fast_on() or not all(_groups_ok(c) or not c.pred_group for c in curves.values()):
++        return sweep_groups_reference(curves, rounds, pick)
++    out: dict[str, dict] = {}
++    for cls, c in curves.items():
++        _, _, gnames, gcodes = _curve_codes(c)
++        r = _sweep_one(c.conf, c.hit, gcodes, gnames, c.n_gt, rounds, pick)
++        if r is not None:
++            out[cls] = r
++    return out
++
++
++def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
++    """Как bootstrap_reference: веса участков берутся индексом, а не списком Python на каждой выборке."""
++    if not _fast_on():
++        return bootstrap_reference(curves, n, seed)
++    regions = sorted({r for c in curves.values() for r in c.pred_region} |
++                     {r for c in curves.values() for r in c.gt_regions})
++    if not regions or n <= 0:
++        return {}
++    idx = {r: i for i, r in enumerate(regions)}
++    prep = {}
++    for cls, c in curves.items():
++        rnames, rcodes, _, _ = _curve_codes(c)
++        glob = np.array([idx[r] for r in rnames], dtype=np.int64)[rcodes] if rcodes.size else rcodes
++        last = np.r_[np.flatnonzero(c.conf[1:] != c.conf[:-1]), c.conf.size - 1] if c.conf.size else None
++        prep[cls] = (glob, last)
++    rng = np.random.default_rng(seed)
++    taus: dict[str, list[float]] = {c: [] for c in curves}
++    for _ in range(n):
++        w = np.bincount(rng.integers(0, len(regions), len(regions)), minlength=len(regions)).astype(float)
++        for cls, c in curves.items():
++            n_gt = sum(w[idx[r]] * k for r, k in c.gt_regions.items())
++            if n_gt == 0 or c.conf.size == 0:
++                continue
++            glob, last = prep[cls]
++            pw = w[glob]
++            tp, nn = np.cumsum(c.hit * pw)[last], np.cumsum(pw)[last]
++            taus[cls].append(float(c.conf[last[int(np.argmax(_f1(tp, nn - tp, n_gt - tp)))]]))
++    return {cls: {"p10": float(np.percentile(v, 10)), "p50": float(np.median(v)),
++                  "p90": float(np.percentile(v, 90)), "samples": len(v)}
++            for cls, v in taus.items() if v}
++
++
++def _scores_matrix(per_class: list[tuple[str, np.ndarray, np.ndarray, np.ndarray]]):
++    """Балл по выборкам: per_class = [(класс, tp, fp, n_gt)] — векторы по выборкам. Порядок классов как в цикле."""
++    num = den = None
++    f1s = {}
++    for cls, tp, fp, n_gt in per_class:
++        f1 = _f1(tp, fp, n_gt - tp)
++        ok = n_gt > 0
++        f1s[cls] = (f1, ok)
++        wc = CLASS_WEIGHTS.get(cls, 0.0)
++        if num is None:
++            num = np.zeros(tp.shape)
++            den = np.zeros(tp.shape)
++        num = np.where(ok, num + wc * f1, num)
++        den = np.where(ok, den + wc, den)
++    return num, den, f1s
++
++
++def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
++                     tau_b: dict[str, float], n: int = 1000, seed: int = 0) -> dict:
++    """Как paired_bootstrap_reference: суммы по объектам заменены суммами по участкам × веса (матрично)."""
++    if not _fast_on():
++        return paired_bootstrap_reference(a, b, tau_a, tau_b, n, seed)
++    regions = sorted({r for cs in (a, b) for c in cs.values() for r in c.pred_region} |
++                     {r for cs in (a, b) for c in cs.values() for r in c.gt_regions})
++    if not regions or n <= 0:
++        return {}
++    R = len(regions)
++    idx = {r: i for i, r in enumerate(regions)}
++    rng = np.random.default_rng(seed)
++    W = np.empty((n, R), dtype=np.float64)
++    for it in range(n):
++        W[it] = np.bincount(rng.integers(0, R, R), minlength=R)
++
++    def prep(curves, taus):
++        out = {}
++        for cls, c in curves.items():
++            kept = c.conf >= (taus.get(cls) or 0.0)
++            rnames, rcodes, _, _ = _curve_codes(c)
++            glob = (np.array([idx[r] for r in rnames], dtype=np.int64)[rcodes] if rcodes.size
++                    else np.zeros(0, np.int64))[kept]
++            hit = c.hit[kept].astype(bool)
++            tp_r = np.bincount(glob[hit], minlength=R).astype(np.float64)
++            n_r = np.bincount(glob, minlength=R).astype(np.float64)
++            g_r = np.zeros(R)
++            for r, k in c.gt_regions.items():
++                g_r[idx[r]] += k
++            out[cls] = (tp_r, n_r, g_r)
++        return out
++
++    pa, pb = prep(a, tau_a), prep(b, tau_b)
++    classes = sorted(set(pa) | set(pb))
++    res = []
++    for prepared in (pa, pb):
++        rows = []
++        for cls in classes:
++            if cls not in prepared:
++                continue
++            tp_r, n_r, g_r = prepared[cls]
++            tp, nn, n_gt = W @ tp_r, W @ n_r, W @ g_r
++            rows.append((cls, tp, nn - tp, n_gt))
++        num, den, f1s = _scores_matrix(rows)
++        if num is None:
++            num, den = np.zeros(n), np.zeros(n)
++        res.append((np.where(den != 0, num / np.where(den != 0, den, 1.0), 0.0), f1s))
++    diffs = res[0][0] - res[1][0]
++    per = {}
++    for cls in classes:
++        if cls in res[0][1] and cls in res[1][1]:
++            (fa, oka), (fb, okb) = res[0][1][cls], res[1][1][cls]
++            both = oka & okb
++            per[cls] = (fa - fb)[both]
++        else:
++            per[cls] = np.zeros(0)
++
++    def summary(v):
++        v = np.asarray(v)
++        return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
++                "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean())}
++
++    return {"score": summary(diffs), "per_class": {c: summary(v) for c, v in per.items() if len(v)}, "samples": n}
++
++
++def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
++                  unseen: str = "drop") -> tuple[dict[str, dict[str, list[int]]], dict]:
++    """Как honest_counts_reference (см. её описание): маски фолдов и счётчики участков — векторно.
++
++    Порядок ключей в словарях счётчиков тот же (участки эталона, затем участки
++    оставленных объектов в порядке убывания уверенности).
++    """
++    if not _fast_on() or not all(_groups_ok(c) for c in curves.values()):
++        return honest_counts_reference(curves, folds, pick, unseen)
++    every = set().union(*folds) if folds else set()
++    counts: dict[str, dict[str, list[int]]] = {cls: {} for cls in curves}
++    info = {"folds": len(folds), "unseen_dropped": 0, "unseen_kept": 0}
++    codes = {cls: _curve_codes(c) for cls, c in curves.items()}
++    fill = np.inf if unseen == "drop" else -np.inf
++    for held in folds:
++        train = every - held
++        res: dict[str, dict] = {}
++        for cls, c in curves.items():
++            rnames, rcodes, gnames, gcodes = codes[cls]
++            lut = np.fromiter((r in train for r in rnames), dtype=bool, count=len(rnames))
++            m = lut[rcodes] if rcodes.size else np.zeros(0, dtype=bool)
++            n_gt = int(sum({r: k for r, k in c.gt_regions.items() if r in train}.values()))
++            r = _sweep_one(c.conf[m], c.hit[m], gcodes[m], gnames, n_gt, 20, pick)
++            if r is not None:
++                res[cls] = r
++        taus: dict[str, dict[str, float]] = {}
++        for cls, v in res.items():
++            for g, gv in v["groups"].items():
++                taus.setdefault(g, {})[cls] = gv["threshold"]
++        for cls, c in curves.items():
++            rnames, rcodes, gnames, gcodes = codes[cls]
++            per = counts[cls]
++            for r, k in c.gt_regions.items():
++                if r in held:
++                    per.setdefault(r, [0, 0, 0])[2] += int(k)
++            lut = np.fromiter((r in held for r in rnames), dtype=bool, count=len(rnames))
++            m = lut[rcodes] if rcodes.size else np.zeros(0, dtype=bool)
++            if not m.any():
++                continue
++            has = np.array([cls in taus.get(g, {}) for g in gnames], dtype=bool)
++            tval = np.array([taus.get(g, {}).get(cls, 0.0) for g in gnames], dtype=np.float64)
++            gh = gcodes[m]
++            missing = ~has[gh]
++            tau = np.where(missing, fill, tval[gh])
++            info["unseen_dropped" if unseen == "drop" else "unseen_kept"] += int(missing.sum())
++            kept = c.conf[m] >= tau
++            rk = rcodes[m][kept]
++            if rk.size == 0:
++                continue
++            hk = c.hit[m][kept].astype(bool)
++            uniq, first = np.unique(rk, return_index=True)
++            tpc = np.bincount(rk[hk], minlength=len(rnames))
++            fpc = np.bincount(rk[~hk], minlength=len(rnames))
++            for code in uniq[np.argsort(first)].tolist():
++                lst = per.setdefault(rnames[code], [0, 0, 0])
++                lst[0] += int(tpc[code])
++                lst[1] += int(fpc[code])
++    return counts, info
++
++
++def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
++                            regions: set[str] | None = None) -> dict:
++    """Как paired_bootstrap_counts_reference: веса семей → веса участков, суммы — матрично."""
++    if not _fast_on():
++        return paired_bootstrap_counts_reference(a, b, family_of, n, seed, regions)
++    regs = {r for cs in (a, b) for by in cs.values() for r in by}
++    if regions is not None:
++        regs &= regions
++    fams: dict[str, list[str]] = {}
++    for r in sorted(regs):
++        fams.setdefault(family_of(r), []).append(r)
++    names = sorted(fams)
++    if not names or n <= 0:
++        return {}
++    rng = np.random.default_rng(seed)
++    picks = np.empty((n, len(names)), dtype=np.float64)
++    for it in range(n):
++        picks[it] = np.bincount(rng.integers(0, len(names), len(names)), minlength=len(names))
++    # участки вне regs получают вес 0 (как weights.get(r, 0.0) в score_counts)
++    every = sorted({r for cs in (a, b) for by in cs.values() for r in by})
++    ridx = {r: i for i, r in enumerate(every)}
++    fam_of_r = np.full(len(every), -1, dtype=np.int64)
++    for fi, f in enumerate(names):
++        for r in fams[f]:
++            fam_of_r[ridx[r]] = fi
++    W = np.where(fam_of_r >= 0, picks[:, np.clip(fam_of_r, 0, None)], 0.0) if every else np.zeros((n, 0))
++
++    def scores(cs):
++        rows = []
++        for cls, by_region in cs.items():
++            A = np.zeros(len(every)); B = np.zeros(len(every)); G = np.zeros(len(every))
++            for r, (x, y, g) in by_region.items():
++                i = ridx[r]
++                A[i] += x; B[i] += y; G[i] += g
++            rows.append((cls, W @ A, W @ B, W @ G))
++        num, den, _ = _scores_matrix(rows)
++        if num is None:
++            return np.zeros(n)
++        return np.where(den != 0, num / np.where(den != 0, den, 1.0), 0.0)
++
++    v = scores(a) - scores(b)
++    return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
++            "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean()), "samples": n,
++            "families": len(names)}
++
++
+ def apply_thresholds(fc: dict, thresholds: dict[str, float], metric_path: str | None = None) -> dict:
+     """Оставляет предсказания с confidence ≥ порога своего класса."""
+     norm = load_official(metric_path).normalize_class_name
+diff --git a/inference/lib/expds_core.abi3.so b/inference/lib/expds_core.abi3.so
+index 1238345..e04396e 100644
+Binary files a/inference/lib/expds_core.abi3.so and b/inference/lib/expds_core.abi3.so differ
+diff --git a/rust/expds_core/src/geo.rs b/rust/expds_core/src/geo.rs
+new file mode 100644
+index 0000000..3a8a44e
+--- /dev/null
++++ b/rust/expds_core/src/geo.rs
+@@ -0,0 +1,118 @@
++//! GeoJSON-полигоны → плоские массивы для `shapely.from_ragged_array`.
++//!
++//! Обход вложенных списков Python — самое дорогое место `metric._collect`
++//! (конструктор `shapely.Polygon` на каждый объект ≈ 40 мкс). Здесь координаты
++//! читаются напрямую из PyList/PyFloat. Быстрый путь берёт только «простые»
++//! полигоны: тип ровно "Polygon", каждое кольцо — список пар чисел (float или int,
++//! не bool, конечные), после замыкания ≥ 4 точек. Всё остальное (MultiPolygon, Point, 3D,
++//! пустые и вырожденные кольца, странные типы) помечается как «не взято», и Python
++//! обрабатывает такой объект официальной `_extract_geometry`. Кольцо замыкается так
++//! же, как в shapely/GEOS: если первая точка != последней (сравнение f64, NaN != NaN),
++//! в конец дописывается первая.
++
++use pyo3::prelude::*;
++use pyo3::types::{PyDict, PyFloat, PyInt, PyList, PyTuple};
++
++/// Только конечные числа: NaN/inf уходят в официальную ветку (GEOS по-разному
++/// трактует замыкание кольца с NaN, быстрый путь такие объекты не берёт).
++fn num(o: &Bound<'_, PyAny>) -> Option<f64> {
++    let v = if let Ok(f) = o.cast::<PyFloat>() {
++        f.value()
++    } else if o.is_exact_instance_of::<PyInt>() {
++        o.extract::<f64>().ok()?
++    } else {
++        return None;
++    };
++    if v.is_finite() { Some(v) } else { None }
++}
++
++fn seq_items<'py>(o: &Bound<'py, PyAny>) -> Option<Vec<Bound<'py, PyAny>>> {
++    if let Ok(l) = o.cast::<PyList>() {
++        return Some(l.iter().collect());
++    }
++    if let Ok(t) = o.cast::<PyTuple>() {
++        return Some(t.iter().collect());
++    }
++    None
++}
++
++fn pair(o: &Bound<'_, PyAny>) -> Option<(f64, f64)> {
++    if let Ok(l) = o.cast::<PyList>() {
++        if l.len() != 2 {
++            return None;
++        }
++        return Some((num(&l.get_item(0).ok()?)?, num(&l.get_item(1).ok()?)?));
++    }
++    if let Ok(t) = o.cast::<PyTuple>() {
++        if t.len() != 2 {
++            return None;
++        }
++        return Some((num(&t.get_item(0).ok()?)?, num(&t.get_item(1).ok()?)?));
++    }
++    None
++}
++
++/// Один полигон: дописывает кольца в coords/ring_off. None — не быстрый путь (ничего не дописано).
++fn polygon(g: &Bound<'_, PyAny>, coords: &mut Vec<f64>, ring_off: &mut Vec<i64>) -> Option<()> {
++    let d = g.cast::<PyDict>().ok()?;
++    let t = d.get_item("type").ok()??;
++    if t.extract::<&str>().ok()? != "Polygon" {
++        return None;
++    }
++    let rings = seq_items(&d.get_item("coordinates").ok()??)?;
++    if rings.is_empty() {
++        return None;
++    }
++    let c0 = coords.len();
++    let r0 = ring_off.len();
++    let mut ok = true;
++    'outer: for ring in &rings {
++        let pts = match seq_items(ring) {
++            Some(p) => p,
++            None => { ok = false; break; }
++        };
++        if pts.is_empty() {
++            ok = false;
++            break;
++        }
++        let start = coords.len();
++        for p in &pts {
++            match pair(p) {
++                Some((x, y)) => { coords.push(x); coords.push(y); }
++                None => { ok = false; break 'outer; }
++            }
++        }
++        let (fx, fy) = (coords[start], coords[start + 1]);
++        let (lx, ly) = (coords[coords.len() - 2], coords[coords.len() - 1]);
++        if fx != lx || fy != ly {
++            coords.push(fx);
++            coords.push(fy);
++        }
++        if (coords.len() - start) / 2 < 4 {
++            ok = false;
++            break;
++        }
++        ring_off.push((coords.len() / 2) as i64);
++    }
++    if !ok {
++        coords.truncate(c0);
++        ring_off.truncate(r0);
++        return None;
++    }
++    Some(())
++}
++
++/// (coords N×2 плоско, ring_offsets, geom_offsets, индексы взятых объектов).
++pub fn flatten(geoms: &Bound<'_, PyList>) -> (Vec<f64>, Vec<i64>, Vec<i64>, Vec<i64>) {
++    let mut coords = Vec::with_capacity(geoms.len() * 64);
++    let mut ring_off = vec![0i64];
++    let mut geom_off = vec![0i64];
++    let mut taken = Vec::with_capacity(geoms.len());
++    for (i, g) in geoms.iter().enumerate() {
++        if polygon(&g, &mut coords, &mut ring_off).is_some() {
++            geom_off.push((ring_off.len() - 1) as i64);
++            taken.push(i as i64);
++        }
++    }
++    (coords, ring_off, geom_off, taken)
++}
+diff --git a/rust/expds_core/src/lib.rs b/rust/expds_core/src/lib.rs
+index 7999852..e80c20c 100644
+--- a/rust/expds_core/src/lib.rs
++++ b/rust/expds_core/src/lib.rs
+@@ -8,6 +8,7 @@ mod channels;
+ mod cpu;
+ mod delaunay;
+ mod fill;
++mod geo;
+ mod grid;
+ mod peaks;
+ mod relief;
+@@ -22,7 +23,7 @@ use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReado
+             PyUntypedArrayMethods};
+ use pyo3::exceptions::{PyIOError, PyValueError};
+ use pyo3::prelude::*;
+-use pyo3::types::PyDict;
++use pyo3::types::{PyDict, PyList};
+ 
+ /// Данные массива без копии, если он непрерывный (C-порядок); иначе — копия.
+ fn to_vec_f32<'a>(a: &'a PyReadonlyArray2<'_, f32>) -> (Cow<'a, [f32]>, usize, usize) {
+@@ -308,6 +309,23 @@ fn ring_stats<'py>(py: Python<'py>, z: PyReadonlyArray2<'py, f32>, rows: PyReado
+     Ok(Array2::from_shape_vec((n, 6), flat).unwrap().into_pyarray(py))
+ }
+ 
++/// GeoJSON-словари геометрий → (coords float64 N×2, ring_offsets int64, geom_offsets int64, taken int64).
++///
++/// Вход для `shapely.from_ragged_array(POLYGON, coords, (ring_offsets, geom_offsets))`.
++/// `taken` — индексы входа, взятые быстрым путём (простые Polygon); остальные
++/// Python разбирает официальной `_extract_geometry`.
++#[pyfunction]
++#[allow(clippy::type_complexity)]
++fn flatten_polygons<'py>(py: Python<'py>, geoms: &Bound<'py, PyList>)
++    -> PyResult<(Bound<'py, PyArray2<f64>>, Bound<'py, PyArray1<i64>>, Bound<'py, PyArray1<i64>>,
++                 Bound<'py, PyArray1<i64>>)> {
++    let (coords, ring_off, geom_off, taken) = geo::flatten(geoms);
++    let n = coords.len() / 2;
++    Ok((Array2::from_shape_vec((n, 2), coords).unwrap().into_pyarray(py),
++        Array1::from(ring_off).into_pyarray(py), Array1::from(geom_off).into_pyarray(py),
++        Array1::from(taken).into_pyarray(py)))
++}
++
+ #[pymodule]
+ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+     cpu::init();
+@@ -330,5 +348,6 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+     m.add_function(wrap_pyfunction!(relief_channels, m)?)?;
+     m.add_function(wrap_pyfunction!(sample_window_max, m)?)?;
+     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
++    m.add_function(wrap_pyfunction!(flatten_polygons, m)?)?;
+     Ok(())
+ }
+diff --git a/tests/test_bot8_fast_metric.py b/tests/test_bot8_fast_metric.py
+new file mode 100644
+index 0000000..31bad18
+--- /dev/null
++++ b/tests/test_bot8_fast_metric.py
+@@ -0,0 +1,409 @@
++"""bot-8: быстрые версии метрики против прежних (_reference) — совпадение побайтно.
++
++Проверяется: пакетное построение геометрий (Rust flatten_polygons + from_ragged_array)
++против официальной _extract_geometry (WKB байт в байт), _collect против
++_collect_reference, build_curves, sweep_groups, honest_counts, bootstrap,
++paired_bootstrap, paired_bootstrap_counts (точное равенство всех чисел и порядка
++ключей). Данные: синтетика с краевыми случаями и реальные выборки бота 8
++(если есть). Нужен официальный compute_metrics.py: EXPDS_METRIC или materials/.
++"""
++from __future__ import annotations
++
++import json
++import math
++import os
++import random
++from collections import Counter
++from pathlib import Path
++
++import numpy as np
++import pytest
++import shapely
++
++from expds import fastgeom, metric
++
++ROOT = Path(__file__).resolve().parents[1]
++METRIC = os.environ.get("EXPDS_METRIC") or str(ROOT / "materials" / "compute_metrics.py")
++B8 = Path("/workspace/koz3_shared/bot-8")
++REAL_PRED = B8 / "data" / "stack_sub.geojson"
++REAL_GT = B8 / "data" / "gt_sub.geojson"
++REAL_PRED20 = B8 / "data" / "stack_every20.geojson"
++REAL_GT_FULL = Path("/workspace/rerank/gt_train_v2.geojson")
++
++pytestmark = pytest.mark.skipif(not Path(METRIC).exists(), reason="нет compute_metrics.py")
++
++
++@pytest.fixture(autouse=True)
++def _no_shm(tmp_path, monkeypatch):
++    monkeypatch.setattr(metric, "_SHM_CACHE_DIR", tmp_path / "shm")
++    metric._UTM_GEOM_CACHE.clear()
++    yield
++    metric._UTM_GEOM_CACHE.clear()
++
++
++def mod():
++    return metric.load_official(METRIC)
++
++
++def same_geom(a, b) -> bool:
++    if a is None or b is None:
++        return a is None and b is None
++    return a.geom_type == b.geom_type and shapely.to_wkb(a) == shapely.to_wkb(b)
++
++
++def canon(x):
++    """JSON с порядком ключей — для сравнения «и значения, и порядок»."""
++    return json.dumps(x, sort_keys=False, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
++
++
++# ───────────────────────────── геометрии ─────────────────────────────
++
++X0, Y0 = 4_200_000.0, 7_400_000.0   # EPSG:3857, где-то в Центральной России
++
++
++def ring(cx, cy, r, n=12, close=True, rot=0.0):
++    pts = [[cx + r * math.cos(rot + 2 * math.pi * i / n), cy + r * math.sin(rot + 2 * math.pi * i / n)]
++           for i in range(n)]
++    return pts + [pts[0]] if close else pts
++
++
++def edge_geoms():
++    nan = float("nan")
++    sq = [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]
++    sqx = [[X0 + x, Y0 + y] for x, y in sq]
++    return [
++        {"type": "Polygon", "coordinates": [ring(X0, Y0, 5)]},
++        {"type": "Polygon", "coordinates": [ring(X0, Y0, 5, close=False)]},          # незамкнутое кольцо
++        {"type": "Polygon", "coordinates": [ring(X0, Y0, 10), ring(X0, Y0, 3)[::-1]]},  # с дыркой
++        {"type": "Polygon", "coordinates": [ring(X0, Y0, 10), ring(X0, Y0, 3, close=False)]},
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 10, Y0 + 10], [X0 + 10, Y0], [X0, Y0 + 10], [X0, Y0]]]},  # бабочка
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 1, Y0], [X0, Y0]]]},       # 3 точки (замкнуто) — ошибка
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 1, Y0], [X0 + 1, Y0 + 1]]]},  # 3 точки → замыкается до 4
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 1, Y0]]]},
++        {"type": "Polygon", "coordinates": [[[X0, Y0]] * 5]},                           # вырожденный (одна точка)
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 5, Y0], [X0 + 10, Y0], [X0, Y0]]]},  # нулевая площадь
++        {"type": "Polygon", "coordinates": [[[int(X0), int(Y0)], [int(X0) + 7, int(Y0)], [int(X0) + 7, int(Y0) + 7],
++                                             [int(X0), int(Y0)]]]},                     # целые числа
++        {"type": "Polygon", "coordinates": [[(X0, Y0), (X0 + 3, Y0), (X0 + 3, Y0 + 3), (X0, Y0)]]},  # кортежи
++        {"type": "Polygon", "coordinates": [[[np.float64(X0), np.float64(Y0)], [X0 + 3, Y0], [X0, Y0 + 3]]]},
++        {"type": "Polygon", "coordinates": [[[X0, Y0, 1.0], [X0 + 3, Y0, 1.0], [X0, Y0 + 3, 1.0], [X0, Y0, 1.0]]]},  # 3D
++        {"type": "Polygon", "coordinates": [[[True, False], [X0, Y0], [X0 + 1, Y0 + 1], [True, False]]]},  # bool
++        {"type": "Polygon", "coordinates": [[["a", "b"], [1, 2], [3, 4], ["a", "b"]]]},
++        {"type": "Polygon", "coordinates": [[[nan, nan], [X0, Y0], [X0 + 1, Y0], [nan, nan]]]},
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 4, Y0], [X0 + 4, Y0 + 4], [X0, Y0 + 4], [nan, Y0]]]},
++        {"type": "Polygon", "coordinates": []},
++        {"type": "Polygon", "coordinates": [[]]},
++        {"type": "Polygon", "coordinates": [sqx, []]},
++        {"type": "Polygon", "coordinates": [sqx, [[X0 + 20, Y0 + 20], [X0 + 21, Y0 + 20], [X0 + 21, Y0 + 21], [X0 + 20, Y0 + 20]]]},  # дыра снаружи — невалидно
++        {"type": "Polygon", "coordinates": [[[X0, Y0], [X0 + 10, Y0], [X0 + 10, Y0 + 10], [X0 + 5, Y0], [X0, Y0 + 10], [X0, Y0]]]},  # самокасание
++        {"type": "Polygon", "coordinates": [sq]},                                       # маленькие координаты (не 3857)
++        {"type": "Polygon", "coordinates": [[[1e300, 1e300], [-1e300, 1e300], [0, -1e300], [1e300, 1e300]]]},
++        {"type": "Polygon", "coordinates": "abc"},
++        {"type": "Polygon"},
++        {"type": "polygon", "coordinates": [ring(X0, Y0, 5)]},
++        {"type": "MultiPolygon", "coordinates": [[ring(X0, Y0, 5)], [ring(X0 + 50, Y0, 8)]]},
++        {"type": "MultiPolygon", "coordinates": [[ring(X0, Y0, 5)], [ring(X0 + 50, Y0, 5, rot=0.0)]]},   # равные площади
++        {"type": "Point", "coordinates": [X0, Y0]},
++        {"type": "Point", "coordinates": [X0]},
++        {"type": "LineString", "coordinates": [[X0, Y0], [X0 + 1, Y0]]},
++        None,
++        {},
++        {"type": "Polygon", "coordinates": [ring(X0, Y0, 5)], "extra": 1},
++        {"type": "Polygon", "coordinates": ([[X0, Y0], [X0 + 2, Y0], [X0, Y0 + 2], [X0, Y0]],)},   # кортеж колец
++    ]
++
++
++def test_extract_many_edge_cases_bitwise():
++    if not fastgeom.enabled():
++        pytest.skip("expds_core без flatten_polygons")
++    feats = [{"type": "Feature", "geometry": g, "properties": {}} for g in edge_geoms()]
++    m = mod()
++    fast = fastgeom.extract_many(m, feats)
++    for f, g in zip(feats, fast):
++        assert same_geom(g, m._extract_geometry(f)), f["geometry"]
++
++
++def test_extract_many_random_polygons_bitwise():
++    if not fastgeom.enabled():
++        pytest.skip("expds_core без flatten_polygons")
++    rng = np.random.default_rng(1)
++    feats = []
++    for i in range(3000):
++        n = int(rng.integers(3, 40))
++        r = rng.uniform(0.5, 30, n)            # «звёзды» — часть самопересекается
++        ang = np.sort(rng.uniform(0, 2 * np.pi, n)) if i % 3 else rng.uniform(0, 2 * np.pi, n)
++        pts = np.c_[X0 + r * np.cos(ang), Y0 + r * np.sin(ang)].tolist()
++        if i % 2:
++            pts.append(pts[0])
++        rings = [pts]
++        if i % 5 == 0:
++            rings.append(ring(X0, Y0, 0.3, close=bool(i % 10)))
++        feats.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": rings}})
++    m = mod()
++    fast = fastgeom.extract_many(m, feats)
++    n_invalid = sum(1 for f in feats if m._extract_geometry(f) is not None
++                    and not shapely.is_valid(shapely.Polygon(f["geometry"]["coordinates"][0])))
++    assert n_invalid > 100   # проверка действительно задевает make_valid
++    for f, g in zip(feats, fast):
++        assert same_geom(g, m._extract_geometry(f))
++
++
++def test_max_abs_x_matches_official():
++    m = mod()
++    geoms = [m._extract_geometry({"geometry": g}) for g in edge_geoms()]
++    geoms = [g for g in geoms if g is not None]
++    vec = fastgeom.max_abs_x(geoms)
++    ref = [m._geom_max_abs_x(g) for g in geoms]
++    for a, b in zip(vec.tolist(), ref):
++        assert (math.isnan(a) and math.isnan(b)) or a == b
++
++
++def test_parallel_utm_transform_bitwise(monkeypatch):
++    m = mod()
++    rng = np.random.default_rng(3)
++    c = np.c_[rng.uniform(4.0e6, 4.4e6, 300_000), rng.uniform(7.2e6, 7.6e6, 300_000)]
++    tr = m._get_transformer_3857_to_utm(32637)
++    ref = np.column_stack(tr.transform(c[:, 0], c[:, 1]))
++    monkeypatch.setenv("EXPDS_METRIC_THREADS", "4")
++    out = fastgeom.utm_coords_fn(tr, 32637, min_chunk=10_000)(c)
++    assert out.tobytes() == ref.tobytes()
++
++
++# ───────────────────────────── _collect / build_curves ─────────────────────────────
++
++def synth_fc(seed: int, n_pred: int = 400, gt: bool = False):
++    rng = random.Random(seed)
++    classes = ["kurgany_tselye", "kurgany_povrezhdennye", "gorodishcha", "arkhitektury", "finds_points",
++               "fortifikatsii", "object_poly", "Курганы", "unknown_class"]
++    geoms = edge_geoms()
++    feats = []
++    for i in range(n_pred):
++        reg = f"region_{rng.randint(1, 6):04d}"
++        cx, cy = X0 + rng.uniform(0, 300), Y0 + rng.uniform(0, 300)
++        k = rng.random()
++        if k < 0.6:
++            g = {"type": "Polygon", "coordinates": [ring(cx, cy, rng.uniform(1, 9), n=rng.randint(4, 20),
++                                                         close=rng.random() < 0.8)]}
++        elif k < 0.75:
++            g = {"type": "Point", "coordinates": [cx, cy]}
++        elif k < 0.85:
++            g = {"type": "MultiPolygon", "coordinates": [[ring(cx, cy, 3)], [ring(cx + 20, cy, rng.uniform(1, 5))]]}
++        else:
++            g = geoms[rng.randrange(len(geoms))]
++        props = {"class_name": rng.choice(classes), "region_name": reg,
++                 "markup_type": rng.choice(["li", "ae", "op", None])}
++        if rng.random() < 0.3:
++            props["threshold_group"] = rng.choice(["li_a", "li_b", ""])
++        if not gt:
++            props["confidence"] = rng.choice([0.5, 0.25, 0.9, rng.random(), "bad", None, 1])
++        feats.append({"type": "Feature", "geometry": g, "properties": props})
++    return {"type": "FeatureCollection", "features": feats}
++
++
++def collect_both(fc, is_gt):
++    m = mod()
++    calc = m.F1Calculator()
++    metric._UTM_GEOM_CACHE.clear()
++    new = metric._collect(m, calc, fc, is_gt)
++    metric._UTM_GEOM_CACHE.clear()
++    ref = metric._collect_reference(m, calc, fc, is_gt)
++    return new, ref
++
++
++def assert_collect_equal(new, ref):
++    assert list(new) == list(ref)
++    for cls in ref:
++        assert len(new[cls]) == len(ref[cls])
++        for (g1, c1, r1, p1), (g2, c2, r2, p2) in zip(new[cls], ref[cls]):
++            assert (c1 == c2 or (c1 != c1 and c2 != c2)) and r1 == r2 and p1 == p2
++            assert same_geom(g1, g2)
++
++
++@pytest.mark.parametrize("seed", [0, 1, 2])
++@pytest.mark.parametrize("is_gt", [False, True])
++def test_collect_synthetic(seed, is_gt):
++    assert_collect_equal(*collect_both(synth_fc(seed, 500, is_gt), is_gt))
++
++
++def test_collect_empty():
++    assert_collect_equal(*collect_both({"type": "FeatureCollection", "features": []}, False))
++    assert_collect_equal(*collect_both({}, True))
++
++
++def build_both(pred, gt):
++    metric._UTM_GEOM_CACHE.clear()
++    new = metric.build_curves(pred, gt, METRIC)
++    metric._UTM_GEOM_CACHE.clear()
++    orig = metric._collect
++    try:
++        metric._collect = metric._collect_reference
++        ref = metric.build_curves(pred, gt, METRIC)
++    finally:
++        metric._collect = orig
++    return new, ref
++
++
++def assert_curves_equal(a, b):
++    assert list(a) == list(b)
++    for cls in b:
++        x, y = a[cls], b[cls]
++        assert x.conf.tobytes() == y.conf.tobytes() and x.hit.tobytes() == y.hit.tobytes()
++        assert x.pred_region == y.pred_region and x.pred_group == y.pred_group
++        assert x.n_gt == y.n_gt and list(x.gt_regions.items()) == list(y.gt_regions.items())
++
++
++@pytest.mark.parametrize("seed", [0, 5])
++def test_build_curves_synthetic(seed):
++    assert_curves_equal(*build_both(synth_fc(seed, 600), synth_fc(seed + 100, 300, gt=True)))
++
++
++def test_build_curves_empty_sides():
++    empty = {"type": "FeatureCollection", "features": []}
++    pred, gt = synth_fc(7, 200), synth_fc(8, 100, gt=True)
++    for p, g in ((empty, gt), (pred, empty), (empty, empty)):
++        assert_curves_equal(*build_both(p, g))
++
++
++def _load(p):
++    return json.loads(Path(p).read_bytes())
++
++
++@pytest.mark.skipif(not (REAL_PRED.exists() and REAL_GT.exists()), reason="нет реальной выборки бота 8")
++def test_build_curves_real_subset_and_official():
++    pred, gt = _load(REAL_PRED), _load(REAL_GT)
++    new, ref = build_both(pred, gt)
++    assert_curves_equal(new, ref)
++    assert sum(int(c.hit.sum()) for c in new.values()) > 0
++
++
++# ───────────────────────────── пороги, честный балл, бутстрепы ─────────────────────────────
++
++def synth_curves(seed: int, n: int = 3000, n_regions: int = 25, ties: bool = True):
++    rng = np.random.default_rng(seed)
++    regions = [f"r{i:03d}" for i in range(n_regions)]
++    groups = ["li", "ae", "op", "li_b"]
++    out = {}
++    for ci, cls in enumerate(["kurgany_tselye", "kurgany_povrezhdennye", "gorodishcha", "arkhitektury",
++                              "finds_points", "fortifikatsii", "object_poly"]):
++        m = int(rng.integers(0, n)) if ci != 3 else 0        # пустой класс
++        conf = rng.random(m)
++        if ties:
++            conf = np.round(conf, 1 + ci % 3)                  # много равных уверенностей
++        order = np.argsort(-conf, kind="stable")
++        conf = conf[order]
++        hit = rng.random(m) < conf * 0.6
++        g_pool = groups[: 1 + ci % 4]
++        pred_region = [regions[int(rng.integers(0, n_regions - 3))] for _ in range(m)]   # 3 участка без предсказаний
++        pred_group = [g_pool[int(rng.integers(0, len(g_pool)))] for _ in range(m)]
++        if ci == 2:   # группа, встречающаяся только на одном участке → в его фолде «невиданная»
++            for i in range(0, m, 7):
++                pred_group[i], pred_region[i] = "rare", regions[0]
++        gtr = Counter()
++        if ci != 5:   # класс без эталона
++            for r in regions:
++                k = int(rng.integers(0, 6))
++                if k:
++                    gtr[r] = k
++            gtr[regions[-1]] = 0
++        out[cls] = metric.ClassCurve(conf.astype(np.float64), hit, pred_region, int(sum(gtr.values())), gtr,
++                                     pred_group)
++    return out
++
++
++def family(r: str) -> str:
++    return r[:3]
++
++
++@pytest.mark.parametrize("seed", [0, 1, 2, 3])
++@pytest.mark.parametrize("pick", ["max", "plateau"])
++def test_sweep_groups_equal(seed, pick):
++    cv = synth_curves(seed)
++    assert canon(metric.sweep_groups(cv, pick=pick)) == canon(metric.sweep_groups_reference(cv, pick=pick))
++
++
++@pytest.mark.parametrize("seed", [0, 1, 2])
++@pytest.mark.parametrize("unseen", ["drop", "keep"])
++@pytest.mark.parametrize("k", [3, 10, None])
++def test_honest_counts_equal(seed, unseen, k):
++    cv = synth_curves(seed, 2000)
++    regs = sorted({r for c in cv.values() for r in c.pred_region} | {r for c in cv.values() for r in c.gt_regions})
++    folds = metric.family_folds(regs, lambda r: r[:3] if k else r, k)
++    a = metric.honest_counts(cv, folds, unseen=unseen)
++    b = metric.honest_counts_reference(cv, folds, unseen=unseen)
++    assert canon(a) == canon(b)
++    assert canon(metric.score_counts(a[0])) == canon(metric.score_counts(b[0]))
++
++
++def test_honest_counts_no_folds_and_empty():
++    cv = synth_curves(4, 300)
++    assert canon(metric.honest_counts(cv, [])) == canon(metric.honest_counts_reference(cv, []))
++    empty = {"x": metric.ClassCurve(np.zeros(0), np.zeros(0, bool), [], 0, Counter(), [])}
++    assert canon(metric.honest_counts(empty, [{"a"}])) == canon(metric.honest_counts_reference(empty, [{"a"}]))
++
++
++@pytest.mark.parametrize("seed", [0, 1])
++def test_paired_bootstrap_equal(seed):
++    a, b = synth_curves(seed), synth_curves(seed + 10)
++    ta = {c: 0.3 for c in a}
++    tb = {"kurgany_tselye": 0.5, "gorodishcha": None}
++    for n in (0, 1, 50, 300):
++        assert canon(metric.paired_bootstrap(a, b, ta, tb, n)) == canon(metric.paired_bootstrap_reference(a, b, ta, tb, n))
++    # классы только в одной из моделей
++    b2 = {k: v for k, v in b.items() if k != "kurgany_tselye"}
++    assert canon(metric.paired_bootstrap(a, b2, ta, tb, 100)) == canon(metric.paired_bootstrap_reference(a, b2, ta, tb, 100))
++    assert metric.paired_bootstrap({}, {}, {}, {}, 10) == metric.paired_bootstrap_reference({}, {}, {}, {}, 10)
++
++
++@pytest.mark.parametrize("seed", [0, 1])
++def test_bootstrap_equal(seed):
++    cv = synth_curves(seed, 1500)
++    assert canon(metric.bootstrap(cv, 60)) == canon(metric.bootstrap_reference(cv, 60))
++
++
++@pytest.mark.parametrize("seed", [0, 1])
++def test_paired_bootstrap_counts_equal(seed):
++    ca, cb = synth_curves(seed, 1500), synth_curves(seed + 3, 1500)
++    regs = sorted({r for c in ca.values() for r in c.pred_region} | {r for c in ca.values() for r in c.gt_regions})
++    folds = metric.family_folds(regs, family, 4)
++    ha = metric.honest_counts_reference(ca, folds)[0]
++    hb = metric.honest_counts_reference(cb, folds)[0]
++    for n, regions in ((500, None), (200, set(regs[:10])), (0, None), (50, set())):
++        assert (canon(metric.paired_bootstrap_counts(ha, hb, family, n, regions=regions))
++                == canon(metric.paired_bootstrap_counts_reference(ha, hb, family, n, regions=regions)))
++    hb2 = {k: v for k, v in hb.items() if k != "gorodishcha"}
++    assert (canon(metric.paired_bootstrap_counts(ha, hb2, lambda r: r, 300))
++            == canon(metric.paired_bootstrap_counts_reference(ha, hb2, lambda r: r, 300)))
++
++
++@pytest.mark.skipif(not (REAL_PRED20.exists() and REAL_GT_FULL.exists()) or os.environ.get("BOT8_REAL") != "1",
++                    reason="реальный прогон: BOT8_REAL=1 и выборка бота 8")
++def test_real_scoreboard_flow_equal():
++    """Весь поток scoreboard --honest на реальной выборке (каждое 20-е предсказание, весь эталон)."""
++    pred, gt = _load(REAL_PRED20), _load(REAL_GT_FULL)
++    new, ref = build_both(pred, gt)
++    assert_curves_equal(new, ref)
++    assert canon(metric.sweep_groups(new)) == canon(metric.sweep_groups_reference(ref))
++    regs = sorted({r for c in ref.values() for r in c.pred_region} | {r for c in ref.values() for r in c.gt_regions})
++    fam = lambda r: r.rsplit("_", 1)[0]  # noqa: E731
++    folds = metric.family_folds(regs, fam, 10)
++    a, b = metric.honest_counts(new, folds), metric.honest_counts_reference(ref, folds)
++    assert canon(a) == canon(b)
++    thr = {c: 0.3 for c in ref}
++    assert (canon(metric.paired_bootstrap(new, new, thr, {}, 200))
++            == canon(metric.paired_bootstrap_reference(ref, ref, thr, {}, 200)))
++    assert (canon(metric.paired_bootstrap_counts(a[0], a[0], fam, 200))
++            == canon(metric.paired_bootstrap_counts_reference(b[0], b[0], fam, 200)))
++
++
++def test_par_is_valid_equal(monkeypatch):
++    rng = np.random.default_rng(5)
++    polys = []
++    for i in range(5000):
++        n = int(rng.integers(3, 12))
++        ang = rng.uniform(0, 2 * np.pi, n)
++        pts = np.c_[np.cos(ang), np.sin(ang)]
++        polys.append(shapely.Polygon(pts))
++    polys = np.asarray(polys, dtype=object)
++    monkeypatch.setenv("EXPDS_METRIC_THREADS", "3")
++    a = fastgeom.par_is_valid(polys, min_chunk=500)
++    assert a.tolist() == shapely.is_valid(polys).tolist() and (~a).sum() > 100
+diff --git a/tests/test_bot8_site_scope.py b/tests/test_bot8_site_scope.py
+new file mode 100644
+index 0000000..1593199
+--- /dev/null
++++ b/tests/test_bot8_site_scope.py
+@@ -0,0 +1,182 @@
++"""bot-8: область сопоставления build_curves — global (как calculate_f1 на всём файле) и
++site (эталон только своего участка, как calculate_f1 по каждому участку отдельно).
++
++Эталоны — официальный materials/compute_metrics.py без изменений:
++  global  ↔ F1Calculator().calculate_f1(pred, gt)            (счётчики TP/FP/FN каждого класса);
++  site    ↔ metric.score_by_site: calculate_f1 на каждом участке split_merged_by_source_and_class,
++            счётчики сложены.
++Проверка — точное равенство целых счётчиков и итогового балла (==, без допуска).
++"""
++from __future__ import annotations
++
++import json
++import os
++from pathlib import Path
++
++import numpy as np
++import pytest
++
++from expds import metric
++
++ROOT = Path(__file__).resolve().parents[1]
++METRIC = os.environ.get("EXPDS_METRIC") or str(ROOT / "materials" / "compute_metrics.py")
++B8 = Path("/workspace/koz3_shared/bot-8")
++CROSS_PRED, CROSS_GT = B8 / "data" / "stack_cross.geojson", B8 / "data" / "gt_cross.geojson"
++pytestmark = pytest.mark.skipif(not Path(METRIC).exists(), reason="нет compute_metrics.py")
++
++X0, Y0 = 3_545_000.0, 7_310_000.0   # EPSG:3857, район Гнёздова
++
++
++@pytest.fixture(autouse=True)
++def _iso(tmp_path, monkeypatch):
++    monkeypatch.setattr(metric, "_SHM_CACHE_DIR", tmp_path / "shm")
++    monkeypatch.delenv("EXPDS_MATCH_SCOPE", raising=False)
++    metric._UTM_GEOM_CACHE.clear()
++    yield
++
++
++def sq(x, y, s=10.0):
++    return {"type": "Polygon", "coordinates": [[[x, y], [x + s, y], [x + s, y + s], [x, y + s], [x, y]]]}
++
++
++def feat(geom, cls, region=None, conf=None, sub=None):
++    p = {"class_name": cls}
++    if region is not None:
++        p["region_name"] = region
++    if sub is not None:
++        p["sub_region_name"] = sub
++    if conf is not None:
++        p["confidence"] = conf
++    return {"type": "Feature", "geometry": geom, "properties": p}
++
++
++def fc(fs):
++    return {"type": "FeatureCollection", "features": fs}
++
++
++def counts_from_curves(curves, tau=0.0):
++    out = {}
++    for c, cv in curves.items():
++        k = cv.conf >= tau
++        tp = int(cv.hit[k].sum())
++        out[c] = (tp, int(k.sum()) - tp, cv.n_gt - tp)
++    return out
++
++
++def counts_official(res):
++    return {c: (int(v["tp"]), int(v["fp"]), int(v["fn"])) for c, v in res["per_class"].items()}
++
++
++def filt(pred, tau):
++    mod = metric.load_official(METRIC)
++    return fc([f for f in pred["features"] if mod._get_confidence(f) >= tau])
++
++
++def check_both(pred, gt, taus=(0.0,)):
++    """Возвращает счётчики (global, site) и сверяет каждый режим с официальным эталоном."""
++    res = {}
++    for scope in ("global", "site"):
++        metric._UTM_GEOM_CACHE.clear()
++        curves = metric.build_curves(pred, gt, METRIC, scope=scope)
++        for tau in taus:
++            off = (metric.score(filt(pred, tau), gt, METRIC) if scope == "global"
++                   else metric.score_by_site(filt(pred, tau), gt, METRIC))
++            mine = counts_from_curves(curves, tau)
++            assert mine == counts_official(off), (scope, tau)
++            fast, _ = metric.score_at(curves, {c: tau for c in curves})
++            assert fast == off["final_score"] or abs(fast - off["final_score"]) < 1e-15, (scope, tau)
++        res[scope] = counts_from_curves(curves)
++    return res
++
++
++K = "kurgany_tselye"
++
++
++def test_cross_site_polygon():
++    gt = fc([feat(sq(X0, Y0), K, "B")])
++    pred = fc([feat(sq(X0, Y0), K, "A", 0.9), feat(sq(X0 + 1, Y0 + 1), K, "B", 0.5)])
++    r = check_both(pred, gt)
++    assert r["global"][K] == (1, 1, 0)      # объект участка A забрал эталон участка B
++    assert r["site"][K] == (1, 1, 0)        # здесь эталон берёт свой объект B
++    metric._UTM_GEOM_CACHE.clear()
++    g = metric.build_curves(pred, gt, METRIC, scope="global")[K]
++    s = metric.build_curves(pred, gt, METRIC, scope="site")[K]
++    assert g.hit.tolist() == [True, False] and s.hit.tolist() == [False, True]
++
++
++def test_cross_site_only_foreign():
++    gt = fc([feat(sq(X0, Y0), K, "B"), feat(sq(X0 + 50, Y0), K, "A")])
++    pred = fc([feat(sq(X0, Y0), K, "A", 0.9)])
++    r = check_both(pred, gt)
++    assert r["global"][K] == (1, 0, 1) and r["site"][K] == (0, 1, 2)
++
++
++def test_sub_region_and_default_source():
++    gt = fc([feat(sq(X0, Y0), K, "R", sub="s1"), feat(sq(X0 + 100, Y0), K)])
++    pred = fc([feat(sq(X0, Y0), K, "R", 0.8, sub="s2"),       # другой под-участок — чужой
++               feat(sq(X0 + 100, Y0), K, None, 0.7),         # оба без region_name — default_source
++               feat(sq(X0, Y0), K, "R", 0.6, sub="s1"),
++               feat(sq(X0, Y0), K, "R", 0.5, sub="  ")])      # пустой sub = просто "R"
++    r = check_both(pred, gt, taus=(0.0, 0.65))
++    assert r["site"][K] == (2, 2, 0) and r["global"][K] == (2, 2, 0)
++
++
++def test_cross_site_points():
++    P = "finds_points"
++    gt = fc([{"type": "Feature", "geometry": {"type": "Point", "coordinates": [X0, Y0]},
++              "properties": {"class_name": P, "region_name": "B"}}])
++    pred = fc([feat(sq(X0 - 1, Y0 - 1, 2.0), P, "A", 0.9), feat(sq(X0 - 1.2, Y0 - 1, 2.0), P, "B", 0.4)])
++    r = check_both(pred, gt)
++    assert r["global"][P] == (1, 1, 0) and r["site"][P] == (1, 1, 0)
++
++
++def test_env_switch(monkeypatch):
++    gt = fc([feat(sq(X0, Y0), K, "B")])
++    pred = fc([feat(sq(X0, Y0), K, "A", 0.9)])
++    assert metric.match_scope() == "global"
++    monkeypatch.setenv("EXPDS_MATCH_SCOPE", "site")
++    assert metric.build_curves(pred, gt, METRIC)[K].hit.tolist() == [False]
++    monkeypatch.setenv("EXPDS_MATCH_SCOPE", "global")
++    assert metric.build_curves(pred, gt, METRIC)[K].hit.tolist() == [True]
++    monkeypatch.setenv("EXPDS_MATCH_SCOPE", "bogus")
++    with pytest.raises(ValueError):
++        metric.build_curves(pred, gt, METRIC)
++
++
++def test_random_multi_site():
++    rng = np.random.default_rng(7)
++    gts, preds = [], []
++    sites = ["S1", "S2", "S3", None]
++    for i in range(60):
++        x, y = X0 + rng.uniform(0, 120), Y0 + rng.uniform(0, 120)
++        gts.append(feat(sq(x, y, rng.uniform(4, 12)), ["kurgany_tselye", "kurgany_povrezhdennye"][i % 2],
++                        sites[rng.integers(4)]))
++    for i in range(160):
++        x, y = X0 + rng.uniform(0, 120), Y0 + rng.uniform(0, 120)
++        preds.append(feat(sq(x, y, rng.uniform(4, 12)), ["kurgany_tselye", "kurgany_povrezhdennye"][i % 2],
++                          sites[rng.integers(4)], float(np.round(rng.uniform(), 2))))   # есть равные уверенности
++    check_both(fc(preds), fc(gts), taus=(0.0, 0.3, 0.7))
++
++
++@pytest.mark.skipif(not (CROSS_PRED.exists() and CROSS_GT.exists()), reason="нет выборки соседних участков bot-8")
++def test_real_neighbour_sites():
++    """13 соседних участков, где найдены межучастковые пары (Гнёздово, Боровичи, Миловидово…)."""
++    pred = json.loads(CROSS_PRED.read_text()); gt = json.loads(CROSS_GT.read_text())
++    r = check_both(pred, gt, taus=(0.0, 0.2, 0.5))
++    assert r["global"] != r["site"]          # межучастковые совпадения в выборке реально есть
++
++
++@pytest.mark.skipif(not (CROSS_PRED.exists() and CROSS_GT.exists()), reason="нет выборки соседних участков bot-8")
++def test_site_fast_collect_equals_reference(monkeypatch):
++    """scope="site": быстрый _collect (Rust/numpy) == прежний _collect_reference, кривые побайтно."""
++    pred = json.loads(CROSS_PRED.read_text()); gt = json.loads(CROSS_GT.read_text())
++    fast = metric.build_curves(pred, gt, METRIC, scope="site")
++    metric._UTM_GEOM_CACHE.clear()
++    monkeypatch.setattr(metric, "_collect", metric._collect_reference)
++    ref = metric.build_curves(pred, gt, METRIC, scope="site")
++    assert list(fast) == list(ref)
++    for c in ref:
++        a, b = fast[c], ref[c]
++        assert a.conf.tobytes() == b.conf.tobytes() and a.hit.tobytes() == b.hit.tobytes()
++        assert a.pred_region == b.pred_region and a.pred_group == b.pred_group
++        assert a.n_gt == b.n_gt and a.gt_regions == b.gt_regions

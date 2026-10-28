@@ -1,0 +1,134 @@
+[
+ {
+  "class": "arkhitektury",
+  "type": "ae",
+  "gt": 18,
+  "hit_by_other_type_gt": 0
+ },
+ {
+  "class": "arkhitektury",
+  "type": "li",
+  "gt": 1,
+  "hit_by_other_type_gt": 0
+ },
+ {
+  "class": "arkhitektury",
+  "type": "or",
+  "gt": 178,
+  "hit_by_other_type_gt": 0
+ },
+ {
+  "class": "arkhitektury",
+  "type": "sp_or",
+  "gt": 210,
+  "hit_by_other_type_gt": 0
+ },
+ {
+  "class": "finds_points",
+  "type": "maggr",
+  "gt": 3478,
+  "hit_by_other_type_gt": 0
+ },
+ {
+  "class": "fortifikatsii",
+  "type": "ae",
+  "gt": 393,
+  "hit_by_other_type_gt": 5
+ },
+ {
+  "class": "fortifikatsii",
+  "type": "li",
+  "gt": 264,
+  "hit_by_other_type_gt": 4
+ },
+ {
+  "class": "fortifikatsii",
+  "type": "or",
+  "gt": 2,
+  "hit_by_other_type_gt": 2
+ },
+ {
+  "class": "fortifikatsii",
+  "type": "sp_or",
+  "gt": 37,
+  "hit_by_other_type_gt": 2
+ },
+ {
+  "class": "gorodishcha",
+  "type": "ae",
+  "gt": 19,
+  "hit_by_other_type_gt": 11
+ },
+ {
+  "class": "gorodishcha",
+  "type": "li",
+  "gt": 30,
+  "hit_by_other_type_gt": 9
+ },
+ {
+  "class": "gorodishcha",
+  "type": "or",
+  "gt": 4,
+  "hit_by_other_type_gt": 4
+ },
+ {
+  "class": "gorodishcha",
+  "type": "sp_or",
+  "gt": 65,
+  "hit_by_other_type_gt": 11
+ },
+ {
+  "class": "kurgany_povrezhdennye",
+  "type": "ae",
+  "gt": 1162,
+  "hit_by_other_type_gt": 367
+ },
+ {
+  "class": "kurgany_povrezhdennye",
+  "type": "li",
+  "gt": 1371,
+  "hit_by_other_type_gt": 362
+ },
+ {
+  "class": "kurgany_povrezhdennye",
+  "type": "sp_or",
+  "gt": 1087,
+  "hit_by_other_type_gt": 95
+ },
+ {
+  "class": "kurgany_tselye",
+  "type": "ae",
+  "gt": 587,
+  "hit_by_other_type_gt": 71
+ },
+ {
+  "class": "kurgany_tselye",
+  "type": "li",
+  "gt": 783,
+  "hit_by_other_type_gt": 71
+ },
+ {
+  "class": "kurgany_tselye",
+  "type": "sp_or",
+  "gt": 207,
+  "hit_by_other_type_gt": 2
+ },
+ {
+  "class": "object_poly",
+  "type": "etgr",
+  "gt": 658,
+  "hit_by_other_type_gt": 15
+ },
+ {
+  "class": "object_poly",
+  "type": "maggr",
+  "gt": 248,
+  "hit_by_other_type_gt": 12
+ },
+ {
+  "class": "object_poly",
+  "type": "terfl",
+  "gt": 177,
+  "hit_by_other_type_gt": 19
+ }
+]

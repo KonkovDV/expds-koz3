@@ -1,0 +1,5 @@
+base 0.312067 0.30045 0.140207 lofo 0.312058 {} 173
+nl_iso_wbf 0.318098 0.30045 0.188403 lofo 0.319564 {'d_honest10': 0.006030967245652441, 'P1': True, 'P2': False, 'P3': True, 'P4': False} 393
+all_iso_wbf_noli 0.310885 0.287216 0.147111 lofo 0.307445 {'d_honest10': -0.0011816253301096258, 'P1': False, 'P2': False, 'P3': False, 'P4': False} 776
+nl_iso 0.316985 0.30045 0.186191 lofo 0.318552 {'d_honest10': 0.00491812070340647, 'P1': True, 'P2': False, 'P3': False, 'P4': False} 994
+done 994

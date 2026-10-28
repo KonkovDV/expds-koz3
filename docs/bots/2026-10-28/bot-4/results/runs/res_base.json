@@ -1,0 +1,85 @@
+{
+ "tag": "base",
+ "all": {
+  "gorodishcha": {
+   "f1": 0.32697501420373376,
+   "n_gt": 118,
+   "groups": {
+    "gor_phys": {
+     "threshold": 0.43049,
+     "kept": 18,
+     "tp": 5
+    },
+    "li": {
+     "threshold": 0.993091,
+     "kept": 0,
+     "tp": 0
+    },
+    "li_coarse": {
+     "threshold": 0.986425,
+     "kept": 24,
+     "tp": 8
+    },
+    "li_mask": {
+     "threshold": 0.99451,
+     "kept": 26,
+     "tp": 14
+    },
+    "sp_or": {
+     "threshold": 0.994085,
+     "kept": 33,
+     "tp": 3
+    }
+   }
+  },
+  "fortifikatsii": {
+   "f1": 0.1877373589295957,
+   "n_gt": 696,
+   "groups": {
+    "ae_fort": {
+     "threshold": 0.998215,
+     "kept": 714,
+     "tp": 94
+    },
+    "li": {
+     "threshold": 0.999971,
+     "kept": 0,
+     "tp": 0
+    },
+    "li_coarse": {
+     "threshold": 0.99926,
+     "kept": 21,
+     "tp": 3
+    },
+    "li_fort": {
+     "threshold": 0.987675,
+     "kept": 127,
+     "tp": 14
+    }
+   }
+  }
+ },
+ "honest": {
+  "gorodishcha": {
+   "f1": 0.27624263703868607,
+   "tp": 25.0,
+   "fp": 76.0,
+   "fn": 93.0,
+   "n_gt": 118.0
+  },
+  "fortifikatsii": {
+   "f1": 0.17957117437553402,
+   "tp": 109.0,
+   "fp": 818.0,
+   "fn": 587.0,
+   "n_gt": 696.0
+  }
+ },
+ "honest_info": {
+  "folds": 10,
+  "unseen_dropped": 0,
+  "unseen_kept": 0
+ },
+ "contrib_all": 0.058433120077039845,
+ "contrib_honest": 0.05041495427457962
+}

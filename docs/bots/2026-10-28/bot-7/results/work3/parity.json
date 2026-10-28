@@ -1,0 +1,174 @@
+{
+ "features": {
+  "rows": 47518,
+  "conf": [
+   0.0,
+   0
+  ],
+  "logit": [
+   0.0,
+   0
+  ],
+  "cls": [
+   0.0,
+   0
+  ],
+  "grp": [
+   0.0,
+   0
+  ],
+  "mk": [
+   0.0,
+   0
+  ],
+  "area": [
+   0.0,
+   0
+  ],
+  "compact": [
+   0.0,
+   0
+  ],
+  "bw": [
+   0.0,
+   0
+  ],
+  "aspect": [
+   0.0,
+   0
+  ],
+  "nv": [
+   0.0,
+   0
+  ],
+  "has_twin": [
+   0.0,
+   0
+  ],
+  "twin_conf": [
+   0.0,
+   0
+  ],
+  "twin_diff": [
+   0.0,
+   0
+  ],
+  "has_las": [
+   0.0,
+   0
+  ],
+  "rg_n": [
+   0.0,
+   0
+  ],
+  "rg_rank": [
+   0.0,
+   0
+  ],
+  "rg_pct": [
+   0.0,
+   0
+  ],
+  "rg_max": [
+   0.0,
+   0
+  ],
+  "conf_rel": [
+   0.0,
+   0
+  ],
+  "rg_mean": [
+   0.0,
+   0
+  ],
+  "gq": [
+   0.0,
+   0
+  ],
+  "nb_same10": [
+   0.0,
+   0
+  ],
+  "nb_same30": [
+   0.0,
+   0
+  ],
+  "nb_same100": [
+   0.0,
+   0
+  ],
+  "nb_strong30": [
+   0.0,
+   0
+  ],
+  "nb_strong100": [
+   0.0,
+   0
+  ],
+  "og_max5": [
+   0.0,
+   0
+  ],
+  "og_n5": [
+   0.0,
+   0
+  ],
+  "nn_dist": [
+   0.0,
+   0
+  ],
+  "nb_otherfam50": [
+   0.0,
+   0
+  ],
+  "d_nhigher_g": [
+   0.0,
+   0
+  ],
+  "d_maxq_other_g": [
+   0.0,
+   0
+  ],
+  "d_localmax": [
+   0.0,
+   0
+  ],
+  "d_maxq_othersub": [
+   0.0,
+   0
+  ],
+  "d_n8": [
+   0.0,
+   0
+  ],
+  "pool_equal": true
+ },
+ "adapter": {
+  "area": [
+   0.0,
+   0.0
+  ],
+  "perim": [
+   0.0,
+   0.0
+  ],
+  "bw": [
+   0.0,
+   0.0
+  ],
+  "bh": [
+   0.0,
+   0.0
+  ],
+  "cx": 0.0,
+  "cy": 0.0,
+  "nv_equal": true,
+  "conf_max_abs": 0.0,
+  "grp_equal": true,
+  "mk_equal": true,
+  "reg_equal": true,
+  "cls_equal": true,
+  "n": 4000,
+  "last_row": 673396
+ }
+}

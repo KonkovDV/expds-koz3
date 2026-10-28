@@ -1,0 +1,44 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+0 184 001_Гнёздово_Нивленское 4169 1
+10 184 013_Нора_Виннон 988 12
+20 184 025_Вышенское 15342 20
+30 184 035_Шумгора 12370 47
+40 184 045_Новотитаровская_2.8км 221 52
+50 184 055_Курменту 1543 54
+60 184 068_Стеклянуха_1 4595 58
+70 184 078_Верхняя_Покровка 691 64
+80 184 088_Кель_Тор_Х 295 64
+90 184 099_Таш_Коро_2 94 64
+100 184 109_Россошки 348 84
+110 184 119_Каменные_выкладки_9 19 84
+120 184 129_Постройки_6 45 84
+130 184 139_Курганы_10 303 85
+140 184 149_Курганы_20 76 85
+150 184 159_Курганы_30 171 86
+160 184 169_Кисловодская_котловина_6 314 87
+170 184 179_Гнёздово_Лесная_1 699 95
+180 184 190_Муравлево 15411 101
+base 0.31432 {'kurgany_povrezhdennye': [939, 2825, 3620], 'kurgany_tselye': [688, 1188, 1577]}
+oracle 0.32041 {'kurgany_povrezhdennye': [917, 2663, 3620], 'kurgany_tselye': [643, 557, 1577]}
+oracle_max 0.33959 {'kurgany_povrezhdennye': [1006, 2666, 3620], 'kurgany_tselye': [758, 622, 1577]}
+sim_soft_0.59_s0 0.30735 {'kurgany_povrezhdennye': [832, 2409, 3620], 'kurgany_tselye': [677, 1170, 1577]}
+sim_hard_0.59_s0 0.27131 {'kurgany_povrezhdennye': [939, 2829, 3620], 'kurgany_tselye': [281, 503, 1577]}
+sim_soft_0.59_s1 0.30796 {'kurgany_povrezhdennye': [827, 2245, 3620], 'kurgany_tselye': [675, 1171, 1577]}
+sim_hard_0.59_s1 0.272 {'kurgany_povrezhdennye': [939, 2818, 3620], 'kurgany_tselye': [283, 482, 1577]}
+sim_soft_0.65_s0 0.30728 {'kurgany_povrezhdennye': [846, 2417, 3620], 'kurgany_tselye': [666, 1175, 1577]}
+sim_hard_0.65_s0 0.27782 {'kurgany_povrezhdennye': [925, 2807, 3620], 'kurgany_tselye': [337, 606, 1577]}
+sim_soft_0.65_s1 0.30771 {'kurgany_povrezhdennye': [832, 2313, 3620], 'kurgany_tselye': [661, 1091, 1577]}
+sim_hard_0.65_s1 0.27734 {'kurgany_povrezhdennye': [935, 2760, 3620], 'kurgany_tselye': [323, 572, 1577]}
+sim_soft_0.75_s0 0.30929 {'kurgany_povrezhdennye': [854, 2427, 3620], 'kurgany_tselye': [671, 1126, 1577]}
+sim_hard_0.75_s0 0.28898 {'kurgany_povrezhdennye': [917, 2673, 3620], 'kurgany_tselye': [424, 736, 1577]}
+sim_soft_0.75_s1 0.30981 {'kurgany_povrezhdennye': [849, 2387, 3620], 'kurgany_tselye': [668, 1069, 1577]}
+sim_hard_0.75_s1 0.28911 {'kurgany_povrezhdennye': [917, 2599, 3620], 'kurgany_tselye': [416, 693, 1577]}
+sim_soft_0.85_s0 0.31232 {'kurgany_povrezhdennye': [851, 2424, 3620], 'kurgany_tselye': [688, 1043, 1577]}
+sim_hard_0.85_s0 0.30036 {'kurgany_povrezhdennye': [931, 2610, 3620], 'kurgany_tselye': [499, 761, 1577]}
+sim_soft_0.85_s1 0.31329 {'kurgany_povrezhdennye': [901, 2710, 3620], 'kurgany_tselye': [664, 962, 1577]}
+sim_hard_0.85_s1 0.30087 {'kurgany_povrezhdennye': [912, 2543, 3620], 'kurgany_tselye': [512, 765, 1577]}
+sim_soft_0.95_s0 0.32288 {'kurgany_povrezhdennye': [958, 2597, 3620], 'kurgany_tselye': [695, 942, 1577]}
+sim_hard_0.95_s0 0.31457 {'kurgany_povrezhdennye': [934, 2555, 3620], 'kurgany_tselye': [608, 763, 1577]}
+sim_soft_0.95_s1 0.31909 {'kurgany_povrezhdennye': [935, 2617, 3620], 'kurgany_tselye': [671, 888, 1577]}
+sim_hard_0.95_s1 0.31488 {'kurgany_povrezhdennye': [937, 2505, 3620], 'kurgany_tselye': [611, 802, 1577]}
+done 281

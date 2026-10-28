@@ -1,0 +1,5 @@
+post.micro_circles.radius_m.kurgany_povrezhdennye : <нет> -> 0.5
+post.micro_circles.radius_m.kurgany_tselye : <нет> -> 0.5
+rerank_arch.enabled : <нет> -> True
+rerank_arch.meta : <нет> -> models/rerank_arch_lgbm.json
+rerank_arch.model : <нет> -> models/rerank_arch_lgbm.txt

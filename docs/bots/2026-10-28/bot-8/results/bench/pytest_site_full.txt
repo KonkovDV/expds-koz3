@@ -1,0 +1,48 @@
+..ss.................................................................... [ 18%]
+..s...............................F..................................... [ 37%]
+........................................................................ [ 56%]
+........................................................................ [ 75%]
+........................................................................ [ 94%]
+..ss...............                                                      [100%]
+=================================== FAILURES ===================================
+________ test_grid_cache_roundtrip_gives_one_circle_inside_each_object _________
+
+val_dir = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/test_grid_cache_roundtrip_give0/input')
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/test_grid_cache_roundtrip_give0')
+
+    def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_path):
+        from expds.crs import WEB_MERCATOR, to_crs
+        from expds.tiles import build_cache
+    
+        objs = [box(X0 + 6, Y0 + 6, X0 + 12, Y0 + 12), box(X0 + 22, Y0 + 26, X0 + 30, Y0 + 32)]
+        gt = tmp_path / "gt.geojson"
+        gt.write_text(json.dumps({"type": "FeatureCollection", "features": [
+            {"type": "Feature", "geometry": to_crs(o, UTM, WEB_MERCATOR).__geo_interface__,
+             "properties": {"class_name": "object_poly", "markup_type": "maggr", "region_name": "region_0002"}}
+            for o in objs]}), encoding="utf-8")
+        cache = tmp_path / "grid"
+        build_cache(str(val_dir), str(gt), "maggr", str(cache), res=0.25, tile=64, grid_overlap=0.5, seed=0)
+        out = tmp_path / "coco"
+>       summary = load("coco_from_cache").export(cache, out, layout="rfdetr", images=True, all_valid=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_coco_roundtrip.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/coco_from_cache.py:166: in export
+    write_images(cache, part, folder, channels)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cache = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/test_grid_cache_roundtrip_give0/grid')
+rows = []
+folder = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/test_grid_cache_roundtrip_give0/coco/train')
+channels = [0, 1, 2]
+
+    def write_images(cache: Path, rows: list[dict], folder: Path, channels: list[int]) -> int:
+>       import cv2
+E       ModuleNotFoundError: No module named 'cv2'
+
+scripts/coco_from_cache.py:96: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 373 passed, 5 skipped in 100.98s (0:01:40)
+EXIT 1

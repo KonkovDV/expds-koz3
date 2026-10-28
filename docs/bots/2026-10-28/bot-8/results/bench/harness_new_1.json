@@ -1,0 +1,46 @@
+{
+ "n_pred": 69336,
+ "n_gt": 10979,
+ "folds": 10,
+ "in_sample": 0.06620789101387857,
+ "honest": 0.0513143153207549,
+ "info": {
+  "folds": 10,
+  "unseen_dropped": 36,
+  "unseen_kept": 0
+ },
+ "pb": {
+  "mean": 0.03265149921144148,
+  "p5": 0.02446698088596541,
+  "p50": 0.03277532936250656,
+  "p95": 0.040259364584480754,
+  "p_gt0": 1.0
+ },
+ "pbc": {
+  "mean": 0.0023184427855249597,
+  "p5": -0.0019512817240894195,
+  "p50": 0.0021379702565928922,
+  "p95": 0.007479618125512652,
+  "p_gt0": 0.767,
+  "samples": 1000,
+  "families": 103
+ },
+ "times": {
+  "build_curves": 2.7959548549997635,
+  "sweep_groups": 0.039930707000166876,
+  "apply_thr": 0.033490748000076564,
+  "final_score": 0.17040503999942302,
+  "honest_counts": 0.07833555700017314,
+  "paired_bootstrap": 0.01913658800003759,
+  "paired_bootstrap_counts": 0.007740103999822168
+ },
+ "hits": {
+  "kurgany_povrezhdennye": 215,
+  "kurgany_tselye": 92,
+  "gorodishcha": 9,
+  "arkhitektury": 12,
+  "object_poly": 27,
+  "fortifikatsii": 29,
+  "finds_points": 100
+ }
+}

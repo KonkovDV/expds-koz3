@@ -1,0 +1,144 @@
+{
+ "args": {
+  "root": "/workspace/data/train-expds-3",
+  "gt": "/workspace/rerank/gt_train_v2.geojson",
+  "markups": [
+   "ae",
+   "sp_or"
+  ],
+  "classes": [
+   "kurgany_povrezhdennye",
+   "kurgany_tselye"
+  ],
+  "res": 1.0,
+  "max_shift": 20.0,
+  "labels": "",
+  "labels_markup": "li",
+  "labels_min": 0.99,
+  "radius": null,
+  "out": "/workspace/koz3_shared/bot-5/analysis/nolidar/image_label_shift.json"
+ },
+ "rasters": [
+  {
+   "region": "001_Гнёздово_Нивленское",
+   "markup": "ae",
+   "file": "01_Гнёздово_Нивленское_Ae_немецкая.tif",
+   "n": 7,
+   "systematic": false,
+   "note": "меньше 8 точек на снимке"
+  },
+  {
+   "region": "005_Боровичи_2",
+   "markup": "ae",
+   "file": "01_Боровичи_2_Ae_немецкая.tif",
+   "n": 26,
+   "dx_m": 10.74,
+   "dy_m": 0.0,
+   "shift_m": 10.74,
+   "peak": 1.654,
+   "at_zero": 0.943,
+   "z_peak": 2.13,
+   "z_zero": 0.65,
+   "systematic": false,
+   "dn_m": -0.0,
+   "px_m": 1.074,
+   "kurgan_radius_m": 15.29
+  },
+  {
+   "region": "012_Сож",
+   "markup": "ae",
+   "file": "01_Сож_Ae_немецкая.tif",
+   "error": "Unable to allocate 1.66 GiB for an array with shape (1, 20518, 21755) and data type float32"
+  },
+  {
+   "region": "017_Юшково",
+   "markup": "ae",
+   "file": "01_Юшково_Ae_немецкая.tif",
+   "n": 41,
+   "dx_m": 0.81,
+   "dy_m": 1.61,
+   "shift_m": 1.81,
+   "peak": 3.971,
+   "at_zero": 3.818,
+   "z_peak": 5.27,
+   "z_zero": 4.88,
+   "systematic": false,
+   "dn_m": -1.61,
+   "px_m": 0.807,
+   "kurgan_radius_m": 6.38
+  },
+  {
+   "region": "019_Селяне",
+   "markup": "ae",
+   "file": "01_Селяне_Ae_немецкая.tif",
+   "n": 60,
+   "dx_m": -2.76,
+   "dy_m": -0.92,
+   "shift_m": 2.9,
+   "peak": 1.541,
+   "at_zero": 1.133,
+   "z_peak": 3.77,
+   "z_zero": 1.53,
+   "systematic": false,
+   "dn_m": 0.92,
+   "px_m": 0.919,
+   "kurgan_radius_m": 6.21
+  },
+  {
+   "region": "020_Романово",
+   "markup": "ae",
+   "file": "01_Романово_Ae_немецкая.tif",
+   "n": 9,
+   "dx_m": -5.38,
+   "dy_m": 7.53,
+   "shift_m": 9.25,
+   "peak": 1.035,
+   "at_zero": 0.616,
+   "z_peak": 3.22,
+   "z_zero": 1.52,
+   "systematic": false,
+   "dn_m": -7.53,
+   "px_m": 1.075,
+   "kurgan_radius_m": 16.07
+  },
+  {
+   "region": "029_Вышегжа_3",
+   "markup": "ae",
+   "file": "01_Вышегжа_3_Ae_немецкая.tif",
+   "error": "Unable to allocate 906. MiB for an array with shape (15850, 14987) and data type float32"
+  },
+  {
+   "region": "031_Новотитаровская",
+   "markup": "sp_or",
+   "file": "01_Новотитаровская_SpOr_спутник.tif",
+   "n": 2,
+   "systematic": false,
+   "note": "меньше 8 точек на снимке"
+  },
+  {
+   "region": "189_Макеево",
+   "markup": "ae",
+   "file": "01_Макеево_Ae_немецкая.tif",
+   "n": 14,
+   "dx_m": -12.26,
+   "dy_m": 17.52,
+   "shift_m": 21.39,
+   "peak": 0.536,
+   "at_zero": 0.231,
+   "z_peak": 1.96,
+   "z_zero": 0.7,
+   "systematic": false,
+   "dn_m": -17.52,
+   "px_m": 0.876,
+   "kurgan_radius_m": 14.32
+  },
+  {
+   "region": "192_КЧР",
+   "markup": "sp_or",
+   "file": "01_КЧР_SpOr_спутник.tif",
+   "n": 7,
+   "systematic": false,
+   "note": "меньше 8 точек на снимке"
+  }
+ ]
+}

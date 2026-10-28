@@ -1,0 +1,704 @@
+{
+ "folds": 10,
+ "fort2gor": {
+  "n": 14902,
+  "pos": 148,
+  "by_group_pos": {
+   "li_fort": [
+    375,
+    20
+   ],
+   "li_coarse": [
+    775,
+    102
+   ],
+   "li": [
+    379,
+    8
+   ],
+   "ae_fort": [
+    13373,
+    18
+   ]
+  },
+  "auc_rule": 0.8564523500727242,
+  "ap_rule": 0.1270302546538118,
+  "auc_lr": 0.7821786304401188,
+  "ap_lr": 0.16160101067345278,
+  "auc_gbm": 0.9090425317550165,
+  "ap_gbm": 0.3269953298045189,
+  "auc_conf": 0.29270715408372994,
+  "ap_conf": 0.012866748642260749
+ },
+ "gor_coarse": {
+  "n": 2401,
+  "pos": 41,
+  "auc_lr": 0.8697085572550642,
+  "ap_lr": 0.20233482561787683,
+  "auc_gbm": 0.8917476229847044,
+  "ap_gbm": 0.2220070400968379
+ },
+ "eval": {
+  "base": {
+   "contrib_all": 0.058433120077039845,
+   "contrib_honest": 0.05041495427457962,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.32697501420373376,
+     "groups": {
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 5
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 8
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 14
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.27624263703868607,
+     "tp": 25.0,
+     "fp": 76.0,
+     "fn": 93.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "fort2gor_rule": {
+   "contrib_all": 0.054817605921489786,
+   "contrib_honest": 0.045778488344509684,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.3028715865000667,
+     "groups": {
+      "fort2gor": {
+       "threshold": 0.997862,
+       "kept": 17,
+       "tp": 4
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 3
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 6
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 13
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.24533286417155323,
+     "tp": 23.0,
+     "fp": 93.0,
+     "fn": 95.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "fort2gor_lr": {
+   "contrib_all": 0.05171044407994361,
+   "contrib_honest": 0.03805337344853932,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.2821571742230922,
+     "groups": {
+      "fort2gor": {
+       "threshold": 0.997594,
+       "kept": 111,
+       "tp": 12
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 3
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 3
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 13
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.19383209819841746,
+     "tp": 22.0,
+     "fp": 174.0,
+     "fn": 96.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "fort2gor_gbm": {
+   "contrib_all": 0.05816728606630362,
+   "contrib_honest": 0.048572394885776304,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.32520278746549225,
+     "groups": {
+      "fort2gor": {
+       "threshold": 0.904243,
+       "kept": 2,
+       "tp": 1
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 4
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 8
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 14
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.26395890777999736,
+     "tp": 26.0,
+     "fp": 106.0,
+     "fn": 92.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "coarse_lr": {
+   "contrib_all": 0.057749515539047704,
+   "contrib_honest": 0.0442726042235962,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.32241765061711947,
+     "groups": {
+      "gor_coarse": {
+       "threshold": 0.980107,
+       "kept": 28,
+       "tp": 5
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 4
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 6
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 14
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.23529363669879663,
+     "tp": 23.0,
+     "fp": 109.0,
+     "fn": 95.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "coarse_gbm": {
+   "contrib_all": 0.05816728606630362,
+   "contrib_honest": 0.045747292968324596,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.32520278746549225,
+     "groups": {
+      "gor_coarse": {
+       "threshold": 0.768965,
+       "kept": 2,
+       "tp": 1
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 4
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 8
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 14
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.24512489499698595,
+     "tp": 22.0,
+     "fp": 79.0,
+     "fn": 96.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "both_gbm": {
+   "contrib_all": 0.05790431819759438,
+   "contrib_honest": 0.0442726042235962,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.323449668340764,
+     "groups": {
+      "fort2gor": {
+       "threshold": 0.904243,
+       "kept": 2,
+       "tp": 1
+      },
+      "gor_coarse": {
+       "threshold": 0.768965,
+       "kept": 2,
+       "tp": 1
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 3
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 8
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 14
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.23529363669879663,
+     "tp": 23.0,
+     "fp": 109.0,
+     "fn": 95.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  },
+  "both_lr": {
+   "contrib_all": 0.050551033794793,
+   "contrib_honest": 0.033771871989954745,
+   "all": {
+    "gorodishcha": {
+     "f1": 0.2744277723220881,
+     "groups": {
+      "fort2gor": {
+       "threshold": 0.997594,
+       "kept": 111,
+       "tp": 12
+      },
+      "gor_coarse": {
+       "threshold": 1.0,
+       "kept": 0,
+       "tp": 0
+      },
+      "gor_phys": {
+       "threshold": 0.43049,
+       "kept": 18,
+       "tp": 2
+      },
+      "li": {
+       "threshold": 0.993091,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.986425,
+       "kept": 24,
+       "tp": 3
+      },
+      "li_mask": {
+       "threshold": 0.99451,
+       "kept": 26,
+       "tp": 13
+      },
+      "sp_or": {
+       "threshold": 0.994085,
+       "kept": 33,
+       "tp": 3
+      }
+     }
+    },
+    "fortifikatsii": {
+     "f1": 0.1877373589295957,
+     "groups": {
+      "ae_fort": {
+       "threshold": 0.998215,
+       "kept": 714,
+       "tp": 94
+      },
+      "li": {
+       "threshold": 0.999971,
+       "kept": 0,
+       "tp": 0
+      },
+      "li_coarse": {
+       "threshold": 0.99926,
+       "kept": 21,
+       "tp": 3
+      },
+      "li_fort": {
+       "threshold": 0.987675,
+       "kept": 127,
+       "tp": 14
+      }
+     }
+    }
+   },
+   "honest": {
+    "gorodishcha": {
+     "f1": 0.16528875514118693,
+     "tp": 20.0,
+     "fp": 208.0,
+     "fn": 98.0,
+     "n_gt": 118.0
+    },
+    "fortifikatsii": {
+     "f1": 0.17957117437553402,
+     "tp": 109.0,
+     "fp": 818.0,
+     "fn": 587.0,
+     "n_gt": 696.0
+    }
+   }
+  }
+ }
+}

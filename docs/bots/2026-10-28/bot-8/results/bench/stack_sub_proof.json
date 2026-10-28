@@ -1,0 +1,194 @@
+{
+ "clusters": [
+  [
+   "Белая"
+  ],
+  [
+   "Булан",
+   "Каменные",
+   "Курганы",
+   "Таш"
+  ],
+  [
+   "Верхмарево"
+  ],
+  [
+   "Кисловодская"
+  ],
+  [
+   "Россошки"
+  ],
+  [
+   "Саратов"
+  ],
+  [
+   "Семибратнее"
+  ]
+ ],
+ "n_features": 41440,
+ "check": {
+  "curves_equal_all_clusters": true,
+  "taus_equal": true,
+  "honest_equal": true,
+  "base_equal": true,
+  "reference_base": [
+   0.3894046076769327,
+   0.8083322506158898,
+   0.320080784182945
+  ],
+  "reference_honest": [
+   0.03125976542110521,
+   0.0,
+   0.032992435024851344
+  ],
+  "official_clusters": [
+   {
+    "cluster": "Белая",
+    "kept": 3,
+    "equal": true
+   },
+   {
+    "cluster": "Булан+Каменные+Курганы+Таш",
+    "kept": 28,
+    "equal": true
+   },
+   {
+    "cluster": "Верхмарево",
+    "kept": 25,
+    "equal": true
+   },
+   {
+    "cluster": "Кисловодская",
+    "kept": 10,
+    "equal": true
+   },
+   {
+    "cluster": "Россошки",
+    "kept": 2,
+    "equal": true
+   },
+   {
+    "cluster": "Саратов",
+    "kept": 0,
+    "equal": true
+   },
+   {
+    "cluster": "Семибратнее",
+    "kept": 483,
+    "equal": true
+   }
+  ],
+  "official_all_equal": true,
+  "official_all_score": 0.3894046076769327,
+  "official_score_equal": true
+ },
+ "base": [
+  0.3894046076769327,
+  0.8083322506158898,
+  0.320080784182945
+ ],
+ "honest": [
+  0.03125976542110521,
+  0.0,
+  0.032992435024851344
+ ],
+ "folds": 10,
+ "taus": {
+  "li_ae": {
+   "kurgany_povrezhdennye": 0.993061,
+   "kurgany_tselye": 0.99071
+  },
+  "li_dev": {
+   "kurgany_povrezhdennye": 0.991071,
+   "kurgany_tselye": 0.998521
+  },
+  "li_mosaic": {
+   "kurgany_povrezhdennye": 0.983355,
+   "kurgany_tselye": 0.897301
+  },
+  "sp_focal": {
+   "kurgany_povrezhdennye": 0.55898,
+   "kurgany_tselye": 0.385535
+  },
+  "sp_focal2": {
+   "kurgany_povrezhdennye": 0.544885,
+   "kurgany_tselye": 0.616031
+  },
+  "gor_phys": {
+   "gorodishcha": 0.53707
+  },
+  "li_coarse": {
+   "gorodishcha": 0.989925,
+   "fortifikatsii": 0.99759
+  },
+  "li_mask": {
+   "gorodishcha": 0.982471
+  },
+  "sp_or": {
+   "gorodishcha": 0.998305
+  },
+  "sp_arch": {
+   "arkhitektury": 0.165575
+  },
+  "maggr": {
+   "object_poly": 0.4375,
+   "finds_points": 0.302025
+  },
+  "ae_fort": {
+   "fortifikatsii": 0.996291
+  },
+  "li_fort": {
+   "fortifikatsii": 0.80651
+  }
+ },
+ "counts_all": {
+  "kurgany_povrezhdennye": [
+   7,
+   12,
+   36
+  ],
+  "kurgany_tselye": [
+   2,
+   9,
+   6
+  ],
+  "gorodishcha": [
+   4,
+   3,
+   5
+  ],
+  "arkhitektury": [
+   5,
+   10,
+   4
+  ],
+  "object_poly": [
+   3,
+   0,
+   14
+  ],
+  "fortifikatsii": [
+   4,
+   12,
+   6
+  ],
+  "finds_points": [
+   307,
+   173,
+   131
+  ]
+ },
+ "times": {
+  "split": 1.09,
+  "bounds": 3.54,
+  "curves_fast": 0.39,
+  "curves_reference": 2.75,
+  "sweep_honest_fast": 0.08,
+  "sweep_honest_reference": 0.26,
+  "kept_fast": 0.07,
+  "kept_reference": 0.1,
+  "official": 0.56,
+  "total": 13.89
+ },
+ "peak_rss_mb": 424
+}

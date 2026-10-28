@@ -1,0 +1,17 @@
+code_dir: /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle
+{"resnet18": {"weights": "/tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7", "bytes": 2000000}, "resnet34": {"weights": "/tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13", "bytes": 2000000}}
+hf_hub_cache/models--smp-hub--resnet18.imagenet -> 
+hf_hub_cache/models--smp-hub--resnet18.imagenet/refs -> 
+hf_hub_cache/models--smp-hub--resnet18.imagenet/refs/main -> 
+hf_hub_cache/models--smp-hub--resnet18.imagenet/snapshots -> 
+hf_hub_cache/models--smp-hub--resnet18.imagenet/snapshots/3f2325ff978283d47aa6a1d6878ca20565622683 -> 
+hf_hub_cache/models--smp-hub--resnet18.imagenet/snapshots/3f2325ff978283d47aa6a1d6878ca20565622683/config.json -> /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/models--smp-hub--resnet18.imagenet/blobs/879c59b3870194ae248b52920479fed460415e62
+hf_hub_cache/models--smp-hub--resnet18.imagenet/snapshots/3f2325ff978283d47aa6a1d6878ca20565622683/model.safetensors -> /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7
+hf_hub_cache/models--smp-hub--resnet34.imagenet -> 
+hf_hub_cache/models--smp-hub--resnet34.imagenet/refs -> 
+hf_hub_cache/models--smp-hub--resnet34.imagenet/refs/main -> 
+hf_hub_cache/models--smp-hub--resnet34.imagenet/snapshots -> 
+hf_hub_cache/models--smp-hub--resnet34.imagenet/snapshots/7a57b34f723329ff020b3f8bc41771163c519d0c -> 
+hf_hub_cache/models--smp-hub--resnet34.imagenet/snapshots/7a57b34f723329ff020b3f8bc41771163c519d0c/config.json -> /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/models--smp-hub--resnet34.imagenet/blobs/879c59b3870194ae248b52920479fed460415e62
+hf_hub_cache/models--smp-hub--resnet34.imagenet/snapshots/7a57b34f723329ff020b3f8bc41771163c519d0c/model.safetensors -> /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13
+ожидаемая ошибка: нет весов ImageNet для ['resnet34'] в /tmp/bot9_hf/input/koz3-li-tin-59-t128-bundle/hf_hub_cache. Подключите dmitrijkv/k

@@ -1,0 +1,64 @@
+..ss........................................F........................... [ 22%]
+........................................................................ [ 45%]
+.........................sssss.......................................... [ 68%]
+........................................................................ [ 90%]
+............ss...............                                            [100%]
+=================================== FAILURES ===================================
+________ test_grid_cache_roundtrip_gives_one_circle_inside_each_object _________
+
+val_dir = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/wt-base-main/test_grid_cache_roundtrip_give0/input')
+tmp_path = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/wt-base-main/test_grid_cache_roundtrip_give0')
+
+    def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_path):
+        from expds.crs import WEB_MERCATOR, to_crs
+        from expds.tiles import build_cache
+    
+        objs = [box(X0 + 6, Y0 + 6, X0 + 12, Y0 + 12), box(X0 + 22, Y0 + 26, X0 + 30, Y0 + 32)]
+        gt = tmp_path / "gt.geojson"
+        gt.write_text(json.dumps({"type": "FeatureCollection", "features": [
+            {"type": "Feature", "geometry": to_crs(o, UTM, WEB_MERCATOR).__geo_interface__,
+             "properties": {"class_name": "object_poly", "markup_type": "maggr", "region_name": "region_0002"}}
+            for o in objs]}), encoding="utf-8")
+        cache = tmp_path / "grid"
+        build_cache(str(val_dir), str(gt), "maggr", str(cache), res=0.25, tile=64, grid_overlap=0.5, seed=0)
+        out = tmp_path / "coco"
+>       summary = load("coco_from_cache").export(cache, out, layout="rfdetr", images=True, all_valid=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_coco_roundtrip.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/coco_from_cache.py:166: in export
+    write_images(cache, part, folder, channels)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cache = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/wt-base-main/test_grid_cache_roundtrip_give0/grid')
+rows = []
+folder = PosixPath('/workspace/koz3_shared/bot-8/pytest_tmp/wt-base-main/test_grid_cache_roundtrip_give0/coco/train')
+channels = [0, 1, 2]
+
+    def write_images(cache: Path, rows: list[dict], folder: Path, channels: list[int]) -> int:
+>       import cv2
+E       ModuleNotFoundError: No module named 'cv2'
+
+scripts/coco_from_cache.py:96: ModuleNotFoundError
+=============================== warnings summary ===============================
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3_shared/bot-8/wt-base-main/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3_shared/bot-8/wt-base-main/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 307 passed, 9 skipped, 21 warnings in 220.39s (0:03:40)
+exit 1

@@ -1,0 +1,131 @@
+{
+ "fortifikatsii->gorodishcha": {
+  "kept": 862,
+  "match_own": 121,
+  "match_other": 19,
+  "match_other_not_own": 13,
+  "by_group": {
+   "ae_fort:n": 714,
+   "ae_fort:other": 1,
+   "ae_fort:other_not_own": 1,
+   "ae_fort:own": 102,
+   "li_coarse:n": 21,
+   "li_coarse:other": 8,
+   "li_coarse:other_not_own": 5,
+   "li_coarse:own": 5,
+   "li_fort:n": 127,
+   "li_fort:other": 10,
+   "li_fort:other_not_own": 7,
+   "li_fort:own": 14
+  }
+ },
+ "gorodishcha->fortifikatsii": {
+  "kept": 101,
+  "match_own": 38,
+  "match_other": 1,
+  "match_other_not_own": 0,
+  "by_group": {
+   "gor_phys:n": 18,
+   "gor_phys:other": 1,
+   "gor_phys:other_not_own": 0,
+   "gor_phys:own": 10,
+   "li_coarse:n": 24,
+   "li_coarse:other": 0,
+   "li_coarse:other_not_own": 0,
+   "li_coarse:own": 11,
+   "li_mask:n": 26,
+   "li_mask:other": 0,
+   "li_mask:other_not_own": 0,
+   "li_mask:own": 14,
+   "sp_or:n": 33,
+   "sp_or:other": 0,
+   "sp_or:other_not_own": 0,
+   "sp_or:own": 3
+  }
+ },
+ "kept_base": {
+  "per": {
+   "gorodishcha": {
+    "tp": 31,
+    "fp": 70,
+    "n_gt": 118,
+    "f1": 0.33695605801102424
+   },
+   "fortifikatsii": {
+    "tp": 111,
+    "fp": 751,
+    "n_gt": 696,
+    "f1": 0.1877373589295957
+   }
+  },
+  "contrib": 0.05993027664813342
+ },
+ "oracle_swap": {
+  "per": {
+   "gorodishcha": {
+    "tp": 34,
+    "fp": 80,
+    "n_gt": 118,
+    "f1": 0.35416618923674426
+   },
+   "fortifikatsii": {
+    "tp": 111,
+    "fp": 738,
+    "n_gt": 696,
+    "f1": 0.18877502675224297
+   }
+  },
+  "contrib": 0.06256367972312378
+ },
+ "oracle_drop": {
+  "per": {
+   "gorodishcha": {
+    "tp": 31,
+    "fp": 70,
+    "n_gt": 118,
+    "f1": 0.33695605801102424
+   },
+   "fortifikatsii": {
+    "tp": 111,
+    "fp": 738,
+    "n_gt": 696,
+    "f1": 0.18877502675224297
+   }
+  },
+  "contrib": 0.059982160039265785
+ },
+ "gt_overlap": {
+  "n_gor_poly": 118,
+  "n_fort_poly": 696,
+  "fort_touching_gor": 45,
+  "fort_inside_gor_50": 44,
+  "gor_with_fort_inside": 19,
+  "pairs_markup(fort,gor)": {
+   "li,li": 32,
+   "li,sp_or": 4,
+   "ae,ae": 8,
+   "ae,or": 2,
+   "ae,sp_or": 2,
+   "or,or": 2,
+   "or,sp_or": 2,
+   "or,ae": 2,
+   "sp_or,or": 3,
+   "sp_or,sp_or": 3,
+   "sp_or,ae": 3
+  },
+  "regions": {
+   "002_Тешилово": 7,
+   "003_Лубно": 2,
+   "007_Армиево": 1,
+   "010_Эсбю_укрепление": 1,
+   "025_Вышенское": 7,
+   "026_Золотаревка": 4,
+   "027_Вышегжа_1": 3,
+   "058_Перынь": 5,
+   "061_Граборг": 1,
+   "068_Стеклянуха_1": 6,
+   "185_Изборск": 7,
+   "186_Семибратнее_1": 1
+  }
+ }
+}

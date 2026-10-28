@@ -1,0 +1,10 @@
+k10 {'A_drop': 0.312067, 'kur_drop': 0.313641, 'arch_drop': 0.312294, 'bundle_drop': 0.313868, 'd_kur_drop': 0.001574, 'd_arch_drop': 0.000227, 'd_bundle_drop': 0.001801}
+lofo {'A_drop': 0.312058, 'kur_drop': 0.31354, 'arch_drop': 0.312286, 'bundle_drop': 0.313768, 'd_kur_drop': 0.001482, 'd_arch_drop': 0.000228, 'd_bundle_drop': 0.00171}
+seed0 {'A_drop': 0.312402, 'kur_drop': 0.313864, 'arch_drop': 0.312666, 'bundle_drop': 0.314128, 'd_kur_drop': 0.001462, 'd_arch_drop': 0.000264, 'd_bundle_drop': 0.001726}
+seed1 {'A_drop': 0.305903, 'kur_drop': 0.307445, 'arch_drop': 0.305485, 'bundle_drop': 0.307027, 'd_kur_drop': 0.001542, 'd_arch_drop': -0.000418, 'd_bundle_drop': 0.001124}
+seed2 {'A_drop': 0.315344, 'kur_drop': 0.316587, 'arch_drop': 0.31557, 'bundle_drop': 0.316814, 'd_kur_drop': 0.001243, 'd_arch_drop': 0.000226, 'd_bundle_drop': 0.00147}
+seed3 {'A_drop': 0.305373, 'kur_drop': 0.306644, 'arch_drop': 0.305611, 'bundle_drop': 0.306882, 'd_kur_drop': 0.001271, 'd_arch_drop': 0.000238, 'd_bundle_drop': 0.001509}
+seed4 {'A_drop': 0.287028, 'kur_drop': 0.28861, 'arch_drop': 0.288196, 'bundle_drop': 0.289778, 'd_kur_drop': 0.001582, 'd_arch_drop': 0.001168, 'd_bundle_drop': 0.00275}
+kur_drop d10=+0.001574 P=0.996 CI=[+0.00013;+0.00230] lofo=+0.001482 seeds+=5/5 heavy=+0.001574 new34=+0.001726 acc=False
+arch_drop d10=+0.000227 P=0.630 CI=[+0.00000;+0.00087] lofo=+0.000228 seeds+=4/5 heavy=+0.000000 new34=+0.000000 acc=False
+bundle_drop d10=+0.001801 P=0.998 CI=[+0.00029;+0.00281] lofo=+0.001710 seeds+=5/5 heavy=+0.001574 new34=+0.001726 acc=False

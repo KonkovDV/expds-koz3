@@ -1,0 +1,87 @@
+{
+ "stats": {
+  "loc": 416252,
+  "twin": 48079,
+  "truth_kurgany_povrezhdennye": 4712,
+  "truth_None": 409929,
+  "truth_kurgany_tselye": 1611,
+  "twin_truth_kurgany_povrezhdennye": 1421,
+  "twin_truth_kurgany_tselye": 732
+ },
+ "base_pkl_score": 0.3146153226828423,
+ "scenarios": {
+  "base": {
+   "score": 0.31431854447366986,
+   "delta_vs_pkl": -0.0002967782091724547,
+   "kurgan_counts_tp_fp_ngt": {
+    "kurgany_povrezhdennye": [
+     939,
+     2825,
+     3620
+    ],
+    "kurgany_tselye": [
+     688,
+     1188,
+     1577
+    ]
+   },
+   "f1": {
+    "kurgany_povrezhdennye": {
+     "f1": 0.31449336822512497,
+     "tp": 939.0,
+     "fp": 2825.0,
+     "fn": 2681.0,
+     "n_gt": 3620.0
+    },
+    "kurgany_tselye": {
+     "f1": 0.48128666833101136,
+     "tp": 688.0,
+     "fp": 1188.0,
+     "fn": 889.0,
+     "n_gt": 1577.0
+    }
+   }
+  },
+  "oracle": {
+   "score": 0.32040952289720454,
+   "delta_vs_pkl": 0.005794200214362222,
+   "kurgan_counts_tp_fp_ngt": {
+    "kurgany_povrezhdennye": [
+     917,
+     2663,
+     3620
+    ],
+    "kurgany_tselye": [
+     643,
+     557,
+     1577
+    ]
+   },
+   "f1": {
+    "kurgany_povrezhdennye": {
+     "f1": 0.3125155023247211,
+     "tp": 917.0,
+     "fp": 2663.0,
+     "fn": 2703.0,
+     "n_gt": 3620.0
+    },
+    "kurgany_tselye": {
+     "f1": 0.5147083592992905,
+     "tp": 643.0,
+     "fp": 557.0,
+     "fn": 934.0,
+     "n_gt": 1577.0
+    }
+   },
+   "bootstrap_vs_base": {
+    "mean": 0.00682681218831991,
+    "p5": -0.0011508534102266405,
+    "p50": 0.00664198298221641,
+    "p95": 0.01598854065424331,
+    "p_gt0": 0.924,
+    "samples": 1000,
+    "families": 103
+   }
+  }
+ }
+}

@@ -1,0 +1,9 @@
+== check_submission: /workspace/koz3_shared/bot-8/tests_out/neg/n6_nested_root.zip (2026-10-28 19:42:11 MSK)
+[PASS] zip       44 файлов, CRC ок, пути безопасны
+[FAIL] layout    нет обязательных файлов: ['metadata.json', 'inference/main.py', 'configs/default.toml', 'expds/__init__.py', 'expds/pipeline.py'] (верхний уровень архива: ['koz3'] — файлы должны лежать в корне, не в подпапке)
+[WARN] layout    нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 538.8 МиБ (564998505 Б), распакованный 541.4 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: koz3/models/li_r18_hard2.pt 55 МиБ, koz3/models/spor_focal_wide_r18.pt 55 МиБ, koz3/models/spor_focal_r18.pt 55 МиБ
+[INFO] smoke     пропущен (--no-smoke)
+== ИТОГ: FAIL — FAIL 1, WARN 1, проверок 7, 0.3 с

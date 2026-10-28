@@ -1,0 +1,352 @@
+{
+ "s0.5_n0.0": {
+  "maggr": {
+   "baseline": {
+    "tp": 198,
+    "fp": 0,
+    "fn": 47,
+    "f1": 0.8939
+   },
+   "core_polylabel": {
+    "tp": 198,
+    "fp": 0,
+    "fn": 47,
+    "f1": 0.8939
+   },
+   "core_dtpole": {
+    "tp": 198,
+    "fp": 0,
+    "fn": 47,
+    "f1": 0.8939
+   },
+   "multipole_post": {
+    "tp": 218,
+    "fp": 299,
+    "fn": 27,
+    "f1": 0.7118
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 235,
+    "fp": 21,
+    "fn": 10,
+    "f1": 0.9582
+   },
+   "_picks_pole": [
+    "ws_field_0.05_pole",
+    "ws_field_0.1_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 234,
+    "fp": 22,
+    "fn": 11,
+    "f1": 0.9551
+   },
+   "_picks_poly": [
+    "ws_field_0.05_poly",
+    "ws_field_0.1_poly"
+   ]
+  },
+  "etgr": {
+   "baseline": {
+    "tp": 377,
+    "fp": 10,
+    "fn": 281,
+    "f1": 0.725
+   },
+   "core_polylabel": {
+    "tp": 377,
+    "fp": 10,
+    "fn": 281,
+    "f1": 0.725
+   },
+   "core_dtpole": {
+    "tp": 378,
+    "fp": 9,
+    "fn": 280,
+    "f1": 0.7266
+   },
+   "multipole_post": {
+    "tp": 425,
+    "fp": 215,
+    "fn": 233,
+    "f1": 0.714
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 416,
+    "fp": 28,
+    "fn": 242,
+    "f1": 0.7647
+   },
+   "_picks_pole": [
+    "ws_field_0.05_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 409,
+    "fp": 33,
+    "fn": 249,
+    "f1": 0.755
+   },
+   "_picks_poly": [
+    "ws_field_0.05_poly",
+    "ws_field_0.1_poly"
+   ]
+  },
+  "terfl": {
+   "baseline": {
+    "tp": 129,
+    "fp": 1,
+    "fn": 48,
+    "f1": 0.8418
+   },
+   "core_polylabel": {
+    "tp": 128,
+    "fp": 2,
+    "fn": 49,
+    "f1": 0.8366
+   },
+   "core_dtpole": {
+    "tp": 130,
+    "fp": 0,
+    "fn": 47,
+    "f1": 0.8469
+   },
+   "multipole_post": {
+    "tp": 130,
+    "fp": 39,
+    "fn": 47,
+    "f1": 0.7963
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 172,
+    "fp": 10,
+    "fn": 5,
+    "f1": 0.9718
+   },
+   "_picks_pole": [
+    "ws_field_0.1_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 169,
+    "fp": 13,
+    "fn": 8,
+    "f1": 0.9589
+   },
+   "_picks_poly": [
+    "ws_field_0.1_poly"
+   ]
+  },
+  "object_poly_all": {
+   "baseline": {
+    "tp": 704,
+    "fp": 11,
+    "fn": 376,
+    "f1": 0.7868
+   },
+   "core_polylabel": {
+    "tp": 703,
+    "fp": 12,
+    "fn": 377,
+    "f1": 0.7859
+   },
+   "core_dtpole": {
+    "tp": 706,
+    "fp": 9,
+    "fn": 374,
+    "f1": 0.7886
+   },
+   "multipole_post": {
+    "tp": 773,
+    "fp": 553,
+    "fn": 307,
+    "f1": 0.726
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 823,
+    "fp": 59,
+    "fn": 257,
+    "f1": 0.8517
+   },
+   "patch_ws_poly_lofo": {
+    "tp": 812,
+    "fp": 68,
+    "fn": 268,
+    "f1": 0.8432
+   }
+  }
+ },
+ "s0.5_n0.15": {
+  "maggr": {
+   "baseline": {
+    "tp": 193,
+    "fp": 1,
+    "fn": 52,
+    "f1": 0.8803
+   },
+   "core_polylabel": {
+    "tp": 193,
+    "fp": 1,
+    "fn": 52,
+    "f1": 0.8803
+   },
+   "core_dtpole": {
+    "tp": 193,
+    "fp": 1,
+    "fn": 52,
+    "f1": 0.8803
+   },
+   "multipole_post": {
+    "tp": 209,
+    "fp": 307,
+    "fn": 36,
+    "f1": 0.6881
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 213,
+    "fp": 6,
+    "fn": 32,
+    "f1": 0.9241
+   },
+   "_picks_pole": [
+    "ws_dt_1.0_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 207,
+    "fp": 12,
+    "fn": 38,
+    "f1": 0.9039
+   },
+   "_picks_poly": [
+    "ws_dt_1.0_poly"
+   ]
+  },
+  "etgr": {
+   "baseline": {
+    "tp": 384,
+    "fp": 121,
+    "fn": 274,
+    "f1": 0.6966
+   },
+   "core_polylabel": {
+    "tp": 390,
+    "fp": 115,
+    "fn": 268,
+    "f1": 0.7056
+   },
+   "core_dtpole": {
+    "tp": 385,
+    "fp": 120,
+    "fn": 273,
+    "f1": 0.6981
+   },
+   "multipole_post": {
+    "tp": 438,
+    "fp": 320,
+    "fn": 220,
+    "f1": 0.6975
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 409,
+    "fp": 163,
+    "fn": 249,
+    "f1": 0.7122
+   },
+   "_picks_pole": [
+    "ws_dt_0.25_pole",
+    "ws_dt_0.5_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 406,
+    "fp": 163,
+    "fn": 252,
+    "f1": 0.7089
+   },
+   "_picks_poly": [
+    "ws_dt_0.25_poly",
+    "ws_dt_0.5_poly"
+   ]
+  },
+  "terfl": {
+   "baseline": {
+    "tp": 120,
+    "fp": 53,
+    "fn": 57,
+    "f1": 0.7419
+   },
+   "core_polylabel": {
+    "tp": 121,
+    "fp": 52,
+    "fn": 56,
+    "f1": 0.7469
+   },
+   "core_dtpole": {
+    "tp": 123,
+    "fp": 50,
+    "fn": 54,
+    "f1": 0.7569
+   },
+   "multipole_post": {
+    "tp": 126,
+    "fp": 79,
+    "fn": 51,
+    "f1": 0.7358
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 150,
+    "fp": 66,
+    "fn": 27,
+    "f1": 0.8333
+   },
+   "_picks_pole": [
+    "ws_dt_0.25_pole",
+    "ws_dt_0.5_pole"
+   ],
+   "patch_ws_poly_lofo": {
+    "tp": 135,
+    "fp": 72,
+    "fn": 42,
+    "f1": 0.7759
+   },
+   "_picks_poly": [
+    "ws_dt_0.5_poly"
+   ]
+  },
+  "object_poly_all": {
+   "baseline": {
+    "tp": 697,
+    "fp": 175,
+    "fn": 383,
+    "f1": 0.7477
+   },
+   "core_polylabel": {
+    "tp": 704,
+    "fp": 168,
+    "fn": 376,
+    "f1": 0.7537
+   },
+   "core_dtpole": {
+    "tp": 701,
+    "fp": 171,
+    "fn": 379,
+    "f1": 0.7511
+   },
+   "multipole_post": {
+    "tp": 773,
+    "fp": 706,
+    "fn": 307,
+    "f1": 0.7008
+   },
+   "patch_ws_pole_lofo": {
+    "tp": 772,
+    "fp": 235,
+    "fn": 308,
+    "f1": 0.784
+   },
+   "patch_ws_poly_lofo": {
+    "tp": 748,
+    "fp": 247,
+    "fn": 332,
+    "f1": 0.7666
+   }
+  }
+ }
+}

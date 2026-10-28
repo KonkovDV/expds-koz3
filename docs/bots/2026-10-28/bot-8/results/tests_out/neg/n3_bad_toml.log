@@ -1,0 +1,25 @@
+== check_submission: /workspace/koz3_shared/bot-8/tests_out/neg/n3_bad_toml.zip (2026-10-28 19:41:10 MSK)
+[PASS] zip       44 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 538.8 МиБ (564998064 Б), распакованный 541.4 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[FAIL] config    configs/default.toml не читается как TOML: Expected ']' at the end of a table declaration (at line 213, column 9)
+[PASS] imports   в 25 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   24 модулей и 9 сторонних пакетов импортируются без сети (1.4 с)
+[FAIL] config    проба конфига упала: Traceback (most recent call last):
+  File "<string>", line 33, in <module>
+  File "/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py", line 121, in loads
+    pos, header = create_dict_rule(src, pos, out)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/tomllib/_parser.py", line 306, in create_dict_rule
+    raise suffixed_err(src, pos, "Expected ']' at the end of a table declaration")
+tomllib.TOMLDecodeError: Expected ']' at the end of a table declaration (at line 213, column 9)
+
+[PASS] weights   0 файлов весов открываются кодом архива на CPU
+[INFO] smoke     пропущен (--no-smoke)
+== ИТОГ: FAIL — FAIL 2, WARN 0, проверок 15, 3.6 с

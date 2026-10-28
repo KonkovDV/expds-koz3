@@ -1,0 +1,408 @@
+diff --git a/expds/gorfort.py b/expds/gorfort.py
+new file mode 100644
+index 0000000..dab8d2f
+--- /dev/null
++++ b/expds/gorfort.py
+@@ -0,0 +1,216 @@
++"""Городища ↔ фортификации: арбитр «фортификация → городище» и грубый проход городищ по стеку кандидатов.
++
++Зачем (bot-4/REPORT.md). Метрика сопоставляет только внутри класса, а маленький
++полигон, целиком лежащий в эталонном городище, засчитывается городищу (≥50 % меньшей
++фигуры + внутренняя точка в эталоне). Генераторы фортификаций (li_fort, li_coarse,
++ae_fort) стреляют по валам городищ, а 44 из 696 эталонных фортификаций сами лежат
++внутри эталонных городищ — валы и рвы размечены отдельно. Поэтому фортификацию не
++перекрашиваем и не удаляем (это теряет её TP), а добавляем копию-городище:
++
++* ``fort_to_gor`` — для каждой фортификации-кандидата круг 3 м класса gorodishcha в
++  её внутренней точке, группа порога ``fort2gor``; уверенность выставляет классификатор
++  по признакам формы и окружения (``features``).
++* ``coarse_gor`` — грубый проход: все кандидаты городищ и фортификаций участка
++  сливаются в скопления (связность в радиусе ``link_m``); на скопление — один круг
++  3 м в центре, взвешенном уверенностью, группа ``gor_coarse``. Валы окружают площадку,
++  поэтому центр скопления обычно внутри городища, даже если ни одна часть не
++  «городище».
++
++Обе функции не знают эталона; классификатор обучается вне этого модуля (скрипт
++bot-4/work/gorfort_eval.py) с фолдами по семьям участков. Без обученной модели
++уверенность — правило ``rule_score`` (не подобрано по эталону, только по смыслу).
++"""
++from __future__ import annotations
++
++import math
++from dataclasses import dataclass
++
++import numpy as np
++
++GOR, FORT = "gorodishcha", "fortifikatsii"
++GOR_GROUPS = ("gor_phys", "li_mask", "li_coarse", "li", "sp_or", "ae", "or")
++FORT_GROUPS = ("ae_fort", "li_fort", "li_coarse", "li", "ae", "sp_or", "or")
++_R_EARTH = 6378137.0
++
++
++@dataclass
++class GorFortParams:
++    radius_m: float = 3.0          # выходной круг, как у gor_phys
++    ctx_m: tuple = (40.0, 120.0)   # окна окружения для признаков
++    link_m: float = 40.0           # связность скопления в грубом проходе
++    min_members: int = 2           # скопление из одного кандидата — не грубый кандидат
++    fort_groups: tuple = ("li_fort", "li_coarse", "li", "ae_fort")
++    ae_floor: float = 0.9          # ae_fort очень много (61 тыс.), ниже — шум
++
++
++def _group(props: dict) -> str:
++    from .metric import threshold_group
++    return threshold_group(props)
++
++
++def _lat(y: float) -> float:
++    return math.degrees(2 * math.atan(math.exp(y / _R_EARTH)) - math.pi / 2)
++
++
++def table(fc: dict, p: GorFortParams | None = None) -> dict:
++    """Кандидаты gor/fort → столбцы: класс, группа, участок, уверенность, внутренняя точка (3857),
++    площадь м², компактность 4πS/P², вытянутость (стороны min-rect), масштаб 3857→м."""
++    from shapely.geometry import shape
++
++    p = p or GorFortParams()
++    rows = []
++    for i, f in enumerate(fc["features"]):
++        pr = f.get("properties") or {}
++        cls = pr.get("class_name")
++        if cls not in (GOR, FORT):
++            continue
++        g = _group(pr)
++        conf = float(pr.get("confidence", 0.0))
++        if cls == FORT and g == "ae_fort" and conf < p.ae_floor:
++            continue
++        geom = shape(f["geometry"])
++        if geom.is_empty:
++            continue
++        pt = geom.representative_point()
++        k = math.cos(math.radians(_lat(pt.y)))          # метры = единицы 3857 × k
++        area = geom.area * k * k
++        per = max(geom.length * k, 1e-6)
++        try:
++            mr = geom.minimum_rotated_rectangle
++            xs, ys = mr.exterior.coords.xy
++            s = sorted([math.hypot(xs[1] - xs[0], ys[1] - ys[0]), math.hypot(xs[2] - xs[1], ys[2] - ys[1])])
++            elong = s[1] / max(s[0], 1e-6)
++        except Exception:
++            elong = 1.0
++        rows.append((i, cls, g, str(pr.get("region_name", "")), conf, pt.x, pt.y, k, area,
++                     4 * math.pi * area / per ** 2, elong, str(pr.get("markup_type", ""))))
++    cols = list(zip(*rows)) if rows else [[]] * 12
++    names = ("idx", "cls", "group", "region", "conf", "x", "y", "k", "area", "compact", "elong", "markup")
++    return {n: np.asarray(c, dtype=object if n in ("cls", "group", "region", "markup") else float) for n, c in zip(names, cols)}
++
++
++def _ctx(t: dict, sel: np.ndarray, qx, qy, qk, qreg, radius: float) -> dict:
++    """Окружение точек (qx, qy) по кандидатам t[sel] того же участка в радиусе radius м:
++    число и максимум уверенности по каждой паре (класс, группа)."""
++    from scipy.spatial import cKDTree
++
++    out = {}
++    keys = sorted({(c, g) for c, g in zip(t["cls"][sel], t["group"][sel])})
++    for c, g in keys:
++        m = sel & (t["cls"] == c) & (t["group"] == g)
++        n = np.zeros(len(qx)); mx = np.zeros(len(qx))
++        for reg in np.unique(qreg):
++            q = qreg == reg
++            mm = m & (t["region"] == reg)
++            if not mm.any() or not q.any():
++                continue
++            tree = cKDTree(np.c_[t["x"][mm], t["y"][mm]])
++            confs = t["conf"][mm]
++            for j, nb in zip(np.nonzero(q)[0], tree.query_ball_point(np.c_[qx[q], qy[q]], r=radius / np.maximum(qk[q], 1e-6))):
++                if nb:
++                    n[j] = len(nb); mx[j] = confs[nb].max()
++        out[f"n_{c[:4]}_{g}_{int(radius)}"] = n
++        out[f"max_{c[:4]}_{g}_{int(radius)}"] = mx
++    return out
++
++
++def fort_features(t: dict, p: GorFortParams | None = None) -> tuple[np.ndarray, dict]:
++    """Признаки фортификаций-кандидатов для арбитра. Возвращает (маску строк t, признаки)."""
++    p = p or GorFortParams()
++    q = (t["cls"] == FORT) & np.isin(t["group"], list(p.fort_groups))
++    allm = np.ones(len(t["cls"]), bool)
++    feats = {"conf": t["conf"][q], "log_area": np.log1p(t["area"][q]), "compact": t["compact"][q],
++             "elong": np.log(t["elong"][q])}
++    for g in p.fort_groups:
++        feats[f"is_{g}"] = (t["group"][q] == g).astype(float)
++    for r in p.ctx_m:
++        feats.update(_ctx(t, allm, t["x"][q], t["y"][q], t["k"][q], t["region"][q], r))
++    return q, feats
++
++
++def clusters(t: dict, p: GorFortParams | None = None) -> list[np.ndarray]:
++    """Скопления кандидатов участка: связные компоненты графа «ближе link_m»."""
++    from scipy.sparse.csgraph import connected_components
++    from scipy.spatial import cKDTree
++
++    p = p or GorFortParams()
++    out = []
++    for reg in np.unique(t["region"]):
++        idx = np.nonzero(t["region"] == reg)[0]
++        if idx.size == 0:
++            continue
++        k = float(np.median(t["k"][idx]))
++        tree = cKDTree(np.c_[t["x"][idx], t["y"][idx]])
++        pairs = tree.query_pairs(r=p.link_m / k, output_type="ndarray")
++        from scipy.sparse import coo_matrix
++        a = coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(idx.size, idx.size)) if len(pairs) else coo_matrix((idx.size, idx.size))
++        n, lab = connected_components(a, directed=False)
++        for c in range(n):
++            mem = idx[lab == c]
++            if mem.size >= p.min_members:
++                out.append(mem)
++    return out
++
++
++def cluster_features(t: dict, cl: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray, dict]:
++    """Центр (взвешенный уверенностью) и признаки каждого скопления."""
++    cx = np.zeros(len(cl)); cy = np.zeros(len(cl))
++    keys = [(GOR, g) for g in GOR_GROUPS] + [(FORT, g) for g in FORT_GROUPS]
++    F = {f"n_{c[:4]}_{g}": np.zeros(len(cl)) for c, g in keys}
++    F.update({f"max_{c[:4]}_{g}": np.zeros(len(cl)) for c, g in keys})
++    F["log_n"] = np.zeros(len(cl)); F["log_extent"] = np.zeros(len(cl)); F["log_area_sum"] = np.zeros(len(cl))
++    for j, mem in enumerate(cl):
++        w = np.maximum(t["conf"][mem], 1e-3)
++        cx[j] = np.average(t["x"][mem], weights=w); cy[j] = np.average(t["y"][mem], weights=w)
++        k = float(np.median(t["k"][mem]))
++        F["log_n"][j] = math.log(mem.size)
++        F["log_extent"][j] = math.log1p(k * max(np.ptp(t["x"][mem]), np.ptp(t["y"][mem])))
++        F["log_area_sum"][j] = math.log1p(t["area"][mem].sum())
++        for c, g in keys:
++            m = mem[(t["cls"][mem] == c) & (t["group"][mem] == g)]
++            if m.size:
++                F[f"n_{c[:4]}_{g}"][j] = m.size
++                F[f"max_{c[:4]}_{g}"][j] = t["conf"][m].max()
++    return cx, cy, F
++
++
++def rule_score_fort(F: dict) -> np.ndarray:
++    """Правило без обучения: фортификация в окружении других фортификаций (вал по кругу)
++    и/или кандидатов городищ похожа на часть городища."""
++    n_fort = sum(v for k, v in F.items() if k.startswith("n_fort") and k.endswith("_120"))
++    gor = sum(v for k, v in F.items() if k.startswith("max_goro") and k.endswith("_120"))
++    return np.clip(F["conf"] * (1 - np.exp(-n_fort / 4.0)) * 0.5 + 0.5 * np.minimum(gor, 1.0), 0, 1)
++
++
++def circles(x, y, k, conf, region, group: str, radius_m: float = 3.0, markup: str = "li") -> list[dict]:
++    """Круги радиуса radius_m (м) в EPSG:3857 → признаки GeoJSON класса gorodishcha."""
++    from shapely.geometry import Point, mapping
++
++    out = []
++    for xi, yi, ki, ci, ri in zip(x, y, k, conf, region):
++        g = Point(float(xi), float(yi)).buffer(radius_m / float(ki), 16)
++        out.append({"type": "Feature", "geometry": mapping(g),
++                    "properties": {"class_name": GOR, "confidence": round(float(ci), 6), "region_name": str(ri),
++                                   "crs": "EPSG:3857", "markup_type": markup, "threshold_group": group}})
++    return out
++
++
++def nms(x, y, k, score, region, dist_m: float = 60.0) -> np.ndarray:
++    """Жадное подавление: в радиусе dist_m (м) на участке остаётся кандидат с наибольшей оценкой.
++    Много кругов на одном городище — один TP и остальные FP, поэтому дубли снимаем до порога."""
++    from scipy.spatial import cKDTree
++
++    keep = np.zeros(len(score), bool)
++    for reg in np.unique(region):
++        idx = np.nonzero(region == reg)[0]
++        idx = idx[np.argsort(-score[idx], kind="stable")]
++        tree = cKDTree(np.c_[x[idx], y[idx]])
++        dead = np.zeros(idx.size, bool)
++        for a in range(idx.size):
++            if dead[a]:
++                continue
++            keep[idx[a]] = True
++            for b in tree.query_ball_point([x[idx[a]], y[idx[a]]], r=dist_m / k[idx[a]]):
++                if b != a:
++                    dead[b] = True
++    return keep
+diff --git a/expds/hillfort.py b/expds/hillfort.py
+index bc9686b..2982e49 100644
+--- a/expds/hillfort.py
++++ b/expds/hillfort.py
+@@ -45,6 +45,21 @@ class HillfortParams:
+     max_per_dem: int = 5
+     dem_res: float = 0.5             # ЦМР из LAS: один рецепт в табло (hillfort_oof.py) и в сдаче
+     dem_fill: str = "pyramid"
++    group: str = "gor_phys"          # группа порога; грубый проход — "gor_coarse_dem"
++
++
++# Грубый проход (bot-4): шаг 3 м, окно 150 м, площадки до 25 га, мягче уклоны. Ловит крупные
++# городища (ae: медиана 29 923 м², notes/gt_stats_summary.md), которые обычный проход
++# отсекает по max_area 6 га или не держит окном 60 м. Своя группа порога — табло решает
++# порог отдельно от gor_phys. Параметры не подбирались по эталону (ЦМР на коробке нет).
++COARSE = {"work_res": 3.0, "relief_radius_m": 150.0, "min_rel_height_m": 1.0, "flat_max_deg": 15.0,
++          "scarp_min_deg": 14.0, "ring_m": 12.0, "min_area_m2": 3000.0, "max_area_m2": 250000.0,
++          "min_enclosure": 0.2, "max_per_dem": 3, "group": "gor_coarse_dem"}
++
++
++def coarse_params(cfg: dict | None = None) -> HillfortParams:
++    """Параметры грубого прохода; cfg перекрывает пресет."""
++    return params_from({**COARSE, **(cfg or {})})
+ 
+ 
+ def params_from(cfg: dict | None) -> HillfortParams:
+@@ -138,7 +153,7 @@ def find(z: np.ndarray, step: float, p: HillfortParams) -> list[dict]:
+ 
+ 
+ def candidates(d, region: str, source: str, p: HillfortParams | None = None) -> list[dict]:
+-    """ЦМР (lidar.Dem) → круги класса gorodishcha в EPSG:3857, группа gor_phys."""
++    """ЦМР (lidar.Dem) → круги класса gorodishcha в EPSG:3857, группа p.group (gor_phys по умолчанию)."""
+     from .candidates import to_work_grid
+     from .raster import circle_3857
+ 
+@@ -154,7 +169,7 @@ def candidates(d, region: str, source: str, p: HillfortParams | None = None) ->
+         r = min(p.core_m, max(1.0, 0.5 * c["inscribed_m"]))
+         out.append({"geom": circle_3857(x, y, r, d.crs), "class_name": "gorodishcha",
+                     "confidence": round(c["confidence"], 6), "region_name": region, "markup_type": "li",
+-                    "source": source, "original_crs": d.crs, "threshold_group": "gor_phys",
++                    "source": source, "original_crs": d.crs, "threshold_group": p.group,
+                     "hillfort_area_m2": round(c["area_m2"], 1), "hillfort_enclosure": round(c["enclosure"], 3),
+                     "hillfort_height_m": round(c["height_m"], 2)})
+     log.info("%s: кандидатов городищ по рельефу %d", source, len(out))
+diff --git a/scripts/hillfort_oof.py b/scripts/hillfort_oof.py
+index 6bc889f..bcc8bbf 100644
+--- a/scripts/hillfort_oof.py
++++ b/scripts/hillfort_oof.py
+@@ -12,6 +12,7 @@
+ 
+     python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
+     python scripts/hillfort_oof.py ... --set relief_radius_l_m=150 --out F:/expds3/work/gor_phys_wide.geojson
++    python scripts/hillfort_oof.py ... --preset coarse --out F:/expds3/work/gor_coarse_dem.geojson   # грубый проход (bot-4)
+ 
+ Тот же файл годится источником для `oof_transform.py rescue` (лучшая площадка участка).
+ """
+@@ -36,6 +37,8 @@ def main() -> None:
+     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+     ap.add_argument("--root", required=True)
+     ap.add_argument("--out", required=True)
++    ap.add_argument("--preset", choices=("fine", "coarse"), default="fine",
++                    help="coarse — грубый проход (hillfort.COARSE, группа gor_coarse_dem)")
+     ap.add_argument("--set", action="append", default=[], help="параметр=значение HillfortParams (литерал TOML)")
+     args = ap.parse_args()
+     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+@@ -44,7 +47,7 @@ def main() -> None:
+     for spec in args.set:
+         key, _, raw = spec.partition("=")
+         cfg[key.strip()] = tomllib.loads(f"v = {raw.strip()}")["v"]
+-    p = hillfort.params_from(cfg)
++    p = hillfort.coarse_params(cfg) if args.preset == "coarse" else hillfort.params_from(cfg)
+     feats: list[dict] = []
+     n_las = 0
+     for reg in scan_root(args.root):
+@@ -59,7 +62,7 @@ def main() -> None:
+     out = post.finalize(feats)
+     fc = writer.to_feature_collection(out)
+     for f, src in zip(fc["features"], out):
+-        f["properties"]["threshold_group"] = src.get("threshold_group", "gor_phys")
++        f["properties"]["threshold_group"] = src.get("threshold_group", p.group)
+     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+     Path(args.out).write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
+     print(json.dumps({"las": n_las, "written": len(out), "params": vars(p)}, ensure_ascii=False))
+diff --git a/tests/test_gorfort.py b/tests/test_gorfort.py
+new file mode 100644
+index 0000000..dfe47b2
+--- /dev/null
++++ b/tests/test_gorfort.py
+@@ -0,0 +1,51 @@
++"""Арбитр fort→gor и грубый проход по стеку (expds/gorfort.py) на синтетике."""
++import math
++
++import numpy as np
++
++from expds import gorfort as gf
++
++
++def _sq(x, y, s, cls, grp, conf, reg="r1"):
++    c = [[x - s, y - s], [x + s, y - s], [x + s, y + s], [x - s, y + s], [x - s, y - s]]
++    return {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [c]},
++            "properties": {"class_name": cls, "threshold_group": grp, "confidence": conf, "region_name": reg, "markup_type": "li"}}
++
++
++def _fc():
++    x0, y0 = 3_540_000.0, 7_317_000.0   # ~55° с. ш.: 1 м на местности ≈ 1,74 ед. 3857
++    ring = [_sq(x0 + 80 * math.cos(a), y0 + 80 * math.sin(a), 6, gf.FORT, "li_fort", 0.99) for a in np.linspace(0, 2 * np.pi, 8, endpoint=False)]
++    lone = [_sq(x0 + 5000, y0, 6, gf.FORT, "li_fort", 0.995)]
++    gor = [_sq(x0 + 10, y0 + 10, 4, gf.GOR, "li_mask", 0.5)]
++    noise = [_sq(x0 - 9000, y0, 6, gf.FORT, "ae_fort", 0.5)]          # ниже ae_floor — отброшен
++    return {"type": "FeatureCollection", "features": ring + lone + gor + noise}
++
++
++def test_table_drops_low_ae_and_measures_in_metres():
++    t = gf.table(_fc())
++    assert len(t["cls"]) == 10
++    k = t["k"][0]
++    assert 0.55 < k < 0.6
++    assert abs(t["area"][0] - (12 * k) ** 2) < 1e-6 * t["area"][0] + 1e-3
++
++
++def test_ring_of_forts_scores_above_a_lone_fort_and_clusters_into_one_coarse_candidate():
++    t = gf.table(_fc())
++    q, F = gf.fort_features(t)
++    s = gf.rule_score_fort(F)
++    lone = int(np.argmax(F["conf"]))
++    assert s[lone] < np.median(s)
++    cl = gf.clusters(t, gf.GorFortParams(link_m=80.0))
++    assert len(cl) == 1 and len(cl[0]) == 9               # кольцо + городище; одиночка не скопление
++    cx, cy, F2 = gf.cluster_features(t, cl)
++    assert abs(cx[0] - 3_540_000.0) < 30 and abs(cy[0] - 7_317_000.0) < 30   # центр скопления — внутри кольца
++    assert F2["n_fort_li_fort"][0] == 8 and F2["n_goro_li_mask"][0] == 1
++
++
++def test_circles_and_nms():
++    out = gf.circles(np.array([0.0, 1.0]), np.array([0.0, 0.0]), np.array([0.5, 0.5]), np.array([0.9, 0.8]),
++                     np.array(["r", "r"], dtype=object), "fort2gor")
++    assert out[0]["properties"]["threshold_group"] == "fort2gor" and out[0]["properties"]["class_name"] == gf.GOR
++    keep = gf.nms(np.array([0.0, 10.0, 1000.0]), np.zeros(3), np.ones(3), np.array([0.5, 0.9, 0.1]),
++                  np.array(["r", "r", "r"], dtype=object), 60.0)
++    assert keep.tolist() == [False, True, True]
+diff --git a/tests/test_hillfort_coarse.py b/tests/test_hillfort_coarse.py
+new file mode 100644
+index 0000000..b8f4696
+--- /dev/null
++++ b/tests/test_hillfort_coarse.py
+@@ -0,0 +1,40 @@
++"""Грубый проход городищ (hillfort.COARSE): крупная площадка, которую обычный проход отсекает."""
++import numpy as np
++from scipy import ndimage
++
++from expds.hillfort import COARSE, HillfortParams, candidates, coarse_params, find
++from expds.lidar import Dem
++
++
++def big_terrain(step: float = 3.0, n: int = 260) -> np.ndarray:
++    """Шаг 3 м, 780×780 м: площадка 300×270 м (8,1 га) на 6 м выше с обрывом ~9 м и пологий холм."""
++    rng = np.random.default_rng(1)
++    z = np.full((n, n), 100.0) + rng.normal(0, 0.02, (n, n))
++    cape = np.zeros((n, n), bool)
++    cape[40:130, 40:140] = True
++    outside = ndimage.distance_transform_edt(~cape) * step
++    z += 6.0 * np.clip(1 - outside / 9.0, 0, 1)
++    yy, xx = np.mgrid[0:n, 0:n]
++    z += 6.0 * np.exp(-((xx - 200) ** 2 + (yy - 200) ** 2) / (2 * 25.0 ** 2))
++    return z.astype(np.float32)
++
++
++def test_coarse_finds_a_large_plateau_that_the_fine_pass_rejects():
++    z = big_terrain()
++    fine = find(z, 3.0, HillfortParams())   # окно 60 м: от площадки 8 га остаётся «подкова» у края
++    assert all(c["area_m2"] < 0.5 * 81_000 for c in fine)
++    found = find(z, 3.0, coarse_params())
++    assert found, "грубый проход не нашёл площадку 8 га"
++    best = found[0]
++    assert 40 <= best["row"] < 130 and 40 <= best["col"] < 140
++    assert best["area_m2"] > 0.8 * 81_000 and best["confidence"] > max(c["confidence"] for c in fine)
++    assert all(not (170 < c["row"] < 230 and 170 < c["col"] < 230) for c in found)   # пологий холм — нет
++
++
++def test_coarse_candidates_have_their_own_group_and_override():
++    d = Dem(dem=big_terrain(), left=500_000.0, top=6_100_780.0, res=3.0, crs="EPSG:32636")
++    out = candidates(d, "r", "x.las", coarse_params())
++    assert out and all(f["threshold_group"] == "gor_coarse_dem" for f in out)
++    assert out[0]["geom"].area < 200                     # тот же круг ≤3 м, что и у gor_phys
++    assert coarse_params({"max_per_dem": 1}).max_per_dem == 1 and COARSE["max_per_dem"] == 3
++    assert HillfortParams().group == "gor_phys"          # обычный проход не изменился

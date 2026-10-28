@@ -1,0 +1,14 @@
+A 0.3146153226828423 21 s
+regions without listing 0 []
+eligible 10916 [('kurgany_povrezhdennye', 4359), ('finds_points', 3732), ('kurgany_tselye', 1973), ('object_poly', 852)]
+label pos 1055 Counter({'kurgany_povrezhdennye': 485, 'finds_points': 288, 'object_poly': 160, 'kurgany_tselye': 122})
+X (10916, 30)
+oracle {"A": 0.3146153226828423, "B": 0.3224056399634133, "delta": 0.007790317280571002, "d_new34": 0.01009580581998537, "d_optical": 0.0032820079419344783, "boot": {"mean": 0.007600581019146553, "p5": 0.004017046576465422, "p50": 0.0076629295125575925, "p95": 0.01082386376155968, "p_gt0": 1.0, "samples": 1000, "families": 103}, "P_A_gt_B": 0.0, "P4": {"kurgany_povrezhdennye": 0.003454550141103818, "kurgany_tselye": 0.001320854791145043, "gorodishcha": 0.0}, "rule": {"P1": true, "P2": true, "P3": null, "P4": true, "P5_package_only": false}, "dTP_dFP": {"kurgany_povrezhdennye": [73, 331], "kurgany_tselye": [26, 83], "object_poly": [-1, 1], "finds_points": [117, -78]}}
+blind {"A": 0.3146153226828423, "B": 0.30488081472898143, "delta": -0.009734507953860883, "d_new34": -0.0023833501768313337, "d_optical": -0.0014996665244543794, "boot": {"mean": -0.00940471902289682, "p5": -0.01328541531096052, "p50": -0.009971085837221283, "p95": -0.002998522196450605, "p_gt0": 0.0, "samples": 1000, "families": 103}, "P_A_gt_B": 1.0, "P4": {"kurgany_povrezhdennye": -0.002171987125783997, "kurgany_tselye": -0.006261681317198753, "gorodishcha": 0.0}, "rule": {"P1": false, "P2": false, "P3": null, "P4": false, "P5_package_only": true}, "dTP_dFP": {"kurgany_povrezhdennye": [-24, 15], "kurgany_tselye": [-43, 103], "object_poly": [4, 64], "finds_points": [21, 460]}}
+nested fits 52 s
+OOF AUC 0.5954787662249341 AP 0.12699002690883512 pos rate 0.0966471234884573
+rand 0 -0.0010497699282198125
+rand 1 -0.0013192512515362576
+rand 2 -0.0017580676381421245
+rand 3 -0.0017375585374670988
+rand 4 -0.0003345547825738815

@@ -1,0 +1,62 @@
+{
+ "or|2.0": {
+  "tp": 71
+ },
+ "ALL|2.0": {
+  "tp": 257
+ },
+ "or|0.05": {
+  "tp": 82
+ },
+ "ALL|0.05": {
+  "tp": 269
+ },
+ "or|n": {
+  "gt": 178,
+  "comps": 124,
+  "peaks_after_nms": 103,
+  "gt_in_multi_comps": 78
+ },
+ "ALL|n": {
+  "gt": 407,
+  "comps": 316,
+  "peaks_after_nms": 295,
+  "gt_in_multi_comps": 135
+ },
+ "li|2.0": {
+  "tp": 1
+ },
+ "li|0.05": {
+  "tp": 1
+ },
+ "li|n": {
+  "gt": 1,
+  "comps": 1,
+  "peaks_after_nms": 1,
+  "gt_in_multi_comps": 0
+ },
+ "ae|2.0": {
+  "tp": 18
+ },
+ "ae|0.05": {
+  "tp": 18
+ },
+ "ae|n": {
+  "gt": 18,
+  "comps": 18,
+  "peaks_after_nms": 18,
+  "gt_in_multi_comps": 0
+ },
+ "sp_or|2.0": {
+  "tp": 167
+ },
+ "sp_or|0.05": {
+  "tp": 168
+ },
+ "sp_or|n": {
+  "gt": 210,
+  "comps": 173,
+  "peaks_after_nms": 173,
+  "gt_in_multi_comps": 57
+ }
+}

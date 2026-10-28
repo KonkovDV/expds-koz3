@@ -1,0 +1,83 @@
+diff --git a/expds/post.py b/expds/post.py
+index eb7ce26..11586df 100644
+--- a/expds/post.py
++++ b/expds/post.py
+@@ -452,6 +452,11 @@ def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) ->
+     return out
+ 
+ 
++# Карта центров спутника: в табло группа подписана sp_focal, в сдаче читается из markup_type = sp_or
++# (pipeline.py, комментарий у KEPT_KURGAN_CONF). Без sp_or ветка sp_twin в сдаче не срабатывает.
++SP_TWIN_GROUPS = ("sp_focal", "sp_or")
++
++
+ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
+     """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
+     from collections import defaultdict
+@@ -481,7 +486,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+             li_povr_pts[reg].append(xy)
+         elif grp == "ae":
+             ae_povr_pts[reg].append(xy)
+-        elif grp == "sp_focal" and conf >= 0.05:
++        elif grp in SP_TWIN_GROUPS and conf >= 0.05:
+             sp_povr_pts[reg].append(xy)
+ 
+     li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
+@@ -513,7 +518,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+             if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
+-        elif use_sp and grp == "sp_focal":
++        elif use_sp and grp in SP_TWIN_GROUPS:
+             if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 2e15b2d..59c84b5 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -75,6 +75,11 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+         out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
+     if post_cfg.get("kurgan_twins"):
+         out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
++    elif post_cfg.get("kurgan_twins_only"):
++        # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
++        spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
++        spec["dedup_ae_vs_li_m"] = 0.0
++        out = post.kurgan_cross_modal_twins(out, spec)
+     if post_cfg.get("fill_holes"):
+         out = post.fill_holes(out, post_cfg["fill_holes"])
+     if post_cfg.get("core"):
+diff --git a/tests/test_bot6_twins_only.py b/tests/test_bot6_twins_only.py
+new file mode 100644
+index 0000000..1687a29
+--- /dev/null
++++ b/tests/test_bot6_twins_only.py
+@@ -0,0 +1,27 @@
++from shapely.geometry import Point
++from expds import post, watchdog
++
++
++def _f(cls, grp, x, conf=0.9, markup=None):
++    return {"class_name": cls, "threshold_group": grp, "markup_type": markup or grp, "confidence": conf,
++            "region_name": "r", "geom": Point(4.1e6 + x, 7.4e6).buffer(2.0)}  # EPSG:3857
++
++
++def test_twins_only_keeps_ae_near_li_and_adds_copies():
++    feats = [_f("kurgany_povrezhdennye", "li", 0.0, 0.5), _f("kurgany_povrezhdennye", "ae", 0.1),
++             _f("kurgany_tselye", "ae", 50.0), _f("kurgany_tselye", None, 90.0, markup="sp_or")]
++    out = post.kurgan_cross_modal_twins(feats, {"dedup_ae_vs_li_m": 0.0})
++    assert sum(1 for f in out if f["threshold_group"] == "ae" and f["class_name"] == "kurgany_povrezhdennye") == 1
++    tw = [f for f in out if f["threshold_group"] in ("ae_twin", "sp_focal_twin")]
++    assert {f["threshold_group"] for f in tw} == {"ae_twin", "sp_focal_twin"}
++    assert all(f["class_name"] == "kurgany_povrezhdennye" for f in tw)
++    assert {f["markup_type"] for f in tw} == {"ae", "sp_or"}
++    assert len(out) == len(feats) + 2  # ничего не удалено, исходные целые на месте
++
++
++def test_watchdog_flag_forces_no_dedup(monkeypatch):
++    seen = {}
++    monkeypatch.setattr(post, "kurgan_cross_modal_twins", lambda out, spec: seen.setdefault("spec", spec) and out)
++    cfg = {"post": {"kurgan_twins_only": {"dedup_ae_vs_li_m": 3.0}}, "thresholds": {}, "default_threshold": 0.0}
++    watchdog.finish([], cfg)
++    assert seen["spec"]["dedup_ae_vs_li_m"] == 0.0

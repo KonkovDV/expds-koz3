@@ -1,0 +1,139 @@
+{
+ "finds/Судьбищи": {
+  "n": 216,
+  "nn_lt_0.5": 0.0,
+  "nn_lt_1.0": 0.0,
+  "nn_lt_2.0": 0.1389,
+  "nn_lt_4.0": 0.5093,
+  "nms_keep_R0.5": 1.0,
+  "nms_keep_R1.0": 1.0,
+  "nms_keep_R2.0": 0.9347
+ },
+ "finds/Семибратнее": {
+  "n": 2370,
+  "nn_lt_0.5": 0.0034,
+  "nn_lt_1.0": 0.0068,
+  "nn_lt_2.0": 0.2338,
+  "nn_lt_4.0": 0.7515,
+  "nms_keep_R0.5": 0.9983,
+  "nms_keep_R1.0": 0.9966,
+  "nms_keep_R2.0": 0.8843
+ },
+ "finds/Гнёздово": {
+  "n": 892,
+  "nn_lt_0.5": 0.0135,
+  "nn_lt_1.0": 0.1816,
+  "nn_lt_2.0": 0.593,
+  "nn_lt_4.0": 0.8576,
+  "nms_keep_R0.5": 0.9933,
+  "nms_keep_R1.0": 0.9119,
+  "nms_keep_R2.0": 0.6611
+ },
+ "object_poly/maggr/Гнёздово": {
+  "n": 122,
+  "area_m2_p10_p50_p90": [
+   9.59,
+   28.32,
+   142.93
+  ],
+  "convexity_p10_p50": [
+   0.708,
+   0.858
+  ],
+  "share_convexity_lt_0.8": 0.3033,
+  "share_centroid_outside": 0.0164,
+  "share_gap_lt_0.1m": 0.0656,
+  "share_gap_lt_0.25m": 0.1311,
+  "share_gap_lt_0.5m": 0.2131,
+  "share_gap_lt_1.0m": 0.4016,
+  "share_gap_lt_2.0m": 0.582
+ },
+ "object_poly/maggr/Семибратнее": {
+  "n": 125,
+  "area_m2_p10_p50_p90": [
+   18.31,
+   45.96,
+   318.83
+  ],
+  "convexity_p10_p50": [
+   0.721,
+   0.921
+  ],
+  "share_convexity_lt_0.8": 0.16,
+  "share_centroid_outside": 0.024,
+  "share_gap_lt_0.1m": 0.04,
+  "share_gap_lt_0.25m": 0.168,
+  "share_gap_lt_0.5m": 0.352,
+  "share_gap_lt_1.0m": 0.472,
+  "share_gap_lt_2.0m": 0.56
+ },
+ "object_poly/maggr/Судьбищи": {
+  "n": 5,
+  "area_m2_p10_p50_p90": [
+   26.03,
+   37.54,
+   1105.39
+  ],
+  "convexity_p10_p50": [
+   0.367,
+   0.965
+  ],
+  "share_convexity_lt_0.8": 0.4,
+  "share_centroid_outside": 0.4,
+  "share_gap_lt_0.1m": 0.0,
+  "share_gap_lt_0.25m": 0.0,
+  "share_gap_lt_0.5m": 0.0,
+  "share_gap_lt_1.0m": 0.4,
+  "share_gap_lt_2.0m": 0.4
+ },
+ "object_poly/etgr/Гнёздово": {
+  "n": 658,
+  "area_m2_p10_p50_p90": [
+   0.36,
+   2.71,
+   16.88
+  ],
+  "convexity_p10_p50": [
+   0.823,
+   0.959
+  ],
+  "share_convexity_lt_0.8": 0.0729,
+  "share_centroid_outside": 0.0091,
+  "share_gap_lt_0.1m": 0.2416,
+  "share_gap_lt_0.25m": 0.3404,
+  "share_gap_lt_0.5m": 0.4529,
+  "share_gap_lt_1.0m": 0.5669,
+  "share_gap_lt_2.0m": 0.7234
+ },
+ "object_poly/terfl/Гнёздово": {
+  "n": 177,
+  "area_m2_p10_p50_p90": [
+   3.33,
+   18.74,
+   85.63
+  ],
+  "convexity_p10_p50": [
+   0.817,
+   0.949
+  ],
+  "share_convexity_lt_0.8": 0.0847,
+  "share_centroid_outside": 0.0113,
+  "share_gap_lt_0.1m": 0.0904,
+  "share_gap_lt_0.25m": 0.1695,
+  "share_gap_lt_0.5m": 0.4181,
+  "share_gap_lt_1.0m": 0.7062,
+  "share_gap_lt_2.0m": 0.8475
+ },
+ "finds_inside_maggr_poly/Гнёздово": {
+  "n": 892,
+  "share": 0.1626
+ },
+ "finds_inside_maggr_poly/Семибратнее": {
+  "n": 2370,
+  "share": 0.1422
+ },
+ "finds_inside_maggr_poly/Судьбищи": {
+  "n": 216,
+  "share": 0.1019
+ }
+}

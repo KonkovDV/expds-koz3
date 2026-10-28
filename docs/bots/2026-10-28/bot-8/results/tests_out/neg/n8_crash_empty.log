@@ -1,0 +1,25 @@
+== check_submission: /workspace/koz3_shared/bot-8/tests_out/neg/n8_crash_empty.zip (2026-10-28 19:42:45 MSK)
+[PASS] zip       44 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 538.8 МиБ (564998105 Б), распакованный 541.4 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 12 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 25 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   24 модулей и 9 сторонних пакетов импортируются без сети (25.1 с)
+[PASS] weights   12 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0,1 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[PASS] smoke     main.py завершился за 0.5 с, пик RSS 60 МиБ, CPU 0,1
+[INFO] smoke     общее время 0.1 с
+[FAIL] smoke     2 тревожных строк лога: 2026-10-28 19:43:15,172 ERROR main: сбой пайплайна | Traceback (most recent call last):
+[PASS] format    FeatureCollection, 0 Polygon (≤20000), 0.000 МБ, по классам {}
+[FAIL] format    ответ пуст — на синтетике ожидаются объекты (геофизика/лидар); пустой ответ тратит попытку дня. Проверьте лог (--allow-empty — понизить до WARN)
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+== ИТОГ: FAIL — FAIL 2, WARN 0, проверок 23, 29.6 с

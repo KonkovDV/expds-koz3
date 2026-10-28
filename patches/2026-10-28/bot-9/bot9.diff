@@ -1,0 +1,625 @@
+diff --git a/expds/centers.py b/expds/centers.py
+index 3bfbb04..9bbb0ea 100644
+--- a/expds/centers.py
++++ b/expds/centers.py
+@@ -176,7 +176,7 @@ def center_loss(logits, target, weight=None):
+             + dice_loss(logits.float() * valid - 20.0 * (1 - valid), target))
+ 
+ 
+-def heatmap_counts(pred, target, radius: int):
++def heatmap_counts(pred, target, radius: int, thr: float = 0.5):
+     """TP, FP, FN по классам: пик эталона найден, если рядом есть пик предсказания.
+ 
+     pred и target — вероятности N×K×H×W. Пик — локальный максимум окна
+@@ -188,11 +188,16 @@ def heatmap_counts(pred, target, radius: int):
+     k = 2 * r + 1
+ 
+     def peaks(p):
++        pooled = F.max_pool2d(p, k, stride=1, padding=r)
++        return (p + 1e-6 >= pooled) & (p > th)
++
++    def _gt_peaks(p):
+         pooled = F.max_pool2d(p, k, stride=1, padding=r)
+         return (p + 1e-6 >= pooled) & (p > 0.5)
+ 
++    th = float(thr)
+     pr = peaks(pred) & (target >= 0)
+-    gt = peaks(target.clamp(min=0))
++    gt = _gt_peaks(target.clamp(min=0))
+     gt_near = F.max_pool2d(gt.float(), k, stride=1, padding=r) > 0
+     pr_near = F.max_pool2d(pr.float(), k, stride=1, padding=r) > 0
+     dims = (0, 2, 3)
+diff --git a/expds/train.py b/expds/train.py
+index d0aa928..0c7a1eb 100644
+--- a/expds/train.py
++++ b/expds/train.py
+@@ -421,7 +421,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+           channel_dropout: float = 0.0, paste_blend: float = 0.0,
+           paste_scale: tuple[float, float] = (1.0, 1.0), elastic: float = 0.0,
+           small_object_weight: float = 1.0, device: str | None = None,
+-          require_gpu: bool = False) -> dict:
++          require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
++          select_min_epoch: int = 1, center_match_m: float = 0.0,
++          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False) -> dict:
+     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
+ 
+     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
+@@ -448,6 +450,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+     val_families = val_families or []
+     tr_rows = [r for r in rows if r["family"] not in val_families]
+     va_rows = [r for r in rows if r["family"] in val_families]
++    if val_families and not va_rows and not all_data:
++        # bot-9: «--val-families auto» или опечатка раньше молча давали 10 % хвоста индекса (утечка семьи).
++        raise ValueError(f"--val-families {val_families}: ни одного тайла этих семей в {cache_p}/index.csv")
+     if not va_rows:  # без проверки по семьям — 10 % хвоста (только для отладки)
+         cut = max(1, len(rows) // 10)
+         tr_rows, va_rows = rows[:-cut], rows[-cut:]
+@@ -479,9 +484,15 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+             f"Требуется GPU (device={device!r}, require_gpu={require_gpu}), но torch.cuda.is_available() == False! "
+             "Отказ от тихого отката на CPU."
+         )
++    n_dev = torch.cuda.device_count() if torch.cuda.is_available() else 0
++    if must_gpu and n_dev < max(1, int(min_gpus)):
++        raise RuntimeError(f"Требуется не меньше {max(1, int(min_gpus))} GPU, видно {n_dev}. Отказ от тихого отката на CPU.")
+     dev = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
++    if must_gpu and dev.type != "cuda":
++        raise RuntimeError(f"--require-gpu, но выбрано устройство {dev}")
+     if dev.type == "cuda":
+-        n_dev = torch.cuda.device_count()
++        if must_gpu and dev.index is not None and dev.index >= n_dev:
++            raise RuntimeError(f"Запрошен {dev}, а видно {n_dev} GPU: переназначение запрещено при --require-gpu")
+         if dev.index is not None and n_dev > 0 and dev.index >= n_dev:
+             mapped = dev.index % n_dev
+             log.warning("Запрошен %s при %d доступных GPU; переназначаю на cuda:%d", dev, n_dev, mapped)
+@@ -500,13 +511,32 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+         model = smp.create_model(arch, encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+                                  in_channels=c, classes=k).to(dev).to(memory_format=fmt)
+     ema_model = None
+-    if ema > 0:
+-        from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
+-
+-        ema_model = AveragedModel(model, multi_avg_fn=get_ema_multi_avg_fn(float(ema)), use_buffers=True)
++    from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
+     if center and center_loss_name == "focal":
++        # bot-9: смещение головы ставится до копии в EMA, чтобы копия стартовала с тем же prior 0,01.
+         from .centers import init_focal_bias
+         init_focal_bias(model)
++    if must_gpu:
++        bad = [n for n, t in list(model.named_parameters()) + list(model.named_buffers()) if t.device.type != "cuda"]
++        if bad:
++            raise RuntimeError(f"Модель не на GPU: {bad[:3]}")
++    if ema > 0:
++        if ema_warmup:
++            # bot-9: decay_t = min(ema, (1 + t) / (10 + t)) — при 1,3–1,7 тыс. шагов 0,999 без разгона
++            # оставляет 19–28 % веса первых шагов (0,999^1290 = 0,275).
++            _ema = float(ema)
++
++            @torch.no_grad()
++            def _avg_fn(avg_p, cur_p, num_averaged):
++                t = float(num_averaged)
++                d = min(_ema, (1.0 + t) / (10.0 + t))
++                if not avg_p.is_floating_point():
++                    return cur_p
++                return avg_p * d + cur_p * (1.0 - d)
++
++            ema_model = AveragedModel(model, avg_fn=_avg_fn, use_buffers=True)
++        else:
++            ema_model = AveragedModel(model, multi_avg_fn=get_ema_multi_avg_fn(float(ema)), use_buffers=True)
+     # auto — как в кэше: повороты и отражения у всего, кроме лидара с направленной отмывкой.
+     # none — без них: на снимке тень кургана лежит против солнца, и поворот на 90° учит сеть
+     # не смотреть на этот признак (у лидара с отмывкой g повороты выключены по той же причине).
+@@ -538,7 +568,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+                 t = torch.where((ym[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
+             return t
+ 
+-        if not center_spike or (not flips):
++        if not center_spike or (not flips) or center_pre_flip:
++            # center_pre_flip: цель считается один раз, отражения применяются к ней на GPU.
++            # Шип при отражении может сместиться на 1 пиксель (0,5 м) — меньше радиуса метрики 2 м.
+             pre_target = _pre_target
+     if gpu_data:
+         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
+@@ -611,12 +643,19 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+         def batch_loss(logits, y, precomputed: bool = False):
+             return bce(logits, y) + dice_loss(logits.float(), y), y
+     best_f1, best_loss, history = -1.0, math.inf, []
++    thrs = tuple(float(t) for t in (center_peak_thrs or (0.5,)))
++    best_thr = None
++    checked_dev = not must_gpu
+     for ep in range(epochs):
+         t0 = time.perf_counter()
+         model.train()
+         tl = torch.zeros((), device=dev)
+         n = 0
+         for x, y in train_batches():
++            if not checked_dev:
++                if x.device.type != "cuda" or y.device.type != "cuda":
++                    raise RuntimeError(f"Батч не на GPU: x={x.device}, y={y.device}")
++                checked_dev = True
+             if scale_aug > 0 or photo_aug > 0:
+                 x, y = augment_batch(x, y, scale_aug, photo_aug)
+             tr_pre = bool(gpu_data and g_tr.y_pre is not None and scale_aug <= 0)
+@@ -637,6 +676,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+         vl = torch.zeros((), device=dev)
+         vn = 0
+         tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
++        ctab = {t: [torch.zeros(k, device=dev) for _ in range(3)] for t in thrs} if center else {}
+         with torch.inference_mode():
+             for x, y in val_batches():
+                 va_pre = bool(gpu_data and g_va.y_pre is not None)
+@@ -647,10 +687,14 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+                 vn += len(x)
+                 if center:
+                     match_r = max(2, round(sigma_px)) if center_sigma_m <= 0 else max(1, round(sigma_px))
+-                    ctp, cfp, cfn = heatmap_counts(logits.float().sigmoid(), y, match_r)
+-                    tp += ctp
+-                    fp += cfp
+-                    fn += cfn
++                    if center_match_m > 0:
++                        match_r = max(1, int(round(center_match_m / float(meta["res"]))))
++                    pr_sig = logits.float().sigmoid()
++                    for t_ in thrs:
++                        ctp, cfp, cfn = heatmap_counts(pr_sig, y, match_r, thr=t_)
++                        ctab[t_][0] += ctp
++                        ctab[t_][1] += cfp
++                        ctab[t_][2] += cfn
+                 else:
+                     p = (logits.float().sigmoid() > 0.5).float()
+                     tp += (p * y).sum(dim=(0, 2, 3))
+@@ -658,7 +702,22 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+                     fn += ((1 - p) * y).sum(dim=(0, 2, 3))
+         vl = float(vl) / max(vn, 1)
+         tp, fp, fn = tp.cpu().numpy(), fp.cpu().numpy(), fn.cpu().numpy()
++        f1_by_thr = {}
++        ep_thr = None
+         if center:
++            # bot-9: F1 пиков на нескольких порогах; для отбора эпохи — лучший порог (порог с семьи проверки,
++            # не с тестовой семьи фолда, т. е. leave-family-out сохраняется).
++            best_mean = -2.0
++            for t_ in thrs:
++                a, b, c_ = (v.cpu().numpy() for v in ctab[t_])
++                pr_ = a / np.maximum(a + 0.5 * b, 1e-6)
++                rc_ = a / np.maximum(a + c_, 1e-6)
++                f_ = 2 * pr_ * rc_ / np.maximum(pr_ + rc_, 1e-6)
++                sup_ = (a + c_) > 0
++                m_ = float(f_[sup_].mean()) if sup_.any() else -1.0
++                f1_by_thr[t_] = round(m_, 4)
++                if m_ > best_mean:
++                    best_mean, ep_thr, tp, fp, fn = m_, t_, a, b, c_
+             prec = tp / np.maximum(tp + 0.5 * fp, 1e-6)
+             rec_c = tp / np.maximum(tp + fn, 1e-6)
+             f1 = 2 * prec * rec_c / np.maximum(prec + rec_c, 1e-6)
+@@ -669,6 +728,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+         rec = {"epoch": ep + 1, "train_loss": round(float(tl) / max(n, 1), 4), "val_loss": round(vl, 4),
+                f1_key: {cls: round(float(v), 3) for cls, v in zip(meta["classes"], f1)},
+                "seconds": round(time.perf_counter() - t0, 1)}
++        if center:
++            rec["center_f1_mean_by_thr"] = {str(t_): v for t_, v in f1_by_thr.items()}
++            rec["peak_thr"] = ep_thr
+         history.append(rec)
+         log.info(json.dumps(rec, ensure_ascii=False))
+         support = (tp + fn) > 0
+@@ -676,10 +738,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+         # Чекпойнт — по F1 классов, которые есть в проверке (пиксели или пики центров).
+         # Потеря BCE почти целиком про фон и выбирала пустую карту.
+         better = f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and vl < best_loss)
++        if ep + 1 < int(select_min_epoch):
++            better = False  # bot-9: эпоха 1–2 с F1 0,002 больше не «лучшая» навсегда
+         if all_data:
+             better = True
+         if better:
+-            best_f1, best_loss = f1_mean, vl
++            best_f1, best_loss, best_thr = f1_mean, vl, ep_thr
+             Path(out).parent.mkdir(parents=True, exist_ok=True)
+             torch.save({"state_dict": net.state_dict(), "encoder": encoder, "arch": arch, "in_channels": c,
+                         "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
+@@ -694,9 +758,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
+                         "ignore_other_layers": ign_bit is not None,
+                         "pixel_units": meta.get("pixel_units"),
+                         "photo": photo, "scale": scale,
+-                        "epoch": ep + 1,
++                        "epoch": ep + 1, "val_peak_thr": ep_thr, "seed": seed,
++                        "ema_warmup": bool(ema_warmup), "device": str(dev),
+                         "val_loss": vl}, out)
+-    return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "history": history, "out": out,
++    return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "best_peak_thr": best_thr,
++            "history": history, "out": out,
+             "train_tiles": len(tr_rows), "val_tiles": len(va_rows), "device": str(dev)}
+ 
+ 
+@@ -754,7 +820,20 @@ def _cli() -> None:
+                     help="завершить работу с ошибкой, если GPU недоступен (защита от тихого отката на CPU в облаке)")
+     ap.add_argument("--small-object-weight", type=float, default=1.0,
+                     help="вес потери насыпи мельче 0,2 %% кадра (карта центров); 1 — без него")
++    ap.add_argument("--min-gpus", type=int, default=0, help="минимум видимых GPU при --require-gpu")
++    ap.add_argument("--ema-warmup", action="store_true", help="EMA с разгоном decay=min(ema,(1+t)/(10+t))")
++    ap.add_argument("--select-min-epoch", type=int, default=1, help="чекпойнт не раньше этой эпохи")
++    ap.add_argument("--center-match-m", type=float, default=0.0,
++                    help="радиус совпадения пиков на проверке, м (0 — как раньше: 2 пикселя)")
++    ap.add_argument("--center-peak-thrs", type=float, nargs="*", default=[0.5],
++                    help="пороги пика для F1 на проверке; отбор эпохи по лучшему")
++    ap.add_argument("--center-pre-flip", action="store_true",
++                    help="цель центров считать один раз и отражать на GPU (ускорение эпохи)")
++    ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
+     args = ap.parse_args()
++    if args.dry_run:
++        print(json.dumps(vars(args), ensure_ascii=False))
++        return
+     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
+                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
+@@ -765,7 +844,10 @@ def _cli() -> None:
+                 scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips,
+                 center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
+                 channel_dropout=args.channel_dropout, paste_blend=args.paste_blend,
+-                elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device, require_gpu=args.require_gpu)
++                elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device, require_gpu=args.require_gpu,
++                min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
++                center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
++                center_pre_flip=args.center_pre_flip)
+     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
+ 
+ 
+diff --git a/scripts/bot9_kurgan_subclass.py b/scripts/bot9_kurgan_subclass.py
+new file mode 100644
+index 0000000..62ecf06
+--- /dev/null
++++ b/scripts/bot9_kurgan_subclass.py
+@@ -0,0 +1,180 @@
++#!/usr/bin/env python3
++"""bot-9: подкласс кургана (повреждённый / целый) по окну рельефа вокруг кандидата.
++
++Зачем: 489 ложных «повреждённых» и 591 ложный «целый» — настоящие курганы эталона с другим
++подклассом (docs/REASONING_AND_DISCOVERY_LOG_2026-10-28.md:80). Детектор находит насыпь, но
++путает подкласс; веса метрики 30 и 20 (materials/compute_metrics.py:83–91).
++
++Шаги (CPU, на ПК; обучение — ноутбук notebooks/01_kurgan_subclass.ipynb на Kaggle GPU):
++
++    python scripts/bot9_kurgan_subclass.py crops --root F:/2/train-expds-3 \
++        --stack F:/expds3/work/stack_base.geojson --gt F:/expds3/work/gt_train_v2.geojson \
++        --markup li --res 0.5 --tile 64 --li-tags lrm_s lrm_l slope --out F:/expds3/work/kurgan_subclass_crops.npz
++    # → загрузить .npz как датасет Kaggle koz3-kurgan-subclass-crops, прогнать ноутбук,
++    #   скачать kurgan_subclass_oof.csv
++    python scripts/bot9_kurgan_subclass.py apply --stack F:/expds3/work/stack_base.geojson \
++        --oof kurgan_subclass_oof.csv --thr 0.5 --out F:/expds3/work/stack_subclass.geojson
++    python scripts/scoreboard.py <флаги раздела 0> --rerank F:/expds3/work/stack_subclass.geojson --honest 10
++
++Метка окна кандидата — подкласс ближайшего кургана эталона в радиусе 2 м (EPSG:3857 × cos φ), как радиус
++метрики; кандидат без кургана эталона в обучение не идёт (подкласс у фона не определён), но
++вероятность для него ноутбук тоже считает. Потеря взвешена 30 (повреждённый) : 20 (целый) —
++веса метрики; это то же, что порог 0,4 = 20 / (30 + 20) на невзвешенной модели, поэтому
++порог применения 0,5 задан заранее и на табло не подбирается.
++"""
++from __future__ import annotations
++
++import argparse
++import csv
++import json
++import sys
++from pathlib import Path
++
++import numpy as np
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT))
++sys.path.insert(0, str(ROOT / "scripts"))
++
++POVR, TSEL = "kurgany_povrezhdennye", "kurgany_tselye"
++
++
++def _xy3857(geoms):
++    from shapely.geometry import shape
++
++    return [(shape(g).centroid.x, shape(g).centroid.y) for g in geoms]
++
++
++def _merc_scale(y: float) -> float:
++    """cos(широты) точки EPSG:3857: метры на местности = метры Меркатора × cos φ."""
++    import math
++
++    return math.cos(2 * math.atan(math.exp(y / 6378137.0)) - math.pi / 2)
++
++
++def cmd_crops(a) -> None:
++    from scipy.spatial import cKDTree
++
++    import crop_verify as cv
++    from expds.naming import site_family
++
++    stack = json.loads(Path(a.stack).read_text(encoding="utf-8"))
++    gt = json.loads(Path(a.gt).read_text(encoding="utf-8"))
++    gfe = [f for f in gt["features"] if (f.get("properties") or {}).get("class_name") in (POVR, TSEL)]
++    picked = cv.select(stack, {POVR, TSEL}, a.markup, set(a.groups) if a.groups else None, a.min_conf)
++    # окна эталона — «кандидаты» с центром в кургане эталона
++    gstack = {"features": [{"geometry": f["geometry"], "properties": {"region_name": f["properties"]["region_name"]}}
++                           for f in gfe]}
++    tags = tuple(a.li_tags or ())
++    Xg, okg = cv.extract_crops(a.root, gstack, list(range(len(gfe))), a.markup, a.res, a.tile, tags)
++    Xc, okc = cv.extract_crops(a.root, stack, picked, a.markup, a.res, a.tile, tags)
++    gxy = _xy3857([f["geometry"] for f in gfe])
++    cxy = _xy3857([stack["features"][i]["geometry"] for i in picked])
++    greg = [f["properties"]["region_name"] for f in gfe]
++    creg = [str(stack["features"][i]["properties"].get("region_name")) for i in picked]
++    ycls = np.array([1 if f["properties"]["class_name"] == POVR else 0 for f in gfe], np.int8)
++    yc = np.full(len(picked), -1, np.int8)
++    for reg in set(creg):
++        gi = [k for k, r in enumerate(greg) if r == reg]
++        ci = [k for k, r in enumerate(creg) if r == reg]
++        if not gi or not ci:
++            continue
++        tree = cKDTree(np.array([gxy[k] for k in gi]))
++        d, j = tree.query(np.array([cxy[k] for k in ci]), k=1)
++        lim = a.match_m / _merc_scale(gxy[gi[0]][1])  # один множитель на участок
++        for k, dd, jj in zip(ci, d, j):
++            if dd <= lim:
++                yc[k] = ycls[gi[jj]]
++    X = np.concatenate([Xg[okg], Xc[okc]])
++    y = np.concatenate([ycls[okg], yc[okc]])
++    region = np.array([r for r, o in zip(greg, okg) if o] + [r for r, o in zip(creg, okc) if o])
++    kind = np.array(["gt"] * int(okg.sum()) + ["cand"] * int(okc.sum()))
++    sidx = np.concatenate([np.full(int(okg.sum()), -1), np.asarray(picked, np.int64)[okc]])
++    cls = np.array([""] * int(okg.sum()) +
++                   [stack["features"][i]["properties"]["class_name"] for i, o in zip(picked, okc) if o])
++    fam = np.array([site_family(r) for r in region])
++    np.savez_compressed(a.out, X=X, y=y, region=region, family=fam, kind=kind, stack_idx=sidx, cand_class=cls,
++                        res=a.res, tile=a.tile, li_tags=np.array(tags), markup=a.markup)
++    print(json.dumps({"out": a.out, "gt_crops": int(okg.sum()), "cand_crops": int(okc.sum()),
++                      "cand_labeled": int((yc[okc] >= 0).sum()), "povr_share_gt": float(ycls.mean()) if len(ycls) else None,
++                      "families": int(len(set(fam)))}, ensure_ascii=False))
++
++
++def cmd_apply(a) -> None:
++    stack = json.loads(Path(a.stack).read_text(encoding="utf-8"))
++    n = 0
++    with open(a.oof, encoding="utf-8") as fh:
++        for r in csv.DictReader(fh):
++            i = int(r["stack_idx"])
++            p = r.get("p_povr")
++            if i < 0 or p in (None, "", "nan"):
++                continue
++            pr = stack["features"][i]["properties"]
++            new = POVR if float(p) >= a.thr else TSEL
++            pr["subclass_p_povr"] = round(float(p), 6)
++            if pr.get("class_name") != new:
++                pr["class_name_base"] = pr.get("class_name")
++                pr["class_name"] = new
++                n += 1
++    dropped = 0
++    if a.dedup_m > 0:
++        # Лидар ставит курган сразу в оба подкласса в 0 м (docs/TEAM_REPORTS_2026-10-28.md:51–70).
++        # После переразметки пара становится двумя кругами одного класса: один из них — лишний.
++        feats = stack["features"]
++        idx = [i for i, f in enumerate(feats) if (f.get("properties") or {}).get("class_name") in (POVR, TSEL)
++               and "subclass_p_povr" in f["properties"]]
++        groups: dict = {}
++        for i in idx:
++            pr = feats[i]["properties"]
++            groups.setdefault((pr.get("region_name"), pr["class_name"]), []).append(i)
++        drop = set()
++        for ii in groups.values():
++            ii = sorted(ii, key=lambda i: -float(feats[i]["properties"].get("confidence", 0)))
++            xy = np.array(_xy3857([feats[i]["geometry"] for i in ii]))
++            lim2 = (a.dedup_m / _merc_scale(xy[0][1])) ** 2
++            alive = np.ones(len(ii), bool)
++            for k in range(len(ii)):  # жадный NMS по уверенности
++                if not alive[k]:
++                    continue
++                d2 = ((xy[k + 1:] - xy[k]) ** 2).sum(1)
++                kill = np.flatnonzero((d2 <= lim2) & alive[k + 1:]) + k + 1
++                alive[kill] = False
++            drop.update(i for i, al in zip(ii, alive) if not al)
++        stack["features"] = [f for i, f in enumerate(feats) if i not in drop]
++        dropped = len(drop)
++    Path(a.out).write_text(json.dumps(stack, ensure_ascii=False), encoding="utf-8")
++    print(json.dumps({"out": a.out, "relabeled": n, "dedup_dropped": dropped, "thr": a.thr}, ensure_ascii=False))
++
++
++def main() -> None:
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    c = sub.add_parser("crops")
++    c.add_argument("--root", required=True)
++    c.add_argument("--stack", required=True)
++    c.add_argument("--gt", required=True)
++    c.add_argument("--markup", default="li")
++    c.add_argument("--groups", nargs="*", default=None)
++    c.add_argument("--min-conf", type=float, default=0.05)
++    c.add_argument("--res", type=float, default=0.5)
++    c.add_argument("--tile", type=int, default=64)
++    c.add_argument("--li-tags", nargs="*", default=["lrm_s", "lrm_l", "slope"])
++    c.add_argument("--match-m", type=float, default=2.0)
++    c.add_argument("--out", required=True)
++    p = sub.add_parser("apply")
++    p.add_argument("--stack", required=True)
++    p.add_argument("--oof", required=True)
++    p.add_argument("--thr", type=float, default=0.5, help="0,5 при потере 30:20 (≡ 0,4 без весов)")
++    p.add_argument("--dedup-m", type=float, default=2.0,
++                   help="после переразметки оставить один круг класса в радиусе, м (0 — выкл.)")
++    p.add_argument("--out", required=True)
++    ap.add_argument("--dry-run", action="store_true")
++    a = ap.parse_args()
++    if a.dry_run:
++        print(json.dumps(vars(a), ensure_ascii=False))
++        return
++    {"crops": cmd_crops, "apply": cmd_apply}[a.cmd](a)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/kaggle_collector_daemon.py b/scripts/kaggle_collector_daemon.py
+index 984bebe..7e4a280 100644
+--- a/scripts/kaggle_collector_daemon.py
++++ b/scripts/kaggle_collector_daemon.py
+@@ -32,7 +32,9 @@ def log_msg(msg: str) -> None:
+ def organize_checkpoints(raw_dir: Path) -> list[str]:
+     copied = []
+     for pt in sorted(raw_dir.glob("*.pt")):
+-        dst_flat = OUT_ROOT / pt.name
++        # bot-9: веса разных ядер (s2/s3) с одним именем раньше затирали друг друга.
++        dst_flat = OUT_ROOT / raw_dir.name / pt.name
++        dst_flat.parent.mkdir(parents=True, exist_ok=True)
+         shutil.copy2(pt, dst_flat)
+         copied.append(str(dst_flat))
+         m = re.match(r"^(li_r18_hard2_59|li_r34_fpn_edge_59|li_r34_fpn_mask_59)_fold(\d)\.pt$", pt.name)
+@@ -40,7 +42,11 @@ def organize_checkpoints(raw_dir: Path) -> list[str]:
+             exp_name, fk = m.group(1), m.group(2)
+             fold_dir = OUT_ROOT / exp_name / f"fold{fk}"
+             fold_dir.mkdir(parents=True, exist_ok=True)
+-            shutil.copy2(pt, fold_dir / "li.pt")
++            dst_li = fold_dir / "li.pt"
++            if dst_li.exists():
++                dst_li = fold_dir / f"li__{raw_dir.name}.pt"
++                log_msg(f"{fold_dir}/li.pt уже есть — копия как {dst_li.name}, выбор вручную")
++            shutil.copy2(pt, dst_li)
+     for meta_f in sorted(list(raw_dir.glob("*.json")) + list(raw_dir.glob("*.log"))):
+         shutil.copy2(meta_f, OUT_ROOT / meta_f.name)
+     return copied
+diff --git a/scripts/kaggle_dual_t4_orchestrator.py b/scripts/kaggle_dual_t4_orchestrator.py
+index 2d84c96..8c46f6a 100644
+--- a/scripts/kaggle_dual_t4_orchestrator.py
++++ b/scripts/kaggle_dual_t4_orchestrator.py
+@@ -159,6 +159,8 @@ FOLD_VAL_FAMILIES = {}  # computed dynamically from fold splits
+ 
+ def build_dual_gpu_plan() -> dict:
+     """Формирует двухуровневый план обучения на 4 узлах (8 × Tesla T4, по 2 GPU на узел)."""
++    # bot-9: в HEAD имя splits_val_map нигде не задано → NameError в plan/stage.
++    splits_val_map = {sp["fold"]: sp["val"] for sp in compute_fold_splits()}
+     wave1 = [
+         {
+             "node_id": 0,
+@@ -202,7 +204,7 @@ def build_dual_gpu_plan() -> dict:
+             "gpu1_cmds": [
+                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt "
+                 "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
+-                "--val-families auto --device {DEV1}"
++                "--all-data --device {DEV1}"
+             ],
+         },
+         {
+@@ -278,7 +280,7 @@ def build_dual_gpu_plan() -> dict:
+             "gpu1_cmds": [
+                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r34_fpn_mask_59_final.pt "
+                 "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
+-                "--val-families auto --device {DEV1}"
++                "--all-data --device {DEV1}"
+             ],
+         },
+     ]
+diff --git a/scripts/s4_rerank.py b/scripts/s4_rerank.py
+new file mode 100644
+index 0000000..c77c881
+--- /dev/null
++++ b/scripts/s4_rerank.py
+@@ -0,0 +1,112 @@
++#!/usr/bin/env python3
++"""Переранжирование кандидатов курганов стека весами crop-verify из ядра Kaggle koz3-gpu-s4, честно по семьям.
++
++s4 (`cropverify/<variant>/weights/fam10_foldKK.pt`) учил ResNet-18 «есть курган в центре кропа 64 px»
++на кэше li_tin_59_t128 по 10 блокам семей (`expds.metric.family_folds`). Каждый чекпойнт хранит
++`heldout_regions`: кандидат участка R оценивается ТОЛЬКО моделью, где R отложен. Так вероятность
++кропа для участка не видела его разметку, и табло `--honest 10` остаётся честным.
++Кропы режет `crop_verify.extract_crops` (то же чтение LAS и TIN 0,1 м, что кэш обучения).
++Дальше — как в `crop_verify.run`: медиана группы для кандидатов без кропа, смешение --blend.
++
++    python scripts/scoreboard.py <флаги базы> --dump-stack F:/expds3/work/stack_base.geojson
++    python scripts/s4_rerank.py --root F:/2/train-expds-3 --stack F:/expds3/work/stack_base.geojson \
++        --gt F:/expds3/work/gt_train_v2.geojson --weights <s4_out>/cropverify/r18_imnet/weights \
++        --groups li li_dev li_mosaic --out F:/expds3/work/stack_s4_imnet.geojson --report notes/s4_imnet_rerank.json
++    python scripts/scoreboard.py <те же флаги> --rerank F:/expds3/work/stack_s4_imnet.geojson --honest 10
++"""
++from __future__ import annotations
++
++import argparse, importlib.util, json, logging, sys
++from pathlib import Path
++
++import numpy as np
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT))
++spec = importlib.util.spec_from_file_location("crop_verify", ROOT / "scripts" / "crop_verify.py")
++cv = importlib.util.module_from_spec(spec); spec.loader.exec_module(cv)
++log = logging.getLogger("s4_rerank")
++
++
++def load_fold_models(wdir: Path, device: str):
++    import torch
++    models = []
++    for pt in sorted(wdir.glob("fam10_fold*.pt")):
++        blob = torch.load(pt, map_location="cpu", weights_only=False)
++        net = cv.make_model(blob.get("encoder", "resnet18"), pretrained=False)
++        net.load_state_dict({k: v.float() if v.is_floating_point() else v for k, v in blob["state_dict"].items()})
++        models.append((pt.name, set(blob["heldout_regions"]), net.to(device).eval(), blob))
++    if len(models) != 10:
++        raise SystemExit(f"ожидалось 10 чекпойнтов fam10_fold*.pt в {wdir}, найдено {len(models)}")
++    seen = [r for _, h, _, _ in models for r in h]
++    if len(seen) != len(set(seen)):
++        raise SystemExit("один участок отложен в двух блоках — чекпойнты не из одного прогона")
++    return models
++
++
++def main() -> None:
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--root", required=True); ap.add_argument("--stack", required=True); ap.add_argument("--gt", required=True)
++    ap.add_argument("--metric", default=str(ROOT / "materials" / "compute_metrics.py"))
++    ap.add_argument("--weights", required=True, help="<s4>/cropverify/<variant>/weights")
++    ap.add_argument("--classes", nargs="+", default=["kurgany_povrezhdennye", "kurgany_tselye"])
++    ap.add_argument("--groups", nargs="*", default=None, help="группы порога; без них — все кандидаты li")
++    ap.add_argument("--min-conf", type=float, default=0.05)
++    ap.add_argument("--blend", choices=["geo", "p", "none"], default="geo")
++    ap.add_argument("--device", default="cpu"); ap.add_argument("--batch", type=int, default=256)
++    ap.add_argument("--out", required=True); ap.add_argument("--report", default=None)
++    a = ap.parse_args()
++    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
++    models = load_fold_models(Path(a.weights), a.device)
++    b0 = models[0][3]; tile, res, tags = int(b0["tile"]), float(b0["res"]), tuple(b0.get("li_tags") or ())
++    from expds.lidar import RELIEF_TAGS
++    tags = tags or tuple(RELIEF_TAGS)
++    stack = json.loads(Path(a.stack).read_text(encoding="utf-8"))
++    gt = json.loads(Path(a.gt).read_text(encoding="utf-8"))
++    picked = cv.select(stack, set(a.classes), "li", set(a.groups) if a.groups else None, a.min_conf)
++    if not picked:
++        raise SystemExit("нет кандидатов под фильтр")
++    feats = [dict(f, properties=dict(f.get("properties") or {})) for f in stack["features"]]
++    regions = np.array([str(feats[i]["properties"].get("region_name")) for i in picked])
++    X, ok = cv.extract_crops(a.root, stack, picked, "li", res, tile, tags)
++    p = np.full(len(picked), np.nan); used = np.full(len(picked), -1)
++    for k, (name, held, net, _) in enumerate(models):
++        idx = np.flatnonzero(ok & np.isin(regions, list(held)))
++        if idx.size:
++            p[idx] = cv.predict(net, X[idx], batch=a.batch); used[idx] = k
++        log.info("%s: %d кандидатов", name, idx.size)
++    no_model = sorted(set(regions[ok & (used < 0)].tolist()))
++    if no_model:
++        log.warning("участки без отложенной модели (остаются без кропа): %s", no_model)
++    rr = cv.load_rerank()
++    y_any, y_first = cv.labels_of(rr, stack, gt, a.metric, picked)
++    conf = np.array([float(feats[i]["properties"].get("confidence", 0.0)) for i in picked])
++    keys = [(feats[i]["properties"].get("threshold_group") or feats[i]["properties"].get("markup_type"),
++             feats[i]["properties"].get("class_name")) for i in picked]
++    med = cv.group_median(p, keys)
++    rep = {"weights": a.weights, "candidates": len(picked), "with_crop": int(ok.sum()), "verified": int(np.isfinite(p).sum()),
++           "regions_without_heldout_model": no_model, "hits_first": int(y_first.sum()), "blend": a.blend, "groups": {}}
++    m = np.isfinite(p)
++    if m.any() and 0 < y_first[m].sum() < m.sum():
++        rep["auc_stack_first"] = round(rr.auc(conf[m], y_first[m]), 4)
++        rep["auc_crop_first"] = round(rr.auc(p[m], y_first[m]), 4)
++        rep["auc_crop_any"] = round(rr.auc(p[m], y_any[m]), 4)
++        rep["auc_blend_first"] = round(rr.auc(cv.blend(conf[m], p[m], "geo"), y_first[m]), 4)
++    for f in feats:
++        f["properties"]["confidence_base"] = f["properties"].get("confidence")
++    for k, i in enumerate(picked):
++        pk = float(p[k]) if np.isfinite(p[k]) else med.get(keys[k])
++        if pk is None:
++            continue
++        pr = feats[i]["properties"]; pr["verify_p"] = round(pk, 6)
++        pr["confidence"] = round(float(cv.blend(np.array([conf[k]]), np.array([pk]), a.blend)[0]), 6)
++    for key in sorted(med, key=str):
++        rep["groups"][f"{key[0]}:{key[1]}"] = {"median_p": round(med[key], 4)}
++    Path(a.out).write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
++    if a.report:
++        Path(a.report).write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
++    print(json.dumps(rep, ensure_ascii=False, indent=1))
++
++
++if __name__ == "__main__":
++    main()

@@ -1,0 +1,379 @@
+{
+  "objects": [
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "markup_type": "li",
+      "objects": 1371,
+      "regions": 38,
+      "points": 0,
+      "area_m2_p10": 21.6,
+      "area_m2_p50": 56.9,
+      "area_m2_p90": 178.3
+    },
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "markup_type": "ae",
+      "objects": 1162,
+      "regions": 23,
+      "points": 0,
+      "area_m2_p10": 31.7,
+      "area_m2_p50": 78.7,
+      "area_m2_p90": 1506.9
+    },
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "markup_type": "sp_or",
+      "objects": 1087,
+      "regions": 60,
+      "points": 0,
+      "area_m2_p10": 94.5,
+      "area_m2_p50": 491.5,
+      "area_m2_p90": 2081.3
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "markup_type": "li",
+      "objects": 783,
+      "regions": 23,
+      "points": 0,
+      "area_m2_p10": 16.1,
+      "area_m2_p50": 39.1,
+      "area_m2_p90": 147.9
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "markup_type": "ae",
+      "objects": 587,
+      "regions": 18,
+      "points": 0,
+      "area_m2_p10": 21.2,
+      "area_m2_p50": 62.1,
+      "area_m2_p90": 329.9
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "markup_type": "sp_or",
+      "objects": 207,
+      "regions": 30,
+      "points": 0,
+      "area_m2_p10": 44.7,
+      "area_m2_p50": 449.3,
+      "area_m2_p90": 2433.9
+    },
+    {
+      "class_name": "gorodishcha",
+      "markup_type": "sp_or",
+      "objects": 65,
+      "regions": 49,
+      "points": 0,
+      "area_m2_p10": 3505.4,
+      "area_m2_p50": 9206.2,
+      "area_m2_p90": 56586.5
+    },
+    {
+      "class_name": "gorodishcha",
+      "markup_type": "li",
+      "objects": 30,
+      "regions": 24,
+      "points": 0,
+      "area_m2_p10": 1704.0,
+      "area_m2_p50": 6109.6,
+      "area_m2_p90": 38303.0
+    },
+    {
+      "class_name": "gorodishcha",
+      "markup_type": "ae",
+      "objects": 19,
+      "regions": 12,
+      "points": 0,
+      "area_m2_p10": 4001.8,
+      "area_m2_p50": 29922.7,
+      "area_m2_p90": 83067.3
+    },
+    {
+      "class_name": "gorodishcha",
+      "markup_type": "or",
+      "objects": 4,
+      "regions": 2,
+      "points": 0,
+      "area_m2_p10": 3409.4,
+      "area_m2_p50": 5802.4,
+      "area_m2_p90": 13130.0
+    },
+    {
+      "class_name": "arkhitektury",
+      "markup_type": "sp_or",
+      "objects": 210,
+      "regions": 28,
+      "points": 0,
+      "area_m2_p10": 27.5,
+      "area_m2_p50": 182.3,
+      "area_m2_p90": 738.4
+    },
+    {
+      "class_name": "arkhitektury",
+      "markup_type": "or",
+      "objects": 178,
+      "regions": 4,
+      "points": 0,
+      "area_m2_p10": 0.1,
+      "area_m2_p50": 14.8,
+      "area_m2_p90": 84.8
+    },
+    {
+      "class_name": "arkhitektury",
+      "markup_type": "ae",
+      "objects": 18,
+      "regions": 2,
+      "points": 0,
+      "area_m2_p10": 429.5,
+      "area_m2_p50": 1810.5,
+      "area_m2_p90": 3494.3
+    },
+    {
+      "class_name": "arkhitektury",
+      "markup_type": "li",
+      "objects": 1,
+      "regions": 1,
+      "points": 0,
+      "area_m2_p10": 543.0,
+      "area_m2_p50": 543.0,
+      "area_m2_p90": 543.0
+    },
+    {
+      "class_name": "object_poly",
+      "markup_type": "etgr",
+      "objects": 658,
+      "regions": 6,
+      "points": 0,
+      "area_m2_p10": 0.4,
+      "area_m2_p50": 2.7,
+      "area_m2_p90": 16.9
+    },
+    {
+      "class_name": "object_poly",
+      "markup_type": "maggr",
+      "objects": 248,
+      "regions": 13,
+      "points": 0,
+      "area_m2_p10": 13.7,
+      "area_m2_p50": 42.7,
+      "area_m2_p90": 254.1
+    },
+    {
+      "class_name": "object_poly",
+      "markup_type": "terfl",
+      "objects": 177,
+      "regions": 2,
+      "points": 0,
+      "area_m2_p10": 3.3,
+      "area_m2_p50": 18.7,
+      "area_m2_p90": 85.6
+    },
+    {
+      "class_name": "finds_points",
+      "markup_type": "maggr",
+      "objects": 3478,
+      "regions": 13,
+      "points": 3478,
+      "area_m2_p10": null,
+      "area_m2_p50": null,
+      "area_m2_p90": null
+    },
+    {
+      "class_name": "fortifikatsii",
+      "markup_type": "ae",
+      "objects": 393,
+      "regions": 13,
+      "points": 0,
+      "area_m2_p10": 77.2,
+      "area_m2_p50": 339.3,
+      "area_m2_p90": 3408.0
+    },
+    {
+      "class_name": "fortifikatsii",
+      "markup_type": "li",
+      "objects": 264,
+      "regions": 17,
+      "points": 0,
+      "area_m2_p10": 49.2,
+      "area_m2_p50": 125.6,
+      "area_m2_p90": 1068.9
+    },
+    {
+      "class_name": "fortifikatsii",
+      "markup_type": "sp_or",
+      "objects": 37,
+      "regions": 5,
+      "points": 0,
+      "area_m2_p10": 52.6,
+      "area_m2_p50": 94.5,
+      "area_m2_p90": 1610.8
+    },
+    {
+      "class_name": "fortifikatsii",
+      "markup_type": "or",
+      "objects": 2,
+      "regions": 1,
+      "points": 0,
+      "area_m2_p10": 1761.2,
+      "area_m2_p50": 2055.9,
+      "area_m2_p90": 2350.6
+    }
+  ],
+  "cross_modality_pairs": [
+    {
+      "class_name": "fortifikatsii",
+      "a": "ae",
+      "b": "li",
+      "pairs": 3
+    },
+    {
+      "class_name": "fortifikatsii",
+      "a": "ae",
+      "b": "or",
+      "pairs": 0
+    },
+    {
+      "class_name": "fortifikatsii",
+      "a": "ae",
+      "b": "sp_or",
+      "pairs": 0
+    },
+    {
+      "class_name": "fortifikatsii",
+      "a": "or",
+      "b": "sp_or",
+      "pairs": 1
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "ae",
+      "b": "li",
+      "pairs": 2
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "ae",
+      "b": "or",
+      "pairs": 0
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "ae",
+      "b": "sp_or",
+      "pairs": 2
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "li",
+      "b": "or",
+      "pairs": 2
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "li",
+      "b": "sp_or",
+      "pairs": 1
+    },
+    {
+      "class_name": "gorodishcha",
+      "a": "or",
+      "b": "sp_or",
+      "pairs": 0
+    },
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "a": "ae",
+      "b": "li",
+      "pairs": 386
+    },
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "a": "ae",
+      "b": "sp_or",
+      "pairs": 33
+    },
+    {
+      "class_name": "kurgany_povrezhdennye",
+      "a": "li",
+      "b": "sp_or",
+      "pairs": 64
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "a": "ae",
+      "b": "li",
+      "pairs": 82
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "a": "ae",
+      "b": "sp_or",
+      "pairs": 0
+    },
+    {
+      "class_name": "kurgany_tselye",
+      "a": "li",
+      "b": "sp_or",
+      "pairs": 1
+    },
+    {
+      "class_name": "object_poly",
+      "a": "etgr",
+      "b": "maggr",
+      "pairs": 14
+    },
+    {
+      "class_name": "object_poly",
+      "a": "etgr",
+      "b": "terfl",
+      "pairs": 101
+    },
+    {
+      "class_name": "object_poly",
+      "a": "maggr",
+      "b": "terfl",
+      "pairs": 17
+    }
+  ],
+  "kurgan_class_conflicts": [
+    {
+      "a": "ae",
+      "b": "ae",
+      "pairs": 6
+    },
+    {
+      "a": "ae",
+      "b": "li",
+      "pairs": 205
+    },
+    {
+      "a": "ae",
+      "b": "sp_or",
+      "pairs": 5
+    },
+    {
+      "a": "li",
+      "b": "li",
+      "pairs": 17
+    },
+    {
+      "a": "li",
+      "b": "sp_or",
+      "pairs": 2
+    }
+  ],
+  "merges": 4,
+  "merges_by_markup_type": {
+    "ae": 0,
+    "li": 0,
+    "or": 0,
+    "sp_or": 0,
+    "maggr": 4,
+    "terfl": 0
+  },
+  "regions": 210,
+  "skipped_files": 0,
+  "files_with_problems": 55
+}

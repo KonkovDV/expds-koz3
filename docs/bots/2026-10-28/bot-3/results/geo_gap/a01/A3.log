@@ -1,0 +1,25 @@
+201_Семибратнее_Городище_1: 16
+202_Семибратнее_Городище_2: 522
+203_Семибратнее_Городище_3: 585
+204_Семибратнее_Городище_4: 319
+205_Семибратнее_Городище_5: 402
+206_Семибратнее_Городище_6: 226
+207_Семибратнее_Городище_7: 252
+208_Гнёздово_Пойма: 52
+209_Гнёздово_Терраса_1: 283
+210_Гнёздово_Терраса_2: 449
+211_Гнёздово_Терраса_3: 45
+01_Гнёздово_Усадьба_MagGr_цвет_2.tif: ошибка геофизики (Unable to allocate 1.05 GiB for an array with shape (3, 47018205) and data type float64)
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-3/repo_audit01/expds/pipeline.py", line 172, in geophys_feats
+    found = (geophys.finds_points(path, reg.name, mt, p, fallback_crs=crs_region)
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-3/repo_audit01/expds/geophys.py", line 376, in finds_points
+    a, tr, crs, res = read_band(path, p.band_mode, fallback_crs)
+                      ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-3/repo_audit01/expds/geophys.py", line 123, in read_band
+    a = scalar_from_bands(bands, mode)
+  File "/workspace/koz3_shared/bot-3/repo_audit01/expds/geophys.py", line 87, in scalar_from_bands
+    x = rgb[:, valid].astype(np.float64)
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 1.05 GiB for an array with shape (3, 47018205) and data type float64
+записано 2995 объектов за 42 с → /workspace/koz3_shared/bot-3/geo_gap/a01/A3.geojson

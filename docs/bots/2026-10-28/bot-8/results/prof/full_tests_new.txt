@@ -1,0 +1,15 @@
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cache = PosixPath('/tmp/pytest-of-box/pytest-17/test_grid_cache_roundtrip_give0/grid')
+rows = []
+folder = PosixPath('/tmp/pytest-of-box/pytest-17/test_grid_cache_roundtrip_give0/coco/train')
+channels = [0, 1, 2]
+
+    def write_images(cache: Path, rows: list[dict], folder: Path, channels: list[int]) -> int:
+>       import cv2
+E       ModuleNotFoundError: No module named 'cv2'
+
+scripts/coco_from_cache.py:96: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 311 passed, 9 skipped, 49 deselected in 138.87s (0:02:18)

@@ -1,0 +1,165 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..c237dd4 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -275,6 +275,14 @@ min_confidence = 0.1426
+ # src_groups = ["li", "li_coarse", "li_mosaic"]
+ # min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
+ 
++# Микрокруги архитектуры (bot-5, 28.10): тот же центр пика, радиус 0,25 м вместо 2 м.
++# Попаданий не меньше ни при каком центре; оракул официальной метрикой на эталоне
++# 2 м → 0,25 м: 257 → 269 из 407 при текущей цели, 0,914 → 1,000 у repr. point.
++# Включать после табло: oof_transform.py micro + scoreboard.py --honest 10.
++# [post.micro_circles]
++# classes = ["arkhitektury"]
++# radius_m = 0.25
++
+ # [post]
+ # fill_holes = ["gorodishcha"]
+ # [post.core.gorodishcha]
+diff --git a/expds/post.py b/expds/post.py
+index eb7ce26..c2108be 100644
+--- a/expds/post.py
++++ b/expds/post.py
+@@ -237,6 +237,37 @@ def _ground_scale(y_3857: float) -> float:
+     return max(math.cos(lat), 1e-6)
+ 
+ 
++def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
++    """Круги указанных классов → микрокруг радиуса radius_m (метры на земле) в том же центре.
++
++    Попадание метрики: cov = S(P∩G)/min(S) ≥ 0,5 и внутренняя точка P внутри G.
++    У круга внутренняя точка — центр. Микрокруг с центром внутри эталона даёт cov ≈ 1,
++    круг 2 м на стене шириной 1 м даёт cov ≈ 0,3. Поэтому замена не теряет ни одного
++    попадания при том же центре, а промахи «центр внутри, покрытие < 0,5» становятся
++    попаданиями. Число объектов и уверенности не меняются: пороги групп остаются.
++    Тот же приём, что у object_poly (multipole_object_poly, circle_radius_m = 0,05).
++    radius_m по умолчанию 0,25: finalize отбрасывает полигоны мельче 0,01 ед.² EPSG:3857.
++    """
++    spec = spec or {}
++    classes = set(spec.get("classes") or ("arkhitektury",))
++    radius = float(spec.get("radius_m", 0.25))
++    groups = set(spec.get("groups") or ())
++    out = []
++    for f in feats:
++        if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
++            out.append(f)
++            continue
++        g = f["geom"]
++        if g is None or g.is_empty:
++            out.append(f)
++            continue
++        c = g.centroid
++        if not g.contains(c):
++            c = g.representative_point()
++        out.append(dict(f, geom=c.buffer(radius / _ground_scale(c.y), quad_segs=8)))
++    return out
++
++
+ def fill_holes(feats: list[dict], classes) -> list[dict]:
+     """Убирает дыры у полигонов указанных классов. По умолчанию выключено."""
+     classes = set(classes or ())
+diff --git a/expds/tiles.py b/expds/tiles.py
+index a2c2b63..29a5306 100644
+--- a/expds/tiles.py
++++ b/expds/tiles.py
+@@ -476,6 +476,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
+                 neg_per_pos: float = 1.0, jitter: float = 0.25, li_tags: list[str] | None = None,
+                 max_per_region: int = 3000, seed: int = 0, shard_size: int = 2000,
+                 li_source: str = "las", shrink: float = 0.0, dem: dict | None = None,
++                shrink_classes: tuple[str, ...] | None = None,
+                 ground_pixels: bool = False,
+                 only_classes: list[str] | None = None, pos_repeat: int = 1,
+                 only_regions: list[str] | None = None, min_area_m2: float = 0.0,
+@@ -597,7 +598,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
+                     window = shape_box(west, south, east, north)
+                 for k, cls in enumerate(classes):
+                     shp = [(g.buffer(1.0) if g.geom_type == "Point"
+-                            else shrink_polygon(g, shrink) if cls in SHRINK_CLASSES else g)
++                            else shrink_polygon(g, shrink) if cls in (shrink_classes or SHRINK_CLASSES) else g)
+                            for g, c in local if c == cls]
+                     if min_clip_frac > 0 and shp:
+                         shp, skipped = split_clipped(shp, window, min_clip_frac)
+@@ -633,7 +634,7 @@ def build_cache(root: str, gt_path: str, markup: str, out: str, res: float = 0.5
+             "li_tags": li_tags if markup == "li" else None,
+             "dem_res": dem["res"] if li_src == "las" else None, "dem_fill": dem["fill"] if li_src == "las" else None,
+             "li_source": li_src, "flips": markup != "li" or (li_src == "las" and "g" not in li_tags),
+-            "channels": n_ch, "shrink": shrink, "max_upsample": MAX_UPSAMPLE,
++            "channels": n_ch, "shrink": shrink, "shrink_classes": list(shrink_classes or SHRINK_CLASSES), "max_upsample": MAX_UPSAMPLE,
+             "pixel_units": "ground" if ground_pixels else "native",
+             "min_area_m2": min_area_m2, "exclude_files": list(exclude_files or []), **total}
+     if label_shifts:
+@@ -665,6 +666,10 @@ def _cli() -> None:
+     ap.add_argument("--max-per-region", type=int, default=3000)
+     ap.add_argument("--shrink", type=float, default=0.0,
+                     help="сжать маски курганов к центру на эту долю радиуса (разделение плотных групп)")
++    ap.add_argument("--shrink-classes", nargs="*", default=None,
++                    help="какие классы сжимать (по умолчанию курганы). Архитектура: касающиеся комнаты и "
++                         "стены иначе сливаются в одну компоненту, и цель карты центров ставит один пик "
++                         "в центре масс слитой фигуры, часто вне эталона")
+     ap.add_argument("--dem-res", type=float, default=None, help="шаг DEM для li из LAS (по умолчанию 0,5 м)")
+     ap.add_argument("--dem-fill", choices=["pyramid", "delaunay"], default=None)
+     ap.add_argument("--thin", action="store_true",
+@@ -695,6 +700,7 @@ def _cli() -> None:
+     meta = build_cache(args.root, args.gt, args.markup, args.out, args.res, args.tile, args.neg_per_pos,
+                        li_tags=args.li_tags, max_per_region=args.max_per_region, li_source=args.li_source,
+                        shrink=args.shrink, dem=dem, ground_pixels=args.ground_pixels,
++                       shrink_classes=tuple(args.shrink_classes) if args.shrink_classes else None,
+                        only_classes=args.classes, pos_repeat=args.pos_repeat,
+                        only_regions=args.regions, min_area_m2=args.min_area, exclude_files=args.exclude_files,
+                        label_shifts=load_label_shifts(args.label_shifts),
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 2e15b2d..5eda58b 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -75,6 +75,8 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+         out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
+     if post_cfg.get("kurgan_twins"):
+         out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
++    if post_cfg.get("micro_circles"):
++        out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
+     if post_cfg.get("fill_holes"):
+         out = post.fill_holes(out, post_cfg["fill_holes"])
+     if post_cfg.get("core"):
+diff --git a/scripts/oof_transform.py b/scripts/oof_transform.py
+index be6f3f4..e86ffab 100644
+--- a/scripts/oof_transform.py
++++ b/scripts/oof_transform.py
+@@ -22,6 +22,9 @@
+                  Пороги — из JSON табло (--taus notes/<опыт>.json, поле thresholds),
+                  уверенность — ранг внутри своей группы, группа порога — <класс>_rescue.
+                  В сдачу не входит, пока честное табло не примет файл.
++  micro          круги класса → микрокруги в том же центре ([post.micro_circles]).
++                 Архитектура: попадание не теряется, промахи «центр внутри, покрытие
++                 круга 2 м < 0,5» (стены, узкие комнаты) становятся попаданиями.
+   shift          перенос объектов слоя на устойчивый сдвиг участка
+                  (scripts/layer_shift.py или scripts/image_label_shift.py).
+                  Остальные объекты файла не меняются. В сдачу не входит.
+@@ -119,6 +122,13 @@ def cmd_split(a) -> None:
+     write_feats(split_large(read_feats(Path(a.src)), spec), Path(a.out))
+ 
+ 
++def cmd_micro(a) -> None:
++    from expds.post import micro_circles
++
++    spec = {"classes": a.classes, "radius_m": a.radius, "groups": a.groups or None}
++    write_feats(micro_circles(read_feats(Path(a.src)), spec), Path(a.out))
++
++
+ def cmd_fill(a) -> None:
+     from expds.post import fill_holes
+ 
+@@ -257,6 +267,13 @@ def main() -> None:
+     sp.add_argument("--groups", nargs="*", default=[])
+     sp.add_argument("--out", required=True)
+     sp.set_defaults(fn=cmd_split)
++    mc = sub.add_parser("micro", help="круги класса → микрокруги в том же центре")
++    mc.add_argument("--src", required=True)
++    mc.add_argument("--classes", nargs="+", default=["arkhitektury"])
++    mc.add_argument("--radius", type=float, default=0.25, help="радиус, м на земле")
++    mc.add_argument("--groups", nargs="*", default=[])
++    mc.add_argument("--out", required=True)
++    mc.set_defaults(fn=cmd_micro)
+     h = sub.add_parser("fill-holes")
+     h.add_argument("--src", required=True)
+     h.add_argument("--classes", nargs="+", required=True)

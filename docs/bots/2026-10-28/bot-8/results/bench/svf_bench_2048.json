@@ -1,0 +1,5 @@
+[{"N":2048,"radius_m":10,"every_pixel":false,"samples":80,"sec":2.334,"sec_per_Mpx":0.556},
+ {"N":2048,"radius_m":20,"every_pixel":false,"samples":80,"sec":2.493,"sec_per_Mpx":0.594},
+ {"N":2048,"radius_m":40,"every_pixel":false,"samples":80,"sec":3.132,"sec_per_Mpx":0.747},
+ {"N":2048,"radius_m":10,"every_pixel":true,"samples":160,"sec":5.42,"sec_per_Mpx":1.292},
+ {"N":2048,"radius_m":20,"every_pixel":true,"samples":320,"sec":13.481,"sec_per_Mpx":3.214}]

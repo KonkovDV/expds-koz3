@@ -1,0 +1,19 @@
+== check_submission: /workspace/koz3_shared/bot-8/tests_out/neg/n4_bad_class.zip (2026-10-28 19:41:16 MSK)
+[PASS] zip       44 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 538.8 МиБ (564998069 Б), распакованный 541.4 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 12 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[FAIL] config    ошибки значений: thresholds_by_markup.li.arhitektury (нет такого класса — порог молча игнорируется)
+[PASS] imports   в 25 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   24 модулей и 9 сторонних пакетов импортируются без сети (20.0 с)
+[PASS] weights   12 файлов весов открываются кодом архива на CPU
+[INFO] smoke     пропущен (--no-smoke)
+== ИТОГ: FAIL — FAIL 1, WARN 0, проверок 17, 21.8 с

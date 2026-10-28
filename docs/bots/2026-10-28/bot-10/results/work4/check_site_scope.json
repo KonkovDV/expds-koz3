@@ -1,0 +1,152 @@
+{
+ "ours_global": {
+  "kurgany_povrezhdennye": [
+   35,
+   939,
+   576
+  ],
+  "kurgany_tselye": [
+   2,
+   146,
+   87
+  ],
+  "gorodishcha": [
+   0,
+   15,
+   5
+  ],
+  "arkhitektury": [
+   1,
+   86,
+   21
+  ],
+  "object_poly": [
+   0,
+   1,
+   108
+  ],
+  "fortifikatsii": [
+   9,
+   267,
+   313
+  ],
+  "finds_points": [
+   49,
+   28,
+   1348
+  ]
+ },
+ "official_global": {
+  "kurgany_povrezhdennye": [
+   35,
+   939,
+   576
+  ],
+  "kurgany_tselye": [
+   2,
+   146,
+   87
+  ],
+  "gorodishcha": [
+   0,
+   15,
+   5
+  ],
+  "arkhitektury": [
+   1,
+   86,
+   21
+  ],
+  "object_poly": [
+   0,
+   1,
+   108
+  ],
+  "fortifikatsii": [
+   9,
+   267,
+   313
+  ],
+  "finds_points": [
+   49,
+   28,
+   1348
+  ]
+ },
+ "ours_site": {
+  "kurgany_povrezhdennye": [
+   31,
+   943,
+   576
+  ],
+  "kurgany_tselye": [
+   2,
+   146,
+   87
+  ],
+  "gorodishcha": [
+   0,
+   15,
+   5
+  ],
+  "arkhitektury": [
+   0,
+   87,
+   21
+  ],
+  "object_poly": [
+   0,
+   1,
+   108
+  ],
+  "fortifikatsii": [
+   9,
+   267,
+   313
+  ],
+  "finds_points": [
+   47,
+   30,
+   1348
+  ]
+ },
+ "official_site": {
+  "kurgany_povrezhdennye": [
+   31,
+   943,
+   576
+  ],
+  "kurgany_tselye": [
+   2,
+   146,
+   87
+  ],
+  "gorodishcha": [
+   0,
+   15,
+   5
+  ],
+  "arkhitektury": [
+   0,
+   87,
+   21
+  ],
+  "object_poly": [
+   0,
+   1,
+   108
+  ],
+  "fortifikatsii": [
+   9,
+   267,
+   313
+  ],
+  "finds_points": [
+   47,
+   30,
+   1348
+  ]
+ },
+ "equal_global": true,
+ "equal_site": true
+}

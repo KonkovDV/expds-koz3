@@ -1,0 +1,13 @@
+k10 {'A_drop': 0.314615, 'A_keep': 0.333237, 'nogor_drop': 0.309558, 'nogor_keep': 0.32818, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.005057, 'delta_A_nogor_keep': 0.005057}
+lofo {'A_drop': 0.315067, 'A_keep': 0.333689, 'nogor_drop': 0.310152, 'nogor_keep': 0.328774, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.004915, 'delta_A_nogor_keep': 0.004915}
+seed0 {'A_drop': 0.314698, 'A_keep': 0.33332, 'nogor_drop': 0.309613, 'nogor_keep': 0.328235, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.005085, 'delta_A_nogor_keep': 0.005085}
+seed1 {'A_drop': 0.306042, 'A_keep': 0.324664, 'nogor_drop': 0.302543, 'nogor_keep': 0.321165, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.003499, 'delta_A_nogor_keep': 0.003499}
+seed2 {'A_drop': 0.318393, 'A_keep': 0.337015, 'nogor_drop': 0.312392, 'nogor_keep': 0.331014, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.006, 'delta_A_nogor_keep': 0.006}
+seed3 {'A_drop': 0.309721, 'A_keep': 0.328343, 'nogor_drop': 0.306302, 'nogor_keep': 0.324925, 'delta_keep_minus_drop_A': 0.018622, 'delta_A_nogor_drop': 0.003418, 'delta_A_nogor_keep': 0.003418}
+seed4 {'A_drop': 0.29063, 'A_keep': 0.322307, 'nogor_drop': 0.284538, 'nogor_keep': 0.316215, 'delta_keep_minus_drop_A': 0.031676, 'delta_A_nogor_drop': 0.006092, 'delta_A_nogor_keep': 0.006092}
+boot_keep_minus_drop_A {'mean': 0.012614025279804174, 'sd': 0.009627924308221998, 'p2_5': -2.7009631360809528e-05, 'p5': -2.0426860975580883e-05, 'p50': 0.01858847419923404, 'p95': 0.02199215506532743, 'p97_5': 0.021999703213996746, 'p_gt0': 0.6405, 'n': 2000}
+boot_A_nogor_drop {'mean': 0.00497244329485004, 'sd': 0.0029007155928772324, 'p2_5': -7.923582356423456e-05, 'p5': 0.0005535488425578412, 'p50': 0.004800598746508927, 'p95': 0.009966434838100932, 'p97_5': 0.011160789730357274, 'p_gt0': 0.9715, 'n': 2000}
+boot_A_nogor_keep {'mean': 0.004972443294850041, 'sd': 0.002900715592877233, 'p2_5': -7.923582356423456e-05, 'p5': 0.0005535488425578439, 'p50': 0.004800598746508927, 'p95': 0.009966434838100873, 'p97_5': 0.011160789730357275, 'p_gt0': 0.9715, 'n': 2000}
+builtin_keep_minus_drop_A {'mean': 0.012596820569556478, 'p5': -2.0080159821020405e-05, 'p50': 0.018595552360521017, 'p95': 0.021992039417882137, 'p_gt0': 0.643, 'samples': 1000, 'families': 103}
+without_gnezdovo {'A_drop': 0.3206244767930179, 'A_keep': 0.32061502175894874, 'nogor_drop': 0.31495916633914484, 'nogor_keep': 0.3149497113050757}
+{'kurgany_povrezhdennye': -8e-06, 'kurgany_tselye': 0.0, 'gorodishcha': 0.0, 'arkhitektury': 0.0, 'object_poly': 0.01863, 'fortifikatsii': 0.0, 'finds_points': 0.0} 17

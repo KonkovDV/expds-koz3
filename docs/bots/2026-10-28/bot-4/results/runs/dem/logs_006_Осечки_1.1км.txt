@@ -1,0 +1,4 @@
+INFO найдено регионов: 1 в roots/006_Осечки_1.1км
+INFO DEM 01_Осечки_1.1км_La_точки.laz: 1614x1600 @ 0.5 м, точек 3289274, пустот 1792750, numpy
+INFO 01_Осечки_1.1км_La_точки.laz: кандидатов городищ по рельефу 0
+{"las": 1, "written": 0, "params": {"work_res": 3.0, "relief_radius_m": 150.0, "relief_radius_l_m": 0.0, "min_rel_height_m": 1.0, "flat_max_deg": 15.0, "scarp_min_deg": 14.0, "ring_m": 12.0, "min_area_m2": 3000.0, "max_area_m2": 250000.0, "min_enclosure": 0.2, "core_m": 3.0, "max_per_dem": 3, "dem_res": 0.5, "dem_fill": "pyramid", "group": "gor_coarse_dem"}}

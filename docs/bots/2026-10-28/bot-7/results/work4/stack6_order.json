@@ -1,0 +1,87 @@
+{
+ "Гнёздово": {
+  "bot10_order": {
+   "kurgany_povrezhdennye|li": 808,
+   "kurgany_tselye|li": 226,
+   "kurgany_tselye|ae": 478,
+   "kurgany_povrezhdennye|ae": 229,
+   "gorodishcha|sp_or": 5,
+   "finds_points|maggr": 476,
+   "object_poly|maggr_poly": 147,
+   "object_poly|etgr": 705,
+   "object_poly|terfl": 95,
+   "kurgany_povrezhdennye|sp_focal": 12,
+   "fortifikatsii|ae_fort": 310,
+   "fortifikatsii|li_fort": 25,
+   "kurgany_povrezhdennye|li_dev": 14,
+   "kurgany_tselye|li_dev": 5,
+   "gorodishcha|gor_phys": 4
+  },
+  "candidate_order": {
+   "kurgany_povrezhdennye|li": 808,
+   "kurgany_tselye|li": 226,
+   "kurgany_tselye|ae": 478,
+   "kurgany_povrezhdennye|ae": 229,
+   "gorodishcha|sp_or": 5,
+   "finds_points|maggr": 476,
+   "object_poly|maggr_poly": 147,
+   "object_poly|etgr": 705,
+   "object_poly|terfl": 95,
+   "kurgany_povrezhdennye|sp_focal": 12,
+   "fortifikatsii|ae_fort": 310,
+   "fortifikatsii|li_fort": 25,
+   "kurgany_povrezhdennye|li_dev": 14,
+   "kurgany_tselye|li_dev": 5,
+   "gorodishcha|gor_phys": 4
+  },
+  "n_bot10": 3539,
+  "n_candidate": 3539,
+  "same_objects": 3539,
+  "only_bot10": 0,
+  "only_candidate": 0
+ },
+ "Семибратнее": {
+  "bot10_order": {
+   "finds_points|maggr": 2256,
+   "object_poly|maggr_poly": 100,
+   "kurgany_povrezhdennye|sp_focal": 27,
+   "kurgany_povrezhdennye|sp_focal2": 2,
+   "kurgany_tselye|sp_focal": 2,
+   "fortifikatsii|ae_fort": 2117
+  },
+  "candidate_order": {
+   "finds_points|maggr": 2256,
+   "object_poly|maggr_poly": 100,
+   "kurgany_povrezhdennye|sp_focal": 27,
+   "kurgany_povrezhdennye|sp_focal2": 2,
+   "kurgany_tselye|sp_focal": 2,
+   "fortifikatsii|ae_fort": 2117
+  },
+  "n_bot10": 4504,
+  "n_candidate": 4504,
+  "same_objects": 4504,
+  "only_bot10": 0,
+  "only_candidate": 0
+ },
+ "Судьбищи": {
+  "bot10_order": {
+   "gorodishcha|li_coarse": 2,
+   "fortifikatsii|li_coarse": 1,
+   "fortifikatsii|li_fort": 4,
+   "kurgany_povrezhdennye|li_mosaic": 2,
+   "finds_points|maggr": 196
+  },
+  "candidate_order": {
+   "gorodishcha|li_coarse": 2,
+   "fortifikatsii|li_coarse": 1,
+   "fortifikatsii|li_fort": 4,
+   "kurgany_povrezhdennye|li_mosaic": 2,
+   "finds_points|maggr": 196
+  },
+  "n_bot10": 205,
+  "n_candidate": 205,
+  "same_objects": 205,
+  "only_bot10": 0,
+  "only_candidate": 0
+ }
+}

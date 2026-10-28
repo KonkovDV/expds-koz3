@@ -1,0 +1,9 @@
+global honest10 {'base': [0.314615, 0.296451, 0.144274], 'E3n': [0.315847, 0.296451, 0.154965], 'E3p': [0.322344, 0.296451, 0.193979]} sel {'finds_points': 7, 'arkhitektury': 8, 'kurgany_tselye': 1, 'fortifikatsii': 8, 'kurgany_povrezhdennye': 8} 105
+global lofo {'base': 0.315067, 'E3n': 0.314168, 'E3p': 0.323229} 1375
+global seed 0 {'base': 0.314698, 'E3n': 0.315079, 'E3p': 0.322556} 1503
+global seed 1 {'base': 0.306042, 'E3n': 0.30266, 'E3p': 0.3119} 1634
+global seed 2 {'base': 0.318393, 'E3n': 0.316338, 'E3p': 0.324755} 1878
+global seed 3 {'base': 0.309721, 'E3n': 0.308784, 'E3p': 0.310026} 2065
+global seed 4 {'base': 0.29063, 'E3n': 0.289685, 'E3p': 0.293799} 2233
+region honest10 {'base': [0.312067, 0.30045, 0.140207], 'E3n': [0.311704, 0.30045, 0.149167], 'E3p': [0.317793, 0.30045, 0.186794]} sel {'finds_points': 7, 'arkhitektury': 6, 'kurgany_tselye': 1, 'fortifikatsii': 8, 'kurgany_povrezhdennye': 8} 2414
+done 2414

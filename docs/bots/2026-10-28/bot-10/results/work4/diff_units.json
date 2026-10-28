@@ -1,0 +1,44 @@
+{
+ "units": {
+  "Боровичи": {
+   "kurgany_tselye": 4,
+   "fortifikatsii": 5
+  },
+  "Вышегжа": {
+   "kurgany_povrezhdennye": 1
+  },
+  "Гнёздово": {
+   "kurgany_povrezhdennye": 50,
+   "kurgany_tselye": 20,
+   "gorodishcha": 1,
+   "object_poly": 25,
+   "finds_points": 23
+  },
+  "Иссык+Каджы": {
+   "kurgany_povrezhdennye": 2,
+   "arkhitektury": 9
+  },
+  "Курганы": {
+   "kurgany_povrezhdennye": 2
+  },
+  "Миловидово+Осечки+Примаки": {
+   "kurgany_povrezhdennye": 5
+  },
+  "Семибратнее": {
+   "finds_points": 3
+  },
+  "Судьбищи": {
+   "fortifikatsii": 2
+  }
+ },
+ "total_tp_global_minus_site": {
+  "kurgany_tselye": 24,
+  "fortifikatsii": 7,
+  "kurgany_povrezhdennye": 60,
+  "gorodishcha": 1,
+  "object_poly": 25,
+  "finds_points": 26,
+  "arkhitektury": 9
+ },
+ "sum": 152
+}
