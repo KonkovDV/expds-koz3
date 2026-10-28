@@ -12,6 +12,7 @@
 
     python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
     python scripts/hillfort_oof.py ... --set relief_radius_l_m=150 --out F:/expds3/work/gor_phys_wide.geojson
+    python scripts/hillfort_oof.py ... --preset coarse --out F:/expds3/work/gor_coarse_dem.geojson   # грубый проход (bot-4)
 
 Тот же файл годится источником для `oof_transform.py rescue` (лучшая площадка участка).
 """
@@ -36,6 +37,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--preset", choices=("fine", "coarse"), default="fine",
+                    help="coarse — грубый проход (hillfort.COARSE, группа gor_coarse_dem)")
     ap.add_argument("--set", action="append", default=[], help="параметр=значение HillfortParams (литерал TOML)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -44,7 +47,7 @@ def main() -> None:
     for spec in args.set:
         key, _, raw = spec.partition("=")
         cfg[key.strip()] = tomllib.loads(f"v = {raw.strip()}")["v"]
-    p = hillfort.params_from(cfg)
+    p = hillfort.coarse_params(cfg) if args.preset == "coarse" else hillfort.params_from(cfg)
     feats: list[dict] = []
     n_las = 0
     for reg in scan_root(args.root):
@@ -59,7 +62,7 @@ def main() -> None:
     out = post.finalize(feats)
     fc = writer.to_feature_collection(out)
     for f, src in zip(fc["features"], out):
-        f["properties"]["threshold_group"] = src.get("threshold_group", "gor_phys")
+        f["properties"]["threshold_group"] = src.get("threshold_group", p.group)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({"las": n_las, "written": len(out), "params": vars(p)}, ensure_ascii=False))
