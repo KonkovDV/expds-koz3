@@ -1,0 +1,60 @@
+--- a/expds/pipeline.py	2026-10-28 21:03:06.059901197 +0300
++++ b/expds/pipeline.py	2026-10-28 21:03:06.091901875 +0300
+@@ -426,21 +426,31 @@
+     return to_crs(geom, WEB_MERCATOR, utm_for_lonlat(float(lon), float(lat))).representative_point()
+ 
+ 
+-def kept_kurgan_anchors(feats: list[dict]) -> list[dict]:
+-    """Круги курганов, которые сданный порог своей группы уже оставляет."""
++def kept_kurgan_anchors(feats: list[dict], cfg: dict | None = None) -> list[dict]:
++    """Круги курганов, которые сданный порог своей группы уже оставляет.
++
++    cfg — порог из [thresholds_by_markup.<группа>] конфига, если он там есть; иначе
++    KEPT_KURGAN_CONF. Так якоря не расходятся с конфигом после нового подбора порогов.
++    """
++    by_markup = (cfg or {}).get("thresholds_by_markup") or {}
+     kept = []
+     for feat in feats:
+         cls = feat.get("class_name")
+         group = feat.get("threshold_group") or feat.get("markup_type")
+-        thr = KEPT_KURGAN_CONF.get(group, {}).get(cls)
++        thr = (by_markup.get(group) or {}).get(cls, KEPT_KURGAN_CONF.get(group, {}).get(cls))
+         if thr is None or float(feat.get("confidence") or 0) < thr:
+             continue
+         kept.append(feat)
+     return kept
+ 
+ 
+-def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12.0) -> list[dict]:
+-    """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса."""
++def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12.0,
++                      same_markup: bool = False) -> list[dict]:
++    """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса.
++
++    same_markup=True — якорь только того же markup_type: эталон ae / sp_or / li — отдельные
++    объекты, метрика сводит класс по всем типам, и круг sp_or рядом с курганом li не дубль.
++    """
+     from shapely.strtree import STRtree
+ 
+     buckets: dict[tuple, list] = {}
+@@ -448,16 +458,17 @@
+         cls = feat.get("class_name")
+         if cls not in ("kurgany_povrezhdennye", "kurgany_tselye") or feat.get("geom") is None:
+             continue
+-        buckets.setdefault((feat.get("region_name"), cls), []).append(ground_point(feat["geom"]))
++        key = (feat.get("region_name"), cls) + ((feat.get("markup_type"),) if same_markup else ())
++        buckets.setdefault(key, []).append(ground_point(feat["geom"]))
+     trees = {key: STRtree(pts) for key, pts in buckets.items() if pts}
+     kept = []
+     for feat in cands:
+-        pts = buckets.get((feat.get("region_name"), feat.get("class_name")))
++        key = (feat.get("region_name"), feat.get("class_name")) + ((feat.get("markup_type"),) if same_markup else ())
++        pts = buckets.get(key)
+         if not pts or feat.get("geom") is None:
+             kept.append(feat)
+             continue
+         point = ground_point(feat["geom"])
+-        key = (feat.get("region_name"), feat.get("class_name"))
+         near = any(pts[int(i)].distance(point) <= dist_m for i in trees[key].query(point.buffer(dist_m)))
+         if not near:
+             kept.append(feat)

@@ -1,0 +1,21 @@
+--- a/expds/post.py	2026-10-28 21:03:06.059901197 +0300
++++ b/expds/post.py	2026-10-28 21:03:06.103902130 +0300
+@@ -143,7 +143,17 @@
+             best, hi = g, mid
+         else:
+             lo = mid
+-    return best if best is not None else geom.convex_hull
++    if best is not None:
++        return best
++    # Запасной путь без выпуклой оболочки: внешний контур без дыр и сетка 0,5 м,
++    # внутренняя точка остаётся внутри фигуры. Оболочка — только если и это не помогло.
++    shell = Polygon(geom.exterior).simplify(max(geom.length / max_vertices, 0.05), preserve_topology=True)
++    parts = polygons_of(shell)
++    if parts:
++        g = max(parts, key=lambda p: p.area)
++        if _vertex_count(g) < max_vertices and g.contains(geom.representative_point()):
++            return g
++    return geom.convex_hull
+ 
+ 
+ def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:
