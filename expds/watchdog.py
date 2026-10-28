@@ -99,6 +99,26 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     return out
 
 
+def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
+    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
+    try:
+        return finish(feats, cfg)
+    except Exception:
+        log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
+    out = post.only_known_classes(feats)
+    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                cfg.get("thresholds_by_markup", {}))
+    kept: list[dict] = []
+    for f in out:
+        try:
+            kept += post.finalize([f])
+        except Exception:
+            continue
+    kept = post.cap_features(kept)
+    only = (cfg.get("post") or {}).get("only_classes")
+    return post.keep_classes(kept, only) if only is not None else kept
+
+
 _write_lock = threading.Lock()
 
 
@@ -141,7 +161,7 @@ def checkpoint(state: RunState, reason: str) -> int:
     """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
     feats = state.snapshot()
     with _write_lock:
-        kept = finish(feats, state.cfg)
+        kept = safe_finish(feats, state.cfg)
         writer.write_geojson(kept, state.output)
         _emit_protocol(state, feats, kept, reason)
         return len(kept)
