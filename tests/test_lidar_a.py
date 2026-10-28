@@ -126,3 +126,39 @@ def test_band_fill_keeps_network_input(monkeypatch):
     p0 = tiling.infer_map(net, x0, 3, tile=256, overlap=64, tta=False, dev="cpu")
     p1 = tiling.infer_map(net, x1, 3, tile=256, overlap=64, tta=False, dev="cpu")
     assert np.array_equal(p0, p1)
+
+
+# ---- (5) blending on the model's device ------------------------------------------------------------------------------
+class _Net(torch.nn.Module):
+    def __init__(self, cin, cout, seed=0):
+        super().__init__()
+        g = torch.Generator().manual_seed(seed)
+        self.a = torch.nn.Conv2d(cin, 6, 3, padding=1); self.b = torch.nn.Conv2d(6, cout, 3, padding=1)
+        for p in self.parameters():
+            p.data = torch.randn(p.shape, generator=g) * 0.3
+
+    def forward(self, x):
+        return self.b(torch.relu(self.a(x)))
+
+
+@pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.parametrize("tta,shape", [(True, (9, 450, 350)), (False, (9, 300, 700)), ("d8", (9, 512, 512)), (True, (9, 100, 90))])
+def test_device_blend_bitwise(tta, shape):
+    from expds.lidar_a import tiling
+    x = np.random.default_rng(3).normal(size=shape).astype(np.float32)
+    net = _Net(9, 3).eval()
+    ref = tiling.infer_map(net, x, 3, tile=256, overlap=64, tta=tta, dev="cpu")
+    got = tiling.infer_map_on_device(net, x, 3, tile=256, overlap=64, tta=tta, dev="cpu").numpy()
+    assert got.tobytes() == ref.tobytes()
+
+
+@pytest.mark.filterwarnings("ignore::UserWarning")
+def test_site_maps_accumulation_modes():
+    from expds.lidar_a import runner
+    d, v = _dtm(5, (300, 260))
+    models = [(_Net(9, 3, 1).eval(), "", 0.5), (_Net(9, 3, 2).eval(), "", 0.5), (_Net(12, 3, 3).eval(), "x", 1.0)]
+    host, vh = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="host")
+    exact, ve = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="device_exact")
+    dev_, vd = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="device")
+    assert exact.tobytes() == host.tobytes() and (vh == ve).all() and (vh == vd).all()
+    assert np.abs(dev_ - host).max() <= 4 * np.spacing(np.float32(1))
