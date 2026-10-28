@@ -269,6 +269,8 @@ def main() -> None:
                     help="стек базы до порогов — вход scripts/rerank_oof.py (в рабочую папку)")
     ap.add_argument("--rerank", default=None,
                     help="опыт — весь стек из файла scripts/rerank_oof.py вместо стека базы")
+    ap.add_argument("--sp-fusion", action="store_true",
+                    help="опыт — слияние уверенностей sp_focal/sp_focal2 для курганов (post.sp_score_fusion, bot-6 ORSP)")
     args = ap.parse_args()
     global OFFICIAL
     OFFICIAL = args.official
@@ -288,7 +290,8 @@ def main() -> None:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
     honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
-    if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment:
+    if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment \
+            and not args.sp_fusion:
         if args.out:
             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
                                                   "honest_base": honest_b[0] if honest_b else None},
@@ -316,6 +319,9 @@ def main() -> None:
     if args.rerank:
         # Переоценённый стек заменяет базу целиком; --add и --replace к нему не применяются.
         mixed = load(Path(args.rerank))["features"]
+    if args.sp_fusion:
+        from expds.post import sp_score_fusion
+        mixed = sp_score_fusion(mixed)
     from expds.metric import build_curves, paired_bootstrap
 
     after, taus, kept_a, per_a = evaluate("опыт", mixed, gt, new, optical, args.metric)
