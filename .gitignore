@@ -15,6 +15,7 @@ cache/
 dist/
 rust/target/
 rust/expds_core/target/
+rust/expds_fast/target/
 
 # Python
 __pycache__/
@@ -36,6 +37,9 @@ s3_*.log
 .coverage
 htmlcov/
 *.whl
+!rust/expds_fast/wheels/*.whl
+# expds_fast*.so извлекается из колеса при сборке архива
+inference/lib/expds_fast*.so
 *.egg-info/
 .idea/
 .vscode/
