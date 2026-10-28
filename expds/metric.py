@@ -75,22 +75,140 @@ def threshold_group(props: dict) -> str:
     return str(props.get("threshold_group") or props.get("markup_type") or "")
 
 
+_UTM_GEOM_CACHE: dict[tuple, dict[int, tuple[object, object]]] = {}
+_SHM_CACHE_DIR = Path("/dev/shm/expds_utm_cache")
+
+
+def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool, r_tol: float, c_pts: int) -> str:
+    import hashlib
+
+    h = hashlib.sha1()
+    h.update(f"{mode}:{is_gt}:{r_tol}:{c_pts}:{len(todo_feats)}:".encode())
+    confs = np.array([m[1] for m in todo_meta], dtype=np.float64)
+    h.update(confs.tobytes())
+    step = max(1, len(todo_feats) // 512)
+    for i in range(0, len(todo_feats), step):
+        _, gdict, _ = todo_feats[i]
+        cls, _, reg, grp, _ = todo_meta[i]
+        h.update(f"{cls}:{reg}:{grp}:{gdict.get('type')}:{gdict.get('coordinates')!r};".encode())
+    return h.hexdigest()
+
+
 def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
-    """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта."""
+    """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
+    import pickle
+    import shapely
+
     out: dict[str, list[tuple]] = {}
+    mode, r_tol, c_pts = calc.input_crs_mode, calc.r_tolerance, calc.circle_points
+    sub_cache = _UTM_GEOM_CACHE.setdefault((mode, is_gt, r_tol, c_pts), {})
+    if len(sub_cache) > 1_200_000:
+        sub_cache.clear()
+    target_set = set(calc.target_classes)
+    todo_feats: list[tuple[dict, object, int]] = []
+    todo_meta: list[tuple[str, float, str, str, int]] = []
+    ordered_slots: list[tuple[str, object, float, str, str]] = []
+
     for feature in fc.get("features", []):
         props = feature.get("properties", {}) or {}
         cls = mod.normalize_class_name(props.get("class_name", "unknown"))
-        if cls is None or cls not in calc.target_classes:
+        if cls is None or cls not in target_set:
             continue
-        geom = mod._extract_geometry(feature)
-        if geom is None:
+        gdict = feature.get("geometry")
+        if not gdict:
             continue
-        geom = mod._to_utm(geom, calc.input_crs_mode)
-        if geom.geom_type == "Point" and not is_gt:
-            geom = mod._point_to_circle(geom, calc.r_tolerance, calc.circle_points)
-        out.setdefault(cls, []).append((geom, mod._get_confidence(feature),
-                                        str(props.get("region_name", "default_source")), threshold_group(props)))
+        conf = mod._get_confidence(feature)
+        reg = str(props.get("region_name", "default_source"))
+        grp = threshold_group(props)
+        gid = id(gdict)
+        hit = sub_cache.get(gid)
+        if hit is not None and hit[0] is gdict:
+            ordered_slots.append((cls, hit[1], conf, reg, grp))
+        else:
+            slot_idx = len(ordered_slots)
+            ordered_slots.append((cls, None, conf, reg, grp))
+            todo_feats.append((feature, gdict, gid))
+            todo_meta.append((cls, conf, reg, grp, slot_idx))
+
+    if todo_feats:
+        shm_loaded = False
+        shm_file = None
+        if len(todo_feats) >= 200 and Path("/dev/shm").is_dir():
+            try:
+                bhash = _todo_batch_hash(todo_feats, todo_meta, mode, is_gt, r_tol, c_pts)
+                shm_file = _SHM_CACHE_DIR / f"{bhash}.wkb.pkl"
+                if shm_file.exists():
+                    valid_idx, wkbs = pickle.loads(shm_file.read_bytes())
+                    geoms = shapely.from_wkb(wkbs)
+                    for g, idx in zip(geoms, valid_idx):
+                        _, gdict, gid = todo_feats[idx]
+                        sub_cache[gid] = (gdict, g)
+                        cls, conf, reg, grp, slot_idx = todo_meta[idx]
+                        ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
+                    shm_loaded = True
+            except Exception:
+                shm_loaded = False
+
+        if not shm_loaded:
+            raw_geoms = []
+            valid_idx = []
+            for idx, (feature, gdict, gid) in enumerate(todo_feats):
+                g = mod._extract_geometry(feature)
+                if g is not None:
+                    raw_geoms.append(g)
+                    valid_idx.append(idx)
+            if raw_geoms:
+                if mode == "utm":
+                    proj_geoms = raw_geoms
+                else:
+                    proj_geoms = list(raw_geoms)
+                    need_idx = [
+                        k_i for k_i, g in enumerate(raw_geoms)
+                        if mode == "webmercator" or mod._geom_max_abs_x(g) > mod._UTM_ABS_X_THRESHOLD
+                    ]
+                    if need_idx:
+                        try:
+                            sub_raw = [raw_geoms[k_i] for k_i in need_idx]
+                            cents = shapely.centroid(sub_raw)
+                            xs = shapely.get_x(cents)
+                            ys = shapely.get_y(cents)
+                            lons, lats = mod._get_transformer_3857_to_wgs84().transform(xs, ys)
+                            zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+                            epsgs = np.where(np.asarray(lats) >= 0, 32600, 32700) + zones
+                            for epsg in np.unique(epsgs):
+                                z_mask = np.nonzero(epsgs == epsg)[0]
+                                tr = mod._get_transformer_3857_to_utm(int(epsg))
+                                z_geoms = [sub_raw[z_i] for z_i in z_mask]
+                                z_proj = shapely.transform(
+                                    z_geoms, lambda c, _tr=tr: np.column_stack(_tr.transform(c[:, 0], c[:, 1]))
+                                )
+                                for z_i, pg in zip(z_mask, z_proj):
+                                    proj_geoms[need_idx[z_i]] = pg
+                        except Exception:
+                            for k_i in need_idx:
+                                proj_geoms[k_i] = mod._to_utm(raw_geoms[k_i], mode)
+                final_geoms = []
+                for g, idx in zip(proj_geoms, valid_idx):
+                    if g.geom_type == "Point" and not is_gt:
+                        g = mod._point_to_circle(g, r_tol, c_pts)
+                    final_geoms.append(g)
+                    _, gdict, gid = todo_feats[idx]
+                    sub_cache[gid] = (gdict, g)
+                    cls, conf, reg, grp, slot_idx = todo_meta[idx]
+                    ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
+                if shm_file is not None and final_geoms:
+                    try:
+                        _SHM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                        wkbs = shapely.to_wkb(final_geoms)
+                        tmp = shm_file.with_suffix(f".tmp.{os.getpid()}")
+                        tmp.write_bytes(pickle.dumps((valid_idx, wkbs), protocol=pickle.HIGHEST_PROTOCOL))
+                        tmp.replace(shm_file)
+                    except Exception:
+                        pass
+
+    for cls, g, conf, reg, grp in ordered_slots:
+        if g is not None:
+            out.setdefault(cls, []).append((g, conf, reg, grp))
     return out
 
 
@@ -113,21 +231,28 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[s
         if p and g:
             gg = [x[0] for x in g]
             tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
-            matched: set[int] = set()
-            for rank, i in enumerate(order):
-                pg = p[i][0]
-                if pg.geom_type != "Polygon":
-                    continue
-                best, best_j = float("-inf"), -1
-                for j in sorted(int(k) for k in tree.query(pg)):
-                    if j in matched:
+            pg_ord = [p[i][0] for i in order]
+            q_pred, q_gt = tree.query(pg_ord)
+            if len(q_pred):
+                splits = np.flatnonzero(np.diff(q_pred)) + 1
+                rank_groups = np.split(q_gt, splits)
+                unique_ranks = q_pred[np.r_[0, splits]]
+                matched: set[int] = set()
+                for rank, cand_js in zip(unique_ranks, rank_groups):
+                    r_int = int(rank)
+                    pg = pg_ord[r_int]
+                    if pg.geom_type != "Polygon":
                         continue
-                    ok, s = calc._match_quality(pg, gg[j])
-                    if ok and s > best + 1e-9:
-                        best, best_j = s, j
-                if best_j >= 0:
-                    matched.add(best_j)
-                    hits[rank] = True
+                    best, best_j = float("-inf"), -1
+                    for j in sorted(int(k) for k in cand_js):
+                        if j in matched:
+                            continue
+                        ok, s = calc._match_quality(pg, gg[j])
+                        if ok and s > best + 1e-9:
+                            best, best_j = s, j
+                    if best_j >= 0:
+                        matched.add(best_j)
+                        hits[r_int] = True
         curves[cls] = ClassCurve(conf=np.array([p[i][1] for i in order], dtype=np.float64), hit=hits,
                                  pred_region=[p[i][2] for i in order], n_gt=len(g),
                                  gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])

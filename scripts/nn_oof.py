@@ -152,6 +152,8 @@ def main() -> None:
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--encoder", default="resnet18")
     ap.add_argument("--device", default=None, help="устройство PyTorch, например cuda:0 или cuda:1")
+    ap.add_argument("--parallel-gpus", action="store_true",
+                    help="запустить несколько фолдов параллельно на cuda:0 и cuda:1 (2×T4 Kaggle)")
     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
@@ -260,7 +262,47 @@ def main() -> None:
         print(json.dumps({"written": len(out), "folds": report}, ensure_ascii=False))
         return
     want_folds = set(args.fold_indices) if args.fold_indices is not None else set(all_folds)
-    for k in [f for f in all_folds if f in want_folds]:
+    selected_folds = [f for f in all_folds if f in want_folds]
+    if args.parallel_gpus and args.train_only and args.device is None and len(selected_folds) > 1:
+        import subprocess
+        import torch
+        n_gpus = max(2, torch.cuda.device_count()) if torch.cuda.is_available() else 2
+        base_argv = [a for a in sys.argv[1:] if a != "--parallel-gpus"]
+        # Удаляем старый --fold-indices и его аргументы
+        clean_argv = []
+        skip_fold_vals = False
+        for tok in base_argv:
+            if tok == "--fold-indices":
+                skip_fold_vals = True
+                continue
+            if skip_fold_vals:
+                if tok.startswith("-"):
+                    skip_fold_vals = False
+                    clean_argv.append(tok)
+                continue
+            clean_argv.append(tok)
+        procs = []
+        for idx_f, fk in enumerate(selected_folds):
+            dev_str = f"cuda:{idx_f % n_gpus}"
+            cmd = [sys.executable, str(Path(__file__).resolve()), *clean_argv,
+                   "--fold-indices", str(fk), "--device", dev_str]
+            log.info("параллельный запуск фолда %d на %s", fk, dev_str)
+            procs.append((fk, dev_str, subprocess.Popen(cmd)))
+        failed = []
+        for fk, dev_str, p_sub in procs:
+            rc = p_sub.wait()
+            if rc != 0:
+                failed.append((fk, dev_str, rc))
+        if failed:
+            raise SystemExit(f"ошибка параллельного обучения фолдов: {failed}")
+        for fk in selected_folds:
+            rf = work / f"fold{fk}" / "fold_report.json"
+            if rf.exists():
+                report.append(json.loads(rf.read_text(encoding="utf-8")))
+        (work / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps({"trained_folds": len(report), "folds": report, "parallel_gpus": True}, ensure_ascii=False))
+        return
+    for k in selected_folds:
         test = {f for f in fams if fold[f] == k}
         train_fams = [f for f in fams if f not in test]
         n_train = sum(tiles[f] for f in train_fams)

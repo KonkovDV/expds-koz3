@@ -53,11 +53,14 @@ def build_fold_plan(cache: str, markup: str, work: str, out: str, epochs: int = 
     for a in assignments[:max(1, n_nodes)]:
         if a["all_data"]:
             cmd = (f"python -m expds.train --cache {cache} --out {work}/{markup}_all.pt "
-                   f"--encoder {encoder} --epochs {epochs} --batch {batch} --target {target} --all-data")
+                   f"--encoder {encoder} --epochs {epochs} --batch {batch} --target {target} --all-data --device cuda:0 & "
+                   f"python -m expds.train --cache {cache} --out {work}/{markup}_all_s1.pt "
+                   f"--encoder {encoder} --epochs {epochs} --batch {batch} --target {target} --all-data --seed 1 --device cuda:1 & wait")
         else:
             f_str = " ".join(str(f) for f in a["folds"])
+            p_flag = " --parallel-gpus" if len(a["folds"]) > 1 else " --device cuda:0"
             cmd = (f"python scripts/nn_oof.py --markup {markup} --root . --cache {cache} "
-                   f"--work {work} --out {out} --fold-indices {f_str} --train-only "
+                   f"--work {work} --out {out} --fold-indices {f_str} --train-only{p_flag} "
                    f"--encoder {encoder} --epochs {epochs} --batch {batch} --target {target}")
         plan.append({
             "node_id": a["node_id"],
@@ -81,6 +84,7 @@ def check_node(node: dict) -> dict:
     token_file.write_text(tok, encoding="utf-8")
     token_file.chmod(0o600)
     env["KAGGLE_CONFIG_DIR"] = str(token_dir)
+    env["KAGGLE_API_TOKEN"] = str(token_file)
     kaggle_bin = Path.home() / ".local" / "bin" / "kaggle"
     cmd = [str(kaggle_bin) if kaggle_bin.exists() else "kaggle", "kernels", "list", "--mine", "--page-size", "5"]
     try:

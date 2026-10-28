@@ -497,8 +497,16 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     # не смотреть на этот признак (у лидара с отмывкой g повороты выключены по той же причине).
     flips = {"auto": meta.get("flips", False), "none": False, "all": True}[flips_mode]
     torch.backends.cudnn.benchmark = dev.type == "cuda"
+    if dev.type == "cuda":
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
     if gpu_data is None:
-        gpu_data = dev.type == "cuda" and GpuTiles.nbytes(cache_p, rows) < 0.25 * torch.cuda.mem_get_info(dev)[0]
+        if dev.type == "cuda":
+            free_vram = torch.cuda.mem_get_info(dev)[0]
+            vram_frac = 0.55 if free_vram >= 12 * 1024**3 else 0.25
+            gpu_data = GpuTiles.nbytes(cache_p, rows) < vram_frac * free_vram
+        else:
+            gpu_data = False
     ch = paste_channels(meta["classes"]) if copy_paste > 0 else ()
     if copy_paste > 0 and not gpu_data:
         log.warning("copy-paste выключен: тайлы не в видеопамяти")

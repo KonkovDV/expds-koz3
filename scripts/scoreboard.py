@@ -42,9 +42,12 @@ KUR = {"kurgany_povrezhdennye", "kurgany_tselye"}
 
 
 def load(path: Path) -> dict:
-    print(f"читаю {path.name}", flush=True)
-    with Path(path).open(encoding="utf-8") as f:
-        return json.load(f)
+    import gc
+
+    p = Path(path)
+    print(f"читаю {p.name}", flush=True)
+    gc.disable()
+    return json.loads(p.read_bytes())
 
 
 def props(feat: dict) -> dict:
@@ -368,4 +371,8 @@ def _split_windows(spec: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    import os
     main()
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
