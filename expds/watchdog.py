@@ -128,7 +128,16 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
-    mc = (cfg.get("post") or {}).get("micro_circles")
+    pc = cfg.get("post") or {}
+    # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
+    for key, fn in (("multipole_object_poly", post.multipole_object_poly),
+                    ("filter_finds_points", post.filter_finds_points_regimes)):
+        if pc.get(key):
+            try:
+                out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
+            except Exception:
+                log.exception("%s в запасной цепочке упал, шаг пропущен", key)
+    mc = pc.get("micro_circles")
     if mc:
         # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
         try:
