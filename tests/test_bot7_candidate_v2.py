@@ -154,3 +154,23 @@ def test_region_feats_stop_drops_partial(monkeypatch, tmp_path):
     assert geo_pixgbm.region_feats(reg, {}, tmp_path, stop=lambda: next(n)) == []
     assert len(geo_pixgbm.region_feats(reg, {}, tmp_path, stop=lambda: False)) == 2
     assert geo_pixgbm.region_feats(reg, {}, tmp_path / "nope") == []
+
+
+def test_check_submission_pixgbm_model_dir(tmp_path):
+    """check_submission: model_dir PIXGBM — папка; при enabled нужны poly.txt и finds.txt, лишних WARN нет."""
+    import importlib.util, zipfile
+    spec = importlib.util.spec_from_file_location("cs", ROOT / "scripts" / "check_submission.py")
+    cs = importlib.util.module_from_spec(spec); spec.loader.exec_module(cs)
+    toml = '[geophys.pixgbm]\nenabled = true\nmodel_dir = "models/pixgbm/all"\n'
+    for files, want in ((["poly.txt", "finds.txt"], "PASS"), (["poly.txt"], "FAIL")):
+        zp = tmp_path / f"z{len(files)}.zip"
+        with zipfile.ZipFile(zp, "w") as z:
+            z.writestr("configs/default.toml", toml)
+            for f in files:
+                z.writestr(f"models/pixgbm/all/{f}", "x")
+        cs.RESULTS.clear()
+        with zipfile.ZipFile(zp) as z:
+            cs.check_config_static(z)
+        st = [s for s, c, m in cs.RESULTS if c == "config" and ("весам" in m or "отсутствуют" in m)]
+        assert st == [want], cs.RESULTS
+        assert not any(s == "WARN" and "pixgbm" in m for s, c, m in cs.RESULTS)
