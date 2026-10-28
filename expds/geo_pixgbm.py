@@ -421,8 +421,12 @@ def finds_candidates(P, d, region, mt, source):
     return out
 
 
-def region_feats(reg, cfg, model_dir) -> list[dict]:
-    """Опциональный источник пайплайна: [geophys.pixgbm] enabled=true, model_dir (poly.txt, finds.txt)."""
+def region_feats(reg, cfg, model_dir, stop=None) -> list[dict]:
+    """Опциональный источник пайплайна: [geophys.pixgbm] enabled=true, model_dir (poly.txt, finds.txt).
+
+    stop (bot-7) — функция без аргументов; True перед любым растром — участок целиком без pix (пустой
+    список, классика остаётся): потолок времени pix или общий бюджет. Нет файлов моделей — предупреждение и пустой список.
+    """
     import lightgbm as lgb
     from . import geophys
     from .pipeline import region_crs
@@ -431,6 +435,9 @@ def region_feats(reg, cfg, model_dir) -> list[dict]:
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
     bst = {k: lgb.Booster(model_file=str(md / f"{k}.txt")) for k in ("poly", "finds") if (md / f"{k}.txt").exists()}
+    if not bst:
+        log.warning("%s: pixgbm — нет моделей в %s, пропущен", reg.name, md)
+        return []
     out = []
     for mt in ("maggr", "etgr", "terfl"):
         files = pick_rasters(reg.rasters.get(mt, []))
@@ -440,6 +447,12 @@ def region_feats(reg, cfg, model_dir) -> list[dict]:
         noise = geophys.load_mask(reg.noise, mt, crs_region)
         use = {k: v for k, v in bst.items() if k == "poly" or mt == "maggr"}
         for f in files:
+            if stop is not None and stop():
+                # участок целиком без pix: замена S идёт по (класс, метод) на весь участок, частичный
+                # pix выбросил бы классику непройденных растров
+                log.warning("%s: pixgbm — потолок времени перед %s, участок без pix (%d канд. отброшено)",
+                            reg.name, f.name, len(out))
+                return []
             try:
                 d = load_map(f, GSD[mt], crs_region, boundary, noise)
                 if not d["crs"]:

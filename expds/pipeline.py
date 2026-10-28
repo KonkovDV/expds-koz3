@@ -241,8 +241,26 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         try:
             from . import geo_pixgbm
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
-            new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
-                   if f["class_name"] in cls]
+            # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
+            md = Path(pix.get("model_dir", "models/pixgbm/all"))
+            if not md.is_absolute():
+                md = Path(__file__).resolve().parents[1] / md
+            # bot-7: потолок суммарного времени pix на прогон ([geophys.pixgbm] budget_s, 0 — нет) и общий
+            # запас бюджета; счётчик живёт на guard, чтобы суммироваться по участкам
+            cap = float(pix.get("budget_s", 0) or 0)
+            reserve = float(cfg.get("time", {}).get("reserve_s", 120))
+            t_pix = time.monotonic()
+            spent0 = float(getattr(guard, "pix_spent", 0.0))
+
+            def stop() -> bool:
+                spent = spent0 + time.monotonic() - t_pix
+                return (cap > 0 and spent >= cap) or (guard is not None and not guard.ok(reserve))
+
+            try:
+                new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, stop=stop) if f["class_name"] in cls]
+            finally:
+                if guard is not None:
+                    guard.pix_spent = spent0 + time.monotonic() - t_pix
             import re
             ure = pix.get("union_name_re", "")
             if ure and re.search(ure, reg.name):
