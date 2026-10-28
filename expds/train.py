@@ -419,7 +419,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           flips_mode: str = "auto", center_edge_ignore: bool = False, use_ignore: bool = False,
           channel_dropout: float = 0.0, paste_blend: float = 0.0,
           paste_scale: tuple[float, float] = (1.0, 1.0), elastic: float = 0.0,
-          small_object_weight: float = 1.0) -> dict:
+          small_object_weight: float = 1.0, device: str | None = None) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -470,7 +470,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     c = int(meta.get("channels") or np.load(cache_p / "images_0000.npy", mmap_mode="r").shape[1])
     from .infer_nn import fp16_ok
 
-    dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    dev = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    if dev.type == "cuda" and dev.index is not None:
+        torch.cuda.set_device(dev)
     use_amp = amp and fp16_ok(dev)
     if amp and dev.type == "cuda" and not use_amp:
         log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
@@ -724,6 +726,7 @@ def _cli() -> None:
                     help="размер окна размытия края copy-paste; 0 — жёсткая вставка")
     ap.add_argument("--elastic", type=float, default=0.0,
                     help="сила упругого сдвига сетки; 0 — без него")
+    ap.add_argument("--device", default=None, help="устройство PyTorch (cuda:0, cuda:1, cpu)")
     ap.add_argument("--small-object-weight", type=float, default=1.0,
                     help="вес потери насыпи мельче 0,2 %% кадра (карта центров); 1 — без него")
     args = ap.parse_args()
@@ -737,7 +740,7 @@ def _cli() -> None:
                 scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips,
                 center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                 channel_dropout=args.channel_dropout, paste_blend=args.paste_blend,
-                elastic=args.elastic, small_object_weight=args.small_object_weight)
+                elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

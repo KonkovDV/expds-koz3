@@ -65,7 +65,10 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
             try:
                 os.link(f, target)
             except OSError:
-                shutil.copy2(f, target)
+                try:
+                    os.symlink(f.resolve(), target)
+                except OSError:
+                    shutil.copy2(f, target)
     shutil.copy2(src / "meta.json", dst / "meta.json")
     with (dst / "index.csv").open("w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)
@@ -148,6 +151,7 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--encoder", default="resnet18")
+    ap.add_argument("--device", default=None, help="устройство PyTorch, например cuda:0 или cuda:1")
     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
@@ -295,7 +299,7 @@ def main() -> None:
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
                             center_spike=not args.center_unbiased, center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                             photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
-                            flips_mode=args.flips)
+                            flips_mode=args.flips, device=args.device)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
