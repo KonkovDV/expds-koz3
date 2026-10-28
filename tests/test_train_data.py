@@ -225,3 +225,21 @@ def test_flips_mode_overrides_the_cache(tmp_path, monkeypatch, mode, expected):
     tr.train(str(cache), str(tmp_path / "m.pt"), epochs=1, batch=4, val_families=["B"], workers=0,
              pretrained=False, gpu_data=False, flips_mode=mode)
     assert seen and seen[0] is expected
+
+
+def test_gputiles_precomputed_centers_equivariant_under_d4(tmp_path):
+    from expds.centers import gaussians_from_binary
+
+    rows, _, _ = make_cache(tmp_path, n=6, t=16, k=2)
+    g_raw = GpuTiles(tmp_path, rows, 2, flips=True, device=torch.device("cpu"))
+    g_pre = GpuTiles(tmp_path, rows, 2, flips=True, device=torch.device("cpu"),
+                     precompute_target=lambda ym: gaussians_from_binary(ym, 2.0, spike=False))
+    assert g_pre.y_pre is not None
+    for seed in range(10):
+        torch.manual_seed(seed)
+        x1, y1 = g_raw.get(torch.arange(6), augment=True)
+        y1_c = gaussians_from_binary(y1, 2.0, spike=False)
+        torch.manual_seed(seed)
+        x2, y2_c = g_pre.get(torch.arange(6), augment=True)
+        assert torch.allclose(x1, x2)
+        assert torch.allclose(y1_c, y2_c, atol=1e-5)

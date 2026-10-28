@@ -23,7 +23,16 @@ def first_xy(geom: dict) -> tuple[float, float]:
 
 
 def las_boxes(root: str | Path, res: float = 0.1, max_pixels: int = 60_000_000) -> dict[str, list[tuple]]:
-    """Регион → рамки LAS (minx, miny, maxx, maxy, factor, имя файла)."""
+    """Регион → рамки LAS (minx, miny, maxx, maxy, factor, имя файла).
+
+    Если  — JSON-файл с предвычисленными рамками (например, ),
+    читает его напрямую без доступа к сырым  объёмом 200+ ГБ.
+    """
+    root_p = Path(root)
+    if root_p.is_file() and root_p.suffix.lower() == ".json":
+        import json
+        raw = json.loads(root_p.read_text(encoding="utf-8"))
+        return {k: [tuple(r) for r in v] for k, v in raw.items()}
     boxes: dict[str, list[tuple]] = {}
     for reg in scan_root(root):
         if not reg.las:

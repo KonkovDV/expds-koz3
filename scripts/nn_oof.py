@@ -139,6 +139,12 @@ def main() -> None:
     ap.add_argument("--work", default=None, help="папка для кэшей и моделей фолдов")
     ap.add_argument("--out", required=True, help="GeoJSON предсказаний вне обучения")
     ap.add_argument("--folds", type=int, default=5)
+    ap.add_argument("--fold-indices", nargs="*", type=int, default=None,
+                    help="обучать/предсказывать только указанные номера фолдов (распределённая ферма GPU)")
+    ap.add_argument("--train-only", action="store_true",
+                    help="только обучить веса выбранных фолдов без прогона инференса по растрам/LAS")
+    ap.add_argument("--merge-only", action="store_true",
+                    help="собрать итоговый GeoJSON из уже посчитанных work/fold*/pred.geojson без обучения")
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--encoder", default="resnet18")
@@ -228,11 +234,29 @@ def main() -> None:
     cfg = load_config(args.config)
     rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates")) if rescore else None
-    regions = [r for r in scan_root(args.root)
-               if (r.las if args.markup == "li" else any(r.rasters.get(mt) for mt in predict_mts))]
+    regions = ([] if (args.train_only or args.merge_only) else
+               [r for r in scan_root(args.root)
+                if (r.las if args.markup == "li" else any(r.rasters.get(mt) for mt in predict_mts))])
     feats: list[dict] = []
     report = []
-    for k in sorted(set(fold.values())):
+    all_folds = sorted(set(fold.values()))
+    if args.merge_only:
+        for k in all_folds:
+            fc = work / f"fold{k}"
+            pf = fc / "pred.geojson"
+            if not pf.exists():
+                raise SystemExit(f"нет предсказаний фолда {k}: {pf}")
+            feats += json.loads(pf.read_text(encoding="utf-8")).get("features", [])
+            rf = fc / "fold_report.json"
+            if rf.exists():
+                report.append(json.loads(rf.read_text(encoding="utf-8")))
+        out = post.finalize(post.merge_within_markup(feats))
+        writer.write_geojson(out, args.out)
+        (work / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps({"written": len(out), "folds": report}, ensure_ascii=False))
+        return
+    want_folds = set(args.fold_indices) if args.fold_indices is not None else set(all_folds)
+    for k in [f for f in all_folds if f in want_folds]:
         test = {f for f in fams if fold[f] == k}
         train_fams = [f for f in fams if f not in test]
         n_train = sum(tiles[f] for f in train_fams)
@@ -275,10 +299,18 @@ def main() -> None:
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
+        if args.train_only:
+            rec = {"fold": k, "test": sorted(test), "val": val, **res, "train_only": True,
+                   "minutes": round((time.perf_counter() - t0) / 60, 1)}
+            report.append(rec)
+            (fc / "fold_report.json").write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
+            log.info(json.dumps(rec, ensure_ascii=False))
+            continue
         members = [Segmenter(m) for m in models]
         seg = members[0] if len(members) == 1 else Ensemble(members)
         seg.tta = args.tta if args.tta is not None else int(cfg.get("tta", {}).get(args.markup, 1))
         n_reg = 0
+        fold_start = len(feats)
         fold_regions = [reg for reg in regions if site_family(reg.name) in test]
         prefetch = (DemPrefetch([(las, read_utm_json(r.utm_json)) for r in fold_regions for las in r.las],
                                 int(cfg.get("lidar", {}).get("prefetch", 2)))
@@ -300,11 +332,18 @@ def main() -> None:
         finally:
             if prefetch is not None:
                 prefetch.close()
+        fold_feats = feats[fold_start:]
+        writer.write_geojson(post.finalize(post.merge_within_markup(list(fold_feats))), fc / "pred.geojson")
         rec = {"fold": k, "test": sorted(test), "val": val, **res, "test_regions": n_reg,
                "minutes": round((time.perf_counter() - t0) / 60, 1)}
+        (fc / "fold_report.json").write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
         report.append(rec)
         log.info(json.dumps(rec, ensure_ascii=False))
         writer.write_geojson(post.finalize(post.merge_within_markup(feats)), work / "partial.geojson")
+    if args.train_only:
+        (work / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps({"trained_folds": len(report), "folds": report}, ensure_ascii=False))
+        return
     out = post.finalize(post.merge_within_markup(feats))
     writer.write_geojson(out, args.out)
     (work / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

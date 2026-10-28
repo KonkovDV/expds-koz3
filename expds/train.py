@@ -281,7 +281,7 @@ class GpuTiles:
                  copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None,
                  photo: bool = False, scale: float = 0.0, channel_dropout: float = 0.0,
                  paste_blend: float = 0.0, paste_scale: tuple[float, float] = (1.0, 1.0),
-                 elastic: float = 0.0):
+                 elastic: float = 0.0, precompute_target=None):
         import torch
 
         self.memory_format = memory_format or torch.contiguous_format
@@ -302,6 +302,13 @@ class GpuTiles:
         self.photo, self.scale = photo, scale
         self.channel_dropout, self.paste_blend = channel_dropout, paste_blend
         self.paste_scale, self.elastic = paste_scale, elastic
+        self.y_pre = None
+        if precompute_target is not None and scale <= 0 and copy_paste <= 0 and elastic <= 0:
+            chunks = []
+            for start in range(0, len(self.m), 256):
+                ym = ((self.m[start:start + 256].unsqueeze(1) >> self.shift) & 1).float()
+                chunks.append(precompute_target(ym))
+            self.y_pre = torch.cat(chunks, dim=0) if chunks else None
 
     def __len__(self) -> int:
         return int(self.x.shape[0])
@@ -317,7 +324,10 @@ class GpuTiles:
         import torch
 
         x = self.x[idx].float().div_(255.0)
-        y = ((self.m[idx].unsqueeze(1) >> self.shift) & 1).float()
+        if self.y_pre is not None and (not augment or (self.scale <= 0 and self.copy_paste <= 0 and self.elastic <= 0)):
+            y = self.y_pre[idx]
+        else:
+            y = ((self.m[idx].unsqueeze(1) >> self.shift) & 1).float()
         if augment and self.flips:
             # два отражения и транспонирование с p = 0,5 дают все 8 поворотов и отражений квадрата
             for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
@@ -491,12 +501,28 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     if copy_paste > 0 and not gpu_data:
         log.warning("copy-paste выключен: тайлы не в видеопамяти")
         ch = ()
+    pre_target = None
+    if center and small_object_weight == 1.0 and scale_aug <= 0:
+        from .centers import gaussians_from_binary as _gfb
+
+        def _pre_target(ym):
+            src = ym[:, :k]
+            t = _gfb(src, sigma_px, by_radius=center_sigma_m <= 0,
+                     spike=center_spike, edge_ignore=center_edge_ignore)
+            if ign_bit is not None:
+                t = torch.where((ym[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
+            return t
+
+        if not center_spike or (not flips):
+            pre_target = _pre_target
     if gpu_data:
         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
                         class_bits=class_bits, photo=photo, scale=scale,
                         channel_dropout=channel_dropout, paste_blend=paste_blend,
-                        paste_scale=paste_scale, elastic=elastic)
-        g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits)
+                        paste_scale=paste_scale, elastic=elastic,
+                        precompute_target=pre_target)
+        g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits,
+                        precompute_target=_pre_target if (center and small_object_weight == 1.0) else None)
         n_steps = len(g_tr) // batch
 
         def train_batches():
@@ -508,8 +534,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale,
                                        channel_dropout=channel_dropout, elastic=elastic),
                            batch_size=batch, shuffle=True,
-                           num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda")
-        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch, num_workers=workers)
+                           num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda",
+                           persistent_workers=workers > 0)
+        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch,
+                           num_workers=workers, persistent_workers=workers > 0)
         n_steps = len(dl_tr)
 
         def to_dev(it):
@@ -547,14 +575,15 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     t = torch.where((y[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
                 return t
 
-            def batch_loss(logits, y):
-                wmap = small_component_weights(y[:, :k], small_object_weight)
-                y = prepare(y)
+            def batch_loss(logits, y, precomputed: bool = False):
+                wmap = None if precomputed else small_component_weights(y[:, :k], small_object_weight)
+                if not precomputed:
+                    y = prepare(y)
                 loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
                         else center_loss(logits, y, weight=wmap))
                 return loss, y
     else:
-        def batch_loss(logits, y):
+        def batch_loss(logits, y, precomputed: bool = False):
             return bce(logits, y) + dice_loss(logits.float(), y), y
     best_f1, best_loss, history = -1.0, math.inf, []
     for ep in range(epochs):
@@ -565,9 +594,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         for x, y in train_batches():
             if scale_aug > 0 or photo_aug > 0:
                 x, y = augment_batch(x, y, scale_aug, photo_aug)
+            tr_pre = bool(gpu_data and g_tr.y_pre is not None and scale_aug <= 0)
             with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                 logits = model(x)
-                loss, _ = batch_loss(logits, y)
+                loss, _ = batch_loss(logits, y, precomputed=tr_pre)
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
             scaler.step(opt)
@@ -584,9 +614,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
         with torch.inference_mode():
             for x, y in val_batches():
+                va_pre = bool(gpu_data and g_va.y_pre is not None)
                 with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
                     logits = net(x)
-                loss, y = batch_loss(logits, y)
+                loss, y = batch_loss(logits, y, precomputed=va_pre)
                 vl += loss * len(x)
                 vn += len(x)
                 if center:
