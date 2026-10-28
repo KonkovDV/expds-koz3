@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 
 from . import accel
-from .raster import circle_3857, mask_to_polygons, pixel_to_xy
+from .raster import circle_3857, circles_3857, mask_to_polygons, pixel_to_xy
 
 log = logging.getLogger(__name__)
 
@@ -335,9 +335,10 @@ def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
         rows, cols, vals = with_plateaus(rows, cols, vals, raw, mag, res, radius, floor, p.plateau_max_m2,
                                          p.plateau_min_m2)
     xs, ys = pixel_to_xy(tr, rows, cols)
-    return [{"geom": circle_3857(float(x), float(y), p.point_circle_m, crs), "class_name": "finds_points",
+    return [{"geom": g, "class_name": "finds_points",
              "confidence": float(strength_confidence(v)), "region_name": region, "markup_type": markup_type,
-             "source": source, "original_crs": crs} for x, y, v in zip(xs, ys, vals)]
+             "source": source, "original_crs": crs}
+            for g, v in zip(circles_3857(xs, ys, p.point_circle_m, crs), vals)]
 
 
 def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,

@@ -701,6 +701,31 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
     return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source, min_conf=min_conf)
 
 
+def _read_ahead(jobs: list, read, depth: int | None = None):
+    """(job, read(job)) по порядку; следующие depth окон читаются в фоновом потоке.
+
+    EXPDS_READ_AHEAD=0 — читать в основном потоке, как раньше.
+    """
+    import os
+    from concurrent.futures import ThreadPoolExecutor
+
+    depth = int(os.environ.get("EXPDS_READ_AHEAD", "1")) if depth is None else depth
+    if depth <= 0 or len(jobs) < 2:
+        for job in jobs:
+            yield job, read(job)
+        return
+    pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="expds-read")
+    try:
+        futs = [pool.submit(read, job) for job in jobs[:depth]]
+        for i, job in enumerate(jobs):
+            if i + depth < len(jobs):
+                futs.append(pool.submit(read, jobs[i + depth]))
+            yield job, futs[i].result()
+            futs[i] = None
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
+
+
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                        overlap: int = 256, min_conf: dict[str, float] | None = None,
                        fallback_crs: str | None = None) -> list[dict]:
@@ -740,12 +765,19 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         step = block - overlap
         xs = list(range(0, max(w - overlap, 1), step))
         ys = list(range(0, max(h - overlap, 1), step))
-        for iy, y0 in enumerate(ys):
-            for ix, x0 in enumerate(xs):
-                bw, bh = min(block, w - x0), min(block, h - y0)
-                win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
-                a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
-                            resampling=Resampling.average if scale > 1 else Resampling.bilinear)
+        def read_block(job):
+            _, _, y0, x0 = job
+            bw, bh = min(block, w - x0), min(block, h - y0)
+            win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
+            return bw, bh, win, ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+                                        resampling=Resampling.average if scale > 1 else Resampling.bilinear)
+
+        jobs = [(iy, ix, y0, x0) for iy, y0 in enumerate(ys) for ix, x0 in enumerate(xs)]
+        # Следующее окно читается (GDAL отпускает GIL), пока текущее идёт через сеть и полигоны.
+        # Читает только поток чтения, по одному окну за раз: данные те же, порядок тот же.
+        blocks = _read_ahead(jobs, read_block)
+        try:
+            for (iy, ix, y0, x0), (bw, bh, win, a) in blocks:
                 if not a.any():
                     continue
                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
@@ -769,6 +801,8 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                 core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
                 core = to_crs(core, crs, WEB_MERCATOR) if crs else core
                 feats += [f for f in found if core.contains(f["geom"].representative_point())]
+        finally:
+            blocks.close()   # дождаться фонового чтения до закрытия ds
     return feats
 
 

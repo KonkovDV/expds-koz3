@@ -15,17 +15,43 @@ import math
 import os
 from pathlib import Path
 
+import numpy as np
 from shapely.geometry import mapping, shape
 
 from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VERTICES
 
 
+def _polygon_coords(geoms: list) -> list | None:
+    """Координаты колец всех полигонов одним вызовом GEOS, округлённые как раньше (round Python).
+
+    То же, что mapping(g)["coordinates"] с округлением, но без кортежей shapely на каждую
+    вершину. None — есть не Polygon или пустая геометрия: тогда старый путь.
+    """
+    import shapely
+
+    if not geoms:
+        return []
+    arr = np.asarray(geoms, dtype=object)
+    if not (shapely.get_type_id(arr) == 3).all() or shapely.is_empty(arr).any():
+        return None
+    _, coords, (ring_off, poly_off) = shapely.to_ragged_array(arr, include_z=False)
+    flat = [round(v, 2) for v in coords.ravel().tolist()]
+    pts = [flat[i:i + 2] for i in range(0, len(flat), 2)]
+    rings = [pts[a:b] for a, b in zip(ring_off[:-1].tolist(), ring_off[1:].tolist())]
+    return [rings[a:b] for a, b in zip(poly_off[:-1].tolist(), poly_off[1:].tolist())]
+
+
 def to_feature_collection(feats: list[dict]) -> dict:
     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
     out = []
+    fast = _polygon_coords([f["geom"] for f in feats])
     for k, f in enumerate(feats):
-        geom = mapping(f["geom"])
-        geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
+        if fast is not None:
+            geom = {"type": "Polygon", "coordinates": fast[k]}
+        else:
+            geom = mapping(f["geom"])
+            geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring]
+                                   for ring in geom["coordinates"]]
         props = {"fid": k, "class_name": f["class_name"],
                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
                  "region_name": f.get("region_name", "default_source"),

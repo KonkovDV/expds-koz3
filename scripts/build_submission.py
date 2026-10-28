@@ -30,9 +30,26 @@ FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv"
 LIMIT = 2 * 1024 ** 3
 
 
+def fast_so() -> list[Path]:
+    """expds_fast*.so (сетка LAS 0,25 м) в inference/lib: из колеса rust/expds_fast/wheels, если ещё нет."""
+    lib = ROOT / "inference" / "lib"
+    have = sorted(lib.glob("expds_fast*.so"))
+    if have:
+        return have
+    wheels = sorted((ROOT / "rust" / "expds_fast" / "wheels").glob("expds_fast-*manylinux*.whl"))
+    if not wheels:
+        return []
+    with zipfile.ZipFile(wheels[-1]) as w:
+        for name in w.namelist():
+            if Path(name).name.startswith("expds_fast") and name.endswith(".so"):
+                (lib / Path(name).name).write_bytes(w.read(name))
+    return sorted(lib.glob("expds_fast*.so"))
+
+
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+    files += fast_so()
     files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs

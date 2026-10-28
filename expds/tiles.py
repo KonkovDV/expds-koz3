@@ -248,7 +248,10 @@ def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
     """Приводит число каналов к c: лишние отбрасываются, недостающие повторяют последний."""
     if img.shape[0] >= c:
         return img[:c]
-    return np.concatenate([img, np.repeat(img[-1:], c - img.shape[0], axis=0)], axis=0)
+    out = np.empty((c, *img.shape[1:]), img.dtype)     # без промежуточного repeat + concatenate
+    out[:img.shape[0]] = img
+    out[img.shape[0]:] = img[-1]
+    return out
 
 
 def _read_resampled(ds, win: Window, n: int, tile: int, resampling) -> np.ndarray:
