@@ -285,8 +285,12 @@ min_confidence = 0.1426
 # Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
 # Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
 # (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
-# [post.micro_circles]
-# radius_m = { arkhitektury = 0.25, kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
+# поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
+# Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются
+# (bot-7/work3/insample_tau_kur.json).
+[post.micro_circles]
+radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 
 # [post]
 # fill_holes = ["gorodishcha"]
