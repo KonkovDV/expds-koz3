@@ -469,6 +469,14 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     li_dedup_m = float(cfg.get("li_dedup_m", 4.0))
     sp_dedup_m = float(cfg.get("sp_dedup_m", 2.0))
 
+    # Один масштаб cos φ на участок (по среднему y его объектов). Масштаб для каждой точки, s(y)·y, не изометрия:
+    # на 55° расстояния по меридиану сжимаются примерно в 16 раз (bot-10 REPORT6_twins.md §2, ae-двойников 5 вместо 85).
+    ys: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye"):
+            ys[f.get("region_name") or ""].append(f["geom"].centroid.y)
+    scale = {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
+
     li_povr_pts: dict[str, list] = defaultdict(list)
     ae_povr_pts: dict[str, list] = defaultdict(list)
     sp_povr_pts: dict[str, list] = defaultdict(list)
@@ -480,7 +488,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
         grp = f.get("threshold_group") or f.get("markup_type")
         conf = float(f.get("confidence", 0.0))
         c = f["geom"].centroid
-        s = _ground_scale(c.y)
+        s = scale[reg]
         xy = (c.x * s, c.y * s)
         if grp == "li" and conf >= 0.06415:
             li_povr_pts[reg].append(xy)
@@ -500,7 +508,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
                 and (f.get("threshold_group") or f.get("markup_type")) == "ae"):
             reg = f.get("region_name") or ""
             c = f["geom"].centroid
-            s = _ground_scale(c.y)
+            s = scale[reg]
             if reg in li_trees and li_trees[reg].query_ball_point((c.x * s, c.y * s), dedup_ae_vs_li_m):
                 continue
         out.append(f)
@@ -510,7 +518,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
         reg = f.get("region_name") or ""
         grp = f.get("threshold_group") or f.get("markup_type")
         c = f["geom"].centroid
-        s = _ground_scale(c.y)
+        s = scale[reg]
         xy = (c.x * s, c.y * s)
         if use_ae and grp == "ae":
             if reg in ae_trees and ae_trees[reg].query_ball_point(xy, 0.5):
