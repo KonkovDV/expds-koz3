@@ -30,7 +30,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from det_train_hf import Boxes, jitter, peak_rss_mb, read_split  # noqa: E402  (свои функции из det_train_hf.py)
+from det_train_hf import Boxes, assert_no_meta, jitter, peak_rss_mb, read_split  # noqa: E402  (свои функции из det_train_hf.py)
 
 MEAN = np.array([0.485, 0.456, 0.406], np.float32)
 STD = np.array([0.229, 0.224, 0.225], np.float32)
@@ -337,6 +337,7 @@ def main() -> None:
     elif not a.no_dinov2:
         rep = load_dinov2(model, a.dinov2_dir); T["dinov2"] = {k: (v if k != "missing" else len(v)) for k, v in rep.items()}
         print("dinov2:", T["dinov2"], flush=True)
+    assert_no_meta(model, a.model)  # энкодер rfdetr — классы transformers (dinov2.py:203); пин transformers==5.21.0
     model.to(dev); crit.to(dev)
     T["params_M"] = sum(p.numel() for p in model.parameters()) / 1e6
     print(f"model {a.model} res {a.size} params {T['params_M']:.1f}M device {dev} build {T['build_s']:.1f}s "

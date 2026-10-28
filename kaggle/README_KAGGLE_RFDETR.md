@@ -15,6 +15,7 @@
   последние 15 % без copy-paste/сильных ауг., copy-paste курганов (povr/tselye) вместо Mosaic, EMA 0,999, накопление градиента,
   fp16 (лосс в fp32), послойный lr ViT (×0,8/слой). DN нет в RF-DETR вообще (group-DETR, 13 групп) — DN=0 «бесплатно».
 * `kaggle/rfdetr_folds.sh <DET> <OUT> [MODEL] [ITERS] [DINO_DIR]` — 2 полосы (GPU0 f0 f2 f4, GPU1 f1 f3): обучение + сетка фолда.
+* `kaggle/requirements_rfdetr.txt` — точные версии (transformers==5.21.0, timm 1.0.30, pydantic 2.14.1, supervision 0.31.3, pyDeprecate 0.9.0). После сборки `assert_no_meta` падает, если тензор остался на meta.
 * `kaggle/rfdetr_kaggle.ipynb` — pip → dinov2-small → smoke → память bs 4 → полосы → `rfdetr_preds.tgz`.
 
 ## Шаг 0 — данные
@@ -22,7 +23,7 @@
 
 ## Шаг 1 — smoke на T4 (первый шаг; только честный замер)
 ```bash
-pip install "rfdetr==1.11.2" --no-deps && pip install supervision pyDeprecate "pydantic>=2"
+pip install --no-deps "rfdetr==1.11.2" && pip install -r kaggle/requirements_rfdetr.txt   # transformers==5.21.0 и др. — точно, не >=
 python scripts/rfdetr_train.py --data det/f0 --out runs/rf_smoke --model rfdetr-m --size 640 --fp16 --smoke
 cat runs/rf_smoke/timing.json   # s_per_iter, cuda_peak_MB; в логе: dinov2: {'copied': 223, ..., 'missing': 0}
 python scripts/rfdetr_train.py --data det/f0 --out runs/rf_mem --model rfdetr-m --size 640 --fp16 \
