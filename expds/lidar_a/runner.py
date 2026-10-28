@@ -66,10 +66,40 @@ def run_site(path, dtm, valid, origin, models, n_out, decode, meta, tta, deadlin
     return feats
 
 
-def predict(paths, models, n_out, decode, meta=None, tta=True, deadline=float("inf"), dev="cuda", log=print):
-    """Sequential: one DTM after another, features in input order."""
+def dtms_in_order(paths, pool=None):
+    """(path, (dtm, valid, origin)) in input order: sequential, or built by worker processes (item (6))."""
+    if not pool:
+        for p in paths:
+            yield p, ground.make_dtm(p)
+        return
+    from .dtm_workers import DtmPool
+    for i, _, res, _ in DtmPool(paths, **pool):
+        yield paths[i], res
+
+
+def predict(paths, models, n_out, decode, meta=None, tta=True, deadline=float("inf"), dev="cuda", log=print, pool=None):
+    """Features of the LAS files of one region, in input order. pool: None (sequential) or dict(workers=, ram_budget=)."""
     feats = []
-    for p in paths:
-        d, v, origin = ground.make_dtm(p)
+    paths = list(paths)
+    for p, (d, v, origin) in dtms_in_order(paths, pool):
         feats += run_site(p, d, v, origin, models, n_out, decode, meta or {}, tta, deadline, dev, log)
     return feats
+
+
+def predict_all(jobs, models, n_out, decode, tta=True, deadline=float("inf"), dev="cuda", log=print, workers=2, ram_budget=1 << 30):
+    """Item (6), run level: one DtmPool over the files of ALL regions, jobs = [(meta, paths)] with meta['region'].
+
+    Sites are processed in DTM completion order (largest file first in the pool, the GPU works on small ones
+    meanwhile); features are regrouped in input order → {region: features}, equal to per-region predict() unless a
+    deadline guard fires at a different moment."""
+    from .dtm_workers import DtmPool
+    flat = [(meta, p) for meta, paths in jobs for p in paths]
+    done = {}
+    for i, _, (d, v, origin), _ in DtmPool([p for _, p in flat], workers=workers, ram_budget=ram_budget, ordered=False):
+        meta, p = flat[i]
+        done[i] = run_site(p, d, v, origin, models, n_out, decode, meta, tta, deadline, dev, log)
+        del d, v
+    out = {meta["region"]: [] for meta, _ in jobs}
+    for i, (meta, _) in enumerate(flat):
+        out[meta["region"]] += done[i]
+    return out
