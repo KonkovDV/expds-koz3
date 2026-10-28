@@ -30,6 +30,16 @@ def guard_tta(tta, deadline):
 
 
 def stacks_for(dtm, valid, cell, kinds, dev, share=True):
+    """{kind: stack} for the kinds in use and the valid mask at NET_CELL; on CPU torch gets every physical core
+    (expds.cpu_threads.torch_all_cores, EXPDS_CPU_THREADS overrides; the relief is bit-equal for any thread count)."""
+    if str(dev).startswith("cpu"):
+        from expds.cpu_threads import torch_all_cores
+        with torch_all_cores():
+            return _stacks_for(dtm, valid, cell, kinds, dev, share)
+    return _stacks_for(dtm, valid, cell, kinds, dev, share)
+
+
+def _stacks_for(dtm, valid, cell, kinds, dev, share=True):
     """{kind: stack} for the kinds in use and the valid mask at NET_CELL.
 
     share (item (2)): the 9-channel stack is planes terrain.BASE_OF_EXTRA of the 12-channel one (same operations in

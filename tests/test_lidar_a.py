@@ -162,3 +162,35 @@ def test_site_maps_accumulation_modes():
     dev_, vd = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="device")
     assert exact.tobytes() == host.tobytes() and (vh == ve).all() and (vh == vd).all()
     assert np.abs(dev_ - host).max() <= 4 * np.spacing(np.float32(1))
+
+
+@pytest.mark.parametrize("mode", ["class", "bare", "lowest"])
+def test_rasterise_fast_equals_numpy(tmp_path, mode, monkeypatch):
+    """ground.rasterise (Rust expds_fast when present) == ground.rasterise_numpy byte for byte; EXPDS_FAST=0 → numpy."""
+    from expds import las_grid_fast
+    from expds.lidar_a import ground
+    if las_grid_fast._fast is None:
+        pytest.skip("expds_fast not importable")
+    p = _las_set(tmp_path)[1]
+    g = ground.grid_of(*ground.header_box(p)[:2])
+    ref = ground.rasterise_numpy(p, g, mode)
+    assert ground.rasterise(p, g, mode).tobytes() == ref.tobytes()
+    calls = []
+    monkeypatch.setattr(las_grid_fast, "rasterise", lambda *a, **k: calls.append(a))
+    monkeypatch.setenv("EXPDS_FAST", "0")
+    assert ground.rasterise(p, g, mode).tobytes() == ref.tobytes() and not calls
+
+
+def test_stacks_for_cpu_threads_restored(monkeypatch):
+    from expds.lidar_a import runner
+    monkeypatch.setenv("EXPDS_CPU_THREADS", "2")
+    d, v = _dtm(2, (96, 80))
+    old = torch.get_num_threads()
+    a, _ = runner.stacks_for(d, v, 0.25, [""], "cpu")
+    assert torch.get_num_threads() == old
+    torch.set_num_threads(1)
+    try:
+        b, _ = runner.stacks_for(d, v, 0.25, [""], "cpu")
+    finally:
+        torch.set_num_threads(old)
+    assert a[""].tobytes() == b[""].tobytes()

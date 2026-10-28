@@ -83,7 +83,23 @@ def ground_mode(path):
 
 
 def rasterise(path, grid: Grid, mode):
-    """Stream the cloud into per-cell mean ('class'/'bare') or minimum ('lowest') elevation; NaN where empty."""
+    """Per-cell mean ('class'/'bare') or minimum ('lowest') elevation; NaN where empty.
+
+    Rust expds_fast via expds.las_grid_fast when the module is importable and EXPDS_FAST != 0 (byte-equal to
+    rasterise_numpy: tests/test_las_grid_fast.py, tests/test_lidar_a.py); otherwise rasterise_numpy."""
+    if os.environ.get("EXPDS_FAST", "1") != "0":
+        try:
+            from expds import las_grid_fast
+        except ImportError:
+            las_grid_fast = None
+        if las_grid_fast is not None and las_grid_fast._fast is not None:
+            return las_grid_fast.rasterise(path, grid.left, grid.top, grid.cell, grid.rows, grid.cols, mode,
+                                           chunk=STREAM_POINTS)
+    return rasterise_numpy(path, grid, mode)
+
+
+def rasterise_numpy(path, grid: Grid, mode):
+    """Spec §1 reference: stream the cloud into per-cell mean or minimum elevation (float64 sums in point order)."""
     import laspy
     n_cells = grid.rows * grid.cols
     mean_mode = mode in ("class", "bare")
