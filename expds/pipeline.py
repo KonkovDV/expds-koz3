@@ -1026,6 +1026,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 
     from .crs import WEB_MERCATOR, to_crs, usable_raster_crs
     from .infer_nn import probs_to_features
+    from .raster import RASTER_FIX, raster_fix_on, zero_field_mask
     from .tiles import MAX_UPSAMPLE, band_stats, fix_channels, to_uint8, working_res
 
     as_centers = seg.meta.get("target") == "centers"
@@ -1070,6 +1071,11 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
                 img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
                 probs = seg.predict(img)
+                zmask = None
+                if raster_fix_on("zero_nodata", markup):
+                    zmask = zero_field_mask(a, ds.nodata, int(RASTER_FIX.get("zero_nodata_px", 5)))
+                    if not zmask.any():
+                        zmask = None
                 if as_centers:
                     from .centers import centers_to_features
 
@@ -1087,9 +1093,32 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                 (ax, ay), (bx, by) = tr @ c0, tr @ c1
                 core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
                 core = to_crs(core, crs, WEB_MERCATOR) if crs else core
-                feats += [f for f in found if core.contains(f["geom"].representative_point())]
+                found = [f for f in found if core.contains(f["geom"].representative_point())]
+                if zmask is not None and found:
+                    found = _outside_zero_field(found, zmask, tr, crs)
+                feats += found
     return feats
 
+
+def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[dict]:
+    """[raster_fix] zero_nodata: убирает объекты, чья внутренняя точка в поле нулей окна (zmask H×W)."""
+    import math
+
+    from .crs import WEB_MERCATOR, transformer
+
+    inv = ~tr
+    t = transformer(WEB_MERCATOR, crs) if crs and crs != WEB_MERCATOR else None
+    h, w = zmask.shape
+    out = []
+    for f in found:
+        p = f["geom"].representative_point()
+        x, y = t.transform(p.x, p.y) if t else (p.x, p.y)
+        col, row = inv @ (x, y)
+        r, c = int(math.floor(row)), int(math.floor(col))
+        if 0 <= r < h and 0 <= c < w and zmask[r, c]:
+            continue
+        out.append(f)
+    return out
 
 def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
     """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
@@ -1187,6 +1216,9 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
     cfg = load_config(cfg_path)
+    from .raster import configure_raster_fix
+
+    configure_raster_fix(cfg.get("raster_fix"))  # bot-6: правки чтения снимков, без секции — выключено
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime

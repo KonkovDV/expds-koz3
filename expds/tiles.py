@@ -82,12 +82,19 @@ def band_stats(path: str, markup: str, max_side: int = 2048) -> tuple | None:
     from .raster import open_metric
 
     with open_metric(path) as ds:
-        if ds.dtypes[0] == "uint8":
+        dtype = ds.dtypes[0]
+        if dtype == "uint8":
             return None
         n = min(ds.count, 3)
         f = max(1, math.ceil(max(ds.width, ds.height) / max_side))
         a = ds.read(list(range(1, n + 1)), out_shape=(n, max(1, ds.height // f), max(1, ds.width // f)),
                     resampling=Resampling.nearest, masked=True).astype(np.float32).filled(np.nan)
+    from .raster import raster_fix_on
+
+    if raster_fix_on("int16_identity", markup) and dtype in ("int16", "uint16"):
+        fin = a[np.isfinite(a)]
+        if fin.size and float(fin.min()) >= 0 and float(fin.max()) <= 255:
+            return tuple((0.0, 1.0) for _ in range(a.shape[0]))  # [raster_fix] int16_identity: как uint8
     out = []
     for x in a:
         fin = x[np.isfinite(x)]
