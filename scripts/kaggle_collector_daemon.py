@@ -32,7 +32,9 @@ def log_msg(msg: str) -> None:
 def organize_checkpoints(raw_dir: Path) -> list[str]:
     copied = []
     for pt in sorted(raw_dir.glob("*.pt")):
-        dst_flat = OUT_ROOT / pt.name
+        # bot-9: веса разных ядер (s2/s3) с одним именем раньше затирали друг друга.
+        dst_flat = OUT_ROOT / raw_dir.name / pt.name
+        dst_flat.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(pt, dst_flat)
         copied.append(str(dst_flat))
         m = re.match(r"^(li_r18_hard2_59|li_r34_fpn_edge_59|li_r34_fpn_mask_59)_fold(\d)\.pt$", pt.name)
@@ -40,7 +42,11 @@ def organize_checkpoints(raw_dir: Path) -> list[str]:
             exp_name, fk = m.group(1), m.group(2)
             fold_dir = OUT_ROOT / exp_name / f"fold{fk}"
             fold_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(pt, fold_dir / "li.pt")
+            dst_li = fold_dir / "li.pt"
+            if dst_li.exists():
+                dst_li = fold_dir / f"li__{raw_dir.name}.pt"
+                log_msg(f"{fold_dir}/li.pt уже есть — копия как {dst_li.name}, выбор вручную")
+            shutil.copy2(pt, dst_li)
     for meta_f in sorted(list(raw_dir.glob("*.json")) + list(raw_dir.glob("*.log"))):
         shutil.copy2(meta_f, OUT_ROOT / meta_f.name)
     return copied
