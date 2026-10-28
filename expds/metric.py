@@ -58,6 +58,34 @@ def score(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
     return mod.F1Calculator().calculate_f1(pred, gt)
 
 
+def score_by_site(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
+    """Эталон для режима scope="site": официальный calculate_f1 отдельно на каждом участке
+    (разбиение — официальной split_merged_by_source_and_class), TP/FP/FN классов складываются,
+    F1 и взвешивание — формулами calculate_f1 (те же epsilon и нормировка на классы с эталоном)."""
+    mod = load_official(metric_path)
+    calc = mod.F1Calculator()
+    ps, gs = mod.split_merged_by_source_and_class(pred), mod.split_merged_by_source_and_class(gt)
+    tot = {c: [0, 0, 0] for c in calc.target_classes}
+    for site in list(ps) + [k for k in gs if k not in ps]:
+        pf = [f for fc in ps.get(site, {}).values() for f in fc["features"]]
+        gf = [f for fc in gs.get(site, {}).values() for f in fc["features"]]
+        r = calc.calculate_f1({"type": "FeatureCollection", "features": pf},
+                              {"type": "FeatureCollection", "features": gf})["per_class"]
+        for c in calc.target_classes:
+            for k, key in enumerate(("tp", "fp", "fn")):
+                tot[c][k] += r[c][key]
+    per, num, den = {}, 0.0, 0.0
+    for c, (tp, fp, fn) in tot.items():
+        precision = tp / (tp + 0.5 * fp + calc.epsilon)
+        recall = tp / (tp + fn + calc.epsilon)
+        f1 = 2 * precision * recall / (precision + recall + calc.epsilon)
+        per[c] = {"f1": f1, "tp": tp, "fp": fp, "fn": fn, "num_ground_truth": tp + fn}
+        if tp + fn > 0:
+            num += f1 * mod.CLASS_WEIGHTS.get(c, 0.0)
+            den += mod.CLASS_WEIGHTS.get(c, 0.0)
+    return {"final_score": num / den if den > 0 else 0.0, "per_class": per}
+
+
 # ─────────────────────────── один проход сопоставления ───────────────────────
 
 @dataclass
@@ -95,20 +123,41 @@ def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool, 
     return h.hexdigest()
 
 
-def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+def site_key(props: dict):
+    """Ключ участка, как в официальной split_merged_by_source_and_class:
+    region_name (по умолчанию "default_source"), а при непустом sub_region_name — "region__sub"."""
+    region_name = props.get("region_name", "default_source")
+    sub_region_name = props.get("sub_region_name", "")
+    if sub_region_name and sub_region_name.strip():
+        return f"{region_name}__{sub_region_name}"
+    return region_name
+
+
+def match_scope(scope: str | None = None) -> str:
+    """Область сопоставления: "global" — один пул на весь файл, как F1Calculator.calculate_f1
+    (по умолчанию); "site" — эталон только своего участка (site_key), как если бы метрика
+    считалась отдельно по каждому источнику split_merged_by_source_and_class и счётчики складывались.
+    Переключатель: аргумент scope или переменная EXPDS_MATCH_SCOPE."""
+    s = (scope or os.environ.get("EXPDS_MATCH_SCOPE") or "global").strip().lower()
+    if s not in ("global", "site"):
+        raise ValueError(f"EXPDS_MATCH_SCOPE/scope: ожидается global или site, получено {s!r}")
+    return s
+
+
+def _collect(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
     """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
     import gc
 
     gc_was = gc.isenabled()
     gc.disable()   # циклов здесь не создаётся; сборщик на миллионах списков GeoJSON съедал ~30 % времени
     try:
-        return _collect_impl(mod, calc, fc, is_gt)
+        return _collect_impl(mod, calc, fc, is_gt, sites_out)
     finally:
         if gc_was:
             gc.enable()
 
 
-def _collect_impl(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
     import pickle
     import shapely
 
@@ -123,6 +172,7 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
     ordered_slots: list[tuple[str, object, float, str, str]] = []
 
     norm_cache: dict = {}
+    slot_sites: list = []
     for feature in fc.get("features", []):
         props = feature.get("properties", {}) or {}
         raw_cls = props.get("class_name", "unknown")
@@ -140,6 +190,8 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
         conf = mod._get_confidence(feature)
         reg = str(props.get("region_name", "default_source"))
         grp = threshold_group(props)
+        if sites_out is not None:
+            slot_sites.append(site_key(props))
         gid = id(gdict)
         hit = sub_cache.get(gid)
         if hit is not None and hit[0] is gdict:
@@ -229,13 +281,19 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
                     except Exception:
                         pass
 
+    if sites_out is not None:
+        for (cls, g, conf, reg, grp), site in zip(ordered_slots, slot_sites):
+            if g is not None:
+                out.setdefault(cls, []).append((g, conf, reg, grp))
+                sites_out.setdefault(cls, []).append(site)
+        return out
     for cls, g, conf, reg, grp in ordered_slots:
         if g is not None:
             out.setdefault(cls, []).append((g, conf, reg, grp))
     return out
 
 
-def _collect_reference(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
     """Прежняя реализация _collect (эталон для тестов bot-8). Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
     import pickle
     import shapely
@@ -249,6 +307,7 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple
     todo_feats: list[tuple[dict, object, int]] = []
     todo_meta: list[tuple[str, float, str, str, int]] = []
     ordered_slots: list[tuple[str, object, float, str, str]] = []
+    slot_sites: list[str] = []
 
     for feature in fc.get("features", []):
         props = feature.get("properties", {}) or {}
@@ -261,6 +320,8 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple
         conf = mod._get_confidence(feature)
         reg = str(props.get("region_name", "default_source"))
         grp = threshold_group(props)
+        if sites_out is not None:
+            slot_sites.append(site_key(props))
         gid = id(gdict)
         hit = sub_cache.get(gid)
         if hit is not None and hit[0] is gdict:
@@ -347,23 +408,32 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple
                     except Exception:
                         pass
 
-    for cls, g, conf, reg, grp in ordered_slots:
+    for k, (cls, g, conf, reg, grp) in enumerate(ordered_slots):
         if g is not None:
             out.setdefault(cls, []).append((g, conf, reg, grp))
+            if sites_out is not None:
+                sites_out.setdefault(cls, []).append(slot_sites[k])
     return out
 
 
-def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[str, ClassCurve]:
+def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
+                 scope: str | None = None) -> dict[str, ClassCurve]:
     """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
 
     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
     (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+    scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+    "site" — пара допускается только внутри одного участка (site_key), что равно сумме
+    счётчиков calculate_f1 по каждому участку отдельно.
     """
     from shapely.strtree import STRtree
 
     mod = load_official(metric_path)
     calc = mod.F1Calculator()
-    preds, gts = _collect(mod, calc, pred, False), _collect(mod, calc, gt, True)
+    per_site = match_scope(scope) == "site"
+    p_sites: dict | None = {} if per_site else None
+    g_sites: dict | None = {} if per_site else None
+    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
@@ -374,6 +444,12 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[s
             tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
             pg_ord = [p[i][0] for i in order]
             q_pred, q_gt = tree.query(pg_ord)
+            if per_site and len(q_pred):
+                site_ids: dict = {}
+                ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
+                gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)
+                same = ps_ord[q_pred] == gs[q_gt]
+                q_pred, q_gt = q_pred[same], q_gt[same]
             if len(q_pred):
                 splits = np.flatnonzero(np.diff(q_pred)) + 1
                 rank_groups = np.split(q_gt, splits)
