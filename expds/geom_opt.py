@@ -253,3 +253,12 @@ def optimize(feats: list[dict], cfg: dict) -> list[dict]:
     if cfg.get("twins"):
         feats = twins(feats, cfg["twins"])
     return feats
+
+
+# Рекомендация bot-7 (REPORT.md). PRE — до порогов (меняет только форму, кривые/пороги
+# надо подбирать уже на преобразованном стеке), POST — после apply_thresholds.
+_KUR_DISC = {"r_m": 0.5, "anchor": "centroid"}
+RECOMMENDED_PRE = {"reshape": {"kurgany_povrezhdennye": dict(_KUR_DISC), "kurgany_tselye": dict(_KUR_DISC)}}
+RECOMMENDED_PRE_GOR = {"reshape": {"gorodishcha": {"r_m": 0.5, "anchor": "polylabel", "r_frac": 0.5}}}  # спорно, см. REPORT
+RECOMMENDED_POST = {"split": {"object_poly": {"min_area_m2": 12, "max_k": 3, "min_lobe_m2": 3,
+                                              "min_sep_m": 0.8, "decay": 0.6, "r_m": 0.05}}}
