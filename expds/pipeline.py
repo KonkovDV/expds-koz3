@@ -235,6 +235,14 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             except Exception:
                 log.exception("%s: копии по слоям %s пропущены", reg.name, mt)
         feats += mine
+    pix = geo_cfg.get("pixgbm") or {}
+    if pix.get("enabled", False):
+        # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        try:
+            from . import geo_pixgbm
+            feats += geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
+        except Exception:
+            log.exception("%s: pixgbm пропущен", reg.name)
     return feats
 
 

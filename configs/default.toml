@@ -242,6 +242,11 @@ point_circle_m = 0.3
 # Подобрано scripts/geo_tune.py официальной метрикой на трейне (min_confidence — порог этой
 # модальности). F1 с отложенной «семьёй»: finds_points 0,461, object_poly MagGr 0,341;
 # у EtGr и TerFl одна «семья», проверка только на тех же данных (0,201 и 0,171).
+[geophys.pixgbm]
+# bot-3 PIXGBM: пиксельный LightGBM-источник кандидатов (finds_points + object_poly), см. PIXGBM_REPORT.md.
+enabled = false
+model_dir = "models/pixgbm/all"
+
 [geophys.maggr.finds_points]
 background_m = 2.0
 peak_radius_m = 2.0
