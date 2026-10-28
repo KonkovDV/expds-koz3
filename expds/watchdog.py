@@ -199,6 +199,9 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
     if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
         log.info("частично (дедлайн в цикле окон): %s", ", ".join(
             f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
+    if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
+        log.info("мягкий потолок отключил: %s", ", ".join(
+            f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
     log.info("записано %d, файл %d байт", len(kept), size)
