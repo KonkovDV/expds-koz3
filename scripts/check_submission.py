@@ -507,7 +507,7 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
 
 # ---------------------------------------------------------------- .so
 def check_so(root: Path) -> None:
-    for so in sorted((root / "inference" / "lib").glob("expds_core*.so")):
+    for so in sorted((root / "inference" / "lib").glob("expds_*.so")):     # expds_core и expds_fast (lidar_a)
         head = so.read_bytes()[:20]
         if head[:4] != b"\x7fELF" or head[4] != 2 or int.from_bytes(head[18:20], "little") != 62:
             report("FAIL", "so", f"{so.name}: не ELF64 x86-64")

@@ -13,7 +13,7 @@
     python build_submission.py ... --check                                  # сразу check_submission.py
 
 Имя: <out-dir>/koz3_<label>_<git7>_<cfg8>[_w<wts8>].zip + .manifest.json (sha256 каждого файла).
-В архив: metadata.json, inference/main.py, inference/lib/expds_core*.so, expds/**/*.py,
+В архив: metadata.json, inference/main.py, inference/lib/expds_core*.so (+ expds_fast*.so из rust/expds_fast/wheels), expds/**/*.py,
 configs/default.toml (единственный конфиг, который читает main.py:86) и только веса,
 на которые ссылается этот конфиг. .pt/.so кладутся без сжатия (ZIP_STORED) — быстрее, размер почти тот же.
 """
@@ -99,6 +99,15 @@ def main() -> int:
     pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")]
     for p in pick:
         files[p] = blob(p)
+    # expds_fast*.so (Rust-сетка LAS для lidar_a, expds/las_grid_fast.py) — из колеса, закоммиченного в этом коммите
+    # (как fast_so() в scripts/build_submission.py); без колеса — NumPy-путь той же семантики
+    wheels = sorted(p for p in tracked if p.startswith("rust/expds_fast/wheels/expds_fast-") and "manylinux" in p
+                    and p.endswith(".whl"))
+    if wheels:
+        with zipfile.ZipFile(io.BytesIO(blob(wheels[-1]))) as w:
+            for n in sorted(w.namelist()):
+                if PurePosixPath(n).name.startswith("expds_fast") and n.endswith(".so"):
+                    files[f"inference/lib/{PurePosixPath(n).name}"] = w.read(n)
     if args.so:
         for p in [p for p in files if p.startswith("inference/lib/")]:
             del files[p]
