@@ -292,15 +292,15 @@ min_confidence = 0.1426
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 
-# Реранк архитектуры (LightGBM, /workspace/rerank/REPORT_rerank.md, nested3.py): ВЫКЛЮЧЕН.
-# Включать только после подтверждения bot-10 (замер вместе с пакетом и crop verify).
-# Нужны models/rerank_arch_lgbm.txt и .json (scripts/rerank_arch_train.py); без них — база.
-# Пути по умолчанию — expds/rerank_arch.py MODEL/META. При включении раскомментировать model/meta,
-# закоммитить оба файла в models/ (иначе check_submission: FAIL config, а сборка их не возьмёт).
+# Реранк архитектуры (LightGBM, /workspace/rerank/REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
+# Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log
+# (k10 +0,0095, LOFO +0,0079, 5/5 раскладок > 0); с crop verify пакетом не мерен (bot-7/REPORT3.md).
+# Выключить: enabled = false (одна строка; без модели код возвращает базу).
+# Модель: scripts/rerank_arch_train.py; оба файла — в models/ (build_submission берёт их по этим ключам).
 [rerank_arch]
-enabled = false
-# model = "models/rerank_arch_lgbm.txt"
-# meta = "models/rerank_arch_lgbm.json"
+enabled = true
+model = "models/rerank_arch_lgbm.txt"
+meta = "models/rerank_arch_lgbm.json"
 
 # [post]
 # fill_holes = ["gorodishcha"]
