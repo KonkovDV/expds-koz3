@@ -541,8 +541,12 @@ def label_masks(d: dict, polys, points):
 
 # ───────────────────────────── выход ─────────────────────────────
 
-def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
-    """Компоненты P ≥ t_pix → круг POLE_R_M в полюсе недоступности; conf — средняя P компоненты."""
+def poly_candidates(P, d, region, mt, source, t_pix=T_PIX, mode="pole", peak_r_m=1.0):
+    """Компоненты P ≥ t_pix → круг POLE_R_M в полюсе недоступности; conf — средняя P компоненты.
+    mode="peaks" (geo_snap, opt-in): вместо полюса — точки в локальных максимумах P внутри компоненты
+    (окно максимума и NMS радиусом peak_r_m), минимум одна точка на компоненту; conf — P в пике."""
+    if mode == "peaks":
+        return poly_peak_candidates(P, d, region, mt, source, t_pix=t_pix, r_m=peak_r_m)
     from rasterio import features as rf
     from shapely.geometry import shape as shp
     from shapely.ops import polylabel, unary_union
@@ -572,6 +576,50 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
         out.append({"geom": circle_3857(pt.x, pt.y, POLE_R_M, d["crs"]), "class_name": "object_poly",
                     "confidence": conf, "region_name": region, "markup_type": mt, "source": source,
                     "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": float(g.area)})
+    return out
+
+
+def poly_peak_candidates(P, d, region, mt, source, t_pix=T_PIX, r_m=1.0):
+    """geo_snap P1/P2: слитая компонента P ≥ t_pix (как в poly_candidates: открытие, отсев < MIN_AREA_M2) даёт
+    по точке на каждый локальный максимум P (окно и жадный NMS радиусом r_m, по убыванию P); круг POLE_R_M в центре
+    пикселя пика; conf = P пика. Площадь компоненты — в area_m2 каждой точки."""
+    from scipy.spatial import cKDTree
+    from .raster import circle_3857
+
+    gsd, T = d["gsd"], d["T"]
+    m = ndi.binary_opening(P >= t_pix)
+    lab, n = ndi.label(m, structure=np.ones((3, 3)))
+    if not n:
+        return []
+    r = max(1, int(round(r_m / gsd)))
+    min_px = MIN_AREA_M2 / gsd / gsd
+    Pm = np.where(lab > 0, P, -np.inf)
+    mx = ndi.maximum_filter(Pm, size=2 * r + 1)
+    out = []
+    for i, sl in enumerate(ndi.find_objects(lab), 1):
+        sub = lab[sl] == i
+        if sub.sum() < min_px:
+            continue
+        area = float(sub.sum() * gsd * gsd)
+        ps = P[sl]
+        rr, cc = np.nonzero(sub & (ps == mx[sl]))
+        if not rr.size:   # плато, срезанное окном соседа, — берём максимум компоненты
+            k = int(np.argmax(np.where(sub, ps, -np.inf))); rr, cc = np.array([k // sub.shape[1]]), np.array([k % sub.shape[1]])
+        o = np.argsort(-ps[rr, cc], kind="stable"); rr, cc = rr[o], cc[o]
+        keep = np.ones(len(rr), bool)
+        if len(rr) > 1:
+            tree = cKDTree(np.c_[rr, cc])
+            for a in range(len(rr)):
+                if keep[a]:
+                    for b in tree.query_ball_point((rr[a], cc[a]), r):
+                        if b > a:
+                            keep[b] = False
+        for y, x in zip(rr[keep] + sl[0].start, cc[keep] + sl[1].start):
+            X = T.c + (x + 0.5) * T.a + (y + 0.5) * T.b
+            Y = T.f + (x + 0.5) * T.d + (y + 0.5) * T.e
+            out.append({"geom": circle_3857(X, Y, POLE_R_M, d["crs"]), "class_name": "object_poly",
+                        "confidence": float(P[y, x]), "region_name": region, "markup_type": mt, "source": source,
+                        "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": area})
     return out
 
 
@@ -717,6 +765,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
         deadline = min(deadline, time.monotonic() + guard.left() - reserve)
     maps = list(pix.get("maps", ["maggr", "etgr", "terfl"]))
     t_pix = float(pix.get("t_pix", T_PIX))
+    poly_mode = str(pix.get("poly_mode", "pole"))   # pole | peaks (geo_snap, opt-in)
+    peak_r_m = float(pix.get("poly_peak_r_m", 1.0))
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
     bst = load_models(model_dir, backend)
@@ -765,7 +815,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
                     Pm = prob_map(d, mt, use, threads=nt, procs=npr, deadline=deadline,
                                   timing=PHASE["timing"])
                     if "poly" in Pm:
-                        out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix)
+                        out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix, mode=poly_mode,
+                                               peak_r_m=peak_r_m)
                     if "finds" in Pm:
                         out += finds_candidates(Pm["finds"], d, reg.name, mt, f.name)
                     r = PHASE["rate"].setdefault((mt, mode), [0.0, 0.0])

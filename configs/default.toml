@@ -246,6 +246,8 @@ replace = false   # true — вариант S (замена классики т�
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
 maps = ["maggr", "etgr", "terfl"]   # методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
 t_pix = 0.5   # порог пикселя для object_poly
+poly_mode = "pole"   # pole — точка в полюсе компоненты (S); peaks — точка в каждом локальном максимуме P (geo_snap P1, opt-in)
+poly_peak_r_m = 1.0   # окно/NMS пиков для poly_mode="peaks", м
 backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
                        # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
 budget_s = 300   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
