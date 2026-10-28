@@ -237,6 +237,42 @@ def _ground_scale(y_3857: float) -> float:
     return max(math.cos(lat), 1e-6)
 
 
+def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Круги указанных классов → микрокруг радиуса radius_m (метры на земле) в том же центре.
+
+    Попадание метрики: cov = S(P∩G)/min(S) ≥ 0,5 и внутренняя точка P внутри G.
+    У круга внутренняя точка — центр. Микрокруг с центром внутри эталона даёт cov ≈ 1,
+    круг 2 м на стене шириной 1 м даёт cov ≈ 0,3. Поэтому замена не теряет ни одного
+    попадания при том же центре, а промахи «центр внутри, покрытие < 0,5» становятся
+    попаданиями. Число объектов и уверенности не меняются: пороги групп остаются.
+    Тот же приём, что у object_poly (multipole_object_poly, circle_radius_m = 0,05).
+    radius_m по умолчанию 0,25: finalize отбрасывает полигоны мельче 0,01 ед.² EPSG:3857.
+    radius_m — число (для всех classes) или словарь {класс: радиус}; во втором случае
+    classes по умолчанию = ключи словаря. Курганы (bot-7, 28.10): 0,5 м вместо 2 м /
+    4 м (sp_focal) — тот же центр, cov ≥ 0,5 почти всегда, если центр внутри.
+    """
+    spec = spec or {}
+    rad = spec.get("radius_m", 0.25)
+    per_class = dict(rad) if isinstance(rad, dict) else {}
+    classes = set(spec.get("classes") or (per_class.keys() if per_class else ("arkhitektury",)))
+    groups = set(spec.get("groups") or ())
+    out = []
+    for f in feats:
+        if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
+            out.append(f)
+            continue
+        g = f["geom"]
+        if g is None or g.is_empty:
+            out.append(f)
+            continue
+        c = g.centroid
+        if not g.contains(c):
+            c = g.representative_point()
+        radius = float(per_class.get(f.get("class_name"), rad if not per_class else 0.25))
+        out.append(dict(f, geom=c.buffer(radius / _ground_scale(c.y), quad_segs=8)))
+    return out
+
+
 def fill_holes(feats: list[dict], classes) -> list[dict]:
     """Убирает дыры у полигонов указанных классов. По умолчанию выключено."""
     classes = set(classes or ())

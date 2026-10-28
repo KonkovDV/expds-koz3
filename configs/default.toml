@@ -275,6 +275,19 @@ min_confidence = 0.1426
 # src_groups = ["li", "li_coarse", "li_mosaic"]
 # min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
 
+# Микрокруги архитектуры (bot-5, 28.10): тот же центр пика, радиус 0,25 м вместо 2 м.
+# Попаданий не меньше ни при каком центре; оракул официальной метрикой на эталоне
+# 2 м → 0,25 м: 257 → 269 из 407 при текущей цели, 0,914 → 1,000 у repr. point.
+# Включать после табло: oof_transform.py micro + scoreboard.py --honest 10.
+# [post.micro_circles]
+# classes = ["arkhitektury"]
+# radius_m = 0.25
+# Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
+# Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
+# (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
+# [post.micro_circles]
+# radius_m = { arkhitektury = 0.25, kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+
 # [post]
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
