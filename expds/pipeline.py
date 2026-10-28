@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import signal
+import sys
 import time
 import tomllib
 from dataclasses import fields
@@ -39,17 +41,63 @@ class TimeGuard:
 
     def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
         self.clock = clock or time.monotonic
-        self.t0 = self.clock()
+        #: bot-8: старт run() — от него, как и раньше, считается бюджет [time] budget_s (left/ok).
+        self.run_t0 = self.clock()
+        #: bot-8: самый ранний известный старт в базе self.clock (по умолчанию time.monotonic, НЕ time.time).
+        #: До set_soft() — run_t0; в run() set_soft(watchdog.PROCESS_START) даёт тот же отсчёт, что у сторожа
+        #: 1620 с. Абсолютные дедлайны (PIXGBM: t0 + PIXGBM_BUDGET_S) сравнивать с guard.clock() / elapsed().
+        self.t0 = self.run_t0
         self.budget = budget_s
         self.window_reserve_s = window_reserve_s
         self.hard_left = hard_left
         self.partial: list[dict] = []
+        #: bot-8: мягкий потолок (с от t0). None — выключен (все прямые вызовы вне run()).
+        self.soft_ceiling: float | None = None
+        self.soft_need = dict(SOFT_NEED_DEFAULT)
+        self.soft_skipped: list[dict] = []
+
+    def set_soft(self, process_start: float | None = None, soft_ceiling_s: float | None = None,
+                 soft_need: dict | None = None) -> "TimeGuard":
+        """bot-8: мягкий потолок и ранний старт. process_start — в базе time.monotonic; учитывается только
+        при часах по умолчанию (поддельные часы тестов живут в своей базе): t0 = min(process_start, run_t0)."""
+        if process_start is not None and self.clock is time.monotonic:
+            self.t0 = min(float(process_start), self.run_t0)
+        self.soft_ceiling = None if soft_ceiling_s is None else float(soft_ceiling_s)
+        self.soft_need = dict(SOFT_NEED_DEFAULT, **(soft_need or {}))
+        return self
 
     def elapsed(self) -> float:
+        """Секунд от t0 (старт процесса в run(), иначе создание guard)."""
         return self.clock() - self.t0
 
+    def run_elapsed(self) -> float:
+        """Секунд от старта run() — основа бюджета budget_s (поведение 1500 с не меняется)."""
+        return self.clock() - self.run_t0
+
     def left(self) -> float:
-        return self.budget - self.elapsed()
+        return self.budget - self.run_elapsed()
+
+    def soft_left(self) -> float:
+        """SOFT_CEILING − elapsed(). Потолок выключен — +inf."""
+        if self.soft_ceiling is None:
+            return float("inf")
+        return self.soft_ceiling - self.elapsed()
+
+    def soft_ok(self, need_s: float = 0.0, phase: str | None = None, what: str = "") -> bool:
+        """Хватает ли до мягкого потолка need_s секунд. phase — для журнала: при отказе одна строка
+        «мягкий потолок: <phase> …» и запись в soft_skipped (в протокол прогона)."""
+        sl = self.soft_left()
+        if sl > need_s:
+            return True
+        if phase is not None:
+            self.soft_skipped.append({"phase": phase, "what": what, "soft_left_s": round(sl, 1),
+                                      "need_s": need_s, "elapsed_s": round(self.elapsed(), 1)})
+            log.warning("мягкий потолок: %s пропущено%s — soft_left %.0f с ≤ %.0f с (потолок %.0f с, прошло %.0f с)",
+                        phase, f" ({what})" if what else "", sl, need_s, self.soft_ceiling, self.elapsed())
+        return False
+
+    def soft_need_s(self, phase: str) -> float:
+        return float(self.soft_need.get(phase, 0.0))
 
     def ok(self, need_s: float = 0.0) -> bool:
         return self.left() > need_s
@@ -67,6 +115,68 @@ class TimeGuard:
 
 #: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
 DEFAULT_WINDOW_RESERVE_S = 30.0
+
+#: bot-8: мягкий потолок прогона, с от старта процесса (BUDGET.md §7.13/§7.14). Рабочий потолок пакета,
+#: чтобы пережить частный набор до 2× публичного; лимит площадки 1800, TimeGuard 1500 и сторож 1620 — без изменений.
+#: EXPDS_SOFT_CEILING_S (env) > [time] soft_ceiling_s > 1200. Неверное значение или ≤ 0 — потолок выключен.
+SOFT_CEILING_DEFAULT_S = 1200.0
+#: bot-8: сколько секунд до мягкого потолка нужно, чтобы НАЧАТЬ необязательный шаг (порог soft_left).
+#: Оценки по замерам GTX 1650 (BUDGET.md §1, docs/PLAN.md:147): σ 57 с на весь mock_val, самый тяжёлый
+#: снимок 106 с; кроп — малая сеть (тайл 96) по кандидатам sp_focal/sp_focal2, отдельно не мерен.
+#: Переопределение: [time.soft] <ключ> = с или env EXPDS_SOFT_NEED_<КЛЮЧ>_S.
+#:   wide_window — окно 256 м (sp_focal2) на участке без LAS, на каждый SpOr-растр: 120 (> 106 с снимка);
+#:   sigma       — канал σ (li_dev), на каждый участок с LAS: 60 (σ всего 57 с) + резерв кропа, если он включён;
+#:   verify      — проверка кропа курганов спутника после всех фаз: 60.
+#: Порядок отключения при росте времени: окно 256 м (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
+#: Обязательное (геофизика, лидар, основные сети оптики, finish/safe_finish, запись GeoJSON) потолок не трогает.
+SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
+
+
+def _warn(msg: str) -> None:
+    sys.stderr.write(f"expds: {msg}\n")
+    log.warning("%s", msg)
+
+
+def soft_ceiling_from(cfg: dict, environ=None) -> float | None:
+    """Мягкий потолок в секундах или None (выключен). Неверное значение/≤ 0 — None с предупреждением в stderr."""
+    env = os.environ if environ is None else environ
+    raw = env.get("EXPDS_SOFT_CEILING_S")
+    src = "EXPDS_SOFT_CEILING_S"
+    if raw is None or str(raw).strip() == "":
+        raw = (cfg.get("time") or {}).get("soft_ceiling_s", SOFT_CEILING_DEFAULT_S)
+        src = "[time] soft_ceiling_s"
+    if isinstance(raw, bool):
+        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно число секунд > 0)")
+        return None
+    try:
+        val = float(raw)
+    except (TypeError, ValueError):
+        _warn(f"мягкий потолок выключен: {src}={raw!r} — не число")
+        return None
+    if not np.isfinite(val) or val <= 0:
+        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно > 0)")
+        return None
+    return val
+
+
+def soft_need_from(cfg: dict, environ=None) -> dict:
+    """Пороги soft_left по шагам: SOFT_NEED_DEFAULT, [time.soft], env EXPDS_SOFT_NEED_<KEY>_S."""
+    env = os.environ if environ is None else environ
+    need = dict(SOFT_NEED_DEFAULT)
+    table = ((cfg.get("time") or {}).get("soft") or {})
+    for key in need:
+        for src, raw in ((f"[time.soft] {key}", table.get(key)),
+                         (f"EXPDS_SOFT_NEED_{key.upper()}_S", env.get(f"EXPDS_SOFT_NEED_{key.upper()}_S"))):
+            if raw is None or str(raw).strip() == "":
+                continue
+            try:
+                val = float(raw)
+                if not np.isfinite(val) or val < 0:
+                    raise ValueError
+                need[key] = val
+            except (TypeError, ValueError):
+                _warn(f"порог мягкого потолка {src}={raw!r} не принят, остаётся {need[key]:.0f} с")
+    return need
 
 
 #: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
@@ -646,6 +756,8 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
         for path in reg.rasters.get("sp_or", []):
             if not guard.ok(60):
                 break
+            if not _soft_ok(guard, "wide_window", f"окно 256 м sp_focal2, {reg.name}"):
+                break
             try:
                 found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
                                                       fallback_crs=region_crs(reg, cfg)))
@@ -656,6 +768,14 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
                 feat["threshold_group"] = "sp_focal2"
             added += found
     return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+
+
+def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
+    """bot-8: мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
+    fn = getattr(guard, "soft_ok", None)
+    if fn is None or getattr(guard, "soft_ceiling", None) is None:
+        return True
+    return fn(guard.soft_need_s(phase) + extra_s, phase=phase, what=what)
 
 
 def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
@@ -891,8 +1011,15 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     t_cfg = cfg.get("time", {})
     margin_s = float(t_cfg.get("guard_margin_s", 180))
     # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
+    from . import watchdog as _wd
+
     guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
                       hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
+    guard.set_soft(process_start=_wd.PROCESS_START, soft_ceiling_s=soft_ceiling_from(cfg),
+                   soft_need=soft_need_from(cfg))
+    if guard.soft_ceiling is not None:
+        log.info("мягкий потолок %.0f с от старта процесса (прошло %.0f с); пороги: %s", guard.soft_ceiling,
+                 guard.elapsed(), ", ".join(f"{k} {v:.0f} с" for k, v in guard.soft_need.items()))
     global _WINDOW_GUARD
     _WINDOW_GUARD = guard
     log.info("ускоритель: %s", accel.backend())
@@ -1018,6 +1145,9 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if not guard.ok(60):
                 log.warning("на канал σ времени не осталось")
                 break
+            if not _soft_ok(guard, "sigma", f"канал σ с {reg.name}",
+                            guard.soft_need_s("verify") if (cfg.get("verify") or {}).get("enabled") else 0.0):
+                break
             try:
                 fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
                 pool = [f for f in state.snapshot()
@@ -1037,7 +1167,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
-        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120):
+        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120) and _soft_ok(guard, "verify", "проверка кропа"):
             # Ошибка проверки кропа не должна оставить площадку без файла ответа.
             try:
                 from .crop_model import maybe_verify
@@ -1049,8 +1179,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 log.exception("проверка кропа пропущена")
         summary["phases"] = {name: {"raw": n, "seconds": round(sec, 1)} for name, n, sec in phases}
         state.note["phases"] = summary["phases"]
+        if guard.soft_skipped:
+            summary["soft_skipped"] = list(guard.soft_skipped)
+            state.note["soft_skipped"] = list(guard.soft_skipped)
         summary["written"] = checkpoint(state, "конец")
-        summary["seconds"] = round(guard.elapsed(), 1)
+        summary["seconds"] = round(guard.run_elapsed(), 1)
         summary["partial_files"] = list(guard.partial)
         for handler in logging.getLogger().handlers:
             handler.flush()
