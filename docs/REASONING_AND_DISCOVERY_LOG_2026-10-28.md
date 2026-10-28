@@ -147,3 +147,23 @@
   1. **По 1 модели на 1 GPU за сессию** (разнесение Волны 1 и Волны 2 по параллельным сессиям/аккаунтам вместо последовательной очереди в одном воркере) — ускорение в **2–3 раза** по `wall-clock`.
   2. **`--batch 64` + `torch.compile`** (на Tesla T4 свободно `>14 ГБ VRAM`, уменьшение числа шагов эпохи со `115` до `57`) — ускорение ещё на **35–40%**.
   3. **Сэмплирование негативов (`neg_ratio = 1.0..1.5`)** — отсечение пустых фоновых тайлов леса без рельефных аномалий сокращает эпоху ещё почти **вдвое** без потери качества.
+
+
+## 8. Live GPU Verification & Benchmark on `2 × Tesla T4` (`2026-10-28`)
+
+### 8.1 Root Cause of Initial Run Delay & GPU Activation
+- When the 4 Kaggle kernels were first pushed at 12:28 MSK, phone/GPU verification was not yet active on the accounts, so Kaggle silently assigned 4-core CPU VMs (`detected_gpus: 0`, ~`250 s/epoch`, ~`2.1 hours` per 30-epoch model).
+- After GPU quota (`30 hrs/week`) was activated on `dmitrijkv`, a live probe (`dmitrijkv/koz3-gpu-probe`) confirmed `cuda_available: true`, `device_count: 2`, `["Tesla T4", "Tesla T4"]`.
+- Two parallel Dual-T4 sessions (`dmitrijkv/koz3-gpu-s1` and `dmitrijkv/koz3-gpu-s2`) were launched simultaneously on `dmitrijkv` with `enable_internet: false`, `--batch 64 --lr 1.4e-3`, and explicit `cuda:0` / `cuda:1` slot pinning (`1 fold = 1 GPU`).
+
+### 8.2 Verified Speedup vs CPU (`notes/kaggle_gpu_s1_benchmark_2026-10-28.json`)
+- **Single epoch (`~3,500` tiles, `128×128×8` float16)**:
+  - CPU (4 vCPU): **`240–280 s / epoch`**
+  - Single `Tesla T4` (`--batch 64`): **`3.5–4.6 s / epoch`** for `Unet-ResNet18` (**`55–65×` faster**) and **`4.3–5.9 s / epoch`** for `FPN-ResNet34 + EMA` (**`45–55×` faster**).
+- **Single 30-epoch model**:
+  - CPU (4 vCPU): **`~7,500 s` (`~125 min`)**
+  - Single `Tesla T4`: **`138.8–196.4 s` (`2.3–3.3 min`)** for `li_r18_hard2_59` and **`149.1–197.3 s` (`2.5–3.3 min`)** for `li_r34_fpn_mask_59`.
+- **Dual-T4 Node (`cuda:0` + `cuda:1` in parallel, `dmitrijkv/koz3-gpu-s1`)**:
+  - **Wave 1 (`6` models, `180` epochs: `li_r18_hard2_59_fold0..4` + `final`)**: completed in **`532.0 s` (`8 min 52 s`)**.
+  - **Wave 2 (`4` models, `120` epochs: `li_r34_fpn_mask_59_fold0..3`)**: completed in **`391.8 s` (`6 min 32 s`)**.
+  - **Total for 10 models (`300` epochs across all 59 LAS clouds)**: **`923.8 s` (`15 min 24 s`)** vs **`~20.8 hours`** sequential CPU (**`~81×` wall-clock speedup on a single Dual-T4 session**, and **`>150×`** across 2 concurrent Dual-T4 sessions).

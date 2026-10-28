@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Фоновый демон-монитор и сборщик весов с 4 узлов Kaggle (8 × Tesla T4)
+"""Фоновый демон-монитор и сборщик весов с ядер Kaggle (включая 2 параллельные GPU-сессии dmitrijkv)
 в /workspace/expds_work/models_59/.
 """
 from __future__ import annotations
@@ -35,7 +35,6 @@ def organize_checkpoints(raw_dir: Path) -> list[str]:
         dst_flat = OUT_ROOT / pt.name
         shutil.copy2(pt, dst_flat)
         copied.append(str(dst_flat))
-        # Также раскладываем по папкам fold{k}/li.pt для совместимости с nn_oof.py --resume
         m = re.match(r"^(li_r18_hard2_59|li_r34_fpn_edge_59|li_r34_fpn_mask_59)_fold(\d)\.pt$", pt.name)
         if m:
             exp_name, fk = m.group(1), m.group(2)
@@ -51,58 +50,70 @@ def main() -> None:
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
     nodes = ok.load_pool()
     kbin = ok.kaggle_bin()
-    completed_nodes: set[int] = set()
+    node_by_user = {n["username"]: n for n in nodes}
+
+    watch_list = [
+        ("gpu_s1", "dmitrijkv", "dmitrijkv/koz3-gpu-s1"),
+        ("gpu_s2", "dmitrijkv", "dmitrijkv/koz3-gpu-s2"),
+        ("node_0", "dmitrijkv", f"dmitrijkv/{ok.KERNEL_SLUG}"),
+        ("node_1", "usertest1234", f"usertest1234/{ok.KERNEL_SLUG}"),
+        ("node_2", "aaaa0000004", f"aaaa0000004/{ok.KERNEL_SLUG}"),
+        ("node_3", "aaaadg4gg4g4g", f"aaaadg4gg4g4g/{ok.KERNEL_SLUG}"),
+    ]
+
+    completed_keys: set[str] = set()
     state: dict = {
         "started_at": time.strftime("%Y-%m-%d %H:%M:%S %Z"),
         "target_dir": str(OUT_ROOT),
         "nodes": {},
         "downloaded_models": [],
     }
-    log_msg(f"Старт демона-сборщика для {len(nodes)} узлов Kaggle -> {OUT_ROOT}")
+    log_msg(f"Старт демона-сборщика для {len(watch_list)} ядер Kaggle -> {OUT_ROOT}")
 
-    while len(completed_nodes) < len(nodes):
-        for node in nodes:
-            nid = node["node_id"]
-            uname = node["username"]
-            ref = f"{uname}/{ok.KERNEL_SLUG}"
-            if nid in completed_nodes:
+    while len(completed_keys) < len(watch_list):
+        for key, uname, ref in watch_list:
+            if key in completed_keys:
                 continue
+            node = node_by_user[uname]
             env = ok.prepare_node_env(node)
             p = subprocess.run([kbin, "kernels", "status", ref],
                                env=env, capture_output=True, text=True, timeout=30)
             st_text = (p.stdout.strip() or p.stderr.strip())
-            state["nodes"][str(nid)] = {
+            state["nodes"][key] = {
                 "username": uname,
                 "kernel_ref": ref,
                 "status": st_text,
                 "updated_at": time.strftime("%Y-%m-%d %H:%M:%S %Z"),
             }
-            if "COMPLETE" in st_text:
-                log_msg(f"Узел node_{nid} ({uname}) завершил работу ({st_text}). Скачиваю артефакты...")
-                raw_dir = OUT_ROOT / f"raw_node_{nid}_{uname}"
+            if "COMPLETE" in st_text.upper():
+                log_msg(f"Ядро {key} ({ref}) завершило работу ({st_text}). Скачиваю артефакты...")
+                raw_dir = OUT_ROOT / f"raw_{key}_{uname}"
                 raw_dir.mkdir(parents=True, exist_ok=True)
                 po = subprocess.run([kbin, "kernels", "output", ref, "-p", str(raw_dir)],
                                     env=env, capture_output=True, text=True, timeout=300)
                 copied = organize_checkpoints(raw_dir)
-                state["nodes"][str(nid)]["output_rc"] = po.returncode
-                state["nodes"][str(nid)]["copied_files"] = copied
+                state["nodes"][key]["output_rc"] = po.returncode
+                state["nodes"][key]["copied_files"] = copied
                 state["downloaded_models"] = sorted(set(state["downloaded_models"]) | set(copied))
-                completed_nodes.add(nid)
-                log_msg(f"Узел node_{nid} ({uname}): скачано {len(copied)} весов .pt")
-            elif "ERROR" in st_text or "CANCEL" in st_text:
-                log_msg(f"ВНИМАНИЕ: узел node_{nid} ({uname}) в статусе {st_text}")
-                raw_dir = OUT_ROOT / f"raw_node_{nid}_{uname}"
+                completed_keys.add(key)
+                log_msg(f"Ядро {key} ({ref}): скачано {len(copied)} весов .pt")
+            elif "ERROR" in st_text.upper() or "CANCEL" in st_text.upper():
+                log_msg(f"ВНИМАНИЕ: ядро {key} ({ref}) в статусе {st_text}")
+                raw_dir = OUT_ROOT / f"raw_{key}_{uname}"
                 raw_dir.mkdir(parents=True, exist_ok=True)
                 subprocess.run([kbin, "kernels", "output", ref, "-p", str(raw_dir)],
                                env=env, capture_output=True, text=True, timeout=120)
                 organize_checkpoints(raw_dir)
-                completed_nodes.add(nid)
+                completed_keys.add(key)
 
         STATUS_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-        if len(completed_nodes) < len(nodes):
-            time.sleep(60)
+        if "gpu_s1" in completed_keys and "gpu_s2" in completed_keys:
+            log_msg("Обе GPU-сессии dmitrijkv (koz3-gpu-s1 и koz3-gpu-s2, все 17 моделей) завершены и скачаны!")
+            break
+        if len(completed_keys) < len(watch_list):
+            time.sleep(30)
 
-    log_msg("Все 4 узла обработаны. Демон-сборщик завершает работу.")
+    log_msg("Демон-сборщик завершил работу.")
 
 
 if __name__ == "__main__":
