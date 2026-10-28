@@ -232,7 +232,12 @@ def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
     (по семьям, пачками) и не держать весь GeoJSON в памяти.
     """
     from shapely.strtree import STRtree
+    import os
 
+    # ВРЕМЕННО (bot-10, только для замеров): EXPDS_MATCH_SCOPE=site — эталон только своего участка
+    # (region_name), как calculate_f1 по каждому участку split_merged_by_source_and_class.
+    # Штатная реализация — у bot-8 (EXPDS_MATCH_SCOPE, score_by_site); эту не сливать.
+    site = os.environ.get("EXPDS_MATCH_SCOPE", "global") == "site"
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
@@ -253,9 +258,10 @@ def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
                     pg = pg_ord[r_int]
                     if pg.geom_type != "Polygon":
                         continue
+                    own = p[order[r_int]][2]
                     best, best_j = float("-inf"), -1
                     for j in sorted(int(k) for k in cand_js):
-                        if j in matched:
+                        if j in matched or (site and g[j][2] != own):
                             continue
                         ok, s = calc._match_quality(pg, gg[j])
                         if ok and s > best + 1e-9:
