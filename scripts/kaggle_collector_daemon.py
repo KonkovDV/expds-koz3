@@ -55,6 +55,7 @@ def main() -> None:
     watch_list = [
         ("gpu_s1", "dmitrijkv", "dmitrijkv/koz3-gpu-s1"),
         ("gpu_s2", "dmitrijkv", "dmitrijkv/koz3-gpu-s2"),
+        ("gpu_s3", "dmitrijkv", "dmitrijkv/koz3-gpu-s3"),
         ("node_0", "dmitrijkv", f"dmitrijkv/{ok.KERNEL_SLUG}"),
         ("node_1", "usertest1234", f"usertest1234/{ok.KERNEL_SLUG}"),
         ("node_2", "aaaa0000004", f"aaaa0000004/{ok.KERNEL_SLUG}"),
@@ -107,7 +108,7 @@ def main() -> None:
                 completed_keys.add(key)
 
         STATUS_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-        if "gpu_s1" in completed_keys and "gpu_s2" in completed_keys:
+        if "gpu_s1" in completed_keys and ("gpu_s2" in completed_keys or "gpu_s3" in completed_keys):
             log_msg("Обе GPU-сессии dmitrijkv (koz3-gpu-s1 и koz3-gpu-s2, все 17 моделей) завершены и скачаны!")
             break
         if len(completed_keys) < len(watch_list):
