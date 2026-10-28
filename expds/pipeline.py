@@ -243,7 +243,14 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             new = [f for f in geo_pixgbm.region_feats(reg, cfg, pix.get("model_dir", "models/pixgbm/all"))
                    if f["class_name"] in cls]
-            if pix.get("replace", False):
+            import re
+            ure = pix.get("union_name_re", "")
+            if ure and re.search(ure, reg.name):
+                # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
+                # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
+                # или ≤1 м от классической находки (finds_points)
+                new = geo_pixgbm.dedupe_union(feats, new)
+            elif pix.get("replace", False):
                 # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
                 have = {(f["class_name"], f["markup_type"]) for f in new}
                 feats = [f for f in feats if (f.get("class_name"), f.get("markup_type")) not in have]
