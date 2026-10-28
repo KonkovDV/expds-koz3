@@ -243,6 +243,7 @@ enabled = false
 model_dir = "models/pixgbm/all"
 classes = ["finds_points", "object_poly"]
 replace = false   # true — вариант S (замена классики того же класса и метода), иначе объединение
+union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
 
 [geophys.maggr.finds_points]
 background_m = 2.0

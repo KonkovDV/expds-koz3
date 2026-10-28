@@ -453,3 +453,25 @@ def region_feats(reg, cfg, model_dir) -> list[dict]:
             except Exception:
                 log.exception("%s: pixgbm пропущен", f.name)
     return out
+
+
+def dedupe_union(base: list[dict], new: list[dict], r_m: float = 1.0) -> list[dict]:
+    """Правило U: из new убрать кандидатов, чей центр внутри полигона базы того же класса (object_poly)
+    или ≤ r_m (EPSG:3857, как в оценке eval_pix.py) от центра находки базы (finds_points)."""
+    from shapely.strtree import STRtree
+    out = []
+    by = {}
+    for f in base:
+        by.setdefault(f.get("class_name"), []).append(f["geom"])
+    trees = {c: (STRtree(v), v) for c, v in by.items()}
+    for f in new:
+        t = trees.get(f["class_name"]); ce = f["geom"].centroid
+        if t is not None:
+            if f["class_name"] == "object_poly":
+                hit = any(t[1][int(j)].contains(ce) for j in t[0].query(ce))
+            else:
+                hit = any(t[1][int(j)].centroid.distance(ce) <= r_m for j in t[0].query(ce.buffer(r_m)))
+            if hit:
+                continue
+        out.append(f)
+    return out
