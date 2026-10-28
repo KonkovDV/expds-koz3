@@ -89,6 +89,15 @@ def model_files(path: str | list[str]) -> list[str]:
     return list(path) if isinstance(path, list) else [path]
 
 
+def rooted_verify(cfg: dict, root: Path) -> dict:
+    """[verify] weights относительно корня архива, как у [models] (bot-8: раньше — от текущей папки)."""
+    opts = dict(cfg.get("verify") or {})
+    w = opts.get("weights")
+    if w and not Path(w).is_absolute():
+        opts["weights"] = str(Path(root) / w)
+    return {**cfg, "verify": opts}
+
+
 def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
     from .infer_nn import Ensemble, Segmenter
 
@@ -936,7 +945,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             try:
                 from .crop_model import maybe_verify
 
-                checked = maybe_verify(state.snapshot(), {r.name: r for r in regions}, cfg)
+                checked = maybe_verify(state.snapshot(), {r.name: r for r in regions}, rooted_verify(cfg, root))
                 if checked is not None:
                     state.replace(checked)
             except Exception:
