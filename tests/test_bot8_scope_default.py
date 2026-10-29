@@ -28,6 +28,8 @@ def test_no_code_path_sets_site_scope():
     bad = []
     for p in list(ROOT.glob("expds/**/*.py")) + list(ROOT.glob("scripts/**/*.py")) + list(ROOT.glob("inference/**/*.py")) \
             + list(ROOT.glob("**/*.sh")) + list(ROOT.glob("**/*.bat")) + list(ROOT.glob("**/*.ps1")):
+        if p.relative_to(ROOT).parts[0] == "analysis":   # архив прогонов ботов, не код сдачи
+            continue
         t = p.read_text(encoding="utf-8", errors="ignore")
         if re.search(r"""[(,]\s*scope\s*=\s*["']site["']|EXPDS_MATCH_SCOPE["']?\]?\s*=\s*["']?site|setdefault\(\s*["']EXPDS_MATCH_SCOPE""", t):
             bad.append(str(p.relative_to(ROOT)))

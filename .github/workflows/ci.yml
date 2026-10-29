@@ -14,9 +14,17 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      - name: Byte-compile code dirs
+        # analysis/ is an archive of bot runs, not submission code
+        run: python -m compileall -q expds scripts inference tests centerhead materials
       - name: PyTorch CPU
         run: pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Dependencies
         run: pip install -r requirements-dev.txt
-      - name: Tests on synthetic data
-        run: pytest -q
+      - name: Import smoke (entrypoint)
+        run: python -c "import expds.pipeline, expds.watchdog, expds.post, expds.metric; print('import ok')"
+      - name: Tests on synthetic data (no competition data, no GPU)
+        # tests needing data, weights or expds/geo_pixgbm.py are skipped with a reason (-rs)
+        run: pytest -q -rs
+      - name: centerhead tests
+        run: pytest -q -rs centerhead/tests

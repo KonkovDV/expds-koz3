@@ -1,7 +1,7 @@
 """Выключенные ключи сдачи: проверка кропа и перепись одного класса."""
 import importlib.util
 
-from conftest import ROOT
+from conftest import ROOT, requires_submission_files
 from expds.crop_model import blend_geo, maybe_verify
 
 
@@ -32,6 +32,7 @@ def test_geometric_blend():
     assert abs(blend_geo(0.16, 0.64) - 0.32) < 1e-9
 
 
+@requires_submission_files
 def test_shared_weights_are_packed_once():
     files = _submission().collect()
     names = [p.as_posix() for p in files]

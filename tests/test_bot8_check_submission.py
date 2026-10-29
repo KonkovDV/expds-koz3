@@ -148,6 +148,7 @@ def test_guarded_import_sites(tmp_path, src, guarded):
 
 def test_real_code_lazy_imports_are_guarded():
     """Текущий код: psutil (geo_pixgbm.process_t0) и tl2cgen (TreeliteModel под try в load_models) — с фолбэком."""
+    pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
     _, reach = cs.scan_imports(ROOT)
     sites = cs.guarded_import_sites(ROOT, reach, {"psutil", "tl2cgen", "lleaves"})
     assert sites["psutil"] and all(g for _, g in sites["psutil"]), sites["psutil"]

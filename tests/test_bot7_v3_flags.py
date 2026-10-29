@@ -9,6 +9,7 @@ import pytest
 from shapely.geometry import Point
 
 from expds import gor_gate, sp_dfine
+from conftest import requires_submission_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 Y55 = 7361866.0  # ~55° с.ш. в EPSG:3857
@@ -273,6 +274,7 @@ def test_gor_gate_no_targets_skips_backbone(tmp_path, monkeypatch):
     assert gor_gate.apply(feats, {"a": object()}, cfg, tmp_path) == feats
 
 
+@requires_submission_files
 def test_train_only_modules_unreachable_and_not_packaged():
     """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
     import ast
@@ -339,6 +341,7 @@ def test_kurgan_in_gor_flag_off_and_filter():
     assert post.drop_kurgans_in_hillforts([k_in]) == [k_in]
 
 
+@requires_submission_files
 def test_flag_modules_not_packaged_when_off():
     """v3: при выключенных [sp_dfine]/[gor_gate] их модули не идут в архив (граф импортов без transformers),
     pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""

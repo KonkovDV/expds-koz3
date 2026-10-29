@@ -19,7 +19,7 @@ STD = np.array([0.229, 0.224, 0.225], np.float32)
 SPEC = {"B1": dict(tile=512, margin=64, stride=8, dim=384),
         "B2": dict(tile=518, margin=42, stride=14, dim=384)}
 BB_GSD = 0.1
-HUB = Path(os.environ.get("EXPDS_BB_HUB", "/workspace/koz3_shared/bot-3/backbone/hub"))
+HUB = Path(os.environ.get("EXPDS_BB_HUB", "work/backbone/hub"))
 RESNET18_PTH = Path(os.environ.get("EXPDS_BB_RESNET18", str(Path.home() / ".cache/torch/hub/checkpoints/resnet18-f37072fd.pth")))
 
 

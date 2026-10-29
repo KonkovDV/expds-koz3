@@ -7,6 +7,7 @@ from shapely.geometry import Point
 
 from expds import geophys, pipeline, watchdog
 from expds.catalog import Region
+from conftest import requires_submission_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 # bot-3/pixgbm/pc/thr_pix_full.json (bot-9)
@@ -39,12 +40,14 @@ def test_pix_thresholds_present(cfg):
         assert cfg["thresholds_by_markup"][g] == d
 
 
+@requires_submission_files
 def test_pix_models_shipped(cfg):
     md = ROOT / cfg["geophys"]["pixgbm"]["model_dir"]
     for name, h in SHA.items():
         assert hashlib.sha256((md / name).read_bytes()).hexdigest() == h
 
 
+@requires_submission_files
 def test_build_submission_collects_pix_models():
     import importlib.util
     spec = importlib.util.spec_from_file_location("bs", ROOT / "scripts" / "build_submission.py")

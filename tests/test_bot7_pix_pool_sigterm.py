@@ -8,11 +8,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
 
 CODE = r'''
 import os, signal, sys, time
 sys.path.insert(0, sys.argv[1])
-geo_pixgbm = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)")
+from expds import geo_pixgbm
 mark = sys.argv[2]
 def on_term(signum, frame):
     with open(os.path.join(mark, str(os.getpid())), "w") as f:

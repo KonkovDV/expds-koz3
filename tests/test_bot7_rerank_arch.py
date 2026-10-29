@@ -36,8 +36,10 @@ def test_default_config_candidate():
     cfg = tomllib.loads((ROOT / "configs/default.toml").read_text(encoding="utf-8"))
     rr = cfg["rerank_arch"]
     assert isinstance(rr["enabled"], bool)
-    if rr["enabled"]:                                        # включён — файлы обязаны быть в репозитории
-        assert (ROOT / rr["model"]).is_file() and (ROOT / rr["meta"]).is_file()
+    if rr["enabled"]:                                        # включён — файлы обязаны быть в сборке сдачи
+        if not (ROOT / rr["model"]).is_file():
+            pytest.skip(f"{rr['model']}: LightGBM weights are not kept in git (trained on competition data)")
+        assert (ROOT / rr["meta"]).is_file()
         meta = json.loads((ROOT / rr["meta"]).read_text(encoding="utf-8"))
         assert meta["names"] == rerank_arch.NAMES
     assert cfg["post"]["micro_circles"]["radius_m"] == {"kurgany_povrezhdennye": 0.5, "kurgany_tselye": 0.5}

@@ -12,6 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "inference" / "lib"))
 
+# Файлы сдачи, которых нет в git (веса обучены на конкурсных данных; expds/geo_pixgbm.py — на проверке
+# происхождения, docs/MERGE_2026-10-29.md). Тесты сборки архива с ними пропускаются, если файлов нет.
+NOT_IN_GIT = ("models/rerank_arch_lgbm.txt", "models/pixgbm/all/poly.txt", "models/pixgbm/all/finds.txt",
+              "expds/geo_pixgbm.py")
+_MISSING = [p for p in NOT_IN_GIT if not (ROOT / p).is_file()]
+requires_submission_files = pytest.mark.skipif(
+    bool(_MISSING), reason=f"submission files not kept in git: {', '.join(_MISSING)}")
+
 # Синтетический участок в UTM 36N (около 33° в. д., 55° с. ш.)
 UTM = "EPSG:32636"
 X0, Y0 = 500_000.0, 6_100_000.0
