@@ -14,7 +14,7 @@ _src = (Path(__file__).resolve().parents[1] / 'gor_patch' / 'gor_patch_eval.py')
 exec(compile(_src, 'gor_patch_eval_head', 'exec'))
 GCACHE = {}
 PK = json.load(open(DOUT / f'peaks{DTAG}.json', encoding='utf-8')); SCNS = set(SCN)
-VARS_D = [k for k in PK['layouts'][next(iter(PK['layouts']))][0] if k != 'held']
+VARS_D = [k for k in PK['layouts'][next(iter(PK['layouts']))][0] if k not in ('held', 'cp_s')]
 log('peaks', PK['model'], PK['gsds'], 'layouts', list(PK['layouts']), 'variants', VARS_D)
 def build_rows(rows, gate_p):
     ids = list(map(int, gor_rows)); cf = list(conf[gor_rows].astype(float)); rg = list(reg[gor_rows]); gp = list(grp[gor_rows])
