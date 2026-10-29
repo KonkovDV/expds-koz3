@@ -42,8 +42,11 @@
   подобраны ПОСЛЕ гейта, in-sample по OOF C-et+ORG3 на 18 участках (sweep_groups, все участки); в гейте их не было
   (там честные пороги по фолдам), модели в архиве — full, поэтому пороги могут быть слегка занижены.
 
-## 30.10 ~02:10 MSK — пороги после замечания бота 1 (PREREG 5ea8aea)
+## 30.10 01:50 MSK — пороги после замечания бота 1 (PREREG 5ea8aea)
 - TerFl clean pix выключен (`maps=["etgr"]`), terfl_pix = 0.746421 (default, не используется).
 - `etgr_org.object_poly = 0.0` (N0: только внутренний LOSO-порог ORG3). Гейт C'=pix(etgr)+ORG3 vs A18: N0 Δ +0.023191 PASS;
   с честным sweep группы Δ +0.020604 PASS. Пороги гейта по фолдам (sweep): F3 0.09712, F4 0.21579, F5 0.05802.
 - 0.21579 / 0.58017 из 99002ab сняты.
+- Архив v2-clean 26ad1ba: koz3_v2clean_26ad1ba_0aa67b2b_wb042594f.zip, sha256 15d59e9f7c120b56079f4cc7bc8cb83c14b698db9a57228e75e286dddd9842c9,
+  58 файлов, DOC-1 OK. Старый 81b48731… (8bb5803) заменён. (Время PREREG 5ea8aea — по git, «~01:55» в тексте — оценка.)
+- check_submission (полный, со смоуком) — Kaggle CPU usertest1234/koz3-w4-v2clean-check, в очереди watcher (w4-v2clean-check).
