@@ -200,7 +200,11 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                                    ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
     # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
+    # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
+    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"}
+    hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
+               and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
@@ -212,7 +216,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
         report("PASS", "config", f"все {len(refs)} путей к весам из default.toml есть в архиве")
     pix_files = check_pixgbm_static(pixgbm, names)
     models_in_zip = {n for n in names if n.startswith("models/") and not n.endswith("/")}
-    unused = sorted(models_in_zip - {v for _, v in refs} - pix_files)
+    unused = sorted(models_in_zip - {v for _, v in refs} - pix_files - hf_files)
     if unused:
         report("WARN", "config", f"в архиве веса, на которые нет ссылок в конфиге (лишний объём): {unused[:6]}")
     t = cfg.get("time") or {}
@@ -673,6 +677,11 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
     if opt:
         report("WARN", "imports", f"не установлены в {py} необязательные пакеты; каждый импорт в try/except "
                                   f"с фолбэком: {', '.join(f'{k} ({[w for w, _ in v]})' for k, v in sorted(opt.items()))}")
+    vend = root / "inference" / "lib" / "vendor"   # bot-7 v3: пакеты из вендора архива (импорт проверяет check_dfine)
+    vendored = {k for k in out["third_fail"] if (vend / k).is_dir()}
+    if vendored:
+        report("INFO", "imports", f"нет в {py}, но есть в inference/lib/vendor (проверка — dfine): {sorted(vendored)}")
+        out["third_fail"] = {k: v for k, v in out["third_fail"].items() if k not in vendored}
     if out["third_fail"]:
         report("FAIL", "imports", f"не установлены в {py}: {out['third_fail']}")
     if out["import_fail"]:
