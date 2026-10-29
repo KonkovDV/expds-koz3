@@ -55,18 +55,23 @@ def avail_cores() -> int:
     return max(1, int(n or 1))
 
 
+PIX_THREADS_CAP = 2   # bot-7 v3: потолок потоков PIXGBM (bot-3: пул procs=1/2/4 — 43/37/36 с, +0,25 ГБ на ребёнка)
+
+
 def pix_threads() -> int:
-    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, avail_cores())."""
+    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе avail_cores(); всегда ≤ PIX_THREADS_CAP (2).
+
+    bot-7 v3: потолок 2 (было min(8, ядра)). Предсказание LightGBM от числа потоков не зависит — выход тот же."""
     for k in ("EXPDS_PIXGBM_THREADS", "EXPDS_THREADS"):
         v = os.environ.get(k, "").strip()
         if v:
             try:
                 n = int(v)
                 if n > 0:
-                    return n
+                    return min(n, PIX_THREADS_CAP)
             except ValueError:
                 log.warning("%s=%r не число — пропущено", k, v)
-    return max(1, min(8, avail_cores()))
+    return max(1, min(PIX_THREADS_CAP, avail_cores()))
 
 
 def pix_procs(pix: dict | None, nt: int) -> int:
