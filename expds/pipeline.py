@@ -348,11 +348,19 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     pix = geo_cfg.get("pixgbm") or {}
     if pix.get("enabled", False):
         # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        # W4: impl="clean" — чистая перепись по docs/PIXGBM_SPEC_CLEANROOM.md (expds/pix_clean.py),
+        # тот же контракт region_feats/status/dedupe_union; по умолчанию прежняя реализация.
+        impl = str(pix.get("impl", "legacy"))
         try:
-            from . import geo_pixgbm
+            if impl == "clean":
+                from . import pix_clean as geo_pixgbm
+                md_default = "models/pixgbm/clean"
+            else:
+                from . import geo_pixgbm
+                md_default = "models/pixgbm/all"
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
-            md = Path(pix.get("model_dir", "models/pixgbm/all"))
+            md = Path(pix.get("model_dir", md_default))
             if not md.is_absolute():
                 md = Path(__file__).resolve().parents[1] / md
             # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
@@ -380,6 +388,8 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 feats = [f for f in feats if not _drop(f)]
             feats += new
         except Exception:
+            if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
+                raise
             log.exception("%s: pixgbm пропущен", reg.name)
     return feats
 
