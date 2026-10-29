@@ -267,14 +267,15 @@ gorodishcha = 0.43049
 # Выключен. Включать только вместе с [thresholds_by_markup.li_half], подобранными вложенно
 # по семьям на OOF-выгрузке (EXPDS_LI_HALF_DUMP + scripts/nn_oof.py --predict-only):
 # без них проход идёт только в выгрузку. Выдаются лишь новые курганы — дальше 12 м от
-# кругов основного li, которые оставляет его принятый порог (как li_dev). Код — expds/li_half.py.
+# кругов основного li (любого класса кургана), которые оставляет его принятый порог. Код — expds/li_half.py.
 # bot-8: enabled — только TOML-bool (true/false без кавычек), иначе выключено с предупреждением (как [li_cnx]).
 # enabled = true без [thresholds_by_markup.li_half] — объектов li_half нет (WARN в логе и в check_submission);
 # проход тогда идёт, только если задан EXPDS_LI_HALF_DUMP. Время: мягкий потолок, ключ [time.soft] li_half
-# (env EXPDS_SOFT_NEED_LI_HALF_S, 30 с) + оценка на LAS max(5, 0,35 × t основного li × tta) + резервы
-# wide_window/sigma/verify (и cnx) — li_half отключается первым. Отборы 12 м: li_half — против принятых li
-# этого участка; cnx (позже) — против всего, включая принятые li_half; σ — против KEPT_KURGAN_CONF (li_half
-# и li_cnx туда не входят).
+# (env EXPDS_SOFT_NEED_LI_HALF_S, 30 с) + оценка на LAS max(5, 0,35 × t основного li × tta; v1, бот 2 намерил
+# ≈0,2) + резервы wide_window/sigma/verify (и cnx) — li_half отключается первым. Ключа soft_need_s в [li_half]
+# нет. Отборы 12 м: li_half — против принятых li участка, без учёта класса кургана; cnx (позже) — против всего,
+# включая принятые li_half (лидар — без учёта класса, оптика — того же класса); σ — против KEPT_KURGAN_CONF
+# и принятых li_half/li_cnx, того же класса.
 [li_half]
 enabled = false
 res = 1.0

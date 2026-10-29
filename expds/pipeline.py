@@ -684,8 +684,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             f["threshold_group"] = "li_mosaic"
     if half_feats:
         # Порядок отборов 12 м (bot-8): li_half — против принятых кругов основного li этого участка (li/li_mosaic,
-        # KEPT_KURGAN_CONF); cnx потом — против всего участка, включая принятые li_half (dedupe_cnx: группы вне
-        # таблицы — по своему порогу). Один и тот же курган li_half и cnx второй раз не выдаётся.
+        # KEPT_KURGAN_CONF), без учёта класса кургана; cnx потом — против всего участка, включая принятые li_half
+        # (dedupe_cnx: лидар — без учёта класса, оптика — того же класса); σ последним — против KEPT_KURGAN_CONF
+        # и принятых li_half/li_cnx (sigma_anchors), того же класса. Один курган второй раз не выдаётся.
         if half_p["enabled"] and half_thr:
             n0 = len(half_feats)
             half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"],
@@ -753,25 +754,39 @@ def kept_kurgan_anchors(feats: list[dict]) -> list[dict]:
     return kept
 
 
-def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12.0) -> list[dict]:
-    """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса."""
+_KURGAN_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+#: bot-8: группы добавочных лидарных проходов, чьи принятые курганы — якоря отбора σ (li_dev) наравне с
+#: KEPT_KURGAN_CONF: li_half (второй проход li на 1 м) и li_cnx (ConvNeXt-лидар). Порог — их группа в конфиге.
+EXTRA_ANCHOR_GROUPS = ("li_half", "li_cnx")
+
+
+def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12.0,
+                      cross_class: bool = False) -> list[dict]:
+    """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса.
+
+    cross_class=True (bot-8, li_half/cnx против лидара): классы курганов не различаются — круг любого
+    класса кургана убирается рядом с якорем любого класса кургана (целый рядом с повреждённым — дубль)."""
     from shapely.strtree import STRtree
+
+    def bucket(feat):
+        cls = feat.get("class_name")
+        return (feat.get("region_name"), "kurgan" if cross_class and cls in _KURGAN_CLASSES else cls)
 
     buckets: dict[tuple, list] = {}
     for feat in anchors:
         cls = feat.get("class_name")
-        if cls not in ("kurgany_povrezhdennye", "kurgany_tselye") or feat.get("geom") is None:
+        if cls not in _KURGAN_CLASSES or feat.get("geom") is None:
             continue
-        buckets.setdefault((feat.get("region_name"), cls), []).append(ground_point(feat["geom"]))
+        buckets.setdefault(bucket(feat), []).append(ground_point(feat["geom"]))
     trees = {key: STRtree(pts) for key, pts in buckets.items() if pts}
     kept = []
     for feat in cands:
-        pts = buckets.get((feat.get("region_name"), feat.get("class_name")))
+        key = bucket(feat)
+        pts = buckets.get(key)
         if not pts or feat.get("geom") is None:
             kept.append(feat)
             continue
         point = ground_point(feat["geom"])
-        key = (feat.get("region_name"), feat.get("class_name"))
         near = any(pts[int(i)].distance(point) <= dist_m for i in trees[key].query(point.buffer(dist_m)))
         if not near:
             kept.append(feat)
@@ -975,6 +990,23 @@ def _sp_floors(cfg: dict, markup: str) -> dict[str, float]:
     return sp_fusion_gen_floors(floors, spec)
 
 
+def sigma_anchors(pool: list[dict], cfg: dict) -> list[dict]:
+    """bot-8: якоря отбора σ — KEPT_KURGAN_CONF (как раньше) + принятые курганы li_half и li_cnx (порог их группы
+    в thresholds_by_markup; без таблицы — не якорь). При выключенных li_half/cnx таких объектов нет — выдача прежняя."""
+    out = kept_kurgan_anchors(pool)
+    groups = set(EXTRA_ANCHOR_GROUPS) | {str(((cfg.get("li_half") or {}).get("group")) or "li_half"),
+                                         str(lidar_cnx.cnx_cfg(cfg).get("threshold_group") or "li_cnx")}
+    groups -= set(KEPT_KURGAN_CONF)                    # чужие группы li* у li_half/cnx запрещены и так
+    for f in pool:
+        group = f.get("threshold_group")
+        if group not in groups or f.get("class_name") not in _KURGAN_CLASSES:
+            continue
+        thr = ((cfg.get("thresholds_by_markup") or {}).get(group) or {}).get(f.get("class_name"))
+        if isinstance(thr, (int, float)) and float(f.get("confidence") or 0) >= float(thr):
+            out.append(f)
+    return out
+
+
 def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, prefetch=None) -> list[dict]:
     """bot-8 cnx: ConvNeXt-лидар bot-9 ([li_cnx]) по всему участку → объекты группы li_cnx (до отбора дублей).
 
@@ -1094,7 +1126,11 @@ def dedupe_cnx(fresh: list[dict], pool: list[dict], cfg: dict, dist_m: float = 1
     anchors = kept_kurgan_anchors(pool) + [
         f for f in pool if f.get("class_name") in lidar_cnx.KURGANS
         and (f.get("threshold_group") or f.get("markup_type")) not in KEPT_KURGAN_CONF and passes(f)]
-    kept = drop_near_kurgans(kur, anchors, dist_m)
+    # bot-8: против лидарных якорей (markup_type li: li, li_mosaic, li_coarse, li_cpu, li_half, …) — без учёта
+    # класса кургана (тот же насып cnx мог назвать другим классом); против оптики (ae, sp_or, …) — того же класса.
+    lid = [f for f in anchors if f.get("markup_type") == "li"]
+    other = [f for f in anchors if f.get("markup_type") != "li"]
+    kept = drop_near_kurgans(drop_near_kurgans(kur, lid, dist_m, cross_class=True), other, dist_m)
     if rest:
         from shapely.strtree import STRtree
 
@@ -1893,7 +1929,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
                 pool = [f for f in state.snapshot()
                         if f.get("region_name") == reg.name and f.get("threshold_group") != "li_dev"]
-                kept = drop_near_kurgans(fresh, kept_kurgan_anchors(pool), 12.0)
+                kept = drop_near_kurgans(fresh, sigma_anchors(pool, cfg), 12.0)   # bot-8: + li_half, li_cnx
             except Exception:
                 log.exception("%s: канал σ пропущен", reg.name)
                 kept = []
