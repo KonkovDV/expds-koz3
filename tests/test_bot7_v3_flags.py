@@ -308,3 +308,21 @@ def test_kurgan_in_gor_flag_off_and_filter():
     out = post.drop_kurgans_in_hillforts([gor, k_in, k_edge, k_other, arch])
     assert out == [gor, k_edge, k_other, arch]
     assert post.drop_kurgans_in_hillforts([k_in]) == [k_in]
+
+
+def test_flag_modules_not_packaged_when_off():
+    """v3: при выключенных [sp_dfine]/[gor_gate] их модули не идут в архив (граф импортов без transformers),
+    pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""
+    import importlib.util
+    import tomllib
+
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    assert not cfg["sp_dfine"]["enabled"] and not cfg["gor_gate"]["enabled"]
+    spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")
+    bs = importlib.util.module_from_spec(spec); spec.loader.exec_module(bs)
+    rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}
+    assert "expds/sp_dfine.py" not in rel and "expds/gor_gate.py" not in rel
+    assert not any(r.startswith("inference/lib/vendor") or "dfine" in r for r in rel)
+    src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
+    top = [l for l in src.splitlines() if l.startswith(("from .", "import ")) and ("sp_dfine" in l or "gor_gate" in l)]
+    assert not top
