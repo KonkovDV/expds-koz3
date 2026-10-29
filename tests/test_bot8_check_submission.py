@@ -45,6 +45,7 @@ def mkzip(cfg, extra=()):
         c = tomllib.loads(cfg)
         refs = {v for _, v in cs._strings(c) if v.startswith("models/") and not v.startswith("models/pixgbm")}
         refs |= {"models/rerank_arch_lgbm.txt", "models/rerank_arch_lgbm.json"}
+        refs |= {"expds/geo_pixgbm.py"}   # Murder Board 29.10: модуль вне git — его отсутствие отдельный FAIL
         for n in sorted(refs | set(extra)):
             z.writestr(n, b"x")
     return zipfile.ZipFile(io.BytesIO(b.getvalue()))
@@ -154,3 +155,37 @@ def test_real_code_lazy_imports_are_guarded():
     assert sites["psutil"] and all(g for _, g in sites["psutil"]), sites["psutil"]
     assert sites["tl2cgen"] and all(g for _, g in sites["tl2cgen"]), sites["tl2cgen"]
     assert sites["lleaves"] == []
+
+
+def test_pixgbm_enabled_without_module_fails():
+    """Murder Board 29.10: expds/geo_pixgbm.py вне git; без него в архиве — FAIL (иначе тихая классика ≠ v2 LB)."""
+    b = io.BytesIO()
+    with zipfile.ZipFile(b, "w") as z:
+        z.writestr("configs/default.toml", '[geophys.pixgbm]\nenabled = true\nmodel_dir = "models/pixgbm/all"\n')
+        for f in ("poly.txt", "finds.txt"):
+            z.writestr(f"models/pixgbm/all/{f}", b"x")
+    cs.RESULTS.clear()
+    cs.check_config_static(zipfile.ZipFile(io.BytesIO(b.getvalue())))
+    assert any(s == "FAIL" and "geo_pixgbm.py" in m for s, c, m in cs.RESULTS), cs.RESULTS
+
+
+def test_sp_dfine_enabled_static_checks():
+    """bot-10: [sp_dfine] enabled без весов/порогов/вендорного transformers d_fine — FAIL; полный набор — PASS."""
+    cfg = '[sp_dfine]\nenabled = true\nweights = ["models/dfine_final"]\n'
+    thr = "\n[thresholds_by_markup.sp_dfine]\n" + "".join(f"{c} = 0.5\n" for c in cs.CLASSES)
+
+    def run(toml, files):
+        b = io.BytesIO()
+        with zipfile.ZipFile(b, "w") as z:
+            z.writestr("configs/default.toml", toml)
+            for f in files:
+                z.writestr(f, b"x")
+        cs.RESULTS.clear()
+        cs.check_config_static(zipfile.ZipFile(io.BytesIO(b.getvalue())))
+        return [(s, m) for s, c, m in cs.RESULTS if m.startswith("sp_dfine")]
+
+    bad = run(cfg, [])
+    assert bad and bad[0][0] == "FAIL" and "d_fine" in bad[0][1] and "model.safetensors" in bad[0][1]
+    full = ["models/dfine_final/config.json", "models/dfine_final/model.safetensors",
+            "inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py"]
+    assert run(cfg + thr, full)[0][0] == "PASS"

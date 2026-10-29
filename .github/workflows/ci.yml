@@ -6,7 +6,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # ubuntu-latest уезжает на Ubuntu 26 с 19.10.2026 (runner-images#14748) — фиксируем образ
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -17,8 +18,10 @@ jobs:
       - name: Byte-compile code dirs
         # analysis/ is an archive of bot runs, not submission code
         run: python -m compileall -q expds scripts inference tests centerhead materials
-      - name: PyTorch CPU
-        run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: PyTorch CPU (те же версии, что docker/Dockerfile)
+        # torch и torchvision — ПАРОЙ с одного индекса: иначе timm тянет torchvision с PyPI под другой torch
+        # и сбор тестов падает (RuntimeError: operator torchvision::nms does not exist; проверено 29.10)
+        run: pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Dependencies
         run: pip install -r requirements-dev.txt
       - name: Import smoke (entrypoint)

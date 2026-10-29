@@ -261,6 +261,11 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
     if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
         log.info("мягкий потолок отключил: %s", ", ".join(
             f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
+    spd = note.get("sp_dfine")
+    if spd:   # bot-10: сколько дал D-FINE — видно в протоколе сабмита (0 при enabled = подозрительно)
+        log.info("sp_dfine: transformers %s; моделей %s; сырых %s; записано %d",
+                 spd.get("transformers", "?"), spd.get("models", "?"), spd.get("raw", "?"),
+                 sum(1 for f in kept if f.get("threshold_group") == "sp_dfine"))
     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
     log.info("записано %d, файл %d байт", len(kept), size)

@@ -69,3 +69,6 @@ kaggle/**/gorloc/kernels/*/*.py
 models/cnx/
 # 29.10 merge: архивы колёс не в git (rvt_py — из origin/bots/bot8-cnx при включении [li_cnx])
 inference/cnx/wheels/*.whl
+
+# Murder Board 29.10: held out of git (EN-lineage review); injected at release build only
+expds/geo_pixgbm.py
