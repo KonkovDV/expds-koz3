@@ -32,6 +32,9 @@
 * КОМПЛАЕНС: в main отслеживаются копии geo_pixgbm.py в analysis/…/bot-4/…/{pixgbm428,v2eb268d6}/expds/ и analysis/…/bot-7/work5/pc/tools/v2/expds/
   (найдено `git ls-files`, содержимое W4 не открывал).
 
+* 22:55 MSK, bot 1's decision: 210 380 vs 383 — environment (py3.12.15 vs 3.12.16 / S3 copy of the input), not code; recorded in docs/REPRO_V2.md.
+  The v2 line is only a comparison reference; the final archives contain no EN-derived files. The analysis/ copies of geo_pixgbm.py are not touched by W4.
+
 ## 29.10 22:30 MSK — W4: PIXGBM и патчи bot-3
 
 * PREREG: `docs/PREREG_w4_pixgbm.md` (до замеров). `koz3-w4-pixgbm-s3` = P-retrain (EN-линия), не clean room.
