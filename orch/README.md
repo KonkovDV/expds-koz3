@@ -14,3 +14,8 @@ preflight доступа к датасетам (приватные `dmitrijkv/*`
 KAGGLE_JSON_1=… KAGGLE_JSON_2=… python orch/dispatcher.py --dry-run
 ```
 Токены: `KAGGLE_JSON_n` = JSON kaggle.json или новый токен (`KAGGLE_API_TOKEN`). Не логируются.
+
+## Данные конкурса на CPU-боксе (S3 организаторов)
+- Креды S3 (публикуются организаторами участникам) — **только** в `~/.config/koz3-orch/s3.env` (chmod 600, в git не коммитятся). Там же remote rclone `expds:` через переменные `RCLONE_CONFIG_EXPDS_*`.
+- Синхронизация (возобновляемая, идемпотентная): `~/.config/koz3-orch/s3_sync.sh` → `/workspace/data/train-expds-3`, лог `/workspace/data/s3_sync.log`. По умолчанию тянет разметку (`*.geojson`) + метаданные (`*.json`, UTM) + аэрофото `*_Ae*` (~7 ГиБ). Весь бакет ~208 ГиБ (Li 97, Or 61, La 37) на бокс не влезает.
+- CPU-задачи доски (`aero-recall-audit`, `honest10-gate`, `submission-assembly`) читают данные через `KOZ3_DATA=/workspace/data/train-expds-3`; перед запуском: `set -a; . ~/.config/koz3-orch/s3.env; set +a`. Докачка конкретного региона: `rclone copy expds:train-expds-3/<NNN_регион> $KOZ3_DATA/<NNN_регион>`.
