@@ -1388,6 +1388,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
             found, complete = [], False
+        # bot-2 A3/A4: agreement_m — только рядом с уже найденным U-Net sp_or (фаза после оптики).
+        agr = float(st.get("agreement_m") or 0.0)
+        if agr > 0 and found:
+            before = len(found)
+            found = sp_dfine.filter_agreement(found, state.snapshot(), agr)
+            if before != len(found):
+                log.info("sp_dfine agreement_m=%.1f: %d→%d на %s", agr, before, len(found), reg.name)
         state.add(found)
         n += len(found)
         if complete:
