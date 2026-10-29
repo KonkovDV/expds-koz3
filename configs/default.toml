@@ -233,6 +233,13 @@ gorodishcha = 0.43049
 # по семьям на OOF-выгрузке (EXPDS_LI_HALF_DUMP + scripts/nn_oof.py --predict-only):
 # без них проход идёт только в выгрузку. Выдаются лишь новые курганы — дальше 12 м от
 # кругов основного li, которые оставляет его принятый порог (как li_dev). Код — expds/li_half.py.
+# bot-8: enabled — только TOML-bool (true/false без кавычек), иначе выключено с предупреждением (как [li_cnx]).
+# enabled = true без [thresholds_by_markup.li_half] — объектов li_half нет (WARN в логе и в check_submission);
+# проход тогда идёт, только если задан EXPDS_LI_HALF_DUMP. Время: мягкий потолок, ключ [time.soft] li_half
+# (env EXPDS_SOFT_NEED_LI_HALF_S, 30 с) + оценка на LAS max(5, 0,35 × t основного li × tta) + резервы
+# wide_window/sigma/verify (и cnx) — li_half отключается первым. Отборы 12 м: li_half — против принятых li
+# этого участка; cnx (позже) — против всего, включая принятые li_half; σ — против KEPT_KURGAN_CONF (li_half
+# и li_cnx туда не входят).
 [li_half]
 enabled = false
 res = 1.0
@@ -242,7 +249,6 @@ skip_mosaic = false   # мозаика (куски 400 м, поле 40 м) пр�
 skip_coarse = true    # огрублённый DEM без мозаики (li_coarse) — пропуск в v1
 dedupe_m = 12.0
 group = "li_half"
-soft_need_s = 30
 [li_half.cand]        # второй детектор: шаг 1 м, окно рельефа 30 м
 work_res = 1.0
 relief_radius_m = 30.0

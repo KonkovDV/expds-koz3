@@ -45,10 +45,11 @@ def test_soft_ceiling_invalid_config_disables_with_warning(raw, capsys):
 
 
 def test_soft_need_thresholds_configurable(capsys):
-    assert pipeline.soft_need_from({}, environ={}) == {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
+    assert pipeline.soft_need_from({}, environ={}) == {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0,
+                                                       "li_half": 30.0}
     need = pipeline.soft_need_from({"time": {"soft": {"sigma": 90, "verify": 30}}},
                                    environ={"EXPDS_SOFT_NEED_VERIFY_S": "45", "EXPDS_SOFT_NEED_WIDE_WINDOW_S": "bad"})
-    assert need == {"wide_window": 120.0, "sigma": 90.0, "verify": 45.0}
+    assert need == {"wide_window": 120.0, "sigma": 90.0, "verify": 45.0, "li_half": 30.0}
     assert "не принят" in capsys.readouterr().err
 
 
