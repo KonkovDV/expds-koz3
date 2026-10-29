@@ -159,6 +159,8 @@ FOLD_VAL_FAMILIES = {}  # computed dynamically from fold splits
 
 def build_dual_gpu_plan() -> dict:
     """Формирует двухуровневый план обучения на 4 узлах (8 × Tesla T4, по 2 GPU на узел)."""
+    # bot-9: в HEAD имя splits_val_map нигде не задано → NameError в plan/stage.
+    splits_val_map = {sp["fold"]: sp["val"] for sp in compute_fold_splits()}
     wave1 = [
         {
             "node_id": 0,
@@ -202,7 +204,7 @@ def build_dual_gpu_plan() -> dict:
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r18_hard2_59_final.pt "
                 "--encoder resnet18 --arch Unet --target mask --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
-                "--val-families auto --device {DEV1}"
+                "--all-data --device {DEV1}"
             ],
         },
         {
@@ -278,7 +280,7 @@ def build_dual_gpu_plan() -> dict:
             "gpu1_cmds": [
                 "python -m expds.train --cache cache/full --out /kaggle/working/li_r34_fpn_mask_59_final.pt "
                 "--encoder resnet34 --arch FPN --target mask --ema 0.999 --epochs 30 --batch 64 --lr 1.4e-3 --require-gpu "
-                "--val-families auto --device {DEV1}"
+                "--all-data --device {DEV1}"
             ],
         },
     ]

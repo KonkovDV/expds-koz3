@@ -176,7 +176,7 @@ def center_loss(logits, target, weight=None):
             + dice_loss(logits.float() * valid - 20.0 * (1 - valid), target))
 
 
-def heatmap_counts(pred, target, radius: int):
+def heatmap_counts(pred, target, radius: int, thr: float = 0.5):
     """TP, FP, FN по классам: пик эталона найден, если рядом есть пик предсказания.
 
     pred и target — вероятности N×K×H×W. Пик — локальный максимум окна
@@ -189,10 +189,15 @@ def heatmap_counts(pred, target, radius: int):
 
     def peaks(p):
         pooled = F.max_pool2d(p, k, stride=1, padding=r)
+        return (p + 1e-6 >= pooled) & (p > th)
+
+    def _gt_peaks(p):
+        pooled = F.max_pool2d(p, k, stride=1, padding=r)
         return (p + 1e-6 >= pooled) & (p > 0.5)
 
+    th = float(thr)
     pr = peaks(pred) & (target >= 0)
-    gt = peaks(target.clamp(min=0))
+    gt = _gt_peaks(target.clamp(min=0))
     gt_near = F.max_pool2d(gt.float(), k, stride=1, padding=r) > 0
     pr_near = F.max_pool2d(pr.float(), k, stride=1, padding=r) > 0
     dims = (0, 2, 3)

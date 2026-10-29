@@ -421,7 +421,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           channel_dropout: float = 0.0, paste_blend: float = 0.0,
           paste_scale: tuple[float, float] = (1.0, 1.0), elastic: float = 0.0,
           small_object_weight: float = 1.0, device: str | None = None,
-          require_gpu: bool = False) -> dict:
+          require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
+          select_min_epoch: int = 1, center_match_m: float = 0.0,
+          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -448,6 +450,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     val_families = val_families or []
     tr_rows = [r for r in rows if r["family"] not in val_families]
     va_rows = [r for r in rows if r["family"] in val_families]
+    if val_families and not va_rows and not all_data:
+        # bot-9: «--val-families auto» или опечатка раньше молча давали 10 % хвоста индекса (утечка семьи).
+        raise ValueError(f"--val-families {val_families}: ни одного тайла этих семей в {cache_p}/index.csv")
     if not va_rows:  # без проверки по семьям — 10 % хвоста (только для отладки)
         cut = max(1, len(rows) // 10)
         tr_rows, va_rows = rows[:-cut], rows[-cut:]
@@ -479,9 +484,15 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             f"Требуется GPU (device={device!r}, require_gpu={require_gpu}), но torch.cuda.is_available() == False! "
             "Отказ от тихого отката на CPU."
         )
+    n_dev = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    if must_gpu and n_dev < max(1, int(min_gpus)):
+        raise RuntimeError(f"Требуется не меньше {max(1, int(min_gpus))} GPU, видно {n_dev}. Отказ от тихого отката на CPU.")
     dev = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    if must_gpu and dev.type != "cuda":
+        raise RuntimeError(f"--require-gpu, но выбрано устройство {dev}")
     if dev.type == "cuda":
-        n_dev = torch.cuda.device_count()
+        if must_gpu and dev.index is not None and dev.index >= n_dev:
+            raise RuntimeError(f"Запрошен {dev}, а видно {n_dev} GPU: переназначение запрещено при --require-gpu")
         if dev.index is not None and n_dev > 0 and dev.index >= n_dev:
             mapped = dev.index % n_dev
             log.warning("Запрошен %s при %d доступных GPU; переназначаю на cuda:%d", dev, n_dev, mapped)
@@ -500,13 +511,32 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         model = smp.create_model(arch, encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
                                  in_channels=c, classes=k).to(dev).to(memory_format=fmt)
     ema_model = None
-    if ema > 0:
-        from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
-
-        ema_model = AveragedModel(model, multi_avg_fn=get_ema_multi_avg_fn(float(ema)), use_buffers=True)
+    from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
     if center and center_loss_name == "focal":
+        # bot-9: смещение головы ставится до копии в EMA, чтобы копия стартовала с тем же prior 0,01.
         from .centers import init_focal_bias
         init_focal_bias(model)
+    if must_gpu:
+        bad = [n for n, t in list(model.named_parameters()) + list(model.named_buffers()) if t.device.type != "cuda"]
+        if bad:
+            raise RuntimeError(f"Модель не на GPU: {bad[:3]}")
+    if ema > 0:
+        if ema_warmup:
+            # bot-9: decay_t = min(ema, (1 + t) / (10 + t)) — при 1,3–1,7 тыс. шагов 0,999 без разгона
+            # оставляет 19–28 % веса первых шагов (0,999^1290 = 0,275).
+            _ema = float(ema)
+
+            @torch.no_grad()
+            def _avg_fn(avg_p, cur_p, num_averaged):
+                t = float(num_averaged)
+                d = min(_ema, (1.0 + t) / (10.0 + t))
+                if not avg_p.is_floating_point():
+                    return cur_p
+                return avg_p * d + cur_p * (1.0 - d)
+
+            ema_model = AveragedModel(model, avg_fn=_avg_fn, use_buffers=True)
+        else:
+            ema_model = AveragedModel(model, multi_avg_fn=get_ema_multi_avg_fn(float(ema)), use_buffers=True)
     # auto — как в кэше: повороты и отражения у всего, кроме лидара с направленной отмывкой.
     # none — без них: на снимке тень кургана лежит против солнца, и поворот на 90° учит сеть
     # не смотреть на этот признак (у лидара с отмывкой g повороты выключены по той же причине).
@@ -538,7 +568,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 t = torch.where((ym[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
             return t
 
-        if not center_spike or (not flips):
+        if not center_spike or (not flips) or center_pre_flip:
+            # center_pre_flip: цель считается один раз, отражения применяются к ней на GPU.
+            # Шип при отражении может сместиться на 1 пиксель (0,5 м) — меньше радиуса метрики 2 м.
             pre_target = _pre_target
     if gpu_data:
         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
@@ -611,12 +643,19 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         def batch_loss(logits, y, precomputed: bool = False):
             return bce(logits, y) + dice_loss(logits.float(), y), y
     best_f1, best_loss, history = -1.0, math.inf, []
+    thrs = tuple(float(t) for t in (center_peak_thrs or (0.5,)))
+    best_thr = None
+    checked_dev = not must_gpu
     for ep in range(epochs):
         t0 = time.perf_counter()
         model.train()
         tl = torch.zeros((), device=dev)
         n = 0
         for x, y in train_batches():
+            if not checked_dev:
+                if x.device.type != "cuda" or y.device.type != "cuda":
+                    raise RuntimeError(f"Батч не на GPU: x={x.device}, y={y.device}")
+                checked_dev = True
             if scale_aug > 0 or photo_aug > 0:
                 x, y = augment_batch(x, y, scale_aug, photo_aug)
             tr_pre = bool(gpu_data and g_tr.y_pre is not None and scale_aug <= 0)
@@ -637,6 +676,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         vl = torch.zeros((), device=dev)
         vn = 0
         tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
+        ctab = {t: [torch.zeros(k, device=dev) for _ in range(3)] for t in thrs} if center else {}
         with torch.inference_mode():
             for x, y in val_batches():
                 va_pre = bool(gpu_data and g_va.y_pre is not None)
@@ -647,10 +687,14 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 vn += len(x)
                 if center:
                     match_r = max(2, round(sigma_px)) if center_sigma_m <= 0 else max(1, round(sigma_px))
-                    ctp, cfp, cfn = heatmap_counts(logits.float().sigmoid(), y, match_r)
-                    tp += ctp
-                    fp += cfp
-                    fn += cfn
+                    if center_match_m > 0:
+                        match_r = max(1, int(round(center_match_m / float(meta["res"]))))
+                    pr_sig = logits.float().sigmoid()
+                    for t_ in thrs:
+                        ctp, cfp, cfn = heatmap_counts(pr_sig, y, match_r, thr=t_)
+                        ctab[t_][0] += ctp
+                        ctab[t_][1] += cfp
+                        ctab[t_][2] += cfn
                 else:
                     p = (logits.float().sigmoid() > 0.5).float()
                     tp += (p * y).sum(dim=(0, 2, 3))
@@ -658,7 +702,22 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     fn += ((1 - p) * y).sum(dim=(0, 2, 3))
         vl = float(vl) / max(vn, 1)
         tp, fp, fn = tp.cpu().numpy(), fp.cpu().numpy(), fn.cpu().numpy()
+        f1_by_thr = {}
+        ep_thr = None
         if center:
+            # bot-9: F1 пиков на нескольких порогах; для отбора эпохи — лучший порог (порог с семьи проверки,
+            # не с тестовой семьи фолда, т. е. leave-family-out сохраняется).
+            best_mean = -2.0
+            for t_ in thrs:
+                a, b, c_ = (v.cpu().numpy() for v in ctab[t_])
+                pr_ = a / np.maximum(a + 0.5 * b, 1e-6)
+                rc_ = a / np.maximum(a + c_, 1e-6)
+                f_ = 2 * pr_ * rc_ / np.maximum(pr_ + rc_, 1e-6)
+                sup_ = (a + c_) > 0
+                m_ = float(f_[sup_].mean()) if sup_.any() else -1.0
+                f1_by_thr[t_] = round(m_, 4)
+                if m_ > best_mean:
+                    best_mean, ep_thr, tp, fp, fn = m_, t_, a, b, c_
             prec = tp / np.maximum(tp + 0.5 * fp, 1e-6)
             rec_c = tp / np.maximum(tp + fn, 1e-6)
             f1 = 2 * prec * rec_c / np.maximum(prec + rec_c, 1e-6)
@@ -669,6 +728,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         rec = {"epoch": ep + 1, "train_loss": round(float(tl) / max(n, 1), 4), "val_loss": round(vl, 4),
                f1_key: {cls: round(float(v), 3) for cls, v in zip(meta["classes"], f1)},
                "seconds": round(time.perf_counter() - t0, 1)}
+        if center:
+            rec["center_f1_mean_by_thr"] = {str(t_): v for t_, v in f1_by_thr.items()}
+            rec["peak_thr"] = ep_thr
         history.append(rec)
         log.info(json.dumps(rec, ensure_ascii=False))
         support = (tp + fn) > 0
@@ -676,10 +738,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         # Чекпойнт — по F1 классов, которые есть в проверке (пиксели или пики центров).
         # Потеря BCE почти целиком про фон и выбирала пустую карту.
         better = f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and vl < best_loss)
+        if ep + 1 < int(select_min_epoch):
+            better = False  # bot-9: эпоха 1–2 с F1 0,002 больше не «лучшая» навсегда
         if all_data:
             better = True
         if better:
-            best_f1, best_loss = f1_mean, vl
+            best_f1, best_loss, best_thr = f1_mean, vl, ep_thr
             Path(out).parent.mkdir(parents=True, exist_ok=True)
             torch.save({"state_dict": net.state_dict(), "encoder": encoder, "arch": arch, "in_channels": c,
                         "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
@@ -694,9 +758,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "ignore_other_layers": ign_bit is not None,
                         "pixel_units": meta.get("pixel_units"),
                         "photo": photo, "scale": scale,
-                        "epoch": ep + 1,
+                        "epoch": ep + 1, "val_peak_thr": ep_thr, "seed": seed,
+                        "ema_warmup": bool(ema_warmup), "device": str(dev),
                         "val_loss": vl}, out)
-    return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "history": history, "out": out,
+    return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "best_peak_thr": best_thr,
+            "history": history, "out": out,
             "train_tiles": len(tr_rows), "val_tiles": len(va_rows), "device": str(dev)}
 
 
@@ -754,7 +820,20 @@ def _cli() -> None:
                     help="завершить работу с ошибкой, если GPU недоступен (защита от тихого отката на CPU в облаке)")
     ap.add_argument("--small-object-weight", type=float, default=1.0,
                     help="вес потери насыпи мельче 0,2 %% кадра (карта центров); 1 — без него")
+    ap.add_argument("--min-gpus", type=int, default=0, help="минимум видимых GPU при --require-gpu")
+    ap.add_argument("--ema-warmup", action="store_true", help="EMA с разгоном decay=min(ema,(1+t)/(10+t))")
+    ap.add_argument("--select-min-epoch", type=int, default=1, help="чекпойнт не раньше этой эпохи")
+    ap.add_argument("--center-match-m", type=float, default=0.0,
+                    help="радиус совпадения пиков на проверке, м (0 — как раньше: 2 пикселя)")
+    ap.add_argument("--center-peak-thrs", type=float, nargs="*", default=[0.5],
+                    help="пороги пика для F1 на проверке; отбор эпохи по лучшему")
+    ap.add_argument("--center-pre-flip", action="store_true",
+                    help="цель центров считать один раз и отражать на GPU (ускорение эпохи)")
+    ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
+    if args.dry_run:
+        print(json.dumps(vars(args), ensure_ascii=False))
+        return
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     res = train(args.cache, args.out, args.encoder, args.epochs, args.batch, args.lr, args.val_families,
                 args.workers, not args.no_pretrained, args.limit, not args.no_amp,
@@ -765,7 +844,10 @@ def _cli() -> None:
                 scale_aug=args.scale_aug, photo_aug=args.photo_aug, flips_mode=args.flips,
                 center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                 channel_dropout=args.channel_dropout, paste_blend=args.paste_blend,
-                elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device, require_gpu=args.require_gpu)
+                elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device, require_gpu=args.require_gpu,
+                min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
+                center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
+                center_pre_flip=args.center_pre_flip)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 
