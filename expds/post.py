@@ -168,13 +168,20 @@ def apply_thresholds(feats: list[dict], thresholds: dict[str, float], default: f
     модальностей своя шкала уверенности. Группа — threshold_group объекта
     (например, li_cpu у запасного детектора), иначе его markup_type.
     """
+    tau = threshold_fn(thresholds, default, by_markup)
+    return [f for f in feats if f.get("confidence", 1.0) >= tau(f)]
+
+
+def threshold_fn(thresholds: dict[str, float], default: float = 0.15,
+                 by_markup: dict[str, dict[str, float]] | None = None):
+    """Порог объекта, как в apply_thresholds: группа порога (или markup_type) → класс → общий → default."""
     by_markup = by_markup or {}
 
     def tau(f: dict) -> float:
         own = by_markup.get(f.get("threshold_group") or f.get("markup_type"), {})
         return own.get(f["class_name"], thresholds.get(f["class_name"], default))
 
-    return [f for f in feats if f.get("confidence", 1.0) >= tau(f)]
+    return tau
 
 
 def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
@@ -566,4 +573,143 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
             if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
+    return out
+
+
+KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def _group_of(f: dict) -> str:
+    return f.get("threshold_group") or f.get("markup_type") or ""
+
+
+def _region_scales(feats: list[dict]) -> dict[str, float]:
+    """Один cos φ на участок: метры на земле = единицы EPSG:3857 × масштаб (как в kurgan_cross_modal_twins)."""
+    ys: dict[str, list[float]] = defaultdict(list)
+    for f in feats:
+        g = f.get("geom")
+        if g is not None and not g.is_empty:
+            ys[f.get("region_name") or ""].append(g.centroid.y)
+    return {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
+
+
+def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Курганы, чья внутренняя точка внутри выданного городища того же участка, убираются.
+
+    Правило разметки организаторов: насыпи внутри городищ курганами не размечаются. На трейне
+    внутри городищ 7 из 974 курганов (все на одном участке); у соперника кандидаты-насыпи внутри
+    лидарных городищ — курганы в 2 % случаев против 45 % снаружи (DATA_INSIGHTS EN, разобрано в
+    docs/research/OSINT_2026-10-29.md). Безубыточность добавления — F/(4−F) ≈ 0,1–0,14, так что такой
+    курган в ожидании отнимает балл. Шаг идёт после порогов: убирает только выданное.
+
+    spec:
+      classes      — классы курганов (по умолчанию оба);
+      groups       — только эти группы порога курганов (пусто — все);
+      min_gor_conf — городища слабее этой уверенности не маскируют (по умолчанию 0: всё выданное);
+      gor_groups   — только городища этих групп (пусто — все);
+      buffer_m     — расширить (+) или сжать (−) городище, метры на земле (по умолчанию 0);
+      min_area_m2 / max_area_m2 — городища вне диапазона не маскируют (ядро-круг или ложная гигантская
+                     маска); по умолчанию 500 и 400 000 м² (p90 эталона спутника ≈ 57 000, аэрофото ≈ 83 000).
+    """
+    spec = spec or {}
+    classes = set(spec.get("classes") or KURGANS)
+    groups = set(spec.get("groups") or ())
+    gor_groups = set(spec.get("gor_groups") or ())
+    min_conf = float(spec.get("min_gor_conf", 0.0))
+    buf_m = float(spec.get("buffer_m", 0.0))
+    lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
+    scale = _region_scales(feats)
+    masks: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") != "gorodishcha" or float(f.get("confidence", 1.0)) < min_conf:
+            continue
+        if gor_groups and _group_of(f) not in gor_groups:
+            continue
+        g = f.get("geom")
+        if g is None or g.is_empty:
+            continue
+        s = scale.get(f.get("region_name") or "", 1.0)
+        if not lo <= g.area * s * s <= hi:
+            continue
+        masks[f.get("region_name") or ""].append(g.buffer(buf_m / s) if buf_m else g)
+    if not masks:
+        return feats
+    trees = {r: (STRtree(gs), gs) for r, gs in masks.items()}
+    out = []
+    for f in feats:
+        reg = f.get("region_name") or ""
+        if f.get("class_name") in classes and reg in trees and (not groups or _group_of(f) in groups):
+            pt = f["geom"].representative_point()
+            tree, gs = trees[reg]
+            if any(gs[int(i)].covers(pt) for i in tree.query(pt)):
+                continue
+        out.append(f)
+    return out
+
+
+def kurgan_neighbour_prior(feats: list[dict], spec: dict | None = None, tau=None) -> list[dict]:
+    """Уверенность кургана × (floor + slope·clip(n / k, 0, cap)), n — число соседних курганов в радиусе.
+
+    Курганы стоят могильниками: у соперника этот множитель на лидаре дал nested 0,5765 → 0,5831 и на LB
+    recall +0,039 при precision −0,007 (COMPETITORS_DEEP §2.2). Одиночная «кочка» теряет уверенность,
+    насыпь внутри цепочки её набирает. Шаг идёт ДО порогов: пороги групп из spec.groups нужно заново
+    подобрать по OOF после того же преобразования (scripts/oof_transform.py neigh).
+
+    Сосед — другое место кургана (оба класса в одной точке считаются одним местом) того же участка
+    из групп count_groups (по умолчанию = groups), прошедшее опору: уверенность ≥ support_conf, если он
+    задан, иначе ≥ порога своей группы (tau(feat) — функция порога, как в apply_thresholds).
+    Расстояния — метры на земле, один cos φ на участок.
+
+    spec: groups (по умолчанию ["li", "li_coarse", "li_mosaic"]), count_groups, radius_m (200),
+    k (3), floor (0,5), slope (0,5), cap (2), support_conf (None), self_m (1,0 — ближе этого — то же место).
+    """
+    import numpy as np
+    from scipy.spatial import cKDTree
+
+    spec = spec or {}
+    groups = set(spec.get("groups") or ("li", "li_coarse", "li_mosaic"))
+    count_groups = set(spec.get("count_groups") or groups)
+    radius = float(spec.get("radius_m", 200.0))
+    k = max(float(spec.get("k", 3.0)), 1e-9)
+    floor, slope, cap = float(spec.get("floor", 0.5)), float(spec.get("slope", 0.5)), float(spec.get("cap", 2.0))
+    self_m = float(spec.get("self_m", 1.0))
+    support = spec.get("support_conf")
+    if support is None and tau is None:
+        raise ValueError("kurgan_neighbour_prior: нужен support_conf или функция порога tau")
+    scale = _region_scales(feats)
+
+    def ground_xy(f):
+        c = f["geom"].centroid
+        s = scale.get(f.get("region_name") or "", 1.0)
+        return c.x * s, c.y * s
+
+    sup: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") not in KURGANS or _group_of(f) not in count_groups:
+            continue
+        thr = float(support) if support is not None else tau(f)
+        if float(f.get("confidence", 0.0)) >= thr:
+            sup[f.get("region_name") or ""].append(ground_xy(f))
+    trees = {}
+    for r, pts in sup.items():
+        # одно место — одна опора: два класса в одной точке (и почти совпадающие копии) не считаются дважды
+        a = np.round(np.asarray(pts, np.float64) / max(self_m, 1e-3))
+        _, first = np.unique(a, axis=0, return_index=True)
+        trees[r] = cKDTree(np.asarray(pts, np.float64)[np.sort(first)])
+    out = []
+    for f in feats:
+        if f.get("class_name") not in KURGANS or _group_of(f) not in groups:
+            out.append(f)
+            continue
+        reg = f.get("region_name") or ""
+        n = 0
+        if reg in trees:
+            xy = ground_xy(f)
+            near = trees[reg].query_ball_point(xy, radius)
+            if near:
+                d = np.hypot(*(trees[reg].data[near] - np.asarray(xy)).T)
+                n = int((d > self_m).sum())
+        factor = floor + slope * min(max(n / k, 0.0), cap)
+        out.append(dict(f, confidence=float(f.get("confidence", 0.0)) * factor, neighbours=n,
+                        conf_raw=float(f.get("confidence", 0.0))))
     return out
