@@ -4,6 +4,7 @@ import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from shapely.geometry import Point
 
@@ -242,6 +243,34 @@ def test_gor_gate_stub(tmp_path):
     assert g[0]["confidence"] == pytest.approx(0.495) and g[0]["threshold_group"] == "sp_or_gated"
     assert g[1] == feats[1] and g[2] == feats[2]
     assert gor_gate.gate_confidences(feats, {"z": 0.1}) == feats
+
+
+def test_gor_gate_head_and_md5(tmp_path):
+    """голова bot-5: p = σ([1, ((F−mu)/sd)·W/qsd]·w); неверный md5 — отказ загрузки."""
+    import hashlib
+
+    rng = np.random.default_rng(0)
+    H = dict(mu=rng.normal(size=6), sd=rng.uniform(0.5, 2, 6), W=rng.normal(size=(6, 3)), qsd=rng.uniform(0.5, 2, 3),
+             w=rng.normal(size=4), feat_dim=np.array(6))
+    p = tmp_path / "h.npz"
+    np.savez(p, **H)
+    md5 = hashlib.md5(p.read_bytes()).hexdigest()
+    h = gor_gate.load_head(p, md5)
+    F = rng.normal(size=(5, 6))
+    z = ((F - H["mu"]) / H["sd"]) @ H["W"] / H["qsd"]
+    ref = 1 / (1 + np.exp(-(H["w"][0] + z @ H["w"][1:])))
+    assert np.allclose(gor_gate.head_p(h, F), ref)
+    with pytest.raises(Exception):
+        gor_gate.load_head(p, "0" * 32)
+
+
+def test_gor_gate_no_targets_skips_backbone(tmp_path, monkeypatch):
+    """под вариантом R (sp_or выброшен) целей нет — бэкбон не грузится, объекты без изменений."""
+    feats = [{"markup_type": "sp_dfine", "class_name": "gorodishcha", "region_name": "a", "confidence": 0.9}]
+    cfg = {"gor_gate": {"enabled": True}, "thresholds_by_markup": {"sp_or_gated": {"gorodishcha": 0.99}}}
+    monkeypatch.setattr(gor_gate, "missing_artifacts", lambda c, r: [])
+    monkeypatch.setattr(gor_gate, "load_backbone", lambda *a: (_ for _ in ()).throw(AssertionError("загружен")))
+    assert gor_gate.apply(feats, {"a": object()}, cfg, tmp_path) == feats
 
 
 def test_train_only_modules_unreachable_and_not_packaged():

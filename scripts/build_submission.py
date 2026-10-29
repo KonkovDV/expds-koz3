@@ -60,10 +60,15 @@ def collect() -> list[Path]:
     # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
     dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
         if sd.get("enabled") else []
-    if sd.get("enabled"):
+    gg = cfg.get("gor_gate") or {}
+    # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+    if gg.get("enabled"):
+        bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+        dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+    if sd.get("enabled") or gg.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():
-            sys.exit("[sp_dfine] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
         files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:

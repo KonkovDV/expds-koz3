@@ -1207,7 +1207,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             try:
                 from . import gor_gate
 
-                state.replace(gor_gate.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root))
+                state.replace(gor_gate.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root, guard=guard,
+                                             soft_ok=lambda what, need: _soft_ok(guard, "gor_gate", what, need)))
             except Exception:
                 log.exception("gor_gate пропущен")
         if guard.partial:
