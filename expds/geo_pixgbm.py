@@ -837,7 +837,9 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     t_pix = float(pix.get("t_pix", T_PIX))
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
-    bst = load_models(model_dir, backend, cfg=cfg)
+    # cfg/expected_sha256 optional on load_models; defaults = WEIGHTS_MANIFEST_v5.
+    # Do not pass cfg= here: tests monkeypatch load_models with positional-only lambdas.
+    bst = load_models(model_dir, backend)
     if not bst:
         # bot-7: без моделей растры не читаем зря — сразу классика (status пуст → pipeline классику не трогает)
         log.warning("%s: pixgbm — в %s нет poly.txt/finds.txt — классика", reg.name, model_dir)
