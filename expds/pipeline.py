@@ -367,31 +367,37 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             pst: dict = {}
             new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
                    if f["class_name"] in cls]
-            import re
-            ure = pix.get("union_name_re", "")
-            if ure and re.search(ure, reg.name):
-                # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
-                # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
-                # или ≤1 м от классической находки (finds_points)
-                new = geo_pixgbm.dedupe_union(feats, new)
-            elif pix.get("replace", False):
-                # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
-                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
-                have = {(f["class_name"], f["markup_type"]) for f in new}
-                done, fell = pst.get("done", {}), pst.get("fell", {})
-
-                def _drop(f):
-                    key = (f.get("class_name"), f.get("markup_type"))
-                    if key not in have:
-                        return False
-                    return not fell.get(key) or f.get("source") in done.get(key, set())
-                feats = [f for f in feats if not _drop(f)]
-            feats += new
+            feats = pix_merge(feats, new, pst, pix, reg.name, geo_pixgbm)
         except Exception:
             if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
                 raise
             log.exception("%s: pixgbm пропущен", reg.name)
     return feats
+
+
+def pix_merge(feats: list[dict], new: list[dict], pst: dict, pix: dict, reg_name: str, mod) -> list[dict]:
+    """Классика участка + кандидаты PIXGBM по [geophys.pixgbm] union_name_re / replace (вынесено из geophys_feats
+    без изменения поведения, W4: тот же код собирает OOF из кэша классики, scripts/pix_clean_oof.py)."""
+    import re
+    ure = pix.get("union_name_re", "")
+    if ure and re.search(ure, reg_name):
+        # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
+        # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
+        # или ≤1 м от классической находки (finds_points)
+        new = mod.dedupe_union(feats, new)
+    elif pix.get("replace", False):
+        # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+        # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
+        have = {(f["class_name"], f["markup_type"]) for f in new}
+        done, fell = pst.get("done", {}), pst.get("fell", {})
+
+        def _drop(f):
+            key = (f.get("class_name"), f.get("markup_type"))
+            if key not in have:
+                return False
+            return not fell.get(key) or f.get("source") in done.get(key, set())
+        feats = [f for f in feats if not _drop(f)]
+    return feats + new
 
 
 def cpu_kurgans(d, region: str, source: str, cfg: dict, root: Path, cand_p) -> list[dict]:

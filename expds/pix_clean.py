@@ -214,15 +214,21 @@ def prepare(path: str | Path, mt: str, fallback_crs: str | None = None,
     if msk is not None:
         bad |= msk
     valid = ~bad & np.all(np.isfinite(data), axis=0)
-    rgb = np.where(valid[None], data / 255.0, 0.0).astype(np.float32)
+    del bad
+    np.divide(data, 255.0, out=data)
+    data[:, ~valid] = 0.0
+    rgb = data                      # без копии: на 14 Мпикс это 170 МБ
+    del data
     axis = _pca_axis(rgb, valid)
     scal = np.tensordot(axis.astype(np.float32), rgb, axes=1)
     luma = np.tensordot(np.array([0.299, 0.587, 0.114], np.float32), rgb, axes=1)
     step = float(abs(transform.a))
     bg = max(2.0, BACKGROUND_M.get(mt, 2.0) / step)
     z = _robust(scal, valid)
+    del scal
     hp = _robust(z - _norm_gauss(z, valid, bg), valid)
     lz = _robust(luma, valid)
+    del luma
     lhp = _robust(lz - _norm_gauss(lz, valid, bg), valid)
     edge = (ndi.distance_transform_edt(valid) * step).astype(np.float32) if valid.any() else np.zeros(valid.shape, np.float32)
     edge = np.minimum(edge, 30.0)
