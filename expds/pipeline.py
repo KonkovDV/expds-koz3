@@ -133,7 +133,7 @@ SOFT_CEILING_DEFAULT_S = 1200.0
 #:   verify      — проверка кропа курганов спутника после всех фаз: 60.
 #: Порядок отключения при росте времени: окно 256 м (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
 #: Обязательное (геофизика, лидар, основные сети оптики, finish/safe_finish, запись GeoJSON) потолок не трогает.
-SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
+SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0, "dfine_aeor": 120.0}
 
 
 def _warn(msg: str) -> None:

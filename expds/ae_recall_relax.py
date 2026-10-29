@@ -1,11 +1,11 @@
-"""Ослабление порогов ae / li_ae / fusion для подъёма recall аэрофото (bot-3).
+"""Relax ae / li_ae / fusion thresholds for aerial recall (bot-3).
 
-Корень провала LB ae R≈0,013: (1) сеть ae — только форты при τ≈0,998;
-(2) копии li→ae режутся τ li_ae ≈0,993 / 1,000001 и fusion.povr_min=0,99;
-(3) на участках без лидара копий нет — курганы ae недоступны без D-FINE Ae.
-Секция [ae_recall_relax] enabled=false по умолчанию; при enabled=true подменяет
-пороги thresholds_by_markup и fusion.min до apply_thresholds / li_to_ae.
-D-FINE Ae ([dfine_aeor]) и [raster_fix] — отдельные флаги.
+Root cause on LB ae R~0.013 (eb268d6): ae network is fort-only at tau~0.998;
+li_to_ae copies cut by li_ae ~0.993/1.000001 and fusion.povr_min=0.99;
+no-LAS ae sites have nothing to copy — need [dfine_aeor] for kurgans.
+Section [ae_recall_relax] enabled=false by default; enabled=true remaps
+thresholds_by_markup and fusion before apply_thresholds / li_to_ae.
+D-FINE Ae ([dfine_aeor]) is a separate flag.
 """
 from __future__ import annotations
 
@@ -15,32 +15,28 @@ from typing import Any
 
 log = logging.getLogger(__name__)
 
-#: Умолчания ослабления (включаются только при enabled=true).
+#: Fix B defaults (ae_ortho_diagnosis.md): ae_fort ~0.995; optional li_ae/fusion.
 DEFAULTS: dict[str, Any] = {
     "enabled": False,
-    # ae_fort_mask: спустить полку фортов; курганы ae (не-копии) — чуть ниже принятых.
     "thresholds_by_markup": {
         "ae": {
-            "fortifikatsii": 0.95,
-            "kurgany_povrezhdennye": 0.90,
-            "kurgany_tselye": 0.70,
+            "fortifikatsii": 0.995,
+            "kurgany_povrezhdennye": 0.99053,
+            "kurgany_tselye": 0.802255,
         },
-        # Копии мозаики лидара на ae: снять потолок 1.000001 у целых.
         "li_ae": {
-            "kurgany_povrezhdennye": 0.90,
-            "kurgany_tselye": 0.80,
+            "kurgany_povrezhdennye": 0.95,
+            "kurgany_tselye": 0.85,
         },
     },
-    # Больше копий «повреждённый» с лидара на покрытие ae.
     "fusion": {
-        "povr_min": 0.90,
-        "tselye_min": 0.70,
+        "povr_min": 0.9,
+        "tselye_min": 0.7,
     },
 }
 
 
 def settings(cfg: dict | None) -> dict:
-    """Сливает [ae_recall_relax] с DEFAULTS (ключи TOML главнее)."""
     out = copy.deepcopy(DEFAULTS)
     block = (cfg or {}).get("ae_recall_relax") or {}
     if not isinstance(block, dict):
@@ -63,10 +59,6 @@ def enabled(cfg: dict | None) -> bool:
 
 
 def apply(cfg: dict) -> dict:
-    """Возвращает cfg; при enabled=true глубоко обновляет thresholds_by_markup и fusion.
-
-    Не мутирует входной словарь (копия верхнего уровня + вложенных таблиц порогов).
-    """
     st = settings(cfg)
     if not st.get("enabled"):
         return cfg
@@ -84,7 +76,7 @@ def apply(cfg: dict) -> dict:
         fus[k] = v
     out["fusion"] = fus
     log.info(
-        "ae_recall_relax: ON — ae fort→%.4f li_ae povr→%.4f / tsel→%.4f fusion.povr_min→%.3f",
+        "ae_recall_relax: ON — ae fort->%.4f li_ae povr->%.4f / tsel->%.4f fusion.povr_min->%.3f",
         thr.get("ae", {}).get("fortifikatsii", float("nan")),
         thr.get("li_ae", {}).get("kurgany_povrezhdennye", float("nan")),
         thr.get("li_ae", {}).get("kurgany_tselye", float("nan")),

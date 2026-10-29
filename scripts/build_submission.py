@@ -46,6 +46,11 @@ def _doc1_check(out: Path) -> None:
         sys.exit("DOC-1: архив не чистый:\n" + "\n".join(bad))
 
 
+#: Flag-gated modules (lazy import in pipeline only when enabled). Excluded from zip when OFF so
+#: check_submission import graph does not pull transformers (bot-7 v3 / bot-3 Fix A).
+FLAG_MODULES = ("sp_dfine", "dfine_aeor")
+
+
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
@@ -73,7 +78,6 @@ def collect() -> list[Path]:
     # bot-6: гейт ORGATE G (модель + meta) — только если [orgate] enabled
     rerank += [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json")] if og.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
-    # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
         if pix.get("enabled") else []
     sd = cfg.get("sp_dfine") or {}
