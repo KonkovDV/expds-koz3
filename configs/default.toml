@@ -452,7 +452,8 @@ enabled = false
 # Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
 #   enabled = true
 #   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
-#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
+#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R (опасно до валидации CRS/гео — регрессия mock sp_or→0)
+#   drop_min_det = 1   # bot-2 багфикс (ВКЛ.): R только на участках с ≥N объектов sp_dfine; иначе оставляем v2
 #   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
 # Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
 # пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
