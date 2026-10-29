@@ -453,7 +453,6 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     mosaic_kurgans: list[dict] = []
     crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    cnx_on = lidar_cnx.enabled(cfg)
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
@@ -475,36 +474,26 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             return dems[key]
 
         produced = False
-        no_crs = False
-        # bot-8 cnx: [li_cnx] включён — сначала ConvNeXt bot-9 вместо модели li; любой отказ — модель li.
-        cnx_b = _cnx_bind(las, cfg, guard, seg_cache, root, crs_region) if cnx_on else None
-        attempts = ([[cnx_b]] if cnx_b is not None else []) + ([segs] if segs else [])
-        for use in attempts:
-            is_cnx = use[0] is cnx_b and cnx_b is not None
-            part: list[dict] = []
-            mpart: list[dict] = []
+        if segs:
             try:
                 from .lidar import DEFAULTS, build_dem_mosaic, would_coarsen
 
-                dp0 = dem_params(use[0].meta, cfg)
+                dp0 = dem_params(segs[0].meta, cfg)
                 split = (bool(cfg.get("lidar", {}).get("mosaic", False))
                          and would_coarsen(las, dp0["res"], DEFAULTS["max_pixels"]))
                 if split:
                     d = (prefetch.get(las, dp0["res"], dp0["fill"], crs_region) if prefetch is not None
                          else build_dem(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region))
                 else:
-                    d = dem_for(use[0].meta)
+                    d = dem_for(segs[0].meta)
                 if d.crs is None:
                     log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
-                    no_crs = True
-                    break
-                if is_cnx and not lidar_cnx._crs_equal(use[0].geo.get("crs"), d.crs):
-                    raise lidar_cnx.CnxError(f"CRS cnx {use[0].geo.get('crs')} ≠ CRS ЦМР {d.crs}")
+                    continue
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
                 kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
-                for seg in use:
+                for seg in segs:
                     found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                       cand_p if rescore else None, cfg.get("li"), floors))
                     if split:
@@ -513,7 +502,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         for f in found:
                             if not f.get("threshold_group"):
                                 f["threshold_group"] = group
-                    part += found
+                    feats += found
                 if split:
                     try:
                         mosaic = build_dem_mosaic(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region)
@@ -522,12 +511,12 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         mosaic = None
                     fresh: list[dict] = []
                     if mosaic is not None and mosaic.crs is not None:
-                        for seg in use:
+                        for seg in segs:
                             found = _li_with_model(seg, mosaic, reg.name, las.name, hillshade_set,
                                                    cand_p if rescore else None, cfg.get("li"), None)
                             fresh += [f for f in found if f.get("class_name") in kur]
                     else:
-                        for seg in use:
+                        for seg in segs:
                             found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                               cand_p if rescore else None, cfg.get("li"), floors))
                             found = [f for f in found if f.get("class_name") in kur]
@@ -536,8 +525,8 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                                     if not f.get("threshold_group"):
                                         f["threshold_group"] = group
                             fresh = found
-                    mpart += [f for f in fresh if not f.get("threshold_group")]
-                    part += fresh
+                    mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
+                    feats += fresh
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
                     # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
@@ -545,14 +534,11 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     try:
                         from . import hillfort
                         hp = hillfort.params_from(hf)
-                        part += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
+                        feats += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
                     except Exception:
                         log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True
             except Exception:
-                if is_cnx:
-                    log.exception("%s: cnx: постобработка упала — откат на модель li", las.name)
-                    continue
                 log.exception("%s: инференс li упал, запасной детектор", las.name)
                 try:
                     import torch
@@ -560,19 +546,6 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         torch.cuda.empty_cache()
                 except Exception:
                     pass
-            if is_cnx and not produced and not no_crs:
-                continue
-            tg = lidar_cnx.cnx_cfg(cfg).get("threshold_group") if is_cnx else None
-            if tg:
-                in_mosaic = {id(f) for f in mpart}
-                for f in part:
-                    if f.get("markup_type") == "li" and not f.get("threshold_group") and id(f) not in in_mosaic:
-                        f["threshold_group"] = str(tg)
-            feats += part
-            mosaic_kurgans += mpart
-            break
-        if no_crs:
-            continue
         if produced:
             if guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
                 try:
@@ -796,37 +769,142 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
     return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
 
 
-def _cnx_bind(las, cfg: dict, guard, seg_cache: dict, root: Path, crs_region):
-    """bot-8 cnx: модель [li_cnx] (один раз за прогон) + подготовка и инференс этого LAS → CnxBound.
-    None — модель li: веса не загрузились, мягкий потолок, нет времени, сбой подготовки или сети."""
+def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, prefetch=None) -> list[dict]:
+    """bot-8 cnx: ConvNeXt-лидар bot-9 ([li_cnx]) по всему участку → объекты группы li_cnx (до отбора дублей).
+
+    Добавочный канал: модель li уже отработала в lidar_feats, здесь ничего из её выдачи не меняется.
+    Все LAS участка — одна подготовка (lidar_cnx.bind_las сливает их, контракт §6.1). Курганы — по
+    кандидатам-пикам ЦМР каждого LAS (rescore, как у li), прочие классы из li_cnx.classes — масками
+    один раз на участок. Любой отказ (нет порогов cnx, веса, мягкий потолок, подготовка, CRS, сеть) —
+    пустой список с предупреждением: без cnx остаётся выдача как при enabled=false.
+    """
+    from .lidar import build_dem, dem_params, hillshade_set
+
+    if not reg.las or not lidar_cnx.enabled(cfg):
+        return []
     opts = lidar_cnx.cnx_cfg(cfg)
+    want = list(opts.get("classes") or [])
+    problem = lidar_cnx.threshold_problem(cfg, want or None)
+    if problem:
+        if not seg_cache.get("li_cnx_thr_warned"):
+            seg_cache["li_cnx_thr_warned"] = True
+            _warn(f"[li_cnx] включён, но {problem}: объекты cnx НЕ выдаются (пороги li к шкале cnx "
+                  f"не применимы); выдача без cnx не меняется")
+        return []
     if "li_cnx" not in seg_cache:
         try:
             seg_cache["li_cnx"] = lidar_cnx.load(cfg, root)
-        except Exception:
-            log.exception("cnx: веса [li_cnx] не загрузились — модель li")
+        except Exception as exc:
+            _warn(f"cnx: веса [li_cnx] не загрузились ({str(exc)[-300:]}) — объектов cnx нет")
             seg_cache["li_cnx"] = None
     seg = seg_cache["li_cnx"]
     if seg is None:
-        return None
+        return []
+    keep = [c for c in seg.classes if seg.keep is None or c in seg.keep]
+    problem = lidar_cnx.threshold_problem(cfg, keep)
+    if problem:
+        _warn(f"[li_cnx]: {problem} — объекты cnx НЕ выдаются")
+        return []
     if getattr(guard, "soft_ceiling", None) is not None and \
-            not guard.soft_ok(float(opts["soft_need_s"]), phase="cnx", what=las.name):
-        log.warning("%s: cnx пропущен мягким потолком — модель li", las.name)
-        return None
+            not guard.soft_ok(float(opts["soft_need_s"]), phase="cnx", what=reg.name):
+        log.warning("%s: cnx пропущен мягким потолком", reg.name)
+        return []
     reserve = float(cfg.get("time", {}).get("reserve_s", 120))
     left = getattr(guard, "window_left", None) or guard.left
+
+    def infer_budget() -> float:
+        b = float(left()) - reserve
+        if getattr(guard, "soft_ceiling", None) is not None:
+            b = min(b, float(guard.soft_left()))
+        return max(0.0, b)
+
+    crs_region = region_crs(reg, cfg)
     try:
-        return lidar_cnx.bind_las(seg, las, crs_region, opts, deadline=lambda: not guard.ok(reserve),
-                                  time_left=lambda: max(0.0, float(left()) - reserve))
+        bound = lidar_cnx.bind_las(seg, list(reg.las), crs_region, opts, deadline=lambda: not guard.ok(reserve),
+                                   time_left=lambda: max(0.0, float(left()) - reserve), infer_budget=infer_budget)
     except Exception as exc:
-        log.warning("%s: cnx не сработал (%s) — модель li", las.name, str(exc)[-400:])
+        log.warning("%s: cnx не сработал (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
         try:
             import torch
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
         except Exception:
             pass
-        return None
+        return []
+    group = str(opts["threshold_group"])
+    floors = output_floors(cfg, group)
+    cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
+    rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
+    kur = [c for c in keep if c in lidar_cnx.KURGANS] if rescore else []
+    rest = [c for c in keep if c not in kur]
+    out: list[dict] = []
+    try:
+        dp = dem_params(seg.meta, cfg)
+        for i, las in enumerate(reg.las):
+            if not guard.ok(reserve):
+                log.warning("%s: cnx — время на исходе, остальные LAS без cnx", reg.name)
+                break
+            d = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+            if d.crs is None:
+                continue
+            if not lidar_cnx._crs_equal(bound.geo.get("crs"), d.crs):
+                raise lidar_cnx.CnxError(f"CRS cnx {bound.geo.get('crs')} ≠ CRS ЦМР {d.crs}")
+            if kur:
+                out += _li_with_model(bound.view(kur), d, reg.name, las.name, hillshade_set, cand_p,
+                                      cfg.get("li"), floors)
+            if rest and i == 0:
+                out += _li_with_model(bound.view(rest), d, reg.name, las.name, hillshade_set, None,
+                                      cfg.get("li"), floors)
+    except Exception as exc:
+        log.warning("%s: cnx: постобработка упала (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
+        return []
+    for f in out:
+        f["threshold_group"] = group
+    return out
+
+
+def dedupe_cnx(fresh: list[dict], pool: list[dict], cfg: dict, dist_m: float = 12.0) -> list[dict]:
+    """bot-8 cnx: убирает объекты cnx, которые дублируют уже найденные (pool — объекты участка до cnx).
+
+    Курганы — тем же отбором, что σ и окно 256 м (drop_near_kurgans, 12 м): якоря — круги, которые
+    оставляет порог своей группы (KEPT_KURGAN_CONF; для групп вне таблицы — порог группы из конфига,
+    напр. li_coarse/li_mosaic/li_cpu). Маски (городища, фортификации, архитектура — только если их явно
+    включили в li_cnx.classes) — убираются при пересечении с полигоном того же класса и участка,
+    который проходит порог своей группы (li, li_mask, li_fort, ae, …).
+    """
+    if not fresh:
+        return []
+    kur = [f for f in fresh if f.get("class_name") in lidar_cnx.KURGANS]
+    rest = [f for f in fresh if f.get("class_name") not in lidar_cnx.KURGANS]
+
+    def passes(f) -> bool:
+        group = f.get("threshold_group") or f.get("markup_type")
+        thr = output_floors(cfg, group).get(f.get("class_name"))
+        return thr is not None and float(f.get("confidence") or 0) >= thr
+
+    anchors = kept_kurgan_anchors(pool) + [
+        f for f in pool if f.get("class_name") in lidar_cnx.KURGANS
+        and (f.get("threshold_group") or f.get("markup_type")) not in KEPT_KURGAN_CONF and passes(f)]
+    kept = drop_near_kurgans(kur, anchors, dist_m)
+    if rest:
+        from shapely.strtree import STRtree
+
+        polys: dict[tuple, list] = {}
+        for f in pool:
+            if f.get("geom") is not None and f.get("class_name") not in lidar_cnx.KURGANS and passes(f):
+                polys.setdefault((f.get("region_name"), f.get("class_name")), []).append(f["geom"])
+        trees = {k: STRtree(v) for k, v in polys.items()}
+        for f in rest:
+            key = (f.get("region_name"), f.get("class_name"))
+            g = f.get("geom")
+            if g is None or key not in trees or not any(polys[key][int(i)].intersects(g)
+                                                        for i in trees[key].query(g)):
+                kept.append(f)
+    n = len(fresh) - len(kept)
+    if n:
+        log.info("cnx: %d дублей уже найденных объектов убрано (из %d)", n, len(fresh))
+    return kept
 
 
 def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
@@ -1196,6 +1274,30 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+        if lidar_cnx.enabled(cfg):
+            # bot-8 cnx: [li_cnx] — добавочная фаза ConvNeXt-лидара bot-9 после оптики; дубли уже
+            # найденных объектов участка (li, li_mask, li_fort, оптика) убираются (dedupe_cnx).
+            t_phase = time.monotonic()
+            n_phase = 0
+            dist = float(lidar_cnx.cnx_cfg(cfg).get("dedupe_m") or 12.0)
+            for reg in regions:
+                if not reg.las:
+                    continue
+                if not guard.ok(reserve):
+                    log.warning("на cnx времени не осталось")
+                    break
+                try:
+                    fresh = cnx_site_feats(reg, cfg, guard, seg_cache, root, prefetch)
+                    pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                    kept = dedupe_cnx(fresh, pool, cfg, dist)
+                except Exception:
+                    log.exception("%s: cnx пропущен", reg.name)
+                    kept = []
+                state.add(kept)
+                n_phase += len(kept)
+                if kept:
+                    log.info("%s: cnx %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+            phases.append(("cnx", n_phase, time.monotonic() - t_phase))
         if guard.partial:
             state.note["partial_files"] = list(guard.partial)
             log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),

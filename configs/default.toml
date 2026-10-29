@@ -151,24 +151,29 @@ tselye_min = 0.8
 mode = "rescore"
 # Пики вероятности модели (nn_peaks) на том же OOF хуже: балл 0,283. Не включать.
 
-# bot-8: лидар ConvNeXt bot-9 (in_kind cnx3/cnx5, контракт bot-9/CNX_CONTRACT_FOR_BOT8.md §6) вместо
-# модели li. ВЫКЛЮЧЕНО. Вход — inference/cnx/cnx_prep.py подпроцессом на весь LAS (CRS из UTM.json);
-# выход [hm_t, hm_p, gor, fort, arch] идёт тем же путём, что у li: курганы rescore по пикам ЦМР,
-# остальное — маски; пороги — thresholds_by_markup.li (li_coarse / li_mosaic), своих OOF-порогов у
-# весов нет (oof_thresholds = None). Любой отказ cnx (веса, подготовка, время, сеть) — модель li.
-# Включение: enabled = true и weights = ["models/weights_cnx_c5-in_f0.pt", ...] (несколько — ансамбль,
-# среднее логитов; все одного in_kind). build_submission.py тогда кладёт веса и inference/cnx/.
+# bot-8: лидар ConvNeXt bot-9 (in_kind cnx3/cnx5, контракт bot-9/CNX_CONTRACT_FOR_BOT8.md §6). ВЫКЛЮЧЕНО.
+# Аддитивно: базовый лидар (li / запасной детектор) не меняется; cnx — отдельная фаза после оптики,
+# её объекты дедуплицируются против уже принятых li/gor/fort (курганы — dedupe_m, маски — пересечение).
+# Вход — inference/cnx/cnx_prep.py подпроцессом на ВЕСЬ участок (несколько LAS сливаются в один, сетка
+# по всем точкам; паритет с обучением на много-LAS участках не гарантирован). Веса НЕ в git: только
+# inference/cnx/WEIGHTS_MANIFEST.json (path, sha256, size; smoke-веса — never_pack), сборка сверяет sha256.
+# Пороги — СВОЯ группа [thresholds_by_markup.<threshold_group>] со ВСЕМИ classes; li/li_coarse/... нельзя.
+# Без неё cnx включён, но объектов не выдаёт (громкий WARN в логе; check_submission — FAIL).
+# Включение: enabled = true, weights = ["models/cnx/weights_cnx_c3-sc_f0.pt", ...] (ансамбль — среднее
+# логитов, все одного in_kind) и [thresholds_by_markup.li_cnx].
 [li_cnx]
 enabled = false
 weights = []
 # tile = 1024          # окно CUDA (кратно 32), перекрытие overlap = 192
 # tile_cpu = 512       # окно CPU, overlap_cpu = 128
-# tta = 1              # 1…8 отражений (OOF bot-9 — 8), среднее логитов
-# amp = true           # CUDA: autocast float16, окно с NaN — заново в FP32; CPU всегда FP32
+# tta = 8              # 1 | 2 | 8 (D8, как OOF bot-9); время сети ≈ ×tta (8 ≈ 8× от tta 1, 2 ≈ 2×).
+#                      # Не влезает в бюджет (окно − reserve_s, мягкий потолок) — 8 → 2 → 1 с WARN в логе
+# fp16/fp32 — по [infer] amp (CUDA, не GTX 16xx); окно с NaN — заново в FP32; bf16 не используется
 # prep_timeout_s = 600 # и не дольше остатка бюджета минус [time] reserve_s
 # soft_need_s = 120    # мягкий потолок: cnx не начинается, если до него меньше
-# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]   # подмножество выходов; по умолчанию все 5
-# threshold_group = "li"  # своя группа порогов вместо li (только для не-грубой сетки)
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]   # по умолчанию только курганы
+# threshold_group = "li_cnx"
+# dedupe_m = 12.0      # курган cnx ближе к принятому кургану — отбрасывается
 
 # DEM для запасного детектора курганов (без модели li). С моделью li параметры берутся
 # из её чекпойнта — так, как она обучалась.

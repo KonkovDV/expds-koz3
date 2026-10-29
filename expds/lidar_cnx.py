@@ -9,14 +9,30 @@
   [hm_t, hm_p, gor, fort, arch] на полном разрешении (hm шага 4 повторён nearest).
 * Веса — ``weights_cnx_{variant}_f{fold}.pt`` через ``torch.load(weights_only=True)``; несколько
   файлов — ансамбль (среднее логитов). TTA — тоже среднее логитов, как при обучении.
-* Точность: CUDA — autocast float16 (не bf16), окно с NaN/Inf пересчитывается в FP32; CPU — FP32.
+* Точность — как ``[infer] amp`` (infer_nn.inference_amp): amp=true на CUDA — autocast float16 (никогда
+  bf16), окно с NaN/Inf пересчитывается в FP32; amp=false и CPU — FP32. Ключ ``li_cnx.amp`` не читается.
+* TTA — ``li_cnx.tta`` ∈ {1, 2, 8}: 1 — без отражений, 2 — + отражение по W, 8 — группа D8 (как OOF и
+  будущие пороги bot-9, среднее логитов); по умолчанию 8. Время инференса ∝ tta. Если до мягкого потолка
+  (или конца бюджета) прогноз не укладывается, TTA понижается 8→2→1 с предупреждением в журнале.
+* Участок из нескольких LAS (контракт §6.1): все LAS участка сливаются в один (сетка по min/max всех
+  точек) и готовятся целиком; LAS не режется (это сломало бы нормировку svf/opp у cnx5). Паритет с
+  обучением на таких участках не гарантирован (на обучении слияние делал свой код bot-9).
 * Окна: H, W дополняются до кратных 32 значением входа u8 0 (вне съёмки, −1,0079); окно 1024 с
   перекрытием 192 (CPU — 512/128), начало окна кратно 32 (и 4 — шагу hm).
 
 Результат — объект с тем же интерфейсом, что Segmenter в ``pipeline._li_with_model``
-(``meta``, ``classes``, ``res``, ``keep``) и уже посчитанными ``probs``/``transform`` для одного LAS:
-дальше курганы идут тем же rescore (кандидаты-пики ЦМР → вероятность модели в центре),
-остальные классы — масками ``probs_to_features``, пороги — группы li (li_coarse/li_mosaic).
+(``meta``, ``classes``, ``res``, ``keep``) и уже посчитанными ``probs``/``transform`` для участка:
+курганы идут тем же rescore (кандидаты-пики ЦМР каждого LAS → вероятность модели в центре),
+остальные классы (только если явно в ``li_cnx.classes``) — масками ``probs_to_features``.
+
+Встраивание (pipeline.cnx_phase) — ДОБАВОЧНОЕ: модель li и всё остальное работают как без cnx, cnx
+отдельной фазой после оптики добавляет объекты, а дубли уже найденных (курганы ближе 12 м к оставленным
+кругам, маски — пересечение с полигоном того же класса) удаляются. По умолчанию classes = курганы.
+
+Пороги: шкала уверенности cnx своя, пороги li к ней НЕ применяются. Нужна своя группа
+``thresholds_by_markup.<threshold_group>`` (по умолчанию ``li_cnx``) со значением для каждого класса
+выхода. Её нет (или это группа li*) — cnx объектов НЕ выдаёт (громкое предупреждение), выдача li не
+меняется; check_submission такой архив отклоняет (FAIL). OOF-порогов cnx пока нет — cnx выключен.
 """
 from __future__ import annotations
 
@@ -46,14 +62,18 @@ DEFAULTS = {
     "weights": [],
     "tile": 1024, "overlap": 192,          # CUDA
     "tile_cpu": 512, "overlap_cpu": 128,   # CPU: память ≤ 2 ГБ
-    "tta": 1,                              # 1…8 (обучение/OOF bot-9: 8)
-    "amp": True,                           # fp16 autocast на CUDA
+    "tta": 8,                              # {1, 2, 8}; 8 = D8, как OOF bot-9
     "batch": 0,                            # 0 — авто (CUDA 2, CPU 1)
     "prep_timeout_s": 600,
     "soft_need_s": 120,
-    "classes": None,                       # None — все 5 выходов; иначе подмножество
-    "threshold_group": None,               # None — группы li / li_coarse / li_mosaic, как у li
+    "classes": ["kurgany_povrezhdennye", "kurgany_tselye"],   # gor/fort/arch — только явно, после замера
+    "threshold_group": "li_cnx",           # своя группа порогов; группы li* запрещены (другая шкала)
+    "dedupe_m": 12.0,                      # курган cnx ближе — дубль оставленного круга
 }
+TTA_ALLOWED = (1, 2, 8)
+#: Группы порогов других лидарных моделей: к шкале cnx не применимы.
+FORBIDDEN_GROUPS = frozenset({"li", "li_coarse", "li_mosaic", "li_ae", "li_cpu", "li_dev", "li_mask", "li_fort"})
+KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
 
 
 class CnxError(RuntimeError):
@@ -64,6 +84,34 @@ def cnx_cfg(cfg: dict | None) -> dict:
     out = dict(DEFAULTS)
     out.update((cfg or {}).get("li_cnx") or {})
     return out
+
+
+def threshold_problem(cfg: dict | None, classes=None) -> str | None:
+    """None — у cnx есть свои пороги для всех классов выхода; иначе текст причины (cnx тогда молчит)."""
+    o = cnx_cfg(cfg)
+    group = o.get("threshold_group")
+    if not group or not isinstance(group, str):
+        return "li_cnx.threshold_group не задан"
+    if group in FORBIDDEN_GROUPS:
+        return f"li_cnx.threshold_group={group!r} — пороги другой модели (шкала cnx своя)"
+    own = ((cfg or {}).get("thresholds_by_markup") or {}).get(group)
+    if not isinstance(own, dict) or not own:
+        return f"нет [thresholds_by_markup.{group}] — OOF-порогов cnx нет"
+    need = list(classes if classes is not None else (o.get("classes") or []))
+    lost = [c for c in need if c not in own]
+    if lost:
+        return f"в [thresholds_by_markup.{group}] нет порогов для {lost}"
+    return None
+
+
+def tta_value(raw) -> int:
+    try:
+        t = int(raw)
+    except (TypeError, ValueError):
+        raise CnxError(f"li_cnx.tta={raw!r}: допустимо {TTA_ALLOWED}") from None
+    if t not in TTA_ALLOWED or isinstance(raw, bool):
+        raise CnxError(f"li_cnx.tta={raw!r}: допустимо {TTA_ALLOWED}")
+    return t
 
 
 def enabled(cfg: dict | None) -> bool:
@@ -100,7 +148,7 @@ def _starts(n: int, t: int, step: int) -> list[int]:
 class CnxSegmenter:
     """Ансамбль весов контракта bot-9 одного in_kind. predict: float32 C×H×W → вероятности K×H×W."""
 
-    def __init__(self, paths, device: str | None = None, opts: dict | None = None):
+    def __init__(self, paths, device: str | None = None, opts: dict | None = None, amp: bool | None = None):
         import torch
 
         from .cnx_contract import CnxFlat, build_from_arch, load_contract
@@ -136,12 +184,15 @@ class CnxSegmenter:
         self.keep = set(o["classes"]) if o.get("classes") else None
         if self.keep is not None and self.keep - set(self.classes):
             raise CnxError(f"li_cnx.classes {sorted(self.keep - set(self.classes))} нет у модели {self.classes}")
-        from .infer_nn import fp16_ok
-        self.amp = bool(o.get("amp", True)) and fp16_ok(self.device)
+        from .infer_nn import fp16_ok, inference_amp
+        if "amp" in (opts or {}):
+            log.warning("li_cnx.amp не читается: точность cnx — как [infer] amp")
+        # [infer] amp (configure_runtime); amp= — только для тестов. fp16 лишь там, где fp16_ok (CUDA).
+        self.amp = (inference_amp(self.device) if amp is None else bool(amp)) and fp16_ok(self.device)
         cuda = self.device.type == "cuda"
         self.tile = int(o["tile"] if cuda else o["tile_cpu"])
         self.overlap = int(o["overlap"] if cuda else o["overlap_cpu"])
-        self.tta = max(1, min(int(o.get("tta") or 1), 8))
+        self.tta = tta_value(o.get("tta", DEFAULTS["tta"]))
         self.batch = int(o.get("batch") or (2 if cuda else 1))
         if self.tile % HW_MULT or self.tile < HW_MULT or not 0 <= self.overlap < self.tile:
             raise CnxError(f"окно {self.tile}/{self.overlap}: окно кратно {HW_MULT}, перекрытие < окна")
@@ -153,16 +204,18 @@ class CnxSegmenter:
             "files": [p.name for p in paths], "prep_code_sha": ref[5], "tile": self.tile,
         }
         self.nan_fallbacks = 0
+        self.tta_used = self.tta
 
     # ------------------------------------------------------------------ сеть
-    def _logits(self, xb, amp: bool):
-        """Среднее логитов по весам и TTA (k: бит0 flip W, бит1 flip H, бит2 транспонирование)."""
+    def _logits(self, xb, amp: bool, tta: int | None = None, nets=None):
+        """Среднее логитов по весам и TTA (k: бит0 flip W, бит1 flip H, бит2 транспонирование).
+        tta 1 — k=0; 2 — k∈{0,1} (отражение по W); 8 — все 8 элементов D8."""
         import torch
 
         acc = None
         n = 0
-        for net in self.nets:
-            for k in range(self.tta):
+        for net in (self.nets if nets is None else nets):
+            for k in range(self.tta if tta is None else tta):
                 t = xb.flip(-1) if k & 1 else xb
                 t = t.flip(-2) if k & 2 else t
                 t = t.transpose(-1, -2) if k & 4 else t
@@ -175,23 +228,42 @@ class CnxSegmenter:
                 n += 1
         return acc / n
 
-    def _forward(self, xb):
+    def _forward(self, xb, tta: int | None = None):
         import torch
 
-        z = self._logits(xb, self.amp)
+        z = self._logits(xb, self.amp, tta)
         if self.amp and not bool(torch.isfinite(z).all()):
             self.nan_fallbacks += 1
             if self.nan_fallbacks == 1:
                 log.warning("cnx: NaN/Inf в fp16 — окно пересчитано в FP32")
-            z = self._logits(xb, False)
+            z = self._logits(xb, False, tta)
         if not bool(torch.isfinite(z).all()):
             raise CnxError("cnx: NaN/Inf в логитах и в FP32")
         return z
 
-    def predict(self, x: np.ndarray, deadline=None) -> np.ndarray:
+    def choose_tta(self, n_batches: int, t_one: float, budget_s: float | None) -> int:
+        """TTA для прогона: наибольшее из {self.tta, 2, 1} (не больше self.tta), чей прогноз времени
+        n_batches × весов × tta × t_one укладывается в budget_s. Понижение — предупреждение в журнале."""
+        if budget_s is None or self.tta == 1:
+            return self.tta
+        for t in [v for v in (8, 2, 1) if v <= self.tta]:
+            est = n_batches * len(self.nets) * t * t_one
+            if est <= budget_s:
+                if t != self.tta:
+                    log.warning("cnx: TTA %d → %d: прогноз %.0f с при tta %d > запаса %.0f с (пороги — под tta %d)",
+                                self.tta, t, n_batches * len(self.nets) * self.tta * t_one, self.tta,
+                                budget_s, self.tta)
+                return t
+        log.warning("cnx: даже tta 1 (прогноз %.0f с) не укладывается в %.0f с — tta 1, дальше дедлайн",
+                    n_batches * len(self.nets) * t_one, budget_s)
+        return 1
+
+    def predict(self, x: np.ndarray, deadline=None, budget_s: float | None = None) -> np.ndarray:
         """x: float32 C×H×W (нормировка контракта) → вероятности K×H×W float32 (sigmoid среднего логитов).
 
         deadline — вызываемый без аргументов, True = время вышло (между окнами): CnxError.
+        budget_s — секунд на инференс (мягкий потолок / бюджет): по замеру одного прохода первого окна
+        TTA может быть понижен 8→2→1 (choose_tta); фактический — в self.tta_used.
         """
         import torch
 
@@ -212,14 +284,28 @@ class CnxSegmenter:
         pos = [(r, q) for r in _starts(hp, th, step_h) for q in _starts(wp, tw, step_w)]
         batch = max(1, self.batch)
         i = 0
+        tta = self.tta
         with torch.inference_mode():
+            if budget_s is not None and self.tta > 1:
+                r, q = pos[0]
+                xb = torch.from_numpy(np.ascontiguousarray(x[None, :, r:r + th, q:q + tw])).to(self.device)
+                t_one = float("inf")
+                for _ in range(2):                            # 1-й проход — прогрев (cudnn, кэши)
+                    t0 = time.monotonic()
+                    self._logits(xb, self.amp, 1, self.nets[:1])
+                    if self.device.type == "cuda":
+                        torch.cuda.synchronize()
+                    t_one = min(t_one, time.monotonic() - t0)
+                t_one *= batch                                # грубо: пакет ~ batch окон
+                tta = self.choose_tta(-(-len(pos) // batch), t_one, budget_s)
+            self.tta_used = tta
             while i < len(pos):
                 if deadline is not None and deadline():
                     raise CnxError(f"cnx: время вышло на окне {i}/{len(pos)}")
                 chunk = pos[i:i + batch]
                 xb = torch.from_numpy(np.stack([x[:, r:r + th, q:q + tw] for r, q in chunk])).to(self.device)
                 try:
-                    z = self._forward(xb).cpu().numpy()
+                    z = self._forward(xb, tta).cpu().numpy()
                 except RuntimeError as exc:
                     if "out of memory" in str(exc).lower() and batch > 1:
                         batch //= 2
@@ -244,6 +330,12 @@ class CnxBound:
 
     def predict(self, img):            # не вызывается: вход cnx не из relief_channels
         raise CnxError("CnxBound.predict: вероятности уже посчитаны")
+
+    def view(self, keep) -> "CnxBound":
+        """Тот же результат с другим набором выходных классов (курганы по кандидатам / маски отдельно)."""
+        b = CnxBound(self.seg, self.probs, self.transform, self.geo)
+        b.keep = set(keep)
+        return b
 
 
 # ---------------------------------------------------------------------- подготовка
@@ -297,6 +389,49 @@ def run_prep(las, ch: int, crs: str | None, timeout_s: float, prep_dir: Path | N
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def merge_las(paths, out: Path, chunk: int = 1_000_000) -> Path:
+    """Слияние LAS/LAZ участка в один LAS (контракт §6.1): точки всех файлов подряд, сетка подготовки —
+    по min/max всех точек (заголовок пишет laspy). Память — один кусок chunk точек.
+
+    Формат точек и CRS (VLR LASF_Projection) — первого файла; общие поля копируются (x, y, z,
+    classification, …), шаг квантования — наименьший из файлов, смещение — минимум по файлам.
+    """
+    import laspy
+
+    paths = [Path(p) for p in paths]
+    hs = []
+    for p in paths:
+        with laspy.open(str(p)) as f:
+            hs.append(f.header)
+    h0 = hs[0]
+    hdr = laspy.LasHeader(point_format=h0.point_format.id, version=h0.version)
+    hdr.scales = np.min(np.array([h.scales for h in hs], np.float64), axis=0)
+    mins = np.min(np.array([h.mins for h in hs], np.float64), axis=0)
+    maxs = np.max(np.array([h.maxs for h in hs], np.float64), axis=0)
+    hdr.offsets = np.floor(mins)
+    span = np.ceil((maxs - hdr.offsets) / hdr.scales)
+    if np.any(span >= 2 ** 31 - 1):
+        raise CnxError(f"слияние LAS: охват {maxs - mins} не влезает в int32 при шаге {hdr.scales}")
+    for v in h0.vlrs:
+        if getattr(v, "user_id", "") == "LASF_Projection":
+            hdr.vlrs.append(v)
+    out_dims = set(hdr.point_format.dimension_names) - {"X", "Y", "Z"}
+    n = 0
+    with laspy.open(str(out), mode="w", header=hdr) as w:
+        for p in paths:
+            with laspy.open(str(p)) as f:
+                common = sorted(out_dims & set(f.header.point_format.dimension_names))
+                for pts in f.chunk_iterator(chunk):
+                    rec = laspy.ScaleAwarePointRecord.zeros(len(pts), header=hdr)
+                    rec.x, rec.y, rec.z = pts.x, pts.y, pts.z
+                    for name in common:
+                        rec[name] = pts[name]
+                    w.write_points(rec)
+                    n += len(pts)
+    log.info("cnx: слито %d LAS участка → %s (%d точек)", len(paths), out.name, n)
+    return out
+
+
 def geo_transform(geo: dict):
     from rasterio.transform import Affine
 
@@ -317,22 +452,45 @@ def _crs_equal(a, b) -> bool:
 
 
 def bind_las(seg: CnxSegmenter, las, crs: str | None, opts: dict, dem_crs=None, deadline=None,
-             time_left=None, prep_dir: Path | None = None) -> CnxBound:
-    """Подготовка LAS и инференс → CnxBound. Любой отказ — CnxError (или исключение torch)."""
+             time_left=None, prep_dir: Path | None = None, infer_budget=None) -> CnxBound:
+    """Подготовка участка и инференс → CnxBound. Любой отказ — CnxError (или исключение torch).
+
+    las — один путь или список LAS участка: несколько — сначала merge_las во временный LAS (удаляется).
+    infer_budget — вызываемый → секунд на инференс (для понижения TTA) или None.
+    """
     timeout = float(opts.get("prep_timeout_s") or DEFAULTS["prep_timeout_s"])
     if time_left is not None:
         timeout = min(timeout, float(time_left()))
     t0 = time.monotonic()
-    x, geo = run_prep(las, seg.in_channels, crs, timeout, prep_dir)
+    files = [Path(p) for p in (las if isinstance(las, (list, tuple)) else [las])]
+    if not files:
+        raise CnxError("нет LAS")
+    tmp = None
+    try:
+        if len(files) > 1:
+            root = os.environ.get("EXPDS_TMP") or None
+            if root:
+                Path(root).mkdir(parents=True, exist_ok=True)
+            tmp = Path(tempfile.mkdtemp(prefix="cnx_merge_", dir=root))
+            src = merge_las(files, tmp / "site.las")
+            if time_left is not None:
+                timeout = min(timeout, float(time_left()))
+        else:
+            src = files[0]
+        x, geo = run_prep(src, seg.in_channels, crs, timeout, prep_dir)
+    finally:
+        if tmp is not None:
+            shutil.rmtree(tmp, ignore_errors=True)
+    las = files[0] if len(files) == 1 else Path(f"{files[0].stem}+{len(files) - 1}")
     if list(geo.get("tags") or []) != list(seg.meta["li_tags"]):
         raise CnxError(f"каналы подготовки {geo.get('tags')} ≠ in_tags модели {seg.meta['li_tags']}")
     if not _crs_equal(geo.get("crs"), dem_crs):
         raise CnxError(f"CRS подготовки {geo.get('crs')} ≠ CRS ЦМР пайплайна {dem_crs}")
     t1 = time.monotonic()
-    probs = seg.predict(x, deadline=deadline)
+    probs = seg.predict(x, deadline=deadline, budget_s=None if infer_budget is None else float(infer_budget()))
     del x
     log.info("cnx %s %s: %s, окно %d/%d, tta %d, %s, %.1f с инференс (подготовка %.1f с)", seg.kind,
-             Path(las).name, "×".join(map(str, probs.shape)), seg.tile, seg.overlap, seg.tta,
+             Path(las).name, "×".join(map(str, probs.shape)), seg.tile, seg.overlap, seg.tta_used,
              "fp16" if seg.amp else "fp32", time.monotonic() - t1, t1 - t0)
     return CnxBound(seg, probs, geo_transform(geo), geo)
 
@@ -355,13 +513,14 @@ def check_prep_code(contract: dict, prep_dir: Path | None = None) -> None:
         raise CnxError(f"вендор подготовки не совпадает с весами: {bad}")
 
 
-def load(cfg: dict, root: Path, device: str | None = None, prep_dir: Path | None = None) -> CnxSegmenter:
+def load(cfg: dict, root: Path, device: str | None = None, prep_dir: Path | None = None,
+         amp: bool | None = None) -> CnxSegmenter:
     files = weight_files(cfg)
     paths = [Path(root) / f for f in files]
     missing = [str(p) for p in paths if not p.is_file()]
     if missing:
         raise CnxError(f"нет весов cnx: {missing}")
-    seg = CnxSegmenter(paths, device=device, opts=cnx_cfg(cfg))
+    seg = CnxSegmenter(paths, device=device, opts=cnx_cfg(cfg), amp=amp)
     check_prep_code(seg.contract, prep_dir)
     log.info("cnx: %s, %d весов (%s), классы %s, окно %d/%d, tta %d, %s", seg.kind, len(seg.nets),
              ", ".join(seg.meta["files"]), seg.classes, seg.tile, seg.overlap, seg.tta,
