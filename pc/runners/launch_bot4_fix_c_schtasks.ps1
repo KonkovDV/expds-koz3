@@ -1,7 +1,7 @@
 # Register + run bot4 Fix C mock+honest via schtasks (session-detached). ASCII-only.
 $ErrorActionPreference = 'Continue'
 $Task = 'koz3_bot4_fix_c'
-$JobDir = 'C:\Sloi\pc_jobs\bot4_fix_c_17e35a5'
+$JobDir = 'C:\Sloi\pc_jobs\bot4_fix_c_e9d187a'
 $SrcDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 New-Item -ItemType Directory -Force -Path $JobDir | Out-Null
 foreach ($f in @(
