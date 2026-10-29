@@ -14,7 +14,8 @@
 в сам эталон: это утечка, и его табло (0,311053 → 0,318330) не честное. Теперь по умолчанию
 выход — только вероятность картинки; старое поведение — `--demote-with-gt`, только для
 диагностики. Если ни одного кропа нет, уверенность группы не меняется. `--save-model` пишет
-веса на всех кропах для `[verify] weights` (`expds.crop_model`). Модель — энкодер smp (по умолчанию ResNet-18, веса ImageNet;
+веса на всех кропах для `[verify] weights` (`expds.crop_model`). Модель — энкодер smp (по умолчанию ResNet-18, веса ImageNet; `--encoder hf:facebook/dinov2-with-registers-base` — замороженный
+DINOv2 с регистрами и линейная проба на [CLS, среднее патчей], только OOF без `--save-model`;
 `--no-pretrained` — без них) и линейная голова; повороты на 90° и отражения. Каждая семья
 участков оценивается моделью без неё.
 
@@ -137,6 +138,75 @@ def make_model(encoder: str, pretrained: bool):
     return Net()
 
 
+HF_PREFIX = "hf:"
+_HF_CACHE: dict = {}
+
+
+def hf_embed(X: np.ndarray, model_id: str, device: str | None = None, batch: int = 32, px: int = 224) -> np.ndarray:
+    """Замороженный ViT из HF (DINOv2 / DINOv2 с регистрами, Apache-2.0): [CLS, среднее патч-токенов].
+
+    Регистры отбрасываются (`num_register_tokens` из конфига). Кроп растягивается до px (кратно 14),
+    нормировка ImageNet, признак — среднее по четырём отражениям, как `predict` у smp-ветки.
+    `model_id` — id HF или локальная папка снапшота; `id@ревизия` пинует ревизию.
+    """
+    import torch
+    from transformers import AutoConfig, AutoModel
+
+    mid, _, rev = model_id.partition("@")
+    dev = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    key = (mid, rev, str(dev))
+    if key not in _HF_CACHE:
+        cfg = AutoConfig.from_pretrained(mid, revision=rev or None)
+        m = AutoModel.from_pretrained(mid, revision=rev or None).eval().to(dev)
+        if dev.type == "cuda":
+            m = m.half()
+        _HF_CACHE[key] = (m, 1 + int(getattr(cfg, "num_register_tokens", 0) or 0))
+    m, npre = _HF_CACHE[key]
+    dt = next(m.parameters()).dtype
+    mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
+    out = []
+    with torch.inference_mode():
+        for s in range(0, len(X), batch):
+            x = torch.from_numpy(np.ascontiguousarray(X[s:s + batch])).to(dev).float() / 255.0
+            x = torch.nn.functional.interpolate(x, size=(px, px), mode="bilinear", align_corners=False)
+            x = ((x - mean) / std).to(dt)
+            acc = 0
+            for v in (x, x.flip(-1), x.flip(-2), x.flip(-1).flip(-2)):
+                h = m(pixel_values=v).last_hidden_state.float()
+                acc = acc + torch.cat([h[:, 0], h[:, npre:].mean(1)], 1)
+            out.append((acc / 4).cpu().numpy())
+            log.info("кроп %s: %d/%d", mid, min(s + batch, len(X)), len(X))
+    return np.concatenate(out).astype(np.float32)
+
+
+def lin_fit_predict(Ftr: np.ndarray, ytr: np.ndarray, Fte: np.ndarray, l2: float = 1e-3) -> np.ndarray:
+    """Линейная проба на замороженных признаках: стандартизация по обучению, логрегрессия с L2 (l2 зафиксирован
+    заранее, не тюнится), веса классов сбалансированы, LBFGS до сходимости."""
+    import torch
+
+    mu, sd = Ftr.mean(0), Ftr.std(0) + 1e-6
+    A = torch.from_numpy(((Ftr - mu) / sd).astype(np.float64))
+    B = torch.from_numpy(((Fte - mu) / sd).astype(np.float64))
+    y = torch.from_numpy(ytr.astype(np.float64))
+    pos = max(1.0, float(y.sum())); neg = max(1.0, float(len(y) - y.sum()))
+    w_s = torch.where(y > 0, len(y) / (2 * pos), len(y) / (2 * neg))
+    w = torch.zeros(A.shape[1], dtype=torch.float64, requires_grad=True)
+    b = torch.zeros(1, dtype=torch.float64, requires_grad=True)
+    opt = torch.optim.LBFGS([w, b], max_iter=500, tolerance_grad=1e-9, line_search_fn="strong_wolfe")
+
+    def closure():
+        opt.zero_grad()
+        z = A @ w + b
+        loss = (w_s * torch.nn.functional.binary_cross_entropy_with_logits(z, y, reduction="none")).mean() + 0.5 * l2 * (w * w).sum()
+        loss.backward()
+        return loss
+
+    opt.step(closure)
+    with torch.no_grad():
+        return torch.sigmoid(B @ w + b).numpy()
+
+
 def _tensor(x: np.ndarray, device):
     import torch
 
@@ -207,6 +277,8 @@ def save_model(path: str, X: np.ndarray, y: np.ndarray, markup: str, res: float,
     """
     import torch
 
+    if encoder.startswith(HF_PREFIX):
+        raise SystemExit("--save-model для hf:-энкодера пока не поддержан: expds.crop_model его не читает (только замер OOF)")
     model = fit(X, y, encoder=encoder, pretrained=pretrained, **kw)
     blob = {"state_dict": {k: v.detach().cpu() for k, v in model.state_dict().items()},
             "encoder": encoder, "pretrained": False, "markup": markup, "res": res, "tile": tile,
@@ -226,10 +298,15 @@ def oof_verify(X: np.ndarray, y: np.ndarray, regions: list[str], folds: int, **k
     split = family_folds(sorted(set(regions)), site_family, folds)
     fold_of = {r: k for k, regs in enumerate(split) for r in regs}
     fold = np.array([fold_of[r] for r in regions])
+    enc = str(kw.get("encoder", ""))
+    F = hf_embed(X, enc[len(HF_PREFIX):], kw.get("device"), int(kw.get("batch", 32))) if enc.startswith(HF_PREFIX) else None
     for k in sorted(set(fold)):
         te = fold == k
         tr = ~te
         if y[tr].sum() == 0 or y[tr].sum() == tr.sum():
+            continue
+        if F is not None:
+            p[te] = lin_fit_predict(F[tr], y[tr], F[te])
             continue
         p[te] = fit_predict(X[tr], y[tr], X[te], seed=int(k), **kw)
     return p
@@ -355,7 +432,8 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=8)
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--lr", type=float, default=3e-4)
-    ap.add_argument("--encoder", default="resnet18")
+    ap.add_argument("--encoder", default="resnet18",
+                    help="энкодер smp (дообучается) или hf:<id или папка>[@ревизия] — замороженный DINOv2(-reg) + линейная проба")
     ap.add_argument("--no-pretrained", action="store_true")
     ap.add_argument("--blend", choices=["geo", "p", "none"], default="geo")
     ap.add_argument("--demote-with-gt", action="store_true",
