@@ -62,6 +62,16 @@ class RunState:
             self.feats = list(feats)
 
 
+def _spec(value) -> dict | None:
+    """Ключ [post]: true — параметры по умолчанию, таблица — свои."""
+    return value if isinstance(value, dict) else None
+
+
+def _tau(cfg: dict):
+    return post.threshold_fn(cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                             cfg.get("thresholds_by_markup", {}))
+
+
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
     out = post.only_known_classes(feats)
@@ -75,6 +85,16 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
+    post_cfg = cfg.get("post") or {}
+    if post_cfg.get("site_calibration"):
+        # Первым: соседство и пороги дальше работают в калиброванной шкале, как в замере oof_transform.py calib.
+        out = post.site_calibration(out, post_cfg["site_calibration"])
+    if post_cfg.get("kurgan_neighbour_prior"):
+        # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
+        out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("frame_prior"):
+        # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
+        out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 by_markup)
     out = out + reranked
@@ -95,6 +115,9 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
         spec["dedup_ae_vs_li_m"] = 0.0
         out = post.kurgan_cross_modal_twins(out, spec)
+    if post_cfg.get("kurgans_outside_hillforts"):
+        # После twins (копии тоже проверяются), до micro_circles и core: нужна полная маска городища.
+        out = post.kurgans_outside_hillforts(out, _spec(post_cfg["kurgans_outside_hillforts"]))
     if post_cfg.get("micro_circles"):
         out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
     if post_cfg.get("fill_holes"):
@@ -139,6 +162,23 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
         except Exception:
             log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
             reranked = []
+    pc = cfg.get("post") or {}
+    if pc.get("site_calibration"):
+        try:
+            out = post.site_calibration(out, pc["site_calibration"])
+        except Exception:
+            log.exception("site_calibration в запасной цепочке упал, шаг пропущен")
+    if pc.get("kurgan_neighbour_prior"):
+        # Пороги курганов подобраны после множителя: без него в запасной цепочке разошлись бы с замером.
+        try:
+            out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
+        except Exception:
+            log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["frame_prior"]))
+        except Exception:
+            log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
@@ -164,6 +204,11 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.kurgan_cross_modal_twins(out, spec)
         except Exception:
             log.exception("kurgan_twins_only в запасной цепочке упал, шаг пропущен")
+    if pc.get("kurgans_outside_hillforts"):
+        try:
+            out = post.kurgans_outside_hillforts(out, _spec(pc["kurgans_outside_hillforts"]))
+        except Exception:
+            log.exception("kurgans_outside_hillforts в запасной цепочке упал, шаг пропущен")
     mc = pc.get("micro_circles")
     if mc:
         # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся

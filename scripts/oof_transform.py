@@ -25,6 +25,14 @@
   micro          круги класса → микрокруги в том же центре ([post.micro_circles]).
                  Архитектура: попадание не теряется, промахи «центр внутри, покрытие
                  круга 2 м < 0,5» (стены, узкие комнаты) становятся попаданиями.
+  gormask        курганы внутри выданных городищ убираются ([post] kurgans_outside_hillforts):
+                 правило разметки — насыпи внутри городищ курганами не размечаются.
+  neigh          уверенность курганов × множитель соседства ([post] kurgan_neighbour_prior);
+                 пороги групп после него подбирает табло заново.
+  frame          приор кадра ([post] frame_prior): уверенность объекта у края крупной сцены
+                 снижается; пороги групп после него подбирает табло заново.
+  calib          калибровка уверенности по участку без эталона ([post.site_calibration]):
+                 rank / quantile / mix внутри (участок, группа, класс); пороги — табло заново.
   shift          перенос объектов слоя на устойчивый сдвиг участка
                  (scripts/layer_shift.py или scripts/image_label_shift.py).
                  Остальные объекты файла не меняются. В сдачу не входит.
@@ -182,6 +190,76 @@ def cmd_rescue(a) -> None:
     write_feats(rescue(feats, taus, a.classes, a.k, a.floor), Path(a.out))
 
 
+def cmd_gormask(a) -> None:
+    from expds.post import kurgans_outside_hillforts
+
+    kur = [f for src in a.src for f in read_feats(Path(src))]
+    gor = [f for src in a.hillforts for f in read_feats(Path(src)) if f.get("class_name") == "gorodishcha"]
+    if a.taus:   # выданные городища: уверенность не ниже порога своей группы (JSON табло, поле thresholds)
+        taus = json.loads(Path(a.taus).read_text(encoding="utf-8")).get("thresholds", {})
+        gor = [f for f in gor if f["confidence"] >= taus.get(f.get("threshold_group") or f.get("markup_type") or "",
+                                                              {}).get("gorodishcha", float("inf"))]
+    spec = {"min_gor_conf": a.gor_min, "buffer_m": a.buffer, "groups": a.groups or None,
+            "gor_groups": a.gor_groups or None, "min_area_m2": a.min_area, "max_area_m2": a.max_area}
+    kept = kurgans_outside_hillforts(kur + gor, spec)
+    ids = {id(f) for f in gor}
+    out = [f for f in kept if id(f) not in ids]
+    print(f"курганов {len(kur)}, городищ-масок {len(gor)}, убрано {len(kur) - len(out)}")
+    write_feats(out, Path(a.out))
+
+
+def cmd_neigh(a) -> None:
+    from expds.post import kurgan_neighbour_prior, threshold_fn
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    tau = None
+    if a.taus:
+        tau = threshold_fn({}, float("inf"), json.loads(Path(a.taus).read_text(encoding="utf-8")).get("thresholds", {}))
+    spec = {"groups": a.groups, "count_groups": a.count_groups or None, "radius_m": a.radius, "k": a.k,
+            "floor": a.floor, "slope": a.slope, "cap": a.cap, "support_conf": a.support_conf}
+    out = kurgan_neighbour_prior(feats, spec, tau)
+    write_feats(out, Path(a.out))
+
+
+def cmd_frame(a) -> None:
+    from expds.catalog import read_utm_json, scan_root
+    from expds.geophys import map_footprint
+    from expds.post import annotate_scene_drel, frame_prior
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    regions = {f.get("region_name") for f in feats}
+    by_region: dict[str, list[dict]] = defaultdict(list)
+    for f in feats:
+        by_region[f.get("region_name")].append(f)
+    n_boxes = 0
+    for reg in scan_root(a.train):
+        if reg.name not in regions:
+            continue
+        boxes: dict[str, list] = {}
+        for mt in ("ae", "sp_or", "or"):
+            for path in reg.rasters.get(mt, []):
+                fp = map_footprint(path, read_utm_json(reg.utm_json))
+                if fp is not None:
+                    boxes.setdefault(mt, []).append(fp)
+                    n_boxes += 1
+        annotate_scene_drel(by_region[reg.name], boxes)
+    spec = {"groups": a.groups, "classes": a.classes or None, "d0": a.d0, "edge": a.edge}
+    out = frame_prior(feats, spec)
+    print(f"рамок сцен {n_boxes}, объектов с scene_drel {sum(1 for f in feats if 'scene_drel' in f)} из {len(feats)}")
+    write_feats(out, Path(a.out))
+
+
+def cmd_calib(a) -> None:
+    from expds.post import site_calibration
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    spec = {"groups": a.groups, "classes": a.classes or None, "mode": a.mode, "alpha": a.alpha,
+            "q_level": a.q_level, "floor": a.floor, "min_n": a.min_n}
+    out = site_calibration(feats, spec)
+    print(f"откалибровано {sum(1 for f in out if 'conf_raw' in f)} из {len(out)}")
+    write_feats(out, Path(a.out))
+
+
 def cmd_pick(a) -> None:
     keep_mt = set(a.markups)
     keep_cls = set(a.classes or [])
@@ -314,6 +392,51 @@ def main() -> None:
     sh.add_argument("--all-regions", action="store_true", help="и неустойчивые сдвиги тоже")
     sh.add_argument("--out", required=True)
     sh.set_defaults(fn=cmd_shift)
+    gm = sub.add_parser("gormask", help="убрать курганы внутри выданных городищ ([post] kurgans_outside_hillforts)")
+    gm.add_argument("--src", nargs="+", required=True, help="OOF-файлы курганов (уже после порогов или с --taus табло)")
+    gm.add_argument("--hillforts", nargs="+", required=True, help="OOF-файлы городищ всех групп")
+    gm.add_argument("--taus", default="", help="JSON табло: городища ниже порога своей группы не маскируют")
+    gm.add_argument("--gor-min", type=float, default=0.0)
+    gm.add_argument("--buffer", type=float, default=0.0, help="м на земле; < 0 — сжать городище")
+    gm.add_argument("--groups", nargs="*", default=[], help="группы курганов (пусто — все)")
+    gm.add_argument("--gor-groups", nargs="*", default=[], help="группы городищ (пусто — все)")
+    gm.add_argument("--min-area", type=float, default=500.0)
+    gm.add_argument("--max-area", type=float, default=400_000.0)
+    gm.add_argument("--out", required=True)
+    gm.set_defaults(fn=cmd_gormask)
+    nb = sub.add_parser("neigh", help="множитель соседства курганов ([post] kurgan_neighbour_prior); пороги — табло")
+    nb.add_argument("--src", nargs="+", required=True, help="OOF-файлы курганов с низким порогом")
+    nb.add_argument("--groups", nargs="+", default=["li", "li_coarse", "li_mosaic"])
+    nb.add_argument("--count-groups", nargs="*", default=[])
+    nb.add_argument("--radius", type=float, default=200.0)
+    nb.add_argument("--k", type=float, default=3.0)
+    nb.add_argument("--floor", type=float, default=0.5)
+    nb.add_argument("--slope", type=float, default=0.5)
+    nb.add_argument("--cap", type=float, default=2.0)
+    nb.add_argument("--support-conf", type=float, default=None, help="опора соседа — абсолютная уверенность")
+    nb.add_argument("--taus", default="", help="или JSON табло: опора — порог своей группы (без приора)")
+    nb.add_argument("--out", required=True)
+    nb.set_defaults(fn=cmd_neigh)
+    fr = sub.add_parser("frame", help="приор кадра: уверенность у края сцены × множитель ([post] frame_prior)")
+    fr.add_argument("--train", required=True, help="корень трейна (рамки снимков участков)")
+    fr.add_argument("--src", nargs="+", required=True, help="OOF-файлы оптики с низким порогом")
+    fr.add_argument("--groups", nargs="+", default=["sp_or", "sp_focal", "sp_focal2"])
+    fr.add_argument("--classes", nargs="*", default=[])
+    fr.add_argument("--d0", type=float, default=0.5)
+    fr.add_argument("--edge", type=float, default=0.5)
+    fr.add_argument("--out", required=True)
+    fr.set_defaults(fn=cmd_frame)
+    cb = sub.add_parser("calib", help="калибровка уверенности по участку ([post.site_calibration]); пороги — табло")
+    cb.add_argument("--src", nargs="+", required=True, help="OOF-файлы с низким порогом (≤ --floor)")
+    cb.add_argument("--groups", nargs="+", required=True, help="группы порога, например li li_cnx sp_or")
+    cb.add_argument("--classes", nargs="*", default=[])
+    cb.add_argument("--mode", choices=("rank", "quantile", "mix"), default="mix")
+    cb.add_argument("--alpha", type=float, default=0.5)
+    cb.add_argument("--q-level", type=float, default=0.99)
+    cb.add_argument("--floor", type=float, default=0.05)
+    cb.add_argument("--min-n", type=int, default=30)
+    cb.add_argument("--out", required=True)
+    cb.set_defaults(fn=cmd_calib)
     a = ap.parse_args()
     a.fn(a)
 
