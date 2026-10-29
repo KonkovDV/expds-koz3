@@ -194,6 +194,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     refs = sorted({(k, v) for k, v in _strings(cfg) if v.startswith("models/") or
                    PurePosixPath(v).suffix in {".pt", ".pth", ".onnx", ".ckpt"}})
     verify = cfg.get("verify") or {}
+    pixgbm = (cfg.get("geophys") or {}).get("pixgbm") or {}
     rr = cfg.get("rerank_arch") or {}
     if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
@@ -201,14 +202,17 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (k.startswith("li_cnx.") and not (cfg.get("li_cnx") or {}).get("enabled"))   # bot-8 [li_cnx] выкл.
                and not (k.startswith("verify.") and not verify.get("enabled"))
-               and not (k.startswith("rerank_arch.") and not rr.get("enabled"))]
+               and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
+               and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
+               and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
         report("FAIL", "config", f"файлы из default.toml отсутствуют в архиве (модель молча выключится, "
                                  f"pipeline.py:98-101 на 24bd916): {missing}")
     else:
         report("PASS", "config", f"все {len(refs)} путей к весам из default.toml есть в архиве")
+    pix_files = check_pixgbm_static(pixgbm, names)
     models_in_zip = {n for n in names if n.startswith("models/") and not n.endswith("/")}
-    unused = sorted(models_in_zip - {v for _, v in refs})
+    unused = sorted(models_in_zip - {v for _, v in refs} - pix_files)
     if unused:
         report("WARN", "config", f"в архиве веса, на которые нет ссылок в конфиге (лишний объём): {unused[:6]}")
     t = cfg.get("time") or {}
@@ -358,6 +362,58 @@ def check_cnx(z: zipfile.ZipFile, cfg: dict | None) -> set:
     return third
 
 
+#: bot-3 PIXGBM (expds/geo_pixgbm.py): класс → файл модели в model_dir и методы, на которых он считается.
+#: load_models молча пропускает отсутствующий <k>.txt (region_feats: «нет poly.txt/finds.txt — классика»),
+#: поэтому при enabled=true каждый нужный файл обязан быть в архиве.
+PIX_METHODS = ("maggr", "etgr", "terfl")
+PIX_CLASS_MODEL = {"object_poly": ("poly", PIX_METHODS), "finds_points": ("finds", ("maggr",))}
+PIX_BACKEND_FILES = {"lleaves": (".lleaves.so", ".lleaves.json"), "treelite": (".tl2cgen.so",)}
+
+
+def pixgbm_needed(pix: dict) -> tuple[str, list[str], list[str]]:
+    """(model_dir, нужные .txt, файлы бэкенда) для [geophys.pixgbm] — умолчания как в pipeline.py/geo_pixgbm.py."""
+    md = str(pix.get("model_dir", "models/pixgbm/all")).strip("/")
+    classes = pix.get("classes", ["finds_points", "object_poly"])
+    maps = pix.get("maps", list(PIX_METHODS))
+    maps = maps if isinstance(maps, list) else []
+    need, extra = [], []
+    for c in classes if isinstance(classes, list) else []:
+        k, methods = PIX_CLASS_MODEL.get(c, (None, ()))
+        if k and set(methods) & set(maps):
+            need.append(f"{md}/{k}.txt")
+            extra += [f"{md}/{k}{suf}" for suf in PIX_BACKEND_FILES.get(str(pix.get("backend", "lightgbm")), ())]
+    return md, sorted(set(need)), sorted(set(extra))
+
+
+def check_pixgbm_static(pix: dict, names: set) -> set:
+    """При [geophys.pixgbm] enabled=true: файл модели на каждый класс (poly.txt / finds.txt) — иначе FAIL.
+    Возвращает пути pixgbm, на которые ссылается конфиг (для предупреждения о лишних весах)."""
+    if not pix.get("enabled"):
+        return set()
+    md, need, extra = pixgbm_needed(pix)
+    bad = []
+    classes, maps = pix.get("classes", ["finds_points", "object_poly"]), pix.get("maps", list(PIX_METHODS))
+    if not isinstance(classes, list) or set(classes) - set(PIX_CLASS_MODEL):
+        bad.append(f"geophys.pixgbm.classes={classes!r}: pix выдаёт только {sorted(PIX_CLASS_MODEL)}")
+    if not isinstance(maps, list) or any(m not in PIX_METHODS for m in maps):
+        bad.append(f"geophys.pixgbm.maps={maps!r}: нужен список из {PIX_METHODS}")
+    if bad:
+        report("FAIL", "config", "PIXGBM: " + "; ".join(bad))
+    if not need:
+        report("WARN", "config", f"PIXGBM включён, но по classes={classes!r} и maps={maps!r} ему нечего считать")
+        return set()
+    lost = [f for f in need if f not in names]
+    if lost:
+        report("FAIL", "config", f"PIXGBM включён, а моделей классов нет в архиве (pix молча уйдёт в классику, "
+                                 f"geo_pixgbm.load_models): {lost}")
+    else:
+        report("PASS", "config", f"PIXGBM: модели классов есть в архиве: {need}")
+    lost_x = [f for f in extra if f not in names]
+    if lost_x:
+        report("WARN", "config", f"PIXGBM backend={pix.get('backend')!r}: нет {lost_x} — фолбэк на lightgbm (медленнее)")
+    return set(need) | set(extra)
+
+
 # ---------------------------------------------------------------- импорты (статически)
 def _module_of(rel: str) -> str | None:
     p = PurePosixPath(rel)
@@ -487,6 +543,12 @@ try:
     from expds.pipeline import model_specs, model_files
     cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
     for name, sub in (cfg.get("geophys") or {}).items():
+        if name == "pixgbm" and isinstance(sub, dict):   # bot-3: maps — список методов, а не режим карт
+            pm = sub.get("maps", ["maggr", "etgr", "terfl"])
+            bad = [m for m in pm if m not in ("maggr", "etgr", "terfl")] if isinstance(pm, list) else [pm]
+            if bad:
+                out["cfg"].append(f"geophys.pixgbm.maps: неизвестные методы {bad} (нужен список из maggr, etgr, terfl)")
+            continue
         if isinstance(sub, dict) and "maps" in sub and sub["maps"] not in MAP_MODES:
             out["cfg"].append(f"geophys.{name}.maps={sub['maps']!r} не из {MAP_MODES} — ValueError, регион без геофизики")
     if "maps" in (cfg.get("geophys") or {}) and cfg["geophys"]["maps"] not in MAP_MODES:
@@ -528,6 +590,15 @@ try:
                 out["weights"].append({"markup": "rerank_arch", "file": rm, "ok": True, "classes": [f"{b.num_trees()} деревьев"]})
             except Exception as e:
                 out["weights"].append({"markup": "rerank_arch", "file": rr.get("model"), "ok": False, "err": repr(e)[:300]})
+        pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+        if pix.get("enabled"):
+            for f in json.loads(sys.argv[5]):
+                try:
+                    import lightgbm as lgb
+                    b = lgb.Booster(model_file=str(root / f))
+                    out["weights"].append({"markup": "pixgbm", "file": f, "ok": True, "classes": [f"{b.num_trees()} деревьев"]})
+                except Exception as e:
+                    out["weights"].append({"markup": "pixgbm", "file": f, "ok": False, "err": repr(e)[:300]})
         v = cfg.get("verify") or {}
         if v.get("enabled") and v.get("weights"):
             try:
@@ -591,10 +662,116 @@ def child_env(home: Path, threads: int) -> dict:
     return env
 
 
+#: Пакеты, отсутствие которых в образе допустимо (WARN), если КАЖДЫЙ их импорт в коде инференса защищён
+#: try/except с фолбэком: psutil — geo_pixgbm.process_t0 (иначе момент импорта), tl2cgen/lleaves — opt-in бэкенды
+#: PIXGBM (иначе lightgbm). Защищённость проверяется статически (guarded_import_sites), иначе FAIL.
+OPTIONAL_LAZY = {"psutil", "tl2cgen", "lleaves"}
+_FALLBACK_EXC = {"ImportError", "ModuleNotFoundError", "Exception", "BaseException"}
+
+
+def _handler_falls_back(h: ast.ExceptHandler) -> bool:
+    """except ловит ImportError (или шире) и не заканчивается raise — значит, дальше идёт фолбэк."""
+    if h.type is None:
+        caught = {"BaseException"}
+    else:
+        caught = {e.attr if isinstance(e, ast.Attribute) else getattr(e, "id", "")
+                  for e in (h.type.elts if isinstance(h.type, ast.Tuple) else [h.type])}
+    return bool(caught & _FALLBACK_EXC) and not isinstance(h.body[-1], ast.Raise)
+
+
+def _scan_guards(tree: ast.AST) -> tuple[list, list]:
+    """(импорты, вызовы): (имя, строка, защищён try/except-фолбэком в своей области, функция, класс).
+    Тело функции/лямбды — новая область (защита снаружи def не действует при вызове)."""
+    imps, calls = [], []
+
+    def walk(node, g, fn, cls):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for d in node.decorator_list + node.args.defaults + node.args.kw_defaults:
+                if d is not None:
+                    walk(d, g, fn, cls)
+            for st in node.body:
+                walk(st, False, node.name, cls)
+            return
+        if isinstance(node, ast.Lambda):
+            walk(node.body, False, "<lambda>", cls)
+            return
+        if isinstance(node, ast.ClassDef):
+            for st in node.body:
+                walk(st, g, fn, node.name)
+            return
+        if isinstance(node, (ast.Try, getattr(ast, "TryStar", ast.Try))):
+            ok = any(_handler_falls_back(h) for h in node.handlers)
+            for st in node.body:
+                walk(st, g or ok, fn, cls)
+            for part in (node.handlers, node.orelse, node.finalbody):
+                for st in part:
+                    walk(st, g, fn, cls)
+            return
+        if isinstance(node, ast.Import):
+            imps.extend([(a.name.split(".")[0], node.lineno, g, fn, cls) for a in node.names])
+        elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
+            imps.append((node.module.split(".")[0], node.lineno, g, fn, cls))
+        elif isinstance(node, ast.Call):
+            f = node.func
+            nm = f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", None)
+            if nm:
+                calls.append((nm, node.lineno, g, fn, cls))
+        for ch in ast.iter_child_nodes(node):
+            walk(ch, g, fn, cls)
+
+    walk(tree, False, None, None)
+    return imps, calls
+
+
+def guarded_import_sites(root: Path, reach: set, pkgs: set, depth: int = 3) -> dict:
+    """{пакет: [(место, защищён)]} по модулям из reach. Импорт защищён, если лежит в try с обработчиком
+    ImportError/ModuleNotFoundError/Exception/BaseException/голым except, который не заканчивается raise,
+    либо если он внутри функции (метода; для __init__ — класса), КАЖДЫЙ вызов которой в reach защищён так же
+    (рекурсивно, до depth уровней). Нет ни одного вызова — не защищён (консервативно)."""
+    info, _ = scan_imports(root)
+    imps, calls = [], []
+    for m in sorted(reach):
+        if m in info:
+            i, c = _scan_guards(ast.parse(info[m][3].read_text(encoding="utf-8")))
+            rel = info[m][3].relative_to(root).as_posix()
+            imps += [(rel,) + x for x in i]
+            calls += [(rel,) + x for x in c]
+
+    def ok(g, fn, cls, d, seen):
+        if g:
+            return True
+        if fn is None or d <= 0 or (fn, cls) in seen:
+            return False
+        targets = {cls} if fn in ("__init__", "__new__") and cls else {fn}
+        cs = [c for c in calls if c[1] in targets]
+        return bool(cs) and all(ok(c[3], c[4], c[5], d - 1, seen | {(fn, cls)}) for c in cs)
+
+    out = {p: [] for p in pkgs}
+    for rel, top, line, g, fn, cls in imps:
+        if top in out:
+            out[top].append((f"{rel}:{line}", ok(g, fn, cls, depth, frozenset())))
+    return out
+
+
+def unguarded_imports(root: Path, reach: set) -> set:
+    """Верхние имена пакетов, у которых хотя бы один импорт в reach НЕ защищён фолбэком (их отсутствие — FAIL)."""
+    info, _ = scan_imports(root)
+    pkgs = set().union(*(info[m][0] for m in reach if m in info))
+    return {k for k, v in guarded_import_sites(root, reach, pkgs).items() if not v or not all(g for _, g in v)}
+
+
+_module_level_imports = unguarded_imports   # совместимость с тестом бота 4 (work/review/cs_test/test_cs.py, T8)
+
+
 def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
     home = Path(tempfile.mkdtemp(prefix="b8home_"))
+    try:
+        pix = (tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8")).get("geophys") or {}).get("pixgbm") or {}
+        pix_txt = pixgbm_needed(pix)[1] if isinstance(pix, dict) and pix.get("enabled") else []
+    except Exception:
+        pix_txt = []
     cmd = sandbox_cmd([py, "-c", PROBE, str(root), json.dumps(sorted(reach)), json.dumps(sorted(third)),
-                       "1" if args.weights else "0"], args.cpus, not args.allow_net)
+                       "1" if args.weights else "0", json.dumps(pix_txt)], args.cpus, not args.allow_net)
     t0 = time.monotonic()
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout, env=child_env(home, args.threads),
@@ -608,6 +785,16 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
         return
     out = json.loads(line[len("PROBE_JSON="):])
     dt = time.monotonic() - t0
+    lazy = set(out["third_fail"]) & OPTIONAL_LAZY
+    sites = guarded_import_sites(root, reach, lazy) if lazy else {}
+    opt = {k: sites[k] for k in lazy if sites[k] and all(g for _, g in sites[k])}
+    for k in lazy - set(opt):
+        out["third_fail"][k] = (f"{out['third_fail'][k]}; импорт без try/except-фолбэка: "
+                                f"{[w for w, g in sites[k] if not g] or 'места импорта не найдены'}")
+    out["third_fail"] = {k: v for k, v in out["third_fail"].items() if k not in opt}
+    if opt:
+        report("WARN", "imports", f"не установлены в {py} необязательные пакеты; каждый импорт в try/except "
+                                  f"с фолбэком: {', '.join(f'{k} ({[w for w, _ in v]})' for k, v in sorted(opt.items()))}")
     if out["third_fail"]:
         report("FAIL", "imports", f"не установлены в {py}: {out['third_fail']}")
     if out["import_fail"]:

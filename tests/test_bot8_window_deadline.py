@@ -4,6 +4,7 @@
 У нас — те же бюджет [time] budget_s и дедлайн сторожа (watchdog.deadline_left), без новых часов.
 """
 import json
+import math
 from types import SimpleNamespace
 
 import numpy as np
@@ -77,9 +78,9 @@ def test_window_reserve_config():
 def test_watchdog_deadline_bounds_window_loop():
     """Если сторож (1800 − guard_margin_s от старта процесса) ближе бюджета — решает он."""
     clk = Clock(watchdog.PROCESS_START)
-    assert watchdog.deadline_left(180, clock=clk) == watchdog.PLATFORM_LIMIT_S - 180    # 1620 с
+    assert math.isclose(watchdog.deadline_left(180, clock=clk), watchdog.PLATFORM_LIMIT_S - 180, abs_tol=1e-6)  # 1620 с
     clk.t += 1600
-    assert watchdog.deadline_left(180, clock=clk) == 20
+    assert math.isclose(watchdog.deadline_left(180, clock=clk), 20, abs_tol=1e-6)   # float: 19.999999999996362
     guard = TimeGuard(10 ** 6, window_reserve_s=30, hard_left=lambda: watchdog.deadline_left(180, clock=clk),
                       clock=clk)
     assert guard.ok(60) and not guard.window_ok()
