@@ -29,6 +29,10 @@
                  правило разметки — насыпи внутри городищ курганами не размечаются.
   neigh          уверенность курганов × множитель соседства ([post] kurgan_neighbour_prior);
                  пороги групп после него подбирает табло заново.
+  frame          приор кадра ([post] frame_prior): уверенность объекта у края крупной сцены
+                 снижается; пороги групп после него подбирает табло заново.
+  calib          калибровка уверенности по участку без эталона ([post.site_calibration]):
+                 rank / quantile / mix внутри (участок, группа, класс); пороги — табло заново.
   shift          перенос объектов слоя на устойчивый сдвиг участка
                  (scripts/layer_shift.py или scripts/image_label_shift.py).
                  Остальные объекты файла не меняются. В сдачу не входит.
@@ -217,6 +221,45 @@ def cmd_neigh(a) -> None:
     write_feats(out, Path(a.out))
 
 
+def cmd_frame(a) -> None:
+    from expds.catalog import read_utm_json, scan_root
+    from expds.geophys import map_footprint
+    from expds.post import annotate_scene_drel, frame_prior
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    regions = {f.get("region_name") for f in feats}
+    by_region: dict[str, list[dict]] = defaultdict(list)
+    for f in feats:
+        by_region[f.get("region_name")].append(f)
+    n_boxes = 0
+    for reg in scan_root(a.train):
+        if reg.name not in regions:
+            continue
+        boxes: dict[str, list] = {}
+        for mt in ("ae", "sp_or", "or"):
+            for path in reg.rasters.get(mt, []):
+                fp = map_footprint(path, read_utm_json(reg.utm_json))
+                if fp is not None:
+                    boxes.setdefault(mt, []).append(fp)
+                    n_boxes += 1
+        annotate_scene_drel(by_region[reg.name], boxes)
+    spec = {"groups": a.groups, "classes": a.classes or None, "d0": a.d0, "edge": a.edge}
+    out = frame_prior(feats, spec)
+    print(f"рамок сцен {n_boxes}, объектов с scene_drel {sum(1 for f in feats if 'scene_drel' in f)} из {len(feats)}")
+    write_feats(out, Path(a.out))
+
+
+def cmd_calib(a) -> None:
+    from expds.post import site_calibration
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    spec = {"groups": a.groups, "classes": a.classes or None, "mode": a.mode, "alpha": a.alpha,
+            "q_level": a.q_level, "floor": a.floor, "min_n": a.min_n}
+    out = site_calibration(feats, spec)
+    print(f"откалибровано {sum(1 for f in out if 'conf_raw' in f)} из {len(out)}")
+    write_feats(out, Path(a.out))
+
+
 def cmd_pick(a) -> None:
     keep_mt = set(a.markups)
     keep_cls = set(a.classes or [])
@@ -374,6 +417,26 @@ def main() -> None:
     nb.add_argument("--taus", default="", help="или JSON табло: опора — порог своей группы (без приора)")
     nb.add_argument("--out", required=True)
     nb.set_defaults(fn=cmd_neigh)
+    fr = sub.add_parser("frame", help="приор кадра: уверенность у края сцены × множитель ([post] frame_prior)")
+    fr.add_argument("--train", required=True, help="корень трейна (рамки снимков участков)")
+    fr.add_argument("--src", nargs="+", required=True, help="OOF-файлы оптики с низким порогом")
+    fr.add_argument("--groups", nargs="+", default=["sp_or", "sp_focal", "sp_focal2"])
+    fr.add_argument("--classes", nargs="*", default=[])
+    fr.add_argument("--d0", type=float, default=0.5)
+    fr.add_argument("--edge", type=float, default=0.5)
+    fr.add_argument("--out", required=True)
+    fr.set_defaults(fn=cmd_frame)
+    cb = sub.add_parser("calib", help="калибровка уверенности по участку ([post.site_calibration]); пороги — табло")
+    cb.add_argument("--src", nargs="+", required=True, help="OOF-файлы с низким порогом (≤ --floor)")
+    cb.add_argument("--groups", nargs="+", required=True, help="группы порога, например li li_cnx sp_or")
+    cb.add_argument("--classes", nargs="*", default=[])
+    cb.add_argument("--mode", choices=("rank", "quantile", "mix"), default="mix")
+    cb.add_argument("--alpha", type=float, default=0.5)
+    cb.add_argument("--q-level", type=float, default=0.99)
+    cb.add_argument("--floor", type=float, default=0.05)
+    cb.add_argument("--min-n", type=int, default=30)
+    cb.add_argument("--out", required=True)
+    cb.set_defaults(fn=cmd_calib)
     a = ap.parse_args()
     a.fn(a)
 
