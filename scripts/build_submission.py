@@ -52,7 +52,16 @@ def collect() -> list[Path]:
     # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
         if pix.get("enabled") else []
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm:
+    sd = cfg.get("sp_dfine") or {}
+    # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+    dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+        if sd.get("enabled") else []
+    if sd.get("enabled"):
+        vend = ROOT / "inference" / "lib" / "vendor"
+        if not vend.is_dir():
+            sys.exit("[sp_dfine] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+        files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:
             continue
         seen.add(rel)

@@ -277,6 +277,20 @@ def _rename_keys(sd: dict) -> dict:
     return out
 
 
+VENDOR = "inference/lib/vendor"   # распакованные колёса bot-9 submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
+
+
+def _vendor_path(root: Path) -> None:
+    """transformers нет в образе: при наличии VENDOR в архиве ставим его первым в sys.path (pip на площадке нет)."""
+    import os
+    import sys
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+    v = Path(root) / VENDOR
+    if v.is_dir() and str(v) not in sys.path:
+        sys.path.insert(0, str(v))
+
+
 def load_models(st: dict, root: Path, device) -> list:
     """DFineForObjectDetection из каталогов весов (config.json + model.safetensors), только локально:
     конфиг → пустая модель → load_state_dict. Без from_pretrained/хаба (check_submission: нет сетевых
@@ -284,6 +298,7 @@ def load_models(st: dict, root: Path, device) -> list:
     пропущенные ключи допустимы только связанные (tied) копии уже загруженных тензоров."""
     import torch
     from safetensors.torch import load_file
+    _vendor_path(root)
     from transformers import DFineConfig, DFineForObjectDetection
 
     models = []
