@@ -2,10 +2,13 @@
 """Задача 11: выгрузка li_half (EXPDS_LI_HALF_DUMP, *.npz) → стек семей + новые курганы группы li_half.
 
 Стек читается потоком из FeatureCollection (по умолчанию /workspace/rerank/stack_arch.geojson) и
-пишется в JSONL по семьям без изменений. Из него же собираются якоря: курганы markup li групп li и
-li_mosaic с уверенностью не ниже принятого порога (KEPT_KURGAN_CONF main 24bd916) — ровно как
-pipeline.lidar_feats → li_half.new_only. Круги li_half ближе 12 м к якорю того же участка и класса
-выбрасываются, остальные дописываются с threshold_group=li_half. Порог li_half подбирает
+пишется в JSONL по семьям без изменений. Из него же собираются якоря: курганы markup li групп li,
+li_mosaic и li_dev (σ) с уверенностью не ниже принятого порога (KEPT_KURGAN_CONF main 24bd916) — ровно как
+pipeline.lidar_feats → li_half.new_only. Поправка 29.10 ~09:30 MSK (смоук бота 8): отбор ПЕРЕКРЁСТНЫЙ по классу —
+круг li_half любого класса выбрасывается, если ближе 12 м есть принятый курган ЛЮБОГО класса (целый или
+повреждённый) того же участка: метрика сопоставляет по классу, тот же холм в другом классе — ложное
+срабатывание. Якоря также — курганы канала σ (группа li_dev) с уверенностью ≥ порога main 24bd916
+(0,99131 / 0,99957): стек A их содержит и не меняется. Остальные дописываются с threshold_group=li_half. Порог li_half подбирает
 family_curves/honest_counts вложенно (на остальных семьях) — без ручного порога.
 
     python li_half_eval.py --dump DIR --out FAMDIR [--stack stack.geojson] [--min-conf 0.0]
@@ -28,7 +31,35 @@ from expds.naming import site_family  # noqa: E402
 
 KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
 KEPT = {"li": {"kurgany_povrezhdennye": 0.06415, "kurgany_tselye": 0.19422},
-        "li_mosaic": {"kurgany_povrezhdennye": 0.959005, "kurgany_tselye": 0.17042}}
+        "li_mosaic": {"kurgany_povrezhdennye": 0.959005, "kurgany_tselye": 0.17042},
+        "li_dev": {"kurgany_povrezhdennye": 0.99131, "kurgany_tselye": 0.99957}}   # configs/default.toml main 24bd916
+
+
+def is_anchor(pr: dict, regions: set) -> bool:
+    """Принятый курган стека (li / li_mosaic / li_dev, conf ≥ порога группы) на участке из выгрузки."""
+    g = str(pr.get("threshold_group") or pr.get("markup_type") or "")
+    cls = pr.get("class_name")
+    return (str(pr.get("region_name", "default_source")) in regions and pr.get("markup_type") == "li"
+            and cls in KUR and g in KEPT and float(pr.get("confidence") or 0) >= KEPT[g][cls])
+
+
+def drop_near_any(cands: list[dict], anchor_pts: list, dist_m: float) -> list[dict]:
+    """Перекрёстный по классу отбор: круг вон, если ближе dist_m (по точкам ground_point, метры) есть
+    якорь любого класса. anchor_pts — уже точки ground_point якорей этого участка."""
+    from shapely.strtree import STRtree
+    from expds.pipeline import ground_point
+
+    if not anchor_pts:
+        return list(cands)
+    tree = STRtree(anchor_pts)
+    kept = []
+    for f in cands:
+        if f.get("geom") is None:
+            kept.append(f); continue
+        p = ground_point(f["geom"])
+        if not any(anchor_pts[int(i)].distance(p) <= dist_m for i in tree.query(p.buffer(dist_m))):
+            kept.append(f)
+    return kept
 
 
 def half_feats(npz: Path, circle_m: float | None, min_conf: float, group: str):
@@ -59,7 +90,6 @@ def half_feats(npz: Path, circle_m: float | None, min_conf: float, group: str):
 def main() -> None:
     from shapely.geometry import mapping, shape
     from split_stack_by_family import iter_features
-    from expds.pipeline import drop_near_kurgans
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--dump", required=True)
@@ -92,24 +122,28 @@ def main() -> None:
         groups[g] += 1
         if g == a.group:
             raise SystemExit(f"в стеке уже есть группа {a.group}")
-        cls = pr.get("class_name")
-        if (reg in dump_regs and pr.get("markup_type") == "li" and cls in KUR and g in KEPT
-                and float(pr.get("confidence") or 0) >= KEPT[g][cls]):
-            # якорь хранится сразу точкой в метрах (ground_point), как его считает drop_near_kurgans
-            anchors.append({"geom": ground_point(shape(f["geometry"])), "class_name": cls, "region_name": reg})
-    stats = {"stack": n_stack, "anchors": len(anchors), "maps": 0, "regions": {}}
+        if is_anchor(pr, dump_regs):
+            # якорь хранится сразу точкой в метрах (ground_point); класс для отбора не важен
+            anchors.append({"geom": ground_point(shape(f["geometry"])), "class_name": pr.get("class_name"),
+                            "region_name": reg, "group": g})
+    stats = {"stack": n_stack, "anchors": len(anchors), "anchors_by_group": dict(Counter(x["group"] for x in anchors)),
+             "dedupe": "cross_class", "maps": 0, "regions": {}}
     new_n = 0
     for z in npzs:
         hf, meta = half_feats(z, a.circle_m, a.min_conf, a.group)
         reg = hf[0]["region_name"] if hf else z.stem.split("__")[0]
-        kept = drop_near_kurgans(hf, [x for x in anchors if x["region_name"] == reg], a.dedupe_m)
+        kept = drop_near_any(hf, [x["geom"] for x in anchors if x["region_name"] == reg], a.dedupe_m)
+        # справка: сколько осталось бы без якорей σ (в pipeline канал σ идёт ПОСЛЕ li_half и его не отсекает)
+        n_wo_dev = len(drop_near_any(hf, [x["geom"] for x in anchors if x["region_name"] == reg and x["group"] != "li_dev"],
+                                     a.dedupe_m))
         for f in kept:
             pr = {k: f[k] for k in ("class_name", "region_name", "markup_type", "threshold_group", "source", "original_crs")}
             pr.update(confidence=round(f["confidence"], 6), crs="EPSG:3857")
             fh(site_family(reg)).write(json.dumps({"type": "Feature", "geometry": mapping(f["geom"]), "properties": pr},
                                                   ensure_ascii=False) + "\n")
-        st = stats["regions"].setdefault(reg, {"maps": 0, "half": 0, "new": 0, "mosaic": False, "dem_factor": []})
-        st["maps"] += 1; st["half"] += len(hf); st["new"] += len(kept)
+        st = stats["regions"].setdefault(reg, {"maps": 0, "half": 0, "new": 0, "new_wo_li_dev": 0, "mosaic": False,
+                                               "dem_factor": []})
+        st["maps"] += 1; st["half"] += len(hf); st["new"] += len(kept); st["new_wo_li_dev"] += n_wo_dev
         st["mosaic"] |= bool(meta.get("mosaic")); st["dem_factor"].append(float(meta.get("dem_info_factor", 1)))
         stats["maps"] += 1; new_n += len(kept)
     for h in handles.values():
