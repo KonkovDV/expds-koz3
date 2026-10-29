@@ -1,0 +1,7 @@
+
+--- stderr ---
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    assert torch.cuda.is_available(), "torch.cuda.is_available() == False"
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError: torch.cuda.is_available() == False

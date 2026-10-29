@@ -1,0 +1,22 @@
+2026-10-28 23:06:53,037 expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-28 23:06:53,037 expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=2
+2026-10-28 23:06:53,037 expds.pipeline: устройство: cpu
+2026-10-28 23:06:53,050 expds.catalog: найдено регионов: 1 в sample_heavy
+2026-10-28 23:06:53,050 expds.pipeline: к разбору: регионов 1, LAS 0, растров 1 (ae 1), пропущено файлов 0
+2026-10-28 23:06:53,059 expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 4.2}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=2'}
+2026-10-28 23:06:53,207 expds.health: опись входа: {'regions': 1, 'rasters_by_modality': {'ae': 1}, 'las_files': 0, 'las_region_crs': {}, 'raster_read': {'ok': 1}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-28 23:06:53,215 expds.pipeline: 029_Вышегжа_3: лидар +0, 0.0 с, прошло 0 с
+2026-10-28 23:07:41,859 expds.pipeline: 029_Вышегжа_3: оптика +4, прошло 49 с
+2026-10-28 23:07:41,860 expds.crop_model: проверка кропа включена, файла весов нет (models/sp_crop.pt) — уверенности не меняю
+2026-10-28 23:07:41,920 expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-28 23:07:41,920 expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-28 23:07:41,920 expds.watchdog: устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+2026-10-28 23:07:41,920 expds.watchdog: конфиг SHA256 833130f4f6efb420c9490a6011ab52a1c100c17cf1ed4a954ede83d0b1172d01; бюджет 1500 с; запас 120 с
+2026-10-28 23:07:41,920 expds.watchdog: вход: регионов 1, из них с LAS 0; файлов LAS 0; растров ae 1; пропущено файлов 0
+2026-10-28 23:07:41,920 expds.watchdog: фазы: геофизика: сырых 0, 0 с, лидар: сырых 0, 0 с, оптика: сырых 4, 49 с, канал σ: сырых 0, 0 с
+2026-10-28 23:07:41,920 expds.watchdog: до порога 4, по слоям: ae 4
+2026-10-28 23:07:41,920 expds.watchdog: до порога по классам: fortifikatsii 4
+2026-10-28 23:07:41,920 expds.watchdog: записано 4, файл 164477 байт
+2026-10-28 23:07:41,920 expds.watchdog: после порога по классам: fortifikatsii 4
+2026-10-28 23:07:41,920 expds.watchdog: после порога по слоям: ae 4
+2026-10-28 23:07:41,920 expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====

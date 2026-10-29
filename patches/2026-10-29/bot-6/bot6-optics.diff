@@ -1,0 +1,483 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..edb213f 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -296,3 +296,10 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+ tile = 96
+ res = 0.5
+ min_conf = 0.05
++
++# [raster_fix]              # bot-6, опыт за флагом (bot6-optics), без секции — выключено
++# reproject_3857 = true     # снимок EPSG:3857 → UTM из UTM.json участка (трейн: 015 Демидовка, 029 Вышегжа_3)
++# int16_identity = true     # int16/uint16 со значениями 0–255 — как uint8, без растяжки p1–p99 (трейн: 106 ×3,04)
++# zero_nodata = true        # объект с внутренней точкой в поле нулей/nodata ≥ zero_nodata_px² выбрасывается (017, 036)
++# zero_nodata_px = 5
++# markups = ["ae"]
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..fd933c9 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -715,6 +715,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+ 
+     from .crs import WEB_MERCATOR, to_crs, usable_raster_crs
+     from .infer_nn import probs_to_features
++    from .raster import RASTER_FIX, raster_fix_on, zero_field_mask
+     from .tiles import MAX_UPSAMPLE, band_stats, fix_channels, to_uint8, working_res
+ 
+     as_centers = seg.meta.get("target") == "centers"
+@@ -751,6 +752,11 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
+                 img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
+                 probs = seg.predict(img)
++                zmask = None
++                if raster_fix_on("zero_nodata", markup):
++                    zmask = zero_field_mask(a, ds.nodata, int(RASTER_FIX.get("zero_nodata_px", 5)))
++                    if not zmask.any():
++                        zmask = None
+                 if as_centers:
+                     from .centers import centers_to_features
+ 
+@@ -768,10 +774,34 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+                 (ax, ay), (bx, by) = tr @ c0, tr @ c1
+                 core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
+                 core = to_crs(core, crs, WEB_MERCATOR) if crs else core
+-                feats += [f for f in found if core.contains(f["geom"].representative_point())]
++                found = [f for f in found if core.contains(f["geom"].representative_point())]
++                if zmask is not None and found:
++                    found = _outside_zero_field(found, zmask, tr, crs)
++                feats += found
+     return feats
+ 
+ 
++def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[dict]:
++    """[raster_fix] zero_nodata: убирает объекты, чья внутренняя точка в поле нулей окна (zmask H×W)."""
++    import math
++
++    from .crs import WEB_MERCATOR, transformer
++
++    inv = ~tr
++    t = transformer(WEB_MERCATOR, crs) if crs and crs != WEB_MERCATOR else None
++    h, w = zmask.shape
++    out = []
++    for f in found:
++        p = f["geom"].representative_point()
++        x, y = t.transform(p.x, p.y) if t else (p.x, p.y)
++        col, row = inv @ (x, y)
++        r, c = int(math.floor(row)), int(math.floor(col))
++        if 0 <= r < h and 0 <= c < w and zmask[r, c]:
++            continue
++        out.append(f)
++    return out
++
++
+ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
+         root: str | Path | None = None) -> dict:
+     """Полный прогон: геофизика, лидар, оптика, затем канал σ.
+@@ -786,6 +816,9 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+     root = Path(root or Path(__file__).resolve().parents[1])
+     cfg_path = Path(config_path or root / "configs" / "default.toml")
+     cfg = load_config(cfg_path)
++    from .raster import configure_raster_fix
++
++    configure_raster_fix(cfg.get("raster_fix"))  # bot-6: правки чтения снимков, без секции — выключено
+     infer = cfg.get("infer", {})
+     try:
+         from .infer_nn import configure_runtime
+diff --git a/expds/raster.py b/expds/raster.py
+index 26253db..3343be7 100644
+--- a/expds/raster.py
++++ b/expds/raster.py
+@@ -177,6 +177,74 @@ def needs_warp(ds) -> str | None:
+     return "geographic" if is_geographic(crs) else None
+ 
+ 
++#: Правки чтения снимков (bot-6, ветка bot6-optics). Секция конфига [raster_fix], по умолчанию пусто = выключено.
++#: reproject_3857 — снимок в EPSG:3857 читается перепроецированным в UTM участка (UTM.json):
++#:   на трейне 015 Демидовка и 029 Вышегжа_3, шаг файла 1,26 / 1,59 ед. при 0,73 / 0,88 м на земле.
++#: int16_identity — int16/uint16 со всеми значениями в 0–255 идёт в сеть как uint8, без растяжки p1–p99
++#:   (на трейне 106 Верхмарево растягивался ×3,04).
++#: zero_nodata — объект модели, чья внутренняя точка лежит в поле нулей (или nodata) не меньше
++#:   zero_nodata_px × zero_nodata_px пикселей окна, выбрасывается (чёрные поля 017 и 036 без nodata).
++#: markups — к каким разметкам растров это применяется, по умолчанию только ae.
++RASTER_FIX: dict = {}
++
++
++def configure_raster_fix(spec) -> None:
++    """Задаёт [raster_fix] на весь процесс. Кэш band_stats сбрасывается: растяжка от этого зависит."""
++    RASTER_FIX.clear()
++    if isinstance(spec, dict):
++        RASTER_FIX.update(spec)
++    try:
++        from .tiles import band_stats
++
++        band_stats.cache_clear()
++    except Exception:  # pragma: no cover - модуль tiles всегда есть
++        pass
++
++
++def raster_fix_on(key: str, markup: str | None) -> bool:
++    """Включена ли правка key для этой разметки (markup None — разметка неизвестна, правка не применяется)."""
++    if not RASTER_FIX.get(key) or markup is None:
++        return False
++    return markup in tuple(RASTER_FIX.get("markups") or ("ae",))
++
++
++def utm_json_crs(path: str | Path) -> str | None:
++    """CRS из UTM.json участка (ищется в папках выше файла): 'urn:ogc:def:crs:EPSG::32636' → 'EPSG:32636'."""
++    import json
++    import re
++
++    for d in list(Path(path).resolve().parents)[:3]:
++        f = d / "UTM.json"
++        if f.is_file():
++            try:
++                m = re.search(r"EPSG:+(\d+)", json.loads(f.read_text(encoding="utf-8-sig")).get("crs", ""))
++            except (OSError, ValueError, AttributeError):
++                return None
++            return f"EPSG:{m.group(1)}" if m else None
++    return None
++
++
++def _reproject_3857(src, path) -> bool:
++    from .naming import markup_type_of
++
++    if src.crs is None or not raster_fix_on("reproject_3857", markup_type_of(path)):
++        return False
++    try:
++        return src.crs.to_epsg() == 3857
++    except Exception:
++        return False
++
++
++def zero_field_mask(a: np.ndarray, nodata=None, px: int = 5) -> np.ndarray:
++    """H×W: True там, где пиксель лежит в поле нулей/nodata всех каналов размером не меньше px×px."""
++    from scipy.ndimage import minimum_filter
++
++    z = (a == 0).all(axis=0)
++    if nodata is not None:
++        z |= (a == nodata).all(axis=0)
++    return minimum_filter(z.astype(np.uint8), size=max(1, int(px)), mode="nearest") > 0
++
++
+ @contextmanager
+ def open_metric(path: str | Path):
+     """Растр в метрах. UTM и EPSG:3857 открываются как есть. Градусы и GCP — через WarpedVRT."""
+@@ -186,6 +254,18 @@ def open_metric(path: str | Path):
+ 
+     with rasterio.open(path) as src:
+         why = needs_warp(src)
++        if why is None and _reproject_3857(src, path):
++            # [raster_fix] reproject_3857 (bot-6): веб-меркатор → UTM участка, шаг файла = шаг на земле.
++            dst = utm_json_crs(path)
++            if dst is None:
++                b = src.bounds
++                lon, lat = transformer(src.crs.to_string(), "EPSG:4326").transform(
++                    (b.left + b.right) / 2, (b.bottom + b.top) / 2)
++                dst = utm_for_lonlat(lon, lat)
++            log.warning("%s: EPSG:3857 → перепроецирую в %s ([raster_fix] reproject_3857)", Path(path).name, dst)
++            with WarpedVRT(src, crs=dst, resampling=Resampling.bilinear) as vrt:
++                yield vrt
++            return
+         if why is None:
+             yield src
+             return
+diff --git a/expds/tiles.py b/expds/tiles.py
+index a2c2b63..396453b 100644
+--- a/expds/tiles.py
++++ b/expds/tiles.py
+@@ -82,12 +82,19 @@ def band_stats(path: str, markup: str, max_side: int = 2048) -> tuple | None:
+     from .raster import open_metric
+ 
+     with open_metric(path) as ds:
+-        if ds.dtypes[0] == "uint8":
++        dtype = ds.dtypes[0]
++        if dtype == "uint8":
+             return None
+         n = min(ds.count, 3)
+         f = max(1, math.ceil(max(ds.width, ds.height) / max_side))
+         a = ds.read(list(range(1, n + 1)), out_shape=(n, max(1, ds.height // f), max(1, ds.width // f)),
+                     resampling=Resampling.nearest, masked=True).astype(np.float32).filled(np.nan)
++    from .raster import raster_fix_on
++
++    if raster_fix_on("int16_identity", markup) and dtype in ("int16", "uint16"):
++        fin = a[np.isfinite(a)]
++        if fin.size and float(fin.min()) >= 0 and float(fin.max()) <= 255:
++            return tuple((0.0, 1.0) for _ in range(a.shape[0]))  # [raster_fix] int16_identity: как uint8
+     out = []
+     for x in a:
+         fin = x[np.isfinite(x)]
+diff --git a/scripts/ae_layer_audit.py b/scripts/ae_layer_audit.py
+new file mode 100644
+index 0000000..88876e4
+--- /dev/null
++++ b/scripts/ae_layer_audit.py
+@@ -0,0 +1,137 @@
++#!/usr/bin/env python3
++"""Аудит слоя аэрофото по эталону, без растров и без видеокарты (секунды CPU).
++
++Отвечает на вопрос «почему канал аэрофото почти ничего не находит»:
++- состав эталона ae по классам и участкам;
++- сколько курганов ae вообще достижимо копиями лидара (li_to_ae): внутри полигона ae
++  лежит внутренняя точка хоть одного кургана слоя li (потолок для копий при идеальном лидаре);
++- сколько курганов ae на участках без слоя li (копий там нет вовсе);
++- эквивалентный радиус курганов ae и li, м.
++
++Сдвиг слоёв ae относительно li — отдельно: scripts/layer_shift.py --gt <out_gt> --pairs li:ae.
++
++    python scripts/ae_layer_audit.py --root F:/2/train-expds-3 --out-gt work/gt_raw.geojson --out work/ae_audit.json
++
++Вход — сырые папки участков (06_*разметка/*_{Li,Ae,SpOr,Or}_<класс>.geojson, любая CRS из заголовка).
++"""
++from __future__ import annotations
++
++import argparse
++import collections
++import json
++import re
++from pathlib import Path
++
++import unicodedata
++
++import numpy as np
++
++CLS = {"курганы_поврежденные": "kurgany_povrezhdennye", "курганы_целые": "kurgany_tselye",
++       "городища": "gorodishcha", "фортификации": "fortifikatsii", "архитектуры": "arkhitektury"}
++MT = {"Li": "li", "Ae": "ae", "SpOr": "sp_or", "Or": "or"}
++K = ("kurgany_povrezhdennye", "kurgany_tselye")
++
++
++def build_gt(root: Path) -> list[dict]:
++    from expds.naming import normalize_code_text
++    from pyproj import Transformer
++    from shapely import transform as sh_transform
++    from shapely.geometry import mapping, shape
++
++    feats = []
++    for f in sorted(root.glob("*/06_*разметка/*.geojson")):
++        # код модальности ищем после замены кириллических двойников («Ае» → «Ae», expds.naming),
++        # класс берём из исходного имени (замена 1:1 по символам, позиции совпадают)
++        name = unicodedata.normalize("NFC", f.name)
++        m = re.search(r"_(Li|Ae|SpOr|Or)_(.+)\.geojson$", normalize_code_text(name))
++        cls_ru = name[m.start(2):m.end(2)].replace("ё", "е") if m else None
++        if not m or cls_ru not in CLS:
++            continue
++        fc = json.loads(f.read_text(encoding="utf-8"))
++        crs = ((fc.get("crs") or {}).get("properties") or {}).get("name", "")
++        tr = None
++        if crs and "3857" not in crs:
++            tr = Transformer.from_crs("OGC:CRS84" if "CRS84" in crs else crs, "EPSG:3857", always_xy=True)
++        for ft in fc.get("features", []):
++            if not ft.get("geometry") or not ft["geometry"].get("coordinates"):
++                continue        # пустые фигуры официальный _extract_geometry тоже отбрасывает
++            geom = ft["geometry"]
++            if tr is not None:
++                geom = mapping(sh_transform(shape(geom), lambda xy: np.column_stack(tr.transform(xy[:, 0], xy[:, 1]))))
++            feats.append({"type": "Feature", "geometry": geom,
++                          "properties": {"region_name": f.parts[-3], "markup_type": MT[m.group(1)],
++                                         "class_name": CLS[cls_ru]}})
++    return feats
++
++
++def audit(feats: list[dict]) -> dict:
++    from pyproj import Transformer
++    from shapely import STRtree
++    from shapely.geometry import shape
++
++    by: dict = collections.defaultdict(lambda: collections.defaultdict(list))
++    for f in feats:
++        p = f["properties"]
++        by[p["region_name"]][(p["markup_type"], p["class_name"])].append(shape(f["geometry"]))
++    to_ll = Transformer.from_crs(3857, 4326, always_xy=True)
++    tot: collections.Counter = collections.Counter()
++    radii: dict = collections.defaultdict(list)
++    rows = []
++    for region, layers in sorted(by.items()):
++        ae = {c: layers.get(("ae", c), []) for c in CLS.values()}
++        if not any(ae.values()):
++            continue
++        li = [g for c in K for g in layers.get(("li", c), [])]
++        aek = [g for c in K for g in ae[c]]
++        anyg = (aek or li or [g for v in ae.values() for g in v])[0]
++        lat = to_ll.transform(*anyg.representative_point().coords[0])[1]
++        k = float(np.cos(np.radians(lat)))  # масштаб EPSG:3857 → метры
++        for c in K:
++            radii[f"ae:{c}"] += [float(np.sqrt(g.area / np.pi) * k) for g in ae[c]]
++            radii[f"li:{c}"] += [float(np.sqrt(g.area / np.pi) * k) for g in layers.get(("li", c), [])]
++        reach = 0
++        if li and aek:
++            tree = STRtree([g.representative_point() for g in li])
++            reach = sum(1 for g in aek if len(tree.query(g, predicate="contains")))
++        rows.append({"region": region, "li_kurgans": len(li), **{c: len(v) for c, v in ae.items()},
++                     "ae_kurgans_reachable_by_li_copy": reach})
++        for c, v in ae.items():
++            tot[c] += len(v)
++        tot["ae_kurgans"] += len(aek)
++        tot["ae_kurgans_reachable_by_li_copy"] += reach
++        tot["ae_kurgans_in_regions_without_li"] += 0 if li else len(aek)
++        tot["ae_regions"] += 1
++        tot["ae_regions_without_li"] += 0 if li else 1
++    rad = {key: {"n": len(v), "median_m": round(float(np.median(v)), 2),
++                 "p10_m": round(float(np.percentile(v, 10)), 2), "p90_m": round(float(np.percentile(v, 90)), 2)}
++           for key, v in sorted(radii.items()) if v}
++    return {"totals": dict(tot), "eq_radius": rad, "regions": rows}
++
++
++def main() -> None:
++    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++    ap.add_argument("--root", required=True, help="папка трейна с участками")
++    ap.add_argument("--out-gt", default="", help="куда записать сводный эталон EPSG:3857 (для layer_shift.py)")
++    ap.add_argument("--out", default="")
++    args = ap.parse_args()
++    feats = build_gt(Path(args.root))
++    if args.out_gt:
++        Path(args.out_gt).parent.mkdir(parents=True, exist_ok=True)
++        Path(args.out_gt).write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False),
++                                     encoding="utf-8")
++    rep = audit(feats)
++    t = rep["totals"]
++    print(f"эталон: объектов {len(feats)}; участков с ae {t.get('ae_regions', 0)}, из них без li "
++          f"{t.get('ae_regions_without_li', 0)}")
++    print("ae по классам:", {c: t.get(c, 0) for c in CLS.values()})
++    print(f"курганов ae {t.get('ae_kurgans', 0)}: достижимо копией li {t.get('ae_kurgans_reachable_by_li_copy', 0)}, "
++          f"на участках без li {t.get('ae_kurgans_in_regions_without_li', 0)}")
++    for key, r in rep["eq_radius"].items():
++        print(f"  радиус {key}: n {r['n']}, медиана {r['median_m']} м, p10–p90 {r['p10_m']}–{r['p90_m']} м")
++    if args.out:
++        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
++        Path(args.out).write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tests/test_ae_layer_audit.py b/tests/test_ae_layer_audit.py
+new file mode 100644
+index 0000000..2450eb9
+--- /dev/null
++++ b/tests/test_ae_layer_audit.py
+@@ -0,0 +1,33 @@
++"""ae_layer_audit.build_gt: кириллический код «Ае» в имени файла учитывается, пустые фигуры отбрасываются (bot-6)."""
++import importlib.util
++import json
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def _mod():
++    spec = importlib.util.spec_from_file_location("ae_layer_audit", ROOT / "scripts" / "ae_layer_audit.py")
++    m = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(m)
++    return m
++
++
++def _fc(features):
++    return {"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::3857"}},
++            "features": features}
++
++
++def test_cyrillic_ae_and_empty(tmp_path):
++    d = tmp_path / "999_Тест" / "06_Тест_разметка"
++    d.mkdir(parents=True)
++    sq = {"type": "Polygon", "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]}
++    empty = {"type": "Polygon", "coordinates": []}
++    feats = [{"type": "Feature", "properties": {}, "geometry": sq},
++             {"type": "Feature", "properties": {}, "geometry": empty}]
++    (d / "Тест_Ae_курганы_целые.geojson").write_text(json.dumps(_fc(feats)), encoding="utf-8")       # латиница
++    (d / "Тест_Ае_курганы_поврежденные.geojson").write_text(json.dumps(_fc(feats)), encoding="utf-8")  # кириллица «Ае»
++    (d / "Тест_Li_архитектуры.geojson").write_text(json.dumps(_fc(feats[:1])), encoding="utf-8")
++    got = _mod().build_gt(tmp_path)
++    by = sorted((f["properties"]["markup_type"], f["properties"]["class_name"]) for f in got)
++    assert by == [("ae", "kurgany_povrezhdennye"), ("ae", "kurgany_tselye"), ("li", "arkhitektury")]
+diff --git a/tests/test_bot6_raster_fix.py b/tests/test_bot6_raster_fix.py
+new file mode 100644
+index 0000000..e49f2d2
+--- /dev/null
++++ b/tests/test_bot6_raster_fix.py
+@@ -0,0 +1,87 @@
++"""[raster_fix] (bot-6): правки чтения снимков ae за флагом. Без секции поведение прежнее."""
++import json
++
++import numpy as np
++import pytest
++
++rasterio = pytest.importorskip("rasterio")
++from rasterio.transform import from_origin
++from shapely.geometry import Point
++
++from expds.raster import configure_raster_fix, open_metric, utm_json_crs, zero_field_mask
++from expds.tiles import band_stats
++
++
++@pytest.fixture(autouse=True)
++def _reset():
++    configure_raster_fix(None)
++    yield
++    configure_raster_fix(None)
++
++
++def _site(tmp_path, crs, dtype, data, transform, nodata=None):
++    d = tmp_path / "015_Тест" / "03_Тест_Ae_немецкая"
++    d.mkdir(parents=True)
++    (tmp_path / "015_Тест" / "UTM.json").write_text(
++        json.dumps({"utm": "36N", "crs": "urn:ogc:def:crs:EPSG::32636"}), encoding="utf-8")
++    p = d / "01_Тест_Ae_немецкая.tif"
++    with rasterio.open(p, "w", driver="GTiff", width=data.shape[2], height=data.shape[1], count=data.shape[0],
++                       dtype=dtype, crs=crs, transform=transform, nodata=nodata) as ds:
++        ds.write(data)
++    return p
++
++
++def test_utm_json_crs(tmp_path):
++    p = _site(tmp_path, "EPSG:32636", "uint8", np.ones((1, 8, 8), np.uint8), from_origin(500000, 6000000, 1, 1))
++    assert utm_json_crs(p) == "EPSG:32636"
++
++
++def test_reproject_3857_only_with_flag(tmp_path):
++    # 32° в. д., 54,8° с. ш. — зона 36N; шаг файла 1,26 ед. 3857 ≈ 0,73 м на земле
++    a = (np.arange(64 * 64) % 251).reshape(1, 64, 64).astype(np.uint8)
++    p = _site(tmp_path, "EPSG:3857", "uint8", a, from_origin(3562223.0, 7331000.0, 1.26, 1.26))
++    with open_metric(p) as ds:
++        assert ds.crs.to_epsg() == 3857
++    configure_raster_fix({"reproject_3857": True})
++    with open_metric(p) as ds:
++        assert ds.crs.to_epsg() == 32636
++        assert 0.6 < abs(ds.res[0]) < 0.85
++        assert ds.read(1).any()
++    configure_raster_fix({"reproject_3857": True, "markups": ["sp_or"]})  # не та разметка — как было
++    with open_metric(p) as ds:
++        assert ds.crs.to_epsg() == 3857
++
++
++def test_int16_identity(tmp_path):
++    rng = np.random.default_rng(0)
++    a = rng.integers(130, 220, size=(1, 64, 64)).astype(np.int16)
++    a[:, :8] = -32768
++    p = _site(tmp_path, "EPSG:32636", "int16", a, from_origin(500000, 6000000, 1, 1), nodata=-32768)
++    (lo, k), = band_stats(str(p), "ae")
++    assert k > 2  # прежняя растяжка p1–p99 узкого диапазона
++    configure_raster_fix({"int16_identity": True})
++    assert band_stats(str(p), "ae") == ((0.0, 1.0),)
++    a2 = a.copy(); a2[0, 20, 20] = 400  # вне 0–255 — растяжка остаётся
++    p2 = p.with_name("02_Тест_Ae_немецкая.tif")
++    with rasterio.open(p, "r") as src:
++        prof = src.profile
++    with rasterio.open(p2, "w", **prof) as ds:
++        ds.write(a2)
++    assert band_stats(str(p2), "ae") != ((0.0, 1.0),)
++
++
++def test_zero_field_mask_and_filter():
++    import rasterio as rio
++
++    from expds.pipeline import _outside_zero_field
++
++    a = np.full((1, 40, 40), 120, np.uint8)
++    a[:, :, :20] = 0        # чёрное поле слева
++    a[:, 30, 30] = 0        # одиночный тёмный пиксель на снимке — не поле
++    m = zero_field_mask(a, None, 5)
++    assert m[10, 5] and m[10, 17] and not m[30, 30] and not m[10, 25]
++    tr = rio.Affine(1, 0, 0, 0, -1, 40)  # пиксель (col, row) → (col, 40 − row), CRS = 3857
++    found = [{"geom": Point(5.5, 40 - 10.5).buffer(1.0)},   # в поле нулей
++             {"geom": Point(30.5, 40 - 30.5).buffer(1.0)}]  # на снимке
++    kept = _outside_zero_field(found, m, tr, "EPSG:3857")
++    assert len(kept) == 1 and kept[0] is found[1]

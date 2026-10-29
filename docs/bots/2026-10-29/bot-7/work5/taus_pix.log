@@ -1,0 +1,9 @@
+full {"object_poly": {"etgr_pix": 0.545825, "maggr_pix": 0.684725, "terfl_pix": 0.746421}, "finds_points": {"maggr_pix": 0.902915}}
+k10 ['Гнёздово'] {"object_poly": {"maggr_pix": 0.684725}, "finds_points": {"maggr_pix": 0.911465}}
+k10 ['Семибратнее'] {"object_poly": {"etgr_pix": 0.545825, "maggr_pix": 0.65913, "terfl_pix": 0.746421}, "finds_points": {"maggr_pix": 0.889585}}
+k10 ['Судьбищи'] {"object_poly": {"etgr_pix": 0.545825, "maggr_pix": 0.684725, "terfl_pix": 0.746421}, "finds_points": {"maggr_pix": 0.88668}}
+lofo ['Гнёздово'] {"object_poly": {"maggr_pix": 0.684725}, "finds_points": {"maggr_pix": 0.911465}}
+lofo ['Семибратнее'] {"object_poly": {"etgr_pix": 0.545825, "maggr_pix": 0.65913, "terfl_pix": 0.746421}, "finds_points": {"maggr_pix": 0.889585}}
+lofo ['Судьбищи'] {"object_poly": {"etgr_pix": 0.545825, "maggr_pix": 0.684725, "terfl_pix": 0.746421}, "finds_points": {"maggr_pix": 0.88668}}
+DONE
+watchdog max RSS MB 8 exit 0

@@ -1,0 +1,31 @@
+== check_submission: /tmp/b8sc_dist/koz3_softceil_26e12ae_e33938ea.zip (2026-10-28 23:53:01 MSK)
+[PASS] zip       47 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 539.0 МиБ (565232762 Б), распакованный 542.0 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 14 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 27 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   26 модулей и 9 сторонних пакетов импортируются без сети (82.3 с)
+[PASS] weights   12 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0,1 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[PASS] smoke     main.py завершился за 82.7 с, пик RSS 982 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 1 с, лидар: сырых 30, 35 с, оптика: сырых 5, 14 с, канал σ: сырых 24, 6 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 71.5 с
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+== ИТОГ: PASS — FAIL 0, WARN 0, проверок 26, 170.2 с
+/tmp/b8sc_dist/koz3_softceil_26e12ae_e33938ea.zip  539.0 МиБ  47 файлов  sha256 e62b32ebd3fa5bc815b781d32d4faa37568342c10528d797cb90b683e2825462  (12.9 с)
+RSS guard: peak 1631 MiB, exit 0
+exit=0 wall=184s

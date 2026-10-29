@@ -1,0 +1,77 @@
+regions 210 den classes ['arkhitektury', 'finds_points', 'fortifikatsii', 'gorodishcha', 'kurgany_povrezhdennye', 'kurgany_tselye', 'object_poly'] DEN 100.0
+taus done
+loaded A {'Гнёздово': 1680, 'Семибратнее': 2322, 'Судьбищи': 598}
+loaded S {'Гнёздово': 2563, 'Семибратнее': 19616, 'Судьбищи': 3928}
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+gt {'Судьбищи': 221, 'Семибратнее': 2495, 'Гнёздово': 1845} gt outside geo fams {}
+keep k10 A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep k10 S geo_part 0.097954 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.3354, 330, 1110, 1083)} {'in': 5898, 'out': 5898}
+keep k10 s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep k10 Ss6 geo_part 0.099203 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.3473, 316, 842, 1083)} {'in': 5898, 'out': 5598}
+keep k10 time 5 s
+keep lofo A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep lofo S geo_part 0.097954 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.3354, 330, 1110, 1083)} {'in': 5898, 'out': 5898}
+keep lofo s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep lofo Ss6 geo_part 0.099203 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.3473, 316, 842, 1083)} {'in': 5898, 'out': 5598}
+keep lofo time 4 s
+keep seed0 A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep seed0 S geo_part 0.09852 {'finds_points': (0.6482, 2195, 2199, 3478), 'object_poly': (0.337, 330, 1091, 1083)} {'in': 5815, 'out': 5815}
+keep seed0 s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep seed0 Ss6 geo_part 0.099718 {'finds_points': (0.6481, 2194, 2197, 3478), 'object_poly': (0.3491, 316, 823, 1083)} {'in': 5815, 'out': 5530}
+keep seed0 time 3 s
+keep seed1 A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep seed1 S geo_part 0.097954 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.3354, 330, 1110, 1083)} {'in': 5898, 'out': 5898}
+keep seed1 s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep seed1 Ss6 geo_part 0.099203 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.3473, 316, 842, 1083)} {'in': 5898, 'out': 5598}
+keep seed1 time 3 s
+keep seed2 A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep seed2 S geo_part 0.097954 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.3354, 330, 1110, 1083)} {'in': 5898, 'out': 5898}
+keep seed2 s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep seed2 Ss6 geo_part 0.099203 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.3473, 316, 842, 1083)} {'in': 5898, 'out': 5598}
+keep seed2 time 4 s
+keep seed3 A geo_part 0.083471 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 4128, 'out': 4128}
+keep seed3 S geo_part 0.097954 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.3354, 330, 1110, 1083)} {'in': 5898, 'out': 5898}
+keep seed3 s6 geo_part 0.095103 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 4128, 'out': 3519}
+keep seed3 Ss6 geo_part 0.099203 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.3473, 316, 842, 1083)} {'in': 5898, 'out': 5598}
+keep seed3 time 3 s
+keep seed4 A geo_part 0.071302 {'finds_points': (0.4243, 1062, 931, 3478), 'object_poly': (0.2887, 236, 632, 1083)} {'in': 2861, 'out': 2861}
+keep seed4 S geo_part 0.084884 {'finds_points': (0.5634, 1607, 1240, 3478), 'object_poly': (0.2855, 251, 849, 1083)} {'in': 3947, 'out': 3947}
+keep seed4 s6 geo_part 0.082107 {'finds_points': (0.44, 1037, 397, 3478), 'object_poly': (0.3811, 340, 723, 1083)} {'in': 2861, 'out': 2497}
+keep seed4 Ss6 geo_part 0.085266 {'finds_points': (0.5641, 1607, 1225, 3478), 'object_poly': (0.2886, 232, 586, 1083)} {'in': 3947, 'out': 3650}
+keep seed4 time 3 s
+drop k10 A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop k10 S geo_part 0.077573 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4909}
+drop k10 s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop k10 Ss6 geo_part 0.077634 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4891}
+drop k10 time 1 s
+drop lofo A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop lofo S geo_part 0.077573 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4909}
+drop lofo s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop lofo Ss6 geo_part 0.077634 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4891}
+drop lofo time 2 s
+drop seed0 A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop seed0 S geo_part 0.07807 {'finds_points': (0.6482, 2195, 2199, 3478), 'object_poly': (0.1325, 89, 343, 1083)} {'in': 4826, 'out': 4826}
+drop seed0 s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop seed0 Ss6 geo_part 0.078059 {'finds_points': (0.6481, 2194, 2197, 3478), 'object_poly': (0.1325, 89, 343, 1083)} {'in': 4826, 'out': 4823}
+drop seed0 time 1 s
+drop seed1 A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop seed1 S geo_part 0.077573 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4909}
+drop seed1 s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop seed1 Ss6 geo_part 0.077634 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4891}
+drop seed1 time 2 s
+drop seed2 A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop seed2 S geo_part 0.077573 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4909}
+drop seed2 s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop seed2 Ss6 geo_part 0.077634 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4891}
+drop seed2 time 1 s
+drop seed3 A geo_part 0.067818 {'finds_points': (0.546, 1615, 1645, 3478), 'object_poly': (0.1322, 79, 67, 1083)} {'in': 3406, 'out': 3406}
+drop seed3 S geo_part 0.077573 {'finds_points': (0.6442, 2191, 2267, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4909}
+drop seed3 s6 geo_part 0.071534 {'finds_points': (0.57, 1564, 892, 3478), 'object_poly': (0.1454, 91, 156, 1083)} {'in': 3406, 'out': 2703}
+drop seed3 Ss6 geo_part 0.077634 {'finds_points': (0.6448, 2190, 2250, 3478), 'object_poly': (0.1316, 89, 362, 1083)} {'in': 4909, 'out': 4891}
+drop seed3 time 1 s
+drop seed4 A geo_part 0.042433 {'finds_points': (0.4243, 1062, 931, 3478), 'object_poly': (0.0, 0, 0, 1083)} {'in': 1993, 'out': 1993}
+drop seed4 S geo_part 0.057213 {'finds_points': (0.5634, 1607, 1240, 3478), 'object_poly': (0.0088, 5, 106, 1083)} {'in': 2958, 'out': 2958}
+drop seed4 s6 geo_part 0.043727 {'finds_points': (0.4373, 1049, 542, 3478), 'object_poly': (0.0, 0, 0, 1083)} {'in': 1993, 'out': 1591}
+drop seed4 Ss6 geo_part 0.057287 {'finds_points': (0.5641, 1607, 1225, 3478), 'object_poly': (0.0088, 5, 106, 1083)} {'in': 2958, 'out': 2943}
+drop seed4 time 1 s
+done

@@ -1,0 +1,15 @@
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/pydantic/main.py:129: PretrainWeightsCompatibilityWarning: RFDETRMediumConfig was instantiated with pretrain_weights=None. The model will be initialised from scratch, which typically produces lower accuracy than fine-tuning from the published checkpoint ('rf-detr-medium.pth').
+  'validate_assignment': lambda model, name, val: model.__pydantic_validator__.validate_assignment(model, name, val),  # pyright: ignore[reportAssignmentType]
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/pydantic/main.py:280: PretrainWeightsCompatibilityWarning: RFDETRMediumConfig was instantiated with pretrain_weights=None. The model will be initialised from scratch, which typically produces lower accuracy than fine-tuning from the published checkpoint ('rf-detr-medium.pth').
+  validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+[2026-10-29 07:17:15] [WARNING] rf-detr - Using a different number of positional encodings than DINOv2, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+[2026-10-29 07:17:15] [WARNING] rf-detr - Using patch size 16 instead of 14, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+dinov2: {'copied': 223, 'resampled': ['embeddings.position_embeddings (1, 1370, 384)->(1, 257, 384)', 'embeddings.patch_embeddings.projection.weight (384, 3, 14, 14)->(384, 3, 16, 16)'], 'missing': 0, 'source': '/workspace/koz3_shared/bot-5/tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056'}
+model rfdetr-m res 256 params 33.0M device cpu build 3.5s rss 637MB
+it 1/10 loss 17.6286 lr×0.500 3.69s/it rss 2088MB
+WATCHDOG: RSS 2369660KB > 2000MB, killing
+exit 143 watchdog_max_rss_MB 2314

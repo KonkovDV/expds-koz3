@@ -1,0 +1,11 @@
+k10 {'A_drop': 0.314615, 'A_keep': 0.333237, 'X_drop': 0.304072, 'X_keep': 0.322059, 'Xx_drop': 0.306488, 'Xx_keep': 0.324475, 'd_X_drop': -0.010543, 'd_X_keep': -0.011178, 'd_Xx_drop': -0.008127, 'd_Xx_keep': -0.008762}
+lofo {'A_drop': 0.315067, 'A_keep': 0.333689, 'X_drop': 0.304293, 'X_keep': 0.322357, 'Xx_drop': 0.306591, 'Xx_keep': 0.324654, 'd_X_drop': -0.010774, 'd_X_keep': -0.011332, 'd_Xx_drop': -0.008476, 'd_Xx_keep': -0.009035}
+seed0 {'A_drop': 0.314698, 'A_keep': 0.33332, 'X_drop': 0.310619, 'X_keep': 0.29735, 'Xx_drop': 0.311571, 'Xx_keep': 0.304224, 'd_X_drop': -0.004079, 'd_X_keep': -0.03597, 'd_Xx_drop': -0.003127, 'd_Xx_keep': -0.029096}
+seed1 {'A_drop': 0.306042, 'A_keep': 0.324664, 'X_drop': 0.296607, 'X_keep': 0.314782, 'Xx_drop': 0.299317, 'Xx_keep': 0.317492, 'd_X_drop': -0.009435, 'd_X_keep': -0.009882, 'd_Xx_drop': -0.006725, 'd_Xx_keep': -0.007172}
+seed2 {'A_drop': 0.318393, 'A_keep': 0.337015, 'X_drop': 0.304224, 'X_keep': 0.322458, 'Xx_drop': 0.308593, 'Xx_keep': 0.326827, 'd_X_drop': -0.014169, 'd_X_keep': -0.014557, 'd_Xx_drop': -0.0098, 'd_Xx_keep': -0.010188}
+seed3 {'A_drop': 0.309721, 'A_keep': 0.328343, 'X_drop': 0.302277, 'X_keep': 0.320542, 'Xx_drop': 0.304747, 'Xx_keep': 0.323011, 'd_X_drop': -0.007443, 'd_X_keep': -0.007801, 'd_Xx_drop': -0.004974, 'd_Xx_keep': -0.005332}
+seed4 {'A_drop': 0.29063, 'A_keep': 0.322307, 'X_drop': 0.28021, 'X_keep': 0.31117, 'Xx_drop': 0.282702, 'Xx_keep': 0.313662, 'd_X_drop': -0.010421, 'd_X_keep': -0.011136, 'd_Xx_drop': -0.007929, 'd_Xx_keep': -0.008645}
+X_drop d10=-0.010543 P=0.179 CI=[-0.02475;+0.00332] lofo=-0.010774 seeds+=0/5 heavy=-0.010483 new34=-0.005132 acc=False
+X_keep d10=-0.011178 P=0.179 CI=[-0.02645;+0.00332] lofo=-0.011332 seeds+=0/5 heavy=-0.011118 new34=-0.006368 acc=False
+Xx_drop d10=-0.008127 P=0.212 CI=[-0.02069;+0.00429] lofo=-0.008476 seeds+=0/5 heavy=-0.008067 new34=-0.003539 acc=False
+Xx_keep d10=-0.008762 P=0.212 CI=[-0.02268;+0.00429] lofo=-0.009035 seeds+=0/5 heavy=-0.008702 new34=-0.004778 acc=False

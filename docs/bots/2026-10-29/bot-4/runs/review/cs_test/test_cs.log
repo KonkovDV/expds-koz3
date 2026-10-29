@@ -1,0 +1,25 @@
+/usr/lib/python3.13/zipfile/__init__.py:1655: UserWarning: Duplicate name: 'models/surf_arch_r18.pt'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+T1 PIXGBM выкл., папки моделей нет (как в архиве 428257f)
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('PASS', 'все 15 путей к весам из default.toml есть в архиве')]
+T2 PIXGBM вкл., папки нет
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+T3 PIXGBM вкл., в папке только README (нет poly.txt/finds.txt)
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('PASS', 'все 15 путей к весам из default.toml есть в архиве')]
+T4 PIXGBM вкл., есть poly.txt, нет finds.txt
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('PASS', 'все 15 путей к весам из default.toml есть в архиве')]
+T5 PIXGBM вкл., poly.txt+finds.txt
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('PASS', 'все 15 путей к весам из default.toml есть в архиве')]
+T6 PIXGBM вкл., похожая папка models/pixgbm/all_old/ (префикс без «/»)
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+   NEW: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys")]
+T7 контроль: порог неизвестного класса
+   OLD: [('FAIL', "файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['geophys"), ('FAIL', 'ошибки значений: thresholds.kurgany_x (нет такого класса — порог молча игнорируется)')]
+   NEW: [('PASS', 'все 15 путей к весам из default.toml есть в архиве'), ('FAIL', 'ошибки значений: thresholds.kurgany_x (нет такого класса — порог молча игнорируется)')]
+T8 модульные импорты (NEW._module_level_imports): {'tl2cgen', 'expds'}
+   => psutil (импорт в функции без фолбэка) попадёт в WARN, tl2cgen (модуль, с фолбэком) — в FAIL

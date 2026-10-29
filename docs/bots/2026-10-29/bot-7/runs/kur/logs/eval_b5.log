@@ -1,0 +1,8 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+bot5 rows 430586 not in ours 0 fold mismatch 0 scored 430286 of 430586
+new cands 430586 D_MAX 400.0
+kurgany_povrezhdennye stack 649668 new pairs 427 1602s
+kurgany_tselye stack 617731 new pairs 128 1603s
+repro base 0.3146153226828423 {'kurgany_povrezhdennye': True, 'kurgany_tselye': True}
+WATCHDOG KILL rss=2103580KB
+watchdog max RSS MB 2054 exit 143

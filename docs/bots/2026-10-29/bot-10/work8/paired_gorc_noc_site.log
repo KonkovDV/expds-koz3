@@ -1,0 +1,9 @@
+k10 {'A_drop': 0.312067, 'A_keep': 0.327873, 'noc_drop': 0.31254, 'noc_keep': 0.328347, 'd_noc_drop': 0.000473, 'd_noc_keep': 0.000473}
+lofo {'A_drop': 0.312058, 'A_keep': 0.327865, 'noc_drop': 0.3141, 'noc_keep': 0.329906, 'd_noc_drop': 0.002042, 'd_noc_keep': 0.002042}
+seed0 {'A_drop': 0.312402, 'A_keep': 0.328208, 'noc_drop': 0.313128, 'noc_keep': 0.328934, 'd_noc_drop': 0.000726, 'd_noc_keep': 0.000726}
+seed1 {'A_drop': 0.305903, 'A_keep': 0.32171, 'noc_drop': 0.307072, 'noc_keep': 0.322879, 'd_noc_drop': 0.001169, 'd_noc_keep': 0.001169}
+seed2 {'A_drop': 0.315344, 'A_keep': 0.33115, 'noc_drop': 0.316087, 'noc_keep': 0.331894, 'd_noc_drop': 0.000743, 'd_noc_keep': 0.000743}
+seed3 {'A_drop': 0.305373, 'A_keep': 0.321179, 'noc_drop': 0.306335, 'noc_keep': 0.322142, 'd_noc_drop': 0.000962, 'd_noc_keep': 0.000962}
+seed4 {'A_drop': 0.287028, 'A_keep': 0.315889, 'noc_drop': 0.288274, 'noc_keep': 0.317135, 'd_noc_drop': 0.001246, 'd_noc_keep': 0.001246}
+noc_drop d10=+0.000473 P=0.700 CI=[-0.00118;+0.00214] lofo=+0.002042 seeds+=5/5 heavy=+0.000473 new34=+0.000000 acc=False
+noc_keep d10=+0.000473 P=0.700 CI=[-0.00118;+0.00214] lofo=+0.002042 seeds+=5/5 heavy=+0.000473 new34=+0.000000 acc=False

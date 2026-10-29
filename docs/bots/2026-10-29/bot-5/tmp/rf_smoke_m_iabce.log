@@ -1,0 +1,24 @@
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/pydantic/main.py:129: PretrainWeightsCompatibilityWarning: RFDETRMediumConfig was instantiated with pretrain_weights=None. The model will be initialised from scratch, which typically produces lower accuracy than fine-tuning from the published checkpoint ('rf-detr-medium.pth').
+  'validate_assignment': lambda model, name, val: model.__pydantic_validator__.validate_assignment(model, name, val),  # pyright: ignore[reportAssignmentType]
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/pydantic/main.py:280: PretrainWeightsCompatibilityWarning: RFDETRMediumConfig was instantiated with pretrain_weights=None. The model will be initialised from scratch, which typically produces lower accuracy than fine-tuning from the published checkpoint ('rf-detr-medium.pth').
+  validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+[2026-10-28 22:05:38] [WARNING] rf-detr - Using a different number of positional encodings than DINOv2, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+[2026-10-28 22:05:38] [WARNING] rf-detr - Using patch size 16 instead of 14, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+dinov2: {'copied': 223, 'resampled': ['embeddings.position_embeddings (1, 1370, 384)->(1, 257, 384)', 'embeddings.patch_embeddings.projection.weight (384, 3, 14, 14)->(384, 3, 16, 16)'], 'missing': 0, 'source': '/workspace/koz3_shared/bot-5/tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056'}
+model rfdetr-m res 256 params 33.0M device cpu build 11.8s rss 636MB
+it 1/10 loss 20.6297 lr×0.500 3.41s/it rss 1430MB
+it 2/10 loss 19.8913 lr×1.000 3.15s/it rss 1739MB
+it 3/10 loss 19.0114 lr×1.000 3.02s/it rss 1749MB
+it 4/10 loss 19.8678 lr×1.000 2.82s/it rss 1749MB
+it 5/10 loss 21.7406 lr×1.000 2.68s/it rss 1749MB
+it 6/10 loss 27.1849 lr×1.000 2.56s/it rss 1749MB
+it 7/10 loss 19.2170 lr×0.909 2.46s/it rss 1749MB
+it 8/10 loss 20.4543 lr×0.672 2.40s/it rss 1749MB
+it 9/10 loss 18.8872 lr×0.378 2.41s/it rss 1751MB
+it 10/10 loss 27.1639 lr×0.141 2.43s/it rss 1751MB
+{"build_s": 11.827287912368774, "dinov2": {"copied": 223, "resampled": ["embeddings.position_embeddings (1, 1370, 384)->(1, 257, 384)", "embeddings.patch_embeddings.projection.weight (384, 3, 14, 14)->(384, 3, 16, 16)"], "missing": 0, "source": "/workspace/koz3_shared/bot-5/tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056"}, "params_M": 32.982268, "cp_bank": 20, "train_s": 24.273122310638428, "s_per_iter": 2.427312231063843, "loss_first": 20.629722595214844, "loss_last": 27.163936614990234, "bs": 1, "accum": 1, "iters": 10, "pred_s": 0.7698428630828857, "pred_images": 4, "pred_boxes": 0, "peak_rss_MB": 1751.22265625, "total_s": 37.567198514938354, "model": "rfdetr-m", "size": 256, "loss": "iabce", "device": "cpu", "smoke": true, "torch": "2.15.0+cpu"}
+exit 0 watchdog_max_rss_MB 1748

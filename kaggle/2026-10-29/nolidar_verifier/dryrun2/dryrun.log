@@ -1,0 +1,20 @@
+  torch 2.15.0+cpu
+  torchvision 0.29.2+cpu
+  rasterio 1.5.2
+  pyproj 3.8.0
+  shapely 2.2.0
+  boto3 1.43.120
+  sklearn 1.6.1
+  cv2 5.0.0
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую переменные окружения
+[      1s] S3 OK
+[      1s] строк 1167 Counter({('c', 'kurgan', 0): 1107, ('c', 'kurgan', 1): 30, ('c', 'gor', 0): 15, ('g', 'kurgan', 1): 13, ('c', 'gor', 1): 1, ('g', 'gor', 1): 1})
+[      4s] кропы: участков 1/3, есть 268/1167
+[      4s] кропы готовы 1167 из 1167 без растра: 0
+[     59s] job {"head": "kurgan", "fold": 1, "init": "imagenet", "val_family": null, "n_train": 808, "pos_train": 16, "n_val": 0, "n_test": 334, "pos_test": 19, "best_val_auc": null, "test_auc": 0.43675856307435257, "test_auc_stack_conf": 0.6546365914786968, "sec": 55}
+[    127s] job {"head": "kurgan", "fold": 2, "init": "imagenet", "val_family": null, "n_train": 882, "pos_train": 27, "n_val": 0, "n_test": 263, "pos_test": 11, "best_val_auc": null, "test_auc": 0.2207792207792208, "test_auc_stack_conf": 0.8176406926406926, "sec": 67}
+[    187s] job {"head": "kurgan", "fold": 3, "init": "imagenet", "val_family": null, "n_train": 610, "pos_train": 43, "n_val": 0, "n_test": 540, "pos_test": 0, "best_val_auc": null, "test_auc": null, "test_auc_stack_conf": null, "sec": 61}
+[    190s] job {"head": "gor", "fold": 1, "init": "imagenet", "val_family": null, "n_train": 5, "pos_train": 2, "n_val": 0, "n_test": 12, "pos_test": 0, "best_val_auc": null, "test_auc": null, "test_auc_stack_conf": null, "sec": 2}
+[    190s] ГОТОВО {"kurgan": {"n": 1137, "pos": 30, "auc": 0.44480578139114724, "auc_stack_conf": 0.7179464016862391}, "gor": {"n": 12, "pos": 0, "auc": null, "auc_stack_conf": null}}
+maxrss MB 1898

@@ -1,0 +1,24 @@
+..ss.................................................................... [ 20%]
+........................................................................ [ 40%]
+..............................................................sssss..... [ 61%]
+........................................................................ [ 81%]
+.................................................ss...............       [100%]
+=============================== warnings summary ===============================
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3_shared/bot-7/repo/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3_shared/bot-7/repo/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+345 passed, 9 skipped, 3 deselected, 21 warnings in 62.97s (0:01:02)
+watchdog max RSS MB 1219 exit 0

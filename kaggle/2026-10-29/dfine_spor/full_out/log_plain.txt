@@ -1,0 +1,641 @@
+    13.8 std pip install: ['transformers==5.21.0']
+    26.7 std ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+    26.7 std gradio 6.26.0 requires pillow<13.0,>=8.0, but you have pillow 13.0.0 which is incompatible.
+    32.7 std   torch 2.11.0+cu128
+    38.4 std   torchvision 0.26.0+cu128
+    38.4 std   huggingface_hub 1.33.0
+    38.4 std   safetensors 0.8.0
+    41.2 std   transformers 5.21.0
+    41.2 std   rasterio 1.5.1
+    41.2 std   pyproj 3.7.2
+    41.2 std   shapely 2.1.2
+    41.2 std   boto3 1.41.5
+    41.2 std   cv2 4.14.0
+    41.2 std   scipy 1.16.3
+    43.4 std [      0s] CFG {"mode": "full", "res": 0.5, "tile": 640, "overlap": 160, "max_windows": 0, "bs": 8, "iters": 6000, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 2, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 8, "smoke_test_regions": 1, "deadline_h": 5.0, "folds": "4,2,1", "regions": "", "trainer": "bot5", "aug": "ours"}
+    43.7 std [      0s] GPU: ['Tesla T4', 'Tesla T4']
+    43.8 std [      0s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет
+    44.3 std [      1s] ключи S3 из приватного датасета
+    45.6 std [      2s] S3 OK
+    45.9 std Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+    45.9 std Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+    64.2 std Fetching 3 files:  33%|███▎      | 1/3 [00:00<00:00,  6.77it/s]Fetching 3 files: 100%|██████████| 3/3 [00:18<00:00,  6.81s/it]Fetching 3 files: 100%|██████████| 3/3 [00:18<00:00,  6.14s/it]
+    64.2 std [     21s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+    64.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+    64.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+    65.4 std Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  27%|██▋       | 320/1197 [00:00<00:00, 3179.38it/s]Loading weights:  53%|█████▎    | 638/1197 [00:00<00:00, 2883.03it/s]Loading weights:  78%|███████▊  | 929/1197 [00:00<00:00, 2847.46it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2877.64it/s]
+    65.5 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+    65.5 std Key                                                 | Status   |                                                                                        
+    65.5 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+    65.5 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+    65.5 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+    65.5 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+    65.5 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+    65.5 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+    65.5 std 
+    65.5 std Notes:
+    65.5 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+    65.5 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+    65.5 std Key                                                 | Status   |                                                                                        
+    65.5 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+    65.5 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+    65.5 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+    65.5 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+    65.5 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+    65.5 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+    65.5 std 
+    65.5 std Notes:
+    65.5 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+    65.9 std [     23s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 2 с
+    65.9 std [     23s] фолды OK: 189 участков, 96 семей
+    69.9 std [     26s] участков со SpOr в фолдах: 132; вне фолдов (пропуск): 0
+    69.9 std [     27s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55
+   142.0 std [     99s] чипы: 055_Курменту отброшено {'obj_nodata': 3}
+   145.3 std [    102s] чипы: 092_Шаты отброшено {'bg_nodata': 2}
+   148.5 std [    105s] чипы: 098_Таш_Коро_1 отброшено {'bg_nodata': 2}
+   165.9 std [    123s] чипы: 103_Гнёздово_Ольшанская отброшено {'bg_nodata': 4}
+   170.3 std [    127s] чипы: 119_Каменные_выкладки_9 отброшено {'bg_nodata': 2}
+   170.6 std [    127s] чипы: 115_Каменные_выкладки_5 отброшено {'bg_nodata': 2}
+   171.2 std [    128s] чипы: 057_Кабардино_Балкария отброшено {'obj_nodata': 5}
+   173.3 std [    130s] чипы: 125_Постройки_2 отброшено {'bg_nodata': 2}
+   174.5 std [    131s] чипы: 126_Постройки_3 отброшено {'bg_nodata': 2}
+   175.4 std [    132s] чипы: 128_Постройки_5 отброшено {'bg_nodata': 2}
+   175.8 std [    132s] чипы: 127_Постройки_4 отброшено {'bg_nodata': 2}
+   175.9 std [    132s] чипы: 129_Постройки_6 отброшено {'bg_nodata': 2}
+   401.1 std [    358s] чипов: 2919 (объектных 1736), участков 132, 331 с; классы: {'gorodishcha': 71, 'kurgany_povrezhdennye': 1158, 'kurgany_tselye': 219, 'fortifikatsii': 65, 'arkhitektury': 223}
+   401.1 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+   401.1 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+   402.1 std Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  26%|██▋       | 317/1197 [00:00<00:00, 3141.14it/s]Loading weights:  53%|█████▎    | 632/1197 [00:00<00:00, 2911.53it/s]Loading weights:  77%|███████▋  | 925/1197 [00:00<00:00, 2850.72it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2892.01it/s]
+   402.2 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+   402.2 std Key                                                 | Status   |                                                                                        
+   402.2 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+   402.2 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   402.2 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   402.2 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   402.2 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   402.2 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+   402.2 std 
+   402.2 std Notes:
+   402.2 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+   402.2 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+   402.2 std Key                                                 | Status   |                                                                                        
+   402.2 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+   402.2 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   402.2 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   402.2 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   402.2 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   402.2 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+   402.2 std 
+   402.2 std Notes:
+   402.2 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+   402.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+   402.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+   403.0 std Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  25%|██▌       | 303/1197 [00:00<00:00, 3028.59it/s]Loading weights:  51%|█████     | 606/1197 [00:00<00:00, 2706.44it/s]Loading weights:  73%|███████▎  | 879/1197 [00:00<00:00, 2671.38it/s]Loading weights:  96%|█████████▌| 1148/1197 [00:00<00:00, 2639.69it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2684.29it/s]
+   403.1 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+   403.1 std Key                                                 | Status   |                                                                                        
+   403.1 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+   403.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   403.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   403.1 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   403.1 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   403.1 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+   403.1 std 
+   403.1 std Notes:
+   403.1 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+   403.1 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+   403.1 std Key                                                 | Status   |                                                                                        
+   403.1 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+   403.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   403.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   403.1 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+   403.1 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+   403.1 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+   403.1 std 
+   403.1 std Notes:
+   403.1 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+   403.3 std [    360s] [gpu0 f4] train чипов 2109, test участков 43, бюджет обучения 1.87 ч
+   403.5 std [    360s] [gpu1 f2] train чипов 1616, test участков 49, бюджет обучения 4.07 ч
+   510.4 std [    467s] [gpu0 f4] [bot5] {'it': 100, 'loss': 79.1478, 's_it': 0.9248}
+   510.5 std [    467s] [gpu1 f2] [bot5] {'it': 100, 'loss': 142.8359, 's_it': 0.9181}
+   605.9 std [    562s] [gpu1 f2] [bot5] {'it': 200, 'loss': 62.2243, 's_it': 0.9327}
+   605.9 std [    562s] [gpu0 f4] [bot5] {'it': 200, 'loss': 48.1137, 's_it': 0.9305}
+   702.4 std [    659s] [gpu1 f2] [bot5] {'it': 300, 'loss': 43.6417, 's_it': 0.9224}
+   702.4 std [    659s] [gpu0 f4] [bot5] {'it': 300, 'loss': 38.1511, 's_it': 0.9242}
+   798.0 std [    755s] [gpu1 f2] [bot5] {'it': 400, 'loss': 37.3051, 's_it': 0.9269}
+   798.1 std [    755s] [gpu0 f4] [bot5] {'it': 400, 'loss': 34.2917, 's_it': 0.9174}
+   893.2 std [    850s] [gpu1 f2] [bot5] {'it': 500, 'loss': 35.0433, 's_it': 0.9287}
+   893.3 std [    850s] [gpu0 f4] [bot5] {'it': 500, 'loss': 32.9679, 's_it': 0.9235}
+   988.3 std [    945s] [gpu1 f2] [bot5] {'it': 600, 'loss': 34.2885, 's_it': 0.9196}
+   988.3 std [    945s] [gpu0 f4] [bot5] {'it': 600, 'loss': 31.8833, 's_it': 0.9148}
+  1084.1 std [   1041s] [gpu1 f2] [bot5] {'it': 700, 'loss': 33.5078, 's_it': 0.9261}
+  1084.1 std [   1041s] [gpu0 f4] [bot5] {'it': 700, 'loss': 31.02, 's_it': 0.9217}
+  1179.9 std [   1136s] [gpu1 f2] [bot5] {'it': 800, 'loss': 32.3671, 's_it': 0.9205}
+  1179.9 std [   1137s] [gpu0 f4] [bot5] {'it': 800, 'loss': 30.0682, 's_it': 0.9197}
+  1275.5 std [   1232s] [gpu1 f2] [bot5] {'it': 900, 'loss': 32.1218, 's_it': 0.9216}
+  1275.6 std [   1232s] [gpu0 f4] [bot5] {'it': 900, 'loss': 29.6918, 's_it': 0.9166}
+  1370.3 std [   1327s] [gpu1 f2] [bot5] {'it': 1000, 'loss': 31.0059, 's_it': 0.9129}
+  1370.4 std [   1327s] [gpu0 f4] [bot5] {'it': 1000, 'loss': 29.4234, 's_it': 0.9148}
+  1465.6 std [   1422s] [gpu1 f2] [bot5] {'it': 1100, 'loss': 30.6342, 's_it': 0.9083}
+  1465.7 std [   1422s] [gpu0 f4] [bot5] {'it': 1100, 'loss': 29.1688, 's_it': 0.9061}
+  1561.1 std [   1518s] [gpu1 f2] [bot5] {'it': 1200, 'loss': 30.6346, 's_it': 0.9129}
+  1561.2 std [   1518s] [gpu0 f4] [bot5] {'it': 1200, 'loss': 28.8024, 's_it': 0.9086}
+  1656.6 std [   1613s] [gpu1 f2] [bot5] {'it': 1300, 'loss': 30.4558, 's_it': 0.91}
+  1656.7 std [   1613s] [gpu0 f4] [bot5] {'it': 1300, 'loss': 28.5934, 's_it': 0.9087}
+  1752.2 std [   1709s] [gpu1 f2] [bot5] {'it': 1400, 'loss': 29.4684, 's_it': 0.9139}
+  1752.2 std [   1709s] [gpu0 f4] [bot5] {'it': 1400, 'loss': 27.9065, 's_it': 0.9113}
+  1847.6 std [   1804s] [gpu1 f2] [bot5] {'it': 1500, 'loss': 29.3797, 's_it': 0.9185}
+  1847.6 std [   1804s] [gpu0 f4] [bot5] {'it': 1500, 'loss': 28.0198, 's_it': 0.9128}
+  1942.3 std [   1899s] [gpu1 f2] [bot5] {'it': 1600, 'loss': 28.512, 's_it': 0.9075}
+  1942.4 std [   1899s] [gpu0 f4] [bot5] {'it': 1600, 'loss': 27.3143, 's_it': 0.906}
+  2037.4 std [   1994s] [gpu1 f2] [bot5] {'it': 1700, 'loss': 28.6535, 's_it': 0.9136}
+  2037.5 std [   1994s] [gpu0 f4] [bot5] {'it': 1700, 'loss': 27.8873, 's_it': 0.916}
+  2132.4 std [   2089s] [gpu1 f2] [bot5] {'it': 1800, 'loss': 28.852, 's_it': 0.9082}
+  2132.4 std [   2089s] [gpu0 f4] [bot5] {'it': 1800, 'loss': 26.7678, 's_it': 0.9094}
+  2227.8 std [   2184s] [gpu1 f2] [bot5] {'it': 1900, 'loss': 28.231, 's_it': 0.9227}
+  2227.9 std [   2185s] [gpu0 f4] [bot5] {'it': 1900, 'loss': 27.2241, 's_it': 0.922}
+  2323.7 std [   2280s] [gpu1 f2] [bot5] {'it': 2000, 'loss': 28.5151, 's_it': 0.9164}
+  2323.7 std [   2280s] [gpu0 f4] [bot5] {'it': 2000, 'loss': 26.8908, 's_it': 0.9169}
+  2418.8 std [   2375s] [gpu1 f2] [bot5] {'it': 2100, 'loss': 27.9477, 's_it': 0.9165}
+  2418.9 std [   2375s] [gpu0 f4] [bot5] {'it': 2100, 'loss': 26.9669, 's_it': 0.9124}
+  2514.8 std [   2471s] [gpu1 f2] [bot5] {'it': 2200, 'loss': 27.6464, 's_it': 0.9142}
+  2514.8 std [   2471s] [gpu0 f4] [bot5] {'it': 2200, 'loss': 26.4447, 's_it': 0.9118}
+  2610.5 std [   2567s] [gpu1 f2] [bot5] {'it': 2300, 'loss': 27.6083, 's_it': 0.9187}
+  2610.6 std [   2567s] [gpu0 f4] [bot5] {'it': 2300, 'loss': 26.5526, 's_it': 0.918}
+  2705.9 std [   2663s] [gpu1 f2] [bot5] {'it': 2400, 'loss': 27.2597, 's_it': 0.9182}
+  2706.0 std [   2663s] [gpu0 f4] [bot5] {'it': 2400, 'loss': 25.6266, 's_it': 0.9146}
+  2802.6 std [   2759s] [gpu1 f2] [bot5] {'it': 2500, 'loss': 27.5685, 's_it': 0.939}
+  2802.6 std [   2759s] [gpu0 f4] [bot5] {'it': 2500, 'loss': 25.7134, 's_it': 0.9307}
+  2898.8 std [   2855s] [gpu1 f2] [bot5] {'it': 2600, 'loss': 27.1032, 's_it': 0.9203}
+  2898.8 std [   2855s] [gpu0 f4] [bot5] {'it': 2600, 'loss': 25.1783, 's_it': 0.9163}
+  2994.7 std [   2951s] [gpu1 f2] [bot5] {'it': 2700, 'loss': 26.0687, 's_it': 0.9241}
+  2994.8 std [   2951s] [gpu0 f4] [bot5] {'it': 2700, 'loss': 25.6525, 's_it': 0.9156}
+  3090.9 std [   3048s] [gpu1 f2] [bot5] {'it': 2800, 'loss': 26.5409, 's_it': 0.9266}
+  3091.0 std [   3048s] [gpu0 f4] [bot5] {'it': 2800, 'loss': 25.6811, 's_it': 0.9264}
+  3186.3 std [   3143s] [gpu1 f2] [bot5] {'it': 2900, 'loss': 26.0521, 's_it': 0.9197}
+  3186.4 std [   3143s] [gpu0 f4] [bot5] {'it': 2900, 'loss': 24.4934, 's_it': 0.9162}
+  3282.2 std [   3239s] [gpu1 f2] [bot5] {'it': 3000, 'loss': 26.0809, 's_it': 0.9244}
+  3282.3 std [   3239s] [gpu0 f4] [bot5] {'it': 3000, 'loss': 24.9907, 's_it': 0.9193}
+  3378.0 std [   3335s] [gpu1 f2] [bot5] {'it': 3100, 'loss': 26.406, 's_it': 0.9219}
+  3378.1 std [   3335s] [gpu0 f4] [bot5] {'it': 3100, 'loss': 25.7181, 's_it': 0.9183}
+  3473.3 std [   3430s] [gpu0 f4] [bot5] {'it': 3200, 'loss': 24.189, 's_it': 0.9088}
+  3473.3 std [   3430s] [gpu1 f2] [bot5] {'it': 3200, 'loss': 25.6947, 's_it': 0.9137}
+  3569.7 std [   3526s] [gpu1 f2] [bot5] {'it': 3300, 'loss': 25.9172, 's_it': 0.946}
+  3569.7 std [   3526s] [gpu0 f4] [bot5] {'it': 3300, 'loss': 24.8839, 's_it': 0.9319}
+  3665.5 std [   3622s] [gpu1 f2] [bot5] {'it': 3400, 'loss': 26.0865, 's_it': 0.916}
+  3665.5 std [   3622s] [gpu0 f4] [bot5] {'it': 3400, 'loss': 24.2574, 's_it': 0.913}
+  3760.8 std [   3717s] [gpu1 f2] [bot5] {'it': 3500, 'loss': 26.3636, 's_it': 0.9177}
+  3760.9 std [   3717s] [gpu0 f4] [bot5] {'it': 3500, 'loss': 24.5042, 's_it': 0.9203}
+  3856.5 std [   3813s] [gpu1 f2] [bot5] {'it': 3600, 'loss': 25.6714, 's_it': 0.9252}
+  3856.6 std [   3813s] [gpu0 f4] [bot5] {'it': 3600, 'loss': 24.2742, 's_it': 0.9231}
+  3952.8 std [   3909s] [gpu1 f2] [bot5] {'it': 3700, 'loss': 25.2022, 's_it': 0.9176}
+  3952.8 std [   3909s] [gpu0 f4] [bot5] {'it': 3700, 'loss': 24.6777, 's_it': 0.9249}
+  4047.6 std [   4004s] [gpu1 f2] [bot5] {'it': 3800, 'loss': 25.0929, 's_it': 0.9116}
+  4047.6 std [   4004s] [gpu0 f4] [bot5] {'it': 3800, 'loss': 24.0914, 's_it': 0.905}
+  4144.2 std [   4101s] [gpu1 f2] [bot5] {'it': 3900, 'loss': 25.4921, 's_it': 0.9245}
+  4144.3 std [   4101s] [gpu0 f4] [bot5] {'it': 3900, 'loss': 24.1178, 's_it': 0.9243}
+  4240.5 std [   4197s] [gpu1 f2] [bot5] {'it': 4000, 'loss': 25.9144, 's_it': 0.9283}
+  4240.6 std [   4197s] [gpu0 f4] [bot5] {'it': 4000, 'loss': 24.2098, 's_it': 0.9217}
+  4336.8 std [   4293s] [gpu0 f4] [bot5] {'it': 4100, 'loss': 23.7161, 's_it': 0.9255}
+  4336.8 std [   4293s] [gpu1 f2] [bot5] {'it': 4100, 'loss': 25.0318, 's_it': 0.9262}
+  4431.9 std [   4389s] [gpu0 f4] [bot5] {'it': 4200, 'loss': 24.1508, 's_it': 0.9182}
+  4432.0 std [   4389s] [gpu1 f2] [bot5] {'it': 4200, 'loss': 24.8284, 's_it': 0.9125}
+  4527.7 std [   4484s] [gpu1 f2] [bot5] {'it': 4300, 'loss': 24.8185, 's_it': 0.9189}
+  4527.7 std [   4484s] [gpu0 f4] [bot5] {'it': 4300, 'loss': 24.0445, 's_it': 0.9238}
+  4623.6 std [   4580s] [gpu1 f2] [bot5] {'it': 4400, 'loss': 24.7189, 's_it': 0.9228}
+  4623.7 std [   4580s] [gpu0 f4] [bot5] {'it': 4400, 'loss': 23.8316, 's_it': 0.9175}
+  4719.2 std [   4676s] [gpu1 f2] [bot5] {'it': 4500, 'loss': 25.5589, 's_it': 0.9238}
+  4719.2 std [   4676s] [gpu0 f4] [bot5] {'it': 4500, 'loss': 23.8462, 's_it': 0.9234}
+  4814.4 std [   4771s] [gpu1 f2] [bot5] {'it': 4600, 'loss': 24.742, 's_it': 0.9174}
+  4814.5 std [   4771s] [gpu0 f4] [bot5] {'it': 4600, 'loss': 23.673, 's_it': 0.917}
+  4909.4 std [   4866s] [gpu1 f2] [bot5] {'it': 4700, 'loss': 24.801, 's_it': 0.917}
+  4909.5 std [   4866s] [gpu0 f4] [bot5] {'it': 4700, 'loss': 23.8586, 's_it': 0.9122}
+  5005.0 std [   4962s] [gpu1 f2] [bot5] {'it': 4800, 'loss': 25.0572, 's_it': 0.9157}
+  5005.1 std [   4962s] [gpu0 f4] [bot5] {'it': 4800, 'loss': 23.7215, 's_it': 0.9122}
+  5100.6 std [   5057s] [gpu1 f2] [bot5] {'it': 4900, 'loss': 25.2703, 's_it': 0.9213}
+  5100.6 std [   5057s] [gpu0 f4] [bot5] {'it': 4900, 'loss': 23.6479, 's_it': 0.9208}
+  5196.7 std [   5153s] [gpu1 f2] [bot5] {'it': 5000, 'loss': 24.9363, 's_it': 0.9246}
+  5196.7 std [   5153s] [gpu0 f4] [bot5] {'it': 5000, 'loss': 23.3675, 's_it': 0.9194}
+  5293.0 std [   5250s] [gpu1 f2] [bot5] {'it': 5100, 'loss': 24.9546, 's_it': 0.9194}
+  5293.1 std [   5250s] [gpu0 f4] [bot5] {'it': 5100, 'loss': 23.3539, 's_it': 0.918}
+  5388.6 std [   5345s] [gpu1 f2] [bot5] {'it': 5200, 'loss': 24.9327, 's_it': 0.9222}
+  5388.7 std [   5345s] [gpu0 f4] [bot5] {'it': 5200, 'loss': 23.3216, 's_it': 0.9161}
+  5484.2 std [   5441s] [gpu1 f2] [bot5] {'it': 5300, 'loss': 25.0622, 's_it': 0.9227}
+  5484.3 std [   5441s] [gpu0 f4] [bot5] {'it': 5300, 'loss': 23.3931, 's_it': 0.9231}
+  5580.0 std [   5537s] [gpu1 f2] [bot5] {'it': 5400, 'loss': 25.381, 's_it': 0.9279}
+  5580.1 std [   5537s] [gpu0 f4] [bot5] {'it': 5400, 'loss': 23.755, 's_it': 0.9178}
+  5675.5 std [   5632s] [gpu1 f2] [bot5] {'it': 5500, 'loss': 24.8349, 's_it': 0.922}
+  5675.6 std [   5632s] [gpu0 f4] [bot5] {'it': 5500, 'loss': 23.6139, 's_it': 0.9166}
+  5771.1 std [   5728s] [gpu1 f2] [bot5] {'it': 5600, 'loss': 25.1531, 's_it': 0.9221}
+  5771.1 std [   5728s] [gpu0 f4] [bot5] {'it': 5600, 'loss': 23.293, 's_it': 0.9175}
+  5867.3 std [   5824s] [gpu1 f2] [bot5] {'it': 5700, 'loss': 24.4583, 's_it': 0.9269}
+  5867.4 std [   5824s] [gpu0 f4] [bot5] {'it': 5700, 'loss': 23.5857, 's_it': 0.9195}
+  5962.5 std [   5919s] [gpu1 f2] [bot5] {'it': 5800, 'loss': 25.2575, 's_it': 0.9183}
+  5962.6 std [   5919s] [gpu0 f4] [bot5] {'it': 5800, 'loss': 23.7839, 's_it': 0.9126}
+  6059.0 std [   6016s] [gpu1 f2] [bot5] {'it': 5900, 'loss': 25.0351, 's_it': 0.9216}
+  6059.1 std [   6016s] [gpu0 f4] [bot5] {'it': 5900, 'loss': 23.0884, 's_it': 0.918}
+  6155.2 std [   6112s] [gpu1 f2] [bot5] {'it': 6000, 'loss': 25.1685, 's_it': 0.9283}
+  6155.2 std [   6112s] [gpu0 f4] [bot5] {'it': 6000, 'loss': 23.4481, 's_it': 0.9236}
+  6155.6 std Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]
+  6156.0 std Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s][A
+  6156.0 std Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.88it/s][AWriting model shards: 100%|██████████| 1/1 [00:00<00:00,  2.88it/s]
+  6156.0 std [   6113s] [infer] 035_Шумгора 01_Шумгора_SpOr_спутник.tif: 2751x1683 px, окон 24
+  6156.0 std Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.74it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.74it/s]
+  6156.1 std [   6113s] [infer] 015_Демидовка 01_Демидовка_SpOr_спутник.tif: 2221x1553 px, окон 15
+  6162.3 std [   6119s] [infer] 035_Шумгора: готово 24 окон за 6 с
+  6163.5 std [   6120s] [infer] 035_Шумгора 02_Шумгора_SpOr_спутник.tif: 3755x2034 px, окон 32
+  6164.3 std [   6121s] [infer] 015_Демидовка: готово 15 окон за 8 с
+  6164.8 std [   6121s] [infer] 026_Золотаревка 01_Золотаревка_SpOr_спутник.tif: 1899x1315 px, окон 12
+  6168.1 std [   6125s] [infer] 026_Золотаревка: готово 12 окон за 3 с
+  6168.5 std [   6125s] [infer] 031_Новотитаровская 01_Новотитаровская_SpOr_спутник.tif: 1293x756 px, окон 6
+  6169.1 std [   6126s] [infer] 035_Шумгора: готово 32 окон за 6 с
+  6170.5 std [   6127s] [infer] 048_Калмыкия_1 01_Калмыкия_1_SpOr_спутник.tif: 3543x2362 px, окон 40
+  6171.5 std [   6128s] [infer] 031_Новотитаровская: готово 6 окон за 3 с
+  6171.9 std [   6129s] [infer] 034_Усть_река 01_Усть_река_SpOr_спутник.tif: 1285x1147 px, окон 9
+  6175.2 std [   6132s] [infer] 034_Усть_река: готово 9 окон за 3 с
+  6175.9 std [   6132s] [infer] 063_Верхнее_Казачье 01_Верхнее_Казачье_SpOr_спутник.tif: 1829x1436 px, окон 12
+  6176.6 std [   6133s] [infer] 048_Калмыкия_1: готово 40 окон за 6 с
+  6178.9 std [   6136s] [infer] 048_Калмыкия_1 02_Калмыкия_1_SpOr_спутник.tif: 2301x1528 px, окон 15
+  6179.5 std [   6136s] [infer] 063_Верхнее_Казачье: готово 12 окон за 4 с
+  6179.9 std [   6136s] [infer] 077_Русская_Тростянка 01_Русская_Тростянка_SpOr_спутник.tif: 3982x2693 px, окон 48
+  6183.4 std [   6140s] [infer] 048_Калмыкия_1: готово 15 окон за 4 с
+  6184.0 std [   6141s] [infer] 049_Калмыкия_2 01_Калмыкия_2_SpOr_спутник.tif: 1901x1262 px, окон 12
+  6186.1 std [   6143s] [infer] 077_Русская_Тростянка: готово 48 окон за 6 с
+  6187.7 std [   6144s] [infer] 079_Городище 01_Городище_SpOr_спутник.tif: 2199x1696 px, окон 20
+  6187.9 std [   6144s] [infer] 049_Калмыкия_2: готово 12 окон за 4 с
+  6188.4 std [   6145s] [infer] 049_Калмыкия_2 02_Калмыкия_2_SpOr_спутник.tif: 1898x1263 px, окон 12
+  6190.1 std [   6147s] [infer] 049_Калмыкия_2: готово 12 окон за 2 с
+  6191.0 std [   6148s] [infer] 049_Калмыкия_2 03_Калмыкия_2_SpOr_спутник.tif: 1779x924 px, окон 8
+  6191.1 std [   6148s] [infer] 079_Городище: готово 20 окон за 3 с
+  6192.0 std [   6149s] [infer] 079_Городище 02_Городище_SpOr_спутник.tif: 1812x958 px, окон 8
+  6194.4 std [   6151s] [infer] 049_Калмыкия_2: готово 8 окон за 3 с
+  6194.8 std [   6151s] [infer] 049_Калмыкия_2 04_Калмыкия_2_SpOr_спутник.tif: 1779x924 px, окон 8
+  6195.5 std [   6152s] [infer] 079_Городище: готово 8 окон за 3 с
+  6195.8 std [   6152s] [infer] 081_Костомаровское 01_Костомаровское_SpOr_спутник.tif: 1415x1085 px, окон 6
+  6196.7 std [   6153s] [infer] 081_Костомаровское: готово 6 окон за 1 с
+  6196.9 std [   6154s] [infer] 082_Артпозиции_Иссык_Куль 01_Артпозиции_Иссык_Куль_SpOr_спутник.tif: 1165x894 px, окон 6
+  6197.7 std [   6154s] [infer] 082_Артпозиции_Иссык_Куль: готово 6 окон за 1 с
+  6198.1 std [   6155s] [infer] 082_Артпозиции_Иссык_Куль 02_Артпозиции_Иссык_Куль_SpOr_спутник.tif: 1078x563 px, окон 2
+  6198.3 std [   6155s] [infer] 049_Калмыкия_2: готово 8 окон за 4 с
+  6198.8 std [   6155s] [infer] 057_Кабардино_Балкария 01_Кабардино_Балкария_SpOr_спутник.tif: 1983x1277 px, окон 12
+  6200.3 std [   6157s] [infer] 057_Кабардино_Балкария: готово 12 окон за 2 с
+  6200.9 std [   6158s] [infer] 057_Кабардино_Балкария 02_Кабардино_Балкария_SpOr_спутник.tif: 2211x1280 px, окон 15
+  6201.7 std [   6158s] [infer] 082_Артпозиции_Иссык_Куль: готово 2 окон за 4 с
+  6201.8 std [   6158s] [infer] 087_Кароол_Дюбе 01_Кароол_Дюбе_SpOr_спутник.tif: 4338x2563 px, окон 54
+  6202.8 std [   6159s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с
+  6203.7 std [   6160s] [infer] 057_Кабардино_Балкария 03_Кабардино_Балкария_SpOr_спутник.tif: 2211x1280 px, окон 15
+  6205.7 std [   6162s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с
+  6206.6 std [   6163s] [infer] 057_Кабардино_Балкария 04_Кабардино_Балкария_SpOr_спутник.tif: 4420x2559 px, окон 45
+  6210.1 std [   6167s] [infer] 087_Кароол_Дюбе: готово 54 окон за 8 с
+  6212.5 std [   6169s] [infer] 091_Сакские_курганы 01_Сакские_курганы_SpOr_спутник.tif: 761x675 px, окон 4
+  6213.0 std [   6170s] [infer] 091_Сакские_курганы: готово 4 окон за 1 с
+  6213.3 std [   6170s] [infer] 098_Таш_Коро_1 01_Таш_Коро_1_SpOr_спутник.tif: 463x362 px, окон 1
+  6213.6 std [   6170s] [infer] 098_Таш_Коро_1: готово 1 окон за 0 с
+  6213.6 std [   6170s] [infer] 099_Таш_Коро_2 01_Таш_Коро_2_SpOr_спутник.tif: 923x722 px, окон 4
+  6214.1 std [   6171s] [infer] 099_Таш_Коро_2: готово 4 окон за 0 с
+  6214.7 std [   6171s] [infer] 100_Торт_Куль 01_Торт_Куль_SpOr_спутник.tif: 931x728 px, окон 4
+  6215.1 std [   6172s] [infer] 100_Торт_Куль: готово 4 окон за 0 с
+  6215.4 std [   6172s] [infer] 130_Курганы_1 01_Курганы_1_SpOr_спутник.tif: 1823x1414 px, окон 12
+  6216.6 std [   6173s] [infer] 057_Кабардино_Балкария: готово 45 окон за 10 с
+  6219.4 std [   6176s] [infer] 057_Кабардино_Балкария 05_Кабардино_Балкария_SpOr_спутник.tif: 4419x2558 px, окон 45
+  6219.5 std [   6176s] [infer] 130_Курганы_1: готово 12 окон за 4 с
+  6220.0 std [   6177s] [infer] 131_Курганы_2 01_Курганы_2_SpOr_спутник.tif: 3646x2827 px, окон 48
+  6225.8 std [   6182s] [infer] 057_Кабардино_Балкария: готово 45 окон за 6 с
+  6227.2 std [   6184s] [infer] 131_Курганы_2: готово 48 окон за 7 с
+  6230.1 std [   6187s] [infer] 057_Кабардино_Балкария 06_Кабардино_Балкария_SpOr_спутник.tif: 4419x2557 px, окон 45
+  6231.1 std [   6188s] [infer] 132_Курганы_3 01_Курганы_3_SpOr_спутник.tif: 1861x1458 px, окон 12
+  6232.7 std [   6189s] [infer] 132_Курганы_3: готово 12 окон за 2 с
+  6233.3 std [   6190s] [infer] 133_Курганы_4 01_Курганы_4_SpOr_спутник.tif: 3214x2518 px, окон 35
+  6236.5 std [   6193s] [infer] 057_Кабардино_Балкария: готово 45 окон за 6 с
+  6239.1 std [   6196s] [infer] 057_Кабардино_Балкария 07_Кабардино_Балкария_SpOr_спутник.tif: 2209x1278 px, окон 15
+  6241.0 std [   6198s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с
+  6241.8 std [   6198s] [infer] 057_Кабардино_Балкария 08_Кабардино_Балкария_SpOr_спутник.tif: 2209x1278 px, окон 15
+  6241.9 std [   6198s] [infer] 133_Курганы_4: готово 35 окон за 9 с
+  6243.5 std [   6200s] [infer] 134_Курганы_5 01_Курганы_5_SpOr_спутник.tif: 1607x1259 px, окон 12
+  6244.3 std [   6201s] [infer] 057_Кабардино_Балкария: готово 15 окон за 3 с
+  6245.2 std [   6202s] [infer] 057_Кабардино_Балкария 09_Кабардино_Балкария_SpOr_спутник.tif: 2463x1867 px, окон 20
+  6245.6 std [   6202s] [infer] 134_Курганы_5: готово 12 окон за 2 с
+  6246.3 std [   6203s] [infer] 135_Курганы_6 01_Курганы_6_SpOr_спутник.tif: 1586x1232 px, окон 9
+  6247.5 std [   6204s] [infer] 135_Курганы_6: готово 9 окон за 1 с
+  6247.9 std [   6204s] [infer] 136_Курганы_7 01_Курганы_7_SpOr_спутник.tif: 1586x1232 px, окон 9
+  6248.3 std [   6205s] [infer] 057_Кабардино_Балкария: готово 20 окон за 3 с
+  6249.1 std [   6206s] [infer] 062_Каменка 01_Каменка_SpOr_спутник.tif: 2892x1709 px, окон 24
+  6249.5 std [   6206s] [infer] 136_Курганы_7: готово 9 окон за 2 с
+  6249.9 std [   6206s] [infer] 137_Курганы_8 01_Курганы_8_SpOr_спутник.tif: 1590x1235 px, окон 9
+  6251.2 std [   6208s] [infer] 137_Курганы_8: готово 9 окон за 1 с
+  6251.7 std [   6208s] [infer] 138_Курганы_9 01_Курганы_9_SpOr_спутник.tif: 793x616 px, окон 2
+  6252.1 std [   6209s] [infer] 138_Курганы_9: готово 2 окон за 0 с
+  6252.2 std [   6209s] [infer] 139_Курганы_10 01_Курганы_10_SpOr_спутник.tif: 3169x2460 px, окон 35
+  6252.6 std [   6209s] [infer] 062_Каменка: готово 24 окон за 4 с
+  6253.8 std [   6210s] [infer] 070_Архангельское 01_Архангельское_SpOr_спутник.tif: 4247x2872 px, окон 54
+  6257.4 std [   6214s] [infer] 139_Курганы_10: готово 35 окон за 5 с
+  6258.6 std [   6215s] [infer] 140_Курганы_11 01_Курганы_11_SpOr_спутник.tif: 1586x1232 px, окон 9
+  6259.9 std [   6217s] [infer] 140_Курганы_11: готово 9 окон за 1 с
+  6260.4 std [   6217s] [infer] 141_Курганы_12 01_Курганы_12_SpOr_спутник.tif: 1587x1232 px, окон 9
+  6261.7 std [   6218s] [infer] 141_Курганы_12: готово 9 окон за 1 с
+  6262.1 std [   6219s] [infer] 142_Курганы_13 01_Курганы_13_SpOr_спутник.tif: 1603x1258 px, окон 12
+  6263.4 std [   6220s] [infer] 142_Курганы_13: готово 12 окон за 1 с
+  6264.2 std [   6221s] [infer] 143_Курганы_14 01_Курганы_14_SpOr_спутник.tif: 1578x1228 px, окон 9
+  6264.4 std [   6221s] [infer] 070_Архангельское: готово 54 окон за 11 с
+  6266.9 std [   6224s] [infer] 070_Архангельское 02_Архангельское_SpOr_спутник.tif: 2958x1520 px, окон 18
+  6267.3 std [   6224s] [infer] 143_Курганы_14: готово 9 окон за 3 с
+  6267.6 std [   6224s] [infer] 144_Курганы_15 01_Курганы_15_SpOr_спутник.tif: 1579x1229 px, окон 9
+  6268.9 std [   6225s] [infer] 144_Курганы_15: готово 9 окон за 1 с
+  6269.3 std [   6226s] [infer] 145_Курганы_16 01_Курганы_16_SpOr_спутник.tif: 1579x1229 px, окон 9
+  6270.5 std [   6227s] [infer] 145_Курганы_16: готово 9 окон за 1 с
+  6270.9 std [   6228s] [infer] 146_Курганы_17 01_Курганы_17_SpOr_спутник.tif: 3157x2458 px, окон 35
+  6273.6 std [   6230s] [infer] 070_Архангельское: готово 18 окон за 7 с
+  6274.5 std [   6231s] [infer] 072_Белая_Гора 01_Белая_Гора_SpOr_спутник.tif: 2389x1616 px, окон 20
+  6275.9 std [   6232s] [infer] 146_Курганы_17: готово 35 окон за 5 с
+  6277.4 std [   6234s] [infer] 147_Курганы_18 01_Курганы_18_SpOr_спутник.tif: 3157x2458 px, окон 35
+  6277.9 std [   6235s] [infer] 072_Белая_Гора: готово 20 окон за 3 с
+  6279.0 std [   6236s] [infer] 073_Тоссор 01_Тоссор_SpOr_спутник.tif: 1419x904 px, окон 6
+  6280.2 std [   6237s] [infer] 073_Тоссор: готово 6 окон за 1 с
+  6280.7 std [   6237s] [infer] 075_Мостище 01_Мостище_SpOr_спутник.tif: 2793x2131 px, окон 30
+  6283.2 std [   6240s] [infer] 147_Курганы_18: готово 35 окон за 6 с
+  6284.4 std [   6241s] [infer] 148_Курганы_19 01_Курганы_19_SpOr_спутник.tif: 1578x1229 px, окон 9
+  6285.0 std [   6242s] [infer] 075_Мостище: готово 30 окон за 4 с
+  6287.0 std [   6244s] [infer] 075_Мостище 02_Мостище_SpOr_спутник.tif: 4382x2248 px, окон 45
+  6287.3 std [   6244s] [infer] 148_Курганы_19: готово 9 окон за 3 с
+  6287.7 std [   6244s] [infer] 149_Курганы_20 01_Курганы_20_SpOr_спутник.tif: 1579x1229 px, окон 9
+  6288.9 std [   6245s] [infer] 149_Курганы_20: готово 9 окон за 1 с
+  6289.2 std [   6246s] [infer] 150_Курганы_21 01_Курганы_21_SpOr_спутник.tif: 1579x1229 px, окон 9
+  6290.4 std [   6247s] [infer] 150_Курганы_21: готово 9 окон за 1 с
+  6290.7 std [   6247s] [infer] 151_Курганы_22 01_Курганы_22_SpOr_спутник.tif: 1858x1439 px, окон 12
+  6292.3 std [   6249s] [infer] 151_Курганы_22: готово 12 окон за 2 с
+  6292.9 std [   6249s] [infer] 152_Курганы_23 01_Курганы_23_SpOr_спутник.tif: 838x655 px, окон 4
+  6293.4 std [   6250s] [infer] 152_Курганы_23: готово 4 окон за 0 с
+  6293.6 std [   6250s] [infer] 153_Курганы_24 01_Курганы_24_SpOr_спутник.tif: 840x656 px, окон 4
+  6294.1 std [   6251s] [infer] 153_Курганы_24: готово 4 окон за 0 с
+  6294.4 std [   6251s] [infer] 154_Курганы_25 01_Курганы_25_SpOr_спутник.tif: 840x655 px, окон 4
+  6294.8 std [   6251s] [infer] 075_Мостище: готово 45 окон за 8 с
+  6294.9 std [   6251s] [infer] 154_Курганы_25: готово 4 окон за 0 с
+  6295.6 std [   6252s] [infer] 155_Курганы_26 01_Курганы_26_SpOr_спутник.tif: 4366x2785 px, окон 54
+  6297.1 std [   6254s] [infer] 076_Маяцкая_крепость 01_Маяцкая_крепость_SpOr_спутник.tif: 2655x1795 px, окон 24
+  6300.0 std [   6257s] [infer] 076_Маяцкая_крепость: готово 24 окон за 3 с
+  6301.2 std [   6258s] [infer] 080_Верхний_Карабут 01_Верхний_Карабут_SpOr_спутник.tif: 1418x1088 px, окон 6
+  6302.1 std [   6259s] [infer] 080_Верхний_Карабут: готово 6 окон за 1 с
+  6302.4 std [   6259s] [infer] 083_Барскоон 01_Барскоон_SpOr_спутник.tif: 2169x1282 px, окон 15
+  6304.2 std [   6261s] [infer] 083_Барскоон: готово 15 окон за 2 с
+  6305.1 std [   6262s] [infer] 089_Конур_Елен 01_Конур_Елен_SpOr_спутник.tif: 2530x1495 px, окон 15
+  6307.1 std [   6264s] [infer] 089_Конур_Елен: готово 15 окон за 2 с
+  6308.1 std [   6265s] [infer] 107_Сары_Булун 01_Сары_Булун_SpOr_спутник.tif: 543x417 px, окон 1
+  6310.3 std [   6267s] [infer] 107_Сары_Булун: готово 1 окон за 2 с
+  6310.4 std [   6267s] [infer] 111_Каменные_выкладки_1 01_Каменные_выкладки_1_SpOr_спутник.tif: 922x721 px, окон 4
+  6311.0 std [   6268s] [infer] 111_Каменные_выкладки_1: готово 4 окон за 1 с
+  6311.3 std [   6268s] [infer] 112_Каменные_выкладки_2 01_Каменные_выкладки_2_SpOr_спутник.tif: 924x722 px, окон 4
+  6311.8 std [   6268s] [infer] 112_Каменные_выкладки_2: готово 4 окон за 0 с
+  6312.0 std [   6269s] [infer] 113_Каменные_выкладки_3 01_Каменные_выкладки_3_SpOr_спутник.tif: 924x722 px, окон 4
+  6312.5 std [   6269s] [infer] 113_Каменные_выкладки_3: готово 4 окон за 1 с
+  6312.8 std [   6269s] [infer] 114_Каменные_выкладки_4 01_Каменные_выкладки_4_SpOr_спутник.tif: 924x722 px, окон 4
+  6313.3 std [   6270s] [infer] 114_Каменные_выкладки_4: готово 4 окон за 1 с
+  6313.6 std [   6270s] [infer] 115_Каменные_выкладки_5 01_Каменные_выкладки_5_SpOr_спутник.tif: 462x361 px, окон 1
+  6313.6 std [   6270s] [infer] 155_Курганы_26: готово 54 окон за 18 с
+  6316.9 std [   6274s] [infer] 156_Курганы_27 01_Курганы_27_SpOr_спутник.tif: 4360x2786 px, окон 54
+  6317.0 std [   6274s] [infer] 115_Каменные_выкладки_5: готово 1 окон за 3 с
+  6317.0 std [   6274s] [infer] 116_Каменные_выкладки_6 01_Каменные_выкладки_6_SpOr_спутник.tif: 1846x1444 px, окон 12
+  6318.6 std [   6275s] [infer] 116_Каменные_выкладки_6: готово 12 окон за 2 с
+  6319.2 std [   6276s] [infer] 117_Каменные_выкладки_7 01_Каменные_выкладки_7_SpOr_спутник.tif: 1846x1444 px, окон 12
+  6320.7 std [   6277s] [infer] 117_Каменные_выкладки_7: готово 12 окон за 1 с
+  6321.4 std [   6278s] [infer] 118_Каменные_выкладки_8 01_Каменные_выкладки_8_SpOr_спутник.tif: 920x718 px, окон 4
+  6321.9 std [   6278s] [infer] 118_Каменные_выкладки_8: готово 4 окон за 0 с
+  6322.1 std [   6279s] [infer] 119_Каменные_выкладки_9 01_Каменные_выкладки_9_SpOr_спутник.tif: 463x362 px, окон 1
+  6322.4 std [   6279s] [infer] 119_Каменные_выкладки_9: готово 1 окон за 0 с
+  6322.5 std [   6279s] [infer] 120_Каменные_выкладки_10 01_Каменные_выкладки_10_SpOr_спутник.tif: 924x724 px, окон 4
+  6323.0 std [   6280s] [infer] 120_Каменные_выкладки_10: готово 4 окон за 0 с
+  6323.1 std [   6280s] [infer] 121_Каменные_выкладки_11 01_Каменные_выкладки_11_SpOr_спутник.tif: 923x722 px, окон 4
+  6323.6 std [   6280s] [infer] 121_Каменные_выкладки_11: готово 4 окон за 0 с
+  6323.8 std [   6280s] [infer] 122_Каменные_выкладки_12 01_Каменные_выкладки_12_SpOr_спутник.tif: 923x722 px, окон 4
+  6324.3 std [   6281s] [infer] 122_Каменные_выкладки_12: готово 4 окон за 0 с
+  6324.5 std [   6281s] [infer] 123_Каменные_выкладки_13 01_Каменные_выкладки_13_SpOr_спутник.tif: 925x725 px, окон 4
+  6325.0 std [   6282s] [infer] 123_Каменные_выкладки_13: готово 4 окон за 0 с
+  6325.3 std [   6282s] [infer] 164_Кисловодская_котловина_1 01_Кисловодская_котловина_1_SpOr_спутник.tif: 2655x1795 px, окон 24
+  6328.2 std [   6285s] [infer] 164_Кисловодская_котловина_1: готово 24 окон за 3 с
+  6329.7 std [   6286s] [infer] 165_Кисловодская_котловина_2 01_Кисловодская_котловина_2_SpOr_спутник.tif: 1448x1290 px, окон 9
+  6330.9 std [   6287s] [infer] 165_Кисловодская_котловина_2: готово 9 окон за 1 с
+  6331.4 std [   6288s] [infer] 166_Кисловодская_котловина_3 01_Кисловодская_котловина_3_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6332.3 std [   6289s] [infer] 166_Кисловодская_котловина_3: готово 6 окон за 1 с
+  6332.7 std [   6289s] [infer] 167_Кисловодская_котловина_4 01_Кисловодская_котловина_4_SpOr_спутник.tif: 2655x1795 px, окон 24
+  6334.5 std [   6291s] [infer] 156_Курганы_27: готово 54 окон за 18 с
+  6338.7 std [   6295s] [infer] 157_Курганы_28 01_Курганы_28_SpOr_спутник.tif: 4358x2783 px, окон 54
+  6339.1 std [   6296s] [infer] 167_Кисловодская_котловина_4: готово 24 окон за 6 с
+  6340.3 std [   6297s] [infer] 168_Кисловодская_котловина_5 01_Кисловодская_котловина_5_SpOr_спутник.tif: 2655x1795 px, окон 24
+  6343.2 std [   6300s] [infer] 168_Кисловодская_котловина_5: готово 24 окон за 3 с
+  6344.3 std [   6301s] [infer] 169_Кисловодская_котловина_6 01_Кисловодская_котловина_6_SpOr_спутник.tif: 2124x1436 px, окон 15
+  6346.2 std [   6303s] [infer] 169_Кисловодская_котловина_6: готово 15 окон за 2 с
+  6346.9 std [   6304s] [infer] 170_Кисловодская_котловина_7 01_Кисловодская_котловина_7_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6347.8 std [   6304s] [infer] 170_Кисловодская_котловина_7: готово 6 окон за 1 с
+  6348.1 std [   6305s] [infer] 171_Кисловодская_котловина_8 01_Кисловодская_котловина_8_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6348.9 std [   6306s] [infer] 171_Кисловодская_котловина_8: готово 6 окон за 1 с
+  6349.2 std [   6306s] [infer] 172_Кисловодская_котловина_9 01_Кисловодская_котловина_9_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6350.0 std [   6307s] [infer] 172_Кисловодская_котловина_9: готово 6 окон за 1 с
+  6350.3 std [   6307s] [infer] 173_Кисловодская_котловина_10 01_Кисловодская_котловина_10_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6351.2 std [   6308s] [infer] 173_Кисловодская_котловина_10: готово 6 окон за 1 с
+  6351.5 std [   6308s] [infer] 174_Кисловодская_котловина_11 01_Кисловодская_котловина_11_SpOr_спутник.tif: 1593x1077 px, окон 6
+  6352.3 std [   6309s] [infer] 174_Кисловодская_котловина_11: готово 6 окон за 1 с
+  6352.6 std [   6309s] [infer] 175_Кисловодская_котловина_12 01_Кисловодская_котловина_12_SpOr_спутник.tif: 2389x1616 px, окон 20
+  6354.8 std [   6311s] [infer] 157_Курганы_28: готово 54 окон за 16 с
+  6355.6 std [   6312s] [infer] 175_Кисловодская_котловина_12: готово 20 окон за 3 с
+  6358.4 std [   6315s] [infer] 176_Кисловодская_котловина_13 01_Кисловодская_котловина_13_SpOr_спутник.tif: 2389x1616 px, окон 20
+  6359.3 std [   6316s] [infer] 158_Курганы_29 01_Курганы_29_SpOr_спутник.tif: 8730x5569 px, окон 216
+  6360.9 std [   6317s] [infer] 176_Кисловодская_котловина_13: готово 20 окон за 2 с
+  6361.9 std [   6319s] [infer] 177_Кисловодская_котловина_14 01_Кисловодская_котловина_14_SpOr_спутник.tif: 2389x1616 px, окон 20
+  6364.3 std [   6321s] [infer] 177_Кисловодская_котловина_14: готово 20 окон за 2 с
+  6365.5 std [   6322s] [infer] 178_Кисловодская_котловина_15 01_Кисловодская_котловина_15_SpOr_спутник.tif: 1195x808 px, окон 6
+  6366.2 std [   6323s] [infer] 178_Кисловодская_котловина_15: готово 6 окон за 1 с
+  6366.5 std [   6323s] [infer] 185_Изборск 01_Изборск_SpOr_спутник.tif: 2768x1644 px, окон 24
+  6369.3 std [   6326s] [infer] 185_Изборск: готово 24 окон за 3 с
+  6370.9 std [   6327s] [infer] 185_Изборск 02_Изборск_SpOr_спутник.tif: 1978x1175 px, окон 12
+  6372.4 std [   6329s] [infer] 185_Изборск: готово 12 окон за 2 с
+  6373.2 std [   6330s] [infer] 185_Изборск 03_Изборск_SpOr_спутник.tif: 1978x1175 px, окон 12
+  6374.7 std [   6331s] [infer] 185_Изборск: готово 12 окон за 1 с
+  6387.7 std [   6344s] [gpu0 f4] готово {"trainer": "bot5", "iters": 6000, "planned": 6000, "s_it_median": 0.9176027774810791, "sec": 5752, "loss_first": 88.61479187011719, "loss_last": 28.771408081054688, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 2109, "test_regions": ["035_Шумгора", "048_Калмыкия_1", "049_Калмыкия_2", "057_Кабардино_Балкария", "062_Каменка", "070_Архангельское", "072_Белая_Гора", "073_Тоссор", "075_Мостище", "076_Маяцкая_крепость", "080_Верхний_Карабут", "083_Барскоон", "089_Конур_Елен", "107_Сары_Булун", "111_Каменные_выкладки_1", "112_Каменные_выкладки_2", "113_Каменные_выкладки_3", "114_Каменные_выкладки_4", "115_Каменные_выкладки_5", "116_Каменные_выкладки_6", "117_Каменные_выкладки_7", "118_Каменные_выкладки_8", "119_Каменные_выкладки_9", "120_Каменные_выкладки_10", "121_Каменные_выкладки_11", "122_Каменные_выкладки_12", "123_Каменные_выкладки_13", "164_Кисловодская_котловина_1", "165_Кисловодская_котловина_2", "166_Кисловодская_котловина_3", "167_Кисловодская_котловина_4", "168_Кисловодская_котловина_5", "169_Кисловодская_котловина_6", "170_Кисловодская_котловина_7", "171_Кисловодская_котловина_8", "172_Кисловодская_котловина_9", "173_Кисловодская_котловина_10", "174_Кисловодская_котловина_11", "175_Кисловодская_котловина_12", "176_Кисловодская_котловина_13", "177_Кисловодская_котловина_14", "178_Кисловодская_котловина_15", "185_Изборск"], "n_det": 74745, "infer_sec": 232, "peak_vram_gb": 6.77}
+  6388.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+  6388.2 std [transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+  6389.0 std Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  27%|██▋       | 321/1197 [00:00<00:00, 3201.71it/s]Loading weights:  54%|█████▎    | 642/1197 [00:00<00:00, 2904.57it/s]Loading weights:  78%|███████▊  | 935/1197 [00:00<00:00, 2881.77it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2919.44it/s]
+  6389.1 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+  6389.1 std Key                                                 | Status   |                                                                                        
+  6389.1 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+  6389.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+  6389.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+  6389.1 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+  6389.1 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+  6389.1 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+  6389.1 std 
+  6389.1 std Notes:
+  6389.1 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+  6389.1 std [transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+  6389.1 std Key                                                 | Status   |                                                                                        
+  6389.1 std ----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+  6389.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+  6389.1 std model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+  6389.1 std model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+  6389.1 std model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+  6389.1 std model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+  6389.1 std 
+  6389.1 std Notes:
+  6389.1 std - MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+  6389.2 std [   6346s] [gpu0 f1] train чипов 2564, test участков 22, бюджет обучения 2.40 ч
+  6415.0 std [   6372s] [infer] 158_Курганы_29: готово 216 окон за 56 с
+  6429.2 std [   6386s] [infer] 159_Курганы_30 01_Курганы_30_SpOr_спутник.tif: 2182x1392 px, окон 15
+  6442.7 std [   6399s] [infer] 159_Курганы_30: готово 15 окон за 14 с
+  6443.8 std [   6400s] [infer] 160_Курганы_31 01_Курганы_31_SpOr_спутник.tif: 2593x1408 px, окон 18
+  6457.3 std [   6414s] [infer] 160_Курганы_31: готово 18 окон за 14 с
+  6458.5 std [   6415s] [infer] 161_Курганы_32 01_Курганы_32_SpOr_спутник.tif: 1575x1395 px, окон 9
+  6459.9 std [   6417s] [infer] 161_Курганы_32: готово 9 окон за 1 с
+  6460.6 std [   6417s] [infer] 162_Курганы_33 01_Курганы_33_SpOr_спутник.tif: 1568x925 px, окон 6
+  6470.8 std [   6427s] [infer] 162_Курганы_33: готово 6 окон за 10 с
+  6471.3 std [   6428s] [infer] 163_Курганы_34 01_Курганы_34_SpOr_спутник.tif: 6259x3695 px, окон 104
+  6483.7 std [   6440s] [gpu0 f1] [bot5] {'it': 100, 'loss': 116.4508, 's_it': 0.7733}
+  6500.2 std [   6457s] [infer] 163_Курганы_34: готово 104 окон за 29 с
+  6508.3 std [   6465s] [infer] 192_КЧР 01_КЧР_SpOr_спутник.tif: 1349x820 px, окон 6
+  6509.1 std [   6466s] [infer] 192_КЧР: готово 6 окон за 1 с
+  6523.4 std [   6480s] [gpu1 f2] готово {"trainer": "bot5", "iters": 6000, "planned": 6000, "s_it_median": 0.9200527667999268, "sec": 5752, "loss_first": 169.56182861328125, "loss_last": 26.367055892944336, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 1616, "test_regions": ["015_Демидовка", "026_Золотаревка", "031_Новотитаровская", "034_Усть_река", "063_Верхнее_Казачье", "077_Русская_Тростянка", "079_Городище", "081_Костомаровское", "082_Артпозиции_Иссык_Куль", "087_Кароол_Дюбе", "091_Сакские_курганы", "098_Таш_Коро_1", "099_Таш_Коро_2", "100_Торт_Куль", "130_Курганы_1", "131_Курганы_2", "132_Курганы_3", "133_Курганы_4", "134_Курганы_5", "135_Курганы_6", "136_Курганы_7", "137_Курганы_8", "138_Курганы_9", "139_Курганы_10", "140_Курганы_11", "141_Курганы_12", "142_Курганы_13", "143_Курганы_14", "144_Курганы_15", "145_Курганы_16", "146_Курганы_17", "147_Курганы_18", "148_Курганы_19", "149_Курганы_20", "150_Курганы_21", "151_Курганы_22", "152_Курганы_23", "153_Курганы_24", "154_Курганы_25", "155_Курганы_26", "156_Курганы_27", "157_Курганы_28", "158_Курганы_29", "159_Курганы_30", "160_Курганы_31", "161_Курганы_32", "162_Курганы_33", "163_Курганы_34", "192_КЧР"], "n_det": 81233, "infer_sec": 367, "peak_vram_gb": 6.77}
+  6579.8 std [   6536s] [gpu0 f1] [bot5] {'it': 200, 'loss': 93.0956, 's_it': 0.706}
+  6653.6 std [   6610s] [gpu0 f1] [bot5] {'it': 300, 'loss': 64.1458, 's_it': 0.7098}
+  6727.9 std [   6685s] [gpu0 f1] [bot5] {'it': 400, 'loss': 39.1496, 's_it': 0.7169}
+  6802.4 std [   6759s] [gpu0 f1] [bot5] {'it': 500, 'loss': 35.2385, 's_it': 0.7168}
+  6877.0 std [   6834s] [gpu0 f1] [bot5] {'it': 600, 'loss': 33.9152, 's_it': 0.717}
+  6951.4 std [   6908s] [gpu0 f1] [bot5] {'it': 700, 'loss': 33.6783, 's_it': 0.7193}
+  7026.1 std [   6983s] [gpu0 f1] [bot5] {'it': 800, 'loss': 32.1363, 's_it': 0.7201}
+  7100.8 std [   7057s] [gpu0 f1] [bot5] {'it': 900, 'loss': 31.8695, 's_it': 0.7222}
+  7175.1 std [   7132s] [gpu0 f1] [bot5] {'it': 1000, 'loss': 32.3151, 's_it': 0.7172}
+  7249.8 std [   7206s] [gpu0 f1] [bot5] {'it': 1100, 'loss': 31.5822, 's_it': 0.7173}
+  7324.5 std [   7281s] [gpu0 f1] [bot5] {'it': 1200, 'loss': 30.7746, 's_it': 0.7188}
+  7398.9 std [   7355s] [gpu0 f1] [bot5] {'it': 1300, 'loss': 31.6537, 's_it': 0.7136}
+  7474.0 std [   7431s] [gpu0 f1] [bot5] {'it': 1400, 'loss': 29.828, 's_it': 0.7191}
+  7548.8 std [   7505s] [gpu0 f1] [bot5] {'it': 1500, 'loss': 29.4648, 's_it': 0.7196}
+  7623.8 std [   7580s] [gpu0 f1] [bot5] {'it': 1600, 'loss': 29.0377, 's_it': 0.7224}
+  7698.4 std [   7655s] [gpu0 f1] [bot5] {'it': 1700, 'loss': 28.4285, 's_it': 0.7204}
+  7773.2 std [   7730s] [gpu0 f1] [bot5] {'it': 1800, 'loss': 28.9582, 's_it': 0.7199}
+  7847.9 std [   7804s] [gpu0 f1] [bot5] {'it': 1900, 'loss': 28.9266, 's_it': 0.7191}
+  7922.4 std [   7879s] [gpu0 f1] [bot5] {'it': 2000, 'loss': 28.0969, 's_it': 0.7163}
+  7997.2 std [   7954s] [gpu0 f1] [bot5] {'it': 2100, 'loss': 27.6052, 's_it': 0.7209}
+  8072.3 std [   8029s] [gpu0 f1] [bot5] {'it': 2200, 'loss': 27.7281, 's_it': 0.7221}
+  8147.0 std [   8104s] [gpu0 f1] [bot5] {'it': 2300, 'loss': 28.6775, 's_it': 0.716}
+  8221.7 std [   8178s] [gpu0 f1] [bot5] {'it': 2400, 'loss': 27.8385, 's_it': 0.72}
+  8296.7 std [   8253s] [gpu0 f1] [bot5] {'it': 2500, 'loss': 26.3616, 's_it': 0.7222}
+  8371.6 std [   8328s] [gpu0 f1] [bot5] {'it': 2600, 'loss': 26.936, 's_it': 0.7186}
+  8446.5 std [   8403s] [gpu0 f1] [bot5] {'it': 2700, 'loss': 26.8735, 's_it': 0.7214}
+  8521.5 std [   8478s] [gpu0 f1] [bot5] {'it': 2800, 'loss': 27.0744, 's_it': 0.7195}
+  8596.4 std [   8553s] [gpu0 f1] [bot5] {'it': 2900, 'loss': 26.2606, 's_it': 0.7217}
+  8671.5 std [   8628s] [gpu0 f1] [bot5] {'it': 3000, 'loss': 26.8882, 's_it': 0.7234}
+  8746.4 std [   8703s] [gpu0 f1] [bot5] {'it': 3100, 'loss': 26.344, 's_it': 0.7183}
+  8821.5 std [   8778s] [gpu0 f1] [bot5] {'it': 3200, 'loss': 26.3436, 's_it': 0.7208}
+  8896.2 std [   8853s] [gpu0 f1] [bot5] {'it': 3300, 'loss': 26.5253, 's_it': 0.718}
+  8970.9 std [   8927s] [gpu0 f1] [bot5] {'it': 3400, 'loss': 26.0436, 's_it': 0.7196}
+  9045.9 std [   9002s] [gpu0 f1] [bot5] {'it': 3500, 'loss': 26.1164, 's_it': 0.7198}
+  9120.9 std [   9077s] [gpu0 f1] [bot5] {'it': 3600, 'loss': 25.7653, 's_it': 0.7191}
+  9195.7 std [   9152s] [gpu0 f1] [bot5] {'it': 3700, 'loss': 26.0353, 's_it': 0.7203}
+  9270.5 std [   9227s] [gpu0 f1] [bot5] {'it': 3800, 'loss': 25.5447, 's_it': 0.7196}
+  9345.4 std [   9302s] [gpu0 f1] [bot5] {'it': 3900, 'loss': 25.8551, 's_it': 0.7179}
+  9420.2 std [   9377s] [gpu0 f1] [bot5] {'it': 4000, 'loss': 25.4963, 's_it': 0.7187}
+  9495.1 std [   9452s] [gpu0 f1] [bot5] {'it': 4100, 'loss': 26.0366, 's_it': 0.723}
+  9570.3 std [   9527s] [gpu0 f1] [bot5] {'it': 4200, 'loss': 25.814, 's_it': 0.7227}
+  9645.2 std [   9602s] [gpu0 f1] [bot5] {'it': 4300, 'loss': 25.4947, 's_it': 0.7188}
+  9719.9 std [   9677s] [gpu0 f1] [bot5] {'it': 4400, 'loss': 25.8615, 's_it': 0.7171}
+  9795.0 std [   9752s] [gpu0 f1] [bot5] {'it': 4500, 'loss': 25.2094, 's_it': 0.7227}
+  9869.8 std [   9826s] [gpu0 f1] [bot5] {'it': 4600, 'loss': 25.3259, 's_it': 0.7217}
+  9945.4 std [   9902s] [gpu0 f1] [bot5] {'it': 4700, 'loss': 25.283, 's_it': 0.7245}
+ 10020.5 std [   9977s] [gpu0 f1] [bot5] {'it': 4800, 'loss': 25.0003, 's_it': 0.7221}
+ 10095.4 std [  10052s] [gpu0 f1] [bot5] {'it': 4900, 'loss': 25.3442, 's_it': 0.7204}
+ 10170.2 std [  10127s] [gpu0 f1] [bot5] {'it': 5000, 'loss': 25.3715, 's_it': 0.7197}
+ 10245.2 std [  10202s] [gpu0 f1] [bot5] {'it': 5100, 'loss': 24.5296, 's_it': 0.7192}
+ 10320.1 std [  10277s] [gpu0 f1] [bot5] {'it': 5200, 'loss': 25.1368, 's_it': 0.7217}
+ 10394.9 std [  10352s] [gpu0 f1] [bot5] {'it': 5300, 'loss': 24.8611, 's_it': 0.7201}
+ 10469.9 std [  10426s] [gpu0 f1] [bot5] {'it': 5400, 'loss': 24.8435, 's_it': 0.7216}
+ 10544.9 std [  10501s] [gpu0 f1] [bot5] {'it': 5500, 'loss': 25.0122, 's_it': 0.7227}
+ 10619.9 std [  10577s] [gpu0 f1] [bot5] {'it': 5600, 'loss': 25.4447, 's_it': 0.7232}
+ 10695.0 std [  10652s] [gpu0 f1] [bot5] {'it': 5700, 'loss': 25.1456, 's_it': 0.7214}
+ 10770.3 std [  10727s] [gpu0 f1] [bot5] {'it': 5800, 'loss': 25.1206, 's_it': 0.7222}
+ 10845.3 std [  10802s] [gpu0 f1] [bot5] {'it': 5900, 'loss': 24.8029, 's_it': 0.7196}
+ 10920.2 std [  10877s] [gpu0 f1] [bot5] {'it': 6000, 'loss': 24.7246, 's_it': 0.7183}
+ 10920.7 std Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.86it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.85it/s]
+ 10921.1 std [  10878s] [infer] 046_Тыва_1 01_Тыва_1_SpOr_спутник.tif: 1106x738 px, окон 4
+ 10921.6 std [  10878s] [infer] 046_Тыва_1: готово 4 окон за 0 с
+ 10921.7 std [  10878s] [infer] 046_Тыва_1 02_Тыва_1_SpOr_спутник.tif: 1106x739 px, окон 4
+ 10922.2 std [  10879s] [infer] 046_Тыва_1: готово 4 окон за 1 с
+ 10922.4 std [  10879s] [infer] 047_Тыва_2 01_Тыва_2_SpOr_спутник.tif: 2413x1158 px, окон 15
+ 10924.2 std [  10881s] [infer] 047_Тыва_2: готово 15 окон за 2 с
+ 10924.9 std [  10881s] [infer] 047_Тыва_2 02_Тыва_2_SpOr_спутник.tif: 2413x1158 px, окон 15
+ 10926.7 std [  10883s] [infer] 047_Тыва_2: готово 15 окон за 2 с
+ 10927.3 std [  10884s] [infer] 047_Тыва_2 03_Тыва_2_SpOr_спутник.tif: 2413x1159 px, окон 15
+ 10929.1 std [  10886s] [infer] 047_Тыва_2: готово 15 окон за 2 с
+ 10929.7 std [  10886s] [infer] 050_Воронеж_1 01_Воронеж_1_SpOr_спутник.tif: 1145x729 px, окон 6
+ 10930.4 std [  10887s] [infer] 050_Воронеж_1: готово 6 окон за 1 с
+ 10930.7 std [  10887s] [infer] 051_Воронеж_2 01_Воронеж_2_SpOr_спутник.tif: 4029x3712 px, окон 72
+ 10939.3 std [  10896s] [infer] 051_Воронеж_2: готово 72 окон за 9 с
+ 10941.8 std [  10898s] [infer] 052_Воронеж_3 01_Воронеж_3_SpOr_спутник.tif: 3813x2423 px, окон 40
+ 10946.9 std [  10903s] [infer] 052_Воронеж_3: готово 40 окон за 5 с
+ 10948.0 std [  10905s] [infer] 053_Воронеж_4 01_Воронеж_4_SpOr_спутник.tif: 1706x1085 px, окон 8
+ 10949.2 std [  10906s] [infer] 053_Воронеж_4: готово 8 окон за 1 с
+ 10949.6 std [  10906s] [infer] 053_Воронеж_4 02_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8
+ 10950.6 std [  10907s] [infer] 053_Воронеж_4: готово 8 окон за 1 с
+ 10951.0 std [  10908s] [infer] 053_Воронеж_4 03_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8
+ 10952.1 std [  10909s] [infer] 053_Воронеж_4: готово 8 окон за 1 с
+ 10952.4 std [  10909s] [infer] 053_Воронеж_4 04_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8
+ 10953.4 std [  10910s] [infer] 053_Воронеж_4: готово 8 окон за 1 с
+ 10953.8 std [  10910s] [infer] 053_Воронеж_4 05_Воронеж_4_SpOr_спутник.tif: 1703x1083 px, окон 8
+ 10954.9 std [  10911s] [infer] 053_Воронеж_4: готово 8 окон за 1 с
+ 10955.2 std [  10912s] [infer] 054_Воронеж_5 01_Воронеж_5_SpOr_спутник.tif: 1703x1083 px, окон 8
+ 10956.3 std [  10913s] [infer] 054_Воронеж_5: готово 8 окон за 1 с
+ 10956.5 std [  10913s] [infer] 054_Воронеж_5 02_Воронеж_5_SpOr_спутник.tif: 1704x1083 px, окон 8
+ 10957.6 std [  10914s] [infer] 054_Воронеж_5: готово 8 окон за 1 с
+ 10957.8 std [  10914s] [infer] 054_Воронеж_5 03_Воронеж_5_SpOr_спутник.tif: 1703x1083 px, окон 8
+ 10958.9 std [  10915s] [infer] 054_Воронеж_5: готово 8 окон за 1 с
+ 10959.2 std [  10916s] [infer] 054_Воронеж_5 04_Воронеж_5_SpOr_спутник.tif: 1703x1082 px, окон 8
+ 10960.2 std [  10917s] [infer] 054_Воронеж_5: готово 8 окон за 1 с
+ 10960.5 std [  10917s] [infer] 055_Курменту 01_Курменту_SpOr_спутник.tif: 2536x1657 px, окон 20
+ 10963.0 std [  10920s] [infer] 055_Курменту: готово 20 окон за 3 с
+ 10963.8 std [  10920s] [infer] 055_Курменту 02_Курменту_SpOr_спутник.tif: 2030x1328 px, окон 12
+ 10965.3 std [  10922s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10965.8 std [  10922s] [infer] 055_Курменту 03_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10967.4 std [  10924s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10967.8 std [  10924s] [infer] 055_Курменту 04_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10969.3 std [  10926s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10969.7 std [  10926s] [infer] 055_Курменту 05_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10971.3 std [  10928s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10971.9 std [  10928s] [infer] 055_Курменту 06_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10973.4 std [  10930s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10974.0 std [  10931s] [infer] 055_Курменту 07_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10975.5 std [  10932s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10976.0 std [  10933s] [infer] 055_Курменту 08_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12
+ 10977.6 std [  10934s] [infer] 055_Курменту: готово 12 окон за 2 с
+ 10978.0 std [  10935s] [infer] 071_Сторожевое 01_Сторожевое_SpOr_спутник.tif: 5309x3590 px, окон 88
+ 10989.1 std [  10946s] [infer] 071_Сторожевое: готово 88 окон за 11 с
+ 10991.9 std [  10948s] [infer] 074_Солдатское 01_Солдатское_SpOr_спутник.tif: 5309x3590 px, окон 88
+ 11003.0 std [  10960s] [infer] 074_Солдатское: готово 88 окон за 11 с
+ 11005.9 std [  10963s] [infer] 074_Солдатское 02_Солдатское_SpOr_спутник.tif: 5465x2799 px, окон 72
+ 11018.8 std [  10975s] [infer] 074_Солдатское: готово 72 окон за 13 с
+ 11021.4 std [  10978s] [infer] 078_Верхняя_Покровка 01_Верхняя_Покровка_SpOr_спутник.tif: 3982x2693 px, окон 48
+ 11027.4 std [  10984s] [infer] 078_Верхняя_Покровка: готово 48 окон за 6 с
+ 11029.2 std [  10986s] [infer] 084_Булан_Соготту 01_Булан_Соготту_SpOr_спутник.tif: 1157x684 px, окон 6
+ 11029.9 std [  10987s] [infer] 084_Булан_Соготту: готово 6 окон за 1 с
+ 11030.2 std [  10987s] [infer] 086_Кан_Дебе 01_Кан_Дебе_SpOr_спутник.tif: 2530x1495 px, окон 15
+ 11032.2 std [  10989s] [infer] 086_Кан_Дебе: готово 15 окон за 2 с
+ 11032.7 std [  10989s] [infer] 090_Корумду 01_Корумду_SpOr_спутник.tif: 1446x855 px, окон 6
+ 11033.4 std [  10990s] [infer] 090_Корумду: готово 6 окон за 1 с
+ 11033.6 std [  10990s] [infer] 092_Шаты 01_Шаты_SpOr_спутник.tif: 272x178 px, окон 1
+ 11033.8 std [  10990s] [infer] 092_Шаты: готово 1 окон за 0 с
+ 11033.9 std [  10990s] [infer] 109_Россошки 01_Россошки_SpOr_спутник.tif: 2655x1795 px, окон 24
+ 11036.8 std [  10993s] [infer] 109_Россошки: готово 24 окон за 3 с
+ 11037.8 std [  10994s] [infer] 124_Постройки_1 01_Постройки_1_SpOr_спутник.tif: 922x720 px, окон 4
+ 11038.2 std [  10995s] [infer] 124_Постройки_1: готово 4 окон за 0 с
+ 11038.4 std [  10995s] [infer] 125_Постройки_2 01_Постройки_2_SpOr_спутник.tif: 460x359 px, окон 1
+ 11038.7 std [  10995s] [infer] 125_Постройки_2: готово 1 окон за 0 с
+ 11038.7 std [  10995s] [infer] 126_Постройки_3 01_Постройки_3_SpOr_спутник.tif: 455x352 px, окон 1
+ 11039.0 std [  10996s] [infer] 126_Постройки_3: готово 1 окон за 0 с
+ 11039.1 std [  10996s] [infer] 127_Постройки_4 01_Постройки_4_SpOr_спутник.tif: 460x359 px, окон 1
+ 11039.3 std [  10996s] [infer] 127_Постройки_4: готово 1 окон за 0 с
+ 11039.4 std [  10996s] [infer] 128_Постройки_5 01_Постройки_5_SpOr_спутник.tif: 463x363 px, окон 1
+ 11039.6 std [  10996s] [infer] 128_Постройки_5: готово 1 окон за 0 с
+ 11039.7 std [  10996s] [infer] 129_Постройки_6 01_Постройки_6_SpOr_спутник.tif: 464x361 px, окон 1
+ 11040.0 std [  10997s] [infer] 129_Постройки_6: готово 1 окон за 0 с
+ 11047.5 std [  11004s] [gpu0 f1] готово {"trainer": "bot5", "iters": 6000, "planned": 6000, "s_it_median": 0.7197949886322021, "sec": 4531, "loss_first": 156.98435974121094, "loss_last": 26.710418701171875, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 2564, "test_regions": ["046_Тыва_1", "047_Тыва_2", "050_Воронеж_1", "051_Воронеж_2", "052_Воронеж_3", "053_Воронеж_4", "054_Воронеж_5", "055_Курменту", "071_Сторожевое", "074_Солдатское", "078_Верхняя_Покровка", "084_Булан_Соготту", "086_Кан_Дебе", "090_Корумду", "092_Шаты", "109_Россошки", "124_Постройки_1", "125_Постройки_2", "126_Постройки_3", "127_Постройки_4", "128_Постройки_5", "129_Постройки_6"], "n_det": 47153, "infer_sec": 127, "peak_vram_gb": 6.77}
+ 11087.3 std [  11044s] ПРОГНОЗ full: с/ит 0.852 → 8000 ит × 5 фолдов / 2 GPU ≈ 4.74 ч (+инференс)
+ 11087.3 std [  11044s] ГОТОВО 203131 детекций; ошибки фолдов: []
+ 11098.2 std /usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+ 11098.2 std   cells[i][c] = re.sub('\\\\\|', '|', cell)
+ 11098.5 std /usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+ 11098.5 std   text = re.sub(r'_', '\_', text) # Escape underscores in display text
+ 11099.3 std [NbConvertApp] Converting notebook __script__.ipynb to html
+ 11100.4 std [NbConvertApp] Writing 545733 bytes to __results__.html

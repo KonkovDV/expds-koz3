@@ -1,0 +1,6 @@
+Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 16522.93it/s]
+[3s] 1/3 015_Демидовка gsd 0.92 patches 15 rss 580MB
+[5s] 2/3 026_Золотаревка gsd 0.79 patches 27 rss 592MB
+[7s] 3/3 031_Новотитаровская gsd 0.47 patches 30 rss 605MB
+done 30 patches 7s
+watchdog max RSS MB 606 exit 0

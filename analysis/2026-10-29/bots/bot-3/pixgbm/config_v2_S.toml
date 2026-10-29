@@ -1,0 +1,33 @@
+# PIXGBM S для v2 (bot-3, 29.10.2026 02:30 МСК) — OPT-IN, default.toml не меняется.
+# S как принят bot-10 (bot-10/PREREG_pixgbm.md: enabled=true, replace=true, все группы, без R3/pole_circle;
+# bot-10/REPORT9_v2.md: S+stack6 к A keep global +0,013938). Пороги *_pix — bot-3/pixgbm/thresholds_v2.toml (T3).
+# Ветка bot3-pixgbm (см. STATUS.md), модели models/all (обучены на всём трейне, pixgbm/models/train_info.json).
+#
+# Как применить: платформа читает ТОЛЬКО configs/default.toml (inference/main.py:87), --config нет.
+# Значит при сборке: секцию [geophys.pixgbm] в default.toml ЗАМЕНИТЬ на секцию ниже, а три секции
+# [thresholds_by_markup.*_pix] ДОПИСАТЬ (в default.toml их нет). Ключи S совпадают с дефолтом кроме enabled/replace.
+# Файлы моделей в архив: models/pixgbm/all/poly.txt и finds.txt (см. bot-3/pixgbm/PACKAGING_S.md).
+
+[geophys.pixgbm]
+enabled = true
+model_dir = "models/pixgbm/all"   # относительный: от cwd, иначе от корня решения (geo_pixgbm.resolve_model_dir)
+classes = ["finds_points", "object_poly"]
+replace = true        # S: pix заменяет классику того же класса и метода
+union_name_re = ""    # без H
+maps = ["maggr", "etgr", "terfl"]
+t_pix = 0.5
+poly_mode = "pole"    # ветка bot3-geosnap; peaks отклонён (geo_snap/GEO_SNAP_REPORT.md); в bot3-pixgbm ключа нет — игнорируется
+backend = "lightgbm"  # по умолчанию; "lleaves" — opt-in, нужны ещё poly/finds.lleaves.so + .json (те же кандидаты)
+budget_s = 300
+guard_reserve_s = 0
+procs = 0             # 0 — min(потоки, 4, доступные ядра)
+
+[thresholds_by_markup.maggr_pix]
+finds_points = 0.93
+object_poly = 0.686
+
+[thresholds_by_markup.etgr_pix]
+object_poly = 0.0
+
+[thresholds_by_markup.terfl_pix]
+object_poly = 1.01

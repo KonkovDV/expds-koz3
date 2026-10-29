@@ -1,0 +1,136 @@
+         2696292 function calls (2642908 primitive calls) in 58.131 seconds
+
+   Ordered by: cumulative time
+   List reduced from 8952 to 70 due to restriction <70>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       69    5.572    0.081   44.900    0.651 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/autograd/grad_mode.py:293(__exit__)
+       38    0.000    0.000   28.945    0.762 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:368(fallthrough)
+     1835   17.068    0.009   17.068    0.009 {built-in method torch.stack}
+     1835    2.415    0.001   12.106    0.007 /workspace/koz3_shared/speedup/tools/prof_run.py:24(_stub)
+     3670    4.382    0.001    4.382    0.001 {built-in method torch._C._nn.avg_pool2d}
+       69    1.293    0.019    4.190    0.061 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:293(probs_to_features)
+       22    0.000    0.000    4.021    0.183 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:311(py_impl)
+        1    0.210    0.210    3.738    3.738 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:176(_predict_on_device)
+     1835    3.148    0.002    3.148    0.002 {method 'mean' of 'torch._C.TensorBase' objects}
+       69    0.009    0.000    2.876    0.042 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/autograd/grad_mode.py:289(__enter__)
+      168    2.853    0.017    2.853    0.017 {built-in method torch.zeros}
+     3670    2.742    0.001    2.742    0.001 {method 'div_' of 'torch._C.TensorBase' objects}
+        3    0.000    0.000    2.662    0.887 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:166(py_functionalize_impl)
+       69    1.855    0.027    2.450    0.036 /workspace/koz3_shared/speedup/base/expds/tiles.py:247(fix_channels)
+     1835    2.053    0.001    2.053    0.001 {method 'float' of 'torch._C.TensorBase' objects}
+      115    0.003    0.000    1.898    0.017 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/library.py:285(impl)
+       10    1.676    0.168    1.759    0.176 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:607(_register_to_dispatcher)
+        9    0.000    0.000    1.691    0.188 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:148(inner)
+       69    1.690    0.024    1.690    0.024 {method 'clamp_min' of 'torch._C.TensorBase' objects}
+        5    0.000    0.000    1.647    0.329 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:262(split_by_peaks)
+     1835    0.028    0.000    1.566    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/functional.py:4614(interpolate)
+     1835    1.531    0.001    1.531    0.001 {built-in method torch._C._nn.upsample_nearest2d}
+        1    0.000    0.000    1.523    1.523 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/side_effects.py:1(<module>)
+        1    0.000    0.000    1.505    1.505 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/codegen.py:1(<module>)
+        1    0.000    0.000    1.500    1.500 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/tensor.py:1(<module>)
+        1    0.000    0.000    1.438    1.438 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py:1(<module>)
+        1    0.000    0.000    1.436    1.436 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/lists.py:1(<module>)
+        1    0.000    0.000    1.431    1.431 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py:1(<module>)
+        3    0.000    0.000    1.362    0.454 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:283(__init__)
+        1    0.000    0.000    1.358    1.358 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1(<module>)
+        1    0.000    0.000    1.301    1.301 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1077(__init__)
+        1    0.000    0.000    1.295    1.295 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/distributed/fsdp/__init__.py:1(<module>)
+        1    0.000    0.000    1.269    1.269 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/distributed/fsdp/_fully_shard/__init__.py:1(<module>)
+        1    0.000    0.000    1.229    1.229 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:1(<module>)
+        1    0.000    0.000    1.219    1.219 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:1(<module>)
+54628/51899    0.028    0.000    1.199    0.000 {built-in method builtins.hasattr}
+       69    0.005    0.000    1.174    0.017 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py:546(pad)
+     1835    1.150    0.001    1.150    0.001 {method 'sub_' of 'torch._C.TensorBase' objects}
+       69    1.147    0.017    1.150    0.017 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py:87(_pad_simple)
+  2928/47    0.002    0.000    1.010    0.021 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:73(import_module)
+  2931/47    0.001    0.000    1.010    0.021 <frozen importlib._bootstrap>:1375(_gcd_import)
+     1659    0.011    0.000    0.975    0.001 <frozen importlib._bootstrap_external>:1066(get_code)
+        1    0.000    0.000    0.839    0.839 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/exc.py:1(<module>)
+        1    0.001    0.001    0.836    0.836 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/utils.py:1(<module>)
+        5    0.027    0.005    0.791    0.158 /workspace/koz3_shared/speedup/base/expds/raster.py:68(mask_to_polygons)
+        1    0.000    0.000    0.779    0.779 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:1(<module>)
+       27    0.002    0.000    0.716    0.027 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/library.py:129(define)
+        1    0.000    0.000    0.629    0.629 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/fx/experimental/symbolic_shapes.py:1(<module>)
+       10    0.621    0.062    0.629    0.063 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/features.py:93(shapes)
+        1    0.000    0.000    0.610    0.610 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_interpolation.py:1(<module>)
+      2/1    0.000    0.000    0.608    0.608 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:135(__getattr__)
+        1    0.000    0.000    0.603    0.603 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/special/__init__.py:1(<module>)
+      138    0.001    0.000    0.596    0.004 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:48(_wrapfunc)
+       69    0.000    0.000    0.596    0.009 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:437(repeat)
+       69    0.595    0.009    0.595    0.009 {method 'repeat' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.591    0.591 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/sympy/__init__.py:1(<module>)
+      368    0.567    0.002    0.567    0.002 {method 'reduce' of 'numpy.ufunc' objects}
+        1    0.001    0.001    0.527    0.527 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/timm/models/__init__.py:1(<module>)
+     1835    0.499    0.000    0.499    0.000 {built-in method torch.sigmoid}
+     1659    0.005    0.000    0.478    0.000 <frozen importlib._bootstrap_external>:1187(get_data)
+     1659    0.140    0.000    0.454    0.000 <frozen importlib._bootstrap_external>:755(_compile_bytecode)
+        1    0.000    0.000    0.425    0.425 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/distributed/fsdp/_fully_shard/_fully_shard.py:1(<module>)
+      458    0.001    0.000    0.414    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/dataclasses.py:1264(wrap)
+      458    0.016    0.000    0.413    0.001 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/dataclasses.py:921(_process_class)
+     1662    0.407    0.000    0.407    0.000 {method 'read' of '_io.BufferedReader' objects}
+        5    0.396    0.079    0.399    0.080 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_measurements.py:43(label)
+      232    0.001    0.000    0.394    0.002 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/_lib/_docscrape.py:579(__init__)
+      143    0.001    0.000    0.373    0.003 {method 'max' of 'numpy.ndarray' objects}
+      143    0.000    0.000    0.373    0.003 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/_core/_methods.py:39(_amax)
+      172    0.002    0.000    0.366    0.002 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/_lib/_array_api.py:930(decorator)
+
+
+         2696292 function calls (2642908 primitive calls) in 58.131 seconds
+
+   Ordered by: internal time
+   List reduced from 8952 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1835   17.068    0.009   17.068    0.009 {built-in method torch.stack}
+       69    5.572    0.081   44.900    0.651 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/autograd/grad_mode.py:293(__exit__)
+     3670    4.382    0.001    4.382    0.001 {built-in method torch._C._nn.avg_pool2d}
+     1835    3.148    0.002    3.148    0.002 {method 'mean' of 'torch._C.TensorBase' objects}
+      168    2.853    0.017    2.853    0.017 {built-in method torch.zeros}
+     3670    2.742    0.001    2.742    0.001 {method 'div_' of 'torch._C.TensorBase' objects}
+     1835    2.415    0.001   12.106    0.007 /workspace/koz3_shared/speedup/tools/prof_run.py:24(_stub)
+     1835    2.053    0.001    2.053    0.001 {method 'float' of 'torch._C.TensorBase' objects}
+       69    1.855    0.027    2.450    0.036 /workspace/koz3_shared/speedup/base/expds/tiles.py:247(fix_channels)
+       69    1.690    0.024    1.690    0.024 {method 'clamp_min' of 'torch._C.TensorBase' objects}
+       10    1.676    0.168    1.759    0.176 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:607(_register_to_dispatcher)
+     1835    1.531    0.001    1.531    0.001 {built-in method torch._C._nn.upsample_nearest2d}
+       69    1.293    0.019    4.190    0.061 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:293(probs_to_features)
+     1835    1.150    0.001    1.150    0.001 {method 'sub_' of 'torch._C.TensorBase' objects}
+       69    1.147    0.017    1.150    0.017 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py:87(_pad_simple)
+       10    0.621    0.062    0.629    0.063 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/features.py:93(shapes)
+       69    0.595    0.009    0.595    0.009 {method 'repeat' of 'numpy.ndarray' objects}
+      368    0.567    0.002    0.567    0.002 {method 'reduce' of 'numpy.ufunc' objects}
+     1835    0.499    0.000    0.499    0.000 {built-in method torch.sigmoid}
+     1662    0.407    0.000    0.407    0.000 {method 'read' of '_io.BufferedReader' objects}
+        5    0.396    0.079    0.399    0.080 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_measurements.py:43(label)
+     1659    0.313    0.000    0.313    0.000 {built-in method marshal.loads}
+   3511/2    0.301    0.000    0.001    0.000 {built-in method builtins.exec}
+        1    0.210    0.210    3.738    3.738 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:176(_predict_on_device)
+       37    0.206    0.006    0.206    0.006 {built-in method _imp.create_dynamic}
+     1659    0.140    0.000    0.454    0.000 <frozen importlib._bootstrap_external>:755(_compile_bytecode)
+     1835    0.125    0.000    0.125    0.000 {method 'unbind' of 'torch._C.TensorBase' objects}
+      158    0.120    0.001    0.120    0.001 {method 'astype' of 'numpy.ndarray' objects}
+       45    0.106    0.002    0.106    0.002 {method 'uniform_' of 'torch._C.TensorBase' objects}
+      182    0.103    0.001    0.107    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/serialization.py:2062(load_tensor)
+     2458    0.092    0.000    0.093    0.000 <frozen importlib._bootstrap>:74(__new__)
+      182    0.084    0.000    0.084    0.000 {method 'copy_' of 'torch._C.TensorBase' objects}
+     7775    0.083    0.000    0.083    0.000 {built-in method posix.stat}
+     1835    0.072    0.000    0.072    0.000 {built-in method torch.linspace}
+     1659    0.062    0.000    0.062    0.000 {built-in method _io.open_code}
+4484/4426    0.059    0.000    0.331    0.000 {built-in method builtins.__build_class__}
+        5    0.051    0.010    0.051    0.010 {built-in method expds_core.label_max}
+        3    0.044    0.015    0.044    0.015 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:100(open)
+224830/222437    0.042    0.000    0.043    0.000 {built-in method builtins.len}
+       20    0.040    0.002    0.040    0.002 {method 'normal_' of 'torch._C.TensorBase' objects}
+   163912    0.037    0.000    0.043    0.000 {built-in method builtins.getattr}
+216084/214603    0.034    0.000    0.037    0.000 {built-in method builtins.isinstance}
+    37/19    0.030    0.001    0.307    0.016 {built-in method _imp.exec_dynamic}
+     3882    0.028    0.000    0.029    0.000 {method 'sub' of 're.Pattern' objects}
+      232    0.028    0.000    0.280    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/_lib/_docscrape.py:388(_parse)
+54628/51899    0.028    0.000    1.199    0.000 {built-in method builtins.hasattr}
+     3392    0.028    0.000    0.055    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/_lib/_docscrape.py:168(_is_at_section)
+     1835    0.028    0.000    1.566    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/functional.py:4614(interpolate)
+        5    0.027    0.005    0.791    0.158 /workspace/koz3_shared/speedup/base/expds/raster.py:68(mask_to_polygons)
+      479    0.025    0.000    0.062    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/sympy/core/assumptions.py:614(_prepare_class_assumptions)
+
+

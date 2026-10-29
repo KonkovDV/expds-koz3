@@ -1,0 +1,9 @@
+base wall=229.758 user=156.724 sys=12.377
+f99e59cb18e9fdc600ee0fb2ad5037e47cf304fb  prof/ab_base.geojson
+ 23:06:48 up  4:52,  0 users,  load average: 10.94, 9.75, 10.23
+repo wall=54.082 user=53.176 sys=11.030
+f99e59cb18e9fdc600ee0fb2ad5037e47cf304fb  prof/ab_repo.geojson
+ 23:07:42 up  4:53,  0 users,  load average: 10.46, 9.81, 10.22
+repo_ra0 wall=65.351 user=64.215 sys=10.865
+f99e59cb18e9fdc600ee0fb2ad5037e47cf304fb  prof/ab_repo_ra0.geojson
+ 23:08:48 up  4:54,  0 users,  load average: 9.60, 9.70, 10.15

@@ -1,0 +1,300 @@
+pip install: ['transformers==5.21.0']
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+gradio 6.26.0 requires pillow<13.0,>=8.0, but you have pillow 13.0.0 which is incompatible.
+  torch 2.11.0+cu128
+  torchvision 0.26.0+cu128
+  huggingface_hub 1.33.0
+  safetensors 0.8.0
+  transformers 5.21.0
+  rasterio 1.5.1
+  pyproj 3.7.2
+  shapely 2.1.2
+  boto3 1.41.5
+  cv2 4.14.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "full", "res": 0.5, "tile": 640, "overlap": 160, "max_windows": 0, "bs": 8, "iters": 6000, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 2, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 8, "smoke_test_regions": 1, "deadline_h": 3.5, "folds": "0,3", "regions": "", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: ['Tesla T4', 'Tesla T4']
+[      1s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет
+[      1s] ключи S3 из приватного датасета
+[      3s] S3 OK
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 3 files:  33%|███▎      | 1/3 [00:00<00:00,  4.56it/s]Fetching 3 files: 100%|██████████| 3/3 [00:18<00:00,  6.83s/it]Fetching 3 files: 100%|██████████| 3/3 [00:18<00:00,  6.17s/it]
+[     22s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  25%|██▌       | 300/1197 [00:00<00:00, 2977.55it/s]Loading weights:  50%|████▉     | 598/1197 [00:00<00:00, 2708.52it/s]Loading weights:  73%|███████▎  | 871/1197 [00:00<00:00, 2573.01it/s]Loading weights:  94%|█████████▍| 1130/1197 [00:00<00:00, 2563.86it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2604.60it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[     24s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 2 с
+[     24s] фолды OK: 189 участков, 96 семей
+[     28s] участков со SpOr в фолдах: 132; вне фолдов (пропуск): 0
+[     28s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55
+[    107s] чипы: 055_Курменту отброшено {'obj_nodata': 3}
+[    111s] чипы: 092_Шаты отброшено {'bg_nodata': 2}
+[    115s] чипы: 098_Таш_Коро_1 отброшено {'bg_nodata': 2}
+[    134s] чипы: 103_Гнёздово_Ольшанская отброшено {'bg_nodata': 4}
+[    136s] чипы: 115_Каменные_выкладки_5 отброшено {'bg_nodata': 2}
+[    136s] чипы: 119_Каменные_выкладки_9 отброшено {'bg_nodata': 2}
+[    141s] чипы: 057_Кабардино_Балкария отброшено {'obj_nodata': 5}
+[    142s] чипы: 125_Постройки_2 отброшено {'bg_nodata': 2}
+[    142s] чипы: 126_Постройки_3 отброшено {'bg_nodata': 2}
+[    145s] чипы: 128_Постройки_5 отброшено {'bg_nodata': 2}
+[    145s] чипы: 129_Постройки_6 отброшено {'bg_nodata': 2}
+[    145s] чипы: 127_Постройки_4 отброшено {'bg_nodata': 2}
+[    389s] чипов: 2919 (объектных 1736), участков 132, 361 с; классы: {'gorodishcha': 71, 'kurgany_povrezhdennye': 1158, 'kurgany_tselye': 219, 'fortifikatsii': 65, 'arkhitektury': 223}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 272/1197 [00:00<00:00, 2698.41it/s]Loading weights:  45%|████▌     | 542/1197 [00:00<00:00, 2441.64it/s]Loading weights:  66%|██████▌   | 788/1197 [00:00<00:00, 2389.52it/s]Loading weights:  86%|████████▌ | 1028/1197 [00:00<00:00, 2362.88it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2407.31it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 270/1197 [00:00<00:00, 2672.04it/s]Loading weights:  45%|████▍     | 538/1197 [00:00<00:00, 2435.32it/s]Loading weights:  65%|██████▌   | 783/1197 [00:00<00:00, 2364.64it/s]Loading weights:  85%|████████▌ | 1021/1197 [00:00<00:00, 2341.51it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 2383.89it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[    392s] [gpu0 f0] train чипов 2785, test участков 2, бюджет обучения 2.56 ч
+[    392s] [gpu1 f3] train чипов 2602, test участков 16, бюджет обучения 2.56 ч
+<dfine_train_bot5.py>:76: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+[    510s] [gpu0 f0] [bot5] {'it': 100, 'loss': 102.6033, 's_it': 0.9777}
+[    510s] [gpu1 f3] [bot5] {'it': 100, 'loss': 71.0174, 's_it': 0.9724}
+[    614s] [gpu0 f0] [bot5] {'it': 200, 'loss': 46.6922, 's_it': 1.0067}
+[    614s] [gpu1 f3] [bot5] {'it': 200, 'loss': 45.6437, 's_it': 1.0002}
+[    716s] [gpu0 f0] [bot5] {'it': 300, 'loss': 37.5241, 's_it': 0.9806}
+[    716s] [gpu1 f3] [bot5] {'it': 300, 'loss': 37.7195, 's_it': 0.9778}
+[    818s] [gpu0 f0] [bot5] {'it': 400, 'loss': 34.3015, 's_it': 0.9902}
+[    818s] [gpu1 f3] [bot5] {'it': 400, 'loss': 34.7693, 's_it': 0.9836}
+[    921s] [gpu0 f0] [bot5] {'it': 500, 'loss': 32.7127, 's_it': 0.9841}
+[    921s] [gpu1 f3] [bot5] {'it': 500, 'loss': 33.4721, 's_it': 0.9807}
+[   1023s] [gpu1 f3] [bot5] {'it': 600, 'loss': 32.611, 's_it': 0.98}
+[   1023s] [gpu0 f0] [bot5] {'it': 600, 'loss': 31.9779, 's_it': 0.998}
+[   1125s] [gpu0 f0] [bot5] {'it': 700, 'loss': 31.4171, 's_it': 0.9925}
+[   1126s] [gpu1 f3] [bot5] {'it': 700, 'loss': 31.8953, 's_it': 0.986}
+[   1227s] [gpu0 f0] [bot5] {'it': 800, 'loss': 30.858, 's_it': 0.9885}
+[   1227s] [gpu1 f3] [bot5] {'it': 800, 'loss': 31.8137, 's_it': 0.9876}
+[   1331s] [gpu0 f0] [bot5] {'it': 900, 'loss': 30.2044, 's_it': 1.003}
+[   1331s] [gpu1 f3] [bot5] {'it': 900, 'loss': 30.9436, 's_it': 0.9993}
+[   1434s] [gpu0 f0] [bot5] {'it': 1000, 'loss': 30.0212, 's_it': 0.9892}
+[   1434s] [gpu1 f3] [bot5] {'it': 1000, 'loss': 30.8353, 's_it': 0.9856}
+[   1538s] [gpu0 f0] [bot5] {'it': 1100, 'loss': 29.4595, 's_it': 0.997}
+[   1538s] [gpu1 f3] [bot5] {'it': 1100, 'loss': 30.494, 's_it': 0.9939}
+[   1642s] [gpu1 f3] [bot5] {'it': 1200, 'loss': 29.8999, 's_it': 0.9906}
+[   1642s] [gpu0 f0] [bot5] {'it': 1200, 'loss': 28.8185, 's_it': 0.9962}
+[   1746s] [gpu0 f0] [bot5] {'it': 1300, 'loss': 29.1945, 's_it': 1.0035}
+[   1746s] [gpu1 f3] [bot5] {'it': 1300, 'loss': 28.9233, 's_it': 0.9951}
+[   1849s] [gpu0 f0] [bot5] {'it': 1400, 'loss': 28.4836, 's_it': 0.9948}
+[   1849s] [gpu1 f3] [bot5] {'it': 1400, 'loss': 29.129, 's_it': 0.9862}
+[   1952s] [gpu0 f0] [bot5] {'it': 1500, 'loss': 28.4461, 's_it': 0.9991}
+[   1952s] [gpu1 f3] [bot5] {'it': 1500, 'loss': 28.5823, 's_it': 0.9946}
+[   2055s] [gpu0 f0] [bot5] {'it': 1600, 'loss': 27.8249, 's_it': 1.0067}
+[   2056s] [gpu1 f3] [bot5] {'it': 1600, 'loss': 29.0894, 's_it': 1.0007}
+[   2158s] [gpu0 f0] [bot5] {'it': 1700, 'loss': 27.8166, 's_it': 0.9837}
+[   2158s] [gpu1 f3] [bot5] {'it': 1700, 'loss': 28.3028, 's_it': 0.9814}
+[   2262s] [gpu0 f0] [bot5] {'it': 1800, 'loss': 27.785, 's_it': 1.0177}
+[   2262s] [gpu1 f3] [bot5] {'it': 1800, 'loss': 28.7328, 's_it': 1.0045}
+[   2365s] [gpu0 f0] [bot5] {'it': 1900, 'loss': 27.6995, 's_it': 0.9829}
+[   2365s] [gpu1 f3] [bot5] {'it': 1900, 'loss': 28.2224, 's_it': 0.9831}
+[   2469s] [gpu0 f0] [bot5] {'it': 2000, 'loss': 27.3105, 's_it': 0.9919}
+[   2469s] [gpu1 f3] [bot5] {'it': 2000, 'loss': 28.3748, 's_it': 0.9906}
+[   2572s] [gpu0 f0] [bot5] {'it': 2100, 'loss': 27.2493, 's_it': 0.9935}
+[   2572s] [gpu1 f3] [bot5] {'it': 2100, 'loss': 27.2661, 's_it': 0.99}
+[   2675s] [gpu0 f0] [bot5] {'it': 2200, 'loss': 27.2519, 's_it': 1.0038}
+[   2675s] [gpu1 f3] [bot5] {'it': 2200, 'loss': 27.6463, 's_it': 0.9999}
+[   2777s] [gpu0 f0] [bot5] {'it': 2300, 'loss': 26.9233, 's_it': 0.9772}
+[   2777s] [gpu1 f3] [bot5] {'it': 2300, 'loss': 27.4172, 's_it': 0.9716}
+[   2881s] [gpu0 f0] [bot5] {'it': 2400, 'loss': 26.7699, 's_it': 0.9851}
+[   2881s] [gpu1 f3] [bot5] {'it': 2400, 'loss': 27.4352, 's_it': 0.9906}
+[   2983s] [gpu0 f0] [bot5] {'it': 2500, 'loss': 26.4804, 's_it': 0.9944}
+[   2983s] [gpu1 f3] [bot5] {'it': 2500, 'loss': 27.4328, 's_it': 0.9827}
+[   3086s] [gpu0 f0] [bot5] {'it': 2600, 'loss': 26.1698, 's_it': 0.9829}
+[   3086s] [gpu1 f3] [bot5] {'it': 2600, 'loss': 27.2671, 's_it': 0.9861}
+[   3188s] [gpu0 f0] [bot5] {'it': 2700, 'loss': 25.9272, 's_it': 0.9761}
+[   3188s] [gpu1 f3] [bot5] {'it': 2700, 'loss': 27.1447, 's_it': 0.9723}
+[   3290s] [gpu0 f0] [bot5] {'it': 2800, 'loss': 25.8752, 's_it': 0.992}
+[   3290s] [gpu1 f3] [bot5] {'it': 2800, 'loss': 26.4508, 's_it': 0.9896}
+[   3392s] [gpu0 f0] [bot5] {'it': 2900, 'loss': 25.8425, 's_it': 0.9861}
+[   3392s] [gpu1 f3] [bot5] {'it': 2900, 'loss': 26.7196, 's_it': 0.9825}
+[   3493s] [gpu0 f0] [bot5] {'it': 3000, 'loss': 25.7915, 's_it': 0.9774}
+[   3494s] [gpu1 f3] [bot5] {'it': 3000, 'loss': 26.503, 's_it': 0.9698}
+[   3595s] [gpu0 f0] [bot5] {'it': 3100, 'loss': 25.5777, 's_it': 0.9759}
+[   3595s] [gpu1 f3] [bot5] {'it': 3100, 'loss': 26.4064, 's_it': 0.9688}
+[   3696s] [gpu0 f0] [bot5] {'it': 3200, 'loss': 25.2104, 's_it': 0.9765}
+[   3696s] [gpu1 f3] [bot5] {'it': 3200, 'loss': 26.2527, 's_it': 0.9675}
+[   3798s] [gpu0 f0] [bot5] {'it': 3300, 'loss': 25.2117, 's_it': 0.9846}
+[   3798s] [gpu1 f3] [bot5] {'it': 3300, 'loss': 26.5856, 's_it': 0.9817}
+[   3901s] [gpu0 f0] [bot5] {'it': 3400, 'loss': 25.0903, 's_it': 0.9965}
+[   3901s] [gpu1 f3] [bot5] {'it': 3400, 'loss': 25.8195, 's_it': 0.9946}
+[   4003s] [gpu0 f0] [bot5] {'it': 3500, 'loss': 25.328, 's_it': 0.9702}
+[   4003s] [gpu1 f3] [bot5] {'it': 3500, 'loss': 25.7494, 's_it': 0.9747}
+[   4104s] [gpu0 f0] [bot5] {'it': 3600, 'loss': 24.898, 's_it': 0.9739}
+[   4104s] [gpu1 f3] [bot5] {'it': 3600, 'loss': 26.0799, 's_it': 0.9651}
+[   4205s] [gpu0 f0] [bot5] {'it': 3700, 'loss': 25.2358, 's_it': 0.9896}
+[   4205s] [gpu1 f3] [bot5] {'it': 3700, 'loss': 25.6467, 's_it': 0.9937}
+[   4307s] [gpu0 f0] [bot5] {'it': 3800, 'loss': 24.829, 's_it': 0.9931}
+[   4308s] [gpu1 f3] [bot5] {'it': 3800, 'loss': 25.6268, 's_it': 0.9942}
+[   4409s] [gpu0 f0] [bot5] {'it': 3900, 'loss': 24.9262, 's_it': 0.9789}
+[   4409s] [gpu1 f3] [bot5] {'it': 3900, 'loss': 25.8228, 's_it': 0.9755}
+[   4511s] [gpu0 f0] [bot5] {'it': 4000, 'loss': 24.6986, 's_it': 0.9811}
+[   4511s] [gpu1 f3] [bot5] {'it': 4000, 'loss': 25.6725, 's_it': 0.9842}
+[   4613s] [gpu0 f0] [bot5] {'it': 4100, 'loss': 24.6246, 's_it': 0.9894}
+[   4613s] [gpu1 f3] [bot5] {'it': 4100, 'loss': 25.3134, 's_it': 0.9903}
+[   4714s] [gpu0 f0] [bot5] {'it': 4200, 'loss': 24.8959, 's_it': 0.9706}
+[   4714s] [gpu1 f3] [bot5] {'it': 4200, 'loss': 26.2614, 's_it': 0.9625}
+[   4816s] [gpu0 f0] [bot5] {'it': 4300, 'loss': 24.4893, 's_it': 0.9779}
+[   4817s] [gpu1 f3] [bot5] {'it': 4300, 'loss': 25.6399, 's_it': 0.9763}
+[   4918s] [gpu0 f0] [bot5] {'it': 4400, 'loss': 24.6652, 's_it': 0.9725}
+[   4918s] [gpu1 f3] [bot5] {'it': 4400, 'loss': 25.2019, 's_it': 0.9672}
+[   5019s] [gpu0 f0] [bot5] {'it': 4500, 'loss': 24.6193, 's_it': 0.9832}
+[   5019s] [gpu1 f3] [bot5] {'it': 4500, 'loss': 25.3104, 's_it': 0.9813}
+[   5120s] [gpu0 f0] [bot5] {'it': 4600, 'loss': 24.4668, 's_it': 0.9624}
+[   5120s] [gpu1 f3] [bot5] {'it': 4600, 'loss': 25.0554, 's_it': 0.9616}
+[   5221s] [gpu0 f0] [bot5] {'it': 4700, 'loss': 24.4849, 's_it': 0.9744}
+[   5221s] [gpu1 f3] [bot5] {'it': 4700, 'loss': 25.1433, 's_it': 0.9748}
+[   5322s] [gpu0 f0] [bot5] {'it': 4800, 'loss': 24.7948, 's_it': 0.9867}
+[   5322s] [gpu1 f3] [bot5] {'it': 4800, 'loss': 25.1427, 's_it': 0.9744}
+[   5424s] [gpu0 f0] [bot5] {'it': 4900, 'loss': 24.3936, 's_it': 0.9711}
+[   5424s] [gpu1 f3] [bot5] {'it': 4900, 'loss': 25.4365, 's_it': 0.9693}
+[   5525s] [gpu0 f0] [bot5] {'it': 5000, 'loss': 24.472, 's_it': 0.9706}
+[   5525s] [gpu1 f3] [bot5] {'it': 5000, 'loss': 25.4771, 's_it': 0.9681}
+[   5626s] [gpu0 f0] [bot5] {'it': 5100, 'loss': 24.1375, 's_it': 0.9682}
+[   5626s] [gpu1 f3] [bot5] {'it': 5100, 'loss': 25.0538, 's_it': 0.9722}
+[   5726s] [gpu0 f0] [bot5] {'it': 5200, 'loss': 24.2686, 's_it': 0.9708}
+[   5727s] [gpu1 f3] [bot5] {'it': 5200, 'loss': 24.8114, 's_it': 0.9717}
+[   5827s] [gpu0 f0] [bot5] {'it': 5300, 'loss': 24.3501, 's_it': 0.9646}
+[   5827s] [gpu1 f3] [bot5] {'it': 5300, 'loss': 25.1768, 's_it': 0.9627}
+[   5928s] [gpu0 f0] [bot5] {'it': 5400, 'loss': 24.3414, 's_it': 0.9707}
+[   5928s] [gpu1 f3] [bot5] {'it': 5400, 'loss': 24.9669, 's_it': 0.9624}
+[   6028s] [gpu0 f0] [bot5] {'it': 5500, 'loss': 24.5321, 's_it': 0.9726}
+[   6028s] [gpu1 f3] [bot5] {'it': 5500, 'loss': 25.0229, 's_it': 0.9664}
+[   6129s] [gpu0 f0] [bot5] {'it': 5600, 'loss': 24.7392, 's_it': 0.969}
+[   6129s] [gpu1 f3] [bot5] {'it': 5600, 'loss': 24.8035, 's_it': 0.9701}
+[   6230s] [gpu0 f0] [bot5] {'it': 5700, 'loss': 24.0414, 's_it': 0.9691}
+[   6230s] [gpu1 f3] [bot5] {'it': 5700, 'loss': 25.1997, 's_it': 0.9651}
+[   6331s] [gpu0 f0] [bot5] {'it': 5800, 'loss': 24.5173, 's_it': 0.9724}
+[   6331s] [gpu1 f3] [bot5] {'it': 5800, 'loss': 25.0236, 's_it': 0.9656}
+[   6432s] [gpu0 f0] [bot5] {'it': 5900, 'loss': 24.1929, 's_it': 0.9766}
+[   6432s] [gpu1 f3] [bot5] {'it': 5900, 'loss': 25.4353, 's_it': 0.9748}
+[   6533s] [gpu0 f0] [bot5] {'it': 6000, 'loss': 24.3825, 's_it': 0.9778}
+[   6534s] [gpu1 f3] [bot5] {'it': 6000, 'loss': 24.8718, 's_it': 0.971}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s][AWriting model shards: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.17it/s]
+
+Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.77it/s][AWriting model shards: 100%|██████████| 1/1 [00:00<00:00,  2.77it/s]
+[   6535s] [infer] 033_Елизаветинское 01_Елизаветинское_SpOr_спутник.tif: 1979x1017 px, окон 8
+[   6535s] [infer] 101_Гнёздово_Днепровская 01_Гнёздово_Днепровская_SpOr_спутник.tif: 3739x3790 px, окон 64
+[   6540s] [infer] 033_Елизаветинское: готово 8 окон за 5 с
+[   6541s] [infer] 040_Примаки_1.3км 01_Примаки_1.3км_SpOr_спутник.tif: 3108x1821 px, окон 28
+[   6547s] [infer] 040_Примаки_1.3км: готово 28 окон за 6 с
+[   6548s] [infer] 041_Миловидово 01_Миловидово_SpOr_спутник.tif: 5179x3035 px, окон 66
+[   6551s] [infer] 101_Гнёздово_Днепровская: готово 64 окон за 16 с
+[   6552s] [infer] 103_Гнёздово_Ольшанская 01_Гнёздово_Ольшанская_SpOr_спутник.tif: 3653x2192 px, окон 40
+[   6561s] [infer] 103_Гнёздово_Ольшанская: готово 40 окон за 8 с
+[   6562s] [gpu0 f0] готово {"trainer": "bot5", "iters": 6000, "planned": 6000, "s_it_median": 0.982844352722168, "sec": 6142, "loss_first": 165.52200317382812, "loss_last": 21.093305587768555, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 2785, "test_regions": ["101_Гнёздово_Днепровская", "103_Гнёздово_Ольшанская"], "n_det": 2516, "infer_sec": 27, "peak_vram_gb": 6.77}
+[   6563s] [infer] 041_Миловидово: готово 66 окон за 14 с
+[   6566s] [infer] 041_Миловидово 02_Миловидово_SpOr_спутник.tif: 5178x3035 px, окон 66
+[   6575s] [infer] 041_Миловидово: готово 66 окон за 10 с
+[   6579s] [infer] 042_Тору_Айгыр 01_Тору_Айгыр_SpOr_спутник.tif: 1368x814 px, окон 6
+[   6581s] [infer] 042_Тору_Айгыр: готово 6 окон за 3 с
+[   6582s] [infer] 042_Тору_Айгыр 02_Тору_Айгыр_SpOr_спутник.tif: 1367x814 px, окон 6
+[   6583s] [infer] 042_Тору_Айгыр: готово 6 окон за 1 с
+[   6583s] [infer] 042_Тору_Айгыр 03_Тору_Айгыр_SpOr_спутник.tif: 1366x814 px, окон 6
+[   6584s] [infer] 042_Тору_Айгыр: готово 6 окон за 1 с
+[   6584s] [infer] 042_Тору_Айгыр 04_Тору_Айгыр_SpOr_спутник.tif: 1366x813 px, окон 6
+[   6585s] [infer] 042_Тору_Айгыр: готово 6 окон за 1 с
+[   6585s] [infer] 043_Гочево 01_Гочево_SpOr_спутник.tif: 4680x3300 px, окон 70
+[   6595s] [infer] 043_Гочево: готово 70 окон за 9 с
+[   6598s] [infer] 064_Ксизово 01_Ксизово_SpOr_спутник.tif: 1143x898 px, окон 6
+[   6599s] [infer] 064_Ксизово: готово 6 окон за 1 с
+[   6599s] [infer] 085_Каджы_Саз 01_Каджы_Саз_SpOr_спутник.tif: 2169x1282 px, окон 15
+[   6604s] [infer] 085_Каджы_Саз: готово 15 окон за 4 с
+[   6604s] [infer] 088_Кель_Тор_Х 01_Кель_Тор_Х_SpOr_спутник.tif: 2530x1495 px, окон 15
+[   6607s] [infer] 088_Кель_Тор_Х: готово 15 окон за 2 с
+[   6607s] [infer] 094_Иссык_Куль_курганы_и_выкладки 01_Иссык_Куль_курганы_и_выкладки_SpOr_спутник.tif: 923x722 px, окон 4
+[   6608s] [infer] 094_Иссык_Куль_курганы_и_выкладки: готово 4 окон за 1 с
+[   6608s] [infer] 095_Иссык_Куль_курганы_и_постройки_1 01_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник.tif: 931x728 px, окон 4
+[   6609s] [infer] 095_Иссык_Куль_курганы_и_постройки_1: готово 4 окон за 1 с
+[   6609s] [infer] 096_Иссык_Куль_курганы_и_постройки_2 01_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник.tif: 927x723 px, окон 4
+[   6610s] [infer] 096_Иссык_Куль_курганы_и_постройки_2: готово 4 окон за 1 с
+[   6610s] [infer] 097_Орнок 01_Орнок_SpOr_спутник.tif: 922x721 px, окон 4
+[   6610s] [infer] 097_Орнок: готово 4 окон за 1 с
+[   6611s] [infer] 097_Орнок 02_Орнок_SpOr_спутник.tif: 803x440 px, окон 2
+[   6612s] [infer] 097_Орнок: готово 2 окон за 2 с
+[   6612s] [infer] 108_Скупая_Полудань 01_Скупая_Полудань_SpOr_спутник.tif: 2655x1795 px, окон 24
+[   6615s] [infer] 108_Скупая_Полудань: готово 24 окон за 3 с
+[   6617s] [infer] 183_Сарское 01_Сарское_SpOr_спутник.tif: 4876x2511 px, окон 50
+[   6643s] [infer] 183_Сарское: готово 50 окон за 26 с
+[   6646s] [infer] 183_Сарское 02_Сарское_SpOr_спутник.tif: 4874x2511 px, окон 50
+[   6654s] [infer] 183_Сарское: готово 50 окон за 7 с
+[   6656s] [infer] 184_Шурскол 01_Шурскол_SpOr_спутник.tif: 3198x1882 px, окон 28
+[   6660s] [infer] 184_Шурскол: готово 28 окон за 4 с
+[   6661s] [infer] 186_Семибратнее_1 01_Семибратнее_1_SpOr_спутник.tif: 2095x1251 px, окон 15
+[   6663s] [infer] 186_Семибратнее_1: готово 15 окон за 2 с
+[   6670s] [gpu1 f3] готово {"trainer": "bot5", "iters": 6000, "planned": 6000, "s_it_median": 0.9795317649841309, "sec": 6142, "loss_first": 74.0887680053711, "loss_last": 25.135717391967773, "model_check": {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256]}, "n_train_chips": 2602, "test_regions": ["033_Елизаветинское", "040_Примаки_1.3км", "041_Миловидово", "042_Тору_Айгыр", "043_Гочево", "064_Ксизово", "085_Каджы_Саз", "088_Кель_Тор_Х", "094_Иссык_Куль_курганы_и_выкладки", "095_Иссык_Куль_курганы_и_постройки_1", "096_Иссык_Куль_курганы_и_постройки_2", "097_Орнок", "108_Скупая_Полудань", "183_Сарское", "184_Шурскол", "186_Семибратнее_1"], "n_det": 37382, "infer_sec": 136, "peak_vram_gb": 6.77}
+[   6679s] ПРОГНОЗ full: с/ит 0.981 → 8000 ит × 5 фолдов / 2 GPU ≈ 5.45 ч (+инференс)
+[   6679s] ГОТОВО 39898 детекций; ошибки фолдов: []
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 545731 bytes to __results__.html

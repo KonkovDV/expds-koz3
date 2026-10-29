@@ -1,0 +1,53 @@
+From cb4742e046998c837f14859f4226d00c66ab9e49 Mon Sep 17 00:00:00 2001
+From: bot-8 <bot-8@local>
+Date: Wed, 28 Oct 2026 23:25:12 +0300
+Subject: [PATCH 6/6] =?UTF-8?q?lidar=5Fa=20(5):=20runner.blend=5Fstacks=20?=
+ =?UTF-8?q?=E2=80=94=20ensemble=20over=20ready=20stacks=20(used=20by=20sit?=
+ =?UTF-8?q?e=5Fmaps=20and=20the=20GPU=20bench)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ expds/lidar_a/runner.py | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/expds/lidar_a/runner.py b/expds/lidar_a/runner.py
+index 0f8c098..5aa9b6b 100644
+--- a/expds/lidar_a/runner.py
++++ b/expds/lidar_a/runner.py
+@@ -57,14 +57,20 @@ def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"),
+     kinds = list(dict.fromkeys(k for _, k, _ in models))
+     stacks, vmask = stacks_for(dtm, valid, cell, kinds, dev)
+     tta = guard_tta(tta, deadline)
++    return blend_stacks(stacks, models, n_out, tta, dev, log, accumulate), vmask
++
++
++def blend_stacks(stacks, models, n_out, tta=True, dev="cuda", log=print, accumulate=None):
++    """Weighted ensemble of tiled-inference maps over ready input stacks {kind: (C, h, w)} → (n_out, h, w) float32.
++    accumulate: host | device_exact | device (default LIDAR_A_ACC)."""
+     mode = accumulate or ACCUMULATE
+     if mode == "host":
+         maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
+             m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
+-        return ensemble(maps, models), vmask
++        return ensemble(maps, models)
+     infer = _DeviceInfer(n_out, tta, dev, log)
+     if mode == "device_exact":
+-        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models), vmask
++        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models)
+     if mode != "device":
+         raise ValueError(f"LIDAR_A_ACC {mode!r}")
+     wts = np.array([w for _, _, w in models], np.float32)
+@@ -74,7 +80,7 @@ def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"),
+         part = infer(m, stacks[k]).mul_(float(wt))     # a float32 weight is exact as a python float
+         total = part if total is None else total.add_(part)
+         del part
+-    return total.cpu().numpy(), vmask
++    return total.cpu().numpy()
+ 
+ 
+ class _DeviceInfer:
+-- 
+2.47.3
+

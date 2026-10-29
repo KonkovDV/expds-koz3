@@ -1,0 +1,9 @@
+k10 {'A_drop': 0.312067, 'A_keep': 0.327873, 'orsp_drop': 0.316, 'orsp_keep': 0.331806, 'd_orsp_drop': 0.003933, 'd_orsp_keep': 0.003933}
+lofo {'A_drop': 0.312058, 'A_keep': 0.327865, 'orsp_drop': 0.317001, 'orsp_keep': 0.332807, 'd_orsp_drop': 0.004943, 'd_orsp_keep': 0.004943}
+seed0 {'A_drop': 0.312402, 'A_keep': 0.328208, 'orsp_drop': 0.31545, 'orsp_keep': 0.331256, 'd_orsp_drop': 0.003049, 'd_orsp_keep': 0.003049}
+seed1 {'A_drop': 0.305903, 'A_keep': 0.32171, 'orsp_drop': 0.30679, 'orsp_keep': 0.322597, 'd_orsp_drop': 0.000887, 'd_orsp_keep': 0.000887}
+seed2 {'A_drop': 0.315344, 'A_keep': 0.33115, 'orsp_drop': 0.318628, 'orsp_keep': 0.334434, 'd_orsp_drop': 0.003284, 'd_orsp_keep': 0.003284}
+seed3 {'A_drop': 0.305373, 'A_keep': 0.321179, 'orsp_drop': 0.309308, 'orsp_keep': 0.325114, 'd_orsp_drop': 0.003935, 'd_orsp_keep': 0.003934}
+seed4 {'A_drop': 0.287028, 'A_keep': 0.315889, 'orsp_drop': 0.289245, 'orsp_keep': 0.318106, 'd_orsp_drop': 0.002217, 'd_orsp_keep': 0.002217}
+orsp_drop d10=+0.003933 P=0.994 CI=[+0.00046;+0.01102] lofo=+0.004943 seeds+=5/5 heavy=+0.003933 new34=+0.001118 acc=True
+orsp_keep d10=+0.003933 P=0.994 CI=[+0.00046;+0.01102] lofo=+0.004943 seeds+=5/5 heavy=+0.003933 new34=+0.001117 acc=True

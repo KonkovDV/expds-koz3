@@ -1,0 +1,18 @@
+== c5-in_f4
+OOF: 1583 объектов {'kurgany_povrezhdennye': 770, 'kurgany_tselye': 813} регионы ['016_Хога']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0373394759
+score идеальных кругов r=0.5 м (контроль формата): 0.9999994444 на 18 объектах GT
+== c3-sc_f3
+OOF: 394 объектов {'fortifikatsii': 6, 'kurgany_tselye': 172, 'kurgany_povrezhdennye': 216} регионы ['191_Осечки_1.3км']
+ошибки схемы: нет
+score OOF (compute_metrics): 0.0000000000
+score идеальных кругов r=0.5 м (контроль формата): 0.9999991667 на 3 объектах GT
+== check_maps
+region_fold.json: 59 участков, фолды {0: 6, 1: 1, 2: 13, 3: 18, 4: 21} jobs [{'variant': 'c5-in', 'fold': 4}, {'variant': 'c3-sc', 'fold': 3}]
+maps_cnx_c3-sc_f3_191_Осечки_1.3км.npz {'valid': ('uint8', [355, 464]), 'valid_h': ('uint8', [89, 116]), 'hm': ('float32', [2, 89, 116]), 'wh': ('float16', [1, 89, 116]), 'off': ('float16', [2, 89, 116]), 'mask': ('uint8', [3, 355, 464])}
+  meta: {'region': '191_Осечки_1.3км', 'fold': 3, 'family': 'Осечки', 'stride': 4, 'left': 488268.5, 'top': 5009775.9, 'step': 0.5, 'step_head': 2.0, 'crs': 'EPSG:32637', 'H': 355, 'W': 464, 'tags': ['lrm_s', 'lrm_l', 'slope'], 'enc': {'hm': 'f32 prob', 'wh': 'f16 raw', 'off': 'f16 raw', 'mask': 'u8/255 prob'}}
+  decode по npz (hm f32, wh/off f16, gor из mask u8): 388 кандидатов; в OOF курганов: 388
+maps_cnx_c5-in_f4_016_Хога.npz {'valid': ('uint8', [704, 981]), 'valid_h': ('uint8', [176, 246]), 'hm': ('float32', [2, 176, 246]), 'wh': ('float16', [1, 176, 246]), 'off': ('float16', [2, 176, 246]), 'mask': ('uint8', [3, 704, 981])}
+  meta: {'region': '016_Хога', 'fold': 4, 'family': 'Хога', 'stride': 4, 'left': 658558.7000000001, 'top': 6449746.800000001, 'step': 0.5, 'step_head': 2.0, 'crs': 'EPSG:32632', 'H': 704, 'W': 981, 'tags': ['lrm_s', 'lrm_l', 'slope', 'svf_r', 'opp_r'], 'enc': {'hm': 'f32 prob', 'wh': 'f16 raw', 'off': 'f16 raw', 'mask': 'u8/255 prob'}}
+  decode по npz (hm f32, wh/off f16, gor из mask u8): 1583 кандидатов; в OOF курганов: 1583

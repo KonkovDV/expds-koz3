@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-9/kaggle/bench_t4/_scratch/t3/bench_tile.py", line 336, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/koz3_shared/bot-9/kaggle/bench_t4/_scratch/t3/bench_tile.py", line 314, in main
+    dev = torch.device(a.device); torch.cuda.set_device(dev)
+                                  ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/workspace/koz3_shared/bot-9/kaggle/bench_t4/_scratch/venv_dry/lib/python3.13/site-packages/torch/cuda/__init__.py", line 638, in set_device
+    torch._C._cuda_setDevice(device)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'torch._C' has no attribute '_cuda_setDevice'

@@ -1,0 +1,31 @@
+== check_submission: /tmp/b8sc_dist/koz3_softceil_pixgbm_428257f_ee6d36df.zip (2026-10-29 02:01:23 MSK)
+[PASS] zip       48 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 539.1 МиБ (565249464 Б), распакованный 542.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 28 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'psutil', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'tl2cgen', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[WARN] imports   не установлены в /workspace/koz3_shared/bot-8/venv/bin/python необязательные ленивые пакеты (есть фолбэк): {'psutil': 'не найден', 'tl2cgen': 'не найден'}
+[PASS] imports   27 модулей и 11 сторонних пакетов импортируются без сети (6.4 с)
+[PASS] weights   12 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0,1 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[PASS] smoke     main.py завершился за 5.1 с, пик RSS 965 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 0 с, лидар: сырых 30, 2 с, оптика: сырых 5, 0 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 4.3 с
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+== ИТОГ: PASS — FAIL 0, WARN 1, проверок 27, 14.0 с
+RSS guard: peak 1020 MiB, exit 0
+exit=0 wall=14s

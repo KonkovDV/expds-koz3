@@ -1,0 +1,15 @@
+# Пресет U (bot-6, GEO.md §4): текущий стек + PIXGBM объединением только на EtGr/TerFl, t_pix 0.5, maggr от pix не берётся.
+# Вставить вместо секции [geophys.pixgbm] в configs/default.toml (или задать теми же ключами через --set).
+# Оценка bot-6: keep-all +0.00752 (лучший из 12 — с поправкой на выбор ≈ +0.005).
+[geophys.pixgbm]
+enabled = true
+model_dir = "models/pixgbm/all"
+classes = ["object_poly"]
+maps = ["etgr", "terfl"]
+replace = false   # U: объединение, классика остаётся
+union_name_re = ""
+t_pix = 0.5
+backend = "lleaves"   # нужны models/pixgbm/all/poly.lleaves.so + .json; без них — lightgbm, те же кандидаты
+budget_s = 300
+guard_reserve_s = 0
+procs = 0

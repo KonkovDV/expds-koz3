@@ -1,0 +1,136 @@
+         6901590 function calls (6797969 primitive calls) in 28.384 seconds
+
+   Ordered by: cumulative time
+   List reduced from 9467 to 70 due to restriction <70>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       38    0.000    0.000   21.206    0.558 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:368(fallthrough)
+       28    4.770    0.170    8.844    0.316 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:176(_predict_on_device)
+        8    0.130    0.016    7.292    0.912 /workspace/koz3_shared/speedup/base/expds/lidar.py:149(build_dem)
+        8    0.254    0.032    5.099    0.637 /workspace/koz3_shared/speedup/base/expds/lidar.py:115(fill_interior_holes)
+        6    0.416    0.069    4.563    0.760 /workspace/koz3_shared/speedup/base/expds/lidar.py:81(_fill_by_delaunay)
+        6    0.000    0.000    3.883    0.647 /workspace/koz3_shared/speedup/base/expds/pipeline.py:277(dem_for)
+        6    0.000    0.000    3.554    0.592 /workspace/koz3_shared/speedup/base/expds/accel.py:202(fill_tin)
+        6    3.554    0.592    3.554    0.592 {built-in method expds_core.fill_tin}
+       28    0.184    0.007    3.372    0.120 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/autograd/grad_mode.py:293(__exit__)
+       10    1.337    0.134    3.061    0.306 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:607(_register_to_dispatcher)
+       22    0.000    0.000    2.972    0.135 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:311(py_impl)
+       40    0.193    0.005    2.915    0.073 /workspace/koz3_shared/speedup/tools/prof_run.py:24(_stub)
+       80    2.629    0.033    2.629    0.033 {built-in method torch._C._nn.avg_pool2d}
+        1    0.000    0.000    2.252    2.252 /workspace/koz3_shared/speedup/base/expds/watchdog.py:140(checkpoint)
+        8    0.000    0.000    2.045    0.256 /workspace/koz3_shared/speedup/base/expds/accel.py:126(las_grid)
+        8    2.045    0.256    2.045    0.256 {built-in method expds_core.las_grid}
+        3    0.000    0.000    1.961    0.654 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:166(py_functionalize_impl)
+81599/69561    0.080    0.000    1.801    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/decorators.py:182(wrapper)
+      115    0.003    0.000    1.643    0.014 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/library.py:285(impl)
+        7    0.016    0.002    1.488    0.213 /workspace/koz3_shared/speedup/base/expds/pipeline.py:146(geophys_feats)
+       15    0.024    0.002    1.360    0.091 /workspace/koz3_shared/speedup/base/expds/centers.py:252(centers_to_features)
+       11    0.001    0.000    1.355    0.123 /workspace/koz3_shared/speedup/base/expds/geophys.py:381(object_polys)
+        9    0.000    0.000    1.344    0.149 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:148(inner)
+        8    0.000    0.000    1.303    0.163 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/base/hub_mixin.py:150(wrapper)
+        8    0.000    0.000    1.302    0.163 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/decoders/unet/model.py:105(__init__)
+        1    0.012    0.012    1.192    1.192 /workspace/koz3_shared/speedup/base/expds/writer.py:54(write_geojson)
+        1    0.000    0.000    1.180    1.180 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/side_effects.py:1(<module>)
+        1    0.000    0.000    1.164    1.164 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/codegen.py:1(<module>)
+        1    0.000    0.000    1.160    1.160 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/tensor.py:1(<module>)
+     7933    0.049    0.000    1.153    0.000 /workspace/koz3_shared/speedup/base/expds/raster.py:151(circle_3857)
+        1    0.000    0.000    1.092    1.092 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py:1(<module>)
+        1    0.000    0.000    1.090    1.090 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/lists.py:1(<module>)
+        1    0.000    0.000    1.084    1.084 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py:1(<module>)
+        1    0.354    0.354    1.045    1.045 /workspace/koz3_shared/speedup/base/expds/writer.py:23(to_feature_collection)
+        1    0.000    0.000    1.039    1.039 /workspace/koz3_shared/speedup/base/expds/watchdog.py:65(finish)
+        8    0.000    0.000    1.017    0.127 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py:71(get_encoder)
+        8    0.000    0.000    1.016    0.127 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:38(__init__)
+        8    0.002    0.000    1.015    0.127 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:167(__init__)
+        3    0.000    0.000    1.015    0.338 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_ops.py:283(__init__)
+        1    0.000    0.000    1.005    1.005 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1(<module>)
+       11    0.087    0.008    0.951    0.086 /workspace/koz3_shared/speedup/base/expds/geophys.py:343(polys_from)
+        1    0.000    0.000    0.948    0.948 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1077(__init__)
+        1    0.000    0.000    0.941    0.941 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/distributed/fsdp/__init__.py:1(<module>)
+        1    0.000    0.000    0.919    0.919 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/distributed/fsdp/_fully_shard/__init__.py:1(<module>)
+        1    0.012    0.012    0.797    0.797 /workspace/koz3_shared/speedup/base/expds/post.py:149(finalize)
+     1456    0.753    0.001    0.788    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/serialization.py:2062(load_tensor)
+      336    0.003    0.000    0.786    0.002 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/init.py:513(kaiming_uniform_)
+      360    0.775    0.002    0.775    0.002 {method 'uniform_' of 'torch._C.TensorBase' objects}
+31970/31959    0.748    0.000    0.748    0.000 {method 'astype' of 'numpy.ndarray' objects}
+     8350    0.007    0.000    0.741    0.000 /workspace/koz3_shared/speedup/base/expds/post.py:119(limit_vertices)
+      248    0.002    0.000    0.710    0.003 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:500(__init__)
+      248    0.003    0.000    0.704    0.003 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:87(__init__)
+      248    0.001    0.000    0.672    0.003 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:182(reset_parameters)
+        4    0.028    0.007    0.657    0.164 /workspace/koz3_shared/speedup/base/expds/pipeline.py:442(drop_near_kurgans)
+        1    0.000    0.000    0.642    0.642 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/exc.py:1(<module>)
+        1    0.001    0.001    0.639    0.639 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_dynamo/utils.py:1(<module>)
+       27    0.002    0.000    0.622    0.023 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/library.py:129(define)
+      120    0.000    0.000    0.591    0.005 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/geometry/base.py:624(simplify)
+      120    0.591    0.005    0.591    0.005 {simplify_preserve_topology_scalar}
+       32    0.001    0.000    0.584    0.018 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:225(_make_layer)
+       64    0.001    0.000    0.565    0.009 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:62(__init__)
+    15850    0.020    0.000    0.547    0.000 /workspace/koz3_shared/speedup/base/expds/crs.py:55(to_crs)
+      128    0.001    0.000    0.534    0.004 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:40(conv3x3)
+178468/175760    0.051    0.000    0.526    0.000 {built-in method builtins.hasattr}
+     8350    0.003    0.000    0.522    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/geometry/geo.py:121(mapping)
+     8350    0.052    0.000    0.518    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/geometry/polygon.py:281(__geo_interface__)
+        8    0.043    0.005    0.507    0.063 /workspace/koz3_shared/speedup/base/expds/lidar.py:527(relief_channels)
+        1    0.000    0.000    0.498    0.498 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/fx/experimental/symbolic_shapes.py:1(<module>)
+   4676/5    0.011    0.000    0.485    0.097 <frozen importlib._bootstrap>:1349(_find_and_load)
+   1790/5    0.008    0.000    0.485    0.097 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+
+
+         6901590 function calls (6797969 primitive calls) in 28.384 seconds
+
+   Ordered by: internal time
+   List reduced from 9467 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       28    4.770    0.170    8.844    0.316 /workspace/koz3_shared/speedup/base/expds/infer_nn.py:176(_predict_on_device)
+        6    3.554    0.592    3.554    0.592 {built-in method expds_core.fill_tin}
+       80    2.629    0.033    2.629    0.033 {built-in method torch._C._nn.avg_pool2d}
+        8    2.045    0.256    2.045    0.256 {built-in method expds_core.las_grid}
+       10    1.337    0.134    3.061    0.306 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/_library/custom_ops.py:607(_register_to_dispatcher)
+      360    0.775    0.002    0.775    0.002 {method 'uniform_' of 'torch._C.TensorBase' objects}
+     1456    0.753    0.001    0.788    0.001 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/serialization.py:2062(load_tensor)
+31970/31959    0.748    0.000    0.748    0.000 {method 'astype' of 'numpy.ndarray' objects}
+      120    0.591    0.005    0.591    0.005 {simplify_preserve_topology_scalar}
+       35    0.439    0.013    0.439    0.013 {built-in method expds_core.box_mean}
+        6    0.416    0.069    4.563    0.760 /workspace/koz3_shared/speedup/base/expds/lidar.py:81(_fill_by_delaunay)
+      160    0.384    0.002    0.384    0.002 {method 'normal_' of 'torch._C.TensorBase' objects}
+        1    0.354    0.354    1.045    1.045 /workspace/koz3_shared/speedup/base/expds/writer.py:23(to_feature_collection)
+   178918    0.279    0.000    0.308    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/coords.py:43(__iter__)
+    12042    0.265    0.000    0.337    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/constructive.py:136(buffer)
+        8    0.254    0.032    5.099    0.637 /workspace/koz3_shared/speedup/base/expds/lidar.py:115(fill_interior_holes)
+     7997    0.235    0.000    0.285    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/pyproj/crs/crs.py:185(__init__)
+        4    0.228    0.057    0.283    0.071 /workspace/koz3_shared/speedup/base/expds/candidates.py:177(to_features)
+       30    0.224    0.007    0.224    0.007 {built-in method expds_core.find_peaks}
+     1696    0.212    0.000    0.212    0.000 {built-in method marshal.loads}
+       40    0.193    0.005    2.915    0.073 /workspace/koz3_shared/speedup/tools/prof_run.py:24(_stub)
+     7941    0.185    0.000    0.196    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/pyproj/crs/crs.py:1300(to_epsg)
+       28    0.184    0.007    3.372    0.120 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/torch/autograd/grad_mode.py:293(__exit__)
+    23742    0.170    0.000    0.298    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/pyproj/transformer.py:841(transform)
+   348934    0.158    0.000    0.158    0.000 {built-in method builtins.round}
+       12    0.153    0.013    0.153    0.013 {built-in method expds_core.work_grid}
+   3555/6    0.146    0.000    0.482    0.080 {built-in method builtins.exec}
+      495    0.144    0.000    0.155    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/features.py:93(shapes)
+        8    0.144    0.018    0.144    0.018 {built-in method expds_core.convex_hull_mask}
+        2    0.138    0.069    0.138    0.069 {built-in method expds_core.relief_channels}
+        8    0.130    0.016    7.292    0.912 /workspace/koz3_shared/speedup/base/expds/lidar.py:149(build_dem)
+        1    0.116    0.116    0.116    0.116 /home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/json/encoder.py:205(iterencode)
+     1456    0.110    0.000    0.110    0.000 {method 'copy_' of 'torch._C.TensorBase' objects}
+     6032    0.109    0.000    0.116    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/sympy/multipledispatch/conflict.py:12(consistent)
+       55    0.103    0.002    0.107    0.002 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:100(open)
+       12    0.101    0.008    0.196    0.016 /workspace/koz3_shared/speedup/base/expds/geophys.py:103(read_band)
+       14    0.091    0.007    0.091    0.007 {built-in method expds_core.local_relief}
+    20231    0.090    0.000    0.090    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+       40    0.089    0.002    0.089    0.002 {method 'float' of 'torch._C.TensorBase' objects}
+    15846    0.088    0.000    0.481    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/coordinates.py:27(transform)
+       11    0.087    0.008    0.951    0.086 /workspace/koz3_shared/speedup/base/expds/geophys.py:343(polys_from)
+       14    0.085    0.006    0.295    0.021 /workspace/koz3_shared/speedup/base/expds/raster.py:68(mask_to_polygons)
+524314/512508    0.081    0.000    0.094    0.000 {built-in method builtins.isinstance}
+81599/69561    0.080    0.000    1.801    0.000 /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/shapely/decorators.py:182(wrapper)
+      296    0.075    0.000    0.075    0.000 {built-in method torch.zeros}
+   463633    0.069    0.000    0.069    0.000 {method 'get' of 'dict' objects}
+        6    0.065    0.011    0.211    0.035 /workspace/koz3_shared/speedup/base/expds/accel.py:423(local_dev)
+       12    0.064    0.005    0.065    0.005 {built-in method expds_core.robust_z}
+     7874    0.063    0.000    0.417    0.000 /workspace/koz3_shared/speedup/base/expds/pipeline.py:411(ground_point)
+4569/4511    0.059    0.000    0.331    0.000 {built-in method builtins.__build_class__}
+
+

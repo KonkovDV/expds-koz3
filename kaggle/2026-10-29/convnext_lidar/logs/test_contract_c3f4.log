@@ -1,0 +1,5 @@
+centerhead c3-sc_f1 {"bytes": 64170657, "n_tensors": 252, "dtypes": ["torch.float16", "torch.int64"], "max_abs_vs_kernel_model": {"hm": 0.0, "wh": 0.0, "off": 0.0, "mask": 0.0}, "flat_shape": [2, 5, 96, 128], "hw_check": "100×100 прошёл"}
+centerhead c5-in_f1 {"bytes": 64176865, "n_tensors": 252, "dtypes": ["torch.float16", "torch.int64"], "max_abs_vs_kernel_model": {"hm": 0.0, "wh": 0.0, "off": 0.0, "mask": 0.0}, "flat_shape": [2, 5, 96, 128], "hw_check": "100×100 прошёл"}
+heat c3-sc_f1 {"bytes": 63944861, "n_tensors": 240, "dtypes": ["torch.float16", "torch.int64"], "max_abs_vs_kernel_model": {"hm": 0.0, "mask": 0.0}, "flat_shape": [2, 5, 96, 128], "hw_check": "100×100 прошёл"}
+heat c5-in_f1 {"bytes": 63951069, "n_tensors": 240, "dtypes": ["torch.float16", "torch.int64"], "max_abs_vs_kernel_model": {"hm": 0.0, "mask": 0.0}, "flat_shape": [2, 5, 96, 128], "hw_check": "100×100 прошёл"}
+ключи tu-convnext_tiny == tu-convnext_tiny.fb_in1k: True

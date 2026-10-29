@@ -1,0 +1,3 @@
+oof_dfine_spor.geojson n 39898 types {'Polygon': 39898} folds {0: 2516, 3: 37382} regions 18 empty 0 invalid 275 zero_area 0 open 0 few 0 nonfinite 0 conf_bad 0 dup 0 maxrss_MB 219
+oof_dfine_f0.geojson n 2516 types {'Polygon': 2516} folds {0: 2516} regions 2 empty 0 invalid 8 zero_area 0 open 0 few 0 nonfinite 0 conf_bad 0 dup 2515 maxrss_MB 219
+oof_dfine_f3.geojson n 37382 types {'Polygon': 37382} folds {3: 37382} regions 16 empty 0 invalid 267 zero_area 0 open 0 few 0 nonfinite 0 conf_bad 0 dup 37381 maxrss_MB 219

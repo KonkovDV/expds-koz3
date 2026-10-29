@@ -1,0 +1,17 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[10s] honest-10 A 0.3146153226828423
+[14s] raw candidates 431505 Counter({2: 430286, 1: 1219})
+[16s] dedup candidates 431501 Counter({2: 430286, 1: 1215})
+[21s] labels Counter({0: 429843, 1: 1304, 2: 354}) ignore 71 pairs {'kurgany_povrezhdennye': 1303, 'kurgany_tselye': 633}
+[21s] circle at GT representative_point hit-rate {'kurgany_povrezhdennye_r0.5': 0.9996666666666667, 'kurgany_povrezhdennye_r2.0': 1.0, 'kurgany_tselye_r0.5': 0.9911223842739378, 'kurgany_tselye_r2.0': 0.9961953075459734}
+[21s] coverage {'kurgany_povrezhdennye': {'gt_in_ae_regions': 1803, 'any_cand': 705, 'gen_cand': 144, 'gt_nolidar': 421, 'any_cand_nolidar': 144}, 'kurgany_tselye': {'gt_in_ae_regions': 820, 'any_cand': 395, 'gen_cand': 45, 'gt_nolidar': 154, 'any_cand_nolidar': 45}}
+[22s] TOUCH regions 27 [np.str_('028_Вышегжа_2'), np.str_('101_Гнёздово_Днепровская'), np.str_('102_Гнёздово_Заольшанская')]
+[41s] own kurgan routine == honest_counts: OK
+[272s] fam10 fits 48
+[273s] fam10 cand {'auc_any': 0.8034744538487695, 'n_pos': 1658, 'n_neg': 429772, 'auc_kurgany_povrezhdennye': 0.8012654121267762, 'auc_kurgany_tselye': 0.6259743618556808, 'auc_any_nolidar': 0.5727514691130152, 'auc_any_stack_rows': 0.6571292700324959, 'n_stack_rows_pos': 1147, 'n_stack_rows': 1202, 'auc_any_gen': 0.5727514691130152, 'auc_gen_kurgany_povrezhdennye': 0.5016124675197638, 'auc_gen_kurgany_tselye': 0.41567926481997153, 'n_gen_pos': 511, 'n_gen': 430228, 'gt_recall_p>=0.5_kurgany_povrezhdennye': [0, 1803], 'neg_cands_p>=0.5': 1282, 'gt_recall_p>=0.5_kurgany_tselye': [3, 820], 'gt_recall_p>=0.2_kurgany_povrezhdennye': [15, 1803], 'neg_cands_p>=0.2': 1384, 'gt_recall_p>=0.2_kurgany_tselye': [10, 820]}
+[276s] cand7 export {'n': 430586, 'n_ok': 430286, 'n_missing': 300, 'fold_agree': [430286, 430286]}
+[278s] fam10 gate delta -0.014048 {'kurgany_povrezhdennye': {'tp': 938, 'fp': 2715, 'n_gt': 3620, 'f1': 0.3171324807539354}, 'kurgany_tselye': {'tp': 548, 'fp': 1115, 'n_gt': 1577, 'f1': 0.40857360647601293}}
+[278s] fam10 add delta 0.0 {'kurgany_povrezhdennye': {'tp': 932, 'fp': 2756, 'n_gt': 3620, 'f1': 0.3143334197423369}, 'kurgany_tselye': {'tp': 693, 'fp': 1199, 'n_gt': 1577, 'f1': 0.4830104821010559}}
+[278s] fam10 add+gate delta -0.014048 {'kurgany_povrezhdennye': {'tp': 938, 'fp': 2715, 'n_gt': 3620, 'f1': 0.3171324807539354}, 'kurgany_tselye': {'tp': 548, 'fp': 1115, 'n_gt': 1577, 'f1': 0.40857360647601293}}
+[278s] done; peak RSS MB 1700.31640625
+watchdog max RSS MB 1700 exit 0

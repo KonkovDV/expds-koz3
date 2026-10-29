@@ -1,0 +1,436 @@
+diff --git a/expds/centers.py b/expds/centers.py
+index 3bfbb04..65aa4ee 100644
+--- a/expds/centers.py
++++ b/expds/centers.py
+@@ -261,7 +261,7 @@ def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: s
+     subpixel сдвигает круг внутри клетки по параболе логарифма. По умолчанию
+     выключен: пороги сдачи подобраны на целых пикселях.
+     """
+-    from .raster import circle_3857, pixel_to_xy
++    from .raster import circles_3857, pixel_to_xy
+ 
+     out = []
+     step = max(float(res), 1e-6)
+@@ -281,8 +281,7 @@ def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: s
+             # два пика ближе min_dist_m, и круги склеятся в один полигон.
+             keep = _keep_min_distance(xs, ys, min_dist_m)
+             xs, ys, vals = xs[keep], ys[keep], vals[keep]
+-        for x, y, v in zip(xs, ys, vals):
+-            geom = circle_3857(float(x), float(y), radius_m, crs)
++        for geom, v in zip(circles_3857(xs, ys, radius_m, crs), vals):
+             if geom.is_empty:
+                 continue
+             out.append({"geom": geom, "class_name": cls, "confidence": float(v), "region_name": region,
+diff --git a/expds/geophys.py b/expds/geophys.py
+index 2b5df20..3333f4f 100644
+--- a/expds/geophys.py
++++ b/expds/geophys.py
+@@ -19,7 +19,7 @@ from pathlib import Path
+ import numpy as np
+ 
+ from . import accel
+-from .raster import circle_3857, mask_to_polygons, pixel_to_xy
++from .raster import circle_3857, circles_3857, mask_to_polygons, pixel_to_xy
+ 
+ log = logging.getLogger(__name__)
+ 
+@@ -335,9 +335,10 @@ def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
+         rows, cols, vals = with_plateaus(rows, cols, vals, raw, mag, res, radius, floor, p.plateau_max_m2,
+                                          p.plateau_min_m2)
+     xs, ys = pixel_to_xy(tr, rows, cols)
+-    return [{"geom": circle_3857(float(x), float(y), p.point_circle_m, crs), "class_name": "finds_points",
++    return [{"geom": g, "class_name": "finds_points",
+              "confidence": float(strength_confidence(v)), "region_name": region, "markup_type": markup_type,
+-             "source": source, "original_crs": crs} for x, y, v in zip(xs, ys, vals)]
++             "source": source, "original_crs": crs}
++            for g, v in zip(circles_3857(xs, ys, p.point_circle_m, crs), vals)]
+ 
+ 
+ def polys_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
+diff --git a/expds/infer_nn.py b/expds/infer_nn.py
+index 72e1843..d5fe8a7 100644
+--- a/expds/infer_nn.py
++++ b/expds/infer_nn.py
+@@ -9,6 +9,8 @@ from __future__ import annotations
+ import logging
+ from pathlib import Path
+ 
++import os
++
+ import numpy as np
+ 
+ from . import accel
+@@ -71,14 +73,28 @@ class Segmenter:
+         arch = ck.get("arch") or "Unet"
+         arch_kwargs = ck.get("arch_kwargs") or {}
+         # Сданные веса без поля arch — тот же U-Net, что и раньше. Другой декодер только из чекпойнта.
+-        if arch == "Unet" and not arch_kwargs:
+-            self.model = smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
+-                                  in_channels=ck["in_channels"], classes=len(self.classes))
+-        else:
+-            self.model = smp.create_model(arch, encoder_name=ck["encoder"], encoder_weights=None,
+-                                          in_channels=ck["in_channels"], classes=len(self.classes),
+-                                          **arch_kwargs)
+-        self.model.load_state_dict(ck["state_dict"])
++        def build():
++            if arch == "Unet" and not arch_kwargs:
++                return smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
++                                in_channels=ck["in_channels"], classes=len(self.classes))
++            return smp.create_model(arch, encoder_name=ck["encoder"], encoder_weights=None,
++                                    in_channels=ck["in_channels"], classes=len(self.classes),
++                                    **arch_kwargs)
++
++        # Сеть строится на устройстве meta (без случайной инициализации весов, ~0,2 с на модель),
++        # веса чекпойнта подставляются как есть (assign). Если что-то осталось без значения
++        # (буфер вне state_dict) — обычный путь.
++        model = None
++        if os.environ.get("EXPDS_META_INIT", "1") == "1":
++            with torch.device("meta"):
++                model = build()
++            model.load_state_dict(ck["state_dict"], assign=True)
++            if any(t.is_meta for t in (*model.parameters(), *model.buffers())):
++                model = None
++        if model is None:
++            model = build()
++            model.load_state_dict(ck["state_dict"])
++        self.model = model
+         self.model.to(self.device).eval()
+         self.amp = inference_amp(self.device)
+         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
+@@ -141,14 +157,21 @@ class Segmenter:
+         if xs[-1] + t < w:
+             xs.append(w - t)
+         pad_h, pad_w = max(0, t - h), max(0, t - w)
+-        x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w)))
++        # Без паддинга np.pad всё равно копирует весь снимок: берём как есть.
++        x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w))) if pad_h or pad_w else np.ascontiguousarray(img)
+         ramp = np.minimum(np.arange(t) + 1, np.arange(t)[::-1] + 1).astype(np.float32)
+         weight = np.minimum.outer(ramp, ramp)
+         weight /= weight.max()
+         coords = [(y, x) for y in ys for x in xs]
+         need = x_all.nbytes + (len(self.classes) + 1) * x_all.shape[1] * x_all.shape[2] * 4
+-        if self.device.type == "cuda" and need < 0.6 * torch.cuda.mem_get_info(self.device)[0]:
+-            return self._predict_on_device(x_all, coords, weight, batch)[:, :h, :w]
++        if self.device.type == "cuda":
++            free = torch.cuda.mem_get_info(self.device)[0]
++            # Слоты — по желанию (EXPDS_SLOT_ACCUM=1): побитно то же, но на CPU медленнее цикла,
++            # а на CUDA мелкие ядра цикла в основном прячутся за асинхронным проходом сети.
++            if os.environ.get("EXPDS_SLOT_ACCUM") == "1" and _slots_ok(ys, xs, t, step) and need + slot_bytes(len(self.classes), x_all.shape[1:]) < 0.6 * free:
++                return self._predict_on_device_slots(x_all, ys, xs, weight, batch, step)[:, :h, :w]
++            if need < 0.6 * free:
++                return self._predict_on_device(x_all, coords, weight, batch)[:, :h, :w]
+         acc = np.zeros((len(self.classes), x_all.shape[1], x_all.shape[2]), np.float32)
+         wsum = np.zeros(x_all.shape[1:], np.float32)
+         with torch.inference_mode():
+@@ -207,6 +230,101 @@ class Segmenter:
+         return (acc / wsum.clamp_min(1e-6)).cpu().numpy()
+ 
+ 
++    def _predict_on_device_slots(self, x_all: np.ndarray, ys: list[int], xs: list[int], weight: np.ndarray,
++                                 batch: int, step: int) -> np.ndarray:
++        """То же, что _predict_on_device, бит в бит, но без питоновского цикла по окнам.
++
++        Окна строки/столбца с одной чётностью номера не пересекаются (шаг ≥ t/2), последнее
++        добавочное окно у края — свой слот. Поэтому окно батча не складывается, а
++        записывается (index_copy_) в плоскость своего слота: в плоскости у пикселя не
++        больше одного вклада. В конце вклады пикселя суммируются в том же порядке, что
++        и в цикле (окна по строкам, затем по столбцам, начиная с нуля), — сложения
++        float32 те же, результат совпадает побитно. Вместо 3–4 ядер на окно — ≤ 9
++        записей на батч и 9 сборок на снимок.
++        """
++        import torch
++
++        t = self.tile
++        dev = self.device
++        k_cls = len(self.classes)
++        c = k_cls + 1                       # последний канал — сумма весов
++        _, hh, ww = x_all.shape
++        hw = hh * ww
++        sy, cov_y = _axis_slots(ys, t, hh, step)  # слот окна по номеру; слоты пикселя по порядку
++        sx, cov_x = _axis_slots(xs, t, ww, step)
++        x = torch.from_numpy(x_all).to(dev)
++        planes = torch.zeros((10, c, hw), device=dev)   # 3×3 слота + нулевая плоскость
++        wt = torch.from_numpy(weight).to(dev)
++        base = (torch.arange(t, device=dev)[:, None] * ww + torch.arange(t, device=dev)[None, :]).reshape(-1)
++        coords = [(iy, ix) for iy in range(len(ys)) for ix in range(len(xs))]
++        with torch.inference_mode():
++            s = 0
++            while s < len(coords):
++                chunk = coords[s:s + batch]
++                xb = torch.stack([x[:, ys[iy]:ys[iy] + t, xs[ix]:xs[ix] + t] for iy, ix in chunk]).float()
++                xb = xb.div_(255.0).sub_(0.5).div_(0.25)
++                try:
++                    pr = self._forward(xb)
++                except RuntimeError as exc:
++                    del xb
++                    if not self._oom(exc) or batch == 1:
++                        raise
++                    torch.cuda.empty_cache()
++                    batch = max(1, batch // 2)
++                    log.warning("нехватка памяти, батч окон уменьшен до %s", batch)
++                    continue
++                vals = torch.cat([pr * wt, wt.expand(len(chunk), 1, t, t)], dim=1)
++                groups: dict[int, list[int]] = {}
++                for j, (iy, ix) in enumerate(chunk):
++                    groups.setdefault(sy[iy] * 3 + sx[ix], []).append(j)
++                for slot, js in groups.items():
++                    off = torch.tensor([ys[chunk[j][0]] * ww + xs[chunk[j][1]] for j in js], device=dev)
++                    idx = (off[:, None] + base[None, :]).reshape(-1)
++                    sel = vals if len(js) == len(chunk) else vals[torch.tensor(js, device=dev)]
++                    planes[slot].index_copy_(1, idx, sel.permute(1, 0, 2, 3).reshape(c, -1))
++                s += len(chunk)
++            acc = torch.zeros((c, hw), device=dev)
++            for a in range(cov_y.shape[0]):
++                for b in range(cov_x.shape[0]):
++                    ry, rx = cov_y[a], cov_x[b]
++                    n = np.where((ry[:, None] >= 0) & (rx[None, :] >= 0), ry[:, None] * 3 + rx[None, :], 9)
++                    n = torch.from_numpy(n.reshape(1, 1, -1)).to(dev).expand(1, c, hw)
++                    acc += torch.gather(planes, 0, n)[0]
++            del planes
++            acc = acc.view(c, hh, ww)
++        return (acc[:k_cls] / acc[k_cls].clamp_min(1e-6)).cpu().numpy()
++
++
++def _axis_slots(starts: list[int], t: int, n: int, step: int) -> tuple[list[int], np.ndarray]:
++    """Слоты окон одной оси и для каждого пикселя оси — слоты накрывающих его окон по порядку.
++
++    Слот окна — чётность номера, у последнего добавочного окна (не на шаге) — 2.
++    Возвращает (слот окна, массив A×n: слот a-го по порядку окна над пикселем, −1 — нет).
++    """
++    slot = [2 if s0 != i * step else i % 2 for i, s0 in enumerate(starts)]
++    cnt = np.zeros(n, np.int64)
++    cov = np.full((4, n), -1, np.int64)
++    for i, s0 in enumerate(starts):
++        seg = slice(s0, min(s0 + t, n))
++        cov[cnt[seg], np.arange(seg.start, seg.stop)] = slot[i]
++        cnt[seg] += 1
++    a = int(cnt.max()) if n else 1
++    return slot, cov[:max(a, 1)]
++
++
++def _slots_ok(ys: list[int], xs: list[int], t: int, step: int) -> bool:
++    """Слоты применимы, если окна одной чётности не пересекаются: шаг ≥ t/2, все окна на сетке
++    шага, кроме, может быть, последнего (добавочного у края)."""
++    if 2 * step < t:
++        return False
++    return all(s0 == i * step for st in (ys, xs) for i, s0 in enumerate(st[:-1]))
++
++
++def slot_bytes(k_cls: int, shape: tuple[int, int]) -> int:
++    """Память плоскостей слотов: 10 плоскостей и сумма, по (классы + вес) float32."""
++    return 11 * (k_cls + 1) * int(shape[0]) * int(shape[1]) * 4
++
++
+ class Ensemble:
+     """Несколько моделей одной схемы: вероятность — среднее их карт.
+ 
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..56855d9 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -701,6 +701,31 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
+     return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source, min_conf=min_conf)
+ 
+ 
++def _read_ahead(jobs: list, read, depth: int | None = None):
++    """(job, read(job)) по порядку; следующие depth окон читаются в фоновом потоке.
++
++    EXPDS_READ_AHEAD=0 — читать в основном потоке, как раньше.
++    """
++    import os
++    from concurrent.futures import ThreadPoolExecutor
++
++    depth = int(os.environ.get("EXPDS_READ_AHEAD", "1")) if depth is None else depth
++    if depth <= 0 or len(jobs) < 2:
++        for job in jobs:
++            yield job, read(job)
++        return
++    pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="expds-read")
++    try:
++        futs = [pool.submit(read, job) for job in jobs[:depth]]
++        for i, job in enumerate(jobs):
++            if i + depth < len(jobs):
++                futs.append(pool.submit(read, jobs[i + depth]))
++            yield job, futs[i].result()
++            futs[i] = None
++    finally:
++        pool.shutdown(wait=True, cancel_futures=True)
++
++
+ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
+                        overlap: int = 256, min_conf: dict[str, float] | None = None,
+                        fallback_crs: str | None = None) -> list[dict]:
+@@ -740,12 +765,19 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+         step = block - overlap
+         xs = list(range(0, max(w - overlap, 1), step))
+         ys = list(range(0, max(h - overlap, 1), step))
+-        for iy, y0 in enumerate(ys):
+-            for ix, x0 in enumerate(xs):
+-                bw, bh = min(block, w - x0), min(block, h - y0)
+-                win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
+-                a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+-                            resampling=Resampling.average if scale > 1 else Resampling.bilinear)
++        def read_block(job):
++            _, _, y0, x0 = job
++            bw, bh = min(block, w - x0), min(block, h - y0)
++            win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
++            return bw, bh, win, ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
++                                        resampling=Resampling.average if scale > 1 else Resampling.bilinear)
++
++        jobs = [(iy, ix, y0, x0) for iy, y0 in enumerate(ys) for ix, x0 in enumerate(xs)]
++        # Следующее окно читается (GDAL отпускает GIL), пока текущее идёт через сеть и полигоны.
++        # Читает только поток чтения, по одному окну за раз: данные те же, порядок тот же.
++        blocks = _read_ahead(jobs, read_block)
++        try:
++            for (iy, ix, y0, x0), (bw, bh, win, a) in blocks:
+                 if not a.any():
+                     continue
+                 tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
+@@ -769,6 +801,8 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+                 core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
+                 core = to_crs(core, crs, WEB_MERCATOR) if crs else core
+                 feats += [f for f in found if core.contains(f["geom"].representative_point())]
++        finally:
++            blocks.close()   # дождаться фонового чтения до закрытия ds
+     return feats
+ 
+ 
+diff --git a/expds/raster.py b/expds/raster.py
+index 26253db..c556383 100644
+--- a/expds/raster.py
++++ b/expds/raster.py
+@@ -12,6 +12,8 @@ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import Iterator
+ 
++from functools import lru_cache
++
+ import numpy as np
+ import rasterio
+ from rasterio.enums import Resampling
+@@ -140,6 +142,7 @@ def raster_kind_and_latitude(crs, transform, width: int, height: int) -> tuple[s
+     return "meter", 0.0
+ 
+ 
++@lru_cache(maxsize=256)
+ def _radius_in_ground_meters(crs: str) -> bool:
+     """UTM и прочие проекции в метрах. Веб-меркатор и градусы растягивают радиус."""
+     from pyproj import CRS
+@@ -166,6 +169,51 @@ def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 1
+     return to_crs(poly, src, WEB_MERCATOR) if src else poly
+ 
+ 
++def circles_3857(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
++    """circle_3857 для массива точек: те же полигоны побитно, но одним вызовом GEOS/PROJ на зону.
++
++    Порядок операций над каждой точкой тот же (PROJ и GEOS считают точки независимо),
++    поэтому координаты совпадают с поштучным вызовом до бита (tests/test_circles.py).
++    """
++    import shapely
++
++    from .crs import transformer, utm_for_lonlat
++
++    px = np.asarray(xs, dtype=np.float64).ravel()
++    py = np.asarray(ys, dtype=np.float64).ravel()
++    if px.size == 0:
++        return []
++    qs = max(2, n // 4)
++    if not crs or _radius_in_ground_meters(crs):
++        polys = shapely.buffer(shapely.points(px, py), radius_m, quad_segs=qs)
++        if not crs:
++            return list(polys)
++        return list(_transform_many(polys, crs, WEB_MERCATOR))
++    lon, lat = transformer(crs, "EPSG:4326").transform(px, py)
++    zones = [utm_for_lonlat(float(a), float(b)) for a, b in zip(np.atleast_1d(lon), np.atleast_1d(lat))]
++    out = [None] * px.size
++    for z in dict.fromkeys(zones):
++        idx = np.array([i for i, q in enumerate(zones) if q == z])
++        ux, uy = transformer(crs, z).transform(px[idx], py[idx])
++        polys = shapely.buffer(shapely.points(np.asarray(ux, np.float64), np.asarray(uy, np.float64)),
++                               radius_m, quad_segs=qs)
++        for i, g in zip(idx, _transform_many(polys, z, WEB_MERCATOR)):
++            out[i] = g
++    return out
++
++
++def _transform_many(geoms, src: str, dst: str):
++    """to_crs для массива геометрий одним вызовом PROJ."""
++    import shapely
++
++    from .crs import transformer
++
++    if src == dst:
++        return geoms
++    tr = transformer(src, dst)
++    return shapely.transform(np.asarray(geoms, dtype=object), lambda x, y: tr.transform(x, y), interleaved=False)
++
++
+ def needs_warp(ds) -> str | None:
+     """'gcps' или 'geographic', если окна растра нельзя читать как метры. UTM и 3857 — None."""
+     from .crs import is_geographic
+diff --git a/expds/tiles.py b/expds/tiles.py
+index a2c2b63..c03b345 100644
+--- a/expds/tiles.py
++++ b/expds/tiles.py
+@@ -248,7 +248,10 @@ def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
+     """Приводит число каналов к c: лишние отбрасываются, недостающие повторяют последний."""
+     if img.shape[0] >= c:
+         return img[:c]
+-    return np.concatenate([img, np.repeat(img[-1:], c - img.shape[0], axis=0)], axis=0)
++    out = np.empty((c, *img.shape[1:]), img.dtype)     # без промежуточного repeat + concatenate
++    out[:img.shape[0]] = img
++    out[img.shape[0]:] = img[-1]
++    return out
+ 
+ 
+ def _read_resampled(ds, win: Window, n: int, tile: int, resampling) -> np.ndarray:
+diff --git a/expds/writer.py b/expds/writer.py
+index c3372e2..a3c56c2 100644
+--- a/expds/writer.py
++++ b/expds/writer.py
+@@ -15,17 +15,43 @@ import math
+ import os
+ from pathlib import Path
+ 
++import numpy as np
+ from shapely.geometry import mapping, shape
+ 
+ from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VERTICES
+ 
+ 
++def _polygon_coords(geoms: list) -> list | None:
++    """Координаты колец всех полигонов одним вызовом GEOS, округлённые как раньше (round Python).
++
++    То же, что mapping(g)["coordinates"] с округлением, но без кортежей shapely на каждую
++    вершину. None — есть не Polygon или пустая геометрия: тогда старый путь.
++    """
++    import shapely
++
++    if not geoms:
++        return []
++    arr = np.asarray(geoms, dtype=object)
++    if not (shapely.get_type_id(arr) == 3).all() or shapely.is_empty(arr).any():
++        return None
++    _, coords, (ring_off, poly_off) = shapely.to_ragged_array(arr, include_z=False)
++    flat = [round(v, 2) for v in coords.ravel().tolist()]
++    pts = [flat[i:i + 2] for i in range(0, len(flat), 2)]
++    rings = [pts[a:b] for a, b in zip(ring_off[:-1].tolist(), ring_off[1:].tolist())]
++    return [rings[a:b] for a, b in zip(poly_off[:-1].tolist(), poly_off[1:].tolist())]
++
++
+ def to_feature_collection(feats: list[dict]) -> dict:
+     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
+     out = []
++    fast = _polygon_coords([f["geom"] for f in feats])
+     for k, f in enumerate(feats):
+-        geom = mapping(f["geom"])
+-        geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
++        if fast is not None:
++            geom = {"type": "Polygon", "coordinates": fast[k]}
++        else:
++            geom = mapping(f["geom"])
++            geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring]
++                                   for ring in geom["coordinates"]]
+         props = {"fid": k, "class_name": f["class_name"],
+                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
+                  "region_name": f.get("region_name", "default_source"),

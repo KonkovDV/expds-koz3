@@ -1,0 +1,21 @@
+fold 0: regions 2 (local 2, equal True), tifs started 2 done 2 expected 2, windows 104 done 104, gt 83, n_det report 2516 oof 2516, det/window 24.2, gt/window 0.798, det/gt 30.3, conf median 0.0753, conf>=0.3 68, >=0.5 20
+    101_Гнёздово_Днепровская {'tifs': 1, 'windows': 64, 'gt': 69, 'det': 1506}
+    103_Гнёздово_Ольшанская {'tifs': 1, 'windows': 40, 'gt': 14, 'det': 1010}
+fold 3: regions 16 (local 16, equal True), tifs started 22 done 22 expected 22, windows 483 done 483, gt 166, n_det report 37382 oof 37382, det/window 77.4, gt/window 0.344, det/gt 225.2, conf median 0.0970, conf>=0.3 1909, >=0.5 563
+    033_Елизаветинское {'tifs': 1, 'windows': 8, 'gt': 2, 'det': 439}
+    040_Примаки_1.3км {'tifs': 1, 'windows': 28, 'gt': 3, 'det': 2025}
+    041_Миловидово {'tifs': 2, 'windows': 132, 'gt': 30, 'det': 9341}
+    042_Тору_Айгыр {'tifs': 4, 'windows': 24, 'gt': 23, 'det': 2324}
+    043_Гочево {'tifs': 1, 'windows': 70, 'gt': 2, 'det': 4923}
+    064_Ксизово {'tifs': 1, 'windows': 6, 'gt': 1, 'det': 516}
+    085_Каджы_Саз {'tifs': 1, 'windows': 15, 'gt': 2, 'det': 1312}
+    088_Кель_Тор_Х {'tifs': 1, 'windows': 15, 'gt': 1, 'det': 1008}
+    094_Иссык_Куль_курганы_и_выкладки {'tifs': 1, 'windows': 4, 'gt': 20, 'det': 474}
+    095_Иссык_Куль_курганы_и_постройки_1 {'tifs': 1, 'windows': 4, 'gt': 9, 'det': 437}
+    096_Иссык_Куль_курганы_и_постройки_2 {'tifs': 1, 'windows': 4, 'gt': 40, 'det': 384}
+    097_Орнок {'tifs': 2, 'windows': 6, 'gt': 13, 'det': 554}
+    108_Скупая_Полудань {'tifs': 1, 'windows': 24, 'gt': 1, 'det': 2307}
+    183_Сарское {'tifs': 2, 'windows': 100, 'gt': 12, 'det': 7686}
+    184_Шурскол {'tifs': 1, 'windows': 28, 'gt': 1, 'det': 2296}
+    186_Семибратнее_1 {'tifs': 1, 'windows': 15, 'gt': 6, 'det': 1356}
+infer_skipped top-level: None | errors line: ['[   6679s] ГОТОВО 39898 детекций; ошибки фолдов: []']

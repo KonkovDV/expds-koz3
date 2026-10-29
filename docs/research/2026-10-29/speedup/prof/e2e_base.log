@@ -1,0 +1,50 @@
+2026-10-28 22:32:02,100 expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-28 22:32:02,100 expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:02,101 expds.pipeline: устройство: cpu
+2026-10-28 22:32:02,205 expds.catalog: найдено регионов: 7 в sample
+2026-10-28 22:32:02,205 expds.pipeline: к разбору: регионов 7, LAS 2, растров 18 (etgr 9, maggr 3, sp_or 5, terfl 1), пропущено файлов 0
+2026-10-28 22:32:02,219 expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 4.5}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=2'}
+2026-10-28 22:32:02,348 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 22:32:02,429 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 22:32:02,679 expds.health: опись входа: {'regions': 7, 'rasters_by_modality': {'sp_or': 5, 'maggr': 3, 'etgr': 9, 'terfl': 1}, 'las_files': 2, 'las_region_crs': {'EPSG:32632': 1, 'EPSG:32633': 1}, 'raster_read': {'ok': 18}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-28 22:32:02,726 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 22:32:02,759 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 22:32:06,989 expds.pipeline: 217_Гнёздово_Селище_3: геофизика +113, прошло 5 с
+2026-10-28 22:32:07,025 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 22:32:18,220 expds.lidar: DEM 01_Хога_La_точки.laz: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:20,212 expds.lidar: DEM 01_Хога_La_точки.laz: 983x706 @ 0.5 м, точек 268836, пустот 497683, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:20,273 expds.hillfort: 01_Хога_La_точки.laz: кандидатов городищ по рельефу 4
+2026-10-28 22:32:21,859 expds.lidar: DEM 01_Хога_La_точки.laz: 493x354 @ 1 м, точек 268836, пустот 67851, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:22,712 expds.pipeline: 016_Хога: лидар +1581, 15.7 с, прошло 21 с
+2026-10-28 22:32:22,768 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 22:32:28,509 expds.lidar: DEM 01_Курган_Хога_La_точки.laz: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:32,099 expds.lidar: DEM 01_Курган_Хога_La_точки.laz: 1035x1175 @ 0.5 м, точек 458251, пустот 791289, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:32,127 expds.hillfort: 01_Курган_Хога_La_точки.laz: кандидатов городищ по рельефу 4
+2026-10-28 22:32:32,566 expds.lidar: DEM 01_Курган_Хога_La_точки.laz: 518x589 @ 1 м, точек 458251, пустот 35404, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:32:33,463 expds.pipeline: 018_Курган_Хога: лидар +2161, 10.8 с, прошло 31 с
+2026-10-28 22:32:33,464 expds.pipeline: 044_Новотитаровская_1.8км: лидар +0, 0.0 с, прошло 31 с
+2026-10-28 22:32:33,464 expds.pipeline: 049_Калмыкия_2: лидар +0, 0.0 с, прошло 31 с
+2026-10-28 22:32:33,464 expds.pipeline: 161_Курганы_32: лидар +0, 0.0 с, прошло 31 с
+2026-10-28 22:32:33,464 expds.pipeline: 211_Гнёздово_Терраса_3: лидар +0, 0.0 с, прошло 31 с
+2026-10-28 22:32:33,464 expds.pipeline: 217_Гнёздово_Селище_3: лидар +0, 0.0 с, прошло 31 с
+2026-10-28 22:33:00,557 expds.pipeline: 049_Калмыкия_2: оптика +7922, прошло 58 с
+2026-10-28 22:33:03,797 expds.pipeline: 161_Курганы_32: оптика +71, прошло 62 с
+2026-10-28 22:33:04,384 expds.crs: CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+2026-10-28 22:33:07,330 expds.lidar: DEM 01_Хога_La_точки.laz: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:33:08,532 expds.pipeline: 016_Хога: канал σ +256, прошло 66 с
+2026-10-28 22:33:08,543 expds.crs: CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+2026-10-28 22:33:12,935 expds.lidar: DEM 01_Курган_Хога_La_точки.laz: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:33:15,469 expds.pipeline: 018_Курган_Хога: канал σ +555, прошло 73 с
+2026-10-28 22:33:15,498 expds.crop_model: проверка кропа включена, файла весов нет (models/sp_crop.pt) — уверенности не меняю
+2026-10-28 22:33:17,574 expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-28 22:33:17,574 expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-28 22:33:17,574 expds.watchdog: устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+2026-10-28 22:33:17,574 expds.watchdog: конфиг SHA256 833130f4f6efb420c9490a6011ab52a1c100c17cf1ed4a954ede83d0b1172d01; бюджет 1500 с; запас 120 с
+2026-10-28 22:33:17,574 expds.watchdog: вход: регионов 7, из них с LAS 2; файлов LAS 2; растров etgr 9, maggr 3, sp_or 5, terfl 1; пропущено файлов 0
+2026-10-28 22:33:17,574 expds.watchdog: фазы: геофизика: сырых 113, 4 с, лидар: сырых 3742, 26 с, оптика: сырых 7993, 30 с, канал σ: сырых 811, 12 с
+2026-10-28 22:33:17,575 expds.watchdog: до порога 12659, по слоям: etgr 35, li 4553, sp_or 7993, terfl 78
+2026-10-28 22:33:17,576 expds.watchdog: до порога по классам: arkhitektury 5985, fortifikatsii 2, gorodishcha 31, kurgany_povrezhdennye 3118, kurgany_tselye 3410, object_poly 113
+2026-10-28 22:33:17,577 expds.watchdog: записано 9015, файл 7059030 байт
+2026-10-28 22:33:17,577 expds.watchdog: после порога по классам: arkhitektury 4747, fortifikatsii 2, gorodishcha 21, kurgany_povrezhdennye 2561, kurgany_tselye 1572, object_poly 112
+2026-10-28 22:33:17,586 expds.watchdog: после порога по слоям: etgr 34, li 2463, sp_or 6440, terfl 78
+2026-10-28 22:33:17,586 expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====

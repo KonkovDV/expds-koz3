@@ -1,0 +1,41 @@
+  torch 2.15.0+cpu
+  torchvision 0.29.2+cpu
+  transformers 5.21.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  cv2 4.11.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "smoke", "res": 0.5, "tile": 256, "overlap": 160, "max_windows": 6, "bs": 1, "iters": 3, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 0, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 2, "smoke_test_regions": 1, "deadline_h": 11.3, "folds": "0,1,2,3,4", "regions": "161_Курганы_32,051_Воронеж_2"}
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[      1s] S3 OK
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Fetching 3 files: 100%|██████████| 3/3 [00:00<00:00, 190.24it/s]
+[      1s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+[      1s] фолды OK: 189 участков, 96 семей
+[      2s] участков со SpOr в фолдах: 2; вне фолдов (пропуск): 0
+[      4s] чипов: 21 (объектных 13), участков 2, 2 с; классы: {'kurgany_povrezhdennye': 12, 'kurgany_tselye': 1}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  59%|█████▉    | 710/1197 [00:00<00:00, 5774.66it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 7991.11it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /tmp/hf_dfine/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[      5s] [gpu0 f1] train чипов 8, test участков 1, бюджет обучения 10.47 ч
+[     24s] [gpu0 f1] {"it": 1, "loss": 415.6643, "s_it": 18.5504}
+[     35s] [gpu0 f1] {"it": 2, "loss": 343.552, "s_it": 14.5025}
+[     41s] [gpu0 f1] {"it": 3, "loss": 377.5119, "s_it": 10.4546}
+[     41s] [infer] 051_Воронеж_2 01_Воронеж_2_SpOr_спутник.tif: 4029x3712 px, окон 6
+[     58s] [infer] 051_Воронеж_2: готово 6 окон за 17 с
+[     59s] [gpu0 f1] готово {"iters": 3, "planned": 3, "s_it_median": 6.658448219299316, "sec": 36, "n_train_chips": 8, "test_regions": ["051_Воронеж_2"], "n_det": 446, "infer_sec": 18}
+[     59s] ПРОГНОЗ full: с/ит 6.658 → 8000 ит × 5 фолдов / 2 GPU ≈ 36.99 ч (+инференс)
+[     59s] ГОТОВО 446 детекций; ошибки фолдов: []
+maxrss MB 1269

@@ -1,0 +1,5 @@
+hull 1 {'add': 0, 'hull': 722}
+hulls6 1 {'add': 0, 'hull': 816}
+gor_noc 56 {'add': 11696, 'hull': 0}
+gor_full 56 {'add': 11870, 'hull': 0}
+gor_cs 56 {'add': 11841, 'hull': 0}

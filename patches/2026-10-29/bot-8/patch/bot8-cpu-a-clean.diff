@@ -1,0 +1,1426 @@
+diff --git a/docs/CLEANROOM_SPEC_lidar_a.md b/docs/CLEANROOM_SPEC_lidar_a.md
+new file mode 100644
+index 0000000..4dd49a9
+--- /dev/null
++++ b/docs/CLEANROOM_SPEC_lidar_a.md
+@@ -0,0 +1,131 @@
++# Clean-room spec: LiDAR expert, scenario (a) — DTM, relief stack, tiled inference, ensemble
++
++bot-8, 28.10.2026 (МСК). Written from reading the behaviour of EhimenNathan-EXpedition @d434e56 (`koz3/dtm.py`,
++`koz3/relief.py`, `koz3/hm.py:predict_tiled`, `inference/koz3_infer/experts/las.py:predict`). The spec describes
++algorithms, data and parameters in prose only — no code text. The implementation (`expds/lidar_a/`, branch
++`bot8-cpu-a-clean`) is written from this spec with its own structure and names. The original is used only as a test
++oracle loaded at test time from the read-only competitor copy (tests skip when it is absent); it is not vendored.
++Caveat: spec and implementation have the same author (one agent), so this is a documented clean-room procedure,
++not a two-team one. Bit-exactness against the oracle requires the same floating-point operation order; where that
++matters it is stated below as a requirement on the arithmetic (not as code).
++
++## 1. Ground grid from a LAS/LAZ file
++Inputs: point cloud path. Output: elevation grid `dtm` (float32, H×W, no NaN), `valid` (bool H×W), origin
++`(x_left, y_top, cell)`.
++
++1. Grid geometry from the header bounding box only. Start with cell 0.25 m; while (extent_x/cell)·(extent_y/cell)
++   exceeds 250 million, double the cell. Left edge = floor(min x); top edge = ceil(max y). Columns =
++   ceil((max x − left)/cell) + 1, rows = ceil((top − min y)/cell) + 1. Row 0 is the top (north) row.
++2. Ground selection mode, decided on the first block of 2,000,000 points as read:
++   - "class" mode if the share of points with classification 2 is at least 5 %;
++   - otherwise "ground-only" mode if that block looks like bare earth: bin its points into 1 m squares measured
++     from the block's own min x / min y, keep squares with ≥ 3 points, take max−min of z per square; bare earth if
++     there is at least one such square and the 95th percentile (linear interpolation) of those spreads is < 0.6 m;
++   - otherwise "lowest-return" mode.
++3. Rasterisation, streaming the file in blocks of 5,000,000 points (block size is part of the arithmetic: per-cell
++   sums are formed per block and added to the running total block by block, in file order). Elevation is taken as
++   float32; x, y as float64. Column index = (x − left)/cell truncated toward zero, row index = (top − y)/cell
++   truncated; points outside the grid are dropped. Class mode keeps only class 2; the other two modes drop classes
++   7 and 18 (noise). Class and ground-only modes accumulate a float64 sum of the float32 elevations and an int32
++   count per cell; the cell value is sum / max(count, 1) in float64, cast to float32; empty cells are NaN.
++   Lowest-return mode keeps the per-cell float32 minimum (empty = NaN) and then applies the morphological filter.
++4. Progressive morphological filter (Zhang et al. 2003) on the minimum grid: if everything is empty, return as is.
++   Fill empty cells with the value of the nearest non-empty cell (Euclidean nearest, as given by scipy's exact EDT
++   with indices) to get a working surface; ground flag starts as "non-empty". For window sizes 1, 2, 4, 8, 16 m in
++   order: odd window side in cells = the rounded value of size/cell with its lowest bit set, at least 3; open the
++   surface with a flat square structuring element of that side (grey opening, scipy default boundary); height
++   threshold = 0.3 m for the first window, then min(3.0, 0.3 + 0.3·(size − previous size)); a cell stays ground only
++   if surface − opened ≤ threshold; the opened surface becomes the working surface. Non-ground cells of the minimum
++   grid become NaN.
++5. Hole filling ("nearest ground"): every cell takes the value of its nearest ground cell (scipy exact EDT indices).
++   If any cell was filled, compute a Gaussian blur (σ = 1 cell, scipy defaults: truncate 4, reflect boundary) of the
++   nearest-filled grid and use the blurred value for filled cells only; ground cells keep their own value.
++   `valid` = (EDT distance in cells) × cell ≤ 3.0 m. Output cast to float32.
++
++### 1a. Faster but identical fill ("exact_fast", default) — our design
++The EDT is run for indices only. Validity is decided on the integer squared distance d² = Δrow² + Δcol²: the
++largest integer d²_max with sqrt(d²_max)·cell ≤ 3.0 (float64) is found once; the float test is monotone in the
++integer d², so `d² ≤ d²_max` gives the same mask. Gather and blur run in row blocks on a thread pool; each block is
++blurred with a 4-row halo (the σ = 1 kernel reaches 4 rows), so each kept row sees the same arithmetic → bit-equal.
++
++### 1b. Banded fill ("band", opt-in)
++Tiles (multiple of 32 cells) are processed on threads; each tile runs an indices-only EDT on its window extended by
++a band B = max(ceil(80 m / cell), ceil(3 m / cell) + 2). A cell whose nearest ground found in the window is within
++B is exact; farther cells (necessarily invalid) take the first ground cell of the nearest ground-bearing 32×32 block
++(block-level EDT). 80 m exceeds the receptive field of every relief channel from a valid pixel (§2), so the network
++input is equal in value (only the sign of value×0 on invalid pixels may differ).
++
++## 2. Relief stack (network input), on a torch device
++Inputs: dtm, valid, source cell s. Output: C×h×w float32 at 0.5 m (C = 9, or 12 with openness), valid h×w bool.
++
++1. Resampling to 0.5 m, factor f = 0.5/s, output h = round(H/f), w = round(W/f). If f is an integer > 1: pad the
++   dtm at bottom/right by edge replication to a multiple of f (valid padded with False), average-pool f×f, crop to
++   h×w (both dtm and valid-as-float). If f = 1: nothing. Otherwise interpolate to (h, w): dtm "area" when f > 1
++   else bilinear (no corner alignment); valid "area" when f > 1 else nearest.
++2. Separable Gaussian G(σ px): taps k = (integer part of 3σ) with lowest bit set, at least 3; tap offsets
++   −k//2…k//2 in the tensor dtype; weights exp(−offset²/(2σ²)) divided by their sum; horizontal pass first (edge
++   replicate pad k//2 left and right, 1×k correlation), then vertical (k×1).
++   Wide Gaussian WG(σ): if σ ≤ 12 it is G(σ); else factor q = floor(σ/6): edge-pad right/bottom to multiples of q,
++   average-pool q×q, G(σ/q), bilinear upsample by scale q (no corner alignment), crop to the input size.
++3. Channels, r = 0.5 m, z = resampled dtm (1×1×h×w):
++   - LRM at 2, 5, 10, 25 m: (z − WG(scale/r)) divided by 0.5, clipped to [−4, 4] (variant "unclip": asinh instead
++     of clipping).
++   - Slope: zs = G(0.75)(z); gx = (zs[col+1] − zs[col−1]) / (2r) on interior columns, border columns replicated;
++     gy likewise along rows. Slope angle = atan(sqrt(gx² + gy²)); channel = slope / 0.5.
++   - Hillshade at azimuth 315° and 45°, altitude 35°: aspect = atan2(−gx, gy); value = sin(alt)·cos(slope) +
++     cos(alt)·sin(slope)·cos(azimuth − aspect) (azimuth, altitude in radians, evaluated as float64 scalars, products
++     left to right); channel = 2·value − 1.
++   - Laplacian: G(1/r) of z, edge-pad 1, 3×3 4-neighbour Laplacian stencil (centre −4), divided by r²; channel =
++     (lap / 0.2) clipped to [−4, 4].
++   - (12-ch only) Openness and sky-view, radius 10 m: K = max(2, round(10/r)) = 20 px; z edge-padded by K. For 8
++     directions with angle (i·2·π)/8 (float64, multiply before divide): upward and downward horizon angles start at
++     −π/2; for step lengths k = 1, 1+t, 1+2t, … ≤ K with t = max(1, K//10): offset (round(k·sin), round(k·cos)) in
++     (row, col), horizontal distance = hypot(offset)·r, skipped if 0; elevation angle = atan((z_shifted − z)/dist);
++     up = max(up, angle), down = max(down, −angle). After each direction add (π/2 − up) to the positive sum, (π/2 −
++     down) to the negative sum, sin(max(up, 0)) to the sky sum (sums start at the integer 0, directions in order).
++     Means = sums / 8, sky-view = 1 − sky_sum/8. Channels: ((pos − π/2)/0.1), ((neg − π/2)/0.1), ((svf − 0.97)/0.03),
++     each clipped to [−4, 4].
++   - Valid: vb = 1 where resampled valid > 0.5 else 0; channel = 2·vb − 1.
++   Order: LRM2, LRM5, LRM10, LRM25, slope, hs315, hs45, laplacian, [pos-open, neg-open, svf], valid. All channels are
++   multiplied by vb. The 9-channel stack is therefore channels 0–7 and 11 of the 12-channel one (our item (2)).
++4. Windowed evaluation for big sites: if h·w ≤ 3072², evaluate at once. Else walk 3072×3072 output windows in row-
++   major order with a 384 px margin (clipped to the grid); the source window starts at round(start·f) and is
++   round(size·f) long, edge-padded (valid False) if it runs past the dtm; evaluate and copy the window's core.
++
++## 3. Tiled network inference with flip/rotation TTA
++Inputs: model, C×H×W stack, n_out, tile T, overlap O, TTA mode, device. Output n_out×H×W float32 in [0, 1].
++- Tile origins along each axis: 0, T−O, 2(T−O), … while < max(1, size − O); tile end = min(size, origin + T).
++- Each tile is padded bottom/right to a multiple of 32: reflect padding if min(tile h, w) > max(pad h, pad w), else
++  zeros; moved to the device as a float32 batch of 1.
++- Views: TTA "d8" on square padded tiles → 8 views: rotations k = 0..3 (90° steps in the H×W plane), each without
++  then with a horizontal (last axis) flip; otherwise TTA on → identity, flip of the last axis, flip of the row axis;
++  TTA off → identity. Each view: apply rotation then flip, run the model inside CUDA bfloat16 autocast, cast output
++  to float32, sigmoid, undo the flip, rotate back; sum views starting from 0 in view order, divide by the view count,
++  crop to the tile size.
++- Blending: base ramp (float64) = min(index+1, O)/O over T entries. Per axis: if the tile does not cover the whole
++  axis, weight = min(ramp, reversed ramp) over the tile length, else ones; then the first O entries are set to 1 if
++  the tile starts at 0 and the last O entries to 1 if it ends at the axis end. Tile weight = outer product (float64)
++  cast to float32. Accumulate out += prediction × weight (product first, then add), count += weight; result =
++  out / max(count, 1e-6), float32.
++- OOM ladder: tile 1024, 512, 256 (overlap = min(192, T//4)); on CUDA OOM empty the cache and retry smaller.
++
++### 3a. Device accumulation (our item (5))
++"device_exact" (default): out/count live on the model's device, weights built on the host exactly as above and
++cached per tile shape on the device; one transfer per model at the end, then the upstream host ensemble → bit-equal.
++"device": the ensemble is a running weighted sum on the device (≤ 1 ulp from the host tensordot). If the
++site-sized buffers do not fit, accumulation falls back to host torch tensors (same arithmetic).
++
++## 4. Site procedure and ensemble
++- Models = list of (net, kind, weight); kind "" uses the 9-channel stack, "x" the 12-channel one, "u" the 12-channel
++  stack with asinh LRMs. If < 120 s remain before the deadline, only the first model is used; if TTA is "d8" and
++  < 300 s remain, TTA falls back to the 3-view flips.
++- Ensemble: weights as float32, divided by their float32 sum; map = Σ weight·map via a single tensordot over the
++  stacked maps (host, float32).
++- Decoding of peaks/polygons is NOT part of this spec (platform glue passes a decoder callable).
++
++## 5. Parallel DTMs (our item (6)) — our design
++DTMs of all files of a run are built in worker subprocesses (no fork after CUDA): jobs ordered by point count
++(largest first), started while the estimated RAM of running jobs fits a budget (estimate from the LAS header:
++64 B/cell + 84 B/point for up to 5 M points + 80 MiB; a job always starts if none is running); results come back
++as .npy files in /dev/shm; the consumer takes them in completion order and the run output is reassembled in the
++original order.
+diff --git a/expds/lidar_a/__init__.py b/expds/lidar_a/__init__.py
+new file mode 100644
+index 0000000..a637d2b
+--- /dev/null
++++ b/expds/lidar_a/__init__.py
+@@ -0,0 +1,7 @@
++"""LiDAR expert, scenario (a): clean-room implementation (bot-8, branch bot8-cpu-a-clean).
++
++Written from the prose spec bot-8/CLEANROOM_SPEC_li_a.md (algorithms, parameters, float operation order); contains
++no third-party code. Modules: ground (LAS → DTM), terrain (relief stack), tiling (tiled inference + blending),
++runner (site procedure / ensemble). Bit-equality with the reference implementation is checked by
++tests/test_lidar_a_oracle.py, which loads the reference from a local read-only copy at test time and skips without it.
++"""
+diff --git a/expds/lidar_a/dtm_workers.py b/expds/lidar_a/dtm_workers.py
+new file mode 100644
+index 0000000..fef3d94
+--- /dev/null
++++ b/expds/lidar_a/dtm_workers.py
+@@ -0,0 +1,158 @@
++"""Item (6) (spec §5): DTMs of all LAS files of a run built in worker processes while the main process does relief + GPU.
++
++ground.make_dtm is pure numpy/scipy and deterministic, so a worker returns exactly the arrays the sequential call would
++(byte-equal). Scheduling: longest-processing-time first (point count) under a RAM budget; a job larger than the whole
++budget runs alone. With the largest file at ~58 % of all points the DTM stage cannot drop below DTM(largest): wall ≈
++max(DTM_largest, ΣDTM / N) and the main process overlaps relief/GPU of the smaller files with it.
++
++Memory model (per job peak RSS, bytes): BYTES_PER_CELL · cells + BYTES_PER_POINT · min(points, 5 M) + BYTES_WORKER.
++Box fit (fresh process, one DTM build, bench/cpu_a_speedup/pool_calib.txt): 016 2.8 Mcell/0.27 Mpt → 266 MB,
++005 2.5/2.7 → 450, 040 4.7/2.1 → 494, 001 6.4/7.4 → 678, 022 13.5/8.9 → 1120 MB; the model gives 280/469/~510/910/1364
++(conservative everywhere). The returned dtm+valid (5 B/cell) stay counted until the consumer takes them.
++
++Workers are plain `python -m expds.lidar_a.dtm_workers` subprocesses (not multiprocessing): spawn/forkserver re-import the
++caller's __main__ in every worker (torch and the models for run.py: +1 s and +0.3 GB each on the box), fork is unsafe
++once the consumer holds CUDA / OpenMP pools. Arrays come back as .npy files in a tmpfs directory (/dev/shm when present).
++"""
++import json
++import os
++import queue
++import shutil
++import subprocess
++import sys
++import tempfile
++import threading
++import time
++
++import numpy as np
++
++BYTES_PER_CELL = 64
++BYTES_PER_POINT = 84            # one 5 M-point laspy chunk + x/y/z/ix/iy/k temporaries
++CHUNK_POINTS = 5_000_000        # ground.STREAM_POINTS
++BYTES_WORKER = 80 << 20
++RESULT_BYTES_PER_CELL = 5
++THREAD_VARS = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS", "RAYON_NUM_THREADS")
++
++
++def plan(path):
++    """→ (points, cells) from the LAS header (same grid as ground.make_dtm)."""
++    from . import ground
++    mins, maxs, n = ground.header_box(path)
++    g = ground.grid_of(mins, maxs)
++    return int(n), int(g.rows * g.cols)
++
++
++def est_bytes(points, cells):
++    return BYTES_PER_CELL * cells + BYTES_PER_POINT * min(points, CHUNK_POINTS) + BYTES_WORKER
++
++
++def _worker_main(outdir):
++    """Worker loop: stdin 'i\tpath' → ground.make_dtm → outdir/i_d.npy, i_v.npy; stdout one JSON line per job."""
++    from . import ground
++    for line in sys.stdin:
++        i, path = line.rstrip("\n").split("\t", 1)
++        t0, c0 = time.perf_counter(), time.process_time()
++        try:
++            d, v, origin = ground.make_dtm(path)
++            np.save(os.path.join(outdir, f"{i}_d.npy"), d); np.save(os.path.join(outdir, f"{i}_v.npy"), v)
++            del d, v
++            msg = {"i": int(i), "origin": list(origin), "wall": time.perf_counter() - t0, "cpu": time.process_time() - c0, "pid": os.getpid()}
++        except Exception as e:  # noqa: BLE001 — reported to the consumer
++            msg = {"i": int(i), "error": f"{type(e).__name__}: {e}"}
++        sys.stdout.write(json.dumps(msg) + "\n"); sys.stdout.flush()
++
++
++class DtmPool:
++    """Iterate (index, path, (dtm, valid, origin), stats) as DTMs complete; workers keep building while the consumer runs.
++
++    workers: process count (platform: e.g. 6 of 24 cores, the rest for relief/torch); ram_budget: bytes for all DTM jobs
++    plus finished-but-unconsumed results (platform: 96 GB − main process − safety; box: ≤ 2 GB in total).
++    ordered=True yields in the input order (identical side effects to the sequential loop), False in completion order.
++    """
++
++    def __init__(self, paths, workers=2, ram_budget=1 << 30, worker_threads=1, ordered=True, tmpdir=None):
++        self.paths = [str(p) for p in paths]
++        self.workers, self.budget, self.ordered = max(1, min(int(workers), len(self.paths) or 1)), int(ram_budget), ordered
++        self.sizes = [plan(p) for p in self.paths]
++        self.order = sorted(range(len(self.paths)), key=lambda i: -self.sizes[i][0])     # LPT by point count
++        self.worker_threads, self.tmpdir = worker_threads, tmpdir
++        self._q = queue.Queue(); self._lock = threading.Condition(); self._used = 0
++        self.max_used = 0
++
++    def _release(self, b):
++        with self._lock:
++            self._used -= b; self._lock.notify_all()
++
++    def _serve(self, proc, todo):
++        """One thread per worker process: take the next job that fits the budget, wait for its result."""
++        while True:
++            with self._lock:
++                while True:
++                    if not todo:
++                        return
++                    i = todo[0]; need = est_bytes(*self.sizes[i])
++                    if self._running == 0 or self._used + need <= self.budget:
++                        break           # with nothing running a job always starts (progress; over-budget runs alone)
++                    self._lock.wait(0.1)
++                todo.pop(0); self._used += need; self._running += 1; self.max_used = max(self.max_used, self._used)
++            proc.stdin.write(f"{i}\t{self.paths[i]}\n"); proc.stdin.flush()
++            line = proc.stdout.readline()
++            msg = json.loads(line) if line else {"i": i, "error": "worker died"}
++            keep = RESULT_BYTES_PER_CELL * self.sizes[i][1]
++            with self._lock:
++                self._running -= 1
++            self._release(need - keep)
++            self._q.put((i, msg, keep))
++
++    def __iter__(self):
++        own = self.tmpdir is None
++        base = "/dev/shm" if own and os.path.isdir("/dev/shm") and os.access("/dev/shm", os.W_OK) else None
++        outdir = tempfile.mkdtemp(prefix="lidar_a_dtm_", dir=base) if own else self.tmpdir
++        env = dict(os.environ, **{k: str(self.worker_threads) for k in THREAD_VARS})
++        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++        env["PYTHONPATH"] = root + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
++        procs = [subprocess.Popen([sys.executable, "-m", "expds.lidar_a.dtm_workers", outdir], stdin=subprocess.PIPE,
++                                  stdout=subprocess.PIPE, text=True, env=env, cwd=root) for _ in range(self.workers)]
++        self._running = 0
++        todo = list(self.order)
++        ths = [threading.Thread(target=self._serve, args=(p, todo), daemon=True) for p in procs]
++        try:
++            for t in ths:
++                t.start()
++            ready, nxt = {}, 0
++            for _ in range(len(self.paths)):
++                while True:
++                    if self.ordered and nxt in ready:
++                        i = nxt; break
++                    item = self._q.get()
++                    ready[item[0]] = item
++                    if not self.ordered:
++                        i = item[0]; break
++                _, msg, keep = ready.pop(i)
++                nxt += 1
++                if "error" in msg:
++                    raise RuntimeError(f"dtm worker failed on {self.paths[i]}: {msg['error']}")
++                fd, fv = (os.path.join(outdir, f"{i}_{k}.npy") for k in "dv")
++                d, v = np.load(fd), np.load(fv)
++                os.unlink(fd); os.unlink(fv)
++                self._release(keep)    # the consumer owns the arrays now (counted by the caller's own reserve)
++                yield i, self.paths[i], (d, v, tuple(msg["origin"])), msg
++        finally:
++            with self._lock:
++                todo.clear(); self._lock.notify_all()
++            for p in procs:
++                try:
++                    p.stdin.close()
++                except OSError:
++                    pass
++            for p in procs:
++                try:
++                    p.wait(timeout=30)
++                except subprocess.TimeoutExpired:
++                    p.kill()
++            if own:
++                shutil.rmtree(outdir, ignore_errors=True)
++
++
++if __name__ == "__main__":
++    _worker_main(sys.argv[1])
+diff --git a/expds/lidar_a/ground.py b/expds/lidar_a/ground.py
+new file mode 100644
+index 0000000..8d6c255
+--- /dev/null
++++ b/expds/lidar_a/ground.py
+@@ -0,0 +1,285 @@
++"""LAS/LAZ → bare-earth elevation grid (spec §1): ground selection, rasterisation, morphological filter, hole fill."""
++from __future__ import annotations
++
++import os
++from dataclasses import dataclass
++
++import numpy as np
++from scipy import ndimage
++
++BASE_CELL = 0.25          # m
++CELL_LIMIT = 250_000_000  # grid cells before the cell size is doubled
++FILL_LIMIT_M = 3.0        # filled cells farther than this from ground are invalid
++PROBE_POINTS = 2_000_000  # first block used to choose the ground mode
++STREAM_POINTS = 5_000_000 # streaming block (fixes the float64 summation order)
++NOISE_CLASSES = (7, 18)
++
++
++@dataclass(frozen=True)
++class Grid:
++    left: float
++    top: float
++    cell: float
++    rows: int
++    cols: int
++
++    @property
++    def origin(self):
++        return float(self.left), float(self.top), float(self.cell)
++
++
++def header_box(path):
++    """→ (mins, maxs, point_count) from the LAS header."""
++    import laspy
++    with laspy.open(str(path)) as f:
++        return f.header.mins, f.header.maxs, int(f.header.point_count)
++
++
++def cell_size(mins, maxs, cell=BASE_CELL):
++    ex, ey = maxs[0] - mins[0], maxs[1] - mins[1]
++    while (ex / cell) * (ey / cell) > CELL_LIMIT:
++        cell *= 2
++    return cell
++
++
++def grid_of(mins, maxs, cell=BASE_CELL) -> Grid:
++    cell = cell_size(mins, maxs, cell)
++    left, top = np.floor(mins[0]), np.ceil(maxs[1])
++    cols = int(np.ceil((maxs[0] - left) / cell)) + 1
++    rows = int(np.ceil((top - mins[1]) / cell)) + 1
++    return Grid(left, top, cell, rows, cols)
++
++
++def _first_block(path):
++    import laspy
++    with laspy.open(str(path)) as f:
++        for blk in f.chunk_iterator(PROBE_POINTS):
++            return blk
++    return None
++
++
++def _bare_earth(blk, square=1.0, spread_limit=0.6):
++    """Bare-earth test on one block: 95th percentile of per-1 m-square z spread (squares with ≥ 3 points)."""
++    x, y, z = np.asarray(blk.x), np.asarray(blk.y), np.asarray(blk.z)
++    cx = ((x - x.min()) // square).astype(np.int64)
++    cy = ((y - y.min()) // square).astype(np.int64)
++    _, inv, n = np.unique(np.stack([cx, cy]), axis=1, return_inverse=True, return_counts=True)
++    inv = inv.ravel()
++    hi = np.full(n.size, -np.inf); lo = np.full(n.size, np.inf)
++    np.maximum.at(hi, inv, z); np.minimum.at(lo, inv, z)
++    spread = (hi - lo)[n >= 3]
++    return spread.size > 0 and float(np.percentile(spread, 95)) < spread_limit
++
++
++def ground_mode(path):
++    """'class' (class 2 ≥ 5 % of the first block), 'bare' (cloud is already bare earth) or 'lowest'."""
++    blk = _first_block(path)
++    if blk is None:
++        return "lowest"
++    share = float((np.asarray(blk.classification) == 2).mean())
++    if share >= 0.05:
++        return "class"
++    return "bare" if _bare_earth(blk) else "lowest"
++
++
++def rasterise(path, grid: Grid, mode):
++    """Stream the cloud into per-cell mean ('class'/'bare') or minimum ('lowest') elevation; NaN where empty."""
++    import laspy
++    n_cells = grid.rows * grid.cols
++    mean_mode = mode in ("class", "bare")
++    if mean_mode:
++        total = np.zeros(n_cells, np.float64); count = np.zeros(n_cells, np.int32)
++    else:
++        lowest = np.full(n_cells, np.inf, np.float32)
++    with laspy.open(str(path)) as f:
++        for blk in f.chunk_iterator(STREAM_POINTS):
++            cls = np.asarray(blk.classification)
++            keep = cls == 2 if mode == "class" else ~np.isin(cls, NOISE_CLASSES)
++            x = np.asarray(blk.x)[keep]; y = np.asarray(blk.y)[keep]
++            z = np.asarray(blk.z, np.float32)[keep]
++            col = ((x - grid.left) / grid.cell).astype(np.int64)
++            row = ((grid.top - y) / grid.cell).astype(np.int64)
++            inside = (col >= 0) & (col < grid.cols) & (row >= 0) & (row < grid.rows)
++            flat = row[inside] * grid.cols + col[inside]
++            if mean_mode:
++                total += np.bincount(flat, z[inside], minlength=n_cells)
++                count += np.bincount(flat, minlength=n_cells).astype(np.int32)
++            else:
++                np.minimum.at(lowest, flat, z[inside])
++    if mean_mode:
++        cellz = np.where(count > 0, total / np.maximum(count, 1), np.nan).astype(np.float32)
++    else:
++        cellz = np.where(np.isfinite(lowest), lowest, np.nan)
++    return cellz.reshape(grid.rows, grid.cols)
++
++
++def morph_ground(lowest, cell, windows_m=(1, 2, 4, 8, 16), dh_start=0.3, dh_slope=0.3, dh_cap=3.0):
++    """Progressive morphological filter (Zhang et al. 2003): cells that are not ground → NaN."""
++    empty = np.isnan(lowest)
++    if empty.all():
++        return lowest.copy()
++    near = ndimage.distance_transform_edt(empty, return_distances=False, return_indices=True)
++    surface = lowest[near[0], near[1]]
++    is_ground = ~empty
++    last = None
++    for size in windows_m:
++        side = max(3, int(round(size / cell)) | 1)
++        opened = ndimage.grey_opening(surface, size=(side, side))
++        limit = dh_start if last is None else min(dh_cap, dh_start + dh_slope * (size - last))
++        is_ground &= (surface - opened) <= limit
++        surface, last = opened, size
++    result = lowest.copy()
++    result[~is_ground] = np.nan
++    return result
++
++
++# Hole-fill modes (item (3)). "exact": the spec §1.5 procedure as written. "exact_fast" (default): indices-only EDT,
++# validity on the integer squared distance, gather + σ=1 blur in row blocks on threads — bit-equal to "exact".
++# "band" (opt-in): tiled EDT within BAND_M of ground, nearest coarse block beyond — the relief stack (zero on invalid
++# pixels) is equal in value; BAND_M = 80 m covers every relief receptive field from a valid pixel (widest: LRM25 =
++# avg-pool 8 + 19-tap blur at 4 m + bilinear ≈ 89 px = 44.5 m; openness 10 m; fill blur 1 m; validity 3 m).
++FILL_MODE = os.environ.get("LIDAR_A_FILL", "exact_fast")
++BAND_M = float(os.environ.get("LIDAR_A_BAND_M", "80"))
++TILE_PX = int(os.environ.get("LIDAR_A_TILE_PX", "4096"))   # band EDT tile; window = tile + 2·band
++ROW_BLOCK = 1024
++FILL_THREADS = int(os.environ.get("LIDAR_A_FILL_THREADS", os.environ.get("EXPDS_THREADS", "2")))
++
++
++def fill_holes(cellz, cell, mode=None):
++    """Nearest-ground fill + σ=1 blur of filled cells; valid = within FILL_LIMIT_M of ground (spec §1.5, §1a, §1b)."""
++    mode = mode or FILL_MODE
++    holes = np.isnan(cellz)
++    if mode == "exact":
++        dist, near = ndimage.distance_transform_edt(holes, return_indices=True)
++        dtm = cellz[near[0], near[1]]
++        if holes.any():
++            dtm = np.where(holes, ndimage.gaussian_filter(dtm, 1.0), dtm)
++        return dtm, dist * cell <= FILL_LIMIT_M
++    if mode == "exact_fast":
++        iy_, ix_ = ndimage.distance_transform_edt(holes, return_distances=False, return_indices=True)
++        valid = np.empty(holes.shape, bool)
++        for y in range(0, holes.shape[0], ROW_BLOCK):
++            valid[y:y + ROW_BLOCK] = _valid_from_indices(iy_[y:y + ROW_BLOCK], ix_[y:y + ROW_BLOCK], cell, y0=y)[0]
++    elif mode == "band":
++        iy_, ix_, valid = _band_indices(~holes, cell)
++    else:
++        raise ValueError(f"fill mode {mode!r}")
++    return _gather_smooth(cellz, iy_, ix_, holes), valid
++
++
++def _gather_smooth(g, iy_, ix_, filled, rows=ROW_BLOCK, threads=None):
++    """Gather + σ=1 blur of filled cells as in mode "exact", in row blocks on threads.
++
++    gaussian_filter(σ=1, truncate=4) reaches 4 rows; each block is filtered with a 4-row halo, so the separable passes
++    do the same float operations for every kept row (reflect only at the true image edges) — byte-equal."""
++    from concurrent.futures import ThreadPoolExecutor
++    H = g.shape[0]
++    dtm = g[iy_, ix_] if H <= rows else np.empty(iy_.shape, g.dtype)
++    if H <= rows:
++        return np.where(filled, ndimage.gaussian_filter(dtm, 1.0), dtm) if filled.any() else dtm
++    R = 4                                 # = int(truncate · σ + 0.5)
++
++    def gather(y):
++        dtm[y:y + rows] = g[iy_[y:y + rows], ix_[y:y + rows]]
++    ys = list(range(0, H, rows))
++    with ThreadPoolExecutor(max(1, threads or FILL_THREADS)) as ex:
++        list(ex.map(gather, ys))
++        if not filled.any():
++            return dtm
++        out = np.empty_like(dtm)
++
++        def smooth(y):
++            ya, yb = max(0, y - R), min(H, y + rows + R)
++            sm = ndimage.gaussian_filter(dtm[ya:yb], 1.0)[y - ya:y - ya + min(rows, H - y)]
++            out[y:y + rows] = np.where(filled[y:y + rows], sm, dtm[y:y + rows])
++        list(ex.map(smooth, ys))
++    return out
++
++
++def _d2_max(res):
++    """Largest integer d2 with sqrt(d2)·res ≤ FILL_LIMIT_M in float64 — the "exact" test (EDT distance · res ≤ FILL_LIMIT_M) with
++    scipy's distance = sqrt(dy² + dx²) is monotone in the integer d2, so `d2 <= _d2_max(res)` is the same mask."""
++    t = int((FILL_LIMIT_M / res) ** 2) + 2
++    while t >= 0 and not (np.sqrt(np.float64(t)) * res <= FILL_LIMIT_M):
++        t -= 1
++    assert not (np.sqrt(np.float64(t + 1)) * res <= FILL_LIMIT_M)
++    return t
++
++
++def _valid_from_indices(iy_, ix_, res, y0=0, x0=0):
++    """→ (valid as in mode "exact", integer d2); int32 math (|dy|, |dx| < 46341 within a row block / window)."""
++    H, W = iy_.shape
++    dy = iy_ - np.arange(y0, y0 + H, dtype=np.int32)[:, None]
++    dx = ix_ - np.arange(x0, x0 + W, dtype=np.int32)[None, :]
++    if max(H, W) > 46340 or (dx.size and max(abs(int(dx.min())), abs(int(dx.max()))) > 46340):
++        dy, dx = dy.astype(np.int64), dx.astype(np.int64)
++    d2 = dy * dy; d2 += dx * dx
++    return d2 <= _d2_max(res), d2
++
++
++def _band_indices(has, res, band_m=None, tile=None, threads=None):
++    """Tiled nearest-ground indices: exact within band_m of ground, nearest coarse block beyond."""
++    from concurrent.futures import ThreadPoolExecutor
++    band = max(int(np.ceil((band_m or BAND_M) / res)), int(np.ceil(FILL_LIMIT_M / res)) + 2)
++    tile = tile or TILE_PX
++    B = 32
++    tile = max(B, tile // B * B)
++    H, W = has.shape
++    iy_ = np.empty((H, W), np.int32); ix_ = np.empty((H, W), np.int32)
++    valid = np.zeros((H, W), bool)
++    CY, CX = _coarse_nearest(has, B)
++
++    def coarse(y0, y1, x0, x1):
++        cy = np.repeat(np.repeat(CY[y0 // B:-(-y1 // B), x0 // B:-(-x1 // B)], B, 0), B, 1)[:y1 - y0, :x1 - x0]
++        cx = np.repeat(np.repeat(CX[y0 // B:-(-y1 // B), x0 // B:-(-x1 // B)], B, 0), B, 1)[:y1 - y0, :x1 - x0]
++        return cy, cx
++
++    def one(t):
++        y0, x0 = t
++        y1, x1 = min(H, y0 + tile), min(W, x0 + tile)
++        ya, xa, yb, xb = max(0, y0 - band), max(0, x0 - band), min(H, y1 + band), min(W, x1 + band)
++        hw = has[ya:yb, xa:xb]
++        if not hw.any():
++            iy_[y0:y1, x0:x1], ix_[y0:y1, x0:x1] = coarse(y0, y1, x0, x1)
++            return
++        jy, jx = ndimage.distance_transform_edt(~hw, return_distances=False, return_indices=True)
++        jy = jy[y0 - ya:y1 - ya, x0 - xa:x1 - xa]; jx = jx[y0 - ya:y1 - ya, x0 - xa:x1 - xa]
++        jy += ya; jx += xa
++        v, d2 = _valid_from_indices(jy, jx, res, y0, x0)
++        far = d2 > band * band          # nearest ground may lie outside the window: not exact → coarse fallback
++        if far.any():
++            cy, cx = coarse(y0, y1, x0, x1)
++            jy = np.where(far, cy, jy); jx = np.where(far, cx, jx)
++        iy_[y0:y1, x0:x1] = jy; ix_[y0:y1, x0:x1] = jx; valid[y0:y1, x0:x1] = v   # far ⇒ d2 > band² ⇒ not valid
++    tiles = [(y, x) for y in range(0, H, tile) for x in range(0, W, tile)]
++    with ThreadPoolExecutor(max(1, threads or FILL_THREADS)) as ex:   # scipy's EDT and numpy ufuncs release the GIL
++        list(ex.map(one, tiles))
++    return iy_, ix_, valid
++
++
++def _coarse_nearest(has, B):
++    """Per B×B block: indices of a ground cell (first in the block) of the nearest ground-bearing block (Hb, Wb)."""
++    H, W = has.shape
++    Hb, Wb = -(-H // B), -(-W // B)
++    hp = np.zeros((Hb * B, Wb * B), bool); hp[:H, :W] = has
++    blk = hp.reshape(Hb, B, Wb, B).transpose(0, 2, 1, 3).reshape(Hb, Wb, B * B)
++    anyg = blk.any(-1); first = blk.argmax(-1)
++    del blk, hp
++    if not anyg.any():
++        z = np.zeros((Hb, Wb), np.int32)
++        return z, z
++    by, bx = ndimage.distance_transform_edt(~anyg, return_distances=False, return_indices=True)
++    k = first[by, bx]
++    return (by * B + k // B).astype(np.int32), (bx * B + k % B).astype(np.int32)
++
++
++def make_dtm(path, cell=BASE_CELL):
++    """→ dtm float32 (rows, cols) without NaN, valid bool, origin (left, top, cell)."""
++    mins, maxs, _ = header_box(path)
++    grid = grid_of(mins, maxs, cell)
++    mode = ground_mode(path)
++    cellz = rasterise(path, grid, mode)
++    if mode == "lowest":
++        cellz = morph_ground(cellz, grid.cell)
++    dtm, valid = fill_holes(cellz, grid.cell)
++    return dtm.astype(np.float32), valid, grid.origin
+diff --git a/expds/lidar_a/runner.py b/expds/lidar_a/runner.py
+new file mode 100644
+index 0000000..5aa9b6b
+--- /dev/null
++++ b/expds/lidar_a/runner.py
+@@ -0,0 +1,154 @@
++"""Site procedure for the LiDAR expert (spec §4): DTM → relief stacks → tiled ensemble → probability maps.
++
++Decoding of the maps into objects is platform glue and is passed in as `decode(prob, valid, meta) → features`.
++models = [(net, kind, weight)], kind '' = 9-channel stack, 'x' = 12-channel, 'u' = 12-channel with asinh LRMs.
++"""
++from __future__ import annotations
++
++import os
++import time
++
++import numpy as np
++
++from . import ground, terrain, tiling
++
++KIND_ARGS = {"": dict(extra=False, unclip=False), "x": dict(extra=True, unclip=False), "u": dict(extra=True, unclip=True)}
++ONE_MODEL_LEFT_S = 120
++FLIPS_ONLY_LEFT_S = 300
++# Item (5), where the blending happens: "host" = numpy per tile (spec §3); "device_exact" (default) = tile blending on
++# the model's device, then the host tensordot — bit-equal to "host"; "device" = also the ensemble as a running
++# weighted sum on the device (≤ 1 ulp from tensordot), one device→host copy per site.
++ACCUMULATE = os.environ.get("LIDAR_A_ACC", "device_exact")
++
++
++def guard_models(models, deadline):
++    return models[:1] if time.time() > deadline - ONE_MODEL_LEFT_S else models
++
++
++def guard_tta(tta, deadline):
++    return True if tta == "d8" and time.time() > deadline - FLIPS_ONLY_LEFT_S else tta
++
++
++def stacks_for(dtm, valid, cell, kinds, dev, share=True):
++    """{kind: stack} for the kinds in use and the valid mask at NET_CELL.
++
++    share (item (2)): the 9-channel stack is planes terrain.BASE_OF_EXTRA of the 12-channel one (same operations in
++    the same order), so with both '' and 'x' in use the 12-channel stack is computed once and sliced."""
++    got, vmask = {}, None
++    todo = list(kinds)
++    if share and "" in todo and "x" in todo:
++        got["x"], vmask = terrain.relief_stack_windowed(dtm, valid, cell, dev=dev, **KIND_ARGS["x"])
++        got[""] = got["x"][terrain.BASE_OF_EXTRA]
++        todo = [k for k in todo if k not in ("", "x")]
++    for kind in todo:
++        got[kind], vk = terrain.relief_stack_windowed(dtm, valid, cell, dev=dev, **KIND_ARGS[kind])
++        vmask = vk if vmask is None else vmask
++    return got, vmask
++
++
++def ensemble(maps, models):
++    wts = np.array([w for _, _, w in models], np.float32)
++    return np.tensordot(wts / wts.sum(), np.stack(maps), axes=1)
++
++
++def site_maps(dtm, valid, cell, models, n_out, tta=True, deadline=float("inf"), dev="cuda", log=print, accumulate=None):
++    """→ (blended maps (n_out, h, w) float32, valid (h, w) bool) at terrain.NET_CELL."""
++    models = guard_models(models, deadline)
++    kinds = list(dict.fromkeys(k for _, k, _ in models))
++    stacks, vmask = stacks_for(dtm, valid, cell, kinds, dev)
++    tta = guard_tta(tta, deadline)
++    return blend_stacks(stacks, models, n_out, tta, dev, log, accumulate), vmask
++
++
++def blend_stacks(stacks, models, n_out, tta=True, dev="cuda", log=print, accumulate=None):
++    """Weighted ensemble of tiled-inference maps over ready input stacks {kind: (C, h, w)} → (n_out, h, w) float32.
++    accumulate: host | device_exact | device (default LIDAR_A_ACC)."""
++    mode = accumulate or ACCUMULATE
++    if mode == "host":
++        maps = [tiling.with_oom_ladder(lambda t, m=m, s=stacks[k]: tiling.infer_map(
++            m, s, n_out, tile=t, overlap=tiling.overlap_for(t), tta=tta, dev=dev), log=log) for m, k, _ in models]
++        return ensemble(maps, models)
++    infer = _DeviceInfer(n_out, tta, dev, log)
++    if mode == "device_exact":
++        return ensemble([infer(m, stacks[k]).cpu().numpy() for m, k, _ in models], models)
++    if mode != "device":
++        raise ValueError(f"LIDAR_A_ACC {mode!r}")
++    wts = np.array([w for _, _, w in models], np.float32)
++    wts = wts / wts.sum()
++    total = None
++    for (m, k, _), wt in zip(models, wts):
++        part = infer(m, stacks[k]).mul_(float(wt))     # a float32 weight is exact as a python float
++        total = part if total is None else total.add_(part)
++        del part
++    return total.cpu().numpy()
++
++
++class _DeviceInfer:
++    """Tiled inference with device-side blending; site-sized buffers fall back to host memory on CUDA OOM."""
++
++    def __init__(self, n_out, tta, dev, log):
++        self.n_out, self.tta, self.dev, self.log, self.acc_dev = n_out, tta, dev, log, None
++
++    def _run(self, model, stack, tile):
++        import torch
++        kw = dict(tile=tile, overlap=tiling.overlap_for(tile), tta=self.tta, dev=self.dev)
++        try:
++            return tiling.infer_map_on_device(model, stack, self.n_out, acc_dev=self.acc_dev, **kw)
++        except torch.OutOfMemoryError:
++            if self.acc_dev is not None:
++                raise
++            torch.cuda.empty_cache()
++            self.log("CUDA OOM with device blend buffers: blending in host memory")
++            self.acc_dev = "cpu"
++            return tiling.infer_map_on_device(model, stack, self.n_out, acc_dev="cpu", **kw)
++
++    def __call__(self, model, stack):
++        return tiling.with_oom_ladder(lambda t: self._run(model, stack, t), log=self.log)
++
++
++def run_site(path, dtm, valid, origin, models, n_out, decode, meta, tta, deadline, dev, log):
++    t0 = time.time()
++    left, top, cell = origin
++    prob, vmask = site_maps(dtm, valid, cell, models, n_out, tta, deadline, dev, log)
++    feats = decode(prob, vmask, dict(meta, x0=left, ytop=top, res=terrain.NET_CELL))
++    log(f"lidar_a {getattr(path, 'name', path)}: dtm {dtm.shape} cell {cell} → {len(feats)} feats {time.time() - t0:.0f}s")
++    return feats
++
++
++def dtms_in_order(paths, pool=None):
++    """(path, (dtm, valid, origin)) in input order: sequential, or built by worker processes (item (6))."""
++    if not pool:
++        for p in paths:
++            yield p, ground.make_dtm(p)
++        return
++    from .dtm_workers import DtmPool
++    for i, _, res, _ in DtmPool(paths, **pool):
++        yield paths[i], res
++
++
++def predict(paths, models, n_out, decode, meta=None, tta=True, deadline=float("inf"), dev="cuda", log=print, pool=None):
++    """Features of the LAS files of one region, in input order. pool: None (sequential) or dict(workers=, ram_budget=)."""
++    feats = []
++    paths = list(paths)
++    for p, (d, v, origin) in dtms_in_order(paths, pool):
++        feats += run_site(p, d, v, origin, models, n_out, decode, meta or {}, tta, deadline, dev, log)
++    return feats
++
++
++def predict_all(jobs, models, n_out, decode, tta=True, deadline=float("inf"), dev="cuda", log=print, workers=2, ram_budget=1 << 30):
++    """Item (6), run level: one DtmPool over the files of ALL regions, jobs = [(meta, paths)] with meta['region'].
++
++    Sites are processed in DTM completion order (largest file first in the pool, the GPU works on small ones
++    meanwhile); features are regrouped in input order → {region: features}, equal to per-region predict() unless a
++    deadline guard fires at a different moment."""
++    from .dtm_workers import DtmPool
++    flat = [(meta, p) for meta, paths in jobs for p in paths]
++    done = {}
++    for i, _, (d, v, origin), _ in DtmPool([p for _, p in flat], workers=workers, ram_budget=ram_budget, ordered=False):
++        meta, p = flat[i]
++        done[i] = run_site(p, d, v, origin, models, n_out, decode, meta, tta, deadline, dev, log)
++        del d, v
++    out = {meta["region"]: [] for meta, _ in jobs}
++    for i, (meta, _) in enumerate(flat):
++        out[meta["region"]] += done[i]
++    return out
+diff --git a/expds/lidar_a/terrain.py b/expds/lidar_a/terrain.py
+new file mode 100644
+index 0000000..0196dac
+--- /dev/null
++++ b/expds/lidar_a/terrain.py
+@@ -0,0 +1,168 @@
++"""Relief stack at 0.5 m for the LiDAR networks (spec §2), computed with torch on any device."""
++from __future__ import annotations
++
++import numpy as np
++import torch
++import torch.nn.functional as F
++
++NET_CELL = 0.5
++LRM_SCALES_M = (2.0, 5.0, 10.0, 25.0)
++SUN_AZIMUTHS = (315.0, 45.0)
++SUN_ALTITUDE = 35.0
++HORIZON_M = 10.0
++N_DIRECTIONS = 8
++WINDOW_PX = 3072
++WINDOW_MARGIN_PX = 384
++BASE_CHANNELS = 9
++EXTRA_CHANNELS = 12
++# the 12-channel stack inserts the three openness channels before `valid`: 9-ch = these planes of the 12-ch one
++BASE_OF_EXTRA = [0, 1, 2, 3, 4, 5, 6, 7, 11]
++
++
++def n_channels(extra):
++    return EXTRA_CHANNELS if extra else BASE_CHANNELS
++
++
++def _taps(sigma, like):
++    k = max(int(3 * sigma) | 1, 3)
++    offs = torch.arange(k, device=like.device, dtype=like.dtype) - k // 2
++    w = torch.exp(-offs ** 2 / (2 * sigma ** 2))
++    return w / w.sum(), k // 2
++
++
++def smooth(img, sigma):
++    """Separable Gaussian, edge-replicated borders, horizontal pass first. img: (1, 1, h, w)."""
++    w, half = _taps(sigma, img)
++    k = w.numel()
++    img = F.conv2d(F.pad(img, (half, half, 0, 0), mode="replicate"), w.reshape(1, 1, 1, k))
++    return F.conv2d(F.pad(img, (0, 0, half, half), mode="replicate"), w.reshape(1, 1, k, 1))
++
++
++def smooth_wide(img, sigma):
++    """Gaussian for wide sigma: average-pool by q = ⌊σ/6⌋, blur σ/q, bilinear back up (σ ≤ 12: plain smooth)."""
++    if sigma <= 12:
++        return smooth(img, sigma)
++    q = int(sigma // 6)
++    h, w = img.shape[-2:]
++    small = F.avg_pool2d(F.pad(img, (0, (-w) % q, 0, (-h) % q), mode="replicate"), q)
++    small = smooth(small, sigma / q)
++    return F.interpolate(small, scale_factor=q, mode="bilinear", align_corners=False)[..., :h, :w]
++
++
++def _resample(dtm, valid, cell, dev):
++    """→ (z, v) as (1, 1, h, w) tensors at NET_CELL."""
++    f = NET_CELL / cell
++    h, w = int(round(dtm.shape[0] / f)), int(round(dtm.shape[1] / f))
++    fi = int(round(f))
++    whole = f > 1 and abs(f - fi) < 1e-6
++    if whole:
++        ey, ex = (-dtm.shape[0]) % fi, (-dtm.shape[1]) % fi
++        if ey or ex:
++            dtm = np.pad(dtm, ((0, ey), (0, ex)), mode="edge")
++            valid = np.pad(valid, ((0, ey), (0, ex)))
++    z = torch.from_numpy(np.ascontiguousarray(dtm)).to(dev)[None, None]
++    v = torch.from_numpy(valid.astype(np.float32)).to(dev)[None, None]
++    if abs(f - 1) <= 1e-6:
++        return z, v
++    if whole:
++        return F.avg_pool2d(z, fi)[..., :h, :w], F.avg_pool2d(v, fi)[..., :h, :w]
++    shrink = f > 1
++    return (F.interpolate(z, size=(h, w), mode="area" if shrink else "bilinear"),
++            F.interpolate(v, size=(h, w), mode="area" if shrink else "nearest"))
++
++
++def _central_diff(zs, r):
++    gx = F.pad((zs[..., :, 2:] - zs[..., :, :-2]) / (2 * r), (1, 1, 0, 0), mode="replicate")
++    gy = F.pad((zs[..., 2:, :] - zs[..., :-2, :]) / (2 * r), (0, 0, 1, 1), mode="replicate")
++    return gx, gy
++
++
++def _hillshade(slope, gx, gy, azimuth_deg):
++    az, alt = np.radians(azimuth_deg), np.radians(SUN_ALTITUDE)
++    aspect = torch.atan2(-gx, gy)
++    return np.sin(alt) * torch.cos(slope) + np.cos(alt) * torch.sin(slope) * torch.cos(az - aspect)
++
++
++def _laplacian(z, r):
++    stencil = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]], device=z.device, dtype=z.dtype).reshape(1, 1, 3, 3)
++    return F.conv2d(F.pad(smooth(z, 1.0 / r), (1, 1, 1, 1), mode="replicate"), stencil) / (r * r)
++
++
++def _horizons(z, r):
++    """Positive / negative openness and sky-view factor (horizon search, HORIZON_M, N_DIRECTIONS) → 3 planes."""
++    reach = max(2, int(round(HORIZON_M / r)))
++    stride = max(1, reach // 10)
++    h, w = z.shape[-2:]
++    big = F.pad(z, (reach,) * 4, mode="replicate")
++    pos_sum = neg_sum = sky_sum = 0
++    for theta in np.arange(N_DIRECTIONS) * 2 * np.pi / N_DIRECTIONS:
++        s, c = np.sin(theta), np.cos(theta)
++        up = torch.full_like(z, -np.pi / 2)
++        down = torch.full_like(z, -np.pi / 2)
++        for step in range(1, reach + 1, stride):
++            oy, ox = int(round(step * s)), int(round(step * c))
++            dist = np.hypot(ox, oy) * r
++            if dist == 0:
++                continue
++            other = big[..., reach + oy:reach + oy + h, reach + ox:reach + ox + w]
++            elev = torch.atan((other - z) / dist)
++            up = torch.maximum(up, elev)
++            down = torch.maximum(down, -elev)
++        pos_sum = pos_sum + (np.pi / 2 - up)
++        neg_sum = neg_sum + (np.pi / 2 - down)
++        sky_sum = sky_sum + torch.sin(up.clamp(min=0))
++    pos, neg = pos_sum / N_DIRECTIONS, neg_sum / N_DIRECTIONS
++    svf = 1 - sky_sum / N_DIRECTIONS
++    return [((pos - np.pi / 2) / 0.1).clamp(-4, 4), ((neg - np.pi / 2) / 0.1).clamp(-4, 4),
++            ((svf - 0.97) / 0.03).clamp(-4, 4)]
++
++
++@torch.no_grad()
++def relief_stack(dtm, valid, cell, extra=False, unclip=False, dev="cuda"):
++    """dtm (H, W) float32 at `cell` m → (C, h, w) float32 at NET_CELL and valid (h, w) bool; C = 9 or 12 (extra)."""
++    z, v = _resample(dtm, valid, cell, dev)
++    r = NET_CELL
++    planes = []
++    for scale in LRM_SCALES_M:
++        lrm = (z - smooth_wide(z, scale / r)) / 0.5
++        planes.append(torch.asinh(lrm) if unclip else lrm.clamp(-4, 4))
++    gx, gy = _central_diff(smooth(z, 0.75), r)
++    slope = torch.atan(torch.sqrt(gx ** 2 + gy ** 2))
++    planes.append(slope / 0.5)
++    for az in SUN_AZIMUTHS:
++        planes.append(_hillshade(slope, gx, gy, az) * 2 - 1)
++    planes.append((_laplacian(z, r) / 0.2).clamp(-4, 4))
++    if extra:
++        planes += _horizons(z, r)
++    inside = (v > 0.5).float()
++    planes.append(inside * 2 - 1)
++    stack = torch.cat(planes, 1)[0] * inside[0]
++    return stack.cpu().numpy().astype(np.float32), inside[0, 0].bool().cpu().numpy()
++
++
++def relief_stack_windowed(dtm, valid, cell, extra=False, unclip=False, dev="cuda", window=WINDOW_PX, margin=WINDOW_MARGIN_PX):
++    """relief_stack over overlapping windows (bounded device memory); equal to the one-shot stack on window cores."""
++    f = NET_CELL / cell
++    H, W = int(round(dtm.shape[0] / f)), int(round(dtm.shape[1] / f))
++    if H * W <= window * window:
++        return relief_stack(dtm, valid, cell, extra, unclip, dev)
++    out = np.zeros((n_channels(extra), H, W), np.float32)
++    vout = np.zeros((H, W), bool)
++    for wy in range(0, H, window):
++        for wx in range(0, W, window):
++            ay, ax = max(0, wy - margin), max(0, wx - margin)
++            by, bx = min(H, wy + window + margin), min(W, wx + window + margin)
++            sy, sx = int(round(ay * f)), int(round(ax * f))
++            ny, nx = int(round((by - ay) * f)), int(round((bx - ax) * f))
++            dpart, vpart = dtm[sy:sy + ny, sx:sx + nx], valid[sy:sy + ny, sx:sx + nx]
++            short_y, short_x = ny - dpart.shape[0], nx - dpart.shape[1]
++            if short_y or short_x:
++                dpart = np.pad(dpart, ((0, short_y), (0, short_x)), mode="edge")
++                vpart = np.pad(vpart, ((0, short_y), (0, short_x)))
++            st, vv = relief_stack(np.ascontiguousarray(dpart), vpart, cell, extra, unclip, dev)
++            oy, ox = wy - ay, wx - ax
++            ch = min(window, H - wy, st.shape[1] - oy)
++            cw = min(window, W - wx, st.shape[2] - ox)
++            out[:, wy:wy + ch, wx:wx + cw] = st[:, oy:oy + ch, ox:ox + cw]
++            vout[wy:wy + ch, wx:wx + cw] = vv[oy:oy + ch, ox:ox + cw]
++    return out, vout
+diff --git a/expds/lidar_a/tiling.py b/expds/lidar_a/tiling.py
+new file mode 100644
+index 0000000..fa23124
+--- /dev/null
++++ b/expds/lidar_a/tiling.py
+@@ -0,0 +1,143 @@
++"""Tiled fully-convolutional inference with flip / rotation TTA and ramp blending (spec §3)."""
++from __future__ import annotations
++
++import numpy as np
++import torch
++
++PAD_TO = 32
++OOM_TILES = (1024, 512, 256)
++
++
++def tile_starts(n, tile, overlap):
++    return list(range(0, max(1, n - overlap), tile - overlap))
++
++
++def axis_weights(start, end, n, tile, overlap):
++    """1-D blend weights (float64) of a tile covering [start, end) of an axis of length n."""
++    length = end - start
++    if start > 0 or end < n:
++        ramp = np.minimum(np.arange(tile) + 1, overlap) / overlap
++        wt = np.minimum(ramp[:length], ramp[:length][::-1])
++    else:
++        wt = np.ones(length)
++    if start == 0:
++        wt[:overlap] = 1
++    if end == n:
++        wt[-overlap:] = 1
++    return wt
++
++
++def tile_weights(ys, xs, shape, tile, overlap):
++    (y0, y1), (x0, x1) = ys, xs
++    return np.outer(axis_weights(y0, y1, shape[0], tile, overlap),
++                    axis_weights(x0, x1, shape[1], tile, overlap)).astype(np.float32)
++
++
++def view_list(tta, square):
++    """[(quarter_turns, flip_dims)]: d8 on square tiles, 3 flips when TTA is on, identity otherwise."""
++    if tta == "d8" and square:
++        return [(k, (-1,) if mirrored else ()) for k in range(4) for mirrored in (False, True)]
++    if tta:
++        return [(0, ()), (0, (-1,)), (0, (-2,))]
++    return [(0, ())]
++
++
++def _pad_tile(part):
++    h, w = part.shape[1:]
++    ph, pw = (-h) % PAD_TO, (-w) % PAD_TO
++    mode = "reflect" if min(h, w) > max(ph, pw) else "constant"
++    return np.pad(part, ((0, 0), (0, ph), (0, pw)), mode=mode)
++
++
++def _forward(model, batch):
++    with torch.autocast("cuda", dtype=torch.bfloat16):
++        return torch.sigmoid(model(batch).float())
++
++
++def tta_mean(model, batch, tta):
++    """Mean of sigmoid outputs over the TTA views, each mapped back to the input frame. batch: (1, C, h, w)."""
++    vs = view_list(tta, batch.shape[-1] == batch.shape[-2])
++    total = 0
++    for turns, dims in vs:
++        inp = torch.rot90(batch, turns, dims=(-2, -1)) if turns else batch
++        if dims:
++            inp = inp.flip(dims)
++        res = _forward(model, inp)
++        if dims:
++            res = res.flip(dims)
++        total = total + (torch.rot90(res, -turns, dims=(-2, -1)) if turns else res)
++    return total / len(vs)
++
++
++def tile_grid(H, W, tile, overlap):
++    for y0 in tile_starts(H, tile, overlap):
++        for x0 in tile_starts(W, tile, overlap):
++            yield (y0, min(H, y0 + tile)), (x0, min(W, x0 + tile))
++
++
++@torch.no_grad()
++def infer_map(model, stack, n_out, tile=1024, overlap=192, tta=True, dev="cuda"):
++    """(C, H, W) float32 stack → (n_out, H, W) float32 probabilities; host (numpy) blending."""
++    _, H, W = stack.shape
++    acc = np.zeros((n_out, H, W), np.float32)
++    norm = np.zeros((H, W), np.float32)
++    for (y0, y1), (x0, x1) in tile_grid(H, W, tile, overlap):
++        batch = torch.from_numpy(_pad_tile(stack[:, y0:y1, x0:x1])).float()[None].to(dev)
++        pred = tta_mean(model, batch, tta)[0, :, :y1 - y0, :x1 - x0].cpu().numpy()
++        wt = tile_weights((y0, y1), (x0, x1), (H, W), tile, overlap)
++        acc[:, y0:y1, x0:x1] += pred * wt
++        norm[y0:y1, x0:x1] += wt
++    return acc / np.maximum(norm, 1e-6)
++
++
++_WEIGHT_CACHE = {}
++
++
++def _device_weights(ys, xs, shape, tile, overlap, dev):
++    """tile_weights as a device tensor, cached by the tile's weight pattern (built on the host: identical values)."""
++    (y0, y1), (x0, x1) = ys, xs
++    key = (y1 - y0, x1 - x0, y0 == 0, y1 == shape[0], y0 > 0 or y1 < shape[0],
++           x0 == 0, x1 == shape[1], x0 > 0 or x1 < shape[1], tile, overlap, str(dev))
++    hit = _WEIGHT_CACHE.get(key)
++    if hit is None:
++        if len(_WEIGHT_CACHE) > 64:
++            _WEIGHT_CACHE.clear()
++        hit = _WEIGHT_CACHE[key] = torch.from_numpy(tile_weights(ys, xs, shape, tile, overlap)).to(dev)
++    return hit
++
++
++@torch.no_grad()
++def infer_map_on_device(model, stack, n_out, tile=1024, overlap=192, tta=True, dev="cuda", acc_dev=None):
++    """Item (5): infer_map with the blend buffers on acc_dev (default: the model's device) → torch (n_out, H, W).
++
++    Same float32 operations in the same order as infer_map (pred·w, then +=; norm += w; acc / max(norm, 1e-6)), so the
++    result is bit-equal; no per-tile device→host copy or host-side blending."""
++    acc_dev = torch.device(acc_dev or dev)
++    _, H, W = stack.shape
++    acc = torch.zeros((n_out, H, W), dtype=torch.float32, device=acc_dev)
++    norm = torch.zeros((H, W), dtype=torch.float32, device=acc_dev)
++    for ys, xs in tile_grid(H, W, tile, overlap):
++        (y0, y1), (x0, x1) = ys, xs
++        batch = torch.from_numpy(_pad_tile(stack[:, y0:y1, x0:x1])).float()[None].to(dev)
++        pred = tta_mean(model, batch, tta)[0, :, :y1 - y0, :x1 - x0].to(acc_dev)
++        wt = _device_weights(ys, xs, (H, W), tile, overlap, acc_dev)
++        acc[:, y0:y1, x0:x1] += pred * wt
++        norm[y0:y1, x0:x1] += wt
++    return acc / torch.clamp_min(norm, 1e-6)
++
++
++def with_oom_ladder(run, tiles=OOM_TILES, log=print):
++    """run(tile) with smaller tiles after CUDA out-of-memory."""
++    for i, t in enumerate(tiles):
++        try:
++            return run(t)
++        except torch.OutOfMemoryError:
++            torch.cuda.empty_cache()
++            last = i + 1 == len(tiles)
++            log(f"CUDA OOM at tile {t}" + (", giving up" if last else f", retrying at {tiles[i + 1]}"))
++            if last:
++                raise
++
++
++def overlap_for(tile):
++    return min(192, tile // 4)
+diff --git a/tests/lidar_a_oracle.py b/tests/lidar_a_oracle.py
+new file mode 100644
+index 0000000..2ecb100
+--- /dev/null
++++ b/tests/lidar_a_oracle.py
+@@ -0,0 +1,37 @@
++"""Test-time loader of the reference implementation (read-only local copy; never vendored into this repo).
++
++EXPDS_LIDAR_A_ORACLE points at the reference checkout (default: the bot workspace copy). Tests that need it call
++`oracle(name)` and are skipped when the copy is absent.
++"""
++from __future__ import annotations
++
++import importlib.util
++import os
++from pathlib import Path
++
++import pytest
++
++ORACLE_ROOT = Path(os.environ.get("EXPDS_LIDAR_A_ORACLE", "/workspace/koz3_shared/competitors/EhimenNathan-EXpedition"))
++_cache = {}
++
++
++def oracle_available():
++    return all((ORACLE_ROOT / "koz3" / f"{n}.py").is_file() for n in ("dtm", "relief", "hm"))
++
++
++def oracle(name):
++    """Reference module koz3/<name>.py loaded by file path under a private name (skip if missing)."""
++    if not oracle_available():
++        pytest.skip(f"reference copy not found at {ORACLE_ROOT}")
++    if name not in _cache:
++        spec = importlib.util.spec_from_file_location(f"_lidar_a_oracle_{name}", ORACLE_ROOT / "koz3" / f"{name}.py")
++        mod = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(mod)
++        _cache[name] = mod
++    return _cache[name]
++
++
++def oracle_relief(rel, extra, unclip=False):
++    """Context-free switch of the reference relief flags (module-level constants there)."""
++    rel.EXTRA, rel.N_CH, rel.UNCLIP = extra, 12 if extra else 9, unclip
++    return rel
+diff --git a/tests/test_lidar_a.py b/tests/test_lidar_a.py
+new file mode 100644
+index 0000000..952d27f
+--- /dev/null
++++ b/tests/test_lidar_a.py
+@@ -0,0 +1,164 @@
++"""expds.lidar_a: own invariants of the speedups (no reference copy needed)."""
++from __future__ import annotations
++
++import numpy as np
++import pytest
++
++torch = pytest.importorskip("torch")
++
++
++def _dtm(seed=0, shape=(203, 157)):
++    rng = np.random.default_rng(seed)
++    yy, xx = np.mgrid[:shape[0], :shape[1]].astype(np.float32)
++    d = (100 + 0.05 * xx + 0.02 * yy + 1.5 * np.exp(-((xx - 70) ** 2 + (yy - 90) ** 2) / 300)).astype(np.float32)
++    d += rng.normal(0, 0.05, shape).astype(np.float32)
++    v = np.ones(shape, bool); v[:20, :30] = False; v[150:, 100:] = False
++    return d, v
++
++
++@pytest.mark.parametrize("window", [None, 64])
++def test_base_stack_is_slice_of_extra(window):
++    from expds.lidar_a import runner, terrain
++    d, v = _dtm(1, (330, 290))
++    kw = {} if window is None else dict(window=window, margin=24)
++    x9, v9 = terrain.relief_stack_windowed(d, v, 0.25, extra=False, dev="cpu", **kw)
++    x12, v12 = terrain.relief_stack_windowed(d, v, 0.25, extra=True, dev="cpu", **kw)
++    assert x12[terrain.BASE_OF_EXTRA].tobytes() == x9.tobytes() and (v9 == v12).all()
++    if window is not None:
++        return
++    got, gv = runner.stacks_for(d, v, 0.25, ["", "x"], "cpu")
++    assert got[""].tobytes() == x9.tobytes() and got["x"].tobytes() == x12.tobytes() and (gv == v9).all()
++
++
++def _las_set(tmp_path):
++    from conftest import write_las
++    return [write_las(tmp_path / f"s{i}.las", n=n, seed=i, ground_class=g) for i, (n, g) in enumerate([(40_000, 2), (90_000, 1), (20_000, 2)])]
++
++
++@pytest.mark.parametrize("ordered", [True, False])
++def test_dtm_pool_equals_sequential(tmp_path, ordered):
++    from expds.lidar_a import ground
++    from expds.lidar_a.dtm_workers import DtmPool
++    paths = _las_set(tmp_path)
++    seen = []
++    for i, p, (d, v, o), st in DtmPool(paths, workers=2, ram_budget=300 << 20, ordered=ordered, tmpdir=str(tmp_path)):
++        rd, rv, ro = ground.make_dtm(paths[i])
++        assert d.tobytes() == rd.tobytes() and v.tobytes() == rv.tobytes() and o == ro
++        seen.append(i)
++    assert sorted(seen) == [0, 1, 2] and (seen == [0, 1, 2] or not ordered)
++    assert not list(tmp_path.glob("*.npy"))
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++def test_predict_all_equals_sequential(tmp_path):
++    from expds.lidar_a import runner
++    paths = _las_set(tmp_path)
++    net = torch.nn.Conv2d(9, 2, 3, padding=1).eval()
++    models = [(net, "", 1.0)]
++
++    def decode(prob, vmask, meta):
++        return [{"region": meta["region"], "sum": float(prob.astype(np.float64).sum()), "x0": meta["x0"]}]
++    seq = {r: runner.predict(ps, models, 2, decode, meta={"region": r}, dev="cpu") for r, ps in (("A", paths[:2]), ("B", paths[2:]))}
++    par = runner.predict_all([({"region": "A"}, paths[:2]), ({"region": "B"}, paths[2:])], models, 2, decode, dev="cpu", ram_budget=300 << 20)
++    assert par == seq
++
++
++# ---- (3) hole fill ---------------------------------------------------------------------------------------------------
++def _ground(h=700, w=900, seed=0):
++    """Sparse ground returns with gaps, a hole and a large empty strip (cells far from any ground)."""
++    rng = np.random.default_rng(seed)
++    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
++    g = (0.01 * xx + np.sin(yy / 23.0)).astype(np.float32)
++    g[rng.random((h, w)) < 0.35] = np.nan
++    g[200:260, 100:180] = np.nan
++    g[:, 600:] = np.nan                     # 300 cells = 75 m of no ground
++    return g
++
++
++def test_d2_max():
++    from expds.lidar_a import ground
++    for res in (0.25, 0.5, 1.0, 0.3):
++        t = ground._d2_max(res)
++        d2 = np.arange(0, 4 * t + 10)
++        assert np.array_equal(d2 <= t, np.sqrt(d2.astype(np.float64)) * res <= ground.FILL_LIMIT_M)
++
++
++@pytest.mark.parametrize("rows", [37, 10 ** 6])
++def test_fill_exact_fast_bitwise(rows, monkeypatch):
++    from expds.lidar_a import ground
++    g = _ground()
++    ref, vref = ground.fill_holes(g, 0.25, "exact")
++    monkeypatch.setattr(ground, "ROW_BLOCK", rows)
++    out, v = ground.fill_holes(g, 0.25, "exact_fast")
++    assert np.array_equal(v, vref) and out.tobytes() == ref.tobytes()
++
++
++@pytest.mark.parametrize("tile,band_m", [(64, 6.0), (128, 20.0), (4096, 20.0)])
++def test_fill_band_exact_within_band(tile, band_m):
++    from scipy import ndimage
++    from expds.lidar_a import ground
++    g = _ground()
++    has = np.isfinite(g)
++    dist, (ry, rx) = ndimage.distance_transform_edt(~has, return_indices=True)
++    iy_, ix_, v = ground._band_indices(has, 0.25, band_m=band_m, tile=tile, threads=2)
++    assert np.array_equal(v, dist * 0.25 <= ground.FILL_LIMIT_M)
++    near = dist * 0.25 <= band_m - 0.5      # ties at equal distance may pick another ground cell: compare values
++    assert np.array_equal(g[iy_, ix_][near], g[ry, rx][near])
++    assert has[iy_, ix_].all()
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++def test_band_fill_keeps_network_input(monkeypatch):
++    """Band 80 m ⊇ receptive field of the relief stack: equal in value to the exact-fill stack (only the sign of
++    value·0 on invalid pixels may differ), and so is a network's output."""
++    from expds.lidar_a import ground, terrain, tiling
++    g = _ground(700, 1400)
++    d0, v0 = ground.fill_holes(g, 0.25, "exact")
++    monkeypatch.setattr(ground, "TILE_PX", 256)
++    d1, v1 = ground.fill_holes(g, 0.25, "band")
++    assert np.array_equal(v0, v1) and not np.array_equal(d0, d1)
++    x0, _ = terrain.relief_stack_windowed(d0, v0, 0.25, extra=True, dev="cpu")
++    x1, _ = terrain.relief_stack_windowed(d1, v1, 0.25, extra=True, dev="cpu")
++    assert np.array_equal(x0, x1)
++    diff = x0.view(np.uint32) != x1.view(np.uint32)
++    assert (x0[diff] == 0).all()
++    net = torch.nn.Conv2d(12, 3, 5, padding=2).eval()
++    p0 = tiling.infer_map(net, x0, 3, tile=256, overlap=64, tta=False, dev="cpu")
++    p1 = tiling.infer_map(net, x1, 3, tile=256, overlap=64, tta=False, dev="cpu")
++    assert np.array_equal(p0, p1)
++
++
++# ---- (5) blending on the model's device ------------------------------------------------------------------------------
++class _Net(torch.nn.Module):
++    def __init__(self, cin, cout, seed=0):
++        super().__init__()
++        g = torch.Generator().manual_seed(seed)
++        self.a = torch.nn.Conv2d(cin, 6, 3, padding=1); self.b = torch.nn.Conv2d(6, cout, 3, padding=1)
++        for p in self.parameters():
++            p.data = torch.randn(p.shape, generator=g) * 0.3
++
++    def forward(self, x):
++        return self.b(torch.relu(self.a(x)))
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++@pytest.mark.parametrize("tta,shape", [(True, (9, 450, 350)), (False, (9, 300, 700)), ("d8", (9, 512, 512)), (True, (9, 100, 90))])
++def test_device_blend_bitwise(tta, shape):
++    from expds.lidar_a import tiling
++    x = np.random.default_rng(3).normal(size=shape).astype(np.float32)
++    net = _Net(9, 3).eval()
++    ref = tiling.infer_map(net, x, 3, tile=256, overlap=64, tta=tta, dev="cpu")
++    got = tiling.infer_map_on_device(net, x, 3, tile=256, overlap=64, tta=tta, dev="cpu").numpy()
++    assert got.tobytes() == ref.tobytes()
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++def test_site_maps_accumulation_modes():
++    from expds.lidar_a import runner
++    d, v = _dtm(5, (300, 260))
++    models = [(_Net(9, 3, 1).eval(), "", 0.5), (_Net(9, 3, 2).eval(), "", 0.5), (_Net(12, 3, 3).eval(), "x", 1.0)]
++    host, vh = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="host")
++    exact, ve = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="device_exact")
++    dev_, vd = runner.site_maps(d, v, 0.25, models, 3, tta=True, dev="cpu", accumulate="device")
++    assert exact.tobytes() == host.tobytes() and (vh == ve).all() and (vh == vd).all()
++    assert np.abs(dev_ - host).max() <= 4 * np.spacing(np.float32(1))
+diff --git a/tests/test_lidar_a_oracle.py b/tests/test_lidar_a_oracle.py
+new file mode 100644
+index 0000000..61295d2
+--- /dev/null
++++ b/tests/test_lidar_a_oracle.py
+@@ -0,0 +1,119 @@
++"""expds.lidar_a vs the reference implementation, bit for bit (skipped without the local reference copy)."""
++from __future__ import annotations
++
++import numpy as np
++import pytest
++
++from lidar_a_oracle import oracle, oracle_relief
++
++torch = pytest.importorskip("torch")
++
++
++def _same(a, b):
++    a, b = np.asarray(a), np.asarray(b)
++    assert a.shape == b.shape and a.dtype == b.dtype
++    assert a.tobytes() == b.tobytes()
++
++
++def _bare_las(path, n=60_000, seed=3):
++    import laspy
++    from conftest import X0, Y0, mound_surface
++    rng = np.random.default_rng(seed)
++    x, y = rng.uniform(0, 60, n), rng.uniform(0, 50, n)
++    hdr = laspy.LasHeader(point_format=6, version="1.4")
++    hdr.scales = np.array([0.001, 0.001, 0.001]); hdr.offsets = np.array([X0, Y0, 0.0])
++    las = laspy.LasData(hdr)
++    las.x, las.y, las.z = x + X0, y + Y0, mound_surface(x, y)
++    las.classification = np.full(n, 8, np.uint8)
++    las.write(str(path))
++    return path
++
++
++@pytest.mark.parametrize("fill", ["exact", "exact_fast"])
++@pytest.mark.parametrize("case", ["class", "lowest", "bare"])
++def test_dtm_bitwise(tmp_path, case, fill, monkeypatch):
++    from conftest import write_las
++    from expds.lidar_a import ground
++    monkeypatch.setattr(ground, "FILL_MODE", fill)
++    ref = oracle("dtm")
++    if case == "bare":
++        p = _bare_las(tmp_path / "b.las")
++    else:
++        p = write_las(tmp_path / "a.las", n=60_000, ground_class=2 if case == "class" else 1)
++    assert ground.ground_mode(p) == case
++    d, v, o = ground.make_dtm(p)
++    rd, rv, ro = ref.build(str(p))
++    _same(d, rd); _same(v, rv); assert o == ro
++
++
++def _dtm(seed=0, shape=(203, 157)):
++    rng = np.random.default_rng(seed)
++    yy, xx = np.mgrid[:shape[0], :shape[1]].astype(np.float32)
++    d = (100 + 0.05 * xx + 0.02 * yy + 1.5 * np.exp(-((xx - 70) ** 2 + (yy - 90) ** 2) / 300)).astype(np.float32)
++    d += rng.normal(0, 0.05, shape).astype(np.float32)
++    v = np.ones(shape, bool); v[:20, :30] = False; v[150:, 100:] = False
++    return d, v
++
++
++@pytest.mark.parametrize("cell", [0.25, 0.5, 1.0])
++@pytest.mark.parametrize("kind", ["9", "12", "12u"])
++def test_relief_bitwise(cell, kind):
++    from expds.lidar_a import terrain
++    rel = oracle_relief(oracle("relief"), extra=kind != "9", unclip=kind == "12u")
++    d, v = _dtm(shape=(203, 157) if cell < 1 else (61, 47))
++    got = terrain.relief_stack(d, v, cell, extra=kind != "9", unclip=kind == "12u", dev="cpu")
++    exp = rel.channels(d, v, cell, dev="cpu")
++    _same(got[0], exp[0]); _same(got[1], exp[1])
++
++
++@pytest.mark.parametrize("extra", [False, True])
++def test_relief_windowed_bitwise(extra):
++    from expds.lidar_a import terrain
++    rel = oracle_relief(oracle("relief"), extra=extra)
++    d, v = _dtm(1, (330, 290))
++    got = terrain.relief_stack_windowed(d, v, 0.25, extra=extra, dev="cpu", window=64, margin=24)
++    exp = rel.channels_tiled(d, v, 0.25, tile_px=64, margin_px=24, dev="cpu")
++    _same(got[0], exp[0]); _same(got[1], exp[1])
++
++
++class _Net(torch.nn.Module):
++    def __init__(self, cin, cout):
++        super().__init__()
++        g = torch.Generator().manual_seed(0)
++        self.a = torch.nn.Conv2d(cin, 8, 3, padding=1); self.b = torch.nn.Conv2d(8, cout, 3, padding=1)
++        for p in self.parameters():
++            p.data = torch.randn(p.shape, generator=g) * 0.3
++
++    def forward(self, x):
++        return self.b(torch.relu(self.a(torch.nn.functional.avg_pool2d(x, 2).repeat_interleave(2, -1).repeat_interleave(2, -2) + x)))
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++@pytest.mark.parametrize("tta", [False, True, "d8"])
++@pytest.mark.parametrize("hw,tile,ov", [((150, 97), 64, 16), ((64, 64), 64, 16), ((40, 300), 96, 24)])
++def test_tiled_inference_bitwise(tta, hw, tile, ov):
++    from expds.lidar_a import tiling
++    hm = oracle("hm")
++    x = np.random.default_rng(2).normal(size=(3,) + hw).astype(np.float32)
++    net = _Net(3, 2).eval()
++    with torch.no_grad():
++        exp = hm.predict_tiled(net, x, 2, tile=tile, overlap=ov, tta=tta, dev="cpu")
++    got = tiling.infer_map(net, x, 2, tile=tile, overlap=ov, tta=tta, dev="cpu")
++    _same(got, exp)
++
++
++@pytest.mark.filterwarnings("ignore::UserWarning")
++def test_site_maps_vs_reference_pipeline():
++    """Ensemble of a '' and an 'x' model = reference relief + reference tiling + float32-normalised tensordot."""
++    from expds.lidar_a import runner
++    hm, rel = oracle("hm"), oracle("relief")
++    d, v = _dtm(4, (180, 140))
++    models = [(_Net(9, 2).eval(), "", 0.5), (_Net(12, 2).eval(), "x", 1.0)]
++    got, gv = runner.site_maps(d, v, 0.25, models, 2, tta=True, dev="cpu")
++    with torch.no_grad():
++        x9, vv = oracle_relief(rel, False).channels_tiled(d, v, 0.25, dev="cpu")
++        x12 = oracle_relief(rel, True).channels_tiled(d, v, 0.25, dev="cpu")[0]
++        oracle_relief(rel, False)
++        ps = [hm.predict_tiled(m, xx, 2, tile=1024, overlap=192, tta=True, dev="cpu") for (m, _, _), xx in zip(models, (x9, x12))]
++    ws = np.array([0.5, 1.0], np.float32)
++    _same(got, np.tensordot(ws / ws.sum(), np.stack(ps), axes=1)); _same(gv, vv)

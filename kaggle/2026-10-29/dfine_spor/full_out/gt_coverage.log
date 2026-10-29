@@ -1,0 +1,8 @@
+regions 132
+fold 4: regions 43 gt 416 gt_x_tifs 1164 covered 416 chip_cand 477
+fold 2: regions 49 gt 746 gt_x_tifs 779 covered 746 chip_cand 779
+fold 1: regions 22 gt 195 gt_x_tifs 789 covered 195 chip_cand 216
+fold 0: regions 2 gt 83 gt_x_tifs 83 covered 83 chip_cand 83
+fold 3: regions 16 gt 166 gt_x_tifs 290 covered 166 chip_cand 189
+ALL gt 1606 gt_x_tifs 3105 covered 1606 chip_cand 1744
+UNCOVERED []

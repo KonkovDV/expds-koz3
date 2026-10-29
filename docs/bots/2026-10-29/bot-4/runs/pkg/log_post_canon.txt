@@ -1,0 +1,8 @@
+sib pairs 603273 2s
+nb done [ 31097  14380  14897  15598  17336 513013] 6s
+kurgan-in-gor pairs 119276 8s
+GT kurgans inside GT gor {'kurgany_povrezhdennye': [5, 3620], 'kurgany_tselye': [1, 1577]}
+hedge copies 4972 9s
+curves 12s
+canon {'A': (0.322689, -0.00974), 'R': (0.332433, 0.0), 'NB': (0.333321, 0.00089), 'IN': (0.32742, -0.00501), 'DUALli': (0.333766, 0.00133), 'DUALsp': (0.330938, -0.00149), 'DUAL': (0.332291, -0.00014), 'PKG': (0.332524, 9e-05)} {'A': 10468, 'R': 9986, 'NB': 9967, 'IN': 9744, 'DUALli': 10261, 'DUALsp': 10100, 'DUAL': 10375, 'PKG': 10277} 72s
+done 71.75092720985413

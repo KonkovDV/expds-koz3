@@ -1,0 +1,7 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+new cands 430586 D_MAX 400.0
+kurgany_povrezhdennye stack 649668 new pairs 427 4s
+kurgany_tselye stack 617731 new pairs 128 4s
+site both drop d10=-0.00036 lofo=-0.00036 rnd=[-0.00045, -0.00194, -0.00201, -0.00035, -0.00036] P=0.000 CI90=[-0.00107,0.00000] CI95=[-0.00127,0.00000] P1-4=FalseFalseFalseTrue wd={'kurgany_po': -0.00034, 'kurgany_ts': -2e-05} 233s
+done
+watchdog max RSS MB 1761 exit 0

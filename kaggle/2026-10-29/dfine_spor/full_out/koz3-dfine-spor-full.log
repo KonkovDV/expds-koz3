@@ -1,0 +1,642 @@
+[{"stream_name":"stdout","time":13.795214479,"data":"pip install: ['transformers==5.21.0']\n"}
+,{"stream_name":"stderr","time":26.749811614,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":26.749837096,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":32.654785729,"data":"  torch 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":38.413942387,"data":"  torchvision 0.26.0+cu128\n"}
+,{"stream_name":"stdout","time":38.41464382,"data":"  huggingface_hub 1.33.0\n"}
+,{"stream_name":"stdout","time":38.422930448,"data":"  safetensors 0.8.0\n"}
+,{"stream_name":"stdout","time":41.227598601,"data":"  transformers 5.21.0\n"}
+,{"stream_name":"stdout","time":41.227621507,"data":"  rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":41.227626523,"data":"  pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":41.227630258,"data":"  shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":41.227634034,"data":"  boto3 1.41.5\n"}
+,{"stream_name":"stdout","time":41.227637301,"data":"  cv2 4.14.0\n"}
+,{"stream_name":"stdout","time":41.227640578,"data":"  scipy 1.16.3\n"}
+,{"stream_name":"stdout","time":43.402080823,"data":"[      0s] CFG {\"mode\": \"full\", \"res\": 0.5, \"tile\": 640, \"overlap\": 160, \"max_windows\": 0, \"bs\": 8, \"iters\": 6000, \"lr\": 0.0001, \"bb_mult\": 0.1, \"wd\": 0.0001, \"pct\": 0.05, \"clip\": 0.1, \"num_dn\": -1, \"obj_frac\": 0.6, \"cls_cap\": 4.0, \"shift\": 0.3333333333333333, \"qaug\": 0.5, \"workers\": 2, \"max_obj_chips_region\": 400, \"min_score\": 0.05, \"nms_iou\": 0.5, \"max_det\": 100, \"smoke_train_regions\": 8, \"smoke_test_regions\": 1, \"deadline_h\": 5.0, \"folds\": \"4,2,1\", \"regions\": \"\", \"trainer\": \"bot5\", \"aug\": \"ours\"}\n"}
+,{"stream_name":"stdout","time":43.702286182,"data":"[      0s] GPU: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":43.79302229,"data":"[      0s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет\n"}
+,{"stream_name":"stdout","time":44.336548508,"data":"[      1s] ключи S3 из приватного датасета\n"}
+,{"stream_name":"stdout","time":45.56531718,"data":"[      2s] S3 OK\n"}
+,{"stream_name":"stderr","time":45.902304707,"data":"\rFetching 3 files:   0%|          | 0/3 [00:00\u003c?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":45.902379818,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":64.213962246,"data":"\rFetching 3 files:  33%|███▎      | 1/3 [00:00\u003c00:00,  6.77it/s]\rFetching 3 files: 100%|██████████| 3/3 [00:18\u003c00:00,  6.81s/it]\rFetching 3 files: 100%|██████████| 3/3 [00:18\u003c00:00,  6.14s/it]\n"}
+,{"stream_name":"stdout","time":64.214080048,"data":"[     21s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)\n"}
+,{"stream_name":"stderr","time":64.228944624,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":64.228961897,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":65.350379805,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  27%|██▋       | 320/1197 [00:00\u003c00:00, 3179.38it/s]\rLoading weights:  53%|█████▎    | 638/1197 [00:00\u003c00:00, 2883.03it/s]\rLoading weights:  78%|███████▊  | 929/1197 [00:00\u003c00:00, 2847.46it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2877.64it/s]\n"}
+,{"stream_name":"stderr","time":65.460034963,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":65.460063589,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":65.460068585,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":65.46007274,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":65.460076725,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":65.460080735,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":65.460084964,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":65.46008899,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":65.460093143,"data":"\n"}
+,{"stream_name":"stderr","time":65.460096503,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":65.460099773,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":65.460104128,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":65.460108345,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":65.460112247,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":65.460115877,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":65.460120573,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":65.460124901,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":65.460128898,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":65.460143531,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":65.460148804,"data":"\n"}
+,{"stream_name":"stderr","time":65.460152066,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":65.460155516,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":65.947750959,"data":"[     23s] модель OK (CPU): {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256], \"logits\": [1, 300, 5]} 2 с\n"}
+,{"stream_name":"stdout","time":65.948036056,"data":"[     23s] фолды OK: 189 участков, 96 семей\n"}
+,{"stream_name":"stdout","time":69.872661416,"data":"[     26s] участков со SpOr в фолдах: 132; вне фолдов (пропуск): 0\n"}
+,{"stream_name":"stdout","time":69.943649239,"data":"[     27s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55\n"}
+,{"stream_name":"stdout","time":141.994432714,"data":"[     99s] чипы: 055_Курменту отброшено {'obj_nodata': 3}\n"}
+,{"stream_name":"stdout","time":145.289826805,"data":"[    102s] чипы: 092_Шаты отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":148.521011569,"data":"[    105s] чипы: 098_Таш_Коро_1 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":165.906403445,"data":"[    123s] чипы: 103_Гнёздово_Ольшанская отброшено {'bg_nodata': 4}\n"}
+,{"stream_name":"stdout","time":170.274685996,"data":"[    127s] чипы: 119_Каменные_выкладки_9 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":170.570979026,"data":"[    127s] чипы: 115_Каменные_выкладки_5 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":171.216244326,"data":"[    128s] чипы: 057_Кабардино_Балкария отброшено {'obj_nodata': 5}\n"}
+,{"stream_name":"stdout","time":173.286456315,"data":"[    130s] чипы: 125_Постройки_2 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":174.511937945,"data":"[    131s] чипы: 126_Постройки_3 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":175.415147888,"data":"[    132s] чипы: 128_Постройки_5 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":175.786092175,"data":"[    132s] чипы: 127_Постройки_4 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":175.856254659,"data":"[    132s] чипы: 129_Постройки_6 отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":401.095890873,"data":"[    358s] чипов: 2919 (объектных 1736), участков 132, 331 с; классы: {'gorodishcha': 71, 'kurgany_povrezhdennye': 1158, 'kurgany_tselye': 219, 'fortifikatsii': 65, 'arkhitektury': 223}\n"}
+,{"stream_name":"stderr","time":401.110375223,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":401.110418194,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":402.132928699,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  26%|██▋       | 317/1197 [00:00\u003c00:00, 3141.14it/s]\rLoading weights:  53%|█████▎    | 632/1197 [00:00\u003c00:00, 2911.53it/s]\rLoading weights:  77%|███████▋  | 925/1197 [00:00\u003c00:00, 2850.72it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2892.01it/s]\n"}
+,{"stream_name":"stderr","time":402.174016799,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":402.174041872,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":402.174047093,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":402.174051227,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":402.174055309,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":402.174059122,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":402.174062945,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":402.174067098,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":402.174071014,"data":"\n"}
+,{"stream_name":"stderr","time":402.174074699,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":402.174078193,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":402.174082052,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":402.174086309,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":402.174090328,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":402.174094347,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":402.174099536,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":402.174103553,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":402.174107504,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":402.174111406,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":402.174126253,"data":"\n"}
+,{"stream_name":"stderr","time":402.174129741,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":402.174133067,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":402.196596003,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":402.196615693,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":403.037280306,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  25%|██▌       | 303/1197 [00:00\u003c00:00, 3028.59it/s]\rLoading weights:  51%|█████     | 606/1197 [00:00\u003c00:00, 2706.44it/s]\rLoading weights:  73%|███████▎  | 879/1197 [00:00\u003c00:00, 2671.38it/s]\rLoading weights:  96%|█████████▌| 1148/1197 [00:00\u003c00:00, 2639.69it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2684.29it/s]\n"}
+,{"stream_name":"stderr","time":403.089140336,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":403.08918657,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":403.089191212,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":403.089195204,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":403.089199149,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":403.089202787,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":403.089206526,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":403.089210754,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":403.089215193,"data":"\n"}
+,{"stream_name":"stderr","time":403.089219022,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":403.089222681,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":403.089227243,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":403.089232832,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":403.089237192,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":403.089252267,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":403.089256942,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":403.089277552,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":403.089281508,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":403.08928937,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":403.089292312,"data":"\n"}
+,{"stream_name":"stderr","time":403.089295488,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":403.089309264,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":403.250483201,"data":"[    360s] [gpu0 f4] train чипов 2109, test участков 43, бюджет обучения 1.87 ч\n"}
+,{"stream_name":"stdout","time":403.503279909,"data":"[    360s] [gpu1 f2] train чипов 1616, test участков 49, бюджет обучения 4.07 ч\n"}
+,{"stream_name":"stdout","time":510.392874581,"data":"[    467s] [gpu0 f4] [bot5] {'it': 100, 'loss': 79.1478, 's_it': 0.9248}\n"}
+,{"stream_name":"stdout","time":510.487165045,"data":"[    467s] [gpu1 f2] [bot5] {'it': 100, 'loss': 142.8359, 's_it': 0.9181}\n"}
+,{"stream_name":"stdout","time":605.864581689,"data":"[    562s] [gpu1 f2] [bot5] {'it': 200, 'loss': 62.2243, 's_it': 0.9327}\n"}
+,{"stream_name":"stdout","time":605.898112279,"data":"[    562s] [gpu0 f4] [bot5] {'it': 200, 'loss': 48.1137, 's_it': 0.9305}\n"}
+,{"stream_name":"stdout","time":702.38771704,"data":"[    659s] [gpu1 f2] [bot5] {'it': 300, 'loss': 43.6417, 's_it': 0.9224}\n"}
+,{"stream_name":"stdout","time":702.433652226,"data":"[    659s] [gpu0 f4] [bot5] {'it': 300, 'loss': 38.1511, 's_it': 0.9242}\n"}
+,{"stream_name":"stdout","time":797.97757218,"data":"[    755s] [gpu1 f2] [bot5] {'it': 400, 'loss': 37.3051, 's_it': 0.9269}\n"}
+,{"stream_name":"stdout","time":798.084647408,"data":"[    755s] [gpu0 f4] [bot5] {'it': 400, 'loss': 34.2917, 's_it': 0.9174}\n"}
+,{"stream_name":"stdout","time":893.190867285,"data":"[    850s] [gpu1 f2] [bot5] {'it': 500, 'loss': 35.0433, 's_it': 0.9287}\n"}
+,{"stream_name":"stdout","time":893.250651652,"data":"[    850s] [gpu0 f4] [bot5] {'it': 500, 'loss': 32.9679, 's_it': 0.9235}\n"}
+,{"stream_name":"stdout","time":988.29728017,"data":"[    945s] [gpu1 f2] [bot5] {'it': 600, 'loss': 34.2885, 's_it': 0.9196}\n"}
+,{"stream_name":"stdout","time":988.335480839,"data":"[    945s] [gpu0 f4] [bot5] {'it': 600, 'loss': 31.8833, 's_it': 0.9148}\n"}
+,{"stream_name":"stdout","time":1084.05121498,"data":"[   1041s] [gpu1 f2] [bot5] {'it': 700, 'loss': 33.5078, 's_it': 0.9261}\n"}
+,{"stream_name":"stdout","time":1084.103219871,"data":"[   1041s] [gpu0 f4] [bot5] {'it': 700, 'loss': 31.02, 's_it': 0.9217}\n"}
+,{"stream_name":"stdout","time":1179.900274739,"data":"[   1136s] [gpu1 f2] [bot5] {'it': 800, 'loss': 32.3671, 's_it': 0.9205}\n"}
+,{"stream_name":"stdout","time":1179.93427677,"data":"[   1137s] [gpu0 f4] [bot5] {'it': 800, 'loss': 30.0682, 's_it': 0.9197}\n"}
+,{"stream_name":"stdout","time":1275.500391625,"data":"[   1232s] [gpu1 f2] [bot5] {'it': 900, 'loss': 32.1218, 's_it': 0.9216}\n"}
+,{"stream_name":"stdout","time":1275.573295981,"data":"[   1232s] [gpu0 f4] [bot5] {'it': 900, 'loss': 29.6918, 's_it': 0.9166}\n"}
+,{"stream_name":"stdout","time":1370.340996299,"data":"[   1327s] [gpu1 f2] [bot5] {'it': 1000, 'loss': 31.0059, 's_it': 0.9129}\n"}
+,{"stream_name":"stdout","time":1370.423251234,"data":"[   1327s] [gpu0 f4] [bot5] {'it': 1000, 'loss': 29.4234, 's_it': 0.9148}\n"}
+,{"stream_name":"stdout","time":1465.629876196,"data":"[   1422s] [gpu1 f2] [bot5] {'it': 1100, 'loss': 30.6342, 's_it': 0.9083}\n"}
+,{"stream_name":"stdout","time":1465.706582979,"data":"[   1422s] [gpu0 f4] [bot5] {'it': 1100, 'loss': 29.1688, 's_it': 0.9061}\n"}
+,{"stream_name":"stdout","time":1561.147843179,"data":"[   1518s] [gpu1 f2] [bot5] {'it': 1200, 'loss': 30.6346, 's_it': 0.9129}\n"}
+,{"stream_name":"stdout","time":1561.173514773,"data":"[   1518s] [gpu0 f4] [bot5] {'it': 1200, 'loss': 28.8024, 's_it': 0.9086}\n"}
+,{"stream_name":"stdout","time":1656.636915284,"data":"[   1613s] [gpu1 f2] [bot5] {'it': 1300, 'loss': 30.4558, 's_it': 0.91}\n"}
+,{"stream_name":"stdout","time":1656.675175817,"data":"[   1613s] [gpu0 f4] [bot5] {'it': 1300, 'loss': 28.5934, 's_it': 0.9087}\n"}
+,{"stream_name":"stdout","time":1752.197287584,"data":"[   1709s] [gpu1 f2] [bot5] {'it': 1400, 'loss': 29.4684, 's_it': 0.9139}\n"}
+,{"stream_name":"stdout","time":1752.234973907,"data":"[   1709s] [gpu0 f4] [bot5] {'it': 1400, 'loss': 27.9065, 's_it': 0.9113}\n"}
+,{"stream_name":"stdout","time":1847.579952795,"data":"[   1804s] [gpu1 f2] [bot5] {'it': 1500, 'loss': 29.3797, 's_it': 0.9185}\n"}
+,{"stream_name":"stdout","time":1847.647096816,"data":"[   1804s] [gpu0 f4] [bot5] {'it': 1500, 'loss': 28.0198, 's_it': 0.9128}\n"}
+,{"stream_name":"stdout","time":1942.267456413,"data":"[   1899s] [gpu1 f2] [bot5] {'it': 1600, 'loss': 28.512, 's_it': 0.9075}\n"}
+,{"stream_name":"stdout","time":1942.35290863,"data":"[   1899s] [gpu0 f4] [bot5] {'it': 1600, 'loss': 27.3143, 's_it': 0.906}\n"}
+,{"stream_name":"stdout","time":2037.419649726,"data":"[   1994s] [gpu1 f2] [bot5] {'it': 1700, 'loss': 28.6535, 's_it': 0.9136}\n"}
+,{"stream_name":"stdout","time":2037.515132062,"data":"[   1994s] [gpu0 f4] [bot5] {'it': 1700, 'loss': 27.8873, 's_it': 0.916}\n"}
+,{"stream_name":"stdout","time":2132.370777255,"data":"[   2089s] [gpu1 f2] [bot5] {'it': 1800, 'loss': 28.852, 's_it': 0.9082}\n"}
+,{"stream_name":"stdout","time":2132.426939887,"data":"[   2089s] [gpu0 f4] [bot5] {'it': 1800, 'loss': 26.7678, 's_it': 0.9094}\n"}
+,{"stream_name":"stdout","time":2227.831353105,"data":"[   2184s] [gpu1 f2] [bot5] {'it': 1900, 'loss': 28.231, 's_it': 0.9227}\n"}
+,{"stream_name":"stdout","time":2227.924354102,"data":"[   2185s] [gpu0 f4] [bot5] {'it': 1900, 'loss': 27.2241, 's_it': 0.922}\n"}
+,{"stream_name":"stdout","time":2323.65550472,"data":"[   2280s] [gpu1 f2] [bot5] {'it': 2000, 'loss': 28.5151, 's_it': 0.9164}\n"}
+,{"stream_name":"stdout","time":2323.726207974,"data":"[   2280s] [gpu0 f4] [bot5] {'it': 2000, 'loss': 26.8908, 's_it': 0.9169}\n"}
+,{"stream_name":"stdout","time":2418.788778264,"data":"[   2375s] [gpu1 f2] [bot5] {'it': 2100, 'loss': 27.9477, 's_it': 0.9165}\n"}
+,{"stream_name":"stdout","time":2418.867527137,"data":"[   2375s] [gpu0 f4] [bot5] {'it': 2100, 'loss': 26.9669, 's_it': 0.9124}\n"}
+,{"stream_name":"stdout","time":2514.757052725,"data":"[   2471s] [gpu1 f2] [bot5] {'it': 2200, 'loss': 27.6464, 's_it': 0.9142}\n"}
+,{"stream_name":"stdout","time":2514.825455949,"data":"[   2471s] [gpu0 f4] [bot5] {'it': 2200, 'loss': 26.4447, 's_it': 0.9118}\n"}
+,{"stream_name":"stdout","time":2610.540511377,"data":"[   2567s] [gpu1 f2] [bot5] {'it': 2300, 'loss': 27.6083, 's_it': 0.9187}\n"}
+,{"stream_name":"stdout","time":2610.598079361,"data":"[   2567s] [gpu0 f4] [bot5] {'it': 2300, 'loss': 26.5526, 's_it': 0.918}\n"}
+,{"stream_name":"stdout","time":2705.945445838,"data":"[   2663s] [gpu1 f2] [bot5] {'it': 2400, 'loss': 27.2597, 's_it': 0.9182}\n"}
+,{"stream_name":"stdout","time":2705.98957694,"data":"[   2663s] [gpu0 f4] [bot5] {'it': 2400, 'loss': 25.6266, 's_it': 0.9146}\n"}
+,{"stream_name":"stdout","time":2802.553448446,"data":"[   2759s] [gpu1 f2] [bot5] {'it': 2500, 'loss': 27.5685, 's_it': 0.939}\n"}
+,{"stream_name":"stdout","time":2802.588687579,"data":"[   2759s] [gpu0 f4] [bot5] {'it': 2500, 'loss': 25.7134, 's_it': 0.9307}\n"}
+,{"stream_name":"stdout","time":2898.766427776,"data":"[   2855s] [gpu1 f2] [bot5] {'it': 2600, 'loss': 27.1032, 's_it': 0.9203}\n"}
+,{"stream_name":"stdout","time":2898.772782837,"data":"[   2855s] [gpu0 f4] [bot5] {'it': 2600, 'loss': 25.1783, 's_it': 0.9163}\n"}
+,{"stream_name":"stdout","time":2994.738129137,"data":"[   2951s] [gpu1 f2] [bot5] {'it': 2700, 'loss': 26.0687, 's_it': 0.9241}\n"}
+,{"stream_name":"stdout","time":2994.788651045,"data":"[   2951s] [gpu0 f4] [bot5] {'it': 2700, 'loss': 25.6525, 's_it': 0.9156}\n"}
+,{"stream_name":"stdout","time":3090.909621255,"data":"[   3048s] [gpu1 f2] [bot5] {'it': 2800, 'loss': 26.5409, 's_it': 0.9266}\n"}
+,{"stream_name":"stdout","time":3091.021545956,"data":"[   3048s] [gpu0 f4] [bot5] {'it': 2800, 'loss': 25.6811, 's_it': 0.9264}\n"}
+,{"stream_name":"stdout","time":3186.304361468,"data":"[   3143s] [gpu1 f2] [bot5] {'it': 2900, 'loss': 26.0521, 's_it': 0.9197}\n"}
+,{"stream_name":"stdout","time":3186.404670616,"data":"[   3143s] [gpu0 f4] [bot5] {'it': 2900, 'loss': 24.4934, 's_it': 0.9162}\n"}
+,{"stream_name":"stdout","time":3282.177575191,"data":"[   3239s] [gpu1 f2] [bot5] {'it': 3000, 'loss': 26.0809, 's_it': 0.9244}\n"}
+,{"stream_name":"stdout","time":3282.271398059,"data":"[   3239s] [gpu0 f4] [bot5] {'it': 3000, 'loss': 24.9907, 's_it': 0.9193}\n"}
+,{"stream_name":"stdout","time":3378.025343456,"data":"[   3335s] [gpu1 f2] [bot5] {'it': 3100, 'loss': 26.406, 's_it': 0.9219}\n"}
+,{"stream_name":"stdout","time":3378.106755788,"data":"[   3335s] [gpu0 f4] [bot5] {'it': 3100, 'loss': 25.7181, 's_it': 0.9183}\n"}
+,{"stream_name":"stdout","time":3473.267020267,"data":"[   3430s] [gpu0 f4] [bot5] {'it': 3200, 'loss': 24.189, 's_it': 0.9088}\n"}
+,{"stream_name":"stdout","time":3473.301429424,"data":"[   3430s] [gpu1 f2] [bot5] {'it': 3200, 'loss': 25.6947, 's_it': 0.9137}\n"}
+,{"stream_name":"stdout","time":3569.692153972,"data":"[   3526s] [gpu1 f2] [bot5] {'it': 3300, 'loss': 25.9172, 's_it': 0.946}\n"}
+,{"stream_name":"stdout","time":3569.739795845,"data":"[   3526s] [gpu0 f4] [bot5] {'it': 3300, 'loss': 24.8839, 's_it': 0.9319}\n"}
+,{"stream_name":"stdout","time":3665.455592212,"data":"[   3622s] [gpu1 f2] [bot5] {'it': 3400, 'loss': 26.0865, 's_it': 0.916}\n"}
+,{"stream_name":"stdout","time":3665.538109909,"data":"[   3622s] [gpu0 f4] [bot5] {'it': 3400, 'loss': 24.2574, 's_it': 0.913}\n"}
+,{"stream_name":"stdout","time":3760.804939336,"data":"[   3717s] [gpu1 f2] [bot5] {'it': 3500, 'loss': 26.3636, 's_it': 0.9177}\n"}
+,{"stream_name":"stdout","time":3760.869210427,"data":"[   3717s] [gpu0 f4] [bot5] {'it': 3500, 'loss': 24.5042, 's_it': 0.9203}\n"}
+,{"stream_name":"stdout","time":3856.533912433,"data":"[   3813s] [gpu1 f2] [bot5] {'it': 3600, 'loss': 25.6714, 's_it': 0.9252}\n"}
+,{"stream_name":"stdout","time":3856.64943067,"data":"[   3813s] [gpu0 f4] [bot5] {'it': 3600, 'loss': 24.2742, 's_it': 0.9231}\n"}
+,{"stream_name":"stdout","time":3952.76211224,"data":"[   3909s] [gpu1 f2] [bot5] {'it': 3700, 'loss': 25.2022, 's_it': 0.9176}\n"}
+,{"stream_name":"stdout","time":3952.769405563,"data":"[   3909s] [gpu0 f4] [bot5] {'it': 3700, 'loss': 24.6777, 's_it': 0.9249}\n"}
+,{"stream_name":"stdout","time":4047.605775807,"data":"[   4004s] [gpu1 f2] [bot5] {'it': 3800, 'loss': 25.0929, 's_it': 0.9116}\n"}
+,{"stream_name":"stdout","time":4047.645849445,"data":"[   4004s] [gpu0 f4] [bot5] {'it': 3800, 'loss': 24.0914, 's_it': 0.905}\n"}
+,{"stream_name":"stdout","time":4144.180652564,"data":"[   4101s] [gpu1 f2] [bot5] {'it': 3900, 'loss': 25.4921, 's_it': 0.9245}\n"}
+,{"stream_name":"stdout","time":4144.255725558,"data":"[   4101s] [gpu0 f4] [bot5] {'it': 3900, 'loss': 24.1178, 's_it': 0.9243}\n"}
+,{"stream_name":"stdout","time":4240.487902989,"data":"[   4197s] [gpu1 f2] [bot5] {'it': 4000, 'loss': 25.9144, 's_it': 0.9283}\n"}
+,{"stream_name":"stdout","time":4240.578875841,"data":"[   4197s] [gpu0 f4] [bot5] {'it': 4000, 'loss': 24.2098, 's_it': 0.9217}\n"}
+,{"stream_name":"stdout","time":4336.795930998,"data":"[   4293s] [gpu0 f4] [bot5] {'it': 4100, 'loss': 23.7161, 's_it': 0.9255}\n"}
+,{"stream_name":"stdout","time":4336.828136967,"data":"[   4293s] [gpu1 f2] [bot5] {'it': 4100, 'loss': 25.0318, 's_it': 0.9262}\n"}
+,{"stream_name":"stdout","time":4431.939660773,"data":"[   4389s] [gpu0 f4] [bot5] {'it': 4200, 'loss': 24.1508, 's_it': 0.9182}\n"}
+,{"stream_name":"stdout","time":4432.008192542,"data":"[   4389s] [gpu1 f2] [bot5] {'it': 4200, 'loss': 24.8284, 's_it': 0.9125}\n"}
+,{"stream_name":"stdout","time":4527.715760098,"data":"[   4484s] [gpu1 f2] [bot5] {'it': 4300, 'loss': 24.8185, 's_it': 0.9189}\n"}
+,{"stream_name":"stdout","time":4527.745344886,"data":"[   4484s] [gpu0 f4] [bot5] {'it': 4300, 'loss': 24.0445, 's_it': 0.9238}\n"}
+,{"stream_name":"stdout","time":4623.603233005,"data":"[   4580s] [gpu1 f2] [bot5] {'it': 4400, 'loss': 24.7189, 's_it': 0.9228}\n"}
+,{"stream_name":"stdout","time":4623.661314964,"data":"[   4580s] [gpu0 f4] [bot5] {'it': 4400, 'loss': 23.8316, 's_it': 0.9175}\n"}
+,{"stream_name":"stdout","time":4719.169672161,"data":"[   4676s] [gpu1 f2] [bot5] {'it': 4500, 'loss': 25.5589, 's_it': 0.9238}\n"}
+,{"stream_name":"stdout","time":4719.233654285,"data":"[   4676s] [gpu0 f4] [bot5] {'it': 4500, 'loss': 23.8462, 's_it': 0.9234}\n"}
+,{"stream_name":"stdout","time":4814.425016018,"data":"[   4771s] [gpu1 f2] [bot5] {'it': 4600, 'loss': 24.742, 's_it': 0.9174}\n"}
+,{"stream_name":"stdout","time":4814.502827201,"data":"[   4771s] [gpu0 f4] [bot5] {'it': 4600, 'loss': 23.673, 's_it': 0.917}\n"}
+,{"stream_name":"stdout","time":4909.386673643,"data":"[   4866s] [gpu1 f2] [bot5] {'it': 4700, 'loss': 24.801, 's_it': 0.917}\n"}
+,{"stream_name":"stdout","time":4909.460430516,"data":"[   4866s] [gpu0 f4] [bot5] {'it': 4700, 'loss': 23.8586, 's_it': 0.9122}\n"}
+,{"stream_name":"stdout","time":5005.039216084,"data":"[   4962s] [gpu1 f2] [bot5] {'it': 4800, 'loss': 25.0572, 's_it': 0.9157}\n"}
+,{"stream_name":"stdout","time":5005.134334854,"data":"[   4962s] [gpu0 f4] [bot5] {'it': 4800, 'loss': 23.7215, 's_it': 0.9122}\n"}
+,{"stream_name":"stdout","time":5100.577820609,"data":"[   5057s] [gpu1 f2] [bot5] {'it': 4900, 'loss': 25.2703, 's_it': 0.9213}\n"}
+,{"stream_name":"stdout","time":5100.640419121,"data":"[   5057s] [gpu0 f4] [bot5] {'it': 4900, 'loss': 23.6479, 's_it': 0.9208}\n"}
+,{"stream_name":"stdout","time":5196.674189921,"data":"[   5153s] [gpu1 f2] [bot5] {'it': 5000, 'loss': 24.9363, 's_it': 0.9246}\n"}
+,{"stream_name":"stdout","time":5196.723675148,"data":"[   5153s] [gpu0 f4] [bot5] {'it': 5000, 'loss': 23.3675, 's_it': 0.9194}\n"}
+,{"stream_name":"stdout","time":5293.008417905,"data":"[   5250s] [gpu1 f2] [bot5] {'it': 5100, 'loss': 24.9546, 's_it': 0.9194}\n"}
+,{"stream_name":"stdout","time":5293.055077477,"data":"[   5250s] [gpu0 f4] [bot5] {'it': 5100, 'loss': 23.3539, 's_it': 0.918}\n"}
+,{"stream_name":"stdout","time":5388.649288798,"data":"[   5345s] [gpu1 f2] [bot5] {'it': 5200, 'loss': 24.9327, 's_it': 0.9222}\n"}
+,{"stream_name":"stdout","time":5388.726073084,"data":"[   5345s] [gpu0 f4] [bot5] {'it': 5200, 'loss': 23.3216, 's_it': 0.9161}\n"}
+,{"stream_name":"stdout","time":5484.233953024,"data":"[   5441s] [gpu1 f2] [bot5] {'it': 5300, 'loss': 25.0622, 's_it': 0.9227}\n"}
+,{"stream_name":"stdout","time":5484.320717401,"data":"[   5441s] [gpu0 f4] [bot5] {'it': 5300, 'loss': 23.3931, 's_it': 0.9231}\n"}
+,{"stream_name":"stdout","time":5580.011583265,"data":"[   5537s] [gpu1 f2] [bot5] {'it': 5400, 'loss': 25.381, 's_it': 0.9279}\n"}
+,{"stream_name":"stdout","time":5580.095638814,"data":"[   5537s] [gpu0 f4] [bot5] {'it': 5400, 'loss': 23.755, 's_it': 0.9178}\n"}
+,{"stream_name":"stdout","time":5675.535886827,"data":"[   5632s] [gpu1 f2] [bot5] {'it': 5500, 'loss': 24.8349, 's_it': 0.922}\n"}
+,{"stream_name":"stdout","time":5675.593961134,"data":"[   5632s] [gpu0 f4] [bot5] {'it': 5500, 'loss': 23.6139, 's_it': 0.9166}\n"}
+,{"stream_name":"stdout","time":5771.065421701,"data":"[   5728s] [gpu1 f2] [bot5] {'it': 5600, 'loss': 25.1531, 's_it': 0.9221}\n"}
+,{"stream_name":"stdout","time":5771.141262586,"data":"[   5728s] [gpu0 f4] [bot5] {'it': 5600, 'loss': 23.293, 's_it': 0.9175}\n"}
+,{"stream_name":"stdout","time":5867.307880191,"data":"[   5824s] [gpu1 f2] [bot5] {'it': 5700, 'loss': 24.4583, 's_it': 0.9269}\n"}
+,{"stream_name":"stdout","time":5867.386472521,"data":"[   5824s] [gpu0 f4] [bot5] {'it': 5700, 'loss': 23.5857, 's_it': 0.9195}\n"}
+,{"stream_name":"stdout","time":5962.535079902,"data":"[   5919s] [gpu1 f2] [bot5] {'it': 5800, 'loss': 25.2575, 's_it': 0.9183}\n"}
+,{"stream_name":"stdout","time":5962.587893171,"data":"[   5919s] [gpu0 f4] [bot5] {'it': 5800, 'loss': 23.7839, 's_it': 0.9126}\n"}
+,{"stream_name":"stdout","time":6059.046365275,"data":"[   6016s] [gpu1 f2] [bot5] {'it': 5900, 'loss': 25.0351, 's_it': 0.9216}\n"}
+,{"stream_name":"stdout","time":6059.079043783,"data":"[   6016s] [gpu0 f4] [bot5] {'it': 5900, 'loss': 23.0884, 's_it': 0.918}\n"}
+,{"stream_name":"stdout","time":6155.15779334,"data":"[   6112s] [gpu1 f2] [bot5] {'it': 6000, 'loss': 25.1685, 's_it': 0.9283}\n"}
+,{"stream_name":"stdout","time":6155.207698191,"data":"[   6112s] [gpu0 f4] [bot5] {'it': 6000, 'loss': 23.4481, 's_it': 0.9236}\n"}
+,{"stream_name":"stderr","time":6155.644483992,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\n"}
+,{"stream_name":"stderr","time":6155.991554398,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\u001b[A\n"}
+,{"stream_name":"stderr","time":6155.992037495,"data":"\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  2.88it/s]\u001b[A\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  2.88it/s]\n"}
+,{"stream_name":"stdout","time":6156.026843247,"data":"[   6113s] [infer] 035_Шумгора 01_Шумгора_SpOr_спутник.tif: 2751x1683 px, окон 24\n"}
+,{"stream_name":"stderr","time":6156.027961547,"data":"\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  1.74it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  1.74it/s]\n"}
+,{"stream_name":"stdout","time":6156.054652174,"data":"[   6113s] [infer] 015_Демидовка 01_Демидовка_SpOr_спутник.tif: 2221x1553 px, окон 15\n"}
+,{"stream_name":"stdout","time":6162.27449397,"data":"[   6119s] [infer] 035_Шумгора: готово 24 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6163.464408662,"data":"[   6120s] [infer] 035_Шумгора 02_Шумгора_SpOr_спутник.tif: 3755x2034 px, окон 32\n"}
+,{"stream_name":"stdout","time":6164.281059909,"data":"[   6121s] [infer] 015_Демидовка: готово 15 окон за 8 с\n"}
+,{"stream_name":"stdout","time":6164.78306058,"data":"[   6121s] [infer] 026_Золотаревка 01_Золотаревка_SpOr_спутник.tif: 1899x1315 px, окон 12\n"}
+,{"stream_name":"stdout","time":6168.107969715,"data":"[   6125s] [infer] 026_Золотаревка: готово 12 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6168.498914791,"data":"[   6125s] [infer] 031_Новотитаровская 01_Новотитаровская_SpOr_спутник.tif: 1293x756 px, окон 6\n"}
+,{"stream_name":"stdout","time":6169.097982414,"data":"[   6126s] [infer] 035_Шумгора: готово 32 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6170.461493672,"data":"[   6127s] [infer] 048_Калмыкия_1 01_Калмыкия_1_SpOr_спутник.tif: 3543x2362 px, окон 40\n"}
+,{"stream_name":"stdout","time":6171.504196097,"data":"[   6128s] [infer] 031_Новотитаровская: готово 6 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6171.924507732,"data":"[   6129s] [infer] 034_Усть_река 01_Усть_река_SpOr_спутник.tif: 1285x1147 px, окон 9\n"}
+,{"stream_name":"stdout","time":6175.187974813,"data":"[   6132s] [infer] 034_Усть_река: готово 9 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6175.887058044,"data":"[   6132s] [infer] 063_Верхнее_Казачье 01_Верхнее_Казачье_SpOr_спутник.tif: 1829x1436 px, окон 12\n"}
+,{"stream_name":"stdout","time":6176.611378824,"data":"[   6133s] [infer] 048_Калмыкия_1: готово 40 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6178.922807096,"data":"[   6136s] [infer] 048_Калмыкия_1 02_Калмыкия_1_SpOr_спутник.tif: 2301x1528 px, окон 15\n"}
+,{"stream_name":"stdout","time":6179.492194792,"data":"[   6136s] [infer] 063_Верхнее_Казачье: готово 12 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6179.869873235,"data":"[   6136s] [infer] 077_Русская_Тростянка 01_Русская_Тростянка_SpOr_спутник.tif: 3982x2693 px, окон 48\n"}
+,{"stream_name":"stdout","time":6183.40035243,"data":"[   6140s] [infer] 048_Калмыкия_1: готово 15 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6183.978849475,"data":"[   6141s] [infer] 049_Калмыкия_2 01_Калмыкия_2_SpOr_спутник.tif: 1901x1262 px, окон 12\n"}
+,{"stream_name":"stdout","time":6186.070612545,"data":"[   6143s] [infer] 077_Русская_Тростянка: готово 48 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6187.723804393,"data":"[   6144s] [infer] 079_Городище 01_Городище_SpOr_спутник.tif: 2199x1696 px, окон 20\n"}
+,{"stream_name":"stdout","time":6187.866430395,"data":"[   6144s] [infer] 049_Калмыкия_2: готово 12 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6188.403254295,"data":"[   6145s] [infer] 049_Калмыкия_2 02_Калмыкия_2_SpOr_спутник.tif: 1898x1263 px, окон 12\n"}
+,{"stream_name":"stdout","time":6190.123442935,"data":"[   6147s] [infer] 049_Калмыкия_2: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6191.030564173,"data":"[   6148s] [infer] 049_Калмыкия_2 03_Калмыкия_2_SpOr_спутник.tif: 1779x924 px, окон 8\n"}
+,{"stream_name":"stdout","time":6191.072611132,"data":"[   6148s] [infer] 079_Городище: готово 20 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6191.953713633,"data":"[   6149s] [infer] 079_Городище 02_Городище_SpOr_спутник.tif: 1812x958 px, окон 8\n"}
+,{"stream_name":"stdout","time":6194.406483701,"data":"[   6151s] [infer] 049_Калмыкия_2: готово 8 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6194.806542104,"data":"[   6151s] [infer] 049_Калмыкия_2 04_Калмыкия_2_SpOr_спутник.tif: 1779x924 px, окон 8\n"}
+,{"stream_name":"stdout","time":6195.452560692,"data":"[   6152s] [infer] 079_Городище: готово 8 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6195.807494961,"data":"[   6152s] [infer] 081_Костомаровское 01_Костомаровское_SpOr_спутник.tif: 1415x1085 px, окон 6\n"}
+,{"stream_name":"stdout","time":6196.70453083,"data":"[   6153s] [infer] 081_Костомаровское: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6196.932772898,"data":"[   6154s] [infer] 082_Артпозиции_Иссык_Куль 01_Артпозиции_Иссык_Куль_SpOr_спутник.tif: 1165x894 px, окон 6\n"}
+,{"stream_name":"stdout","time":6197.694722421,"data":"[   6154s] [infer] 082_Артпозиции_Иссык_Куль: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6198.092641655,"data":"[   6155s] [infer] 082_Артпозиции_Иссык_Куль 02_Артпозиции_Иссык_Куль_SpOr_спутник.tif: 1078x563 px, окон 2\n"}
+,{"stream_name":"stdout","time":6198.307291029,"data":"[   6155s] [infer] 049_Калмыкия_2: готово 8 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6198.760408482,"data":"[   6155s] [infer] 057_Кабардино_Балкария 01_Кабардино_Балкария_SpOr_спутник.tif: 1983x1277 px, окон 12\n"}
+,{"stream_name":"stdout","time":6200.303463759,"data":"[   6157s] [infer] 057_Кабардино_Балкария: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6200.945550134,"data":"[   6158s] [infer] 057_Кабардино_Балкария 02_Кабардино_Балкария_SpOr_спутник.tif: 2211x1280 px, окон 15\n"}
+,{"stream_name":"stdout","time":6201.683503395,"data":"[   6158s] [infer] 082_Артпозиции_Иссык_Куль: готово 2 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6201.798795613,"data":"[   6158s] [infer] 087_Кароол_Дюбе 01_Кароол_Дюбе_SpOr_спутник.tif: 4338x2563 px, окон 54\n"}
+,{"stream_name":"stdout","time":6202.790465068,"data":"[   6159s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6203.738575064,"data":"[   6160s] [infer] 057_Кабардино_Балкария 03_Кабардино_Балкария_SpOr_спутник.tif: 2211x1280 px, окон 15\n"}
+,{"stream_name":"stdout","time":6205.709677052,"data":"[   6162s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6206.630278945,"data":"[   6163s] [infer] 057_Кабардино_Балкария 04_Кабардино_Балкария_SpOr_спутник.tif: 4420x2559 px, окон 45\n"}
+,{"stream_name":"stdout","time":6210.065290645,"data":"[   6167s] [infer] 087_Кароол_Дюбе: готово 54 окон за 8 с\n"}
+,{"stream_name":"stdout","time":6212.506668629,"data":"[   6169s] [infer] 091_Сакские_курганы 01_Сакские_курганы_SpOr_спутник.tif: 761x675 px, окон 4\n"}
+,{"stream_name":"stdout","time":6213.012369081,"data":"[   6170s] [infer] 091_Сакские_курганы: готово 4 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6213.327309623,"data":"[   6170s] [infer] 098_Таш_Коро_1 01_Таш_Коро_1_SpOr_спутник.tif: 463x362 px, окон 1\n"}
+,{"stream_name":"stdout","time":6213.613823645,"data":"[   6170s] [infer] 098_Таш_Коро_1: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6213.646498206,"data":"[   6170s] [infer] 099_Таш_Коро_2 01_Таш_Коро_2_SpOr_спутник.tif: 923x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6214.134014907,"data":"[   6171s] [infer] 099_Таш_Коро_2: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6214.651047646,"data":"[   6171s] [infer] 100_Торт_Куль 01_Торт_Куль_SpOr_спутник.tif: 931x728 px, окон 4\n"}
+,{"stream_name":"stdout","time":6215.146437573,"data":"[   6172s] [infer] 100_Торт_Куль: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6215.372117667,"data":"[   6172s] [infer] 130_Курганы_1 01_Курганы_1_SpOr_спутник.tif: 1823x1414 px, окон 12\n"}
+,{"stream_name":"stdout","time":6216.588952179,"data":"[   6173s] [infer] 057_Кабардино_Балкария: готово 45 окон за 10 с\n"}
+,{"stream_name":"stdout","time":6219.420868024,"data":"[   6176s] [infer] 057_Кабардино_Балкария 05_Кабардино_Балкария_SpOr_спутник.tif: 4419x2558 px, окон 45\n"}
+,{"stream_name":"stdout","time":6219.501124966,"data":"[   6176s] [infer] 130_Курганы_1: готово 12 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6219.964624691,"data":"[   6177s] [infer] 131_Курганы_2 01_Курганы_2_SpOr_спутник.tif: 3646x2827 px, окон 48\n"}
+,{"stream_name":"stdout","time":6225.803042796,"data":"[   6182s] [infer] 057_Кабардино_Балкария: готово 45 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6227.227420034,"data":"[   6184s] [infer] 131_Курганы_2: готово 48 окон за 7 с\n"}
+,{"stream_name":"stdout","time":6230.145444376,"data":"[   6187s] [infer] 057_Кабардино_Балкария 06_Кабардино_Балкария_SpOr_спутник.tif: 4419x2557 px, окон 45\n"}
+,{"stream_name":"stdout","time":6231.129854108,"data":"[   6188s] [infer] 132_Курганы_3 01_Курганы_3_SpOr_спутник.tif: 1861x1458 px, окон 12\n"}
+,{"stream_name":"stdout","time":6232.702687084,"data":"[   6189s] [infer] 132_Курганы_3: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6233.257406667,"data":"[   6190s] [infer] 133_Курганы_4 01_Курганы_4_SpOr_спутник.tif: 3214x2518 px, окон 35\n"}
+,{"stream_name":"stdout","time":6236.485954595,"data":"[   6193s] [infer] 057_Кабардино_Балкария: готово 45 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6239.102062735,"data":"[   6196s] [infer] 057_Кабардино_Балкария 07_Кабардино_Балкария_SpOr_спутник.tif: 2209x1278 px, окон 15\n"}
+,{"stream_name":"stdout","time":6241.012327945,"data":"[   6198s] [infer] 057_Кабардино_Балкария: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6241.776762375,"data":"[   6198s] [infer] 057_Кабардино_Балкария 08_Кабардино_Балкария_SpOr_спутник.tif: 2209x1278 px, окон 15\n"}
+,{"stream_name":"stdout","time":6241.89398642,"data":"[   6198s] [infer] 133_Курганы_4: готово 35 окон за 9 с\n"}
+,{"stream_name":"stdout","time":6243.457510614,"data":"[   6200s] [infer] 134_Курганы_5 01_Курганы_5_SpOr_спутник.tif: 1607x1259 px, окон 12\n"}
+,{"stream_name":"stdout","time":6244.322873747,"data":"[   6201s] [infer] 057_Кабардино_Балкария: готово 15 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6245.226689529,"data":"[   6202s] [infer] 057_Кабардино_Балкария 09_Кабардино_Балкария_SpOr_спутник.tif: 2463x1867 px, окон 20\n"}
+,{"stream_name":"stdout","time":6245.638069509,"data":"[   6202s] [infer] 134_Курганы_5: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6246.265279306,"data":"[   6203s] [infer] 135_Курганы_6 01_Курганы_6_SpOr_спутник.tif: 1586x1232 px, окон 9\n"}
+,{"stream_name":"stdout","time":6247.529684055,"data":"[   6204s] [infer] 135_Курганы_6: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6247.878897362,"data":"[   6204s] [infer] 136_Курганы_7 01_Курганы_7_SpOr_спутник.tif: 1586x1232 px, окон 9\n"}
+,{"stream_name":"stdout","time":6248.258194606,"data":"[   6205s] [infer] 057_Кабардино_Балкария: готово 20 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6249.083662721,"data":"[   6206s] [infer] 062_Каменка 01_Каменка_SpOr_спутник.tif: 2892x1709 px, окон 24\n"}
+,{"stream_name":"stdout","time":6249.522475369,"data":"[   6206s] [infer] 136_Курганы_7: готово 9 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6249.884936357,"data":"[   6206s] [infer] 137_Курганы_8 01_Курганы_8_SpOr_спутник.tif: 1590x1235 px, окон 9\n"}
+,{"stream_name":"stdout","time":6251.169495256,"data":"[   6208s] [infer] 137_Курганы_8: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6251.713098202,"data":"[   6208s] [infer] 138_Курганы_9 01_Курганы_9_SpOr_спутник.tif: 793x616 px, окон 2\n"}
+,{"stream_name":"stdout","time":6252.071095618,"data":"[   6209s] [infer] 138_Курганы_9: готово 2 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6252.203967205,"data":"[   6209s] [infer] 139_Курганы_10 01_Курганы_10_SpOr_спутник.tif: 3169x2460 px, окон 35\n"}
+,{"stream_name":"stdout","time":6252.592012864,"data":"[   6209s] [infer] 062_Каменка: готово 24 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6253.828487925,"data":"[   6210s] [infer] 070_Архангельское 01_Архангельское_SpOr_спутник.tif: 4247x2872 px, окон 54\n"}
+,{"stream_name":"stdout","time":6257.394990829,"data":"[   6214s] [infer] 139_Курганы_10: готово 35 окон за 5 с\n"}
+,{"stream_name":"stdout","time":6258.61287047,"data":"[   6215s] [infer] 140_Курганы_11 01_Курганы_11_SpOr_спутник.tif: 1586x1232 px, окон 9\n"}
+,{"stream_name":"stdout","time":6259.930934404,"data":"[   6217s] [infer] 140_Курганы_11: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6260.422964658,"data":"[   6217s] [infer] 141_Курганы_12 01_Курганы_12_SpOr_спутник.tif: 1587x1232 px, окон 9\n"}
+,{"stream_name":"stdout","time":6261.705772294,"data":"[   6218s] [infer] 141_Курганы_12: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6262.129255431,"data":"[   6219s] [infer] 142_Курганы_13 01_Курганы_13_SpOr_спутник.tif: 1603x1258 px, окон 12\n"}
+,{"stream_name":"stdout","time":6263.432770186,"data":"[   6220s] [infer] 142_Курганы_13: готово 12 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6264.171199452,"data":"[   6221s] [infer] 143_Курганы_14 01_Курганы_14_SpOr_спутник.tif: 1578x1228 px, окон 9\n"}
+,{"stream_name":"stdout","time":6264.368405977,"data":"[   6221s] [infer] 070_Архангельское: готово 54 окон за 11 с\n"}
+,{"stream_name":"stdout","time":6266.91385532,"data":"[   6224s] [infer] 070_Архангельское 02_Архангельское_SpOr_спутник.tif: 2958x1520 px, окон 18\n"}
+,{"stream_name":"stdout","time":6267.28771348,"data":"[   6224s] [infer] 143_Курганы_14: готово 9 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6267.64406786,"data":"[   6224s] [infer] 144_Курганы_15 01_Курганы_15_SpOr_спутник.tif: 1579x1229 px, окон 9\n"}
+,{"stream_name":"stdout","time":6268.861142706,"data":"[   6225s] [infer] 144_Курганы_15: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6269.314936625,"data":"[   6226s] [infer] 145_Курганы_16 01_Курганы_16_SpOr_спутник.tif: 1579x1229 px, окон 9\n"}
+,{"stream_name":"stdout","time":6270.52047985,"data":"[   6227s] [infer] 145_Курганы_16: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6270.932024284,"data":"[   6228s] [infer] 146_Курганы_17 01_Курганы_17_SpOr_спутник.tif: 3157x2458 px, окон 35\n"}
+,{"stream_name":"stdout","time":6273.629266251,"data":"[   6230s] [infer] 070_Архангельское: готово 18 окон за 7 с\n"}
+,{"stream_name":"stdout","time":6274.493331071,"data":"[   6231s] [infer] 072_Белая_Гора 01_Белая_Гора_SpOr_спутник.tif: 2389x1616 px, окон 20\n"}
+,{"stream_name":"stdout","time":6275.857892272,"data":"[   6232s] [infer] 146_Курганы_17: готово 35 окон за 5 с\n"}
+,{"stream_name":"stdout","time":6277.400426295,"data":"[   6234s] [infer] 147_Курганы_18 01_Курганы_18_SpOr_спутник.tif: 3157x2458 px, окон 35\n"}
+,{"stream_name":"stdout","time":6277.903246427,"data":"[   6235s] [infer] 072_Белая_Гора: готово 20 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6279.018820677,"data":"[   6236s] [infer] 073_Тоссор 01_Тоссор_SpOr_спутник.tif: 1419x904 px, окон 6\n"}
+,{"stream_name":"stdout","time":6280.158973063,"data":"[   6237s] [infer] 073_Тоссор: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6280.661643535,"data":"[   6237s] [infer] 075_Мостище 01_Мостище_SpOr_спутник.tif: 2793x2131 px, окон 30\n"}
+,{"stream_name":"stdout","time":6283.224905964,"data":"[   6240s] [infer] 147_Курганы_18: готово 35 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6284.35464976,"data":"[   6241s] [infer] 148_Курганы_19 01_Курганы_19_SpOr_спутник.tif: 1578x1229 px, окон 9\n"}
+,{"stream_name":"stdout","time":6285.032967664,"data":"[   6242s] [infer] 075_Мостище: готово 30 окон за 4 с\n"}
+,{"stream_name":"stdout","time":6286.959087975,"data":"[   6244s] [infer] 075_Мостище 02_Мостище_SpOr_спутник.tif: 4382x2248 px, окон 45\n"}
+,{"stream_name":"stdout","time":6287.346649903,"data":"[   6244s] [infer] 148_Курганы_19: готово 9 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6287.700082786,"data":"[   6244s] [infer] 149_Курганы_20 01_Курганы_20_SpOr_спутник.tif: 1579x1229 px, окон 9\n"}
+,{"stream_name":"stdout","time":6288.875734629,"data":"[   6245s] [infer] 149_Курганы_20: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6289.236097768,"data":"[   6246s] [infer] 150_Курганы_21 01_Курганы_21_SpOr_спутник.tif: 1579x1229 px, окон 9\n"}
+,{"stream_name":"stdout","time":6290.394562466,"data":"[   6247s] [infer] 150_Курганы_21: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6290.74170132,"data":"[   6247s] [infer] 151_Курганы_22 01_Курганы_22_SpOr_спутник.tif: 1858x1439 px, окон 12\n"}
+,{"stream_name":"stdout","time":6292.280879433,"data":"[   6249s] [infer] 151_Курганы_22: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6292.882434576,"data":"[   6249s] [infer] 152_Курганы_23 01_Курганы_23_SpOr_спутник.tif: 838x655 px, окон 4\n"}
+,{"stream_name":"stdout","time":6293.350285511,"data":"[   6250s] [infer] 152_Курганы_23: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6293.604607503,"data":"[   6250s] [infer] 153_Курганы_24 01_Курганы_24_SpOr_спутник.tif: 840x656 px, окон 4\n"}
+,{"stream_name":"stdout","time":6294.086513031,"data":"[   6251s] [infer] 153_Курганы_24: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6294.398806802,"data":"[   6251s] [infer] 154_Курганы_25 01_Курганы_25_SpOr_спутник.tif: 840x655 px, окон 4\n"}
+,{"stream_name":"stdout","time":6294.828995615,"data":"[   6251s] [infer] 075_Мостище: готово 45 окон за 8 с\n"}
+,{"stream_name":"stdout","time":6294.870409266,"data":"[   6251s] [infer] 154_Курганы_25: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6295.579227697,"data":"[   6252s] [infer] 155_Курганы_26 01_Курганы_26_SpOr_спутник.tif: 4366x2785 px, окон 54\n"}
+,{"stream_name":"stdout","time":6297.070941638,"data":"[   6254s] [infer] 076_Маяцкая_крепость 01_Маяцкая_крепость_SpOr_спутник.tif: 2655x1795 px, окон 24\n"}
+,{"stream_name":"stdout","time":6300.03711691,"data":"[   6257s] [infer] 076_Маяцкая_крепость: готово 24 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6301.21058443,"data":"[   6258s] [infer] 080_Верхний_Карабут 01_Верхний_Карабут_SpOr_спутник.tif: 1418x1088 px, окон 6\n"}
+,{"stream_name":"stdout","time":6302.147481091,"data":"[   6259s] [infer] 080_Верхний_Карабут: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6302.418319243,"data":"[   6259s] [infer] 083_Барскоон 01_Барскоон_SpOr_спутник.tif: 2169x1282 px, окон 15\n"}
+,{"stream_name":"stdout","time":6304.15150795,"data":"[   6261s] [infer] 083_Барскоон: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6305.099324412,"data":"[   6262s] [infer] 089_Конур_Елен 01_Конур_Елен_SpOr_спутник.tif: 2530x1495 px, окон 15\n"}
+,{"stream_name":"stdout","time":6307.085679514,"data":"[   6264s] [infer] 089_Конур_Елен: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6308.058644915,"data":"[   6265s] [infer] 107_Сары_Булун 01_Сары_Булун_SpOr_спутник.tif: 543x417 px, окон 1\n"}
+,{"stream_name":"stdout","time":6310.343949125,"data":"[   6267s] [infer] 107_Сары_Булун: готово 1 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6310.427965365,"data":"[   6267s] [infer] 111_Каменные_выкладки_1 01_Каменные_выкладки_1_SpOr_спутник.tif: 922x721 px, окон 4\n"}
+,{"stream_name":"stdout","time":6310.986170943,"data":"[   6268s] [infer] 111_Каменные_выкладки_1: готово 4 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6311.321314442,"data":"[   6268s] [infer] 112_Каменные_выкладки_2 01_Каменные_выкладки_2_SpOr_спутник.tif: 924x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6311.80962534,"data":"[   6268s] [infer] 112_Каменные_выкладки_2: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6312.035286737,"data":"[   6269s] [infer] 113_Каменные_выкладки_3 01_Каменные_выкладки_3_SpOr_спутник.tif: 924x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6312.540743379,"data":"[   6269s] [infer] 113_Каменные_выкладки_3: готово 4 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6312.834433645,"data":"[   6269s] [infer] 114_Каменные_выкладки_4 01_Каменные_выкладки_4_SpOr_спутник.tif: 924x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6313.340433188,"data":"[   6270s] [infer] 114_Каменные_выкладки_4: готово 4 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6313.625985679,"data":"[   6270s] [infer] 115_Каменные_выкладки_5 01_Каменные_выкладки_5_SpOr_спутник.tif: 462x361 px, окон 1\n"}
+,{"stream_name":"stdout","time":6313.648810771,"data":"[   6270s] [infer] 155_Курганы_26: готово 54 окон за 18 с\n"}
+,{"stream_name":"stdout","time":6316.940254691,"data":"[   6274s] [infer] 156_Курганы_27 01_Курганы_27_SpOr_спутник.tif: 4360x2786 px, окон 54\n"}
+,{"stream_name":"stdout","time":6316.951169194,"data":"[   6274s] [infer] 115_Каменные_выкладки_5: готово 1 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6317.019859616,"data":"[   6274s] [infer] 116_Каменные_выкладки_6 01_Каменные_выкладки_6_SpOr_спутник.tif: 1846x1444 px, окон 12\n"}
+,{"stream_name":"stdout","time":6318.558875847,"data":"[   6275s] [infer] 116_Каменные_выкладки_6: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6319.195436493,"data":"[   6276s] [infer] 117_Каменные_выкладки_7 01_Каменные_выкладки_7_SpOr_спутник.tif: 1846x1444 px, окон 12\n"}
+,{"stream_name":"stdout","time":6320.653879388,"data":"[   6277s] [infer] 117_Каменные_выкладки_7: готово 12 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6321.408372444,"data":"[   6278s] [infer] 118_Каменные_выкладки_8 01_Каменные_выкладки_8_SpOr_спутник.tif: 920x718 px, окон 4\n"}
+,{"stream_name":"stdout","time":6321.890533504,"data":"[   6278s] [infer] 118_Каменные_выкладки_8: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6322.116440865,"data":"[   6279s] [infer] 119_Каменные_выкладки_9 01_Каменные_выкладки_9_SpOr_спутник.tif: 463x362 px, окон 1\n"}
+,{"stream_name":"stdout","time":6322.381005756,"data":"[   6279s] [infer] 119_Каменные_выкладки_9: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6322.46037424,"data":"[   6279s] [infer] 120_Каменные_выкладки_10 01_Каменные_выкладки_10_SpOr_спутник.tif: 924x724 px, окон 4\n"}
+,{"stream_name":"stdout","time":6322.957441425,"data":"[   6280s] [infer] 120_Каменные_выкладки_10: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6323.080744034,"data":"[   6280s] [infer] 121_Каменные_выкладки_11 01_Каменные_выкладки_11_SpOr_спутник.tif: 923x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6323.572277727,"data":"[   6280s] [infer] 121_Каменные_выкладки_11: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6323.846913585,"data":"[   6280s] [infer] 122_Каменные_выкладки_12 01_Каменные_выкладки_12_SpOr_спутник.tif: 923x722 px, окон 4\n"}
+,{"stream_name":"stdout","time":6324.335754256,"data":"[   6281s] [infer] 122_Каменные_выкладки_12: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6324.539549904,"data":"[   6281s] [infer] 123_Каменные_выкладки_13 01_Каменные_выкладки_13_SpOr_спутник.tif: 925x725 px, окон 4\n"}
+,{"stream_name":"stdout","time":6325.029481088,"data":"[   6282s] [infer] 123_Каменные_выкладки_13: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":6325.334744755,"data":"[   6282s] [infer] 164_Кисловодская_котловина_1 01_Кисловодская_котловина_1_SpOr_спутник.tif: 2655x1795 px, окон 24\n"}
+,{"stream_name":"stdout","time":6328.235008675,"data":"[   6285s] [infer] 164_Кисловодская_котловина_1: готово 24 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6329.665202536,"data":"[   6286s] [infer] 165_Кисловодская_котловина_2 01_Кисловодская_котловина_2_SpOr_спутник.tif: 1448x1290 px, окон 9\n"}
+,{"stream_name":"stdout","time":6330.883895962,"data":"[   6287s] [infer] 165_Кисловодская_котловина_2: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6331.387044406,"data":"[   6288s] [infer] 166_Кисловодская_котловина_3 01_Кисловодская_котловина_3_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6332.286788737,"data":"[   6289s] [infer] 166_Кисловодская_котловина_3: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6332.658491448,"data":"[   6289s] [infer] 167_Кисловодская_котловина_4 01_Кисловодская_котловина_4_SpOr_спутник.tif: 2655x1795 px, окон 24\n"}
+,{"stream_name":"stdout","time":6334.485710378,"data":"[   6291s] [infer] 156_Курганы_27: готово 54 окон за 18 с\n"}
+,{"stream_name":"stdout","time":6338.671190027,"data":"[   6295s] [infer] 157_Курганы_28 01_Курганы_28_SpOr_спутник.tif: 4358x2783 px, окон 54\n"}
+,{"stream_name":"stdout","time":6339.139279868,"data":"[   6296s] [infer] 167_Кисловодская_котловина_4: готово 24 окон за 6 с\n"}
+,{"stream_name":"stdout","time":6340.255238546,"data":"[   6297s] [infer] 168_Кисловодская_котловина_5 01_Кисловодская_котловина_5_SpOr_спутник.tif: 2655x1795 px, окон 24\n"}
+,{"stream_name":"stdout","time":6343.246798162,"data":"[   6300s] [infer] 168_Кисловодская_котловина_5: готово 24 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6344.31644706,"data":"[   6301s] [infer] 169_Кисловодская_котловина_6 01_Кисловодская_котловина_6_SpOr_спутник.tif: 2124x1436 px, окон 15\n"}
+,{"stream_name":"stdout","time":6346.196846389,"data":"[   6303s] [infer] 169_Кисловодская_котловина_6: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6346.923353191,"data":"[   6304s] [infer] 170_Кисловодская_котловина_7 01_Кисловодская_котловина_7_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6347.792718723,"data":"[   6304s] [infer] 170_Кисловодская_котловина_7: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6348.069737353,"data":"[   6305s] [infer] 171_Кисловодская_котловина_8 01_Кисловодская_котловина_8_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6348.933674284,"data":"[   6306s] [infer] 171_Кисловодская_котловина_8: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6349.169859329,"data":"[   6306s] [infer] 172_Кисловодская_котловина_9 01_Кисловодская_котловина_9_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6350.048985255,"data":"[   6307s] [infer] 172_Кисловодская_котловина_9: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6350.345834144,"data":"[   6307s] [infer] 173_Кисловодская_котловина_10 01_Кисловодская_котловина_10_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6351.212221404,"data":"[   6308s] [infer] 173_Кисловодская_котловина_10: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6351.454745932,"data":"[   6308s] [infer] 174_Кисловодская_котловина_11 01_Кисловодская_котловина_11_SpOr_спутник.tif: 1593x1077 px, окон 6\n"}
+,{"stream_name":"stdout","time":6352.308258374,"data":"[   6309s] [infer] 174_Кисловодская_котловина_11: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6352.55079737,"data":"[   6309s] [infer] 175_Кисловодская_котловина_12 01_Кисловодская_котловина_12_SpOr_спутник.tif: 2389x1616 px, окон 20\n"}
+,{"stream_name":"stdout","time":6354.780830636,"data":"[   6311s] [infer] 157_Курганы_28: готово 54 окон за 16 с\n"}
+,{"stream_name":"stdout","time":6355.561589974,"data":"[   6312s] [infer] 175_Кисловодская_котловина_12: готово 20 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6358.384060474,"data":"[   6315s] [infer] 176_Кисловодская_котловина_13 01_Кисловодская_котловина_13_SpOr_спутник.tif: 2389x1616 px, окон 20\n"}
+,{"stream_name":"stdout","time":6359.300761057,"data":"[   6316s] [infer] 158_Курганы_29 01_Курганы_29_SpOr_спутник.tif: 8730x5569 px, окон 216\n"}
+,{"stream_name":"stdout","time":6360.859774145,"data":"[   6317s] [infer] 176_Кисловодская_котловина_13: готово 20 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6361.938258576,"data":"[   6319s] [infer] 177_Кисловодская_котловина_14 01_Кисловодская_котловина_14_SpOr_спутник.tif: 2389x1616 px, окон 20\n"}
+,{"stream_name":"stdout","time":6364.328021849,"data":"[   6321s] [infer] 177_Кисловодская_котловина_14: готово 20 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6365.474868298,"data":"[   6322s] [infer] 178_Кисловодская_котловина_15 01_Кисловодская_котловина_15_SpOr_спутник.tif: 1195x808 px, окон 6\n"}
+,{"stream_name":"stdout","time":6366.164954184,"data":"[   6323s] [infer] 178_Кисловодская_котловина_15: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6366.481584011,"data":"[   6323s] [infer] 185_Изборск 01_Изборск_SpOr_спутник.tif: 2768x1644 px, окон 24\n"}
+,{"stream_name":"stdout","time":6369.287292306,"data":"[   6326s] [infer] 185_Изборск: готово 24 окон за 3 с\n"}
+,{"stream_name":"stdout","time":6370.873924703,"data":"[   6327s] [infer] 185_Изборск 02_Изборск_SpOr_спутник.tif: 1978x1175 px, окон 12\n"}
+,{"stream_name":"stdout","time":6372.432042924,"data":"[   6329s] [infer] 185_Изборск: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":6373.232638526,"data":"[   6330s] [infer] 185_Изборск 03_Изборск_SpOr_спутник.tif: 1978x1175 px, окон 12\n"}
+,{"stream_name":"stdout","time":6374.713932077,"data":"[   6331s] [infer] 185_Изборск: готово 12 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6387.682954113,"data":"[   6344s] [gpu0 f4] готово {\"trainer\": \"bot5\", \"iters\": 6000, \"planned\": 6000, \"s_it_median\": 0.9176027774810791, \"sec\": 5752, \"loss_first\": 88.61479187011719, \"loss_last\": 28.771408081054688, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2109, \"test_regions\": [\"035_Шумгора\", \"048_Калмыкия_1\", \"049_Калмыкия_2\", \"057_Кабардино_Балкария\", \"062_Каменка\", \"070_Архангельское\", \"072_Белая_Гора\", \"073_Тоссор\", \"075_Мостище\", \"076_Маяцкая_крепость\", \"080_Верхний_Карабут\", \"083_Барскоон\", \"089_Конур_Елен\", \"107_Сары_Булун\", \"111_Каменные_выкладки_1\", \"112_Каменные_выкладки_2\", \"113_Каменные_выкладки_3\", \"114_Каменные_выкладки_4\", \"115_Каменные_выкладки_5\", \"116_Каменные_выкладки_6\", \"117_Каменные_выкладки_7\", \"118_Каменные_выкладки_8\", \"119_Каменные_выкладки_9\", \"120_Каменные_выкладки_10\", \"121_Каменные_выкладки_11\", \"122_Каменные_выкладки_12\", \"123_Каменные_выкладки_13\", \"164_Кисловодская_котловина_1\", \"165_Кисловодская_котловина_2\", \"166_Кисловодская_котловина_3\", \"167_Кисловодская_котловина_4\", \"168_Кисловодская_котловина_5\", \"169_Кисловодская_котловина_6\", \"170_Кисловодская_котловина_7\", \"171_Кисловодская_котловина_8\", \"172_Кисловодская_котловина_9\", \"173_Кисловодская_котловина_10\", \"174_Кисловодская_котловина_11\", \"175_Кисловодская_котловина_12\", \"176_Кисловодская_котловина_13\", \"177_Кисловодская_котловина_14\", \"178_Кисловодская_котловина_15\", \"185_Изборск\"], \"n_det\": 74745, \"infer_sec\": 232, \"peak_vram_gb\": 6.77}\n"}
+,{"stream_name":"stderr","time":6388.215835427,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":6388.215861334,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":6389.009955543,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  27%|██▋       | 321/1197 [00:00\u003c00:00, 3201.71it/s]\rLoading weights:  54%|█████▎    | 642/1197 [00:00\u003c00:00, 2904.57it/s]\rLoading weights:  78%|███████▊  | 935/1197 [00:00\u003c00:00, 2881.77it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2919.44it/s]\n"}
+,{"stream_name":"stderr","time":6389.057780512,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":6389.05780777,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":6389.057812418,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":6389.057816402,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":6389.057820238,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":6389.057823972,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":6389.057841754,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":6389.057845893,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":6389.057849705,"data":"\n"}
+,{"stream_name":"stderr","time":6389.057853133,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":6389.057856735,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":6389.057860324,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec\n"}
+,{"stream_name":"stderr","time":6389.057864378,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":6389.057877824,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":6389.057882007,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":6389.057887248,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":6389.057891559,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":6389.057895393,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":6389.057899583,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":6389.057904141,"data":"\n"}
+,{"stream_name":"stderr","time":6389.057908082,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":6389.057912192,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":6389.180400846,"data":"[   6346s] [gpu0 f1] train чипов 2564, test участков 22, бюджет обучения 2.40 ч\n"}
+,{"stream_name":"stdout","time":6414.989707936,"data":"[   6372s] [infer] 158_Курганы_29: готово 216 окон за 56 с\n"}
+,{"stream_name":"stdout","time":6429.228045355,"data":"[   6386s] [infer] 159_Курганы_30 01_Курганы_30_SpOr_спутник.tif: 2182x1392 px, окон 15\n"}
+,{"stream_name":"stdout","time":6442.743281665,"data":"[   6399s] [infer] 159_Курганы_30: готово 15 окон за 14 с\n"}
+,{"stream_name":"stdout","time":6443.757262187,"data":"[   6400s] [infer] 160_Курганы_31 01_Курганы_31_SpOr_спутник.tif: 2593x1408 px, окон 18\n"}
+,{"stream_name":"stdout","time":6457.283165541,"data":"[   6414s] [infer] 160_Курганы_31: готово 18 окон за 14 с\n"}
+,{"stream_name":"stdout","time":6458.5169935,"data":"[   6415s] [infer] 161_Курганы_32 01_Курганы_32_SpOr_спутник.tif: 1575x1395 px, окон 9\n"}
+,{"stream_name":"stdout","time":6459.946140176,"data":"[   6417s] [infer] 161_Курганы_32: готово 9 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6460.638818417,"data":"[   6417s] [infer] 162_Курганы_33 01_Курганы_33_SpOr_спутник.tif: 1568x925 px, окон 6\n"}
+,{"stream_name":"stdout","time":6470.813011215,"data":"[   6427s] [infer] 162_Курганы_33: готово 6 окон за 10 с\n"}
+,{"stream_name":"stdout","time":6471.26234944,"data":"[   6428s] [infer] 163_Курганы_34 01_Курганы_34_SpOr_спутник.tif: 6259x3695 px, окон 104\n"}
+,{"stream_name":"stdout","time":6483.656342669,"data":"[   6440s] [gpu0 f1] [bot5] {'it': 100, 'loss': 116.4508, 's_it': 0.7733}\n"}
+,{"stream_name":"stdout","time":6500.198355144,"data":"[   6457s] [infer] 163_Курганы_34: готово 104 окон за 29 с\n"}
+,{"stream_name":"stdout","time":6508.30693284,"data":"[   6465s] [infer] 192_КЧР 01_КЧР_SpOr_спутник.tif: 1349x820 px, окон 6\n"}
+,{"stream_name":"stdout","time":6509.08535323,"data":"[   6466s] [infer] 192_КЧР: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":6523.439756118,"data":"[   6480s] [gpu1 f2] готово {\"trainer\": \"bot5\", \"iters\": 6000, \"planned\": 6000, \"s_it_median\": 0.9200527667999268, \"sec\": 5752, \"loss_first\": 169.56182861328125, \"loss_last\": 26.367055892944336, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 1616, \"test_regions\": [\"015_Демидовка\", \"026_Золотаревка\", \"031_Новотитаровская\", \"034_Усть_река\", \"063_Верхнее_Казачье\", \"077_Русская_Тростянка\", \"079_Городище\", \"081_Костомаровское\", \"082_Артпозиции_Иссык_Куль\", \"087_Кароол_Дюбе\", \"091_Сакские_курганы\", \"098_Таш_Коро_1\", \"099_Таш_Коро_2\", \"100_Торт_Куль\", \"130_Курганы_1\", \"131_Курганы_2\", \"132_Курганы_3\", \"133_Курганы_4\", \"134_Курганы_5\", \"135_Курганы_6\", \"136_Курганы_7\", \"137_Курганы_8\", \"138_Курганы_9\", \"139_Курганы_10\", \"140_Курганы_11\", \"141_Курганы_12\", \"142_Курганы_13\", \"143_Курганы_14\", \"144_Курганы_15\", \"145_Курганы_16\", \"146_Курганы_17\", \"147_Курганы_18\", \"148_Курганы_19\", \"149_Курганы_20\", \"150_Курганы_21\", \"151_Курганы_22\", \"152_Курганы_23\", \"153_Курганы_24\", \"154_Курганы_25\", \"155_Курганы_26\", \"156_Курганы_27\", \"157_Курганы_28\", \"158_Курганы_29\", \"159_Курганы_30\", \"160_Курганы_31\", \"161_Курганы_32\", \"162_Курганы_33\", \"163_Курганы_34\", \"192_КЧР\"], \"n_det\": 81233, \"infer_sec\": 367, \"peak_vram_gb\": 6.77}\n"}
+,{"stream_name":"stdout","time":6579.806304777,"data":"[   6536s] [gpu0 f1] [bot5] {'it': 200, 'loss': 93.0956, 's_it': 0.706}\n"}
+,{"stream_name":"stdout","time":6653.580372565,"data":"[   6610s] [gpu0 f1] [bot5] {'it': 300, 'loss': 64.1458, 's_it': 0.7098}\n"}
+,{"stream_name":"stdout","time":6727.910621399,"data":"[   6685s] [gpu0 f1] [bot5] {'it': 400, 'loss': 39.1496, 's_it': 0.7169}\n"}
+,{"stream_name":"stdout","time":6802.399475976,"data":"[   6759s] [gpu0 f1] [bot5] {'it': 500, 'loss': 35.2385, 's_it': 0.7168}\n"}
+,{"stream_name":"stdout","time":6876.960963545,"data":"[   6834s] [gpu0 f1] [bot5] {'it': 600, 'loss': 33.9152, 's_it': 0.717}\n"}
+,{"stream_name":"stdout","time":6951.415608544,"data":"[   6908s] [gpu0 f1] [bot5] {'it': 700, 'loss': 33.6783, 's_it': 0.7193}\n"}
+,{"stream_name":"stdout","time":7026.091091239,"data":"[   6983s] [gpu0 f1] [bot5] {'it': 800, 'loss': 32.1363, 's_it': 0.7201}\n"}
+,{"stream_name":"stdout","time":7100.836747583,"data":"[   7057s] [gpu0 f1] [bot5] {'it': 900, 'loss': 31.8695, 's_it': 0.7222}\n"}
+,{"stream_name":"stdout","time":7175.138478118,"data":"[   7132s] [gpu0 f1] [bot5] {'it': 1000, 'loss': 32.3151, 's_it': 0.7172}\n"}
+,{"stream_name":"stdout","time":7249.8172925,"data":"[   7206s] [gpu0 f1] [bot5] {'it': 1100, 'loss': 31.5822, 's_it': 0.7173}\n"}
+,{"stream_name":"stdout","time":7324.465937763,"data":"[   7281s] [gpu0 f1] [bot5] {'it': 1200, 'loss': 30.7746, 's_it': 0.7188}\n"}
+,{"stream_name":"stdout","time":7398.859864021,"data":"[   7355s] [gpu0 f1] [bot5] {'it': 1300, 'loss': 31.6537, 's_it': 0.7136}\n"}
+,{"stream_name":"stdout","time":7474.016438493,"data":"[   7431s] [gpu0 f1] [bot5] {'it': 1400, 'loss': 29.828, 's_it': 0.7191}\n"}
+,{"stream_name":"stdout","time":7548.751570069,"data":"[   7505s] [gpu0 f1] [bot5] {'it': 1500, 'loss': 29.4648, 's_it': 0.7196}\n"}
+,{"stream_name":"stdout","time":7623.787135,"data":"[   7580s] [gpu0 f1] [bot5] {'it': 1600, 'loss': 29.0377, 's_it': 0.7224}\n"}
+,{"stream_name":"stdout","time":7698.397246906,"data":"[   7655s] [gpu0 f1] [bot5] {'it': 1700, 'loss': 28.4285, 's_it': 0.7204}\n"}
+,{"stream_name":"stdout","time":7773.156294982,"data":"[   7730s] [gpu0 f1] [bot5] {'it': 1800, 'loss': 28.9582, 's_it': 0.7199}\n"}
+,{"stream_name":"stdout","time":7847.85278145,"data":"[   7804s] [gpu0 f1] [bot5] {'it': 1900, 'loss': 28.9266, 's_it': 0.7191}\n"}
+,{"stream_name":"stdout","time":7922.423156166,"data":"[   7879s] [gpu0 f1] [bot5] {'it': 2000, 'loss': 28.0969, 's_it': 0.7163}\n"}
+,{"stream_name":"stdout","time":7997.175348868,"data":"[   7954s] [gpu0 f1] [bot5] {'it': 2100, 'loss': 27.6052, 's_it': 0.7209}\n"}
+,{"stream_name":"stdout","time":8072.318355075,"data":"[   8029s] [gpu0 f1] [bot5] {'it': 2200, 'loss': 27.7281, 's_it': 0.7221}\n"}
+,{"stream_name":"stdout","time":8147.024413288,"data":"[   8104s] [gpu0 f1] [bot5] {'it': 2300, 'loss': 28.6775, 's_it': 0.716}\n"}
+,{"stream_name":"stdout","time":8221.655596009,"data":"[   8178s] [gpu0 f1] [bot5] {'it': 2400, 'loss': 27.8385, 's_it': 0.72}\n"}
+,{"stream_name":"stdout","time":8296.722177617,"data":"[   8253s] [gpu0 f1] [bot5] {'it': 2500, 'loss': 26.3616, 's_it': 0.7222}\n"}
+,{"stream_name":"stdout","time":8371.56719609,"data":"[   8328s] [gpu0 f1] [bot5] {'it': 2600, 'loss': 26.936, 's_it': 0.7186}\n"}
+,{"stream_name":"stdout","time":8446.458988691,"data":"[   8403s] [gpu0 f1] [bot5] {'it': 2700, 'loss': 26.8735, 's_it': 0.7214}\n"}
+,{"stream_name":"stdout","time":8521.508116796,"data":"[   8478s] [gpu0 f1] [bot5] {'it': 2800, 'loss': 27.0744, 's_it': 0.7195}\n"}
+,{"stream_name":"stdout","time":8596.377810133,"data":"[   8553s] [gpu0 f1] [bot5] {'it': 2900, 'loss': 26.2606, 's_it': 0.7217}\n"}
+,{"stream_name":"stdout","time":8671.513718451,"data":"[   8628s] [gpu0 f1] [bot5] {'it': 3000, 'loss': 26.8882, 's_it': 0.7234}\n"}
+,{"stream_name":"stdout","time":8746.435178096,"data":"[   8703s] [gpu0 f1] [bot5] {'it': 3100, 'loss': 26.344, 's_it': 0.7183}\n"}
+,{"stream_name":"stdout","time":8821.507295808,"data":"[   8778s] [gpu0 f1] [bot5] {'it': 3200, 'loss': 26.3436, 's_it': 0.7208}\n"}
+,{"stream_name":"stdout","time":8896.184848399,"data":"[   8853s] [gpu0 f1] [bot5] {'it': 3300, 'loss': 26.5253, 's_it': 0.718}\n"}
+,{"stream_name":"stdout","time":8970.892365227,"data":"[   8927s] [gpu0 f1] [bot5] {'it': 3400, 'loss': 26.0436, 's_it': 0.7196}\n"}
+,{"stream_name":"stdout","time":9045.863933769,"data":"[   9002s] [gpu0 f1] [bot5] {'it': 3500, 'loss': 26.1164, 's_it': 0.7198}\n"}
+,{"stream_name":"stdout","time":9120.89089003,"data":"[   9077s] [gpu0 f1] [bot5] {'it': 3600, 'loss': 25.7653, 's_it': 0.7191}\n"}
+,{"stream_name":"stdout","time":9195.672366124,"data":"[   9152s] [gpu0 f1] [bot5] {'it': 3700, 'loss': 26.0353, 's_it': 0.7203}\n"}
+,{"stream_name":"stdout","time":9270.478417961,"data":"[   9227s] [gpu0 f1] [bot5] {'it': 3800, 'loss': 25.5447, 's_it': 0.7196}\n"}
+,{"stream_name":"stdout","time":9345.393325566,"data":"[   9302s] [gpu0 f1] [bot5] {'it': 3900, 'loss': 25.8551, 's_it': 0.7179}\n"}
+,{"stream_name":"stdout","time":9420.155964721,"data":"[   9377s] [gpu0 f1] [bot5] {'it': 4000, 'loss': 25.4963, 's_it': 0.7187}\n"}
+,{"stream_name":"stdout","time":9495.145566166,"data":"[   9452s] [gpu0 f1] [bot5] {'it': 4100, 'loss': 26.0366, 's_it': 0.723}\n"}
+,{"stream_name":"stdout","time":9570.277271098,"data":"[   9527s] [gpu0 f1] [bot5] {'it': 4200, 'loss': 25.814, 's_it': 0.7227}\n"}
+,{"stream_name":"stdout","time":9645.204126981,"data":"[   9602s] [gpu0 f1] [bot5] {'it': 4300, 'loss': 25.4947, 's_it': 0.7188}\n"}
+,{"stream_name":"stdout","time":9719.917762545,"data":"[   9677s] [gpu0 f1] [bot5] {'it': 4400, 'loss': 25.8615, 's_it': 0.7171}\n"}
+,{"stream_name":"stdout","time":9794.998660036,"data":"[   9752s] [gpu0 f1] [bot5] {'it': 4500, 'loss': 25.2094, 's_it': 0.7227}\n"}
+,{"stream_name":"stdout","time":9869.800876449,"data":"[   9826s] [gpu0 f1] [bot5] {'it': 4600, 'loss': 25.3259, 's_it': 0.7217}\n"}
+,{"stream_name":"stdout","time":9945.374857906,"data":"[   9902s] [gpu0 f1] [bot5] {'it': 4700, 'loss': 25.283, 's_it': 0.7245}\n"}
+,{"stream_name":"stdout","time":10020.492341625,"data":"[   9977s] [gpu0 f1] [bot5] {'it': 4800, 'loss': 25.0003, 's_it': 0.7221}\n"}
+,{"stream_name":"stdout","time":10095.395270718,"data":"[  10052s] [gpu0 f1] [bot5] {'it': 4900, 'loss': 25.3442, 's_it': 0.7204}\n"}
+,{"stream_name":"stdout","time":10170.205024945,"data":"[  10127s] [gpu0 f1] [bot5] {'it': 5000, 'loss': 25.3715, 's_it': 0.7197}\n"}
+,{"stream_name":"stdout","time":10245.209966334,"data":"[  10202s] [gpu0 f1] [bot5] {'it': 5100, 'loss': 24.5296, 's_it': 0.7192}\n"}
+,{"stream_name":"stdout","time":10320.105613366,"data":"[  10277s] [gpu0 f1] [bot5] {'it': 5200, 'loss': 25.1368, 's_it': 0.7217}\n"}
+,{"stream_name":"stdout","time":10394.913463709,"data":"[  10352s] [gpu0 f1] [bot5] {'it': 5300, 'loss': 24.8611, 's_it': 0.7201}\n"}
+,{"stream_name":"stdout","time":10469.850618866,"data":"[  10426s] [gpu0 f1] [bot5] {'it': 5400, 'loss': 24.8435, 's_it': 0.7216}\n"}
+,{"stream_name":"stdout","time":10544.864339364,"data":"[  10501s] [gpu0 f1] [bot5] {'it': 5500, 'loss': 25.0122, 's_it': 0.7227}\n"}
+,{"stream_name":"stdout","time":10619.927549391,"data":"[  10577s] [gpu0 f1] [bot5] {'it': 5600, 'loss': 25.4447, 's_it': 0.7232}\n"}
+,{"stream_name":"stdout","time":10695.0181251,"data":"[  10652s] [gpu0 f1] [bot5] {'it': 5700, 'loss': 25.1456, 's_it': 0.7214}\n"}
+,{"stream_name":"stdout","time":10770.332105008,"data":"[  10727s] [gpu0 f1] [bot5] {'it': 5800, 'loss': 25.1206, 's_it': 0.7222}\n"}
+,{"stream_name":"stdout","time":10845.277296592,"data":"[  10802s] [gpu0 f1] [bot5] {'it': 5900, 'loss': 24.8029, 's_it': 0.7196}\n"}
+,{"stream_name":"stdout","time":10920.162559342,"data":"[  10877s] [gpu0 f1] [bot5] {'it': 6000, 'loss': 24.7246, 's_it': 0.7183}\n"}
+,{"stream_name":"stderr","time":10920.734847698,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  4.86it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  4.85it/s]\n"}
+,{"stream_name":"stdout","time":10921.057619755,"data":"[  10878s] [infer] 046_Тыва_1 01_Тыва_1_SpOr_спутник.tif: 1106x738 px, окон 4\n"}
+,{"stream_name":"stdout","time":10921.556176957,"data":"[  10878s] [infer] 046_Тыва_1: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":10921.737500234,"data":"[  10878s] [infer] 046_Тыва_1 02_Тыва_1_SpOr_спутник.tif: 1106x739 px, окон 4\n"}
+,{"stream_name":"stdout","time":10922.239004254,"data":"[  10879s] [infer] 046_Тыва_1: готово 4 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10922.432097843,"data":"[  10879s] [infer] 047_Тыва_2 01_Тыва_2_SpOr_спутник.tif: 2413x1158 px, окон 15\n"}
+,{"stream_name":"stdout","time":10924.214944399,"data":"[  10881s] [infer] 047_Тыва_2: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10924.865207159,"data":"[  10881s] [infer] 047_Тыва_2 02_Тыва_2_SpOr_спутник.tif: 2413x1158 px, окон 15\n"}
+,{"stream_name":"stdout","time":10926.653983909,"data":"[  10883s] [infer] 047_Тыва_2: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10927.295801724,"data":"[  10884s] [infer] 047_Тыва_2 03_Тыва_2_SpOr_спутник.tif: 2413x1159 px, окон 15\n"}
+,{"stream_name":"stdout","time":10929.073322439,"data":"[  10886s] [infer] 047_Тыва_2: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10929.705447211,"data":"[  10886s] [infer] 050_Воронеж_1 01_Воронеж_1_SpOr_спутник.tif: 1145x729 px, окон 6\n"}
+,{"stream_name":"stdout","time":10930.362886051,"data":"[  10887s] [infer] 050_Воронеж_1: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10930.65099014,"data":"[  10887s] [infer] 051_Воронеж_2 01_Воронеж_2_SpOr_спутник.tif: 4029x3712 px, окон 72\n"}
+,{"stream_name":"stdout","time":10939.331536125,"data":"[  10896s] [infer] 051_Воронеж_2: готово 72 окон за 9 с\n"}
+,{"stream_name":"stdout","time":10941.763996856,"data":"[  10898s] [infer] 052_Воронеж_3 01_Воронеж_3_SpOr_спутник.tif: 3813x2423 px, окон 40\n"}
+,{"stream_name":"stdout","time":10946.864634046,"data":"[  10903s] [infer] 052_Воронеж_3: готово 40 окон за 5 с\n"}
+,{"stream_name":"stdout","time":10948.044795342,"data":"[  10905s] [infer] 053_Воронеж_4 01_Воронеж_4_SpOr_спутник.tif: 1706x1085 px, окон 8\n"}
+,{"stream_name":"stdout","time":10949.164445932,"data":"[  10906s] [infer] 053_Воронеж_4: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10949.558621497,"data":"[  10906s] [infer] 053_Воронеж_4 02_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8\n"}
+,{"stream_name":"stdout","time":10950.627435707,"data":"[  10907s] [infer] 053_Воронеж_4: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10951.034042067,"data":"[  10908s] [infer] 053_Воронеж_4 03_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8\n"}
+,{"stream_name":"stdout","time":10952.096387721,"data":"[  10909s] [infer] 053_Воронеж_4: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10952.390045199,"data":"[  10909s] [infer] 053_Воронеж_4 04_Воронеж_4_SpOr_спутник.tif: 1704x1084 px, окон 8\n"}
+,{"stream_name":"stdout","time":10953.445824009,"data":"[  10910s] [infer] 053_Воронеж_4: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10953.801779411,"data":"[  10910s] [infer] 053_Воронеж_4 05_Воронеж_4_SpOr_спутник.tif: 1703x1083 px, окон 8\n"}
+,{"stream_name":"stdout","time":10954.864041607,"data":"[  10911s] [infer] 053_Воронеж_4: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10955.204755695,"data":"[  10912s] [infer] 054_Воронеж_5 01_Воронеж_5_SpOr_спутник.tif: 1703x1083 px, окон 8\n"}
+,{"stream_name":"stdout","time":10956.252713388,"data":"[  10913s] [infer] 054_Воронеж_5: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10956.505921658,"data":"[  10913s] [infer] 054_Воронеж_5 02_Воронеж_5_SpOr_спутник.tif: 1704x1083 px, окон 8\n"}
+,{"stream_name":"stdout","time":10957.56010383,"data":"[  10914s] [infer] 054_Воронеж_5: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10957.833040089,"data":"[  10914s] [infer] 054_Воронеж_5 03_Воронеж_5_SpOr_спутник.tif: 1703x1083 px, окон 8\n"}
+,{"stream_name":"stdout","time":10958.889844463,"data":"[  10915s] [infer] 054_Воронеж_5: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10959.159352268,"data":"[  10916s] [infer] 054_Воронеж_5 04_Воронеж_5_SpOr_спутник.tif: 1703x1082 px, окон 8\n"}
+,{"stream_name":"stdout","time":10960.208412458,"data":"[  10917s] [infer] 054_Воронеж_5: готово 8 окон за 1 с\n"}
+,{"stream_name":"stdout","time":10960.495756619,"data":"[  10917s] [infer] 055_Курменту 01_Курменту_SpOr_спутник.tif: 2536x1657 px, окон 20\n"}
+,{"stream_name":"stdout","time":10963.003445799,"data":"[  10920s] [infer] 055_Курменту: готово 20 окон за 3 с\n"}
+,{"stream_name":"stdout","time":10963.799006054,"data":"[  10920s] [infer] 055_Курменту 02_Курменту_SpOr_спутник.tif: 2030x1328 px, окон 12\n"}
+,{"stream_name":"stdout","time":10965.340160237,"data":"[  10922s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10965.79259971,"data":"[  10922s] [infer] 055_Курменту 03_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10967.351245421,"data":"[  10924s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10967.812917112,"data":"[  10924s] [infer] 055_Курменту 04_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10969.349123619,"data":"[  10926s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10969.735292029,"data":"[  10926s] [infer] 055_Курменту 05_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10971.346189364,"data":"[  10928s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10971.855888748,"data":"[  10928s] [infer] 055_Курменту 06_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10973.402589401,"data":"[  10930s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10973.955694502,"data":"[  10931s] [infer] 055_Курменту 07_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10975.49098772,"data":"[  10932s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10976.008575523,"data":"[  10933s] [infer] 055_Курменту 08_Курменту_SpOr_спутник.tif: 2029x1327 px, окон 12\n"}
+,{"stream_name":"stdout","time":10977.561449045,"data":"[  10934s] [infer] 055_Курменту: готово 12 окон за 2 с\n"}
+,{"stream_name":"stdout","time":10978.04486535,"data":"[  10935s] [infer] 071_Сторожевое 01_Сторожевое_SpOr_спутник.tif: 5309x3590 px, окон 88\n"}
+,{"stream_name":"stdout","time":10989.056834651,"data":"[  10946s] [infer] 071_Сторожевое: готово 88 окон за 11 с\n"}
+,{"stream_name":"stdout","time":10991.896896204,"data":"[  10948s] [infer] 074_Солдатское 01_Солдатское_SpOr_спутник.tif: 5309x3590 px, окон 88\n"}
+,{"stream_name":"stdout","time":11002.95935655,"data":"[  10960s] [infer] 074_Солдатское: готово 88 окон за 11 с\n"}
+,{"stream_name":"stdout","time":11005.943408177,"data":"[  10963s] [infer] 074_Солдатское 02_Солдатское_SpOr_спутник.tif: 5465x2799 px, окон 72\n"}
+,{"stream_name":"stdout","time":11018.773942239,"data":"[  10975s] [infer] 074_Солдатское: готово 72 окон за 13 с\n"}
+,{"stream_name":"stdout","time":11021.440186965,"data":"[  10978s] [infer] 078_Верхняя_Покровка 01_Верхняя_Покровка_SpOr_спутник.tif: 3982x2693 px, окон 48\n"}
+,{"stream_name":"stdout","time":11027.405963396,"data":"[  10984s] [infer] 078_Верхняя_Покровка: готово 48 окон за 6 с\n"}
+,{"stream_name":"stdout","time":11029.231062503,"data":"[  10986s] [infer] 084_Булан_Соготту 01_Булан_Соготту_SpOr_спутник.tif: 1157x684 px, окон 6\n"}
+,{"stream_name":"stdout","time":11029.939130718,"data":"[  10987s] [infer] 084_Булан_Соготту: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":11030.176900512,"data":"[  10987s] [infer] 086_Кан_Дебе 01_Кан_Дебе_SpOr_спутник.tif: 2530x1495 px, окон 15\n"}
+,{"stream_name":"stdout","time":11032.191418219,"data":"[  10989s] [infer] 086_Кан_Дебе: готово 15 окон за 2 с\n"}
+,{"stream_name":"stdout","time":11032.693634428,"data":"[  10989s] [infer] 090_Корумду 01_Корумду_SpOr_спутник.tif: 1446x855 px, окон 6\n"}
+,{"stream_name":"stdout","time":11033.412358977,"data":"[  10990s] [infer] 090_Корумду: готово 6 окон за 1 с\n"}
+,{"stream_name":"stdout","time":11033.612092281,"data":"[  10990s] [infer] 092_Шаты 01_Шаты_SpOr_спутник.tif: 272x178 px, окон 1\n"}
+,{"stream_name":"stdout","time":11033.842065167,"data":"[  10990s] [infer] 092_Шаты: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11033.896401564,"data":"[  10990s] [infer] 109_Россошки 01_Россошки_SpOr_спутник.tif: 2655x1795 px, окон 24\n"}
+,{"stream_name":"stdout","time":11036.793911607,"data":"[  10993s] [infer] 109_Россошки: готово 24 окон за 3 с\n"}
+,{"stream_name":"stdout","time":11037.758855339,"data":"[  10994s] [infer] 124_Постройки_1 01_Постройки_1_SpOr_спутник.tif: 922x720 px, окон 4\n"}
+,{"stream_name":"stdout","time":11038.244038969,"data":"[  10995s] [infer] 124_Постройки_1: готово 4 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11038.417866152,"data":"[  10995s] [infer] 125_Постройки_2 01_Постройки_2_SpOr_спутник.tif: 460x359 px, окон 1\n"}
+,{"stream_name":"stdout","time":11038.667870383,"data":"[  10995s] [infer] 125_Постройки_2: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11038.725916573,"data":"[  10995s] [infer] 126_Постройки_3 01_Постройки_3_SpOr_спутник.tif: 455x352 px, окон 1\n"}
+,{"stream_name":"stdout","time":11038.967008414,"data":"[  10996s] [infer] 126_Постройки_3: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11039.062219898,"data":"[  10996s] [infer] 127_Постройки_4 01_Постройки_4_SpOr_спутник.tif: 460x359 px, окон 1\n"}
+,{"stream_name":"stdout","time":11039.306625478,"data":"[  10996s] [infer] 127_Постройки_4: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11039.368775852,"data":"[  10996s] [infer] 128_Постройки_5 01_Постройки_5_SpOr_спутник.tif: 463x363 px, окон 1\n"}
+,{"stream_name":"stdout","time":11039.627131288,"data":"[  10996s] [infer] 128_Постройки_5: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11039.722407986,"data":"[  10996s] [infer] 129_Постройки_6 01_Постройки_6_SpOr_спутник.tif: 464x361 px, окон 1\n"}
+,{"stream_name":"stdout","time":11039.977385914,"data":"[  10997s] [infer] 129_Постройки_6: готово 1 окон за 0 с\n"}
+,{"stream_name":"stdout","time":11047.48180521,"data":"[  11004s] [gpu0 f1] готово {\"trainer\": \"bot5\", \"iters\": 6000, \"planned\": 6000, \"s_it_median\": 0.7197949886322021, \"sec\": 4531, \"loss_first\": 156.98435974121094, \"loss_last\": 26.710418701171875, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2564, \"test_regions\": [\"046_Тыва_1\", \"047_Тыва_2\", \"050_Воронеж_1\", \"051_Воронеж_2\", \"052_Воронеж_3\", \"053_Воронеж_4\", \"054_Воронеж_5\", \"055_Курменту\", \"071_Сторожевое\", \"074_Солдатское\", \"078_Верхняя_Покровка\", \"084_Булан_Соготту\", \"086_Кан_Дебе\", \"090_Корумду\", \"092_Шаты\", \"109_Россошки\", \"124_Постройки_1\", \"125_Постройки_2\", \"126_Постройки_3\", \"127_Постройки_4\", \"128_Постройки_5\", \"129_Постройки_6\"], \"n_det\": 47153, \"infer_sec\": 127, \"peak_vram_gb\": 6.77}\n"}
+,{"stream_name":"stdout","time":11087.2671917,"data":"[  11044s] ПРОГНОЗ full: с/ит 0.852 → 8000 ит × 5 фолдов / 2 GPU ≈ 4.74 ч (+инференс)\n"}
+,{"stream_name":"stdout","time":11087.269404605,"data":"[  11044s] ГОТОВО 203131 детекций; ошибки фолдов: []\n"}
+,{"stream_name":"stderr","time":11098.221104931,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":11098.221134417,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":11098.508005713,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":11098.508037181,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":11099.257739905,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":11100.360173729,"data":"[NbConvertApp] Writing 545733 bytes to __results__.html\n"}
+]

@@ -1,0 +1,48 @@
+== paired_2f.json c2_A
+C_drop   base=0.278920 var=0.288225 d=+0.009305 P=0.745 CI=[-0.0062;+0.0424] lofo=-0.001508 seeds+=1 heavy=-0.002142 new34=+0.002122 P1=True P2=False P3=False P4sum=False P4cls=False P5=single acc=False
+   cls: kurgany_povr=-0.00124 kurgany_tsel=-0.00050 gorodishcha=-0.00040 arkhitektury=+0.01148 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+C_keep   base=0.344166 var=0.345356 d=+0.001190 P=0.650 CI=[-0.0059;+0.0354] lofo=+0.000438 seeds+=3 heavy=-0.002027 new34=+0.002117 P1=False P2=False P3=False P4sum=False P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00120 kurgany_tsel=-0.00043 gorodishcha=-0.00040 arkhitektury=+0.00325 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+E_drop   base=0.278920 var=0.290536 d=+0.011616 P=0.748 CI=[-0.0062;+0.0358] lofo=-0.003849 seeds+=0 heavy=-0.002293 new34=+0.002122 P1=True P2=False P3=False P4sum=False P4cls=False P5=single acc=False
+   cls: kurgany_povr=-0.00139 kurgany_tsel=-0.00050 gorodishcha=-0.00040 arkhitektury=+0.01394 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+E_keep   base=0.344166 var=0.345778 d=+0.001612 P=0.663 CI=[-0.0060;+0.0321] lofo=-0.000604 seeds+=2 heavy=-0.002176 new34=+0.002117 P1=False P2=False P3=False P4sum=False P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00135 kurgany_tsel=-0.00043 gorodishcha=-0.00040 arkhitektury=+0.00382 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+R_drop   base=0.278920 var=0.301794 d=+0.022874 P=0.974 CI=[-0.0000;+0.0675] lofo=+0.011685 seeds+=5 heavy=+0.007082 new34=+0.003254 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=-0.00043 kurgany_tsel=-0.00030 gorodishcha=+0.00780 arkhitektury=+0.01582 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+R_keep   base=0.344166 var=0.354844 d=+0.010678 P=0.966 CI=[-0.0003;+0.0556] lofo=+0.008809 seeds+=5 heavy=+0.007233 new34=+0.003251 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=-0.00043 kurgany_tsel=-0.00014 gorodishcha=+0.00780 arkhitektury=+0.00348 object_poly=+0.00000 fortifikatsi=-0.00003 finds_points=+0.00000
+R0_drop  base=0.278920 var=0.278670 d=-0.000250 P=0.368 CI=[-0.0215;+0.0092] lofo=-0.015656 seeds+=0 heavy=+0.006150 new34=-0.001125 P1=False P2=False P3=False P4sum=False P4cls=True P5=package acc=False
+   cls: kurgany_povr=+0.00282 kurgany_tsel=-0.00018 gorodishcha=+0.00350 arkhitektury=-0.00640 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+R0_keep  base=0.344166 var=0.349186 d=+0.005020 P=0.593 CI=[-0.0180;+0.0103] lofo=+0.000826 seeds+=3 heavy=+0.006223 new34=-0.001119 P1=True P2=False P3=False P4sum=False P4cls=True P5=package acc=False
+   cls: kurgany_povr=+0.00270 kurgany_tsel=+0.00002 gorodishcha=+0.00350 arkhitektury=-0.00120 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+== paired_5f.json c5_A
+C_drop   base=0.314615 var=0.334414 d=+0.019798 P=0.985 CI=[+0.0016;+0.0485] lofo=+0.025340 seeds+=5 heavy=+0.012745 new34=+0.006771 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00964 kurgany_tsel=+0.00202 gorodishcha=+0.00108 arkhitektury=+0.00711 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+C_keep   base=0.333237 var=0.353035 d=+0.019798 P=0.985 CI=[+0.0016;+0.0485] lofo=+0.025339 seeds+=5 heavy=+0.012744 new34=+0.006765 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00964 kurgany_tsel=+0.00202 gorodishcha=+0.00108 arkhitektury=+0.00711 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+E_drop   base=0.314615 var=0.334486 d=+0.019871 P=0.987 CI=[+0.0017;+0.0476] lofo=+0.025440 seeds+=5 heavy=+0.012386 new34=+0.007600 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00965 kurgany_tsel=+0.00166 gorodishcha=+0.00108 arkhitektury=+0.00754 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+E_keep   base=0.333237 var=0.353107 d=+0.019870 P=0.987 CI=[+0.0017;+0.0476] lofo=+0.025439 seeds+=5 heavy=+0.012385 new34=+0.007593 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00965 kurgany_tsel=+0.00166 gorodishcha=+0.00108 arkhitektury=+0.00754 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+R_drop   base=0.314615 var=0.334418 d=+0.019803 P=0.976 CI=[+0.0001;+0.0461] lofo=+0.023936 seeds+=5 heavy=+0.012718 new34=+0.008405 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00752 kurgany_tsel=+0.00206 gorodishcha=+0.00314 arkhitektury=+0.00714 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+R_keep   base=0.333237 var=0.353040 d=+0.019802 P=0.976 CI=[+0.0001;+0.0461] lofo=+0.023935 seeds+=5 heavy=+0.012717 new34=+0.008397 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.00752 kurgany_tsel=+0.00206 gorodishcha=+0.00314 arkhitektury=+0.00714 object_poly=+0.00000 fortifikatsi=-0.00006 finds_points=+0.00000
+R0_drop  base=0.314615 var=0.308246 d=-0.006370 P=0.141 CI=[-0.0322;+0.0043] lofo=-0.004874 seeds+=0 heavy=-0.002855 new34=-0.000562 P1=False P2=False P3=False P4sum=False P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00503 kurgany_tsel=-0.00030 gorodishcha=+0.00248 arkhitektury=-0.00351 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+R0_keep  base=0.333237 var=0.326867 d=-0.006370 P=0.141 CI=[-0.0322;+0.0043] lofo=-0.004874 seeds+=0 heavy=-0.002855 new34=-0.000560 P1=False P2=False P3=False P4sum=False P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00503 kurgany_tsel=-0.00030 gorodishcha=+0.00248 arkhitektury=-0.00351 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+== paired_5f_RvsC.json c5_C
+R_drop   base=0.334414 var=0.334418 d=+0.000004 P=0.474 CI=[-0.0073;+0.0068] lofo=-0.001404 seeds+=4 heavy=-0.000027 new34=+0.001634 P1=False P2=False P3=False P4sum=True P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00212 kurgany_tsel=+0.00003 gorodishcha=+0.00206 arkhitektury=+0.00003 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+R_keep   base=0.353035 var=0.353040 d=+0.000005 P=0.474 CI=[-0.0073;+0.0068] lofo=-0.001404 seeds+=4 heavy=-0.000027 new34=+0.001633 P1=False P2=False P3=False P4sum=True P4cls=False P5=package acc=False
+   cls: kurgany_povr=-0.00212 kurgany_tsel=+0.00003 gorodishcha=+0.00206 arkhitektury=+0.00003 object_poly=+0.00000 fortifikatsi=+0.00000 finds_points=+0.00000
+== paired_3f_check.json c3_A
+C_drop   base=0.210144 var=0.253922 d=+0.043778 P=1.000 CI=[+0.0192;+0.0810] lofo=+0.044514 seeds+=5 heavy=+0.026302 new34=+0.016877 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.01890 kurgany_tsel=+0.00331 gorodishcha=+0.00409 arkhitektury=+0.01755 object_poly=+0.00000 fortifikatsi=-0.00007 finds_points=+0.00000
+C_keep   base=0.258358 var=0.301425 d=+0.043067 P=1.000 CI=[+0.0188;+0.0806] lofo=+0.043805 seeds+=5 heavy=+0.026302 new34=+0.016877 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.01890 kurgany_tsel=+0.00331 gorodishcha=+0.00409 arkhitektury=+0.01684 object_poly=+0.00000 fortifikatsi=-0.00007 finds_points=+0.00000
+E_drop   base=0.210144 var=0.257766 d=+0.047622 P=1.000 CI=[+0.0208;+0.0875] lofo=+0.047543 seeds+=5 heavy=+0.027484 new34=+0.019152 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.01975 kurgany_tsel=+0.00306 gorodishcha=+0.00467 arkhitektury=+0.02021 object_poly=+0.00000 fortifikatsi=-0.00007 finds_points=+0.00000
+E_keep   base=0.258358 var=0.305158 d=+0.046801 P=1.000 CI=[+0.0203;+0.0860] lofo=+0.046722 seeds+=5 heavy=+0.027484 new34=+0.019152 P1=True P2=True P3=True P4sum=True P4cls=True P5=single acc=True
+   cls: kurgany_povr=+0.01975 kurgany_tsel=+0.00306 gorodishcha=+0.00467 arkhitektury=+0.01939 object_poly=+0.00000 fortifikatsi=-0.00007 finds_points=+0.00000

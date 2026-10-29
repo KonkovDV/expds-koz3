@@ -1,0 +1,20 @@
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+FROM_SCRATCH ustc-community/dfine-small-coco: random init, params 10.2 M
+model ustc-community/dfine-small-coco params 10.2M device cpu build 5.3s rss 436MB
+/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/transformers/image_processing_backends.py:135: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:208.)
+  image = torch.from_numpy(image)
+/workspace/koz3_shared/bot-5/repo/scripts/det_train_hf.py:311: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  hist.append(float(o.loss))
+it 1/10 loss 199.5956 1.77s/it rss 804MB
+it 2/10 loss 169.4666 1.40s/it rss 962MB
+it 3/10 loss 228.8073 1.26s/it rss 984MB
+it 4/10 loss 193.6539 1.11s/it rss 984MB
+it 5/10 loss 136.3852 1.02s/it rss 984MB
+it 6/10 loss 97.1371 0.95s/it rss 996MB
+it 7/10 loss 106.3742 0.90s/it rss 996MB
+it 8/10 loss 74.5692 0.88s/it rss 996MB
+it 9/10 loss 76.9378 0.86s/it rss 996MB
+it 10/10 loss 72.8719 0.84s/it rss 996MB
+{"build_s": 5.3449883460998535, "params_M": 10.213305, "train_s": 8.430016040802002, "s_per_iter": 0.8430016040802002, "loss_first": 199.59561157226562, "loss_last": 72.87188720703125, "bs": 2, "iters": 10, "pred_s": 0.3310704231262207, "pred_images": 4, "pred_boxes": 400, "peak_rss_MB": 995.81640625, "total_s": 14.113622188568115, "model": "ustc-community/dfine-small-coco", "size": 256, "device": "cpu", "smoke": true, "dry_run": false, "torch": "2.15.0+cpu"}
+exit 0 watchdog_max_rss_MB 972

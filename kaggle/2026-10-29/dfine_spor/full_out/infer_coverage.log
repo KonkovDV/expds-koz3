@@ -1,0 +1,6 @@
+report keys: ['cfg', 'hf', 'folds', 'skipped_regions_no_fold', 'projection_full_h', 'total_sec']
+fold 4: test_regions(report) 43, SpOr regions(local) 43, set_equal True, tifs started 60 done 60 expected 60, windows 944 done 944, mismatch [], infer_skipped None
+fold 2: test_regions(report) 49, SpOr regions(local) 49, set_equal True, tifs started 51 done 51 expected 51, windows 1108 done 1108, mismatch [], infer_skipped None
+fold 1: test_regions(report) 22, SpOr regions(local) 22, set_equal True, tifs started 40 done 40 expected 40, windows 704 done 704, mismatch [], infer_skipped None
+infer_skipped top-level: None
+regions inferred not in folds 4,2,1: []

@@ -1,0 +1,136 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 51d255a..1196e76 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -246,6 +246,8 @@ replace = false   # true — вариант S (замена классики т
+ union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
+ maps = ["maggr", "etgr", "terfl"]   # методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
+ t_pix = 0.5   # порог пикселя для object_poly
++poly_mode = "pole"   # pole — точка в полюсе компоненты (S); peaks — точка в каждом локальном максимуме P (geo_snap P1, opt-in)
++poly_peak_r_m = 1.0   # окно/NMS пиков для poly_mode="peaks", м
+ backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
+                        # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
+ budget_s = 300   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
+diff --git a/expds/geo_pixgbm.py b/expds/geo_pixgbm.py
+index 10cd5a9..cc27081 100644
+--- a/expds/geo_pixgbm.py
++++ b/expds/geo_pixgbm.py
+@@ -541,8 +541,12 @@ def label_masks(d: dict, polys, points):
+ 
+ # ───────────────────────────── выход ─────────────────────────────
+ 
+-def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
+-    """Компоненты P ≥ t_pix → круг POLE_R_M в полюсе недоступности; conf — средняя P компоненты."""
++def poly_candidates(P, d, region, mt, source, t_pix=T_PIX, mode="pole", peak_r_m=1.0):
++    """Компоненты P ≥ t_pix → круг POLE_R_M в полюсе недоступности; conf — средняя P компоненты.
++    mode="peaks" (geo_snap, opt-in): вместо полюса — точки в локальных максимумах P внутри компоненты
++    (окно максимума и NMS радиусом peak_r_m), минимум одна точка на компоненту; conf — P в пике."""
++    if mode == "peaks":
++        return poly_peak_candidates(P, d, region, mt, source, t_pix=t_pix, r_m=peak_r_m)
+     from rasterio import features as rf
+     from shapely.geometry import shape as shp
+     from shapely.ops import polylabel, unary_union
+@@ -575,6 +579,50 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
+     return out
+ 
+ 
++def poly_peak_candidates(P, d, region, mt, source, t_pix=T_PIX, r_m=1.0):
++    """geo_snap P1/P2: слитая компонента P ≥ t_pix (как в poly_candidates: открытие, отсев < MIN_AREA_M2) даёт
++    по точке на каждый локальный максимум P (окно и жадный NMS радиусом r_m, по убыванию P); круг POLE_R_M в центре
++    пикселя пика; conf = P пика. Площадь компоненты — в area_m2 каждой точки."""
++    from scipy.spatial import cKDTree
++    from .raster import circle_3857
++
++    gsd, T = d["gsd"], d["T"]
++    m = ndi.binary_opening(P >= t_pix)
++    lab, n = ndi.label(m, structure=np.ones((3, 3)))
++    if not n:
++        return []
++    r = max(1, int(round(r_m / gsd)))
++    min_px = MIN_AREA_M2 / gsd / gsd
++    Pm = np.where(lab > 0, P, -np.inf)
++    mx = ndi.maximum_filter(Pm, size=2 * r + 1)
++    out = []
++    for i, sl in enumerate(ndi.find_objects(lab), 1):
++        sub = lab[sl] == i
++        if sub.sum() < min_px:
++            continue
++        area = float(sub.sum() * gsd * gsd)
++        ps = P[sl]
++        rr, cc = np.nonzero(sub & (ps == mx[sl]))
++        if not rr.size:   # плато, срезанное окном соседа, — берём максимум компоненты
++            k = int(np.argmax(np.where(sub, ps, -np.inf))); rr, cc = np.array([k // sub.shape[1]]), np.array([k % sub.shape[1]])
++        o = np.argsort(-ps[rr, cc], kind="stable"); rr, cc = rr[o], cc[o]
++        keep = np.ones(len(rr), bool)
++        if len(rr) > 1:
++            tree = cKDTree(np.c_[rr, cc])
++            for a in range(len(rr)):
++                if keep[a]:
++                    for b in tree.query_ball_point((rr[a], cc[a]), r):
++                        if b > a:
++                            keep[b] = False
++        for y, x in zip(rr[keep] + sl[0].start, cc[keep] + sl[1].start):
++            X = T.c + (x + 0.5) * T.a + (y + 0.5) * T.b
++            Y = T.f + (x + 0.5) * T.d + (y + 0.5) * T.e
++            out.append({"geom": circle_3857(X, Y, POLE_R_M, d["crs"]), "class_name": "object_poly",
++                        "confidence": float(P[y, x]), "region_name": region, "markup_type": mt, "source": source,
++                        "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": area})
++    return out
++
++
+ def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
+     """Сырые компоненты P ≥ t (для каждого t из levels) — полные полигоны EPSG:3857 (для валидации bot-6).
+     Свойства: score — средняя P компоненты, max_p, t_pix, area_m2 (в метрах CRS карты), pole_x/pole_y (EPSG:3857)."""
+@@ -717,6 +765,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
+         deadline = min(deadline, time.monotonic() + guard.left() - reserve)
+     maps = list(pix.get("maps", ["maggr", "etgr", "terfl"]))
+     t_pix = float(pix.get("t_pix", T_PIX))
++    poly_mode = str(pix.get("poly_mode", "pole"))   # pole | peaks (geo_snap, opt-in)
++    peak_r_m = float(pix.get("poly_peak_r_m", 1.0))
+     crs_region = region_crs(reg, cfg)
+     geo_cfg = cfg.get("geophys", {})
+     bst = load_models(model_dir, backend)
+@@ -765,7 +815,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
+                     Pm = prob_map(d, mt, use, threads=nt, procs=npr, deadline=deadline,
+                                   timing=PHASE["timing"])
+                     if "poly" in Pm:
+-                        out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix)
++                        out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix, mode=poly_mode,
++                                               peak_r_m=peak_r_m)
+                     if "finds" in Pm:
+                         out += finds_candidates(Pm["finds"], d, reg.name, mt, f.name)
+                     r = PHASE["rate"].setdefault((mt, mode), [0.0, 0.0])
+diff --git a/tests/test_geo_pixgbm_peaks.py b/tests/test_geo_pixgbm_peaks.py
+new file mode 100644
+index 0000000..1d3f193
+--- /dev/null
++++ b/tests/test_geo_pixgbm_peaks.py
+@@ -0,0 +1,28 @@
++"""geo_snap: poly_mode="peaks" — слитая компонента с двумя максимумами даёт две точки, режим pole — одну."""
++import numpy as np
++from affine import Affine
++
++from expds import geo_pixgbm as G
++
++
++def _two_blobs(gap_m):
++    gsd = 0.1
++    yy, xx = np.mgrid[0:80, 0:160] * gsd
++    P = np.maximum(np.exp(-((xx - 4) ** 2 + (yy - 4) ** 2) / 8), 0.95 * np.exp(-((xx - 4 - gap_m) ** 2 + (yy - 4) ** 2) / 8))
++    d = {"gsd": gsd, "T": Affine(gsd, 0, 400000, 0, -gsd, 6000000), "crs": "EPSG:32636"}
++    return P.astype(np.float32), d
++
++
++def test_peaks_split_merged_component():
++    P, d = _two_blobs(3.0)
++    pole = G.poly_candidates(P, d, "r", "maggr", "f", 0.5)
++    pk = G.poly_candidates(P, d, "r", "maggr", "f", 0.5, mode="peaks", peak_r_m=1.0)
++    assert len(pole) == 1
++    assert len(pk) == 2
++    assert {c["threshold_group"] for c in pk} == {"maggr_pix"}
++    assert max(c["confidence"] for c in pk) > 0.99
++
++
++def test_peaks_nms_radius_merges_close_maxima():
++    P, d = _two_blobs(1.5)
++    assert len(G.poly_candidates(P, d, "r", "maggr", "f", 0.5, mode="peaks", peak_r_m=2.0)) == 1

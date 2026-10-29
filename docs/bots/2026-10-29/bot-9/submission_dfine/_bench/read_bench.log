@@ -1,0 +1,2 @@
+{"tif": "01_Курганы_29_SpOr_спутник.tif", "src_gsd_m": 0.304, "dtype": "uint8", "utm_px": [8730, 5569], "windows_total": 216, "measured": 30, "resampling": "average", "read_s_median": 0.9554, "read_s_mean": 0.9081, "read_s_p90": 1.2877}
+{"tif": "01_Сарское_SpOr_спутник.tif", "src_gsd_m": 0.1, "dtype": "uint8", "utm_px": [4876, 2511], "windows_total": 50, "measured": 30, "resampling": "average", "read_s_median": 3.6437, "read_s_mean": 3.8676, "read_s_p90": 5.3914}

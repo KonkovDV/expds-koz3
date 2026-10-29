@@ -1,0 +1,323 @@
+# Конфигурация инференса КОЗ №3. Пути к моделям — относительно корня архива.
+
+default_threshold = 0.15
+
+[time]
+budget_s = 1500      # 25 минут из 30: запас на запуск контейнера и запись
+reserve_s = 120      # не начинать тяжёлый шаг, если осталось меньше
+watchdog = true      # за 3 минуты до 30 минут записать уже найденное и выйти
+guard_margin_s = 180 # запас сторожа до снятия контейнера; сверить с первым логом платформы
+
+# CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
+# Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
+[crs]
+policy = "vote"
+
+# Инференс в той точности, в которой подбирались пороги. FP16 и TF32 на RTX 4090
+# сдвигают вероятности у порогов 0,98–0,9995.
+[infer]
+amp = false
+tf32 = false
+deterministic = true
+
+# Пороги выдачи по классам. Старт — F/(4−F) ≈ 0,1–0,2; подбор:
+# python -m expds.metric sweep ... --out configs/thresholds.json и перенос сюда.
+[thresholds]
+kurgany_povrezhdennye = 0.15
+kurgany_tselye = 0.15
+gorodishcha = 0.15
+arkhitektury = 0.15
+fortifikatsii = 0.20
+# Геофизика отсекается своим порогом по модальности ([geophys.*] min_confidence).
+object_poly = 0.0
+finds_points = 0.0
+
+# Модели по markup_type (файлы из expds.train). Нет файла — модальность
+# обрабатывается классикой (li, геофизика) или пропускается (оптика).
+# Пороги модели li в режиме rescore, подобраны на предсказаниях вне обучения.
+[thresholds_by_markup.li]
+# Сетка DEM 0,1 м. Общий порог с крупной сеткой резал мелкие насыпи: вне обучения
+# по всем участкам балл 0,205 → 0,216, на 49 участках с LAS 0,310 → 0,330.
+# 0,06415 — полка принятого пакета 0,353793. 0,05333 оставлял ещё 172 круга
+# и ронял 34 новых участка на 0,0042 (notes/config_vs_measured_2026-10-23.json).
+kurgany_povrezhdennye = 0.06415
+kurgany_tselye = 0.194220
+# 0,993091 — вместе с маской li_mask. Прежний 0,977365 оставлял 1 попадание,
+# совместный перебор его выкинул. Курганы этой группы не сдвигались.
+gorodishcha = 0.993091
+arkhitektury = 1.01
+# 0,999971 — вместе с маской фортификаций аэрофото (ae); группа фактически выключена.
+fortifikatsii = 0.999971
+
+# То же облако точек, но шаг DEM увеличен (ячеек больше 60 млн). Ложных курганов много,
+# поэтому порог повреждённых высокий. Группа ставится в pipeline.lidar_threshold_group.
+[thresholds_by_markup.li_coarse]
+kurgany_povrezhdennye = 0.966705
+kurgany_tselye = 0.469805
+# 0,986425 — вместе с маской li_mask (было 0,983620: 39 объектов, 16 попаданий).
+gorodishcha = 0.986425
+arkhitektury = 1.01
+# 0,999260 — вместе с маской фортификаций аэрофото (было 0,226255: 427 объектов, 7 попаданий).
+fortifikatsii = 0.999260
+
+# Курганы с мозаики 0,1→0,5 м. Городища этой группы не получают.
+[thresholds_by_markup.li_mosaic]
+kurgany_povrezhdennye = 0.959005
+kurgany_tselye = 0.170420
+
+# Маска городищ, окно 384 м, шаг DEM 1 м. Пять фолдов: 0,329966 → 0,338586,
+# 34 новых +0,0174, без лидара без изменения, A > B в 0,999.
+# 26 полигонов, 14 попаданий. Курганы не сдвигались.
+[thresholds_by_markup.li_mask]
+gorodishcha = 0.994510
+
+# Маска фортификаций аэрофото, пять фолдов на эталоне со слоями EtGr без склейки:
+# 0,339456 → 0,347318, 34 новых +0,0163, без лидара +0,0047, A > B в 0,983.
+# 714 объектов, 94 попадания из 696 эталонов (notes/ae_fort_mask_2026-10-22.json).
+[thresholds_by_markup.ae]
+fortifikatsii = 0.998215
+# Курганы слоя ae, которые не копии лидара. Та же полка, что у принятого табло.
+kurgany_povrezhdennye = 0.99053
+kurgany_tselye = 0.802255
+
+# Маска фортификаций лидара, окно 384 м, DEM 1 м. В пакете с кругами архитектуры
+# пороги ae и li_coarse не сдвинулись. 127 полигонов, 14 попаданий из 696.
+# F1 фортификаций 0,1745 → 0,1877 (notes/e5_pack_2026-10-23.json).
+[thresholds_by_markup.li_fort]
+fortifikatsii = 0.987675
+
+[thresholds_by_markup.sp_or]
+# 0,994085 — порог совместного прогона, который дал 0,218 и 0,230.
+# Значение 0,9 оставляло ещё 105 городищ между 0,9 и 0,994; метрика их выкинула.
+gorodishcha = 0.994085
+# Карта центров, круг 4 м. Балл фолдов 0,218156 → 0,230356; на 34 новых LAS плюс 0,0003
+# (39 кругов). Бутстреп 0,993 — у соседней точки с порогом лидара 0,0641.
+# Сданный порог лидара 0,06415. Файл spor_focal_r18.pt этим прогоном не измерен.
+kurgany_povrezhdennye = 0.3645
+kurgany_tselye = 0.3725
+# Круги архитектуры 2 м. В табло группа называлась sp_arch; в сдаче это единственный
+# источник класса на спутнике, поэтому порог лежит здесь. Сеть surf_arch, 27.10:
+# 227 кругов, 21 попадание, честно 0,311053 → 0,314615.
+arkhitektury = 0.286725
+
+[thresholds_by_markup.or]
+arkhitektury = 0.065565
+
+# Окно 256 м только на участках без лидара, вместе с каналом σ дальше 12 м.
+# 0,350588 → 0,353793, 34 новых +0,0002, без лидара +0,0098, A > B в 0,993.
+# Пороги сданных групп не сдвинулись (notes/pack_wide_dev_2026-10-23.json).
+[thresholds_by_markup.sp_focal2]
+kurgany_povrezhdennye = 0.501645
+kurgany_tselye = 0.645505
+
+[thresholds_by_markup.li_dev]
+kurgany_povrezhdennye = 0.99131
+kurgany_tselye = 0.99957
+
+# Копии курганов лидара для слоя аэрофото. 0 оставлял 25 лишних кругов против
+# полки принятого табло и входил в минус 0,0042 на 34 новых участках.
+[thresholds_by_markup.li_ae]
+kurgany_povrezhdennye = 0.993061
+kurgany_tselye = 1.000001
+
+# Полигоны электроразведки. Детектор уже режет на 0,0958; табло оставляет с 0,096635.
+[thresholds_by_markup.etgr]
+object_poly = 0.096635
+
+# Запасной путь без модели li: пики рельефа + LightGBM (3 класса); пороги — по его предсказаниям
+# вне обучения (F1 0,455 и 0,344).
+[thresholds_by_markup.li_cpu]
+kurgany_povrezhdennye = 0.0121
+kurgany_tselye = 0.0096
+
+[fusion]
+# Уверенные курганы лидара в покрытии аэрофото участка — ещё и объекты слоя ae (эталон размечен
+# по слоям; на снимках 1940-х распаханные позже курганы ещё целые). OOF 15 участков: балл
+# 0,281 → 0,311; если в тесте дубли между слоями убраны — 0,309 → 0,287 (expds/fusion.py).
+li_to_ae = true
+povr_min = 0.99
+tselye_min = 0.8
+# register = true — копии переносятся на сдвиг снимка относительно курганов лидара (по пятнам
+# самого снимка). Выключено до табло: план, раздел 2.10.
+
+[li]
+# rescore — курганы по пикам рельефа с уверенностью модели li (на отложенном Гнёздово 0,674
+# против 0,538 у масок); segment — все классы масками модели.
+mode = "rescore"
+# Пики вероятности модели (nn_peaks) на том же OOF хуже: балл 0,283. Не включать.
+
+# DEM для запасного детектора курганов (без модели li). С моделью li параметры берутся
+# из её чекпойнта — так, как она обучалась.
+[lidar]
+dem_res = 0.1
+dem_fill = "delaunay"
+# Куски 0,1 м для курганов, если всё облако не влезает в 60 млн ячеек.
+# Городища и фортификации остаются на грубой сетке. Курганы — группа li_mosaic.
+# Замер 21.10: 0,319526 → 0,329966, 34 новых +0,0221, без лидара без изменения,
+# A > B в 0,998. Пороги мелкой сетки в том прогоне не сдвинулись.
+mosaic = true
+# Сколько следующих LAS строят DEM в фоне, пока текущий участок на видеокарте (lidar.DemPrefetch).
+# 0 — без фона. Каждый — до ~2 ГБ памяти на облако в 12 млн ячеек.
+prefetch = 2
+
+[models]
+# Вторая итерация трудных негативов. Общий балл 0,203 против 0,197 у первой.
+li = "models/li_r18_hard2.pt"
+# Городища отдельной маской. Свой DEM 1 м и группа li_mask. Курганы не выдаёт.
+li_mask = {path = "models/li_gor_mask_r18.pt", classes = ["gorodishcha"]}
+# Городища, курганы и архитектура спутника — три модели. Курганы: фокальная карта центров,
+# круг 4 м. Архитектура: круг 2 м, порог на этом же слое.
+sp_or = [
+  {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]},
+  {path = "models/spor_focal_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]},
+  {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]},
+]
+# Фортификации лидара отдельной маской. Свой DEM 1 м и группа li_fort.
+li_fort = {path = "models/li_fort_mask_r18.pt", classes = ["fortifikatsii"]}
+# Канал σ на пиках рельефа. Круги ближе 12 м к уже оставленному кургану выбрасываются.
+# Вместе с окном 256 м: 0,350588 → 0,353793. Веса — все тайлы, 18 эпох.
+li_dev = {path = "models/li_dev_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
+# Окно 256 м только на участках без лидара. Веса — все тайлы, 19 эпох.
+sp_focal2 = {path = "models/spor_focal_wide_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
+# Фортификации аэрофото: маска одного класса, 20 эпох на всех тайлах (медиана лучших эпох фолдов).
+ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
+# Ортофото той же сетью, что архитектура спутника. Честно по семьям 27.10:
+# 0,311053 → 0,314615, без лидара +0,0062, A > B в 0,897. Порог группы or — ниже.
+or = {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]}
+# Сеть на картах геофизики (pipeline.geo_model_feats), только вместе с порогом группы maggr_nn:
+# maggr = {path = "models/maggr_finds_r18.pt", classes = ["finds_points"]}
+
+# Городища по форме рельефа. ЦМР отдельно от курганов: 0,5 м, заполнение пирамидой.
+# Честно по участкам 26.10: 0,334157 → 0,338881. Тот файл — один проход, поэтому
+# relief_radius_l_m = 0. Второе окно 300 м на синтетике держит широкий мыс, но табло
+# 27.10 его не приняло: 0,338881 → 0,337312. Строку 0 не менять и прогон не повторять.
+[hillfort]
+enabled = true
+relief_radius_l_m = 0
+
+[thresholds_by_markup.gor_phys]
+gorodishcha = 0.43049
+
+[candidates]
+work_res = 0.5
+relief_radius_m = 15.0
+# Пики чаще и ниже: мелкие насыпи (до 30 м²) при 4 м / 0,12 м находились лишь в половине случаев.
+# OOF 15 участков, Rust-TIN + копии li→ae: балл 0,316 → 0,325 (F1 повреждённых 0,494 → 0,519).
+peak_radius_m = 2.5
+min_relief_m = 0.08
+r_in_m = 2.5
+r_out_m = 8.0
+circle_m = 2.0
+lgbm_model = "models/kurgan_lgbm.txt"
+
+[geophys]
+point_circle_m = 0.3
+# Опыты 25.10, по умолчанию выключены (поведение сдачи то же):
+#   band_mode = "first" | "mean" | "luma" | "pca" | "auto" | "diff" — как RGB-карта сводится к числу;
+#     сданный балл снят с "first". "diff" — разность крайних каналов цветной карты. "auto" — pca, если каналы различаются.
+#   [geophys.maggr.finds_points] signal = "abs" | "asa" — пики |hp| или аналитического сигнала.
+#   [geophys.<модальность>.object_poly] polarity = "abs" | "pos" | "neg".
+#   [geophys.<модальность>] classic = false — классику модальности считает сеть [models] <модальность>,
+#     группа порога <модальность>_nn. Без [thresholds_by_markup.<модальность>_nn] сеть не включать.
+#   [geophys.maggr] maps = "gray" | "all" — серая карта, если она есть, или все карты участка.
+#     "all" оставляет один объект из находок разных карт ближе 2 м. В сдаче карты серые.
+#   [geophys.maggr.finds_points] plateau = true — центр пятна насыщения вместо пика на его кромке.
+#   [geophys.maggr.finds_points] peak_density_min = <пиков на 1000 м²> — на карте с редкими пиками
+#     отсечка опускается до peak_k_min (0,5). 0 — как в сдаче. Оценка:
+#     scripts/geo_silent_maps.py notes/geo_probe_train.json --density 5,10,20.
+#   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
+#     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
+#     layer_copy_decay — множитель уверенности копий. Табло 27.10 не приняло.
+#   [geophys.etgr] use_boundary = true — читать файл границ EtGr, как у MagGr и TerFl.
+#     Без ключа граница не применяется: так снята сдача. Файл для табло:
+#     geo_predict.py --set geophys.etgr.use_boundary=true. В конфиг ставить только после табло.
+# Подбор: scripts/geo_tune.py --k-min / --band-mode / --signals / --polarities; файл для табло —
+# scripts/geo_predict.py --set ...; приёмка — scripts/scoreboard.py --honest 10.
+
+# Подобрано scripts/geo_tune.py официальной метрикой на трейне (min_confidence — порог этой
+# модальности). F1 с отложенной «семьёй»: finds_points 0,461, object_poly MagGr 0,341;
+# у EtGr и TerFl одна «семья», проверка только на тех же данных (0,201 и 0,171).
+[geophys.pixgbm]
+enabled = true
+model_dir = "models/pixgbm/all"   # относительный: от cwd, иначе от корня решения (geo_pixgbm.resolve_model_dir)
+classes = ["finds_points", "object_poly"]
+replace = true        # S: pix заменяет классику того же класса и метода
+union_name_re = ""    # без H
+maps = ["maggr", "etgr", "terfl"]
+t_pix = 0.5
+poly_mode = "pole"    # ветка bot3-geosnap; peaks отклонён (geo_snap/GEO_SNAP_REPORT.md); в bot3-pixgbm ключа нет — игнорируется
+backend = "lightgbm"  # по умолчанию; "lleaves" — opt-in, нужны ещё poly/finds.lleaves.so + .json (те же кандидаты)
+budget_s = 300
+guard_reserve_s = 0
+procs = 0             # 0 — min(потоки, 4, доступные ядра)
+
+[geophys.maggr.finds_points]
+background_m = 2.0
+peak_radius_m = 2.0
+peak_k = 1.0
+use_noise = true
+confidence = "rank"
+min_confidence = 0.1739
+
+[geophys.maggr.object_poly]
+background_m = 8.0
+smooth_m = 0.5
+poly_k = 1.5
+use_noise = true
+confidence = "rank"
+min_confidence = 0.0714
+
+[geophys.etgr.object_poly]
+background_m = 2.0
+smooth_m = 0.1
+poly_k = 1.0
+min_confidence = 0.0958
+
+[geophys.terfl.object_poly]
+background_m = 8.0
+smooth_m = 0.25
+poly_k = 1.0
+min_confidence = 0.1426
+
+# Ниже — выключенные опыты. Включать по одному и только после табло.
+# Копия лидара в аэрофото уже есть (li_to_ae) и на совместном переборе не оставляет объектов.
+# Вторая копия в другой тип данных дала −0,0037 (notes/mk_copy_2026-10-24.json).
+# [[fusion.copy]]
+# src = "li"
+# dst = "sp_or"
+# group = "li_sp"
+# src_groups = ["li", "li_coarse", "li_mosaic"]
+# min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
+
+# [post]
+# fill_holes = ["gorodishcha"]
+# [post.core.gorodishcha]
+# frac = 0.3
+# min_r_m = 8.0
+
+# Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+# Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
+
+# Проверка кропа курганов спутника. Повтор 28.10 без утечки эталона: честно по семьям
+# 0,314615 → 0,318536, 34 новых +0,0015, без лидара +0,0079, A > B в 0,984.
+# На всех участках 0,367363 → 0,366844, старая приёмка не проходит; решает честная.
+[verify]
+enabled = true
+weights = "models/sp_crop.pt"
+markup = "sp_or"
+groups = ["sp_focal", "sp_focal2"]
+classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+tile = 96
+res = 0.5
+min_conf = 0.05
+
+# --- bot-3 PIXGBM S: пороги *_pix (thresholds_v2.toml) ---
+[thresholds_by_markup.maggr_pix]
+finds_points = 0.93
+object_poly = 0.686
+
+[thresholds_by_markup.etgr_pix]
+object_poly = 0.0
+
+[thresholds_by_markup.terfl_pix]
+object_poly = 1.01

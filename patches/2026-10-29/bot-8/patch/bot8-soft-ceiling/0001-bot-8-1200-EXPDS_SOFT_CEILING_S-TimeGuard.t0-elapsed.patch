@@ -1,0 +1,457 @@
+From 26e12ae79ccaa6e06d594b746ca987b0fed119ab Mon Sep 17 00:00:00 2001
+From: bot-8 <bot-8@koz3.local>
+Date: Wed, 28 Oct 2026 23:41:24 +0300
+Subject: [PATCH] =?UTF-8?q?bot-8:=20=D0=BC=D1=8F=D0=B3=D0=BA=D0=B8=D0=B9?=
+ =?UTF-8?q?=20=D0=BF=D0=BE=D1=82=D0=BE=D0=BB=D0=BE=D0=BA=201200=20=D1=81?=
+ =?UTF-8?q?=20(EXPDS=5FSOFT=5FCEILING=5FS):=20TimeGuard.t0/elapsed/soft=5F?=
+ =?UTF-8?q?left/soft=5Fok;=20=D0=BF=D1=80=D0=B8=20=D0=BD=D0=B5=D1=85=D0=B2?=
+ =?UTF-8?q?=D0=B0=D1=82=D0=BA=D0=B5=20=D0=BE=D1=82=D0=BA=D0=BB=D1=8E=D1=87?=
+ =?UTF-8?q?=D0=B0=D0=B5=D1=82=20=D0=BE=D0=BA=D0=BD=D0=BE=20256=20=D0=BC,?=
+ =?UTF-8?q?=20=CF=83,=20=D0=BA=D1=80=D0=BE=D0=BF;=20TimeGuard=201500=20?=
+ =?UTF-8?q?=D0=B8=20=D1=81=D1=82=D0=BE=D1=80=D0=BE=D0=B6=201620=20=D0=B1?=
+ =?UTF-8?q?=D0=B5=D0=B7=20=D0=B8=D0=B7=D0=BC=D0=B5=D0=BD=D0=B5=D0=BD=D0=B8?=
+ =?UTF-8?q?=D0=B9;=20=D1=82=D0=B5=D1=81=D1=82=D1=8B?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ expds/pipeline.py               | 141 +++++++++++++++++++++++-
+ expds/watchdog.py               |   3 +
+ tests/test_bot8_soft_ceiling.py | 189 ++++++++++++++++++++++++++++++++
+ 3 files changed, 329 insertions(+), 4 deletions(-)
+ create mode 100644 tests/test_bot8_soft_ceiling.py
+
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 4f8a604..45299d7 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -13,7 +13,9 @@ from __future__ import annotations
+ 
+ import hashlib
+ import logging
++import os
+ import signal
++import sys
+ import time
+ import tomllib
+ from dataclasses import fields
+@@ -39,17 +41,63 @@ class TimeGuard:
+ 
+     def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
+         self.clock = clock or time.monotonic
+-        self.t0 = self.clock()
++        #: bot-8: старт run() — от него, как и раньше, считается бюджет [time] budget_s (left/ok).
++        self.run_t0 = self.clock()
++        #: bot-8: самый ранний известный старт в базе self.clock (по умолчанию time.monotonic, НЕ time.time).
++        #: До set_soft() — run_t0; в run() set_soft(watchdog.PROCESS_START) даёт тот же отсчёт, что у сторожа
++        #: 1620 с. Абсолютные дедлайны (PIXGBM: t0 + PIXGBM_BUDGET_S) сравнивать с guard.clock() / elapsed().
++        self.t0 = self.run_t0
+         self.budget = budget_s
+         self.window_reserve_s = window_reserve_s
+         self.hard_left = hard_left
+         self.partial: list[dict] = []
++        #: bot-8: мягкий потолок (с от t0). None — выключен (все прямые вызовы вне run()).
++        self.soft_ceiling: float | None = None
++        self.soft_need = dict(SOFT_NEED_DEFAULT)
++        self.soft_skipped: list[dict] = []
++
++    def set_soft(self, process_start: float | None = None, soft_ceiling_s: float | None = None,
++                 soft_need: dict | None = None) -> "TimeGuard":
++        """bot-8: мягкий потолок и ранний старт. process_start — в базе time.monotonic; учитывается только
++        при часах по умолчанию (поддельные часы тестов живут в своей базе): t0 = min(process_start, run_t0)."""
++        if process_start is not None and self.clock is time.monotonic:
++            self.t0 = min(float(process_start), self.run_t0)
++        self.soft_ceiling = None if soft_ceiling_s is None else float(soft_ceiling_s)
++        self.soft_need = dict(SOFT_NEED_DEFAULT, **(soft_need or {}))
++        return self
+ 
+     def elapsed(self) -> float:
++        """Секунд от t0 (старт процесса в run(), иначе создание guard)."""
+         return self.clock() - self.t0
+ 
++    def run_elapsed(self) -> float:
++        """Секунд от старта run() — основа бюджета budget_s (поведение 1500 с не меняется)."""
++        return self.clock() - self.run_t0
++
+     def left(self) -> float:
+-        return self.budget - self.elapsed()
++        return self.budget - self.run_elapsed()
++
++    def soft_left(self) -> float:
++        """SOFT_CEILING − elapsed(). Потолок выключен — +inf."""
++        if self.soft_ceiling is None:
++            return float("inf")
++        return self.soft_ceiling - self.elapsed()
++
++    def soft_ok(self, need_s: float = 0.0, phase: str | None = None, what: str = "") -> bool:
++        """Хватает ли до мягкого потолка need_s секунд. phase — для журнала: при отказе одна строка
++        «мягкий потолок: <phase> …» и запись в soft_skipped (в протокол прогона)."""
++        sl = self.soft_left()
++        if sl > need_s:
++            return True
++        if phase is not None:
++            self.soft_skipped.append({"phase": phase, "what": what, "soft_left_s": round(sl, 1),
++                                      "need_s": need_s, "elapsed_s": round(self.elapsed(), 1)})
++            log.warning("мягкий потолок: %s пропущено%s — soft_left %.0f с ≤ %.0f с (потолок %.0f с, прошло %.0f с)",
++                        phase, f" ({what})" if what else "", sl, need_s, self.soft_ceiling, self.elapsed())
++        return False
++
++    def soft_need_s(self, phase: str) -> float:
++        return float(self.soft_need.get(phase, 0.0))
+ 
+     def ok(self, need_s: float = 0.0) -> bool:
+         return self.left() > need_s
+@@ -68,6 +116,68 @@ class TimeGuard:
+ #: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
+ DEFAULT_WINDOW_RESERVE_S = 30.0
+ 
++#: bot-8: мягкий потолок прогона, с от старта процесса (BUDGET.md §7.13/§7.14). Рабочий потолок пакета,
++#: чтобы пережить частный набор до 2× публичного; лимит площадки 1800, TimeGuard 1500 и сторож 1620 — без изменений.
++#: EXPDS_SOFT_CEILING_S (env) > [time] soft_ceiling_s > 1200. Неверное значение или ≤ 0 — потолок выключен.
++SOFT_CEILING_DEFAULT_S = 1200.0
++#: bot-8: сколько секунд до мягкого потолка нужно, чтобы НАЧАТЬ необязательный шаг (порог soft_left).
++#: Оценки по замерам GTX 1650 (BUDGET.md §1, docs/PLAN.md:147): σ 57 с на весь mock_val, самый тяжёлый
++#: снимок 106 с; кроп — малая сеть (тайл 96) по кандидатам sp_focal/sp_focal2, отдельно не мерен.
++#: Переопределение: [time.soft] <ключ> = с или env EXPDS_SOFT_NEED_<КЛЮЧ>_S.
++#:   wide_window — окно 256 м (sp_focal2) на участке без LAS, на каждый SpOr-растр: 120 (> 106 с снимка);
++#:   sigma       — канал σ (li_dev), на каждый участок с LAS: 60 (σ всего 57 с) + резерв кропа, если он включён;
++#:   verify      — проверка кропа курганов спутника после всех фаз: 60.
++#: Порядок отключения при росте времени: окно 256 м (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
++#: Обязательное (геофизика, лидар, основные сети оптики, finish/safe_finish, запись GeoJSON) потолок не трогает.
++SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
++
++
++def _warn(msg: str) -> None:
++    sys.stderr.write(f"expds: {msg}\n")
++    log.warning("%s", msg)
++
++
++def soft_ceiling_from(cfg: dict, environ=None) -> float | None:
++    """Мягкий потолок в секундах или None (выключен). Неверное значение/≤ 0 — None с предупреждением в stderr."""
++    env = os.environ if environ is None else environ
++    raw = env.get("EXPDS_SOFT_CEILING_S")
++    src = "EXPDS_SOFT_CEILING_S"
++    if raw is None or str(raw).strip() == "":
++        raw = (cfg.get("time") or {}).get("soft_ceiling_s", SOFT_CEILING_DEFAULT_S)
++        src = "[time] soft_ceiling_s"
++    if isinstance(raw, bool):
++        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно число секунд > 0)")
++        return None
++    try:
++        val = float(raw)
++    except (TypeError, ValueError):
++        _warn(f"мягкий потолок выключен: {src}={raw!r} — не число")
++        return None
++    if not np.isfinite(val) or val <= 0:
++        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно > 0)")
++        return None
++    return val
++
++
++def soft_need_from(cfg: dict, environ=None) -> dict:
++    """Пороги soft_left по шагам: SOFT_NEED_DEFAULT, [time.soft], env EXPDS_SOFT_NEED_<KEY>_S."""
++    env = os.environ if environ is None else environ
++    need = dict(SOFT_NEED_DEFAULT)
++    table = ((cfg.get("time") or {}).get("soft") or {})
++    for key in need:
++        for src, raw in ((f"[time.soft] {key}", table.get(key)),
++                         (f"EXPDS_SOFT_NEED_{key.upper()}_S", env.get(f"EXPDS_SOFT_NEED_{key.upper()}_S"))):
++            if raw is None or str(raw).strip() == "":
++                continue
++            try:
++                val = float(raw)
++                if not np.isfinite(val) or val < 0:
++                    raise ValueError
++                need[key] = val
++            except (TypeError, ValueError):
++                _warn(f"порог мягкого потолка {src}={raw!r} не принят, остаётся {need[key]:.0f} с")
++    return need
++
+ 
+ #: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
+ #: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
+@@ -610,6 +720,8 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
+         for path in reg.rasters.get("sp_or", []):
+             if not guard.ok(60):
+                 break
++            if not _soft_ok(guard, "wide_window", f"окно 256 м sp_focal2, {reg.name}"):
++                break
+             try:
+                 found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
+                                                       fallback_crs=region_crs(reg, cfg)))
+@@ -622,6 +734,14 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
+     return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+ 
+ 
++def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
++    """bot-8: мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
++    fn = getattr(guard, "soft_ok", None)
++    if fn is None or getattr(guard, "soft_ceiling", None) is None:
++        return True
++    return fn(guard.soft_need_s(phase) + extra_s, phase=phase, what=what)
++
++
+ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+                  prefetch=None) -> list[dict]:
+     """Круги канала σ на пиках рельефа. Группа li_dev.
+@@ -855,8 +975,15 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+     t_cfg = cfg.get("time", {})
+     margin_s = float(t_cfg.get("guard_margin_s", 180))
+     # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
++    from . import watchdog as _wd
++
+     guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
+                       hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
++    guard.set_soft(process_start=_wd.PROCESS_START, soft_ceiling_s=soft_ceiling_from(cfg),
++                   soft_need=soft_need_from(cfg))
++    if guard.soft_ceiling is not None:
++        log.info("мягкий потолок %.0f с от старта процесса (прошло %.0f с); пороги: %s", guard.soft_ceiling,
++                 guard.elapsed(), ", ".join(f"{k} {v:.0f} с" for k, v in guard.soft_need.items()))
+     global _WINDOW_GUARD
+     _WINDOW_GUARD = guard
+     log.info("ускоритель: %s", accel.backend())
+@@ -982,6 +1109,9 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+             if not guard.ok(60):
+                 log.warning("на канал σ времени не осталось")
+                 break
++            if not _soft_ok(guard, "sigma", f"канал σ с {reg.name}",
++                            guard.soft_need_s("verify") if (cfg.get("verify") or {}).get("enabled") else 0.0):
++                break
+             try:
+                 fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
+                 pool = [f for f in state.snapshot()
+@@ -1001,7 +1131,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         if prefetch is not None:
+             prefetch.close()
+         summary["raw"] = len(state.snapshot())
+-        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120):
++        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120) and _soft_ok(guard, "verify", "проверка кропа"):
+             # Ошибка проверки кропа не должна оставить площадку без файла ответа.
+             try:
+                 from .crop_model import maybe_verify
+@@ -1013,8 +1143,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+                 log.exception("проверка кропа пропущена")
+         summary["phases"] = {name: {"raw": n, "seconds": round(sec, 1)} for name, n, sec in phases}
+         state.note["phases"] = summary["phases"]
++        if guard.soft_skipped:
++            summary["soft_skipped"] = list(guard.soft_skipped)
++            state.note["soft_skipped"] = list(guard.soft_skipped)
+         summary["written"] = checkpoint(state, "конец")
+-        summary["seconds"] = round(guard.elapsed(), 1)
++        summary["seconds"] = round(guard.run_elapsed(), 1)
+         summary["partial_files"] = list(guard.partial)
+         for handler in logging.getLogger().handlers:
+             handler.flush()
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 44995ba..41a69c7 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -199,6 +199,9 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
+     if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
+         log.info("частично (дедлайн в цикле окон): %s", ", ".join(
+             f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
++    if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
++        log.info("мягкий потолок отключил: %s", ", ".join(
++            f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
+     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
+     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
+     log.info("записано %d, файл %d байт", len(kept), size)
+diff --git a/tests/test_bot8_soft_ceiling.py b/tests/test_bot8_soft_ceiling.py
+new file mode 100644
+index 0000000..e7ae9bd
+--- /dev/null
++++ b/tests/test_bot8_soft_ceiling.py
+@@ -0,0 +1,189 @@
++"""bot-8: мягкий потолок 1200 с (EXPDS_SOFT_CEILING_S) — API guard и отключение необязательных шагов.
++
++TimeGuard 1500 (budget_s от старта run()) и сторож 1620 (от watchdog.PROCESS_START) не меняются.
++"""
++import json
++import time
++from types import SimpleNamespace
++
++import pytest
++from shapely.geometry import Point
++
++from expds import pipeline, watchdog, writer
++from expds.pipeline import TimeGuard
++
++
++class Clock:
++    def __init__(self, t=1000.0):
++        self.t = t
++
++    def __call__(self):
++        return self.t
++
++
++# ---------- конфигурация потолка ----------
++
++def test_soft_ceiling_default_env_and_config():
++    assert pipeline.soft_ceiling_from({}, environ={}) == 1200.0
++    assert pipeline.SOFT_CEILING_DEFAULT_S == 1200.0
++    assert pipeline.soft_ceiling_from({"time": {"soft_ceiling_s": 900}}, environ={}) == 900.0
++    # env важнее конфига
++    assert pipeline.soft_ceiling_from({"time": {"soft_ceiling_s": 900}}, environ={"EXPDS_SOFT_CEILING_S": "1500"}) == 1500.0
++    assert pipeline.soft_ceiling_from({}, environ={"EXPDS_SOFT_CEILING_S": " "}) == 1200.0     # пусто → как нет
++
++
++@pytest.mark.parametrize("raw", ["0", "-5", "abc", "nan", "inf"])
++def test_soft_ceiling_invalid_env_disables_with_warning(raw, capsys):
++    assert pipeline.soft_ceiling_from({}, environ={"EXPDS_SOFT_CEILING_S": raw}) is None
++    assert "мягкий потолок выключен" in capsys.readouterr().err
++
++
++@pytest.mark.parametrize("raw", [0, -1, "x", True])
++def test_soft_ceiling_invalid_config_disables_with_warning(raw, capsys):
++    assert pipeline.soft_ceiling_from({"time": {"soft_ceiling_s": raw}}, environ={}) is None
++    assert "мягкий потолок выключен" in capsys.readouterr().err
++
++
++def test_soft_need_thresholds_configurable(capsys):
++    assert pipeline.soft_need_from({}, environ={}) == {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
++    need = pipeline.soft_need_from({"time": {"soft": {"sigma": 90, "verify": 30}}},
++                                   environ={"EXPDS_SOFT_NEED_VERIFY_S": "45", "EXPDS_SOFT_NEED_WIDE_WINDOW_S": "bad"})
++    assert need == {"wide_window": 120.0, "sigma": 90.0, "verify": 45.0}
++    assert "не принят" in capsys.readouterr().err
++
++
++# ---------- API guard ----------
++
++def test_guard_api_t0_elapsed_soft_left():
++    clk = Clock(1000.0)
++    g = TimeGuard(1500, clock=clk)
++    assert g.t0 == g.run_t0 == 1000.0
++    assert g.soft_ceiling is None and g.soft_left() == float("inf") and g.soft_ok(10 ** 9)
++    g.set_soft(soft_ceiling_s=1200)
++    clk.t += 1100
++    assert g.elapsed() == 1100 and g.soft_left() == 100
++    assert g.soft_ok(60) and not g.soft_ok(100)
++    assert g.soft_skipped == []                              # без phase — без записи
++    assert not g.soft_ok(120, phase="sigma", what="тест")
++    assert g.soft_skipped[0]["phase"] == "sigma" and g.soft_skipped[0]["soft_left_s"] == 100
++
++
++def test_t0_is_process_start_in_monotonic_base_budget_unchanged():
++    """t0 = min(PROCESS_START, старт run()) — база time.monotonic; бюджет 1500 по-прежнему от старта run()."""
++    g = TimeGuard(1500).set_soft(process_start=watchdog.PROCESS_START, soft_ceiling_s=1200)
++    assert g.t0 == watchdog.PROCESS_START <= g.run_t0
++    assert g.elapsed() >= g.run_elapsed()
++    assert abs(g.elapsed() - (time.monotonic() - watchdog.PROCESS_START)) < 5
++    assert abs(g.left() - (1500 - g.run_elapsed())) < 1e-6
++    # 1620-сторож и мягкий потолок считают от одного начала
++    assert abs((watchdog.PLATFORM_LIMIT_S - 180 - g.elapsed()) - watchdog.deadline_left(180)) < 1
++
++
++def test_budget_1500_and_watchdog_1620_unchanged():
++    assert pipeline.DEFAULT_BUDGET_S == 1500
++    assert watchdog.PLATFORM_LIMIT_S - watchdog.GUARD_MARGIN_S == 1620
++    clk = Clock(0.0)
++    g = TimeGuard(1500, clock=clk).set_soft(process_start=-10 ** 6, soft_ceiling_s=1)   # чужая база часов — игнор
++    assert g.t0 == 0.0
++    clk.t = 1379
++    assert g.ok(120) and not g.soft_ok(0)                   # потолок не трогает ok()/left()
++    clk.t = 1381
++    assert not g.ok(120)
++
++
++# ---------- весь run() ----------
++
++class FakeSeg:
++    classes = ["kurgany_povrezhdennye"]
++    keep = None
++
++
++def _feat(region, group, x):
++    return {"geom": Point(x, 0.0).buffer(5.0), "class_name": "kurgany_povrezhdennye", "confidence": 0.9,
++            "markup_type": "sp_or", "region_name": region, "threshold_group": group, "source": "t"}
++
++
++def _setup(tmp_path, monkeypatch):
++    calls = []
++    with_las = SimpleNamespace(name="a", las=[tmp_path / "a.las"], rasters={}, utm_json=None, boundaries=[], noise=[])
++    no_las = SimpleNamespace(name="b", las=[], rasters={"sp_or": [tmp_path / "b.tif"]}, utm_json=None,
++                             boundaries=[], noise=[])
++    monkeypatch.setattr(pipeline, "scan_root", lambda _p: [with_las, no_las])
++    monkeypatch.setattr(pipeline, "geophys_feats", lambda *_a, **_k: [])
++    monkeypatch.setattr(pipeline, "lidar_feats", lambda *_a, **_k: calls.append("li") or [])
++    monkeypatch.setattr(pipeline, "_cached_segmenters",
++                        lambda cache, cfg, mt, root: [FakeSeg()] if mt in ("sp_or", "sp_focal2") else [])
++
++    def raster(seg, path, region, markup, **_k):
++        calls.append("opt")
++        return [_feat(region, None, 100.0 * len(calls))]
++
++    real_wide = pipeline._wide_without_lidar
++
++    def wide(reg, cfg, guard, seg_cache, root, feats):
++        out = real_wide(reg, cfg, guard, seg_cache, root, feats)
++        if len(out) > len(feats):
++            calls.append("wide")
++        return out
++
++    monkeypatch.setattr(pipeline, "_raster_with_model", raster)
++    monkeypatch.setattr(pipeline, "_wide_without_lidar", wide)
++    monkeypatch.setattr(pipeline, "li_dev_feats", lambda *_a, **_k: calls.append("sigma") or [])
++    import expds.crop_model as cm
++
++    monkeypatch.setattr(cm, "maybe_verify", lambda feats, regions, cfg: calls.append("verify") and None)
++
++    class Dummy:
++        def __init__(self, *_a, **_k):
++            pass
++
++        def close(self):
++            pass
++
++    monkeypatch.setattr("expds.lidar.DemPrefetch", Dummy)
++    monkeypatch.setenv("EXPDS_TMP", str(tmp_path / "tmp"))
++    cfg = tmp_path / "t.toml"
++    cfg.write_text('[time]\nwatchdog = false\n[models]\nli_dev = {path = "x.pt"}\nsp_focal2 = {path = "y.pt"}\n'
++                   '[verify]\nenabled = true\nweights = "none.pt"\n', encoding="utf-8")
++    return calls, cfg
++
++
++def test_run_default_ceiling_runs_all_optional_steps(tmp_path, monkeypatch):
++    monkeypatch.delenv("EXPDS_SOFT_CEILING_S", raising=False)
++    monkeypatch.setattr(watchdog, "PROCESS_START", time.monotonic())    # свежий «процесс»: до 1200 с далеко
++    calls, cfg = _setup(tmp_path, monkeypatch)
++    out = tmp_path / "o" / "result.geojson"
++    summary = pipeline.run(tmp_path, out, cfg)
++    assert "wide" in calls and "sigma" in calls and "verify" in calls
++    assert "soft_skipped" not in summary
++    assert writer.validate(out)["ok"]
++
++
++@pytest.mark.parametrize("env", ["0.001", "1"])
++def test_run_tiny_ceiling_skips_optional_still_writes_geojson(tmp_path, monkeypatch, caplog, env):
++    monkeypatch.setenv("EXPDS_SOFT_CEILING_S", env)
++    monkeypatch.setattr(watchdog, "PROCESS_START", time.monotonic() - 5)
++    calls, cfg = _setup(tmp_path, monkeypatch)
++    out = tmp_path / "o" / "result.geojson"
++    with caplog.at_level("INFO"):
++        summary = pipeline.run(tmp_path, out, cfg)
++    assert "li" in calls and "opt" in calls                   # обязательное идёт как раньше
++    assert "wide" not in calls and "sigma" not in calls and "verify" not in calls
++    phases = [s["phase"] for s in summary["soft_skipped"]]
++    assert phases == ["wide_window", "sigma", "verify"]
++    assert all(s["soft_left_s"] <= s["need_s"] for s in summary["soft_skipped"])
++    assert caplog.text.count("мягкий потолок: ") == 3
++    assert "мягкий потолок отключил" in caplog.text          # строка протокола
++    rep = writer.validate(out)
++    assert rep["ok"], rep["errors"]
++    assert len(json.loads(out.read_text(encoding="utf-8"))["features"]) >= 1
++
++
++def test_run_disabled_ceiling_runs_all(tmp_path, monkeypatch, capsys):
++    monkeypatch.setenv("EXPDS_SOFT_CEILING_S", "0")
++    monkeypatch.setattr(watchdog, "PROCESS_START", time.monotonic() - 10 ** 5)   # «очень давно» — всё равно не режет
++    calls, cfg = _setup(tmp_path, monkeypatch)
++    summary = pipeline.run(tmp_path, tmp_path / "o" / "result.geojson", cfg)
++    assert "wide" in calls and "sigma" in calls and "verify" in calls
++    assert "soft_skipped" not in summary
++    assert "мягкий потолок выключен" in capsys.readouterr().err
+-- 
+2.47.3
+
