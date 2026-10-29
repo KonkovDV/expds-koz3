@@ -1351,6 +1351,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             t_phase = time.monotonic()
             n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("dfine_aeor", n_phase, time.monotonic() - t_phase))
+        # bot-7 (v4): место под фазу gor_dense bot-5 (после dfine_aeor, до gor_gate) — ещё не влита.
+        # Порядок: _sp_dfine_phase → dfine_aeor → gor_dense → gor_gate → пороги/merge (watchdog.finish).
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate
