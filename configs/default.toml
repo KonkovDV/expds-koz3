@@ -284,9 +284,12 @@ min_confidence = 0.1426
 # [post.sp_score_fusion]
 # radius_m = 8.0
 # gen_floor = 0.05          # курганы sp_or / sp_focal2 генерируются сырыми, отбор 12 м — только из выдачи
-# thresholds.sp_focal = { kurgany_povrezhdennye = 0.27822, kurgany_tselye = 0.3696 }
+# thresholds.sp_focal = { kurgany_povrezhdennye = 0.2665015, kurgany_tselye = 0.3696 }
 # thresholds.sp_focal2 = { kurgany_povrezhdennye = 0.514733, kurgany_tselye = 0.701621 }
-# Пороги — sweep_groups на всех участках по кривым fusion (bot-6/work/orsp2/taus_all.json). Замер см. bot-6/ORSP.md.
+# Пороги сдачи — медиана 10 значений sweep_groups, каждое подобрано только на обучающих участках своего
+# фолда k10 (bot-6/work/orsp3/taus_fold.json, k10_median); для оценки — свои пороги в каждом фолде (paired.py).
+# Прежние 0.27822/0.3696, 0.514733/0.701621 были подобраны на всех участках (утечка, bot-10 REPORT10 §3) — не использовать.
+# sp_focal здесь = курганы sp_or сдачи (одна карта центров; в табло подписана sp_focal) — пороги общие. Замер: bot-6/ORSP.md.
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
