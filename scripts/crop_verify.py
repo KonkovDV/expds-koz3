@@ -365,10 +365,9 @@ def blend(conf: np.ndarray, p: np.ndarray, mode: str) -> np.ndarray:
     raise ValueError(f"blend: geo, p или none, не {mode}")
 
 
-def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups: set[str] | None,
-        min_conf: float, res: float, tile: int, li_tags: tuple[str, ...], folds: int, mode: str,
-        metric_path: str | None = None, demote_with_gt: bool = False, save_path: str | None = None,
-        **kw) -> tuple[dict, dict]:
+def prepare(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups: set[str] | None,
+            min_conf: float, res: float, tile: int, li_tags: tuple[str, ...], metric_path: str | None = None) -> dict:
+    """Кандидаты, метки и кропы (CPU, без модели). То же, что первая половина прежнего `run`."""
     rr = load_rerank()
     picked = select(stack, classes, markup, groups, min_conf)
     if not picked:
@@ -376,10 +375,23 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     y, y_first = labels_of(rr, stack, gt, metric_path, picked)
     X, ok = extract_crops(root, stack, picked, markup, res, tile, li_tags)
     regions = [str((stack["features"][i].get("properties") or {}).get("region_name")) for i in picked]
-    p = np.full(len(picked), np.nan)
-    idx = np.flatnonzero(ok)
+    return {"picked": np.asarray(picked, np.int64), "y": y, "y_first": y_first, "X": X, "ok": ok,
+            "regions": np.asarray(regions)}
+
+
+def score(D: dict, folds: int, **kw) -> np.ndarray:
+    """Вероятность кропа вне обучения по семьям; кандидат без кропа — NaN."""
+    p = np.full(len(D["picked"]), np.nan)
+    idx = np.flatnonzero(D["ok"])
     if idx.size:
-        p[idx] = oof_verify(X[idx], y[idx], [regions[i] for i in idx], folds, **kw)
+        p[idx] = oof_verify(D["X"][idx], D["y"][idx], [str(D["regions"][i]) for i in idx], folds, **kw)
+    return p
+
+
+def apply_scores(rr, stack: dict, picked: list[int], y: np.ndarray, y_first: np.ndarray, ok: np.ndarray,
+                 p: np.ndarray, mode: str, demote_with_gt: bool = False) -> tuple[dict, dict]:
+    """Смешение вероятности кропа с уверенностью стека и отчёт. То же, что вторая половина прежнего `run`."""
+    picked = [int(i) for i in picked]
     feats = [dict(f, properties=dict(f.get("properties") or {})) for f in stack["features"]]
     conf = np.array([float(feats[i]["properties"].get("confidence", 0.0)) for i in picked])
     keys = [(feats[i]["properties"].get("threshold_group") or feats[i]["properties"].get("markup_type"),
@@ -388,11 +400,9 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     # Обнуление дубля смотрит в эталон проверяемого участка. На площадке эталона нет,
     # а на табло это утечка: ложные круги снимаются знанием ответа.
     scored = demote_duplicates(p, y, y_first) if demote_with_gt else p
-    report: dict = {"candidates": len(picked), "with_crop": int(ok.sum()), "verified": int(np.isfinite(p).sum()),
+    report: dict = {"candidates": len(picked), "with_crop": int(np.sum(ok)), "verified": int(np.isfinite(p).sum()),
                     "hits": int(y_first.sum()), "blend": mode, "demote_with_gt": bool(demote_with_gt),
                     "groups": {}}
-    if save_path and idx.size:
-        report["saved"] = save_model(save_path, X[idx], y[idx], markup, res, tile, li_tags=li_tags, **kw)
     m = np.isfinite(scored)
     if m.any() and 0 < y_first[m].sum() < m.sum():
         report["auc_stack"] = round(rr.auc(conf[m], y_first[m]), 4)
@@ -415,13 +425,86 @@ def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups
     return {"type": "FeatureCollection", "features": feats}, report
 
 
+def run(root: str, stack: dict, gt: dict, markup: str, classes: set[str], groups: set[str] | None,
+        min_conf: float, res: float, tile: int, li_tags: tuple[str, ...], folds: int, mode: str,
+        metric_path: str | None = None, demote_with_gt: bool = False, save_path: str | None = None,
+        **kw) -> tuple[dict, dict]:
+    D = prepare(root, stack, gt, markup, classes, groups, min_conf, res, tile, li_tags, metric_path)
+    p = score(D, folds, **kw)
+    out, report = apply_scores(load_rerank(), stack, D["picked"], D["y"], D["y_first"], D["ok"], p, mode, demote_with_gt)
+    idx = np.flatnonzero(D["ok"])
+    if save_path and idx.size:
+        report["saved"] = save_model(save_path, D["X"][idx], D["y"][idx], markup, res, tile, li_tags=li_tags, **kw)
+    return out, report
+
+
+# --- Раздельный путь: кропы на CPU (бокс) → эмбеддинг и проба (GPU) → смешение (бокс) -------------------------
+
+def sha256_file(path: str) -> str:
+    import hashlib
+
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def dump_crops(path: str, D: dict, meta: dict) -> dict:
+    """npz: X (n,3,t,t) uint8 (нули там, где ok=False), ok, y, y_first, picked (строки стека), regions,
+    families (site_family), fold (family_folds по участкам с кропом, как в oof_verify), meta (json)."""
+    from expds.metric import family_folds
+    from expds.naming import site_family
+
+    regs = [str(r) for r in D["regions"]]
+    fam = np.asarray([site_family(r) for r in regs])
+    fold = np.full(len(regs), -1, np.int64)
+    idx = np.flatnonzero(D["ok"])
+    if idx.size:
+        split = family_folds(sorted({regs[i] for i in idx}), site_family, int(meta["folds"]))
+        fold_of = {r: k for k, rr_ in enumerate(split) for r in rr_}
+        fold[idx] = [fold_of[regs[i]] for i in idx]
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(path, X=D["X"], ok=D["ok"], y=D["y"], y_first=D["y_first"], picked=D["picked"],
+                        regions=np.asarray(regs), families=fam, fold=fold,
+                        meta=np.asarray(json.dumps(meta, ensure_ascii=False)))
+    return {"crops": int(len(regs)), "with_crop": int(D["ok"].sum()), "pos": int(D["y"][idx].sum()),
+            "hits": int(D["y_first"].sum()), "regions": len(set(regs)), "families": len(set(fam.tolist())),
+            "npz": path, "bytes": Path(path).stat().st_size, "sha256": sha256_file(path)}
+
+
+def load_crops(path: str) -> dict:
+    z = np.load(path, allow_pickle=False)
+    D = {k: z[k] for k in z.files}
+    D["meta"] = json.loads(str(D["meta"]))
+    return D
+
+
+def from_crops(path: str, out_p: str, folds: int | None = None, **kw) -> dict:
+    """OOF вероятности по готовым кропам: те же oof_verify/hf_embed/lin_fit_predict. Выход npz для --apply-p."""
+    D = load_crops(path)
+    folds = int(folds if folds is not None else D["meta"]["folds"])
+    p = score(D, folds, **kw)
+    meta = dict(D["meta"], folds=folds, encoder=str(kw.get("encoder")), crops_sha256=sha256_file(path))
+    Path(out_p).parent.mkdir(parents=True, exist_ok=True)
+    np.savez(out_p, p=p, picked=D["picked"], ok=D["ok"], y=D["y"], y_first=D["y_first"],
+             meta=np.asarray(json.dumps(meta, ensure_ascii=False)))
+    m = np.isfinite(p)
+    rep = {"crops": int(len(p)), "verified": int(m.sum()), "folds": folds, "encoder": meta["encoder"], "p_npz": out_p}
+    if m.any() and 0 < D["y_first"][m].sum() < m.sum():
+        rep["auc_crop_first"] = round(load_rerank().auc(p[m], D["y_first"][m]), 4)
+    if m.any() and 0 < D["y"][m].sum() < m.sum():
+        rep["auc_crop_any"] = round(load_rerank().auc(p[m], D["y"][m]), 4)
+    return rep
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", required=True, help="корень трейна (те же участки, что в стеке)")
-    ap.add_argument("--stack", required=True, help="стек до порогов (scoreboard.py --dump-stack)")
-    ap.add_argument("--gt", required=True)
+    ap.add_argument("--root", default=None, help="корень трейна (те же участки, что в стеке)")
+    ap.add_argument("--stack", default=None, help="стек до порогов (scoreboard.py --dump-stack)")
+    ap.add_argument("--gt", default=None)
     ap.add_argument("--metric", default=str(ROOT / "materials" / "compute_metrics.py"))
-    ap.add_argument("--markup", required=True, help="откуда резать кроп: sp_or, ae, or, li")
+    ap.add_argument("--markup", default=None, help="откуда резать кроп: sp_or, ae, or, li")
     ap.add_argument("--classes", nargs="+", default=["kurgany_povrezhdennye", "kurgany_tselye"])
     ap.add_argument("--groups", nargs="*", default=None, help="группы порога; без них — все кандидаты --markup")
     ap.add_argument("--min-conf", type=float, default=0.05, help="кандидаты слабее не проверяются (их порог всё равно выше)")
@@ -440,14 +523,66 @@ def main() -> None:
                     help="диагностика: обнулить второй круг на эталоне по самому эталону. Утечка, не для табло приёмки")
     ap.add_argument("--save-model", default=None,
                     help="веса на всех кропах для [verify] weights (models/sp_crop.pt)")
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--dump-crops", default=None,
+                    help="этап 1 (CPU): только кропы+метки+семьи в npz, без модели (--root --stack --gt --markup)")
+    ap.add_argument("--from-crops", default=None,
+                    help="этап 2 (GPU): OOF по npz из --dump-crops, без растров/стека/эталона; вероятности в --p-out")
+    ap.add_argument("--p-out", default=None, help="npz вероятностей этапа 2")
+    ap.add_argument("--apply-p", default=None,
+                    help="этап 3: npz из --p-out → смешение со стеком (--stack, те же --markup/--classes/--groups/--min-conf) в --out")
+    ap.add_argument("--out", default=None)
     ap.add_argument("--report", default=None)
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     from expds.lidar import RELIEF_TAGS
 
+    def _write_report(report):
+        if args.report:
+            Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(json.dumps(report, ensure_ascii=False, indent=1))
+
+    kw = dict(epochs=args.epochs, batch=args.batch, lr=args.lr, encoder=args.encoder, pretrained=not args.no_pretrained)
+    if args.from_crops:
+        if not args.p_out:
+            raise SystemExit("--from-crops требует --p-out")
+        _write_report(from_crops(args.from_crops, args.p_out, args.folds, **kw))
+        return
+    if not args.stack:
+        raise SystemExit("нужен --stack")
     stack = json.loads(Path(args.stack).read_text(encoding="utf-8"))
+    if args.apply_p:
+        if not args.out:
+            raise SystemExit("--apply-p требует --out")
+        z = np.load(args.apply_p, allow_pickle=False)
+        meta = json.loads(str(z["meta"]))
+        picked = select(stack, set(meta["classes"]), meta["markup"], set(meta["groups"]) if meta["groups"] else None,
+                        float(meta["min_conf"]))
+        if not np.array_equal(np.asarray(picked, np.int64), z["picked"]):
+            raise SystemExit("--apply-p: кандидаты стека не совпадают с npz (другой стек или фильтр)")
+        if meta.get("stack_sha256") and sha256_file(args.stack) != meta["stack_sha256"]:
+            raise SystemExit("--apply-p: sha256 стека не совпадает с тем, по которому резались кропы")
+        out, report = apply_scores(load_rerank(), stack, picked, z["y"], z["y_first"], z["ok"], z["p"], args.blend,
+                                   args.demote_with_gt)
+        report["encoder"] = meta.get("encoder")
+        Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        _write_report(report)
+        return
+    if not (args.root and args.gt and args.markup):
+        raise SystemExit("нужны --root --gt --markup")
     gt = json.loads(Path(args.gt).read_text(encoding="utf-8"))
+    if args.dump_crops:
+        li = tuple(args.li_tags or RELIEF_TAGS)
+        D = prepare(args.root, stack, gt, args.markup, set(args.classes), set(args.groups) if args.groups else None,
+                    args.min_conf, args.res, args.tile, li, args.metric)
+        meta = {"markup": args.markup, "classes": sorted(args.classes), "groups": sorted(args.groups) if args.groups else None,
+                "min_conf": args.min_conf, "res": args.res, "tile": args.tile, "li_tags": list(li), "folds": args.folds,
+                "stack": Path(args.stack).name, "stack_sha256": sha256_file(args.stack),
+                "gt": Path(args.gt).name, "gt_sha256": sha256_file(args.gt)}
+        _write_report(dump_crops(args.dump_crops, D, meta))
+        return
+    if not args.out:
+        raise SystemExit("нужен --out")
     out, report = run(args.root, stack, gt, args.markup, set(args.classes),
                       set(args.groups) if args.groups else None, args.min_conf, args.res, args.tile,
                       tuple(args.li_tags or RELIEF_TAGS), args.folds, args.blend, args.metric,
@@ -455,9 +590,7 @@ def main() -> None:
                       epochs=args.epochs, batch=args.batch, lr=args.lr, encoder=args.encoder,
                       pretrained=not args.no_pretrained)
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
-    if args.report:
-        Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps(report, ensure_ascii=False, indent=1))
+    _write_report(report)
 
 
 if __name__ == "__main__":
