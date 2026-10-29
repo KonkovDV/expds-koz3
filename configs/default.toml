@@ -481,8 +481,10 @@ enabled = false
 #   head_md5 = "e35570e10d17edac32bea8d26fa0f5f4"
 #   centre_s = 250.0    # ПРЕДЛОЖЕНИЕ, ждёт бота 10: правило dense_probe на всём трейне (внутр. OOF, top-1 28/49)
 #   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # ПРЕДЛОЖЕНИЕ, ждёт бота 10: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
-#   + noD уже в коде (drop_dfine_classes = ["gorodishcha"]). Строку [thresholds_by_markup.sp_dfine] gorodishcha = 1.01
-#     НЕ раскомментировать вместе с make_on.py: он уже пишет таблицу [thresholds_by_markup.sp_dfine] → дубль таблицы TOML.
+#   + [thresholds_by_markup.sp_dfine]
+#     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
+#     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,
+#     второй заголовок [thresholds_by_markup.sp_dfine] = дубль таблицы TOML (ошибка разбора).
 #   v4 (bot-7): выключить gorodishcha и в dfine_ae/dfine_or бота 6 — в этой ветке (360c870) их нет.
 [gor_dense]
 enabled = false

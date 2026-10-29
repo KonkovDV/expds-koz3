@@ -283,3 +283,34 @@ def test_package_flag_on_ships_module_backbone_heads_vendor(tmp_path, monkeypatc
     rels = {str(p.relative_to(r)) for p in files}
     assert {"models/dinov2-small/config.json", "models/dinov2-small/model.safetensors", "models/gor_gate/gor_v3_head.npz",
             "models/gor_dense/gor_dense_head.npz", "inference/lib/vendor/transformers/__init__.py"} <= rels
+
+
+# ---------------------------------------------------------------- порядок фаз, шлюз, сборка/проверка
+def test_phase_order_after_sp_dfine_before_gor_gate():
+    src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
+    i_sd = src.index("n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)")
+    i_gd = src.index('if (cfg.get("gor_dense") or {}).get("enabled"):')
+    i_gg = src.index('if (cfg.get("gor_gate") or {}).get("enabled"):\n            try:\n                from . import gor_gate')
+    i_pf = src.index("if guard.partial:\n            state.note")
+    assert i_sd < i_gd < i_gg < i_pf
+    assert "GOR_DENSE_UNAVAILABLE" in src[i_gd:i_gg]
+
+
+def test_gor_gate_never_multiplies_gor_dense_points():
+    from expds import gor_gate
+    assert not gor_gate.is_gated_target(_pt())               # своя группа порога → шлюз sp_or её не трогает
+
+
+def test_sp_dfine_gorodishcha_101_block_kills_dfine_gorodishcha():
+    """Закомментированный блок [thresholds_by_markup.sp_dfine] gorodishcha = 1.01: conf ≤ 1 никогда не проходит."""
+    by = {"sp_dfine": {"gorodishcha": 1.01}, "gor_dense": {"gorodishcha": 0.824066}}
+    d = _dfine("gorodishcha", conf=1.0)
+    keep = post.apply_thresholds([d, _dfine("kurgany", conf=0.99), _pt(conf=0.9)], {"kurgany": 0.5}, 0.15, by)
+    assert d not in keep and len(keep) == 2
+    txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
+    assert "#   + [thresholds_by_markup.sp_dfine]\n#     gorodishcha = 1.01" in txt
+
+
+def test_check_submission_knows_gor_dense():
+    src = (ROOT / "scripts" / "check_submission.py").read_text(encoding="utf-8")
+    assert "GOR_DENSE_UNAVAILABLE" in src and '"gor_dense.backbone"' in src and '"expds/gor_dense.py", dense' in src
