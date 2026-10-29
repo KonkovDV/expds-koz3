@@ -27,7 +27,7 @@
 - `EXPDS_PIXGBM_SHA_STRICT=0` — отключить fail-loud для PIXGBM (локальные stub-тесты).
 - `EXPDS_PIXGBM_EXPECTED_SHA256` — JSON override `{"poly":"...","finds":"..."}`.
 
-## D-FINE Or (Kaggle `koz3-dfine-or`) — pending (c′); flag OFF
+## D-FINE Or (Kaggle `koz3-dfine-or`) — **EXCLUDED from v5** (bot6 honest); flag OFF/absent
 
 | path | bytes | sha256 |
 |---|---:|---|
@@ -35,7 +35,7 @@
 | `models/dfine_or/dfine_f1/model.safetensors` | 125001980 | `7fcb58645366819e83f125b0078a5fdc0b4b896f1c2a1b0b3c995820586b6744` |
 | `models/dfine_or/dfine_f2/model.safetensors` | 125001980 | `29dcd3c633c31aa153abe420bde59766de25fa662b4b2b3065f7a78dacd0ed2e` |
 
-(c′) Or-only @`2b745df` — **BLOCKED** missing weights on PC; include only if PC shows Δ>0. Stay behind `[dfine_aeor] enabled=false`.
+(c′) Or-only @`2b745df` — **WITHDRAWN 20:45 МСК** (PC QUEUE). bot6 `reports/bot6_ortho_multiclass.md`: provisional wF1≈0.036, nested non-arch 0 TP, arch@0.5 ΔLB≤0 within noise → **not proven**. Do not enable `[dfine_aeor]` in v5.
 
 ## D-FINE Ae (Kaggle `koz3-dfine-ae-ft`) — OFF
 
