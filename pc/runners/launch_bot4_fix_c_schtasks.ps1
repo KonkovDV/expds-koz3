@@ -13,7 +13,7 @@ foreach ($f in @(
 }
 $RunPs1 = "$JobDir\run_bot4_fix_c_docker.ps1"
 # Pin tip (update when re-queue). Empty in runner -> would resolve origin tip.
-$env:KOZ3_SHA = if ($env:KOZ3_SHA) { $env:KOZ3_SHA } else { '8b40c19' }
+$env:KOZ3_SHA = if ($env:KOZ3_SHA) { $env:KOZ3_SHA } else { '03d94f1' }
 $Tr = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$RunPs1`""
 schtasks /Delete /TN $Task /F 2>$null | Out-Null
 schtasks /Create /TN $Task /TR $Tr /SC ONCE /ST 00:00 /RL LIMITED /F
