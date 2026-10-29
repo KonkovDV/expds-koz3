@@ -28,3 +28,23 @@
 - 29.10 22:31 MSK | lease | acquire branch:bots/w5-rerank → bot-W5-rerank до 12.11 22:31 MSK worktree wt/w5
 - 29.10 22:33 MSK | bot-W5-rerank | заявка в очередь: elenakonkova/koz3-w5-dino-emb (kaggle/koz3-w5-dino-emb @ bots/w5-rerank 8a76da4) → acc1 gpu-1/2 после W1/W2 или CPU-аккаунт; НЕ пушить до cands.csv (нужен stack_arch с ПК)
 - 29.10 22:34 MSK | cpu_watcher | pixgbm-s3 COMPLETE"; STATUS: DONE	2026-10-29T19:28:34Z	wall_s=393.0; вывод w4pix/out2; аренда acc2/cpu снята
+- 29.10 22:37 MSK | coord/W0 | orch v2 → bots/orch-protocol 97dd614: lease.sh, check_conflicts, SCHEDULE/QUEUE, STATE, BRANCHES; аренды заведены для всех активных ядер
+- 29.10 22:38 MSK | gpu_watcher | acc1/gpu-2: elenakonkova/koz3-cnx-li-c3sc-s1f23 → KernelWorkerStatus.COMPLETE; аренда W1; push elenakonkova/koz3-w1-dfine-or-final: Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/elenakonkova/koz3-w1-dfine-or-final
+- 29.10 22:43 MSK | gpu_watcher | очередь пуста — выход
+- 29.10 22:43 MSK | watcher | старт v2 (poll 1s, conflicts 15 мин, DRY)
+- 29.10 22:44 MSK | watcher | acc1/gpu-2: elenakonkova/koz3-cnx-li-c3sc-s1f23 → COMPLETE; аренда снята
+- 29.10 22:44 MSK | watcher | acc2/cpu: dmitrijkv/koz3-w4-pixgbm-s3 → COMPLETE; аренда снята; вывод → w4pix/out2
+- 29.10 22:44 MSK | watcher | usertest1234/cpu: usertest1234/koz3-w3-kurgan-cpu-seeds → ERROR; аренда снята
+- 29.10 22:44 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w3-kurgan-cpu-seeds → ERROR; аренда снята
+- 29.10 22:44 MSK | watcher | aaaadg4gg4g4g/cpu: aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds → ERROR; аренда снята
+- 29.10 22:45 MSK | check_conflicts | ERROR=1 WARN=2: слот acc1/gpu-2: slots[].holder=bot-W1-aeor, аренда у bot-W2-lidar
+- 29.10 22:46 MSK | lease | release slot:acc1/gpu-2 (bot-W2-lidar) by coord
+- 29.10 22:46 MSK | lease | release kernel:elenakonkova/koz3-cnx-li-c3sc-s1f23 (bot-W2-lidar) by coord
+- 29.10 22:46 MSK | lease | acquire slot:acc1/gpu-2 → bot-W1-aeor до 30.10 10:46 MSK or-final, push 22:38 старым gpu_watcher
+- 29.10 22:46 MSK | lease | acquire kernel:elenakonkova/koz3-w1-dfine-or-final → bot-W1-aeor до 30.10 10:46 MSK 
+- 29.10 22:46 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)
+- 29.10 22:46 MSK | lease | release slot:acc2/cpu (bot-W4-gate) by coord
+- 29.10 22:46 MSK | lease | release kernel:dmitrijkv/koz3-w4-pixgbm-s3 (bot-W4-gate) by coord
+- 29.10 22:46 MSK | watcher | acc2/cpu: dmitrijkv/koz3-w4-pixgbm-s3 → COMPLETE; аренда снята
+- 29.10 22:47 MSK | check_conflicts | ERROR=0 WARN=2: 
+- 29.10 22:48 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)

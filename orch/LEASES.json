@@ -16,12 +16,14 @@
   {
    "slot": "acc1/gpu-2",
    "account": "elenakonkova",
-   "holder": "bot-W2-lidar",
-   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f23",
-   "since": "29.10 22:31 MSK",
-   "until": "30.10 05:01 MSK",
-   "next": "watcher снят (OOF_MODE=weights in-sample). После s1: один слот — W1 D-FINE ae/or (koz3-w1-*), второй — лучший готовый GPU-джоб (честный fold-OOF при наличии fold-весов / gor_dense timing). c5 закрыт.",
-   "purpose": "legacy c3sc s1 f2,f3; далее W1 or-final (gpu_watcher)"
+   "holder": "bot-W1-aeor",
+   "kernel": "elenakonkova/koz3-w1-dfine-or-final",
+   "purpose": "or-final, push 22:38 старым gpu_watcher",
+   "pushed_by": "coord gpu_watcher",
+   "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f23 KernelWorkerStatus.COMPLETE",
+   "last": "снято coord 29.10 22:46 MSK",
+   "since": "29.10 22:46 MSK",
+   "until": "30.10 10:46 MSK"
   },
   {
    "slot": "acc1/tpu",
@@ -60,13 +62,11 @@
    "account": "dmitrijkv",
    "holder": null,
    "kernel": null,
-   "since": "29.10 22:31 MSK",
-   "until": "30.10 08:01 MSK",
    "purpose": "PIXGBM s3 NON-CLEANROOM research; cpu_watcher снимет",
    "code": "w4pix/k",
    "class": "NON-CLEANROOM (geo_pixgbm.py от публичного решения EhimenNathan, вариант B): только исследование/сравнение, НЕ для архива",
    "state": "свободен",
-   "last": "koz3-w4-pixgbm-s3 COMPLETE\" DONE\t2026-10-29T19:28:34Z\twall_s=393.0 → w4pix/out2 (NON-CLEANROOM)"
+   "last": "снято coord 29.10 22:46 MSK"
   },
   {
    "slot": "box/cpu",
@@ -138,25 +138,6 @@
    "pid": 68816
   },
   {
-   "resource": "slot:acc1/gpu-2",
-   "owner": "bot-W2-lidar",
-   "since": 1793302265.624759,
-   "expires": 1793325665.624759,
-   "note": "legacy c3sc s1 f2,f3; далее W1 or-final (gpu_watcher)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68821,
-   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f23"
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-cnx-li-c3sc-s1f23",
-   "owner": "bot-W2-lidar",
-   "since": 1793302265.654195,
-   "expires": 1793325665.654195,
-   "note": "legacy-prefix",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68826
-  },
-  {
    "resource": "slot:acc1/tpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.689213,
@@ -193,25 +174,6 @@
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68846
-  },
-  {
-   "resource": "slot:acc2/cpu",
-   "owner": "bot-W4-gate",
-   "since": 1793302265.812494,
-   "expires": 1793336465.812494,
-   "note": "PIXGBM s3 NON-CLEANROOM research; cpu_watcher снимет",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68851,
-   "kernel": "dmitrijkv/koz3-w4-pixgbm-s3"
-  },
-  {
-   "resource": "kernel:dmitrijkv/koz3-w4-pixgbm-s3",
-   "owner": "bot-W4-gate",
-   "since": 1793302265.879739,
-   "expires": 1793336465.879739,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68856
   },
   {
    "resource": "slot:usertest1234/cpu",
@@ -332,6 +294,25 @@
    "note": "worktree wt/w5",
    "host": "grok-bot-vm-361051398",
    "pid": 68921
+  },
+  {
+   "resource": "slot:acc1/gpu-2",
+   "owner": "bot-W1-aeor",
+   "since": 1793303174.844906,
+   "expires": 1793346374.844906,
+   "note": "or-final, push 22:38 старым gpu_watcher",
+   "host": "grok-bot-vm-361051398",
+   "pid": 78021,
+   "kernel": "elenakonkova/koz3-w1-dfine-or-final"
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w1-dfine-or-final",
+   "owner": "bot-W1-aeor",
+   "since": 1793303174.875678,
+   "expires": 1793346374.875678,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 78026
   }
  ]
 }

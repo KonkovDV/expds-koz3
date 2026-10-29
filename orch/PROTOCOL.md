@@ -51,3 +51,10 @@ orch/lease.sh list | who <res> | sync   # sync = зеркало в bots/orch-pro
 
 ## 7. Чистая комната
 Конкурент EN: только идеи, без кода и весов. Реализатор PIXGBM (W4) не открывает `geo_pixgbm.py`; спецификация — `docs/PIXGBM_SPEC_CLEANROOM.md`.
+
+## Watcher v2 (29.10 22:46 MSK) — автоподача слотов
+- Один процесс `orch/watcher.py` на box (pid в `orch/.watcher.pid`, лог `orch/logs/watcher.out`), заменил gpu_watcher/cpu_watcher.
+- Аренды — только через `lease.sh` (flock). Каждые 5 мин: завершённые kernels → release + pull (`pull_to`); живые с <1 ч до конца аренды → renew +2 ч; свободный слот (5 аккаунтов × gpu-1/gpu-2/tpu/cpu + box/q1,q2) → первый `ready` из `QUEUE.json["dispatch"]` с выполненным `after`.
+- Каждые 15 мин: `check_conflicts.sh --all --log`.
+- Ставить работу в очередь: `orch/enqueue.py add --id … --owner bot-WN-… --accel gpu|tpu|cpu|box --account elenakonkova|dmitrijkv|any-cpu --kernel-dir … [--after …] [--pull-to …]`; `enqueue.py set <id> status=hold|ready`; `enqueue.py list`. Руками `kaggle kernels push` в слоты, которые ведёт watcher, не делать.
+- `cooldown` в QUEUE.json: слот на паузе до сброса квоты (acc2 GPU до 31.10 03:00); при ошибке квоты watcher ставит его сам.

@@ -491,5 +491,67 @@
    "status": "planned",
    "note": "буфер до 14.11 не используем по плану"
   }
+ ],
+ "cooldown": {
+  "acc2/gpu-1": "31.10.2026 03:00",
+  "acc2/gpu-2": "31.10.2026 03:00"
+ },
+ "dispatch": [
+  {
+   "id": "w1-ae-final",
+   "owner": "bot-W1-aeor",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel": "elenakonkova/koz3-w1-dfine-ae-final",
+   "slot": "acc1/gpu-1",
+   "status": "pushed",
+   "started": "29.10 22:23"
+  },
+  {
+   "id": "w2-c3sc-s1f23",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f23",
+   "slot": "acc1/gpu-2",
+   "status": "done",
+   "finished": "29.10 22:44 COMPLETE"
+  },
+  {
+   "id": "w4-pixgbm-s3",
+   "owner": "bot-W4-gate",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "kernel": "dmitrijkv/koz3-w4-pixgbm-s3",
+   "slot": "acc2/cpu",
+   "status": "done",
+   "pull_to": "w4pix/out2",
+   "note": "NON-CLEANROOM research (бывш. cpu_watcher)",
+   "finished": "29.10 22:44 COMPLETE"
+  },
+  {
+   "id": "w1-or-final",
+   "owner": "bot-W1-aeor",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel_dir": "orch/bot-W1/kernels/koz3-w1-dfine-or-final",
+   "ttl_h": 10.0,
+   "status": "pushed",
+   "after": [],
+   "note": "бывш. очередь gpu_watcher; sp/or вне архива до gate↔docker",
+   "kernel": "elenakonkova/koz3-w1-dfine-or-final",
+   "slot": "acc1/gpu-2",
+   "started": "29.10 22:38"
+  },
+  {
+   "id": "w5-dino-emb",
+   "owner": "bot-W5-rerank",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel_dir": "wt/w5/kaggle/koz3-w5-dino-emb",
+   "ttl_h": 4,
+   "status": "hold",
+   "note": "ждёт датасет elenakonkova/koz3-w5-cands (кандидаты из OOF A); TPU-вариант возможен (XLA-ветка в коде)"
+  }
  ]
 }
