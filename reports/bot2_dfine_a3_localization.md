@@ -6,7 +6,7 @@
 | **Гипотеза** | **Не CRS/pixel-origin.** 13 pass_thr — high-conf FP со **случайным** смещением (std ≫ mean); median dist_any ≈ **388 м** (не константа ~191 м). Thr-sweep не даёт TP@2 м → калибровка thr alone не спасёт. `agreement_m` (OFF) нейтрализует далёкие FP рядом с U-Net. |
 | **Критерий приёмки** | Отчёт + EXPERIMENTS + QUEUE A4; pytest agreement зелёный; A4 Docker: mock ALL ≥ 0.31287 и sp_or ≥ 0.245−0.01, без layer drop >0.01 vs B. |
 | **Бюджет** | ~1 ч CPU box (анализ PC dump); A4 GPU Docker ≤15–20 мин (как A3 ~15 мин). |
-| **Ветка** | `bots/bot2-e2e-v3-prep` (после commit agreement_m; tip см. EXPERIMENTS). |
+| **Ветка** | `bots/bot2-e2e-v3-prep` (tip **`f9ad045`**; agreement_m default OFF). |
 
 Связанные: `reports/bot2_dfine_localization.md`, `reports/bot2_runtime_env.md`, A3 `pc/results/bot2_a3_docker_829ea7d/`, locdump `pc/results/bot2_a3_dfine_locdump/`.
 
