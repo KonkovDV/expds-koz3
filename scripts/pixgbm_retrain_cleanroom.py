@@ -73,6 +73,36 @@ def make_deterministic_lgbm(num_threads: int = 1) -> dict:
 
 DETERMINISTIC_LGBM = make_deterministic_lgbm(1)
 
+
+def make_reference_lgbm(num_threads: int = 2) -> dict:
+    """Params matching original bot-3 train (geo_pixgbm.LGBM + seed=0).
+
+    Evidence from REF models/pixgbm/all/*.txt (LightGBM 4.7.0):
+      num_threads=2, deterministic=0, force_col_wise=0, seed=0,
+      bagging_seed=7719, feature_fraction_seed=2437, data_random_seed=38
+    Those bagging/feature/data seeds are LightGBM's derivation from seed=0 when
+    they are NOT passed explicitly. Passing bagging_seed=0 (deterministic path)
+    forces zeros and diverges from REF — that was the d173a75 PC fail cause #1.
+    """
+    return dict(
+        objective="binary",
+        learning_rate=0.05,
+        num_leaves=63,
+        min_data_in_leaf=100,
+        feature_fraction=0.7,
+        bagging_fraction=0.7,
+        bagging_freq=1,
+        lambda_l2=2.0,
+        verbose=-1,
+        num_threads=max(1, int(num_threads)),
+        seed=0,
+        # intentionally omit bagging_seed / feature_fraction_seed / data_random_seed
+        # intentionally omit deterministic / force_col_wise
+    )
+
+
+REFERENCE_LGBM = make_reference_lgbm(2)
+
 PINNED_LGBM = "4.7.0"
 # Relative metric tolerance when sha256 mismatches (AUC / keep-style surrogate on OOF).
 DEFAULT_METRIC_TOL = 1e-4
@@ -125,6 +155,19 @@ def apply_deterministic_params(num_threads: int = 1) -> dict:
     return old
 
 
+def apply_reference_params(num_threads: int = 2) -> dict:
+    """Patch G.LGBM to original REF-matching params (no deterministic / forced seeds)."""
+    from expds import geo_pixgbm as G
+
+    old = dict(G.LGBM)
+    params = make_reference_lgbm(num_threads)
+    G.LGBM.clear()
+    G.LGBM.update(params)
+    REFERENCE_LGBM.clear()
+    REFERENCE_LGBM.update(params)
+    return old
+
+
 def run_extract_train(root: Path, out: Path, rounds: int) -> dict:
     """Call existing scripts/pixgbm.py extract + train as subprocess for auditability."""
     pix = ROOT / "scripts" / "pixgbm.py"
@@ -171,10 +214,19 @@ def run_extract_train(root: Path, out: Path, rounds: int) -> dict:
     }
 
 
-def train_inprocess(root: Path, out: Path, rounds: int, num_threads: int = 1) -> dict:
-    """In-process train with DETERMINISTIC_LGBM applied to G.LGBM before fit."""
+def train_inprocess(
+    root: Path, out: Path, rounds: int, num_threads: int = 1, *, match_reference: bool = False
+) -> dict:
+    """In-process train; deterministic patch by default, or REF-matching params."""
     # Import after path setup; patch before calling train helpers.
-    apply_deterministic_params(num_threads)
+    if match_reference:
+        apply_reference_params(num_threads)
+        mode = "inprocess_match_reference"
+        params_snapshot = dict(REFERENCE_LGBM)
+    else:
+        apply_deterministic_params(num_threads)
+        mode = "inprocess_deterministic"
+        params_snapshot = dict(DETERMINISTIC_LGBM)
     # Reuse scripts/pixgbm helpers by importing the module as a library.
     import importlib.util
 
@@ -208,11 +260,12 @@ def train_inprocess(root: Path, out: Path, rounds: int, num_threads: int = 1) ->
     mod.cmd_train(at)
 
     return {
-        "mode": "inprocess_deterministic",
+        "mode": mode,
         "train_rounds": rounds,
         "wall_sec": round(time.time() - t0, 1),
         "models_dir": str(models),
-        "lgbm_params": DETERMINISTIC_LGBM,
+        "lgbm_params": params_snapshot,
+        "match_reference": bool(match_reference),
     }
 
 
@@ -320,6 +373,13 @@ def main() -> None:
         "(legacy reproduction of original train path).",
     )
     ap.add_argument(
+        "--match-reference",
+        action="store_true",
+        default=False,
+        help="Use original REF-matching LGBM params (num_threads default 2, seed=0 only; "
+        "no deterministic/force_col_wise/forced bagging_seed=0). Default OFF.",
+    )
+    ap.add_argument(
         "--models-subdir",
         default="all",
         help="Subdir under --out/models to compare (default: all)",
@@ -330,6 +390,9 @@ def main() -> None:
         env_nt = _os.environ.get("PIXGBM_NUM_THREADS", "").strip()
         if env_nt:
             a.num_threads = max(1, int(env_nt))
+        elif a.match_reference:
+            # Original bot-3 REF used num_threads=2
+            a.num_threads = 2
         else:
             a.num_threads = max(1, int(_os.cpu_count() or 1))
 
@@ -337,6 +400,8 @@ def main() -> None:
         "utc": datetime.now(timezone.utc).isoformat(),
         "pinned_lightgbm": PINNED_LGBM,
         "enable_retrain": bool(a.enable_retrain),
+        "match_reference": bool(a.match_reference),
+        "num_threads": int(a.num_threads) if a.num_threads else None,
         "argv": sys.argv,
         "repo_root": str(ROOT),
     }
@@ -378,10 +443,15 @@ def main() -> None:
     expected = parse_expected_hashes(a.expected_hashes)
     log["expected_sha256"] = expected
 
+    if a.subprocess and a.match_reference:
+        raise SystemExit("--subprocess and --match-reference are mutually exclusive "
+                         "(subprocess already uses unpatched G.LGBM; prefer --match-reference alone)")
     if a.subprocess:
         train_info = run_extract_train(a.root, a.out, a.rounds)
     else:
-        train_info = train_inprocess(a.root, a.out, a.rounds, num_threads=a.num_threads)
+        train_info = train_inprocess(
+            a.root, a.out, a.rounds, num_threads=a.num_threads, match_reference=a.match_reference
+        )
     log["train"] = train_info
 
     models_all = Path(train_info["models_dir"]) / a.models_subdir
