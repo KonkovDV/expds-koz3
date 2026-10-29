@@ -39,7 +39,9 @@ def test_default_off_and_names():
     assert not A.enabled(cfg)
     assert A.GROUPS == {"ae": "dfine_ae", "or": "dfine_or"}
     tbm = cfg.get("thresholds_by_markup") or {}
-    assert "dfine_ae" not in tbm and "dfine_or" not in tbm   # чисел без OOF нет
+    assert "dfine_ae" not in tbm   # чисел без OOF нет
+    assert tbm["dfine_or"] == {"gorodishcha": 1.01}   # городища D-FINE Or выкл. до замера bot-10 с gor_dense
+    assert A.GROUP_ALIASES == {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
 
 
 def test_classes_match_compute_metrics():
@@ -376,3 +378,220 @@ def test_cap_per_group():
     out = A.cap(fs, 2)
     assert sorted(f["confidence"] for f in out if f.get("threshold_group") == "dfine_ae") == [0.5, 0.9]
     assert len(out) == 4
+
+
+# ── правки bot-7 (12:31): ключ склейки, отдельная цепочка, check_submission ──────────────────────────────
+def _poly(x, y, r=6.0):
+    return Point(x, y).buffer(r, 32)
+
+
+def _old_feats():
+    """Прежние группы v3 на одном месте с dfine: ae (база), li, SpOr-архитектура, Ae-фортификация."""
+    X, Y = 4_200_000.0, 7_500_000.0
+    out = []
+    for i in range(6):
+        out.append({"region_name": "r1", "markup_type": "ae", "class_name": "kurgany_tselye", "source": f"ae{i % 2}.tif",
+                    "confidence": 0.6 + 0.05 * i, "geom": _poly(X + 30 * i, Y)})
+        out.append({"region_name": "r1", "markup_type": "li", "class_name": "kurgany_povrezhdennye", "source": "li.tif",
+                    "confidence": 0.7, "geom": _poly(X + 30 * i, Y + 40)})
+    out.append({"region_name": "r1", "markup_type": "sp_or", "threshold_group": "sp_or", "class_name": "arkhitektury",
+                "source": "sp.tif", "confidence": 0.8, "geom": _poly(X, Y + 90, 10)})
+    out.append({"region_name": "r1", "markup_type": "ae", "class_name": "fortifikatsii", "source": "ae0.tif",
+                "confidence": 0.9, "geom": _poly(X + 60, Y + 140, 15)})
+    return out
+
+
+def _dfine_feats():
+    X, Y = 4_200_000.0, 7_500_000.0
+    out = []
+    for i in range(6):   # те же места, что у старых ae/li/arch — склеились бы при общем ключе
+        for src in ("ae0.tif", "ae1.tif"):
+            out.append({"region_name": "r1", "markup_type": "ae", "threshold_group": "dfine_ae", "source": src,
+                        "class_name": "kurgany_tselye", "confidence": 0.95, "geom": _poly(X + 30 * i + 2, Y)})
+    out.append({"region_name": "r1", "markup_type": "or", "threshold_group": "dfine_or", "source": "or.tif",
+                "class_name": "arkhitektury", "confidence": 0.9, "geom": _poly(X, Y + 90, 9)})
+    return out
+
+
+def _ser(fs):
+    return [json.dumps({k: (v.wkb_hex if k == "geom" else v) for k, v in sorted(f.items())}, ensure_ascii=False,
+                       sort_keys=True, default=str) for f in fs]
+
+
+def test_merge_key_isolates_dfine_groups():
+    old, new = _old_feats(), _dfine_feats()
+    merged = post.merge_within_markup(old + new)
+    d_ae = [f for f in merged if f.get("threshold_group") == "dfine_ae"]
+    assert len(d_ae) == 6                                   # ae0+ae1 dfine → по одному на место, только между собой
+    assert all(f["source"] in ("ae0.tif", "ae1.tif") and f["confidence"] == 0.95 for f in d_ae)
+    rest = [f for f in merged if f.get("threshold_group") not in post.ISOLATED_GROUPS]
+    assert _ser(rest) == _ser(post.merge_within_markup(old))   # прежние группы — как без dfine
+    union = post.merge_within_markup(old + new, isolate=())  # межисточниковое объединение — только по опции
+    assert len([f for f in union if f["markup_type"] == "ae" and f["class_name"] == "kurgany_tselye"]) == 6
+    assert not any(f.get("threshold_group") == "dfine_ae" and f["confidence"] < 0.95 for f in union)
+    assert A.DEFAULTS["merge_union"] is False and "merge_union" not in _cfg()["dfine_aeor"]
+
+
+def test_flag_on_old_groups_byte_identical_to_off():
+    """Флаг вкл. + объекты dfine: прежние объекты на выходе finish/safe_finish байт-в-байт как при флаге выкл."""
+    from expds import watchdog
+
+    old, new = _old_feats(), _dfine_feats()
+    off = _cfg()
+    on = _cfg()
+    on["dfine_aeor"] = {"enabled": True}
+    on.setdefault("thresholds_by_markup", {}).update(_thr(0.3))
+    for fin in (watchdog.finish, watchdog.safe_finish):
+        ref = fin(list(old), off)
+        got = fin(list(old) + list(new), on)
+        kept_old = [f for f in got if f.get("threshold_group") not in post.ISOLATED_GROUPS]
+        assert _ser(kept_old) == _ser(ref)
+        assert got[:len(ref)] == kept_old                   # порядок: v3, затем dfine
+        assert sum(f.get("threshold_group") == "dfine_ae" for f in got) == 6
+        assert sum(f.get("threshold_group") == "dfine_or" for f in got) == 1
+    on["dfine_aeor"]["merge_union"] = True                  # опция объединения меняет общую цепочку — потому выкл.
+    assert watchdog._aeor_split(old + new, on) is None
+
+
+def test_aeor_tail_respects_feature_limit():
+    from expds import watchdog
+
+    cfg = _cfg()
+    cfg["dfine_aeor"] = {"enabled": True}
+    cfg.setdefault("thresholds_by_markup", {}).update(_thr(0.3))
+    assert watchdog._aeor_finish(_dfine_feats(), cfg, 0) == []
+    assert len(watchdog._aeor_finish(_dfine_feats(), cfg, 3)) == 3
+
+
+def _cs():
+    spec = importlib.util.spec_from_file_location("b6_cs", ROOT / "scripts" / "check_submission.py")
+    cs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cs)
+    cs.RESULTS.clear()
+    return cs
+
+
+def _zip(tmp_path, cfg_text, extra=()):
+    import zipfile
+    zp = tmp_path / "s.zip"
+    with zipfile.ZipFile(zp, "w") as z:
+        z.writestr("configs/default.toml", cfg_text)
+        z.writestr("expds/sp_dfine.py", "")
+        for n in extra:
+            z.writestr(n, "{}")
+    return zipfile.ZipFile(zp)
+
+
+def _args(tmp_path, **kw):
+    return SimpleNamespace(weights=True, dfine_aeor_root=str(tmp_path / "none"), workdir=str(tmp_path), python="python3",
+                           cpus="0,1", allow_net=False, timeout=60, threads=2, dfine_region=None, **kw)
+
+
+def test_check_submission_flag_off_requires_nothing_new(tmp_path):
+    cs = _cs()
+    text = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
+    cfg = tomllib.loads(text)
+    z = _zip(tmp_path, text)
+    cs.check_dfine_aeor_weights(z, cfg, _args(tmp_path))
+    assert cs.RESULTS == []
+    cs.dfine_lines(z, "sp_dfine n_det=5 region=x\n")
+    assert not [r for r in cs.RESULTS if "dfine_aeor" in r[2]]
+    cs.RESULTS.clear()
+    cs.check_dfine(z, cfg, _args(tmp_path))                  # sp_dfine/gor_gate/dfine_aeor выкл. → проб нет
+    assert cs.RESULTS == []
+    cs.check_config_static(z)
+    assert not [r for r in cs.RESULTS if "dfine_aeor" in r[2] or "DFINE_AEOR" in r[2]]
+
+
+def test_check_submission_smoke_needs_weights(tmp_path):
+    cs = _cs()
+    cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]}}}
+    z = _zip(tmp_path, "[dfine_aeor]\nenabled = true\n")
+    cs.check_dfine_aeor_weights(z, cfg, _args(tmp_path))
+    assert [r[0] for r in cs.RESULTS] == ["FAIL", "FAIL"]
+    assert all("нужны веса" in r[2] for r in cs.RESULTS)
+    assert cs.DFINE_AEOR_KNOWN["ae"]["region"] == "181_Гнёздово_Лесная_3"
+    assert cs.DFINE_AEOR_KNOWN["or"]["region"] == "185_Изборск"
+    cs.RESULTS.clear()                                       # веса в архиве есть, а опорного участка нет — тоже FAIL
+    z2 = _zip(tmp_path, "", [f"models/dfine_{m}/{f}" for m in ("ae", "or") for f in ("config.json", "model.safetensors")])
+    cs.check_dfine_aeor_weights(z2, cfg, _args(tmp_path))
+    assert [r[0] for r in cs.RESULTS] == ["FAIL", "FAIL"] and all("опорного участка" in r[2] for r in cs.RESULTS)
+    cs.RESULTS.clear()
+    cs.check_dfine_aeor_weights(z, cfg, SimpleNamespace(**{**vars(_args(tmp_path)), "weights": False}))
+    assert [r[0] for r in cs.RESULTS] == ["WARN"]
+
+
+def test_check_submission_aeor_verdicts():
+    cs = _cs()
+    assert cs.dfine_aeor_verdict("ae", {"ok": True, "n_det": 0, "max": 0, "windows": [1, 1]})[0] == "FAIL"
+    assert cs.dfine_aeor_verdict("or", {"ok": True, "n_det": 3, "max": 0.4, "windows": [1, 1]})[0] == "PASS"
+    assert cs.dfine_aeor_verdict("or", {"ok": False, "err": "x"})[0] == "FAIL"
+    log = "dfine_aeor n_det=0 region=181_Гнёздово_Лесная_3\ndfine_aeor n_det=0 region=other\n"
+    assert [r[0] for r in cs.dfine_aeor_ndet_verdict(log)] == ["FAIL"]
+    src = (ROOT / "scripts" / "check_submission.py").read_text(encoding="utf-8")
+    assert '("expds/dfine_aeor.py", aeor)' in src             # проба импорта в чистом процессе — общая с sp_dfine
+
+
+def test_scene_uses_overview_only_for_heavy_downsampling(tmp_path):
+    import rasterio
+    from rasterio.transform import from_origin
+    p = tmp_path / "o.tif"
+    a = np.full((3, 2048, 2048), 120, dtype=np.uint8)
+    with rasterio.open(p, "w", driver="GTiff", width=2048, height=2048, count=3, dtype="uint8", crs=UTM,
+                       transform=from_origin(X0, Y0, 0.02, 0.02), tiled=True) as d:
+        d.write(a)
+        d.build_overviews([2, 4, 8, 16], rasterio.enums.Resampling.average)
+    sc = A.Scene(p, UTM, 0.5)
+    assert sc.overview_level == 2 and sc.W == round(2048 * 0.02 / 0.5)       # 0,02 × 8 = 0,16 ≤ 0,25; × 16 = 0,32
+    im = sc.read(0, 0, 64)
+    assert im.shape == (64, 64, 3) and int(im[10, 10, 0]) == 120
+    sc.close()
+    sc = A.Scene(p, UTM, 0.04)                                                # слабое уменьшение — как sp_dfine.Scene
+    assert sc.overview_level is None
+    sc.close()
+
+
+def test_thresholds_file_aliases_and_gor_off(tmp_path):
+    cfg = _cfg()
+    p = tmp_path / "t.json"
+    p.write_text(json.dumps({"ae_dfine": {"kurgany_tselye": 0.4}, "or_dfine": {"gorodishcha": 0.2, "arkhitektury": 0.5}}))
+    cfg["dfine_aeor"] = {"enabled": True, "thresholds_file": str(p)}
+    A.load_thresholds_file(cfg, ROOT)
+    tbm = cfg["thresholds_by_markup"]
+    assert tbm["dfine_ae"]["kurgany_tselye"] == 0.4 and tbm["dfine_or"]["arkhitektury"] == 0.5
+    assert tbm["dfine_or"]["gorodishcha"] == 1.01             # TOML главнее OOF
+    f = {"class_name": "gorodishcha", "markup_type": "or", "threshold_group": "dfine_or", "confidence": 0.999}
+    assert post.apply_thresholds([f], cfg.get("thresholds", {}), 0.15, tbm) == []
+
+
+def test_recipe_autocast_only_no_half():
+    """Вход как у sp_dfine/обучения bot-9: float32 RGB/255 без нормализации, flip-TTA, NMS 0,5; .half() нет."""
+    import torch
+
+    seen = []
+
+    class Rec:
+        def __call__(self, pixel_values):
+            seen.append(pixel_values.clone())
+            n = pixel_values.shape[0]
+            return SimpleNamespace(logits=torch.full((n, 4, 5), -9.0), pred_boxes=torch.full((n, 4, 4), 0.5))
+
+    class Sc:
+        W = H = 64
+
+        def read(self, x, y, n):
+            a = np.zeros((n, n, 3), dtype=np.uint8)
+            a[..., 0], a[..., 1], a[..., 2] = 255, 51, 0
+            a[:, : n // 2, 0] = 102                   # левая половина другая — видно отражение
+            return a
+
+    st = A.settings({"dfine_aeor": {"tile": 64, "overlap": 0, "batch": 2}})
+    assert st["nms_iou"] == 0.5 and st["flip_tta"] is True and st["fp16"] is True
+    A.detect_scene([Rec()], Sc(), st, "ae", [False, True], torch.device("cpu"))
+    assert len(seen) == 2 and all(t.dtype == torch.float32 for t in seen)
+    px = seen[0][0]
+    assert float(px[0, 0, 63]) == 1.0 and float(px[0, 0, 0]) == pytest.approx(0.4) and float(px[1, 0, 0]) == pytest.approx(0.2)
+    assert float(px[2].max()) == 0.0
+    assert torch.equal(seen[1], seen[0].flip(3))    # второй вид — горизонтальное отражение того же батча
+    src = (ROOT / "expds" / "dfine_aeor.py").read_text(encoding="utf-8")
+    assert ".half()" not in src and "torch.autocast(" in src
