@@ -31,6 +31,7 @@ from pathlib import Path
 
 import numpy as np
 
+from . import fastgeom as _fastgeom
 from .constants import CLASS_WEIGHTS, CLASSES
 
 EPS = 1e-6
@@ -55,6 +56,34 @@ def score(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
     """Полный результат официальной метрики (final_score, per_class, auxiliary)."""
     mod = load_official(metric_path)
     return mod.F1Calculator().calculate_f1(pred, gt)
+
+
+def score_by_site(pred: dict, gt: dict, metric_path: str | None = None) -> dict:
+    """Эталон для режима scope="site": официальный calculate_f1 отдельно на каждом участке
+    (разбиение — официальной split_merged_by_source_and_class), TP/FP/FN классов складываются,
+    F1 и взвешивание — формулами calculate_f1 (те же epsilon и нормировка на классы с эталоном)."""
+    mod = load_official(metric_path)
+    calc = mod.F1Calculator()
+    ps, gs = mod.split_merged_by_source_and_class(pred), mod.split_merged_by_source_and_class(gt)
+    tot = {c: [0, 0, 0] for c in calc.target_classes}
+    for site in list(ps) + [k for k in gs if k not in ps]:
+        pf = [f for fc in ps.get(site, {}).values() for f in fc["features"]]
+        gf = [f for fc in gs.get(site, {}).values() for f in fc["features"]]
+        r = calc.calculate_f1({"type": "FeatureCollection", "features": pf},
+                              {"type": "FeatureCollection", "features": gf})["per_class"]
+        for c in calc.target_classes:
+            for k, key in enumerate(("tp", "fp", "fn")):
+                tot[c][k] += r[c][key]
+    per, num, den = {}, 0.0, 0.0
+    for c, (tp, fp, fn) in tot.items():
+        precision = tp / (tp + 0.5 * fp + calc.epsilon)
+        recall = tp / (tp + fn + calc.epsilon)
+        f1 = 2 * precision * recall / (precision + recall + calc.epsilon)
+        per[c] = {"f1": f1, "tp": tp, "fp": fp, "fn": fn, "num_ground_truth": tp + fn}
+        if tp + fn > 0:
+            num += f1 * mod.CLASS_WEIGHTS.get(c, 0.0)
+            den += mod.CLASS_WEIGHTS.get(c, 0.0)
+    return {"final_score": num / den if den > 0 else 0.0, "per_class": per}
 
 
 # ─────────────────────────── один проход сопоставления ───────────────────────
@@ -94,8 +123,49 @@ def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool, 
     return h.hexdigest()
 
 
-def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+def site_key(props: dict):
+    """Ключ участка, как в официальной split_merged_by_source_and_class:
+    region_name (по умолчанию "default_source"), а при непустом sub_region_name — "region__sub"."""
+    region_name = props.get("region_name", "default_source")
+    sub_region_name = props.get("sub_region_name", "")
+    if sub_region_name and sub_region_name.strip():
+        return f"{region_name}__{sub_region_name}"
+    return region_name
+
+
+def match_scope(scope: str | None = None) -> str:
+    """Область сопоставления: "global" — один пул на весь файл, как F1Calculator.calculate_f1
+    (по умолчанию); "site" — эталон только своего участка (site_key), как если бы метрика
+    считалась отдельно по каждому источнику split_merged_by_source_and_class и счётчики складывались.
+    Переключатель: аргумент scope или переменная EXPDS_MATCH_SCOPE."""
+    s = (scope or os.environ.get("EXPDS_MATCH_SCOPE") or "global").strip().lower()
+    if s not in ("global", "site"):
+        raise ValueError(f"EXPDS_MATCH_SCOPE/scope: ожидается global или site, получено {s!r}")
+    if s == "site" and not _SCOPE_WARNED:
+        # site — только диагностика; официальная метрика сопоставляет глобально. Не молча.
+        _SCOPE_WARNED.append(1)
+        print("expds.metric: ВНИМАНИЕ — scope=site (диагностика), не как официальная метрика (global)",
+              file=sys.stderr, flush=True)
+    return s
+
+
+_SCOPE_WARNED: list = []
+
+
+def _collect(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
     """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
+    import gc
+
+    gc_was = gc.isenabled()
+    gc.disable()   # циклов здесь не создаётся; сборщик на миллионах списков GeoJSON съедал ~30 % времени
+    try:
+        return _collect_impl(mod, calc, fc, is_gt, sites_out)
+    finally:
+        if gc_was:
+            gc.enable()
+
+
+def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
     import pickle
     import shapely
 
@@ -109,6 +179,144 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
     todo_meta: list[tuple[str, float, str, str, int]] = []
     ordered_slots: list[tuple[str, object, float, str, str]] = []
 
+    norm_cache: dict = {}
+    slot_sites: list = []
+    for feature in fc.get("features", []):
+        props = feature.get("properties", {}) or {}
+        raw_cls = props.get("class_name", "unknown")
+        if type(raw_cls) is str:   # кэш только для str: у 1/True/1.0 общий хэш, но разный str()
+            cls = norm_cache.get(raw_cls, norm_cache)
+            if cls is norm_cache:
+                cls = norm_cache[raw_cls] = mod.normalize_class_name(raw_cls)
+        else:
+            cls = mod.normalize_class_name(raw_cls)
+        if cls is None or cls not in target_set:
+            continue
+        gdict = feature.get("geometry")
+        if not gdict:
+            continue
+        conf = mod._get_confidence(feature)
+        reg = str(props.get("region_name", "default_source"))
+        grp = threshold_group(props)
+        if sites_out is not None:
+            slot_sites.append(site_key(props))
+        gid = id(gdict)
+        hit = sub_cache.get(gid)
+        if hit is not None and hit[0] is gdict:
+            ordered_slots.append((cls, hit[1], conf, reg, grp))
+        else:
+            slot_idx = len(ordered_slots)
+            ordered_slots.append((cls, None, conf, reg, grp))
+            todo_feats.append((feature, gdict, gid))
+            todo_meta.append((cls, conf, reg, grp, slot_idx))
+
+    if todo_feats:
+        shm_loaded = False
+        shm_file = None
+        if len(todo_feats) >= 200 and Path("/dev/shm").is_dir():
+            try:
+                bhash = _todo_batch_hash(todo_feats, todo_meta, mode, is_gt, r_tol, c_pts)
+                shm_file = _SHM_CACHE_DIR / f"{bhash}.wkb.pkl"
+                if shm_file.exists():
+                    valid_idx, wkbs = pickle.loads(shm_file.read_bytes())
+                    geoms = shapely.from_wkb(wkbs)
+                    for g, idx in zip(geoms, valid_idx):
+                        _, gdict, gid = todo_feats[idx]
+                        sub_cache[gid] = (gdict, g)
+                        cls, conf, reg, grp, slot_idx = todo_meta[idx]
+                        ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
+                    shm_loaded = True
+            except Exception:
+                shm_loaded = False
+
+        if not shm_loaded:
+            raw_geoms = []
+            valid_idx = []
+            extracted = _fastgeom.extract_many(mod, [t[0] for t in todo_feats])
+            for idx, g in enumerate(extracted):
+                if g is not None:
+                    raw_geoms.append(g)
+                    valid_idx.append(idx)
+            if raw_geoms:
+                if mode == "utm":
+                    proj_geoms = raw_geoms
+                else:
+                    proj_geoms = list(raw_geoms)
+                    if mode == "webmercator":
+                        need_idx = list(range(len(raw_geoms)))
+                    elif _fastgeom.enabled():
+                        need_idx = np.flatnonzero(
+                            _fastgeom.max_abs_x(raw_geoms) > mod._UTM_ABS_X_THRESHOLD).tolist()
+                    else:
+                        need_idx = [k_i for k_i, g in enumerate(raw_geoms)
+                                    if mod._geom_max_abs_x(g) > mod._UTM_ABS_X_THRESHOLD]
+                    if need_idx:
+                        try:
+                            sub_raw = [raw_geoms[k_i] for k_i in need_idx]
+                            cents = shapely.centroid(sub_raw)
+                            xs = shapely.get_x(cents)
+                            ys = shapely.get_y(cents)
+                            lons, lats = mod._get_transformer_3857_to_wgs84().transform(xs, ys)
+                            zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+                            epsgs = np.where(np.asarray(lats) >= 0, 32600, 32700) + zones
+                            for epsg in np.unique(epsgs):
+                                z_mask = np.nonzero(epsgs == epsg)[0]
+                                tr = mod._get_transformer_3857_to_utm(int(epsg))
+                                z_geoms = [sub_raw[z_i] for z_i in z_mask]
+                                z_proj = shapely.transform(z_geoms, _fastgeom.utm_coords_fn(tr, int(epsg)))
+                                for z_i, pg in zip(z_mask, z_proj):
+                                    proj_geoms[need_idx[z_i]] = pg
+                        except Exception:
+                            for k_i in need_idx:
+                                proj_geoms[k_i] = mod._to_utm(raw_geoms[k_i], mode)
+                final_geoms = []
+                is_point = (shapely.get_type_id(np.asarray(proj_geoms, dtype=object)) == 0).tolist()
+                for g, idx, pt in zip(proj_geoms, valid_idx, is_point):
+                    if pt and not is_gt:
+                        g = mod._point_to_circle(g, r_tol, c_pts)
+                    final_geoms.append(g)
+                    _, gdict, gid = todo_feats[idx]
+                    sub_cache[gid] = (gdict, g)
+                    cls, conf, reg, grp, slot_idx = todo_meta[idx]
+                    ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
+                if shm_file is not None and final_geoms:
+                    try:
+                        _SHM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                        wkbs = shapely.to_wkb(final_geoms)
+                        tmp = shm_file.with_suffix(f".tmp.{os.getpid()}")
+                        tmp.write_bytes(pickle.dumps((valid_idx, wkbs), protocol=pickle.HIGHEST_PROTOCOL))
+                        tmp.replace(shm_file)
+                    except Exception:
+                        pass
+
+    if sites_out is not None:
+        for (cls, g, conf, reg, grp), site in zip(ordered_slots, slot_sites):
+            if g is not None:
+                out.setdefault(cls, []).append((g, conf, reg, grp))
+                sites_out.setdefault(cls, []).append(site)
+        return out
+    for cls, g, conf, reg, grp in ordered_slots:
+        if g is not None:
+            out.setdefault(cls, []).append((g, conf, reg, grp))
+    return out
+
+
+def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
+    """Прежняя реализация _collect (эталон для тестов bot-8). Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
+    import pickle
+    import shapely
+
+    out: dict[str, list[tuple]] = {}
+    mode, r_tol, c_pts = calc.input_crs_mode, calc.r_tolerance, calc.circle_points
+    sub_cache = _UTM_GEOM_CACHE.setdefault((mode, is_gt, r_tol, c_pts), {})
+    if len(sub_cache) > 1_200_000:
+        sub_cache.clear()
+    target_set = set(calc.target_classes)
+    todo_feats: list[tuple[dict, object, int]] = []
+    todo_meta: list[tuple[str, float, str, str, int]] = []
+    ordered_slots: list[tuple[str, object, float, str, str]] = []
+    slot_sites: list[str] = []
+
     for feature in fc.get("features", []):
         props = feature.get("properties", {}) or {}
         cls = mod.normalize_class_name(props.get("class_name", "unknown"))
@@ -120,6 +328,8 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
         conf = mod._get_confidence(feature)
         reg = str(props.get("region_name", "default_source"))
         grp = threshold_group(props)
+        if sites_out is not None:
+            slot_sites.append(site_key(props))
         gid = id(gdict)
         hit = sub_cache.get(gid)
         if hit is not None and hit[0] is gdict:
@@ -206,33 +416,46 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
                     except Exception:
                         pass
 
-    for cls, g, conf, reg, grp in ordered_slots:
+    for k, (cls, g, conf, reg, grp) in enumerate(ordered_slots):
         if g is not None:
             out.setdefault(cls, []).append((g, conf, reg, grp))
+            if sites_out is not None:
+                sites_out.setdefault(cls, []).append(slot_sites[k])
     return out
 
 
-def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[str, ClassCurve]:
+def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
+                 scope: str | None = None) -> dict[str, ClassCurve]:
     """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
 
     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
     (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+    scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+    "site" — пара допускается только внутри одного участка (site_key), что равно сумме
+    счётчиков calculate_f1 по каждому участку отдельно.
     """
     from shapely.strtree import STRtree
 
     mod = load_official(metric_path)
     calc = mod.F1Calculator()
-    return match_collected(calc, _collect(mod, calc, pred, False), _collect(mod, calc, gt, True))
+    per_site = match_scope(scope) == "site"
+    p_sites: dict | None = {} if per_site else None
+    g_sites: dict | None = {} if per_site else None
+    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
+    return match_collected(calc, preds, gts, p_sites, g_sites)
 
 
-def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
+def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
+                    g_sites: dict | None = None) -> dict[str, ClassCurve]:
     """Сопоставление по уже собранным (геометрия UTM, conf, участок, группа) спискам.
 
     Вынесено из build_curves, чтобы большой стек можно было собирать кусками
-    (по семьям, пачками) и не держать весь GeoJSON в памяти.
+    (по семьям, пачками) и не держать весь GeoJSON в памяти. p_sites/g_sites
+    (site_key по классам, из _collect) — только для scope="site"; по умолчанию None = global.
     """
     from shapely.strtree import STRtree
 
+    per_site = p_sites is not None and g_sites is not None
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
@@ -243,6 +466,12 @@ def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
             tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
             pg_ord = [p[i][0] for i in order]
             q_pred, q_gt = tree.query(pg_ord)
+            if per_site and len(q_pred):
+                site_ids: dict = {}
+                ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
+                gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)
+                same = ps_ord[q_pred] == gs[q_gt]
+                q_pred, q_gt = q_pred[same], q_gt[same]
             if len(q_pred):
                 splits = np.flatnonzero(np.diff(q_pred)) + 1
                 rank_groups = np.split(q_gt, splits)
@@ -302,7 +531,7 @@ def _plateau_indices(groups: list[str], cuts: dict, k: dict, n_gt: int) -> dict:
     return chosen
 
 
-def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
+def sweep_groups_reference(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
     """Пороги по (группа, класс), максимизирующие общий F1 класса по всем группам.
 
     Метрика сводит класс по всем модальностям и участкам: F1 ≈ 2TP / (TP + 0,5·FP + GT).
@@ -457,7 +686,7 @@ def score_group_thresholds(curves: dict[str, ClassCurve], taus: dict[str, dict[s
     return (num / den if den else 0.0), per
 
 
-def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
+def bootstrap_reference(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
     """Устойчивость порогов: регионы выбираются с возвращением, оптимум ищется заново.
 
     Регионы в пространстве не пересекаются, поэтому попадания из общего прохода
@@ -485,7 +714,7 @@ def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dic
             for cls, v in taus.items() if v}
 
 
-def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
+def paired_bootstrap_reference(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
                      tau_b: dict[str, float], n: int = 1000, seed: int = 0) -> dict:
     """Разница баллов A − B на одних и тех же выборках регионов с возвращением.
 
@@ -566,7 +795,7 @@ def family_folds(regions, family_of, k: int | None = None) -> list[set[str]]:
     return [b for b in bins if b]
 
 
-def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
+def honest_counts_reference(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
                   unseen: str = "drop") -> tuple[dict[str, dict[str, list[int]]], dict]:
     """TP, FP и эталоны каждого участка при порогах, подобранных без его фолда.
 
@@ -582,7 +811,7 @@ def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: st
     info = {"folds": len(folds), "unseen_dropped": 0, "unseen_kept": 0}
     for held in folds:
         train = every - held
-        res = sweep_groups({cls: curve_where(c, train) for cls, c in curves.items()}, pick=pick)
+        res = sweep_groups_reference({cls: curve_where(c, train) for cls, c in curves.items()}, pick=pick)
         taus: dict[str, dict[str, float]] = {}
         for cls, v in res.items():
             for g, gv in v["groups"].items():
@@ -628,7 +857,7 @@ def score_counts(counts: dict[str, dict[str, list[int]]], regions: set[str] | No
     return (num / den if den else 0.0), per
 
 
-def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
+def paired_bootstrap_counts_reference(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
                             regions: set[str] | None = None) -> dict:
     """A − B по честным счётчикам. Выборка с возвращением — семьи, не участки.
 
@@ -651,6 +880,323 @@ def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: in
         w = {r: float(k) for f, k in zip(names, pick) if k for r in fams[f]}
         diffs.append(score_counts(a, None, w)[0] - score_counts(b, None, w)[0])
     v = np.asarray(diffs)
+    return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
+            "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean()), "samples": n,
+            "families": len(names)}
+
+
+# ─────────────── быстрые версии (bot-8): те же результаты, без циклов Python по объектам ───────────────
+#
+# Прежние реализации сохранены с суффиксом _reference; tests/test_bot8_fast_metric.py
+# сверяет их побайтно. EXPDS_FAST_METRIC=0 возвращает прежний путь целиком.
+#
+# Почему результат совпадает точно. Счётчики TP/FP/GT — целые числа, а их взвешенные
+# суммы (веса бутстрепа тоже целые) в float64 точны в любом порядке сложения, пока
+# меньше 2^53. Поэтому суммы по объектам можно заменить суммами по участкам, а циклы —
+# матричным умножением. F1 считается той же формулой и в том же порядке операций
+# (IEEE-754 одинаков для скаляров Python и массивов NumPy); взвешенное среднее
+# накапливается по классам в прежнем порядке. Генератор случайных чисел вызывается
+# теми же вызовами в том же порядке.
+
+def _fast_on() -> bool:
+    return os.environ.get("EXPDS_FAST_METRIC", "1") != "0"
+
+
+def _curve_codes(c: ClassCurve):
+    """Коды участков (по первому появлению) и групп (по алфавиту) кривой; кэшируется на объекте."""
+    cache = c.__dict__.get("_bot8_codes")
+    if (cache is not None and cache[0] is c.pred_region and cache[1] is c.pred_group
+            and cache[2] == (len(c.pred_region), len(c.pred_group))):
+        return cache[3]
+    rmap: dict[str, int] = {}
+    rcodes = np.fromiter((rmap.setdefault(r, len(rmap)) for r in c.pred_region), dtype=np.int64,
+                         count=len(c.pred_region))
+    gnames = sorted(set(c.pred_group)) if c.pred_group else []
+    gmap = {g: i for i, g in enumerate(gnames)}
+    gcodes = np.fromiter((gmap[g] for g in c.pred_group), dtype=np.int64, count=len(c.pred_group))
+    val = (list(rmap), rcodes, gnames, gcodes)
+    c.__dict__["_bot8_codes"] = (c.pred_region, c.pred_group, (len(c.pred_region), len(c.pred_group)), val)
+    return val
+
+
+def _sweep_one(conf: np.ndarray, hit: np.ndarray, gcodes: np.ndarray, gnames: list[str], n_gt: int,
+               rounds: int, pick: str):
+    """Тело sweep_groups_reference для одного класса; группы заданы кодами. None — класс пропускается."""
+    if n_gt == 0:
+        return None
+    if gcodes.size == 0:
+        return {"f1": 0.0, "n_gt": n_gt, "groups": {}}
+    order = np.argsort(gcodes, kind="stable")      # внутри группы порядок (по убыванию conf) сохраняется
+    gs = gcodes[order]
+    present, starts = np.unique(gs, return_index=True)
+    ends = np.r_[starts[1:], gs.size]
+    cs, hs = conf[order], hit[order]
+    groups = [gnames[int(k)] for k in present]
+    cuts = {g: _group_cuts(cs[a:b], hs[a:b]) for g, a, b in zip(groups, starts, ends)}
+
+    def f1_of(k: dict) -> float:
+        tp = sum(cuts[g][1][k[g]] for g in groups)
+        n = sum(cuts[g][0][k[g]] for g in groups)
+        return float(_f1(tp, n - tp, n_gt - tp)) if n else 0.0
+
+    best_k, best_f = None, -1.0
+    for start in ("none", "all"):
+        k = {g: 0 if start == "none" else len(cuts[g][0]) - 1 for g in groups}
+        for _ in range(rounds):
+            changed = False
+            for g in groups:
+                f = _f1_along(groups, cuts, k, g, n_gt)
+                j = int(np.argmax(f))
+                if j != k[g] and f[j] > f[k[g]] + 1e-12:
+                    k[g], changed = j, True
+            if not changed:
+                break
+        f = f1_of(k)
+        if f > best_f:
+            best_f, best_k = f, dict(k)
+    if pick == "plateau" and best_k is not None:
+        best_k = _plateau_indices(groups, cuts, best_k, n_gt)
+        best_f = f1_of(best_k)
+    elif pick != "max":
+        raise ValueError(f"неизвестный выбор порога: {pick}")
+    return {"f1": best_f, "n_gt": n_gt,
+            "groups": {g: {"threshold": round(float(cuts[g][2][best_k[g]]), 6),
+                           "kept": int(cuts[g][0][best_k[g]]), "tp": int(cuts[g][1][best_k[g]])}
+                       for g in groups}}
+
+
+def _groups_ok(c: ClassCurve) -> bool:
+    return (not c.pred_group and c.conf.size == 0) or len(c.pred_group) == c.conf.size
+
+
+def sweep_groups(curves: dict[str, ClassCurve], rounds: int = 20, pick: str = "max") -> dict:
+    """Как sweep_groups_reference (см. её описание), но группы — целые коды, а не массив строк."""
+    if not _fast_on() or not all(_groups_ok(c) or not c.pred_group for c in curves.values()):
+        return sweep_groups_reference(curves, rounds, pick)
+    out: dict[str, dict] = {}
+    for cls, c in curves.items():
+        _, _, gnames, gcodes = _curve_codes(c)
+        r = _sweep_one(c.conf, c.hit, gcodes, gnames, c.n_gt, rounds, pick)
+        if r is not None:
+            out[cls] = r
+    return out
+
+
+def bootstrap(curves: dict[str, ClassCurve], n: int = 200, seed: int = 0) -> dict[str, dict]:
+    """Как bootstrap_reference: веса участков берутся индексом, а не списком Python на каждой выборке."""
+    if not _fast_on():
+        return bootstrap_reference(curves, n, seed)
+    regions = sorted({r for c in curves.values() for r in c.pred_region} |
+                     {r for c in curves.values() for r in c.gt_regions})
+    if not regions or n <= 0:
+        return {}
+    idx = {r: i for i, r in enumerate(regions)}
+    prep = {}
+    for cls, c in curves.items():
+        rnames, rcodes, _, _ = _curve_codes(c)
+        glob = np.array([idx[r] for r in rnames], dtype=np.int64)[rcodes] if rcodes.size else rcodes
+        last = np.r_[np.flatnonzero(c.conf[1:] != c.conf[:-1]), c.conf.size - 1] if c.conf.size else None
+        prep[cls] = (glob, last)
+    rng = np.random.default_rng(seed)
+    taus: dict[str, list[float]] = {c: [] for c in curves}
+    for _ in range(n):
+        w = np.bincount(rng.integers(0, len(regions), len(regions)), minlength=len(regions)).astype(float)
+        for cls, c in curves.items():
+            n_gt = sum(w[idx[r]] * k for r, k in c.gt_regions.items())
+            if n_gt == 0 or c.conf.size == 0:
+                continue
+            glob, last = prep[cls]
+            pw = w[glob]
+            tp, nn = np.cumsum(c.hit * pw)[last], np.cumsum(pw)[last]
+            taus[cls].append(float(c.conf[last[int(np.argmax(_f1(tp, nn - tp, n_gt - tp)))]]))
+    return {cls: {"p10": float(np.percentile(v, 10)), "p50": float(np.median(v)),
+                  "p90": float(np.percentile(v, 90)), "samples": len(v)}
+            for cls, v in taus.items() if v}
+
+
+def _scores_matrix(per_class: list[tuple[str, np.ndarray, np.ndarray, np.ndarray]]):
+    """Балл по выборкам: per_class = [(класс, tp, fp, n_gt)] — векторы по выборкам. Порядок классов как в цикле."""
+    num = den = None
+    f1s = {}
+    for cls, tp, fp, n_gt in per_class:
+        f1 = _f1(tp, fp, n_gt - tp)
+        ok = n_gt > 0
+        f1s[cls] = (f1, ok)
+        wc = CLASS_WEIGHTS.get(cls, 0.0)
+        if num is None:
+            num = np.zeros(tp.shape)
+            den = np.zeros(tp.shape)
+        num = np.where(ok, num + wc * f1, num)
+        den = np.where(ok, den + wc, den)
+    return num, den, f1s
+
+
+def paired_bootstrap(a: dict[str, ClassCurve], b: dict[str, ClassCurve], tau_a: dict[str, float],
+                     tau_b: dict[str, float], n: int = 1000, seed: int = 0) -> dict:
+    """Как paired_bootstrap_reference: суммы по объектам заменены суммами по участкам × веса (матрично)."""
+    if not _fast_on():
+        return paired_bootstrap_reference(a, b, tau_a, tau_b, n, seed)
+    regions = sorted({r for cs in (a, b) for c in cs.values() for r in c.pred_region} |
+                     {r for cs in (a, b) for c in cs.values() for r in c.gt_regions})
+    if not regions or n <= 0:
+        return {}
+    R = len(regions)
+    idx = {r: i for i, r in enumerate(regions)}
+    rng = np.random.default_rng(seed)
+    W = np.empty((n, R), dtype=np.float64)
+    for it in range(n):
+        W[it] = np.bincount(rng.integers(0, R, R), minlength=R)
+
+    def prep(curves, taus):
+        out = {}
+        for cls, c in curves.items():
+            kept = c.conf >= (taus.get(cls) or 0.0)
+            rnames, rcodes, _, _ = _curve_codes(c)
+            glob = (np.array([idx[r] for r in rnames], dtype=np.int64)[rcodes] if rcodes.size
+                    else np.zeros(0, np.int64))[kept]
+            hit = c.hit[kept].astype(bool)
+            tp_r = np.bincount(glob[hit], minlength=R).astype(np.float64)
+            n_r = np.bincount(glob, minlength=R).astype(np.float64)
+            g_r = np.zeros(R)
+            for r, k in c.gt_regions.items():
+                g_r[idx[r]] += k
+            out[cls] = (tp_r, n_r, g_r)
+        return out
+
+    pa, pb = prep(a, tau_a), prep(b, tau_b)
+    classes = sorted(set(pa) | set(pb))
+    res = []
+    for prepared in (pa, pb):
+        rows = []
+        for cls in classes:
+            if cls not in prepared:
+                continue
+            tp_r, n_r, g_r = prepared[cls]
+            tp, nn, n_gt = W @ tp_r, W @ n_r, W @ g_r
+            rows.append((cls, tp, nn - tp, n_gt))
+        num, den, f1s = _scores_matrix(rows)
+        if num is None:
+            num, den = np.zeros(n), np.zeros(n)
+        res.append((np.where(den != 0, num / np.where(den != 0, den, 1.0), 0.0), f1s))
+    diffs = res[0][0] - res[1][0]
+    per = {}
+    for cls in classes:
+        if cls in res[0][1] and cls in res[1][1]:
+            (fa, oka), (fb, okb) = res[0][1][cls], res[1][1][cls]
+            both = oka & okb
+            per[cls] = (fa - fb)[both]
+        else:
+            per[cls] = np.zeros(0)
+
+    def summary(v):
+        v = np.asarray(v)
+        return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
+                "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean())}
+
+    return {"score": summary(diffs), "per_class": {c: summary(v) for c, v in per.items() if len(v)}, "samples": n}
+
+
+def honest_counts(curves: dict[str, ClassCurve], folds: list[set[str]], pick: str = "max",
+                  unseen: str = "drop") -> tuple[dict[str, dict[str, list[int]]], dict]:
+    """Как honest_counts_reference (см. её описание): маски фолдов и счётчики участков — векторно.
+
+    Порядок ключей в словарях счётчиков тот же (участки эталона, затем участки
+    оставленных объектов в порядке убывания уверенности).
+    """
+    if not _fast_on() or not all(_groups_ok(c) for c in curves.values()):
+        return honest_counts_reference(curves, folds, pick, unseen)
+    every = set().union(*folds) if folds else set()
+    counts: dict[str, dict[str, list[int]]] = {cls: {} for cls in curves}
+    info = {"folds": len(folds), "unseen_dropped": 0, "unseen_kept": 0}
+    codes = {cls: _curve_codes(c) for cls, c in curves.items()}
+    fill = np.inf if unseen == "drop" else -np.inf
+    for held in folds:
+        train = every - held
+        res: dict[str, dict] = {}
+        for cls, c in curves.items():
+            rnames, rcodes, gnames, gcodes = codes[cls]
+            lut = np.fromiter((r in train for r in rnames), dtype=bool, count=len(rnames))
+            m = lut[rcodes] if rcodes.size else np.zeros(0, dtype=bool)
+            n_gt = int(sum({r: k for r, k in c.gt_regions.items() if r in train}.values()))
+            r = _sweep_one(c.conf[m], c.hit[m], gcodes[m], gnames, n_gt, 20, pick)
+            if r is not None:
+                res[cls] = r
+        taus: dict[str, dict[str, float]] = {}
+        for cls, v in res.items():
+            for g, gv in v["groups"].items():
+                taus.setdefault(g, {})[cls] = gv["threshold"]
+        for cls, c in curves.items():
+            rnames, rcodes, gnames, gcodes = codes[cls]
+            per = counts[cls]
+            for r, k in c.gt_regions.items():
+                if r in held:
+                    per.setdefault(r, [0, 0, 0])[2] += int(k)
+            lut = np.fromiter((r in held for r in rnames), dtype=bool, count=len(rnames))
+            m = lut[rcodes] if rcodes.size else np.zeros(0, dtype=bool)
+            if not m.any():
+                continue
+            has = np.array([cls in taus.get(g, {}) for g in gnames], dtype=bool)
+            tval = np.array([taus.get(g, {}).get(cls, 0.0) for g in gnames], dtype=np.float64)
+            gh = gcodes[m]
+            missing = ~has[gh]
+            tau = np.where(missing, fill, tval[gh])
+            info["unseen_dropped" if unseen == "drop" else "unseen_kept"] += int(missing.sum())
+            kept = c.conf[m] >= tau
+            rk = rcodes[m][kept]
+            if rk.size == 0:
+                continue
+            hk = c.hit[m][kept].astype(bool)
+            uniq, first = np.unique(rk, return_index=True)
+            tpc = np.bincount(rk[hk], minlength=len(rnames))
+            fpc = np.bincount(rk[~hk], minlength=len(rnames))
+            for code in uniq[np.argsort(first)].tolist():
+                lst = per.setdefault(rnames[code], [0, 0, 0])
+                lst[0] += int(tpc[code])
+                lst[1] += int(fpc[code])
+    return counts, info
+
+
+def paired_bootstrap_counts(a: dict, b: dict, family_of, n: int = 1000, seed: int = 0,
+                            regions: set[str] | None = None) -> dict:
+    """Как paired_bootstrap_counts_reference: веса семей → веса участков, суммы — матрично."""
+    if not _fast_on():
+        return paired_bootstrap_counts_reference(a, b, family_of, n, seed, regions)
+    regs = {r for cs in (a, b) for by in cs.values() for r in by}
+    if regions is not None:
+        regs &= regions
+    fams: dict[str, list[str]] = {}
+    for r in sorted(regs):
+        fams.setdefault(family_of(r), []).append(r)
+    names = sorted(fams)
+    if not names or n <= 0:
+        return {}
+    rng = np.random.default_rng(seed)
+    picks = np.empty((n, len(names)), dtype=np.float64)
+    for it in range(n):
+        picks[it] = np.bincount(rng.integers(0, len(names), len(names)), minlength=len(names))
+    # участки вне regs получают вес 0 (как weights.get(r, 0.0) в score_counts)
+    every = sorted({r for cs in (a, b) for by in cs.values() for r in by})
+    ridx = {r: i for i, r in enumerate(every)}
+    fam_of_r = np.full(len(every), -1, dtype=np.int64)
+    for fi, f in enumerate(names):
+        for r in fams[f]:
+            fam_of_r[ridx[r]] = fi
+    W = np.where(fam_of_r >= 0, picks[:, np.clip(fam_of_r, 0, None)], 0.0) if every else np.zeros((n, 0))
+
+    def scores(cs):
+        rows = []
+        for cls, by_region in cs.items():
+            A = np.zeros(len(every)); B = np.zeros(len(every)); G = np.zeros(len(every))
+            for r, (x, y, g) in by_region.items():
+                i = ridx[r]
+                A[i] += x; B[i] += y; G[i] += g
+            rows.append((cls, W @ A, W @ B, W @ G))
+        num, den, _ = _scores_matrix(rows)
+        if num is None:
+            return np.zeros(n)
+        return np.where(den != 0, num / np.where(den != 0, den, 1.0), 0.0)
+
+    v = scores(a) - scores(b)
     return {"mean": float(v.mean()), "p5": float(np.percentile(v, 5)), "p50": float(np.median(v)),
             "p95": float(np.percentile(v, 95)), "p_gt0": float((v > 0).mean()), "samples": n,
             "families": len(names)}
