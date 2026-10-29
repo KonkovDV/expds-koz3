@@ -891,17 +891,27 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     return out
 
 
+def _union_key(f: dict) -> tuple:
+    """Группа сравнения правила U: класс и метод; для EtGr ещё и слой (source).
+
+    Правила организатора 29.10 (п. 4–5): каждый срез и профиль EtGr — отдельный эталон,
+    объекты разных типов данных не объединяются."""
+    mt = f.get("markup_type")
+    return (f.get("class_name"), mt, f.get("source") if mt == "etgr" else None)
+
+
 def dedupe_union(base: list[dict], new: list[dict], r_m: float = 1.0) -> list[dict]:
-    """Правило U: из new убрать кандидатов, чей центр внутри полигона базы того же класса (object_poly)
-    или ≤ r_m (EPSG:3857, как в оценке eval_pix.py) от центра находки базы (finds_points)."""
+    """Правило U: из new убрать кандидатов, чей центр внутри полигона базы той же группы (object_poly)
+    или ≤ r_m (EPSG:3857, как в оценке eval_pix.py) от центра находки базы (finds_points).
+    Группа — _union_key: тот же класс и метод, у EtGr — тот же слой."""
     from shapely.strtree import STRtree
     out = []
     by = {}
     for f in base:
-        by.setdefault(f.get("class_name"), []).append(f["geom"])
+        by.setdefault(_union_key(f), []).append(f["geom"])
     trees = {c: (STRtree(v), v) for c, v in by.items()}
     for f in new:
-        t = trees.get(f["class_name"]); ce = f["geom"].centroid
+        t = trees.get(_union_key(f)); ce = f["geom"].centroid
         if t is not None:
             if f["class_name"] == "object_poly":
                 hit = any(t[1][int(j)].contains(ce) for j in t[0].query(ce))
