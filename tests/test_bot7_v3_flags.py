@@ -273,10 +273,12 @@ def test_gor_gate_no_targets_skips_backbone(tmp_path, monkeypatch):
     assert gor_gate.apply(feats, {"a": object()}, cfg, tmp_path) == feats
 
 
-def test_train_only_modules_unreachable_and_not_packaged():
+def test_train_only_modules_unreachable_and_not_packaged(monkeypatch):
     """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
     import ast
     import importlib.util
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
 
     mods = {p.stem: p for p in (ROOT / "expds").glob("*.py")}
 
@@ -332,12 +334,14 @@ def test_kurgan_in_gor_replaced_by_audit_gormask():
     assert not hasattr(post, "drop_kurgans_in_hillforts")
 
 
-def test_flag_modules_not_packaged_when_off():
+def test_flag_modules_not_packaged_when_off(monkeypatch):
     """v3: при выключенных [sp_dfine]/[gor_gate] их модули не идут в архив (граф импортов без transformers),
     pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""
     import importlib.util
     import tomllib
+    from conftest import allow_missing_submission_models
 
+    allow_missing_submission_models(monkeypatch)
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     assert not cfg["sp_dfine"]["enabled"] and not cfg["gor_gate"]["enabled"]
     spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")

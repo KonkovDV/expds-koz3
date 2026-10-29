@@ -248,8 +248,10 @@ def _build_mod():
     return mod
 
 
-def test_package_flag_off_excludes_gor_dense():
+def test_package_flag_off_excludes_gor_dense(monkeypatch):
     """Флаг ВЫКЛ.: gor_dense.py и его артефакты в архив не идут (набор файлов как v3 + ничего)."""
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     mod = _build_mod()
     names = {p.name for p in mod.collect() if p.parent == ROOT / "expds"}
     assert "gor_dense.py" not in names

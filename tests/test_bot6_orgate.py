@@ -131,7 +131,9 @@ def _bs():
     return bs
 
 
-def test_not_packaged_when_off():
+def test_not_packaged_when_off(monkeypatch):
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     bs = _bs()
     assert "orgate" in bs.FLAG_MODULES
     rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}
@@ -139,6 +141,8 @@ def test_not_packaged_when_off():
 
 
 def test_packaged_when_on(monkeypatch):
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     bs = _bs()
     text = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8").replace(
         "[orgate]\nenabled = false\n", "[orgate]\nenabled = true\n")

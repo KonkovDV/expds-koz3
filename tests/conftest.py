@@ -97,3 +97,53 @@ def official_metric() -> str | None:
 
     p = os.environ.get("EXPDS_METRIC")
     return p if p and Path(p).exists() else None
+
+
+def allow_missing_submission_models(monkeypatch: pytest.MonkeyPatch, root: Path | None = None) -> None:
+    """Let ``scripts/build_submission.collect()`` run without gitignored weights.
+
+    Clean PC worktrees lack ``models/pixgbm/all/{poly,finds}.txt`` (see
+    ``models/pixgbm/all/MODELS_NOT_IN_GIT.md``); ``collect()`` then ``sys.exit``s.
+    Packaging unit tests only care which *modules* are included when flags are
+    off — monkeypatch ``Path.exists`` so missing paths under ``models/`` look
+    present (the Path is still appended; assertions on relative names still work).
+    """
+    root = (root or ROOT).resolve()
+    orig = Path.exists
+
+    def _exists(self: Path) -> bool:  # type: ignore[override]
+        if orig(self):
+            return True
+        try:
+            rel = self if self.is_absolute() else (root / self)
+            rel = rel.resolve(strict=False).relative_to(root)
+        except (ValueError, OSError, RuntimeError):
+            return False
+        return bool(rel.parts) and rel.parts[0] == "models"
+
+    monkeypatch.setattr(Path, "exists", _exists)
+
+
+def stub_missing_pixgbm_weights(tmp_path: Path, root: Path | None = None) -> list[Path]:
+    """Write empty pixgbm weight stubs under *tmp_path* and symlink them into root.
+
+    Prefer this when the test must see real files (not only a faked exists).
+    Returns stub file paths created under tmp_path (caller may ignore).
+    """
+    root = root or ROOT
+    dest = root / "models" / "pixgbm" / "all"
+    dest.mkdir(parents=True, exist_ok=True)
+    created: list[Path] = []
+    for name in ("poly.txt", "finds.txt"):
+        target = dest / name
+        if target.exists():
+            continue
+        stub = tmp_path / name
+        stub.write_text(f"# packaging-test stub for {name}\n", encoding="utf-8")
+        try:
+            target.symlink_to(stub)
+        except OSError:
+            # Windows without symlink privilege — copy bytes
+            target.write_text(stub.read_text(encoding="utf-8"), encoding="utf-8")
+        created.append(target)
+    return created
