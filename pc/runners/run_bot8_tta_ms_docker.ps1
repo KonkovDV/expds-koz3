@@ -7,7 +7,7 @@
 $ErrorActionPreference = 'Continue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 
-$Sha       = '4169266b941e8f5f5b2c743b8692320f91badcb3'
+$Sha       = '82a167c7939d926b6da87228678a5adc51cdbdf1'
 if ($env:KOZ3_SHA) { $Sha = $env:KOZ3_SHA }
 $Short     = $Sha.Substring(0,7)
 $JobDir    = "C:\Sloi\pc_jobs\bot8_tta_ms_docker_$Short"
