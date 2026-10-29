@@ -444,20 +444,27 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
-# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
-# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+# bot-7 / bot-2 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.;
+# архив v3on собирает analysis/.../make_on.py (дефолт MODE=C). transformers 5.21.0 — вендор inference/lib/vendor.
+# Ключи — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert, drop_groups=[], drop_min_det=1, ensemble …).
+#
+# HOTFIX bot-2 (29.10, bot1_v3_spor_diag): вариант R на mock снял −46 v2 SpOr при 0 TP у D-FINE
+# (локализация внутри участка ~191 м до GT; CRS OK). До починки localization D-FINE:
+#   A (предпочтительно): enabled=true + drop_groups=[]  (= make_on MODE=C) — v2 SpOr рядом с D-FINE
+#   B (fallback, если A роняет ALL F1 >0.01 из‑за FP D-FINE): enabled=false  (= zip flags-off / не v3on)
+# Вариант R (drop_groups = ["sp_or","sp_focal","sp_arch","sp_focal2"]) — ЗАПРЕЩЁН, пока D-FINE не даёт TP на mock.
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
+# Включение A (hotfix, MODE=C):
 #   enabled = true
-#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
-#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R (опасно до валидации CRS/гео — регрессия mock sp_or→0)
-#   drop_min_det = 1   # bot-2 багфикс (ВКЛ.): R только на участках с ≥N объектов sp_dfine; иначе оставляем v2
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
-# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
-# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
-# и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0)
+#   drop_groups = []               # ЯВНО пусто: НЕ снимать v2 SpOr (DEFAULTS тоже [])
+#   drop_min_det = 1               # safety valve: даже при R — не дропать участок без ≥N sp_dfine
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log R_max, in-sample) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Fallback B: оставить enabled = false (этот файл как есть).
+# R (НЕ включать до фикса localization):
+#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
+# Финальная модель (dfine_final) — ТОЛЬКО РЕЗЕРВ после OOF-порогов и приёмки bot-10; см. FINAL_VARIANT.md.
 
 # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
 # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
