@@ -698,6 +698,14 @@ protect_merge = false
 shape_cores = false
 fort_to_gor = false
 coarse_hillfort = false
+# Fix C: абсолютный τ для крупных D-FINE Ae gorodishcha (ae_ortho_diagnosis §3).
+# Gate только ae + gorodishcha (li не трогаем). Нужен stash box_area_m2. OFF по умолчанию.
+# Ожидание +0.005…0.02 LB при dfine_aeor ae; без Ae D-FINE → Δ=0 (LESSONS).
+dfine_ae_gor_area_tau = false
+dfine_ae_gor_tau_large = 0.20
+dfine_ae_gor_classes = ["gorodishcha"]
+dfine_ae_gor_markups = ["ae"]
+dfine_ae_gor_groups = ["dfine_ae", "ae_dfine"]
 min_area_m2 = 5000.0
 tau_relax = 0.15
 tau_floor = 0.05

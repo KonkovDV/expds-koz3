@@ -348,14 +348,18 @@ def boxes_to_ellipses(B, L, C, transform, crs: str, region: str, source: str, la
     t = np.linspace(0, 2 * np.pi, 33)[:-1]
     a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
     out = []
+    # Площадь пикселя в м² сцены (UTM и т.п.): |det(affine)|.
+    pix_m2 = abs(a * e - b * d)
     for (x0, y0, x1, y1), s, c in zip(B, L, C):
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         rx, ry = max((x1 - x0) / 2, 0.5), max((y1 - y0) / 2, 0.5)
         px, py = cx + rx * np.cos(t), cy + ry * np.sin(t)
         gx, gy = to3857(a * px + b * py + c0, d * px + e * py + f0)
+        # box_area_m2 — площадь бокса ДО cluster_circles (круг r=4 ≈ 50 м² иначе).
+        box_area_m2 = float(abs(x1 - x0) * abs(y1 - y0) * pix_m2)
         out.append({"geom": Polygon(np.column_stack([gx, gy])), "class_name": labels[int(c)],
                     "confidence": round(float(s), 5), "region_name": region, "source": source,
-                    "original_crs": crs, "model": 0})
+                    "original_crs": crs, "model": 0, "box_area_m2": box_area_m2})
     return out
 
 

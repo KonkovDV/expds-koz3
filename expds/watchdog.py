@@ -139,7 +139,6 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
     if post_cfg.get("big_groups"):
-        # bot-2 bigobj F1, выкл.: крупные маски городищ/фортификаций — своя группа порога (до порогов).
         bg = _spec(post_cfg["big_groups"])
         out = post.big_area_groups(out, bg)
         by_markup = post.big_group_thresholds(by_markup, bg)
@@ -147,7 +146,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     from . import large_objects as _lo
     if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
-    if _lo.flag(cfg, "area_tau"):
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
     else:
@@ -262,8 +261,9 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     from . import large_objects as _lo
     _by = post.sat_thr_relax_by_markup(cfg)
-    if _lo.enabled(cfg):
+    if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    _by, _lo.spec(cfg))
     else:
