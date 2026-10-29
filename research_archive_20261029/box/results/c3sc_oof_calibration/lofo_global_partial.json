@@ -1,0 +1,150 @@
+[
+  {
+    "holdout_fold": 0,
+    "calib_thr": 0.3,
+    "train_score_at_thr": 0.30696569294285136,
+    "test_score_at_calib_thr": 0.5169817493828712,
+    "test_score_at_0.3": 0.5169817493828712,
+    "test_per_class": {
+      "kurgany_povrezhdennye": {
+        "f1": 0.661581966261756,
+        "precision": 0.7576419197431399,
+        "recall": 0.5871404389388487,
+        "tp": 347,
+        "fp": 222,
+        "fn": 244,
+        "num_predictions": 569,
+        "num_ground_truth": 591
+      },
+      "kurgany_tselye": {
+        "f1": 0.6265933100292226,
+        "precision": 0.567656763803113,
+        "recall": 0.6991869890276952,
+        "tp": 172,
+        "fp": 262,
+        "fn": 74,
+        "num_predictions": 434,
+        "num_ground_truth": 246
+      },
+      "gorodishcha": {
+        "f1": 0.0816325680966332,
+        "precision": 0.04255318967858767,
+        "recall": 0.9999990000010001,
+        "tp": 1,
+        "fp": 45,
+        "fn": 0,
+        "num_predictions": 46,
+        "num_ground_truth": 1
+      },
+      "fortifikatsii": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tp": 0,
+        "fp": 196,
+        "fn": 0,
+        "num_predictions": 196,
+        "num_ground_truth": 0
+      }
+    },
+    "test_n_pred": 1245,
+    "test_n_gt": 838,
+    "train_curve_top": [
+      {
+        "thr": 0.3,
+        "final_score": 0.30696569294285136,
+        "n_pred": 3563
+      },
+      {
+        "thr": 0.35,
+        "final_score": 0.30379699546060246,
+        "n_pred": 2674
+      },
+      {
+        "thr": 0.25,
+        "final_score": 0.293343980163699,
+        "n_pred": 5150
+      },
+      {
+        "thr": 0.4,
+        "final_score": 0.28701195292883197,
+        "n_pred": 2118
+      },
+      {
+        "thr": 0.45,
+        "final_score": 0.2638318247705661,
+        "n_pred": 1782
+      }
+    ],
+    "calib_s": 141.2
+  },
+  {
+    "holdout_fold": 1,
+    "calib_thr": 0.35,
+    "train_score_at_thr": 0.3757950160700369,
+    "test_score_at_calib_thr": 0.18708224476280996,
+    "test_score_at_0.3": 0.2254000254589119,
+    "test_per_class": {
+      "kurgany_povrezhdennye": {
+        "f1": 0.3118037412713499,
+        "precision": 0.985915479071613,
+        "recall": 0.18518518469527728,
+        "tp": 70,
+        "fp": 2,
+        "fn": 308,
+        "num_predictions": 72,
+        "num_ground_truth": 378
+      },
+      "kurgany_tselye": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 9,
+        "num_predictions": 2,
+        "num_ground_truth": 9
+      },
+      "fortifikatsii": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tp": 0,
+        "fp": 3,
+        "fn": 0,
+        "num_predictions": 3,
+        "num_ground_truth": 0
+      }
+    },
+    "test_n_pred": 77,
+    "test_n_gt": 387,
+    "train_curve_top": [
+      {
+        "thr": 0.35,
+        "final_score": 0.3757950160700369,
+        "n_pred": 3629
+      },
+      {
+        "thr": 0.4,
+        "final_score": 0.3679066724845554,
+        "n_pred": 2931
+      },
+      {
+        "thr": 0.3,
+        "final_score": 0.3663278721123467,
+        "n_pred": 4708
+      },
+      {
+        "thr": 0.45,
+        "final_score": 0.3448805945086053,
+        "n_pred": 2457
+      },
+      {
+        "thr": 0.25,
+        "final_score": 0.33944261485671906,
+        "n_pred": 6585
+      }
+    ],
+    "calib_s": 202.5
+  }
+]

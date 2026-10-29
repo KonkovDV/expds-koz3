@@ -1,0 +1,20 @@
+{
+  "n_pred": 57,
+  "n_gt": 450,
+  "min_same_class_m": 0.7040690593356922,
+  "median_same_class_m": 2.0155622802374342,
+  "n_within_2m": 23,
+  "n_within_10m": 31,
+  "n_within_50m": 32,
+  "n_within_200m": 35,
+  "stages_totals": {
+    "n_raw_boxes": 2506,
+    "n_ellipses": 2506,
+    "n_features": 482,
+    "n_would_pass_thr": 13,
+    "n_paths": 2,
+    "n_paths_done": 2
+  },
+  "n_B_total": 246,
+  "n_B_spor": 44
+}

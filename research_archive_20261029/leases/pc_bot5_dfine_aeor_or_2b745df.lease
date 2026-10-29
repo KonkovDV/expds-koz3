@@ -1,0 +1,12 @@
+owner=pc-job-runner
+status=QUEUED
+sha=2b745df167d315de3a377ca112d1283454ab1953
+branch=bots/bot5-candidate-v4
+job=C:\Sloi\pc_jobs\bot5_dfine_aeor_or_2b745df
+wt=C:\Sloi\pc_jobs\wt_bot5_dfine_aeor_or
+device=gpu-docker
+image=pantum/n7q:20261024
+EXPDS_STRICT=1
+runner=pc/runners/run_bot5_dfine_aeor_or_docker.ps1
+heartbeat=2026-10-29T18:52:00+03:00
+note=QUEUED after (b') gor_dense @40fa599; before bot6 pixgbm e2e-metric; gate HARD FAIL n_raw==0 or Or==0; dALL>0 vs v2 docker 0.312509; no layer drop >0.01; wall<=15 cap30; (c)@999572d SUPERSEDED; JobDir/Wt on C:

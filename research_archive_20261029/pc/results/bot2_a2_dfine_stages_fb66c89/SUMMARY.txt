@@ -1,0 +1,5 @@
+﻿# bot2 A2 D-FINE stages @ fb66c89
+wall_main ~80s
+stages.json skip_reason=load_failed:ImportError n_raw_boxes=0 n_sp_dfine_in_state=0 n_models=0
+=> D-FINE path did not load (ImportError); A behaves like B for sp_dfine (0 dets from dfine).
+e2e_AB present: True

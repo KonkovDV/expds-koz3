@@ -1,0 +1,49 @@
+{
+  "note": "lean sync; full scores_mock.json on PC JobDir; ALL/layer rows only",
+  "rows": [
+    {
+      "region": "ALL",
+      "markup": "ALL",
+      "gt": 450,
+      "n_v2ref": 248,
+      "f1_v2ref": 0.3125090807983978,
+      "n_v2docker": 248,
+      "f1_v2docker": 0.3125090807983978,
+      "delta": 0.0
+    },
+    {
+      "region": "ALL",
+      "markup": "ae",
+      "gt": 252,
+      "n_v2ref": 59,
+      "f1_v2ref": 0.09555648513894874,
+      "n_v2docker": 59,
+      "f1_v2docker": 0.09555648513894874,
+      "delta": 0.0
+    },
+    {
+      "region": "ALL",
+      "markup": "li",
+      "gt": 115,
+      "n_v2ref": 143,
+      "f1_v2ref": 0.3369826841738736,
+      "n_v2docker": 143,
+      "f1_v2docker": 0.3369826841738736,
+      "delta": 0.0
+    },
+    {
+      "region": "ALL",
+      "markup": "sp_or",
+      "gt": 83,
+      "n_v2ref": 46,
+      "f1_v2ref": 0.24291478563833163,
+      "n_v2docker": 46,
+      "f1_v2docker": 0.24291478563833163,
+      "delta": 0.0
+    }
+  ],
+  "ALL_F1_v2docker": 0.3125090807983978,
+  "delta_vs_kit_ref": 0.0,
+  "ENV": "docker:pantum/n7q:20261024",
+  "sha_zip": "eb268d6e4adfbed32670cabeef15a709649b8246"
+}

@@ -1,0 +1,8 @@
+owner=pc-job-runner
+sha=fb66c89
+branch=bots/bot2-e2e-v3-prep
+job=C:\\Sloi\\pc_jobs\\bot2_a2_dfine_stages_fb66c89
+wt=C:\\Sloi\\wt_bot2_fb66c89
+note=replaces koz3_bot2_hotfix; after bot5 a/b; before bot4
+status=RUNNING
+heartbeat=2026-10-29T16:51:58

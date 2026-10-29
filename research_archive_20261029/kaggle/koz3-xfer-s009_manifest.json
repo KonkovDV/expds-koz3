@@ -1,0 +1,1633 @@
+{
+ "f0222": {
+  "rel": "028_Вышегжа_2/02_Вышегжа_2_Li_карты/01_Вышегжа_2_Li_c.tif",
+  "size": 1886173574,
+  "sha256": "91f727976c90d8d03b407f1d51e1f08c4e88ffa2708f713697164045e82a44af",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0222.tif",
+  "comp_size": 229093818,
+  "comp_sha256": "8dcb4413d894a32caa4f3feeb9f569cdf74bec28da5da4e52d62e3f055a4c19d",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.1,
+    0.0,
+    545757.95,
+    0.0,
+    -0.1,
+    6246137.05,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 28764,
+   "h": 21856,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 19
+ },
+ "f0223": {
+  "rel": "028_Вышегжа_2/02_Вышегжа_2_Li_карты/02_Вышегжа_2_Li_ch.tif",
+  "size": 1886173574,
+  "sha256": "63e9d917e54198f1dc44ec37bf51c9f36633280d60c3ac0dfa2a17d5321dde90",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0223.tif",
+  "comp_size": 325482545,
+  "comp_sha256": "72abbe186368770e9ff703464bbb1deebcc1dde952cb511422dda80fbda58a7b",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.1,
+    0.0,
+    545757.95,
+    0.0,
+    -0.1,
+    6246137.05,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 28764,
+   "h": 21856,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 20
+ },
+ "f0224": {
+  "rel": "028_Вышегжа_2/02_Вышегжа_2_Li_карты/03_Вышегжа_2_Li_g.tif",
+  "size": 25844695,
+  "sha256": "9f26d798353292bde3e70ba894719431e11dc22046dfd571a95a9dfe9ce11ed3",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0224.tif",
+  "comp_size": 6177303,
+  "comp_sha256": "95df2042a47a87034809c9057da5baa867641a2378c0577d99d1c535c9b58ede",
+  "verify": "ok",
+  "meta": {
+   "crs": null,
+   "transform": [
+    0.5,
+    0.0,
+    545757.95,
+    0.0,
+    -0.5,
+    6246137.01,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0
+   ],
+   "dtypes": [
+    "uint8"
+   ],
+   "count": 1,
+   "w": 5753,
+   "h": 4371,
+   "desc": [
+    null
+   ],
+   "ci": [
+    "gray"
+   ],
+   "scales": [
+    1.0
+   ],
+   "offsets": [
+    0.0
+   ],
+   "units": [
+    null
+   ],
+   "tags": {},
+   "btags": [
+    {
+     "RepresentationType": "THEMATIC",
+     "STATISTICS_COVARIANCES": "214.3304397284739",
+     "STATISTICS_MAXIMUM": "254",
+     "STATISTICS_MEAN": "173.67979842295",
+     "STATISTICS_MINIMUM": "0",
+     "STATISTICS_SKIPFACTORX": "1",
+     "STATISTICS_SKIPFACTORY": "1",
+     "STATISTICS_STDDEV": "14.640028679223"
+    }
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0225": {
+  "rel": "028_Вышегжа_2/02_Вышегжа_2_Li_карты/04_Вышегжа_2_Li_i.tif",
+  "size": 77440418,
+  "sha256": "500e8850bedc6cc3c221c7364b6eb9732d43dfa41ded53bd8e409172b4a77989",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0225.tif",
+  "comp_size": 6528656,
+  "comp_sha256": "9122303a5ed9df395a31821fce274f39a0999e8e132c239f036e969f0b3fc566",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.5,
+    0.0,
+    545757.95,
+    0.0,
+    -0.5,
+    6246137.01,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 5753,
+   "h": 4371,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0229": {
+  "rel": "029_Вышегжа_3/03_Вышегжа_3_Ae_немецкая/01_Вышегжа_3_Ae_немецкая.tif",
+  "size": 237639413,
+  "sha256": "701095add3dbe9d5e0f7be7ca1860d1c1493e53ed068dab478efa6be04c3b07b",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0229.tif",
+  "comp_size": 110825087,
+  "comp_sha256": "a1a747630bd2d7ca3d0a85d6dc00e0b92ae88656a56804732ed209813ebc6266",
+  "verify": "ok",
+  "meta": {
+   "crs": "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],EXTENSION[\"PROJ4\",\"+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs\"],AUTHORITY[\"EPSG\",\"3857\"]]",
+   "transform": [
+    1.5886791319451932,
+    0.0,
+    4406466.602558417,
+    0.0,
+    -1.5886791319451932,
+    7643801.596661677,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null
+   ],
+   "dtypes": [
+    "uint8"
+   ],
+   "count": 1,
+   "w": 14987,
+   "h": 15850,
+   "desc": [
+    null
+   ],
+   "ci": [
+    "gray"
+   ],
+   "scales": [
+    1.0
+   ],
+   "offsets": [
+    0.0
+   ],
+   "units": [
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 2
+ },
+ "f0232": {
+  "rel": "030_Эсбю/01_Эсбю_La_точки/01_Эсбю_La_точки.las",
+  "size": 8481703,
+  "sha256": "18981c70fc6fd7fb3c98af42550c7798a68cd462fc5f0bdbd8a2941456a988f3",
+  "kind": "las",
+  "method": "laz",
+  "comp_name": "f0232.laz",
+  "comp_size": 1178409,
+  "comp_sha256": "66a0f72ef00fb58175929fea321cf7d3f974e2ee15324a2f1ffe879b38516b56",
+  "verify": "ok",
+  "meta": {
+   "version": "1.4",
+   "pf": 6,
+   "n": 282665,
+   "scales": [
+    0.01,
+    0.01,
+    0.01
+   ],
+   "offsets": [
+    -0.0,
+    -0.0,
+    -0.0
+   ],
+   "vlrs": [
+    [
+     "LASF_Projection",
+     2112
+    ],
+    [
+     "liblas",
+     2112
+    ]
+   ],
+   "evlrs": 0,
+   "extra": [],
+   "vlr_bytes_eq": true
+  },
+  "sec": 0
+ },
+ "f0233": {
+  "rel": "030_Эсбю/02_Эсбю_Li_карты/01_Эсбю_Li_c.tif",
+  "size": 56708058,
+  "sha256": "a0641bf01750a624f02fbf981340dd8a1688461cb082486854b7aacdf6b1fd03",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0233.tif",
+  "comp_size": 9004727,
+  "comp_sha256": "c0074c61713d5625480254ddf027ee4114878507b225bb6410b8667de70a53e8",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.1,
+    0.0,
+    581550.65,
+    0.0,
+    -0.1,
+    6581152.550000001,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 5283,
+   "h": 3578,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0234": {
+  "rel": "030_Эсбю/02_Эсбю_Li_карты/02_Эсбю_Li_ch.tif",
+  "size": 56708058,
+  "sha256": "06707ab657b646404113b023ddf2267aea1b8361a19508856d38bd3b970714e3",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0234.tif",
+  "comp_size": 12525977,
+  "comp_sha256": "be5a3be530ed9358f94215c0c3c2ace74c9d10159f0901efb2a503d2a3c5c6c3",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.1,
+    0.0,
+    581550.65,
+    0.0,
+    -0.1,
+    6581152.550000001,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 5283,
+   "h": 3578,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0235": {
+  "rel": "030_Эсбю/02_Эсбю_Li_карты/03_Эсбю_Li_g.tif",
+  "size": 57812518,
+  "sha256": "444592bd79e3f1625568f669e5dd31b42b4d685547efc3ab150adbad79dbdf87",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0235.tif",
+  "comp_size": 6982437,
+  "comp_sha256": "2c2e65345eb57e36477f478f21be0fb4b45ad8a6a37c893107076f802910bb4e",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.0999999999999471,
+    0.0,
+    581550.7000000001,
+    0.0,
+    -0.09999999999994794,
+    6581152.54,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 5282,
+   "h": 3578,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0236": {
+  "rel": "030_Эсбю/02_Эсбю_Li_карты/04_Эсбю_Li_i.tif",
+  "size": 57812518,
+  "sha256": "fbbc43ddbe470739eb0d38800638eb7704592ce9e6ff2b24fc37bde61c40f800",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0236.tif",
+  "comp_size": 6977094,
+  "comp_sha256": "30db52273cb86a8c33612011a66047cb4eaae7e8830646e3393824dfabc2e099",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.0999999999999471,
+    0.0,
+    581550.7000000001,
+    0.0,
+    -0.09999999999994794,
+    6581152.54,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 5282,
+   "h": 3578,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0240": {
+  "rel": "031_Новотитаровская/01_Новотитаровская_La_точки/01_Новотитаровская_La_точки.las",
+  "size": 431914163,
+  "sha256": "5c14d8e16cf33b53d6f15713014bb2657b752a6bee03101fbf058b3a12cd5aa8",
+  "kind": "las",
+  "method": "laz",
+  "comp_name": "f0240.laz",
+  "comp_size": 59774554,
+  "comp_sha256": "0da8093593d16fd909e9e7d40d0d5fe9e7a235b7143db37f5b99209021b8d31f",
+  "verify": "ok",
+  "meta": {
+   "version": "1.2",
+   "pf": 3,
+   "n": 12703351,
+   "scales": [
+    0.01,
+    0.01,
+    0.01
+   ],
+   "offsets": [
+    -0.0,
+    -0.0,
+    -0.0
+   ],
+   "vlrs": [],
+   "evlrs": 0,
+   "extra": [],
+   "vlr_bytes_eq": true
+  },
+  "sec": 1
+ },
+ "f0241": {
+  "rel": "031_Новотитаровская/02_Новотитаровская_Li_карты/01_Новотитаровская_Li_c.tif",
+  "size": 492171250,
+  "sha256": "9931aae01f4586e20c1ce423f35221999199de5b444a72be49553e4ae9c732ba",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0241.tif",
+  "comp_size": 74343273,
+  "comp_sha256": "52aeb267daa58a0460ce954a937976fb0e431255ff329c0277ace3840299c4a0",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.05,
+    0.0,
+    500056.275,
+    0.0,
+    -0.05,
+    5012795.275,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 12589,
+   "h": 13029,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 2
+ },
+ "f0242": {
+  "rel": "031_Новотитаровская/02_Новотитаровская_Li_карты/02_Новотитаровская_Li_ch.tif",
+  "size": 492171250,
+  "sha256": "a3e37830d97d8ab2ab1346f84590d39c6cc673e87f59f8339b6479aa125517b5",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0242.tif",
+  "comp_size": 122222187,
+  "comp_sha256": "e7068c6a66e705b65cf18bf453b674f950309ea9f6fc06a750b5a07fb76f7313",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.05,
+    0.0,
+    500056.275,
+    0.0,
+    -0.05,
+    5012795.275,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 12589,
+   "h": 13029,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 2
+ },
+ "f0243": {
+  "rel": "031_Новотитаровская/02_Новотитаровская_Li_карты/03_Новотитаровская_Li_g.tif",
+  "size": 165690079,
+  "sha256": "9be29938390c00834a39a6d68e30d97c5c97bd1ec79be7f151ac9a021e2a04f9",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0243.tif",
+  "comp_size": 57558412,
+  "comp_sha256": "8c13c6dea91e1e52d97c0f3f5d3e3e8ed5e60d3c673742e30776080d2fc15a28",
+  "verify": "ok",
+  "meta": {
+   "crs": null,
+   "transform": [
+    0.050000000000000926,
+    0.0,
+    500056.26,
+    0.0,
+    -0.0500000000000143,
+    5012795.28,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0
+   ],
+   "dtypes": [
+    "uint8"
+   ],
+   "count": 1,
+   "w": 12589,
+   "h": 13029,
+   "desc": [
+    null
+   ],
+   "ci": [
+    "gray"
+   ],
+   "scales": [
+    1.0
+   ],
+   "offsets": [
+    0.0
+   ],
+   "units": [
+    null
+   ],
+   "tags": {},
+   "btags": [
+    {
+     "RepresentationType": "THEMATIC",
+     "STATISTICS_COVARIANCES": "492.6895089726977",
+     "STATISTICS_MAXIMUM": "254",
+     "STATISTICS_MEAN": "177.63667597832",
+     "STATISTICS_MINIMUM": "0",
+     "STATISTICS_SKIPFACTORX": "1",
+     "STATISTICS_SKIPFACTORY": "1",
+     "STATISTICS_STDDEV": "22.196610303663"
+    }
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 1
+ },
+ "f0244": {
+  "rel": "031_Новотитаровская/02_Новотитаровская_Li_карты/04_Новотитаровская_Li_i.tif",
+  "size": 496499282,
+  "sha256": "edee5670bc2e83da45b842351806f32d2d01006b4a7c47f65afed78e50b02475",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0244.tif",
+  "comp_size": 61562723,
+  "comp_sha256": "65833bbd7b03764ce5cec0c142677e351280c40d93fe9efc24b7da055581248b",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.050000000000000926,
+    0.0,
+    500056.26,
+    0.0,
+    -0.0500000000000143,
+    5012795.28,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 12589,
+   "h": 13029,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 4
+ },
+ "f0245": {
+  "rel": "031_Новотитаровская/04_Новотитаровская_SpOr_спутник/01_Новотитаровская_SpOr_спутник.tif",
+  "size": 4503740,
+  "sha256": "ffe205a9cf9a18a4d7213cdaf62f36707d2b5fd1011ee9276e40bad329d1a185",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0245.tif",
+  "comp_size": 1490384,
+  "comp_sha256": "cc16871f2744f094143612857da551b03114d2e7d1600ee5b494594fb21cbc67",
+  "verify": "ok",
+  "meta": {
+   "crs": "PROJCS[\"WGS 84 / UTM zone 37N\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",39],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"32637\"]]",
+   "transform": [
+    0.4667444765342934,
+    0.0,
+    499958.1839,
+    0.0,
+    -0.46521305418665077,
+    5012560.7227,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 4,
+   "w": 1385,
+   "h": 812,
+   "desc": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue",
+    "alpha"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "per_dataset",
+     "alpha"
+    ],
+    [
+     "per_dataset",
+     "alpha"
+    ],
+    [
+     "per_dataset",
+     "alpha"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0249": {
+  "rel": "032_Красносельская_0.5км/01_Красносельская_0.5км_La_точки/01_Красносельская_0.5км_La_точки.las",
+  "size": 124472053,
+  "sha256": "4009476a0fa06c554a367d8d149377d7d852aa98ca4baab959349af794f07f41",
+  "kind": "las",
+  "method": "laz",
+  "comp_name": "f0249.laz",
+  "comp_size": 15598717,
+  "comp_sha256": "2fd38c8696212584a62afd20fbcae461e493b826eb4bdfde64381e0eb9a3f2c8",
+  "verify": "ok",
+  "meta": {
+   "version": "1.2",
+   "pf": 3,
+   "n": 3660936,
+   "scales": [
+    0.01,
+    0.01,
+    0.01
+   ],
+   "offsets": [
+    -0.0,
+    -0.0,
+    -0.0
+   ],
+   "vlrs": [],
+   "evlrs": 0,
+   "extra": [],
+   "vlr_bytes_eq": true
+  },
+  "sec": 0
+ },
+ "f0250": {
+  "rel": "032_Красносельская_0.5км/02_Красносельская_0.5км_Li_карты/01_Красносельская_0.5км_Li_c.tif",
+  "size": 130115514,
+  "sha256": "dc1b286907753699f78aef85fa958505c9076dc44c926549cbdecfac80e3f733",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0250.tif",
+  "comp_size": 27030319,
+  "comp_sha256": "e29955d83bb6d345aa217f88be18742c0092d89ea36bcbf6aa547c17a55d7ea5",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.05,
+    0.0,
+    511994.675,
+    0.0,
+    -0.05,
+    5012493.925,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 7207,
+   "h": 6018,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 1
+ },
+ "f0251": {
+  "rel": "032_Красносельская_0.5км/02_Красносельская_0.5км_Li_карты/02_Красносельская_0.5км_Li_ch.tif",
+  "size": 130115514,
+  "sha256": "1db32cd579afd00f47e820e753ab5b7872e0315f4800413e48ccaa854dc405c9",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0251.tif",
+  "comp_size": 35668013,
+  "comp_sha256": "7e709a841d1f2b3448168269f03ee29fb236de2ba1df5e74bfa4eb48bfd507c5",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.05,
+    0.0,
+    511994.675,
+    0.0,
+    -0.05,
+    5012493.925,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    null,
+    null,
+    null
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 7207,
+   "h": 6018,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "TIFFTAG_XRESOLUTION": "1",
+    "TIFFTAG_YRESOLUTION": "1",
+    "TIFFTAG_RESOLUTIONUNIT": "1 (unitless)",
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ],
+    [
+     "all_valid"
+    ]
+   ]
+  },
+  "sec": 1
+ },
+ "f0252": {
+  "rel": "032_Красносельская_0.5км/02_Красносельская_0.5км_Li_карты/03_Красносельская_0.5км_Li_g.tif",
+  "size": 34215718,
+  "sha256": "f31bb563f498755e262dd8ed0fde71f705f67dc107213ac831d69193ed4c30c5",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0252.tif",
+  "comp_size": 5016463,
+  "comp_sha256": "c48d3ae32735b3cd7d09b384b4affcecd44e6c51c43255fe111c96a26eb3951f",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.09999999999999677,
+    0.0,
+    511994.68,
+    0.0,
+    -0.10000000000012381,
+    5012493.920000001,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 3603,
+   "h": 3009,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0253": {
+  "rel": "032_Красносельская_0.5км/02_Красносельская_0.5км_Li_карты/04_Красносельская_0.5км_Li_i.tif",
+  "size": 34215718,
+  "sha256": "b58747d83672b1b70d44e9917df935478567c5c48e245eb2582816e54a136ddf",
+  "kind": "tif",
+  "method": "zstd",
+  "comp_name": "f0253.tif",
+  "comp_size": 4984498,
+  "comp_sha256": "608799cfb7d5ba63ec288a42528d1ddcf1cd1d6f1562b08f942c6414a18ffe04",
+  "verify": "ok",
+  "meta": {
+   "crs": "LOCAL_CS[\"unnamed\",UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+   "transform": [
+    0.09999999999999677,
+    0.0,
+    511994.68,
+    0.0,
+    -0.10000000000012381,
+    5012493.920000001,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "nodata": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "dtypes": [
+    "uint8",
+    "uint8",
+    "uint8"
+   ],
+   "count": 3,
+   "w": 3603,
+   "h": 3009,
+   "desc": [
+    null,
+    null,
+    null
+   ],
+   "ci": [
+    "red",
+    "green",
+    "blue"
+   ],
+   "scales": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "offsets": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "units": [
+    null,
+    null,
+    null
+   ],
+   "tags": {
+    "AREA_OR_POINT": "Area"
+   },
+   "btags": [
+    {},
+    {},
+    {}
+   ],
+   "ovr": [],
+   "masks": [
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ],
+    [
+     "nodata"
+    ]
+   ]
+  },
+  "sec": 0
+ },
+ "f0256": {
+  "rel": "033_Елизаветинское/01_Елизаветинское_La_точки/01_Елизаветинское_La_точки.las",
+  "size": 1162306039,
+  "sha256": "e7bfc4b3bd7de85646a4ebb3d59565391024daa7665321399ea0d91d4d65c50a",
+  "kind": "las",
+  "method": "laz",
+  "comp_name": "f0256.laz",
+  "comp_size": 176308741,
+  "comp_sha256": "fef9fb0d18d248bd6b9e65601612a69ba5a036d383a349da395658d5a49e881c",
+  "verify": "ok",
+  "meta": {
+   "version": "1.2",
+   "pf": 3,
+   "n": 34185465,
+   "scales": [
+    0.01,
+    0.01,
+    0.01
+   ],
+   "offsets": [
+    -0.0,
+    -0.0,
+    -0.0
+   ],
+   "vlrs": [],
+   "evlrs": 0,
+   "extra": [],
+   "vlr_bytes_eq": true
+  },
+  "sec": 4
+ }
+}

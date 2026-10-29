@@ -1,0 +1,23 @@
+loading seed0 folds…
+  seed0 f0: n_pred=9604 n_gt=838
+  seed0 f1: n_pred=974 n_gt=387
+  seed0 f2: n_pred=18730 n_gt=355
+  seed0 f3: n_pred=20694 n_gt=425
+  seed0 f4: n_pred=35645 n_gt=443
+LOFO global threshold…
+  holdout f0: train n_pred=76043 n_gt=1610
+    calib best_t=0.3 train_score=0.3070 (192.8s)
+    test@0.3=0.5170 test@0.3=0.5170
+  holdout f1: train n_pred=84673 n_gt=2061
+    calib best_t=0.35 train_score=0.3758 (253.6s)
+    test@0.35=0.1871 test@0.3=0.2254
+  holdout f2: train n_pred=66917 n_gt=2093
+    calib best_t=0.35 train_score=0.3749 (235.9s)
+    test@0.35=0.3269 test@0.3=0.3296
+  holdout f3: train n_pred=64953 n_gt=2023
+    calib best_t=0.35 train_score=0.3730 (233.2s)
+    test@0.35=0.3588 test@0.3=0.3470
+  holdout f4: train n_pred=50002 n_gt=2005
+    calib best_t=0.3 train_score=0.4193 (199.2s)
+    test@0.3=0.3126 test@0.3=0.3126
+full-pool global calib (deploy; optimistic)…

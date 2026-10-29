@@ -1,0 +1,6 @@
+ALL F1 A3=0.310530 B=0.312873 delta=+0.002344 (A3 slightly worse)
+ae  0.095556 / 0.095556
+li  0.336983 / 0.336983
+sp_or 0.231735 / 0.245064 delta=+0.013330 (A3 worse; more sp_or written 57 vs B 44)
+n_sp_dfine_in_state=482 n_raw=2506 pass_thr=13 wall~909s
+ENV=docker:pantum/n7q:20261024

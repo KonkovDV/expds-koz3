@@ -1,0 +1,11 @@
+loading seed0…
+  f0: n_pred=9604 n_gt=838
+  f1: n_pred=974 n_gt=387
+  f2: n_pred=18730 n_gt=355
+  f3: n_pred=20694 n_gt=425
+  f4: n_pred=35645 n_gt=443
+LOFO global…
+  f0: thr=0.3 test=0.5170 @0.3=0.5170 (141.2s)
+  [ckpt] lofo_global_partial
+  f1: thr=0.35 test=0.1871 @0.3=0.2254 (202.5s)
+  [ckpt] lofo_global_partial

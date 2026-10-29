@@ -1,0 +1,10 @@
+owner=pc-job-runner
+status=DONE_CHECK_VERDICT
+sha=b0add08e194853a351d520df19cfb9810c4db983
+job=C:\Sloi\pc_jobs\bot6_pixgbm_b0add08
+device=cpu
+threads=2
+match_reference=1
+verdict=FAIL
+heartbeat=2026-10-29T18:29:20+03:00
+note=models written; sha mismatch; metric_fallback max|dp| poly=0.446 finds=0.566 >1e-4; feature_name equal; wall~600s

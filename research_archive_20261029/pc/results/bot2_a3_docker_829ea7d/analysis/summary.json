@@ -1,0 +1,88 @@
+{
+  "source": "PC dump_A + gt + out_A @ bot2_a3_dfine_docker_829ea7d; analyzed 2026-10-29 ~18:50 MSK",
+  "n_raw": 2506,
+  "n_features_stages": 482,
+  "n_pass_thr": 13,
+  "scores_A3": {
+    "ALL": 0.31053,
+    "sp_or": 0.231735,
+    "ae": 0.095556,
+    "li": 0.336983
+  },
+  "scores_B": {
+    "ALL": 0.312873,
+    "sp_or": 0.245064
+  },
+  "raw_score": {
+    "p50": 0.0752,
+    "p90": 0.161,
+    "max": 0.734
+  },
+  "pass_thr_score": {
+    "p50": 0.64,
+    "p90": 0.7,
+    "max": 0.73
+  },
+  "dist_any_all_raw_m": {
+    "p50": 533.7,
+    "p90": 1616.3,
+    "within_2": 2,
+    "within_50": 122,
+    "within_200": 403
+  },
+  "dist_any_pass_thr_m": {
+    "p50": 388.2,
+    "p90": 891.8,
+    "within_2": 0,
+    "within_10": 0,
+    "within_50": 1,
+    "within_200": 4
+  },
+  "pass_offset_vs_nearest_gt": {
+    "mean_dx": 70.8,
+    "mean_dy": -200.3,
+    "mean_norm": 212.4,
+    "std_dx": 375.7,
+    "std_dy": 420.4,
+    "resid_p50": 306.0
+  },
+  "matched_13_dist_any_sorted_m": [
+    14.1,
+    96.7,
+    144.5,
+    191.1,
+    258.1,
+    327.4,
+    388.2,
+    439.7,
+    456.2,
+    598.8,
+    706.1,
+    891.8,
+    1508.1
+  ],
+  "dfine_to_nearest_unet_m_sorted": [
+    70.2,
+    90.5,
+    102.5,
+    161.9,
+    341.9,
+    389.0,
+    467.4,
+    471.4,
+    493.3,
+    669.5,
+    792.2,
+    826.7,
+    995.8
+  ],
+  "dfine_within_unet_50m": 0,
+  "locdump_all_spor_median_m": 2.02,
+  "locdump_n_spor": 57,
+  "note_locdump": "U-Net-dominated; 44 unet + 13 dfine",
+  "thr_sweep_mock_optimistic_center2m": {
+    "best_f1_all_raw": 0.00135,
+    "note": "only 2/2506 within 2m of any GT; lowering thr cannot create TPs"
+  },
+  "hypothesis": "NOT CRS/constant-offset (std>>mean); domain/model localization + thr lets 13 high-conf FP; agreement_m can neutralize"
+}

@@ -1,0 +1,12 @@
+{
+  "totals": {"n_raw_boxes": 2506, "n_ellipses": 2506, "n_features": 482, "n_would_pass_thr": 13, "n_paths": 2, "n_paths_done": 2},
+  "n_sp_dfine_in_state": 482,
+  "n_features_added_total": 482,
+  "unavailable": false,
+  "load_error": null,
+  "per_region": {
+    "101": {"n_raw_boxes": 1497, "n_features": 328, "n_would_pass_thr": 9},
+    "103": {"n_raw_boxes": 1009, "n_features": 154, "n_would_pass_thr": 4}
+  },
+  "written_markup": {"li": 143, "ae": 59, "sp_or": 57}
+}

@@ -1,0 +1,13 @@
+owner=pc-job-runner
+status=QUEUED
+sha=c3d912c1a7fb2a551d2a4d37446f8d840e138d71
+flag_commit=f9ad045
+branch=bots/bot2-e2e-v3-prep
+job=C:\Sloi\pc_jobs\bot2_a4_dfine_agreement_c3d912c
+wt=C:\Sloi\pc_jobs\wt_bot2_a4_c3d912c
+device=gpu-docker
+image=pantum/n7q:20261024
+runner=pc/runners/run_bot2_a4_dfine_agreement_docker.ps1
+agreement_m=50
+heartbeat=2026-10-29T18:54:30+03:00
+note=QUEUED after (c') dfine_aeor @2b745df; before bot6 pixgbm e2e-metric; gate ALL>=0.31287 sp_or>=0.235 no layer drop>0.01; JobDir/Wt on C:; scorer from out\tools

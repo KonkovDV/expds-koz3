@@ -1,0 +1,21 @@
+$ErrorActionPreference = 'Continue'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$Job = 'bot8_compliance'
+$Root = "C:\Sloi\pc_jobs\$Job"
+$Wt = "C:\Sloi\wt_bot8_orsp_tta"
+$Py = 'C:\Sloi\expds-koz3_v0.2.0\expds-koz3\.venv\Scripts\python.exe'
+New-Item -ItemType Directory -Force -Path $Root | Out-Null
+function Set-Status([string]$s) { Set-Content -Encoding UTF8 "$Root\STATUS.txt" -Value "$s $(Get-Date -Format o)" }
+Set-Status 'RUNNING'
+$env:PYTHONPATH = $Wt
+Push-Location $Wt
+try {
+  & $Py -m pytest -q tests/test_check_compliance.py tests/test_tta.py --tb=line *> "$Root\pytest.log"
+  # Also compliance on existing v3on zip if present (CPU)
+  $zip = 'F:\Sloi_pc_jobs_archive\v3e2e\kit\submission_bot7cand_v3on_0876090.zip'
+  if ((Test-Path $zip) -and (Test-Path "$Wt\scripts\check_compliance.py")) {
+    & $Py scripts\check_compliance.py $zip *> "$Root\compliance_v3on.log"
+  }
+  if ($LASTEXITCODE -ne 0) { Set-Status 'FAILED'; exit 1 }
+  Set-Status 'DONE'
+} catch { Set-Status 'FAILED exception'; exit 9 } finally { Pop-Location }

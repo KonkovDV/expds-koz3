@@ -1,0 +1,138 @@
+{
+ "regions": [
+  "101_Гнёздово_Днепровская",
+  "103_Гнёздово_Ольшанская"
+ ],
+ "rows": [
+  {
+   "region": "ALL",
+   "markup": "ALL",
+   "gt": 450,
+   "n_off": 246,
+   "f1_off": 0.31287332016326125,
+   "n_on_shape_cores": 246,
+   "f1_on_shape_cores": 0.31287332016326125,
+   "delta": 0.0
+  },
+  {
+   "region": "ALL",
+   "markup": "ae",
+   "gt": 252,
+   "n_off": 59,
+   "f1_off": 0.09555648513894874,
+   "n_on_shape_cores": 59,
+   "f1_on_shape_cores": 0.09555648513894874,
+   "delta": 0.0
+  },
+  {
+   "region": "ALL",
+   "markup": "li",
+   "gt": 115,
+   "n_off": 143,
+   "f1_off": 0.3369826841738736,
+   "n_on_shape_cores": 143,
+   "f1_on_shape_cores": 0.3369826841738736,
+   "delta": 0.0
+  },
+  {
+   "region": "ALL",
+   "markup": "sp_or",
+   "gt": 83,
+   "n_off": 44,
+   "f1_off": 0.24506447812926463,
+   "n_on_shape_cores": 44,
+   "f1_on_shape_cores": 0.24506447812926463,
+   "delta": 0.0
+  },
+  {
+   "region": "101_Гнёздово_Днепровская",
+   "markup": "ALL",
+   "gt": 292,
+   "n_off": 242,
+   "f1_off": 0.34703135177159605,
+   "n_on_shape_cores": 242,
+   "f1_on_shape_cores": 0.34703135177159605,
+   "delta": 0.0
+  },
+  {
+   "region": "101_Гнёздово_Днепровская",
+   "markup": "ae",
+   "gt": 108,
+   "n_off": 58,
+   "f1_off": 0.2429147080859864,
+   "n_on_shape_cores": 58,
+   "f1_on_shape_cores": 0.2429147080859864,
+   "delta": 0.0
+  },
+  {
+   "region": "101_Гнёздово_Днепровская",
+   "markup": "li",
+   "gt": 115,
+   "n_off": 143,
+   "f1_off": 0.3369826841738736,
+   "n_on_shape_cores": 143,
+   "f1_on_shape_cores": 0.3369826841738736,
+   "delta": 0.0
+  },
+  {
+   "region": "101_Гнёздово_Днепровская",
+   "markup": "sp_or",
+   "gt": 69,
+   "n_off": 41,
+   "f1_off": 0.35151488631791067,
+   "n_on_shape_cores": 41,
+   "f1_on_shape_cores": 0.35151488631791067,
+   "delta": 0.0
+  },
+  {
+   "region": "103_Гнёздово_Ольшанская",
+   "markup": "ALL",
+   "gt": 158,
+   "n_off": 4,
+   "f1_off": 0.006992999947022781,
+   "n_on_shape_cores": 4,
+   "f1_on_shape_cores": 0.006992999947022781,
+   "delta": 0.0
+  },
+  {
+   "region": "103_Гнёздово_Ольшанская",
+   "markup": "ae",
+   "gt": 144,
+   "n_off": 1,
+   "f1_off": 0.0,
+   "n_on_shape_cores": 1,
+   "f1_on_shape_cores": 0.0,
+   "delta": 0.0
+  },
+  {
+   "region": "103_Гнёздово_Ольшанская",
+   "markup": "sp_or",
+   "gt": 14,
+   "n_off": 3,
+   "f1_off": 0.09523799319729304,
+   "n_on_shape_cores": 3,
+   "f1_on_shape_cores": 0.09523799319729304,
+   "delta": 0.0
+  }
+ ],
+ "counts_off": {
+  "li/gorodishcha": 9,
+  "li/fortifikatsii": 13,
+  "li/kurgany_tselye": 41,
+  "li/kurgany_povrezhdennye": 80,
+  "ae/kurgany_povrezhdennye": 58,
+  "sp_or/kurgany_povrezhdennye": 34,
+  "ae/fortifikatsii": 1,
+  "sp_or/arkhitektury": 10
+ },
+ "counts_on_shape_cores": {
+  "li/gorodishcha": 9,
+  "li/fortifikatsii": 13,
+  "li/kurgany_tselye": 41,
+  "li/kurgany_povrezhdennye": 80,
+  "ae/kurgany_povrezhdennye": 58,
+  "sp_or/kurgany_povrezhdennye": 34,
+  "ae/fortifikatsii": 1,
+  "sp_or/arkhitektury": 10
+ }
+}

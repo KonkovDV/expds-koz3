@@ -1,0 +1,9 @@
+owner=pc-job-runner
+status=FAILED
+sha=35ca3df6c851d6a02d5a1a1eb872f54fe2c43a83
+job=F:\Sloi_pc_jobs\bot8_compliance_35ca3df
+device=cpu
+pytest=14_passed
+compliance=FAIL features=0 then UnicodeEncodeError cp1251 on print
+heartbeat=2026-10-29T18:12:35+03:00
+note=pytest OK; check_compliance on v3on zip features=0 + encode crash — not a runner bug
