@@ -253,9 +253,11 @@ def rooted_verify(cfg: dict, root: Path) -> dict:
     return {**cfg, "verify": opts}
 
 
-def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
+def _segmenters(models: dict, markup: str, root: Path, tta: int = 1,
+                 ms_scales: list[float] | None = None) -> list:
     from .infer_nn import Ensemble, Segmenter
 
+    scales = [float(s) for s in (ms_scales or [1.0])]
     segs = []
     for (path, classes), only in zip(model_specs(models, markup), model_ensemble_only(models, markup)):
         files = [Path(f) if Path(f).is_absolute() else root / f for f in model_files(path)]
@@ -267,6 +269,7 @@ def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
         seg = members[0] if len(members) == 1 else Ensemble(members, only=only)
         seg.keep = set(classes) if classes else None
         seg.tta = tta
+        seg.ms_scales = scales  # bot-8: [1.0] / отсутствие = OFF (байт-идентично)
         segs.append(seg)
     return segs
 
@@ -274,8 +277,14 @@ def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
 def _cached_segmenters(seg_cache: dict, cfg: dict, markup: str, root: Path) -> list:
     """Модели модальности загружаются один раз за прогон."""
     if markup not in seg_cache:
-        seg_cache[markup] = _segmenters(cfg.get("models", {}), markup, root,
-                                        int(cfg.get("tta", {}).get(markup, 1)))
+        raw_ms = cfg.get("ms", {}).get(markup, [1.0])
+        if isinstance(raw_ms, (int, float)):
+            raw_ms = [float(raw_ms)]
+        seg_cache[markup] = _segmenters(
+            cfg.get("models", {}), markup, root,
+            tta=int(cfg.get("tta", {}).get(markup, 1)),
+            ms_scales=[float(s) for s in raw_ms],
+        )
     return seg_cache[markup]
 
 
