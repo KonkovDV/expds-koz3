@@ -353,10 +353,19 @@ filter_finds_points = true
 # P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
 # bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
 kurgan_twins_only = true
-# bot-7 v3: курганы внутри предсказанных городищ (правило разметки, OSINT_2026-10-29 §1.2; PREREG bot-7/work6/kig).
-# ВЫКЛ.: честно −0,000848, P 0,187, LOFO −0,000932, 0/5, new34 −0,002876 (bot-7/work6/kig/stats_kig.log);
-# с эталонными городищами (оракул) всего +0,000537 — потолок ниже П1.
-kurgan_in_gor = false
+# bot-7 v3: наш kurgan_in_gor (курганы в предсказанных городищах) удалён — заменён правилом аудита
+# kurgans_outside_hillforts ниже. Наш замер был: −0,000848, P 0,187, LOFO −0,000932, 0/5 (bot-7/work6/kig/stats_kig.log).
+# Аудит 29.10 (docs/AUDIT_CLAUDE_2026-10-29.md §5): два рычага соперника, которых в v2 нет. ВЫКЛЮЧЕНЫ до табло.
+# Правило разметки «насыпи внутри городищ не размечаются»: курган внутри выданного городища убирается
+# (после порогов, порогов не трогает). Замер: oof_transform.py gormask → scoreboard.py --honest 10.
+# kurgans_outside_hillforts = true
+# Множитель соседства курганов (могильники): conf × (0,5 + 0,5·clip(n/3, 0, 2)), n — соседи в 200 м.
+# До порогов: включать ТОЛЬКО вместе с порогами групп li/li_coarse/li_mosaic, подобранными после
+# oof_transform.py neigh (иначе пороги сдачи разойдутся с замером).
+# [post.kurgan_neighbour_prior]
+# groups = ["li", "li_coarse", "li_mosaic"]
+# radius_m = 200.0
+# k = 3.0
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).

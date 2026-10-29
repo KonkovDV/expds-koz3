@@ -322,21 +322,14 @@ def test_no_personal_paths_in_packaged_code():
     assert not bad, bad
 
 
-def test_kurgan_in_gor_flag_off_and_filter():
+def test_kurgan_in_gor_replaced_by_audit_gormask():
+    """наш kurgan_in_gor (−0,000848) удалён; правило — kurgans_outside_hillforts аудита, по умолчанию выкл."""
     import tomllib
-    from shapely.geometry import Point, box
     from expds import post
 
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
-    assert cfg["post"].get("kurgan_in_gor") is False
-    gor = {"class_name": "gorodishcha", "region_name": "r1", "geom": box(0, 0, 100, 100), "confidence": 0.9}
-    k_in = {"class_name": "kurgany_tselye", "region_name": "r1", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    k_edge = {"class_name": "kurgany_povrezhdennye", "region_name": "r1", "geom": Point(103, 50).buffer(5), "confidence": 0.9}
-    k_other = {"class_name": "kurgany_tselye", "region_name": "r2", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    arch = {"class_name": "arkhitektury", "region_name": "r1", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    out = post.drop_kurgans_in_hillforts([gor, k_in, k_edge, k_other, arch])
-    assert out == [gor, k_edge, k_other, arch]
-    assert post.drop_kurgans_in_hillforts([k_in]) == [k_in]
+    assert "kurgan_in_gor" not in cfg["post"] and not cfg["post"].get("kurgans_outside_hillforts")
+    assert not hasattr(post, "drop_kurgans_in_hillforts")
 
 
 def test_flag_modules_not_packaged_when_off():
