@@ -37,12 +37,12 @@
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": "coord",
+   "holder": null,
    "reserved_for": "bot-W1-aeor",
-   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f01",
-   "since": "29.10 23:15 MSK",
-   "until": "30.10 03:15 MSK",
-   "purpose": "fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU"
+   "kernel": null,
+   "purpose": "fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU",
+   "state": "свободен",
+   "last": "снято coord 30.10 01:18 MSK"
   },
   {
    "slot": "acc2/gpu-2",
@@ -343,25 +343,6 @@
    "pid": 20871
   },
   {
-   "resource": "slot:acc2/gpu-1",
-   "owner": "coord",
-   "since": 1793304943.477116,
-   "expires": 1793319343.477116,
-   "note": "fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU",
-   "host": "grok-bot-vm-361051398",
-   "pid": 33707,
-   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f01"
-  },
-  {
-   "resource": "kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f01",
-   "owner": "coord",
-   "since": 1793304943.508163,
-   "expires": 1793319343.508163,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 33712
-  },
-  {
    "resource": "slot:acc1/cpu",
    "owner": "bot-W5-rerank",
    "since": 1793305084.635371,
@@ -384,7 +365,7 @@
    "resource": "branch:bots/orch-protocol",
    "owner": "coord",
    "since": 1793302266.263569,
-   "expires": 1794519427.357901,
+   "expires": 1794521270.345725,
    "note": "georeview push",
    "host": "grok-bot-vm-361051398",
    "pid": 44006

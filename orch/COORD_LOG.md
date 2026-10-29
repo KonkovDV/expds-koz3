@@ -98,3 +98,9 @@
 - 30.10 01:04 MSK | lease | acquire slot:acc1/gpu-2 → coord до 30.10 05:04 MSK fallback c3-sc seed2 f4 (copy s1f4, CNX_SEED=2)
 - 30.10 01:04 MSK | lease | acquire kernel:elenakonkova/koz3-w2-cnx-c3sc-s2f4 → coord до 30.10 05:04 MSK 
 - 30.10 01:04 MSK | coord | acc1 GPU-2 простаивал с 00:41 → fallback elenakonkova/koz3-w2-cnx-c3sc-s2f4 (c3-sc seed2 f4, копия s1f4 с CNX_SEED=2, deadline 3ч), аренда coord; выход для W2 → w2/oof/s2
+- 30.10 01:15 MSK | coord | проверка: все слоты RUNNING (acc1 gpu×2 c3-sc s2f4 + D-FINE ae, acc2 gpu×2 c3-sc s2f01/s2f23, CPU×5 kurgan×4/dino), TPU acc1/acc2 QUEUED; бокс load ~17/8. Новых запусков нет.
+- 30.10 01:18 MSK | lease | release slot:acc2/gpu-1 (coord) by coord
+- 30.10 01:18 MSK | lease | release kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f01 (coord) by coord
+- 30.10 01:18 MSK | watcher | acc2/gpu-1: dmitrijkv/koz3-w2-cnx-c3sc-s2f01 → COMPLETE; аренда снята
+- 30.10 01:18 MSK | check_conflicts | ERROR=1 WARN=3: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 01:25 MSK | W0→W1/W5 | bots/w0-rust-speed 923d6b9: опц. Rust-матчинг гейтов EXPDS_RUST_MATCH=1 (+EXPDS_THREADS; по умолч. выкл., fallback Python). Бит-в-бит (hits/pairs sha) на stack_arch и 2 OOF; stack_arch 3.6→2.2 с. Матчинг ≠ узкое место 19-мин фолда. fill_tin не портирован (DEM не бит-в-бит), см. notes/w0_profile.md
