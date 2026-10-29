@@ -37,7 +37,7 @@ CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektu
 LIMIT = 2 * 1024 ** 3
 FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
              ".shp", ".gpkg", ".zip", ".ipynb", ".pkl"}
-STORED = {".pt", ".pth", ".so", ".onnx", ".ckpt", ".bin"}
+STORED = {".pt", ".pth", ".so", ".onnx", ".ckpt", ".bin", ".whl"}
 EPOCH = (1980, 1, 1, 0, 0, 0)
 
 
@@ -61,12 +61,21 @@ def model_refs(cfg: dict) -> list[str]:
     out += [v["weights"]] if v.get("enabled") and v.get("weights") else []
     rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
     out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
+    lc = cfg.get("li_cnx") or {}        # bot-8 bot8-cnx: ConvNeXt-лидар bot-9, только если включён и есть веса
+    if lc.get("enabled") and lc.get("weights"):
+        w = lc["weights"]
+        out += [w] if isinstance(w, str) else list(w)
     seen, uniq = set(), []
     for p in out:
         if p not in seen:
             seen.add(p)
             uniq.append(p)
     return uniq
+
+
+def cnx_enabled(cfg: dict) -> bool:
+    lc = cfg.get("li_cnx") or {}
+    return bool(lc.get("enabled")) and bool(lc.get("weights"))
 
 
 def main() -> int:
@@ -123,6 +132,12 @@ def main() -> int:
     except tomllib.TOMLDecodeError as exc:
         sys.exit(f"конфиг не TOML: {exc}")
     files["configs/default.toml"] = cfg_text.encode("utf-8")
+    if cnx_enabled(cfg):   # bot-8 bot8-cnx: вендор подготовки bot-9 (cnx_prep.py, vendor/, _deps/rvt, колесо rvt-py)
+        cnx = [p for p in tracked if p.startswith("inference/cnx/") and "/__pycache__/" not in p]
+        if "inference/cnx/cnx_prep.py" not in cnx:
+            sys.exit("[li_cnx] включён, но в коммите нет inference/cnx/ (вендор подготовки cnx)")
+        for p in cnx:
+            files[p] = blob(p)
     meta = json.loads(files["metadata.json"])
     if not meta.get("image") or "<" in str(meta.get("image")) or not meta.get("entry_point"):
         sys.exit(f"metadata.json не заполнен: {meta}")

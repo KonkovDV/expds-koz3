@@ -44,7 +44,12 @@ def collect() -> list[Path]:
     seen = set()
     rr = cfg.get("rerank_arch") or {}
     rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank:
+    lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
+    cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
+        if lc.get("enabled") else []
+    if cnx_w:
+        files += sorted(p for p in (ROOT / "inference" / "cnx").rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + cnx_w:
         if not rel or rel in seen:
             continue
         seen.add(rel)
