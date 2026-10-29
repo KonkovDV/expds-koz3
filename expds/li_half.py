@@ -14,7 +14,8 @@
 - только классы курганов; уверенность — максимум карты в окне 5×5 вокруг пика;
 - группа порога li_half (thresholds_by_markup.li_half);
 - выдаются только НОВЫЕ курганы: отбор 12 м против кругов основного li,
-  которые принятый порог уже оставляет (как li_dev: drop_near_kurgans + KEPT_KURGAN_CONF);
+  которые принятый порог уже оставляет (drop_near_kurgans + KEPT_KURGAN_CONF), любого класса кургана;
+  принятые li_half потом — якоря cnx и σ (bot-8);
 - мозаика (LAS > 60 млн ячеек на 0,1 м): проход идёт по DEM мозаики 0,5 м, которая
   строится кусками 400 м с полем 40 м (lidar.build_dem_mosaic) — перекрытие ≥ 40 м.
 
@@ -120,7 +121,7 @@ def has_thresholds(cfg: dict | None, hp: dict | None = None) -> bool:
 
 def est_s(t_main_s: float, hp: dict) -> float:
     """bot-8: оценка времени прохода на LAS: max(5, 0,35 × время основного li на этом LAS × tta прохода).
-    Проход — сетка 1 м (¼ ячеек 0,5 м) и tta 1, плюс второй детектор; 0,35 — с запасом (бот 2: +2 с к 23 с)."""
+    Проход — сетка 1 м (¼ ячеек 0,5 м) и tta 1, плюс второй детектор; 0,35 — с запасом, оставлен в v1 (бот 2 намерил ≈0,2: +2 с к 23 с)."""
     return max(5.0, 0.35 * max(0.0, float(t_main_s)) * max(1, int(hp.get("tta") or 1)))
 
 
@@ -196,10 +197,11 @@ def half_pass(seg, d, region: str, source: str, base_cand: candidates.CandidateP
 
 
 def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
-    """Только новые курганы: ближе dedupe_m к оставленному кругу основного li того же класса — вон."""
+    """Только новые курганы: ближе dedupe_m к оставленному кругу кургана основного li ЛЮБОГО класса — вон
+    (bot-8, решение бота 2: целый рядом с повреждённым — тот же насып)."""
     from .pipeline import drop_near_kurgans, kept_kurgan_anchors
 
-    return drop_near_kurgans(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
+    return drop_near_kurgans(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]), cross_class=True)
 
 
 def floor(feats: list[dict], floors: dict[str, float]) -> list[dict]:

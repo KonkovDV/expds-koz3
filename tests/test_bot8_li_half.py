@@ -147,6 +147,7 @@ def lidar_env(val_dir, monkeypatch):
     def half(seg, d, region, source, cand, hp, dump=None, extra=None):
         calls.append({"hp": hp, "dump": dump})
         return [_circ(5.0, 0.8, "li_half", region=region), _circ(50.0, 0.8, "li_half", region=region),
+                _circ(1.0, 0.8, "li_half", cls="kurgany_povrezhdennye", region=region),   # повреждённый у целого li
                 _circ(90.0, 0.1, "li_half", region=region)]
 
     monkeypatch.setattr(li_half, "half_pass", half)
@@ -169,7 +170,7 @@ def test_lidar_feats_li_half_new_only_and_hillfort_not_clobbering(lidar_env):
     reg, calls, root = lidar_env
     out = pipeline.lidar_feats(reg, _cfg(), TimeGuard(1000), {}, root)
     assert len(calls) == 1 and calls[0]["hp"]["group"] == "li_half"
-    assert _half(out) == [50]                  # 5 м от принятого li — вон; 0,1 < порога 0,5 — вон
+    assert _half(out) == [50]     # 5 м от принятого li — вон; повреждённый в 1 м от целого li — вон; 0,1 < 0,5 — вон
     assert any(f.get("markup_type") == "li" and not f.get("threshold_group") for f in out)
 
 
@@ -216,3 +217,58 @@ def test_cnx_does_not_recount_accepted_li_half():
     kept = pipeline.dedupe_cnx(fresh, pool, cfg)
     # 52 — дубль принятого li_half (50), 3 — дубль принятого li; 152 — li_half там ниже своего порога
     assert [round(f["geom"].centroid.x) for f in kept] == [152]
+
+
+# ---------- отбор без учёта класса кургана (решение бота 2) и якоря σ ----------
+
+def test_drop_near_kurgans_cross_class():
+    anchor = _circ(0.0, 0.9)                                            # целый
+    dmg = _circ(1.0, 0.8, cls="kurgany_povrezhdennye")
+    far = _circ(30.0, 0.8, cls="kurgany_povrezhdennye")
+    gor = _circ(1.0, 0.8, cls="gorodishcha")
+    other_reg = _circ(1.0, 0.8, cls="kurgany_povrezhdennye", region="region_0002")
+    assert pipeline.drop_near_kurgans([dmg, far, gor], [anchor], 12.0) == [dmg, far, gor]        # по умолчанию — как было
+    assert pipeline.drop_near_kurgans([dmg, far, gor, other_reg], [anchor], 12.0, cross_class=True) == [far, gor, other_reg]
+
+
+def test_li_half_new_only_cross_class():
+    hp = li_half.params({})
+    main = [_circ(0.0, 0.9), _circ(100.0, 0.07, cls="kurgany_povrezhdennye"), _circ(200.0, 0.1)]   # 200: ниже 0,19422
+    half = [_circ(3.0, 0.8, "li_half", cls="kurgany_povrezhdennye"), _circ(103.0, 0.8, "li_half"),
+            _circ(203.0, 0.8, "li_half"), _circ(150.0, 0.8, "li_half")]
+    assert [round(f["geom"].centroid.x) for f in li_half.new_only(half, main, hp)] == [203, 150]
+
+
+def test_cnx_cross_class_vs_lidar_same_class_vs_optics():
+    cfg = {"thresholds_by_markup": {"li_half": THR, "li_cnx": THR}}
+    pool = [_circ(0.0, 0.9),                                                    # li целый (принят)
+            _circ(100.0, 0.8, "li_half"),                                       # li_half целый (принят)
+            _circ(200.0, 0.9, mt="sp_or")]                                      # оптика целый (принят)
+    dmg = "kurgany_povrezhdennye"
+    fresh = [_circ(2.0, 0.9, "li_cnx", cls=dmg), _circ(102.0, 0.9, "li_cnx", cls=dmg),
+             _circ(202.0, 0.9, "li_cnx", cls=dmg), _circ(204.0, 0.9, "li_cnx")]
+    kept = pipeline.dedupe_cnx(fresh, pool, cfg)
+    # у li и li_half — без учёта класса; у оптики повреждённый рядом с целым остаётся, целый — дубль
+    assert [(round(f["geom"].centroid.x), f["class_name"]) for f in kept] == [(202, dmg)]
+
+
+def test_sigma_anchors_include_accepted_li_half_and_cnx():
+    cfg = {"thresholds_by_markup": {"li_half": THR, "li_cnx": THR}}
+    base = [_circ(0.0, 0.9), _circ(10.0, 0.1), _circ(20.0, 0.9, mt="sp_or")]
+    assert pipeline.sigma_anchors(base, cfg) == pipeline.kept_kurgan_anchors(base)              # без li_half/cnx — как было
+    half_ok, half_low = _circ(100.0, 0.8, "li_half"), _circ(150.0, 0.3, "li_half")
+    cnx_ok = _circ(200.0, 0.6, "li_cnx", cls="kurgany_povrezhdennye")
+    anchors = pipeline.sigma_anchors(base + [half_ok, half_low, cnx_ok], cfg)
+    assert half_ok in anchors and cnx_ok in anchors and half_low not in anchors
+    assert pipeline.sigma_anchors([half_ok, cnx_ok], {}) == []                                   # без таблиц — не якоря
+    sig = [_circ(103.0, 0.9, "li_dev"), _circ(203.0, 0.9, "li_dev", cls="kurgany_povrezhdennye"),
+           _circ(153.0, 0.9, "li_dev")]
+    kept = pipeline.drop_near_kurgans(sig, anchors, 12.0)
+    assert [round(f["geom"].centroid.x) for f in kept] == [153]
+
+
+def test_run_sigma_uses_sigma_anchors():
+    import inspect
+    src = inspect.getsource(pipeline.run)
+    assert "drop_near_kurgans(fresh, sigma_anchors(pool, cfg), 12.0)" in src
+    assert "kept_kurgan_anchors(pool)" not in src
