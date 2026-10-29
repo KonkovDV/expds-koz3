@@ -537,8 +537,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     # relief_radius_l_m, берутся из конфига: принятое табло — один проход.
                     try:
                         from . import hillfort
+                        from . import large_objects as _lo
                         hp = hillfort.params_from(hf)
-                        feats += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
+                        dem_hf = hillfort.build_dem(las, crs_region, hp)
+                        feats += hillfort.candidates(dem_hf, reg.name, las.name, hp)
+                        # bot-4: грубый проход для площадок ≥5k м² (группа gor_coarse_dem).
+                        if _lo.enabled(cfg):
+                            feats += _lo.coarse_hillfort_candidates(
+                                dem_hf, reg.name, las.name, _lo.spec(cfg))
                     except Exception:
                         log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True

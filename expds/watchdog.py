@@ -138,8 +138,10 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
-    # bot-4 large_objects: area-aware τ (и дальше protect-склейка / ядра — см. ниже).
+    # bot-4 large_objects: кандидаты fort→gor до порогов; area-aware τ; ядра — ниже.
     from . import large_objects as _lo
+    if _lo.enabled(cfg):
+        out = _lo.fort_to_gor(out, _lo.spec(cfg))
     if _lo.enabled(cfg):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
@@ -172,6 +174,9 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):
         out = post.shape_cores(out, post_cfg["core"])
+    # bot-4: ядра только у крупных городищ (не глобальный F2 bot-2).
+    if _lo.enabled(cfg):
+        out = _lo.shape_cores_large(out, _lo.spec(cfg))
     if post_cfg.get("split"):
         out = post.split_large(out, post_cfg["split"])
     if post_cfg.get("ellipse_classes") or post_cfg.get("fort_medial"):
@@ -250,6 +255,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     from . import large_objects as _lo
     if _lo.enabled(cfg):
+        out = _lo.fort_to_gor(out, _lo.spec(cfg))
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    cfg.get("thresholds_by_markup", {}), _lo.spec(cfg))
     else:
