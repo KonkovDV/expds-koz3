@@ -300,6 +300,34 @@ def windows(dem, left, top, cx, cy):
     return (z - ref).astype(np.float32), zl.astype(np.float32), zr.astype(np.float32)
 
 
+def align_coords(laz, cx, cy):
+    """Если центроиды не попадают в габарит LAS, пробуем считать их UTM соседней зоны (±1) и перевести в CRS LAS.
+    Нужно для 068/069 (LAS в EPSG:32652, центроиды стека — в зоне 53). Возвращает (cx, cy, примечание)."""
+    import laspy
+    h = laspy.open(str(laz)).header
+    x0, y0, x1, y1 = h.mins[0], h.mins[1], h.maxs[0], h.maxs[1]
+    def inside(x, y):
+        return float(np.mean((x >= x0) & (x <= x1) & (y >= y0) & (y <= y1)))
+    fr = inside(cx, cy)
+    if fr > 0.5:
+        return cx, cy, f"inside={fr:.3f}"
+    try:
+        crs = h.parse_crs()
+        epsg = crs.to_epsg() if crs is not None else None
+    except Exception:
+        epsg = None
+    if epsg and 32601 <= epsg <= 32660:
+        from pyproj import Transformer
+        for dz in (1, -1):
+            src = epsg + dz
+            t = Transformer.from_crs(f"EPSG:{src}", f"EPSG:{epsg}", always_xy=True)
+            x, y = t.transform(cx, cy)
+            f2 = inside(x, y)
+            if f2 > 0.5:
+                return np.asarray(x), np.asarray(y), f"reprojected EPSG:{src}->EPSG:{epsg} inside={f2:.3f}"
+    return cx, cy, f"outside_las inside={fr:.3f} las_epsg={epsg}"
+
+
 def find_laz(root, region):
     d = Path(root) / region
     c = sorted(d.glob("01_*La*/*.la[sz]"))
@@ -331,6 +359,8 @@ def main():
         if laz is None:
             info["status"] = "no_laz"
         else:
+            ccx, ccy, note = align_coords(laz, cx[m], cy[m])
+            info["coords"] = note
             t0 = time.perf_counter()
             dem, gi = accel.las_grid(str(laz), RES, 2, 60_000_000)
             t1 = time.perf_counter()
@@ -344,8 +374,8 @@ def main():
             else:
                 for s in range(0, m.size, a.batch):
                     j = m[s:s + a.batch]
-                    feats[s:s + j.size] = features(windows(dem, gi["left"], gi["top"], cx[j], cy[j]))
-                info["status"] = "ok"
+                    feats[s:s + j.size] = features(windows(dem, gi["left"], gi["top"], ccx[s:s + j.size], ccy[s:s + j.size]))
+                info["status"] = "ok" if not note.startswith("outside") else "outside_las"
             t3 = time.perf_counter()
             info["t_feat_s"] = round(t3 - t2, 2)
             info["s_per_cand_feat"] = (t3 - t2) / max(m.size, 1)
