@@ -94,9 +94,12 @@ def test_no_thresholds_no_model_load(monkeypatch, tmp_path):
         raise AssertionError("модель не должна грузиться без порогов")
 
     monkeypatch.setattr(sp_dfine, "load_models", boom)
-    cfg = {"sp_dfine": {"enabled": True, "weights": ["x"]}}
+    cfg = {"sp_dfine": {"enabled": True, "weights": ["x"], "strict": False}}
     reg = SimpleNamespace(name="r", rasters={"sp_or": [tmp_path / "a.tif"]})
     assert sp_dfine.region_feats(reg, cfg, None, {}, tmp_path) == ([], False)
+    # Murder Board 29.10 (bot-10): по умолчанию strict — без порогов не тихий v2, а ошибка
+    with pytest.raises(sp_dfine.DFineUnavailable):
+        sp_dfine.region_feats(reg, {"sp_dfine": {"enabled": True, "weights": ["x"]}}, None, {}, tmp_path)
     ok, missing = sp_dfine.thresholds_ready(cfg)
     assert not ok and len(missing) == 5
 

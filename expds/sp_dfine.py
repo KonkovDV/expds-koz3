@@ -54,6 +54,10 @@ DEFAULTS = {
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",
+    # bot-10 (Murder Board 29.10): при enabled = true отсутствие DFine* в transformers, весов или порогов —
+    # ЖЁСТКАЯ ошибка прогона (иначе v3 молча превращается в v2). strict = false — старое мягкое поведение.
+    "strict": True,
+    "transformers_version": "5.21.0",   # пин: из колёс bot-9 submission_dfine (requirements-dfine.txt)
 }
 
 
@@ -64,6 +68,48 @@ def settings(cfg: dict) -> dict:
 
 def enabled(cfg: dict) -> bool:
     return bool((cfg.get("sp_dfine") or {}).get("enabled", False))
+
+
+class DFineUnavailable(RuntimeError):
+    """D-FINE включён, но не может работать (нет классов transformers, весов, порогов или версия не та)."""
+
+
+def preflight(cfg: dict, root: Path) -> dict:
+    """Проверка до начала прогона при [sp_dfine] enabled = true (bot-10, Murder Board 29.10).
+
+    Возвращает сведения для протокола; при strict = true на любой проблеме бросает DFineUnavailable,
+    чтобы v3 не превратился молча в v2 (контейнер без DFine*, пустые weights, нет порогов, чужая версия).
+    """
+    st = settings(cfg)
+    info: dict = {"enabled": True, "strict": bool(st["strict"]), "transformers": "нет", "problems": []}
+    problems = info["problems"]
+    ready, missing = thresholds_ready(cfg)
+    if st["require_thresholds"] and not ready:
+        problems.append("нет порогов [thresholds_by_markup.sp_dfine] для " + ", ".join(missing))
+    if not st["weights"]:
+        problems.append("weights пуст")
+    for rel in st["weights"]:
+        p = Path(rel)
+        p = p if p.is_absolute() else Path(root) / p
+        for name in ("config.json", "model.safetensors"):
+            if not (p / name).is_file():
+                problems.append(f"нет {p / name}")
+    try:
+        _vendor_path(root)
+        import transformers
+        info["transformers"] = str(getattr(transformers, "__version__", "?"))
+        from transformers import DFineConfig, DFineForObjectDetection  # noqa: F401
+    except Exception as e:  # ImportError или сломанный transformers
+        problems.append(f"transformers без DFineConfig/DFineForObjectDetection ({type(e).__name__}: {e})")
+    pin = st.get("transformers_version")
+    if pin and info["transformers"] not in ("нет", pin):
+        problems.append(f"transformers {info['transformers']} != пин {pin}")
+    if problems:
+        msg = "sp_dfine включён, но не готов: " + "; ".join(problems)
+        if st["strict"]:
+            raise DFineUnavailable(msg)
+        log.error("%s (strict = false: D-FINE будет пропущен, прогон = v2)", msg)
+    return info
 
 
 def thresholds_ready(cfg: dict) -> tuple[bool, list[str]]:
@@ -433,13 +479,17 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
                       ", ".join(missing))
         elif not st["weights"]:
             log.error("sp_dfine: weights пуст — D-FINE не запускается")
+        if st["strict"] and (not ready and st["require_thresholds"] or not st["weights"]):
+            raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
         else:
             try:
                 dev = _device(st)
                 t0 = time.monotonic()
                 cache["models"], cache["device"] = load_models(st, root, dev), dev
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
-            except Exception:
+            except Exception as e:
+                if st["strict"]:
+                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({type(e).__name__}: {e})") from e
                 log.exception("sp_dfine: модели не загрузились, D-FINE пропущен")
     models = cache["models"]
     if not models:

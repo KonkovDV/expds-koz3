@@ -1269,6 +1269,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
             found, complete = sp_dfine.region_feats(
                 reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),   # как в обучении bot-9 (Scene: UTM.json), не [crs] vote
                 soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
+        except sp_dfine.DFineUnavailable:
+            raise   # strict: v3 не должен молча стать v2 (bot-10)
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
             found, complete = [], False
@@ -1280,6 +1282,11 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
             log.info("%s: sp_dfine %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         if not cache.get("models"):
             break
+    note = getattr(state, "note", None)
+    info = note.setdefault("sp_dfine", {"enabled": True}) if isinstance(note, dict) else {}
+    info.update({"models": len(cache.get("models") or []), "raw": n, "regions_full": len(full)})
+    log.info("sp_dfine: ИТОГ моделей %d, детекций (сырых, после кластеризации) %d, участков полностью %d",
+             info["models"], n, len(full))
     if st["drop_groups"] and full:
         before = len(state.snapshot())
         state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
@@ -1367,6 +1374,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         "budget_s": cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S),
         "reserve_s": cfg.get("time", {}).get("reserve_s", 120),
     })
+    if (cfg.get("sp_dfine") or {}).get("enabled"):
+        # bot-10 (Murder Board 29.10): до любой работы — нет DFine*/весов/порогов → ошибка (strict), не тихий v2
+        from . import sp_dfine as _spd
+
+        state.note["sp_dfine"] = _spd.preflight(cfg, root)
+        log.info("sp_dfine: preflight ok, transformers %s", state.note["sp_dfine"]["transformers"])
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))

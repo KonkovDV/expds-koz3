@@ -208,13 +208,16 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
-               and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
+               and k != "geophys.pixgbm.model_dir"   # папка: файлы по классам проверяет check_pixgbm_static
+               and not k.startswith("sp_dfine.weights")]   # каталоги D-FINE: файлы — check_sp_dfine_static
     if missing:
         report("FAIL", "config", f"файлы из default.toml отсутствуют в архиве (модель молча выключится, "
                                  f"pipeline.py:98-101 на 24bd916): {missing}")
     else:
         report("PASS", "config", f"все {len(refs)} путей к весам из default.toml есть в архиве")
     pix_files = check_pixgbm_static(pixgbm, names)
+    check_pixgbm_module(pixgbm, names)
+    check_sp_dfine_static(cfg, names)
     models_in_zip = {n for n in names if n.startswith("models/") and not n.endswith("/")}
     unused = sorted(models_in_zip - {v for _, v in refs} - pix_files)
     if unused:
@@ -587,6 +590,42 @@ def check_pixgbm_static(pix: dict, names: set) -> set:
     if lost_x:
         report("WARN", "config", f"PIXGBM backend={pix.get('backend')!r}: нет {lost_x} — фолбэк на lightgbm (медленнее)")
     return set(need) | set(extra)
+
+
+def check_pixgbm_module(pix: dict, names: set) -> None:
+    """Murder Board 29.10: expds/geo_pixgbm.py вне git (EN-hold). При [geophys.pixgbm] enabled=true без модуля
+    pipeline молча уходит в классику (pipeline.py: «pixgbm включён, но expds/geo_pixgbm.py нет») — сборка ≠ v2 LB."""
+    if pix.get("enabled") and "expds/geo_pixgbm.py" not in names:
+        report("FAIL", "config", "PIXGBM включён, а expds/geo_pixgbm.py нет в архиве — pix молча уйдёт в классику, "
+                                 "сборка ≠ v2 LB 0.41238 (docs/MURDER_BOARD_2026-10-29.md)")
+
+
+def check_sp_dfine_static(cfg: dict, names: set) -> None:
+    """Murder Board 29.10 (bot-10): при [sp_dfine] enabled=true в архиве должны быть веса (config.json +
+    model.safetensors на каждый каталог weights), пороги группы sp_dfine и вендорный transformers с D-FINE
+    (в образе площадки transformers нет) — иначе v3 молча станет v2."""
+    st = cfg.get("sp_dfine") or {}
+    if not st.get("enabled"):
+        return
+    bad = []
+    weights = st.get("weights") or []
+    if not weights:
+        bad.append("weights пуст")
+    for w in weights:
+        for f in ("config.json", "model.safetensors"):
+            if f"{str(w).rstrip('/')}/{f}" not in names:
+                bad.append(f"нет {w}/{f}")
+    thr = (cfg.get("thresholds_by_markup") or {}).get("sp_dfine") or {}
+    lost = [c for c in CLASSES if c not in thr]
+    if st.get("require_thresholds", True) and lost:
+        bad.append(f"нет [thresholds_by_markup.sp_dfine] для {lost}")
+    vend = "inference/lib/vendor/transformers/"
+    if not any(n.startswith(vend + "models/d_fine/") for n in names):
+        bad.append(f"нет {vend}models/d_fine/ (DFineForObjectDetection) — в образе площадки transformers нет")
+    if bad:
+        report("FAIL", "config", "sp_dfine включён, но: " + "; ".join(bad))
+    else:
+        report("PASS", "config", f"sp_dfine: веса {weights}, пороги и вендорный transformers/d_fine есть")
 
 
 # ---------------------------------------------------------------- импорты (статически)
