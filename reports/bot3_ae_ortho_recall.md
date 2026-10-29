@@ -2,7 +2,7 @@
 
 **MSK:** 2026-10-29 20:38  
 **Branch:** `bots/bot3-ae-ortho-recall`  
-**Tip:** `1e7073afd29a503e2811fe5a9a9e0e52cb92643e` (base `eb268d6`) — tip updates after tile commit below  
+**Tip:** \`0bcb03985253172fae631fb7bd62f6da807d5b1f\` (Fix C code; report follow-ups may be newer; base \`eb268d6\`)
 **Diagnosis:** `reports/ae_ortho_diagnosis.md` (bot-1)  
 **Scope (steering):** Ae D-FINE tiling/scale only. Orthophoto multi-class owned by **bot6** (OOF dfine-or f0–f2) — not duplicated here.
 
