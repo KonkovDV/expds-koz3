@@ -17,6 +17,9 @@
 а площадка дала 0,32850. Новая группа порогов поднимает балл «на всех» и тогда, когда переноса
 нет, поэтому решение о конфиге — по строке «честная приёмка».
 
+`--match-scope layer` (или EXPDS_MATCH_SCOPE=layer) матчит только внутри одного слоя данных
+(markup_type); по умолчанию global — как официальная метрика. Диагностика, не для сдачи.
+
     python scripts/scoreboard.py --work F:/expds3/work --train F:/expds3/train-expds-3 \
         --metric materials/compute_metrics.py --expect 0.338586
 
@@ -296,6 +299,10 @@ def main() -> None:
     ap.add_argument("--honest-unseen", choices=("drop", "keep"), default="drop",
                     help="группа без порога на обучающих фолдах: drop (как было) или keep (как сдача, уровень ближе к LB). "
                          "Δ двух вариантов сравнимы, только если у них одинаковое число таких объектов")
+    ap.add_argument("--match-scope", choices=("global", "site", "layer"), default=None,
+                    help="область сопоставления для build_curves: global (по умолчанию, как F1Calculator), "
+                         "site (только свой участок), layer (только свой слой markup_type). "
+                         "Пишет в EXPDS_MATCH_SCOPE; site/layer — диагностика, не сдавать")
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
@@ -308,6 +315,8 @@ def main() -> None:
     ap.add_argument("--sp-fusion", action="store_true",
                     help="опыт — слияние уверенностей sp_focal/sp_focal2 для курганов (post.sp_score_fusion, bot-6 ORSP)")
     args = ap.parse_args()
+    if args.match_scope is not None:
+        os.environ["EXPDS_MATCH_SCOPE"] = args.match_scope
     global OFFICIAL
     OFFICIAL = args.official
     work = Path(args.work)
