@@ -87,6 +87,84 @@ def _sha256(path) -> str:
     return h.hexdigest()
 
 
+# WEIGHTS_MANIFEST_v5 / PC TSV 2026-10-29 — LB v2 eb268d6 PIXGBM weights.
+DEFAULT_EXPECTED_SHA256 = {
+    "poly": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800",
+    "finds": "5fa8c09d77d0914cc925fb6bb925a0ab1b64ccecf3c823d7f3546e71c4ceb04a",
+}
+
+
+def _sha_strict_enabled(environ=None) -> bool:
+    """Fail-loud on sha mismatch unless EXPDS_PIXGBM_SHA_STRICT=0/false/off."""
+    import os
+    env = environ if environ is not None else os.environ
+    raw = str(env.get("EXPDS_PIXGBM_SHA_STRICT", "1")).strip().lower()
+    return raw not in ("0", "false", "no", "off", "")
+
+
+def expected_pixgbm_sha256(cfg=None, environ=None) -> dict:
+    """Resolve expected {poly,finds} hashes: env JSON → config → DEFAULT → docs JSON."""
+    import json
+    import os
+    env = environ if environ is not None else os.environ
+    out = dict(DEFAULT_EXPECTED_SHA256)
+    # docs/weights_expected_sha256.json next to repo root (optional overlay)
+    try:
+        root = Path(__file__).resolve().parents[1]
+        jpath = root / "docs" / "weights_expected_sha256.json"
+        if jpath.is_file():
+            data = json.loads(jpath.read_text(encoding="utf-8"))
+            pix = data.get("pixgbm") or {}
+            for k in ("poly", "finds"):
+                if pix.get(k):
+                    out[k] = str(pix[k]).strip().lower()
+    except Exception as exc:
+        log.warning("pixgbm: не удалось прочитать docs/weights_expected_sha256.json (%s)", exc)
+    # config [geophys.pixgbm].expected_sha256 = {poly=..., finds=...}
+    try:
+        pix = ((cfg or {}).get("geophys") or {}).get("pixgbm") or {}
+        exp = pix.get("expected_sha256") or {}
+        if isinstance(exp, dict):
+            for k in ("poly", "finds"):
+                if exp.get(k):
+                    out[k] = str(exp[k]).strip().lower()
+    except Exception:
+        pass
+    raw = env.get("EXPDS_PIXGBM_EXPECTED_SHA256", "").strip()
+    if raw:
+        try:
+            overlay = json.loads(raw)
+            if isinstance(overlay, dict):
+                for k in ("poly", "finds"):
+                    if overlay.get(k):
+                        out[k] = str(overlay[k]).strip().lower()
+        except Exception as exc:
+            raise ValueError(f"EXPDS_PIXGBM_EXPECTED_SHA256 невалидный JSON: {exc}") from exc
+    return out
+
+
+def verify_weight_sha256(path, expected: str, *, label: str = "") -> str:
+    """Compute sha256; raise RuntimeError on empty file or mismatch. Returns digest."""
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(f"pixgbm weight missing: {path}")
+    size = path.stat().st_size
+    if size <= 0:
+        raise RuntimeError(
+            f"pixgbm weight EMPTY (0 bytes): {path} — LESSONS §6 / WEIGHTS_MANIFEST_v5; "
+            f"не запускать e2e с пустыми весами"
+        )
+    got = _sha256(path)
+    exp = (expected or "").strip().lower()
+    if exp and got != exp:
+        raise RuntimeError(
+            f"pixgbm sha256 MISMATCH {label or path.name}: got {got}, expected {exp} "
+            f"(file={path}, bytes={size}; см. docs/WEIGHTS_MANIFEST_v5.md). "
+            f"Отключить: EXPDS_PIXGBM_SHA_STRICT=0"
+        )
+    return got
+
+
 def _model_feature_names(txt) -> list[str]:
     with open(txt, encoding="utf-8") as fh:
         for line in fh:
@@ -161,16 +239,26 @@ def resolve_model_dir(model_dir) -> Path:
     return alt if alt.exists() else md
 
 
-def load_models(model_dir, backend: str = "lightgbm", names=("poly", "finds")) -> dict:
+def load_models(model_dir, backend: str = "lightgbm", names=("poly", "finds"),
+               *, cfg=None, environ=None, expected_sha256=None) -> dict:
     """{имя: модель}. backend = lightgbm | lleaves | treelite. lleaves — <k>.lleaves.so рядом с <k>.txt,
     sha256 .txt должен совпасть с <k>.lleaves.json (иначе .so устарел). Любая ошибка → lightgbm (лог).
-    Относительный model_dir — от текущего каталога, а если там его нет — от корня решения (как веса НС)."""
+    Относительный model_dir — от текущего каталога, а если там его нет — от корня решения (как веса НС).
+
+    Release v5: перед загрузкой сверяет sha256 .txt с WEIGHTS_MANIFEST_v5 / config / env
+    (fail-loud). Отключить: EXPDS_PIXGBM_SHA_STRICT=0."""
     md = resolve_model_dir(model_dir)
+    exp_map = expected_sha256 if expected_sha256 is not None else expected_pixgbm_sha256(cfg, environ)
+    strict = _sha_strict_enabled(environ)
     out = {}
     for k in names:
         txt = md / f"{k}.txt"
         if not txt.exists():
             continue
+        if strict:
+            verify_weight_sha256(txt, exp_map.get(k, ""), label=k)
+        elif txt.stat().st_size <= 0:
+            raise RuntimeError(f"pixgbm weight EMPTY (0 bytes): {txt}")
         m = None
         if backend == "lleaves":
             try:
@@ -749,7 +837,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     t_pix = float(pix.get("t_pix", T_PIX))
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
-    bst = load_models(model_dir, backend)
+    bst = load_models(model_dir, backend, cfg=cfg)
     if not bst:
         # bot-7: без моделей растры не читаем зря — сразу классика (status пуст → pipeline классику не трогает)
         log.warning("%s: pixgbm — в %s нет poly.txt/finds.txt — классика", reg.name, model_dir)
