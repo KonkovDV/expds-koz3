@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import signal
+import sys
 import time
 import tomllib
 from dataclasses import fields
@@ -29,20 +31,165 @@ log = logging.getLogger(__name__)
 
 
 class TimeGuard:
-    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг."""
+    """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
 
-    def __init__(self, budget_s: float):
-        self.t0 = time.monotonic()
+    bot-8: дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
+    бюджета [time] budget_s или до сторожа (watchdog.deadline_left: 1800 − guard_margin_s = 1620 с
+    от старта процесса) осталось не больше window_reserve_s. None — проверка выключена.
+    clock — для тестов (поддельные часы); по умолчанию time.monotonic.
+    """
+
+    def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
+        self.clock = clock or time.monotonic
+        #: bot-8: старт run() — от него, как и раньше, считается бюджет [time] budget_s (left/ok).
+        self.run_t0 = self.clock()
+        #: bot-8: самый ранний известный старт в базе self.clock (по умолчанию time.monotonic, НЕ time.time).
+        #: До set_soft() — run_t0; в run() set_soft(watchdog.PROCESS_START) даёт тот же отсчёт, что у сторожа
+        #: 1620 с. Абсолютные дедлайны (PIXGBM: t0 + PIXGBM_BUDGET_S) сравнивать с guard.clock() / elapsed().
+        self.t0 = self.run_t0
         self.budget = budget_s
+        self.window_reserve_s = window_reserve_s
+        self.hard_left = hard_left
+        self.partial: list[dict] = []
+        #: bot-8: мягкий потолок (с от t0). None — выключен (все прямые вызовы вне run()).
+        self.soft_ceiling: float | None = None
+        self.soft_need = dict(SOFT_NEED_DEFAULT)
+        self.soft_skipped: list[dict] = []
+
+    def set_soft(self, process_start: float | None = None, soft_ceiling_s: float | None = None,
+                 soft_need: dict | None = None) -> "TimeGuard":
+        """bot-8: мягкий потолок и ранний старт. process_start — в базе time.monotonic; учитывается только
+        при часах по умолчанию (поддельные часы тестов живут в своей базе): t0 = min(process_start, run_t0)."""
+        if process_start is not None and self.clock is time.monotonic:
+            self.t0 = min(float(process_start), self.run_t0)
+        self.soft_ceiling = None if soft_ceiling_s is None else float(soft_ceiling_s)
+        self.soft_need = dict(SOFT_NEED_DEFAULT, **(soft_need or {}))
+        return self
 
     def elapsed(self) -> float:
-        return time.monotonic() - self.t0
+        """Секунд от t0 (старт процесса в run(), иначе создание guard)."""
+        return self.clock() - self.t0
+
+    def run_elapsed(self) -> float:
+        """Секунд от старта run() — основа бюджета budget_s (поведение 1500 с не меняется)."""
+        return self.clock() - self.run_t0
 
     def left(self) -> float:
-        return self.budget - self.elapsed()
+        return self.budget - self.run_elapsed()
+
+    def soft_left(self) -> float:
+        """SOFT_CEILING − elapsed(). Потолок выключен — +inf."""
+        if self.soft_ceiling is None:
+            return float("inf")
+        return self.soft_ceiling - self.elapsed()
+
+    def soft_ok(self, need_s: float = 0.0, phase: str | None = None, what: str = "") -> bool:
+        """Хватает ли до мягкого потолка need_s секунд. phase — для журнала: при отказе одна строка
+        «мягкий потолок: <phase> …» и запись в soft_skipped (в протокол прогона)."""
+        sl = self.soft_left()
+        if sl > need_s:
+            return True
+        if phase is not None:
+            self.soft_skipped.append({"phase": phase, "what": what, "soft_left_s": round(sl, 1),
+                                      "need_s": need_s, "elapsed_s": round(self.elapsed(), 1)})
+            log.warning("мягкий потолок: %s пропущено%s — soft_left %.0f с ≤ %.0f с (потолок %.0f с, прошло %.0f с)",
+                        phase, f" ({what})" if what else "", sl, need_s, self.soft_ceiling, self.elapsed())
+        return False
+
+    def soft_need_s(self, phase: str) -> float:
+        return float(self.soft_need.get(phase, 0.0))
 
     def ok(self, need_s: float = 0.0) -> bool:
         return self.left() > need_s
+
+    def window_left(self) -> float:
+        """Секунд до ближайшего из: конец бюджета, срабатывание сторожа."""
+        left = self.left()
+        if self.hard_left is not None:
+            left = min(left, float(self.hard_left()))
+        return left
+
+    def window_ok(self) -> bool:
+        return self.window_reserve_s is None or self.window_left() > float(self.window_reserve_s)
+
+
+#: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
+DEFAULT_WINDOW_RESERVE_S = 30.0
+
+#: bot-8: мягкий потолок прогона, с от старта процесса (BUDGET.md §7.13/§7.14). Рабочий потолок пакета,
+#: чтобы пережить частный набор до 2× публичного; лимит площадки 1800, TimeGuard 1500 и сторож 1620 — без изменений.
+#: EXPDS_SOFT_CEILING_S (env) > [time] soft_ceiling_s > 1200. Неверное значение или ≤ 0 — потолок выключен.
+SOFT_CEILING_DEFAULT_S = 1200.0
+#: bot-8: сколько секунд до мягкого потолка нужно, чтобы НАЧАТЬ необязательный шаг (порог soft_left).
+#: Оценки по замерам GTX 1650 (BUDGET.md §1, docs/PLAN.md:147): σ 57 с на весь mock_val, самый тяжёлый
+#: снимок 106 с; кроп — малая сеть (тайл 96) по кандидатам sp_focal/sp_focal2, отдельно не мерен.
+#: Переопределение: [time.soft] <ключ> = с или env EXPDS_SOFT_NEED_<КЛЮЧ>_S.
+#:   wide_window — окно 256 м (sp_focal2) на участке без LAS, на каждый SpOr-растр: 120 (> 106 с снимка);
+#:   sigma       — канал σ (li_dev), на каждый участок с LAS: 60 (σ всего 57 с) + резерв кропа, если он включён;
+#:   verify      — проверка кропа курганов спутника после всех фаз: 60.
+#: Порядок отключения при росте времени: окно 256 м (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
+#: Обязательное (геофизика, лидар, основные сети оптики, finish/safe_finish, запись GeoJSON) потолок не трогает.
+SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
+
+
+def _warn(msg: str) -> None:
+    sys.stderr.write(f"expds: {msg}\n")
+    log.warning("%s", msg)
+
+
+def soft_ceiling_from(cfg: dict, environ=None) -> float | None:
+    """Мягкий потолок в секундах или None (выключен). Неверное значение/≤ 0 — None с предупреждением в stderr."""
+    env = os.environ if environ is None else environ
+    raw = env.get("EXPDS_SOFT_CEILING_S")
+    src = "EXPDS_SOFT_CEILING_S"
+    if raw is None or str(raw).strip() == "":
+        raw = (cfg.get("time") or {}).get("soft_ceiling_s", SOFT_CEILING_DEFAULT_S)
+        src = "[time] soft_ceiling_s"
+    if isinstance(raw, bool):
+        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно число секунд > 0)")
+        return None
+    try:
+        val = float(raw)
+    except (TypeError, ValueError):
+        _warn(f"мягкий потолок выключен: {src}={raw!r} — не число")
+        return None
+    if not np.isfinite(val) or val <= 0:
+        _warn(f"мягкий потолок выключен: {src}={raw!r} (нужно > 0)")
+        return None
+    return val
+
+
+def soft_need_from(cfg: dict, environ=None) -> dict:
+    """Пороги soft_left по шагам: SOFT_NEED_DEFAULT, [time.soft], env EXPDS_SOFT_NEED_<KEY>_S."""
+    env = os.environ if environ is None else environ
+    need = dict(SOFT_NEED_DEFAULT)
+    table = ((cfg.get("time") or {}).get("soft") or {})
+    for key in need:
+        for src, raw in ((f"[time.soft] {key}", table.get(key)),
+                         (f"EXPDS_SOFT_NEED_{key.upper()}_S", env.get(f"EXPDS_SOFT_NEED_{key.upper()}_S"))):
+            if raw is None or str(raw).strip() == "":
+                continue
+            try:
+                val = float(raw)
+                if not np.isfinite(val) or val < 0:
+                    raise ValueError
+                need[key] = val
+            except (TypeError, ValueError):
+                _warn(f"порог мягкого потолка {src}={raw!r} не принят, остаётся {need[key]:.0f} с")
+    return need
+
+
+#: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
+#: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
+_WINDOW_GUARD: "TimeGuard | None" = None
+
+
+def window_reserve(cfg: dict) -> float | None:
+    """[time] window_deadline (true) / window_reserve_s (30). window_deadline = false — без проверки в цикле окон."""
+    t = cfg.get("time") or {}
+    if not t.get("window_deadline", True):
+        return None
+    return float(t.get("window_reserve_s", DEFAULT_WINDOW_RESERVE_S))
 
 
 def load_config(path: str | Path | None) -> dict:
@@ -87,6 +234,15 @@ def model_ensemble_only(models: dict, markup: str) -> list[list[str] | None]:
 def model_files(path: str | list[str]) -> list[str]:
     """Файлы весов одной записи model_specs."""
     return list(path) if isinstance(path, list) else [path]
+
+
+def rooted_verify(cfg: dict, root: Path) -> dict:
+    """[verify] weights относительно корня архива, как у [models] (bot-8: раньше — от текущей папки)."""
+    opts = dict(cfg.get("verify") or {})
+    w = opts.get("weights")
+    if w and not Path(w).is_absolute():
+        opts["weights"] = str(Path(root) / w)
+    return {**cfg, "verify": opts}
 
 
 def _segmenters(models: dict, markup: str, root: Path, tta: int = 1) -> list:
@@ -189,6 +345,48 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             except Exception:
                 log.exception("%s: копии по слоям %s пропущены", reg.name, mt)
         feats += mine
+    pix = geo_cfg.get("pixgbm") or {}
+    if pix.get("enabled", False):
+        # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        try:
+            try:
+                from . import geo_pixgbm
+            except ImportError:
+                # integrate/2026-10-29: expds/geo_pixgbm.py не влит в main (сходство с кодом EhimenNathan,
+                # см. docs/MERGE_2026-10-29.md); модуль живёт в bots/bot7-candidate-v3-nomodels — классика
+                log.warning("%s: pixgbm включён, но expds/geo_pixgbm.py нет в этой сборке — классика", reg.name)
+                return feats
+            cls = set(pix.get("classes", ["finds_points", "object_poly"]))
+            # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
+            md = Path(pix.get("model_dir", "models/pixgbm/all"))
+            if not md.is_absolute():
+                md = Path(__file__).resolve().parents[1] / md
+            # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
+            pst: dict = {}
+            new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
+                   if f["class_name"] in cls]
+            import re
+            ure = pix.get("union_name_re", "")
+            if ure and re.search(ure, reg.name):
+                # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
+                # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
+                # или ≤1 м от классической находки (finds_points)
+                new = geo_pixgbm.dedupe_union(feats, new)
+            elif pix.get("replace", False):
+                # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
+                have = {(f["class_name"], f["markup_type"]) for f in new}
+                done, fell = pst.get("done", {}), pst.get("fell", {})
+
+                def _drop(f):
+                    key = (f.get("class_name"), f.get("markup_type"))
+                    if key not in have:
+                        return False
+                    return not fell.get(key) or f.get("source") in done.get(key, set())
+                feats = [f for f in feats if not _drop(f)]
+            feats += new
+        except Exception:
+            log.exception("%s: pixgbm пропущен", reg.name)
     return feats
 
 
@@ -482,7 +680,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                     break
                 try:
                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
-                                                           min_conf=output_floors(cfg, mt),
+                                                           min_conf=_sp_floors(cfg, mt),
                                                            fallback_crs=region_crs(reg, cfg)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
@@ -558,11 +756,13 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
         log.exception("модель sp_focal2 не загрузилась")
         seg_cache["sp_focal2"] = []
         return feats
-    floors = output_floors(cfg, "sp_focal2")
+    floors = _sp_floors(cfg, "sp_focal2")
     added: list[dict] = []
     for seg in segs:
         for path in reg.rasters.get("sp_or", []):
             if not guard.ok(60):
+                break
+            if not _soft_ok(guard, "wide_window", f"окно 256 м sp_focal2, {reg.name}"):
                 break
             try:
                 found = _kept(seg, _raster_with_model(seg, path, reg.name, "sp_or", min_conf=floors,
@@ -573,7 +773,41 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
             for feat in found:
                 feat["threshold_group"] = "sp_focal2"
             added += found
-    return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+    kept = drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+    if _sp_fusion_spec(cfg) is not None:
+        # Со слиянием отброшенные отбором 12 м остаются соседями для sp_score_fusion, но не выдаются.
+        ids = {id(f) for f in kept}
+        for f in added:
+            if id(f) not in ids:
+                f["sp_partner_only"] = True
+        return feats + added
+    return feats + kept
+
+
+def _sp_fusion_spec(cfg: dict):
+    """[post] sp_score_fusion: None, если выключено; иначе словарь настроек."""
+    sf = (cfg.get("post") or {}).get("sp_score_fusion")
+    if not sf:
+        return None
+    return sf if isinstance(sf, dict) else {}
+
+
+def _sp_floors(cfg: dict, markup: str) -> dict[str, float]:
+    """Пол генерации: порог выдачи; со слиянием курганы sp_or / sp_focal2 — сырые от gen_floor."""
+    floors = output_floors(cfg, markup)
+    spec = _sp_fusion_spec(cfg)
+    if spec is None or markup not in ("sp_or", "sp_focal2"):
+        return floors
+    from .post import sp_fusion_gen_floors
+    return sp_fusion_gen_floors(floors, spec)
+
+
+def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
+    """bot-8: мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
+    fn = getattr(guard, "soft_ok", None)
+    if fn is None or getattr(guard, "soft_ceiling", None) is None:
+        return True
+    return fn(guard.soft_need_s(phase) + extra_s, phase=phase, what=what)
 
 
 def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
@@ -703,11 +937,16 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
 
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                        overlap: int = 256, min_conf: dict[str, float] | None = None,
-                       fallback_crs: str | None = None) -> list[dict]:
+                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None) -> list[dict]:
     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
 
     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
+    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
+    по файлу (объекты уже пройденных окон), запись в guard.partial. По умолчанию — guard текущего
+    run() (_WINDOW_GUARD); вне run() проверки нет, как раньше.
     """
+    if guard is None:
+        guard = _WINDOW_GUARD
     import rasterio
     from rasterio.enums import Resampling
     from rasterio.windows import Window
@@ -742,6 +981,14 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         ys = list(range(0, max(h - overlap, 1), step))
         for iy, y0 in enumerate(ys):
             for ix, x0 in enumerate(xs):
+                if guard is not None and not guard.window_ok():
+                    done, total = iy * len(xs) + ix, len(xs) * len(ys)
+                    log.warning("%s: дедлайн в цикле окон (%s, осталось %.0f с ≤ %s с) — частичный результат: "
+                                "окон %d из %d, объектов %d", path.name, markup, guard.window_left(),
+                                guard.window_reserve_s, done, total, len(feats))
+                    guard.partial.append({"file": path.name, "region": region, "markup": markup,
+                                          "windows_done": done, "windows_total": total, "feats": len(feats)})
+                    return feats
                 bw, bh = min(block, w - x0), min(block, h - y0)
                 win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
                 a = ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
@@ -772,6 +1019,45 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     return feats
 
 
+def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+    """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
+    from . import sp_dfine
+
+    st = sp_dfine.settings(cfg)
+    cache: dict = {}
+    n = 0
+    full: list[str] = []
+    for reg in regions:
+        if not reg.rasters.get("sp_or"):
+            continue
+        if not guard.ok(60):
+            log.warning("sp_dfine: времени не осталось")
+            break
+        if not _soft_ok(guard, "sp_dfine", f"D-FINE {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found, complete = sp_dfine.region_feats(
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),   # как в обучении bot-9 (Scene: UTM.json), не [crs] vote
+                soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
+        except Exception:
+            log.exception("%s: sp_dfine пропущен", reg.name)
+            found, complete = [], False
+        state.add(found)
+        n += len(found)
+        if complete:
+            full.append(reg.name)
+        if found:
+            log.info("%s: sp_dfine %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        if not cache.get("models"):
+            break
+    if st["drop_groups"] and full:
+        before = len(state.snapshot())
+        state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
+        log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full),
+                 before - len(state.snapshot()))
+    return n
+
+
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
     """Полный прогон: геофизика, лидар, оптика, затем канал σ.
@@ -781,7 +1067,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     Файл результата пишется в конце. Сторож пишет его же незадолго до снятия
     контейнера, не после геофизики.
     """
-    from .watchdog import RunState, arm_platform, arm_signal, checkpoint
+    from .watchdog import RunState, arm_platform, arm_signal, checkpoint, deadline_left
 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
@@ -793,7 +1079,20 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                           bool(infer.get("deterministic", True)))
     except Exception:
         log.exception("точность видеокарты не настроена, дальше без моделей torch")
-    guard = TimeGuard(cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S))
+    t_cfg = cfg.get("time", {})
+    margin_s = float(t_cfg.get("guard_margin_s", 180))
+    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
+    from . import watchdog as _wd
+
+    guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
+                      hard_left=(lambda: deadline_left(margin_s)) if t_cfg.get("watchdog", True) else None)
+    guard.set_soft(process_start=_wd.PROCESS_START, soft_ceiling_s=soft_ceiling_from(cfg),
+                   soft_need=soft_need_from(cfg))
+    if guard.soft_ceiling is not None:
+        log.info("мягкий потолок %.0f с от старта процесса (прошло %.0f с); пороги: %s", guard.soft_ceiling,
+                 guard.elapsed(), ", ".join(f"{k} {v:.0f} с" for k, v in guard.soft_need.items()))
+    global _WINDOW_GUARD
+    _WINDOW_GUARD = guard
     log.info("ускоритель: %s", accel.backend())
     torch_version, cuda_version = "нет", "нет"
     try:
@@ -860,7 +1159,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         t_phase = time.monotonic()
         n_phase = 0
         for reg in regions:
-            found = geophys_feats(reg, cfg, guard)
+            try:
+                found = geophys_feats(reg, cfg, guard)
+            except Exception:
+                # bot-8: сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
+                log.exception("%s: геофизика упала, регион пропущен", reg.name)
+                continue
             state.add(found)
             n_phase += len(found)
             if found:
@@ -900,6 +1204,23 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_dfine") or {}).get("enabled"):
+            # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
+            t_phase = time.monotonic()
+            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
+            phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            try:
+                from . import gor_gate
+
+                state.replace(gor_gate.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root, guard=guard,
+                                             soft_ok=lambda what, need: _soft_ok(guard, "gor_gate", what, need)))
+            except Exception:
+                log.exception("gor_gate пропущен")
+        if guard.partial:
+            state.note["partial_files"] = list(guard.partial)
+            log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),
+                        ", ".join(f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in guard.partial))
         t_phase = time.monotonic()
         n_phase = 0
         for reg in regions:
@@ -907,6 +1228,9 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 continue
             if not guard.ok(60):
                 log.warning("на канал σ времени не осталось")
+                break
+            if not _soft_ok(guard, "sigma", f"канал σ с {reg.name}",
+                            guard.soft_need_s("verify") if (cfg.get("verify") or {}).get("enabled") else 0.0):
                 break
             try:
                 fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
@@ -922,24 +1246,29 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
         phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
     finally:
+        _WINDOW_GUARD = None
         signal.signal(signal.SIGTERM, previous_term)
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
-        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120):
+        if (cfg.get("verify") or {}).get("enabled") and guard.ok(120) and _soft_ok(guard, "verify", "проверка кропа"):
             # Ошибка проверки кропа не должна оставить площадку без файла ответа.
             try:
                 from .crop_model import maybe_verify
 
-                checked = maybe_verify(state.snapshot(), {r.name: r for r in regions}, cfg)
+                checked = maybe_verify(state.snapshot(), {r.name: r for r in regions}, rooted_verify(cfg, root))
                 if checked is not None:
                     state.replace(checked)
             except Exception:
                 log.exception("проверка кропа пропущена")
         summary["phases"] = {name: {"raw": n, "seconds": round(sec, 1)} for name, n, sec in phases}
         state.note["phases"] = summary["phases"]
+        if guard.soft_skipped:
+            summary["soft_skipped"] = list(guard.soft_skipped)
+            state.note["soft_skipped"] = list(guard.soft_skipped)
         summary["written"] = checkpoint(state, "конец")
-        summary["seconds"] = round(guard.elapsed(), 1)
+        summary["seconds"] = round(guard.run_elapsed(), 1)
+        summary["partial_files"] = list(guard.partial)
         for handler in logging.getLogger().handlers:
             handler.flush()
     return summary

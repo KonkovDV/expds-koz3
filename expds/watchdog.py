@@ -65,16 +65,36 @@ class RunState:
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
     out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    if (cfg.get("rerank_arch") or {}).get("enabled"):
+        from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
+
+        out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
+    sf = (cfg.get("post") or {}).get("sp_score_fusion")
+    by_markup = cfg.get("thresholds_by_markup", {})
+    if sf:
+        out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
+        by_markup = post.sp_fusion_thresholds(by_markup, sf)
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
-    out = post.merge_within_markup(out)
+                                by_markup)
+    out = out + reranked
     post_cfg = cfg.get("post") or {}
+    if post_cfg.get("kurgan_in_gor"):
+        out = post.drop_kurgans_in_hillforts(out)   # bot-7 v3, выкл.: отклонено (work6/kig/stats_kig.log)
+    out = post.merge_within_markup(out)
     if post_cfg.get("multipole_object_poly"):
         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
     if post_cfg.get("filter_finds_points"):
         out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
     if post_cfg.get("kurgan_twins"):
         out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
+    elif post_cfg.get("kurgan_twins_only"):
+        # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
+        spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
+        spec["dedup_ae_vs_li_m"] = 0.0
+        out = post.kurgan_cross_modal_twins(out, spec)
+    if post_cfg.get("micro_circles"):
+        out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
     if post_cfg.get("fill_holes"):
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):
@@ -97,6 +117,67 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if only is not None:
         out = post.keep_classes(out, only)
     return out
+
+
+def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
+    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
+    try:
+        return finish(feats, cfg)
+    except Exception:
+        log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
+    out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    rr = cfg.get("rerank_arch") or {}
+    if rr.get("enabled"):
+        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
+        try:
+            from . import rerank_arch
+
+            out, reranked = rerank_arch.apply(out, rr)
+        except Exception:
+            log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
+    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                cfg.get("thresholds_by_markup", {}))
+    out = out + reranked
+    pc = cfg.get("post") or {}
+    if pc.get("kurgan_in_gor"):
+        try:
+            out = post.drop_kurgans_in_hillforts(out)
+        except Exception:
+            log.exception("kurgan_in_gor в запасной цепочке упал, шаг пропущен")
+    # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
+    for key, fn in (("multipole_object_poly", post.multipole_object_poly),
+                    ("filter_finds_points", post.filter_finds_points_regimes)):
+        if pc.get(key):
+            try:
+                out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
+            except Exception:
+                log.exception("%s в запасной цепочке упал, шаг пропущен", key)
+    # bot-7: [post] kurgan_twins_only (bot-6, по умолчанию выкл.) — и в запасной цепочке, как в finish()
+    if not pc.get("kurgan_twins") and pc.get("kurgan_twins_only"):
+        try:
+            spec = dict(pc["kurgan_twins_only"]) if isinstance(pc["kurgan_twins_only"], dict) else {}
+            spec["dedup_ae_vs_li_m"] = 0.0
+            out = post.kurgan_cross_modal_twins(out, spec)
+        except Exception:
+            log.exception("kurgan_twins_only в запасной цепочке упал, шаг пропущен")
+    mc = pc.get("micro_circles")
+    if mc:
+        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
+        try:
+            out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
+        except Exception:
+            log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
+    kept: list[dict] = []
+    for f in out:
+        try:
+            kept += post.finalize([f])
+        except Exception:
+            continue
+    kept = post.cap_features(kept)
+    only = (cfg.get("post") or {}).get("only_classes")
+    return post.keep_classes(kept, only) if only is not None else kept
 
 
 _write_lock = threading.Lock()
@@ -127,6 +208,12 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
              note.get("las_files", "нет"), note.get("rasters", "нет"),
              note.get("skipped", "нет"))
     log.info("фазы: %s", phase_text)
+    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
+        log.info("частично (дедлайн в цикле окон): %s", ", ".join(
+            f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
+    if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
+        log.info("мягкий потолок отключил: %s", ", ".join(
+            f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
     log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
     log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
     log.info("записано %d, файл %d байт", len(kept), size)
@@ -141,7 +228,7 @@ def checkpoint(state: RunState, reason: str) -> int:
     """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
     feats = state.snapshot()
     with _write_lock:
-        kept = finish(feats, state.cfg)
+        kept = safe_finish(feats, state.cfg)
         writer.write_geojson(kept, state.output)
         _emit_protocol(state, feats, kept, reason)
         return len(kept)
@@ -199,9 +286,14 @@ def arm_signal(state: RunState, exit_fn=os._exit):
     return previous
 
 
+def deadline_left(margin_s: float | None = None, clock=None) -> float:
+    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
+    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+    return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
+
+
 def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
     """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
-    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
-    left = PLATFORM_LIMIT_S - margin - (time.monotonic() - PROCESS_START)
+    left = deadline_left(margin_s)
     log.info("сторож сработает через %.0f с", max(0.0, left))
     return arm(state, left, exit_fn)

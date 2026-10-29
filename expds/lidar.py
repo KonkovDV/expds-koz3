@@ -6,8 +6,8 @@
 с картами трейна: `python -m expds.lidar check --las X.las --li-dir папка_Li`.
 
 Командная строка:
-    python -m expds.lidar build --las X.las --out D:/work/li [--res 0.1]
-    python -m expds.lidar check --las X.las --li-dir D:/expds3/001_.../02_..._Li_карты
+    python -m expds.lidar build --las X.las --out <папка> [--res 0.1]
+    python -m expds.lidar check --las X.las --li-dir <данные>/<участок>/<Li_карты>
 """
 from __future__ import annotations
 

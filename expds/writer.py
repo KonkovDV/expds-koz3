@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import logging
 import json
 import math
 import os
@@ -19,14 +20,18 @@ from shapely.geometry import mapping, shape
 
 from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VERTICES
 
+log = logging.getLogger(__name__)
+
 
 def to_feature_collection(feats: list[dict]) -> dict:
     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
     out = []
-    for k, f in enumerate(feats):
+    for f in feats:
         geom = mapping(f["geom"])
         geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
-        props = {"fid": k, "class_name": f["class_name"],
+        if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy):
+            continue                    # bot-8: NaN/inf дают невалидный JSON — объект отбрасывается
+        props = {"fid": len(out), "class_name": f["class_name"],
                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
                  "region_name": f.get("region_name", "default_source"),
                  "crs": "EPSG:3857"}
@@ -51,6 +56,36 @@ def tmp_path_for(path: Path) -> Path:
     return path.parent / f"writing.{os.getpid()}.{next(_TMP_SEQ)}.tmp"
 
 
+def enforce_limits(fc: dict) -> dict:
+    """Последний рубеж перед записью (bot-7): только Polygon, ≤ MAX_VERTICES вершин, ≤ MAX_FEATURES объектов.
+
+    В норме ничего не делает: post.finalize/limit_vertices и post.cap_features уже держат лимиты.
+    Срабатывает, если в обход них прошло лишнее (запасная оболочка limit_vertices, новый шаг после cap).
+    Лишнее отбрасывается с предупреждением в лог, ответ остаётся допустимым для метрики.
+    """
+    feats = fc.get("features", [])
+    good = []
+    bad_type = too_many_vertices = 0
+    for f in feats:
+        geom = f.get("geometry") or {}
+        if geom.get("type") != "Polygon":
+            bad_type += 1
+            continue
+        if sum(len(ring) for ring in geom["coordinates"]) > MAX_VERTICES:
+            too_many_vertices += 1
+            continue
+        good.append(f)
+    over = max(0, len(good) - MAX_FEATURES)
+    if over:   # cap_features уже оставил квоты по классам; здесь просто срез хвоста
+        good = good[:MAX_FEATURES]
+    if bad_type or too_many_vertices or over:
+        log.warning("лимиты выдачи: отброшено не-Polygon %d, вершин > %d: %d, сверх %d объектов: %d",
+                    bad_type, MAX_VERTICES, too_many_vertices, MAX_FEATURES, over)
+        for k, f in enumerate(good):
+            f["properties"]["fid"] = k
+    return {"type": "FeatureCollection", "features": good}
+
+
 def write_geojson(feats: list[dict], path: str | Path) -> Path:
     """Атомарная запись: временный файл, fsync, затем переименование."""
     path = Path(path)
@@ -58,7 +93,7 @@ def write_geojson(feats: list[dict], path: str | Path) -> Path:
     tmp = tmp_path_for(path)
     try:
         with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
-            fh.write(json.dumps(to_feature_collection(feats), ensure_ascii=False))
+            fh.write(json.dumps(enforce_limits(to_feature_collection(feats)), ensure_ascii=False, allow_nan=False))
             fh.flush()
             os.fsync(fh.fileno())
         os.replace(tmp, path)

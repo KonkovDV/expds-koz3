@@ -237,6 +237,42 @@ def _ground_scale(y_3857: float) -> float:
     return max(math.cos(lat), 1e-6)
 
 
+def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Круги указанных классов → микрокруг радиуса radius_m (метры на земле) в том же центре.
+
+    Попадание метрики: cov = S(P∩G)/min(S) ≥ 0,5 и внутренняя точка P внутри G.
+    У круга внутренняя точка — центр. Микрокруг с центром внутри эталона даёт cov ≈ 1,
+    круг 2 м на стене шириной 1 м даёт cov ≈ 0,3. Поэтому замена не теряет ни одного
+    попадания при том же центре, а промахи «центр внутри, покрытие < 0,5» становятся
+    попаданиями. Число объектов и уверенности не меняются: пороги групп остаются.
+    Тот же приём, что у object_poly (multipole_object_poly, circle_radius_m = 0,05).
+    radius_m по умолчанию 0,25: finalize отбрасывает полигоны мельче 0,01 ед.² EPSG:3857.
+    radius_m — число (для всех classes) или словарь {класс: радиус}; во втором случае
+    classes по умолчанию = ключи словаря. Курганы (bot-7, 28.10): 0,5 м вместо 2 м /
+    4 м (sp_focal) — тот же центр, cov ≥ 0,5 почти всегда, если центр внутри.
+    """
+    spec = spec or {}
+    rad = spec.get("radius_m", 0.25)
+    per_class = dict(rad) if isinstance(rad, dict) else {}
+    classes = set(spec.get("classes") or (per_class.keys() if per_class else ("arkhitektury",)))
+    groups = set(spec.get("groups") or ())
+    out = []
+    for f in feats:
+        if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
+            out.append(f)
+            continue
+        g = f["geom"]
+        if g is None or g.is_empty:
+            out.append(f)
+            continue
+        c = g.centroid
+        if not g.contains(c):
+            c = g.representative_point()
+        radius = float(per_class.get(f.get("class_name"), rad if not per_class else 0.25))
+        out.append(dict(f, geom=c.buffer(radius / _ground_scale(c.y), quad_segs=8)))
+    return out
+
+
 def fill_holes(feats: list[dict], classes) -> list[dict]:
     """Убирает дыры у полигонов указанных классов. По умолчанию выключено."""
     classes = set(classes or ())
@@ -452,6 +488,11 @@ def filter_finds_points_regimes(feats: list[dict], spec: dict | None = None) -> 
     return out
 
 
+# Карта центров спутника: в табло группа подписана sp_focal, в сдаче читается из markup_type = sp_or
+# (pipeline.py, комментарий у KEPT_KURGAN_CONF). Без sp_or ветка sp_twin в сдаче не срабатывает.
+SP_TWIN_GROUPS = ("sp_focal", "sp_or")
+
+
 def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Кросс-модальная дедупликация и twin-хедж курганов (ae / sp_focal -> kurgany_povrezhdennye)."""
     from collections import defaultdict
@@ -464,6 +505,14 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     li_dedup_m = float(cfg.get("li_dedup_m", 4.0))
     sp_dedup_m = float(cfg.get("sp_dedup_m", 2.0))
 
+    # Один масштаб cos φ на участок (по среднему y его объектов). Масштаб для каждой точки, s(y)·y, не изометрия:
+    # на 55° расстояния по меридиану сжимаются примерно в 16 раз (bot-10 REPORT6_twins.md §2, ae-двойников 5 вместо 85).
+    ys: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye"):
+            ys[f.get("region_name") or ""].append(f["geom"].centroid.y)
+    scale = {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
+
     li_povr_pts: dict[str, list] = defaultdict(list)
     ae_povr_pts: dict[str, list] = defaultdict(list)
     sp_povr_pts: dict[str, list] = defaultdict(list)
@@ -475,13 +524,13 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
         grp = f.get("threshold_group") or f.get("markup_type")
         conf = float(f.get("confidence", 0.0))
         c = f["geom"].centroid
-        s = _ground_scale(c.y)
+        s = scale[reg]
         xy = (c.x * s, c.y * s)
         if grp == "li" and conf >= 0.06415:
             li_povr_pts[reg].append(xy)
         elif grp == "ae":
             ae_povr_pts[reg].append(xy)
-        elif grp == "sp_focal" and conf >= 0.05:
+        elif grp in SP_TWIN_GROUPS and conf >= 0.05:
             sp_povr_pts[reg].append(xy)
 
     li_trees = {r: cKDTree(np.asarray(pts)) for r, pts in li_povr_pts.items() if pts}
@@ -495,7 +544,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
                 and (f.get("threshold_group") or f.get("markup_type")) == "ae"):
             reg = f.get("region_name") or ""
             c = f["geom"].centroid
-            s = _ground_scale(c.y)
+            s = scale[reg]
             if reg in li_trees and li_trees[reg].query_ball_point((c.x * s, c.y * s), dedup_ae_vs_li_m):
                 continue
         out.append(f)
@@ -505,7 +554,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
         reg = f.get("region_name") or ""
         grp = f.get("threshold_group") or f.get("markup_type")
         c = f["geom"].centroid
-        s = _ground_scale(c.y)
+        s = scale[reg]
         xy = (c.x * s, c.y * s)
         if use_ae and grp == "ae":
             if reg in ae_trees and ae_trees[reg].query_ball_point(xy, 0.5):
@@ -513,8 +562,133 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
             if reg in li_trees and li_trees[reg].query_ball_point(xy, li_dedup_m):
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="ae_twin"))
-        elif use_sp and grp == "sp_focal":
+        elif use_sp and grp in SP_TWIN_GROUPS:
             if reg in sp_trees and sp_trees[reg].query_ball_point(xy, sp_dedup_m):
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
     return out
+
+
+def drop_kurgans_in_hillforts(feats: list[dict]) -> list[dict]:
+    """bot-7 v3, флаг [post] kurgan_in_gor (по умолчанию выкл.). Правило разметки (research/OSINT_2026-10-29.md §1.2):
+    курганы внутри городищ не размечаются. Удаляет kurgany_* с центроидом внутри объединения полигонов
+    gorodishcha того же региона (любая группа), уже прошедших пороги. Критерий зафиксирован до замера
+    (bot-7/work6/kig/PREREG_kig.md). Честный замер на стеке A: −0,000848, P 0,187 — ОТКЛОНЕНО
+    (предсказанные городища ложно ложатся на курганные поля), поэтому флаг выключен."""
+    from shapely.prepared import prep
+
+    kur = {"kurgany_tselye", "kurgany_povrezhdennye"}
+    by: dict = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") == "gorodishcha" and f.get("geom") is not None and not f["geom"].is_empty:
+            g = f["geom"] if f["geom"].is_valid else make_valid(f["geom"])
+            by[f.get("region_name")].append(g)
+    if not by:
+        return feats
+    U = {r: prep(unary_union(v)) for r, v in by.items()}
+    out = []
+    for f in feats:
+        if f.get("class_name") in kur and f.get("region_name") in U and f.get("geom") is not None \
+                and not f["geom"].is_empty and U[f["region_name"]].contains(f["geom"].centroid):
+            continue
+        out.append(f)
+    return out
+
+
+SP_FUSION_GROUPS = ("sp_focal", "sp_focal2")
+SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Слияние уверенностей двух спутниковых групп для курганов (bot-6 ORSP, PREREG_ORSP.md).
+
+    Для кургана (povr или tselye) из sp_focal / sp_focal2: o = наибольшая уверенность курганов
+    (любого из двух классов) ДРУГОЙ sp-группы в радиусе radius_m метров на земле на том же
+    участке, иначе 0; новая уверенность = (conf + o) / 2. Объекты не добавляются и не
+    удаляются (кроме помеченных sp_partner_only — они только соседи); применять ДО порогов,
+    на сырых кандидатах (pipeline: gen_floor вместо порога выдачи), пороги — из spec.thresholds
+    (watchdog.finish подставляет их в thresholds_by_markup). Работает и с плоскими
+    признаками (geom, поля в корне), и с GeoJSON (geometry, properties).
+    """
+    from collections import defaultdict
+    from scipy.spatial import cKDTree
+    import numpy as np
+    from shapely.geometry import shape
+
+    cfg = spec or {}
+    radius = float(cfg.get("radius_m", 8.0))
+    groups = tuple(cfg.get("groups", SP_FUSION_GROUPS))
+    if len(groups) != 2:
+        raise ValueError("sp_score_fusion: нужны ровно две группы")
+
+    def _p(f):
+        return f["properties"] if isinstance(f.get("properties"), dict) else f
+
+    def _grp(p):
+        # В сдаче карта центров идёт с markup_type sp_or, в табло — с группой sp_focal.
+        g = p.get("threshold_group") or p.get("markup_type")
+        return "sp_focal" if g == "sp_or" else g
+
+    def _c(f):
+        g = f.get("geom")
+        if g is None:
+            g = shape(f["geometry"])
+        return g.centroid
+
+    idx = []
+    for i, f in enumerate(feats):
+        p = _p(f)
+        grp = _grp(p)
+        if p.get("class_name") in SP_FUSION_CLASSES and grp in groups:
+            c = _c(f)
+            idx.append((i, p.get("region_name") or "", grp, c.x, c.y, float(p.get("confidence", 0.0))))
+    if not idx:
+        return [f for f in feats if not _p(f).get("sp_partner_only")]
+    # Один cos φ на участок (как в kurgan_cross_modal_twins): метры на земле.
+    ys = defaultdict(list)
+    for _, reg, _, _, y, _ in idx:
+        ys[reg].append(y)
+    scale = {reg: _ground_scale(float(np.median(v))) for reg, v in ys.items()}
+    pts = defaultdict(list)
+    for i, reg, grp, x, y, conf in idx:
+        pts[(reg, grp)].append((x * scale[reg], y * scale[reg], conf))
+    trees = {k: (cKDTree(np.asarray([(a, b) for a, b, _ in v])), np.asarray([c for _, _, c in v]))
+             for k, v in pts.items()}
+    new_conf = {}
+    for i, reg, grp, x, y, conf in idx:
+        other = groups[1] if grp == groups[0] else groups[0]
+        o = 0.0
+        t = trees.get((reg, other))
+        if t is not None:
+            hit = t[0].query_ball_point((x * scale[reg], y * scale[reg]), radius)
+            if hit:
+                o = float(t[1][hit].max())
+        new_conf[i] = (conf + o) / 2.0
+    out = []
+    for i, f in enumerate(feats):
+        if _p(f).get("sp_partner_only"):
+            continue  # кандидат только как сосед для слияния (его выкинул отбор 12 м), не выдаётся
+        if i in new_conf:
+            f = dict(f)
+            if isinstance(f.get("properties"), dict):
+                f["properties"] = dict(f["properties"], confidence=new_conf[i])
+            else:
+                f["confidence"] = new_conf[i]
+        out.append(f)
+    return out
+
+
+def sp_fusion_thresholds(by_markup: dict | None, spec) -> dict:
+    """thresholds_by_markup с порогами курганов sp из [post.sp_score_fusion.thresholds] (sp_focal = sp_or в сдаче)."""
+    out = {k: dict(v) for k, v in (by_markup or {}).items()}
+    th = (spec or {}).get("thresholds", {}) if isinstance(spec, dict) else {}
+    for g, cls in th.items():
+        for key in (("sp_or", "sp_focal") if g == "sp_focal" else (g,)):
+            out.setdefault(key, {}).update({c: float(t) for c, t in cls.items()})
+    return out
+
+
+def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
+    """Пол генерации курганов sp при включённом слиянии: сырые кандидаты от gen_floor (по умолчанию 0,05)."""
+    g = float((spec if isinstance(spec, dict) else {}).get("gen_floor", 0.05))
+    return {c: (min(t, g) if c in SP_FUSION_CLASSES else t) for c, t in floors.items()}

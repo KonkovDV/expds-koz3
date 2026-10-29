@@ -9,7 +9,7 @@
 Радиусы 2/4/7 м ловят рябь, а не насыпь: медиана кургана на спутнике около
 1000 м² (радиус ~18 м). Для насыпей — `--radii 8,16,28 --peak-radius 12`.
 
-    python -m expds.blobs oof --root D:/expds3 --gt work/gt_train.geojson --markup ae --out work/blobs_ae.geojson
+    python -m expds.blobs oof --root <данные> --gt work/gt_train.geojson --markup ae --out work/blobs_ae.geojson
 """
 from __future__ import annotations
 

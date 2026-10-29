@@ -7,6 +7,17 @@ budget_s = 1500      # 25 минут из 30: запас на запуск ко�
 reserve_s = 120      # не начинать тяжёлый шаг, если осталось меньше
 watchdog = true      # за 3 минуты до 30 минут записать уже найденное и выйти
 guard_margin_s = 180 # запас сторожа до снятия контейнера; сверить с первым логом платформы
+# bot-8: дедлайн внутри цикла окон снимков (ae/sp_or/or, sp_focal2, сети геофизики). Окно не начинается,
+# если до конца budget_s или до сторожа (1800 − guard_margin_s = 1620 с) осталось ≤ window_reserve_s;
+# файл отдаёт объекты пройденных окон, дальше обычный конец прогона и запись. false — как раньше.
+window_deadline = true
+window_reserve_s = 30
+# bot-8 (bot8-softceil-pixgbm 26e12ae/428257f, bot-8/STATUS.md 23:58 и 02:10 МСК): мягкий потолок 1200 с от старта
+# процесса (тот же отсчёт, что у сторожа 1620). При soft_left ≤ порога шаг пропускается: окно 256 м sp_focal2 (120 с,
+# на растр) → σ li_dev (60 + 60 резерв кропа, на участок) → кроп курганов (60). Строка в логе «мягкий потолок: … пропущено».
+# Геофизика (вкл. PIXGBM), лидар, основная оптика, finish/safe_finish и запись не отключаются; TimeGuard 1500 и сторож
+# 1620 как раньше. Env EXPDS_SOFT_CEILING_S важнее; ≤ 0 / не число — выключен. Пороги: [time.soft] wide_window/sigma/verify.
+soft_ceiling_s = 1200
 
 # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
 # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
@@ -124,6 +135,22 @@ kurgany_tselye = 1.000001
 [thresholds_by_markup.etgr]
 object_poly = 0.096635
 
+# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — bot-3/pixgbm/pc/thr_pix_full.json (bot-9, fit_thr.py:
+# sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
+# те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
+# Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
+# bot-10 REPORT9_v2.md §B выбрал именно эти (T9) против bot-3 thresholds_v2.toml (T3: maggr_pix finds 0,93 /
+# op 0,686, etgr_pix 0, terfl_pix 1,01): T3−T9 = −0,000924, P(T3>T9) 0,259 — шум, процедура T9 чище.
+[thresholds_by_markup.maggr_pix]
+finds_points = 0.902915
+object_poly = 0.684725
+
+[thresholds_by_markup.etgr_pix]
+object_poly = 0.545825
+
+[thresholds_by_markup.terfl_pix]
+object_poly = 0.746421
+
 # Запасной путь без модели li: пики рельефа + LightGBM (3 класса); пороги — по его предсказаниям
 # вне обучения (F1 0,455 и 0,344).
 [thresholds_by_markup.li_cpu]
@@ -237,6 +264,33 @@ point_circle_m = 0.3
 # Подобрано scripts/geo_tune.py официальной метрикой на трейне (min_confidence — порог этой
 # модальности). F1 с отложенной «семьёй»: finds_points 0,461, object_poly MagGr 0,341;
 # у EtGr и TerFl одна «семья», проверка только на тех же данных (0,201 и 0,171).
+[geophys.pixgbm]
+# bot-3 PIXGBM: пиксельный LightGBM-источник кандидатов (finds_points + object_poly), см. PIXGBM_REPORT.md.
+# Кандидат v2 (bot-7): ВКЛЮЧЁН вариант S (enabled + replace, оба класса, без R3, без union_name_re) —
+# bot-10 PREREG_pixgbm.md / REPORT7_geo.md: ACCEPTED → v2 (global keep +0,011935, P 0,965, 5/5; site +0,014110).
+# Флаг независим от sota_stack6 ([post] multipole_object_poly / filter_finds_points). Порядок при обоих
+# включённых — pix → stack6 сам по себе: pix — источник кандидатов в geophys_feats (инференс), stack6 — постобработка.
+# Оговорка bot-10 «S поверх stack6 −0,001587» снята: артефакт порядка; в порядке сдачи Ss6−S keep +0,001304,
+# Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
+# Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
+# потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
+enabled = true
+model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
+classes = ["finds_points", "object_poly"]
+replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
+union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
+maps = ["maggr", "etgr", "terfl"]   # методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
+t_pix = 0.5   # порог пикселя для object_poly
+backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
+                       # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
+# bot-7: срок фазы 600 с вместо 300 у bot-3 — см. bot-7/REPORT4.md §9 (лимит площадки, оценка bot-3 258–431 с).
+# bot 1 (29.10): 600 — ВРЕМЕННО; окончательно после полного прогона на ПК (mock_val ≤ 1200 с), иначе вернуть 300.
+budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
+                 # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
+guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
+            # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
+
 [geophys.maggr.finds_points]
 background_m = 2.0
 peak_radius_m = 2.0
@@ -275,11 +329,64 @@ min_confidence = 0.1426
 # src_groups = ["li", "li_coarse", "li_mosaic"]
 # min = { kurgany_povrezhdennye = 0.06415, kurgany_tselye = 0.19422 }
 
+# Микрокруги архитектуры (bot-5, 28.10): тот же центр пика, радиус 0,25 м вместо 2 м.
+# Попаданий не меньше ни при каком центре; оракул официальной метрикой на эталоне
+# 2 м → 0,25 м: 257 → 269 из 407 при текущей цели, 0,914 → 1,000 у repr. point.
+# Включать после табло: oof_transform.py micro + scoreboard.py --honest 10.
+# [post.micro_circles]
+# classes = ["arkhitektury"]
+# radius_m = 0.25
+# Пакет bot-7 (28.10): микрокруги архитектуры (bot-5) + курганы 0,5 м (bot-7).
+# Пороги групп курганов/архитектуры перекалибровать по OOF после того же преобразования
+# (scripts/oof_transform.py micro). Замер пакета: bot-7/REPORT2.md.
+# sota_stack6, режим separate (кандидат bot-7 по сводке bot-10: EXPERIMENTS.md «Сводка решений» 21:15 МСК,
+# bot-10/REPORT4.md): post.multipole_object_poly без unified_group (группы maggr_poly/etgr/terfl раздельно)
+# + post.filter_finds_points_regimes, как в bot-10/work4/stack6_fam.py --mode separate.
+# Честно: keep +0,015057, drop +0,006703, P 0,948 (bot-10/work4/stack6_global.json).
+# Выключить: обе строки = false.
+[post]
+multipole_object_poly = true
+filter_finds_points = true
+# kurgan_twins_only (bot-6, ad8ae9b + починка масштаба 78add0e = 92ab33e здесь: один cos φ на участок,
+# bot-10 REPORT6_twins §2): копии целый -> повреждённый без межтипового dedup (dedup_ae_vs_li_m = 0).
+# ВКЛЮЧЁН (29.10): bot-10 принял twins-only 78add0e в пакет v2 — +0,001718 vs A, ДИ90 [+0,00039; +0,00377],
+# P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
+# bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
+kurgan_twins_only = true
+# bot-7 v3: курганы внутри предсказанных городищ (правило разметки, OSINT_2026-10-29 §1.2; PREREG bot-7/work6/kig).
+# ВЫКЛ.: честно −0,000848, P 0,187, LOFO −0,000932, 0/5, new34 −0,002876 (bot-7/work6/kig/stats_kig.log);
+# с эталонными городищами (оракул) всего +0,000537 — потолок ниже П1.
+kurgan_in_gor = false
+
+# Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
+# поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
+# Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются
+# (bot-7/work3/insample_tau_kur.json).
+[post.micro_circles]
+radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+
+# Реранк архитектуры (LightGBM, отчёт REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
+# Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log
+# (k10 +0,0095, LOFO +0,0079, 5/5 раскладок > 0); с crop verify пакетом не мерен (bot-7/REPORT3.md).
+# Выключить: enabled = false (одна строка; без модели код возвращает базу).
+# Модель: scripts/rerank_arch_train.py; оба файла — в models/ (build_submission берёт их по этим ключам).
+[rerank_arch]
+enabled = true
+model = "models/rerank_arch_lgbm.txt"
+meta = "models/rerank_arch_lgbm.json"
+
 # [post]
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
 # frac = 0.3
 # min_r_m = 8.0
+# Слияние уверенностей sp_focal/sp_focal2 для курганов (bot-6 ORSP), по умолчанию выключено:
+# [post.sp_score_fusion]
+# radius_m = 8.0
+# gen_floor = 0.05          # курганы sp_or / sp_focal2 генерируются сырыми, отбор 12 м — только из выдачи
+# thresholds.sp_focal = { kurgany_povrezhdennye = 0.27822, kurgany_tselye = 0.3696 }
+# thresholds.sp_focal2 = { kurgany_povrezhdennye = 0.514733, kurgany_tselye = 0.701621 }
+# Пороги — sweep_groups на всех участках по кривым fusion (bot-6/work/orsp2/taus_all.json). Замер см. bot-6/ORSP.md.
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
@@ -296,3 +403,26 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 tile = 96
 res = 0.5
 min_conf = 0.05
+
+# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
+# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
+# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+[sp_dfine]
+enabled = false
+# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+#   enabled = true
+#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
+#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
+#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
+
+# bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
+# conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
+# ВЫКЛ. Ставить ТОЛЬКО без варианта R D-FINE (R выбрасывает sp_or — шлюзу нечего гейтить; bot-10 §1). Включение:
+#   enabled = true
+#   backbone = "models/dinov2-small"            # config.json + model.safetensors (md5 сверяется: ea251be6…)
+#   head = "models/gor_gate/gor_v3_head.npz"     # md5 acb95c52…
+#   + [thresholds_by_markup.sp_or_gated] gorodishcha = 0.992648 (bot-5 gor_v3_taus.json, sweep_groups на всём трейне)
+# Время: CPU 2 потока ≈0,45 с/виньетку (≈33 виньетки на участок); при нехватке — участок не гейтится (guard/soft_ok).
+[gor_gate]
+enabled = false

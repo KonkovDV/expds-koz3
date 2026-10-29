@@ -28,21 +28,49 @@ sys.path.insert(0, str(ROOT))
 FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
              ".shp", ".gpkg", ".zip"}
 LIMIT = 2 * 1024 ** 3
+#: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
+#: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
+TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
+FLAG_MODULES = ("sp_dfine", "gor_gate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
-    files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+    # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+    off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+    files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                    if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
-    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
     verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
     seen = set()
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify]:
+    rr = cfg.get("rerank_arch") or {}
+    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+    # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+    pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+        if pix.get("enabled") else []
+    sd = cfg.get("sp_dfine") or {}
+    # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+    dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+        if sd.get("enabled") else []
+    gg = cfg.get("gor_gate") or {}
+    # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+    if gg.get("enabled"):
+        bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+        dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+    if sd.get("enabled") or gg.get("enabled"):
+        vend = ROOT / "inference" / "lib" / "vendor"
+        if not vend.is_dir():
+            sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+        files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:
             continue
         seen.add(rel)
