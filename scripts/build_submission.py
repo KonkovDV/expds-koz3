@@ -28,12 +28,16 @@ sys.path.insert(0, str(ROOT))
 FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
              ".shp", ".gpkg", ".zip"}
 LIMIT = 2 * 1024 ** 3
+#: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
+#: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
+TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 
 
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
-    files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
+    files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                    if not (p.parent == ROOT / "expds" and p.name in TRAIN_ONLY))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 

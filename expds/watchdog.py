@@ -73,8 +73,10 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
-    out = post.merge_within_markup(out)
     post_cfg = cfg.get("post") or {}
+    if post_cfg.get("kurgan_in_gor"):
+        out = post.drop_kurgans_in_hillforts(out)   # bot-7 v3, выкл.: отклонено (work6/kig/stats_kig.log)
+    out = post.merge_within_markup(out)
     if post_cfg.get("multipole_object_poly"):
         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
     if post_cfg.get("filter_finds_points"):
@@ -134,6 +136,11 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
     pc = cfg.get("post") or {}
+    if pc.get("kurgan_in_gor"):
+        try:
+            out = post.drop_kurgans_in_hillforts(out)
+        except Exception:
+            log.exception("kurgan_in_gor в запасной цепочке упал, шаг пропущен")
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
                     ("filter_finds_points", post.filter_finds_points_regimes)):

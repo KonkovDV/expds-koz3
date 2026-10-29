@@ -987,6 +987,45 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     return feats
 
 
+def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+    """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
+    from . import sp_dfine
+
+    st = sp_dfine.settings(cfg)
+    cache: dict = {}
+    n = 0
+    full: list[str] = []
+    for reg in regions:
+        if not reg.rasters.get("sp_or"):
+            continue
+        if not guard.ok(60):
+            log.warning("sp_dfine: времени не осталось")
+            break
+        if not _soft_ok(guard, "sp_dfine", f"D-FINE {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found, complete = sp_dfine.region_feats(
+                reg, cfg, guard, cache, root, crs_for=lambda r: region_crs(r, cfg),
+                soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
+        except Exception:
+            log.exception("%s: sp_dfine пропущен", reg.name)
+            found, complete = [], False
+        state.add(found)
+        n += len(found)
+        if complete:
+            full.append(reg.name)
+        if found:
+            log.info("%s: sp_dfine %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        if not cache.get("models"):
+            break
+    if st["drop_groups"] and full:
+        before = len(state.snapshot())
+        state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
+        log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full),
+                 before - len(state.snapshot()))
+    return n
+
+
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
     """Полный прогон: геофизика, лидар, оптика, затем канал σ.
@@ -1133,6 +1172,18 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_dfine") or {}).get("enabled"):
+            # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
+            t_phase = time.monotonic()
+            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
+            phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            try:
+                from . import gor_gate
+
+                state.replace(gor_gate.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root))
+            except Exception:
+                log.exception("gor_gate пропущен")
         if guard.partial:
             state.note["partial_files"] = list(guard.partial)
             log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),

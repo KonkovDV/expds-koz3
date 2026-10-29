@@ -10,7 +10,7 @@ markup_type, source (файл разметки). Пересекающиеся о
 Статистика отвечает на вопрос «куда вкладываться»: число объектов по
 классам и модальностям и доля объектов, размеченных в двух модальностях.
 
-    python -m expds.gt --root D:/expds3 --out work/gt_train.geojson --stats work/gt_stats
+    python -m expds.gt --root <данные> --out work/gt_train.geojson --stats work/gt_stats
 """
 from __future__ import annotations
 

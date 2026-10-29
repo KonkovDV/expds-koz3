@@ -567,3 +567,29 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
                 continue
             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
     return out
+
+
+def drop_kurgans_in_hillforts(feats: list[dict]) -> list[dict]:
+    """bot-7 v3, флаг [post] kurgan_in_gor (по умолчанию выкл.). Правило разметки (research/OSINT_2026-10-29.md §1.2):
+    курганы внутри городищ не размечаются. Удаляет kurgany_* с центроидом внутри объединения полигонов
+    gorodishcha того же региона (любая группа), уже прошедших пороги. Критерий зафиксирован до замера
+    (bot-7/work6/kig/PREREG_kig.md). Честный замер на стеке A: −0,000848, P 0,187 — ОТКЛОНЕНО
+    (предсказанные городища ложно ложатся на курганные поля), поэтому флаг выключен."""
+    from shapely.prepared import prep
+
+    kur = {"kurgany_tselye", "kurgany_povrezhdennye"}
+    by: dict = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") == "gorodishcha" and f.get("geom") is not None and not f["geom"].is_empty:
+            g = f["geom"] if f["geom"].is_valid else make_valid(f["geom"])
+            by[f.get("region_name")].append(g)
+    if not by:
+        return feats
+    U = {r: prep(unary_union(v)) for r, v in by.items()}
+    out = []
+    for f in feats:
+        if f.get("class_name") in kur and f.get("region_name") in U and f.get("geom") is not None \
+                and not f["geom"].is_empty and U[f["region_name"]].contains(f["geom"].centroid):
+            continue
+        out.append(f)
+    return out

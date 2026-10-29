@@ -353,6 +353,10 @@ filter_finds_points = true
 # P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
 # bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
 kurgan_twins_only = true
+# bot-7 v3: курганы внутри предсказанных городищ (правило разметки, OSINT_2026-10-29 §1.2; PREREG bot-7/work6/kig).
+# ВЫКЛ.: честно −0,000848, P 0,187, LOFO −0,000932, 0/5, new34 −0,002876 (bot-7/work6/kig/stats_kig.log);
+# с эталонными городищами (оракул) всего +0,000537 — потолок ниже П1.
+kurgan_in_gor = false
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
@@ -361,7 +365,7 @@ kurgan_twins_only = true
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 
-# Реранк архитектуры (LightGBM, /workspace/rerank/REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
+# Реранк архитектуры (LightGBM, отчёт REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
 # Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log
 # (k10 +0,0095, LOFO +0,0079, 5/5 раскладок > 0); с crop verify пакетом не мерен (bot-7/REPORT3.md).
 # Выключить: enabled = false (одна строка; без модели код возвращает базу).
@@ -392,3 +396,13 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 tile = 96
 res = 0.5
 min_conf = 0.05
+
+# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
+# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
+# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+[sp_dfine]
+enabled = false
+
+# bot-7 (кандидат v3): шлюз городищ DINOv2 bot-5 — заготовка. ВЫКЛ.: нет головы (PCA+LR на всех данных) и порога sp_or_gated.
+[gor_gate]
+enabled = false
