@@ -1,0 +1,5 @@
+# scripts/gor_patch/extract_feats.py — точные версии, проверены на боксе bot-5 28.10.2026 (torch на Kaggle не трогать)
+transformers==5.21.0
+rasterio==1.5.2
+pyproj==3.8.0
+shapely==2.2.0
