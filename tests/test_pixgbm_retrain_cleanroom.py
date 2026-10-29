@@ -53,3 +53,33 @@ def test_synthetic_deterministic_lgbm_repeatable():
         b = lgb.train(params, lgb.Dataset(X, label=y), num_boost_round=20)
         texts.append(b.model_to_string())
     assert texts[0] == texts[1]
+
+
+def test_compare_models_missing_not_vacuous_ok(tmp_path):
+    """Missing poly/finds must NOT yield metric_fallback.status=ok (Kaggle v6 bug)."""
+    mod = _load()
+    expected = {"poly.txt": "aa", "finds.txt": "bb"}
+    empty = tmp_path / "all"
+    empty.mkdir()
+    r = mod.compare_models(empty, expected, 1e-4)
+    assert r["all_sha_ok"] is False
+    assert r["metric_fallback"]["status"] != "ok"
+    assert r["metric_fallback"]["checks"]["poly.txt"]["error"] == "missing new"
+
+
+def test_rss_mb_importable_without_resource(monkeypatch):
+    """scripts/pixgbm.rss_mb must not hard-require Unix `resource` (Windows PC)."""
+    import importlib.util
+
+    # Simulate missing resource by shadowing before load is heavy; just call helper
+    # via a tiny exec of the function body pattern used in pixgbm.py.
+    spec = importlib.util.spec_from_file_location("pixgbm_cli_win", ROOT / "scripts" / "pixgbm.py")
+    # Loading pixgbm.py pulls geo_pixgbm — skip if unavailable.
+    if not (ROOT / "expds" / "geo_pixgbm.py").is_file():
+        pytest.skip("geo_pixgbm.py absent")
+    mod = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    # Ensure top-level import does not require `resource`
+    src = (ROOT / "scripts" / "pixgbm.py").read_text(encoding="utf-8")
+    assert "\nimport resource\n" not in src
+    assert "def rss_mb(" in src

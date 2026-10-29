@@ -274,11 +274,15 @@ def compare_models(models_all: Path, expected: dict[str, str], metric_tol: float
                     entry["within_tol"] = mad <= metric_tol
                 checks[name] = entry
             result["metric_fallback"]["checks"] = checks
-            result["metric_fallback"]["status"] = (
-                "ok"
-                if all(c.get("within_tol") for c in checks.values() if "within_tol" in c)
-                else "mismatch_or_no_ref"
-            )
+            # Vacuous True when every check is "missing new" (no within_tol keys) must NOT pass.
+            tol_vals = [c.get("within_tol") for c in checks.values() if "within_tol" in c]
+            missing = any(c.get("error") == "missing new" for c in checks.values())
+            if missing or not tol_vals:
+                result["metric_fallback"]["status"] = "mismatch_or_no_ref"
+            elif all(tol_vals):
+                result["metric_fallback"]["status"] = "ok"
+            else:
+                result["metric_fallback"]["status"] = "mismatch_or_no_ref"
         except Exception as e:  # noqa: BLE001 — log and continue
             result["metric_fallback"]["error"] = repr(e)
     return result
@@ -323,7 +327,11 @@ def main() -> None:
     a = ap.parse_args()
     if a.num_threads is None or a.num_threads <= 0:
         import os as _os
-        a.num_threads = max(1, int(_os.cpu_count() or 1))
+        env_nt = _os.environ.get("PIXGBM_NUM_THREADS", "").strip()
+        if env_nt:
+            a.num_threads = max(1, int(env_nt))
+        else:
+            a.num_threads = max(1, int(_os.cpu_count() or 1))
 
     log: dict = {
         "utc": datetime.now(timezone.utc).isoformat(),
@@ -377,6 +385,26 @@ def main() -> None:
     log["train"] = train_info
 
     models_all = Path(train_info["models_dir"]) / a.models_subdir
+    missing_models = [n for n in expected if not (models_all / n).is_file()]
+    if missing_models:
+        log["compare"] = {
+            "sha256": {n: None for n in expected},
+            "match": {n: False for n in expected},
+            "all_sha_ok": False,
+            "metric_fallback": {
+                "status": "mismatch_or_no_ref",
+                "error": f"missing models after train: {missing_models}",
+            },
+        }
+        log["status"] = "train_produced_no_models"
+        log["hint"] = (
+            "extract/train wrote no models/all/{poly,finds}.txt — check --root has "
+            "geo 200_–217_ rasters + labels (ObjectPoly/FindsPoints)."
+        )
+        _write_log(a.out, log)
+        print(json.dumps(log, ensure_ascii=False, indent=2))
+        sys.exit(1)
+
     log["compare"] = compare_models(models_all, expected, a.metric_tol)
     log["status"] = "ok" if log["compare"]["all_sha_ok"] else "sha_mismatch_see_metric_fallback"
     _write_log(a.out, log)

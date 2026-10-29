@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import resource
 import sys
 import time
 from pathlib import Path
@@ -29,7 +28,20 @@ GEO_REGIONS = tuple(str(n) for n in range(200, 218))
 
 
 def rss_mb():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    """Peak RSS in MiB. `resource` is Unix-only; Windows returns -1 if psutil absent."""
+    try:
+        import resource  # Unix
+
+        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # Linux: KiB; Darwin: bytes
+        return rss / (1024 * 1024) if sys.platform == "darwin" else rss / 1024
+    except (ImportError, AttributeError, OSError):
+        try:
+            import psutil
+
+            return psutil.Process().memory_info().rss / (1024 * 1024)
+        except Exception:  # noqa: BLE001
+            return -1.0
 
 
 def regions(root, only=None):
