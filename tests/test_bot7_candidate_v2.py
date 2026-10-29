@@ -18,10 +18,13 @@ SHA = {"poly.txt": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02e
 
 @pytest.fixture(scope="module")
 def cfg():
-    return pipeline.load_config(ROOT / "configs" / "default.toml")
+    # W4 DOC-1: в default.toml legacy PIXGBM выключен; механику варианта S проверяем с флагом, включённым в памяти
+    c = pipeline.load_config(ROOT / "configs" / "default.toml")
+    return dict(c, geophys=dict(c["geophys"], pixgbm=dict(c["geophys"]["pixgbm"], enabled=True)))
 
 
 def test_flags_independent_and_as_documented(cfg):
+    assert pipeline.load_config(ROOT / "configs" / "default.toml")["geophys"]["pixgbm"]["enabled"] is False   # DOC-1
     pix = cfg["geophys"]["pixgbm"]
     assert pix["enabled"] is True and pix["replace"] is True          # вариант S (bot-10 PREREG/REPORT7)
     assert set(pix["classes"]) == {"finds_points", "object_poly"} and pix["union_name_re"] == ""
@@ -50,15 +53,17 @@ def test_pix_models_shipped(cfg):
         assert hashlib.sha256((md / name).read_bytes()).hexdigest() == h
 
 
-def test_build_submission_collects_pix_models(monkeypatch):
-    """Config paths must be collected; do not require gitignored weight bytes on disk."""
+def test_build_submission_excludes_legacy_pix(monkeypatch):
+    """W4 DOC-1 (было: веса legacy PIXGBM в архиве): [geophys.pixgbm] выключен — в архив не идут ни веса
+    models/pixgbm/*, ни expds/geo_pixgbm.py / geo_finds_gbm.py; не требуем gitignored весов на диске."""
     import importlib.util
     from conftest import allow_missing_submission_models
     allow_missing_submission_models(monkeypatch)
     spec = importlib.util.spec_from_file_location("bs", ROOT / "scripts" / "build_submission.py")
     bs = importlib.util.module_from_spec(spec); spec.loader.exec_module(bs)
-    rel = {str(p.relative_to(ROOT)) for p in bs.collect()}
-    assert {"models/pixgbm/all/poly.txt", "models/pixgbm/all/finds.txt"} <= rel
+    rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}
+    assert not any(r.startswith("models/pixgbm/") for r in rel)
+    assert not any(Path(r).name in {"geo_pixgbm.py", "geo_finds_gbm.py"} for r in rel)
 
 
 Y0 = 7.4e6

@@ -31,7 +31,19 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
+#: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
+EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py"}
 FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor", "orgate", "gor_dense")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5: + gor_dense)
+
+
+def _doc1_check(out: Path) -> None:
+    """W4 DOC-1: архив без EN-файлов и без включённого legacy PIXGBM, иначе архив удаляется и сборка падает."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_archive_clean import check
+    bad = check(out)
+    if bad:
+        out.unlink(missing_ok=True)
+        sys.exit("DOC-1: архив не чистый:\n" + "\n".join(bad))
 
 
 def collect() -> list[Path]:
@@ -47,7 +59,8 @@ def collect() -> list[Path]:
     if (cfg.get("gor_dense") or {}).get("enabled"):
         off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
-                    if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+                    if p.name not in EN_EXCLUDE
+                    and not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
@@ -207,6 +220,7 @@ def main() -> None:
             sys.exit("--from-zip меняет только конфиг: задайте --only-class или --thresholds")
         out = Path(args.out)
         digest = variant_from_zip(Path(args.from_zip), out, args.only_class or None, changes)
+        _doc1_check(out)
         what = [f"перепись {args.only_class}"] if args.only_class else []
         what += [f"порогов {sum(len(c) for c in changes.values())}"] if changes else []
         print(f"архив: {out} — {', '.join(what)} из {args.from_zip}, "
@@ -242,6 +256,7 @@ def main() -> None:
                 z.writestr(name, config_text)
             else:
                 z.write(f, name)
+    _doc1_check(out)
     size = out.stat().st_size
     if size > LIMIT:
         sys.exit(f"архив {size / 2**20:.0f} МБ больше 2 ГБ")
