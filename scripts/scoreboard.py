@@ -47,7 +47,8 @@ def load(path: Path) -> dict:
     p = Path(path)
     print(f"читаю {p.name}", flush=True)
     gc.disable()
-    return json.loads(p.read_bytes())
+    from expds.fastjson import load_json  # w0: orjson, если есть (EXPDS_FASTJSON=0 — json)
+    return load_json(p)
 
 
 def props(feat: dict) -> dict:

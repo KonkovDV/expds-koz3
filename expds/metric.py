@@ -225,6 +225,23 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
 
 
 def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[str, ClassCurve]:
+    """То же, что _build_curves_impl, но с паузой циклического GC (EXPDS_METRIC_NOGC=0 — выключить).
+
+    w0: на 170k объектах GC съедает ~40 % времени build_curves (миллионы мелких объектов
+    JSON уже в куче); на результат не влияет — проверено побайтно (bench_collect / тест).
+    """
+    import gc
+
+    if os.environ.get("EXPDS_METRIC_NOGC", "1") == "0" or not gc.isenabled():
+        return _build_curves_impl(pred, gt, metric_path)
+    gc.disable()
+    try:
+        return _build_curves_impl(pred, gt, metric_path)
+    finally:
+        gc.enable()
+
+
+def _build_curves_impl(pred: dict, gt: dict, metric_path: str | None = None) -> dict[str, ClassCurve]:
     """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
 
     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
@@ -740,8 +757,9 @@ def _cli() -> None:
     p.add_argument("--regions", default=None)
     p.add_argument("--boot", type=int, default=1000)
     args = ap.parse_args()
-    pred = json.loads(Path(args.pred).read_text(encoding="utf-8-sig"))
-    gt = json.loads(Path(args.gt).read_text(encoding="utf-8-sig"))
+    from .fastjson import load_json
+    pred = load_json(args.pred)
+    gt = load_json(args.gt)
     markup = set(args.markup.split(",")) if getattr(args, "markup", None) else None
     regions = ({ln.strip() for ln in Path(args.regions).read_text(encoding="utf-8").splitlines() if ln.strip()}
                if args.regions else None)
@@ -762,7 +780,7 @@ def _cli() -> None:
             Path(args.out).write_text(json.dumps(taus, ensure_ascii=False, indent=2), encoding="utf-8")
         return
     if args.cmd == "compare":
-        pred_b = _filter(json.loads(Path(args.pred_b).read_text(encoding="utf-8-sig")), markup, regions)
+        pred_b = _filter(load_json(args.pred_b), markup, regions)
         ra, rb = sweep(pred, gt, args.metric), sweep(pred_b, gt, args.metric)
         res = paired_bootstrap(ra["_curves"], rb["_curves"], ra["thresholds"], rb["thresholds"], args.boot)
         print(f"балл A {ra['estimated_score']:.4f}, B {rb['estimated_score']:.4f}")
