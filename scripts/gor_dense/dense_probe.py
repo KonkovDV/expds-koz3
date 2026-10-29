@@ -19,7 +19,11 @@ bot-10/work11/wt_audit docs/AUDIT_CLAUDE_2026-10-29.md:114 (коммит 6e26062
 Строгая вложенность: пики обучающих участков — из внутреннего OOF (5 семейных фолдов обучения), отложенных — модель на всём
 обучении. Выход: peaks{TAG}.json: layouts -> [по фолду: {held, variant -> {reg: [[p, x, y], ...]}}] + token AUC + попадание
 top-1 точки в эталон sp_or отложенных участков.
-Env: DOUT (папка с dense{TAG}.npz, files{TAG}.json, gor_dense_inputs.json), TAG, VARIANTS (pu,pu_edge,all; есть и pu_nohn), LAYOUTS, REPO."""
+Env: DOUT (папка с dense{TAG}.npz, files{TAG}.json, gor_dense_inputs.json), TAG, VARIANTS (pu,pu_edge,all; есть и pu_nohn), LAYOUTS, REPO.
+Чекпойнты (peaks_ckpt.py): после КАЖДОГО фолда — CKPT_DIR (по умолч. DOUT/ckpt{TAG})/<layout>/f###.json+.npz (атомарно).
+RESUME=1 (по умолч.) — готовые фолды не пересчитываются; FOLDS='0-29' или '0,3,7' — считать только эти фолды (нужен один LAYOUTS).
+Раскрой попадает в peaks{TAG}.json, когда в CKPT_DIR есть все его фолды; иначе склейка позже: peaks_ckpt.py CKPT_DIR OUT.json
+(результат совпадает с одним процессом: фиты детерминированы — rng(0) на каждый вызов, — а счётчики hn_log/cp_s_chosen считаются по фолдам)."""
 import os, sys, json, math, collections, time
 from pathlib import Path
 import numpy as np, shapely
@@ -65,6 +69,10 @@ class Probe:
         log('token labels', dict(collections.Counter(lab.tolist())), 'regions with pos tokens', len(set(self.REG[lab == 1])))
         self.FIDX = {k: np.flatnonzero(self.fid == k) for k in range(len(self.FI['files']))}
         self.ALL = np.arange(len(self.DF)); self.hn_log = collections.Counter(); self._cache = {}
+        self.RLIST = sorted(set(self.REG.tolist())); self.RC = np.searchsorted(np.array(self.RLIST), self.REG)
+    def groups(self, idx):   # {регион: позиции в idx} в порядке возрастания — то же, что np.flatnonzero(self.REG[idx] == r)
+        c = self.RC[idx]; o = np.argsort(c, kind='stable'); u, st = np.unique(c[o], return_index=True)
+        return {self.RLIST[k]: o[a:b] for k, a, b in zip(u, st, list(st[1:]) + [len(o)])}
     def set_proj(self, idx):
         DF = self.DF; n = 0; s1 = np.zeros(DF.shape[1]); s2 = np.zeros(DF.shape[1])
         for a in range(0, len(idx), 20000):
@@ -125,43 +133,44 @@ class Probe:
         return out
     def in_sp_or(self, r, x, y):
         return any(shapely.contains_xy(g if g.geom_type != 'Point' else g.buffer(5), x, y) for g, s in self.HF.get(r, []) if s)
-    def run_layout(self, folds, variants):
-        every = set().union(*folds); res = []; tok = {v: np.full(len(self.DF), np.nan) for v in variants}
-        hit = {w: [0, 0] for v in variants for w in (v, v + '+cp')}; self.cp_log = getattr(self, 'cp_log', collections.defaultdict(list))
-        for fi, held in enumerate(folds):
-            train = every - held; dtr = self.ALL[np.isin(self.REG, list(train))]; dhe = self.ALL[np.isin(self.REG, list(held))]
-            fr = {'held': sorted(held)}
-            key = frozenset(self.REG[dtr].tolist())
-            if not len(dhe) and key in self._cache:   # отложенный фолд без сцен SpOr: обучение то же, что уже посчитано
-                fr.update(self._cache[key]); res.append(fr); continue
-            if len(dtr):
-                self.set_proj(dtr); dfo = family_folds(sorted(set(self.REG[dtr])), site_family, 5)
-                for v in variants:
-                    pin = np.zeros(len(dtr))
-                    for h in dfo:
-                        te = np.isin(self.REG[dtr], list(h))
-                        if te.any(): pin[te] = self.pred(self.fit(dtr[~te], v), dtr[te])
-                    md = self.fit(dtr, v); phd = self.pred(md, dhe) if len(dhe) else np.zeros(0); tok[v][dhe] = phd
-                    # выбор s приора центра — только по внутреннему OOF обучающих участков с городищем sp_or
-                    trs = [r for r in sorted(set(self.REG[dtr].tolist())) if r in self.SPR]; best = (-1, 0.0)
-                    for cp in CP_GRID:
-                        h = 0
-                        for r in trs:
-                            mm = self.REG[dtr] == r; pk = self.peaks(pin[mm], dtr[mm], cp)
-                            h += int(bool(pk) and self.in_sp_or(r, pk[0][1], pk[0][2]))
-                        if h > best[0] or (h == best[0] and cp > best[1]): best = (h, cp)
-                    cps = best[1]; self.cp_log[v].append(cps)
-                    for vv, cp in ((v, float('inf')), (v + '+cp', cps)):
-                        pk_ = {}
-                        for idx_set, pp, part in ((dtr, pin, 'tr'), (dhe, phd, 'he')):
-                            for r in sorted(set(self.REG[idx_set].tolist())):
-                                mm = self.REG[idx_set] == r; pk = self.peaks(pp[mm], idx_set[mm], cp); pk_[r] = [list(t) for t in pk]
-                                if part == 'he' and r in self.SPR and pk: hit[vv][0] += int(self.in_sp_or(r, pk[0][1], pk[0][2])); hit[vv][1] += 1
-                        fr[vv] = pk_
-                    fr.setdefault('cp_s', {})[v] = cps
-            if not len(dhe): self._cache[key] = {k: v for k, v in fr.items() if k != 'held'}
-            res.append(fr)
-        return res, tok, hit
+    def run_fold(self, folds, fi, variants):
+        """Один внешний фолд → (fr, hit, tok, hn). tok = {v: (idx отложенных, p)}; hn — счётчик фитов этого фолда (с учётом кэша)."""
+        every = set().union(*folds); held = folds[fi]; train = every - held
+        dtr = self.ALL[np.isin(self.REG, list(train))]; dhe = self.ALL[np.isin(self.REG, list(held))]
+        fr = {'held': sorted(held)}; hit = {w: [0, 0] for v in variants for w in (v, v + '+cp')}; tok = {v: (dhe, np.zeros(0)) for v in variants}
+        key = (frozenset(self.REG[dtr].tolist()), tuple(variants))
+        if not len(dhe) and key in self._cache:   # отложенный фолд без сцен SpOr: обучение то же, что уже посчитано
+            c, hn = self._cache[key]; fr.update(c); return fr, hit, tok, collections.Counter(hn)
+        hn0 = collections.Counter(self.hn_log)
+        if len(dtr):
+            self.set_proj(dtr); dfo = family_folds(sorted(set(self.REG[dtr])), site_family, 5)
+            gtr = self.groups(dtr); ghe = self.groups(dhe) if len(dhe) else {}
+            for v in variants:
+                pin = np.zeros(len(dtr))
+                for h in dfo:
+                    te = np.isin(self.REG[dtr], list(h))
+                    if te.any(): pin[te] = self.pred(self.fit(dtr[~te], v), dtr[te])
+                md = self.fit(dtr, v); phd = self.pred(md, dhe) if len(dhe) else np.zeros(0); tok[v] = (dhe, phd)
+                # выбор s приора центра — только по внутреннему OOF обучающих участков с городищем sp_or
+                trs = [r for r in sorted(gtr) if r in self.SPR]; best = (-1, 0.0)
+                for cp in CP_GRID:
+                    h = 0
+                    for r in trs:
+                        mm = gtr[r]; pk = self.peaks(pin[mm], dtr[mm], cp)
+                        h += int(bool(pk) and self.in_sp_or(r, pk[0][1], pk[0][2]))
+                    if h > best[0] or (h == best[0] and cp > best[1]): best = (h, cp)
+                cps = best[1]
+                for vv, cp in ((v, float('inf')), (v + '+cp', cps)):
+                    pk_ = {}
+                    for idx_set, pp, part, g in ((dtr, pin, 'tr', gtr), (dhe, phd, 'he', ghe)):
+                        for r in sorted(g):
+                            mm = g[r]; pk = self.peaks(pp[mm], idx_set[mm], cp); pk_[r] = [list(t) for t in pk]
+                            if part == 'he' and r in self.SPR and pk: hit[vv][0] += int(self.in_sp_or(r, pk[0][1], pk[0][2])); hit[vv][1] += 1
+                    fr[vv] = pk_
+                fr.setdefault('cp_s', {})[v] = cps
+        hn = collections.Counter(self.hn_log); hn.subtract(hn0); hn = +hn
+        if not len(dhe): self._cache[key] = ({k: v for k, v in fr.items() if k != 'held'}, dict(hn))
+        return fr, hit, tok, hn
 def auc(s, t):
     s = np.asarray(s, float); t = np.asarray(t, bool)
     if t.all() or not t.any(): return None
@@ -169,19 +178,24 @@ def auc(s, t):
     _, inv, cnt = np.unique(s, return_inverse=True, return_counts=True); sums = np.bincount(inv, rk); rk = (sums / cnt)[inv]
     nP = t.sum(); return float((rk[t].sum() - nP * (nP + 1) / 2) / (nP * (len(s) - nP)))
 if __name__ == '__main__':
+    import peaks_ckpt as PCK
     DOUT = os.environ.get('DOUT', '/workspace/koz3_shared/bot-5/analysis/gor_dense'); TAG = os.environ.get('TAG', '')
     VAR = [v for v in os.environ.get('VARIANTS', 'pu,pu_edge,all').split(',') if v]
     P = Probe(DOUT, TAG); LAY = [l for l in os.environ.get('LAYOUTS', ','.join(P.J['layouts'])).split(',') if l]
+    CK = Path(os.environ.get('CKPT_DIR', str(Path(DOUT) / f'ckpt{TAG}'))); RESUME = os.environ.get('RESUME', '1') == '1'
+    SEL = PCK.parse_folds(os.environ.get('FOLDS', ''))
+    if SEL is not None: assert len(LAY) == 1, 'FOLDS требует один LAYOUTS'
     cen = [int(P.in_sp_or(r, float(P.ux[P.REG == r].mean()), float(P.uy[P.REG == r].mean()))) for r in sorted(P.SPR & set(P.REG.tolist()))]
-    R = dict(model=P.FI['model'], gsds=P.FI['gsds'], tag=TAG, n_tokens=int(len(P.DF)), token_labels={str(k): int(v) for k, v in collections.Counter(P.lab.tolist()).items()},
-             centre_hit=[int(sum(cen)), len(cen)], layouts={}, stats={})
+    META = dict(model=P.FI['model'], gsds=P.FI['gsds'], tag=TAG, n_tokens=int(len(P.DF)), token_labels={str(k): int(v) for k, v in collections.Counter(P.lab.tolist()).items()},
+                centre_hit=[int(sum(cen)), len(cen)], variants=VAR, nfolds={nm: len(P.J['layouts'][nm]) for nm in P.J['layouts']})
+    PCK.write_meta(CK, META)
     for nm in LAY:
-        folds = [set(f) for f in P.J['layouts'][nm]]; res, tok, hit = P.run_layout(folds, VAR); st = {'top1_hit_held': hit}
-        for v in VAR:
-            okp = (P.lab >= 0) & ~np.isnan(tok[v]) & ~P.NEGSCENE; oka = (P.lab >= 0) & ~np.isnan(tok[v])
-            st.setdefault('token_auc_pos_scenes', {})[v] = auc(tok[v][okp], P.lab[okp] == 1)
-            st.setdefault('token_auc_all', {})[v] = auc(tok[v][oka], P.lab[oka] == 1)
-        R['layouts'][nm] = res; R['stats'][nm] = st; log(nm, st, 'centre', R['centre_hit'])
-        json.dump(R, open(Path(DOUT) / f'peaks{TAG}.json', 'w'), ensure_ascii=False)
-    R['hn_log'] = dict(P.hn_log); R['cp_s_chosen'] = {k: collections.Counter(map(str, v)) for k, v in getattr(P, 'cp_log', {}).items()}; json.dump(R, open(Path(DOUT) / f'peaks{TAG}.json', 'w'), ensure_ascii=False)
+        folds = [set(f) for f in P.J['layouts'][nm]]; todo = range(len(folds)) if SEL is None else [i for i in SEL if i < len(folds)]
+        for fi in todo:
+            if RESUME and PCK.has_fold(CK, nm, fi): continue
+            fr, hit, tok, hn = P.run_fold(folds, fi, VAR)
+            PCK.save_fold(CK, nm, fi, fr, hit, tok, hn, P.lab, P.NEGSCENE); log(nm, 'fold', fi, '/', len(folds), 'saved')
+        if PCK.complete(CK, nm, len(folds)): log(nm, PCK.layout_stats(CK, nm, len(folds), VAR), 'centre', META['centre_hit'])
+        else: log(nm, 'partial: folds in ckpt', PCK.n_done(CK, nm), '/', len(folds))
+        R = PCK.assemble(CK); json.dump(R, open(Path(DOUT) / f'peaks{TAG}.json', 'w'), ensure_ascii=False)
     import resource; log('done; peak RSS MB', resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
