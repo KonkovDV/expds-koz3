@@ -2,7 +2,7 @@
 # ASCII-only. Copies runner into JobDir first.
 $ErrorActionPreference = 'Continue'
 $Task = 'koz3_bot8_tta_ms'
-$JobDir = 'C:\Sloi\pc_jobs\bot8_tta_ms_docker_81b1d8d'
+$JobDir = 'C:\Sloi\pc_jobs\bot8_tta_ms_docker_9ecc66e'
 $SrcDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 New-Item -ItemType Directory -Force -Path $JobDir | Out-Null
 Copy-Item -Force (Join-Path $SrcDir 'run_bot8_tta_ms_docker.ps1') "$JobDir\run_bot8_tta_ms_docker.ps1"
