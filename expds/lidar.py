@@ -410,8 +410,39 @@ def dem_params(meta: dict | None = None, cfg: dict | None = None) -> dict:
     return {"res": float(lid.get("dem_res", MODEL_DEM["res"])), "fill": lid.get("dem_fill", MODEL_DEM["fill"])}
 
 
+HILLSHADE_STYLES = ("vendor", "li_match")
+
+
+def _hillshade_li_match(filled: np.ndarray, res: float) -> np.ndarray:
+    """CI2-8 (W2 T3, notes/w2/ci2_8/SUMMARY.md): отмывка ближе к Li_g организаторов —
+    Horn 3×3 по DEM, сглаженному гауссом σ=1 px; ESRI 315/45/z1. MAE к Li_g 2,4–4,6 против 3,1–6,1 у vendor."""
+    import math
+    from scipy import ndimage as ndi
+
+    z = ndi.gaussian_filter(np.asarray(filled, np.float32), 1.0)
+    k = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], np.float32) / (8.0 * res)
+    gx = -ndi.correlate(z, k, mode="nearest")
+    gy = ndi.correlate(z, k.T, mode="nearest")
+    slope = np.arctan(np.hypot(gx, gy))
+    aspect = np.arctan2(-gx, -gy)
+    zen, az = math.radians(45.0), math.radians(315.0)
+    shade = 255.0 * (math.cos(zen) * np.cos(slope) + math.sin(zen) * np.sin(slope) * np.cos(az - aspect))
+    return np.rint(np.clip(shade, 0.0, 255.0)).astype(np.uint8)
+
+
+def hillshade_for(cfg: dict | None):
+    """hillshade_set с lidar.hillshade_style из конфига (по умолчанию "vendor" — как было)."""
+    style = str(((cfg or {}).get("lidar", {}) or {}).get("hillshade_style", "vendor"))
+    if style not in HILLSHADE_STYLES:
+        raise ValueError(f"lidar.hillshade_style={style!r}, ожидается одно из {HILLSHADE_STYLES}")
+    if style == "vendor":
+        return hillshade_set
+    import functools
+    return functools.partial(hillshade_set, style=style)
+
+
 def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
-                  cycles_ch: float | None = None) -> dict[str, np.ndarray]:
+                  cycles_ch: float | None = None, style: str = "vendor") -> dict[str, np.ndarray]:
     """Отмывки по DEM: g, i — H×W uint8 (nodata 255); c, ch — 3×H×W uint8 (nodata 0)."""
     valid = np.isfinite(d.dem)
     if not valid.any():
@@ -422,13 +453,15 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
     filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32)
     out: dict[str, np.ndarray] = {}
     if "g" in tags or "i" in tags:
-        shade = accel.hillshade(filled, d.res, d.res)
+        shade = (_hillshade_li_match(filled, d.res) if style == "li_match"
+                 else accel.hillshade(filled, d.res, d.res))
         if "g" in tags:
             g = shade.copy()
             g[~valid] = 255
             out["g"] = g
         if "i" in tags:
-            i = (255 - shade.astype(np.int16)).astype(np.uint8)
+            # Li организаторов: g + i = 253 (CI2-8), у vendor 255
+            i = np.clip((253 if style == "li_match" else 255) - shade.astype(np.int16), 0, 255).astype(np.uint8)
             i[~valid] = 255
             out["i"] = i
     cycles = {"c": float(cycles_c),
