@@ -620,8 +620,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             n0 = len(half_feats)
             half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"],
                                                         half_p), output_floors(cfg, half_p["group"]))
-            log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)", reg.name, n0, len(half_feats),
-                     float(half_p["dedupe_m"]), half_p["group"])
+            n1 = len(half_feats)
+            # bot-8: NMS среди оставленных li_half без учёта класса — после отбора против li и пола, до выдачи
+            # ([li_half] self_xclass_nms_m; 0 — выкл., по умолчанию)
+            half_feats = li_half.self_nms(half_feats, half_p["self_xclass_nms_m"])
+            log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)%s", reg.name, n0, len(half_feats),
+                     float(half_p["dedupe_m"]), half_p["group"],
+                     f"; NMS {half_p['self_xclass_nms_m']:g} м: {n1} → {len(half_feats)}"
+                     if half_p["self_xclass_nms_m"] > 0 else "")
         else:
             half_feats = []
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
