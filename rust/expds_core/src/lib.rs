@@ -9,6 +9,7 @@ mod cpu;
 mod delaunay;
 mod fill;
 mod geo;
+mod gmatch;
 mod jsonfilter;
 mod grid;
 mod peaks;
@@ -336,6 +337,32 @@ fn filter_geojson_conf(py: Python<'_>, src: String, dst: String, thr: f64, batch
     Ok((st.total, st.kept))
 }
 
+
+fn slice1<'a>(a: &'a PyReadonlyArray1<'_, i64>) -> PyResult<&'a [i64]> {
+    a.as_slice().map_err(|_| PyValueError::new_err("ожидается непрерывный int64"))
+}
+
+/// Префильтр пар для жадного сопоставления метрики (см. gmatch.rs). Входы — shapely.to_ragged_array
+/// (MultiPolygon: xy, смещения колец/полигонов/фигур) кандидатов и эталонов-полигонов, точки эталона.
+/// Возвращает (pred_idx, gt_id) int64, отсортированные по (pred, gt).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn match_prefilter<'py>(py: Python<'py>, pxy: PyReadonlyArray2<'py, f64>, pring: PyReadonlyArray1<'py, i64>,
+    ppart: PyReadonlyArray1<'py, i64>, pgeom: PyReadonlyArray1<'py, i64>,
+    gxy: PyReadonlyArray2<'py, f64>, gring: PyReadonlyArray1<'py, i64>, gpart: PyReadonlyArray1<'py, i64>,
+    ggeom: PyReadonlyArray1<'py, i64>, gid: PyReadonlyArray1<'py, i64>,
+    ptxy: PyReadonlyArray2<'py, f64>, ptid: PyReadonlyArray1<'py, i64>,
+    r_tol: f64, thr: f64, eps_cov: f64, eps_d: f64)
+    -> PyResult<(Bound<'py, PyArray1<i64>>, Bound<'py, PyArray1<i64>>)> {
+    let e = || PyValueError::new_err("ожидается непрерывный float64 N×2");
+    let (a, b, c) = (pxy.as_slice().map_err(|_| e())?, gxy.as_slice().map_err(|_| e())?, ptxy.as_slice().map_err(|_| e())?);
+    let pr = gmatch::Ragged { xy: a, ring: slice1(&pring)?, part: slice1(&ppart)?, geom: slice1(&pgeom)? };
+    let gr = gmatch::Ragged { xy: b, ring: slice1(&gring)?, part: slice1(&gpart)?, geom: slice1(&ggeom)? };
+    let (gi, pi) = (slice1(&gid)?, slice1(&ptid)?);
+    let (qp, qg) = py.detach(|| gmatch::prefilter(&pr, &gr, gi, c, pi, r_tol, thr, eps_cov, eps_d));
+    Ok((Array1::from(qp).into_pyarray(py), Array1::from(qg).into_pyarray(py)))
+}
+
 #[pymodule]
 fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     cpu::init();
@@ -360,5 +387,6 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
     m.add_function(wrap_pyfunction!(flatten_polygons, m)?)?;
     m.add_function(wrap_pyfunction!(filter_geojson_conf, m)?)?;
+    m.add_function(wrap_pyfunction!(match_prefilter, m)?)?;
     Ok(())
 }
