@@ -35,7 +35,9 @@ def to_feature_collection(feats: list[dict]) -> dict:
                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
                  "region_name": f.get("region_name", "default_source"),
                  "crs": "EPSG:3857"}
-        if f.get("markup_type"):
+        if f.get("out_markup_type"):      # bot-5 gor_dense: своя группа внутри, в файл — модальность из списка ТР
+            props["markup_type"] = f["out_markup_type"]
+        elif f.get("markup_type"):
             props["markup_type"] = f["markup_type"]
         if f.get("original_crs"):
             props["original_crs"] = f["original_crs"]
