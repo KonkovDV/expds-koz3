@@ -605,7 +605,9 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
     Для кургана (povr или tselye) из sp_focal / sp_focal2: o = наибольшая уверенность курганов
     (любого из двух классов) ДРУГОЙ sp-группы в радиусе radius_m метров на земле на том же
     участке, иначе 0; новая уверенность = (conf + o) / 2. Объекты не добавляются и не
-    удаляются; применять ДО порогов, пороги групп подбирать заново. Работает и с плоскими
+    удаляются (кроме помеченных sp_partner_only — они только соседи); применять ДО порогов,
+    на сырых кандидатах (pipeline: gen_floor вместо порога выдачи), пороги — из spec.thresholds
+    (watchdog.finish подставляет их в thresholds_by_markup). Работает и с плоскими
     признаками (geom, поля в корне), и с GeoJSON (geometry, properties).
     """
     from collections import defaultdict
@@ -622,6 +624,11 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
     def _p(f):
         return f["properties"] if isinstance(f.get("properties"), dict) else f
 
+    def _grp(p):
+        # В сдаче карта центров идёт с markup_type sp_or, в табло — с группой sp_focal.
+        g = p.get("threshold_group") or p.get("markup_type")
+        return "sp_focal" if g == "sp_or" else g
+
     def _c(f):
         g = f.get("geom")
         if g is None:
@@ -631,12 +638,12 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
     idx = []
     for i, f in enumerate(feats):
         p = _p(f)
-        grp = p.get("threshold_group") or p.get("markup_type")
+        grp = _grp(p)
         if p.get("class_name") in SP_FUSION_CLASSES and grp in groups:
             c = _c(f)
             idx.append((i, p.get("region_name") or "", grp, c.x, c.y, float(p.get("confidence", 0.0))))
     if not idx:
-        return list(feats)
+        return [f for f in feats if not _p(f).get("sp_partner_only")]
     # Один cos φ на участок (как в kurgan_cross_modal_twins): метры на земле.
     ys = defaultdict(list)
     for _, reg, _, _, y, _ in idx:
@@ -659,6 +666,8 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
         new_conf[i] = (conf + o) / 2.0
     out = []
     for i, f in enumerate(feats):
+        if _p(f).get("sp_partner_only"):
+            continue  # кандидат только как сосед для слияния (его выкинул отбор 12 м), не выдаётся
         if i in new_conf:
             f = dict(f)
             if isinstance(f.get("properties"), dict):
@@ -667,3 +676,19 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
                 f["confidence"] = new_conf[i]
         out.append(f)
     return out
+
+
+def sp_fusion_thresholds(by_markup: dict | None, spec) -> dict:
+    """thresholds_by_markup с порогами курганов sp из [post.sp_score_fusion.thresholds] (sp_focal = sp_or в сдаче)."""
+    out = {k: dict(v) for k, v in (by_markup or {}).items()}
+    th = (spec or {}).get("thresholds", {}) if isinstance(spec, dict) else {}
+    for g, cls in th.items():
+        for key in (("sp_or", "sp_focal") if g == "sp_focal" else (g,)):
+            out.setdefault(key, {}).update({c: float(t) for c, t in cls.items()})
+    return out
+
+
+def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
+    """Пол генерации курганов sp при включённом слиянии: сырые кандидаты от gen_floor (по умолчанию 0,05)."""
+    g = float((spec if isinstance(spec, dict) else {}).get("gen_floor", 0.05))
+    return {c: (min(t, g) if c in SP_FUSION_CLASSES else t) for c, t in floors.items()}

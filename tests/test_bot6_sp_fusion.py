@@ -35,3 +35,35 @@ def test_sp_score_fusion_off_by_default_in_finish():
     out = post.sp_score_fusion(feats, {"radius_m": 8.0})
     assert out[0]["confidence"] == 0.2
     assert callable(watchdog.finish)
+
+
+def test_sp_fusion_raw_partners_alias_and_thresholds():
+    # sp_or (markup сдачи) = sp_focal; сосед sp_focal2 ниже старого порога выдачи 0,501645 и
+    # помеченный sp_partner_only (выкинут отбором 12 м) всё равно поднимает уверенность и не выдаётся.
+    a = {"class_name": "kurgany_povrezhdennye", "markup_type": "sp_or", "region_name": "r",
+         "confidence": 0.30, "geom": Point(0.0, 7_000_000.0)}
+    b = _f("sp_focal2", "kurgany_povrezhdennye", 2.0, 0.40)
+    b["sp_partner_only"] = True
+    out = post.sp_score_fusion([a, b])
+    assert len(out) == 1 and abs(out[0]["confidence"] - 0.35) < 1e-9
+    spec = {"thresholds": {"sp_focal": {"kurgany_povrezhdennye": 0.27822},
+                           "sp_focal2": {"kurgany_povrezhdennye": 0.514733}}}
+    bm = post.sp_fusion_thresholds({"sp_or": {"kurgany_povrezhdennye": 0.3645, "gorodishcha": 0.99}}, spec)
+    assert bm["sp_or"] == {"kurgany_povrezhdennye": 0.27822, "gorodishcha": 0.99}
+    assert bm["sp_focal"]["kurgany_povrezhdennye"] == 0.27822
+    assert bm["sp_focal2"]["kurgany_povrezhdennye"] == 0.514733
+    kept = post.apply_thresholds(out, {}, 0.15, bm)
+    assert len(kept) == 1  # 0,35 ≥ 0,27822; со старым 0,3645 был бы отрезан
+    fl = post.sp_fusion_gen_floors({"kurgany_povrezhdennye": 0.501645, "gorodishcha": 0.99}, {})
+    assert fl == {"kurgany_povrezhdennye": 0.05, "gorodishcha": 0.99}
+
+
+def test_pipeline_sp_floors_flag_off_is_unchanged():
+    import pytest
+    pytest.importorskip("rasterio")
+    from expds import pipeline
+    cfg = {"thresholds_by_markup": {"sp_focal2": {"kurgany_povrezhdennye": 0.501645}}}
+    assert pipeline._sp_floors(cfg, "sp_focal2") == pipeline.output_floors(cfg, "sp_focal2")
+    cfg["post"] = {"sp_score_fusion": {"gen_floor": 0.05}}
+    assert pipeline._sp_floors(cfg, "sp_focal2")["kurgany_povrezhdennye"] == 0.05
+    assert pipeline._sp_floors(cfg, "ae") == pipeline.output_floors(cfg, "ae")
