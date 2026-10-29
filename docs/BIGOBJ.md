@@ -22,3 +22,6 @@ F2 — круг-ядро у крупных масок городищ (сущес
     min_area_m2 = 5000
 
 Скрипты замера (офлайн, стек A bot-10/work11/fam0): scripts/bigobj/{bigobj_recall,var_curves,tab,bigobj_paired}.py.
+
+## Результаты honest-10 (29.10 11:55 MSK)
+F1 d10 -0.003325 P 0.012; F2 +0.001532 P 0.674 seeds 0/5; F12 -0.001977 P 0.341; F1s -0.003300 P 0.002. Все отклонены, флаги остаются OFF. Подробно: bot-2/REPORT2.md §16.
