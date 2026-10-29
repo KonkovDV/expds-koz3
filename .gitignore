@@ -72,3 +72,6 @@ inference/cnx/wheels/*.whl
 
 # Murder Board 29.10: held out of git (EN-lineage review); injected at release build only
 expds/geo_pixgbm.py
+# W4 repro-v2: веса v2, которых нет в main, кладёт scripts/v2_release_artifacts.py (не коммитить)
+models/pixgbm/all/*.txt
+models/rerank_arch_lgbm.txt
