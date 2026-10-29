@@ -645,14 +645,47 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
     return match_collected(calc, preds, gts, p_sites, g_sites, mod=mod)
 
 
+def build_curves_with_pairs(pred: dict, gt: dict, metric_path: str | None = None,
+                            scope: str | None = None) -> tuple[dict[str, ClassCurve], list[dict]]:
+    """build_curves + список TP-пар с pred_layer/gt_layer (layer_key).
+
+    Сбор геометрий один раз с layer_key в аннотацию. Фильтр пар: global (нет) или
+    layer (same layer_key). scope=site здесь не поддерживается (см. build_curves).
+    Нужен для диагностики Δ global↔layer: какие TP — cross-layer.
+    """
+    mod = load_official(metric_path)
+    calc = mod.F1Calculator()
+    scope_s = match_scope(scope)
+    if scope_s == "site":
+        raise ValueError("build_curves_with_pairs: scope=site не поддерживается; используйте build_curves")
+    p_layers: dict = {}
+    g_layers: dict = {}
+    preds = _collect(mod, calc, pred, False, p_layers, key_fn=layer_key)
+    gts = _collect(mod, calc, gt, True, g_layers, key_fn=layer_key)
+    if scope_s == "layer":
+        p_filt, g_filt = p_layers, g_layers
+    else:
+        p_filt = g_filt = None
+    pairs: list[dict] = []
+    curves = match_collected(calc, preds, gts, p_filt, g_filt, mod=mod,
+                             pairs_out=pairs, p_ann=p_layers, g_ann=g_layers)
+    return curves, pairs
+
+
 def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
-                    g_sites: dict | None = None, mod=None) -> dict[str, ClassCurve]:
+                    g_sites: dict | None = None, mod=None,
+                    pairs_out: list | None = None,
+                    p_ann: dict | None = None,
+                    g_ann: dict | None = None) -> dict[str, ClassCurve]:
     """Сопоставление по уже собранным (геометрия UTM, conf, участок, группа) спискам.
 
     Вынесено из build_curves, чтобы большой стек можно было собирать кусками
     (по семьям, пачками) и не держать весь GeoJSON в памяти (scripts/family_curves.py).
     p_sites/g_sites (ключи области по классам, из _collect: site_key или layer_key) —
     для scope="site"|"layer"; None = global.
+    pairs_out: если список — дописываем TP-пары {class, conf, quality, pred_layer, gt_layer,
+    pred_region, gt_region, cross_layer}. p_ann/g_ann — ключи слоя для аннотации
+    (обычно layer_key); если None, берём p_sites/g_sites.
     mod — официальный модуль метрики; по умолчанию модуль, из которого создан calc.
     """
     import shapely
@@ -661,6 +694,8 @@ def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
         import types
         mod = types.SimpleNamespace(**type(calc).__init__.__globals__)
     per_site = p_sites is not None and g_sites is not None
+    ann_p = p_ann if p_ann is not None else p_sites
+    ann_g = g_ann if g_ann is not None else g_sites
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
@@ -704,6 +739,20 @@ def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
                     if best_j >= 0:
                         matched.add(best_j)
                         hits[r_int] = True
+                        if pairs_out is not None:
+                            pi = order[r_int]
+                            pl = ann_p[cls][pi] if ann_p is not None and cls in ann_p else "?"
+                            gl = ann_g[cls][best_j] if ann_g is not None and cls in ann_g else "?"
+                            pairs_out.append({
+                                "class": cls,
+                                "conf": float(p[pi][1]),
+                                "quality": float(best),
+                                "pred_layer": pl,
+                                "gt_layer": gl,
+                                "pred_region": p[pi][2],
+                                "gt_region": g[best_j][2],
+                                "cross_layer": pl != gl,
+                            })
         curves[cls] = ClassCurve(conf=np.array([p[i][1] for i in order], dtype=np.float64), hit=hits,
                                  pred_region=[p[i][2] for i in order], n_gt=len(g),
                                  gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])
@@ -742,7 +791,7 @@ def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
             tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
             pg_ord = [p[i][0] for i in order]
             q_pred, q_gt = tree.query(pg_ord)
-            if per_site and len(q_pred):
+            if keyed and len(q_pred):
                 site_ids: dict = {}
                 ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
                 gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)

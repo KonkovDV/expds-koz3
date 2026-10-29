@@ -38,3 +38,14 @@ python scripts/scoreboard.py --work ... --train ... --honest 10 --match-scope la
 honest↔LB объясняется train-OOF vs public val, а не cross-layer matching.
 
 Тесты: `tests/test_bot7_layer_scope.py`.
+
+## Диагностика Δ global↔layer
+
+```bash
+python scripts/diff_match_scope.py --work F:/expds3/work --train F:/2/train-expds-3 \
+    --out notes/bot7_diff_scope/
+# или --pred stack.geojson --gt gt.geojson
+```
+
+Пишет `summary.json`, `cross_matches.csv` (pred_layer→gt_layer, class, quality),
+`tp_by_class_layers.csv`, `delta_by_class.csv`. API: `expds.metric.build_curves_with_pairs`.
