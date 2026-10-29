@@ -26,8 +26,8 @@
 | path | loader | статус | source |
 |---|---|---|---|
 | `models/dinov2-small/` | `gor_gate` / `gor_dense` backbone | **OK on PC** `C:\Sloi\wt_bot5_50f6f27\models\dinov2-small` (md5 `ea251be6…`); box `/tmp/dinov2-small` | PC bot1; DEFAULTS |
-| `models/gor_gate/gor_v3_head.npz` | `gor_gate.load_head` | **MISSING** — retrain queued (`scripts/gor_heads` @ `19ccc9c`); legacy md5 `acb95c52956d712a16c3dd389237a691`, 407736 B | was koz3_shared / phantom Kaggle |
-| `models/gor_dense/gor_dense_head.npz` | `gor_dense.load_dense_head` | **MISSING** — same retrain; legacy md5 `e35570e10d17edac32bea8d26fa0f5f4`, 204984 B; centre_s=250 | same |
+| `models/gor_gate/gor_v3_head.npz` | `gor_gate.load_head` | **READY (retrained)** — see gor heads table below | PC Docker @`9f62a96`, bot1, 29.10 |
+| `models/gor_dense/gor_dense_head.npz` | `gor_dense.load_dense_head` | **READY (retrained)** — see gor heads table below; centre_s=250 | same |
 | `models/dfine_or/dfine_f{0,1,2}/` | `dfine_aeor` (or) | **READY** — see Or table below (Kaggle `koz3-dfine-or`) | SHA256SUMS verified 29.10 |
 | `models/dfine_ae/` | `dfine_aeor` (ae) | **pending** — bot3 fine-tune kernel `koz3-dfine-ae-ft` still running | Kaggle |
 
@@ -49,6 +49,17 @@ SHA256SUMS recomputed on box: **all OK**. Source: **Kaggle koz3-dfine-or**.
 **Quality note (from `dfine_report.json` + OOF, not yet honest-10 F1):** 3 folds × 2400 iters, total_sec≈5333 (~1.48 h), peak VRAM 7.76 GB. OOF union `oof_dfine_or.geojson`: **1228** dets (f0=258, f1=940, f2=30). Class mix: arkhitektury 1110, fortifikatsii 50, gorodishcha 44, kurgany_tselye 17, kurgany_povrezhdennye 7. Confidence quartiles ≈ 0.071 / 0.113 / 0.202. Loss last ≈ 26.3 / 31.4 / 26.5. **No platform F1 in kernel report** — needs PC/Kaggle honest eval. Ae still pending (`koz3-dfine-ae-ft`).
 
 **dfine_aeor Or-only:** possible — set `[dfine_aeor] markups = ["or"]` + `weights.or = ["models/dfine_or/dfine_f0", …]` + thresholds for `dfine_or`; leave ae out until FT finishes. Full Ae+Or mock waits for Ae weights.
+
+## gor heads (retrain PC Docker `pantum/n7q:20261024` @ `9f62a96`) — 29.10.2026
+
+Source: `/home/box/shared/koz3/pc/results/bot5_gor_heads_9f62a96/` (STATUS DONE 14:58:23Z = 17:58 МСК; ckpt stages extract_v3/fit_v3/extract_dense/inputs_dense/export_dense/validate all DONE). sha256 recomputed on box: **MATCH** SUMMARY.json/HEADS_SHA256.txt; sizes = legacy.
+
+| path | bytes | sha256 | md5 | legacy md5 |
+|---|---:|---|---|---|
+| `models/gor_gate/gor_v3_head.npz` | 407736 | `5bd88f69b3ffbfdc5312214b4d6012c92be12c66539b7bf8ad35564c76a75e7d` | `487c48e49b5945300cefeed70bc2df00` | `acb95c52956d712a16c3dd389237a691` (≠) |
+| `models/gor_dense/gor_dense_head.npz` | 204984 | `feb1591bb1e9ada63b32829178eae44a7e19fdfd7e99d7d222e3b1389c5b2cb7` | `d92f38f3cbf916a198b363b3f7c84158` | `e35570e10d17edac32bea8d26fa0f5f4` (≠) |
+
+Not byte-identical to legacy (features re-extracted; recipe + SEED=0 match). DEFAULTS md5 in `expds/gor_dense.py` point to legacy → e2e ON must override `gate_head_md5` / `head_md5` with the new md5. τ=0.824066 was tuned on legacy heads — e2e decides. `.npz` gitignored (not in git); on PC: `C:\Sloi\pc_jobs\bot5_gor_heads_9f62a96\heads\`.
 
 ## В git (box worktree models/)
 
@@ -81,6 +92,6 @@ SHA256SUMS recomputed on box: **all OK**. Source: **Kaggle koz3-dfine-or**.
 |---|---|---|
 | `[sp_dfine]` | `false` | **отдельный** D-FINE SpOr; веса `dfine_f0` на PC подтверждены; не зависит от `[dfine_aeor]` |
 | `[dfine_aeor]` | `false` | Or weights **READY** (table above); Ae **pending** bot3 FT |
-| `[gor_gate]` / `[gor_dense]` | `false` | backbone OK on PC; heads **retrain queued** @ `19ccc9c` |
+| `[gor_gate]` / `[gor_dense]` | `false` | backbone OK on PC; heads **retrained** @ `9f62a96` (new md5 → set `gate_head_md5`/`head_md5` when enabling) |
 | `[orgate]` | `false` | — |
 | `[geophys.pixgbm]` / `[rerank_arch]` | `true` | PIXGBM sha256 = stub v2 eb268d6 |
