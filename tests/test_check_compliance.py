@@ -10,9 +10,19 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-_spec = importlib.util.spec_from_file_location(
-    "b8_check_compliance", ROOT / "scripts" / "check_compliance.py"
-)
+_SCRIPT = ROOT / "scripts" / "check_compliance.py"
+# На чужих ветках/частичных копиях bot8_patches скрипта может не быть — не роняем collection.
+if not _SCRIPT.is_file():
+    pytest.skip(
+        "scripts/check_compliance.py отсутствует на этой ветке (bot-8 only)",
+        allow_module_level=True,
+    )
+_spec = importlib.util.spec_from_file_location("b8_check_compliance", _SCRIPT)
+if _spec is None or _spec.loader is None:
+    pytest.skip(
+        f"не удалось загрузить {_SCRIPT}",
+        allow_module_level=True,
+    )
 cc = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cc)
 
