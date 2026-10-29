@@ -252,6 +252,11 @@ budget_s = 300   # абсолютный срок фазы: T0 (guard.t0 / ста
                  # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
 procs = 0   # процессов (fork) для признаков окон; 0 — min(потоки, 4): каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2)
+ensemble_dirs = []   # C2 (opt-in, audit/PREREG_C2.md): P = среднее моделей этих каталогов, напр. ["models/pixgbm/Судьбищи",
+                     # "models/pixgbm/Семибратнее", "models/pixgbm/Гнёздово"]; [] — одна модель model_dir (как в сдаче)
+# SATf (opt-in, audit/PREREG_SATf.md): только finds_points MagGr — на карте с ядрами насыщения как данными + признак sat,
+# своей моделью; object_poly — как в S. Нет таблицы — выключено.
+# sat_finds = {core_max_m2 = 60, flag = true, model_dir = "models/pixgbm_sat/all"}
 
 [geophys.maggr.finds_points]
 background_m = 2.0

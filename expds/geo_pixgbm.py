@@ -788,6 +788,51 @@ def _rate(mt, mode, nt, backend="lightgbm", procs=None):
     return pr.get((mt, mode), pr.get((mt, "full"), 57.1)) / max(1, np_)
 
 
+def ensemble_members(dirs, backend: str = "lightgbm", names=("poly", "finds")) -> list[dict]:
+    """C2 (opt-in, [geophys.pixgbm] ensemble_dirs): модели каждого каталога; P пикселя — среднее по ним.
+    [] — выключено. Каталог без нужной модели → C2 выключается целиком (лог), работает model_dir."""
+    if not dirs:
+        return []
+    out = [load_models(d, backend, tuple(names)) for d in dirs]
+    if any(set(m) != set(names) for m in out):
+        log.warning("pixgbm: ensemble_dirs %s — не у всех есть %s; C2 выключен", list(dirs), sorted(names))
+        return []
+    return out
+
+
+def ensemble_use(use: dict, ens: list[dict]) -> dict:
+    """Бустеры для prob_map: без ансамбля — use как есть; с ансамблем — «<класс>#<i>» по каждому члену."""
+    if not ens:
+        return use
+    return {f"{k}#{i}": m[k] for k in use for i, m in enumerate(ens)}
+
+
+def ensemble_mean(Pm: dict, use: dict, ens: list[dict]) -> dict:
+    if not ens:
+        return Pm
+    n = len(ens)
+    out = {}
+    for k in use:
+        acc = Pm.pop(f"{k}#0").astype(np.float32)
+        for i in range(1, n):
+            acc += Pm.pop(f"{k}#{i}")
+        out[k] = acc / np.float32(n)
+    return out
+
+
+def sat_finds_setup(spec, backend: str = "lightgbm"):
+    """SATf (opt-in, [geophys.pixgbm.sat_finds] = {core_max_m2, flag, model_dir}): только finds_points MagGr
+    считаются на карте с ядрами насыщения как данными (+ признак sat) своей моделью; object_poly — как в S.
+    None/{} — выключено."""
+    if not spec:
+        return None
+    m = load_models(spec["model_dir"], backend, ("finds",)).get("finds")
+    if m is None:
+        log.warning("pixgbm: sat_finds.model_dir %s без finds.txt — SATf выключен", spec.get("model_dir"))
+        return None
+    return {"model": m, "core_max_m2": float(spec.get("core_max_m2", 60)), "flag": bool(spec.get("flag", True))}
+
+
 def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) -> list[dict]:
     """Опциональный источник пайплайна: [geophys.pixgbm] enabled=true, model_dir (poly.txt, finds.txt).
     Ключи: backend (lightgbm|lleaves|treelite), maps (методы), t_pix, budget_s (абсолютный срок от старта процесса,
@@ -817,6 +862,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     bst = load_models(model_dir, backend)
     if not bst:
         log.warning("pixgbm: в %s нет poly.txt/finds.txt — классика", model_dir)
+    ens = ensemble_members(pix.get("ensemble_dirs") or [], backend, set(bst))   # C2, opt-in; [] — как было
+    satf = sat_finds_setup(pix.get("sat_finds"), backend)                       # SATf, opt-in; None — как было
     bk = "lleaves" if bst and all(getattr(m, "backend", "") == "lleaves" for m in bst.values()) else "lightgbm"
     st = status if status is not None else {}
     st.setdefault("done", {}); st.setdefault("fell", {})
@@ -837,8 +884,9 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
             ran = set()
             step = "classic"
             try:
-                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"),
-                             pix.get("sat_flag"))
+                d = load_map(f, GSD[mt], crs_region, boundary, noise,
+                             0 if satf is not None else pix.get("sat_core_max_m2"),
+                             False if satf is not None else pix.get("sat_flag"))
                 if not d["crs"]:
                     continue
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
@@ -858,8 +906,20 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
                 else:
                     mode = "full" if lvl == 0 else "finds_only"
                     t0 = time.perf_counter()
-                    Pm = prob_map(d, mt, use, threads=nt, procs=npr, deadline=deadline,
-                                  timing=PHASE["timing"])
+                    if satf is not None and mt == "maggr" and "finds" in use:
+                        use_f = {"finds": satf["model"]}
+                        use = {k: v for k, v in use.items() if k != "finds"}
+                    else:
+                        use_f = None
+                    Pm = prob_map(d, mt, ensemble_use(use, ens), threads=nt, procs=npr, deadline=deadline,
+                                  timing=PHASE["timing"]) if use else {}
+                    Pm = ensemble_mean(Pm, use, ens)
+                    if use_f is not None:
+                        d_f = load_map(f, GSD[mt], crs_region, boundary, noise, satf["core_max_m2"], satf["flag"])
+                        Pm.update(prob_map(d_f, mt, use_f, threads=nt, procs=npr, deadline=deadline,
+                                           timing=PHASE["timing"]))
+                        del d_f
+                        use = dict(use, finds=use_f["finds"])
                     if "poly" in Pm:
                         out += poly_candidates(Pm["poly"], d, reg.name, mt, f.name, t_pix=t_pix)
                     if "finds" in Pm:
