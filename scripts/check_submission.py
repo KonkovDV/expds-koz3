@@ -201,12 +201,14 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
     # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
-    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"}
+    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"
+               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or
     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
+               and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
@@ -864,9 +866,10 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     cfg = cfg or {}
     dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
-    if not (dfine or gate):
+    aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
+    if not (dfine or gate or aeor):
         return
-    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate)) if on)
+    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("dfine_aeor", aeor)) if on)
     names = z.namelist()
     vend = "inference/lib/vendor/"
     meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
@@ -876,7 +879,8 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
                                 f"классы D-FINE зависели бы от образа")
     elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
         report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
-    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate)) if m[1] and m[0] not in names]
+    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate), ("expds/dfine_aeor.py", aeor))
+            if m[1] and m[0] not in names]
     if mods:
         report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")
         return
@@ -1064,7 +1068,8 @@ ALLOW_EMPTY = False
 
 def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
     """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
-    bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln]
+    bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln
+           or "DFINE_AEOR_UNAVAILABLE" in ln]   # bot-6: D-FINE Ae/Or
     if bad:
         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
                                 + " | ".join(b[-300:] for b in bad[:3]))
