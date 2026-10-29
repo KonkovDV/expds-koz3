@@ -1,4 +1,4 @@
-# RF-DETR-M с COCO-чекпойнтом на Kaggle — рецепт (bot-5, 29.10.2026)
+# RF-DETR-M (O365→COCO-чекпойнт) на Kaggle — рецепт (bot-5, 29.10.2026)
 
 Запуск на Kaggle — bot 9. Честный замер OOF по 5 семейным фолдам; в сдачу — только после приёмки П1–П6.
 
@@ -7,6 +7,19 @@ md5 `7223f764a87b863f02eb8d52bf0ce2ee` (`rfdetr/assets/model_weights.py:225-229`
 Грузится штатной `rfdetr.models.weights.load_pretrain_weights` (md5, PE → сетка `--size`, срез групп запросов); голова классов
 переинициализируется под K+1 = 6. Лицензии: пакет `rfdetr==1.11.2` и веса N/S/M/L — Apache-2.0; веса COCO разрешены организаторами (29.10).
 Запасные режимы: `--init dinov2` (только энкодер DINOv2-S, как в b355e2c) и `--init scratch`.
+
+### Objects365 (разрешены 29.10) — какой чекпойнт и что проверено
+| вариант | чекпойнт | источник | md5 | лицензия | статус |
+|---|---|---|---|---|---|
+| **A (основной)** RF-DETR-M, O365→COCO | `rf-detr-medium.pth` | URL выше | `7223f764a87b863f02eb8d52bf0ce2ee` | Apache-2.0 | скачан, md5 ок, smoke ок |
+| B (необяз.) RF-DETR-Base, чистый O365 | `rf-detr-base-o365.pth` | `https://storage.googleapis.com/rfdetr/top-secret-1234/lwdetr_dinov2_small_o365_checkpoint.pth` | `d93f4921ccbb0f0a2e4364bed290892b` | Apache-2.0 по реестру пакета `rfdetr` (не Plus/PML: PML 1.0 только у A/F/P/XL/2XL, README rf-detr:21,61-71); отдельной строки Base в таблице лицензий README нет | скачан (384 452 411 байт), md5 ок, smoke ок |
+| запасной | `--init dinov2` / `--init scratch` | — | — | — | smoke ок |
+
+* **Чистого O365-чекпойнта размера M нет**: в реестре `rfdetr/assets/model_weights.py` (1.11.2) O365-only есть только `rf-detr-base-o365.pth` (стр. ~195-199).
+* Что M уже предобучен на O365 — **не проверено нами**, это утверждение авторов: arXiv 2511.09554, табл. 5 («+ Additional O365 Pre-Training»), прил. A (O365 с псевдометками SAM2), и `research/PRETRAINED_WEIGHTS_2026-10-29.md:36` («Objects365 → COCO»). Поэтому основной — A.
+* md5 обоих файлов совпал с реестром и с `x-goog-hash` GCS (`curl -sI`, 29.10).
+* B: Base = DINOv2-S windowed, патч 14, сторона кратна 56 → `MODEL=rfdetr-b SIZE=672`; голова классов 365 → 6 (лог rfdetr). Запускать после A, отдельной сессией; оценка T4 — как у A ×(672/640)² ≈ ×1,1 (оценка, не замер).
+
 
 Файлы (ветка `bot5-rfdetr-coco`, от `bot5-rfdetr-kaggle` b355e2c):
 * `scripts/rfdetr_train.py` — свой цикл: MAL γ 1,5, flat-cosine (warmup 500 → плато 50 % → косинус до 5 %), последние 15 % без copy-paste,
@@ -54,5 +67,6 @@ INIT=coco COCO_W=$COCO_W bash kaggle/rfdetr_folds.sh det runs/rfdetr rfdetr-m 80
 |---|---|---|---|
 | `--init coco --smoke --bs 1 --accum 1` | 1,77 с/ит; лосс 23,70 → 12,71 за 10 ит.; заменено 508/510 тензоров; md5 ок | 1784 МБ | bot-5/tmp/rf_coco_bs1/timing.json |
 | контроль `--init dinov2`, то же | 1,40 с/ит; лосс 17,73 → 17,18 | 1805 МБ | bot-5/tmp/rf_dinov2_bs1/timing.json |
+| вариант B `--model rfdetr-b --size 280 --init coco --coco-weights rf-detr-base-o365.pth --smoke --bs 1 --accum 1` | 1,5–1,8 с/ит; лосс 19,97 → 10,71; заменено 486/488 тензоров; head_out 6 | 1627 МБ (сторож) | bot-5/tmp/rf_o365b_bs1.log |
 | `--iters 2 --accum 2` + сохранение → `--load` → 400 рамок / 4 окна | ок | 1844 / 678 МБ (сторож) | bot-5/tmp/rf_coco_save.log, tmp/rf_coco_load.log |
 Smoke с bs по умолчанию на этой синтетике снят сторожем (>2000 МБ) и при `--init dinov2` тоже (`tmp/rf_dino_ctrl.log`) — дело в батче, не в весах.

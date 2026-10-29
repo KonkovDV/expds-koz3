@@ -40,8 +40,8 @@ DINO = "facebook/dinov2-small"  # Apache-2.0, https://huggingface.co/facebook/di
 
 # ---------------- модель ----------------
 def make_configs(a, K: int):
-    from rfdetr.config import RFDETRLargeConfig, RFDETRMediumConfig, TrainConfig
-    MC = {"rfdetr-m": RFDETRMediumConfig, "rfdetr-l": RFDETRLargeConfig}[a.model]
+    from rfdetr.config import RFDETRBaseConfig, RFDETRLargeConfig, RFDETRMediumConfig, TrainConfig
+    MC = {"rfdetr-m": RFDETRMediumConfig, "rfdetr-l": RFDETRLargeConfig, "rfdetr-b": RFDETRBaseConfig}[a.model]
     kw = dict(pretrain_weights=None, num_classes=K, device=a.device, group_detr=a.group_detr)
     if a.size:
         kw["resolution"] = a.size  # PE подстраивается сам (config.py:749-780)
@@ -313,7 +313,8 @@ def predict(a, model, post, split: dict, cat_ids: list[int], dev, limit: int | N
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", required=True); ap.add_argument("--out", required=True)
-    ap.add_argument("--model", default="rfdetr-m", choices=["rfdetr-m", "rfdetr-l"])
+    ap.add_argument("--model", default="rfdetr-m", choices=["rfdetr-m", "rfdetr-l", "rfdetr-b"],
+                    help="rfdetr-b (Base, patch 14, сторона кратна 56) — только для --coco-weights rf-detr-base-o365.pth (чистый Objects365)")
     ap.add_argument("--size", type=int, default=640, help="сторона входа (кратна 32); 0 — родная (M 576, L 704)")
     ap.add_argument("--dinov2-dir", default=None, help="локальная папка facebook/dinov2-small (иначе скачать с HF)")
     ap.add_argument("--no-dinov2", action="store_true", help="контроль: энкодер случайный (= --init scratch)")
