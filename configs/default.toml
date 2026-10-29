@@ -392,3 +392,27 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 tile = 96
 res = 0.5
 min_conf = 0.05
+
+# bot-3 Fix A (ae_ortho_diagnosis): D-FINE Ae/Or — default OFF. ON candidate: enabled=true +
+# weights from f4pack sha249b86fb (models/dfine_ae) + OOF thresholds_file. Runner injects ON block.
+# Keys/defaults: expds/dfine_aeor.py DEFAULTS. Lazy import only when enabled (build_submission packs
+# sp_dfine.py + dfine_aeor.py + vendor only if enabled).
+[dfine_aeor]
+enabled = false
+# markups = ["ae"]
+# weights = { ae = ["models/dfine_ae"] }
+# thresholds_file = "models/dfine_aeor/thresholds_oof.json"
+
+# bot-6: gorodishcha from D-FINE Or disabled by threshold >1 until measured with gor_dense.
+[thresholds_by_markup.dfine_or]
+gorodishcha = 1.01
+
+# bot-3 Fix B (ae_ortho_diagnosis): relax ae fort ~0.995 (+ optional li_ae/fusion). Default OFF.
+# Defaults live in expds/ae_recall_relax.py (fort 0.995). Flip enabled=true for ON candidate.
+[ae_recall_relax]
+enabled = false
+# thresholds_by_markup.ae.fortifikatsii = 0.995
+# thresholds_by_markup.li_ae.kurgany_povrezhdennye = 0.95
+# thresholds_by_markup.li_ae.kurgany_tselye = 0.85
+# fusion.povr_min = 0.9
+# fusion.tselye_min = 0.7

@@ -30,25 +30,48 @@ FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv"
 LIMIT = 2 * 1024 ** 3
 
 
+#: Flag-gated modules (lazy import in pipeline only when enabled). Excluded from zip when OFF so
+#: check_submission import graph does not pull transformers (bot-7 v3 / bot-3 Fix A).
+FLAG_MODULES = ("sp_dfine", "dfine_aeor")
+
+
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
-    files += sorted(p for p in (ROOT / "expds").rglob("*.py"))
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+    if (cfg.get("dfine_aeor") or {}).get("enabled"):
+        off.discard("sp_dfine.py")  # dfine_aeor uses sp_dfine.import_dfine
+    files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                    if not (p.parent == ROOT / "expds" and p.name in off))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
-    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
     verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
     seen = set()
     rr = cfg.get("rerank_arch") or {}
-    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
-    # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
         if pix.get("enabled") else []
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm:
+    dfm: list[str] = []
+    ae = cfg.get("dfine_aeor") or {}
+    if ae.get("enabled"):
+        w = ae.get("weights") or {}
+        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in ([v] if isinstance(v, str) else v)]
+        absw = [x for x in wl if Path(str(x)).is_absolute()]
+        if absw:
+            sys.exit(f"[dfine_aeor] weights: absolute paths {absw} cannot be packed — symlink into models/")
+        dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
+        if ae.get("thresholds_file"):
+            dfm.append(ae["thresholds_file"])
+        vend = ROOT / "inference" / "lib" / "vendor"
+        if not vend.is_dir():
+            sys.exit("[dfine_aeor] enabled but inference/lib/vendor missing (unpack bot-9 wheels)")
+        files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:
             continue
         seen.add(rel)
