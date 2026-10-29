@@ -645,8 +645,8 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         hp = hillfort.params_from(hf)
                         dem_hf = hillfort.build_dem(las, crs_region, hp)
                         feats += hillfort.candidates(dem_hf, reg.name, las.name, hp)
-                        # bot-4: грубый проход для площадок ≥5k м² (группа gor_coarse_dem).
-                        if _lo.enabled(cfg):
+                        # bot-4: грубый проход (sub-flag coarse_hillfort).
+                        if _lo.flag(cfg, "coarse_hillfort"):
                             feats += _lo.coarse_hillfort_candidates(
                                 dem_hf, reg.name, las.name, _lo.spec(cfg))
                     except Exception:
