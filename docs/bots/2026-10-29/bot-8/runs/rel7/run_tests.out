@@ -1,0 +1,27 @@
+== wt-rel 2901cb0 0 dirty
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 316 passed, 9 skipped, 21 warnings in 296.74s (0:04:56)
+exit 1
+== wt-rel7 5135517 0 dirty
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 317 passed, 9 skipped, 21 warnings in 173.64s (0:02:53)
+exit 1
+== wt-rel7c fd7dd50 0 dirty
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 322 passed, 9 skipped, 21 warnings in 196.61s (0:03:16)
+exit 1
+
+tests/test_bot8_window_deadline.py:98: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_bot8_faults.py::test_geophys_exception_in_one_region_does_not_skip_lidar
+FAILED tests/test_bot8_faults.py::test_checkpoint_survives_failing_postprocessing
+FAILED tests/test_bot8_faults.py::test_writer_never_emits_nan - assert 'NaN' ...
+FAILED tests/test_bot8_faults.py::test_verify_weights_resolve_from_archive_root_not_cwd
+FAILED tests/test_bot8_faults.py::test_safe_finish_fallback_keeps_bot7_micro_circles
+FAILED tests/test_bot8_window_deadline.py::test_window_loop_stops_near_deadline_with_partial_result
+FAILED tests/test_bot8_window_deadline.py::test_window_deadline_off_or_far_keeps_full_result
+FAILED tests/test_bot8_window_deadline.py::test_window_reserve_config - Attri...
+FAILED tests/test_bot8_window_deadline.py::test_watchdog_deadline_bounds_window_loop
+FAILED tests/test_bot8_window_deadline.py::test_run_writes_valid_partial_output_and_exits_normally
+10 failed in 4.63s
+exit 1

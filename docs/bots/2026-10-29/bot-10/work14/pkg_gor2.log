@@ -1,0 +1,29 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[1s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[1s] SpOr tif regions 132 with sp_or candidates 132
+[1s] positive scenes 49 of 132
+[1s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[1s] variant snap rows 76 rows with an OK pair 7
+[1s] variant centre rows 132 rows with an OK pair 18
+[1s] variant csnap rows 132 rows with an OK pair 19
+[8s] honest-10 A 0.3146153226828423
+[8s] own gor routine == honest_counts gor: OK
+[8s] patches 3982 dim 1536 scenes 122
+[8s] labels Counter({0: 3507, -1: 249, 1: 226}) sp_or hillforts with ≥1 pos patch 63 of 65
+[10s] peaks tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0] layouts ['fam10', 'LOFO', 'seed0', 'seed1', 'seed2', 'seed3', 'seed4'] variants ['pu', 'pu+cp', 'pu_edge', 'pu_edge+cp', 'all', 'all+cp']
+[10s] new34 regions 34 of them SpOr scenes 8
+[10s] R: dropped stack gor rows 1006 kept 3670 dfine circles 4683 with OK pair 80 cov regions 132 SCNS<=COV True
+[30s] fam10 20s {'PnoD': {'tp': 25, 'fp': 48, 'n_gt': 118, 'f1': 0.29940077937595316}, 'PFnoD': {'tp': 41, 'fp': 89, 'n_gt': 118, 'f1': 0.40294791174168004}, 'PFj': {'tp': 38, 'fp': 88, 'n_gt': 118, 'f1': 0.3799995124006157}}
+[151s] LOFO 141s {'PnoD': {'tp': 23, 'fp': 48, 'n_gt': 118, 'f1': 0.2787874679895739}, 'PFnoD': {'tp': 37, 'fp': 91, 'n_gt': 118, 'f1': 0.369076818726887}, 'PFj': {'tp': 36, 'fp': 90, 'n_gt': 118, 'f1': 0.3618085588754196}}
+[171s] seed0 160s {'PnoD': {'tp': 22, 'fp': 45, 'n_gt': 118, 'f1': 0.27076882972839234}, 'PFnoD': {'tp': 37, 'fp': 105, 'n_gt': 118, 'f1': 0.3566260120198357}, 'PFj': {'tp': 36, 'fp': 107, 'n_gt': 118, 'f1': 0.34698745789588864}}
+[191s] seed1 181s {'PnoD': {'tp': 24, 'fp': 43, 'n_gt': 118, 'f1': 0.2935775763736546}, 'PFnoD': {'tp': 37, 'fp': 114, 'n_gt': 118, 'f1': 0.34905610688927036}, 'PFj': {'tp': 36, 'fp': 120, 'n_gt': 118, 'f1': 0.33644810027149336}}
+[211s] seed2 200s {'PnoD': {'tp': 23, 'fp': 42, 'n_gt': 118, 'f1': 0.28395021810754467}, 'PFnoD': {'tp': 39, 'fp': 118, 'n_gt': 118, 'f1': 0.3611106120548642}, 'PFj': {'tp': 39, 'fp': 126, 'n_gt': 118, 'f1': 0.3545449539676398}}
+[231s] seed3 220s {'PnoD': {'tp': 23, 'fp': 43, 'n_gt': 118, 'f1': 0.28307652188458}, 'PFnoD': {'tp': 39, 'fp': 89, 'n_gt': 118, 'f1': 0.387096285009444}, 'PFj': {'tp': 38, 'fp': 93, 'n_gt': 118, 'f1': 0.37530815195307626}}
+[249s] seed4 239s {'PnoD': {'tp': 24, 'fp': 41, 'n_gt': 118, 'f1': 0.29538421404076964}, 'PFnoD': {'tp': 40, 'fp': 83, 'n_gt': 118, 'f1': 0.4010020189828749}, 'PFj': {'tp': 39, 'fp': 89, 'n_gt': 118, 'f1': 0.387096285009444}}
+[268s] seed5 258s {'PnoD': {'tp': 21, 'fp': 39, 'n_gt': 118, 'f1': 0.26498384332667846}, 'PFnoD': {'tp': 35, 'fp': 122, 'n_gt': 118, 'f1': 0.32710230596633466}, 'PFj': {'tp': 34, 'fp': 82, 'n_gt': 118, 'f1': 0.35233112738661043}}
+[288s] seed6 278s {'PnoD': {'tp': 23, 'fp': 49, 'n_gt': 118, 'f1': 0.27794520670736655}, 'PFnoD': {'tp': 37, 'fp': 109, 'n_gt': 118, 'f1': 0.35322146166927904}, 'PFj': {'tp': 36, 'fp': 105, 'n_gt': 118, 'f1': 0.3486677876995077}}
+[308s] seed7 298s {'PnoD': {'tp': 24, 'fp': 52, 'n_gt': 118, 'f1': 0.2857138642296348}, 'PFnoD': {'tp': 34, 'fp': 94, 'n_gt': 118, 'f1': 0.3417080565649098}, 'PFj': {'tp': 32, 'fp': 78, 'n_gt': 118, 'f1': 0.3386238659618485}}
+[327s] seed8 317s {'PnoD': {'tp': 23, 'fp': 50, 'n_gt': 118, 'f1': 0.277108019306748}, 'PFnoD': {'tp': 33, 'fp': 87, 'n_gt': 118, 'f1': 0.33933113881154303}, 'PFj': {'tp': 33, 'fp': 85, 'n_gt': 118, 'f1': 0.3410847919135426}}
+[349s] seed9 339s {'PnoD': {'tp': 22, 'fp': 47, 'n_gt': 118, 'f1': 0.2691127448686872}, 'PFnoD': {'tp': 40, 'fp': 106, 'n_gt': 118, 'f1': 0.37914642285727035}, 'PFj': {'tp': 40, 'fp': 107, 'n_gt': 118, 'f1': 0.3782500941497191}}
+[349s] done
+rc=0

@@ -1,0 +1,33 @@
+== check_submission: ../work6/dist/submission_bot7cand_v3off_9138bff.zip (2026-10-29 09:05:19 MSK)
+[PASS] zip       46 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 500.8 МиБ (525149696 Б), распакованный 546.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pixgbm/all/finds.txt', 'models/pixgbm/all/poly.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 28 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[INFO] imports   необязательные (есть фолбэк, не проверяются): psutil — geo_pixgbm.process_t0: ImportError → момент импорта модуля; tl2cgen — geo_pixgbm backend=treelite (opt-in): ошибка → lightgbm
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   27 модулей и 9 сторонних пакетов импортируются без сети (87.1 с)
+[PASS] imports   все сторонние пакеты закреплены в requirements.lock
+[PASS] weights   15 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[PASS] smoke     main.py завершился за 318.5 с, пик RSS 1563 МиБ, CPU 0
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=1
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=1
+[INFO] smoke     фазы: геофизика: сырых 722, 305 с, лидар: сырых 0, 0 с, оптика: сырых 0, 0 с, канал σ: сырых 0, 0 с
+[INFO] smoke     записано 298, файл 337079 байт
+[INFO] smoke     общее время 315.4 с
+[PASS] format    FeatureCollection, 298 Polygon (≤20000), 0.321 МБ, по классам {'object_poly': 298}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /tmp/b8smoke_3jo3f0ht
+== ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 423.2 с
+watchdog max RSS MB 50 exit 0

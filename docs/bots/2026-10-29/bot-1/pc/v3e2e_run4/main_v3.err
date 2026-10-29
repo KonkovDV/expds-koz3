@@ -1,0 +1,2 @@
+/app/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py:1763: UserWarning: Specified kernel cache directory could not be created! This disables kernel caching. Specified directory is /data/output/.expds_tmp/cache/torch/kernels. This warning will appear only once per process. (Triggered internally at /pytorch/aten/src/ATen/native/cuda/jit_utils.cpp:1505.)
+  level_start_index = torch.cat((spatial_shapes.new_zeros((1,)), spatial_shapes.prod(1).cumsum(0)[:-1]))

@@ -1,0 +1,1069 @@
+{
+ "summary": {
+  "n_regions": 132,
+  "n_files": 175,
+  "n_points": 260,
+  "phase_s": 824.8,
+  "files_sum_s": 819.7,
+  "load_s": 5.1,
+  "tiles": 580,
+  "vignettes": 3982,
+  "tokens": 227182,
+  "max_file_s": 65.96,
+  "scan_s": 0.4,
+  "torch_threads": 2,
+  "total_s": 826.5
+ },
+ "files": {
+  "/workspace/data/train-expds-3/015_Демидовка/04_Демидовка_SpOr_спутник/01_Демидовка_SpOr_спутник.tif": {
+   "s": 4.026145885000005,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 1053
+  },
+  "/workspace/data/train-expds-3/026_Золотаревка/04_Золотаревка_SpOr_спутник/01_Золотаревка_SpOr_спутник.tif": {
+   "s": 2.2868781329998455,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 759
+  },
+  "/workspace/data/train-expds-3/031_Новотитаровская/04_Новотитаровская_SpOr_спутник/01_Новотитаровская_SpOr_спутник.tif": {
+   "s": 0.7199383780000517,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 299
+  },
+  "/workspace/data/train-expds-3/033_Елизаветинское/04_Елизаветинское_SpOr_спутник/01_Елизаветинское_SpOr_спутник.tif": {
+   "s": 1.9682136680000895,
+   "tiles": 2,
+   "vignettes": 9,
+   "tokens": 630
+  },
+  "/workspace/data/train-expds-3/034_Усть_река/04_Усть_река_SpOr_спутник/01_Усть_река_SpOr_спутник.tif": {
+   "s": 1.0964594310000848,
+   "tiles": 2,
+   "vignettes": 6,
+   "tokens": 418
+  },
+  "/workspace/data/train-expds-3/035_Шумгора/04_Шумгора_SpOr_спутник/01_Шумгора_SpOr_спутник.tif": {
+   "s": 5.040588985000113,
+   "tiles": 3,
+   "vignettes": 26,
+   "tokens": 1568
+  },
+  "/workspace/data/train-expds-3/035_Шумгора/04_Шумгора_SpOr_спутник/02_Шумгора_SpOr_спутник.tif": {
+   "s": 12.184333956000046,
+   "tiles": 4,
+   "vignettes": 45,
+   "tokens": 2412
+  },
+  "/workspace/data/train-expds-3/040_Примаки_1.3км/04_Примаки_1.3км_SpOr_спутник/01_Примаки_1.3км_SpOr_спутник.tif": {
+   "s": 6.436281619000056,
+   "tiles": 3,
+   "vignettes": 31,
+   "tokens": 1760
+  },
+  "/workspace/data/train-expds-3/041_Миловидово/04_Миловидово_SpOr_спутник/01_Миловидово_SpOr_спутник.tif": {
+   "s": 20.894774865000045,
+   "tiles": 8,
+   "vignettes": 91,
+   "tokens": 4968
+  },
+  "/workspace/data/train-expds-3/041_Миловидово/04_Миловидово_SpOr_спутник/02_Миловидово_SpOr_спутник.tif": {
+   "s": 18.851335828999936,
+   "tiles": 8,
+   "vignettes": 91,
+   "tokens": 4968
+  },
+  "/workspace/data/train-expds-3/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/01_Тору_Айгыр_SpOr_спутник.tif": {
+   "s": 1.0571955319999233,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 336
+  },
+  "/workspace/data/train-expds-3/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/02_Тору_Айгыр_SpOr_спутник.tif": {
+   "s": 1.4876853360001405,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 336
+  },
+  "/workspace/data/train-expds-3/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/03_Тору_Айгыр_SpOr_спутник.tif": {
+   "s": 1.1643961079998917,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 336
+  },
+  "/workspace/data/train-expds-3/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/04_Тору_Айгыр_SpOr_спутник.tif": {
+   "s": 1.131718396999986,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 336
+  },
+  "/workspace/data/train-expds-3/043_Гочево/04_Гочево_SpOr_спутник/01_Гочево_SpOr_спутник.tif": {
+   "s": 19.22967813299988,
+   "tiles": 8,
+   "vignettes": 88,
+   "tokens": 4455
+  },
+  "/workspace/data/train-expds-3/046_Тыва_1/04_Тыва_1_SpOr_спутник/01_Тыва_1_SpOr_спутник.tif": {
+   "s": 0.5738487089997761,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 228
+  },
+  "/workspace/data/train-expds-3/046_Тыва_1/04_Тыва_1_SpOr_спутник/02_Тыва_1_SpOr_спутник.tif": {
+   "s": 1.1312611660000584,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 228
+  },
+  "/workspace/data/train-expds-3/047_Тыва_2/04_Тыва_2_SpOr_спутник/01_Тыва_2_SpOr_спутник.tif": {
+   "s": 3.076509095000347,
+   "tiles": 3,
+   "vignettes": 12,
+   "tokens": 860
+  },
+  "/workspace/data/train-expds-3/047_Тыва_2/04_Тыва_2_SpOr_спутник/02_Тыва_2_SpOr_спутник.tif": {
+   "s": 2.4875773490002757,
+   "tiles": 3,
+   "vignettes": 12,
+   "tokens": 860
+  },
+  "/workspace/data/train-expds-3/047_Тыва_2/04_Тыва_2_SpOr_спутник/03_Тыва_2_SpOr_спутник.tif": {
+   "s": 2.443164496999998,
+   "tiles": 3,
+   "vignettes": 12,
+   "tokens": 860
+  },
+  "/workspace/data/train-expds-3/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/01_Калмыкия_1_SpOr_спутник.tif": {
+   "s": 10.13248436799995,
+   "tiles": 5,
+   "vignettes": 53,
+   "tokens": 2646
+  },
+  "/workspace/data/train-expds-3/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/02_Калмыкия_1_SpOr_спутник.tif": {
+   "s": 3.692750845000319,
+   "tiles": 3,
+   "vignettes": 20,
+   "tokens": 1107
+  },
+  "/workspace/data/train-expds-3/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/01_Калмыкия_2_SpOr_спутник.tif": {
+   "s": 2.1755537479998566,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 759
+  },
+  "/workspace/data/train-expds-3/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/02_Калмыкия_2_SpOr_спутник.tif": {
+   "s": 2.8100783700001557,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 759
+  },
+  "/workspace/data/train-expds-3/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/03_Калмыкия_2_SpOr_спутник.tif": {
+   "s": 3.6673490889997993,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 496
+  },
+  "/workspace/data/train-expds-3/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/04_Калмыкия_2_SpOr_спутник.tif": {
+   "s": 3.2365997310002967,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 496
+  },
+  "/workspace/data/train-expds-3/050_Воронеж_1/04_Воронеж_1_SpOr_спутник/01_Воронеж_1_SpOr_спутник.tif": {
+   "s": 0.6456689339997865,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 260
+  },
+  "/workspace/data/train-expds-3/051_Воронеж_2/04_Воронеж_2_SpOr_спутник/01_Воронеж_2_SpOr_спутник.tif": {
+   "s": 21.490763474000232,
+   "tiles": 10,
+   "vignettes": 90,
+   "tokens": 4686
+  },
+  "/workspace/data/train-expds-3/052_Воронеж_3/04_Воронеж_3_SpOr_спутник/01_Воронеж_3_SpOr_спутник.tif": {
+   "s": 11.803191572999822,
+   "tiles": 7,
+   "vignettes": 54,
+   "tokens": 2924
+  },
+  "/workspace/data/train-expds-3/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/01_Воронеж_4_SpOr_спутник.tif": {
+   "s": 1.6113662249999834,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/02_Воронеж_4_SpOr_спутник.tif": {
+   "s": 1.4884853240000666,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/03_Воронеж_4_SpOr_спутник.tif": {
+   "s": 1.4552803010001298,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/04_Воронеж_4_SpOr_спутник.tif": {
+   "s": 1.5276122029999897,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/05_Воронеж_4_SpOr_спутник.tif": {
+   "s": 1.4605057079998005,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/01_Воронеж_5_SpOr_спутник.tif": {
+   "s": 1.5740738079998664,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/02_Воронеж_5_SpOr_спутник.tif": {
+   "s": 3.0659841480000978,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/03_Воронеж_5_SpOr_спутник.tif": {
+   "s": 2.673004525000124,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/04_Воронеж_5_SpOr_спутник.tif": {
+   "s": 2.8634627349997572,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 570
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/01_Курменту_SpOr_спутник.tif": {
+   "s": 4.701341070000126,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1395
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/02_Курменту_SpOr_спутник.tif": {
+   "s": 2.5377150179997443,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/03_Курменту_SpOr_спутник.tif": {
+   "s": 2.44794752100006,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/04_Курменту_SpOr_спутник.tif": {
+   "s": 2.3451720529997147,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/05_Курменту_SpOr_спутник.tif": {
+   "s": 2.300468880999688,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/06_Курменту_SpOr_спутник.tif": {
+   "s": 2.747672427999987,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/07_Курменту_SpOr_спутник.tif": {
+   "s": 2.4203979010003422,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/055_Курменту/04_Курменту_SpOr_спутник/08_Курменту_SpOr_спутник.tif": {
+   "s": 4.089201079999839,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 900
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/01_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 3.987971712000217,
+   "tiles": 2,
+   "vignettes": 14,
+   "tokens": 805
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/02_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 4.051911435999955,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 897
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/03_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 2.8040812069998537,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 897
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/04_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 12.193606977999934,
+   "tiles": 8,
+   "vignettes": 66,
+   "tokens": 3666
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/05_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 12.226011571999607,
+   "tiles": 8,
+   "vignettes": 66,
+   "tokens": 3666
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/06_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 10.969993656000042,
+   "tiles": 8,
+   "vignettes": 66,
+   "tokens": 3666
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/07_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 2.4864935689997765,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 897
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/08_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 2.2778214889999617,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 897
+  },
+  "/workspace/data/train-expds-3/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/09_Кабардино_Балкария_SpOr_спутник.tif": {
+   "s": 3.7539975689996936,
+   "tiles": 3,
+   "vignettes": 25,
+   "tokens": 1496
+  },
+  "/workspace/data/train-expds-3/062_Каменка/04_Каменка_SpOr_спутник/01_Каменка_SpOr_спутник.tif": {
+   "s": 5.355952278999666,
+   "tiles": 3,
+   "vignettes": 28,
+   "tokens": 1530
+  },
+  "/workspace/data/train-expds-3/063_Верхнее_Казачье/04_Верхнее_Казачье_SpOr_спутник/01_Верхнее_Казачье_SpOr_спутник.tif": {
+   "s": 1.685323482000058,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 800
+  },
+  "/workspace/data/train-expds-3/064_Ксизово/04_Ксизово_SpOr_спутник/01_Ксизово_SpOr_спутник.tif": {
+   "s": 0.673551265000242,
+   "tiles": 2,
+   "vignettes": 4,
+   "tokens": 320
+  },
+  "/workspace/data/train-expds-3/070_Архангельское/04_Архангельское_SpOr_спутник/01_Архангельское_SpOr_спутник.tif": {
+   "s": 11.490700996999749,
+   "tiles": 7,
+   "vignettes": 76,
+   "tokens": 3825
+  },
+  "/workspace/data/train-expds-3/070_Архангельское/04_Архангельское_SpOr_спутник/02_Архангельское_SpOr_спутник.tif": {
+   "s": 4.043189352999889,
+   "tiles": 3,
+   "vignettes": 21,
+   "tokens": 1404
+  },
+  "/workspace/data/train-expds-3/071_Сторожевое/04_Сторожевое_SpOr_спутник/01_Сторожевое_SpOr_спутник.tif": {
+   "s": 19.722026652000295,
+   "tiles": 10,
+   "vignettes": 117,
+   "tokens": 6016
+  },
+  "/workspace/data/train-expds-3/072_Белая_Гора/04_Белая_Гора_SpOr_спутник/01_Белая_Гора_SpOr_спутник.tif": {
+   "s": 3.523189258000002,
+   "tiles": 3,
+   "vignettes": 23,
+   "tokens": 1176
+  },
+  "/workspace/data/train-expds-3/073_Тоссор/04_Тоссор_SpOr_спутник/01_Тоссор_SpOr_спутник.tif": {
+   "s": 1.2522168249997776,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 375
+  },
+  "/workspace/data/train-expds-3/074_Солдатское/04_Солдатское_SpOr_спутник/01_Солдатское_SpOr_спутник.tif": {
+   "s": 22.827464544000122,
+   "tiles": 10,
+   "vignettes": 117,
+   "tokens": 6016
+  },
+  "/workspace/data/train-expds-3/074_Солдатское/04_Солдатское_SpOr_спутник/02_Солдатское_SpOr_спутник.tif": {
+   "s": 26.49492518099987,
+   "tiles": 14,
+   "vignettes": 140,
+   "tokens": 7178
+  },
+  "/workspace/data/train-expds-3/075_Мостище/04_Мостище_SpOr_спутник/01_Мостище_SpOr_спутник.tif": {
+   "s": 6.870507114000247,
+   "tiles": 5,
+   "vignettes": 34,
+   "tokens": 1862
+  },
+  "/workspace/data/train-expds-3/075_Мостище/04_Мостище_SpOr_спутник/02_Мостище_SpOr_спутник.tif": {
+   "s": 10.72032901700004,
+   "tiles": 8,
+   "vignettes": 55,
+   "tokens": 3120
+  },
+  "/workspace/data/train-expds-3/076_Маяцкая_крепость/04_Маяцкая_крепость_SpOr_спутник/01_Маяцкая_крепость_SpOr_спутник.tif": {
+   "s": 3.732827099000133,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/077_Русская_Тростянка/04_Русская_Тростянка_SpOr_спутник/01_Русская_Тростянка_SpOr_спутник.tif": {
+   "s": 11.31655366799987,
+   "tiles": 7,
+   "vignettes": 69,
+   "tokens": 3408
+  },
+  "/workspace/data/train-expds-3/078_Верхняя_Покровка/04_Верхняя_Покровка_SpOr_спутник/01_Верхняя_Покровка_SpOr_спутник.tif": {
+   "s": 11.475232645000233,
+   "tiles": 7,
+   "vignettes": 69,
+   "tokens": 3408
+  },
+  "/workspace/data/train-expds-3/079_Городище/04_Городище_SpOr_спутник/01_Городище_SpOr_спутник.tif": {
+   "s": 3.3124703369999224,
+   "tiles": 3,
+   "vignettes": 19,
+   "tokens": 1131
+  },
+  "/workspace/data/train-expds-3/079_Городище/04_Городище_SpOr_спутник/02_Городище_SpOr_спутник.tif": {
+   "s": 3.3199686259999908,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 544
+  },
+  "/workspace/data/train-expds-3/080_Верхний_Карабут/04_Верхний_Карабут_SpOr_спутник/01_Верхний_Карабут_SpOr_спутник.tif": {
+   "s": 1.0345016080000278,
+   "tiles": 2,
+   "vignettes": 6,
+   "tokens": 475
+  },
+  "/workspace/data/train-expds-3/081_Костомаровское/04_Костомаровское_SpOr_спутник/01_Костомаровское_SpOr_спутник.tif": {
+   "s": 1.0484613970002101,
+   "tiles": 2,
+   "vignettes": 6,
+   "tokens": 475
+  },
+  "/workspace/data/train-expds-3/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/01_Артпозиции_Иссык_Куль_SpOr_спутник.tif": {
+   "s": 0.8863720849999481,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 300
+  },
+  "/workspace/data/train-expds-3/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/02_Артпозиции_Иссык_Куль_SpOr_спутник.tif": {
+   "s": 1.0157286190001287,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 190
+  },
+  "/workspace/data/train-expds-3/083_Барскоон/04_Барскоон_SpOr_спутник/01_Барскоон_SpOr_спутник.tif": {
+   "s": 2.4753660440001113,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 836
+  },
+  "/workspace/data/train-expds-3/084_Булан_Соготту/04_Булан_Соготту_SpOr_спутник/01_Булан_Соготту_SpOr_спутник.tif": {
+   "s": 0.4820845469998858,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 240
+  },
+  "/workspace/data/train-expds-3/085_Каджы_Саз/04_Каджы_Саз_SpOr_спутник/01_Каджы_Саз_SpOr_спутник.tif": {
+   "s": 2.299862589999975,
+   "tiles": 3,
+   "vignettes": 15,
+   "tokens": 836
+  },
+  "/workspace/data/train-expds-3/086_Кан_Дебе/04_Кан_Дебе_SpOr_спутник/01_Кан_Дебе_SpOr_спутник.tif": {
+   "s": 2.6089486800001396,
+   "tiles": 3,
+   "vignettes": 18,
+   "tokens": 1170
+  },
+  "/workspace/data/train-expds-3/087_Кароол_Дюбе/04_Кароол_Дюбе_SpOr_спутник/01_Кароол_Дюбе_SpOr_спутник.tif": {
+   "s": 10.7603536229999,
+   "tiles": 8,
+   "vignettes": 66,
+   "tokens": 3465
+  },
+  "/workspace/data/train-expds-3/088_Кель_Тор_Х/04_Кель_Тор_Х_SpOr_спутник/01_Кель_Тор_Х_SpOr_спутник.tif": {
+   "s": 2.8478781489998255,
+   "tiles": 3,
+   "vignettes": 18,
+   "tokens": 1170
+  },
+  "/workspace/data/train-expds-3/089_Конур_Елен/04_Конур_Елен_SpOr_спутник/01_Конур_Елен_SpOr_спутник.tif": {
+   "s": 2.735169052999936,
+   "tiles": 3,
+   "vignettes": 18,
+   "tokens": 1170
+  },
+  "/workspace/data/train-expds-3/090_Корумду/04_Корумду_SpOr_спутник/01_Корумду_SpOr_спутник.tif": {
+   "s": 1.2977788019998115,
+   "tiles": 2,
+   "vignettes": 6,
+   "tokens": 375
+  },
+  "/workspace/data/train-expds-3/091_Сакские_курганы/04_Сакские_курганы_SpOr_спутник/01_Сакские_курганы_SpOr_спутник.tif": {
+   "s": 0.3140822889999981,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 143
+  },
+  "/workspace/data/train-expds-3/092_Шаты/04_Шаты_SpOr_спутник/01_Шаты_SpOr_спутник.tif": {
+   "s": 0.14477513500014538,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 12
+  },
+  "/workspace/data/train-expds-3/094_Иссык_Куль_курганы_и_выкладки/04_Иссык_Куль_курганы_и_выкладки_SpOr_спутник/01_Иссык_Куль_курганы_и_выкладки_SpOr_спутник.tif": {
+   "s": 0.5413616589999037,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/095_Иссык_Куль_курганы_и_постройки_1/04_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник.tif": {
+   "s": 0.5534031460001643,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/096_Иссык_Куль_курганы_и_постройки_2/04_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник.tif": {
+   "s": 0.43872814099995594,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/097_Орнок/04_Орнок_SpOr_спутник/01_Орнок_SpOr_спутник.tif": {
+   "s": 0.5578093470003296,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/097_Орнок/04_Орнок_SpOr_спутник/02_Орнок_SpOr_спутник.tif": {
+   "s": 1.1986555419998695,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 98
+  },
+  "/workspace/data/train-expds-3/098_Таш_Коро_1/04_Таш_Коро_1_SpOr_спутник/01_Таш_Коро_1_SpOr_спутник.tif": {
+   "s": 0.18433635400015191,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/099_Таш_Коро_2/04_Таш_Коро_2_SpOr_спутник/01_Таш_Коро_2_SpOr_спутник.tif": {
+   "s": 0.5493695669997578,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/100_Торт_Куль/04_Торт_Куль_SpOr_спутник/01_Торт_Куль_SpOr_спутник.tif": {
+   "s": 0.5347908260000622,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/101_Гнёздово_Днепровская/04_Гнёздово_Днепровская_SpOr_спутник/01_Гнёздово_Днепровская_SpOr_спутник.tif": {
+   "s": 14.871219563999603,
+   "tiles": 10,
+   "vignettes": 81,
+   "tokens": 4422
+  },
+  "/workspace/data/train-expds-3/103_Гнёздово_Ольшанская/04_Гнёздово_Ольшанская_SpOr_спутник/01_Гнёздово_Ольшанская_SpOr_спутник.tif": {
+   "s": 6.158609192999847,
+   "tiles": 5,
+   "vignettes": 29,
+   "tokens": 2535
+  },
+  "/workspace/data/train-expds-3/107_Сары_Булун/04_Сары_Булун_SpOr_спутник/01_Сары_Булун_SpOr_спутник.tif": {
+   "s": 0.22345738900003198,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 63
+  },
+  "/workspace/data/train-expds-3/108_Скупая_Полудань/04_Скупая_Полудань_SpOr_спутник/01_Скупая_Полудань_SpOr_спутник.tif": {
+   "s": 3.944554240999878,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/109_Россошки/04_Россошки_SpOr_спутник/01_Россошки_SpOr_спутник.tif": {
+   "s": 3.90853590100005,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/111_Каменные_выкладки_1/04_Каменные_выкладки_1_SpOr_спутник/01_Каменные_выкладки_1_SpOr_спутник.tif": {
+   "s": 0.5644804680000561,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/112_Каменные_выкладки_2/04_Каменные_выкладки_2_SpOr_спутник/01_Каменные_выкладки_2_SpOr_спутник.tif": {
+   "s": 0.5835048620001544,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/113_Каменные_выкладки_3/04_Каменные_выкладки_3_SpOr_спутник/01_Каменные_выкладки_3_SpOr_спутник.tif": {
+   "s": 0.5483178660001613,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/114_Каменные_выкладки_4/04_Каменные_выкладки_4_SpOr_спутник/01_Каменные_выкладки_4_SpOr_спутник.tif": {
+   "s": 0.6340573090001271,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/115_Каменные_выкладки_5/04_Каменные_выкладки_5_SpOr_спутник/01_Каменные_выкладки_5_SpOr_спутник.tif": {
+   "s": 0.1854091340001105,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/116_Каменные_выкладки_6/04_Каменные_выкладки_6_SpOr_спутник/01_Каменные_выкладки_6_SpOr_спутник.tif": {
+   "s": 2.059328743000151,
+   "tiles": 2,
+   "vignettes": 14,
+   "tokens": 896
+  },
+  "/workspace/data/train-expds-3/117_Каменные_выкладки_7/04_Каменные_выкладки_7_SpOr_спутник/01_Каменные_выкладки_7_SpOr_спутник.tif": {
+   "s": 1.7849208239999825,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 744
+  },
+  "/workspace/data/train-expds-3/118_Каменные_выкладки_8/04_Каменные_выкладки_8_SpOr_спутник/01_Каменные_выкладки_8_SpOr_спутник.tif": {
+   "s": 0.6706052619997536,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/119_Каменные_выкладки_9/04_Каменные_выкладки_9_SpOr_спутник/01_Каменные_выкладки_9_SpOr_спутник.tif": {
+   "s": 0.18742610199979026,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/120_Каменные_выкладки_10/04_Каменные_выкладки_10_SpOr_спутник/01_Каменные_выкладки_10_SpOr_спутник.tif": {
+   "s": 0.6581945829998403,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 192
+  },
+  "/workspace/data/train-expds-3/121_Каменные_выкладки_11/04_Каменные_выкладки_11_SpOr_спутник/01_Каменные_выкладки_11_SpOr_спутник.tif": {
+   "s": 0.6353318229998877,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 192
+  },
+  "/workspace/data/train-expds-3/122_Каменные_выкладки_12/04_Каменные_выкладки_12_SpOr_спутник/01_Каменные_выкладки_12_SpOr_спутник.tif": {
+   "s": 0.5012655149998864,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 192
+  },
+  "/workspace/data/train-expds-3/123_Каменные_выкладки_13/04_Каменные_выкладки_13_SpOr_спутник/01_Каменные_выкладки_13_SpOr_спутник.tif": {
+   "s": 0.48743183299984594,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 192
+  },
+  "/workspace/data/train-expds-3/124_Постройки_1/04_Постройки_1_SpOr_спутник/01_Постройки_1_SpOr_спутник.tif": {
+   "s": 0.45162601999982144,
+   "tiles": 2,
+   "vignettes": 2,
+   "tokens": 224
+  },
+  "/workspace/data/train-expds-3/125_Постройки_2/04_Постройки_2_SpOr_спутник/01_Постройки_2_SpOr_спутник.tif": {
+   "s": 0.14613421799958815,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/126_Постройки_3/04_Постройки_3_SpOr_спутник/01_Постройки_3_SpOr_спутник.tif": {
+   "s": 0.17942092600014803,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 48
+  },
+  "/workspace/data/train-expds-3/127_Постройки_4/04_Постройки_4_SpOr_спутник/01_Постройки_4_SpOr_спутник.tif": {
+   "s": 0.21278522800002975,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/128_Постройки_5/04_Постройки_5_SpOr_спутник/01_Постройки_5_SpOr_спутник.tif": {
+   "s": 0.17597524099983275,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 56
+  },
+  "/workspace/data/train-expds-3/129_Постройки_6/04_Постройки_6_SpOr_спутник/01_Постройки_6_SpOr_спутник.tif": {
+   "s": 0.1619538609998017,
+   "tiles": 2,
+   "vignettes": 0,
+   "tokens": 48
+  },
+  "/workspace/data/train-expds-3/130_Курганы_1/04_Курганы_1_SpOr_спутник/01_Курганы_1_SpOr_спутник.tif": {
+   "s": 1.8911382169999342,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 864
+  },
+  "/workspace/data/train-expds-3/131_Курганы_2/04_Курганы_2_SpOr_спутник/01_Курганы_2_SpOr_спутник.tif": {
+   "s": 9.723667705000025,
+   "tiles": 5,
+   "vignettes": 63,
+   "tokens": 3510
+  },
+  "/workspace/data/train-expds-3/132_Курганы_3/04_Курганы_3_SpOr_спутник/01_Курганы_3_SpOr_спутник.tif": {
+   "s": 2.460228036999979,
+   "tiles": 2,
+   "vignettes": 16,
+   "tokens": 957
+  },
+  "/workspace/data/train-expds-3/133_Курганы_4/04_Курганы_4_SpOr_спутник/01_Курганы_4_SpOr_спутник.tif": {
+   "s": 8.594217283000035,
+   "tiles": 5,
+   "vignettes": 53,
+   "tokens": 2850
+  },
+  "/workspace/data/train-expds-3/134_Курганы_5/04_Курганы_5_SpOr_спутник/01_Курганы_5_SpOr_спутник.tif": {
+   "s": 1.8346004009999888,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 700
+  },
+  "/workspace/data/train-expds-3/135_Курганы_6/04_Курганы_6_SpOr_спутник/01_Курганы_6_SpOr_спутник.tif": {
+   "s": 1.822634074999769,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/136_Курганы_7/04_Курганы_7_SpOr_спутник/01_Курганы_7_SpOr_спутник.tif": {
+   "s": 1.791694256000028,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/137_Курганы_8/04_Курганы_8_SpOr_спутник/01_Курганы_8_SpOr_спутник.tif": {
+   "s": 1.806772889000058,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/138_Курганы_9/04_Курганы_9_SpOr_спутник/01_Курганы_9_SpOr_спутник.tif": {
+   "s": 0.36588355899993985,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 154
+  },
+  "/workspace/data/train-expds-3/139_Курганы_10/04_Курганы_10_SpOr_спутник/01_Курганы_10_SpOr_спутник.tif": {
+   "s": 8.890586600000006,
+   "tiles": 5,
+   "vignettes": 48,
+   "tokens": 2632
+  },
+  "/workspace/data/train-expds-3/140_Курганы_11/04_Курганы_11_SpOr_спутник/01_Курганы_11_SpOr_спутник.tif": {
+   "s": 1.639051372999802,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/141_Курганы_12/04_Курганы_12_SpOr_спутник/01_Курганы_12_SpOr_спутник.tif": {
+   "s": 1.565038204999837,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/142_Курганы_13/04_Курганы_13_SpOr_спутник/01_Курганы_13_SpOr_спутник.tif": {
+   "s": 1.5271643659998517,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 567
+  },
+  "/workspace/data/train-expds-3/143_Курганы_14/04_Курганы_14_SpOr_спутник/01_Курганы_14_SpOr_спутник.tif": {
+   "s": 1.440877028000159,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/144_Курганы_15/04_Курганы_15_SpOr_спутник/01_Курганы_15_SpOr_спутник.tif": {
+   "s": 2.0877932780003903,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/145_Курганы_16/04_Курганы_16_SpOr_спутник/01_Курганы_16_SpOr_спутник.tif": {
+   "s": 2.024993502000143,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/146_Курганы_17/04_Курганы_17_SpOr_спутник/01_Курганы_17_SpOr_спутник.tif": {
+   "s": 8.69281372100022,
+   "tiles": 5,
+   "vignettes": 47,
+   "tokens": 2632
+  },
+  "/workspace/data/train-expds-3/147_Курганы_18/04_Курганы_18_SpOr_спутник/01_Курганы_18_SpOr_спутник.tif": {
+   "s": 7.1358442800001285,
+   "tiles": 5,
+   "vignettes": 47,
+   "tokens": 2632
+  },
+  "/workspace/data/train-expds-3/148_Курганы_19/04_Курганы_19_SpOr_спутник/01_Курганы_19_SpOr_спутник.tif": {
+   "s": 1.2937304789998052,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/149_Курганы_20/04_Курганы_20_SpOr_спутник/01_Курганы_20_SpOr_спутник.tif": {
+   "s": 1.4806515240002227,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 644
+  },
+  "/workspace/data/train-expds-3/150_Курганы_21/04_Курганы_21_SpOr_спутник/01_Курганы_21_SpOr_спутник.tif": {
+   "s": 1.2699384289999216,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 588
+  },
+  "/workspace/data/train-expds-3/151_Курганы_22/04_Курганы_22_SpOr_спутник/01_Курганы_22_SpOr_спутник.tif": {
+   "s": 1.5778314600001977,
+   "tiles": 2,
+   "vignettes": 12,
+   "tokens": 825
+  },
+  "/workspace/data/train-expds-3/152_Курганы_23/04_Курганы_23_SpOr_спутник/01_Курганы_23_SpOr_спутник.tif": {
+   "s": 0.30261413899961553,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 154
+  },
+  "/workspace/data/train-expds-3/153_Курганы_24/04_Курганы_24_SpOr_спутник/01_Курганы_24_SpOr_спутник.tif": {
+   "s": 0.3358834119999301,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 154
+  },
+  "/workspace/data/train-expds-3/154_Курганы_25/04_Курганы_25_SpOr_спутник/01_Курганы_25_SpOr_спутник.tif": {
+   "s": 0.31171897800004444,
+   "tiles": 2,
+   "vignettes": 1,
+   "tokens": 154
+  },
+  "/workspace/data/train-expds-3/155_Курганы_26/04_Курганы_26_SpOr_спутник/01_Курганы_26_SpOr_спутник.tif": {
+   "s": 15.539529633000257,
+   "tiles": 7,
+   "vignettes": 60,
+   "tokens": 3256
+  },
+  "/workspace/data/train-expds-3/156_Курганы_27/04_Курганы_27_SpOr_спутник/01_Курганы_27_SpOr_спутник.tif": {
+   "s": 15.83417904299995,
+   "tiles": 7,
+   "vignettes": 60,
+   "tokens": 3256
+  },
+  "/workspace/data/train-expds-3/157_Курганы_28/04_Курганы_28_SpOr_спутник/01_Курганы_28_SpOr_спутник.tif": {
+   "s": 14.270062601000063,
+   "tiles": 7,
+   "vignettes": 60,
+   "tokens": 3256
+  },
+  "/workspace/data/train-expds-3/158_Курганы_29/04_Курганы_29_SpOr_спутник/01_Курганы_29_SpOr_спутник.tif": {
+   "s": 40.887687645999904,
+   "tiles": 21,
+   "vignettes": 252,
+   "tokens": 13112
+  },
+  "/workspace/data/train-expds-3/159_Курганы_30/04_Курганы_30_SpOr_спутник/01_Курганы_30_SpOr_спутник.tif": {
+   "s": 6.804450683999676,
+   "tiles": 2,
+   "vignettes": 14,
+   "tokens": 814
+  },
+  "/workspace/data/train-expds-3/160_Курганы_31/04_Курганы_31_SpOr_спутник/01_Курганы_31_SpOr_спутник.tif": {
+   "s": 7.604515748999802,
+   "tiles": 3,
+   "vignettes": 18,
+   "tokens": 1150
+  },
+  "/workspace/data/train-expds-3/161_Курганы_32/04_Курганы_32_SpOr_спутник/01_Курганы_32_SpOr_спутник.tif": {
+   "s": 1.4967713349997211,
+   "tiles": 2,
+   "vignettes": 11,
+   "tokens": 672
+  },
+  "/workspace/data/train-expds-3/162_Курганы_33/04_Курганы_33_SpOr_спутник/01_Курганы_33_SpOr_спутник.tif": {
+   "s": 5.759026297999753,
+   "tiles": 2,
+   "vignettes": 7,
+   "tokens": 448
+  },
+  "/workspace/data/train-expds-3/163_Курганы_34/04_Курганы_34_SpOr_спутник/01_Курганы_34_SpOr_спутник.tif": {
+   "s": 26.48157854100009,
+   "tiles": 14,
+   "vignettes": 144,
+   "tokens": 7326
+  },
+  "/workspace/data/train-expds-3/164_Кисловодская_котловина_1/04_Кисловодская_котловина_1_SpOr_спутник/01_Кисловодская_котловина_1_SpOr_спутник.tif": {
+   "s": 3.478833234999911,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/165_Кисловодская_котловина_2/04_Кисловодская_котловина_2_SpOr_спутник/01_Кисловодская_котловина_2_SpOr_спутник.tif": {
+   "s": 1.144414050999785,
+   "tiles": 2,
+   "vignettes": 9,
+   "tokens": 550
+  },
+  "/workspace/data/train-expds-3/166_Кисловодская_котловина_3/04_Кисловодская_котловина_3_SpOr_спутник/01_Кисловодская_котловина_3_SpOr_спутник.tif": {
+   "s": 1.1064701479999712,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/167_Кисловодская_котловина_4/04_Кисловодская_котловина_4_SpOr_спутник/01_Кисловодская_котловина_4_SpOr_спутник.tif": {
+   "s": 3.5865111059997616,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/168_Кисловодская_котловина_5/04_Кисловодская_котловина_5_SpOr_спутник/01_Кисловодская_котловина_5_SpOr_спутник.tif": {
+   "s": 3.5763490360000105,
+   "tiles": 3,
+   "vignettes": 24,
+   "tokens": 1504
+  },
+  "/workspace/data/train-expds-3/169_Кисловодская_котловина_6/04_Кисловодская_котловина_6_SpOr_спутник/01_Кисловодская_котловина_6_SpOr_спутник.tif": {
+   "s": 2.1768275260001246,
+   "tiles": 2,
+   "vignettes": 15,
+   "tokens": 925
+  },
+  "/workspace/data/train-expds-3/170_Кисловодская_котловина_7/04_Кисловодская_котловина_7_SpOr_спутник/01_Кисловодская_котловина_7_SpOr_спутник.tif": {
+   "s": 1.0800884750001387,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/171_Кисловодская_котловина_8/04_Кисловодская_котловина_8_SpOr_спутник/01_Кисловодская_котловина_8_SpOr_спутник.tif": {
+   "s": 1.0907672409998668,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/172_Кисловодская_котловина_9/04_Кисловодская_котловина_9_SpOr_спутник/01_Кисловодская_котловина_9_SpOr_спутник.tif": {
+   "s": 1.1177493729996968,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/173_Кисловодская_котловина_10/04_Кисловодская_котловина_10_SpOr_спутник/01_Кисловодская_котловина_10_SpOr_спутник.tif": {
+   "s": 1.2014187390000188,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/174_Кисловодская_котловина_11/04_Кисловодская_котловина_11_SpOr_спутник/01_Кисловодская_котловина_11_SpOr_спутник.tif": {
+   "s": 1.0908936169998924,
+   "tiles": 2,
+   "vignettes": 8,
+   "tokens": 532
+  },
+  "/workspace/data/train-expds-3/175_Кисловодская_котловина_12/04_Кисловодская_котловина_12_SpOr_спутник/01_Кисловодская_котловина_12_SpOr_спутник.tif": {
+   "s": 3.519453364000128,
+   "tiles": 3,
+   "vignettes": 23,
+   "tokens": 1176
+  },
+  "/workspace/data/train-expds-3/176_Кисловодская_котловина_13/04_Кисловодская_котловина_13_SpOr_спутник/01_Кисловодская_котловина_13_SpOr_спутник.tif": {
+   "s": 3.7521999119999236,
+   "tiles": 3,
+   "vignettes": 23,
+   "tokens": 1176
+  },
+  "/workspace/data/train-expds-3/177_Кисловодская_котловина_14/04_Кисловодская_котловина_14_SpOr_спутник/01_Кисловодская_котловина_14_SpOr_спутник.tif": {
+   "s": 3.2640491440001824,
+   "tiles": 3,
+   "vignettes": 23,
+   "tokens": 1176
+  },
+  "/workspace/data/train-expds-3/178_Кисловодская_котловина_15/04_Кисловодская_котловина_15_SpOr_спутник/01_Кисловодская_котловина_15_SpOr_спутник.tif": {
+   "s": 0.7322748950000459,
+   "tiles": 2,
+   "vignettes": 5,
+   "tokens": 294
+  },
+  "/workspace/data/train-expds-3/183_Сарское/04_Сарское_SpOr_спутник/01_Сарское_SpOr_спутник.tif": {
+   "s": 65.95665594299999,
+   "tiles": 8,
+   "vignettes": 72,
+   "tokens": 3828
+  },
+  "/workspace/data/train-expds-3/183_Сарское/04_Сарское_SpOr_спутник/02_Сарское_SpOr_спутник.tif": {
+   "s": 13.037752630999876,
+   "tiles": 8,
+   "vignettes": 72,
+   "tokens": 3828
+  },
+  "/workspace/data/train-expds-3/184_Шурскол/04_Шурскол_SpOr_спутник/01_Шурскол_SpOr_спутник.tif": {
+   "s": 6.06004302600013,
+   "tiles": 3,
+   "vignettes": 32,
+   "tokens": 1881
+  },
+  "/workspace/data/train-expds-3/185_Изборск/04_Изборск_SpOr_спутник/01_Изборск_SpOr_спутник.tif": {
+   "s": 5.042726365999897,
+   "tiles": 3,
+   "vignettes": 27,
+   "tokens": 1372
+  },
+  "/workspace/data/train-expds-3/185_Изборск/04_Изборск_SpOr_спутник/02_Изборск_SpOr_спутник.tif": {
+   "s": 1.7884945450000487,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 700
+  },
+  "/workspace/data/train-expds-3/185_Изборск/04_Изборск_SpOr_спутник/03_Изборск_SpOr_спутник.tif": {
+   "s": 1.5398654790001274,
+   "tiles": 2,
+   "vignettes": 10,
+   "tokens": 700
+  },
+  "/workspace/data/train-expds-3/186_Семибратнее_1/04_Семибратнее_1_SpOr_спутник/01_Семибратнее_1_SpOr_спутник.tif": {
+   "s": 1.9332017609999639,
+   "tiles": 2,
+   "vignettes": 14,
+   "tokens": 814
+  },
+  "/workspace/data/train-expds-3/192_КЧР/04_КЧР_SpOr_спутник/01_КЧР_SpOr_спутник.tif": {
+   "s": 0.6072226440001032,
+   "tiles": 2,
+   "vignettes": 3,
+   "tokens": 312
+  }
+ }
+}

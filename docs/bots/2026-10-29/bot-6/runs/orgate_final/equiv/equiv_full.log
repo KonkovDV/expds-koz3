@@ -1,0 +1,1 @@
+{"n_target": 47518, "n_kept": 302, "n_removed": 47216, "n_regions_offline": 134, "n_regions_mismatch": 0, "mismatch": [], "las_source": "catalog", "n_las_regions_with_arch": 11, "n_chunks": 5, "max_chunk_rows": 128748, "t_load_s": 2.5, "t_decide_s": 3.0, "maxrss_kb": 891888}

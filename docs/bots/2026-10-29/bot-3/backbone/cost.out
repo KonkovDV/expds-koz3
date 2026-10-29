@@ -1,0 +1,9 @@
+rasters 92 mpx 53.54 mpx_valid 28.29
+totals {'sec_load': 14.0, 'sec_bbinput': 26.0, 'sec_fwd_B1': 110.7, 'sec_pca_B1': 2.7, 'sec_fwd_B2': 361.3, 'sec_pca_B2': 0.9, 'sec_feat': 226.7, 'sec_bbsample': 59.0, 'sec_pred': 1837.5, 'sec': 2915.4}
+B1 bb_forward_total_s 139.4 s_per_Mpx 2.6 fwd s/Mpx_valid 3.91
+B2 bb_forward_total_s 388.2 s_per_Mpx 7.25 fwd s/Mpx_valid 12.77
+202_Семибратнее_Городище_2 {'sec_load': 0.7, 'sec_bbinput': 3.2, 'sec_fwd_B1': 9.6, 'sec_pca_B1': 0.4, 'sec_fwd_B2': 30.8, 'sec_pca_B2': 0.1, 'sec_feat': 29.6, 'sec_bbsample': 11.2, 'sec_pred': 353.1, 'sec': 489.0, 'mpx': 5.6}
+217_Гнёздово_Селище_3 {'sec_load': 0.8, 'sec_bbinput': 2.1, 'sec_fwd_B1': 5.1, 'sec_pca_B1': 0.2, 'sec_fwd_B2': 28.0, 'sec_pca_B2': 0.1, 'sec_feat': 57.8, 'sec_bbsample': 9.0, 'sec_pred': 209.4, 'sec': 347.7, 'mpx': 7.9}
+200_Судьбищи_2 {'sec_load': 6.2, 'sec_bbinput': 8.7, 'sec_fwd_B1': 9.9, 'sec_pca_B1': 0.7, 'sec_fwd_B2': 51.8, 'sec_pca_B2': 0.3, 'sec_feat': 21.9, 'sec_bbsample': 5.3, 'sec_pred': 169.9, 'sec': 315.3, 'mpx': 14.1}
+203_Семибратнее_Городище_3 {'sec_load': 0.5, 'sec_bbinput': 2.0, 'sec_fwd_B1': 10.9, 'sec_pca_B1': 0.3, 'sec_fwd_B2': 30.8, 'sec_pca_B2': 0.0, 'sec_feat': 14.3, 'sec_bbsample': 4.5, 'sec_pred': 199.8, 'sec': 287.5, 'mpx': 3.5}
+maxrss_mb 1309

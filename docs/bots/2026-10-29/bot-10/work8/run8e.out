@@ -1,0 +1,14 @@
+start 23:46:18
+gorc_noc кандидатов 58815 после NMS192 11440
+gorc_noc 77 {'add': 11440, 'hull': 0}
+gorc_full кандидатов 59029 после NMS192 11453
+gorc_full 77 {'add': 11453, 'hull': 0}
+gorc_cs кандидатов 58976 после NMS192 11455
+gorc_cs 77 {'add': 11455, 'hull': 0}
+curves gorc_noc rc=0 n=100 23:48:09
+paired noc 23:54:08
+curves gorc_noc rc=0 n=100 23:55:33
+paired noc site 00:01:15
+curves gorc_full rc=0 n=100 00:02:30
+curves gorc_cs rc=0 n=100 00:03:41
+done 00:11:38

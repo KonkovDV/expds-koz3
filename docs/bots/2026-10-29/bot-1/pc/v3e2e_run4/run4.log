@@ -1,0 +1,34 @@
+sha ok submission_bot7cand_v2_eb268d6.zip
+sha ok submission_bot7cand_v3on_bc5aa15.zip
+sha ok tools_v3e2e.tar
+start 2026-10-29T13:34:09.4650587+03:00 mode=docker
+name, driver_version, memory.total [MiB]
+NVIDIA GeForce GTX 1650, 610.88, 4096 MiB
+ѓаЃ°†: DFINE_JSON={"ok": true, "source": "vendor", "version": "5.21.0", "file": "/app/inference/lib/vendor/transformers/__init__.py", "errors": [], "purged_preloaded": null}
+v2: main.py 82.5 c, ѓ®™ WS §•а•Ґ† 0 МБ (вЃЂм™Ѓ venv), ѓ®™ VRAM (Ґбп ™†ав†) 3612 М®Б, ™Ѓ§ 
+v3: main.py 141.9 c, ѓ®™ WS §•а•Ґ† 0 МБ (вЃЂм™Ѓ venv), ѓ®™ VRAM (Ґбп ™†ав†) 3740 М®Б, ™Ѓ§ 
+ѓаЃ£Ѓ≠ v3 §•©бвҐ®в•Ђ•≠: 2026-10-29 10:38:04,341 INFO expds.pipeline: sp_dfine n_det=482 total, гз†бв™ЃҐ ѓЃЂ≠Ѓбвмо 2, ђЃ§•Ђ•© 1
+INFO найдено регионов: 2 в C:\Sloi\pc_jobs\v3e2e\regions_c
+{"regions": 2, "merges": 0, "skipped_files": 0, "files_with_problems": 0}
+kurgany_povrezhdennye    ae         200  регионов 2
+kurgany_povrezhdennye    li         113  регионов 1
+kurgany_povrezhdennye    sp_or       81  регионов 2
+kurgany_tselye           ae          51  регионов 2
+kurgany_tselye           sp_or        1  регионов 1
+kurgany_tselye           li           1  регионов 1
+gorodishcha              li           1  регионов 1
+gorodishcha              ae           1  регионов 1
+gorodishcha              sp_or        1  регионов 1
+config.py недоступен (No module named 'config') Ч используютс€ встроенные дефолты метрики; дл€ расчЄта ровно как на платформе положите config.py р€дом со скриптом
+{"region": "ALL", "markup": "ALL", "gt": 450, "n_v2": 248, "f1_v2": 0.3125090807983978, "n_v3": 216, "f1_v3": 0.2879850394677701, "delta": -0.02452404133062769}
+{"region": "ALL", "markup": "ae", "gt": 252, "n_v2": 59, "f1_v2": 0.09555648513894874, "n_v3": 59, "f1_v3": 0.09555648513894874, "delta": 0.0}
+{"region": "ALL", "markup": "li", "gt": 115, "n_v2": 143, "f1_v2": 0.3369826841738736, "n_v3": 144, "f1_v3": 0.3409087570958713, "delta": 0.003926072921997703}
+{"region": "ALL", "markup": "sp_or", "gt": 83, "n_v2": 46, "f1_v2": 0.24291478563833163, "n_v3": 13, "f1_v3": 0.0, "delta": -0.24291478563833163}
+{"region": "101_√нЄздово_ƒнепровска€", "markup": "ALL", "gt": 292, "n_v2": 244, "f1_v2": 0.3463969920840614, "n_v3": 211, "f1_v3": 0.31965133482151603, "delta": -0.026745657262545353}
+{"region": "101_√нЄздово_ƒнепровска€", "markup": "ae", "gt": 108, "n_v2": 58, "f1_v2": 0.2429147080859864, "n_v3": 58, "f1_v3": 0.2429147080859864, "delta": 0.0}
+{"region": "101_√нЄздово_ƒнепровска€", "markup": "li", "gt": 115, "n_v2": 143, "f1_v2": 0.3369826841738736, "n_v3": 144, "f1_v3": 0.3409087570958713, "delta": 0.003926072921997703}
+{"region": "101_√нЄздово_ƒнепровска€", "markup": "sp_or", "gt": 69, "n_v2": 43, "f1_v2": 0.34799973192019457, "n_v3": 9, "f1_v3": 0.0, "delta": -0.34799973192019457}
+{"region": "103_√нЄздово_ќльшанска€", "markup": "ALL", "gt": 158, "n_v2": 4, "f1_v2": 0.006992999947022781, "n_v3": 5, "f1_v3": 0.0, "delta": -0.006992999947022781}
+{"region": "103_√нЄздово_ќльшанска€", "markup": "ae", "gt": 144, "n_v2": 1, "f1_v2": 0.0, "n_v3": 1, "f1_v3": 0.0, "delta": 0.0}
+{"region": "103_√нЄздово_ќльшанска€", "markup": "sp_or", "gt": 14, "n_v2": 3, "f1_v2": 0.09523799319729304, "n_v3": 4, "f1_v3": 0.0, "delta": -0.09523799319729304}
+end 2026-10-29T13:38:37.4634543+03:00

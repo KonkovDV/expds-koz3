@@ -1,0 +1,25 @@
+== v4 14:12:29
+WATCH rc 0 elapsed_s 10.1 peak_rss_mb 887
+WATCH rc 0 elapsed_s 9.1 peak_rss_mb 1085
+084 IDENTICAL efc930de111398a96fa45cdda847ce6f 2178B
+WATCH rc 0 elapsed_s 12.2 peak_rss_mb 1099
+WATCH rc 0 elapsed_s 11.1 peak_rss_mb 1113
+081 IDENTICAL da404b6cce8e78b4146b483163ccc867 45B
+WATCH rc 0 elapsed_s 27.8 peak_rss_mb 1437
+WATCH rc 0 elapsed_s 27.3 peak_rss_mb 1481
+210 IDENTICAL 66e85a5f8fdf01c197e844115c8c0fef 280748B
+WATCH rc 0 elapsed_s 92.1 peak_rss_mb 1542
+WATCH rc 0 elapsed_s 120.2 peak_rss_mb 1485
+217 IDENTICAL b04337b61f94616a4dd7634fc9a8c715 337079B
+WATCH rc 0 elapsed_s 23.3 peak_rss_mb 1088
+2026-10-29 14:18:00,701 INFO expds.watchdog: фазы: геофизика: сырых 0, 1 с, лидар: сырых 0, 0 с, оптика: сырых 3, 10 с, gor_dense: сырых 2, 7 с, канал σ: сырых 0, 0 с
+2026-10-29 14:18:00,701 INFO expds.watchdog: до порога 5, по слоям: gor_dense 2, sp_or 3
+2026-10-29 14:18:00,701 INFO expds.watchdog: после порога по слоям: sp_or 3
+WATCH rc 0 elapsed_s 18.7 peak_rss_mb 1114
+2026-10-29 14:18:19,727 INFO expds.watchdog: фазы: геофизика: сырых 0, 0 с, лидар: сырых 0, 0 с, оптика: сырых 0, 10 с, gor_dense: сырых 2, 4 с, канал σ: сырых 0, 0 с
+2026-10-29 14:18:19,727 INFO expds.watchdog: до порога 2, по слоям: gor_dense 2
+2026-10-29 14:18:19,727 INFO expds.watchdog: после порога по слоям: gor_dense 2
+084 ON==OFF
+084 3 [{'class_name': 'arkhitektury', 'confidence': 0.70266, 'region_name': '084_Булан_Соготту', 'markup_type': 'sp_or', 'original_crs': 'EPSG:32643'}, {'class_name': 'arkhitektury', 'confidence': 0.78333, 'region_name': '084_Булан_Соготту', 'markup_type': 'sp_or', 'original_crs': 'EPSG:32643'}, {'class_name': 'arkhitektury', 'confidence': 0.80757, 'region_name': '084_Булан_Соготту', 'markup_type': 'sp_or', 'original_crs': 'EPSG:32643'}]
+081 2 [{'class_name': 'gorodishcha', 'confidence': 0.93695, 'region_name': '081_Костомаровское', 'markup_type': 'sp_or', 'original_crs': 'EPSG:32637'}, {'class_name': 'gorodishcha', 'confidence': 0.92599, 'region_name': '081_Костомаровское', 'markup_type': 'sp_or', 'original_crs': 'EPSG:32637'}]
+RERUN4_DONE 14:18:21

@@ -1,0 +1,1722 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 101ce0c..0adebe4 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -458,6 +458,27 @@ enabled = false
+ # пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
+ # и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+ 
++# bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
++# до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
++# порогов из вложенного OOF (bot-6/AEOR_DETECT.md). Ключи и умолчания — expds/dfine_aeor.py DEFAULTS
++# (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
++#   enabled = true
++#   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
++#     # = чекпойнты bot-9 koz3_shared/bot-9/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
++#     # 5 классов в порядке sp_dfine.CLASSES), в репозиторий — ln -s (полные пути: bot-6/AEOR_DETECT.md; личные
++#     # абсолютные пути в конфиге архива запрещены тестом test_no_personal_paths_in_packaged_code,
++#     # build_submission их не пакует)
++#   thresholds_file = "models/dfine_aeor/thresholds_oof.json"   # {"dfine_ae": {класс: порог}, "dfine_or": {...}}; ae_dfine/or_dfine тоже принимаются
++#   # scales = [1.0, 1.5]   # второй масштаб — только после замера времени на 4090
++# Рецепт входа (bot-9): RGB/255 без нормализации, flip-TTA, NMS IoU 0,5, fp16 только autocast на CUDA (.half() не вызывается).
++[dfine_aeor]
++enabled = false
++
++# bot-6: городища из D-FINE Or выключены порогом > 1, пока bot-10 не замерит их вместе с gor_dense bot-5.
++# Ключи TOML главнее thresholds_file. Объектов dfine_or нет при [dfine_aeor] enabled=false.
++[thresholds_by_markup.dfine_or]
++gorodishcha = 1.01
++
+ # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
+ # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
+ # ВЫКЛ. Ставить ТОЛЬКО без варианта R D-FINE (R выбрасывает sp_or — шлюзу нечего гейтить; bot-10 §1). Включение:
+diff --git a/expds/dfine_aeor.py b/expds/dfine_aeor.py
+new file mode 100644
+index 0000000..443fd0a
+--- /dev/null
++++ b/expds/dfine_aeor.py
+@@ -0,0 +1,613 @@
++"""bot-6 (на bot7-candidate-v3 @ 360c870; каркас bot-1 6c2511c): D-FINE всех классов на Ae (аэрофото 1940-х)
++и Or (ортофото), фаза ``dfine_aeor``. ПО УМОЛЧАНИЮ ВЫКЛЮЧЕН ([dfine_aeor] enabled = false).
++
++Соглашения (bot 7, 29.10 12:14):
++* markup_type родной — ``ae`` / ``or``; threshold_group ``dfine_ae`` / ``dfine_or``, пороги —
++  [thresholds_by_markup.dfine_ae / dfine_or] или JSON-файл ``thresholds_file`` ({группа: {класс: порог}},
++  формат ``python -m expds.metric --out``), который заполняется ТОЛЬКО из вложенного OOF ядер bot-9. Своих чисел нет.
++* D-FINE импортируется только через ``sp_dfine.import_dfine`` (вендор transformers 5.21.0). Любая неготовность
++  (нет весов, порогов, импорта) → ERROR с маркером ``DFINE_AEOR_UNAVAILABLE`` (check_submission → FAIL) и выдача
++  без фазы. Кэш моделей общий с sp_dfine (по пути каталога весов).
++* Вход модели как в обучении bot-9 (bot-9/DFINE_FINAL_ORAE.md, kaggle/dfine_spor/src/dfine_main.py:53,262-291,479):
++  UTM участка, 0,5 м (WarpedVRT; уменьшение average), RGB uint8 (1 канал → 3 копии, не-uint8 → растяжка 1–99 %),
++  pixel_values = x/255 без mean/std. Окно/перекрытие — как при обучении: Ae 640/160, Or 1024/288 (§9).
++* Слияние видов TTA (flip × масштабы × модели) — WBF или NMS строго внутри ОДНОГО растра одной модальности;
++  круги варианта C — тоже внутри растра. Межрастровое слияние — post.merge_within_markup с ключом
++  (регион, markup, класс, threshold_group): dfine_ae склеивается только с dfine_ae, не с прочими ae
++  (watchdog._aeor_split: своя короткая цепочка; merge_union=true — общая, по умолчанию выкл.).
++* Память: растр никогда не читается целиком — окна WarpedVRT (Scene.read), батч окон в один заранее
++  выделенный float32-буфер (без np.stack/astype-копий), кэш GDAL ограничен ``gdal_cache_mb``.
++* Сторож времени: оценка с/окно-вид (замер на первом растре или ``tile_s``), запас ``safety`` (8×) к остатку
++  бюджета фазы (``budget_s``) и TimeGuard; деградация full → без flip → один масштаб → пропуск, с журналом.
++"""
++from __future__ import annotations
++
++import json
++import logging
++import math
++import time
++from pathlib import Path
++
++import numpy as np
++
++from . import sp_dfine as S
++
++log = logging.getLogger(__name__)
++
++UNAVAILABLE = "DFINE_AEOR_UNAVAILABLE"
++#: Классы метрики (materials/compute_metrics.py CLASS_WEIGHTS; тест сверяет).
++COMPETITION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury", "object_poly",
++                       "fortifikatsii", "finds_points")
++#: Метки моделей bot-9 по умолчанию (dfine_main.py:66), если в config.json нет id2label.
++MODEL_CLASSES = S.CLASSES
++GROUPS = {"ae": "dfine_ae", "or": "dfine_or"}
++LEVELS = ("full", "no_flip", "one_scale", "skip")
++
++DEFAULTS = {
++    "enabled": False,
++    "markups": ["ae", "or"],
++    "weights": {},                       # {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]} — каталоги HF
++    "thresholds_file": "",               # JSON из OOF bot-9 (вложенный подбор); пусто — только TOML
++    "class_map": {},                     # {метка модели: класс метрики}; пусто — тождественно по id2label
++    "res_m": {"ae": 0.5, "or": 0.5},
++    "tile": {"ae": 640, "or": 1024},
++    "overlap": {"ae": 160, "or": 288},
++    "batch": {"ae": 8, "or": 4},
++    "flip_tta": True,
++    "scales": [1.0],                     # множители res_m; [1.0, 1.5] — второй масштаб
++    "fuse": "wbf",                       # wbf | nms — только внутри одного растра
++    "fuse_iou": 0.55,
++    "nms_iou": 0.5,
++    "fp16": True,
++    "min_score": 0.05,                   # пол генерации (ниже порогов OOF)
++    "max_det": 100,
++    "skip_empty": 0.95,
++    "radius_m": 4.0,
++    "merge_m": 4.0,
++    "max_objects": 20000,
++    "require_thresholds": True,
++    "soft_need_s": 60.0,                 # мягкий потолок: запас на участок
++    "budget_s": 120.0,                   # потолок фазы на весь набор (bot 7: ≤2 мин)
++    "safety": 8.0,                       # оценка × safety ≤ остаток
++    "tile_s": None,                      # с на окно-вид на целевой машине; None — замер на первом растре
++    "device": "auto",
++    "gdal_cache_mb": 256,                # GDAL_CACHEMAX на время чтения растра (по умолчанию GDAL — 5 % ОЗУ)
++    "merge_union": False,                # True — dfine_* в общей цепочке и склейке с прочими ae/or (не включать)
++}
++_PER_MK = ("res_m", "tile", "overlap", "batch")
++
++
++def settings(cfg: dict) -> dict:
++    own = dict(cfg.get("dfine_aeor") or {})
++    st = dict(DEFAULTS, **own)
++    for k in _PER_MK:
++        base = dict(DEFAULTS[k])
++        v = own.get(k)
++        if isinstance(v, dict):
++            base.update(v)
++        elif v is not None:
++            base = {m: v for m in base}
++        st[k] = base
++    w = own.get("weights") or {}
++    st["weights"] = {m: list(w) for m in st["markups"]} if isinstance(w, list) else \
++        {m: list(w.get(m, [])) for m in st["markups"]}
++    st["scales"] = [float(s) for s in (st["scales"] or [1.0])]
++    return st
++
++
++def enabled(cfg: dict) -> bool:
++    return bool((cfg.get("dfine_aeor") or {}).get("enabled", False))
++
++
++class AeOrUnavailable(RuntimeError):
++    """dfine_aeor включён, но не готов (веса, пороги, импорт D-FINE)."""
++
++
++def _abs(root: Path, rel) -> Path:
++    p = Path(str(rel))
++    return p if p.is_absolute() else Path(root) / p
++
++
++#: Имена групп в OOF bot-9 → наши (bot-9 переименует; до тех пор загрузчик принимает оба).
++GROUP_ALIASES = {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
++
++
++def load_thresholds_file(cfg: dict, root: Path) -> dict:
++    """Пороги из thresholds_file → cfg[thresholds_by_markup] (только группы dfine_*; ключи TOML главнее).
++    Нет файла при заданном пути — AeOrUnavailable с путём."""
++    st = settings(cfg)
++    rel = st.get("thresholds_file")
++    if not rel:
++        return {}
++    p = _abs(root, rel)
++    if not p.is_file():
++        raise AeOrUnavailable(f"thresholds_file не найден: {p} (заполняется из OOF bot-9, см. AEOR_DETECT.md)")
++    data = json.loads(p.read_text(encoding="utf-8"))
++    tbm = cfg.setdefault("thresholds_by_markup", {})
++    used: dict = {}
++    for g, thr in data.items():
++        g = GROUP_ALIASES.get(g, g)   # OOF bot-9 называет группы ae_dfine/or_dfine
++        if g not in GROUPS.values() or not isinstance(thr, dict):
++            continue
++        own = tbm.setdefault(g, {})
++        for c, v in thr.items():
++            if c not in own:
++                own[c] = float(v)
++                used.setdefault(g, {})[c] = float(v)
++    return used
++
++
++def thresholds_ready(cfg: dict, markup: str) -> tuple[bool, list[str]]:
++    own = (cfg.get("thresholds_by_markup") or {}).get(GROUPS[markup]) or {}
++    missing = [c for c in MODEL_CLASSES if c not in own]
++    return not missing, missing
++
++
++def model_labels(wdir: Path, class_map: dict) -> list[str]:
++    """Метки выходов модели → классы метрики (id2label из config.json, затем class_map)."""
++    labels = list(MODEL_CLASSES)
++    cj = Path(wdir) / "config.json"
++    if cj.is_file():
++        i2l = json.loads(cj.read_text(encoding="utf-8")).get("id2label") or {}
++        if i2l:
++            labels = [str(i2l.get(str(i), i2l.get(i, f"LABEL_{i}"))) for i in range(len(i2l))]
++    out = [str(class_map.get(lb, lb)) for lb in labels]
++    bad = [c for c in out if c not in COMPETITION_CLASSES]
++    if bad:
++        raise AeOrUnavailable(f"{wdir}: метки вне классов метрики {bad} (задайте class_map)")
++    return out
++
++
++def preflight(cfg: dict, root: Path) -> dict:
++    """Проверки до работы. Неготовность → ERROR с маркером и {'ok': False}: фаза не запускается (выдача как v3)."""
++    st = settings(cfg)
++    info: dict = {"enabled": True, "ok": False, "markups": list(st["markups"]), "problems": []}
++    pr = info["problems"]
++    try:
++        info["thresholds_file"] = load_thresholds_file(cfg, root)
++    except Exception as e:  # noqa: BLE001
++        pr.append(str(e))
++    for mk in st["markups"]:
++        if mk not in GROUPS:
++            pr.append(f"неизвестная модальность {mk}")
++            continue
++        ok, miss = thresholds_ready(cfg, mk)
++        if st["require_thresholds"] and not ok:
++            pr.append(f"нет порогов {GROUPS[mk]} для " + ", ".join(miss))
++        if not st["weights"].get(mk):
++            pr.append(f"weights.{mk} пуст (ждём чекпойнт bot-9)")
++        for rel in st["weights"].get(mk, []):
++            p = _abs(root, rel)
++            for name in ("config.json", "model.safetensors"):
++                if not (p / name).is_file():
++                    pr.append(f"нет весов {p / name}")
++    if pr:
++        log.error("%s: [dfine_aeor] включён, но не готов — фаза пропущена, выдача как v3: %s", UNAVAILABLE, "; ".join(pr))
++        return info
++    info["ok"] = True
++    return info
++
++
++# ── нарезка ──────────────────────────────────────────────────────────────────────────────────────────────
++def windows(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
++    """Сетка окон как в обучении (sp_dfine.windows), но последний ряд/столбец прижат к краю: покрытие полное."""
++    step = int(tile) - int(overlap)
++    assert step > 0, "overlap >= tile"
++
++    def axis(n: int) -> list[int]:
++        if n <= tile:
++            return [0]
++        xs = list(range(0, n - tile + 1, step))
++        if xs[-1] + tile < n:
++            xs.append(n - tile)
++        return xs
++    return [(x, y) for y in axis(int(H)) for x in axis(int(W))]
++
++
++def n_windows(W: int, H: int, tile: int, overlap: int) -> int:
++    return len(windows(W, H, tile, overlap))
++
++
++# ── слияние внутри одного растра ─────────────────────────────────────────────────────────────────────────
++def _iou(b: np.ndarray, B: np.ndarray) -> np.ndarray:
++    w = np.clip(np.minimum(b[2], B[:, 2]) - np.maximum(b[0], B[:, 0]), 0, None)
++    h = np.clip(np.minimum(b[3], B[:, 3]) - np.maximum(b[1], B[:, 1]), 0, None)
++    inter = w * h
++    ua = (b[2] - b[0]) * (b[3] - b[1]) + (B[:, 2] - B[:, 0]) * (B[:, 3] - B[:, 1]) - inter
++    return np.where(ua > 0, inter / np.maximum(ua, 1e-9), 0.0)
++
++
++def wbf(boxes, scores, labels, n_views: int, iou: float = 0.55):
++    """Weighted boxes fusion (своя реализация): по классу, по убыванию уверенности; слитый бокс — среднее
++    с весами-уверенностями; уверенность — сумма / max(n_views, членов)."""
++    boxes = np.asarray(boxes, dtype=np.float64).reshape(-1, 4)
++    scores = np.asarray(scores, dtype=np.float64).reshape(-1)
++    labels = np.asarray(labels, dtype=int).reshape(-1)
++    oB, oS, oL = [], [], []
++    for c in np.unique(labels):
++        idx = np.where(labels == c)[0]
++        idx = idx[np.argsort(-scores[idx], kind="stable")]
++        fused: list[np.ndarray] = []
++        members: list[list[int]] = []
++        for i in idx:
++            j = -1
++            if fused:
++                ious = _iou(boxes[i], np.asarray(fused))
++                k = int(np.argmax(ious))
++                if ious[k] >= iou:
++                    j = k
++            if j < 0:
++                fused.append(boxes[i].copy())
++                members.append([i])
++            else:
++                members[j].append(i)
++                m = np.asarray(members[j])
++                w = scores[m]
++                fused[j] = (boxes[m] * w[:, None]).sum(0) / max(w.sum(), 1e-12)
++        for fb, m in zip(fused, members):
++            oB.append(fb)
++            oS.append(float(scores[m].sum() / max(n_views, len(m))))
++            oL.append(int(c))
++    if not oB:
++        return np.zeros((0, 4)), np.zeros(0), np.zeros(0, dtype=int)
++    return np.asarray(oB), np.clip(np.asarray(oS), 0, 1), np.asarray(oL, dtype=int)
++
++
++def nms(boxes, scores, labels, iou: float = 0.5):
++    """NMS по классам на numpy (без torchvision — для тестов и CPU)."""
++    boxes = np.asarray(boxes, dtype=np.float64).reshape(-1, 4)
++    scores = np.asarray(scores, dtype=np.float64).reshape(-1)
++    labels = np.asarray(labels, dtype=int).reshape(-1)
++    keep: list[int] = []
++    for c in np.unique(labels):
++        idx = list(np.where(labels == c)[0][np.argsort(-scores[labels == c], kind="stable")])
++        while idx:
++            i = idx.pop(0)
++            keep.append(i)
++            if idx:
++                ious = _iou(boxes[i], boxes[idx])
++                idx = [j for j, v in zip(idx, ious) if v < iou]
++    keep = sorted(keep)
++    return boxes[keep], scores[keep], labels[keep]
++
++
++def fuse_views(views: list, st: dict):
++    """Слияние видов ОДНОГО растра одной модальности (вызывается только из detect_image)."""
++    n = len(views)
++    if not n:
++        return np.zeros((0, 4)), np.zeros(0), np.zeros(0, dtype=int)
++    B = np.concatenate([np.asarray(v[0], dtype=np.float64).reshape(-1, 4) for v in views])
++    L = np.concatenate([np.asarray(v[1], dtype=np.float64).reshape(-1) for v in views])
++    C = np.concatenate([np.asarray(v[2], dtype=int).reshape(-1) for v in views])
++    if n == 1 or not len(L):
++        return B, L, C
++    if st["fuse"] == "wbf":
++        return wbf(B, L, C, n, float(st["fuse_iou"]))
++    return nms(B, L, C, float(st["nms_iou"]))
++
++
++# ── сторож времени ───────────────────────────────────────────────────────────────────────────────────────
++def views_at(level: str, st: dict) -> tuple[tuple, list]:
++    flips = (False, True) if st["flip_tta"] else (False,)
++    if level == "full":
++        return flips, list(st["scales"])
++    if level == "no_flip":
++        return (False,), list(st["scales"])
++    if level == "one_scale":
++        return (False,), [st["scales"][0]]
++    return (), []
++
++
++def plan_level(tiles_at_scale: dict, t_view: float | None, n_models: int, st: dict, left_s: float):
++    """Самый богатый уровень, у которого оценка × safety ≤ left_s. t_view неизвестно → 'one_scale' (замер),
++    если хоть что-то осталось. Возвращает (уровень, оценка с)."""
++    if left_s <= 0:
++        return "skip", 0.0
++    if t_view is None:
++        return "one_scale", float("nan")
++    est = 0.0
++    for level in LEVELS[:-1]:
++        flips, scales = views_at(level, st)
++        est = sum(tiles_at_scale[s] for s in scales) * len(flips) * max(n_models, 1) * float(t_view)
++        if est * float(st["safety"]) <= left_s:
++            return level, est
++    return "skip", est
++
++
++# ── геопривязка ──────────────────────────────────────────────────────────────────────────────────────────
++def boxes_to_ellipses(B, L, C, transform, crs: str, region: str, source: str, labels: list[str]) -> list[dict]:
++    """Боксы в пикселях сцены (UTM, transform) → 32-угольные эллипсы EPSG:3857 (как sp_dfine, свои метки)."""
++    from pyproj import Transformer
++    from shapely.geometry import Polygon
++
++    if len(L) == 0:
++        return []
++    to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
++    t = np.linspace(0, 2 * np.pi, 33)[:-1]
++    a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
++    out = []
++    for (x0, y0, x1, y1), s, c in zip(B, L, C):
++        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
++        rx, ry = max((x1 - x0) / 2, 0.5), max((y1 - y0) / 2, 0.5)
++        px, py = cx + rx * np.cos(t), cy + ry * np.sin(t)
++        gx, gy = to3857(a * px + b * py + c0, d * px + e * py + f0)
++        out.append({"geom": Polygon(np.column_stack([gx, gy])), "class_name": labels[int(c)],
++                    "confidence": round(float(s), 5), "region_name": region, "source": source,
++                    "original_crs": crs, "model": 0})
++    return out
++
++
++def image_feats(B, L, C, transform, crs: str, region: str, source: str, markup: str, st: dict,
++                labels: list[str] | None = None) -> list[dict]:
++    """Боксы ОДНОГО растра → круги варианта C (склейка только внутри растра и класса)."""
++    el = boxes_to_ellipses(B, L, C, transform, crs, region, source, labels or list(MODEL_CLASSES))
++    out = S.cluster_circles(el, float(st["radius_m"]), float(st["merge_m"]))
++    for f in out:
++        f["markup_type"] = markup
++        f["threshold_group"] = GROUPS[markup]
++        f["source"] = source
++    return out
++
++
++# ── инференс ─────────────────────────────────────────────────────────────────────────────────────────────
++def forward_boxes(model, px, flip: bool, tile: int, st: dict):
++    """Один вид батча: (список по окнам (xyxy px окна, score, cls)). Модель — DFineForObjectDetection или
++    заглушка с тем же выходом (logits [N,Q,C], pred_boxes cxcywh 0..1)."""
++    import torch
++
++    inp = px.flip(3) if flip else px
++    o = model(pixel_values=inp)
++    prob = o.logits.float().sigmoid()
++    bx = o.pred_boxes.float()
++    if flip:
++        bx = bx.clone()
++        bx[..., 0] = 1 - bx[..., 0]
++    Q, Cn = prob.shape[1:]
++    sc_, idx = prob.flatten(1).topk(min(int(st["max_det"]), Q * Cn), 1)
++    out = []
++    for i in range(px.shape[0]):
++        keep = sc_[i] >= float(st["min_score"])
++        q, c = idx[i][keep] // Cn, idx[i][keep] % Cn
++        bb = bx[i][q] * tile
++        xyxy = torch.stack([bb[:, 0] - bb[:, 2] / 2, bb[:, 1] - bb[:, 3] / 2,
++                            bb[:, 0] + bb[:, 2] / 2, bb[:, 1] + bb[:, 3] / 2], 1)
++        out.append((xyxy.cpu().numpy().astype(np.float64), sc_[i][keep].cpu().numpy().astype(np.float64),
++                    c.cpu().numpy().astype(int)))
++    return out
++
++
++def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_going=lambda: True):
++    """Окна сцены → виды (модель × flip), у каждого NMS по классам (склейка перекрытий окон).
++    Возвращает ([(B, L, C)], окон сделано, окон всего)."""
++    import torch
++
++    T, ov, bs = int(st["tile"][mk]), int(st["overlap"][mk]), int(st["batch"][mk])
++    wins = windows(scene.W, scene.H, T, ov)
++    acc = [([], [], []) for _ in range(len(models) * len(flips))]
++    buf = np.empty((bs, 3, T, T), dtype=np.float32)   # один буфер на сцену: bs×3×T×T×4 Б (Or: 4×3×1024²×4 = 48 МБ)
++    done = 0
++    use_amp = bool(st["fp16"]) and getattr(device, "type", str(device)) == "cuda"
++    with torch.no_grad():
++        for b in range(0, len(wins), bs):
++            if not keep_going():
++                break
++            chunk = []
++            for x, y in wins[b:b + bs]:
++                im = scene.read(x, y, T)          # одно окно (WarpedVRT), не весь растр
++                if (im.max(2) == 0).mean() > float(st["skip_empty"]):
++                    continue
++                buf[len(chunk)] = im.transpose(2, 0, 1)   # uint8 → float32 прямо в буфер батча
++                chunk.append((x, y))
++                del im
++            done = min(b + bs, len(wins))
++            if not chunk:
++                continue
++            arr = buf[:len(chunk)]
++            arr *= np.float32(1.0 / 255)
++            px = torch.from_numpy(arr).to(device)   # на CPU — тот же буфер, без копии
++            v = 0
++            for model in models:
++                for flip in flips:
++                    with torch.autocast(getattr(device, "type", "cpu"), dtype=torch.float16, enabled=use_amp):
++                        res = forward_boxes(model, px, flip, T, st)
++                    for (x, y), (bb, s, c) in zip(chunk, res):
++                        acc[v][0].append(bb + np.array([x, y, x, y], dtype=np.float64))
++                        acc[v][1].append(s)
++                        acc[v][2].append(c)
++                    v += 1
++    out = []
++    for B, L, C in acc:
++        if not B:
++            out.append((np.zeros((0, 4)), np.zeros(0), np.zeros(0, dtype=int)))
++            continue
++        out.append(nms(np.concatenate(B), np.concatenate(L), np.concatenate(C), float(st["nms_iou"])))
++    return out, done, len(wins)
++
++
++class Scene(S.Scene):
++    """Как sp_dfine.Scene (UTM на res_m, WarpedVRT, average при уменьшении, окна RGB uint8), но для сильно
++    уменьшаемых растров (Or 1–3 см → 0,5 м) источник открывается на обзоре GDAL: самом грубом с пикселем
++    ≤ res_m × ovr_max_frac (по умолчанию ½ — усреднение до res_m остаётся). Без этого окно 1024 px на 0,5 м
++    читает ~40 000² пикселей полного разрешения (на 008_Герите Or GDAL просит 718 МБ на один кусок
++    варпа и падает при 2 ГБ). Пока пиксель источника ≥ res_m × frac (Ae, SpOr) — ровно sp_dfine.Scene."""
++
++    def __init__(self, path: Path, crs: str, res_m: float = 0.5, ovr_max_frac: float = 0.5,
++                 warp_mem_mb: int = 64):
++        import rasterio
++        from rasterio.enums import Resampling
++        from rasterio.vrt import WarpedVRT
++        from rasterio.warp import calculate_default_transform
++
++        src = rasterio.open(path)
++        try:
++            src_m = abs(calculate_default_transform(src.crs, crs, src.width, src.height, *src.bounds)[0].a)
++        except Exception:
++            src_m = res_m
++        ovrs = src.overviews(1) if src.count else []
++        lvl = None
++        for i, f in enumerate(ovrs):
++            if src_m * f <= res_m * float(ovr_max_frac):
++                lvl = i
++        self.overview_level, self.src_m = lvl, src_m
++        if lvl is None:
++            src.close()
++            super().__init__(path, crs, res_m)
++            return
++        bounds = src.bounds
++        src.close()
++        self.src = rasterio.open(path, overview_level=lvl)
++        self.crs = crs
++        tr, w, h = calculate_default_transform(self.src.crs, crs, self.src.width, self.src.height, *bounds,
++                                               resolution=res_m)
++        self.vrt = WarpedVRT(self.src, crs=crs, transform=tr, width=w, height=h, resampling=Resampling.average,
++                             nodata=0, warp_mem_limit=int(warp_mem_mb))
++        self.W, self.H, self.T = w, h, tr
++        self.bands = list(range(1, min(3, self.src.count) + 1))
++        self.stretch = None
++        if self.src.dtypes[0] != "uint8":
++            ov = self.src.read(1, out_shape=(min(1024, self.src.height), min(1024, self.src.width)))
++            v = ov[ov > 0]
++            self.stretch = tuple(np.percentile(v, [1, 99])) if v.size else (0, 1)
++
++
++def detect_image(models: list, path: Path, crs: str, st: dict, mk: str, level: str, device,
++                 keep_going=lambda: True, scene_cls=None):
++    """Виды выбранного уровня одного растра → слитые боксы в пикселях базовой сцены.
++    Возвращает (B, L, C, transform базовой сцены, окон сделано, окон всего)."""
++    if scene_cls is None:   # настоящий растр: кэш GDAL ограничен (окна WarpedVRT, растр целиком не читается)
++        import rasterio
++
++        with rasterio.Env(GDAL_CACHEMAX=int(st.get("gdal_cache_mb") or 256) * 1024 * 1024):
++            return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene)
++    flips, scales = views_at(level, st)
++    base_res = float(st["res_m"][mk])
++    views: list = []
++    T0 = None
++    done_all = total_all = 0
++    for s in scales:
++        sc = scene_cls(path, crs, base_res * float(s))
++        try:
++            if T0 is None:
++                T0 = sc.T
++            res, done, total = detect_scene(models, sc, st, mk, flips, device, keep_going)
++            done_all += done
++            total_all += total
++            k = abs(sc.T.a) / abs(T0.a)
++            for B, L, C in res:
++                views.append((np.asarray(B) * k, L, C))
++        finally:
++            sc.close()
++    if T0 is None:
++        return np.zeros((0, 4)), np.zeros(0), np.zeros(0, dtype=int), None, 0, 0
++    B, L, C = fuse_views(views, st)
++    return B, L, C, T0, done_all, total_all
++
++
++def _load(st: dict, mk: str, root: Path, cache: dict) -> tuple[list, list[str]]:
++    """Модели модальности: общий кэш с sp_dfine по пути каталога (cache['by_path'])."""
++    by_path = cache.setdefault("by_path", {})
++    sp_w = [str(_abs(root, w)) for w in (((cache.get("cfg") or {}).get("sp_dfine") or {}).get("weights") or [])]
++    for w, m in zip(sp_w, cache.get("models") or []):   # модели, уже загруженные фазой sp_dfine
++        by_path.setdefault(w, m)
++    todo = [w for w in st["weights"][mk] if str(_abs(root, w)) not in by_path]
++    if todo:
++        if cache.get("device") is None:
++            cache["device"] = S._device(st)
++        ms = S.load_models({"weights": [str(_abs(root, w)) for w in todo]}, root, cache["device"])  # import_dfine внутри
++        for w, m in zip(todo, ms):
++            by_path[str(_abs(root, w))] = m
++    models = [by_path[str(_abs(root, w))] for w in st["weights"][mk]]
++    labels = model_labels(_abs(root, st["weights"][mk][0]), dict(st.get("class_map") or {}))
++    return models, labels
++
++
++def raster_bytes(p) -> int:
++    try:
++        return Path(p).stat().st_size
++    except OSError:
++        return 0
++
++
++def order_regions(regions, markups) -> list:
++    """Дешёвое → дорогое: по сумме байт растров Ae/Or участка (устойчиво, пустые отброшены)."""
++    def cost(reg):
++        return sum(raster_bytes(p) for m in markups for p in (getattr(reg, "rasters", {}) or {}).get(m, []))
++    return sorted([r for r in regions if cost(r) > 0 or any((r.rasters or {}).get(m) for m in markups)], key=cost)
++
++
++def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, soft_ok=None,
++                 phase_left=lambda: float("inf"), scene_cls=None, loader=None) -> list[dict]:
++    """Объекты одного участка. cache — общий словарь прогона (модели, замер с/окно-вид)."""
++    st = settings(cfg)
++    real = scene_cls is None
++    scene_cls = scene_cls or Scene
++    loader = loader or _load
++    items = sorted(((mk, p) for mk in st["markups"] if mk in GROUPS
++                    for p in (getattr(reg, "rasters", {}) or {}).get(mk, [])), key=lambda t: raster_bytes(t[1]))
++    out: list[dict] = []
++    for mk, path in items:
++        key = f"models_{mk}"
++        if key not in cache:
++            try:
++                cache[key] = loader(st, mk, root, cache)
++            except Exception as exc:  # noqa: BLE001 — громко, без падения сдачи
++                log.error("%s: модели %s не загрузились (%s: %s) — модальность пропущена", UNAVAILABLE, mk,
++                          type(exc).__name__, str(exc)[:500])
++                cache[key] = ([], [])
++        models, labels = cache[key]
++        if not models:
++            continue
++        if soft_ok is not None and not soft_ok(f"D-FINE {mk} {Path(path).name}", float(st["soft_need_s"])):
++            break
++        sc = None
++        try:
++            crs = S.utm_for(Path(path), crs_for(reg) if crs_for else None)
++            sc = scene_cls(Path(path), crs, float(st["res_m"][mk]))
++            W, H = sc.W, sc.H
++            sc.close()
++            sc = None
++            T, ov = int(st["tile"][mk]), int(st["overlap"][mk])
++            tiles = {s: n_windows(math.ceil(W / s), math.ceil(H / s), T, ov) for s in st["scales"]}
++            left = phase_left()
++            if guard is not None and hasattr(guard, "window_left"):
++                left = min(left, guard.window_left() - float(getattr(guard, "window_reserve_s", 0) or 0))
++            t_view = st["tile_s"] if st["tile_s"] is not None else cache.get("t_view", {}).get(mk)
++            level, est = plan_level(tiles, t_view, len(models), st, left)
++            if level != "full":
++                log.warning("dfine_aeor: %s %s уровень %s (оценка %.1f с × %.0f vs остаток %.1f с)", mk,
++                            Path(path).name, level, est, float(st["safety"]), left)
++            if level == "skip":
++                continue
++
++            def ok():
++                g = guard.window_ok() if guard is not None and hasattr(guard, "window_ok") else True
++                return g and phase_left() > 0
++            t0 = time.monotonic()
++            B, L, C, T0, done, total = detect_image(models, Path(path), crs, st, mk, level, cache.get("device"), ok,
++                                                    None if real else scene_cls)
++            dt = time.monotonic() - t0
++            flips, _ = views_at(level, st)
++            if done:
++                tv = dt / (done * len(flips) * max(len(models), 1))
++                prev = cache.setdefault("t_view", {}).get(mk)
++                cache["t_view"][mk] = tv if prev is None else max(prev, tv)
++            if T0 is not None:
++                fs = image_feats(B, L, C, T0, crs, reg.name, Path(path).name, mk, st, labels)
++                out += fs
++                log.info("dfine_aeor: %s %s уровень %s, окон %d/%d, боксов %d → кругов %d, %.1f с", mk,
++                         Path(path).name, level, done, total, len(L), len(fs), dt)
++        except Exception:
++            log.exception("dfine_aeor: %s пропущен", Path(path).name)
++        finally:
++            if sc is not None:
++                sc.close()
++    return out
++
++
++def cap(feats: list[dict], max_objects: int) -> list[dict]:
++    """Не больше max_objects объектов на группу dfine_ae/dfine_or (самые уверенные)."""
++    keep: list[dict] = []
++    for g in GROUPS.values():
++        mine = sorted((f for f in feats if f.get("threshold_group") == g), key=lambda f: -float(f["confidence"]))
++        keep += mine[:max_objects]
++    return [f for f in feats if f.get("threshold_group") not in GROUPS.values()] + keep
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 22d914f..cb87a9b 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -1086,12 +1086,12 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
+     return feats
+ 
+ 
+-def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
++def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
+     """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
+     from . import sp_dfine
+ 
+     st = sp_dfine.settings(cfg)
+-    cache: dict = {}
++    cache = {} if cache is None else cache   # bot-6: общий с dfine_aeor (модели по каталогу весов)
+     n = 0
+     full: list[str] = []
+     for reg in regions:
+@@ -1126,6 +1126,48 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+     return n
+ 
+ 
++def _dfine_aeor_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
++    """bot-6 (на v3): D-FINE всех классов на Ae/Or, группы dfine_ae/dfine_or, markup_type родной.
++
++    Не готов (preflight: веса/пороги/импорт) → DFINE_AEOR_UNAVAILABLE в журнале, фаза пропущена. Участки — от
++    дешёвых к дорогим; мягкий потолок на каждый участок; потолок фазы [dfine_aeor] budget_s; сторож с запасом.
++    """
++    from . import dfine_aeor
++
++    st = dfine_aeor.settings(cfg)
++    pre = state.note.get("dfine_aeor") or {}
++    if not pre.get("ok"):
++        log.info("dfine_aeor n_det=0 total (не готов: %s)", "; ".join(pre.get("problems") or ["нет preflight"]))
++        return 0
++    cache = {} if cache is None else cache
++    cache["cfg"] = cfg
++    t_start = time.monotonic()
++    phase_left = lambda: float(st["budget_s"]) - (time.monotonic() - t_start)   # noqa: E731
++    n = 0
++    found_all: list[dict] = []
++    for reg in dfine_aeor.order_regions(regions, st["markups"]):
++        if not guard.ok(60) or phase_left() <= 0:
++            log.warning("dfine_aeor: времени не осталось (%s)", reg.name)
++            break
++        if not _soft_ok(guard, "dfine_aeor", f"D-FINE Ae/Or {reg.name}", float(st["soft_need_s"])):
++            break
++        try:
++            found = dfine_aeor.region_feats(
++                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
++                soft_ok=lambda what, need: _soft_ok(guard, "dfine_aeor", what, need), phase_left=phase_left)
++        except Exception:
++            log.exception("%s: dfine_aeor пропущен", reg.name)
++            found = []
++        found_all += found
++        n += len(found)
++        log.info("dfine_aeor n_det=%d region=%s, прошло %.0f с", len(found), reg.name, guard.elapsed())
++    found_all = dfine_aeor.cap(found_all, int(st["max_objects"]))
++    state.add(found_all)
++    state.note.setdefault("dfine_aeor", {}).update({"n_det": n, "kept": len(found_all),
++                                                    "t_view": cache.get("t_view", {})})
++    log.info("dfine_aeor n_det=%d total, после cap %d, %.0f с", n, len(found_all), time.monotonic() - t_start)
++    return len(found_all)
++
+ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
+         root: str | Path | None = None) -> dict:
+     """Полный прогон: геофизика, лидар, оптика, затем канал σ.
+@@ -1181,6 +1223,14 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+         "budget_s": cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S),
+         "reserve_s": cfg.get("time", {}).get("reserve_s", 120),
+     })
++    if (cfg.get("dfine_aeor") or {}).get("enabled"):
++        from . import dfine_aeor as _dfa   # bot-6: ленивый импорт только при флаге; пороги из thresholds_file → cfg
++
++        try:
++            state.note["dfine_aeor"] = _dfa.preflight(cfg, root)
++        except Exception as exc:  # noqa: BLE001
++            log.error("%s: preflight упал (%s: %s) — фаза пропущена", _dfa.UNAVAILABLE, type(exc).__name__, exc)
++            state.note["dfine_aeor"] = {"ok": False, "problems": [str(exc)[:300]]}
+     if cfg.get("time", {}).get("watchdog", True):
+         margin = cfg.get("time", {}).get("guard_margin_s", 180)
+         arm_platform(state, margin_s=float(margin))
+@@ -1279,12 +1329,18 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path
+             if found:
+                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+         _restore_optics_order(state, regions, n_before_optics, optics_by_reg)
++        dfine_cache: dict = {}   # bot-6: общий кэш моделей D-FINE (sp_dfine, dfine_aeor)
+         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
+         if (cfg.get("sp_dfine") or {}).get("enabled"):
+             # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
+             t_phase = time.monotonic()
+-            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
++            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)
+             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
++        if (cfg.get("dfine_aeor") or {}).get("enabled"):
++            # bot-6: D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
++            t_phase = time.monotonic()
++            n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)
++            phases.append(("dfine_aeor", n_phase, time.monotonic() - t_phase))
+         if (cfg.get("gor_gate") or {}).get("enabled"):
+             try:
+                 from . import gor_gate
+diff --git a/expds/post.py b/expds/post.py
+index 36d8b1e..5897910 100644
+--- a/expds/post.py
++++ b/expds/post.py
+@@ -96,16 +96,25 @@ def _repaired(feat: dict) -> dict | None:
+     return feat
+ 
+ 
+-def merge_within_markup(feats: list[dict]) -> list[dict]:
++#: bot-6: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
++ISOLATED_GROUPS = ("dfine_ae", "dfine_or")
++
++
++def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict]:
+     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
+ 
+     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
++    bot-6: у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
++    с dfine_ae (не с прочими ae). У остальных четвёртый элемент ключа None — их группы как в v3.
+     """
++    iso = set(isolate or ())
+     groups: dict[tuple, list[dict]] = defaultdict(list)
+     for raw in feats:
+         feat = _repaired(raw)
+         if feat is not None:
+-            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"])].append(feat)
++            tg = feat.get("threshold_group")
++            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"],
++                    tg if tg in iso else None)].append(feat)
+     out = []
+     for key, items in groups.items():
+         out.extend(items if key[1] == "etgr" else merge_across_sources(items))
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 1dad2fc..13fcf13 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -72,8 +72,47 @@ def _tau(cfg: dict):
+                              cfg.get("thresholds_by_markup", {}))
+ 
+ 
++def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
++    """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
++
++    По умолчанию D-FINE Ae/Or идёт своей короткой цепочкой (пороги своей группы → склейка только внутри
++    группы → finalize → остаток лимита), и прежние объекты проходят цепочку v3 без изменений: реранк,
++    соседские приоры и twins не видят новых кандидатов. merge_union=true — межисточниковое объединение
++    в общей цепочке (по умолчанию выкл.; в v4 для этого dedupe_union bot-3 после порогов).
++    """
++    dc = cfg.get("dfine_aeor") or {}
++    iso = set(post.ISOLATED_GROUPS)
++    if not dc.get("enabled") or dc.get("merge_union") or not any(f.get("threshold_group") in iso for f in feats):
++        return None
++    return ([f for f in feats if f.get("threshold_group") not in iso],
++            [f for f in feats if f.get("threshold_group") in iso])
++
++
++def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
++    """Короткая цепочка D-FINE Ae/Or: свои пороги, склейка внутри группы, валидные полигоны, остаток лимита."""
++    if room <= 0 or not dfeats:
++        return []
++    out = post.only_known_classes(dfeats)
++    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
++                                cfg.get("thresholds_by_markup", {}))
++    out = post.finalize(post.merge_within_markup(out))
++    out = post.cap_features(out, room)
++    only = (cfg.get("post") or {}).get("only_classes")
++    return post.keep_classes(out, only) if only is not None else out
++
++
+ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+-    """Та же цепочка, что в конце pipeline.run."""
++    """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
++    split = _aeor_split(feats, cfg)
++    if split is not None:
++        out = _finish_v3(split[0], cfg)
++        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
++    union = bool((cfg.get("dfine_aeor") or {}).get("merge_union"))
++    return _finish_v3(feats, cfg, isolate=() if union else post.ISOLATED_GROUPS)
++
++
++def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> list[dict]:
++    """Цепочка v3 (до bot-6 — тело finish)."""
+     out = post.only_known_classes(feats)
+     reranked: list[dict] = []
+     if (cfg.get("rerank_arch") or {}).get("enabled"):
+@@ -98,7 +137,7 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                 by_markup)
+     out = out + reranked
+-    out = post.merge_within_markup(out)
++    out = post.merge_within_markup(out, isolate)
+     if post_cfg.get("multipole_object_poly"):
+         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
+     if post_cfg.get("filter_finds_points"):
+@@ -145,6 +184,19 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
+         return finish(feats, cfg)
+     except Exception:
+         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
++    split = _aeor_split(feats, cfg)   # bot-6: D-FINE Ae/Or и в запасной цепочке отдельно
++    if split is None:
++        return _safe_v3(feats, cfg)
++    out = _safe_v3(split[0], cfg)
++    try:
++        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
++    except Exception:
++        log.exception("dfine_aeor в запасной цепочке упал, без него")
++        return out
++
++
++def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
++    """Запасная цепочка v3 (до bot-6 — хвост safe_finish)."""
+     out = post.only_known_classes(feats)
+     reranked: list[dict] = []
+     rr = cfg.get("rerank_arch") or {}
+diff --git a/scripts/build_submission.py b/scripts/build_submission.py
+index c138973..57b681e 100644
+--- a/scripts/build_submission.py
++++ b/scripts/build_submission.py
+@@ -31,7 +31,7 @@ LIMIT = 2 * 1024 ** 3
+ #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
+ #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
+ TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
+-FLAG_MODULES = ("sp_dfine", "gor_gate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
++FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+ 
+ 
+ def collect() -> list[Path]:
+@@ -41,7 +41,7 @@ def collect() -> list[Path]:
+     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+-    if (cfg.get("gor_gate") or {}).get("enabled"):
++    if (cfg.get("gor_gate") or {}).get("enabled") or (cfg.get("dfine_aeor") or {}).get("enabled"):
+         off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                     if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+@@ -67,7 +67,19 @@ def collect() -> list[Path]:
+     if gg.get("enabled"):
+         bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+         dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+-    if sd.get("enabled") or gg.get("enabled"):
++    ae = cfg.get("dfine_aeor") or {}
++    # bot-6: D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
++    if ae.get("enabled"):
++        w = ae.get("weights") or {}
++        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in ([v] if isinstance(v, str) else v)]
++        absw = [x for x in wl if Path(str(x)).is_absolute()]
++        if absw:
++            sys.exit(f"[dfine_aeor] weights: абсолютные пути {absw} в архив не пакуются — свяжите их в models/ "
++                     f"(ln -s <каталог bot-9> models/dfine_ae) и укажите относительный путь")
++        dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
++        if ae.get("thresholds_file"):
++            dfm.append(ae["thresholds_file"])
++    if sd.get("enabled") or gg.get("enabled") or ae.get("enabled"):
+         vend = ROOT / "inference" / "lib" / "vendor"
+         if not vend.is_dir():
+             sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+diff --git a/scripts/check_submission.py b/scripts/check_submission.py
+index 3c6ac0c..7791595 100755
+--- a/scripts/check_submission.py
++++ b/scripts/check_submission.py
+@@ -201,12 +201,14 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
+     # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
+     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
+     # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
+-    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"}
++    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"
++               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or
+     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
+     missing = [f"{k}={v}" for k, v in refs if v not in names
+                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
+                and not (k.startswith("verify.") and not verify.get("enabled"))
+                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
++               and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
+                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
+                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
+     if missing:
+@@ -843,6 +845,130 @@ def check_dfine_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
+         shutil.rmtree(home, ignore_errors=True)
+ 
+ 
++#: bot-6 [dfine_aeor]: опорные участки смоука D-FINE Ae/Or — самые маленькие растры своей модальности в трейне
++#: с разметкой этой модальности (bot-6/work/aeor_rss/scene_info.log; разметка — 06_*_разметка/*.geojson).
++#: Эталонного n_det нет, пока bot-9 не отдал веса: проверка требует n_det > 0, а без весов — FAIL «нужны веса»
++#: (не PASS). ref_n_det вписать после первого прогона с весами.
++DFINE_AEOR_KNOWN = {
++    "ae": {"region": "181_Гнёздово_Лесная_3", "raster": "_Ae_", "gt": "Ae курганы: 75 целых + 20 повреждённых",
++           "scene_0_5m": [173, 728], "ref_n_det": None},
++    "or": {"region": "185_Изборск", "raster": "_Or_", "gt": "Or: 2 городища + 3 фортификации",
++           "scene_0_5m": [1015, 655], "ref_n_det": None},
++}
++DFINE_AEOR_ROOT_DEFAULT = "/workspace/data/train-expds-3"
++
++DFINE_AEOR_PROBE = r"""
++import json, sys
++from pathlib import Path
++root, mk, tif = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
++sys.path.insert(0, str(root))
++out = {}
++try:
++    import torch
++    torch.set_num_threads(2)
++    import tomllib
++    from expds import dfine_aeor as A, sp_dfine as S
++    cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
++    st = A.settings(cfg)
++    st["batch"] = dict(st["batch"], **{mk: 1})
++    st["device"] = "cpu"
++    dev = torch.device("cpu")
++    models, labels = A._load(st, mk, root, {"device": dev})
++    B, L, C, T0, done, total = A.detect_image(models, tif, S.utm_for(tif, None), st, mk, "no_flip", dev)
++    out = {"ok": True, "n_det": int(len(L)), "max": round(float(max(L)) if len(L) else 0.0, 4),
++           "windows": [int(done), int(total)], "models": len(models), "min_score": float(st["min_score"])}
++except Exception as exc:
++    out = {"ok": False, "err": f"{type(exc).__name__}: {str(exc)[:1500]}"}
++print("DFINE_AEOR_JSON=" + json.dumps(out, ensure_ascii=False))
++"""
++
++
++def dfine_aeor_raster(root: Path, mk: str) -> Path | None:
++    spec = DFINE_AEOR_KNOWN[mk]
++    reg = Path(root) / spec["region"]
++    tifs = sorted(p for p in reg.rglob("*") if p.suffix.lower() in (".tif", ".tiff") and spec["raster"] in p.name) \
++        if reg.is_dir() else []
++    return tifs[0] if tifs else None
++
++
++def dfine_aeor_missing_weights(names: list[str], cfg: dict, mk: str) -> list[str]:
++    """Каталоги весов модальности, которых нет в архиве (нужны config.json и model.safetensors)."""
++    w = ((cfg.get("dfine_aeor") or {}).get("weights") or {}).get(mk) or []
++    w = [w] if isinstance(w, str) else list(w)
++    if not w:
++        return [f"[dfine_aeor] weights.{mk} не задан"]
++    have = set(names)
++    return [d for d in w if not all(f"{str(d).rstrip('/')}/{f}" in have for f in ("config.json", "model.safetensors"))]
++
++
++def dfine_aeor_verdict(mk: str, out: dict) -> tuple[str, str]:
++    spec = DFINE_AEOR_KNOWN[mk]
++    where = f"{mk} {spec['region']} ({spec['gt']})"
++    if not out.get("ok"):
++        return "FAIL", f"смоук dfine_aeor {where}: веса не загрузились/не отработали: {out.get('err')}"
++    ref = f", эталон {spec['ref_n_det']}" if spec.get("ref_n_det") is not None else ", эталона ещё нет (после весов bot-9)"
++    msg = (f"смоук dfine_aeor {where}: n_det={out['n_det']} (score ≥ {out.get('min_score')}, без flip), max "
++           f"{out.get('max')}, окон {out.get('windows')}{ref}")
++    return ("FAIL", msg + " — веса не дают детекций на опорном участке") if out["n_det"] == 0 else ("PASS", msg)
++
++
++def check_dfine_aeor_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
++    """[dfine_aeor] enabled: смоук весов на опорном участке каждой модальности (DFINE_AEOR_KNOWN), n_det > 0.
++    Нет весов в архиве — FAIL «нужны веса» (проверка не может пройти без них). Флаг выкл. — ничего."""
++    dc = cfg.get("dfine_aeor") or {}
++    if not dc.get("enabled"):
++        return
++    if not args.weights:
++        report("WARN", "dfine", "--no-weights: смоук весов dfine_aeor на опорных участках пропущен")
++        return
++    names = z.namelist()
++    root = Path(getattr(args, "dfine_aeor_root", None) or DFINE_AEOR_ROOT_DEFAULT)
++    for mk in [m for m in (dc.get("markups") or ["ae", "or"]) if m in DFINE_AEOR_KNOWN]:
++        spec = DFINE_AEOR_KNOWN[mk]
++        miss = dfine_aeor_missing_weights(names, cfg, mk)
++        if miss:
++            report("FAIL", "dfine", f"смоук dfine_aeor {mk} ({spec['region']}): нужны веса — в архиве нет {miss} "
++                                    f"(config.json + model.safetensors); без весов эталонная проверка не пройдена")
++            continue
++        tif = dfine_aeor_raster(root, mk)
++        if tif is None:
++            report("FAIL", "dfine", f"смоук dfine_aeor {mk}: нет опорного участка {root / spec['region']} "
++                                    f"(растр *{spec['raster']}*.tif; --dfine-aeor-root)")
++            continue
++        tmp = Path(tempfile.mkdtemp(prefix="b6aeor_", dir=args.workdir))
++        home = Path(tempfile.mkdtemp(prefix="b6aeorhome_", dir=args.workdir))
++        try:
++            wd = (dc.get("weights") or {}).get(mk) or []
++            wdirs = [str(w).rstrip("/") + "/" for w in ([wd] if isinstance(wd, str) else wd)]
++            for n in names:
++                if (n.startswith("inference/lib/vendor/") or (n.startswith("expds/") and n.endswith(".py"))
++                        or n == "configs/default.toml" or any(n.startswith(w) for w in wdirs)):
++                    z.extract(n, tmp)
++            cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_AEOR_PROBE, str(tmp), mk, str(tif)], args.cpus,
++                              not args.allow_net)
++            try:
++                r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout,
++                                   env=child_env(home, args.threads), cwd=str(tmp))
++            except subprocess.TimeoutExpired:
++                report("FAIL", "dfine", f"смоук dfine_aeor {mk} не уложился в {args.timeout} с")
++                continue
++            line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_AEOR_JSON=")), None)
++            out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
++            report(*dfine_aeor_verdict(mk, out))
++        finally:
++            shutil.rmtree(tmp, ignore_errors=True)
++            shutil.rmtree(home, ignore_errors=True)
++
++
++def dfine_aeor_ndet_verdict(log: str) -> list[tuple[str, str]]:
++    """Строки «dfine_aeor n_det=N region=R»: N = 0 на опорном участке DFINE_AEOR_KNOWN — FAIL."""
++    import re
++    refs = {v["region"]: k for k, v in DFINE_AEOR_KNOWN.items()}
++    return [("FAIL", f"dfine_aeor n_det=0 на опорном участке {m.group(2)} ({refs[m.group(2)]}) — веса не дают детекций")
++            for m in re.finditer(r"dfine_aeor n_det=(\d+) region=(\S+?)(?:\s|$)", log)
++            if m.group(2) in refs and int(m.group(1)) == 0]
++
++
+ def dfine_ndet_verdict(log: str) -> list[tuple[str, str]]:
+     """Строки «sp_dfine n_det=N region=R» смоука: N = 0 на опорном участке (DFINE_KNOWN) — FAIL; итог 0 — WARN."""
+     import re
+@@ -864,9 +990,10 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
+     cfg = cfg or {}
+     dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
+     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
+-    if not (dfine or gate):
++    aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
++    if not (dfine or gate or aeor):
+         return
+-    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate)) if on)
++    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("dfine_aeor", aeor)) if on)
+     names = z.namelist()
+     vend = "inference/lib/vendor/"
+     meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
+@@ -876,7 +1003,8 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
+                                 f"классы D-FINE зависели бы от образа")
+     elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
+         report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
+-    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate)) if m[1] and m[0] not in names]
++    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate), ("expds/dfine_aeor.py", aeor))
++            if m[1] and m[0] not in names]
+     if mods:
+         report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")
+         return
+@@ -1064,10 +1192,16 @@ ALLOW_EMPTY = False
+ 
+ def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
+     """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
+-    bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln]
++    bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln
++           or "DFINE_AEOR_UNAVAILABLE" in ln]   # bot-6: D-FINE Ae/Or
+     if bad:
+         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
+                                 + " | ".join(b[-300:] for b in bad[:3]))
++    na = [ln.split("dfine_aeor ", 1)[1][:160] for ln in log.splitlines() if "dfine_aeor n_det=" in ln]
++    if na:   # bot-6: строки фазы D-FINE Ae/Or
++        report("INFO", "dfine", " ; ".join(na[-6:]))
++        for status, msg in dfine_aeor_ndet_verdict(log):
++            report(status, "dfine", msg)
+     nd = [ln.split("sp_dfine ", 1)[1][:160] for ln in log.splitlines() if "sp_dfine n_det=" in ln]
+     if nd:
+         report("INFO", "dfine", " ; ".join(nd[-6:]))
+@@ -1167,6 +1301,7 @@ def main() -> int:
+     ap.add_argument("zip", type=Path, help="путь к submission.zip")
+     ap.add_argument("--no-smoke", dest="smoke", action="store_false", help="без прогона main.py")
+     ap.add_argument("--dfine-region", help=f"опорный участок пробы весов D-FINE (по умолчанию {DFINE_REGION_DEFAULT})")
++    ap.add_argument("--dfine-aeor-root", help=f"трейн с опорными участками dfine_aeor (по умолчанию {DFINE_AEOR_ROOT_DEFAULT})")
+     ap.add_argument("--no-weights", dest="weights", action="store_false", help="не открывать .pt (быстрее)")
+     ap.add_argument("--python", default=sys.executable, help="интерпретатор с пакетами образа (по умолчанию текущий)")
+     ap.add_argument("--input", help="своя папка входа вместо синтетики (маленький регион!)")
+@@ -1216,6 +1351,7 @@ def main() -> int:
+             shutil.rmtree(tmp, ignore_errors=True)
+     check_dfine(z, cfg, args)
+     check_dfine_weights(z, cfg or {}, args)
++    check_dfine_aeor_weights(z, cfg or {}, args)   # bot-6: смоук весов D-FINE Ae/Or (только при enabled)
+     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
+         smoke(z, args)
+     elif not args.smoke:
+diff --git a/tests/test_dfine_aeor.py b/tests/test_dfine_aeor.py
+new file mode 100644
+index 0000000..2a84fea
+--- /dev/null
++++ b/tests/test_dfine_aeor.py
+@@ -0,0 +1,597 @@
++"""bot-6: D-FINE Ae/Or ([dfine_aeor]) на v3 — флаг выкл., нарезка, слияние внутри растра, геопривязка,
++сторож времени, группы dfine_ae/dfine_or в постобработке v3 (R, frame_prior, verify, merge_within_markup)."""
++import importlib.util
++import inspect
++import json
++import logging
++import math
++import tomllib
++from pathlib import Path
++from types import SimpleNamespace
++
++import numpy as np
++import pytest
++from affine import Affine
++from pyproj import Transformer
++from shapely.geometry import Point
++
++from expds import dfine_aeor as A
++from expds import post, sp_dfine
++
++ROOT = Path(__file__).resolve().parents[1]
++UTM = "EPSG:32637"
++X0, Y0 = 400000.0, 6200000.0
++
++
++def _cfg():
++    return tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
++
++
++def _thr(v=0.3):
++    return {g: {c: v for c in A.MODEL_CLASSES} for g in A.GROUPS.values()}
++
++
++# ── флаг, имена, классы ──────────────────────────────────────────────────────────────────────────────────
++def test_default_off_and_names():
++    cfg = _cfg()
++    assert cfg["dfine_aeor"] == {"enabled": False}
++    assert "aeor_dfine" not in cfg
++    assert not A.enabled(cfg)
++    assert A.GROUPS == {"ae": "dfine_ae", "or": "dfine_or"}
++    tbm = cfg.get("thresholds_by_markup") or {}
++    assert "dfine_ae" not in tbm   # чисел без OOF нет
++    assert tbm["dfine_or"] == {"gorodishcha": 1.01}   # городища D-FINE Or выкл. до замера bot-10 с gor_dense
++    assert A.GROUP_ALIASES == {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
++
++
++def test_classes_match_compute_metrics():
++    spec = importlib.util.spec_from_file_location("cm_b6", ROOT / "materials" / "compute_metrics.py")
++    cm = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(cm)
++    assert set(A.COMPETITION_CLASSES) == set(cm.CLASS_WEIGHTS)
++    assert set(A.MODEL_CLASSES) <= set(cm.CLASS_WEIGHTS)
++
++
++def test_model_labels_id2label_and_class_map(tmp_path):
++    d = tmp_path / "w"
++    d.mkdir()
++    (d / "config.json").write_text(json.dumps({"id2label": {str(i): c for i, c in enumerate(A.MODEL_CLASSES)}}))
++    assert A.model_labels(d, {}) == list(A.MODEL_CLASSES)
++    (d / "config.json").write_text(json.dumps({"id2label": {"0": "mound", "1": "kurgany_tselye"}}))
++    with pytest.raises(A.AeOrUnavailable):
++        A.model_labels(d, {})
++    assert A.model_labels(d, {"mound": "kurgany_povrezhdennye"}) == ["kurgany_povrezhdennye", "kurgany_tselye"]
++
++
++def test_settings_per_modality_as_training():
++    st = A.settings({"dfine_aeor": {"enabled": True, "weights": ["w"]}})
++    assert st["res_m"] == {"ae": 0.5, "or": 0.5}
++    assert (st["tile"]["ae"], st["overlap"]["ae"]) == (640, 160)
++    assert (st["tile"]["or"], st["overlap"]["or"]) == (1024, 288)
++    assert st["weights"] == {"ae": ["w"], "or": ["w"]}
++    st = A.settings({"dfine_aeor": {"tile": {"or": 800}, "batch": 2}})
++    assert st["tile"] == {"ae": 640, "or": 800} and st["batch"] == {"ae": 2, "or": 2}
++
++
++# ── preflight: веса, пороги, маркер ──────────────────────────────────────────────────────────────────────
++def test_preflight_unready_logs_marker(tmp_path, caplog):
++    cfg = {"dfine_aeor": {"enabled": True}}
++    with caplog.at_level(logging.ERROR):
++        info = A.preflight(cfg, tmp_path)
++    assert not info["ok"]
++    assert A.UNAVAILABLE in caplog.text and "weights.ae пуст" in caplog.text and "нет порогов dfine_or" in caplog.text
++
++
++def test_preflight_missing_weight_files_named(tmp_path, caplog):
++    cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/x"], "or": ["models/x"]}},
++           "thresholds_by_markup": _thr()}
++    with caplog.at_level(logging.ERROR):
++        assert not A.preflight(cfg, tmp_path)["ok"]
++    assert str(tmp_path / "models/x/model.safetensors") in caplog.text
++
++
++def test_thresholds_file_fills_and_toml_wins(tmp_path):
++    w = tmp_path / "models" / "x"
++    w.mkdir(parents=True)
++    (w / "config.json").write_text("{}")
++    (w / "model.safetensors").write_bytes(b"0")
++    f = tmp_path / "models" / "thr.json"
++    data = _thr(0.4)
++    data["sp_or"] = {"kurgany_tselye": 0.9}   # чужие группы файл не трогает
++    f.write_text(json.dumps(data))
++    cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/x"], "or": ["models/x"]},
++                          "thresholds_file": "models/thr.json"},
++           "thresholds_by_markup": {"dfine_ae": {"gorodishcha": 0.7}}}
++    info = A.preflight(cfg, tmp_path)
++    assert info["ok"], info
++    assert cfg["thresholds_by_markup"]["dfine_ae"]["gorodishcha"] == 0.7
++    assert cfg["thresholds_by_markup"]["dfine_or"]["gorodishcha"] == 0.4
++    assert "sp_or" not in cfg["thresholds_by_markup"]
++    cfg2 = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/x"], "or": ["models/x"]},
++                           "thresholds_file": "models/none.json"}}
++    assert not A.preflight(cfg2, tmp_path)["ok"]
++
++
++# ── нарезка ──────────────────────────────────────────────────────────────────────────────────────────────
++@pytest.mark.parametrize("W,H,T,ov", [(640, 640, 640, 160), (641, 100, 640, 160), (3000, 2100, 1024, 288),
++                                      (5000, 777, 640, 160)])
++def test_tiling_full_coverage_and_overlap(W, H, T, ov):
++    wins = A.windows(W, H, T, ov)
++    cov = np.zeros((H, W), bool)
++    for x, y in wins:
++        cov[y:y + T, x:x + T] = True
++    assert cov.all()
++    xs = sorted({x for x, _ in wins})
++    for a, b in zip(xs, xs[1:]):
++        assert T - (b - a) >= ov          # перекрытие не меньше обучающего
++    assert all(b - a <= T - ov for a, b in zip(xs, xs[1:]))
++    assert A.n_windows(W, H, T, ov) == len(wins)
++
++
++# ── слияние ──────────────────────────────────────────────────────────────────────────────────────────────
++def test_wbf_merges_views_within_image_only_same_class():
++    B = [[0, 0, 10, 10], [1, 0, 11, 10], [0, 0, 10, 10], [50, 50, 60, 60]]
++    S = [0.8, 0.6, 0.9, 0.5]
++    C = [0, 0, 1, 0]
++    b, s, c = A.wbf(B, S, C, n_views=2, iou=0.55)
++    assert len(s) == 3
++    i = int(np.argmax((c == 0) & (b[:, 0] < 5)))
++    assert s[i] == pytest.approx((0.8 + 0.6) / 2)
++    b2, s2, c2 = A.nms(B, S, C, 0.5)
++    assert len(s2) == 3
++
++
++class _Scene:
++    """Заглушка Scene: W×H пикселей 0,5 м UTM, яркие окна."""
++    W = H = 700
++
++    def __init__(self, path, crs, res_m=0.5):
++        self.path, self.crs, self.res = path, crs, res_m
++        k = res_m / 0.5
++        self.W = self.H = int(math.ceil(700 / k))
++        self.T = Affine(res_m, 0, X0, 0, -res_m, Y0)
++
++    def read(self, x, y, n):
++        return np.full((n, n, 3), 128, np.uint8)
++
++    def close(self):
++        pass
++
++
++class _Model:
++    """Заглушка D-FINE: один бокс 20×20 px в центре окна (класс 0, score 0.9) + шумовой ниже пола."""
++    calls = 0
++
++    def __call__(self, pixel_values):
++        import torch
++
++        _Model.calls += 1
++        n = pixel_values.shape[0]
++        logits = torch.full((n, 2, 5), -10.0)
++        logits[:, 0, 0] = math.log(0.9 / 0.1)
++        T = pixel_values.shape[-1]
++        boxes = torch.tensor([[0.5, 0.5, 20 / T, 20 / T], [0.1, 0.1, 0.01, 0.01]]).repeat(n, 1, 1)
++        return SimpleNamespace(logits=logits, pred_boxes=boxes)
++
++
++def _reg(tmp_path, rasters):
++    for m, ps in rasters.items():
++        for p in ps:
++            Path(p).write_bytes(b"x" * 10)
++    return SimpleNamespace(name="r1", rasters=rasters, utm_json=None)
++
++
++def _run(tmp_path, rasters, cfg_extra=None, cache=None, phase_left=lambda: 1e9):
++    pytest.importorskip("torch")
++    cfg = {"dfine_aeor": dict({"enabled": True, "flip_tta": True, "tile_s": 1e-6}, **(cfg_extra or {}))}
++    reg = _reg(tmp_path, rasters)
++    loader = lambda st, mk, root, c: ([_Model()], list(A.MODEL_CLASSES))   # noqa: E731
++    return A.region_feats(reg, cfg, None, {} if cache is None else cache, tmp_path, crs_for=lambda r: UTM,
++                          phase_left=phase_left, scene_cls=_Scene, loader=loader)
++
++
++def test_fusion_never_across_images_or_modalities(tmp_path, monkeypatch):
++    calls = []
++    real = A.fuse_views
++    monkeypatch.setattr(A, "fuse_views", lambda views, st: calls.append(len(views)) or real(views, st))
++    a, b, c = (str(tmp_path / n) for n in ("a.tif", "b.tif", "c.tif"))
++    feats = _run(tmp_path, {"ae": [a, b], "or": [c]})
++    assert len(calls) == 3 and all(n == 2 for n in calls)     # 3 растра × (2 вида: flip) — по одному вызову на растр
++    by = {(f["markup_type"], f["source"]) for f in feats}
++    assert by == {("ae", "a.tif"), ("ae", "b.tif"), ("or", "c.tif")}
++    assert {f["threshold_group"] for f in feats} == {"dfine_ae", "dfine_or"}
++    # в каждом растре одно и то же место: 700 px → окна (0,60) по каждой оси для Ae 640/160 → кругов на растр > 0
++    n_by_src = {s: sum(f["source"] == s for f in feats) for s in ("a.tif", "b.tif", "c.tif")}
++    assert all(n >= 1 for n in n_by_src.values())
++
++
++def test_merge_within_markup_count(tmp_path):
++    """Общий post.merge_within_markup: dfine_ae из двух снимков одного места → 1; dfine_or отдельно (другой
++    markup_type) → итог = 2 на одно место; объекты одного снимка между собой не сливаются."""
++    a, b, c = (str(tmp_path / n) for n in ("a.tif", "b.tif", "c.tif"))
++    feats = _run(tmp_path, {"ae": [a, b], "or": [c]})
++    na = sum(f["source"] == "a.tif" for f in feats)
++    merged = post.merge_within_markup(feats)
++    ae = [f for f in merged if f["markup_type"] == "ae"]
++    orr = [f for f in merged if f["markup_type"] == "or"]
++    assert len(ae) == na                    # a и b совпадают по месту → по одному на место
++    assert len(orr) == sum(f["source"] == "c.tif" for f in feats)
++    assert all(f["class_name"] == "kurgany_tselye" for f in merged)   # MODEL_CLASSES[0]
++
++
++def test_georeference_roundtrip_3857():
++    st = A.settings({})
++    T = Affine(0.5, 0, X0, 0, -0.5, Y0)
++    B = np.array([[100.0, 200.0, 120.0, 220.0]])
++    fs = A.image_feats(B, np.array([0.9]), np.array([2]), T, UTM, "r1", "a.tif", "or", st)
++    assert len(fs) == 1 and fs[0]["class_name"] == A.MODEL_CLASSES[2]
++    g = fs[0]["geom"]
++    back = Transformer.from_crs("EPSG:3857", UTM, always_xy=True).transform
++    ux, uy = back(g.centroid.x, g.centroid.y)
++    px, py = ~T @ (ux, uy)
++    assert px == pytest.approx(110.0, abs=0.05) and py == pytest.approx(210.0, abs=0.05)
++    assert fs[0]["markup_type"] == "or" and fs[0]["threshold_group"] == "dfine_or"
++    fwd = Transformer.from_crs(UTM, "EPSG:3857", always_xy=True).transform
++    cx, cy = fwd(*(T @ (110, 210)))
++    assert g.contains(Point(cx, cy))
++
++
++# ── сторож времени ───────────────────────────────────────────────────────────────────────────────────────
++def test_plan_level_degrades_in_order():
++    st = A.settings({"dfine_aeor": {"scales": [1.0, 1.5], "flip_tta": True, "safety": 8}})
++    tiles = {1.0: 100, 1.5: 50}
++    # full = (100+50)*2*1*t, no_flip = 150 t, one_scale = 100 t; × 8
++    t = 0.01
++    assert A.plan_level(tiles, t, 1, st, 8 * 300 * t + 1)[0] == "full"
++    assert A.plan_level(tiles, t, 1, st, 8 * 150 * t + 1)[0] == "no_flip"
++    assert A.plan_level(tiles, t, 1, st, 8 * 100 * t + 1)[0] == "one_scale"
++    assert A.plan_level(tiles, t, 1, st, 8 * 100 * t - 1)[0] == "skip"
++    assert A.plan_level(tiles, None, 1, st, 10)[0] == "one_scale"   # нет замера → дешёвый проб
++    assert A.plan_level(tiles, t, 1, st, 0)[0] == "skip"
++    assert A.views_at("no_flip", st) == ((False,), [1.0, 1.5])
++    assert A.views_at("one_scale", st) == ((False,), [1.0])
++
++
++def test_time_guard_skips_and_logs(tmp_path, caplog):
++    a = str(tmp_path / "a.tif")
++    _Model.calls = 0
++    with caplog.at_level(logging.WARNING):
++        feats = _run(tmp_path, {"ae": [a]}, {"tile_s": 10.0}, phase_left=lambda: 30.0)
++    assert feats == [] and _Model.calls == 0
++    assert "уровень skip" in caplog.text
++
++
++def test_time_guard_measures_then_degrades(tmp_path, caplog):
++    a, b = str(tmp_path / "a.tif"), str(tmp_path / "b.tif")
++    cache = {"t_view": {"ae": 5.0}}
++    with caplog.at_level(logging.WARNING):
++        _run(tmp_path, {"ae": [a, b]}, {"tile_s": None}, cache=cache, phase_left=lambda: 5.0 * 4 * 8 + 1)
++    # 4 окна (700 px, 640/160), 1 модель: full=8 видов-окон×5 с×8 > остатка, no_flip=4×5×8 ≤ → no_flip
++    assert "уровень no_flip" in caplog.text
++
++
++def test_phase_deadline_stops_windows(tmp_path):
++    a = str(tmp_path / "a.tif")
++    left = iter([1e9, 1e9] + [-1.0] * 100)
++    _Model.calls = 0
++    _run(tmp_path, {"ae": [a]}, {"batch": 1, "flip_tta": False}, phase_left=lambda: next(left))
++    assert _Model.calls < 4
++
++
++# ── постобработка v3 не трогает dfine_ae / dfine_or ──────────────────────────────────────────────────────
++def _df(markup, cls="gorodishcha", conf=0.5, reg="r1"):
++    return {"geom": Point(X0, Y0).buffer(4), "class_name": cls, "confidence": conf, "region_name": reg,
++            "markup_type": markup, "threshold_group": A.GROUPS[markup], "source": "c.tif", "scene_drel": 0.99}
++
++
++def test_variant_r_does_not_drop_dfine_or():
++    sp = {"geom": Point(X0, Y0).buffer(4), "class_name": "gorodishcha", "confidence": 0.5, "region_name": "r1",
++          "markup_type": "sp_or", "source": "s.tif"}
++    out = sp_dfine.drop_groups([_df("or"), _df("ae"), sp], ["sp_or", "sp_focal", "sp_arch", "sp_focal2"], ["r1"])
++    assert [f["markup_type"] for f in out] == ["or", "ae"]
++    assert all(f["markup_type"] != sp_dfine.MARKUP for f in (_df("or"), _df("ae")))
++
++
++def test_frame_prior_does_not_touch_dfine():
++    fs = [_df("or"), _df("ae")]
++    out = post.frame_prior([dict(f) for f in fs], {})
++    assert [f["confidence"] for f in out] == [0.5, 0.5]
++
++
++def test_verify_keeps_dfine_conf(tmp_path, monkeypatch):
++    from expds import crop_model
++
++    w = tmp_path / "w.pt"
++    w.write_bytes(b"0")
++    cfg = _cfg()
++    cfg["verify"] = dict(cfg["verify"], weights=str(w))
++    monkeypatch.setattr(crop_model, "_predict", lambda *a, **k: pytest.fail("verify выбрал dfine"))
++    fs = [_df("or", "kurgany_tselye"), _df("ae", "kurgany_tselye")]
++    assert crop_model.maybe_verify(fs, {"r1": object()}, cfg) is None
++    assert [f["confidence"] for f in fs] == [0.5, 0.5]
++
++
++def test_thresholds_by_group_apply_to_dfine():
++    """Порог группы dfine_or главнее глобального по классу (pipeline/post: threshold_group раньше markup_type)."""
++    assert len(post.apply_thresholds([_df("or")], {"gorodishcha": 0.99}, 0.15, {"dfine_or": {"gorodishcha": 0.4}})) == 1
++    assert len(post.apply_thresholds([_df("or")], {"gorodishcha": 0.1}, 0.15, {"dfine_or": {"gorodishcha": 0.6}})) == 0
++
++
++# ── пайплайн и сборка ────────────────────────────────────────────────────────────────────────────────────
++def test_pipeline_gated_by_flag_lazy_import_and_order():
++    from expds import pipeline
++
++    src = inspect.getsource(pipeline.run)
++    assert src.count('(cfg.get("dfine_aeor") or {}).get("enabled")') == 2
++    i_sp, i_ae, i_gg = (src.index(s) for s in ("_sp_dfine_phase(", "_dfine_aeor_phase(", 'cfg.get("gor_gate")'))
++    assert i_sp < i_ae < i_gg
++    top = [l for l in (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8").splitlines()
++           if l.startswith(("from .", "import ")) and "dfine_aeor" in l]
++    assert not top
++    assert "import_dfine" in inspect.getsource(sp_dfine.load_models)
++    assert "transformers" not in (ROOT / "expds" / "dfine_aeor.py").read_text(encoding="utf-8").split('"""', 2)[2] \
++        .replace("transformers 5.21.0", "")
++
++
++def test_phase_unready_logs_total_zero(caplog):
++    from expds import pipeline
++
++    state = SimpleNamespace(note={"dfine_aeor": {"ok": False, "problems": ["нет весов"]}},
++                            add=lambda fs: pytest.fail("add при неготовности"))
++    with caplog.at_level(logging.INFO):
++        assert pipeline._dfine_aeor_phase([], {"dfine_aeor": {"enabled": True}}, None, state, ROOT) == 0
++    assert "dfine_aeor n_det=0 total" in caplog.text
++
++
++def test_phase_logs_per_region_and_total(monkeypatch, caplog):
++    from expds import pipeline
++
++    added = []
++    state = SimpleNamespace(note={"dfine_aeor": {"ok": True}}, add=added.extend)
++    regs = [SimpleNamespace(name=n, rasters={"ae": [f"/nonexistent/{n}.tif"]}, utm_json=None) for n in ("r1", "r2")]
++    monkeypatch.setattr(A, "region_feats", lambda reg, *a, **k: [_df("ae", reg=reg.name)])
++    guard = SimpleNamespace(ok=lambda need=0: True, elapsed=lambda: 0.0)
++    with caplog.at_level(logging.INFO):
++        n = pipeline._dfine_aeor_phase(regs, {"dfine_aeor": {"enabled": True}}, guard, state, ROOT, {})
++    assert n == 2 and len(added) == 2
++    assert "dfine_aeor n_det=1 region=r1" in caplog.text and "dfine_aeor n_det=1 region=r2" in caplog.text
++    assert "dfine_aeor n_det=2 total" in caplog.text
++
++
++def test_not_packaged_when_off():
++    spec = importlib.util.spec_from_file_location("b6_build", ROOT / "scripts" / "build_submission.py")
++    bs = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(bs)
++    assert "dfine_aeor" in bs.FLAG_MODULES
++    rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}
++    assert "expds/dfine_aeor.py" not in rel
++
++
++def test_check_submission_knows_marker():
++    src = (ROOT / "scripts" / "check_submission.py").read_text(encoding="utf-8")
++    assert "DFINE_AEOR_UNAVAILABLE" in src and A.UNAVAILABLE == "DFINE_AEOR_UNAVAILABLE"
++
++
++def test_cap_per_group():
++    fs = [dict(_df("ae"), confidence=c) for c in (0.1, 0.9, 0.5)] + [_df("or")] + \
++         [{"threshold_group": "sp_or", "confidence": 0.1}]
++    out = A.cap(fs, 2)
++    assert sorted(f["confidence"] for f in out if f.get("threshold_group") == "dfine_ae") == [0.5, 0.9]
++    assert len(out) == 4
++
++
++# ── правки bot-7 (12:31): ключ склейки, отдельная цепочка, check_submission ──────────────────────────────
++def _poly(x, y, r=6.0):
++    return Point(x, y).buffer(r, 32)
++
++
++def _old_feats():
++    """Прежние группы v3 на одном месте с dfine: ae (база), li, SpOr-архитектура, Ae-фортификация."""
++    X, Y = 4_200_000.0, 7_500_000.0
++    out = []
++    for i in range(6):
++        out.append({"region_name": "r1", "markup_type": "ae", "class_name": "kurgany_tselye", "source": f"ae{i % 2}.tif",
++                    "confidence": 0.6 + 0.05 * i, "geom": _poly(X + 30 * i, Y)})
++        out.append({"region_name": "r1", "markup_type": "li", "class_name": "kurgany_povrezhdennye", "source": "li.tif",
++                    "confidence": 0.7, "geom": _poly(X + 30 * i, Y + 40)})
++    out.append({"region_name": "r1", "markup_type": "sp_or", "threshold_group": "sp_or", "class_name": "arkhitektury",
++                "source": "sp.tif", "confidence": 0.8, "geom": _poly(X, Y + 90, 10)})
++    out.append({"region_name": "r1", "markup_type": "ae", "class_name": "fortifikatsii", "source": "ae0.tif",
++                "confidence": 0.9, "geom": _poly(X + 60, Y + 140, 15)})
++    return out
++
++
++def _dfine_feats():
++    X, Y = 4_200_000.0, 7_500_000.0
++    out = []
++    for i in range(6):   # те же места, что у старых ae/li/arch — склеились бы при общем ключе
++        for src in ("ae0.tif", "ae1.tif"):
++            out.append({"region_name": "r1", "markup_type": "ae", "threshold_group": "dfine_ae", "source": src,
++                        "class_name": "kurgany_tselye", "confidence": 0.95, "geom": _poly(X + 30 * i + 2, Y)})
++    out.append({"region_name": "r1", "markup_type": "or", "threshold_group": "dfine_or", "source": "or.tif",
++                "class_name": "arkhitektury", "confidence": 0.9, "geom": _poly(X, Y + 90, 9)})
++    return out
++
++
++def _ser(fs):
++    return [json.dumps({k: (v.wkb_hex if k == "geom" else v) for k, v in sorted(f.items())}, ensure_ascii=False,
++                       sort_keys=True, default=str) for f in fs]
++
++
++def test_merge_key_isolates_dfine_groups():
++    old, new = _old_feats(), _dfine_feats()
++    merged = post.merge_within_markup(old + new)
++    d_ae = [f for f in merged if f.get("threshold_group") == "dfine_ae"]
++    assert len(d_ae) == 6                                   # ae0+ae1 dfine → по одному на место, только между собой
++    assert all(f["source"] in ("ae0.tif", "ae1.tif") and f["confidence"] == 0.95 for f in d_ae)
++    rest = [f for f in merged if f.get("threshold_group") not in post.ISOLATED_GROUPS]
++    assert _ser(rest) == _ser(post.merge_within_markup(old))   # прежние группы — как без dfine
++    union = post.merge_within_markup(old + new, isolate=())  # межисточниковое объединение — только по опции
++    assert len([f for f in union if f["markup_type"] == "ae" and f["class_name"] == "kurgany_tselye"]) == 6
++    assert not any(f.get("threshold_group") == "dfine_ae" and f["confidence"] < 0.95 for f in union)
++    assert A.DEFAULTS["merge_union"] is False and "merge_union" not in _cfg()["dfine_aeor"]
++
++
++def test_flag_on_old_groups_byte_identical_to_off():
++    """Флаг вкл. + объекты dfine: прежние объекты на выходе finish/safe_finish байт-в-байт как при флаге выкл."""
++    from expds import watchdog
++
++    old, new = _old_feats(), _dfine_feats()
++    off = _cfg()
++    on = _cfg()
++    on["dfine_aeor"] = {"enabled": True}
++    on.setdefault("thresholds_by_markup", {}).update(_thr(0.3))
++    for fin in (watchdog.finish, watchdog.safe_finish):
++        ref = fin(list(old), off)
++        got = fin(list(old) + list(new), on)
++        kept_old = [f for f in got if f.get("threshold_group") not in post.ISOLATED_GROUPS]
++        assert _ser(kept_old) == _ser(ref)
++        assert got[:len(ref)] == kept_old                   # порядок: v3, затем dfine
++        assert sum(f.get("threshold_group") == "dfine_ae" for f in got) == 6
++        assert sum(f.get("threshold_group") == "dfine_or" for f in got) == 1
++    on["dfine_aeor"]["merge_union"] = True                  # опция объединения меняет общую цепочку — потому выкл.
++    assert watchdog._aeor_split(old + new, on) is None
++
++
++def test_aeor_tail_respects_feature_limit():
++    from expds import watchdog
++
++    cfg = _cfg()
++    cfg["dfine_aeor"] = {"enabled": True}
++    cfg.setdefault("thresholds_by_markup", {}).update(_thr(0.3))
++    assert watchdog._aeor_finish(_dfine_feats(), cfg, 0) == []
++    assert len(watchdog._aeor_finish(_dfine_feats(), cfg, 3)) == 3
++
++
++def _cs():
++    spec = importlib.util.spec_from_file_location("b6_cs", ROOT / "scripts" / "check_submission.py")
++    cs = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(cs)
++    cs.RESULTS.clear()
++    return cs
++
++
++def _zip(tmp_path, cfg_text, extra=()):
++    import zipfile
++    zp = tmp_path / "s.zip"
++    with zipfile.ZipFile(zp, "w") as z:
++        z.writestr("configs/default.toml", cfg_text)
++        z.writestr("expds/sp_dfine.py", "")
++        for n in extra:
++            z.writestr(n, "{}")
++    return zipfile.ZipFile(zp)
++
++
++def _args(tmp_path, **kw):
++    return SimpleNamespace(weights=True, dfine_aeor_root=str(tmp_path / "none"), workdir=str(tmp_path), python="python3",
++                           cpus="0,1", allow_net=False, timeout=60, threads=2, dfine_region=None, **kw)
++
++
++def test_check_submission_flag_off_requires_nothing_new(tmp_path):
++    cs = _cs()
++    text = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
++    cfg = tomllib.loads(text)
++    z = _zip(tmp_path, text)
++    cs.check_dfine_aeor_weights(z, cfg, _args(tmp_path))
++    assert cs.RESULTS == []
++    cs.dfine_lines(z, "sp_dfine n_det=5 region=x\n")
++    assert not [r for r in cs.RESULTS if "dfine_aeor" in r[2]]
++    cs.RESULTS.clear()
++    cs.check_dfine(z, cfg, _args(tmp_path))                  # sp_dfine/gor_gate/dfine_aeor выкл. → проб нет
++    assert cs.RESULTS == []
++    cs.check_config_static(z)
++    assert not [r for r in cs.RESULTS if "dfine_aeor" in r[2] or "DFINE_AEOR" in r[2]]
++
++
++def test_check_submission_smoke_needs_weights(tmp_path):
++    cs = _cs()
++    cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]}}}
++    z = _zip(tmp_path, "[dfine_aeor]\nenabled = true\n")
++    cs.check_dfine_aeor_weights(z, cfg, _args(tmp_path))
++    assert [r[0] for r in cs.RESULTS] == ["FAIL", "FAIL"]
++    assert all("нужны веса" in r[2] for r in cs.RESULTS)
++    assert cs.DFINE_AEOR_KNOWN["ae"]["region"] == "181_Гнёздово_Лесная_3"
++    assert cs.DFINE_AEOR_KNOWN["or"]["region"] == "185_Изборск"
++    cs.RESULTS.clear()                                       # веса в архиве есть, а опорного участка нет — тоже FAIL
++    z2 = _zip(tmp_path, "", [f"models/dfine_{m}/{f}" for m in ("ae", "or") for f in ("config.json", "model.safetensors")])
++    cs.check_dfine_aeor_weights(z2, cfg, _args(tmp_path))
++    assert [r[0] for r in cs.RESULTS] == ["FAIL", "FAIL"] and all("опорного участка" in r[2] for r in cs.RESULTS)
++    cs.RESULTS.clear()
++    cs.check_dfine_aeor_weights(z, cfg, SimpleNamespace(**{**vars(_args(tmp_path)), "weights": False}))
++    assert [r[0] for r in cs.RESULTS] == ["WARN"]
++
++
++def test_check_submission_aeor_verdicts():
++    cs = _cs()
++    assert cs.dfine_aeor_verdict("ae", {"ok": True, "n_det": 0, "max": 0, "windows": [1, 1]})[0] == "FAIL"
++    assert cs.dfine_aeor_verdict("or", {"ok": True, "n_det": 3, "max": 0.4, "windows": [1, 1]})[0] == "PASS"
++    assert cs.dfine_aeor_verdict("or", {"ok": False, "err": "x"})[0] == "FAIL"
++    log = "dfine_aeor n_det=0 region=181_Гнёздово_Лесная_3\ndfine_aeor n_det=0 region=other\n"
++    assert [r[0] for r in cs.dfine_aeor_ndet_verdict(log)] == ["FAIL"]
++    src = (ROOT / "scripts" / "check_submission.py").read_text(encoding="utf-8")
++    assert '("expds/dfine_aeor.py", aeor)' in src             # проба импорта в чистом процессе — общая с sp_dfine
++
++
++def test_scene_uses_overview_only_for_heavy_downsampling(tmp_path):
++    import rasterio
++    from rasterio.transform import from_origin
++    p = tmp_path / "o.tif"
++    a = np.full((3, 2048, 2048), 120, dtype=np.uint8)
++    with rasterio.open(p, "w", driver="GTiff", width=2048, height=2048, count=3, dtype="uint8", crs=UTM,
++                       transform=from_origin(X0, Y0, 0.02, 0.02), tiled=True) as d:
++        d.write(a)
++        d.build_overviews([2, 4, 8, 16], rasterio.enums.Resampling.average)
++    sc = A.Scene(p, UTM, 0.5)
++    assert sc.overview_level == 2 and sc.W == round(2048 * 0.02 / 0.5)       # 0,02 × 8 = 0,16 ≤ 0,25; × 16 = 0,32
++    im = sc.read(0, 0, 64)
++    assert im.shape == (64, 64, 3) and int(im[10, 10, 0]) == 120
++    sc.close()
++    sc = A.Scene(p, UTM, 0.04)                                                # слабое уменьшение — как sp_dfine.Scene
++    assert sc.overview_level is None
++    sc.close()
++
++
++def test_thresholds_file_aliases_and_gor_off(tmp_path):
++    cfg = _cfg()
++    p = tmp_path / "t.json"
++    p.write_text(json.dumps({"ae_dfine": {"kurgany_tselye": 0.4}, "or_dfine": {"gorodishcha": 0.2, "arkhitektury": 0.5}}))
++    cfg["dfine_aeor"] = {"enabled": True, "thresholds_file": str(p)}
++    A.load_thresholds_file(cfg, ROOT)
++    tbm = cfg["thresholds_by_markup"]
++    assert tbm["dfine_ae"]["kurgany_tselye"] == 0.4 and tbm["dfine_or"]["arkhitektury"] == 0.5
++    assert tbm["dfine_or"]["gorodishcha"] == 1.01             # TOML главнее OOF
++    f = {"class_name": "gorodishcha", "markup_type": "or", "threshold_group": "dfine_or", "confidence": 0.999}
++    assert post.apply_thresholds([f], cfg.get("thresholds", {}), 0.15, tbm) == []
++
++
++def test_recipe_autocast_only_no_half():
++    """Вход как у sp_dfine/обучения bot-9: float32 RGB/255 без нормализации, flip-TTA, NMS 0,5; .half() нет."""
++    import torch
++
++    seen = []
++
++    class Rec:
++        def __call__(self, pixel_values):
++            seen.append(pixel_values.clone())
++            n = pixel_values.shape[0]
++            return SimpleNamespace(logits=torch.full((n, 4, 5), -9.0), pred_boxes=torch.full((n, 4, 4), 0.5))
++
++    class Sc:
++        W = H = 64
++
++        def read(self, x, y, n):
++            a = np.zeros((n, n, 3), dtype=np.uint8)
++            a[..., 0], a[..., 1], a[..., 2] = 255, 51, 0
++            a[:, : n // 2, 0] = 102                   # левая половина другая — видно отражение
++            return a
++
++    st = A.settings({"dfine_aeor": {"tile": 64, "overlap": 0, "batch": 2}})
++    assert st["nms_iou"] == 0.5 and st["flip_tta"] is True and st["fp16"] is True
++    A.detect_scene([Rec()], Sc(), st, "ae", [False, True], torch.device("cpu"))
++    assert len(seen) == 2 and all(t.dtype == torch.float32 for t in seen)
++    px = seen[0][0]
++    assert float(px[0, 0, 63]) == 1.0 and float(px[0, 0, 0]) == pytest.approx(0.4) and float(px[1, 0, 0]) == pytest.approx(0.2)
++    assert float(px[2].max()) == 0.0
++    assert torch.equal(seen[1], seen[0].flip(3))    # второй вид — горизонтальное отражение того же батча
++    src = (ROOT / "expds" / "dfine_aeor.py").read_text(encoding="utf-8")
++    assert ".half()" not in src and "torch.autocast(" in src

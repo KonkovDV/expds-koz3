@@ -1,0 +1,1 @@
+{"region": "001_Гнёздово_Нивленское", "n": 9450, "conf_min": 0.0, "dem_from_li": true, "n_feat": 9450, "coords": "inside=1.000", "t_li_grid_s": 10.93, "t_reuse_s": 1.7, "shift_rc": [5, 3], "rss_after_dem_mb": 1544.8, "status": "ok", "t_feat_s": 1.593, "ms_per_cand_feat": 0.1686, "t_total_s": 14.22, "maxrss_mb": 1544.8}

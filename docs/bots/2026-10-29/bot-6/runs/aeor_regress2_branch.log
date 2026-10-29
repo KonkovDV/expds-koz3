@@ -1,0 +1,25 @@
+............................................F........................... [ 51%]
+...................................................................      [100%]
+=================================== FAILURES ===================================
+___________________ test_no_personal_paths_in_packaged_code ____________________
+
+    def test_no_personal_paths_in_packaged_code():
+        import re
+    
+        pat = re.compile(r"[A-Z]:/|/workspace/|/home/|/Users/")
+        bad = [f"{p.name}:{i}" for p in list((ROOT / "expds").glob("*.py")) + [ROOT / "configs" / "default.toml"]
+               for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1) if pat.search(line)]
+>       assert not bad, bad
+E       AssertionError: ['default.toml:466', 'default.toml:468']
+E       assert not ['default.toml:466', 'default.toml:468']
+
+tests/test_bot7_v3_flags.py:322: AssertionError
+=============================== warnings summary ===============================
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_bot7_v3_flags.py::test_no_personal_paths_in_packaged_code
+1 failed, 138 passed, 1 warning in 16.51s

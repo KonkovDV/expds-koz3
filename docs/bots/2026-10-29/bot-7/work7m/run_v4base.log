@@ -1,0 +1,34 @@
+2026-10-29 13:41:03,244 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-29 13:41:03,249 INFO expds.pipeline: мягкий потолок 1200 с от старта процесса (прошло 10 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-10-29 13:41:03,250 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=2
+2026-10-29 13:41:03,250 INFO expds.pipeline: устройство: cpu
+2026-10-29 13:41:03,250 INFO expds.watchdog: сторож сработает через 1610 с
+2026-10-29 13:41:03,373 INFO expds.catalog: найдено регионов: 2 в smoke_in
+2026-10-29 13:41:03,377 INFO expds.pipeline: к разбору: регионов 2, LAS 1, растров 1 (maggr 1), пропущено файлов 0
+2026-10-29 13:41:03,400 INFO expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 9.9}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=2'}
+2026-10-29 13:41:03,636 INFO expds.health: опись входа: {'regions': 2, 'rasters_by_modality': {'maggr': 1}, 'las_files': 1, 'las_region_crs': {'EPSG:32636': 1}, 'raster_read': {'ok': 1}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 13:41:05,979 INFO expds.geo_pixgbm: pixgbm region_0001: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 13:41:09,314 INFO expds.geo_pixgbm: pixgbm region_0002: backend=lightgbm потоков=2 ступени {'full': 1}; фаза 3.2 с (cpu родителя 1.8 с), уровень full
+2026-10-29 13:41:09,317 INFO expds.pipeline: region_0002: геофизика +494, прошло 16 с
+2026-10-29 13:41:13,775 INFO expds.lidar: DEM 01_region_0001_La_точки.las: 1001x1001 @ 0.1 м, точек 107729, пустот 899910, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 13:41:15,101 INFO expds.lidar: DEM 01_region_0001_La_точки.las: 201x201 @ 0.5 м, точек 107727, пустот 3133, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 13:41:15,126 INFO expds.hillfort: 01_region_0001_La_точки.las: кандидатов городищ по рельефу 0
+2026-10-29 13:41:16,582 INFO expds.lidar: DEM 01_region_0001_La_точки.las: 101x101 @ 1 м, точек 107727, пустот 220, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 13:41:22,979 INFO expds.pipeline: region_0001: лидар +30, 13.7 с, прошло 30 с
+2026-10-29 13:41:22,980 INFO expds.pipeline: region_0002: лидар +0, 0.0 с, прошло 30 с
+2026-10-29 13:41:25,734 INFO expds.pipeline: region_0001: канал σ +27, прошло 33 с
+2026-10-29 13:41:25,746 INFO expds.crop_model: проверка кропа: кандидатов нет
+2026-10-29 13:41:25,813 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-29 13:41:25,813 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-29 13:41:25,814 INFO expds.watchdog: устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+2026-10-29 13:41:25,814 INFO expds.watchdog: конфиг SHA256 4d5134a345570c43ae33d7c3cd08a133dea8e9be3eb04f8b84eeb65f53bf68e4; бюджет 1500 с; запас 120 с
+2026-10-29 13:41:25,814 INFO expds.watchdog: вход: регионов 2, из них с LAS 1; файлов LAS 1; растров maggr 1; пропущено файлов 0
+2026-10-29 13:41:25,814 INFO expds.watchdog: фазы: геофизика: сырых 494, 6 с, лидар: сырых 30, 14 с, оптика: сырых 0, 0 с, канал σ: сырых 27, 3 с
+2026-10-29 13:41:25,814 INFO expds.watchdog: до порога 551, по слоям: li 57, maggr 494
+2026-10-29 13:41:25,814 INFO expds.watchdog: до порога по классам: finds_points 487, kurgany_povrezhdennye 30, kurgany_tselye 27, object_poly 7
+2026-10-29 13:41:25,814 INFO expds.watchdog: записано 245, файл 171790 байт
+2026-10-29 13:41:25,814 INFO expds.watchdog: после порога по классам: finds_points 242, kurgany_tselye 3
+2026-10-29 13:41:25,814 INFO expds.watchdog: после порога по слоям: li 3, maggr 242
+2026-10-29 13:41:25,814 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-10-29 13:41:25,819 INFO main: готово: {"regions": 2, "raw": 551, "phases": {"геофизика": {"raw": 494, "seconds": 5.6}, "лидар": {"raw": 30, "seconds": 13.7}, "оптика": {"raw": 0, "seconds": 0.0}, "канал σ": {"raw": 27, "seconds": 2.8}}, "written": 245, "seconds": 22.6, "partial_files": []}
+2026-10-29 13:41:25,820 INFO main: общее время 32.9 с

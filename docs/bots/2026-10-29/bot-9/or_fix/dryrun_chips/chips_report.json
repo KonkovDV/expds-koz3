@@ -1,0 +1,207 @@
+{
+ "cfg": {
+  "mode": "full",
+  "res": 0.5,
+  "tile": 1024,
+  "overlap": 288,
+  "max_windows": 0,
+  "bs": 4,
+  "iters": 2400,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.5,
+  "cls_cap": 6.0,
+  "neg_share": 0.6,
+  "neg_ratio": 1.0,
+  "neg_min": 8,
+  "neg_cap": 60,
+  "neg_margin": 32,
+  "neg_valid": 0.25,
+  "neg_masked": 1,
+  "neg_mask_max": 0.4,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 5.0,
+  "folds": "0,1,2",
+  "regions": "008_Герите,014_Лешки,033_Елизаветинское,056_Фалхан,185_Изборск",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "gt_coverage": [
+  {
+   "region": "185_Изборск",
+   "tif": "01_Изборск_Or_ортофото.tif",
+   "W": 1015,
+   "H": 655,
+   "gt_total": 4,
+   "gt_in_raster": 3,
+   "gt_covered_by_chip": 3,
+   "chips": 6
+  },
+  {
+   "region": "033_Елизаветинское",
+   "tif": "01_Елизаветинское_Or_ортофото.tif",
+   "W": 1611,
+   "H": 1217,
+   "gt_total": 2,
+   "gt_in_raster": 2,
+   "gt_covered_by_chip": 2,
+   "chips": 4
+  },
+  {
+   "region": "014_Лешки",
+   "tif": "01_Лешки_Or_ортофото.tif",
+   "W": 1861,
+   "H": 2262,
+   "gt_total": 11,
+   "gt_in_raster": 11,
+   "gt_covered_by_chip": 11,
+   "chips": 22
+  },
+  {
+   "region": "008_Герите",
+   "tif": "01_Герите_Or_ортофото.tif",
+   "W": 2070,
+   "H": 1883,
+   "gt_total": 45,
+   "gt_in_raster": 45,
+   "gt_covered_by_chip": 45,
+   "chips": 90
+  },
+  {
+   "region": "056_Фалхан",
+   "tif": "01_Фалхан_Or_ортофото.tif",
+   "W": 1904,
+   "H": 3036,
+   "gt_total": 53,
+   "gt_in_raster": 53,
+   "gt_covered_by_chip": 53,
+   "chips": 106
+  }
+ ],
+ "negatives": [
+  {
+   "region": "185_Изборск",
+   "tif": "01_Изборск_Or_ортофото.tif",
+   "W": 1015,
+   "H": 655,
+   "want": 8,
+   "got_clean": 0,
+   "got_masked": 4,
+   "tries": 960
+  },
+  {
+   "region": "033_Елизаветинское",
+   "tif": "01_Елизаветинское_Or_ортофото.tif",
+   "W": 1611,
+   "H": 1217,
+   "want": 8,
+   "got_clean": 2,
+   "got_masked": 6,
+   "tries": 516
+  },
+  {
+   "region": "014_Лешки",
+   "tif": "01_Лешки_Or_ортофото.tif",
+   "W": 1861,
+   "H": 2262,
+   "want": 11,
+   "got_clean": 11,
+   "got_masked": 0,
+   "tries": 556
+  },
+  {
+   "region": "008_Герите",
+   "tif": "01_Герите_Or_ортофото.tif",
+   "W": 2070,
+   "H": 1883,
+   "want": 45,
+   "got_clean": 3,
+   "got_masked": 7,
+   "tries": 5400
+  },
+  {
+   "region": "056_Фалхан",
+   "tif": "01_Фалхан_Or_ортофото.tif",
+   "W": 1904,
+   "H": 3036,
+   "want": 53,
+   "got_clean": 12,
+   "got_masked": 10,
+   "tries": 6360
+  }
+ ],
+ "fold_chips": {
+  "0": {
+   "test": [
+    "008_Герите",
+    "014_Лешки"
+   ],
+   "train_chips": 150,
+   "obj": {
+    "gorodishcha": 3,
+    "arkhitektury": 53,
+    "fortifikatsii": 2
+   },
+   "bg": 58,
+   "neg": 34,
+   "neg_masked": 20,
+   "neg_by_region": {
+    "033_Елизаветинское": 8,
+    "056_Фалхан": 22,
+    "185_Изборск": 4
+   }
+  },
+  "1": {
+   "test": [
+    "033_Елизаветинское",
+    "056_Фалхан"
+   ],
+   "train_chips": 143,
+   "obj": {
+    "arkhitektury": 56,
+    "fortifikatsii": 2,
+    "gorodishcha": 1
+   },
+   "bg": 59,
+   "neg": 25,
+   "neg_masked": 11,
+   "neg_by_region": {
+    "008_Герите": 10,
+    "014_Лешки": 11,
+    "185_Изборск": 4
+   }
+  },
+  "2": {
+   "test": [
+    "185_Изборск"
+   ],
+   "train_chips": 273,
+   "obj": {
+    "arkhitektury": 109,
+    "gorodishcha": 2
+   },
+   "bg": 111,
+   "neg": 51,
+   "neg_masked": 23,
+   "neg_by_region": {
+    "008_Герите": 10,
+    "014_Лешки": 11,
+    "033_Елизаветинское": 8,
+    "056_Фалхан": 22
+   }
+  }
+ },
+ "n_chips": 283
+}

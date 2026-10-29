@@ -1,0 +1,2 @@
+01_Герите_Or_ортофото.tif: CRS участка EPSG:4326 географическая — сцена в зоне UTM по центру растра
+SCENE008 {"code": "/workspace/koz3_shared/bot-6/repo", "utm_json": "EPSG:4326", "crs": "EPSG:32638", "WxH": [2070, 1883], "res": 0.5, "overview_level": 3, "windows": 9}

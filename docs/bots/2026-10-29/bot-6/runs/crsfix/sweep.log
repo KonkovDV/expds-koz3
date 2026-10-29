@@ -1,0 +1,14 @@
+{
+ "regions": 210,
+ "rasters_ae_or_spor": 215,
+ "regions_without_utm_json_crs": 0,
+ "diff": [
+  [
+   "008_Герите",
+   "or",
+   "01_Герите_Or_ортофото.tif",
+   "EPSG:4326",
+   "EPSG:32638"
+  ]
+ ]
+}

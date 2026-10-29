@@ -51,3 +51,25 @@
   - Вердикт PACKAGE-ONLY. FN отклонён: FN−F −0,00328, P 0,078.
   - JSON: analysis/gor_dense_s59/confirm.json, sha256 50c22a47…dc13c; prerun.json 157ad8f6…; код 2a2ab5a.
   - Парный прогон поверх пакета не выполнен: нет кривых D-FINE R и общего набора FR1h+G+R; при R гейт не включается (NOLIDAR §14b).
+
+## (L) 29.10 14:25 MSK — gor_dense (PFnoD бота 10) за флагом [gor_dense] enabled=false — ГОТОВО (локально, без push)
+- Ветка **bot5-gor-dense-v4** = rebase на bot7-candidate-v4 f3526cf (включает CRS-фикс 0876090≡f3526cf): a6a3965 → e407ee8 → **86a60c5**.
+  Старая ветка bot5-gor-dense-v3 (на 360c870) оставлена: 42e2448 → 30c7169.
+- Порядок фаз: sp_dfine → dfine_aeor → **gor_dense** → gor_gate → пороги. markup/threshold_group gor_dense, writer пишет markup_type sp_or, 3857.
+  Громкий отказ GOR_DENSE_UNAVAILABLE (check_submission → FAIL). Закомм. блок включения: gor_dense + τ 0.824066 (предложение) + sp_dfine gorodishcha 1.01 + dfine_ae gorodishcha 1.01 (dfine_or 1.01 уже активен у bot-6).
+- Тесты: tests/test_bot5_gor_dense.py 22 + test_bot7_geographic_utm_json + test_bot7_v3_flags = 47 passed; весь tests/: 553 passed, 9 skipped, 1 failed (test_coco_roundtrip — нет cv2 в bot-7/venv, окружение).
+- Флаг ВЫКЛ. байт-в-байт с чистым v4 f3526cf (work/gd/rerun4.log): 084 efc930de 2178 B, 081 da404b6c 45 B, 210 66e85a5f 280748 B, 217 b04337b6 337079 B — IDENTICAL (те же md5, что v3 360c870, rerun2.log).
+- Флаг ВКЛ. (work/gd/e2e/on4): 081 — 2 gorodishcha 0.93695/0.92599, sp_or, original_crs EPSG:32637; 084 — 2 точки ниже τ, выдача = OFF.
+- CRS 4326: 008_Герите UTM.json EPSG:4326 → gor_gate._epsg = 32638 (у 008 нет SpOr — gor_dense там точек не даёт).
+- Время фазы gor_dense, CPU 2 потока, весь трейн SpOr (тестового набора на боксе нет): 132 участка, 175 файлов, 826.5 с, пик RSS 1520 MB (work/gd/time_phase.json, time_phase.log; нагрузка бокса другими ботами, load ≈ 5); до перезагрузки 712.7 с. Без модели (нулевой бэкбон) 168.5 с (time_nomodel.log).
+- Перезагрузка бокса ~13:12: пропал bot-8/venv и часть вывода; всё пересчитано в bot-7/venv.
+
+## (L) 29.10 ~14:55 MSK: gor_dense e2e sanity + timing (no Kaggle, no push)
+- (A) e2e vs OOF: work/gd/sanity/oof_vs_prod.{py,log,json} (WATCH rc 0, 317 s, RSS 890). PROD (time_phase.log, in-sample head, τ 0.824066):
+  share of regions with n_det>0 0.2955 (39/132), median kept conf 0.9155, n 60. OOF fam10 (bot-10 per-fold τ PFnoD = fixed τ): 0.2424 / 0.918 / 55;
+  LOFO 0.2348/0.887; seeds 0.137–0.318 / 0.80–0.94. No sharp drift (prod share slightly higher, as expected for in-sample).
+- (B1) T4 kernel kaggle/gordense_timing/ (NOT run): koz3-b5-gordense-timing.py sha256 c9f9fb44…3daf; kernel-metadata.json 3954d92a…7462;
+  README.md = list of the 6 private-dataset files with md5/sizes; cuda_check.py tested on the box (CPU, API OK: sanity/cuda_check_cpu.out).
+- (B2) FOR_BOT1_GORDENSE_TIMING.md (PC GTX 1650).
+- Commit: local branch bot5-gordense-timing fedaeac (parent 86a60c5, code unchanged, docs/kaggle/analysis only); bot5-gor-dense-v4 = 86a60c5 untouched.
+- Note: bot-10/work14/pkg_gor.py execs B5/gor_dense_diag.py from my working tree; it is absent in the v4 tree @86a60c5 (copy in work/gd/oofsrc/scripts/gor_dense/).

@@ -1,0 +1,13 @@
+start 07:19:47 df 8.6G
+gt rc=0 07:19:59
+fam base rc=0 07:20:00
+fam C rc=0 07:20:25 df 7.5G
+c base_g rc=0 07:21:16
+c C_g rc=0 07:22:13
+c base_s rc=0 07:23:09
+c C_s rc=0 07:24:10
+asm rc=0 07:24:12
+pg rc=0 07:32:22
+ps rc=0 07:42:05
+pp rc=0 07:46:16
+done

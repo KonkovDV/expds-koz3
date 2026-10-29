@@ -1,0 +1,9 @@
+-r requirements.txt
+# Разработка: сборка Rust, тесты, проверка паритета с OpenCV
+maturin>=1.7,<2
+pytest>=8
+ruff>=0.6
+opencv-python-headless>=4.9
+psutil>=6                      # scripts/profile_run.py: пиковая память прогона
+# scripts/profile_run.py: пиковая память прогона
+psutil>=5.9

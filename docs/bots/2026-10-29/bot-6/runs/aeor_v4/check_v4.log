@@ -1,0 +1,33 @@
+== check_submission: /workspace/koz3_shared/bot-6/work/aeor_v4/sub_v4.zip (2026-10-29 13:40:31 MSK)
+[PASS] zip       3497 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/florence2/modular_florence2.py', 'inference/lib/vendor/pygments/lexers/felix.py', 'inference/lib/vendor/transformers/models/cpm/tokenization_cpm.py', 'inference/lib/vendor/transformers/models/videomt/modular_videomt.py', 'inference/lib/vendor/transformers/models/minicpmv4_7/modeling_minicpmv4_7.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 629.7 МиБ (660295867 Б), распакованный 735.3 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_or/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 19 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pixgbm/all/finds.txt', 'models/pixgbm/all/poly.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001', 'thresholds_by_markup.dfine_or.gorodishcha=1.01']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 30 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[INFO] imports   необязательные (есть фолбэк, не проверяются): psutil — geo_pixgbm.process_t0: ImportError → момент импорта модуля; tl2cgen — geo_pixgbm backend=treelite (opt-in): ошибка → lightgbm
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[INFO] imports   нет в /workspace/koz3_shared/bot-7/venv/bin/python, но есть в inference/lib/vendor (проверка — dfine): ['transformers']
+[PASS] imports   29 модулей и 12 сторонних пакетов импортируются без сети (65.8 с)
+[PASS] weights   15 файлов весов открываются кодом архива на CPU
+[PASS] dfine     dfine_aeor: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/wt/scripts/check_submission.py", line 1463, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/wt/scripts/check_submission.py", line 1449, in main
+    check_dfine_aeor_weights(z, cfg or {}, args)   # bot-6: смоук весов D-FINE Ae/Or (только при enabled)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/wt/scripts/check_submission.py", line 967, in check_dfine_aeor_weights
+    report(*dfine_aeor_verdict(mk, out))
+TypeError: report() missing 1 required positional argument: 'msg'
+MAXRSS_KB=1081020 elapsed_s=182.1 user_s=57.0 sys_s=13.7 rc=1

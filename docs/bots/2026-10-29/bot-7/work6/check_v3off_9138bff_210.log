@@ -19,3 +19,15 @@
 [PASS] imports   все сторонние пакеты закреплены в requirements.lock
 [PASS] weights   15 файлов весов открываются кодом архива на CPU
 [INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[PASS] smoke     main.py завершился за 228.8 с, пик RSS 1442 МиБ, CPU 0
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=1
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=1
+[INFO] smoke     фазы: геофизика: сырых 1542, 211 с, лидар: сырых 0, 0 с, оптика: сырых 0, 0 с, канал σ: сырых 0, 0 с
+[INFO] smoke     записано 383, файл 280748 байт
+[INFO] smoke     общее время 220.9 с
+[PASS] format    FeatureCollection, 383 Polygon (≤20000), 0.268 МБ, по классам {'object_poly': 10, 'finds_points': 373}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /tmp/b8smoke_ovg_wblu
+== ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 327.2 с
+watchdog max RSS MB 38 exit 0

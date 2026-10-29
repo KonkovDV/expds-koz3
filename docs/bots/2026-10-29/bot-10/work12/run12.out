@@ -1,0 +1,16 @@
+feats 10:16:23
+k10 global G_noLAS,G,Rrepro 10:16:31
+k10 site G_noLAS,Rrepro 10:19:15
+lofo global G_noLAS 10:21:05
+lofo site G_noLAS 10:29:33
+seed0 global G_noLAS 10:37:29
+seed1 global G_noLAS 10:38:06
+seed2 global G_noLAS 10:39:28
+seed3 global G_noLAS 10:41:12
+seed4 global G_noLAS 10:42:32
+seed0 site G_noLAS 10:43:08
+seed1 site G_noLAS 10:43:36
+seed2 site G_noLAS 10:44:03
+seed3 site G_noLAS 10:44:29
+seed4 site G_noLAS 10:44:52
+done 10:45:20

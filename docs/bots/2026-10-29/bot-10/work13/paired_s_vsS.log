@@ -1,0 +1,11 @@
+k10 {'S_drop': 0.321984, 'S_keep': 0.341984, 'C2_drop': 0.325519, 'C2_keep': 0.338714, 'SATf_drop': 0.326114, 'SATf_keep': 0.346114, 'd_C2_drop': 0.003536, 'd_C2_keep': -0.003269, 'd_SATf_drop': 0.004131, 'd_SATf_keep': 0.004131}
+lofo {'S_drop': 0.321975, 'S_keep': 0.341975, 'C2_drop': 0.325511, 'C2_keep': 0.338706, 'SATf_drop': 0.326106, 'SATf_keep': 0.346106, 'd_C2_drop': 0.003536, 'd_C2_keep': -0.003269, 'd_SATf_drop': 0.004131, 'd_SATf_keep': 0.004131}
+seed0 {'S_drop': 0.322815, 'S_keep': 0.342883, 'C2_drop': 0.326364, 'C2_keep': 0.339576, 'SATf_drop': 0.326518, 'SATf_keep': 0.346586, 'd_C2_drop': 0.003549, 'd_C2_keep': -0.003306, 'd_SATf_drop': 0.003703, 'd_SATf_keep': 0.003703}
+seed1 {'S_drop': 0.31582, 'S_keep': 0.33582, 'C2_drop': 0.319356, 'C2_keep': 0.332551, 'SATf_drop': 0.31995, 'SATf_keep': 0.339951, 'd_C2_drop': 0.003536, 'd_C2_keep': -0.003269, 'd_SATf_drop': 0.004131, 'd_SATf_keep': 0.004131}
+seed2 {'S_drop': 0.325261, 'S_keep': 0.345261, 'C2_drop': 0.328797, 'C2_keep': 0.341992, 'SATf_drop': 0.329391, 'SATf_keep': 0.349391, 'd_C2_drop': 0.003536, 'd_C2_keep': -0.003269, 'd_SATf_drop': 0.004131, 'd_SATf_keep': 0.004131}
+seed3 {'S_drop': 0.31529, 'S_keep': 0.33529, 'C2_drop': 0.318826, 'C2_keep': 0.332021, 'SATf_drop': 0.31942, 'SATf_keep': 0.339421, 'd_C2_drop': 0.003536, 'd_C2_keep': -0.003269, 'd_SATf_drop': 0.004131, 'd_SATf_keep': 0.004131}
+seed4 {'S_drop': 0.301808, 'S_keep': 0.328517, 'C2_drop': 0.312306, 'C2_keep': 0.336485, 'SATf_drop': 0.313972, 'SATf_keep': 0.340682, 'd_C2_drop': 0.010498, 'd_C2_keep': 0.007968, 'd_SATf_drop': 0.012165, 'd_SATf_keep': 0.012165}
+C2_drop d10=+0.003536 P=0.518 CI=[-0.01016;+0.00656] lofo=+0.003536 seeds+=5/5 heavy=+0.000000 new34=+0.007294 acc=False
+C2_keep d10=-0.003269 P=0.093 CI=[-0.01016;+0.00656] lofo=-0.003269 seeds+=1/5 heavy=+0.000000 new34=+0.007294 acc=False
+SATf_drop d10=+0.004131 P=0.728 CI=[-0.00088;+0.00507] lofo=+0.004131 seeds+=5/5 heavy=+0.000000 new34=-0.000478 acc=False
+SATf_keep d10=+0.004131 P=0.728 CI=[-0.00088;+0.00507] lofo=+0.004131 seeds+=5/5 heavy=+0.000000 new34=-0.000478 acc=False

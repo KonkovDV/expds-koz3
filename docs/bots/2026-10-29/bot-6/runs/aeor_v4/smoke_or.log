@@ -1,0 +1,91 @@
+thresholds_file used: {'dfine_or': {'kurgany_tselye': 1.01, 'kurgany_povrezhdennye': 1.01, 'fortifikatsii': 1.01, 'arkhitektury': 0.7}} | итог dfine_or: {'gorodishcha': 1.01, 'kurgany_tselye': 1.01, 'kurgany_povrezhdennye': 1.01, 'fortifikatsii': 1.01, 'arkhitektury': 0.7} | ready: True []
+import_dfine: {'pin': '5.21.0', 'vendor_present': True, 'source': 'vendor', 'version': '5.21.0'}
+LOAD wall=3.3s cpu=3.5s rss_mb=618 labels=['kurgany_tselye', 'kurgany_povrezhdennye', 'gorodishcha', 'fortifikatsii', 'arkhitektury']
+LEVEL no_flip: {"n_det": 94, "by_class_min_score": {"fortifikatsii": 24, "gorodishcha": 63, "arkhitektury": 5, "kurgany_tselye": 2}, "max_by_class": {"fortifikatsii": 0.4608, "gorodishcha": 0.2346, "arkhitektury": 0.0916, "kurgany_tselye": 0.0862}, "kept_stub": {}, "windows": [1, 1], "wall_s": 3.2, "cpu_s": 5.3, "wall_s_per_window": 3.2, "rss_mb": 1067}
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/smoke_or.py", line 27, in <module>
+    B, L, C, T0, done, total = A.detect_image(models, TIF, S.utm_for(TIF, None), st, "or", level, dev)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/repo/expds/dfine_aeor.py", line 505, in detect_image
+    return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene, left)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/repo/expds/dfine_aeor.py", line 518, in detect_image
+    res, done, total = detect_scene(models, sc, st, mk, flips, device, keep_going, left)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/repo/expds/dfine_aeor.py", line 433, in detect_scene
+    res = forward_boxes(model, px, flip, T, st)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/repo/expds/dfine_aeor.py", line 359, in forward_boxes
+    o = model(pixel_values=inp)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py", line 2045, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py", line 1726, in forward
+    encoder_outputs = self.encoder(
+                      ^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/utils/generic.py", line 1081, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/utils/output_capturing.py", line 287, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py", line 1068, in forward
+    new_fpn_feature_map = fpn_block(fused_feature_map)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py", line 426, in forward
+    merged_features = self.conv4(merged_features)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-6/work/aeor_v4/root/inference/lib/vendor/transformers/models/d_fine/modeling_d_fine.py", line 343, in forward
+    hidden_state = self.conv(hidden_state)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-7/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 548, in _conv_forward
+    return F.conv2d(
+           ^^^^^^^^^
+RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 16777216 bytes. Error code 12 (Cannot allocate memory)
+MAXRSS_KB=1240124 elapsed_s=12.5 user_s=14.6 sys_s=3.3 rc=1

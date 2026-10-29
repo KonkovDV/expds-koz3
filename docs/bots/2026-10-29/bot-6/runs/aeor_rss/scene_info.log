@@ -1,0 +1,5 @@
+{"tif": "01_Герите_Or_ортофото.tif", "full_wh_bands_ovr": [108386, 98570, 4, [2, 4, 8, 16, 32, 64, 128, 256, 511]], "src_m": 0.0095, "overview_level": 3, "scene_WH_0.5m": [2070, 1883], "windows_1024_288": 9}
+{"tif": "01_Елизаветинское_Or_ортофото.tif", "full_wh_bands_ovr": [40000, 30000, 3, [272]], "src_m": 0.0201, "overview_level": null, "scene_WH_0.5m": [1611, 1217], "windows_1024_288": 4}
+{"tif": "01_Фалхан_Or_ортофото.tif", "full_wh_bands_ovr": [25698, 35751, 4, []], "src_m": 0.0406, "overview_level": null, "scene_WH_0.5m": [2110, 3156], "windows_1024_288": 12}
+{"tif": "01_Изборск_Or_ортофото.tif", "full_wh_bands_ovr": [7479, 4830, 3, []], "src_m": 0.0678, "overview_level": null, "scene_WH_0.5m": [1015, 655], "windows_1024_288": 1}
+{"tif": "01_Гнёздово_Лесная_3_Ae_немецкая.tif", "full_wh_bands_ovr": [398, 1678, 1, []], "src_m": 0.2168, "overview_level": null, "scene_WH_0.5m": [173, 728], "windows_1024_288": 1}

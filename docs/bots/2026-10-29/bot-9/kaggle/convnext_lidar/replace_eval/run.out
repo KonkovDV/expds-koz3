@@ -1,0 +1,27 @@
+df 14G 08:23:51 fam_src семей 103 объектов 1386709
+df 14G 08:23:58 start
+df 14G 08:24:03 fam base
+curves base ok 08:25:55
+df 14G 08:25:55 rm fam_base
+df 13G 08:26:06 fam add
+curves add ok 08:28:10
+df 14G 08:28:10 rm fam_add
+df 14G 08:28:32 fam rep_raw
+curves rep_raw ok 08:28:54
+df 14G 08:28:54 rm fam_rep_raw
+df 14G 08:29:12 fam rep_mix
+curves rep_mix ok 08:29:35
+df 14G 08:29:35 rm fam_rep_mix
+df 14G 08:29:55 fam rep_rank
+curves rep_rank ok 08:30:25
+df 14G 08:30:25 rm fam_rep_rank
+df 14G 08:30:47 fam rep_quantile
+curves rep_quantile ok 08:31:11
+df 14G 08:31:11 rm fam_rep_quantile
+{"n_units": 25, "skipped": ["Иссык+Каджы"], "base_ok": true}
+Terminated
+paired rc=143 08:35:02
+report rc=0 08:36:33
+drop {"add": {"d10": -0.011445, "A": 0.314615, "V": 0.30317, "per_class": {"kurgany_povrezhdennye": -0.013, "kurgany_tselye": -0.0145, "gorodishcha": -0.0293, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": -0.0046, "finds_points": 0.0}}, "rep_raw": {"d10": -0.014032, "A": 0.314615, "V": 0.300583, "per_class": {"kurgany_povrezhdennye": -0.0231, "kurgany_tselye": -0.0356, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_mix": {"d10": -0.019607, "A": 0.314615, "V": 0.295008, "per_class": {"kurgany_povrezhdennye": -0.0377, "kurgany_tselye": -0.0415, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_rank": {"d10": -0.048963, "A": 0.314615, "V": 0.265652, "per_class": {"kurgany_povrezhdennye": -0.0756, "kurgany_tselye": -0.1314, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_quantile": {"d10": -0.038796, "A": 0.314615, "V": 0.27582, "per_class": {"kurgany_povrezhdennye": -0.0753, "kurgany_tselye": -0.081, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}}
+keep {"add": {"d10": -0.011444, "A": 0.333237, "V": 0.321793, "per_class": {"kurgany_povrezhdennye": -0.013, "kurgany_tselye": -0.0145, "gorodishcha": -0.0293, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": -0.0046, "finds_points": 0.0}}, "rep_raw": {"d10": -0.01394, "A": 0.333237, "V": 0.319297, "per_class": {"kurgany_povrezhdennye": -0.0228, "kurgany_tselye": -0.0356, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_mix": {"d10": -0.019509, "A": 0.333237, "V": 0.313728, "per_class": {"kurgany_povrezhdennye": -0.0374, "kurgany_tselye": -0.0415, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_rank": {"d10": -0.048962, "A": 0.333237, "V": 0.284275, "per_class": {"kurgany_povrezhdennye": -0.0756, "kurgany_tselye": -0.1314, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}, "rep_quantile": {"d10": -0.038794, "A": 0.333237, "V": 0.294444, "per_class": {"kurgany_povrezhdennye": -0.0753, "kurgany_tselye": -0.081, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}}}
+df 14G 08:36:33 done

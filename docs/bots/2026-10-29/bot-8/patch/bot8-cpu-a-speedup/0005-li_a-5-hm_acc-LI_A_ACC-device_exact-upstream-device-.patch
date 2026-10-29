@@ -1,0 +1,256 @@
+# DO NOT DISTRIBUTE — contains verbatim code of EhimenNathan-EXpedition (no LICENSE). Never merge/push/apply. See DO_NOT_DISTRIBUTE.md.
+From cee1ef46d7a57c96cb7525f976d17ae5ab3cf4b1 Mon Sep 17 00:00:00 2001
+From: bot-8 <bot-8@local>
+Date: Wed, 28 Oct 2026 23:07:53 +0300
+Subject: [PATCH 5/5] =?UTF-8?q?li=5Fa=20(5):=20=D1=81=D0=BA=D0=BB=D0=B5?=
+ =?UTF-8?q?=D0=B9=D0=BA=D0=B0=20=D1=82=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2=20?=
+ =?UTF-8?q?=D0=B8=20=D1=81=D0=BC=D0=B5=D1=88=D0=B8=D0=B2=D0=B0=D0=BD=D0=B8?=
+ =?UTF-8?q?=D0=B5=20=D0=B0=D0=BD=D1=81=D0=B0=D0=BC=D0=B1=D0=BB=D1=8F=20?=
+ =?UTF-8?q?=D0=BD=D0=B0=20=D1=83=D1=81=D1=82=D1=80=D0=BE=D0=B9=D1=81=D1=82?=
+ =?UTF-8?q?=D0=B2=D0=B5=20=D0=BC=D0=BE=D0=B4=D0=B5=D0=BB=D0=B8=20(hm=5Facc?=
+ =?UTF-8?q?;=20LI=5FA=5FACC=3Ddevice=5Fexact=20=D0=BF=D0=BE=20=D1=83=D0=BC?=
+ =?UTF-8?q?=D0=BE=D0=BB=D1=87=D0=B0=D0=BD=D0=B8=D1=8E=20=E2=80=94=20=D0=BF?=
+ =?UTF-8?q?=D0=BE=D0=B1=D0=B0=D0=B9=D1=82=D0=BD=D0=BE=20=3D=20upstream,=20?=
+ =?UTF-8?q?device=20=E2=80=94=20=D1=81=D1=83=D0=BC=D0=BC=D0=B0=20=D0=B0?=
+ =?UTF-8?q?=D0=BD=D1=81=D0=B0=D0=BC=D0=B1=D0=BB=D1=8F=20=D0=BD=D0=B0=20GPU?=
+ =?UTF-8?q?,=20=E2=89=A41=20ulp),=20=D0=BE=D1=82=D0=BA=D0=B0=D1=82=20?=
+ =?UTF-8?q?=D0=BD=D0=B0=20=D1=85=D0=BE=D1=81=D1=82-=D0=B0=D0=BA=D0=BA?=
+ =?UTF-8?q?=D1=83=D0=BC=D1=83=D0=BB=D1=8F=D1=82=D0=BE=D1=80=D1=8B=20=D0=BF?=
+ =?UTF-8?q?=D1=80=D0=B8=20OOM?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ expds/li_a/expert.py | 50 ++++++++++++++++++++---
+ expds/li_a/hm_acc.py | 96 ++++++++++++++++++++++++++++++++++++++++++++
+ tests/test_li_a.py   | 31 +++++++++++++-
+ 3 files changed, 170 insertions(+), 7 deletions(-)
+ create mode 100644 expds/li_a/hm_acc.py
+
+diff --git a/expds/li_a/expert.py b/expds/li_a/expert.py
+index 436a5c0..2b75018 100644
+--- a/expds/li_a/expert.py
++++ b/expds/li_a/expert.py
+@@ -3,6 +3,7 @@
+ Port of EhimenNathan inference/koz3_infer/experts/las.py:predict (@d434e56). The platform glue (weights loading,
+ UTM.json lookup, logging) is passed in: models = [(model, kind, weight)], kind '' (9 ch), 'x' (12 ch) or 'u'.
+ """
++import os
+ import time
+ 
+ import numpy as np
+@@ -40,7 +41,7 @@ def _channels_extra(d, v, res, unclip=False, dev="cuda", with_valid=False):
+         relief.EXTRA, relief.N_CH, relief.UNCLIP = e0, n0, u0
+ 
+ 
+-def site_probs(d, v, res, models, c, deadline, dev="cuda", log=print):
++def site_probs(d, v, res, models, c, deadline, dev="cuda", log=print, acc=None):
+     """DTM → blended probability maps (N_HM + N_MK, h, w) and the valid mask at relief.NET_RES."""
+     if time.time() > deadline - 120:
+         models = models[:1]      # protect the time budget on huge clouds
+@@ -62,11 +63,48 @@ def site_probs(d, v, res, models, c, deadline, dev="cuda", log=print):
+     tta = c.get("tta", True)        # "d8": 4 rotations × 2 flips (nested OOF 0.5651 → 0.5695); True: 3 flips
+     if tta == "d8" and time.time() > deadline - 300:
+         tta = True                     # protect the time budget
+-    ps = [oom_retry(lambda t, m=m, xx=xs[k]: hm.predict_tiled(m, xx, N_HM + N_MK, tile=t, overlap=min(192, t // 4), tta=tta, dev=dev), log=log)
+-          for m, k, _ in models]
+-    ws = np.array([w for _, _, w in models], np.float32)
+-    prob = np.tensordot(ws / ws.sum(), np.stack(ps), axes=1)
+-    return prob, vv
++    acc = acc or ACC
++    if acc == "host":                   # upstream
++        ps = [oom_retry(lambda t, m=m, xx=xs[k]: hm.predict_tiled(m, xx, N_HM + N_MK, tile=t, overlap=min(192, t // 4), tta=tta, dev=dev), log=log)
++              for m, k, _ in models]
++        ws = np.array([w for _, _, w in models], np.float32)
++        prob = np.tensordot(ws / ws.sum(), np.stack(ps), axes=1)
++        return prob, vv
++    return _probs_dev(models, xs, tta, dev, acc, log), vv
++
++
++# §7.12 (5): "device_exact" (default) = tile blending on the model's device (no per-tile sync/D2H, no host-side
++# numpy blending), then the upstream host tensordot — bit-identical to "host"; "device" = also the ensemble sum on the
++# device (one D2H per site, no host stack): differs from tensordot by ≤ 1 ulp (bench/cpu_a_speedup/acc_*.json: max
++# |Δ| 6e-8, 0 threshold flips, 1 extra NMS-tie peak of 28861 on 022), opt-in; "host" = upstream.
++ACC = os.environ.get("LI_A_ACC", "device_exact")
++
++
++def _probs_dev(models, xs, tta, dev, acc, log):
++    import torch
++    from . import hm_acc
++    n = N_HM + N_MK
++    state = {"acc_dev": None}
++
++    def one(m, x):
++        def run(t):
++            try:
++                return hm_acc.predict_tiled(m, x, n, tile=t, overlap=min(192, t // 4), tta=tta, dev=dev, acc_dev=state["acc_dev"])
++            except torch.OutOfMemoryError:
++                if state["acc_dev"] is not None:
++                    raise
++                torch.cuda.empty_cache()             # no room for the site-sized maps on the GPU: blend on the host
++                log("CUDA OOM in device accumulation, falling back to host accumulators")
++                state["acc_dev"] = "cpu"
++                return hm_acc.predict_tiled(m, x, n, tile=t, overlap=min(192, t // 4), tta=tta, dev=dev, acc_dev="cpu")
++        return oom_retry(run, log=log)
++    if acc == "device_exact":
++        ps = [one(m, xs[k]).cpu().numpy() for m, k, _ in models]
++        ws = np.array([w for _, _, w in models], np.float32)
++        return np.tensordot(ws / ws.sum(), np.stack(ps), axes=1)
++    if acc != "device":
++        raise ValueError(f"LI_A_ACC {acc!r}")
++    return hm_acc.blend(models, xs, n, one, log=log)
+ 
+ 
+ def _dtms(paths, pool):
+diff --git a/expds/li_a/hm_acc.py b/expds/li_a/hm_acc.py
+new file mode 100644
+index 0000000..e86ffbe
+--- /dev/null
++++ b/expds/li_a/hm_acc.py
+@@ -0,0 +1,96 @@
++"""§7.12 (5) (bot-8): hm.predict_tiled with the tile blending and the ensemble blend kept on the model's device.
++
++Upstream (hm.predict_tiled) copies every tile's averaged TTA output to the host (`.cpu().numpy()`, a sync per tile)
++and blends it into numpy out/cnt on one CPU thread; site_probs then stacks all models' maps on the host and blends them
++with np.tensordot. Here out/cnt live on `acc_dev` (default: the model's device) and models are summed into one device
++accumulator, so the host sees a single (N, h, w) map per site and the CPU is free for the DTM pool.
++
++Equality: the tile blending does the same IEEE float32 ops in the same order (o·wgt, then +=; cnt += wgt; out /
++max(cnt, 1e-6)), wgt is built by the same numpy code → bit-identical to hm.predict_tiled (checked on CPU torch; CUDA
++elementwise mul/add/div are IEEE-exact too, so the same holds on GPU up to the model's own output). The ensemble
++blend is a running Σ (w_i/Σw)·p_i instead of tensordot's BLAS sum: equal up to float32 rounding (≤ a few ulp, see
++tests and bench/cpu_a_speedup/acc_*.json); expert ACC "device_exact" keeps the upstream tensordot bit for bit.
++"""
++import numpy as np
++import torch
++
++_W = {}
++
++
++def _wgt(h, w, overlap, tile, first_y, last_y, first_x, last_x, inner_y, inner_x):
++    """Blend weights exactly as hm.predict_tiled (numpy float64 ramps → float32 outer product)."""
++    ramp = np.minimum(np.arange(tile) + 1, overlap) / overlap
++    wy = np.minimum(ramp[:h], ramp[:h][::-1]) if inner_y else np.ones(h)
++    wx = np.minimum(ramp[:w], ramp[:w][::-1]) if inner_x else np.ones(w)
++    if first_y: wy[:overlap] = 1
++    if last_y: wy[-overlap:] = 1
++    if first_x: wx[:overlap] = 1
++    if last_x: wx[-overlap:] = 1
++    return np.outer(wy, wx).astype(np.float32)
++
++
++def _wgt_dev(key, dev):
++    k = key + (str(dev),)
++    t = _W.get(k)
++    if t is None:
++        if len(_W) > 64:
++            _W.clear()
++        t = _W[k] = torch.from_numpy(_wgt(*key)).to(dev)
++    return t
++
++
++def predict_tiled(model, img, n_out, tile=1024, overlap=192, tta=True, dev="cuda", acc_dev=None):
++    """= hm.predict_tiled, but returns a torch tensor (n_out, H, W) on acc_dev (default dev)."""
++    acc_dev = torch.device(acc_dev or dev)
++    C, H, W = img.shape
++    out = torch.zeros((n_out, H, W), dtype=torch.float32, device=acc_dev)
++    cnt = torch.zeros((H, W), dtype=torch.float32, device=acc_dev)
++    step = tile - overlap
++    for y in list(range(0, max(1, H - overlap), step)):
++        for x in list(range(0, max(1, W - overlap), step)):
++            y1, x1 = min(H, y + tile), min(W, x + tile)
++            t = img[:, y:y1, x:x1]
++            h, w = t.shape[1:]
++            ph, pw = (-h) % 32, (-w) % 32
++            tt = torch.from_numpy(np.pad(t, ((0, 0), (0, ph), (0, pw)), mode="reflect" if min(h, w) > max(ph, pw) else "constant")).float()[None].to(dev)
++            acc = 0
++            if tta == "d8" and tt.shape[-1] == tt.shape[-2]:
++                views = [(k, fl) for k in range(4) for fl in (False, True)]
++            else:
++                views = [(0, ()), (0, (-1,)), (0, (-2,))] if tta else [(0, ())]
++            for k, fl in views:
++                z = torch.rot90(tt, k, dims=(-2, -1)) if k else tt
++                if fl is True:
++                    z = z.flip(-1)
++                elif fl:
++                    z = z.flip(fl)
++                with torch.autocast("cuda", dtype=torch.bfloat16):
++                    o = torch.sigmoid(model(z).float())
++                if fl is True:
++                    o = o.flip(-1)
++                elif fl:
++                    o = o.flip(fl)
++                acc = acc + (torch.rot90(o, -k, dims=(-2, -1)) if k else o)
++            o = (acc / len(views))[0, :, :h, :w].to(acc_dev)
++            wgt = _wgt_dev((h, w, overlap, tile, y == 0, y1 == H, x == 0, x1 == W, y > 0 or y1 < H, x > 0 or x1 < W), acc_dev)
++            out[:, y:y1, x:x1] += o * wgt
++            cnt[y:y1, x:x1] += wgt
++    return out / torch.clamp_min(cnt, 1e-6)
++
++
++def blend(models, xs, n_out, predict, log=print):
++    """Σ_i (w_i/Σw)·p_i over models = [(model, kind, weight)] on the accumulation device → numpy (n_out, H, W).
++
++    predict(model, x) → torch (n_out, H, W). Weights are normalised in float32 numpy exactly as upstream."""
++    ws = np.array([w for _, _, w in models], np.float32)
++    ws = ws / ws.sum()
++    tot = None
++    for (m, k, _), wi in zip(models, ws):
++        p = predict(m, xs[k])
++        p.mul_(float(wi))                       # float32(wi) is exact in a python float
++        if tot is None:
++            tot = p
++        else:
++            tot += p
++        del p
++    return tot.cpu().numpy()
+diff --git a/tests/test_li_a.py b/tests/test_li_a.py
+index 06d1341..a1b602f 100644
+--- a/tests/test_li_a.py
++++ b/tests/test_li_a.py
+@@ -74,7 +74,7 @@ def test_site_probs_equal_upstream(monkeypatch):
+     orig = hm.predict_tiled
+     monkeypatch.setattr(hm, "predict_tiled", lambda m, x, n, tile, overlap, tta, dev: orig(m, x, n, tile=256, overlap=64, tta=tta, dev=dev))
+     p_ref, vv_ref = _ref_site_probs(d, v, 0.25, _models(), c, time.time() + 1e4)
+-    p, vv = expert.site_probs(d, v, 0.25, _models(), c, time.time() + 1e4, dev=DEV)
++    p, vv = expert.site_probs(d, v, 0.25, _models(), c, time.time() + 1e4, dev=DEV, acc="host")
+     assert np.array_equal(p, p_ref) and np.array_equal(vv, vv_ref)
+ 
+ 
+@@ -161,3 +161,32 @@ def test_band_fill_keeps_network_input(monkeypatch):
+     p0 = hm.predict_tiled(_Net(12, 3), x0, N_HM + N_MK, tile=256, overlap=64, tta=False, dev=DEV)
+     p1 = hm.predict_tiled(_Net(12, 3), x1, N_HM + N_MK, tile=256, overlap=64, tta=False, dev=DEV)
+     assert np.array_equal(p0, p1)
++
++
++# ---- (5) tile + ensemble blending on the model's device ------------------------------------------------------------
++@pytest.mark.parametrize("tta,shape", [(True, (9, 450, 350)), (False, (9, 300, 700)), ("d8", (9, 512, 512)), (True, (9, 100, 90))])
++def test_hm_acc_tiles_bit_equal(tta, shape):
++    from expds.li_a import hm_acc
++    x = np.random.default_rng(3).normal(size=shape).astype(np.float32)
++    m = _Net(9, 5)
++    with torch.no_grad():
++        ref = hm.predict_tiled(m, x, N_HM + N_MK, tile=256, overlap=64, tta=tta, dev=DEV)
++        got = hm_acc.predict_tiled(m, x, N_HM + N_MK, tile=256, overlap=64, tta=tta, dev=DEV).numpy()
++    assert got.dtype == ref.dtype and got.tobytes() == ref.tobytes()
++
++
++@pytest.mark.parametrize("acc", ["device_exact", "device"])
++def test_site_probs_device_acc(acc, monkeypatch):
++    d, v = _dtm(seed=2)
++    c = {"tta": True}
++    monkeypatch.setattr(expert, "oom_retry", lambda fn, log=print: fn(256))
++    with torch.no_grad():
++        ref, vr = expert.site_probs(d, v, 0.25, _models(), c, time.time() + 1e4, dev=DEV, acc="host")
++        p, vv = expert.site_probs(d, v, 0.25, _models(), c, time.time() + 1e4, dev=DEV, acc=acc)
++    assert np.array_equal(vv, vr) and p.dtype == ref.dtype
++    if acc == "device_exact":
++        assert p.tobytes() == ref.tobytes()
++    else:                                    # running sum vs BLAS tensordot: float32 rounding only
++        assert np.abs(p - ref).max() <= 4 * np.finfo(np.float32).eps
++        for t in (0.05, 0.1, 0.3, 0.5):
++            assert ((p > t) != (ref > t)).mean() < 1e-4
+-- 
+2.47.3
+

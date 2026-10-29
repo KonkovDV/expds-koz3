@@ -1,0 +1,13 @@
+== wt-base-main 24bd916 0 dirty
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 307 passed, 9 skipped, 21 warnings in 220.39s (0:03:40)
+exit 1
+== wt-base-b7 42ada8d 0 dirty
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+1 failed, 307 passed, 9 skipped, 21 warnings in 255.68s (0:04:15)
+exit 1
+== wt-rel f764a27 0 dirty
+FAILED tests/test_pipeline.py::test_wide_circle_within_12m_of_a_kept_center_is_dropped
+4 failed, 313 passed, 9 skipped, 21 warnings in 167.54s (0:02:47)
+exit 1
+== wt-rel7 142bef0 0 dirty

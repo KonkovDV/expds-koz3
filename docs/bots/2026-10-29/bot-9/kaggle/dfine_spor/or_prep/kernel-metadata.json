@@ -1,0 +1,18 @@
+{
+ "id": "dmitrijkv/koz3-dfine-or-prep",
+ "title": "koz3-dfine-or-prep",
+ "code_file": "koz3-dfine-or-prep.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": false,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "dataset_sources": [
+  "dmitrijkv/koz3-s3-cred"
+ ],
+ "competition_sources": [],
+ "kernel_sources": [],
+ "model_sources": [],
+ "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435"
+}

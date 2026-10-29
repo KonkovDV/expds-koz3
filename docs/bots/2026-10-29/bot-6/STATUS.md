@@ -53,3 +53,33 @@
   - П2 ✗ и П3 ✗ → **не принято**, остаётся G.
 - **Время S:** 41 мс/кроп всё включено → 7105 × 0,041 ≈ 291 с ≤ 561 с, укладывается. Сеть отдельно: 12,4–31,4 мс/кроп.
 - **Веса и данные:** официальные Apache-2.0, sha256 78e7f952…abae7. Использованы только данные бокса, правило организаторов от 29.10 соблюдено (PREREG_ORGATE_S.md, аддендум 2).
+
+## 12:5x 29.10 AEOR_DETECT — ГОТОВО (ветка bot6-aeor-detect @ 3617be6, AEOR_DETECT.md)
+- Флаг `[dfine_aeor] enabled=false` стоит между sp_dfine и gor_gate. Группы dfine_ae/dfine_or, кэш общий с sp_dfine, импорт только через sp_dfine.import_dfine, маркер DFINE_AEOR_UNAVAILABLE.
+- tests/test_dfine_aeor.py: 29 passed (work/aeor_pytest_final.log).
+- Побайтовая идентичность (база / флаг выкл / флаг вкл без весов): одинаковый sha 9222f5d1…, 245 объектов (work/aeor_identity/run2/identity.json).
+- Diff: bot6-aeor-detect.diff. Ждём от bot-9 веса и время на 4090, от bot-10 OOF-пороги. Фоновых процессов нет.
+
+## 13:1x 29.10 AEOR v2 — ГОТОВО (bot6-aeor-detect @ f4e733b, не запушен; AEOR_DETECT.md §v2)
+- Ключ слияния изолирует dfine_ae/dfine_or (merge_union выкл.), у dfine отдельная цепочка finish. Scene с обзорами + общий буфер батча.
+- RSS: Герите Or 605 308 КБ / 4,9 с; Елизаветинское 749 392 КБ / 90,7 с; Фалхан 791 660 КБ / 89,5 с (work/aeor_rss/*.log).
+- Риск по времени не снят: Or без обзоров ≈ 89 с при потолке фазы 120 с.
+- check_submission: AEOR_UNAVAILABLE → FAIL. Смоук n_det>0 на 181_Гнёздово_Лесная_3 (Ae) и 185_Изборск (Or); без весов → FAIL.
+- Тесты: test_dfine_aeor 38, вместе с флагами/check_submission 82, регресс 139 passed. Identity sha 9222f5d1… (work/aeor_identity/run4).
+- Diff bot6-aeor-detect.diff (sha a45f5e4d…). Весов bot-9 (bot-9/models) на момент проверки не было.
+
+## 13:1x 29.10 ORGATE G в инференсе — ГОТОВО (bot6-orgate @ e0a6709, не запушен; ORGATE_INFER.md)
+- Флаг `[orgate] enabled=false`; гейт заменяет R на его месте (до FR1h и порогов). dfine_* и sp_dfine не оцениваются. LAS берётся из входного каталога.
+- Отказ даёт маркер ORGATE_UNAVAILABLE и откат на R, check_submission → FAIL. Смоук на 008_Герите: удаляет 11 из 43, опорный вход вне git (п. 13.11).
+- Модель 676f4c1b… (532 514 Б), meta d3980320…; пороги or 0,004086 / sp_arch 0,008176 (медиана k10); REPRO_OK 54/327.
+- Эквивалентность: весь трейн — 0 расхождений из 134 участков, maxrss 891 888 КБ; путь пайплайна на 4 участках точный. Оговорка: решения зависят от состава входа (gq/пул), как у R.
+- Тесты 13 + регресс 190 passed; identity off / on-без-модели / on = база 9222f5d1… (work/orgate_identity/run1).
+- Diff bot6-orgate.diff, sha 1d30c8fb…. Фоновых процессов нет.
+
+## 13:4x 29.10 follow-ups bot-7 13:12 — ГОТОВО (bot6-orgate @ ca63a9d, родитель e0a6709, не запушен)
+- check_submission: если опорных данных смоука нет (`--orgate-smoke` / растры dfine_aeor / `--no-weights`), выдаётся WARN «смоук не выполнен», а не PASS и не FAIL. Дефекты архива по-прежнему дают FAIL.
+- dfine_aeor: срок проверяется перед каждым чтением окна и каждым масштабом, перерасход ≤ 1 чтения окна; skip через soft_ok подтверждён тестом. В AEOR_DETECT.md v3 — заметка о перекалибровке под GTX 1650.
+- ORGATE_INFER.md (g): orgate_g обучен на table.pkl **до** D-FINE R. R выбрасывает 46 735 из 47 518 arch-строк (все sp_arch) и 205 из 228 OK-пар (`work/orgate_stack/stack_check.json`). Совместного замера G+R по arch в REPORT14/12/10 нет, нужен перемер.
+- Тесты: 56 (42 aeor + 14 orgate), регресс 195 passed (`work/orgate_regress3.log`); identity run2 4/4 b5f6b41c… (bot-7 venv; bot-8 venv нет после рестора).
+- Diff bot6-followups-1312.diff (e0a6709..ca63a9d), sha 2a75a4de…; bot6-orgate.diff без изменений (1d30c8fb…). Фоновых процессов нет.
+- 14:06 МСК 29.10: v4 — веса dfine_or bot-9 (sha OK), смоук 185 PASS (n_det 94, 2,8–3,2 с/окно, RSS ≈1,1 ГБ; batch 4 под 2 ГБ — OOM, нужен 1), пороги-заглушка все 1,01; check_submission с весами PASS после фикса TypeError (770abda / c67c385). CRS-фикс 008_Герите: ветка bot6-crsfix от 885758e — f86a31a (+ c67c385), bot6-crsfix.diff, bot6-v4-checksub.diff; 008 1×1/0 дет. → 2070×1883/9 окон/397 дет.; по 210 участкам меняется только 008. AEOR_DETECT.md §v4. Не запушено.

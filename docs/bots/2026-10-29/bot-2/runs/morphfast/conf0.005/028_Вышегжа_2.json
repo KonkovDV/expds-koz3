@@ -1,0 +1,1 @@
+{"region": "028_Вышегжа_2", "n": 146094, "conf_min": 0.005, "dem_from_li": false, "n_hi": 27940, "n_rz_sample": 2000, "n_feat": 29561, "coords": "inside=1.000", "t_grid_s": 32.95, "t_fill_s": 5.66, "rss_after_dem_mb": 1120.6, "status": "ok", "t_feat_s": 2.715, "ms_per_cand_feat": 0.0918, "t_total_s": 41.33, "maxrss_mb": 1120.6}

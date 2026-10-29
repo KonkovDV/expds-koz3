@@ -1,0 +1,10 @@
+build: watchdog max RSS MB 157 exit 0
+v3off_9138bff_synth done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 190.3 с
+BYTE-IDENTICAL synth
+v3off_9138bff_210 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 327.2 с
+BYTE-IDENTICAL 210
+v3off_9138bff_214 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 189.8 с
+BYTE-IDENTICAL 214
+v3off_9138bff_217 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 30, 423.2 с
+BYTE-IDENTICAL 217
+ALLDONE

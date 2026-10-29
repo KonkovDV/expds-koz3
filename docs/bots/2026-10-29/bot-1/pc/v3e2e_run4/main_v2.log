@@ -1,0 +1,37 @@
+2026-10-29 10:34:30,949 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-29 10:34:30,949 INFO expds.pipeline: мягкий потолок 1200 с от старта процесса (прошло 1 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-10-29 10:34:30,949 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=20
+2026-10-29 10:34:31,027 INFO expds.pipeline: устройство: NVIDIA GeForce GTX 1650
+2026-10-29 10:34:31,029 INFO expds.watchdog: сторож сработает через 1619 с
+2026-10-29 10:34:31,105 INFO expds.catalog: найдено регионов: 2 в /data/input
+2026-10-29 10:34:31,106 INFO expds.pipeline: к разбору: регионов 2, LAS 1, растров 7 (ae 5, sp_or 2), пропущено файлов 0
+2026-10-29 10:34:31,115 INFO expds.pipeline: среда: {'python': '3.12.15', 'platform': 'Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36', 'cpu': 20, 'mem_gb': {'MemTotal': 15.5, 'MemAvailable': 12.0}, 'cgroup_mem_max': '103079215104', 'uid': 12345, 'output_writable': True, 'torch': '2.11.0+cu128', 'cuda_available': True, 'gpu': 'NVIDIA GeForce GTX 1650', 'gpu_mem_gb': 4.0, 'accel': 'rust 0.1.0 avx2=true/true threads=20'}
+2026-10-29 10:34:31,265 INFO expds.health: опись входа: {'regions': 2, 'rasters_by_modality': {'ae': 5, 'sp_or': 2}, 'las_files': 1, 'las_region_crs': {'EPSG:32636': 1}, 'raster_read': {'ok': 7}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 10:34:31,574 INFO expds.geo_pixgbm: pixgbm 101_Гнёздово_Днепровская: backend=lightgbm потоков=8 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 10:34:31,629 INFO expds.geo_pixgbm: pixgbm 103_Гнёздово_Ольшанская: backend=lightgbm потоков=8 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 10:34:39,336 INFO expds.lidar: DEM 01_Гнёздово_Днепровская_La_точки.las: 9124x6186 @ 0.3 м, точек 10093840, пустот 48305111, rust 0.1.0 avx2=true/true threads=20
+2026-10-29 10:34:45,195 INFO expds.lidar: 01_Гнёздово_Днепровская_La_точки.las: класса 2 нет, мозаика по всем точкам
+2026-10-29 10:35:15,701 INFO expds.lidar: DEM 01_Гнёздово_Днепровская_La_точки.las: 5476x3712 @ 0.5 м, точек 10093840, пустот 14510403, rust 0.1.0 avx2=true/true threads=20
+2026-10-29 10:35:15,907 INFO expds.hillfort: 01_Гнёздово_Днепровская_La_точки.las: кандидатов городищ по рельефу 5
+2026-10-29 10:35:18,959 INFO expds.lidar: DEM 01_Гнёздово_Днепровская_La_точки.las: 2739x1857 @ 1 м, точек 10093840, пустот 2748025, rust 0.1.0 avx2=true/true threads=20
+2026-10-29 10:35:22,212 INFO expds.pipeline: 101_Гнёздово_Днепровская: лидар +51530, 50.6 с, прошло 53 с
+2026-10-29 10:35:22,215 INFO expds.pipeline: 103_Гнёздово_Ольшанская: лидар +0, 0.0 с, прошло 53 с
+2026-10-29 10:35:33,063 INFO expds.pipeline: 101_Гнёздово_Днепровская: оптика +43, прошло 64 с
+2026-10-29 10:35:41,486 INFO expds.pipeline: 103_Гнёздово_Ольшанская: оптика +4, прошло 72 с
+2026-10-29 10:35:49,244 INFO expds.pipeline: 101_Гнёздово_Днепровская: канал σ +59344, прошло 80 с
+2026-10-29 10:35:49,256 INFO expds.crop_model: проверка кропа: кандидатов нет
+2026-10-29 10:35:50,009 INFO expds.rerank_arch: реранк архитектуры: 10 кандидатов, в пуле 10, оставлено 10
+2026-10-29 10:35:50,070 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-29 10:35:50,071 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-29 10:35:50,071 INFO expds.watchdog: устройство: NVIDIA GeForce GTX 1650; torch 2.11.0+cu128; cuda 12.8; ускоритель rust 0.1.0 avx2=true/true threads=20
+2026-10-29 10:35:50,071 INFO expds.watchdog: конфиг SHA256 ec9f086051a961f7192b427b6ce9c352b046be2c64933a146d494a26ab1f4018; бюджет 1500 с; запас 120 с
+2026-10-29 10:35:50,071 INFO expds.watchdog: вход: регионов 2, из них с LAS 1; файлов LAS 1; растров ae 5, sp_or 2; пропущено файлов 0
+2026-10-29 10:35:50,071 INFO expds.watchdog: фазы: геофизика: сырых 0, 0 с, лидар: сырых 51530, 51 с, оптика: сырых 47, 19 с, канал σ: сырых 59344, 8 с
+2026-10-29 10:35:50,077 INFO expds.watchdog: до порога 110921, по слоям: ae 205, li 110670, sp_or 46
+2026-10-29 10:35:50,083 INFO expds.watchdog: до порога по классам: arkhitektury 10, fortifikatsii 14, gorodishcha 11, kurgany_povrezhdennye 55356, kurgany_tselye 55530
+2026-10-29 10:35:50,083 INFO expds.watchdog: записано 248, файл 428032 байт
+2026-10-29 10:35:50,083 INFO expds.watchdog: после порога по классам: arkhitektury 10, fortifikatsii 14, gorodishcha 9, kurgany_povrezhdennye 174, kurgany_tselye 41
+2026-10-29 10:35:50,083 INFO expds.watchdog: после порога по слоям: ae 59, li 143, sp_or 46
+2026-10-29 10:35:50,083 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-10-29 10:35:50,086 INFO main: готово: {"regions": 2, "raw": 110921, "phases": {"геофизика": {"raw": 0, "seconds": 0.4}, "лидар": {"raw": 51530, "seconds": 50.6}, "оптика": {"raw": 47, "seconds": 19.3}, "канал σ": {"raw": 59344, "seconds": 7.8}}, "written": 248, "seconds": 79.1, "partial_files": []}
+2026-10-29 10:35:50,095 INFO main: общее время 80.6 с

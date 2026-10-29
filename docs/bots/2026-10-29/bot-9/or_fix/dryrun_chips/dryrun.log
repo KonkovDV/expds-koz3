@@ -1,0 +1,56 @@
+  torch 2.11.0+cpu
+  torchvision 0.26.0+cpu
+  huggingface_hub 2.3.0
+  safetensors 0.8.0
+  transformers 5.21.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  cv2 4.11.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "full", "res": 0.5, "tile": 1024, "overlap": 288, "max_windows": 0, "bs": 4, "iters": 2400, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.5, "cls_cap": 6.0, "neg_share": 0.6, "neg_ratio": 1.0, "neg_min": 8, "neg_cap": 60, "neg_margin": 32, "neg_valid": 0.25, "neg_masked": 1, "neg_mask_max": 0.4, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 0, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 2, "smoke_test_regions": 1, "deadline_h": 5.0, "folds": "0,1,2", "regions": "008_Герите,014_Лешки,033_Елизаветинское,056_Фалхан,185_Изборск", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[      1s] S3 OK
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Fetching 3 files: 100%|██████████| 3/3 [00:00<00:00, 580.82it/s]
+[      1s] веса HF OK ustc-community/dfine-large-obj2coco-e25 c89de471 (Apache-2.0)
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 932/1197 [00:00<00:00, 9313.64it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 9253.56it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[      2s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 1 с
+[      2s] фолды OK: 6 участков, 4 семей
+[      3s] участков со SpOr в фолдах: 5; вне фолдов (пропуск): 0
+[      3s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55
+[      3s] [crs] 008_Герите: UTM.json задаёт EPSG:4326 (географическая, градусы) — беру UTM по центру растра
+[      7s] негативы: {"region": "185_Изборск", "tif": "01_Изборск_Or_ортофото.tif", "W": 1015, "H": 655, "want": 8, "got_clean": 0, "got_masked": 4, "tries": 960}
+[      7s] покрытие GT: {"region": "185_Изборск", "tif": "01_Изборск_Or_ортофото.tif", "W": 1015, "H": 655, "gt_total": 4, "gt_in_raster": 3, "gt_covered_by_chip": 3, "chips": 6}
+[      7s] чипы: 185_Изборск отброшено {'negm_nodata': 2}
+[      9s] негативы: {"region": "033_Елизаветинское", "tif": "01_Елизаветинское_Or_ортофото.tif", "W": 1611, "H": 1217, "want": 8, "got_clean": 2, "got_masked": 6, "tries": 516}
+[      9s] покрытие GT: {"region": "033_Елизаветинское", "tif": "01_Елизаветинское_Or_ортофото.tif", "W": 1611, "H": 1217, "gt_total": 2, "gt_in_raster": 2, "gt_covered_by_chip": 2, "chips": 4}
+[      9s] чипы: 033_Елизаветинское отброшено {'neg_nodata': 16, 'negm_nodata': 1}
+[     28s] негативы: {"region": "014_Лешки", "tif": "01_Лешки_Or_ортофото.tif", "W": 1861, "H": 2262, "want": 11, "got_clean": 11, "got_masked": 0, "tries": 556}
+[     28s] покрытие GT: {"region": "014_Лешки", "tif": "01_Лешки_Or_ортофото.tif", "W": 1861, "H": 2262, "gt_total": 11, "gt_in_raster": 11, "gt_covered_by_chip": 11, "chips": 22}
+[    182s] негативы: {"region": "008_Герите", "tif": "01_Герите_Or_ортофото.tif", "W": 2070, "H": 1883, "want": 45, "got_clean": 3, "got_masked": 7, "tries": 5400}
+[    182s] покрытие GT: {"region": "008_Герите", "tif": "01_Герите_Or_ортофото.tif", "W": 2070, "H": 1883, "gt_total": 45, "gt_in_raster": 45, "gt_covered_by_chip": 45, "chips": 90}
+[    182s] чипы: 008_Герите отброшено {'neg_nodata': 495, 'negm_nodata': 264}
+[    245s] негативы: {"region": "056_Фалхан", "tif": "01_Фалхан_Or_ортофото.tif", "W": 1904, "H": 3036, "want": 53, "got_clean": 12, "got_masked": 10, "tries": 6360}
+[    245s] покрытие GT: {"region": "056_Фалхан", "tif": "01_Фалхан_Or_ортофото.tif", "W": 1904, "H": 3036, "gt_total": 53, "gt_in_raster": 53, "gt_covered_by_chip": 53, "chips": 106}
+[    245s] чипы: 056_Фалхан отброшено {'neg_nodata': 765, 'negm_nodata': 1}
+[    245s] чипов: 283 (объектных 114), участков 5, 242 с; классы: {'arkhitektury': 109, 'gorodishcha': 3, 'fortifikatsii': 2}
+[    245s] [фолд 0] train: {"test": ["008_Герите", "014_Лешки"], "train_chips": 150, "obj": {"gorodishcha": 3, "arkhitektury": 53, "fortifikatsii": 2}, "bg": 58, "neg": 34, "neg_masked": 20, "neg_by_region": {"033_Елизаветинское": 8, "056_Фалхан": 22, "185_Изборск": 4}}
+[    245s] [фолд 1] train: {"test": ["033_Елизаветинское", "056_Фалхан"], "train_chips": 143, "obj": {"arkhitektury": 56, "fortifikatsii": 2, "gorodishcha": 1}, "bg": 59, "neg": 25, "neg_masked": 11, "neg_by_region": {"008_Герите": 10, "014_Лешки": 11, "185_Изборск": 4}}
+[    245s] [фолд 2] train: {"test": ["185_Изборск"], "train_chips": 273, "obj": {"arkhitektury": 109, "gorodishcha": 2}, "bg": 111, "neg": 51, "neg_masked": 23, "neg_by_region": {"008_Герите": 10, "014_Лешки": 11, "033_Елизаветинское": 8, "056_Фалхан": 22}}
+[    245s] [фолд 2] ВНИМАНИЕ: в train нет классов ['fortifikatsii']
+[    245s] DFINE_CHIPS_ONLY=1: собран только банк чипов, обучение пропущено
+rc=0 watchdog_peak_kB=1167120
