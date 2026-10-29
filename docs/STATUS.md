@@ -38,3 +38,6 @@
 - Кэш классики 200: `accel.box_mean` поблочно по строкам (побайтно тот же результат), пик 4.7 ГБ вместо OOM.
 - Архив v2-clean (НЕ отправлен): koz3_v2clean_8bb5803_76de89fc_wb042594f.zip, sha256 81b48731d53994ebb3211ed68a96eca3d7e215215daea27931c70bcc1767f968,
   58 файлов, configs/v2_clean.toml как default.toml; DOC-1 OK; список файлов — orch/bot-W4/runs/v2clean_files.txt.
+- Оговорка о порогах v2-clean: 2 новых порога — `etgr_org` object_poly 0.21579 (ORG3 EtGr) и `terfl_pix` object_poly 0.58017 (TerFl) —
+  подобраны ПОСЛЕ гейта, in-sample по OOF C-et+ORG3 на 18 участках (sweep_groups, все участки); в гейте их не было
+  (там честные пороги по фолдам), модели в архиве — full, поэтому пороги могут быть слегка занижены.
