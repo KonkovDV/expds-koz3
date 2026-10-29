@@ -9,3 +9,5 @@ LOFO global…
   [ckpt] lofo_global_partial
   f1: thr=0.35 test=0.1871 @0.3=0.2254 (202.5s)
   [ckpt] lofo_global_partial
+  f2: thr=0.35 test=0.3269 @0.3=0.3296 (158.7s)
+  [ckpt] lofo_global_partial
