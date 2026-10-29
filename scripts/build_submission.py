@@ -70,6 +70,11 @@ def collect() -> list[Path]:
         if not vend.is_dir():
             sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
         files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+    lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
+    cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
+        if lc.get("enabled") is True else []   # только bool, как expds/lidar_cnx.enabled
+    if cnx_w:
+        files += sorted(p for p in (ROOT / "inference" / "cnx").rglob("*") if p.is_file() and "__pycache__" not in p.parts)
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:
             continue
@@ -78,7 +83,37 @@ def collect() -> list[Path]:
         if not p.exists():
             sys.exit(f"модель из конфига не найдена: {rel}")
         files.append(p)
+    files += cnx_weight_files(cnx_w)
     return files
+
+
+def cnx_weight_files(cnx_w: list[str]) -> list[Path]:
+    """bot-8: веса [li_cnx] — только перечисленные в inference/cnx/WEIGHTS_MANIFEST.json, файл ROOT/<path>
+    (жёсткая ссылка на source, не копия) с теми же sha256 и size; smoke-веса (never_pack) — отказ."""
+    if not cnx_w:
+        return []
+    wman = json.loads((ROOT / "inference" / "cnx" / "WEIGHTS_MANIFEST.json").read_text(encoding="utf-8"))
+    entries = {e.get("path"): e for e in wman.get("weights") or []}
+    never = {e.get("sha256") for e in wman.get("never_pack") or []}
+    out = []
+    for rel in dict.fromkeys(cnx_w):
+        e = entries.get(rel)
+        if e is None:
+            sys.exit(f"[li_cnx] {rel}: нет в inference/cnx/WEIGHTS_MANIFEST.json")
+        p = ROOT / rel
+        if not p.is_file():
+            sys.exit(f"[li_cnx] нет {rel}: ln {e.get('source')} {p}  (жёсткая ссылка)")
+        h = hashlib.sha256()
+        with open(p, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        sha = h.hexdigest()
+        if sha in never:
+            sys.exit(f"[li_cnx] {rel} — smoke-веса из never_pack, паковать нельзя")
+        if sha != e.get("sha256") or p.stat().st_size != int(e.get("size", -1)):
+            sys.exit(f"[li_cnx] {rel}: sha256/size не совпадают с WEIGHTS_MANIFEST.json")
+        out.append(p)
+    return out
 
 
 def toml_with_only_classes(text: str, classes: list[str]) -> str:

@@ -65,3 +65,7 @@ analysis/**/*.pt
 kaggle/**/*.pt
 kaggle/**/gorloc/kernels/*.py
 kaggle/**/gorloc/kernels/*/*.py
+# bot-8: веса [li_cnx] — не в git (inference/cnx/WEIGHTS_MANIFEST.json, сборка берёт по sha256)
+models/cnx/
+# 29.10 merge: архивы колёс не в git (rvt_py — из origin/bots/bot8-cnx при включении [li_cnx])
+inference/cnx/wheels/*.whl
