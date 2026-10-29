@@ -59,7 +59,8 @@ def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool 
         sums = np.zeros(W * H, np.float32 if lowmem else np.float64)
         cnt = np.zeros(W * H, np.int32 if lowmem else np.int64)
         for pts in f.chunk_iterator(1_000_000):
-            m = np.asarray(pts.classification) == ground_class
+            m = np.asarray(pts.classification) == ground_class if ground_class is not None else \
+                np.ones(len(pts), bool)
             if not m.any():
                 continue
             x = np.asarray(pts.x)[m]; y = np.asarray(pts.y)[m]; z = np.asarray(pts.z)[m]
@@ -79,8 +80,8 @@ def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool 
         else:
             dem = (sums / cnt).reshape(H, W).astype(np.float32)
     dem[cnt.reshape(H, W) == 0] = np.nan
-    del cnt
-    return dem, {"left": float(left), "top": float(top), "res": res, "points": int(cnt.sum())}
+    npts = int(cnt.sum()); del cnt
+    return dem, {"left": float(left), "top": float(top), "res": res, "points": npts}
 
 
 def main():
@@ -104,6 +105,10 @@ def main():
         crs = json.load(open(Path(a.data) / reg / "UTM.json"))
         crs = crs.get("crs") or crs.get("epsg") or crs
         dem, info = las_grid_1thread(laz, a.res, lowmem=a.lowmem)
+        if info["points"] == 0:  # no class 2 (e.g. only class 8): all points, as expds.lidar does
+            del dem
+            dem, info = las_grid_1thread(laz, a.res, ground_class=None, lowmem=a.lowmem)
+            info["all_points"] = True
         dem = fill_interior_holes(dem, method="pyramid" if a.lowmem else "delaunay")
         s = slrm_lowmem(dem) if a.lowmem else slrm(dem)
         del dem
@@ -113,7 +118,8 @@ def main():
         np.savez_compressed(dst, slrm_u8=u8, valid=valid, left=info["left"], top=info["top"],
                             res=info["res"], crs=json.dumps(crs))
         print(json.dumps({"region": reg, "shape": u8.shape, "valid_frac": round(float(valid.mean()), 3),
-                          "s": round(time.time() - t, 1), "lowmem": a.lowmem}, ensure_ascii=False), flush=True)
+                          "s": round(time.time() - t, 1), "lowmem": a.lowmem,
+                          "all_points": info.get("all_points", False)}, ensure_ascii=False), flush=True)
 
 
 if __name__ == "__main__":
