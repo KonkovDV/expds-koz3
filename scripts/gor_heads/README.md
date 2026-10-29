@@ -17,7 +17,29 @@ Sources: `FOR_BOT7_GOR_V3.md`, `scripts/gor_dense/export_head.py`, `docs/.../exp
 **Uncertain:** re-extracted dinov2 feats may differ slightly vs original box run → md5 may not
 match legacy. Acceptance = shapes/dtypes + `head_p` sanity + (for dense) recovered `centre_s=250`.
 
-## Run on PC (2 free threads)
+## Run on PC — **Docker required** (Linux vendor)
+
+Host Windows `.venv` cannot load `inference/lib/vendor` (manylinux/cp312 `.so` for
+`regex`/`tokenizers`) and lacks `transformers==5.21.0` — same failure mode as bot2 A2
+`ImportError`. extract_feats / dense_feats now use `gor_gate.load_backbone` →
+`import_dfine` (same pin as inference). **Do not** `pip install transformers` on the host
+for this job.
+
+Runner: `pc/runners/run_bot5_gor_heads_docker.ps1` (image `pantum/n7q:20261024`, mounts
+DATA/MODEL/WORK, unpacks vendor from `submission_bot7cand_v3on_*.zip` into the worktree).
+
+In-container command (also what the runner executes after preflight probe):
+
+```bash
+export REPO=/repo DATA=/data MODEL=/model WORK=/work DEVICE=cpu THREADS=8
+export PYTHONPATH=/repo HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+python scripts/gor_heads/train_heads.py
+```
+
+`train_heads.py` **preflight** (before extract): `MODEL/{config.json,model.safetensors}` +
+`import_dfine` success → else `STATUS.txt=FAILED` with reason (exit 2).
+
+### Legacy host-venv command (will FAIL preflight without vendor) — do not use
 
 ```bat
 set DATA=F:\2\train-expds-3
@@ -25,7 +47,6 @@ set MODEL=C:\Sloi\wt_bot5_50f6f27\models\dinov2-small
 set WORK=C:\Sloi\pc_jobs\bot5_gor_heads_train
 set DEVICE=cpu
 set THREADS=2
-set OMP_NUM_THREADS=2
 python scripts/gor_heads/train_heads.py
 ```
 

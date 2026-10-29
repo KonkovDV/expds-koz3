@@ -4,6 +4,7 @@
 Окружение: DATA (train-expds-3), OUT, MODEL (локальная папка снапшота HF или id, по умолчанию facebook/dinov2-small),
 DEVICE (cpu|cuda), TAG, LIMIT_FILES. На боксе: CPU, 2 потока. Оценка — scripts/gor_patch/gor_patch_eval.py на боксе."""
 import os, sys, json, glob, math, time, resource
+from pathlib import Path
 import numpy as np, rasterio, torch
 from rasterio.windows import Window
 from rasterio.enums import Resampling
@@ -11,11 +12,12 @@ from pyproj import Transformer
 torch.set_num_threads(int(os.environ.get('THREADS', '2')))
 D = os.environ.get('DATA', '/workspace/data/train-expds-3'); OUT = os.environ.get('OUT', '/workspace/koz3_shared/bot-5/analysis/gor_patch')
 MD = os.environ.get('MODEL', 'facebook/dinov2-small'); DEV = os.environ.get('DEVICE', 'cpu'); TAG = os.environ.get('TAG', '')
-from transformers import Dinov2Model
-m = Dinov2Model.from_pretrained(MD).eval()
-bad = [n for n, t in list(m.named_parameters()) + list(m.named_buffers()) if t.device.type == 'meta']
-assert not bad, bad[:5]
-m = m.to(DEV)
+# Same loader as inference (gor_gate.load_backbone → import_dfine vendor pin). No Hub.
+_REPO = os.environ.get('REPO') or str(Path(__file__).resolve().parents[2])
+sys.path.insert(0, _REPO)
+from pathlib import Path as _Path
+from scripts.gor_heads.dinov2_loader import load_dinov2_for_train
+m, _dinov2_info = load_dinov2_for_train(MD, DEV, repo=_Path(_REPO))
 PS, ST, CTX, PX = 384.0, 192.0, 768.0, 224
 MEAN = np.array([0.485, 0.456, 0.406])[:, None, None]; STD = np.array([0.229, 0.224, 0.225])[:, None, None]
 LIMIT = int(os.environ.get('LIMIT_FILES', '0'))

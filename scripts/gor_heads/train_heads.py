@@ -13,12 +13,17 @@ Seed fixed (SEED=0). RULES: dinov2-small Apache-2.0; KOZ3 SpOr only; no Yandex/G
 
 Env:
   DATA   — train-expds-3 root (SpOr tifs + UTM.json). PC: F:/2/train-expds-3
-  MODEL  — dinov2-small snapshot dir. PC: C:/Sloi/.../models/dinov2-small
+  MODEL  — dinov2-small snapshot dir (config.json + model.safetensors). PC: …/models/dinov2-small
   WORK   — work dir (default work/gor_heads)
   DEVICE — cpu|cuda (default cpu)
   THREADS — torch/OMP threads (default 2; PC currently has ~2 free)
   SEED   — default 0
   SKIP_EXTRACT=1 — reuse existing feats/dense npz
+  REPO   — repo root (default parent of scripts/); needed so import_dfine finds inference/lib/vendor
+
+Requires Linux/Docker for vendor transformers (manylinux .so). Host Windows .venv lacks
+the pin — use pc/runners/run_bot5_gor_heads_docker.ps1. Preflight fails STATUS=FAILED if
+MODEL files or transformers import are missing.
 """
 from __future__ import annotations
 
@@ -115,6 +120,32 @@ def mark(ck: dict, name: str, outputs: list[Path], extra: dict | None = None) ->
     save_ckpt(ck)
 
 
+
+def preflight() -> None:
+    """Fail loud before long extract: MODEL files + pinned transformers (vendor/env)."""
+    if str(REPO) not in sys.path:
+        sys.path.insert(0, str(REPO))
+    from scripts.gor_heads.dinov2_loader import preflight_model_dir, probe_transformers
+
+    reasons: list[str] = []
+    reasons.extend(preflight_model_dir(MODEL))
+    try:
+        info = probe_transformers(REPO)
+        log(f"preflight transformers ok source={info.get('source')} ver={info.get('version')} "
+            f"vendor_present={info.get('vendor_present')}")
+    except Exception as e:  # noqa: BLE001
+        reasons.append(
+            f"transformers import failed ({type(e).__name__}: {e}). "
+            "Need inference/lib/vendor (manylinux) inside Docker pantum/n7q, "
+            "or env transformers==5.21.0. Host Windows .venv cannot load vendor .so."
+        )
+    if reasons:
+        msg = "preflight FAILED: " + " | ".join(reasons)
+        write_status("FAILED", msg)
+        log(msg)
+        raise SystemExit(2)
+
+
 def main() -> int:
     WORK.mkdir(parents=True, exist_ok=True)
     V3_DIR.mkdir(parents=True, exist_ok=True)
@@ -134,11 +165,7 @@ def main() -> int:
         "PYTHONPATH": str(REPO) + os.pathsep + os.environ.get("PYTHONPATH", ""),
     }
     try:
-        if not MODEL.exists() and not (MODEL / "config.json").exists():
-            # allow HF id string path that isn't a dir
-            if not str(MODEL).startswith("facebook/"):
-                raise FileNotFoundError(f"MODEL not found: {MODEL}")
-
+        preflight()
         # --- 1 extract_feats ---
         feats = V3_DIR / "feats.npz"
         meta = V3_DIR / "meta.json"
