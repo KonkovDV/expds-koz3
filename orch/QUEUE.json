@@ -526,7 +526,7 @@
    "prerequisites": [],
    "status": "ready",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: логиты сидов нужны для WS-K1 (тай-брейк)"
   },
   {
    "id": "P-W2-hillshade-parity",
@@ -550,7 +550,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: WS-A1 — сначала дешёвый вариант ae_nolidar_only + τ-сетка {0.5,0.7,0.85,0.95} по class + cap/участок (CPU<1 ч, Δ +0.002…+0.008, можно до 31.10 на старых выходах); WS-A2 — псевдометки Li→Ae (TP OOF conf≥0.9) + 1 эпоха D-FINE ae, GPU 3–4 ч после ae-final"
   },
   {
    "id": "P-W4-compgate",
@@ -601,7 +601,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: гигант-курганы 182 вынесены в WS-182 (W2, CPU), не смешивать"
   },
   {
    "id": "P-W4-multihyp",
@@ -641,7 +641,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: V5/V5x/V6c reject (V5x new34 +0.022, optical −0.038) → сначала WS-RR1; DINOv2-признаки добавлять в WS-RR1 только для Li/La и gor/fort (WS-G1)"
   },
   {
    "id": "P-W1-sat",
@@ -839,6 +839,69 @@
    "status": "planned",
    "review_item": "REVIEW_SOTA CI2-5",
    "note": "bot1 29.10 23:10: в GPU-очередь W3 после текущих acc1 (ae/or-final)"
+  },
+  {
+   "id": "WS-RR1",
+   "owner": "W5",
+   "accelerator": "cpu",
+   "account": "box",
+   "kernel_folder": "реранкер V5x: гейт по модальности (только Li/La), rank-бленд α∈{0.3,0.5,0.7,1.0}, изотоника class×layer (family-CV), пересвип τ P(hit)>F/(4−F)+floor top-k; метка = hit по метрике",
+   "prerequisites": [
+    "chain2 OOF (w5data/log/chain2.log, done)"
+   ],
+   "status": "ready",
+   "review_item": "WEAKSPOTS_PLAN #1",
+   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.008…+0.02; CPU 1–2 ч; основание: V5x d_new34 +0.022, d_optical −0.038"
+  },
+  {
+   "id": "WS-RR2",
+   "owner": "W5",
+   "accelerator": "cpu",
+   "account": "box",
+   "kernel_folder": "кардинальный prior: k̂ GT по (class,layer,площадь,модальность), отбор top-k(λ·k̂), λ∈{1,1.5,2}",
+   "prerequisites": [
+    "WS-RR1"
+   ],
+   "status": "ready",
+   "review_item": "WEAKSPOTS_PLAN #4",
+   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.003…+0.01; CPU 1 ч"
+  },
+  {
+   "id": "WS-K1",
+   "owner": "W3",
+   "accelerator": "cpu",
+   "account": "box",
+   "kernel_folder": "тай-брейк курганов: conf+1e-3·z(LRM-пик r10/20, проминенция, циркулярность, fill-доля) + среднее логитов сидов",
+   "prerequisites": [
+    "P-W3-seeds-fix (сиды 41/42)"
+   ],
+   "status": "ready",
+   "review_item": "WEAKSPOTS_PLAN #2",
+   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.004…+0.012; CPU 1–2 ч; тай-брейк можно мерить сразу, сиды добавить по готовности"
+  },
+  {
+   "id": "WS-G1",
+   "owner": "W3",
+   "accelerator": "cpu",
+   "account": "box",
+   "kernel_folder": "few-shot верификатор gor/fort: DINOv2 кропы → kNN к прототипам GT vs hard-neg (LOFO), признак/множитель conf; + радиальный профиль LRM вал/ров (WS-G2) как признак",
+   "prerequisites": [
+    "w5-dino-emb (elenakonkova CPU)"
+   ],
+   "status": "planned",
+   "review_item": "WEAKSPOTS_PLAN #5,#6",
+   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.002…+0.01; CPU 2 ч; НЕ детектор (MORPH_RING/coarse_hillfort были −)"
+  },
+  {
+   "id": "WS-182",
+   "owner": "W2",
+   "accelerator": "cpu",
+   "account": "box",
+   "kernel_folder": "крупномасштабная ветка: DEM 1 м, LRM r 60–80 м, DoG-блобы d 80–170 м, проминенция≥0.3 м, ≤1/участок, полигон=контур; флаг off",
+   "prerequisites": [],
+   "status": "planned",
+   "review_item": "WEAKSPOTS_PLAN #8",
+   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ 0…+0.003; CPU 2–3 ч; низкий приоритет — только при простое CPU"
   }
  ],
  "cooldown": {
