@@ -30,6 +30,10 @@ from .constants import DEFAULT_BUDGET_S
 log = logging.getLogger(__name__)
 
 
+class PixgbmModuleMissing(RuntimeError):
+    """bot-6: [geophys.pixgbm] enabled=true, а expds/geo_pixgbm.py нет и EXPDS_PIXGBM_STRICT=1."""
+
+
 class TimeGuard:
     """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
 
@@ -360,7 +364,12 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             except ImportError:
                 # integrate/2026-10-29: expds/geo_pixgbm.py не влит в main (сходство с кодом EhimenNathan,
                 # см. docs/MERGE_2026-10-29.md); модуль живёт в bots/bot7-candidate-v3-nomodels — классика
-                log.warning("%s: pixgbm включён, но expds/geo_pixgbm.py нет в этой сборке — классика", reg.name)
+                # bot-6 29.10: ERROR, не WARNING — e2e r1 @b0add08 дал ложное равенство REF=NEW из-за этой ветки.
+                # EXPDS_PIXGBM_STRICT=1 (по умолчанию выкл.) — исключение вместо тихой классики (PC/CI-прогоны).
+                log.error("%s: pixgbm включён, но expds/geo_pixgbm.py нет в этой сборке — классика "
+                          "(сборка ≠ v2 LB; см. docs/PIXGBM_DECISION.md)", reg.name)
+                if os.environ.get("EXPDS_PIXGBM_STRICT", "") == "1":
+                    raise PixgbmModuleMissing("expds/geo_pixgbm.py нет, а [geophys.pixgbm] enabled=true")
                 return feats
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
@@ -391,6 +400,8 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                     return not fell.get(key) or f.get("source") in done.get(key, set())
                 feats = [f for f in feats if not _drop(f)]
             feats += new
+        except PixgbmModuleMissing:
+            raise
         except Exception:
             log.exception("%s: pixgbm пропущен", reg.name)
     return feats
