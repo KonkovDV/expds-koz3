@@ -9,6 +9,7 @@ mod cpu;
 mod delaunay;
 mod fill;
 mod geo;
+mod jsonfilter;
 mod grid;
 mod peaks;
 mod relief;
@@ -347,6 +348,15 @@ fn has_digit_run(data: &[u8], n: usize) -> bool {
     false
 }
 
+/// Потоковый фильтр GeoJSON: объекты с confidence (или score, иначе 1.0) >= thr → dst.
+/// Возвращает (всего, оставлено). GIL отпускается; разбор properties параллельно (rayon).
+#[pyfunction]
+#[pyo3(signature = (src, dst, thr, batch=20000))]
+fn filter_geojson_conf(py: Python<'_>, src: String, dst: String, thr: f64, batch: usize) -> PyResult<(u64, u64)> {
+    let st = py.detach(|| jsonfilter::filter_file(&src, &dst, thr, batch.max(1))).map_err(PyValueError::new_err)?;
+    Ok((st.total, st.kept))
+}
+
 #[pymodule]
 fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     cpu::init();
@@ -371,5 +381,6 @@ fn expds_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ring_stats, m)?)?;
     m.add_function(wrap_pyfunction!(flatten_polygons, m)?)?;
     m.add_function(wrap_pyfunction!(has_digit_run, m)?)?;
+    m.add_function(wrap_pyfunction!(filter_geojson_conf, m)?)?;
     Ok(())
 }
