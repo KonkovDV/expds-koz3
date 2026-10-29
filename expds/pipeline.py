@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel, candidates, fusion, geophys, lidar_cnx, post, writer
+from . import accel, candidates, fusion, geophys, li_half, lidar_cnx, post, writer
 from .catalog import Region, read_utm_json, scan_root
 from .constants import DEFAULT_BUDGET_S
 
@@ -451,8 +451,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
 
     feats: list[dict] = []
     mosaic_kurgans: list[dict] = []
+    half_feats: list[dict] = []
     crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
+    hp = li_half.params(cfg)
+    half_dump = li_half.dump_dir()
+    half_on = bool(hp["enabled"]) or half_dump is not None
+    if hp["enabled"] and hp["group"] not in cfg.get("thresholds_by_markup", {}):
+        log.warning("[li_half] включён, но [thresholds_by_markup.%s] нет — проход только в выгрузку", hp["group"])
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
@@ -527,6 +533,21 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                             fresh = found
                     mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
                     feats += fresh
+                if half_on:
+                    # Второй проход на 1 м: мозаика (куски 400 м, поле 40 м), иначе тот же DEM.
+                    d_half = mosaic if (split and mosaic is not None and mosaic.crs is not None) else d
+                    coarse = int((d_half.info or {}).get("factor") or 1) > 1
+                    if (split and hp["skip_mosaic"]) or (coarse and hp["skip_coarse"]):
+                        log.info("%s: li_half пропущен (мозаика/li_coarse, v1)", las.name)
+                    elif not guard.ok(cfg.get("time", {}).get("reserve_s", 120) + float(hp["soft_need_s"])):
+                        log.warning("%s: li_half пропущен — мало времени", las.name)
+                    else:
+                        try:
+                            for seg in segs:
+                                half_feats += li_half.half_pass(seg, d_half, reg.name, las.name, cand_p, hp,
+                                                                half_dump, {"mosaic": bool(split)})
+                        except Exception:
+                            log.exception("%s: li_half упал, пропуск", las.name)
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
                     # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
@@ -574,13 +595,23 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     for f in mosaic_kurgans:
         if f.get("markup_type") == "li" and not f.get("threshold_group"):
             f["threshold_group"] = "li_mosaic"
+    if half_feats:
+        if hp["enabled"] and hp["group"] in cfg.get("thresholds_by_markup", {}):
+            n0 = len(half_feats)
+            half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"], hp),
+                                       output_floors(cfg, hp["group"]))
+            log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)", reg.name, n0, len(half_feats),
+                     float(hp["dedupe_m"]), hp["group"])
+        else:
+            half_feats = []
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
     if fp.li_to_ae and reg.rasters.get("ae"):
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
         except Exception as exc:
             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
-    return _with_copies(feats, reg, cfg)
+    # li_half — после копий li→ae: в слой ae не копируется (как li_dev).
+    return _with_copies(feats, reg, cfg) + half_feats
 
 
 # Круги, которые принятый пакет уже оставляет. Новый круг ближе 12 м к такому

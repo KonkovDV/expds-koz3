@@ -228,6 +228,30 @@ relief_radius_l_m = 0
 [thresholds_by_markup.gor_phys]
 gorodishcha = 0.43049
 
+# Второй проход сети li на 1 м (крупные курганы, OSINT п. 4: Эрентуна ⌀ медиана 12 м, p90 18 м).
+# Выключен. Включать только вместе с [thresholds_by_markup.li_half], подобранными вложенно
+# по семьям на OOF-выгрузке (EXPDS_LI_HALF_DUMP + scripts/nn_oof.py --predict-only):
+# без них проход идёт только в выгрузку. Выдаются лишь новые курганы — дальше 12 м от
+# кругов основного li, которые оставляет его принятый порог (как li_dev). Код — expds/li_half.py.
+[li_half]
+enabled = false
+res = 1.0
+tta = 1
+max_px = 30_000_000
+skip_mosaic = false   # мозаика (куски 400 м, поле 40 м) проходится: Эрентуна — мозаичный LAS
+skip_coarse = true    # огрублённый DEM без мозаики (li_coarse) — пропуск в v1
+dedupe_m = 12.0
+group = "li_half"
+soft_need_s = 30
+[li_half.cand]        # второй детектор: шаг 1 м, окно рельефа 30 м
+work_res = 1.0
+relief_radius_m = 30.0
+peak_radius_m = 5.0
+min_relief_m = 0.08
+r_in_m = 5.0
+r_out_m = 16.0
+circle_m = 2.0
+
 [candidates]
 work_res = 0.5
 relief_radius_m = 15.0
