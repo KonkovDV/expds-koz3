@@ -11,6 +11,7 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 * без ``[thresholds_by_markup.sp_dfine]`` для всех классов модуль ничего не выдаёт (``require_thresholds``):
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
+* ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
 * ``EXPDS_STRICT=1`` (bot-2 A3 / bot-5 v4) — при ``enabled=true`` и сбое импорта/загрузки D-FINE —
   громкий отказ (ERROR + WARNING-файл + raise), а не тихий fallback «как v2»; по умолчанию ВЫКЛ.
   Вендор ``inference/lib/vendor`` — manylinux/cp312 (площадка/Kaggle/docker); на Windows-host без docker
@@ -56,6 +57,8 @@ DEFAULTS = {
     "merge_m": 4.0,
     "ensemble": "max",
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
+    # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
+    "drop_min_det": 1,
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",

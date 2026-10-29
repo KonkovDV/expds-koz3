@@ -1402,11 +1402,26 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
     if not (cache.get("models") or []) and cache.get("load_error"):
         log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
+    # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
+    # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются (регрессия mock: R −46 при 0 TP).
     if st["drop_groups"] and full:
-        before = len(state.snapshot())
-        state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
-        log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full),
-                 before - len(state.snapshot()))
+        min_det = int(st.get("drop_min_det", 1))
+        snap = state.snapshot()
+        full_ok = [
+            r for r in full
+            if sum(1 for f in snap
+                   if f.get("region_name") == r and f.get("threshold_group") == sp_dfine.GROUP) >= min_det
+        ]
+        skipped = [r for r in full if r not in full_ok]
+        if skipped:
+            log.warning(
+                "sp_dfine: drop_groups пропущен на %d участках без ≥%d объектов sp_dfine — оставляем v2 SpOr: %s",
+                len(skipped), min_det, ", ".join(skipped[:12]) + ("…" if len(skipped) > 12 else ""))
+        if full_ok:
+            before = len(snap)
+            state.replace(sp_dfine.drop_groups(snap, st["drop_groups"], full_ok))
+            log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full_ok),
+                     before - len(state.snapshot()))
     return n
 
 
