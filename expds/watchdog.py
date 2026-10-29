@@ -134,7 +134,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
-    by_markup = cfg.get("thresholds_by_markup", {})
+    by_markup = post.sat_thr_relax_by_markup(cfg)   # bot-2 [sat_thr_relax], без флага — таблица как есть
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
@@ -246,7 +246,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
+                                post.sat_thr_relax_by_markup(cfg))
     out = out + reranked
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),

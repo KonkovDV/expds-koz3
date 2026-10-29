@@ -638,3 +638,11 @@ enabled = false
 # fuse = "nms"
 # scales = [1.0]
 # budget_s = 120.0
+# bot-2 (Rule P / sat recall 0.25→0.4+): scale sp_* thresholds_by_markup (default OFF).
+# OOF A_max F1-opt already in [thresholds_by_markup.sp_*]; scale<1 → lower thr → more dets.
+# Hypothesis: new dets hit-rate > F1_type/(4-F1_type)≈8.9% → type F1↑. Mock FN: ~28% undetected >200m.
+# Enable only via runner overlay / make_on — not in default submission.
+[sat_thr_relax]
+enabled = false
+# scale = 0.85
+# groups = ["sp_or", "sp_focal", "sp_focal2", "sp_arch"]  # omit sp_dfine until D-FINE has mock TP

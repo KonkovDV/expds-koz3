@@ -214,6 +214,44 @@ def threshold_fn(thresholds: dict[str, float], default: float = 0.15,
     return tau
 
 
+
+# bot-2 sat recall: группы U-Net SpOr (+ sp_dfine), чьи пороги можно ослабить флагом [sat_thr_relax].
+SAT_THR_RELAX_GROUPS = ("sp_or", "sp_focal", "sp_focal2", "sp_arch", "sp_dfine")
+
+
+def scale_sat_thresholds(
+    by_markup: dict[str, dict[str, float]] | None,
+    scale: float = 0.85,
+    groups: tuple[str, ...] = SAT_THR_RELAX_GROUPS,
+) -> dict[str, dict[str, float]]:
+    """Копия thresholds_by_markup с порогами sat-групп × scale (scale<1 → ниже порог → выше recall).
+
+    Не мутирует вход. Чужие группы копируются как есть. scale<=0 запрещён (ValueError).
+    """
+    src = by_markup or {}
+    if scale <= 0:
+        raise ValueError(f"sat_thr_relax scale must be > 0, got {scale}")
+    gset = set(groups)
+    out: dict[str, dict[str, float]] = {}
+    for g, classes in src.items():
+        if g in gset and isinstance(classes, dict):
+            out[g] = {c: float(t) * scale for c, t in classes.items()}
+        else:
+            out[g] = dict(classes) if isinstance(classes, dict) else classes
+    return out
+
+
+def sat_thr_relax_by_markup(cfg: dict) -> dict[str, dict[str, float]]:
+    """thresholds_by_markup с учётом [sat_thr_relax] (default OFF)."""
+    by = cfg.get("thresholds_by_markup") or {}
+    spec = cfg.get("sat_thr_relax") or {}
+    if not spec.get("enabled"):
+        return by
+    scale = float(spec.get("scale", 0.85))
+    groups = tuple(spec.get("groups") or SAT_THR_RELAX_GROUPS)
+    return scale_sat_thresholds(by, scale=scale, groups=groups)
+
+
 def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
     """Если объектов больше лимита — квота класса пропорциональна его весу в метрике.
 
