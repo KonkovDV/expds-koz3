@@ -713,3 +713,112 @@ def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
     """Пол генерации курганов sp при включённом слиянии: сырые кандидаты от gen_floor (по умолчанию 0,05)."""
     g = float((spec if isinstance(spec, dict) else {}).get("gen_floor", 0.05))
     return {c: (min(t, g) if c in SP_FUSION_CLASSES else t) for c, t in floors.items()}
+
+
+# --- Калибровка по группам + WBF-слияние разных групп (bot-2, п. 5 REPORT.md) ---
+# Флаг выключен по умолчанию. Честная офлайн-проверка (LOFO по семьям, 7 вариантов)
+# не прошла honest_accept: все Δ < 0 (см. koz3_shared/bot-2/REPORT2.md, раздел п. 5).
+FUSION_CALIB_ENABLED = False
+
+
+def _group_of(f: dict) -> str:
+    return f.get("threshold_group") or f.get("markup_type") or ""
+
+
+def calibrate_group_conf(feats: list[dict], calib: dict | None = None,
+                         enabled: bool | None = None) -> list[dict]:
+    """Пересчёт уверенности по (класс, группа).
+
+    calib[(класс, группа)] = ("platt", a, b): c' = sigmoid(a*logit(c)+b)
+                           | ("iso", xs, ys): кусочно-линейная интерполяция с отсечкой.
+    Нет записи — уверенность не меняется. Исходная сохраняется в confidence_raw.
+    """
+    if not (FUSION_CALIB_ENABLED if enabled is None else enabled) or not calib:
+        return feats
+    import bisect
+    out = []
+    for f in feats:
+        spec = calib.get((f["class_name"], _group_of(f)))
+        c = float(f.get("confidence", 1.0))
+        if spec is None:
+            out.append(f); continue
+        if spec[0] == "platt":
+            x = min(max(c, 1e-6), 1 - 1e-6)
+            z = spec[1] * math.log(x / (1 - x)) + spec[2]
+            cn = 1.0 / (1.0 + math.exp(-z))
+        else:
+            xs, ys = spec[1], spec[2]
+            if c <= xs[0]:
+                cn = ys[0]
+            elif c >= xs[-1]:
+                cn = ys[-1]
+            else:
+                k = bisect.bisect_right(xs, c)
+                x0, x1, y0, y1 = xs[k - 1], xs[k], ys[k - 1], ys[k]
+                cn = y0 if x1 == x0 else y0 + (y1 - y0) * (c - x0) / (x1 - x0)
+        out.append(dict(f, confidence=float(cn), confidence_raw=c))
+    return out
+
+
+def fuse_cross_group(feats: list[dict], how: str = "wbf",
+                     enabled: bool | None = None) -> list[dict]:
+    """WBF-подобное слияние ТОЛЬКО кластеров, где есть объекты из РАЗНЫХ групп.
+
+    Внутри (регион, markup_type, класс): union-find по пересечению с площадью > 0
+    между объектами разных групп. Остаётся лучший член (геометрия и группа его),
+    уверенность: how="wbf" — mean_g(max c группы) * min(N,T)/T (N — групп в
+    кластере, T — групп в (регион, markup, класс)); how="max" — max c.
+    Кластеры одной группы и EtGr не трогаются.
+    """
+    if not (FUSION_CALIB_ENABLED if enabled is None else enabled):
+        return feats
+    buckets: dict[tuple, list[int]] = defaultdict(list)
+    for i, f in enumerate(feats):
+        buckets[(f.get("region_name"), f.get("markup_type"), f["class_name"])].append(i)
+    drop: set[int] = set()
+    new_conf: dict[int, float] = {}
+    for key, idx in buckets.items():
+        if key[1] == "etgr" or len(idx) < 2:
+            continue
+        T = len({_group_of(feats[i]) for i in idx})
+        if T < 2:
+            continue
+        geoms = [feats[i]["geom"] for i in idx]
+        tree = STRtree(geoms)
+        parent = list(range(len(idx)))
+
+        def find(a: int) -> int:
+            while parent[a] != a:
+                parent[a] = parent[parent[a]]
+                a = parent[a]
+            return a
+
+        for a, g in enumerate(geoms):
+            ga = _group_of(feats[idx[a]])
+            for b in tree.query(g):
+                b = int(b)
+                if b <= a or _group_of(feats[idx[b]]) == ga:
+                    continue
+                if g.intersection(geoms[b]).area > 0:
+                    parent[find(a)] = find(b)
+        comps: dict[int, list[int]] = defaultdict(list)
+        for a in range(len(idx)):
+            comps[find(a)].append(idx[a])
+        for mem in comps.values():
+            if len(mem) < 2:
+                continue
+            mem.sort(key=lambda i: (-float(feats[i].get("confidence", 1.0)), i))
+            best = mem[0]
+            if how == "max":
+                val = float(feats[best].get("confidence", 1.0))
+            else:
+                gmax: dict[str, float] = {}
+                for i in mem:
+                    g = _group_of(feats[i])
+                    gmax[g] = max(gmax.get(g, -1.0), float(feats[i].get("confidence", 1.0)))
+                n = len(gmax)
+                val = sum(gmax.values()) / n * min(n, T) / T
+            new_conf[best] = val
+            drop.update(mem[1:])
+    return [dict(f, confidence=new_conf[i], fused=True) if i in new_conf else f
+            for i, f in enumerate(feats) if i not in drop]
