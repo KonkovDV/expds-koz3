@@ -222,7 +222,17 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None) -> dict[s
 
     mod = load_official(metric_path)
     calc = mod.F1Calculator()
-    preds, gts = _collect(mod, calc, pred, False), _collect(mod, calc, gt, True)
+    return match_collected(calc, _collect(mod, calc, pred, False), _collect(mod, calc, gt, True))
+
+
+def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
+    """Сопоставление по уже собранным (геометрия UTM, conf, участок, группа) спискам.
+
+    Вынесено из build_curves, чтобы большой стек можно было собирать кусками
+    (по семьям, пачками) и не держать весь GeoJSON в памяти.
+    """
+    from shapely.strtree import STRtree
+
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
