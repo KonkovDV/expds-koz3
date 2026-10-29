@@ -10,8 +10,11 @@ pipeline.lidar_feats → li_half.new_only. Поправка 29.10 ~09:30 MSK (с
 срабатывание. Якоря также — курганы канала σ (группа li_dev) с уверенностью ≥ порога main 24bd916
 (0,99131 / 0,99957): стек A их содержит и не меняется. Остальные дописываются с threshold_group=li_half. Порог li_half подбирает
 family_curves/honest_counts вложенно (на остальных семьях) — без ручного порога.
+Вторичный (диагностический) вариант xnms12, поправка 29.10 09:40 MSK: --self-xnms-m 12 — после отбора по якорям
+NMS 12 м внутри собственных новых кругов li_half участка перекрёстно по классу (остаётся более уверенный).
+Основной результат — вариант H (--self-xnms-m 0, по умолчанию). Запуск xnms12 — li_half_run_xnms.sh.
 
-    python li_half_eval.py --dump DIR --out FAMDIR [--stack stack.geojson] [--min-conf 0.0]
+    python li_half_eval.py --dump DIR --out FAMDIR [--stack stack.geojson] [--min-conf 0.0] [--self-xnms-m 0]
 """
 from __future__ import annotations
 
@@ -62,6 +65,30 @@ def drop_near_any(cands: list[dict], anchor_pts: list, dist_m: float) -> list[di
     return kept
 
 
+def xclass_nms(cands: list[dict], dist_m: float) -> list[dict]:
+    """Вторичный вариант xnms12 (поправка 29.10 09:40 MSK): NMS внутри собственных новых кругов li_half одного
+    участка, ПЕРЕКРЁСТНО по классу — из кругов ближе dist_m (ground_point, метры) остаётся более уверенный
+    (при равенстве — раньше в списке). dist_m ≤ 0 — выключено. Применяется ПОСЛЕ отбора по якорям."""
+    if dist_m <= 0 or len(cands) < 2:
+        return list(cands)
+    from shapely.strtree import STRtree
+    from expds.pipeline import ground_point
+
+    order = sorted(range(len(cands)), key=lambda i: -float(cands[i]["confidence"]))
+    pts = [ground_point(cands[i]["geom"]) for i in order]
+    tree = STRtree(pts)
+    alive = [True] * len(order)
+    for a in range(len(order)):
+        if not alive[a]:
+            continue
+        for b in tree.query(pts[a].buffer(dist_m)):
+            b = int(b)
+            if b > a and alive[b] and pts[a].distance(pts[b]) <= dist_m:
+                alive[b] = False
+    keep = sorted(order[a] for a in range(len(order)) if alive[a])
+    return [cands[i] for i in keep]
+
+
 def half_feats(npz: Path, circle_m: float | None, min_conf: float, group: str):
     from shapely import buffer, points
     from expds.crs import WEB_MERCATOR, to_crs
@@ -98,6 +125,8 @@ def main() -> None:
     ap.add_argument("--group", default="li_half")
     ap.add_argument("--dedupe-m", type=float, default=12.0)
     ap.add_argument("--min-conf", type=float, default=0.0, help="пол уверенности до сопоставления (диск)")
+    ap.add_argument("--self-xnms-m", type=float, default=0.0,
+                    help="вторичный вариант xnms12: NMS 12 м внутри новых кругов li_half перекрёстно по классу; 0 — выкл. (основной H)")
     ap.add_argument("--circle-m", type=float, default=None, help="радиус круга; по умолчанию из meta выгрузки")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
@@ -127,12 +156,14 @@ def main() -> None:
             anchors.append({"geom": ground_point(shape(f["geometry"])), "class_name": pr.get("class_name"),
                             "region_name": reg, "group": g})
     stats = {"stack": n_stack, "anchors": len(anchors), "anchors_by_group": dict(Counter(x["group"] for x in anchors)),
-             "dedupe": "cross_class", "maps": 0, "regions": {}}
+             "dedupe": "cross_class", "self_xnms_m": a.self_xnms_m, "maps": 0, "regions": {}}
     new_n = 0
     for z in npzs:
         hf, meta = half_feats(z, a.circle_m, a.min_conf, a.group)
         reg = hf[0]["region_name"] if hf else z.stem.split("__")[0]
         kept = drop_near_any(hf, [x["geom"] for x in anchors if x["region_name"] == reg], a.dedupe_m)
+        n_anchor_kept = len(kept)
+        kept = xclass_nms(kept, a.self_xnms_m)
         # справка: сколько осталось бы без якорей σ (в pipeline канал σ идёт ПОСЛЕ li_half и его не отсекает)
         n_wo_dev = len(drop_near_any(hf, [x["geom"] for x in anchors if x["region_name"] == reg and x["group"] != "li_dev"],
                                      a.dedupe_m))
@@ -141,9 +172,10 @@ def main() -> None:
             pr.update(confidence=round(f["confidence"], 6), crs="EPSG:3857")
             fh(site_family(reg)).write(json.dumps({"type": "Feature", "geometry": mapping(f["geom"]), "properties": pr},
                                                   ensure_ascii=False) + "\n")
-        st = stats["regions"].setdefault(reg, {"maps": 0, "half": 0, "new": 0, "new_wo_li_dev": 0, "mosaic": False,
+        st = stats["regions"].setdefault(reg, {"maps": 0, "half": 0, "new": 0, "new_wo_li_dev": 0, "new_before_xnms": 0, "mosaic": False,
                                                "dem_factor": []})
         st["maps"] += 1; st["half"] += len(hf); st["new"] += len(kept); st["new_wo_li_dev"] += n_wo_dev
+        st["new_before_xnms"] += n_anchor_kept
         st["mosaic"] |= bool(meta.get("mosaic")); st["dem_factor"].append(float(meta.get("dem_info_factor", 1)))
         stats["maps"] += 1; new_n += len(kept)
     for h in handles.values():
