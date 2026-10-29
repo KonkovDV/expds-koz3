@@ -248,8 +248,8 @@ def test_plan_level_degrades_in_order():
     assert A.plan_level(tiles, t, 1, st, 8 * 100 * t - 1)[0] == "skip"
     assert A.plan_level(tiles, None, 1, st, 10)[0] == "one_scale"   # нет замера → дешёвый проб
     assert A.plan_level(tiles, t, 1, st, 0)[0] == "skip"
-    assert A.views_at("no_flip", st) == ((False,), [1.0, 1.5])
-    assert A.views_at("one_scale", st) == ((False,), [1.0])
+    assert A.views_at("no_flip", st) == (((False, 0),), [1.0, 1.5])
+    assert A.views_at("one_scale", st) == (((False, 0),), [1.0])
 
 
 def test_time_guard_skips_and_logs(tmp_path, caplog):
@@ -753,3 +753,37 @@ def test_recipe_autocast_only_no_half():
     assert torch.equal(seen[1], seen[0].flip(3))    # второй вид — горизонтальное отражение того же батча
     src = (ROOT / "expds" / "dfine_aeor.py").read_text(encoding="utf-8")
     assert ".half()" not in src and "torch.autocast(" in src
+
+def test_rot90_tta_off_by_default_and_views():
+    """bot8: rot90_tta OFF by default; when ON, full = flip x 4 rots; degradation drops to identity."""
+    st0 = A.settings({"dfine_aeor": {}})
+    assert st0["rot90_tta"] is False
+    assert st0["flip_tta"] is True
+    assert st0["scales"] == [1.0]
+    augs, scales = A.views_at("full", st0)
+    assert augs == ((False, 0), (True, 0)) and scales == [1.0]
+
+    st = A.settings({"dfine_aeor": {"rot90_tta": True, "flip_tta": True, "scales": [1.0, 1.25]}})
+    augs, scales = A.views_at("full", st)
+    assert len(augs) == 8 and scales == [1.0, 1.25]
+    assert (False, 0) in augs and (True, 3) in augs
+    assert A.views_at("no_flip", st) == (((False, 0),), [1.0, 1.25])
+    assert A.views_at("one_scale", st) == (((False, 0),), [1.0])
+
+
+def test_invert_boxes_rot90_roundtrip():
+    """cxcywh inverse: flip twice = id; rot90 x4 = id; known rot90 mapping."""
+    import torch
+    bx = torch.tensor([[[0.25, 0.4, 0.1, 0.2], [0.7, 0.8, 0.05, 0.15]]])
+    t = A._invert_boxes_cxcywh(bx, True, 0)
+    assert torch.allclose(A._invert_boxes_cxcywh(t, True, 0), bx, atol=1e-6)
+    t = bx
+    for _ in range(4):
+        t = A._invert_boxes_cxcywh(t, False, 1)
+    assert torch.allclose(t, bx, atol=1e-6)
+    # image rot90 CCW: original (0.2, 0.3) -> aug (0.3, 0.8); invert rot_k=1 recovers original
+    pred = torch.tensor([[[0.3, 0.8, 0.1, 0.2]]])
+    back = A._invert_boxes_cxcywh(pred, False, 1)
+    assert torch.allclose(back[0, 0, :2], torch.tensor([0.2, 0.3]), atol=1e-5)
+
+

@@ -11,7 +11,8 @@
 * Вход модели как в обучении bot-9 (bot-9/DFINE_FINAL_ORAE.md, kaggle/dfine_spor/src/dfine_main.py:53,262-291,479):
   UTM участка, 0,5 м (WarpedVRT; уменьшение average), RGB uint8 (1 канал → 3 копии, не-uint8 → растяжка 1–99 %),
   pixel_values = x/255 без mean/std. Окно/перекрытие — как при обучении: Ae 640/160, Or 1024/288 (§9).
-* Слияние видов TTA (flip × масштабы × модели) — WBF или NMS строго внутри ОДНОГО растра одной модальности;
+* Слияние видов TTA (flip × rot90? × масштабы × модели) — WBF или NMS строго внутри ОДНОГО растра одной модальности;
+  ``rot90_tta`` (bot8) по умолчанию false — 90/180/270 CCW + inverse на cxcywh; не меняет bot3 defaults.
   круги варианта C — тоже внутри растра. Межрастровое слияние — post.merge_within_markup с ключом
   (регион, markup, класс, threshold_group): dfine_ae склеивается только с dfine_ae, не с прочими ae
   (watchdog._aeor_split: своя короткая цепочка; merge_union=true — общая, по умолчанию выкл.).
@@ -54,7 +55,8 @@ DEFAULTS = {
     "overlap": {"ae": 160, "or": 288},
     "batch": {"ae": 8, "or": 4},
     "flip_tta": True,
-    "scales": [1.0],                     # множители res_m; [1.0, 1.5] — второй масштаб
+    "rot90_tta": False,                 # bot8: 90/180/270 + inverse; OFF by default (bot3 defaults unchanged)
+    "scales": [1.0],                     # множители res_m; [1.0, 1.5] — второй масштаб (MS via overlay)
     "fuse": "wbf",                       # wbf | nms — только внутри одного растра
     "fuse_iou": 0.55,
     "nms_iou": 0.5,
@@ -310,13 +312,19 @@ def fuse_views(views: list, st: dict):
 
 # ── сторож времени ───────────────────────────────────────────────────────────────────────────────────────
 def views_at(level: str, st: dict) -> tuple[tuple, list]:
+    """Return (augs, scales). Each aug is (flip: bool, rot_k: int) with rot_k in {0,1,2,3} = CCW*90.
+    rot90_tta OFF (default): identical to prior flip-only behaviour.
+    Degradation: full = flip x rot x scales; no_flip drops flip+rot (identity only); one_scale = id x first scale.
+    """
     flips = (False, True) if st["flip_tta"] else (False,)
+    rots = (0, 1, 2, 3) if st.get("rot90_tta") else (0,)
     if level == "full":
-        return flips, list(st["scales"])
+        augs = tuple((f, r) for r in rots for f in flips)
+        return augs, list(st["scales"])
     if level == "no_flip":
-        return (False,), list(st["scales"])
+        return ((False, 0),), list(st["scales"])
     if level == "one_scale":
-        return (False,), [st["scales"][0]]
+        return ((False, 0),), [st["scales"][0]]
     return (), []
 
 
@@ -329,8 +337,8 @@ def plan_level(tiles_at_scale: dict, t_view: float | None, n_models: int, st: di
         return "one_scale", float("nan")
     est = 0.0
     for level in LEVELS[:-1]:
-        flips, scales = views_at(level, st)
-        est = sum(tiles_at_scale[s] for s in scales) * len(flips) * max(n_models, 1) * float(t_view)
+        augs, scales = views_at(level, st)
+        est = sum(tiles_at_scale[s] for s in scales) * len(augs) * max(n_models, 1) * float(t_view)
         if est * float(st["safety"]) <= left_s:
             return level, est
     return "skip", est
@@ -376,18 +384,55 @@ def image_feats(B, L, C, transform, crs: str, region: str, source: str, markup: 
 
 
 # ── инференс ─────────────────────────────────────────────────────────────────────────────────────────────
-def forward_boxes(model, px, flip: bool, tile: int, st: dict):
+def _parse_aug(aug) -> tuple[bool, int]:
+    """Accept legacy bool flip or (flip, rot_k) / dict."""
+    if isinstance(aug, bool):
+        return aug, 0
+    if isinstance(aug, (tuple, list)) and len(aug) >= 2:
+        return bool(aug[0]), int(aug[1]) % 4
+    if isinstance(aug, dict):
+        return bool(aug.get("flip", False)), int(aug.get("rot", 0)) % 4
+    return bool(aug), 0
+
+
+def _aug_pixel_values(px, flip: bool, rot_k: int):
+    """Forward geometric aug on NCHW batch: horizontal flip, then rot90 CCW * rot_k (torch.rot90 dims H,W)."""
+    if flip:
+        px = px.flip(3)
+    if rot_k:
+        px = px.rot90(int(rot_k) % 4, [2, 3])
+    return px
+
+
+def _invert_boxes_cxcywh(bx, flip: bool, rot_k: int):
+    """Map pred_boxes cxcywh (0..1) from augmented frame back to original.
+    Forward was flip then rot_k CCW → inverse = unrot then unflip."""
+    import torch
+    out = bx.clone()
+    k_inv = (-int(rot_k)) % 4
+    for _ in range(k_inv):
+        # one 90° CCW on cxcywh: (cx, cy, w, h) -> (cy, 1-cx, h, w)
+        cx, cy, w, h = out[..., 0], out[..., 1], out[..., 2], out[..., 3]
+        out = torch.stack([cy, 1.0 - cx, h, w], dim=-1)
+    if flip:
+        out = out.clone()
+        out[..., 0] = 1.0 - out[..., 0]
+    return out
+
+
+def forward_boxes(model, px, aug, tile: int, st: dict):
     """Один вид батча: (список по окнам (xyxy px окна, score, cls)). Модель — DFineForObjectDetection или
-    заглушка с тем же выходом (logits [N,Q,C], pred_boxes cxcywh 0..1)."""
+    заглушка с тем же выходом (logits [N,Q,C], pred_boxes cxcywh 0..1).
+    ``aug``: bool (legacy flip) или (flip, rot_k) с rot_k в {0,1,2,3} = CCW*90; inverse на боксах."""
     import torch
 
-    inp = px.flip(3) if flip else px
+    flip, rot_k = _parse_aug(aug)
+    inp = _aug_pixel_values(px, flip, rot_k)
     o = model(pixel_values=inp)
     prob = o.logits.float().sigmoid()
     bx = o.pred_boxes.float()
-    if flip:
-        bx = bx.clone()
-        bx[..., 0] = 1 - bx[..., 0]
+    if flip or rot_k:
+        bx = _invert_boxes_cxcywh(bx, flip, rot_k)
     Q, Cn = prob.shape[1:]
     sc_, idx = prob.flatten(1).topk(min(int(st["max_det"]), Q * Cn), 1)
     out = []
@@ -402,8 +447,8 @@ def forward_boxes(model, px, flip: bool, tile: int, st: dict):
     return out
 
 
-def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_going=lambda: True, left=None):
-    """Окна сцены → виды (модель × flip), у каждого NMS по классам (склейка перекрытий окон).
+def detect_scene(models: list, scene, st: dict, mk: str, augs, device, keep_going=lambda: True, left=None):
+    """Окна сцены → виды (модель × aug), у каждого NMS по классам (склейка перекрытий окон).
     Возвращает ([(B, L, C)], окон сделано, окон всего).
 
     Срок (bot-7 13:12): keep_going() и left() (секунд до конца фазы/окна сторожа) проверяются перед КАЖДЫМ
@@ -416,7 +461,7 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
 
     T, ov, bs = int(st["tile"][mk]), int(st["overlap"][mk]), int(st["batch"][mk])
     wins = windows(scene.W, scene.H, T, ov, mode=str(st.get("windows_mode", "aeor")))
-    acc = [([], [], []) for _ in range(len(models) * len(flips))]
+    acc = [([], [], []) for _ in range(len(models) * len(augs))]
     buf = np.empty((bs, 3, T, T), dtype=np.float32)   # один буфер на сцену: bs×3×T×T×4 Б (Or: 4×3×1024²×4 = 48 МБ)
     done = 0
     use_amp = bool(st["fp16"]) and getattr(device, "type", str(device)) == "cuda"
@@ -454,9 +499,9 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
             px = torch.from_numpy(arr).to(device)   # на CPU — тот же буфер, без копии
             v = 0
             for model in models:
-                for flip in flips:
+                for aug in augs:
                     with torch.autocast(getattr(device, "type", "cpu"), dtype=torch.float16, enabled=use_amp):
-                        res = forward_boxes(model, px, flip, T, st)
+                        res = forward_boxes(model, px, aug, T, st)
                     for (x, y), (bb, s, c) in zip(chunk, res):
                         acc[v][0].append(bb + np.array([x, y, x, y], dtype=np.float64))
                         acc[v][1].append(s)
@@ -529,7 +574,7 @@ def detect_image(models: list, path: Path, crs: str, st: dict, mk: str, level: s
 
         with rasterio.Env(GDAL_CACHEMAX=int(st.get("gdal_cache_mb") or 256) * 1024 * 1024):
             return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene, left)
-    flips, scales = views_at(level, st)
+    augs, scales = views_at(level, st)
     base_res = float(st["res_m"][mk])
     views: list = []
     T0 = None
@@ -541,7 +586,7 @@ def detect_image(models: list, path: Path, crs: str, st: dict, mk: str, level: s
         try:
             if T0 is None:
                 T0 = sc.T
-            res, done, total = detect_scene(models, sc, st, mk, flips, device, keep_going, left)
+            res, done, total = detect_scene(models, sc, st, mk, augs, device, keep_going, left)
             done_all += done
             total_all += total
             k = abs(sc.T.a) / abs(T0.a)
@@ -645,9 +690,9 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             B, L, C, T0, done, total = detect_image(models, Path(path), crs, st, mk, level, cache.get("device"), ok,
                                                     None if real else scene_cls, left_s)
             dt = time.monotonic() - t0
-            flips, _ = views_at(level, st)
+            augs, _ = views_at(level, st)
             if done:
-                tv = dt / (done * len(flips) * max(len(models), 1))
+                tv = dt / (done * len(augs) * max(len(models), 1))
                 prev = cache.setdefault("t_view", {}).get(mk)
                 cache["t_view"][mk] = tv if prev is None else max(prev, tv)
             if T0 is not None:
