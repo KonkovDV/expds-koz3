@@ -1219,6 +1219,22 @@ def _tree_rss_kb(pid: int) -> int:
     return total
 
 
+def tr_remarks(fc: dict, text: str) -> list[str]:
+    """Замечания валидатора геометрии Прил. 3 ТР (самопересечение, площадь, > 15 знаков и др.).
+
+    Тот же список, что expds.writer.tr_geometry_remarks; без shapely проверяются только
+    текстовые пункты (знаки после запятой).
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from expds.writer import tr_geometry_remarks
+    except Exception:
+        import re
+        n = len(re.findall(r"\d\.\d{16,}", text))
+        return [f"чисел с > 15 знаками после запятой: {n}"] if n else []
+    return tr_geometry_remarks(fc, text)
+
+
 def validate_output(path: Path) -> None:
     if not path.is_file():
         report("FAIL", "smoke", f"нет файла ответа {path}")
@@ -1269,6 +1285,11 @@ def validate_output(path: Path) -> None:
         conf = pr.get("confidence")
         if conf is not None and not (isinstance(conf, (int, float)) and 0 <= conf <= 1):
             errs.append(f"#{i}: confidence {conf}")
+    remarks = tr_remarks(fc, text)
+    if len(remarks) > 50:
+        errs.append(f"замечаний валидатора геометрии {len(remarks)} > 50 (Прил. 3 ТР — отказ): {remarks[:3]}")
+    elif remarks:
+        report("WARN", "format", f"замечаний валидатора геометрии {len(remarks)} (≤ 50 допускается): {remarks[:3]}")
     if errs:
         report("FAIL", "format", f"{len(errs)} нарушений: {errs[:6]}")
     else:
