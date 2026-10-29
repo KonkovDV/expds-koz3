@@ -1,4 +1,5 @@
-"""RF-DETR-M/L без COCO/O365-чекпойнта: энкодер — веса DINOv2-S (facebook/dinov2-small, Apache-2.0), декодер с нуля.
+"""RF-DETR-M/L. По умолчанию (--init coco) — дообучение чекпойнта RF-DETR COCO (rf-detr-medium.pth / rf-detr-large-2026.pth,
+Apache-2.0, веса разрешены организаторами). Запасные режимы: --init dinov2 (только энкодер DINOv2-S, декодер с нуля), --init scratch.
 
 Написано bot-5. Из пакета rfdetr (Apache-2.0) берутся только сборка модели, сопоставитель и критерий
 (rfdetr.models.lwdetr.build_model_from_config / build_criterion_from_config); цикл обучения, данные, MAL,
@@ -47,6 +48,44 @@ def make_configs(a, K: int):
     mc = MC(**kw)
     tc = TrainConfig(dataset_dir=".", output_dir=".")
     return mc, tc
+
+
+def load_coco(model, mc, a) -> dict:
+    """Чекпойнт RF-DETR COCO штатным rfdetr.models.weights.load_pretrain_weights (md5, PE→сетка --size,
+    срез групп запросов, голова классов → K+1 заново). Возвращает, сколько тензоров модели реально заменено."""
+    import hashlib
+    import torch
+    from rfdetr.models.weights import load_pretrain_weights
+    name = os.path.basename(str(type(mc).model_fields["pretrain_weights"].default))
+    path = a.coco_weights or os.path.join(os.environ.get("RF_HOME") or os.path.expanduser("~/.cache/rfdetr"), name)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    def sig(v):  # дешёвая подпись тензора вместо копии (память бокса)
+        v = v.detach().double()
+        return (tuple(v.shape), float(v.sum()), float(v.abs().sum()))
+    before = {k: sig(v) for k, v in model.state_dict().items()}
+    import rfdetr.utilities.io as rio
+    orig = rio._safe_torch_load
+    # mmap: распакованный чекпойнт (405 МБ, model+ema+args) не оседает в куче процесса; файл проверен по md5 rfdetr
+    rio._safe_torch_load = lambda p_, trust=False: torch.load(p_, map_location="cpu", mmap=True, weights_only=False)
+    try:
+        load_pretrain_weights(model, mc.model_copy(update={"pretrain_weights": os.path.abspath(path)}), trust=True)
+    finally:
+        rio._safe_torch_load = orig
+    after = model.state_dict()
+    changed = sum(1 for k, v in after.items() if before.get(k) != sig(v))
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    del before
+    import ctypes, gc
+    gc.collect()
+    try:
+        ctypes.CDLL("libc.so.6").malloc_trim(0)  # вернуть ОС память от распакованного чекпойнта (405 МБ)
+    except OSError:
+        pass
+    return {"weights": os.path.abspath(path), "md5": h.hexdigest(), "tensors": len(after), "changed": changed,
+            "head_out": int(after["class_embed.bias"].shape[0])}
 
 
 def pi_resize_kernel(w: "torch.Tensor", new: int) -> "torch.Tensor":
@@ -277,7 +316,12 @@ def main() -> None:
     ap.add_argument("--model", default="rfdetr-m", choices=["rfdetr-m", "rfdetr-l"])
     ap.add_argument("--size", type=int, default=640, help="сторона входа (кратна 32); 0 — родная (M 576, L 704)")
     ap.add_argument("--dinov2-dir", default=None, help="локальная папка facebook/dinov2-small (иначе скачать с HF)")
-    ap.add_argument("--no-dinov2", action="store_true", help="контроль: энкодер случайный")
+    ap.add_argument("--no-dinov2", action="store_true", help="контроль: энкодер случайный (= --init scratch)")
+    ap.add_argument("--init", default="coco", choices=["coco", "dinov2", "scratch"],
+                    help="coco (по умолчанию): весь детектор из чекпойнта RF-DETR COCO (M: rf-detr-medium.pth, "
+                         "L: rf-detr-large-2026.pth), голова классов заново; dinov2: только энкодер DINOv2-S; scratch: всё с нуля")
+    ap.add_argument("--coco-weights", default=None,
+                    help="локальный .pth (Kaggle Dataset); иначе $RF_HOME/<имя> (по умолчанию ~/.cache/rfdetr), скачивается с md5")
     ap.add_argument("--iters", type=int, default=8000); ap.add_argument("--bs", type=int, default=4)
     ap.add_argument("--accum", type=int, default=4, help="накопление градиента (эфф. батч bs·accum)")
     ap.add_argument("--lr", type=float, default=1e-4); ap.add_argument("--lr-encoder", type=float, default=1.5e-4)
@@ -334,7 +378,10 @@ def main() -> None:
     if a.load:
         model.load_state_dict(torch.load(Path(a.load) / "model.pt", map_location="cpu"))
         T["dinov2"] = "from --load"
-    elif not a.no_dinov2:
+    elif a.init == "coco" and not a.no_dinov2:
+        T["coco"] = load_coco(model, mc, a)
+        print("coco:", T["coco"], flush=True)
+    elif a.init == "dinov2" and not a.no_dinov2:
         rep = load_dinov2(model, a.dinov2_dir); T["dinov2"] = {k: (v if k != "missing" else len(v)) for k, v in rep.items()}
         print("dinov2:", T["dinov2"], flush=True)
     assert_no_meta(model, a.model)  # энкодер rfdetr — классы transformers (dinov2.py:203); пин transformers==5.21.0
