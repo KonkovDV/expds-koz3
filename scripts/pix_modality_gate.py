@@ -43,6 +43,7 @@ def main() -> None:
     ap.add_argument("--etgr", nargs="+", required=True, help="номера участков с EtGr")
     ap.add_argument("--out", required=True)
     ap.add_argument("--boot", type=int, default=2000)
+    ap.add_argument("--fix", default=None, help="MT:CLASS=T — группа без sweep: confidence<T убрать, остальным 1.0")
     args = ap.parse_args()
 
     gt = ev._load(args.gt)
@@ -56,7 +57,20 @@ def main() -> None:
 
     scale = ev.CLASS_WEIGHTS and sum(ev.CLASS_WEIGHTS.get(c, 0.0) for c in ev.CLASSES) / sum(ev.CLASS_WEIGHTS.values())
     ac, _ = ev.honest(ev._load(args.a, regions), gt, folds)
-    cc, _ = ev.honest(ev._load(args.c, regions), gt, folds)
+    cpred = ev._load(args.c, regions)
+    if args.fix:
+        key, t = args.fix.split("=")
+        mt, cls = key.split(":")
+        keep = []
+        for f in cpred["features"]:
+            pr = f["properties"]
+            if pr.get("markup_type") == mt and pr.get("class_name") == cls:
+                if float(pr.get("confidence", 0.0)) < float(t):
+                    continue
+                f = {**f, "properties": {**pr, "confidence": 1.0}}
+            keep.append(f)
+        cpred = {**cpred, "features": keep}
+    cc, _ = ev.honest(cpred, gt, folds)
     sa, sc = ev.summary(ac, folds), ev.summary(cc, folds)
     d_global = (sc["score2"] - sa["score2"]) * scale
     d_f1 = {c: sc["f1"].get(c, 0.0) - sa["f1"].get(c, 0.0) for c in ev.CLASSES}
