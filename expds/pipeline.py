@@ -1421,10 +1421,16 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
                 n_features_added_total=n,
                 n_sp_dfine_in_state=n_in_state,
                 regions_complete=list(full),
+                load_error=cache.get("load_error"),
+                unavailable=bool(cache.get("load_error")) or (len(cache.get("models") or []) == 0 and n == 0),
             )
-            log.info("sp_dfine stages summary → %s (in_state=%d added=%d)", dump / "stages.json", n_in_state, n)
+            log.info("sp_dfine stages summary → %s (in_state=%d added=%d load_error=%s)",
+                     dump / "stages.json", n_in_state, n, bool(cache.get("load_error")))
         except Exception:
             log.exception("sp_dfine: stages summary не записан")
+    # bot-2: при enabled и пустых моделях — WARNING уже в region_feats; дублируем в лог фазы
+    if not (cache.get("models") or []) and cache.get("load_error"):
+        log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
     # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
     # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются (регрессия mock: R −46 при 0 TP).
     if st["drop_groups"] and full:

@@ -77,7 +77,15 @@ with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
         for f in ("config.json", "model.safetensors"):
             z.write(F0 / f, f"models/{MNAME}/{f}", compress_type=zipfile.ZIP_STORED)
     lib = W / "vendor_test" / "lib"
+    # bot-2: без вендора transformers D-FINE на площадке/docker → SP_DFINE_UNAVAILABLE (ImportError).
+    if not lib.is_dir():
+        sys.exit(f"make_on: нет вендора {lib} — распакуйте bot-9 wheels в work6/vendor_test/lib")
+    if not (lib / "transformers").is_dir():
+        sys.exit(f"make_on: в {lib} нет transformers/ — D-FINE не импортируется в zip")
+    n_vendor = 0
     for p in sorted(lib.rglob("*")):
         if p.is_file() and "__pycache__" not in p.parts:
             z.write(p, "inference/lib/vendor/" + p.relative_to(lib).as_posix())
+            n_vendor += 1
+    print(f"vendor_files={n_vendor} → inference/lib/vendor/ (transformers OK)")
 print(OUT, OUT.stat().st_size)
