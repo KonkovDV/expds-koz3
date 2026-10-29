@@ -1,0 +1,479 @@
+{
+ "base": 0.3146153226828423,
+ "base_new34": 0.2964508527066795,
+ "base_optical": 0.14427407342564424,
+ "variants": {
+  "V1_mink=1": {
+   "score": 0.3128806380664492,
+   "d": -0.0017346846163930896,
+   "boot": {
+    "mean": -0.0018411071129231327,
+    "p5": -0.00870882801721955,
+    "p50": -0.0017376188813732207,
+    "p95": 0.005222883968977241,
+    "p_gt0": 0.3205,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.00939572126869398,
+   "d_optical": -0.001179518421998954,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0008,
+    "kurgany_tselye": -0.0067,
+    "gorodishcha": -0.0092,
+    "arkhitektury": 0.0078,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0007,
+    "finds_points": 0.0
+   },
+   "param": 1,
+   "sec": 10,
+   "accept": false
+  },
+  "V1_mink=2": {
+   "score": 0.3127363252274296,
+   "d": -0.001878997455412701,
+   "boot": {
+    "mean": -0.0019612566665559374,
+    "p5": -0.010603674181658713,
+    "p50": -0.0018496954062448556,
+    "p95": 0.006292400593219676,
+    "p_gt0": 0.351,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.00912673112487039,
+   "d_optical": 0.0002338579664145357,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.003,
+    "kurgany_tselye": -0.0014,
+    "gorodishcha": -0.0193,
+    "arkhitektury": 0.0049,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0018,
+    "finds_points": 0.0
+   },
+   "param": 2,
+   "sec": 10,
+   "accept": false
+  },
+  "V1_mink=3": {
+   "score": 0.3144727084866167,
+   "d": -0.0001426141962256322,
+   "boot": {
+    "mean": -0.0005948037255915253,
+    "p5": -0.00729346566231423,
+    "p50": -0.0006721481830129494,
+    "p95": 0.006032056859463455,
+    "p_gt0": 0.4335,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.0024936375921032483,
+   "d_optical": -0.008814989818120705,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0005,
+    "kurgany_tselye": -0.0011,
+    "gorodishcha": -0.0078,
+    "arkhitektury": 0.0125,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0029,
+    "finds_points": 0.0
+   },
+   "param": 3,
+   "sec": 14,
+   "accept": false
+  },
+  "V1_mink_nested": {
+   "score": 0.312743961082746,
+   "d": -0.0018713616000963218,
+   "boot": {
+    "mean": -0.002108467570920514,
+    "p5": -0.00950171956076662,
+    "p50": -0.001990514628100626,
+    "p95": 0.005428275233747545,
+    "p_gt0": 0.321,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.00802882609929717,
+   "d_optical": -0.006401399300979549,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0033,
+    "kurgany_tselye": -0.0062,
+    "gorodishcha": -0.0071,
+    "arkhitektury": 0.0152,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0019,
+    "finds_points": 0.0
+   },
+   "picks": [
+    1,
+    3,
+    1,
+    3,
+    1,
+    1,
+    3,
+    3,
+    1,
+    1
+   ],
+   "accept": false
+  },
+  "V2_hedge=0.25": {
+   "score": 0.30470631683125804,
+   "d": -0.009909005851584274,
+   "boot": {
+    "mean": -0.00931552396413497,
+    "p5": -0.013964217438380912,
+    "p50": -0.009735451489485292,
+    "p95": -0.0029489343578576245,
+    "p_gt0": 0.007,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.003983877712731121,
+   "d_optical": 0.0003606770760651301,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0287,
+    "kurgany_tselye": -0.0064,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "param": 0.25,
+   "sec": 24,
+   "accept": false
+  },
+  "V2_hedge=0.5": {
+   "score": 0.3038490976541496,
+   "d": -0.010766225028692733,
+   "boot": {
+    "mean": -0.010167346951206404,
+    "p5": -0.015187773399705215,
+    "p50": -0.010715199954564492,
+    "p95": -0.00343717648047343,
+    "p_gt0": 0.0135,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": 0.0037135642992959794,
+   "d_optical": 0.0013790035292607639,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0298,
+    "kurgany_tselye": -0.0092,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "param": 0.5,
+   "sec": 26,
+   "accept": false
+  },
+  "V2_hedge=0.75": {
+   "score": 0.30055408914032333,
+   "d": -0.01406123354251898,
+   "boot": {
+    "mean": -0.013638735347795208,
+    "p5": -0.02137672881175583,
+    "p50": -0.01381461593142122,
+    "p95": -0.005275203346736598,
+    "p_gt0": 0.011,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": 0.007871869764189465,
+   "d_optical": -0.0108691175072817,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0349,
+    "kurgany_tselye": -0.0179,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "param": 0.75,
+   "sec": 24,
+   "accept": false
+  },
+  "V2_hedge_nested": {
+   "score": 0.30143811305184287,
+   "d": -0.013177209630999442,
+   "boot": {
+    "mean": -0.012702467846869805,
+    "p5": -0.019592965767728975,
+    "p50": -0.013048265092350492,
+    "p95": -0.00465307952873772,
+    "p_gt0": 0.0045,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.0020052043107399165,
+   "d_optical": -0.0012100952223922934,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0367,
+    "kurgany_tselye": -0.0108,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "picks": [
+    0.25,
+    0.5,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.75,
+    0.5,
+    0.25
+   ],
+   "accept": false
+  },
+  "V3_copy=0.5": {
+   "score": 0.3060303208625415,
+   "d": -0.008585001820300808,
+   "boot": {
+    "mean": -0.007798563330551101,
+    "p5": -0.013826593023020865,
+    "p50": -0.007712763828602143,
+    "p95": -0.0026284330759661677,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.013960327448633902,
+   "d_optical": -0.00024147294077755954,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0192,
+    "kurgany_tselye": -0.0028,
+    "gorodishcha": -0.0112,
+    "arkhitektury": -0.0048,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0023,
+    "finds_points": 0.0
+   },
+   "param": 0.5,
+   "sec": 49,
+   "accept": false
+  },
+  "V3_copy=0.8": {
+   "score": 0.30418245434569063,
+   "d": -0.01043286833715168,
+   "boot": {
+    "mean": -0.009555931410201368,
+    "p5": -0.016534261683360682,
+    "p50": -0.009429540423548183,
+    "p95": -0.003324235564781533,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.011072282990819193,
+   "d_optical": -0.00024147294077755954,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0211,
+    "kurgany_tselye": -0.0052,
+    "gorodishcha": -0.0163,
+    "arkhitektury": -0.0048,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0023,
+    "finds_points": 0.0
+   },
+   "param": 0.8,
+   "sec": 31,
+   "accept": false
+  },
+  "V3_copy=1.0": {
+   "score": 0.29633471007645307,
+   "d": -0.018280612606389246,
+   "boot": {
+    "mean": -0.01649815978811422,
+    "p5": -0.027747011933478036,
+    "p50": -0.01677435528074378,
+    "p95": -0.005478052049581329,
+    "p_gt0": 0.0035,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.01605978414296011,
+   "d_optical": -0.00040410035083729423,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0224,
+    "kurgany_tselye": -0.0326,
+    "gorodishcha": -0.0279,
+    "arkhitektury": -0.0048,
+    "object_poly": -0.0016,
+    "fortifikatsii": -0.004,
+    "finds_points": 0.0
+   },
+   "param": 1.0,
+   "sec": 26,
+   "accept": false
+  },
+  "V3_copy_nested": {
+   "score": 0.30483326834690483,
+   "d": -0.009782054335937485,
+   "boot": {
+    "mean": -0.009035432365639856,
+    "p5": -0.015678225847608432,
+    "p50": -0.008818708814637283,
+    "p95": -0.003254462929061409,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.012961189618640734,
+   "d_optical": -0.00024147294077755954,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0192,
+    "kurgany_tselye": -0.0028,
+    "gorodishcha": -0.0192,
+    "arkhitektury": -0.0048,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0023,
+    "finds_points": 0.0
+   },
+   "picks": [
+    0.5,
+    0.5,
+    0.8,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.8,
+    0.5
+   ],
+   "accept": false
+  },
+  "V4_micro=0.3": {
+   "score": 0.31046143594620385,
+   "d": -0.004153886736638468,
+   "boot": {
+    "mean": -0.004091901604934457,
+    "p5": -0.006548331094480425,
+    "p50": -0.003918322524650797,
+    "p95": -0.002180822074865244,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.012929126411945935,
+   "d_optical": -0.0010009638492185502,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0006,
+    "kurgany_tselye": -0.0012,
+    "gorodishcha": -0.0175,
+    "arkhitektury": -0.0023,
+    "object_poly": -0.0002,
+    "fortifikatsii": -0.0045,
+    "finds_points": -0.0062
+   },
+   "param": 0.3,
+   "sec": 29,
+   "accept": false
+  },
+  "V4_micro=0.6": {
+   "score": 0.30903206298312286,
+   "d": -0.005583259699719456,
+   "boot": {
+    "mean": -0.005508628440965047,
+    "p5": -0.00880640471992584,
+    "p50": -0.0053284590133084175,
+    "p95": -0.0028926285839848465,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.012051356053121853,
+   "d_optical": -0.001298206637648458,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0019,
+    "kurgany_tselye": -0.0051,
+    "gorodishcha": -0.0175,
+    "arkhitektury": -0.0023,
+    "object_poly": -0.0002,
+    "fortifikatsii": -0.0045,
+    "finds_points": -0.0089
+   },
+   "param": 0.6,
+   "sec": 13,
+   "accept": false
+  },
+  "V4_micro=0.9": {
+   "score": 0.3026841863992843,
+   "d": -0.01193113628355802,
+   "boot": {
+    "mean": -0.011321312314593258,
+    "p5": -0.016215460885004602,
+    "p50": -0.011201166604815155,
+    "p95": -0.006933568290687831,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.018749092349055863,
+   "d_optical": -0.001298206637648458,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0163,
+    "kurgany_tselye": -0.0063,
+    "gorodishcha": -0.0287,
+    "arkhitektury": -0.0023,
+    "object_poly": -0.0002,
+    "fortifikatsii": -0.0064,
+    "finds_points": -0.0089
+   },
+   "param": 0.9,
+   "sec": 11,
+   "accept": false
+  },
+  "V4_micro_nested": {
+   "score": 0.31046143594620385,
+   "d": -0.004153886736638468,
+   "boot": {
+    "mean": -0.004091901604934457,
+    "p5": -0.006548331094480425,
+    "p50": -0.003918322524650797,
+    "p95": -0.002180822074865244,
+    "p_gt0": 0.0,
+    "samples": 2000,
+    "families": 103
+   },
+   "d_new34": -0.012929126411945935,
+   "d_optical": -0.0010009638492185502,
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.0006,
+    "kurgany_tselye": -0.0012,
+    "gorodishcha": -0.0175,
+    "arkhitektury": -0.0023,
+    "object_poly": -0.0002,
+    "fortifikatsii": -0.0045,
+    "finds_points": -0.0062
+   },
+   "picks": [
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3
+   ],
+   "accept": false
+  }
+ }
+}

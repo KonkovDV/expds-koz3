@@ -53,8 +53,22 @@ def v_hedge(alpha):
     m = np.isin(B['cl'], KUR)
     d = dict(src=B['src'][m], sc=B['sc'][m] * alpha, cl=np.where(B['cl'][m] == KUR[0], KUR[1], KUR[0]), gp=np.char.add(B['gp'][m], '~hedge'))
     return cat(B, d)
+MK = np.char.lower(T['mk'].astype(str))
+# layers present at a site = markup_types the stack emits there (known at test time from the inputs the models ran on)
+SITE_LAYERS = {}
+for r_, m_ in set(zip(reg0.tolist(), MK.tolist())):
+    if m_: SITE_LAYERS.setdefault(r_, set()).add(m_)
+def copy_rows():
+    """(src, target markup_type) for every candidate x every OTHER layer present at its site."""
+    s, t = [], []
+    for p in B['src']:
+        for L in sorted(SITE_LAYERS.get(reg0[p], ()) - {MK[p]}): s.append(p); t.append(L)
+    return np.array(s, int), np.array(t, dtype=str)
+_cp = {}
 def v_copy(beta):
-    d = dict(src=B['src'], sc=B['sc'] * beta, cl=B['cl'], gp=np.char.add(B['gp'], '~copy'))
+    if not _cp: _cp['d'] = copy_rows()
+    s, t = _cp['d']
+    d = dict(src=s, sc=conf0[s] * beta, cl=cls0[s], gp=np.char.add(np.char.add(grp0[s], '~copy>'), t))
     return cat(B, d)
 
 # --- synthetic micro-circles (V4) ---

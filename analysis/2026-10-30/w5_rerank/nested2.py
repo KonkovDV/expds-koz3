@@ -4,10 +4,10 @@ from common import *
 import fast, numpy as np, lightgbm as lgb, os, argparse
 from expds.metric import curve_where, sweep_groups
 ap = argparse.ArgumentParser(); ap.add_argument('--tag', default='v1'); ap.add_argument('--rounds', type=int, default=300)
-ap.add_argument('--neg', type=float, default=0.2); ap.add_argument('--drop', default=''); ap.add_argument('--threads', type=int, default=4); ap.add_argument('--label', default='first'); ap.add_argument('--pergroup', action='store_true')
+ap.add_argument('--neg', type=float, default=0.2); ap.add_argument('--drop', default=''); ap.add_argument('--threads', type=int, default=4); ap.add_argument('--label', default='first'); ap.add_argument('--pergroup', action='store_true'); ap.add_argument('--xset', default='X2')
 args = ap.parse_args()
 T = fast.T; cls = T['cls'].astype(int); conf = T['conf']; reg = T['reg']; N = len(cls); CL = fast.CL
-X = np.load(W/'work/X2.npy'); names = json.load(open(W/'work/X2_names.json')); okc = np.load(W/'work/okc.npy'); pool = np.load(W/'work/pool.npy')
+X = np.load(W/f'work/{args.xset}.npy'); names = json.load(open(W/f'work/{args.xset}_names.json')); okc = np.load(W/'work/okc.npy'); pool = np.load(W/'work/pool.npy')
 keepcols = [i for i, n in enumerate(names) if n not in args.drop.split(',')]
 X = X[:, keepcols]; names = [names[i] for i in keepcols]
 y = okc[np.arange(N), np.maximum(cls, 0)] & (cls >= 0)

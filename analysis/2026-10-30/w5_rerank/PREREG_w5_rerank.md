@@ -17,3 +17,15 @@
 
 Правило безубыточности для доп. объекта: p > F/(4−F); здесь оно реализуется сдвигом порога группы на train-фолдах.
 Смоук на прокси (D-FINE ae OOF, 30 участков, 1 член) — только проверка кода, в гейт не идёт: smoke_proxy_*.json.
+
+## Addendum 2026-10-29 23:20 MSK (declared before any measurement on these variants)
+- **V3 redefinition** (already in code before the real-stack run): cross-layer copy emits the `markup_type` of a layer
+  that the stack actually emits at that site (not a fixed one). Flag for W4: copies across data types may conflict with
+  "между типами данных НЕ склеивать" — W4 compliance check required before any use.
+- **V5x** = V5 (nested LGBM reranker, label `first`) with 5 extra features from W2 lidar ConvNeXt c3-sc honest 5-fold
+  OOF, two seeds (`/workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s{0,1}.geojson`): `cnx_s0`, `cnx_s1` (max conf of an
+  intersecting det of the same class family), `cnx_mean`, `cnx_agree` (both seeds >0), `cnx_samecls` (exact subclass);
+  NaN outside the 58 cnx-covered sites. Gated vs A and vs V5 (same nested protocol, same folds).
+- **V6c** = stack + seed-fused cnx candidates as a new threshold_group `li_cnx`: s0-anchored, conf=(c0+max intersecting
+  c1 same family)/2, s1-only dets conf=c1/2. Honest-10 thresholds on the merged stack, paired bootstrap vs A.
+- Gate unchanged: Δ≥0.003, P(Δ>0)≥0.9, no regression (≥−0.001) on new34 and optical. Acceptance only by W4.
