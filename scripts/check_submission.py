@@ -707,6 +707,76 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
 
 
 # ---------------------------------------------------------------- .so
+#: bot-7 (v3): проба D-FINE/шлюза в чистом процессе — вендор архива, закреплённый transformers, классы D-FINE.
+DFINE_PROBE = r"""
+import json, sys
+root = sys.argv[1]
+sys.path.insert(0, root)
+out = {}
+try:
+    from expds.sp_dfine import import_dfine
+    C, M, info = import_dfine(root)
+    out = {"ok": True, **{k: info.get(k) for k in ("source", "version", "file", "errors", "purged_preloaded")}}
+    if sys.argv[2] == "1":
+        from transformers import Dinov2Config, Dinov2Model  # noqa: F401
+        out["dinov2"] = True
+except Exception as exc:
+    out = {"ok": False, "err": f"{type(exc).__name__}: {str(exc)[:1500]}"}
+print("DFINE_JSON=" + json.dumps(out, ensure_ascii=False))
+"""
+
+
+def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
+    """[sp_dfine]/[gor_gate] enabled: вендор transformers закреплённой версии в архиве и импорт классов
+    в чистом процессе целевого python (как на площадке). Иначе FAIL: на прогоне модуль молча дал бы выдачу v2."""
+    cfg = cfg or {}
+    dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
+    gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
+    if not (dfine or gate):
+        return
+    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate)) if on)
+    names = z.namelist()
+    vend = "inference/lib/vendor/"
+    meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
+    pin = "5.21.0"
+    if not any(n.startswith(vend + "transformers/") for n in names):
+        report("FAIL", "dfine", f"{what} включён, а вендора transformers ({vend}transformers/) в архиве нет — "
+                                f"классы D-FINE зависели бы от образа")
+    elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
+        report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
+    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate)) if m[1] and m[0] not in names]
+    if mods:
+        report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")
+        return
+    tmp = Path(tempfile.mkdtemp(prefix="b7dfine_", dir=args.workdir))
+    home = Path(tempfile.mkdtemp(prefix="b7dfhome_", dir=args.workdir))
+    try:
+        for n in names:
+            if n.startswith(vend) or (n.startswith("expds/") and n.endswith(".py")):
+                z.extract(n, tmp)
+        cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_PROBE, str(tmp), "1" if gate else "0"], args.cpus,
+                          not args.allow_net)
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout, env=child_env(home, args.threads),
+                               cwd=str(tmp))
+        except subprocess.TimeoutExpired:
+            report("FAIL", "dfine", f"проба импорта D-FINE не уложилась в {args.timeout} с")
+            return
+        line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_JSON=")), None)
+        out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
+        if not out.get("ok"):
+            report("FAIL", "dfine", f"{what} включён, а классы D-FINE не импортируются в {args.python}: {out.get('err')}")
+        elif out.get("source") != "vendor":
+            report("WARN", "dfine", f"transformers {out.get('version')} взят из окружения, не из вендора "
+                                    f"(вендор: {out.get('errors')})")
+        else:
+            report("PASS", "dfine", f"{what}: DFineConfig/DFineForObjectDetection из вендора transformers "
+                                    f"{out.get('version')}{' + Dinov2' if gate else ''} в чистом процессе")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+        shutil.rmtree(home, ignore_errors=True)
+
+
 def check_so(root: Path) -> None:
     for so in sorted((root / "inference" / "lib").glob("expds_core*.so")):
         head = so.read_bytes()[:20]
@@ -860,6 +930,24 @@ def validate_output(path: Path) -> None:
 ALLOW_EMPTY = False
 
 
+def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
+    """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
+    bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln]
+    if bad:
+        report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
+                                + " | ".join(b[-300:] for b in bad[:3]))
+    nd = [ln.split("sp_dfine ", 1)[1][:160] for ln in log.splitlines() if "sp_dfine n_det=" in ln]
+    if nd:
+        report("INFO", "dfine", " ; ".join(nd[-6:]))
+    else:
+        try:
+            on = bool((tomllib.loads(z.read("configs/default.toml").decode()).get("sp_dfine") or {}).get("enabled"))
+        except Exception:
+            on = False
+        if on:
+            report("WARN", "dfine", "[sp_dfine] включён, а строк «sp_dfine n_det=» в логе нет (во входе нет SpOr?)")
+
+
 def smoke(z: zipfile.ZipFile, args) -> None:
     work = Path(tempfile.mkdtemp(prefix="b8smoke_", dir=args.workdir))
     code, home, out_dir = work / "code", work / "home", work / "out"
@@ -914,6 +1002,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
     for ln in log.splitlines():
         if "фазы:" in ln or "общее время" in ln or "записано" in ln or "ускоритель" in ln:
             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
+    dfine_lines(z, log)
     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
         "упала", "запасной детектор", "MemoryError"))]
@@ -990,6 +1079,7 @@ def main() -> int:
             run_probe(tmp, args.python, reach, third, args)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+    check_dfine(z, cfg, args)
     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
         smoke(z, args)
     elif not args.smoke:

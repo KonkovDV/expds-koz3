@@ -278,6 +278,13 @@ def _rename_keys(sd: dict) -> dict:
 
 
 VENDOR = "inference/lib/vendor"   # распакованные колёса bot-9 submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
+#: закреплённая версия transformers (вендор); другая версия — только если совпадает ровно (напр. venv ПК с колёсами win)
+TRANSFORMERS_PIN = "5.21.0"
+#: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
+UNAVAILABLE = "SP_DFINE_UNAVAILABLE"
+#: пакеты вендора: при сбое импорта из вендора их полу-импортированные модули вычищаются из sys.modules
+_VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdown_it", "mdurl", "pygments",
+                "shellingham", "annotated_doc")
 
 
 def _vendor_path(root: Path) -> None:
@@ -287,8 +294,71 @@ def _vendor_path(root: Path) -> None:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     v = Path(root) / VENDOR
-    if v.is_dir() and str(v) not in sys.path:
+    if v.is_dir():
+        if str(v) in sys.path:
+            sys.path.remove(str(v))
         sys.path.insert(0, str(v))
+
+
+def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
+    """Выгрузить модули пакетов pkgs из sys.modules (кроме загруженных из keep_under). Возвращает выгруженные."""
+    import sys
+    gone = []
+    for name in list(sys.modules):
+        top = name.split(".", 1)[0]
+        if top not in pkgs:
+            continue
+        mod = sys.modules.get(name)
+        f = getattr(mod, "__file__", None) or ""
+        if keep_under is not None and f and Path(f).resolve().is_relative_to(keep_under.resolve()):
+            continue
+        sys.modules.pop(name, None)
+        gone.append(name)
+    return gone
+
+
+def import_dfine(root: Path) -> tuple:
+    """Классы D-FINE строго закреплённой версии. Порядок:
+    1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
+    2) вендор архива первым в sys.path → import (в образе python:3.12 linux так и должно быть);
+    3) сбой (на Windows/другом python не грузятся .so regex/tokenizers из вендора) → вендор вычищается из sys.path
+       и sys.modules, пробуем transformers окружения, но только версии ровно TRANSFORMERS_PIN;
+    иначе ImportError с причинами обеих попыток. Возвращает (DFineConfig, DFineForObjectDetection, info)."""
+    import importlib
+    import sys
+    v = Path(root) / VENDOR
+    info: dict = {"pin": TRANSFORMERS_PIN, "vendor": str(v), "vendor_present": v.is_dir(), "errors": []}
+    tr = sys.modules.get("transformers")
+    if tr is not None and not (v.is_dir() and Path(getattr(tr, "__file__", "") or "/").resolve().is_relative_to(v.resolve())):
+        info["purged_preloaded"] = getattr(tr, "__version__", "?")
+        _purge(("transformers",))
+    if v.is_dir():   # и чужие tokenizers/regex, загруженные до нас, — иначе вендорный transformers возьмёт их
+        _purge(("tokenizers", "regex"), keep_under=v)
+    attempts = (["vendor"] if v.is_dir() else []) + ["env"]
+    for src in attempts:
+        if src == "vendor":
+            _vendor_path(root)
+        else:
+            if v.is_dir():
+                while str(v) in sys.path:
+                    sys.path.remove(str(v))
+                _purge(_VENDOR_PKGS)
+            import os
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        importlib.invalidate_caches()
+        try:
+            import transformers
+            ver = getattr(transformers, "__version__", "?")
+            if ver != TRANSFORMERS_PIN:
+                raise ImportError(f"transformers {ver} != закреплённой {TRANSFORMERS_PIN} ({transformers.__file__})")
+            from transformers import DFineConfig, DFineForObjectDetection
+            info.update(source=src, version=ver, file=str(transformers.__file__))
+            return DFineConfig, DFineForObjectDetection, info
+        except Exception as exc:  # noqa: BLE001 — причина пишется в лог/FAIL
+            info["errors"].append(f"{src}: {type(exc).__name__}: {str(exc)[:300]}")
+            _purge(("transformers",))
+    raise ImportError(f"{UNAVAILABLE}: D-FINE недоступен — " + " | ".join(info["errors"]))
 
 
 def load_models(st: dict, root: Path, device) -> list:
@@ -298,8 +368,8 @@ def load_models(st: dict, root: Path, device) -> list:
     пропущенные ключи допустимы только связанные (tied) копии уже загруженных тензоров."""
     import torch
     from safetensors.torch import load_file
-    _vendor_path(root)
-    from transformers import DFineConfig, DFineForObjectDetection
+    DFineConfig, DFineForObjectDetection, info = import_dfine(root)
+    log.info("sp_dfine: transformers %s из %s (%s)", info["version"], info["source"], info["file"])
 
     models = []
     for rel in st["weights"]:
@@ -429,18 +499,19 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         cache["models"], cache["device"] = [], None
         ready, missing = thresholds_ready(cfg)
         if st["require_thresholds"] and not ready:
-            log.error("sp_dfine: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается",
-                      ", ".join(missing))
+            log.error("%s: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается, выдача как v2",
+                      UNAVAILABLE, ", ".join(missing))
         elif not st["weights"]:
-            log.error("sp_dfine: weights пуст — D-FINE не запускается")
+            log.error("%s: weights пуст — D-FINE не запускается, выдача как v2", UNAVAILABLE)
         else:
             try:
                 dev = _device(st)
                 t0 = time.monotonic()
                 cache["models"], cache["device"] = load_models(st, root, dev), dev
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
-            except Exception:
-                log.exception("sp_dfine: модели не загрузились, D-FINE пропущен")
+            except Exception as exc:  # noqa: BLE001 — громко, но не роняем сдачу: выдача как v2
+                log.exception("%s: модели не загрузились (%s: %s) — D-FINE пропущен, выдача как v2",
+                              UNAVAILABLE, type(exc).__name__, str(exc)[:500])
     models = cache["models"]
     if not models:
         return [], False
