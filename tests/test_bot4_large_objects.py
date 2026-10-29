@@ -1,4 +1,4 @@
-"""bot-4 large_objects: флаг OFF = no-op; area_tau / protect / fort_to_gor при ON."""
+"""bot-4 large_objects: мастер OFF = no-op; sub-flags независимо; area_tau/protect/fort_to_gor."""
 from __future__ import annotations
 
 from shapely.geometry import Point, box
@@ -23,6 +23,17 @@ def test_enabled_default_off():
     assert lo.enabled({"large_objects": {}}) is False
     assert lo.enabled({"large_objects": {"enabled": False}}) is False
     assert lo.enabled({"large_objects": {"enabled": True}}) is True
+
+
+def test_flag_requires_master_and_defaults_false():
+    cfg_off = {"large_objects": {"enabled": False, "coarse_hillfort": True}}
+    assert lo.flag(cfg_off, "coarse_hillfort") is False
+    cfg_on = {"large_objects": {"enabled": True}}
+    for name in ("area_tau", "protect_merge", "shape_cores", "fort_to_gor", "coarse_hillfort"):
+        assert lo.flag(cfg_on, name) is False
+    cfg_one = {"large_objects": {"enabled": True, "fort_to_gor": True}}
+    assert lo.flag(cfg_one, "fort_to_gor") is True
+    assert lo.flag(cfg_one, "coarse_hillfort") is False
 
 
 def test_area_tau_relaxes_only_large():
@@ -67,13 +78,30 @@ def test_fort_to_gor_copies_large_fort():
         _feat("fortifikatsii", 0.8, 40, markup="ae"),
     ]
     out = lo.fort_to_gor(feats, {"fort_to_gor": True, "min_area_m2": 5000.0,
-                                 "fort_to_gor_scale": 0.9, "fort_to_gor_group": "gor_from_fort"})
+                                 "fort_to_gor_scale": 0.9, "fort_to_gor_group": "gor_from_fort",
+                                 "fort_to_gor_min_conf": 0.5})
     assert len(out) == 3
     copies = [f for f in out if f.get("large_objects_seed") == "fort_to_gor"]
     assert len(copies) == 1
     assert copies[0]["class_name"] == "gorodishcha"
     assert copies[0]["threshold_group"] == "gor_from_fort"
     assert abs(copies[0]["confidence"] - 0.72) < 1e-9
+    # keep-original-label: fort остаётся
+    assert sum(1 for f in out if f["class_name"] == "fortifikatsii") == 2
+
+
+def test_fort_to_gor_skips_overlap_and_low_conf():
+    fort = _feat("fortifikatsii", 0.8, 100, markup="ae", source="f")
+    gor = _feat("gorodishcha", 0.9, 100, markup="li", source="g")
+    # fort полностью пересекается с gor → копии нет
+    out = lo.fort_to_gor([fort, gor], {"fort_to_gor": True, "min_area_m2": 5000.0,
+                                       "fort_to_gor_scale": 0.8, "fort_to_gor_min_conf": 0.5})
+    assert not any(f.get("large_objects_seed") == "fort_to_gor" for f in out)
+    # низкий conf → копии нет
+    weak = _feat("fortifikatsii", 0.3, 100, markup="ae", source="w")
+    out2 = lo.fort_to_gor([weak], {"fort_to_gor": True, "min_area_m2": 5000.0,
+                                   "fort_to_gor_min_conf": 0.5})
+    assert not any(f.get("large_objects_seed") == "fort_to_gor" for f in out2)
 
 
 def test_finish_flag_off_byte_identical_on_toy():
@@ -84,3 +112,15 @@ def test_finish_flag_off_byte_identical_on_toy():
     a = watchdog.finish(list(feats), cfg)
     b = watchdog.finish(list(feats), {**cfg, "large_objects": {"enabled": False}})
     assert len(a) == len(b)
+
+
+def test_finish_master_on_subs_off_same_as_off():
+    """enabled=true без sub-flags = тот же путь, что enabled=false (на игрушке)."""
+    feats = [_feat("gorodishcha", 0.5, 100, group="gor_phys"),
+             _feat("fortifikatsii", 0.8, 100, markup="ae")]
+    base = {"thresholds": {"gorodishcha": 0.15, "fortifikatsii": 0.15},
+            "default_threshold": 0.15, "thresholds_by_markup": {}, "post": {}}
+    off = watchdog.finish(list(feats), {**base, "large_objects": {"enabled": False}})
+    on_empty = watchdog.finish(list(feats), {**base, "large_objects": {"enabled": True}})
+    assert len(off) == len(on_empty)
+    assert [f["class_name"] for f in off] == [f["class_name"] for f in on_empty]
