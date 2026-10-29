@@ -60,13 +60,14 @@
   {
    "slot": "acc2/cpu",
    "account": "dmitrijkv",
-   "holder": null,
-   "kernel": null,
-   "purpose": "PIXGBM s3 NON-CLEANROOM research; cpu_watcher снимет",
+   "holder": "bot-W3-bigobj",
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds",
+   "purpose": "coord fallback: W3 kurgan seeds 41,42 на свободном acc2/cpu",
    "code": "w4pix/k",
    "class": "NON-CLEANROOM (geo_pixgbm.py от публичного решения EhimenNathan, вариант B): только исследование/сравнение, НЕ для архива",
-   "state": "свободен",
-   "last": "снято coord 29.10 22:46 MSK"
+   "last": "снято coord 29.10 22:46 MSK",
+   "since": "29.10 23:08 MSK",
+   "until": "30.10 11:08 MSK"
   },
   {
    "slot": "box/cpu",
@@ -108,6 +109,13 @@
    "since": "29.10 22:31 MSK",
    "until": "30.10 06:01 MSK",
    "purpose": "kurgan subclass seeds"
+  },
+  {
+   "slot": "box/q1",
+   "holder": "coord",
+   "kernel": null,
+   "since": "29.10 23:07 MSK",
+   "until": "30.10 00:07 MSK"
   }
  ],
  "kernel_prefix": {
@@ -313,6 +321,43 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 78026
+  },
+  {
+   "resource": "slot:box/q1",
+   "owner": "coord",
+   "since": 1793304443.658534,
+   "expires": 1793308043.658534,
+   "note": "coord-compliance-audit",
+   "host": "grok-bot-vm-361051398",
+   "pid": 19621
+  },
+  {
+   "resource": "slot:acc2/cpu",
+   "owner": "bot-W3-bigobj",
+   "since": 1793304493.037074,
+   "expires": 1793347693.037074,
+   "note": "coord fallback: W3 kurgan seeds 41,42 на свободном acc2/cpu",
+   "host": "grok-bot-vm-361051398",
+   "pid": 20861,
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds"
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-kurgan-cpu-data",
+   "owner": "bot-W3-bigobj",
+   "since": 1793304493.071603,
+   "expires": 1793347693.071603,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 20866
+  },
+  {
+   "resource": "kernel:dmitrijkv/koz3-w3-kurgan-cpu-seeds",
+   "owner": "bot-W3-bigobj",
+   "since": 1793304493.10797,
+   "expires": 1793347693.10797,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 20871
   }
  ]
 }

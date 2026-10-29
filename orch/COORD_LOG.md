@@ -48,3 +48,13 @@
 - 29.10 22:46 MSK | watcher | acc2/cpu: dmitrijkv/koz3-w4-pixgbm-s3 → COMPLETE; аренда снята
 - 29.10 22:47 MSK | check_conflicts | ERROR=0 WARN=2: 
 - 29.10 22:48 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)
+- 29.10 22:49 MSK | check_conflicts | ERROR=0 WARN=2: 
+- 29.10 23:07 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)
+- 29.10 23:07 MSK | lease | acquire slot:box/q1 → coord до 30.10 00:07 MSK coord-compliance-audit
+- 29.10 23:07 MSK | watcher | box/q1 ← coord-compliance-audit (box, pid 19626)
+- 29.10 23:07 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 29.10 23:08 MSK | lease | acquire slot:acc2/cpu → bot-W3-bigobj до 30.10 11:08 MSK coord fallback: W3 kurgan seeds 41,42 на свободном acc2/cpu
+- 29.10 23:08 MSK | lease | acquire dataset:dmitrijkv/koz3-w3-kurgan-cpu-data → bot-W3-bigobj до 30.10 11:08 MSK 
+- 29.10 23:08 MSK | lease | acquire kernel:dmitrijkv/koz3-w3-kurgan-cpu-seeds → bot-W3-bigobj до 30.10 11:08 MSK 
+- 29.10 23:08 MSK | coord | QUEUE (под .queue.lock): CI2-1/3/7 ready, CI2-8 dispatch→acc2/cpu, CI2-5 planned W3 GPU после w1-ae/or-final. Бокс перезагружался ~22:53: убит kurgan PID 20871 и старые watcher-ы; watcher.py PID 19507 единственный.
+- 29.10 23:08 MSK | coord | acc2/cpu свободен → fallback: dmitrijkv/koz3-w3-kurgan-cpu-seeds (seeds 41,42, датасет dmitrijkv/koz3-w3-kurgan-cpu-data), аренда bot-W3-bigobj; watcher.py был мёртв — перезапущен
