@@ -1,0 +1,2 @@
+basecheck drop 0.3146153226828423 {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0}
+basecheck keep 0.3332373211123479 {'folds': 10, 'unseen_dropped': 0, 'unseen_kept': 723}

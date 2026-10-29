@@ -1,0 +1,60 @@
+[      5s] версии: {"numpy": "2.5.4", "scipy": "1.18.1", "torch": "2.15.0+cpu", "transformers": "5.21.0", "rasterio": "1.5.2", "pyproj": "3.8.0", "shapely": "2.2.0", "boto3": "ModuleNotFoundError: No module named 'boto3'"}
+[      5s] MODE full WORK /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/work DATA /workspace/data/train-expds-3
+[      7s] GPU: нет
+[      7s] исходники bot-5 @6984c67d1e2c8493ebbc6931b5fb6c758368777e: 7 файлов → /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo
+[      7s] модель (dry): /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model
+[      7s] ▶ smoke: /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo/scripts/gor_dense/dense_feats.py | env {"DATA": "/workspace/data/train-expds-3", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/work/gd", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model", "REVISION": "", "DEVICE": "cpu", "THREADS": "4", "REPO": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "ONLY_REGS": "185_Изборск", "GSDS": "1,2", "TAG": "_smoke"} | timeout 1800 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 30701.55it/s]
+    [1s] 1/3 185_Изборск gsd 0.98 grid 57x98 tiles 10 rss 500MB
+    [2s] 2/3 185_Изборск gsd 0.70 grid 40x70 tiles 17 rss 507MB
+    [2s] 3/3 185_Изборск gsd 0.70 grid 40x70 tiles 24 rss 510MB
+    done tokens 11186 tiles 24 2s
+[     18s] ■ smoke: rc=0, 11 s
+[     18s] проверка dense_smoke.npz: {"shape": [11186, 128], "dtype": "float16", "finite": true, "files": 3, "regions": 1, "npz_bytes": 3156130}
+[     18s] ▶ _L24: /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo/scripts/gor_dense/dense_feats.py | env {"DATA": "/workspace/data/train-expds-3", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/work/gd", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model", "REVISION": "", "DEVICE": "cpu", "THREADS": "4", "REPO": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "ONLY_REGS": "185_Изборск,165_Кисловодская_котловина_2,092_Шаты,081_Костомаровское,088_Кель_Тор_Х,064_Ксизово,086_Кан_Дебе,108_Скупая_Полудань,062_Каменка,161_Курганы_32,091_Сакские_курганы,034_Усть_река,119_Каменные_выкладки_9", "GSDS": "2,4", "TAG": "_L24"} | timeout 39282 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 31830.68it/s]
+    [0s] 1/15 034_Усть_река gsd 0.71 grid 19x22 tiles 2 rss 469MB
+    [1s] 2/15 062_Каменка gsd 1.06 grid 30x51 tiles 5 rss 492MB
+    [1s] 3/15 064_Ксизово gsd 0.53 grid 16x20 tiles 7 rss 492MB
+    [1s] 4/15 081_Костомаровское gsd 0.64 grid 19x25 tiles 9 rss 492MB
+    [2s] 5/15 086_Кан_Дебе gsd 0.93 grid 26x45 tiles 12 rss 492MB
+    [2s] 6/15 088_Кель_Тор_Х gsd 0.93 grid 26x45 tiles 15 rss 494MB
+    [3s] 7/15 091_Сакские_курганы gsd 0.43 grid 11x13 tiles 17 rss 494MB
+    [3s] 8/15 092_Шаты gsd 0.11 grid 3x4 tiles 19 rss 494MB
+    [3s] 9/15 108_Скупая_Полудань gsd 1.06 grid 32x47 tiles 22 rss 497MB
+    [3s] 10/15 119_Каменные_выкладки_9 gsd 0.22 grid 7x8 tiles 24 rss 497MB
+    [4s] 11/15 161_Курганы_32 gsd 0.89 grid 24x28 tiles 26 rss 497MB
+    [4s] 12/15 165_Кисловодская_котловина_2 gsd 0.80 grid 22x25 tiles 28 rss 497MB
+    [5s] 13/15 185_Изборск gsd 0.98 grid 28x49 tiles 31 rss 504MB
+    [5s] 14/15 185_Изборск gsd 0.70 grid 20x35 tiles 33 rss 504MB
+    [6s] 15/15 185_Изборск gsd 0.70 grid 20x35 tiles 35 rss 504MB
+    done tokens 10792 tiles 35 6s
+[     31s] ■ _L24: rc=0, 13 s
+[     31s] проверка dense_L24.npz: {"shape": [10792, 128], "dtype": "float16", "finite": true, "files": 15, "regions": 13, "npz_bytes": 3045022}
+[     31s] ▶ _L12: /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo/scripts/gor_dense/dense_feats.py | env {"DATA": "/workspace/data/train-expds-3", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/work/gd", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model", "REVISION": "", "DEVICE": "cpu", "THREADS": "4", "REPO": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "ONLY_REGS": "185_Изборск,165_Кисловодская_котловина_2,092_Шаты,081_Костомаровское,088_Кель_Тор_Х,064_Ксизово,086_Кан_Дебе,108_Скупая_Полудань,062_Каменка,161_Курганы_32,091_Сакские_курганы,034_Усть_река,119_Каменные_выкладки_9", "GSDS": "1,2", "TAG": "_L12"} | timeout 39269 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 18641.35it/s]
+    [1s] 1/15 034_Усть_река gsd 0.71 grid 39x44 tiles 5 rss 482MB
+    [2s] 2/15 062_Каменка gsd 1.06 grid 61x103 tiles 15 rss 537MB
+    [2s] 3/15 064_Ксизово gsd 0.53 grid 32x40 tiles 18 rss 537MB
+    [4s] 4/15 081_Костомаровское gsd 0.64 grid 38x50 tiles 23 rss 537MB
+    [6s] 5/15 086_Кан_Дебе gsd 0.93 grid 53x90 tiles 31 rss 537MB
+    [8s] 6/15 088_Кель_Тор_Х gsd 0.93 grid 53x90 tiles 39 rss 537MB
+    [8s] 7/15 091_Сакские_курганы gsd 0.43 grid 23x26 tiles 41 rss 537MB
+    [8s] 8/15 092_Шаты gsd 0.11 grid 6x9 tiles 43 rss 537MB
+    [10s] 9/15 108_Скупая_Полудань gsd 1.06 grid 64x94 tiles 53 rss 538MB
+    [11s] 10/15 119_Каменные_выкладки_9 gsd 0.22 grid 14x16 tiles 55 rss 538MB
+    [12s] 11/15 161_Курганы_32 gsd 0.89 grid 49x56 tiles 60 rss 538MB
+    [13s] 12/15 165_Кисловодская_котловина_2 gsd 0.80 grid 44x50 tiles 65 rss 538MB
+    [16s] 13/15 185_Изборск gsd 0.98 grid 57x98 tiles 75 rss 547MB
+    [17s] 14/15 185_Изборск gsd 0.70 grid 40x70 tiles 82 rss 547MB
+    [19s] 15/15 185_Изборск gsd 0.70 grid 40x70 tiles 89 rss 547MB
+    done tokens 43741 tiles 89 19s
+[     57s] ■ _L12: rc=0, 26 s
+[     57s] проверка dense_L12.npz: {"shape": [43741, 128], "dtype": "float16", "finite": true, "files": 15, "regions": 13, "npz_bytes": 12336640}
+[     57s] ГОТОВО {"smoke": 0, "_L24": 0, "_L12": 0} | выход: /kaggle/working/gd/{dense,files}_L24/_L12 + gor_dense_inputs.json → вход кернелов koz3-b5-gorloc-probe-*

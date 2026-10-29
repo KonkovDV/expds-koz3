@@ -1,0 +1,5 @@
+[1s] tokens 227182 dim 768 files 175 regions 132 tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0]
+[2s] token labels {0: 219182, -1: 5760, 1: 2240} regions with pos tokens 49
+[168s] fam10 {'top1_hit_held': {'pu': [25, 49], 'pu_nohn': [24, 49], 'all': [24, 49]}, 'token_auc_pos_scenes': {'pu': 0.8396880584800661, 'pu_nohn': 0.8288620112691362, 'all': 0.8475353255012663}, 'token_auc_all': {'pu': 0.8543687845195839, 'pu_nohn': 0.845618446819147, 'all': 0.9155782840939753}} centre [18, 49]
+[168s] done; peak RSS MB 1243.42578125
+watchdog max RSS MB 1005 exit 0

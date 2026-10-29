@@ -1,0 +1,10 @@
+INFO expds.catalog найдено регионов: 2 в root
+WARNING expds.crs CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+INFO expds.lidar DEM 01_Хога_La_точки.laz: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, numpy
+INFO expds.pipeline 016_Хога: li_half 354 → 311 новых (отбор 12 м, пол группы li_half)
+016_Хога {'seconds': 25.1, 'groups': {'li:kurgany_povrezhdennye': 784, 'li:kurgany_tselye': 784, 'li_half:kurgany_tselye': 161, 'li_half:kurgany_povrezhdennye': 150}}
+WARNING expds.crs CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+INFO expds.lidar DEM 01_Курган_Хога_La_точки.laz: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, numpy
+INFO expds.pipeline 018_Курган_Хога: li_half 588 → 530 новых (отбор 12 м, пол группы li_half)
+018_Курган_Хога {'seconds': 26.1, 'groups': {'li:kurgany_povrezhdennye': 1075, 'li:kurgany_tselye': 1075, 'li_half:kurgany_povrezhdennye': 253, 'li_half:kurgany_tselye': 277}}
+{"016_Хога": {"seconds": 25.1, "groups": {"li:kurgany_povrezhdennye": 784, "li:kurgany_tselye": 784, "li_half:kurgany_tselye": 161, "li_half:kurgany_povrezhdennye": 150}}, "018_Курган_Хога": {"seconds": 26.1, "groups": {"li:kurgany_povrezhdennye": 1075, "li:kurgany_tselye": 1075, "li_half:kurgany_povrezhdennye": 253, "li_half:kurgany_tselye": 277}}, "maxrss_mb": 1521.7}

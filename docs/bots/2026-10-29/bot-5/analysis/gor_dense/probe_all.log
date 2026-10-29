@@ -1,0 +1,4 @@
+[9s] tokens 227182 dim 768 files 175 regions 132 tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0]
+[10s] frame prior: pos tokens dist to frame centre m q50/q90 [212.5, 487.5] edge share of neg 0.71
+[10s] token labels {0: 219182, -1: 5760, 1: 2240} regions with pos tokens 49
+[1097s] fam10 {'top1_hit_held': {'pu': [25, 49], 'pu+cp': [30, 49], 'pu_edge': [25, 49], 'pu_edge+cp': [31, 49], 'all': [24, 49], 'all+cp': [26, 49]}, 'token_auc_pos_scenes': {'pu': 0.8396880584800661, 'pu_edge': 0.7525354293392685, 'all': 0.8475353255012663}, 'token_auc_all': {'pu': 0.8543687845195839, 'pu_edge': 0.7748402888760417, 'all': 0.9155782840939753}} centre [18, 49]

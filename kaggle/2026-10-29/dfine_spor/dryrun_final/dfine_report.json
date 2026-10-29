@@ -1,0 +1,133 @@
+{
+ "cfg": {
+  "mode": "final",
+  "res": 0.5,
+  "tile": 256,
+  "overlap": 160,
+  "max_windows": 6,
+  "bs": 1,
+  "iters": 3,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 3.0,
+  "folds": "0,1,2,3,4",
+  "regions": "161_Курганы_32,051_Воронеж_2",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "hf": "ustc-community/dfine-large-coco@aa8f8211545e4cff5adf52ea512f9ac74a9824ec",
+ "base": "coco",
+ "final": {
+  "trainer": "bot5",
+  "iters": 3,
+  "planned": 3,
+  "s_it_median": 2.9716718196868896,
+  "hist": [
+   {
+    "it": 3,
+    "loss": 633.613,
+    "s_it": 2.9717
+   }
+  ],
+  "sec": 12,
+  "loss_first": 689.1879272460938,
+  "loss_last": 554.9867553710938,
+  "model_check": {
+   "params_M": 31.09,
+   "num_labels": 5,
+   "heads": [
+    6,
+    5,
+    256
+   ]
+  },
+  "n_train_chips": 21,
+  "n_obj_chips": 13,
+  "train_regions": [
+   "051_Воронеж_2",
+   "161_Курганы_32"
+  ],
+  "seed": 105,
+  "files": {
+   "config.json": {
+    "bytes": 4222,
+    "sha256": "ff8bb6305c227c5e52ba7f7cc16bf0edaa7a9ac085104452b0aec3b6b9e90789"
+   },
+   "model.safetensors": {
+    "bytes": 125001980,
+    "sha256": "edf1ac98545cbe3a546f569b63483573134f5f5c0c2863b62d2cd56373620a52"
+   }
+  },
+  "reload_max_abs_diff": 0.0
+ },
+ "bench": {
+  "device": "cpu",
+  "torch": "2.11.0+cpu",
+  "n_windows": 2,
+  "tile": 256,
+  "windows_from": [
+   {
+    "region": "051_Воронеж_2",
+    "tif": "01_Воронеж_2_SpOr_спутник.tif",
+    "n": 2
+   }
+  ],
+  "modes": {
+   "fp32_bs1": {
+    "bs": 1,
+    "ms_per_window_forward_median": 366.01,
+    "ms_per_window_forward_mean": 537.04,
+    "ms_per_window_with_flipTTA": 732.01,
+    "n_meas": 4
+   },
+   "fp16autocast_bs1": {
+    "bs": 1,
+    "ms_per_window_forward_median": 1051.2,
+    "ms_per_window_forward_mean": 1759.05,
+    "ms_per_window_with_flipTTA": 2102.39,
+    "n_meas": 4
+   },
+   "fp32_bs8": {
+    "bs": 8,
+    "ms_per_window_forward_median": 1297.6,
+    "ms_per_window_forward_mean": 1297.6,
+    "ms_per_window_with_flipTTA": 2595.2,
+    "n_meas": 2
+   },
+   "fp16autocast_bs8": {
+    "bs": 8,
+    "ms_per_window_forward_median": 738.16,
+    "ms_per_window_forward_mean": 738.16,
+    "ms_per_window_with_flipTTA": 1476.32,
+    "n_meas": 2
+   }
+  },
+  "e2e_infer_region_fp16autocast_bs1_flipTTA": [
+   {
+    "region": "051_Воронеж_2",
+    "windows": 6,
+    "sec": 8.85,
+    "ms_per_window": 1475.8,
+    "n_det": 419
+   }
+  ]
+ },
+ "skipped_regions_no_fold": [],
+ "oof": "нет — модель обучена на всех участках SpOr; OOF невозможен, пороги sp_dfine — из OOF фолдов full/full_rest",
+ "total_sec": 65
+}

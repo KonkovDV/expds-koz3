@@ -1,0 +1,277 @@
+{
+ "n": 1209594,
+ "pos_a_tselye": 2736,
+ "pos_b_kurgan_true": 8625,
+ "feat": {
+  "morph_valid": {
+   "auc_tselye": 0.4739,
+   "auc_kurgan_vs_false": 0.4856,
+   "nan_share": 0.0
+  },
+  "morph_bg_slope": {
+   "auc_tselye": 0.6988,
+   "auc_kurgan_vs_false": 0.589,
+   "nan_share": 0.0114
+  },
+  "morph_bg_rough": {
+   "auc_tselye": 0.7688,
+   "auc_kurgan_vs_false": 0.6761,
+   "nan_share": 0.0114
+  },
+  "morph_h0": {
+   "auc_tselye": 0.834,
+   "auc_kurgan_vs_false": 0.7527,
+   "nan_share": 0.0114
+  },
+  "morph_hmax": {
+   "auc_tselye": 0.8282,
+   "auc_kurgan_vs_false": 0.7393,
+   "nan_share": 0.0114
+  },
+  "morph_r_peak": {
+   "auc_tselye": 0.481,
+   "auc_kurgan_vs_false": 0.4778,
+   "nan_share": 0.0114
+  },
+  "morph_ring": {
+   "auc_tselye": 0.5048,
+   "auc_kurgan_vs_false": 0.4989,
+   "nan_share": 0.0114
+  },
+  "morph_ring_rel": {
+   "auc_tselye": 0.2835,
+   "auc_kurgan_vs_false": 0.3326,
+   "nan_share": 0.0114
+  },
+  "morph_r_half": {
+   "auc_tselye": 0.6264,
+   "auc_kurgan_vs_false": 0.622,
+   "nan_share": 0.012
+  },
+  "morph_r_edge": {
+   "auc_tselye": 0.7179,
+   "auc_kurgan_vs_false": 0.638,
+   "nan_share": 0.0114
+  },
+  "morph_slope_edge": {
+   "auc_tselye": 0.789,
+   "auc_kurgan_vs_false": 0.6736,
+   "nan_share": 0.0114
+  },
+  "morph_vol": {
+   "auc_tselye": 0.6953,
+   "auc_kurgan_vs_false": 0.6754,
+   "nan_share": 0.0114
+  },
+  "morph_shape": {
+   "auc_tselye": 0.5901,
+   "auc_kurgan_vs_false": 0.5399,
+   "nan_share": 0.012
+  },
+  "morph_top_ratio": {
+   "auc_tselye": 0.7389,
+   "auc_kurgan_vs_false": 0.6913,
+   "nan_share": 0.0114
+  },
+  "morph_asym4": {
+   "auc_tselye": 0.5688,
+   "auc_kurgan_vs_false": 0.5393,
+   "nan_share": 0.0114
+  },
+  "morph_secmin4": {
+   "auc_tselye": 0.5835,
+   "auc_kurgan_vs_false": 0.5746,
+   "nan_share": 0.0114
+  },
+  "morph_secmin8": {
+   "auc_tselye": 0.4226,
+   "auc_kurgan_vs_false": 0.4658,
+   "nan_share": 0.0114
+  },
+  "morph_elong": {
+   "auc_tselye": 0.4666,
+   "auc_kurgan_vs_false": 0.436,
+   "nan_share": 0.0191
+  },
+  "morph_cent_off": {
+   "auc_tselye": 0.4299,
+   "auc_kurgan_vs_false": 0.4303,
+   "nan_share": 0.0191
+  },
+  "morph_peak_off": {
+   "auc_tselye": 0.3608,
+   "auc_kurgan_vs_false": 0.3866,
+   "nan_share": 0.0114
+  },
+  "morph_tpi2": {
+   "auc_tselye": 0.8365,
+   "auc_kurgan_vs_false": 0.7228,
+   "nan_share": 0.0114
+  },
+  "morph_tpi5": {
+   "auc_tselye": 0.9131,
+   "auc_kurgan_vs_false": 0.7716,
+   "nan_share": 0.0114
+  },
+  "morph_tpi8": {
+   "auc_tselye": 0.892,
+   "auc_kurgan_vs_false": 0.7627,
+   "nan_share": 0.0114
+  },
+  "morph_tpi15": {
+   "auc_tselye": 0.8566,
+   "auc_kurgan_vs_false": 0.7534,
+   "nan_share": 0.0114
+  },
+  "morph_tpi30": {
+   "auc_tselye": 0.8244,
+   "auc_kurgan_vs_false": 0.7527,
+   "nan_share": 0.0114
+  },
+  "morph_std3": {
+   "auc_tselye": 0.8919,
+   "auc_kurgan_vs_false": 0.7595,
+   "nan_share": 0.0114
+  },
+  "morph_std8": {
+   "auc_tselye": 0.8763,
+   "auc_kurgan_vs_false": 0.756,
+   "nan_share": 0.0114
+  },
+  "morph_slope2": {
+   "auc_tselye": 0.8489,
+   "auc_kurgan_vs_false": 0.7193,
+   "nan_share": 0.0114
+  },
+  "morph_slope5": {
+   "auc_tselye": 0.8704,
+   "auc_kurgan_vs_false": 0.7372,
+   "nan_share": 0.0114
+  },
+  "morph_slope_max5": {
+   "auc_tselye": 0.8294,
+   "auc_kurgan_vs_false": 0.7076,
+   "nan_share": 0.0114
+  },
+  "morph_curv1_5": {
+   "auc_tselye": 0.0846,
+   "auc_kurgan_vs_false": 0.2194,
+   "nan_share": 0.0449
+  },
+  "morph_curv3": {
+   "auc_tselye": 0.2016,
+   "auc_kurgan_vs_false": 0.2792,
+   "nan_share": 0.0638
+  },
+  "morph_opp10": {
+   "auc_tselye": 0.4922,
+   "auc_kurgan_vs_false": 0.4966,
+   "nan_share": 0.0114
+  },
+  "morph_opn10": {
+   "auc_tselye": 0.1252,
+   "auc_kurgan_vs_false": 0.2616,
+   "nan_share": 0.0114
+  },
+  "morph_svf10": {
+   "auc_tselye": 0.3835,
+   "auc_kurgan_vs_false": 0.4405,
+   "nan_share": 0.0114
+  },
+  "morph_opp30": {
+   "auc_tselye": 0.6159,
+   "auc_kurgan_vs_false": 0.5902,
+   "nan_share": 0.0114
+  },
+  "morph_svf30": {
+   "auc_tselye": 0.3812,
+   "auc_kurgan_vs_false": 0.4546,
+   "nan_share": 0.0114
+  },
+  "morph_rz_bg_rough": {
+   "auc_tselye": 0.6583,
+   "auc_kurgan_vs_false": 0.6301,
+   "nan_share": 0.0114
+  },
+  "morph_rz_h0": {
+   "auc_tselye": 0.7427,
+   "auc_kurgan_vs_false": 0.6986,
+   "nan_share": 0.0114
+  },
+  "morph_rz_hmax": {
+   "auc_tselye": 0.7443,
+   "auc_kurgan_vs_false": 0.6983,
+   "nan_share": 0.0114
+  },
+  "morph_rz_ring": {
+   "auc_tselye": 0.5571,
+   "auc_kurgan_vs_false": 0.5617,
+   "nan_share": 0.0114
+  },
+  "morph_rz_r_half": {
+   "auc_tselye": 0.5477,
+   "auc_kurgan_vs_false": 0.5563,
+   "nan_share": 0.012
+  },
+  "morph_rz_r_edge": {
+   "auc_tselye": 0.6257,
+   "auc_kurgan_vs_false": 0.5711,
+   "nan_share": 0.0114
+  },
+  "morph_rz_slope_edge": {
+   "auc_tselye": 0.7325,
+   "auc_kurgan_vs_false": 0.659,
+   "nan_share": 0.0114
+  },
+  "morph_rz_vol": {
+   "auc_tselye": 0.6081,
+   "auc_kurgan_vs_false": 0.6083,
+   "nan_share": 0.0114
+  },
+  "morph_rz_tpi2": {
+   "auc_tselye": 0.7422,
+   "auc_kurgan_vs_false": 0.6817,
+   "nan_share": 0.0114
+  },
+  "morph_rz_tpi5": {
+   "auc_tselye": 0.8,
+   "auc_kurgan_vs_false": 0.7141,
+   "nan_share": 0.0114
+  },
+  "morph_rz_tpi8": {
+   "auc_tselye": 0.7889,
+   "auc_kurgan_vs_false": 0.714,
+   "nan_share": 0.0114
+  },
+  "morph_rz_tpi15": {
+   "auc_tselye": 0.7644,
+   "auc_kurgan_vs_false": 0.7112,
+   "nan_share": 0.0114
+  },
+  "morph_rz_tpi30": {
+   "auc_tselye": 0.7479,
+   "auc_kurgan_vs_false": 0.7099,
+   "nan_share": 0.0114
+  },
+  "morph_rz_std3": {
+   "auc_tselye": 0.7638,
+   "auc_kurgan_vs_false": 0.6985,
+   "nan_share": 0.0114
+  },
+  "morph_rz_std8": {
+   "auc_tselye": 0.7433,
+   "auc_kurgan_vs_false": 0.6987,
+   "nan_share": 0.0114
+  },
+  "morph_rz_curv1_5": {
+   "auc_tselye": 0.1909,
+   "auc_kurgan_vs_false": 0.281,
+   "nan_share": 0.0449
+  },
+  "morph_rz_curv3": {
+   "auc_tselye": 0.2736,
+   "auc_kurgan_vs_false": 0.3202,
+   "nan_share": 0.0638
+  }
+ }
+}

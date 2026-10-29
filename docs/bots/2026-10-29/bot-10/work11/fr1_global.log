@@ -1,0 +1,6 @@
+k10 {'A_drop': 0.314615, 'A_keep': 0.333237, 'fr1_drop': 0.322959, 'fr1_keep': 0.341581, 'd_fr1_drop': 0.008344, 'd_fr1_keep': 0.008344}
+lofo {'A_drop': 0.315067, 'A_keep': 0.333689, 'fr1_drop': 0.321609, 'fr1_keep': 0.340231, 'd_fr1_drop': 0.006542, 'd_fr1_keep': 0.006542}
+seed0 {'A_drop': 0.314698, 'A_keep': 0.33332, 'fr1_drop': 0.320802, 'fr1_keep': 0.339423, 'd_fr1_drop': 0.006104, 'd_fr1_keep': 0.006103}
+seed1 {'A_drop': 0.306042, 'A_keep': 0.324664, 'fr1_drop': 0.313906, 'fr1_keep': 0.332527, 'd_fr1_drop': 0.007864, 'd_fr1_keep': 0.007863}
+seed2 {'A_drop': 0.318393, 'A_keep': 0.337015, 'fr1_drop': 0.319902, 'fr1_keep': 0.338523, 'd_fr1_drop': 0.001509, 'd_fr1_keep': 0.001509}
+seed3 {'A_drop': 0.309721, 'A_keep': 0.328343, 'fr1_drop': 0.315358, 'fr1_keep': 0.33398, 'd_fr1_drop': 0.005637, 'd_fr1_keep': 0.005637}

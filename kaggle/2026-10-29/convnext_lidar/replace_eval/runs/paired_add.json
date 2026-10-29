@@ -1,0 +1,784 @@
+{
+ "base": "A=/workspace/koz3_shared/bot-9/kaggle/convnext_lidar/replace_eval/work/c_A",
+ "variants": [
+  "add=/workspace/koz3_shared/bot-9/kaggle/convnext_lidar/replace_eval/work/c_add"
+ ],
+ "layouts": {
+  "k10": {
+   "A_drop": {
+    "all": 0.3146153226828423,
+    "new34": 0.2964508527066795,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.3332373211123479,
+    "new34": 0.2964071354578204,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.3031701775992372,
+    "new34": 0.2750027105597044,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.3217929214195183,
+    "new34": 0.2749699418107299,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.011445145083605113,
+   "d_add_keep": -0.011444399692829565
+  },
+  "lofo": {
+   "A_drop": {
+    "all": 0.3150670852487169,
+    "new34": 0.29567300900280685,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 103,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.3336891387354797,
+    "new34": 0.2956327230981139,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 103,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.30383572435744066,
+    "new34": 0.27428121194470195,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 103,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.3224584484217644,
+    "new34": 0.2742477168152263,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 103,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.011231360891276243,
+   "d_add_keep": -0.011230690313715264
+  },
+  "seed0": {
+   "A_drop": {
+    "all": 0.31469813568481797,
+    "new34": 0.2988553842369299,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.33332005124956077,
+    "new34": 0.29881110176031456,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.3041063421993613,
+    "new34": 0.27662988582492093,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.32272892381152213,
+    "new34": 0.2765947009395845,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.01059179348545669,
+   "d_add_keep": -0.010591127438038639
+  },
+  "seed1": {
+   "A_drop": {
+    "all": 0.30604186890532004,
+    "new34": 0.2834422485763193,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.3246640471081957,
+    "new34": 0.2834087171968532,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.2950462733147734,
+    "new34": 0.26912781173784234,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.31366916940683043,
+    "new34": 0.2690987723067042,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.010995595590546636,
+   "d_add_keep": -0.010994877701365258
+  },
+  "seed2": {
+   "A_drop": {
+    "all": 0.31839276493762236,
+    "new34": 0.296461643388176,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.3370146963630832,
+    "new34": 0.29642076415251456,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.3048913602425744,
+    "new34": 0.2738022358580498,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.32351392333546924,
+    "new34": 0.27376949068326695,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.013501404695047958,
+   "d_add_keep": -0.013500773027613933
+  },
+  "seed3": {
+   "A_drop": {
+    "all": 0.30972078810273834,
+    "new34": 0.2866444839473624,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.32834295757437504,
+    "new34": 0.2866028076158722,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "add_drop": {
+    "all": 0.3018078535740194,
+    "new34": 0.26643413188136184,
+    "f1": {
+     "object_poly": 0.13054376295675083,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      78.0,
+      68.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 723,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.320430569233283,
+    "new34": 0.2664025992432554,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.5535965461223044
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1641.0,
+      1619.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 723
+    }
+   },
+   "d_add_drop": -0.00791293452871894,
+   "d_add_keep": -0.007912388341092036
+  },
+  "seed4": {
+   "A_drop": {
+    "all": 0.29063020004620516,
+    "new34": 0.2914454904765008,
+    "f1": {
+     "object_poly": 0.0,
+     "finds_points": 0.4275444854456588
+    },
+    "tp_fp": {
+     "object_poly": [
+      0.0,
+      0.0
+     ],
+     "finds_points": [
+      1071.0,
+      922.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 869,
+     "unseen_kept": 0
+    }
+   },
+   "A_keep": {
+    "all": 0.32230657151895215,
+    "new34": 0.29140364892506276,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.4275444854456588
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1071.0,
+      922.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 869
+    }
+   },
+   "add_drop": {
+    "all": 0.2747607955748032,
+    "new34": 0.2641384428759221,
+    "f1": {
+     "object_poly": 0.0,
+     "finds_points": 0.4275444854456588
+    },
+    "tp_fp": {
+     "object_poly": [
+      0.0,
+      0.0
+     ],
+     "finds_points": [
+      1071.0,
+      922.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 869,
+     "unseen_kept": 0
+    }
+   },
+   "add_keep": {
+    "all": 0.3064380291274588,
+    "new34": 0.26410837723544694,
+    "f1": {
+     "object_poly": 0.31684325171978067,
+     "finds_points": 0.4275444854456588
+    },
+    "tp_fp": {
+     "object_poly": [
+      261.0,
+      607.0
+     ],
+     "finds_points": [
+      1071.0,
+      922.0
+     ]
+    },
+    "info": {
+     "folds": 10,
+     "unseen_dropped": 0,
+     "unseen_kept": 869
+    }
+   },
+   "d_add_drop": -0.01586940447140195,
+   "d_add_keep": -0.015868542391493323
+  }
+ },
+ "summary": {
+  "add_drop": {
+   "d_k10": -0.011445145083605113,
+   "boot": {
+    "mean": -0.011262822313700212,
+    "sd": 0.0054517371359689825,
+    "p2_5": -0.023707062603201347,
+    "p5": -0.021185044590207584,
+    "p50": -0.010625043291160041,
+    "p95": -0.0035055513637610117,
+    "p97_5": -0.0021591993697347833,
+    "p_gt0": 0.006,
+    "n": 2000
+   },
+   "lofo": -0.011231360891276243,
+   "seeds": [
+    -0.01059179348545669,
+    -0.010995595590546636,
+    -0.013501404695047958,
+    -0.00791293452871894,
+    -0.01586940447140195
+   ],
+   "seeds_pos": 0,
+   "heavy_weighted": -0.011213537250445653,
+   "d_new34": -0.021448142146975102,
+   "per_class_weighted": {
+    "kurgany_povrezhdennye": -0.0039055928688208896,
+    "kurgany_tselye": -0.002908501486378656,
+    "gorodishcha": -0.004399442895246107,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.00023160783315948202,
+    "finds_points": 0.0
+   },
+   "unseen_info_variant": {
+    "folds": 10,
+    "unseen_dropped": 723,
+    "unseen_kept": 0
+   },
+   "unseen_info_base": {
+    "folds": 10,
+    "unseen_dropped": 723,
+    "unseen_kept": 0
+   },
+   "rule": {
+    "P1_d>=0.002": false,
+    "P2_P>=0.85": false,
+    "P3_lofo>0_and_seeds>=4/5": false,
+    "P4_heavy>=-0.0005_and_new34>=-0.001": false
+   },
+   "accepted": false
+  },
+  "add_keep": {
+   "d_k10": -0.011444399692829565,
+   "boot": {
+    "mean": -0.011262011201619017,
+    "sd": 0.005451219264090516,
+    "p2_5": -0.023705665336312663,
+    "p5": -0.02118213804517715,
+    "p50": -0.010624496526225019,
+    "p95": -0.0035055513637610647,
+    "p97_5": -0.002158898549307161,
+    "p_gt0": 0.006,
+    "n": 2000
+   },
+   "lofo": -0.011230690313715264,
+   "seeds": [
+    -0.010591127438038639,
+    -0.010994877701365258,
+    -0.013500773027613933,
+    -0.007912388341092036,
+    -0.015868542391493323
+   ],
+   "seeds_pos": 0,
+   "heavy_weighted": -0.011212791859670068,
+   "d_new34": -0.021437193647090458,
+   "per_class_weighted": {
+    "kurgany_povrezhdennye": -0.0039048474780453033,
+    "kurgany_tselye": -0.002908501486378656,
+    "gorodishcha": -0.004399442895246107,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.00023160783315948202,
+    "finds_points": 0.0
+   },
+   "unseen_info_variant": {
+    "folds": 10,
+    "unseen_dropped": 0,
+    "unseen_kept": 723
+   },
+   "unseen_info_base": {
+    "folds": 10,
+    "unseen_dropped": 0,
+    "unseen_kept": 723
+   },
+   "rule": {
+    "P1_d>=0.002": false,
+    "P2_P>=0.85": false,
+    "P3_lofo>0_and_seeds>=4/5": false,
+    "P4_heavy>=-0.0005_and_new34>=-0.001": false
+   },
+   "accepted": false
+  }
+ }
+}

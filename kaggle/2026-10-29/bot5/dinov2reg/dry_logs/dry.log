@@ -1,0 +1,49 @@
+[      8s] версии: {"numpy": "2.5.4", "scipy": "1.18.1", "torch": "2.15.0+cpu", "transformers": "5.21.0", "rasterio": "1.5.2", "pyproj": "3.8.0", "shapely": "2.2.0", "boto3": "ModuleNotFoundError: No module named 'boto3'"}
+[      8s] MODE full WORK /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/work DATA /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/data
+[      9s] GPU: нет
+[      9s] исходники bot-5 @a0ac2efca20450f91606d6c3b9e7e58d5d032f5f: 2 файлов → /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/b5repo
+[      9s] веса B: facebook/dinov2-with-registers-base@a1d738cc (Apache-2.0) hidden 64 регистров 4 → /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model
+[      9s] веса L: facebook/dinov2-with-registers-large@e4c89a4e (Apache-2.0) hidden 64 регистров 4 → /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model
+[      9s] ▶ smoke_B: /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/b5repo/scripts/gor_patch/extract_feats.py | env {"DATA": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/data", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/work/gp", "DEVICE": "cpu", "THREADS": "2", "REVISION": "", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model", "TAG": "_regB", "LIMIT_FILES": "2"} | timeout 1800 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 34707.80it/s]
+    [1s] 1/2 064_Ксизово gsd 0.53 patches 4 rss 490MB
+    [1s] 2/2 092_Шаты gsd 0.11 patches 4 rss 502MB
+    done 4 patches 1s
+[     18s] ■ smoke_B: rc=0, 8 s
+[     18s] проверка feats_regB_test: {"shape": [4, 256], "finite": true, "meta": 4, "regions": 1}
+[     18s] ▶ smoke_L: /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/b5repo/scripts/gor_patch/extract_feats.py | env {"DATA": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/data", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/work/gp", "DEVICE": "cpu", "THREADS": "2", "REVISION": "", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model", "TAG": "_regL", "LIMIT_FILES": "2"} | timeout 1800 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 32620.97it/s]
+    [0s] 1/2 064_Ксизово gsd 0.53 patches 4 rss 490MB
+    [0s] 2/2 092_Шаты gsd 0.11 patches 4 rss 504MB
+    done 4 patches 0s
+[     26s] ■ smoke_L: rc=0, 8 s
+[     26s] проверка feats_regL_test: {"shape": [4, 256], "finite": true, "meta": 4, "regions": 1}
+[     26s] ▶ full_B: /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/b5repo/scripts/gor_patch/extract_feats.py | env {"DATA": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/data", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/work/gp", "DEVICE": "cpu", "THREADS": "2", "REVISION": "", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model", "TAG": "_regB", "LIMIT_FILES": "0"} | timeout 39274 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 30033.57it/s]
+    [0s] 1/5 064_Ксизово gsd 0.53 patches 4 rss 490MB
+    [0s] 2/5 092_Шаты gsd 0.11 patches 4 rss 503MB
+    [2s] 3/5 185_Изборск gsd 0.98 patches 31 rss 531MB
+    [3s] 4/5 185_Изборск gsd 0.70 patches 41 rss 533MB
+    [3s] 5/5 185_Изборск gsd 0.70 patches 51 rss 533MB
+    done 51 patches 3s
+[     36s] ■ full_B: rc=0, 11 s
+[     36s] проверка feats_regB: {"shape": [51, 256], "finite": true, "meta": 51, "regions": 2}
+[     36s] ▶ full_L: /workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/b5repo/scripts/gor_patch/extract_feats.py | env {"DATA": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/data", "OUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/work/gp", "DEVICE": "cpu", "THREADS": "2", "REVISION": "", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "MODEL": "/workspace/koz3_shared/bot-9/kaggle/bot5/dinov2reg/_dry/tiny_model", "TAG": "_regL", "LIMIT_FILES": "0"} | timeout 39264 s
+    
+    Loading weights:   0%|          | 0/26 [00:00<?, ?it/s]
+    Loading weights: 100%|██████████| 26/26 [00:00<00:00, 34963.74it/s]
+    [1s] 1/5 064_Ксизово gsd 0.53 patches 4 rss 490MB
+    [1s] 2/5 092_Шаты gsd 0.11 patches 4 rss 502MB
+    [1s] 3/5 185_Изборск gsd 0.98 patches 31 rss 531MB
+    [1s] 4/5 185_Изборск gsd 0.70 patches 41 rss 532MB
+    [2s] 5/5 185_Изборск gsd 0.70 patches 51 rss 532MB
+    done 51 patches 2s
+[     46s] ■ full_L: rc=0, 10 s
+[     46s] проверка feats_regL: {"shape": [51, 256], "finite": true, "meta": 51, "regions": 2}
+[     46s] ГОТОВО {"smoke_B": 0, "smoke_L": 0, "B": 0, "L": 0} | выход: /kaggle/working/gor_patch_reg.tgz

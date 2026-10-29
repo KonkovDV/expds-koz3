@@ -44,3 +44,24 @@ Desktop.ini
 .cursor/
 *.tmp
 *.bak
+
+# 29.10: данные, производные и веса — не в git (правило выгрузки)
+*.parquet
+*.pth
+*.onnx
+*.pkl
+*.safetensors
+*.ckpt
+*.zip
+kaggle.json
+docs/bots/**/DATA_PROTOCOL.md
+analysis/**/DATA_PROTOCOL.md
+docs/bots/**/models/
+analysis/**/models/
+kaggle/**/models/
+docs/bots/**/*lgbm*.txt
+docs/bots/**/*.pt
+analysis/**/*.pt
+kaggle/**/*.pt
+kaggle/**/gorloc/kernels/*.py
+kaggle/**/gorloc/kernels/*/*.py

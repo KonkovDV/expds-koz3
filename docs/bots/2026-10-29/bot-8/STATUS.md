@@ -79,3 +79,52 @@ REPORT3.md и REPORT4.md готовы; bot8-merged=2f530a8, bot8-rust-metric=d07
 - Бот 3: bot3-pixgbm 76f7317 поверх 5deb94a (потоки через sched_getaffinity, ≤8; поиск model_dir от корня решения). Для упаковки моделей pixgbm нужен патч bot-3/pixgbm/packer_pixgbm.patch к build_submission.py и склейка default_S.toml (повторить на 428257f). Включать ли — решает бот 1. Ничего не применено.
 - Бот 9: acc_gpu на T4 (bot-9/bench_acc_gpu/bench_acc_gpu_t4.json). stub 30M px: device_exact ×2,0–2,15, byte_equal; device ×3,9–4,0, max|Δ| 6e-08. unet 30M и stub 75M: rc −9 (OOM по RAM хоста, maxrss 12,25 ГБ).
 - Удаление 6 старых архивов в dist ждёт ответа Шаундры.
+
+## 2026-10-29 07:30 MSK — check_submission по ревью бота 4 (bot-4/REVIEW_CHECK_SUBMISSION.md)
+- Коммиты (repo, ветка bot8-softceil-pixgbm, НЕ запушено): 7878087 (scripts/check_submission.py + tests/test_bot8_check_submission.py, 23 теста), 17c2e2c (W5: test_bot8_window_deadline — math.isclose вместо == для float). Worktree wt-csfix удалён, ветка осталась.
+- Корневой bot-8/check_submission.py (не в git) обновлён тем же патчем: sha256 54ca268d883775c2f6d9a430b360e5d891d790c65a136877c7a57f6b01f83047 (было md5 edcd6146…, rerank_arch-проверок из repo в нём по-прежнему нет).
+- Что изменено: PIXGBM enabled → обязательны poly.txt (object_poly на maggr/etgr/terfl) и finds.txt (finds_points только на maggr) в model_dir, иначе FAIL; неизвестный класс/maps не список → FAIL; .lleaves.so/.json/.tl2cgen.so нет → WARN (фолбэк lightgbm); проба грузит pixgbm .txt через lgb.Booster. Отсутствующий psutil/tl2cgen/lleaves → WARN только если ВСЕ места импорта под try/except с фолбэком (AST, с учётом мест вызова функции/класса), иначе FAIL.
+- Тесты: bot-4 test_cs.py — T1 PASS, T2/T3/T4/T6 FAIL, T5 PASS, T7 FAIL, T8 psutil не под try → FAIL (лог tests_out/csfix_bot4_test_cs.log); свои 53 passed; полный набор 379 passed/9 skipped/1 failed (старый test_coco_roundtrip, нет cv2), 89 с, RSS 1204 МиБ (tests_out/csfix_full_17c2e2c.log).
+- Архивы (--no-smoke --no-weights): softceil_pixgbm_428257f — PASS, WARN 1 (psutil geo_pixgbm.py:642, tl2cgen :172 — под try с фолбэком); v2cpua_18b2f66 — PASS, WARN 0. Логи tests_out/csfix_check_*.txt.
+
+## 2026-10-29 07:35 MSK — оценка полуразрешающего прохода лидара (OSINT п. 4)
+- Отчёт: `bench/half_res_lidar_estimate.md`, сырые данные: `bench/half_res/`. Замер на копии 17c2e2c в /tmp (удалена), CPU 2 потока.
+- [изм] проход 0,5× на том же DEM 0,1 м: +0,37 / +0,83 с на LAS (016/018) = 0,25× основного predict, +3–5 % фазы лидара; TTA8 — ×10.
+- [оц] площадка 4090: +1…6 с (типично +2…3); CPU-путь: +6/18/45 с при tta1, до +430 с при tta8.
+- Предложение: inline в `lidar_feats`, `_soft_ok("li_half", extra=window+σ+verify)`, `[time.soft] li_half = 30`, `[li_half] enabled=false, res=1.0, tta=1, reuse_dem/candidates, max_px, skip_mosaic, dedupe 12 м`; при нехватке времени отбрасывается первым. Вопросы — боту 2 (кандидаты для ⌀ > 15 м, веса, пороги).
+
+## 2026-10-29 07:38 MSK — бот 2 по li_half
+Бот 2 принял конфиг и guard (по умолчанию выключено, li_half в порядке отказа первым). План бота 2:
+- веса: v0 — li_r18_hard2, цель — один li_r18 с зум-аугментацией ×0,7–2,2;
+- второй detect с радиусом ~30 м на DEM 1 м, dedupe 12 м;
+- fold-wise OOF на ПК, пороги по семьям, приёмка у бота 10;
+- li_dev не трогает; TTA выключен;
+- мозаика пропускается, если Эрентуна в неё не попадает, иначе чанки с перекрытием ≥40 м.
+Бот 8 ждёт код прохода и цифры OOF, потом делает guard и конфиг.
+
+## 2026-10-29 07:40 MSK — li_cnx (ConvNeXt-лидар бота 9, in_kind cnx3/cnx5), ветка bot8-cnx (от 428257f, wt-cnx, НЕ запушено)
+- 9cfc443 фича: expds/lidar_cnx.py, expds/cnx_contract.py, pipeline li_source="cnx" (фолбэк на li при ошибке/мягком потолке), [li_cnx] enabled=false в default.toml; inference/cnx/** (cnx_prep.py + vendor expds/relief_ext/expds_core.so + _deps/rvt 2.2.1 + whl, MANIFEST.json 18 файлов); tests/test_bot8_cnx.py (19).
+- 4fb79c6 сборка: scripts/build_submission(_git).py кладут веса li_cnx и inference/cnx при enabled; корневой build_submission.py пропатчен так же (sha c4730fee…).
+- 54cfab6 check_submission (на ревью боту 4): check_cnx (MANIFEST sha256, обязательные файлы, AST без сети), PROBE импорта prep и загрузки весов, ключи smoke «cnx не сработал/пропущен»; tests/test_bot8_check_cnx.py (8). Те же правки в корневом check_submission.py → sha d97042f9…, PIXGBM-логика не тронута.
+- Мёрж 54cfab6 с bot8-softceil-pixgbm: 1 тривиальный конфликт (обе вставляют секцию перед «# ---- импорты (статически)»; оставить обе) → 31 passed.
+- pytest: 375 passed / 9 skipped / 1 failed (test_coco_roundtrip, нет cv2 — не cnx). Smoke (CPU 0,1): off 80 полигонов, geojson байт-в-байт как базовый; cnx5 (smoke-веса c5-in_f4) 81; cnx3 f0+f1 (реальные) 83; все PASS, RSS ≤1.3 ГБ. Логи: tests_out/cnx/.
+- Веса не закоммичены: kaggle_out/koz3-cnx-li-c3sc-f01 (c3 f0,f1), koz3-cnx-li-smoke (c5 — только smoke). Пороги пока li (не OOF cnx).
+
+## 2026-10-29 08:08 МСК — bot8-cnx готова к пушу (НЕ запушено)
+- HEAD bot8-cnx = 5bc6ad1 (10 коммитов поверх 428257f, fast-forward к origin/bots/bot8-cnx).
+- pytest: 456 passed / 1 failed (test_coco_roundtrip, известный) / 9 skipped; cnx 31, check_cnx 46.
+- Смоук cnx off: PASS, result.geojson 56be33ff… байт-в-байт с базой.
+- Смоук cnx3 f0+f1 (пороги li_cnx 0.5 — смоук, не подобраны): tta8 — main 57.8 с (cnx 34 с), tta1 — 29.0 с (cnx 10 с); PASS; на синтетике cnx-кандидаты до вывода не дошли, результат = 56be33ff….
+- Веса cnx не в git (WEIGHTS_MANIFEST + never_pack). Пуш ждёт одобрения владельца.
+
+## 2026-10-29 08:23 MSK — очистка диска (запрос бота 1)
+Удалены 6 старых zip в dist/ (base_24bd916, rel7_5135517, rel7c_fd7dd50, rel_8343483, softceil_26e12ae, submission_crop_2f530a8), всего ≈3,39 ГБ; манифесты оставлены. Оставлены 428257f и v2cpua.
+Удалены кэши shm_cache, shm_cache_eq, geom_cache_eq (~157 МБ), target/ — сборка Rust/maturin (~436 МБ), __pycache__.
+Итого освобождено ≈4,0 ГБ. На / после этого свободно 9,4 ГБ.
+Остаток кандидатов: venv/…/nvidia (3,0 ГБ) и triton (1 ГБ) — CUDA-библиотеки torch на CPU-боксе; не тронуты, нужно решение.
+
+## 2026-10-29 08:23 МСК — bot8-cnx 1aecea9: незначительные замечания повторного ревью bot-4 (НЕ запушено)
+- 1aecea9 поверх 5bc6ad1, один коммит: (a) сканер cnx учитывает алиасы (from subprocess import run, import subprocess as sp) и даёт WARN на exec/eval/compile, getattr(importlib|os|…), ctypes; load_url добавлен в NET_CALLS (FAIL); (b) вне MANIFEST мягкими считаются только тексты (.md/.txt/.rst/без расширения), README_evil.py → FAIL; (c) li_cnx.enabled принимается только как bool, иначе cnx ВЫКЛЮЧЕН + WARN (чекер, lidar_cnx.enabled, сборка).
+- Тесты: check_cnx + cnx + check_submission — 130 passed; харнесс bot-4 (адаптированная копия tests_out/cnx/bot4_rereview_adapted.py) — все случаи ожидаемые, N8–N13 и M6b закрыты.
+- Смоук cnx off @1aecea9: PASS, result.geojson 56be33ff… байт-в-байт.
+- Корневой check_submission.py = git (sha 724435e6…), вместе с rerank_arch.

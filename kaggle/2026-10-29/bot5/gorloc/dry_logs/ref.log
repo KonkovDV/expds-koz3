@@ -1,0 +1,6 @@
+[0s] tokens 10792 dim 128 files 15 regions 13 /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model [2.0, 4.0]
+[0s] frame prior: pos tokens dist to frame centre m q50/q90 [195.7, 365.9] edge share of neg 0.541
+[0s] token labels {0: 9903, -1: 269, 1: 620} regions with pos tokens 9
+[17s] fam10 {'top1_hit_held': {'pu': [2, 9], 'pu+cp': [5, 9], 'pu_edge': [2, 9], 'pu_edge+cp': [1, 9], 'all': [2, 9], 'all+cp': [2, 9]}, 'token_auc_pos_scenes': {'pu': 0.43429544552379096, 'pu_edge': 0.4571872870121408, 'all': 0.45628197158414285}, 'token_auc_all': {'pu': 0.4542971663849013, 'pu_edge': 0.46609238647135276, 'all': 0.47609815207512873}} centre [2, 9]
+[30s] seed0 {'top1_hit_held': {'pu': [1, 9], 'pu+cp': [3, 9], 'pu_edge': [2, 9], 'pu_edge+cp': [2, 9], 'all': [1, 9], 'all+cp': [1, 9]}, 'token_auc_pos_scenes': {'pu': 0.4355656957540987, 'pu_edge': 0.4276831789210363, 'all': 0.4586777339215231}, 'token_auc_all': {'pu': 0.4643920219679276, 'pu_edge': 0.4472214350164336, 'all': 0.4856200304241465}} centre [2, 9]
+[30s] done; peak RSS MB 145.10546875

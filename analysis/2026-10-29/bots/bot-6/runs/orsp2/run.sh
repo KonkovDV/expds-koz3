@@ -8,5 +8,6 @@ L="prlimit --as=2000000000 nice -n 10"
 echo "start $(date +%T)"
 $L $PY orspR_fam.py fam_orspR > fam_orspR.log 2>&1; echo "fam rc=$? $(date +%T)"
 EXPDS_MATCH_SCOPE=global $L $PY $B/repo/scripts/family_curves.py --fam fam_orspR --gt $G --clusters $B/work/family_clusters.json --out curves_orspR_g > curves_orspR_g.log 2>&1; echo "c rc=$? $(date +%T)"
-$L $PY $B/work4/paired.py --pols drop,keep --base A=$B/work/curves --b Af=$B/work9/curves_Af_g --b orspF=$B/work9/curves_orspF_g --b orsp=$B/work9/curves_orsp_g --b orspR=curves_orspR_g --out orspR_global.json > orspR_global.log 2>&1; echo "p rc=$? $(date +%T)"
+cd $B && $L $PY work4/paired.py --pols drop,keep --base A=$B/work/curves --b Af=$B/work9/curves_Af_g --b orspF=$B/work9/curves_orspF_g --b orsp=$B/work9/curves_orsp_g --b orspR=/workspace/koz3_shared/bot-6/work/orsp2/curves_orspR_g --out /workspace/koz3_shared/bot-6/work/orsp2/orspR_global.json > /workspace/koz3_shared/bot-6/work/orsp2/orspR_global.log 2>&1; echo "p rc=$? $(date +%T)"
 echo done
+# (paired теперь из cwd bot-10) 07:27:11

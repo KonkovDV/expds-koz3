@@ -1,0 +1,131 @@
+{
+ "cfg": {
+  "mode": "full",
+  "res": 0.5,
+  "tile": 256,
+  "overlap": 160,
+  "max_windows": 6,
+  "bs": 1,
+  "iters": 3,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 5.0,
+  "folds": "4,2,1",
+  "regions": "161_Курганы_32,051_Воронеж_2",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "hf": "ustc-community/dfine-large-obj2coco-e25@c89de47153e338c07cddc81fc21a776b97cbf75e",
+ "base": "obj2coco",
+ "folds": {
+  "4": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 6.838681221008301,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 137.189,
+     "s_it": 4.9288
+    }
+   ],
+   "sec": 16,
+   "loss_first": 138.63424682617188,
+   "loss_last": 144.31906127929688,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 21,
+   "test_regions": [],
+   "n_det": 0,
+   "infer_sec": 0
+  },
+  "2": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 5.032186031341553,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 187.3402,
+     "s_it": 3.798
+    }
+   ],
+   "sec": 12,
+   "loss_first": 202.89425659179688,
+   "loss_last": 153.18869018554688,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 13,
+   "test_regions": [
+    "161_Курганы_32"
+   ],
+   "n_det": 1088,
+   "infer_sec": 17
+  },
+  "1": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 1.4844317436218262,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 206.6804,
+     "s_it": 2.1179
+    }
+   ],
+   "sec": 9,
+   "loss_first": 229.73306274414062,
+   "loss_last": 191.93765258789062,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 8,
+   "test_regions": [
+    "051_Воронеж_2"
+   ],
+   "n_det": 504,
+   "infer_sec": 3
+  }
+ },
+ "skipped_regions_no_fold": [],
+ "projection_full_h": 24.73,
+ "total_sec": 67
+}

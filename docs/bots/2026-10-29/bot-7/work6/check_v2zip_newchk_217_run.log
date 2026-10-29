@@ -1,0 +1,27 @@
+2026-10-29 07:58:31,201 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-29 07:58:31,201 INFO expds.pipeline: мягкий потолок 1200 с от старта процесса (прошло 2 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-10-29 07:58:31,201 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=1
+2026-10-29 07:58:31,201 INFO expds.pipeline: устройство: cpu
+2026-10-29 07:58:31,201 INFO expds.watchdog: сторож сработает через 1618 с
+2026-10-29 07:58:31,210 INFO expds.catalog: найдено регионов: 1 в /workspace/koz3_shared/bot-7/work5/in/217
+2026-10-29 07:58:31,210 INFO expds.pipeline: к разбору: регионов 1, LAS 0, растров 10 (etgr 9, terfl 1), пропущено файлов 0
+2026-10-29 07:58:31,216 INFO expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 4.5}, 'cgroup_mem_max': None, 'uid': 0, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=1'}
+2026-10-29 07:58:31,527 INFO expds.health: опись входа: {'regions': 1, 'rasters_by_modality': {'etgr': 9, 'terfl': 1}, 'las_files': 0, 'las_region_crs': {}, 'raster_read': {'ok': 10}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 08:03:26,914 INFO expds.geo_pixgbm: pixgbm 217_Гнёздово_Селище_3: backend=lightgbm потоков=1 ступени {'full': 10}; фаза 292.7 с (cpu родителя 79.6 с), уровень full
+2026-10-29 08:03:26,928 INFO expds.pipeline: 217_Гнёздово_Селище_3: геофизика +722, прошло 298 с
+2026-10-29 08:03:26,929 INFO expds.pipeline: 217_Гнёздово_Селище_3: лидар +0, 0.0 с, прошло 298 с
+2026-10-29 08:03:26,938 INFO expds.crop_model: проверка кропа: кандидатов нет
+2026-10-29 08:03:27,154 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-29 08:03:27,155 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-29 08:03:27,155 INFO expds.watchdog: устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=1
+2026-10-29 08:03:27,155 INFO expds.watchdog: конфиг SHA256 ec9f086051a961f7192b427b6ce9c352b046be2c64933a146d494a26ab1f4018; бюджет 1500 с; запас 120 с
+2026-10-29 08:03:27,155 INFO expds.watchdog: вход: регионов 1, из них с LAS 0; файлов LAS 0; растров etgr 9, terfl 1; пропущено файлов 0
+2026-10-29 08:03:27,155 INFO expds.watchdog: фазы: геофизика: сырых 722, 295 с, лидар: сырых 0, 0 с, оптика: сырых 0, 0 с, канал σ: сырых 0, 0 с
+2026-10-29 08:03:27,155 INFO expds.watchdog: до порога 722, по слоям: etgr 378, terfl 344
+2026-10-29 08:03:27,155 INFO expds.watchdog: до порога по классам: object_poly 722
+2026-10-29 08:03:27,155 INFO expds.watchdog: записано 298, файл 337079 байт
+2026-10-29 08:03:27,155 INFO expds.watchdog: после порога по классам: object_poly 298
+2026-10-29 08:03:27,155 INFO expds.watchdog: после порога по слоям: etgr 298
+2026-10-29 08:03:27,155 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-10-29 08:03:27,156 INFO main: готово: {"regions": 1, "raw": 722, "phases": {"геофизика": {"raw": 722, "seconds": 295.4}, "лидар": {"raw": 0, "seconds": 0.0}, "оптика": {"raw": 0, "seconds": 0.0}, "канал σ": {"raw": 0, "seconds": 0.0}}, "written": 298, "seconds": 296.0, "partial_files": []}
+2026-10-29 08:03:27,178 INFO main: общее время 298.4 с

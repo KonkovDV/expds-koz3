@@ -87,3 +87,16 @@
   - Лог: `work/review/check_orig_eb268d6_synth.log`.
 - (3) `GAP.md` §6: приоритеты бэкбонов (оценки): ранжирование → arch Or → povr Ae/Or → gor Or → object_poly Geo (последний).
 - Фоновых процессов нет (pid 764380 завершился). `cs_tmp` удалён.
+
+## 29.10 07:48 МСК — CROPVERIF (GAP §6 п.1): этап 1 — подготовка, эмбеддинги в фоне
+- `INTERFACE_BOT2.md` написан (07:30). `PREREG_CROPVERIF.md` зафиксирован в 07:35, до замеров.
+- Шаг 1: sp_crop уже ImageNet-инициализирован (corr conv1 0,996), флаг pretrained:False зашит в save_model → переобучение не нужно.
+- Замер CPU: DINOv2-B/reg@112 104 мс/кроп (2 потока; под нагрузкой 147–255). Тест ≈7105 кропов → 739–1172 с на 2 потоках CPU.
+- База воспроизведена (keep 0,333237). Харнесс `work/cropverif/evalrr.py`, санити X:arch k10 +0,005643.
+- Фон: PID 802173 (embed.py, 30 688 кропов, ETA ≈ 09:30–10:00 МСК), PID 823614 (run_all.sh: ждёт 802173, затем оценка k10 ≈15 мин и LOFO+5 seeds ≈1–1,5 ч).
+
+## 08:43 MORPH (bot-2 parquet)
+- Принят `/workspace/koz3_shared/bot-2/morph/morph_li_kurgan.parquet` (1 209 594 × 54, ключ stack_idx, покрытие li полное).
+- `PREREG_MORPH.md` записан **до** замера. Решающий M: 45 признаков (без лучей/tpi15/30) + conf/logit/cls/grp/mk; атрибуция C без morph; база A keep-all; П1–П6 + бюджет-gate.
+- Фичи скопированы в `work/morph/morph_M.npz`. Честный замер запущен.
+- CROPVERIF: эмбеддинги ещё считаются (PID embed.py).

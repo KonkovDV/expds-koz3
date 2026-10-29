@@ -1,0 +1,12 @@
+# Поверх образа bot-7 (python:3.12-slim-bookworm, torch==2.11.0, torchvision==0.26.0, rasterio, shapely, pyproj, numpy, huggingface_hub 2.2.0):
+# офлайн-колёса в wheels/ (SHA256SUMS), распаковать в inference/lib/vendor/ без pip.
+transformers==5.21.0
+tokenizers==0.23.3
+regex==2026.9.29        # cp312 — только для Python 3.12
+typer==0.27.3
+rich==15.0.0
+markdown-it-py==4.2.0
+mdurl==0.1.2
+pygments==2.21.0
+shellingham==1.5.4
+annotated-doc==0.0.5

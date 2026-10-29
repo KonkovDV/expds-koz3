@@ -1,0 +1,29 @@
+{"region": "037_Никола_Ленивец", "shape": [6770, 9633], "valid_frac": 0.737, "s": 104.2, "lowmem": true, "all_points": true}
+{"region": "069_Стеклянуха_2", "shape": [1584, 1626], "valid_frac": 0.571, "s": 11.0, "lowmem": true, "all_points": false}
+{"region": "105_Вщиж", "shape": [2247, 3451], "valid_frac": 0.535, "s": 11.5, "lowmem": true, "all_points": false}
+{"region": "179_Гнёздово_Лесная_1", "shape": [623, 246], "valid_frac": 0.994, "s": 2.8, "lowmem": false, "all_points": false}
+{"region": "180_Гнёздово_Лесная_2", "shape": [624, 252], "valid_frac": 0.994, "s": 2.4, "lowmem": false, "all_points": false}
+{"region": "181_Гнёздово_Лесная_3", "shape": [624, 191], "valid_frac": 0.993, "s": 1.8, "lowmem": false, "all_points": false}
+{"region": "182_Красносельская_1.7км", "shape": [521, 389], "valid_frac": 0.954, "s": 4.0, "lowmem": false, "all_points": false}
+{"region": "186_Семибратнее_1", "shape": [1543, 1710], "valid_frac": 0.926, "s": 70.8, "lowmem": false, "all_points": false}
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-2/repo/scripts/adaf/prep_slrm.py", line 126, in <module>
+    main()
+    ~~~~^^
+  File "/workspace/koz3_shared/bot-2/repo/scripts/adaf/prep_slrm.py", line 113, in main
+    s = slrm_lowmem(dem) if a.lowmem else slrm(dem)
+                                          ~~~~^^^^^
+  File "/workspace/koz3_shared/bot-2/repo/scripts/adaf/prep_slrm.py", line 25, in slrm
+    c = uniform_filter(v.astype(np.float64), k, mode="nearest")
+  File "/workspace/koz3_shared/bot-2/venv/lib/python3.13/site-packages/scipy/ndimage/_filters.py", line 1605, in uniform_filter
+    output = _ni_support._get_output(output, input,
+                                     complex_output=input.dtype.kind == 'c')
+  File "/workspace/koz3_shared/bot-2/venv/lib/python3.13/site-packages/scipy/ndimage/_ni_support.py", line 83, in _get_output
+    output = np.zeros(shape, dtype=input.dtype.name)
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 533. MiB for an array with shape (7538, 9275) and data type float64
+FAIL 187_Судьбищи_1 1
+{"region": "188_Руна", "shape": [1046, 969], "valid_frac": 0.827, "s": 17.6, "lowmem": false, "all_points": false}
+{"region": "189_Макеево", "shape": [2711, 1124], "valid_frac": 0.511, "s": 18.8, "lowmem": false, "all_points": false}
+{"region": "190_Муравлево", "shape": [2470, 2566], "valid_frac": 0.833, "s": 152.8, "lowmem": false, "all_points": false}
+{"region": "191_Осечки_1.3км", "shape": [357, 466], "valid_frac": 0.802, "s": 1.9, "lowmem": false, "all_points": false}
+{"region": "192_КЧР", "shape": [930, 932], "valid_frac": 0.998, "s": 43.3, "lowmem": false, "all_points": false}

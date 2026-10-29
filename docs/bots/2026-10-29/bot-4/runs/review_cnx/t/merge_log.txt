@@ -1,0 +1,3 @@
+0636278 bot-4 review: merge 54cfab6 + 7878087 (both sections)
+54cfab6 check_submission: проверки [li_cnx] (для ревью бота 4)
+7878087 bot-8: check_submission под PIXGBM по ревью бота 4: модели классов (poly.txt/finds.txt) обязательны при enabled; psutil/tl2cgen/lleaves → WARN только при импорте под try/except с фолбэком (AST); maps — список; веса pixgbm в пробе; тесты

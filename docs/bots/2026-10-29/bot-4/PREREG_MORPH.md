@@ -1,0 +1,21 @@
+# Предрегистрация MORPH (bot-4, 29.10.2026 08:43 МСК) — зафиксировано ДО замера
+
+Задача: OSINT п.3 / INTERFACE_BOT2.md — реранкер лидарных кандидатов курганов на безучебной морфометрии рельефа от bot-2. Формат — как в `bot-10/PREREG_pixgbm.md` и `bot-4/PREREG_CROPVERIF.md`. Один вариант, без выбора по результатам. Диагностические AUC bot-2 (`auc_diag.json`) **не** используются для отбора признаков и порогов.
+
+- **Источник признаков (только чтение):** `/workspace/koz3_shared/bot-2/morph/morph_li_kurgan.parquet` (zstd, 1 209 594 строк, ключ `stack_idx`, коммит bot-2/morph `e918a3b`, meta рядом). Рядом `morph_li_kurgan.meta.json`. Признаки безучебные (только DEM/LAZ + центроид); `morph_rz_*` — робастный z-score внутри участка по всем его кандидатам, без меток.
+- **Вариант M (единственный решающий).** LightGBM-реранкер только на строках лидарных курганов (`li_kurgan_candidates.npz`: mk ∈ li*/li_dev/li_mosaic, cls ∈ {povr, tselye}). Признаки:
+  - базовые: `conf`, `logit` (=logit(conf)), категориальные `cls`, `grp`, `mk` — как в X2-реранкере;
+  - морфометрия **фиксированный список без лучевых/дальних окон** (априори из meta.window, без опоры на auc_diag):
+    `morph_valid`, `morph_bg_slope`, `morph_bg_rough`, `morph_h0`, `morph_hmax`, `morph_r_peak`, `morph_ring`, `morph_ring_rel`, `morph_r_half`, `morph_r_edge`, `morph_slope_edge`, `morph_vol`, `morph_shape`, `morph_top_ratio`, `morph_asym4`, `morph_secmin4`, `morph_secmin8`, `morph_elong`, `morph_cent_off`, `morph_peak_off`, `morph_tpi2`, `morph_tpi5`, `morph_tpi8`, `morph_std3`, `morph_std8`, `morph_slope2`, `morph_slope5`, `morph_slope_max5`, `morph_curv1_5`, `morph_curv3`,
+    и rz-пары: `morph_rz_bg_rough`, `morph_rz_h0`, `morph_rz_hmax`, `morph_rz_ring`, `morph_rz_r_half`, `morph_rz_r_edge`, `morph_rz_slope_edge`, `morph_rz_vol`, `morph_rz_tpi2`, `morph_rz_tpi5`, `morph_rz_tpi8`, `morph_rz_std3`, `morph_rz_std8`, `morph_rz_curv1_5`, `morph_rz_curv3`.
+  - **Исключены априори** (лучи/дальние окна из meta): `morph_tpi15`, `morph_tpi30`, `morph_opp10`, `morph_opn10`, `morph_svf10`, `morph_opp30`, `morph_svf30`, `morph_rz_tpi15`, `morph_rz_tpi30`. Полный набор 54 колонок в этом цикле **не** меряется (чтобы не было выбора по результатам).
+  - Остальные строки стека (не li-курганы) — исходный conf. В реранжируемых (группа, класс), где строка li-кургана отсутствует в parquet / `morph_valid` < 0,05 — conf не меняем (не −1): это пропуски лидара, не «вне пула детектора».
+  - Параметры LightGBM — как у bot-10 nested_lofo5 (lr 0,05, leaves 31, min_data 100, ff 0,8, bagging 0,8/1, l2 1, 300 раундов, монотонность +1 по conf/logit, seed 0, ≤2 потока, nice 10). Метка — `work/first.npy`.
+  - Пороги: для внешнего фолда k — внутренний 5-фолдовый OOF по семьям (seed = k), `sweep_groups` на обучающих участках, затем к фолду k. Unseen=keep (П6).
+- **База:** A keep-all 0,333237 (воспроизведено `bot-4/work/cropverif/basecheck.py`). Scope global — основной.
+- **Раскладки:** k10 (`family_folds(..., 10)`) — решающая; LOFO и random_family_folds seed 0–4 — для П3.
+- **Приёмка:** П1–П6 из `/workspace/koz3_shared/EXPERIMENTS.md` без изменений. П7 применяется, если эффект из ≤3 семей.
+- **Обязательная атрибуция** (тот же протокол, те же строки, те же раскладки): контроль C — тот же реранкер только на `conf`/`logit`/`cls`/`grp`/`mk` (без morph_*). Если M − C не > 0 при P ≥ 0,85 (k10), вывод: «прирост даёт реранкер/пороги, а не морфометрия», и morph в сдачу НЕ предлагается (даже если M проходит П1–П6 против базы).
+- **Бюджет 1200 с (обязательное условие сдачи, не критерий П1–П6):** bot-2 quant: 0,87 мс/кандидат × 1,21 млн ≈ 1057 с на train в 1 потоке — в сдачу «как есть» не лезет. Даже при прохождении П1–П6+атрибуции M принимается в пакет **только если** bot-2 подтверждает экстрактор того же списка признаков с укладкой в оставшийся бюджет теста (переиспользование ЦМР li-пайплайна, и/или отсев по conf до экстракции, и/или ускорение), с отдельной записью тайминга до посылки. Иначе — REJECT по бюджету, цифры остаются в журнале как потолок сигнала.
+- **Честность:** признаки без меток; LightGBM и пороги — leave-family-out; иначе отклонить. Site-scope — вторичная справка, не условие приёма.
+- Морфометрия **не** смешивается в этом цикле с CROPVERIF (DINOv2); совместный вариант — только отдельной предрегистрацией после обоих одиночных замеров.

@@ -1,0 +1,19 @@
+Thu Oct 29 07:35:56 MSK 2026
+/dev/vdb       136782041088 133762187264 3003076608  98% /
+128347522	/tmp/tmppxdnwwh5
+127895930	/tmp/tmpxdl6p71z
+13881084	convnext_lidar/_scratch/dry/dup.geojson
+28013089	convnext_lidar/_scratch/dry/merged_test.geojson
+63942651	convnext_lidar/_scratch/dry/out/ckpt_cnx_c3-sc_f3.pt
+63948795	convnext_lidar/_scratch/dry/out/ckpt_cnx_c5-in_f4.pt
+64167963	convnext_lidar/_scratch/dry/out_ch/ckpt_cnx_c3-sc_f3.pt
+64174171	convnext_lidar/_scratch/dry/out_ch/ckpt_cnx_c5-in_f4.pt
+63943867	convnext_lidar/_scratch/dry/out_heat/ckpt_cnx_c3-sc_f3.pt
+63950075	convnext_lidar/_scratch/dry/out_heat/ckpt_cnx_c5-in_f4.pt
+64167963	convnext_lidar/_scratch/dry/out_prep/ckpt_cnx_c3-sc_f3.pt
+125001980	dfine_spor/fix/dryrun_full3_t211/dfine_f1/model.safetensors
+125001980	dfine_spor/fix/dryrun_full3_t211/dfine_f2/model.safetensors
+125001980	dfine_spor/fix/dryrun_full3_t211/dfine_f4/model.safetensors
+324963198	/home/box/.cache/pip
+AFTER
+/dev/vdb       136782041088 132312944640 4452319232  97% /

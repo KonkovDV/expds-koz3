@@ -1,0 +1,468 @@
+{
+ "KIG-A": {
+  "d_k10": -0.0008479053305689432,
+  "P": 0.187,
+  "ci90": [
+   -0.003701295916673143,
+   0.0005436049562257765
+  ],
+  "lofo": -0.0009321944043569896,
+  "seeds": [
+   -0.0008505949926110312,
+   -0.0009977289997137317,
+   -0.0011545741540417986,
+   -0.00039143160962978873,
+   -0.0010722739447926455
+  ],
+  "seeds_pos": 0,
+  "heavy": -0.0008479053305689877,
+  "d_new34": -0.002876367545694092,
+  "per_class_weighted": {
+   "kurgany_povrezhdennye": -0.0005426565924978255,
+   "kurgany_tselye": -0.00030524873807116217
+  },
+  "kstar": 0,
+  "kstar_removed": [],
+  "diag_k10": {
+   "out_gorreg": 1155,
+   "out_gorreg_real": 427,
+   "in": 122,
+   "in_real": 55
+  },
+  "per_unit_k10": {
+   "Курганы": {
+    "out_gorreg": 49,
+    "out_gorreg_real": 31,
+    "in": 3,
+    "in_real": 3
+   },
+   "Гнёздово": {
+    "out_gorreg": 14,
+    "out_gorreg_real": 11
+   },
+   "Шумгора": {
+    "out_gorreg": 41,
+    "out_gorreg_real": 5,
+    "in": 16,
+    "in_real": 16
+   },
+   "Лубно": {
+    "out_gorreg": 105,
+    "out_gorreg_real": 0
+   },
+   "Новенькое": {
+    "out_gorreg": 97,
+    "out_gorreg_real": 19
+   },
+   "Вышенское": {
+    "out_gorreg": 1,
+    "out_gorreg_real": 0
+   },
+   "Елизаветинское": {
+    "in": 2,
+    "in_real": 0,
+    "out_gorreg": 7,
+    "out_gorreg_real": 0
+   },
+   "Нора": {
+    "out_gorreg": 37,
+    "out_gorreg_real": 19,
+    "in": 22,
+    "in_real": 15
+   },
+   "Хальвасборген": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 0
+   },
+   "Эрентуна": {
+    "out_gorreg": 60,
+    "out_gorreg_real": 35
+   },
+   "Верхмарево": {
+    "out_gorreg": 10,
+    "out_gorreg_real": 2,
+    "in": 3,
+    "in_real": 0
+   },
+   "Золотаревка": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Сарское": {
+    "out_gorreg": 115,
+    "out_gorreg_real": 2
+   },
+   "Юшково": {
+    "out_gorreg": 141,
+    "out_gorreg_real": 110,
+    "in": 1,
+    "in_real": 0
+   },
+   "Воронеж": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0
+   },
+   "Курган": {
+    "out_gorreg": 117,
+    "out_gorreg_real": 20,
+    "in": 36,
+    "in_real": 2
+   },
+   "Миловидово+Осечки+Примаки": {
+    "out_gorreg": 24,
+    "out_gorreg_real": 3,
+    "in": 1,
+    "in_real": 1
+   },
+   "Тешилово": {
+    "out_gorreg": 3,
+    "out_gorreg_real": 0
+   },
+   "Боровичи": {
+    "out_gorreg": 55,
+    "out_gorreg_real": 33,
+    "in": 1,
+    "in_real": 0
+   },
+   "Вышегжа": {
+    "out_gorreg": 34,
+    "out_gorreg_real": 26,
+    "in": 1,
+    "in_real": 0
+   },
+   "КЧР": {
+    "in": 20,
+    "in_real": 14,
+    "out_gorreg": 3,
+    "out_gorreg_real": 0
+   },
+   "Эсбю": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 0
+   },
+   "Граборг": {
+    "out_gorreg": 20,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Стеклянуха": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0,
+    "in": 3,
+    "in_real": 0
+   },
+   "Вщиж": {
+    "out_gorreg": 21,
+    "out_gorreg_real": 0,
+    "in": 4,
+    "in_real": 0
+   },
+   "Демидовка": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0
+   },
+   "Красносельская": {
+    "in": 5,
+    "in_real": 4,
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Лихуша": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 3
+   },
+   "Муравлево": {
+    "out_gorreg": 109,
+    "out_gorreg_real": 101
+   },
+   "Руна": {
+    "out_gorreg": 30,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Судьбищи": {
+    "out_gorreg": 2,
+    "out_gorreg_real": 0
+   },
+   "Тору": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 7
+   }
+  },
+  "rule": {
+   "P1": false,
+   "P2": false,
+   "P3": false,
+   "P4": false,
+   "robust_kstar5_P09": false
+  }
+ },
+ "KIGgt-A": {
+  "d_k10": 0.0005370946387907582,
+  "P": 0.9965,
+  "ci90": [
+   0.00015318221100375784,
+   0.001234583412360829
+  ],
+  "lofo": 0.0005343392933166435,
+  "seeds": [
+   0.0006081405104403914,
+   0.0006316749598040405,
+   0.0005746769641598037,
+   0.0005829218046460305,
+   0.00060743519494727
+  ],
+  "seeds_pos": 5,
+  "heavy": 0.0005370946387907472,
+  "d_new34": 0.0015177058099472562,
+  "per_class_weighted": {
+   "kurgany_povrezhdennye": 0.0001815365121238477,
+   "kurgany_tselye": 0.0003555581266668995
+  },
+  "kstar": 11,
+  "kstar_removed": [
+   "Кисловодская",
+   "Вщиж",
+   "Елизаветинское",
+   "Граборг",
+   "Архангельское",
+   "Мостище",
+   "Кан",
+   "Руна",
+   "Конур",
+   "Стеклянуха",
+   "Сарское"
+  ],
+  "diag_k10": {
+   "out_gorreg": 1246,
+   "out_gorreg_real": 249,
+   "in": 55,
+   "in_real": 1
+  },
+  "per_unit_k10": {
+   "Гнёздово": {
+    "out_gorreg": 13,
+    "out_gorreg_real": 11
+   },
+   "Кисловодская": {
+    "in": 23,
+    "in_real": 0,
+    "out_gorreg": 155,
+    "out_gorreg_real": 0
+   },
+   "Русская": {
+    "out_gorreg": 15,
+    "out_gorreg_real": 0
+   },
+   "Солдатское": {
+    "out_gorreg": 43,
+    "out_gorreg_real": 2
+   },
+   "Шумгора": {
+    "out_gorreg": 57,
+    "out_gorreg_real": 21
+   },
+   "Корумду": {
+    "out_gorreg": 3,
+    "out_gorreg_real": 0
+   },
+   "Лубно": {
+    "out_gorreg": 105,
+    "out_gorreg_real": 0
+   },
+   "Новенькое": {
+    "out_gorreg": 94,
+    "out_gorreg_real": 18,
+    "in": 3,
+    "in_real": 1
+   },
+   "Архангельское": {
+    "out_gorreg": 49,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Вышенское": {
+    "out_gorreg": 1,
+    "out_gorreg_real": 0
+   },
+   "Елизаветинское": {
+    "in": 3,
+    "in_real": 0,
+    "out_gorreg": 6,
+    "out_gorreg_real": 0
+   },
+   "Каменка": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Костомаровское": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Семибратнее": {
+    "out_gorreg": 14,
+    "out_gorreg_real": 2
+   },
+   "Сторожевое": {
+    "out_gorreg": 22,
+    "out_gorreg_real": 0
+   },
+   "Хальвасборген": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 0
+   },
+   "Эрентуна": {
+    "out_gorreg": 59,
+    "out_gorreg_real": 35,
+    "in": 1,
+    "in_real": 0
+   },
+   "Барскоон": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0
+   },
+   "Верхмарево": {
+    "out_gorreg": 12,
+    "out_gorreg_real": 2,
+    "in": 1,
+    "in_real": 0
+   },
+   "Золотаревка": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Кан": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Маяцкая": {
+    "out_gorreg": 1,
+    "out_gorreg_real": 0
+   },
+   "Сарское": {
+    "out_gorreg": 113,
+    "out_gorreg_real": 2,
+    "in": 2,
+    "in_real": 0
+   },
+   "Городище": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 0
+   },
+   "Изборск": {
+    "out_gorreg": 2,
+    "out_gorreg_real": 0
+   },
+   "Кароол": {
+    "out_gorreg": 2,
+    "out_gorreg_real": 0,
+    "in": 1,
+    "in_real": 0
+   },
+   "Тешилово": {
+    "out_gorreg": 3,
+    "out_gorreg_real": 0
+   },
+   "Гочево": {
+    "out_gorreg": 22,
+    "out_gorreg_real": 0
+   },
+   "Кель": {
+    "out_gorreg": 12,
+    "out_gorreg_real": 0
+   },
+   "Курменту": {
+    "out_gorreg": 23,
+    "out_gorreg_real": 15
+   },
+   "Эсбю": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 0
+   },
+   "Белая": {
+    "out_gorreg": 6,
+    "out_gorreg_real": 0
+   },
+   "Верхняя": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0
+   },
+   "Граборг": {
+    "out_gorreg": 20,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Конур": {
+    "out_gorreg": 11,
+    "out_gorreg_real": 0,
+    "in": 2,
+    "in_real": 0
+   },
+   "Мостище": {
+    "out_gorreg": 58,
+    "out_gorreg_real": 0,
+    "in": 3,
+    "in_real": 0
+   },
+   "Россошки": {
+    "out_gorreg": 8,
+    "out_gorreg_real": 0
+   },
+   "Селяне": {
+    "out_gorreg": 64,
+    "out_gorreg_real": 37
+   },
+   "Стеклянуха": {
+    "out_gorreg": 7,
+    "out_gorreg_real": 0,
+    "in": 1,
+    "in_real": 0
+   },
+   "Вщиж": {
+    "out_gorreg": 17,
+    "out_gorreg_real": 0,
+    "in": 8,
+    "in_real": 0
+   },
+   "Демидовка": {
+    "out_gorreg": 5,
+    "out_gorreg_real": 0
+   },
+   "Иссык+Каджы": {
+    "out_gorreg": 20,
+    "out_gorreg_real": 0
+   },
+   "Лихуша": {
+    "out_gorreg": 4,
+    "out_gorreg_real": 3
+   },
+   "Муравлево": {
+    "out_gorreg": 109,
+    "out_gorreg_real": 101
+   },
+   "Руна": {
+    "out_gorreg": 31,
+    "out_gorreg_real": 0,
+    "in": 1,
+    "in_real": 0
+   },
+   "Скупая": {
+    "out_gorreg": 7,
+    "out_gorreg_real": 0
+   }
+  },
+  "rule": {
+   "P1": false,
+   "P2": true,
+   "P3": true,
+   "P4": true,
+   "robust_kstar5_P09": true
+  }
+ }
+}

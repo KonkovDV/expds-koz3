@@ -1,0 +1,7 @@
+start 07:35:07 disk 3014M
+fam D3 07:40:02 {"written": {"li|kurgany_povrezhdennye": 37037, "li|kurgany_tselye": 1312, "li|gorodishcha": 74, "li|fortifikatsii": 111, "li_coarse|gorodishcha": 329, "li_coarse|fortifikatsii": 298}, "removed": {"li|gorodishcha": 664, "li|fortifikatsii": 379, "li|kurgany_povrezhdennye": 37601, "li|kurgany_tselye": 37601, "li_coarse|gorodishcha": 2591, "li_coarse|fortifikatsii": 775}, "seconds": 270.8} du 1047M
+curves D3 07:42:28 100 files, disk 4466M
+fam CH 07:44:36 {"written": {"li|kurgany_tselye": 1560, "li|kurgany_povrezhdennye": 4528, "li|gorodishcha": 666, "li|fortifikatsii": 379, "li_coarse|gorodishcha": 2592, "li_coarse|fortifikatsii": 775}, "removed": {"li|gorodishcha": 664, "li|fortifikatsii": 379, "li|kurgany_povrezhdennye": 37601, "li|kurgany_tselye": 37601, "li_coarse|gorodishcha": 2591, "li_coarse|fortifikatsii": 775}, "seconds": 107.2} du 1035M
+curves CH 07:46:59 100 files, disk 6983M
+work/lireal/run_resume.sh: line 22: 842530 Killed                  nice -n 10 $PY $B2/repo/scripts/li_real_paired.py --base A=work/curves --b L=$W/curves_L --b P=$W/curves_P --b D1=$W/curves_D1 --b D2=$W/curves_D2 --b D3=$W/curves_D3 --b CH=$W/curves_CH --boot 1000 --out $W/paired_vsA.json > $W/paired_vsA.log 2>&1
+done 08:07:27 disk 3342M

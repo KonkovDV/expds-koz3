@@ -1,0 +1,9 @@
+/workspace/rerank/venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py:3862: RuntimeWarning: Mean of empty slice
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/workspace/rerank/venv/lib/python3.13/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-6/work/orsp3/taus_fold.py", line 24, in <module>
+    med.setdefault(g, {})[c] = dict(median=float(np.median(v)), min=float(min(v)), max=float(max(v)), n=len(v), values=v)
+                                                                          ~~~^^^
+ValueError: min() iterable argument is empty

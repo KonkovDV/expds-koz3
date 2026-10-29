@@ -1,0 +1,27 @@
+{
+ "work/fam": {
+  "n sp_focal kurgany_povrezhdennye": 31941,
+  "n sp_focal kurgany_tselye": 6665,
+  "n sp_focal2 kurgany_povrezhdennye": 13226,
+  "n sp_focal2 kurgany_tselye": 4757,
+  "n sp_or gorodishcha": 1006,
+  "sp1_ge_new sp_focal kurgany_povrezhdennye": 1707,
+  "sp1_ge_new sp_focal kurgany_tselye": 129,
+  "sp2_ge_Afloor kurgany_povrezhdennye": 193,
+  "sp2_ge_Afloor kurgany_tselye": 10,
+  "sp2_ge_new kurgany_povrezhdennye": 170,
+  "sp2_ge_new kurgany_tselye": 6
+ },
+ "work10/orsp/fam_orspN": {
+  "n sp_focal kurgany_povrezhdennye": 31941,
+  "n sp_focal kurgany_tselye": 6665,
+  "n sp_focal2 kurgany_povrezhdennye": 13226,
+  "n sp_focal2 kurgany_tselye": 4757,
+  "n sp_or gorodishcha": 1006,
+  "sp1_ge_new sp_focal kurgany_povrezhdennye": 824,
+  "sp1_ge_new sp_focal kurgany_tselye": 73,
+  "sp2_ge_Afloor kurgany_povrezhdennye": 21,
+  "sp2_ge_Afloor kurgany_tselye": 1,
+  "sp2_ge_new kurgany_povrezhdennye": 19
+ }
+}

@@ -1,0 +1,124 @@
+{
+ "variant": "rep_quantile",
+ "calibrated": 48863,
+ "uncalibrated": 247,
+ "cnx_feats": 49110,
+ "Бервенец": {
+  "base_lines_kept": 72,
+  "cnx": 284
+ },
+ "Боровичи": {
+  "base_lines_kept": 4584,
+  "cnx": 9027
+ },
+ "Верхмарево": {
+  "base_lines_kept": 4282,
+  "cnx": 1665
+ },
+ "Вщиж": {
+  "base_lines_kept": 1714,
+  "cnx": 3209
+ },
+ "Вышенское": {
+  "base_lines_kept": 262,
+  "cnx": 1769
+ },
+ "Гнёздово": {
+  "base_lines_kept": 6879,
+  "cnx": 9362
+ },
+ "Демидовка": {
+  "base_lines_kept": 1595,
+  "cnx": 3174
+ },
+ "Елизаветинское": {
+  "base_lines_kept": 2117,
+  "cnx": 1566
+ },
+ "Золотаревка": {
+  "base_lines_kept": 480,
+  "cnx": 1273
+ },
+ "КЧР": {
+  "base_lines_kept": 176,
+  "cnx": 80
+ },
+ "Лихуша": {
+  "base_lines_kept": 30,
+  "cnx": 381
+ },
+ "Макеево": {
+  "base_lines_kept": 125,
+  "cnx": 439
+ },
+ "Миловидово": {
+  "base_lines_kept": 1728,
+  "cnx": 18
+ },
+ "Московиты": {
+  "base_lines_kept": 3649,
+  "cnx": 714
+ },
+ "Никола": {
+  "base_lines_kept": 2143,
+  "cnx": 8845
+ },
+ "Новенькое": {
+  "base_lines_kept": 134,
+  "cnx": 831
+ },
+ "Новотитаровская": {
+  "base_lines_kept": 158,
+  "cnx": 137
+ },
+ "Нора": {
+  "base_lines_kept": 61,
+  "cnx": 534
+ },
+ "Осечки": {
+  "base_lines_kept": 126,
+  "cnx": 95
+ },
+ "Примаки": {
+  "base_lines_kept": 420,
+  "cnx": 41
+ },
+ "Руна": {
+  "base_lines_kept": 12,
+  "cnx": 165
+ },
+ "Семибратнее": {
+  "base_lines_kept": 5893,
+  "cnx": 698
+ },
+ "Тешилово": {
+  "base_lines_kept": 200,
+  "cnx": 1286
+ },
+ "Тимерево": {
+  "base_lines_kept": 432,
+  "cnx": 971
+ },
+ "Усть": {
+  "base_lines_kept": 125,
+  "cnx": 185
+ },
+ "Шетнево": {
+  "base_lines_kept": 161,
+  "cnx": 500
+ },
+ "Эсбю": {
+  "base_lines_kept": 194,
+  "cnx": 1861
+ },
+ "removed_li_kurgan_by_group": {
+  "li|kurgany_povrezhdennye": 27108,
+  "li|kurgany_tselye": 27108,
+  "li_dev|kurgany_povrezhdennye": 207847,
+  "li_dev|kurgany_tselye": 208795,
+  "li_mosaic|kurgany_povrezhdennye": 128801,
+  "li_mosaic|kurgany_tselye": 128801
+ },
+ "li_kurgan_kept_regions_without_cnx": {},
+ "size_MB": 93.7
+}

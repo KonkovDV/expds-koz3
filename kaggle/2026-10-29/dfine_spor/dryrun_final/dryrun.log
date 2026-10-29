@@ -1,0 +1,62 @@
+  torch 2.11.0+cpu
+  torchvision 0.26.0+cpu
+  huggingface_hub 2.3.0
+  safetensors 0.8.0
+  transformers 5.21.0
+  rasterio 1.4.3
+  pyproj 3.7.1
+  shapely 2.1.1
+  boto3 1.40.61
+  cv2 4.11.0
+  scipy 1.16.3
+[      0s] CFG {"mode": "final", "res": 0.5, "tile": 256, "overlap": 160, "max_windows": 6, "bs": 1, "iters": 3, "lr": 0.0001, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 0, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 2, "smoke_test_regions": 1, "deadline_h": 3.0, "folds": "0,1,2,3,4", "regions": "161_Курганы_32,051_Воронеж_2", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: []
+[      0s] Kaggle Secrets недоступны: ModuleNotFoundError — пробую env / приватный датасет
+[      2s] S3 OK
+[      2s] веса HF OK ustc-community/dfine-large-coco aa8f8211 (Apache-2.0)
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  57%|█████▋    | 686/1197 [00:00<00:00, 6794.13it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 6838.14it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[      7s] модель OK (CPU): {"params_M": 31.09, "num_labels": 5, "heads": [6, 5, 256], "logits": [1, 300, 5]} 5 с
+[      7s] фолды OK: 189 участков, 96 семей
+[      8s] участков со SpOr в фолдах: 2; вне фолдов (пропуск): 0
+[      8s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55
+[     10s] чипов: 21 (объектных 13), участков 2, 1 с; классы: {'kurgany_povrezhdennye': 12, 'kurgany_tselye': 1}
+[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  26%|██▌       | 308/1197 [00:00<00:00, 3072.41it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 7213.55it/s]
+[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: /workspace/koz3_shared/bot-9/kaggle/dfine_spor/fix/hf/hub/models--ustc-community--dfine-large-coco/snapshots/aa8f8211545e4cff5adf52ea512f9ac74a9824ec
+Key                                                 | Status   |                                                                                        
+----------------------------------------------------+----------+----------------------------------------------------------------------------------------
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
+model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
+model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+[     11s] [final] train чипов 21 (все участки), бюджет обучения 2.50 ч, итераций 3
+[     23s] [final] [bot5] {'it': 3, 'loss': 633.613, 's_it': 2.9717}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  5.63it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  5.60it/s]
+[     23s] [final] сохранено /workspace/koz3_shared/bot-9/kaggle/dfine_spor/dryrun_final/dfine_final {"config.json": {"bytes": 4222, "sha256": "ff8bb6305c227c5e52ba7f7cc16bf0edaa7a9ac085104452b0aec3b6b9e90789"}, "model.safetensors": {"bytes": 125001980, "sha256": "edf1ac98545cbe3a546f569b63483573134f5f5c0c2863b62d2cd56373620a52"}}
+Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 19134.48it/s]
+[     26s] [final] перезагрузка dfine_final OK, max|Δlogits| = 0.0
+[     30s] [bench] fp32_bs1 {"bs": 1, "ms_per_window_forward_median": 366.01, "ms_per_window_forward_mean": 537.04, "ms_per_window_with_flipTTA": 732.01, "n_meas": 4}
+[     38s] [bench] fp16autocast_bs1 {"bs": 1, "ms_per_window_forward_median": 1051.2, "ms_per_window_forward_mean": 1759.05, "ms_per_window_with_flipTTA": 2102.39, "n_meas": 4}
+[     47s] [bench] fp32_bs8 {"bs": 8, "ms_per_window_forward_median": 1297.6, "ms_per_window_forward_mean": 1297.6, "ms_per_window_with_flipTTA": 2595.2, "n_meas": 2}
+[     56s] [bench] fp16autocast_bs8 {"bs": 8, "ms_per_window_forward_median": 738.16, "ms_per_window_forward_mean": 738.16, "ms_per_window_with_flipTTA": 1476.32, "n_meas": 2}
+[     56s] [infer] 051_Воронеж_2 01_Воронеж_2_SpOr_спутник.tif: 4029x3712 px, окон 6
+[     64s] [infer] 051_Воронеж_2: готово 6 окон за 8 с
+[     65s] [bench e2e] {"region": "051_Воронеж_2", "windows": 6, "sec": 8.85, "ms_per_window": 1475.8, "n_det": 419}
+[     65s] ГОТОВО final: {"iters": 3, "planned": 3, "s_it_median": 2.9716718196868896, "sec": 12, "n_train_chips": 21}
+rc=0 watchdog_peak_kB=1474860

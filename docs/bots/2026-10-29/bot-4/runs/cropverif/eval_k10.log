@@ -1,0 +1,4 @@
+rows 30688 {'kur': 13747, 'arch': 7793, 'fort': 9148} pos {'kur': 864, 'arch': 79, 'fort': 176} emb ok 30531
+вне пула в реранжируемых группах -> -1: 135622 групп 11
+k10 folds 10 base 0.3332373211123479 {'folds': 10, 'unseen_dropped': 0, 'unseen_kept': 723}
+  k10 fold 1/10 237s

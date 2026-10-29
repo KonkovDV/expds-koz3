@@ -1,0 +1,136 @@
+{
+ "cfg": {
+  "mode": "full",
+  "res": 0.5,
+  "tile": 256,
+  "overlap": 160,
+  "max_windows": 6,
+  "bs": 1,
+  "iters": 3,
+  "lr": 0.0001,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 0,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 2,
+  "smoke_test_regions": 1,
+  "deadline_h": 5.5,
+  "folds": "0,2",
+  "regions": "001_Гнёздово_Нивленское,015_Демидовка,189_Макеево",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "hf": "ustc-community/dfine-large-obj2coco-e25@c89de47153e338c07cddc81fc21a776b97cbf75e",
+ "base": "obj2coco",
+ "mod": "Ae",
+ "markup_type": "ae",
+ "gt_coverage": [
+  {
+   "region": "015_Демидовка",
+   "tif": "01_Демидовка_Ae_немецкая.tif",
+   "W": 1471,
+   "H": 1442,
+   "gt_total": 1,
+   "gt_in_raster": 1,
+   "gt_covered_by_chip": 1,
+   "chips": 3
+  },
+  {
+   "region": "001_Гнёздово_Нивленское",
+   "tif": "01_Гнёздово_Нивленское_Ae_немецкая.tif",
+   "W": 675,
+   "H": 441,
+   "gt_total": 7,
+   "gt_in_raster": 7,
+   "gt_covered_by_chip": 7,
+   "chips": 11
+  },
+  {
+   "region": "189_Макеево",
+   "tif": "01_Макеево_Ae_немецкая.tif",
+   "W": 2844,
+   "H": 2530,
+   "gt_total": 14,
+   "gt_in_raster": 14,
+   "gt_covered_by_chip": 14,
+   "chips": 23
+  }
+ ],
+ "folds": {
+  "0": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 4.8348846435546875,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 154.7855,
+     "s_it": 4.8349
+    }
+   ],
+   "sec": 13,
+   "loss_first": 165.91180419921875,
+   "loss_last": 140.15524291992188,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 26,
+   "test_regions": [
+    "001_Гнёздово_Нивленское"
+   ],
+   "n_det": 899,
+   "infer_sec": 27
+  },
+  "2": {
+   "trainer": "bot5",
+   "iters": 3,
+   "planned": 3,
+   "s_it_median": 5.1037209033966064,
+   "hist": [
+    {
+     "it": 3,
+     "loss": 112.49,
+     "s_it": 5.1037
+    }
+   ],
+   "sec": 51,
+   "loss_first": 127.20185852050781,
+   "loss_last": 140.13287353515625,
+   "model_check": {
+    "params_M": 31.09,
+    "num_labels": 5,
+    "heads": [
+     6,
+     5,
+     256
+    ]
+   },
+   "n_train_chips": 34,
+   "test_regions": [
+    "015_Демидовка"
+   ],
+   "n_det": 1082,
+   "infer_sec": 12
+  }
+ },
+ "skipped_regions_no_fold": [],
+ "projection_full_h": 27.61,
+ "total_sec": 117
+}

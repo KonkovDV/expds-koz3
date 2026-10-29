@@ -1,0 +1,33 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+prefilter 14713 29 s
+gt collected
+k10 A 0.319519 {}
+k10 KIG 0.318672 {'out_gorreg': 1155, 'out_gorreg_real': 427, 'in': 122, 'in_real': 55}
+k10 KIGgt 0.320057 {'out_gorreg': 1246, 'out_gorreg_real': 249, 'in': 55, 'in_real': 1}
+k10 time 4 s
+lofo A 0.318488 {}
+lofo KIG 0.317556 {'out_gorreg': 1231, 'out_gorreg_real': 428, 'in': 126, 'in_real': 57}
+lofo KIGgt 0.319022 {'out_gorreg': 1256, 'out_gorreg_real': 240, 'in': 55, 'in_real': 1}
+lofo time 3 s
+seed0 A 0.319698 {}
+seed0 KIG 0.318847 {'out_gorreg': 1089, 'out_gorreg_real': 410, 'in': 125, 'in_real': 56}
+seed0 KIGgt 0.320306 {'out_gorreg': 1248, 'out_gorreg_real': 226, 'in': 64, 'in_real': 1}
+seed0 time 2 s
+seed1 A 0.310923 {}
+seed1 KIG 0.309926 {'out_gorreg': 1222, 'out_gorreg_real': 407, 'in': 119, 'in_real': 57}
+seed1 KIGgt 0.311555 {'out_gorreg': 1274, 'out_gorreg_real': 252, 'in': 68, 'in_real': 1}
+seed1 time 2 s
+seed2 A 0.321865 {}
+seed2 KIG 0.32071 {'out_gorreg': 1143, 'out_gorreg_real': 401, 'in': 111, 'in_real': 59}
+seed2 KIGgt 0.32244 {'out_gorreg': 1251, 'out_gorreg_real': 241, 'in': 59, 'in_real': 1}
+seed2 time 2 s
+seed3 A 0.313506 {}
+seed3 KIG 0.313114 {'out_gorreg': 1099, 'out_gorreg_real': 394, 'in': 110, 'in_real': 48}
+seed3 KIGgt 0.314089 {'out_gorreg': 1141, 'out_gorreg_real': 249, 'in': 57, 'in_real': 1}
+seed3 time 2 s
+seed4 A 0.294177 {}
+seed4 KIG 0.293105 {'out_gorreg': 1196, 'out_gorreg_real': 416, 'in': 125, 'in_real': 58}
+seed4 KIGgt 0.294784 {'out_gorreg': 1222, 'out_gorreg_real': 244, 'in': 59, 'in_real': 1}
+seed4 time 2 s
+done
+watchdog max RSS MB 461 exit 0

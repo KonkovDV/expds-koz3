@@ -1,0 +1,13 @@
+[      3s] версии: {"numpy": "2.5.4", "scipy": "1.18.1", "torch": "2.15.0+cpu", "shapely": "2.2.0"}
+[      3s] TAG _L24 LAYOUTS ['fam10'] THREADS 2
+[      3s] исходники bot-5 @6984c67d1e2c8493ebbc6931b5fb6c758368777e: 6 файлов → /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo2
+[      3s] вход признаков: /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/work/gd ['dense_L12.npz', 'dense_L24.npz', 'files_L12.json', 'files_L24.json', 'gor_dense_inputs.json']
+[      3s] ▶ probe_L24:fam10: /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo2/scripts/gor_dense/dense_probe.py | env {"DOUT": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/pgd", "TAG": "_L24", "LAYOUTS": "fam10", "REPO": "/workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/b5repo2", "OMP_NUM_THREADS": "2", "OPENBLAS_NUM_THREADS": "2", "MKL_NUM_THREADS": "2"} | timeout 41097 s
+    [0s] tokens 10792 dim 128 files 15 regions 13 /workspace/koz3_shared/bot-9/kaggle/bot5/gorloc/_dry/tiny_model [2.0, 4.0]
+    [0s] frame prior: pos tokens dist to frame centre m q50/q90 [195.7, 365.9] edge share of neg 0.541
+    [0s] token labels {0: 9903, -1: 269, 1: 620} regions with pos tokens 9
+    [25s] fam10 {'top1_hit_held': {'pu': [2, 9], 'pu+cp': [5, 9], 'pu_edge': [2, 9], 'pu_edge+cp': [1, 9], 'all': [2, 9], 'all+cp': [2, 9]}, 'token_auc_pos_scenes': {'pu': 0.43429544552379096, 'pu_edge': 0.4571872870121408, 'all': 0.45628197158414285}, 'token_auc_all': {'pu': 0.4542971663849013, 'pu_edge': 0.46609238647135276, 'all': 0.47609815207512873}} centre [2, 9]
+    [25s] done; peak RSS MB 145.52734375
+[     29s] ■ probe_L24:fam10: rc=0, 26 s
+[     29s] выход: gor_dense_L24_all.tgz раскрои: ['fam10']
+[     29s] ГОТОВО {"fam10": 0}

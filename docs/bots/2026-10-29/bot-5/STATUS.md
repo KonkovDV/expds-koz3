@@ -21,3 +21,17 @@
   - add+gate: как gate, но seed1 −0.022111, seed4 −0.012270.
   - Итог: основной вариант (ручные признаки + LGBM, без предобученных весов) отрицательный, в сдачу не идёт. Дальше короткий замер DINO на подвыборке (work/kurg_ae/dino_sub.py).
 - (I) 02:40. DINOv2-S, только замер, подвыборка 4345 (511 поз.), analysis/kurg_ae/dino_sub.json. AUC внутри участка: DINO+ridge 0.672, DINO+LGBM 0.653, ручные+LGBM 0.699, c7g 0.717. Устойчивого сигнала сверх ручных признаков нет, остановлено. Записан NOLIDAR §13. В FORMAT_BOT5.md уточнены определение p и калибровка. Задача закрыта, тяжёлых процессов bot-5 нет.
+- (J) 29.10 ~08:10 МСК. Задачи от bot 1 (07:25):
+  - ЗАДАЧА 1 ГОТОВО: FOR_BOT7_GOR_V3.md (переслать bot 7 — через bot 1).
+  - ЗАДАЧА 2 ГОТОВО: RF-DETR O365, wt_rf c43cb08 (ветка bot5-rfdetr-coco), FOR_BOT9_RFDETR.md.
+  - ЗАДАЧА 0 (плотный локализатор городищ SpOr, только замер). Ветка bot5-gor-dense-loc, коммит 154908f (не запушен). Код: scripts/gor_dense/{dense_feats,export_inputs,dense_probe,gor_dense_eval}.py; Kaggle: kaggle/gor_dense_kaggle.ipynb (DINOv2-L-reg, ревизия пиннута), kaggle/gor_dense_inputs.json; FOR_BOT9_GORLOC.md. CPU-прототип DINOv2-S 2/4 м/пкс: 227 182 токена, 552 с, RSS 1677 (analysis/gor_dense/dense_feats.log). fam10 (probe_fam10.log): top-1 пик в городище на отложенных 25/49 (pu), 24/49 (pu_nohn, all) против центра сцены 18/49; token AUC внутри поз. сцен 0,840 (pu). Идёт полный прогон всех раскроев (probe_all.log; бокс загружен, load ≈ 12), затем gor_dense_eval.py.
+  - ЗАДАЧА 3: ветка bot5-dinov2reg a0ac2ef (wt_rf, не запушен): extract_feats.py с регистрами (обратная совм. DINOv2-S max|Δ| 0), crop_verify.py --encoder hf: (замороженный ViT + линейная проба), kaggle/dinov2reg_kaggle.ipynb, FOR_BOT9_DINOV2REG.md; smoke на боксе пройден.
+
+## (K) 29.10 ~08:18 MSK — steering: «Сканирование» ЗАПРЕЩЕНО; приор кадра
+- Данные «Сканирование» (ackrome/satelite-scan) ЗАПРЕЩЕНЫ организаторами: не используются; region_cover.py / region_cover.json (заготовка хука) удалены, хука в коде нет.
+- Приор кадра по аудиту (bot-10/work11/wt_audit, docs/AUDIT_CLAUDE_2026-10-29.md:114, коммит 6e26062; 0,279→0,297 — цифра соперника):
+  в dense_probe.py вариант `pu_edge` (негативы >300 м Чебышёв от центра кадра → ignore) и `<v>+cp` (гаусс-приор центра, s выбирается во внутреннем OOF).
+- Первый probe_all (без приора) остановлен на LOFO (лог analysis/gor_dense/probe_all_killed_v1.log); перезапуск с вариантами pu,pu_edge,all (+cp) → analysis/gor_dense/probe_all.log.
+- Диагностика (probe_all.log): позитивные токены от центра кадра q50/q90 = 212,5/487,5 м; доля краевых негативов 0,71.
+- fam10 (probe_all.log [1097s]): top-1 попадание в отложенный эталон (49 участков с sp_or): pu 25 → pu+cp 30; pu_edge 25 → pu_edge+cp 31; all 24 → all+cp 26; центр кадра 18/49.
+  token AUC (поз. сцены): pu 0,840, pu_edge 0,753, all 0,848. Копия пиков: analysis/gor_dense/peaks_fam10_v2prior.json. LOFO+seed ещё считаются (~110 с/фолд при load 15–17).

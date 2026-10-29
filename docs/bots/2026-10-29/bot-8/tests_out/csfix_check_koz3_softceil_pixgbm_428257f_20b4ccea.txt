@@ -1,0 +1,19 @@
+== check_submission: dist/koz3_softceil_pixgbm_428257f_20b4ccea.zip (2026-10-29 07:29:06 MSK)
+[PASS] zip       48 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 539.1 МиБ (565249464 Б), распакованный 542.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 28 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'psutil', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'tl2cgen', 'torch']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[WARN] imports   не установлены в /workspace/koz3_shared/bot-8/venv/bin/python необязательные пакеты; каждый импорт в try/except с фолбэком: psutil (['expds/geo_pixgbm.py:642']), tl2cgen (['expds/geo_pixgbm.py:172'])
+[PASS] imports   27 модулей и 11 сторонних пакетов импортируются без сети (3.0 с)
+[INFO] smoke     пропущен (--no-smoke)
+== ИТОГ: PASS — FAIL 0, WARN 1, проверок 17, 5.1 с

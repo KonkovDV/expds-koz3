@@ -1,0 +1,8 @@
+k10 {'A_drop': 0.314615, 'L_drop': 0.313399, 'd_L_drop': -0.001216}
+lofo {'A_drop': 0.315067, 'L_drop': 0.31558, 'd_L_drop': 0.000513}
+seed0 {'A_drop': 0.314698, 'L_drop': 0.315271, 'd_L_drop': 0.000573}
+seed1 {'A_drop': 0.306042, 'L_drop': 0.306601, 'd_L_drop': 0.00056}
+seed2 {'A_drop': 0.318393, 'L_drop': 0.318595, 'd_L_drop': 0.000202}
+seed3 {'A_drop': 0.309721, 'L_drop': 0.310034, 'd_L_drop': 0.000313}
+seed4 {'A_drop': 0.29063, 'L_drop': 0.290603, 'd_L_drop': -2.7e-05}
+L_drop d10=-0.001216 P=0.225 CI=[-0.00573;+0.00282] lofo=+0.000513 seeds+=4/5 heavy=-0.001213 new34=-0.005489 acc=False

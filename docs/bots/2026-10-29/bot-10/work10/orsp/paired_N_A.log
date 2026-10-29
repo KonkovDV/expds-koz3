@@ -1,0 +1,8 @@
+k10 {'A_keep': 0.333237, 'orspN_keep': 0.33576, 'd_orspN_keep': 0.002523}
+lofo {'A_keep': 0.333689, 'orspN_keep': 0.336852, 'd_orspN_keep': 0.003163}
+seed0 {'A_keep': 0.33332, 'orspN_keep': 0.334784, 'd_orspN_keep': 0.001464}
+seed1 {'A_keep': 0.324664, 'orspN_keep': 0.324966, 'd_orspN_keep': 0.000302}
+seed2 {'A_keep': 0.337015, 'orspN_keep': 0.340072, 'd_orspN_keep': 0.003057}
+seed3 {'A_keep': 0.328343, 'orspN_keep': 0.331279, 'd_orspN_keep': 0.002936}
+seed4 {'A_keep': 0.322307, 'orspN_keep': 0.323767, 'd_orspN_keep': 0.00146}
+orspN_keep d10=+0.002523 P=0.989 CI=[+0.00032;+0.00679] lofo=+0.003163 seeds+=5/5 heavy=+0.002523 new34=+0.001655 acc=True

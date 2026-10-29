@@ -1,0 +1,9 @@
+k10 {'A_drop': 0.314615, 'A_keep': 0.333237, 'rep_raw_drop': 0.300583, 'rep_raw_keep': 0.319297, 'd_rep_raw_drop': -0.014032, 'd_rep_raw_keep': -0.01394}
+lofo {'A_drop': 0.315067, 'A_keep': 0.333689, 'rep_raw_drop': 0.303871, 'rep_raw_keep': 0.322582, 'd_rep_raw_drop': -0.011196, 'd_rep_raw_keep': -0.011107}
+seed0 {'A_drop': 0.314698, 'A_keep': 0.33332, 'rep_raw_drop': 0.28424, 'rep_raw_keep': 0.302961, 'd_rep_raw_drop': -0.030458, 'd_rep_raw_keep': -0.03036}
+seed1 {'A_drop': 0.306042, 'A_keep': 0.324664, 'rep_raw_drop': 0.297332, 'rep_raw_keep': 0.316046, 'd_rep_raw_drop': -0.00871, 'd_rep_raw_keep': -0.008618}
+seed2 {'A_drop': 0.318393, 'A_keep': 0.337015, 'rep_raw_drop': 0.303311, 'rep_raw_keep': 0.322024, 'd_rep_raw_drop': -0.015081, 'd_rep_raw_keep': -0.01499}
+seed3 {'A_drop': 0.309721, 'A_keep': 0.328343, 'rep_raw_drop': 0.302412, 'rep_raw_keep': 0.321127, 'd_rep_raw_drop': -0.007309, 'd_rep_raw_keep': -0.007216}
+seed4 {'A_drop': 0.29063, 'A_keep': 0.322307, 'rep_raw_drop': 0.280239, 'rep_raw_keep': 0.312004, 'd_rep_raw_drop': -0.010391, 'd_rep_raw_keep': -0.010303}
+rep_raw_drop d10=-0.014032 P=0.184 CI=[-0.04855;+0.01098] lofo=-0.011196 seeds+=0/5 heavy=-0.014032 new34=-0.032277 acc=False
+rep_raw_keep d10=-0.013940 P=0.186 CI=[-0.04834;+0.01104] lofo=-0.011107 seeds+=0/5 heavy=-0.013940 new34=-0.031393 acc=False

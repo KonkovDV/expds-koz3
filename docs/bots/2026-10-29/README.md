@@ -90,3 +90,19 @@ Fast-forward: `bots/bot3-geophys` b8cfdf4→72ceb28, `bots/bot3-pixgbm` 7cdace5�
 - `bot-8/patch/bot8-cpu-a-speedup/0005-li_a-5-hm_acc-LI_A_ACC-device_exact-upstream-device-.patch` — код EhimenNathan без LICENSE (DO_NOT_DISTRIBUTE / построчный порт)
 - `bot-8/patch/bot8-cpu-a-speedup/0004-li_a-3-DTM-exact_fast-EDT-d2-int-gather-upstream-ban.patch` — код EhimenNathan без LICENSE (DO_NOT_DISTRIBUTE / построчный порт)
 - `bot-8/patch/bot8-cpu-a-speedup/0002-li_a-2-9-x12-0.7-11-relief-1.5-1.8-bench-cpu_a_speed.patch` — код EhimenNathan без LICENSE (DO_NOT_DISTRIBUTE / построчный порт)
+
+## Дополнение ~09:00 МСК (вторая выгрузка 29.10)
+
+Дельта `/workspace/koz3_shared` по файлам, изменённым после 07:20 МСК: 537 файлов (~4,5 МБ) — новые/обновлённые отчёты (bot-10 REPORT10_accept, PREREG_audit, PREREG_scan, REVIEW; bot-4 GAP, PREREG_MORPH, PREREG_CROPVERIF, CROPVERIF, REVIEW_CHECK_SUBMISSION_CNX; bot-9 PC_RESULTS, DFINE_FINAL_ORAE, DATA_PROTOCOL_SCAN_NOTE; bot-2 REPORT2, EXPERIMENTS; bot-3 BACKBONE_REPORT, audit/VARIANTS_DECLARED; bot-6 ORSP, PREREG_ORGATE; bot-5 FOR_BOT7_GOR_V3, FOR_BOT9_RFDETR; STATUS.md ботов), логи, скрипты, исходники Kaggle-ядер бота 9 (dfine_spor и др.) и общий `EXPERIMENTS_shared.md`.
+
+Изменение правила: теперь входят **малые `.json` с агрегированными метриками** (белый список имён: paired/stats/metrics/report/summary/counts и т. п., ≤ 120 КБ, без координат и `POLYGON`; максимум — значения по участкам/фолдам/бутстрепу). Сайдкар `rerank_arch_lgbm.json` (1,8 КБ: имена признаков, словари, пороги) — метаданные, не веса. По-прежнему не входят: данные и производные, веса и модели LightGBM (`*.txt`-дампы), zip, `kernel-metadata.json`, `kaggle.json`, `DATA_PROTOCOL.md` ботов, код EhimenNathan. Собранные ядра `kaggle/2026-10-29/bot5/gorloc/kernels/*/*.py` **не выложены**: в них встроен (gzip+base64) `kaggle/gor_dense_inputs.json` с разметкой городищ; выложены сборщик `build.py`, шаблоны `tpl/` и исходники `src_6984c67/` без этого файла.
+
+Удалено из головы `main`: два текстовых дампа LightGBM `rerank_arch_lgbm.txt` (по 559 КБ), попавшие в 76b3540 (в истории остаются).
+
+### Ветки (push ~08:55, только fast-forward или новые, без force)
+
+Fast-forward: `bots/bot2-li-real` → 361a9b5, `bots/bot3-backbone` → 49d0200, `bots/bot5-gor-patch-kaggle` → 82058b8, `bots/bot5-rfdetr-coco` → c43cb08, `bots/bot8-cnx` → 1aecea9, `bots/bot8-softceil-pixgbm` → 17c2e2c.
+
+Новые: `bots/bot2-adaf` 7e3639d, `bots/bot2-morph` e918a3b, `bots/bot3-audit` e3c4f41 (порт исправлений аудита, opt-in), `bots/bot5-gor-dense-loc-nodata` 8dfeb0b и `bots/bot5-dinov2reg-nodata` 3fd4743 (пересобраны поверх 82058b8 без `kaggle/gor_dense_inputs.json` — это разметка городищ), `bots/bot7-candidate-v3-nomodels` d420ceb (коммиты eb268d6..9138bff, перенесённые без `models/pixgbm/all/{poly,finds}.txt`; дерево отличается от 9138bff только этими файлами и `MODELS_NOT_IN_GIT.md`).
+
+Не отправлены: оригиналы `bot7-candidate-v2` eb268d6 / `-v3` 9138bff (веса PIXGBM), `bot5-gor-dense-loc` 6984c67 / `bot5-dinov2reg` a0ac2ef (разметка), `bot3-ehimen`, `bot8-cpu-a-speedup` (код EhimenNathan без LICENSE). Ветка аудита `claude/audit-2026-10-29` уже в origin (d4edf2f, содержит 6e26062).

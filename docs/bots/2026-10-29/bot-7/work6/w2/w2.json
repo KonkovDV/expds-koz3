@@ -1,0 +1,29 @@
+{
+ "1": {
+  "rc": 0,
+  "wall_s": 162.8,
+  "peak_tree_sum_mib": 626,
+  "peak_single_proc_mib": 626,
+  "max_procs_in_tree": 1,
+  "per_process_peak_mib": [
+   626
+  ],
+  "result_bytes": 337079
+ },
+ "2": {
+  "rc": 0,
+  "wall_s": 125.8,
+  "peak_tree_sum_mib": 1463,
+  "peak_single_proc_mib": 610,
+  "max_procs_in_tree": 3,
+  "per_process_peak_mib": [
+   610,
+   597,
+   596,
+   587,
+   580,
+   569
+  ],
+  "result_bytes": 337079
+ }
+}

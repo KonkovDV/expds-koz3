@@ -1,0 +1,8 @@
+k10 {'PKG_keep': 0.346707, 'PKC_keep': 0.366505, 'd_PKC_keep': 0.019798}
+lofo {'PKG_keep': 0.347159, 'PKC_keep': 0.372499, 'd_PKC_keep': 0.025339}
+seed0 {'PKG_keep': 0.347123, 'PKC_keep': 0.365556, 'd_PKC_keep': 0.018434}
+seed1 {'PKG_keep': 0.338134, 'PKC_keep': 0.364415, 'd_PKC_keep': 0.026281}
+seed2 {'PKG_keep': 0.350485, 'PKC_keep': 0.371587, 'd_PKC_keep': 0.021102}
+seed3 {'PKG_keep': 0.341813, 'PKC_keep': 0.36224, 'd_PKC_keep': 0.020427}
+seed4 {'PKG_keep': 0.334838, 'PKC_keep': 0.357905, 'd_PKC_keep': 0.023066}
+PKC_keep d10=+0.019798 P=0.985 CI=[+0.00162;+0.04847] lofo=+0.025339 seeds+=5/5 heavy=+0.012744 new34=+0.006765 acc=True

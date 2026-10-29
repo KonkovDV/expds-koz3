@@ -77,3 +77,21 @@
 ## 2026-10-29 07:15 МСК — НАЧАЛО: backbone (предобученный бэкбон для геофизики против S)
 - Задача от бота 1: честно проверить, даёт ли замороженный ImageNet/DINOv2-бэкбон прирост поверх PIXGBM S (honest-10, 4 режима, П1–П5); плюс замер RSS пула признаков procs 1/2/4. Папка bot-3/backbone/, ветка bot3-backbone от bot3-pixgbm.
 
+
+### 29.10 07:45 МСК — backbone, промежуточно
+- bbextract готов: backbone/bbfeats (92 растра, B1+B2, 1,5 ГБ). Выборка пикселей воспроизведена 1:1 (n/yp/yf всех 92 = pixgbm/feats; X побитно на 10 растрах) — backbone/bbextract.log. Пик RSS 1,17 ГБ (backbone/bbextract.rss). Бэкбон-прогон по выборкам: B1 38 с, B2 132 с (bbfeats/extract_log.json).
+- Контроль B0 (переобучение без бэкбона): деревья = pixgbm/models (сравнение текстов моделей без строк параметров).
+- Первый train B1 убит сторожем RSS (>1,95 ГБ, old/train_B1.rss) — переписан fit_bb без копий, перезапуск.
+
+## 29.10 08:14 МСК — аудит геофизики (ветка bot3-audit, worktree audit/wt), промежуточно
+- Насыщение (audit/out/sat_probe_ext.json, sat_probe_summary.txt): 644/3478 (18,5 %) эталонных finds MagGr — в ядрах насыщения ≤60 м² (в S они «нет данных»); 200 Судьбищи — 192/216 (89 %). object_poly: MagGr 34/252, EtGr/TerFl 0.
+- Утверждение «на 211 серая без сигнала, цветные с сигналом» — артефакт notes/geo_probe_train.json: потолок серой считан против всех 409 finds участка (95 серой + 314 ключа цвет_2). По своим 95 меткам серая AUC 0,747 > цвет 0,698; цвет_2 PIXGBM и так обрабатывает отдельно.
+- Коммиты: 459bed5 (ядра насыщения, порт аудита), 3d110b0 (признак sat), 80d50b8 (выбор копии hp_energy), e3c4f41 (метры на земле для EPSG:3857). Всё opt-in, по умолчанию поведение S.
+- CRS трейна (audit/crs_inventory.json): все карты UTM (32636; MagGr 200/207 — 32637), EPSG:3857 нет.
+- Запущено: SAT → SATPICK → PICK (extract/train/predict LOFO), затем вложенный LOFO калибровки (C0/C1/C2) и проверка побайтности CRS.
+
+### backbone — итог (29.10.2026 ~08:58 МСК)
+- Обучены B1 (ResNet18) и B2 (DINOv2-S), PCA-32 в фолде; пики RSS 1,26 и 1,27 ГБ. LOFO predict S+B1+B2 (пик 1,31 ГБ); контроль: S совпал с pixgbm/pix_lofo.geojson (26107, identical).
+- honest-10 против S: B1 от −0,0036 до −0,0079, B2 от −0,0045 до −0,0170, P(>0)=0,000 во всех 4 режимах → **оба отклонены** (backbone/eval_bb.out, honest_bb.json).
+- RSS procs 1/2/4 (204, 1,2 Мпикс): 492/1013/1505 МБ, ≈+0,25 ГБ на ребёнка (backbone/rss_procs.out).
+- Код: bot3-backbone 49d0200 (локально), diff backbone/backbone.diff. Отчёт: backbone/BACKBONE_REPORT.md. /tmp/bb3 удалён.

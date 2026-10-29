@@ -1,0 +1,8 @@
+INFO expds.catalog найдено регионов: 2 в root
+WARNING expds.crs CRS расходятся: UTM.json EPSG:32632, LAS EPSG:25832
+INFO expds.lidar DEM 01_Хога_La_точки.laz: 4905x3522 @ 0.1 м, точек 268836, пустот 17009994, numpy
+016_Хога {'seconds': 23.2, 'groups': {'li:kurgany_povrezhdennye': 784, 'li:kurgany_tselye': 784}}
+WARNING expds.crs CRS расходятся: UTM.json EPSG:32633, LAS EPSG:25833
+INFO expds.lidar DEM 01_Курган_Хога_La_точки.laz: 5167x5867 @ 0.1 м, точек 458251, пустот 29856594, numpy
+018_Курган_Хога {'seconds': 24.2, 'groups': {'li:kurgany_povrezhdennye': 1075, 'li:kurgany_tselye': 1075}}
+{"016_Хога": {"seconds": 23.2, "groups": {"li:kurgany_povrezhdennye": 784, "li:kurgany_tselye": 784}}, "018_Курган_Хога": {"seconds": 24.2, "groups": {"li:kurgany_povrezhdennye": 1075, "li:kurgany_tselye": 1075}}, "maxrss_mb": 1508.7}

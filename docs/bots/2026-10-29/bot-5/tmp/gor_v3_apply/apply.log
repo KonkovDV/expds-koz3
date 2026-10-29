@@ -1,0 +1,2 @@
+apply done {'gated': 512, 'no_scene': 1488} patches 3982 scenes 122 cands 2000 0.25s
+watchdog max RSS MB 8 exit 0

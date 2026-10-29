@@ -4,3 +4,13 @@ curves L 07:13:42 100 files, disk 7290M
 fam P 07:15:54 {"written": {"li|kurgany_tselye": 1512, "li|kurgany_povrezhdennye": 3777, "li|gorodishcha": 74, "li|fortifikatsii": 111, "li_coarse|gorodishcha": 329, "li_coarse|fortifikatsii": 298}, "removed": {"li|gorodishcha": 664, "li|fortifikatsii": 379, "li|kurgany_povrezhdennye": 37601, "li|kurgany_tselye": 37601, "li_coarse|gorodishcha": 2591, "li_coarse|fortifikatsii": 775}, "seconds": 118.2} du 1026M
 curves P 07:17:47 100 files, disk 7406M
 fam D1 07:20:31 {"written": {"li|kurgany_povrezhdennye": 37606, "li|kurgany_tselye": 37606, "li|gorodishcha": 269, "li|fortifikatsii": 141, "li_coarse|gorodishcha": 921, "li_coarse|fortifikatsii": 382}, "removed": {"li|gorodishcha": 664, "li|fortifikatsii": 379, "li|kurgany_povrezhdennye": 37601, "li|kurgany_tselye": 37601, "li_coarse|gorodishcha": 2591, "li_coarse|fortifikatsii": 775}, "seconds": 150.6} du 1073M
+curves D1 07:22:27 100 files, disk 8553M
+fam D2 07:24:25 {"written": {"li|kurgany_povrezhdennye": 37037, "li|kurgany_tselye": 1312, "li|gorodishcha": 666, "li|fortifikatsii": 379, "li_coarse|gorodishcha": 2592, "li_coarse|fortifikatsii": 775}, "removed": {"li|gorodishcha": 664, "li|fortifikatsii": 379, "li|kurgany_povrezhdennye": 37601, "li|kurgany_tselye": 37601, "li_coarse|gorodishcha": 2591, "li_coarse|fortifikatsii": 775}, "seconds": 103.1} du 1055M
+curves D2 07:26:31 100 files, disk 4351M
+work/lireal/run.sh: line 10: 790823 Killed                  nice -n 10 $PY2 $B2/repo/scripts/li_real_eval.py --mode $m --probs $PR --src $B10/work/fam --out $W/fam_$v $extra > $W/fam_$v.log 2>&1
+decode D3 FAIL
+  145.4s 106_Верхмарево [5, 2107, 2354] res=0.50 {'kurgany_povrezhdennye': 7138, 'kurgany_tselye': 83, 'gorodishcha': 11, 'fortifikatsii': 58}
+  145.5s 179_Гнёздово_Лесная_1 [5, 621, 244] res=0.50 {'kurgany_povrezhdennye': 347, 'kurgany_tselye': 42}
+  145.6s 180_Гнёздово_Лесная_2 [5, 621, 249] res=0.50 {'kurgany_povrezhdennye': 288, 'kurgany_tselye': 104}
+  145.6s 181_Гнёздово_Лесная_3 [5, 621, 189] res=0.50 {'kurgany_povrezhdennye': 315, 'kurgany_tselye': 58}
+  145.8s 182_Красносельская_1.7км [5, 519, 386] res=0.50 {'kurgany_povrezhdennye': 244}

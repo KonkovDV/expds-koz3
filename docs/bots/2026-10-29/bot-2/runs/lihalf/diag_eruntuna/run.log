@@ -1,0 +1,17 @@
+mosaic (2128, 3342) 0.5 s 209.9 rss 1111.9
+main 12322 s 40.1 rss 1166.3
+half 3718 s 8.0 rss 1166.3
+feat keys ['class_name', 'confidence', 'geom', 'markup_type', 'original_crs', 'region_name', 'source']
+/workspace/koz3_shared/bot-2/work/lihalf/eruntuna_diag.py:61: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+  g = stransform(to_utm.transform, shape(ft["geometry"]))
+GT 69 ⌀ median 12.2 p90 18.1 ≥12: 37
+Traceback (most recent call last):
+  File "/workspace/koz3_shared/bot-2/work/lihalf/eruntuna_diag.py", line 89, in <module>
+    row("main_all_candidates", main)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/koz3_shared/bot-2/work/lihalf/eruntuna_diag.py", line 85, in row
+    cs = centers(fs); a, c = recall(cs, big); a_all, c_all = recall(cs, gt)
+  File "/workspace/koz3_shared/bot-2/work/lihalf/eruntuna_diag.py", line 67, in centers
+    def centers(fs): return [(geom(f).centroid, f["class_name"], conf(f)) for f in fs]
+                              ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'centroid'

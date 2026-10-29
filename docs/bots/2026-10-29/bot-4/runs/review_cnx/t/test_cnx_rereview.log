@@ -1,0 +1,442 @@
+B0_baseline_on: чистый inference/cnx @5bc6ad1, вкл. — ожидаем PASS
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+L1a_only_cnx_zip: как в моём харнессе: zip только из inference/cnx (+evil.py) → FAIL 'нет обязательных файлов' — артефакт
+[FAIL] layout    нет обязательных файлов: ['metadata.json', 'inference/main.py', 'configs/default.toml', 'expds/__init__.py', 'expds/pipeline.py']
+[WARN] layout    нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)
+[WARN] layout    лишние .py в inference/: ['inference/cnx/evil.py']
+[WARN] cnx       [li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+  cs_fix     FAIL  FAIL:нет обязательных файлов: ['metadata.json', 'inference/main.py', 'configs/default.toml', 'expds/__init__.py', 'expds/pipeline.py'] | WARN:нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее) | WARN:лишние .py в inference/: ['inference/cnx/evil.py'] | WARN:[li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+[FAIL] layout    нет обязательных файлов: ['metadata.json', 'inference/main.py', 'configs/default.toml', 'expds/__init__.py', 'expds/pipeline.py']
+[WARN] layout    нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)
+[WARN] layout    лишние .py в inference/: ['inference/cnx/evil.py']
+[WARN] cnx       [li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+  cs_rootfix FAIL  FAIL:нет обязательных файлов: ['metadata.json', 'inference/main.py', 'configs/default.toml', 'expds/__init__.py', 'expds/pipeline.py'] | WARN:нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее) | WARN:лишние .py в inference/: ['inference/cnx/evil.py'] | WARN:[li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+L1b_with_layout_files: то же + обязательные файлы раскладки → лишний FAIL исчезает
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[WARN] layout    нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)
+[WARN] layout    лишние .py в inference/: ['inference/cnx/evil.py']
+[WARN] cnx       [li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+  cs_fix     WARN  WARN:нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее) | WARN:лишние .py в inference/: ['inference/cnx/evil.py'] | WARN:[li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[WARN] layout    нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)
+[WARN] layout    лишние .py в inference/: ['inference/cnx/evil.py']
+[WARN] cnx       [li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+  cs_rootfix WARN  WARN:нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее) | WARN:лишние .py в inference/: ['inference/cnx/evil.py'] | WARN:[li_cnx] выключен, а inference/cnx/ в архиве (21 файлов) — лишний объём
+L2_unreachable_net_listed: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 19 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/evil.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_fix     WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/evil.py:1 import socket (модуль недостижим из cnx_prep)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 19 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/evil.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_rootfix WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/evil.py:1 import socket (модуль недостижим из cnx_prep)
+N1: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import requests
+  cs_fix     FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import requests
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import requests
+  cs_rootfix FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import requests
+N2: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+  cs_fix     FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+  cs_rootfix FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+N3: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель статически не известна
+  cs_fix     WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель стати
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель статически не известна
+  cs_rootfix WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель стати
+N4: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import socket
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт __import__('socket')
+  cs_fix     FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import socket | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт __import__('socket')
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import socket
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт __import__('socket')
+  cs_rootfix FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import socket | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт __import__('socket')
+N4b_import_module_const: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module('urllib.request')
+  cs_fix     FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module('urllib.request')
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module('urllib.request')
+  cs_rootfix FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 import urllib.request | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module('urllib.request')
+N5: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 запуск процесса subprocess.run()
+  cs_fix     WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 запуск процесса subprocess.run()
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 запуск процесса subprocess.run()
+  cs_rootfix WARN  WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 запуск процесса subprocess.run()
+N6: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 torch.hub.load()
+  cs_fix     FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 torch.hub.load()
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 torch.hub.load()
+  cs_rootfix FAIL  FAIL:сеть в подготовке cnx: inference/cnx/cnx_prep.py:18 torch.hub.load()
+N7: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 19 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       prep_code_sha вендора 865d17e01540 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель статически не известна; inference/cnx/vendor/helper.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_fix     FAIL  FAIL:prep_code_sha вендора 865d17e01540 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке) | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель стати
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 19 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       prep_code_sha вендора 865d17e01540 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель статически не известна; inference/cnx/vendor/helper.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_rootfix FAIL  FAIL:prep_code_sha вендора 865d17e01540 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке) | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/cnx_prep.py:18 динамический импорт import_module(<выражение>) — цель стати
+N8_from_subprocess_import_run: обход: from subprocess import run
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+N9_subprocess_alias: обход: import subprocess as sp; sp.run
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+N10_exec: обход: exec('import socket')
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+N11_getattr_importlib: обход: getattr(importlib, 'import_module')('socket')
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+N12_ctypes: ctypes (libc connect) — статически не сетевой модуль
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix PASS  
+N13_urlopen_call_no_import: вызов urlopen через атрибут без импорта urllib
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely', 'torch']
+  cs_fix     PASS  
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely', 'torch']
+  cs_rootfix PASS  
+M1: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx/MANIFEST.json пуст — файлы подготовки cnx не сверить
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:inference/cnx/MANIFEST.json пуст — файлы подготовки cnx не сверить
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx/MANIFEST.json пуст — файлы подготовки cnx не сверить
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:inference/cnx/MANIFEST.json пуст — файлы подготовки cnx не сверить
+M2: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST ['inference/cnx/vendor/relief_ext.py'], код/данные вне MANIFEST ['inference/cnx/vendor/relief_ext.py']
+[FAIL] cnx       prep_code_sha вендора f575e44e71c5 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST ['inference/cnx/vendor/relief_ext.py'], код/данные вне MANIFE | FAIL:prep_code_sha вендора f575e44e71c5 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST ['inference/cnx/vendor/relief_ext.py'], код/данные вне MANIFEST ['inference/cnx/vendor/relief_ext.py']
+[FAIL] cnx       prep_code_sha вендора f575e44e71c5 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST ['inference/cnx/vendor/relief_ext.py'], код/данные вне MANIFE | FAIL:prep_code_sha вендора f575e44e71c5 ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+M3: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ ['vendor/expds/lidar.py'], обязательные вне MANIFEST [], код/данные вне MANIFEST []
+[FAIL] cnx       prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ ['vendor/expds/lidar.py'], обязательные вне MANIFEST [], код/данные вне MANIFEST [] | FAIL:prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ ['vendor/expds/lidar.py'], обязательные вне MANIFEST [], код/данные вне MANIFEST []
+[FAIL] cnx       prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ ['vendor/expds/lidar.py'], обязательные вне MANIFEST [], код/данные вне MANIFEST [] | FAIL:prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+M3b_vendor_change_with_rebuilt_manifest: вендор изменён, MANIFEST пересобран самосогласованно → prep_code_sha_expected ≠ → FAIL
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:prep_code_sha вендора e71df510b19c ≠ prep_code_sha_expected 6ed689552b4a (веса учились на другой подготовке)
+M3c_prep_code_sha_removed: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       в inference/cnx/MANIFEST.json нет prep_code_sha_expected — вендор подготовки не сверить с весами
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:в inference/cnx/MANIFEST.json нет prep_code_sha_expected — вендор подготовки не сверить с весами
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[FAIL] cnx       в inference/cnx/MANIFEST.json нет prep_code_sha_expected — вендор подготовки не сверить с весами
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:в inference/cnx/MANIFEST.json нет prep_code_sha_expected — вендор подготовки не сверить с весами
+M5_unlisted_so: лишний .so вне MANIFEST
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST [], код/данные вне MANIFEST ['inference/cnx/vendor/evil.so']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST [], код/данные вне MANIFEST ['inference/cnx/vendor/evil.so']
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[FAIL] cnx       inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST [], код/данные вне MANIFEST ['inference/cnx/vendor/evil.so']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:inference/cnx не совпадает с inference/cnx/MANIFEST.json: нет файлов [], sha ≠ [], обязательные вне MANIFEST [], код/данные вне MANIFEST ['inference/cnx/vendor/evil.so']
+M6_unlisted_readme: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[WARN] cnx       inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README2.md']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     WARN  WARN:inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README2.md']
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[WARN] cnx       inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README2.md']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix WARN  WARN:inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README2.md']
+M6b_soft_name_but_code: обход мягких имён: README_evil.py вне MANIFEST (код, но имя начинается с README)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[WARN] cnx       inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README_evil.py']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/README_evil.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_fix     WARN  WARN:inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README_evil.py'] | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/README_evil.py:1 import socket (модуль недостижим из cnx_prep)
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[WARN] cnx       inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README_evil.py']
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+[WARN] cnx       подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/README_evil.py:1 import socket (модуль недостижим из cnx_prep)
+  cs_rootfix WARN  WARN:inference/cnx: тексты вне MANIFEST.json: ['inference/cnx/README_evil.py'] | WARN:подготовка cnx: статически не проверить (динамика/процессы/недостижимое с сетью): inference/cnx/README_evil.py:1 import socket (модуль недостижим из cnx_prep)
+M4: 
+[FAIL] config    файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_fix     FAIL  FAIL:файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[FAIL] config    файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_rootfix FAIL  FAIL:файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+W1_weights_wrong_sha: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       веса [li_cnx]: models/cnx/weights_cnx_c3-sc_f0.pt: sha256 b5d54c39e666 / size 4 ≠ манифест e84af54a9d11 / 64170657
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:веса [li_cnx]: models/cnx/weights_cnx_c3-sc_f0.pt: sha256 b5d54c39e666 / size 4 ≠ манифест e84af54a9d11 / 64170657
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       веса [li_cnx]: models/cnx/weights_cnx_c3-sc_f0.pt: sha256 b5d54c39e666 / size 4 ≠ манифест e84af54a9d11 / 64170657
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:веса [li_cnx]: models/cnx/weights_cnx_c3-sc_f0.pt: sha256 b5d54c39e666 / size 4 ≠ манифест e84af54a9d11 / 64170657
+W2_weights_not_in_wmanifest: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       веса [li_cnx]: models/cnx/other.pt: нет в WEIGHTS_MANIFEST
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:веса [li_cnx]: models/cnx/other.pt: нет в WEIGHTS_MANIFEST
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       веса [li_cnx]: models/cnx/other.pt: нет в WEIGHTS_MANIFEST
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:веса [li_cnx]: models/cnx/other.pt: нет в WEIGHTS_MANIFEST
+W3_no_wmanifest: 
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       нет inference/cnx/WEIGHTS_MANIFEST.json — sha256 весов cnx не сверить
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:нет inference/cnx/WEIGHTS_MANIFEST.json — sha256 весов cnx не сверить
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[FAIL] cnx       нет inference/cnx/WEIGHTS_MANIFEST.json — sha256 весов cnx не сверить
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:нет inference/cnx/WEIGHTS_MANIFEST.json — sha256 весов cnx не сверить
+T1_no_threshold_group: 
+[FAIL] cnx       [li_cnx]: нет [thresholds_by_markup.li_cnx] — cnx включён, но объектов не выдаст
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:[li_cnx]: нет [thresholds_by_markup.li_cnx] — cnx включён, но объектов не выдаст
+[FAIL] cnx       [li_cnx]: нет [thresholds_by_markup.li_cnx] — cnx включён, но объектов не выдаст
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:[li_cnx]: нет [thresholds_by_markup.li_cnx] — cnx включён, но объектов не выдаст
+T2_forbidden_group_li: 
+[FAIL] cnx       [li_cnx]: li_cnx.threshold_group='li' — пороги другой модели (шкала cnx своя)
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:[li_cnx]: li_cnx.threshold_group='li' — пороги другой модели (шкала cnx своя)
+[FAIL] cnx       [li_cnx]: li_cnx.threshold_group='li' — пороги другой модели (шкала cnx своя)
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:[li_cnx]: li_cnx.threshold_group='li' — пороги другой модели (шкала cnx своя)
+T3_tta_bad: 
+[FAIL] cnx       [li_cnx]: li_cnx.tta=4: допустимо (1, 2, 8)
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:[li_cnx]: li_cnx.tta=4: допустимо (1, 2, 8)
+[FAIL] cnx       [li_cnx]: li_cnx.tta=4: допустимо (1, 2, 8)
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:[li_cnx]: li_cnx.tta=4: допустимо (1, 2, 8)
+C1: 
+[PASS] config    все 1 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_fix     PASS  
+[PASS] config    все 1 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_rootfix PASS  
+C2: 
+[FAIL] config    файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_fix     FAIL  FAIL:файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[FAIL] config    файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] cnx       [li_cnx]: классы ['kurgany_povrezhdennye', 'kurgany_tselye'], своя группа порогов 'li_cnx', tta 8
+[PASS] cnx       inference/cnx: 18 файлов совпадают с MANIFEST.json (sha256)
+[PASS] cnx       prep_code_sha вендора = prep_code_sha_expected (6ed689552b4a)
+[PASS] cnx       подготовка cnx: 9 модулей без сетевых импортов и вызовов; сторонние пакеты ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'shapely']
+  cs_rootfix FAIL  FAIL:файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['li_cnx.weights[0]=models/cnx/weights_cnx_c3-sc_f0.pt']
+C3: 
+  pipeline enabled: 0→ False 'false'→ True true,[]→ False
+[PASS] config    все 1 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_fix     PASS  
+[PASS] config    все 1 путей к весам из default.toml есть в архиве
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+  cs_rootfix PASS  
+S1_smoke_cnx: 
+[PASS] smoke     cnx: подготовка прошла на 1 LAS
+  cs_fix:ok  PASS  
+[PASS] smoke     cnx: подготовка прошла на 1 LAS
+  cs_rootfix:ok PASS  
+[FAIL] smoke     [li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+  cs_fix:нет строки FAIL  FAIL:[li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+[FAIL] smoke     [li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+  cs_rootfix:нет строки FAIL  FAIL:[li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+[FAIL] smoke     [li_cnx] включён, но не работает: E cnx: веса [li_cnx] не загрузились (x)
+  cs_fix:веса FAIL  FAIL:[li_cnx] включён, но не работает: E cnx: веса [li_cnx] не загрузились (x)
+[FAIL] smoke     [li_cnx] включён, но не работает: E cnx: веса [li_cnx] не загрузились (x)
+  cs_rootfix:веса FAIL  FAIL:[li_cnx] включён, но не работает: E cnx: веса [li_cnx] не загрузились (x)
+[FAIL] smoke     [li_cnx] включён, но не работает: W [li_cnx]: нет порогов — объекты cnx НЕ выдаются
+[FAIL] smoke     [li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+  cs_fix:пороги FAIL  FAIL:[li_cnx] включён, но не работает: W [li_cnx]: нет порогов — объекты cnx НЕ выдаются | FAIL:[li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+[FAIL] smoke     [li_cnx] включён, но не работает: W [li_cnx]: нет порогов — объекты cnx НЕ выдаются
+[FAIL] smoke     [li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+  cs_rootfix:пороги FAIL  FAIL:[li_cnx] включён, но не работает: W [li_cnx]: нет порогов — объекты cnx НЕ выдаются | FAIL:[li_cnx] включён, а в логе нет ни одной строки «cnx_prep <las>: ch=» — подготовка cnx не сработала ни на одном LAS (модальность молча выключена)
+  cs_fix:выкл PASS  
+  cs_rootfix:выкл PASS  
+  cs_fix:0 LAS PASS  
+  cs_rootfix:0 LAS PASS  

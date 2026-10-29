@@ -1,0 +1,17 @@
+{
+ "fortifikatsii conf_eq_1e-3": 349,
+ "fortifikatsii match": 379,
+ "fortifikatsii n": 379,
+ "gorodishcha conf_eq_1e-3": 631,
+ "gorodishcha match": 662,
+ "gorodishcha n": 664,
+ "kurgany_povrezhdennye conf_eq_1e-3": 37391,
+ "kurgany_povrezhdennye match": 37588,
+ "kurgany_povrezhdennye n": 37601,
+ "kurgany_tselye conf_eq_1e-3": 37470,
+ "kurgany_tselye match": 37588,
+ "kurgany_tselye n": 37601,
+ "dconf_median": 0.0,
+ "dconf_p90": 1.0000000000000026e-05,
+ "dconf_max": 0.019380000000000064
+}
