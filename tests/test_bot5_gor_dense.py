@@ -36,7 +36,7 @@ def _cfg():
 def _enable_block() -> dict:
     """Закомментированный блок включения [gor_dense] из default.toml → dict (ключи `#   key = value`)."""
     txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
-    head = txt[txt.index("# bot-5 (ветка bot5-gor-dense-v3)"):txt.index("[gor_dense]\nenabled = false")]
+    head = txt[txt.index("# bot-5 (ветка bot5-gor-dense-v"):txt.index("[gor_dense]\nenabled = false")]
     lines = [m.group(1) for m in re.finditer(r"^#   ([a-z0-9_]+ = .+?)(?:[ \t]+#.*)?$", head, re.M)]
     sec = tomllib.loads("\n".join(lines))
     thr = re.search(r"\[thresholds_by_markup\.gor_dense\] gorodishcha = ([0-9.]+)", head)
@@ -325,3 +325,17 @@ def test_v4_dfine_aeor_gorodishcha_off_in_enable_block():
     assert "#   + [thresholds_by_markup.dfine_ae]\n#     gorodishcha = 1.01" in txt
     d = dict(_dfine("gorodishcha", conf=1.0), threshold_group="dfine_ae")
     assert d not in post.apply_thresholds([d], {}, 0.15, {"dfine_ae": {"gorodishcha": 1.01}})
+
+
+_U008 = Path("/workspace/data/train-expds-3/008_Герите/UTM.json")
+
+
+@pytest.mark.skipif(not _U008.is_file(), reason="нет трейна 008_Герите на машине")
+def test_gor_dense_crs_on_geographic_region_008_is_projected_utm():
+    """bot-7 f3526cf: UTM.json EPSG:4326 (008_Герите) → UTM-зона по центру; gor_dense берёт CRS через gor_gate._epsg."""
+    from expds import gor_gate
+    import inspect
+    assert "gor_gate._epsg(reg)" in inspect.getsource(GD)
+    e = gor_gate._epsg(SimpleNamespace(utm_json=_U008))
+    assert e == 32638 and 32601 <= e <= 32660
+    assert GD.point_features("008_Герите", [(0.9, 500000.0, 4743000.0)], 0.8, e, GD.settings({}), "a.tif")[0]["original_crs"] == "EPSG:32638"
