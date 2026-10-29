@@ -41,6 +41,8 @@ def collect() -> list[Path]:
     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+    if (cfg.get("gor_gate") or {}).get("enabled"):
+        off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
                     if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
