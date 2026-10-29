@@ -150,9 +150,19 @@ def build(args, K: int, id2label: dict):
     extra = {}
     if args.num_dn is not None:
         extra["num_denoising"] = args.num_dn
-    model = AutoModelForObjectDetection.from_pretrained(
-        ckpt, num_labels=K, id2label=id2label, label2id={v: k for k, v in id2label.items()},
-        ignore_mismatched_sizes=True, **extra)
+    lab = dict(num_labels=K, id2label=id2label, label2id={v: k for k, v in id2label.items()})
+    if getattr(args, "from_scratch", False):
+        # Без предобученных весов: только config.json чекпойнта (архитектура), веса — случайная инициализация.
+        from transformers import AutoConfig
+        cfg = AutoConfig.from_pretrained(ckpt, **lab, **extra)
+        for k in ("use_pretrained_backbone", "use_timm_backbone"):
+            if hasattr(cfg, k):
+                setattr(cfg, k, False)
+        torch.manual_seed(args.seed)
+        model = AutoModelForObjectDetection.from_config(cfg)
+        print(f"FROM_SCRATCH {ckpt}: random init, params {sum(p.numel() for p in model.parameters())/1e6:.1f} M", flush=True)
+        return proc, model
+    model = AutoModelForObjectDetection.from_pretrained(ckpt, ignore_mismatched_sizes=True, **lab, **extra)
     return proc, model
 
 
@@ -229,6 +239,8 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--smoke", action="store_true", help="10 итераций, 8 окон train, 4 окна на предсказание")
     ap.add_argument("--dry-run", action="store_true", help="только модель, загрузчик и один проход вперёд на 1 окне")
+    ap.add_argument("--from-scratch", action="store_true",
+                    help="без предобученных весов: архитектура из config.json, случайная инициализация (вместе с --backbone-lr-mult 1)")
     ap.add_argument("--log-every", type=int, default=50)
     a = ap.parse_args()
 

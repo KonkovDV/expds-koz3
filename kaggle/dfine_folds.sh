@@ -8,7 +8,7 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 lane() {  # $1 GPU, остальное — фолды
   local g=$1; shift
   for k in "$@"; do
-    CUDA_VISIBLE_DEVICES=$g python "$HERE/scripts/det_train_hf.py" --data "$DET/f$k" --out "$OUT/f$k" \
+    CUDA_VISIBLE_DEVICES=$g python "$HERE/scripts/det_train_hf.py" --data "$DET/f$k" --out "$OUT/f$k" ${EXTRA_ARGS:-} \
       --model "$MODEL" --iters "$ITERS" --bs 8 --size 640 --fp16 --workers 2 --tta-flip --log-every 200 \
       > "$OUT/f$k.train.log" 2>&1
     CUDA_VISIBLE_DEVICES=$g python "$HERE/scripts/det_train_hf.py" --data "$DET/f$k" --out "$OUT/f$k/grid" \
