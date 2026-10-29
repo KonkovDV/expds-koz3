@@ -364,6 +364,11 @@ kurgan_in_gor = false
 # (bot-7/work3/insample_tau_kur.json).
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# LOCALIZE (bot-6, 28.10, bot-6/LOCALIZE.md): + фортификации 0,5 м — точный пост-порог honest-10
+# +0,000257 (fort +3 TP / −3 FP), P(Δ>0) 0,75, lofo +0,00047, 5/5 случайных раскладок > 0;
+# П1 не выполнено (< 0,002) — только в пакет, после перемера на ПК (oof_transform.py micro + scoreboard).
+# Городища микрокругом не включать: −0,00155 (new34 −0,0036). Включить фортификации:
+# radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5, fortifikatsii = 0.5 }
 
 # Реранк архитектуры (LightGBM, отчёт REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
 # Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log
