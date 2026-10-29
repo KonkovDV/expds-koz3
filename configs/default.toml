@@ -474,9 +474,10 @@ enabled = false
 # Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
 # Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
-# bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
-# до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
-# порогов из вложенного OOF (bot-6/AEOR_DETECT.md). Ключи и умолчания — expds/dfine_aeor.py DEFAULTS
+# bot-6 (29.10, на v3 360c870) / bot-5 v4: D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md),
+# фаза после sp_dfine, до gor_dense/gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or.
+# v4: содержимое aba432d + фиксы 164c9a4/012942a уже в tip (3ccc388 ≡ introduce); cherry-pick aba432d не нужен.
+# ВЫКЛ.: нет весов bot-9 Ae/Or и порогов из вложенного OOF (bot-6/AEOR_DETECT.md). DEFAULTS — expds/dfine_aeor.py.
 # (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
 #   enabled = true
 #   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }

@@ -133,3 +133,25 @@ def test_v4_phase_drop_only_when_enabled_and_drop_groups(monkeypatch):
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 1
     assert all(f.get("threshold_group") == "sp_dfine" for f in st.feats)
     assert not any(f.get("threshold_group") is None and f["markup_type"] == "sp_or" for f in st.feats)
+
+
+def test_v4_dfine_aeor_supersedes_aba432d():
+    """aba432d введён как 3ccc388 на линии v4; tip держит пост-фиксы 164c9a4/012942a.
+
+    Конфликт с голым aba432d: tip НЕ откатывает GROUP_ALIASES, per-window deadline,
+    gdal_cache_mb, merge_union=false, фазу gor_dense — всё это поверх introduce.
+    """
+    from expds import dfine_aeor as A
+    import inspect
+    from expds import pipeline
+
+    cfg = _cfg()
+    assert cfg["dfine_aeor"]["enabled"] is False
+    assert not A.enabled(cfg)
+    assert A.GROUP_ALIASES == {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
+    assert "gdal_cache_mb" in A.DEFAULTS and A.DEFAULTS.get("merge_union") is False
+    src = inspect.getsource(pipeline.run)
+    assert 'if (cfg.get("dfine_aeor") or {}).get("enabled"):' in src
+    assert 'if (cfg.get("gor_dense") or {}).get("enabled"):' in src
+    # detect_scene принимает left= (per-window budget) — пост-aba432d
+    assert "left" in inspect.signature(A.detect_scene).parameters
