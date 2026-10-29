@@ -31,17 +31,21 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
+FLAG_MODULES = ("sp_dfine", "gor_gate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def collect() -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+    # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+    off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
-                    if not (p.parent == ROOT / "expds" and p.name in TRAIN_ONLY))
+                    if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
-    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     models = cfg.get("models", {})
     paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
     verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
