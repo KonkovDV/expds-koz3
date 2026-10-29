@@ -1115,25 +1115,12 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
                 radius_m=float(seg.meta.get("center_radius_m") or 6.0),
                 min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
                 min_conf=min_conf)
-        from . import li_decode
-
-        if li_decode.enabled(li_cfg):     # [li] decode = "peaks": point decoding of the maps (off by default)
-            idx = [seg.classes.index(c) for c in out_classes]
-            li_decode.dump_probs(probs[idx], out_classes, tr, d.crs, region, source,
-                                 candidates.detect(d, cand_p) if cand_p and os.environ.get("EXPDS_LI_DUMP") else None,
-                                 str(seg.meta.get("target") or "mask"))
-            return li_decode.decode_li(probs[idx], out_classes, tr, d.crs, float(tr.a), region, "li", source,
-                                       li_cfg, min_conf)
         kur = [c for c in ("kurgany_povrezhdennye", "kurgany_tselye") if c in out_classes] if cand_p else []
         rest = [c for c in out_classes if c not in kur]
         feats = probs_to_features(probs[[seg.classes.index(c) for c in rest]], rest, tr, d.crs, tr.a,
                                   region, "li", source, min_conf=min_conf) if rest else []
-        c = candidates.detect(d, cand_p) if kur else None
-        if os.environ.get("EXPDS_LI_DUMP"):   # maps for offline decoding (legacy decode output unchanged)
-            idx = [seg.classes.index(k) for k in out_classes]
-            li_decode.dump_probs(probs[idx], out_classes, tr, d.crs, region, source, c,
-                                 str(seg.meta.get("target") or "mask"))
         if kur:
+            c = candidates.detect(d, cand_p)
             kp = probs[[seg.classes.index(k) for k in kur]]
             lc = li_cfg or {}
             if lc.get("nn_peaks", False):
