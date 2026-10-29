@@ -199,6 +199,7 @@ def test_check_submission_pixgbm_model_dir(tmp_path):
         cs.RESULTS.clear()
         with zipfile.ZipFile(zp) as z:
             cs.check_config_static(z)
-        st = [s for s, c, m in cs.RESULTS if c == "config" and ("весам" in m or "отсутствуют" in m)]
-        assert st == [want], cs.RESULTS
+        st = [s for s, c, m in cs.RESULTS if c == "config" and ("весам" in m or "отсутствуют" in m or "PIXGBM включён" in m)]
+        # после cherry-pick bot-8 7878087 нехватка класса — отдельный FAIL check_pixgbm_static, путь к папке PASS
+        assert ("FAIL" in st) == (want == "FAIL") and set(st) <= {"PASS", want}, cs.RESULTS
         assert not any(s == "WARN" and "pixgbm" in m for s, c, m in cs.RESULTS)
