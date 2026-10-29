@@ -205,8 +205,8 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
     # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
-    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k == "gor_gate.backbone"
-               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or
+    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k in ("gor_gate.backbone", "gor_dense.backbone")
+               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or; bot-5: бэкбон gor_dense
     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
@@ -1008,9 +1008,10 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
     aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
-    if not (dfine or gate or aeor):
+    dense = bool((cfg.get("gor_dense") or {}).get("enabled"))   # bot-5: gor_dense = бэкбон/tif_feats gor_gate + import_dfine
+    if not (dfine or gate or aeor or dense):
         return
-    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("dfine_aeor", aeor)) if on)
+    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("dfine_aeor", aeor), ("gor_dense", dense)) if on)
     names = z.namelist()
     vend = "inference/lib/vendor/"
     meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
@@ -1020,7 +1021,8 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
                                 f"классы D-FINE зависели бы от образа")
     elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
         report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
-    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate), ("expds/dfine_aeor.py", aeor))
+    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate or dense), ("expds/dfine_aeor.py", aeor),
+                        ("expds/gor_dense.py", dense))
             if m[1] and m[0] not in names]
     if mods:
         report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")
@@ -1032,7 +1034,7 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
             if n.startswith(vend) or (n.startswith("expds/") and n.endswith(".py")):
                 z.extract(n, tmp)
         def probe(pythonpath: str | None) -> dict | None:
-            cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_PROBE, str(tmp), "1" if gate else "0"], args.cpus,
+            cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_PROBE, str(tmp), "1" if (gate or dense) else "0"], args.cpus,
                               not args.allow_net)
             env = child_env(home, args.threads)
             if pythonpath:
@@ -1321,7 +1323,8 @@ def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
         report("FAIL", "li_to_ae", f"{len(lif)} строк LI_TO_AE_FAILED: копии курганов лидара в ae потеряны: "
                                    + " | ".join(b[-300:] for b in lif[:3]))
     bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln
-           or "DFINE_AEOR_UNAVAILABLE" in ln]   # bot-6: D-FINE Ae/Or
+           or "DFINE_AEOR_UNAVAILABLE" in ln   # bot-6: D-FINE Ae/Or
+           or "GOR_DENSE_UNAVAILABLE" in ln]   # bot-5
     if bad:
         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
                                 + " | ".join(b[-300:] for b in bad[:3]))
