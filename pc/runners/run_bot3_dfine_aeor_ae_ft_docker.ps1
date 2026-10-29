@@ -49,21 +49,21 @@ if ($st -match '^DONE') { Write-Host 'already DONE'; exit 0 }
 Set-Status 'RUNNING'
 HB "start sha=$Sha branch=$Branch image=$Image EXPDS_STRICT=1 Ae-only ae-ft"
 
-# --- worktree @Sha on F: ---
+# --- resolve tip, then worktree @Sha on F: ---
+& cmd.exe /c "git -C `"$GitSrc`" fetch origin $Branch" *> "$JobDir\notes\git_fetch.log"
+if ($Sha -eq 'PLACEHOLDER_SHA') {
+  $Sha = (& cmd.exe /c "git -C `"$GitSrc`" rev-parse origin/$Branch").Trim()
+  if (-not $Sha) { Set-Status "FAILED resolve_sha origin/$Branch"; exit 2 }
+  HB "resolved Sha from origin/$Branch -> $Sha"
+}
 if (-not (Test-Path "$Wt\.git")) {
-  & cmd.exe /c "git -C `"$GitSrc`" fetch origin $Branch" *> "$JobDir\notes\git_fetch.log"
   & cmd.exe /c "git -C `"$GitSrc`" worktree add --detach `"$Wt`" $Sha" *> "$JobDir\notes\git_wt.log"
 } else {
-  & cmd.exe /c "git -C `"$Wt`" fetch origin $Branch" *> "$JobDir\notes\git_fetch.log"
+  & cmd.exe /c "git -C `"$Wt`" fetch origin $Branch" *> "$JobDir\notes\git_fetch2.log"
   & cmd.exe /c "git -C `"$Wt`" checkout --force --detach $Sha" *> "$JobDir\notes\git_wt.log"
 }
 $head = (& cmd.exe /c "git -C `"$Wt`" rev-parse HEAD").Trim()
 HB "worktree HEAD=$head"
-if ($Sha -eq 'PLACEHOLDER_SHA') {
-  $Sha = (& cmd.exe /c "git -C `"$Wt`" rev-parse origin/$Branch").Trim()
-  if (-not $Sha) { $Sha = $head }
-  HB "resolved Sha from origin/$Branch -> $Sha"
-}
 if ($head -ne $Sha) { Set-Status "FAILED bad_sha want=$Sha got=$head"; exit 2 }
 
 # --- models fill (pixgbm etc.) ---
