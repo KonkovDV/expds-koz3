@@ -45,6 +45,21 @@ class HillfortParams:
     max_per_dem: int = 5
     dem_res: float = 0.5             # ЦМР из LAS: один рецепт в табло (hillfort_oof.py) и в сдаче
     dem_fill: str = "pyramid"
+    group: str = "gor_phys"          # группа порога; грубый проход — "gor_coarse_dem"
+
+
+# Грубый проход (bot-4): шаг 3 м, окно 150 м, площадки до 25 га, мягче уклоны. Ловит крупные
+# городища (ae: медиана 29 923 м², notes/gt_stats_summary.md), которые обычный проход
+# отсекает по max_area 6 га или не держит окном 60 м. Своя группа порога — табло решает
+# порог отдельно от gor_phys. Параметры не подбирались по эталону (ЦМР на коробке нет).
+COARSE = {"work_res": 3.0, "relief_radius_m": 150.0, "min_rel_height_m": 1.0, "flat_max_deg": 15.0,
+          "scarp_min_deg": 14.0, "ring_m": 12.0, "min_area_m2": 3000.0, "max_area_m2": 250000.0,
+          "min_enclosure": 0.2, "max_per_dem": 3, "group": "gor_coarse_dem"}
+
+
+def coarse_params(cfg: dict | None = None) -> HillfortParams:
+    """Параметры грубого прохода; cfg перекрывает пресет."""
+    return params_from({**COARSE, **(cfg or {})})
 
 
 def params_from(cfg: dict | None) -> HillfortParams:
@@ -138,7 +153,7 @@ def find(z: np.ndarray, step: float, p: HillfortParams) -> list[dict]:
 
 
 def candidates(d, region: str, source: str, p: HillfortParams | None = None) -> list[dict]:
-    """ЦМР (lidar.Dem) → круги класса gorodishcha в EPSG:3857, группа gor_phys."""
+    """ЦМР (lidar.Dem) → круги класса gorodishcha в EPSG:3857, группа p.group (gor_phys по умолчанию)."""
     from .candidates import to_work_grid
     from .raster import circle_3857
 
@@ -154,7 +169,7 @@ def candidates(d, region: str, source: str, p: HillfortParams | None = None) -> 
         r = min(p.core_m, max(1.0, 0.5 * c["inscribed_m"]))
         out.append({"geom": circle_3857(x, y, r, d.crs), "class_name": "gorodishcha",
                     "confidence": round(c["confidence"], 6), "region_name": region, "markup_type": "li",
-                    "source": source, "original_crs": d.crs, "threshold_group": "gor_phys",
+                    "source": source, "original_crs": d.crs, "threshold_group": p.group,
                     "hillfort_area_m2": round(c["area_m2"], 1), "hillfort_enclosure": round(c["enclosure"], 3),
                     "hillfort_height_m": round(c["height_m"], 2)})
     log.info("%s: кандидатов городищ по рельефу %d", source, len(out))
