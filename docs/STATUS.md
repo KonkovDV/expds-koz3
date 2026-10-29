@@ -30,3 +30,11 @@
 30.10 00:45 MSK | W4 | docs/ai_declaration.md черновик для Елены (п. 8.5.3/13.6 ТР; шаблона организаторов на коробке нет) | черновик | bots/w4-gate 8f527bb
 30.10 00:50 MSK | W4 | пакет C-et+ORG1pts против A: Δ+0.0229 (finds +0.042, poly +0.187), P_fam≥0.95, 4/5, срезы OK, F1 не ниже A → прокси-гейт ДА (s0, 17 уч. без 200); pix_org.load без массива расстояний EDT (память) | прокси OK | eval/R17orgpts_vsA_s0.json
 30.10 01:05 MSK | W4 | GEO-ORG3 итог s0 vs A17: A+ORG3 +0.0206 (P_fam 0.70 структурно: EtGr только 212–217, 3/5); A+ORG1poly+ORG3 +0.0194 P_fam 0.97 4/5 ГЕЙТ ДА (аналог орг. C_mgpoly_et +0.0206, 5/5); A+ORG1both+ORG3 +0.0236 ДА; C-et+ORG1pts+ORG3 +0.0267 ДА (лучший). Инференс 216: 6.6 с, 153 МБ. Модели full: /workspace/koz3/w4geo/models_orget/org (пороги 0.1/0.1), не в репо | eval/R17orget*_vsA_s0.json
+
+## 30.10 01:35 MSK — W4 v2-clean (bot-5)
+- Модальностный гейт C-et+ORG3 (PREREG 5702c78, записан до финала; после прежних замеров — оговорено): 18 уч. vs A18 —
+  (a) 12/12 участков без EtGr побайтно = A; (b) Δ +0.022499, p_region(EtGr) 1.0; (c) F1 poly +0.225, finds 0 → **PASS**.
+  Совпадает побайтно с ре-гейтом координатора. ORG1-точки исключены (ре-гейт: Судьбищи −0.014).
+- Кэш классики 200: `accel.box_mean` поблочно по строкам (побайтно тот же результат), пик 4.7 ГБ вместо OOM.
+- Архив v2-clean (НЕ отправлен): koz3_v2clean_8bb5803_76de89fc_wb042594f.zip, sha256 81b48731d53994ebb3211ed68a96eca3d7e215215daea27931c70bcc1767f968,
+  58 файлов, configs/v2_clean.toml как default.toml; DOC-1 OK; список файлов — orch/bot-W4/runs/v2clean_files.txt.
