@@ -931,11 +931,15 @@ def check_dfine_aeor_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
     if not dc.get("enabled"):
         return
     if not args.weights:
-        report("WARN", "dfine", "--no-weights: смоук весов dfine_aeor на опорных участках пропущен")
+        report("WARN", "dfine", "смоук не выполнен: --no-weights — смоук весов dfine_aeor на опорных участках пропущен")
         return
     names = z.namelist()
     root = Path(getattr(args, "dfine_aeor_root", None) or DFINE_AEOR_ROOT_DEFAULT)
-    for mk in [m for m in (dc.get("markups") or ["ae", "or"]) if m in DFINE_AEOR_KNOWN]:
+    mks = [m for m in (dc.get("markups") or ["ae", "or"]) if m in DFINE_AEOR_KNOWN]
+    if not mks:
+        report("WARN", "dfine", f"смоук не выполнен: dfine_aeor markups={dc.get('markups')} — нет опорных участков "
+                                f"(известны {sorted(DFINE_AEOR_KNOWN)})")
+    for mk in mks:
         spec = DFINE_AEOR_KNOWN[mk]
         miss = dfine_aeor_missing_weights(names, cfg, mk)
         if miss:
@@ -944,8 +948,9 @@ def check_dfine_aeor_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
             continue
         tif = dfine_aeor_raster(root, mk)
         if tif is None:
-            report("FAIL", "dfine", f"смоук dfine_aeor {mk}: нет опорного участка {root / spec['region']} "
-                                    f"(растр *{spec['raster']}*.tif; --dfine-aeor-root)")
+            # нет данных трейна на машине проверки — это не дефект архива, но и не PASS: явный WARN
+            report("WARN", "dfine", f"смоук не выполнен: dfine_aeor {mk} — нет опорного участка {root / spec['region']} "
+                                    f"(растр *{spec['raster']}*.tif; --dfine-aeor-root); веса на эталоне НЕ проверены")
             continue
         tmp = Path(tempfile.mkdtemp(prefix="b6aeor_", dir=args.workdir))
         home = Path(tempfile.mkdtemp(prefix="b6aeorhome_", dir=args.workdir))
@@ -1283,7 +1288,9 @@ def check_orgate(z: zipfile.ZipFile, cfg: dict, args) -> None:
         return
     smoke_fx = Path(getattr(args, "orgate_smoke", None) or ORGATE_SMOKE_DEFAULT)
     if not smoke_fx.is_file():
-        report("FAIL", "orgate", f"нет опорного входа смоука гейта {smoke_fx} (--orgate-smoke)")
+        # опорный вход вне git (п. 13.11 ТР); его нет на машине проверки — явный WARN, а не PASS и не молчание
+        report("WARN", "orgate", f"смоук не выполнен: нет опорного входа смоука гейта {smoke_fx} (--orgate-smoke); "
+                                 f"решения гейта на эталоне НЕ проверены")
         return
     tmp = Path(tempfile.mkdtemp(prefix="b6orgate_", dir=args.workdir))
     home = Path(tempfile.mkdtemp(prefix="b6orgatehome_", dir=args.workdir))

@@ -17,7 +17,6 @@ from expds import orgate, rerank_arch, watchdog
 
 ROOT = Path(__file__).resolve().parents[1]
 FX = Path("/workspace/koz3_shared/bot-6/work/orgate_final/orgate_smoke_008.geojson")   # вне git (п. 13.11 ТР)
-pytestmark = pytest.mark.skipif(not FX.is_file(), reason="нет опорного входа смоука ORGATE (вне git)")
 X3857, Y3857 = 4_118_890.0, 7_361_866.0
 
 
@@ -26,6 +25,8 @@ def _cfg():
 
 
 def _fixture():
+    if not FX.is_file():
+        pytest.skip("нет опорного входа смоука ORGATE (вне git, п. 13.11 ТР)")
     fx = json.loads(FX.read_text(encoding="utf-8"))
     return fx, [dict(f["properties"], geom=shape(f["geometry"])) for f in fx["features"]]
 
@@ -184,6 +185,8 @@ def test_check_submission_marker_and_verdicts(tmp_path):
 
 
 def test_check_submission_smoke_runs_archive_code(tmp_path):
+    if not FX.is_file():
+        pytest.skip("нет опорного входа смоука ORGATE (вне git)")
     import sys
     import zipfile
     cs = _cs()
@@ -199,3 +202,22 @@ def test_check_submission_smoke_runs_archive_code(tmp_path):
     args = SimpleNamespace(workdir=str(tmp_path), orgate_smoke=str(FX), python=sys.executable, cpus="", allow_net=True, timeout=300, threads=2)
     cs.check_orgate(zipfile.ZipFile(zp), tomllib.loads(text), args)
     assert [r[0] for r in cs.RESULTS] == ["PASS"], cs.RESULTS
+
+
+def test_check_submission_missing_smoke_input_warns_not_pass(tmp_path):
+    """bot-7 13:12: [orgate] enabled, модель в архиве, а опорного входа (--orgate-smoke) на машине нет —
+    явный WARN «смоук не выполнен», не PASS и не молчание."""
+    import zipfile
+    cs = _cs()
+    text = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8").replace(
+        "[orgate]\nenabled = false\n", "[orgate]\nenabled = true\n")
+    zp = tmp_path / "s.zip"
+    with zipfile.ZipFile(zp, "w") as z:
+        z.writestr("configs/default.toml", text)
+        for n in ("expds/orgate.py", "models/orgate_g.txt", "models/orgate_g.json"):
+            z.writestr(n, "x")
+    args = SimpleNamespace(workdir=str(tmp_path), orgate_smoke=str(tmp_path / "none.geojson"), python="python3",
+                           cpus="", allow_net=True, timeout=60, threads=2)
+    cs.check_orgate(zipfile.ZipFile(zp), tomllib.loads(text), args)
+    assert [r[0] for r in cs.RESULTS] == ["WARN"]
+    assert cs.RESULTS[0][2].startswith("смоук не выполнен") and "none.geojson" in cs.RESULTS[0][2]

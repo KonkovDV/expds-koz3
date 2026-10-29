@@ -376,9 +376,16 @@ def forward_boxes(model, px, flip: bool, tile: int, st: dict):
     return out
 
 
-def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_going=lambda: True):
+def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_going=lambda: True, left=None):
     """Окна сцены → виды (модель × flip), у каждого NMS по классам (склейка перекрытий окон).
-    Возвращает ([(B, L, C)], окон сделано, окон всего)."""
+    Возвращает ([(B, L, C)], окон сделано, окон всего).
+
+    Срок (bot-7 13:12): keep_going() и left() (секунд до конца фазы/окна сторожа) проверяются перед КАЖДЫМ
+    чтением окна, а не только между батчами: на Or без обзоров одно окно читается ~7–23 с (056/033), и батч
+    из 4 окон после последней проверки переехал бы потолок фазы на ~90 с. Следующее окно читается, только если
+    left() > max(время чтения окна) + max(время прямого прохода батча) по замерам этой сцены; прерванный батч
+    не прогоняется, если на прямой проход времени уже нет. Перерасход ограничен одним чтением окна (GDAL не
+    прерывается) — до первого замера на сцене."""
     import torch
 
     T, ov, bs = int(st["tile"][mk]), int(st["overlap"][mk]), int(st["batch"][mk])
@@ -387,21 +394,35 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
     buf = np.empty((bs, 3, T, T), dtype=np.float32)   # один буфер на сцену: bs×3×T×T×4 Б (Or: 4×3×1024²×4 = 48 МБ)
     done = 0
     use_amp = bool(st["fp16"]) and getattr(device, "type", str(device)) == "cuda"
+    t_read = t_fwd = 0.0                              # макс. замеры этой сцены, с
+    left = left or (lambda: float("inf"))
+    stopped = False
     with torch.no_grad():
         for b in range(0, len(wins), bs):
-            if not keep_going():
+            if not keep_going() or left() <= t_read + t_fwd:
                 break
             chunk = []
-            for x, y in wins[b:b + bs]:
+            for i, (x, y) in enumerate(wins[b:b + bs]):
+                if i and (not keep_going() or left() <= t_read + t_fwd):
+                    stopped = True
+                    break
+                t0 = time.monotonic()
                 im = scene.read(x, y, T)          # одно окно (WarpedVRT), не весь растр
+                t_read = max(t_read, time.monotonic() - t0)
                 if (im.max(2) == 0).mean() > float(st["skip_empty"]):
                     continue
                 buf[len(chunk)] = im.transpose(2, 0, 1)   # uint8 → float32 прямо в буфер батча
                 chunk.append((x, y))
                 del im
-            done = min(b + bs, len(wins))
+            done = min(b + bs, len(wins)) if not stopped else b + i
             if not chunk:
+                if stopped:
+                    break
                 continue
+            if stopped and left() <= t_fwd:
+                done = b
+                break
+            t0 = time.monotonic()
             arr = buf[:len(chunk)]
             arr *= np.float32(1.0 / 255)
             px = torch.from_numpy(arr).to(device)   # на CPU — тот же буфер, без копии
@@ -415,6 +436,9 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
                         acc[v][1].append(s)
                         acc[v][2].append(c)
                     v += 1
+            t_fwd = max(t_fwd, time.monotonic() - t0)
+            if stopped:
+                break
     out = []
     for B, L, C in acc:
         if not B:
@@ -471,25 +495,27 @@ class Scene(S.Scene):
 
 
 def detect_image(models: list, path: Path, crs: str, st: dict, mk: str, level: str, device,
-                 keep_going=lambda: True, scene_cls=None):
+                 keep_going=lambda: True, scene_cls=None, left=None):
     """Виды выбранного уровня одного растра → слитые боксы в пикселях базовой сцены.
     Возвращает (B, L, C, transform базовой сцены, окон сделано, окон всего)."""
     if scene_cls is None:   # настоящий растр: кэш GDAL ограничен (окна WarpedVRT, растр целиком не читается)
         import rasterio
 
         with rasterio.Env(GDAL_CACHEMAX=int(st.get("gdal_cache_mb") or 256) * 1024 * 1024):
-            return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene)
+            return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene, left)
     flips, scales = views_at(level, st)
     base_res = float(st["res_m"][mk])
     views: list = []
     T0 = None
     done_all = total_all = 0
     for s in scales:
+        if views and not keep_going():
+            break
         sc = scene_cls(path, crs, base_res * float(s))
         try:
             if T0 is None:
                 T0 = sc.T
-            res, done, total = detect_scene(models, sc, st, mk, flips, device, keep_going)
+            res, done, total = detect_scene(models, sc, st, mk, flips, device, keep_going, left)
             done_all += done
             total_all += total
             k = abs(sc.T.a) / abs(T0.a)
@@ -582,9 +608,15 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             def ok():
                 g = guard.window_ok() if guard is not None and hasattr(guard, "window_ok") else True
                 return g and phase_left() > 0
+
+            def left_s():
+                lf = phase_left()
+                if guard is not None and hasattr(guard, "window_left"):
+                    lf = min(lf, guard.window_left() - float(getattr(guard, "window_reserve_s", 0) or 0))
+                return lf
             t0 = time.monotonic()
             B, L, C, T0, done, total = detect_image(models, Path(path), crs, st, mk, level, cache.get("device"), ok,
-                                                    None if real else scene_cls)
+                                                    None if real else scene_cls, left_s)
             dt = time.monotonic() - t0
             flips, _ = views_at(level, st)
             if done:
