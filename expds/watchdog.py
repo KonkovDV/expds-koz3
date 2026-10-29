@@ -147,7 +147,11 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     by_markup)
     out = out + reranked
-    out = post.merge_within_markup(out, isolate)
+    # bot-4 large_objects: крупный не сливается с мелким (защита TP >5k).
+    if _lo.enabled(cfg):
+        out = _lo.merge_within_markup(out, isolate, _lo.spec(cfg))
+    else:
+        out = post.merge_within_markup(out, isolate)
     if post_cfg.get("multipole_object_poly"):
         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
     if post_cfg.get("filter_finds_points"):
