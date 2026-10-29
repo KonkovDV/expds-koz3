@@ -455,19 +455,24 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
-# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
-# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+# bot-7 (кандидат v3) / bot-5 (v4): D-FINE bot-9 на SpOr (группа порога sp_dfine).
+# v4 (bot1_v3_spor_diag 29.10): SpOr D-FINE ВЫКЛ. — enabled = false. pipeline.run вызывает _sp_dfine_phase
+# ТОЛЬКО при enabled; drop_groups применяется только внутри фазы. Поэтому enabled=false достаточен, чтобы
+# сохранить U-Net sp_or/sp_focal/sp_arch/sp_focal2 (путь v2/v3 pre-D-FINE); отдельно drop_groups=[] не нужно,
+# пока фаза не входит. DEFAULTS.drop_groups уже []. Вариант R (drop_groups = SpOr-группы) на mock дал
+# soft_tp 0/13 (медиана ~191 м до GT) — НЕ включать R, пока D-FINE не локализует курганы.
+# Архив сдачи v3on собирал bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor.
+# Ключи — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
+# Включение (НЕ для v4 до фикса локализации; принято ботом 10 для v3on, модель СДАЧИ — f0):
 #   enabled = true
 #   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
-#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
-# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
-# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
-# и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+#   drop_groups = []               # v4-safe: добавить D-FINE БЕЗ снятия U-Net; НЕ вариант R, пока soft_tp≈0
+#   # drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R — регрессия mock sp_or→0
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: OOF фолдовых моделей под f0) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
+# Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
 # bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
 # до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
