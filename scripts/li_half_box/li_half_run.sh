@@ -11,8 +11,9 @@ mkdir -p $W
 [ -f $E/EXPERIMENTS_E11.sha256 ] || { echo "нет предрегистрации (EXPERIMENTS_E11.sha256)"; exit 1; }
 (cd $E && sha256sum -c EXPERIMENTS_E11.sha256) || { echo "скрипты изменены после предрегистрации"; exit 1; }
 ls $DUMP/*.npz > /dev/null 2>&1 || { echo "нет выгрузки $DUMP/*.npz"; exit 1; }
+nice -n 10 $PY2 $E/test_li_half_eval.py || { echo "юнит-тест отбора li_half не прошёл"; exit 1; }
 echo "start $(date +%T) disk $(df -BM --output=avail / | tail -1) maps $(ls $DUMP/*.npz | wc -l)"
-# H: стек A + новые курганы li_half (отбор 12 м к принятым li/li_mosaic), порог li_half — вложенно по семьям
+# H: стек A + новые курганы li_half (отбор 12 м перекрёстно по классу к принятым li/li_mosaic/li_dev, поправка 29.10), порог li_half — вложенно по семьям
 nice -n 10 $PY2 $E/li_half_eval.py --dump $DUMP --out $W/fam_H > $W/fam_H.log 2>&1 || { echo "fam FAIL"; tail -5 $W/fam_H.log; exit 1; }
 echo "fam H $(date +%T) $(tail -1 $W/fam_H.log) du $(du -sm $W/fam_H | cut -f1)M"
 (cd $B10 && nice -n 10 $PY repo/scripts/family_curves.py --fam $W/fam_H --gt $G --clusters work/family_clusters.json --out $W/curves_H > $W/curves_H.log 2>&1) || { echo "curves FAIL"; tail -5 $W/curves_H.log; exit 1; }

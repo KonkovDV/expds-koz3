@@ -14,7 +14,10 @@
 - только классы курганов; уверенность — максимум карты в окне 5×5 вокруг пика;
 - группа порога li_half (thresholds_by_markup.li_half);
 - выдаются только НОВЫЕ курганы: отбор 12 м против кругов основного li,
-  которые принятый порог уже оставляет (как li_dev: drop_near_kurgans + KEPT_KURGAN_CONF);
+  которые принятый порог уже оставляет (KEPT_KURGAN_CONF), ПЕРЕКРЁСТНО по классу (поправка
+  29.10, смоук бота 8): круг li_half любого класса вон, если рядом принятый целый ИЛИ
+  повреждённый курган — метрика сопоставляет по классу, тот же холм в другом классе — ложное
+  срабатывание. Канал σ (li_dev) в pipeline считается позже, поэтому здесь не якорь;
 - мозаика (LAS > 60 млн ячеек на 0,1 м): проход идёт по DEM мозаики 0,5 м, которая
   строится кусками 400 м с полем 40 м (lidar.build_dem_mosaic) — перекрытие ≥ 40 м.
 
@@ -142,11 +145,36 @@ def half_pass(seg, d, region: str, source: str, base_cand: candidates.CandidateP
     return feats
 
 
-def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
-    """Только новые курганы: ближе dedupe_m к оставленному кругу основного li того же класса — вон."""
-    from .pipeline import drop_near_kurgans, kept_kurgan_anchors
+def drop_near_any_class(cands: list[dict], anchors: list[dict], dist_m: float) -> list[dict]:
+    """Как pipeline.drop_near_kurgans, но без учёта класса: круг вон, если ближе dist_m к якорю-кургану
+    (целому или повреждённому) того же участка. Расстояние — между ground_point (метры)."""
+    from shapely.strtree import STRtree
 
-    return drop_near_kurgans(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
+    from .pipeline import ground_point
+
+    buckets: dict[object, list] = {}
+    for feat in anchors:
+        if feat.get("class_name") in KUR and feat.get("geom") is not None:
+            buckets.setdefault(feat.get("region_name"), []).append(ground_point(feat["geom"]))
+    trees = {reg: STRtree(pts) for reg, pts in buckets.items()}
+    kept = []
+    for feat in cands:
+        pts = buckets.get(feat.get("region_name"))
+        if not pts or feat.get("geom") is None:
+            kept.append(feat)
+            continue
+        point = ground_point(feat["geom"])
+        hits = trees[feat.get("region_name")].query(point.buffer(dist_m))
+        if not any(pts[int(i)].distance(point) <= dist_m for i in hits):
+            kept.append(feat)
+    return kept
+
+
+def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
+    """Только новые курганы: ближе dedupe_m к оставленному кругу основного li ЛЮБОГО класса — вон."""
+    from .pipeline import kept_kurgan_anchors
+
+    return drop_near_any_class(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
 
 
 def floor(feats: list[dict], floors: dict[str, float]) -> list[dict]:
