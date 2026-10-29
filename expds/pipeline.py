@@ -1402,6 +1402,29 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
     if not (cache.get("models") or []) and cache.get("load_error"):
         log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
+    # bot-2: stages.json — сводка счётчиков (если EXPDS_DFINE_DUMP); читается на ПК при A≡B.
+    dump = sp_dfine.dump_root()
+    if dump is not None:
+        try:
+            rows = []
+            stages_path = dump / "stages.jsonl"
+            if stages_path.is_file():
+                import json as _json
+                rows = [_json.loads(line) for line in stages_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            snap = state.snapshot()
+            n_in_state = sum(1 for f in snap if f.get("threshold_group") == sp_dfine.GROUP)
+            sp_dfine.write_stages_summary(
+                dump, rows,
+                n_models=len(cache.get("models") or []),
+                thresholds_ready=cache.get("thresholds_ready"),
+                thresholds_missing=cache.get("thresholds_missing"),
+                n_features_added_total=n,
+                n_sp_dfine_in_state=n_in_state,
+                regions_complete=list(full),
+            )
+            log.info("sp_dfine stages summary → %s (in_state=%d added=%d)", dump / "stages.json", n_in_state, n)
+        except Exception:
+            log.exception("sp_dfine: stages summary не записан")
     # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
     # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются (регрессия mock: R −46 при 0 TP).
     if st["drop_groups"] and full:
