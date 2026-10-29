@@ -239,7 +239,39 @@ def label_key(path: Path) -> str:
 
 # ───────────────────────────── чтение карты ─────────────────────────────
 
-def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> dict:
+def sat_core_m2(value=None) -> float:
+    """Порог «пятна насыщения как данных», м²: аргумент, иначе env PIXGBM_SAT_CORE_M2, иначе 0 (выключено)."""
+    if value is None:
+        value = os.environ.get("PIXGBM_SAT_CORE_M2", "0")
+    try:
+        return max(float(value), 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def restore_sat_cores(valid: np.ndarray, sat: np.ndarray, px_m2: float, max_m2: float) -> np.ndarray:
+    """Связные пятна насыщения площадью ≤ max_m2, не касающиеся края кадра, возвращаются в данные.
+
+    Визуализация градиентометра упирается в край шкалы (0 или 255) в ядре сильной аномалии. Правило
+    load_map «все каналы ≥ 254 или ≤ 1 — нет данных» делает из этого ядра дыру: z = медиане, P = 0, и
+    находка/объект видны только кольцом по кромке. Большое пятно (фон листа, поля вне съёмки) остаётся
+    без данных. Тот же предел, что у классики (geophys.plateau_centers, plateau_max_m2 = 60).
+    """
+    if max_m2 <= 0 or not sat.any():
+        return valid
+    lab, n = ndi.label(sat)
+    if not n:
+        return valid
+    area = ndi.sum_labels(np.ones_like(lab, np.float32), lab, np.arange(1, n + 1)) * px_m2
+    edge = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
+    ok = np.zeros(n + 1, bool)
+    ok[1:] = area <= max_m2
+    ok[edge] = False
+    ok[0] = False
+    return valid | ok[lab]
+
+
+def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat_core_max_m2=None) -> dict:
     import rasterio
     from rasterio import features
     from rasterio.windows import Window
@@ -256,6 +288,7 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> 
         lum = np.zeros((H, W), np.float32)
         dif = np.zeros((H, W), np.float32)
         valid = np.zeros((H, W), bool)
+        sat = np.zeros((H, W), bool)
         step = max(f, (6_000_000 // max(r.width * n, 1)) // f * f)
         for y0 in range(0, H * f, step):
             h = min(step, H * f - y0)
@@ -263,12 +296,16 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> 
             blk = blk.reshape(n, h // f, f, W, f).mean((2, 4))
             rows = slice(y0 // f, (y0 + h) // f)
             rgb = blk[:3] if n >= 3 else np.repeat(blk[:1], 3, 0)
-            v = ~((rgb.min(0) >= 254) | (rgb.max(0) <= 1))
+            s_ = (rgb.min(0) >= 254) | (rgb.max(0) <= 1)
+            v = ~s_
             if alpha:
                 v &= blk[alpha[0]] > 0
-            lum[rows], dif[rows], valid[rows] = rgb.mean(0), rgb[0] - rgb[2], v
+                s_ &= blk[alpha[0]] > 0
+            lum[rows], dif[rows], valid[rows], sat[rows] = rgb.mean(0), rgb[0] - rgb[2], v, s_
             del blk, rgb
         T = r.transform @ r.transform.scale(r.width / W, r.height / H)
+        valid = restore_sat_cores(valid, sat, abs(T.a * T.e), sat_core_m2(sat_core_max_m2))
+        del sat
         crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
     up = abs(T.a) / gsd
     if up > 1.3:
@@ -742,7 +779,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
             ran = set()
             step = "classic"
             try:
-                d = load_map(f, GSD[mt], crs_region, boundary, noise)
+                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"))
                 if not d["crs"]:
                     continue
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
