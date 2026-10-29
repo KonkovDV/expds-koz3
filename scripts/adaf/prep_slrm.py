@@ -47,7 +47,7 @@ def slrm_lowmem(dem: np.ndarray, r: int = 20, rows: int = 1024) -> np.ndarray:
     return out
 
 
-def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool = False):
+def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool = False, xr=None):
     """Mean z of ground points per cell; single-threaded lazrs backend (bot thread budget)."""
     import laspy
     with laspy.open(path, laz_backend=laspy.LazBackend.Lazrs) as f:
@@ -55,6 +55,9 @@ def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool 
         left = np.floor(h.mins[0] / res) * res
         top = np.ceil(h.maxs[1] / res) * res
         W = int(np.ceil((h.maxs[0] - left) / res)) + 1
+        full_left, full_W = left, W
+        if xr is not None:  # column strip [c0, c1) of the full grid
+            left = full_left + xr[0] * res; W = xr[1] - xr[0]
         H = int(np.ceil((top - h.mins[1]) / res)) + 1
         sums = np.zeros(W * H, np.float32 if lowmem else np.float64)
         cnt = np.zeros(W * H, np.int32 if lowmem else np.int64)
@@ -81,7 +84,30 @@ def las_grid_1thread(path: str, res: float, ground_class: int = 2, lowmem: bool 
             dem = (sums / cnt).reshape(H, W).astype(np.float32)
     dem[cnt.reshape(H, W) == 0] = np.nan
     npts = int(cnt.sum()); del cnt
-    return dem, {"left": float(left), "top": float(top), "res": res, "points": npts}
+    return dem, {"left": float(left), "top": float(top), "res": res, "points": npts,
+                 "full_left": float(full_left), "full_W": full_W, "H": H}
+
+
+def strip_mode(laz: str, res: float, n: int, halo: int = 200):
+    """Column strips with a halo: grid (float32), pyramid hole fill and blocked SLRM per strip, keep the core."""
+    _, info0 = las_grid_1thread(laz, res, lowmem=True, xr=(0, 1))
+    W, H = info0["full_W"], info0["H"]
+    gc = 2
+    u8 = np.zeros((H, W), np.uint8); valid = np.zeros((H, W), bool); allp = False
+    edges = np.linspace(0, W, n + 1).astype(int)
+    for c0, c1 in zip(edges[:-1], edges[1:]):
+        a, b = max(0, c0 - halo), min(W, c1 + halo)
+        dem, info = las_grid_1thread(laz, res, ground_class=gc, lowmem=True, xr=(a, b))
+        if info["points"] == 0 and gc == 2 and c0 == 0:
+            gc = None; allp = True
+            dem, info = las_grid_1thread(laz, res, ground_class=None, lowmem=True, xr=(a, b))
+        dem = fill_interior_holes(dem, method="pyramid")
+        sl = slrm_lowmem(dem); del dem
+        v = np.isfinite(sl)
+        q = np.round(np.clip(np.nan_to_num(sl, nan=-0.5) + 0.5, 0, 1) * 255).astype(np.uint8); q[~v] = 0
+        u8[:, c0:c1] = q[:, c0 - a:c1 - a]; valid[:, c0:c1] = v[:, c0 - a:c1 - a]
+        del sl, q, v
+    return u8, valid, {"left": info0["full_left"], "top": info0["top"], "res": res, "all_points": allp}
 
 
 def main():
@@ -90,6 +116,8 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--res", type=float, default=0.5)
     ap.add_argument("--only", nargs="*")
+    ap.add_argument("--strips", type=int, default=0,
+                    help="process in N column strips with a 200 px halo (huge sparse rasters; hole fill per strip)")
     ap.add_argument("--lowmem", action="store_true",
                     help="float32 grid + pyramid hole fill + blocked SLRM (regions that failed on RAM/Qhull)")
     a = ap.parse_args()
@@ -104,6 +132,14 @@ def main():
         t = time.time()
         crs = json.load(open(Path(a.data) / reg / "UTM.json"))
         crs = crs.get("crs") or crs.get("epsg") or crs
+        if a.strips:
+            u8, valid, info = strip_mode(laz, a.res, a.strips)
+            np.savez_compressed(dst, slrm_u8=u8, valid=valid, left=info["left"], top=info["top"],
+                                res=info["res"], crs=json.dumps(crs))
+            print(json.dumps({"region": reg, "shape": u8.shape, "valid_frac": round(float(valid.mean()), 3),
+                              "s": round(time.time() - t, 1), "strips": a.strips,
+                              "all_points": info.get("all_points", False)}, ensure_ascii=False), flush=True)
+            continue
         dem, info = las_grid_1thread(laz, a.res, lowmem=a.lowmem)
         if info["points"] == 0:  # no class 2 (e.g. only class 8): all points, as expds.lidar does
             del dem

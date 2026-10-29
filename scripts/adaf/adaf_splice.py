@@ -59,6 +59,15 @@ def main():
     left = set(lines)
     for fp in sorted(Path(a.src).glob("*.jsonl")):
         regs = set()
+        with fp.open() as fh:  # families without ADAF regions: symlink instead of a copy (disk)
+            for line in fh:
+                if '"region_name"' in line:
+                    i = line.find('"region_name": "') + 16
+                    regs.add(line[i:line.find('"', i)])
+        if not regs & left:
+            (out / fp.name).symlink_to(fp.resolve()); st["families_symlinked"] += 1
+            continue
+        regs = set()
         with fp.open() as fh, (out / fp.name).open("w") as fo:
             for line in fh:
                 if '"region_name"' in line:

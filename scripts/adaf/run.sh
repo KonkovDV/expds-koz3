@@ -4,14 +4,14 @@ set -u
 B2=/workspace/koz3_shared/bot-2; B10=/workspace/koz3_shared/bot-10; W=$B2/adaf
 PY2=$B2/venv/bin/python; PY=/workspace/rerank/venv/bin/python; G=/workspace/rerank/gt_train_v2.geojson
 export EXPDS_METRIC=$B10/repo/materials/compute_metrics.py PYTHONDONTWRITEBYTECODE=1
-ulimit -v 3000000
-thr() { if pgrep -f 'work/lireal/run' >/dev/null 2>&1; then echo 1; else echo 2; fi; }   # 1 thread while any bot-2 lireal run*.sh is alive (resume 07:35 changed its PID)
-while ! grep -q '^done' $W/prep_lowmem.log || [ ! -f $W/weights/OD_enclosure_sd.pt ]; do sleep 30; done   # SLRM prep + weights first (one bot-2 job at a time)
+ulimit -v 2500000
+thr() { echo 1; }   # 08:12 constraint: 1 thread, RAM <= 1 GB (another bot-2 job uses 1 thread)
+ls $W/slrm/*.npz | wc -l | grep -qx 59 || { echo 'need 59 SLRM'; exit 1; }; [ -f $W/weights/OD_enclosure_sd.pt ] || exit 1
 echo "start $(date +%T) disk $(df -BM --output=avail / | tail -1)"
 for M in OD_barrow_sd OD_enclosure_sd; do
   for f in $W/slrm/*.npz; do
     r=$(basename $f .npz); [ -f $W/dets/$M/$r.json ] && continue
-    t=$(thr); OMP_NUM_THREADS=$t OPENBLAS_NUM_THREADS=$t MKL_NUM_THREADS=$t nice -n 10 $PY2 $B2/repo/scripts/adaf/infer_od.py \
+    t=$(thr); OMP_NUM_THREADS=$t OPENBLAS_NUM_THREADS=$t MKL_NUM_THREADS=$t nice -n 10 $W/peak.sh $PY2 $B2/repo/scripts/adaf/infer_od.py \
       --slrm $W/slrm --weights $W/weights/$M.pt --out $W/dets --tile 1024 --stride 896 --min-size 800 --only $r \
       | sed "s/^/thr=$t /" || echo "infer FAIL $M $r"
   done
