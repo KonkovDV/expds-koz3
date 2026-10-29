@@ -72,7 +72,7 @@ def model_refs(cfg: dict) -> list[str]:
 
 def cnx_enabled(cfg: dict) -> bool:
     lc = cfg.get("li_cnx") or {}
-    return bool(lc.get("enabled")) and bool(lc.get("weights"))
+    return lc.get("enabled") is True and bool(lc.get("weights"))   # только bool, как expds/lidar_cnx.enabled
 
 
 CNX_WEIGHTS_MANIFEST = "inference/cnx/WEIGHTS_MANIFEST.json"

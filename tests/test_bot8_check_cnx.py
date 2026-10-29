@@ -127,6 +127,20 @@ def test_fail(cs, mut, cfg, needle):
     (b"import torch; torch.hub.load('a/b', 'c')", "FAIL", "torch.hub.load"),           # N6
     (b"from urllib.request import urlopen; urlopen('http://x')", "FAIL", "вызов urlopen"),
     (b"import timm; timm.create_model('x', pretrained=True)", "FAIL", "pretrained=True"),
+    # повторное ревью bot-4 5bc6ad1, п. a: алиасы и прочие обходы сканера
+    (b"from subprocess import run; run(['curl', 'http://x'])", "WARN", "запуск процесса subprocess.run()"),
+    (b"import subprocess as sp; sp.run(['curl', 'http://x'])", "WARN", "запуск процесса subprocess.run()"),
+    (b"from subprocess import Popen as P; P(['curl'])", "WARN", "запуск процесса subprocess.Popen()"),
+    (b"from os import system; system('wget x')", "WARN", "запуск процесса os.system()"),
+    (b"exec('import soc' + 'ket')", "WARN", "exec() — код из строки"),
+    (b"_f = eval('1')", "WARN", "eval()"),
+    (b"import importlib; getattr(importlib, 'import_' + 'module')('socket')", "WARN", "getattr(importlib, …)"),
+    (b"from importlib import import_module as im; im('soc' + 'ket')", "WARN", "динамический импорт import_module"),
+    (b"from importlib import import_module as im; im('socket')", "FAIL", "import socket"),
+    (b"import ctypes", "WARN", "import ctypes — нативные вызовы"),
+    (b"from ctypes import CDLL", "WARN", "from ctypes import"),
+    (b"import torch; torch.utils.model_zoo.load_url('http://x')", "FAIL", "вызов load_url"),
+    (b"from torch.utils.model_zoo import load_url as lu; lu('http://x')", "FAIL", "вызов load_url"),
 ])
 def test_net_in_prep(cs, extra, status, needle):
     _, res = _run(cs, _zip(_prep(_files(), extra)))
@@ -337,3 +351,70 @@ def test_smoke_keys_match_pipeline_logs(cs):
     for ln in src["pipeline.py"].splitlines():
         if re.search(r"(log\.(warning|exception|error)|_warn)\(", ln) and "cnx" in ln:
             assert any(k in ln for k in keys), ln
+
+
+# ---------- повторное ревью bot-4 5bc6ad1, п. a: без ложных срабатываний
+def test_aliases_no_false_positives(cs):
+    """Метод .eval() модели, re.compile, getattr на объекте — не динамика."""
+    _, res = _run(cs, _zip(_prep(_files(), b"import re; _r = re.compile('x'); _o = object(); getattr(_o, '__class__')\n"
+                                          b"class _N:\n    def eval(self): return self\n_N().eval()")))
+    assert [s for s, _ in res] == ["PASS"] * 5, res
+
+
+def test_proc_in_unreachable_module_stays_quiet(cs):
+    f = _remanifest(dict(_files(), **{"inference/cnx/evil2.py": b"from subprocess import run\nrun(['curl'])\n"}))
+    _, res = _run(cs, _zip(f))
+    assert not _has(res, "WARN", "evil2.py"), res      # недостижимое без сети — как и раньше, тихо
+
+
+def test_import_aliases_helper(cs):
+    import ast
+    al = cs.import_aliases(ast.parse("import subprocess as sp\nfrom os import system\nfrom a.b import c as d\n"
+                                     "import x.y\nfrom . import z\n"))
+    assert al == {"sp": "subprocess", "system": "os.system", "d": "a.b.c"}
+
+
+# ---------- п. b: README/LICENSE-исключение только для текстов
+@pytest.mark.parametrize("name, status", [
+    ("inference/cnx/README_evil.py", "FAIL"),
+    ("inference/cnx/vendor/LICENSE.so", "FAIL"),
+    ("inference/cnx/_deps/README.pyc", "FAIL"),
+    ("inference/cnx/README2.md", "WARN"),
+    ("inference/cnx/_deps/NOTICE", "WARN"),
+    ("inference/cnx/COPYING.txt", "WARN"),
+])
+def test_soft_names_only_for_text(cs, name, status):
+    f = _files()
+    f[name] = b"import socket\n"
+    _, res = _run(cs, _zip(f))
+    if status == "FAIL":
+        assert _has(res, "FAIL", f"код/данные вне MANIFEST ['{name}']"), res
+        assert not _has(res, "WARN", "тексты вне MANIFEST"), res
+    else:
+        assert _has(res, "WARN", f"тексты вне MANIFEST.json: ['{name}']"), res
+        assert not _has(res, "FAIL", "вне MANIFEST ["), res
+
+
+# ---------- п. c: li_cnx.enabled только bool; иначе ВЫКЛЮЧЕН + WARN (как expds/lidar_cnx.enabled)
+@pytest.mark.parametrize("val", ["false", "true", "0", 1, 0, None])
+def test_enabled_not_bool_warns_and_is_off(cs, val):
+    cfg = _cfg()
+    cfg["li_cnx"]["enabled"] = val
+    third, res = _run(cs, _zip(_files()), cfg)
+    assert third == set() and not any(s in ("FAIL", "PASS") for s, _ in res), res
+    assert _has(res, "WARN", f"li_cnx.enabled={val!r} — не bool"), res
+    assert _has(res, "WARN", "выключен, а inference/cnx/"), res
+    assert cs.cnx_on(cfg) is False
+
+
+def test_enabled_semantics_match_pipeline_and_build(cs):
+    import sys
+    sys.path.insert(0, str(ROOT))
+    from expds import lidar_cnx
+    spec = importlib.util.spec_from_file_location("b8_bsg", ROOT / "scripts" / "build_submission_git.py")
+    bsg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bsg)
+    for val in (True, False, "false", "true", 1, 0, None):
+        cfg = _cfg()
+        cfg["li_cnx"]["enabled"] = val
+        assert cs.cnx_on(cfg) == lidar_cnx.enabled(cfg) == bsg.cnx_enabled(cfg) == (val is True), val

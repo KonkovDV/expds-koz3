@@ -161,6 +161,7 @@ mode = "rescore"
 # Без неё cnx включён, но объектов не выдаёт (громкий WARN в логе; check_submission — FAIL).
 # Включение: enabled = true, weights = ["models/cnx/weights_cnx_c3-sc_f0.pt", ...] (ансамбль — среднее
 # логитов, все одного in_kind) и [thresholds_by_markup.li_cnx].
+# enabled — только TOML-bool (true/false без кавычек): строка "false"/"true" или 0/1 → cnx ВЫКЛЮЧЕН + WARN.
 [li_cnx]
 enabled = false
 weights = []

@@ -544,3 +544,15 @@ def test_build_cnx_weights_verifies_sha_size_never_pack(tmp_path):
         with pytest.raises(SystemExit, match=msg):
             bs.cnx_weights(c, wman, ov, tracked)
     assert "models/cnx/a.pt" not in bs.model_refs(cfg("models/cnx/a.pt"))
+
+
+def test_enabled_requires_bool(caplog):
+    """Повторное ревью bot-4 5bc6ad1, п. c: enabled = "false" (строка) — cnx ВЫКЛЮЧЕН с WARN, а не включён."""
+    lidar_cnx._ENABLED_WARNED.clear()
+    with caplog.at_level("WARNING", logger=lidar_cnx.__name__):
+        for v in ("false", "true", 1, 0):
+            assert not lidar_cnx.enabled({"li_cnx": {"enabled": v, "weights": ["w.pt"]}})
+        assert not lidar_cnx.enabled({"li_cnx": {"enabled": "false", "weights": ["w.pt"]}})   # второй раз — без WARN
+    msgs = [r.getMessage() for r in caplog.records if "не bool" in r.getMessage()]
+    assert len(msgs) == 4 and "cnx ВЫКЛЮЧЕН" in msgs[0], msgs
+    assert lidar_cnx.enabled({"li_cnx": {"enabled": True, "weights": ["w.pt"]}})

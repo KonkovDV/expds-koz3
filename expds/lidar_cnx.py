@@ -114,9 +114,21 @@ def tta_value(raw) -> int:
     return t
 
 
+_ENABLED_WARNED: set = set()
+
+
 def enabled(cfg: dict | None) -> bool:
+    """cnx включён, только если li_cnx.enabled — TOML-bool true и weights заданы. Не bool (строка "false"/"true",
+    0/1) — ВЫКЛЮЧЕН с WARN: безопаснее остаться на проверенной базе, чем молча включить cnx по enabled = "false"
+    (bool("false") is True). check_submission считает так же (cnx_on) и даёт WARN."""
     c = (cfg or {}).get("li_cnx") or {}
-    return bool(c.get("enabled", False)) and bool(c.get("weights"))
+    en = c.get("enabled", False)
+    if not isinstance(en, bool):
+        if repr(en) not in _ENABLED_WARNED:
+            _ENABLED_WARNED.add(repr(en))
+            log.warning("li_cnx.enabled=%r — не bool (в TOML true/false без кавычек): cnx ВЫКЛЮЧЕН", en)
+        return False
+    return en and bool(c.get("weights"))
 
 
 def weight_files(cfg: dict | None) -> list[str]:
