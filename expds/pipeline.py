@@ -1123,6 +1123,9 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
         if not cache.get("models"):
             break
     log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
+    # bot-2 A3 / bot-5: при enabled и пустых моделях — WARNING уже в region_feats; дублируем в лог фазы
+    if not (cache.get("models") or []) and cache.get("load_error"):
+        log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
     if st["drop_groups"] and full:
         before = len(state.snapshot())
         state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
