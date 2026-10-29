@@ -5,7 +5,7 @@ B2=/workspace/koz3_shared/bot-2; B10=/workspace/koz3_shared/bot-10; W=$B2/adaf
 PY2=$B2/venv/bin/python; PY=/workspace/rerank/venv/bin/python; G=/workspace/rerank/gt_train_v2.geojson
 export EXPDS_METRIC=$B10/repo/materials/compute_metrics.py PYTHONDONTWRITEBYTECODE=1
 ulimit -v 3000000
-thr() { if ps -p 745855 >/dev/null 2>&1; then echo 1; else echo 2; fi; }   # 1 thread while bot-2 lireal runs
+thr() { if pgrep -f 'work/lireal/run' >/dev/null 2>&1; then echo 1; else echo 2; fi; }   # 1 thread while any bot-2 lireal run*.sh is alive (resume 07:35 changed its PID)
 while ! grep -q '^done' $W/prep_slrm.log || [ ! -f $W/weights/OD_enclosure_sd.pt ]; do sleep 30; done   # SLRM prep + weights first (one bot-2 job at a time)
 echo "start $(date +%T) disk $(df -BM --output=avail / | tail -1)"
 for M in OD_barrow_sd OD_enclosure_sd; do
