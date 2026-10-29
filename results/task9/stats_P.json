@@ -1,0 +1,961 @@
+{
+ "mode": "peaks",
+ "cand_p": {
+  "work_res": 0.5,
+  "relief_radius_m": 15.0,
+  "peak_radius_m": 2.5,
+  "min_relief_m": 0.08,
+  "r_in_m": 2.5,
+  "r_out_m": 8.0,
+  "circle_m": 2.0,
+  "max_candidates": 50000
+ },
+ "prm": {
+  "peak_min": 0.1,
+  "nms_m": 2.5,
+  "share_win_px": 2,
+  "dual": 0.3,
+  "comp_thr": 0.5,
+  "radius_m": {
+   "kurgany_povrezhdennye": 1.0,
+   "kurgany_tselye": 1.0,
+   "gorodishcha": 1.0,
+   "fortifikatsii": 1.0
+  },
+  "min_area_m2": {
+   "gorodishcha": 150.0,
+   "fortifikatsii": 7.5
+  }
+ },
+ "regions": {
+  "001_Гнёздово_Нивленское": {
+   "region": "001_Гнёздово_Нивленское",
+   "shape": [
+    5,
+    1031,
+    1550
+   ],
+   "res": 0.5,
+   "n_cand": 2417,
+   "n_feats": 125,
+   "by_class": {
+    "kurgany_tselye": 12,
+    "kurgany_povrezhdennye": 96,
+    "gorodishcha": 2,
+    "fortifikatsii": 15
+   }
+  },
+  "002_Тешилово": {
+   "region": "002_Тешилово",
+   "shape": [
+    5,
+    1258,
+    2352
+   ],
+   "res": 0.5,
+   "n_cand": 3983,
+   "n_feats": 207,
+   "by_class": {
+    "kurgany_tselye": 12,
+    "kurgany_povrezhdennye": 168,
+    "gorodishcha": 27
+   }
+  },
+  "003_Лубно": {
+   "region": "003_Лубно",
+   "shape": [
+    5,
+    1747,
+    1012
+   ],
+   "res": 0.5,
+   "n_cand": 3132,
+   "n_feats": 215,
+   "by_class": {
+    "kurgany_tselye": 49,
+    "kurgany_povrezhdennye": 144,
+    "gorodishcha": 22
+   }
+  },
+  "004_Боровичи_1": {
+   "region": "004_Боровичи_1",
+   "shape": [
+    5,
+    4918,
+    3140
+   ],
+   "res": 0.5,
+   "n_cand": 38049,
+   "n_feats": 1033,
+   "by_class": {
+    "kurgany_tselye": 90,
+    "kurgany_povrezhdennye": 939,
+    "gorodishcha": 4
+   }
+  },
+  "005_Боровичи_2": {
+   "region": "005_Боровичи_2",
+   "shape": [
+    5,
+    731,
+    848
+   ],
+   "res": 0.5,
+   "n_cand": 709,
+   "n_feats": 84,
+   "by_class": {
+    "kurgany_povrezhdennye": 78,
+    "kurgany_tselye": 6
+   }
+  },
+  "006_Осечки_1.1км": {
+   "region": "006_Осечки_1.1км",
+   "shape": [
+    5,
+    1598,
+    1612
+   ],
+   "res": 0.5,
+   "n_cand": 3305,
+   "n_feats": 4,
+   "by_class": {
+    "kurgany_tselye": 2,
+    "kurgany_povrezhdennye": 1,
+    "gorodishcha": 1
+   }
+  },
+  "009_Хальвасборген": {
+   "region": "009_Хальвасборген",
+   "shape": [
+    5,
+    1484,
+    2044
+   ],
+   "res": 0.5,
+   "n_cand": 5939,
+   "n_feats": 782,
+   "by_class": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 722,
+    "gorodishcha": 17
+   }
+  },
+  "010_Эсбю_укрепление": {
+   "region": "010_Эсбю_укрепление",
+   "shape": [
+    5,
+    887,
+    1303
+   ],
+   "res": 0.5,
+   "n_cand": 1556,
+   "n_feats": 66,
+   "by_class": {
+    "kurgany_tselye": 7,
+    "kurgany_povrezhdennye": 38,
+    "gorodishcha": 7,
+    "fortifikatsii": 14
+   }
+  },
+  "011_Эрентуна": {
+   "region": "011_Эрентуна",
+   "shape": [
+    5,
+    2128,
+    3343
+   ],
+   "res": 0.5,
+   "n_cand": 6345,
+   "n_feats": 785,
+   "by_class": {
+    "kurgany_tselye": 253,
+    "kurgany_povrezhdennye": 510,
+    "gorodishcha": 22
+   }
+  },
+  "013_Нора_Виннон": {
+   "region": "013_Нора_Виннон",
+   "shape": [
+    5,
+    828,
+    910
+   ],
+   "res": 0.5,
+   "n_cand": 803,
+   "n_feats": 125,
+   "by_class": {
+    "kurgany_tselye": 56,
+    "kurgany_povrezhdennye": 58,
+    "gorodishcha": 2,
+    "fortifikatsii": 9
+   }
+  },
+  "015_Демидовка": {
+   "region": "015_Демидовка",
+   "shape": [
+    5,
+    2589,
+    2452
+   ],
+   "res": 0.5,
+   "n_cand": 6985,
+   "n_feats": 366,
+   "by_class": {
+    "kurgany_tselye": 64,
+    "kurgany_povrezhdennye": 280,
+    "gorodishcha": 22
+   }
+  },
+  "016_Хога": {
+   "region": "016_Хога",
+   "shape": [
+    5,
+    704,
+    981
+   ],
+   "res": 0.5,
+   "n_cand": 784,
+   "n_feats": 53,
+   "by_class": {
+    "kurgany_tselye": 19,
+    "kurgany_povrezhdennye": 30,
+    "gorodishcha": 1,
+    "fortifikatsii": 3
+   }
+  },
+  "017_Юшково": {
+   "region": "017_Юшково",
+   "shape": [
+    5,
+    1006,
+    981
+   ],
+   "res": 0.5,
+   "n_cand": 2487,
+   "n_feats": 254,
+   "by_class": {
+    "kurgany_povrezhdennye": 133,
+    "kurgany_tselye": 108,
+    "gorodishcha": 1,
+    "fortifikatsii": 12
+   }
+  },
+  "018_Курган_Хога": {
+   "region": "018_Курган_Хога",
+   "shape": [
+    5,
+    1173,
+    1033
+   ],
+   "res": 0.5,
+   "n_cand": 1077,
+   "n_feats": 315,
+   "by_class": {
+    "kurgany_tselye": 90,
+    "kurgany_povrezhdennye": 221,
+    "gorodishcha": 4
+   }
+  },
+  "019_Селяне": {
+   "region": "019_Селяне",
+   "shape": [
+    5,
+    1355,
+    1307
+   ],
+   "res": 0.5,
+   "n_cand": 1987,
+   "n_feats": 66,
+   "by_class": {
+    "kurgany_tselye": 16,
+    "kurgany_povrezhdennye": 50
+   }
+  },
+  "021_Новенькое": {
+   "region": "021_Новенькое",
+   "shape": [
+    5,
+    1255,
+    1694
+   ],
+   "res": 0.5,
+   "n_cand": 1709,
+   "n_feats": 179,
+   "by_class": {
+    "kurgany_povrezhdennye": 130,
+    "kurgany_tselye": 13,
+    "gorodishcha": 7,
+    "fortifikatsii": 29
+   }
+  },
+  "022_Лихуша": {
+   "region": "022_Лихуша",
+   "shape": [
+    5,
+    2029,
+    1662
+   ],
+   "res": 0.5,
+   "n_cand": 5537,
+   "n_feats": 66,
+   "by_class": {
+    "kurgany_tselye": 7,
+    "kurgany_povrezhdennye": 50,
+    "gorodishcha": 9
+   }
+  },
+  "023_Бервенец": {
+   "region": "023_Бервенец",
+   "shape": [
+    5,
+    1537,
+    1168
+   ],
+   "res": 0.5,
+   "n_cand": 3536,
+   "n_feats": 42,
+   "by_class": {
+    "kurgany_povrezhdennye": 17,
+    "kurgany_tselye": 18,
+    "gorodishcha": 2,
+    "fortifikatsii": 5
+   }
+  },
+  "025_Вышенское": {
+   "region": "025_Вышенское",
+   "shape": [
+    5,
+    2259,
+    3475
+   ],
+   "res": 0.5,
+   "n_cand": 12252,
+   "n_feats": 198,
+   "by_class": {
+    "kurgany_povrezhdennye": 136,
+    "kurgany_tselye": 20,
+    "gorodishcha": 42
+   }
+  },
+  "026_Золотаревка": {
+   "region": "026_Золотаревка",
+   "shape": [
+    5,
+    4214,
+    4023
+   ],
+   "res": 0.5,
+   "n_cand": 32710,
+   "n_feats": 105,
+   "by_class": {
+    "kurgany_tselye": 12,
+    "kurgany_povrezhdennye": 59,
+    "gorodishcha": 34
+   }
+  },
+  "027_Вышегжа_1": {
+   "region": "027_Вышегжа_1",
+   "shape": [
+    5,
+    1524,
+    1871
+   ],
+   "res": 0.5,
+   "n_cand": 7501,
+   "n_feats": 58,
+   "by_class": {
+    "kurgany_tselye": 17,
+    "kurgany_povrezhdennye": 26,
+    "gorodishcha": 15
+   }
+  },
+  "028_Вышегжа_2": {
+   "region": "028_Вышегжа_2",
+   "shape": [
+    5,
+    4372,
+    5754
+   ],
+   "res": 0.5,
+   "n_cand": 41738,
+   "n_feats": 305,
+   "by_class": {
+    "kurgany_tselye": 103,
+    "kurgany_povrezhdennye": 160,
+    "gorodishcha": 42
+   }
+  },
+  "030_Эсбю": {
+   "region": "030_Эсбю",
+   "shape": [
+    5,
+    716,
+    1056
+   ],
+   "res": 0.5,
+   "n_cand": 1313,
+   "n_feats": 715,
+   "by_class": {
+    "kurgany_tselye": 493,
+    "kurgany_povrezhdennye": 222
+   }
+  },
+  "031_Новотитаровская": {
+   "region": "031_Новотитаровская",
+   "shape": [
+    5,
+    1303,
+    1259
+   ],
+   "res": 0.5,
+   "n_cand": 2016,
+   "n_feats": 40,
+   "by_class": {
+    "kurgany_povrezhdennye": 27,
+    "kurgany_tselye": 1,
+    "gorodishcha": 5,
+    "fortifikatsii": 7
+   }
+  },
+  "032_Красносельская_0.5км": {
+   "region": "032_Красносельская_0.5км",
+   "shape": [
+    5,
+    602,
+    721
+   ],
+   "res": 0.5,
+   "n_cand": 569,
+   "n_feats": 10,
+   "by_class": {
+    "kurgany_povrezhdennye": 8,
+    "kurgany_tselye": 1,
+    "gorodishcha": 1
+   }
+  },
+  "033_Елизаветинское": {
+   "region": "033_Елизаветинское",
+   "shape": [
+    5,
+    1368,
+    2422
+   ],
+   "res": 0.5,
+   "n_cand": 5366,
+   "n_feats": 222,
+   "by_class": {
+    "kurgany_tselye": 58,
+    "kurgany_povrezhdennye": 137,
+    "gorodishcha": 7,
+    "fortifikatsii": 20
+   }
+  },
+  "034_Усть_река": {
+   "region": "034_Усть_река",
+   "shape": [
+    5,
+    1328,
+    1482
+   ],
+   "res": 0.5,
+   "n_cand": 2232,
+   "n_feats": 39,
+   "by_class": {
+    "kurgany_povrezhdennye": 31,
+    "kurgany_tselye": 8
+   }
+  },
+  "035_Шумгора": {
+   "region": "035_Шумгора",
+   "shape": [
+    5,
+    2795,
+    3745
+   ],
+   "res": 0.5,
+   "n_cand": 13180,
+   "n_feats": 448,
+   "by_class": {
+    "kurgany_povrezhdennye": 374,
+    "kurgany_tselye": 71,
+    "gorodishcha": 3
+   }
+  },
+  "036_Тимерево": {
+   "region": "036_Тимерево",
+   "shape": [
+    5,
+    836,
+    745
+   ],
+   "res": 0.5,
+   "n_cand": 970,
+   "n_feats": 764,
+   "by_class": {
+    "kurgany_povrezhdennye": 686,
+    "kurgany_tselye": 78
+   }
+  },
+  "038_Копанское": {
+   "region": "038_Копанское",
+   "shape": [
+    5,
+    317,
+    683
+   ],
+   "res": 0.5,
+   "n_cand": 213,
+   "n_feats": 10,
+   "by_class": {
+    "kurgany_povrezhdennye": 7,
+    "gorodishcha": 1,
+    "fortifikatsii": 2
+   }
+  },
+  "039_Примаки_0.7км": {
+   "region": "039_Примаки_0.7км",
+   "shape": [
+    5,
+    424,
+    546
+   ],
+   "res": 0.5,
+   "n_cand": 218,
+   "n_feats": 0,
+   "by_class": {}
+  },
+  "040_Примаки_1.3км": {
+   "region": "040_Примаки_1.3км",
+   "shape": [
+    5,
+    1124,
+    1041
+   ],
+   "res": 0.5,
+   "n_cand": 1481,
+   "n_feats": 3,
+   "by_class": {
+    "gorodishcha": 3
+   }
+  },
+  "041_Миловидово": {
+   "region": "041_Миловидово",
+   "shape": [
+    5,
+    240,
+    249
+   ],
+   "res": 0.5,
+   "n_cand": 185,
+   "n_feats": 0,
+   "by_class": {}
+  },
+  "044_Новотитаровская_1.8км": {
+   "region": "044_Новотитаровская_1.8км",
+   "shape": [
+    5,
+    203,
+    145
+   ],
+   "res": 0.5,
+   "n_cand": 86,
+   "n_feats": 2,
+   "by_class": {
+    "kurgany_povrezhdennye": 2
+   }
+  },
+  "045_Новотитаровская_2.8км": {
+   "region": "045_Новотитаровская_2.8км",
+   "shape": [
+    5,
+    320,
+    424
+   ],
+   "res": 0.5,
+   "n_cand": 175,
+   "n_feats": 0,
+   "by_class": {}
+  },
+  "061_Граборг": {
+   "region": "061_Граборг",
+   "shape": [
+    5,
+    2290,
+    3201
+   ],
+   "res": 0.5,
+   "n_cand": 19299,
+   "n_feats": 372,
+   "by_class": {
+    "kurgany_tselye": 72,
+    "kurgany_povrezhdennye": 246,
+    "gorodishcha": 6,
+    "fortifikatsii": 48
+   }
+  },
+  "066_Московиты": {
+   "region": "066_Московиты",
+   "shape": [
+    5,
+    1228,
+    1361
+   ],
+   "res": 0.5,
+   "n_cand": 2434,
+   "n_feats": 62,
+   "by_class": {
+    "kurgany_povrezhdennye": 52,
+    "kurgany_tselye": 8,
+    "gorodishcha": 2
+   }
+  },
+  "068_Стеклянуха_1": {
+   "region": "068_Стеклянуха_1",
+   "shape": [
+    5,
+    1608,
+    2153
+   ],
+   "res": 0.5,
+   "n_cand": 4711,
+   "n_feats": 120,
+   "by_class": {
+    "kurgany_tselye": 17,
+    "kurgany_povrezhdennye": 77,
+    "gorodishcha": 11,
+    "fortifikatsii": 15
+   }
+  },
+  "069_Стеклянуха_2": {
+   "region": "069_Стеклянуха_2",
+   "shape": [
+    5,
+    1582,
+    1625
+   ],
+   "res": 0.5,
+   "n_cand": 3054,
+   "n_feats": 127,
+   "by_class": {
+    "kurgany_tselye": 15,
+    "kurgany_povrezhdennye": 94,
+    "gorodishcha": 3,
+    "fortifikatsii": 15
+   }
+  },
+  "101_Гнёздово_Днепровская": {
+   "region": "101_Гнёздово_Днепровская",
+   "shape": [
+    5,
+    3711,
+    5474
+   ],
+   "res": 0.5,
+   "n_cand": 29867,
+   "n_feats": 3280,
+   "by_class": {
+    "kurgany_tselye": 148,
+    "kurgany_povrezhdennye": 2974,
+    "gorodishcha": 31,
+    "fortifikatsii": 127
+   }
+  },
+  "102_Гнёздово_Заольшанская": {
+   "region": "102_Гнёздово_Заольшанская",
+   "shape": [
+    5,
+    2949,
+    3867
+   ],
+   "res": 0.5,
+   "n_cand": 20279,
+   "n_feats": 1301,
+   "by_class": {
+    "kurgany_tselye": 49,
+    "kurgany_povrezhdennye": 1096,
+    "gorodishcha": 28,
+    "fortifikatsii": 128
+   }
+  },
+  "104_Шетнево": {
+   "region": "104_Шетнево",
+   "shape": [
+    5,
+    1729,
+    2073
+   ],
+   "res": 0.5,
+   "n_cand": 8595,
+   "n_feats": 123,
+   "by_class": {
+    "kurgany_povrezhdennye": 78,
+    "kurgany_tselye": 31,
+    "gorodishcha": 7,
+    "fortifikatsii": 7
+   }
+  },
+  "105_Вщиж": {
+   "region": "105_Вщиж",
+   "shape": [
+    5,
+    2245,
+    3450
+   ],
+   "res": 0.5,
+   "n_cand": 6017,
+   "n_feats": 475,
+   "by_class": {
+    "kurgany_tselye": 199,
+    "kurgany_povrezhdennye": 157,
+    "gorodishcha": 29,
+    "fortifikatsii": 90
+   }
+  },
+  "106_Верхмарево": {
+   "region": "106_Верхмарево",
+   "shape": [
+    5,
+    2107,
+    2354
+   ],
+   "res": 0.5,
+   "n_cand": 7161,
+   "n_feats": 243,
+   "by_class": {
+    "kurgany_povrezhdennye": 133,
+    "kurgany_tselye": 41,
+    "gorodishcha": 11,
+    "fortifikatsii": 58
+   }
+  },
+  "179_Гнёздово_Лесная_1": {
+   "region": "179_Гнёздово_Лесная_1",
+   "shape": [
+    5,
+    621,
+    244
+   ],
+   "res": 0.5,
+   "n_cand": 376,
+   "n_feats": 476,
+   "by_class": {
+    "kurgany_povrezhdennye": 394,
+    "kurgany_tselye": 82
+   }
+  },
+  "180_Гнёздово_Лесная_2": {
+   "region": "180_Гнёздово_Лесная_2",
+   "shape": [
+    5,
+    621,
+    249
+   ],
+   "res": 0.5,
+   "n_cand": 373,
+   "n_feats": 1066,
+   "by_class": {
+    "kurgany_povrezhdennye": 814,
+    "kurgany_tselye": 252
+   }
+  },
+  "181_Гнёздово_Лесная_3": {
+   "region": "181_Гнёздово_Лесная_3",
+   "shape": [
+    5,
+    621,
+    189
+   ],
+   "res": 0.5,
+   "n_cand": 360,
+   "n_feats": 585,
+   "by_class": {
+    "kurgany_povrezhdennye": 456,
+    "kurgany_tselye": 129
+   }
+  },
+  "182_Красносельская_1.7км": {
+   "region": "182_Красносельская_1.7км",
+   "shape": [
+    5,
+    519,
+    386
+   ],
+   "res": 0.5,
+   "n_cand": 244,
+   "n_feats": 0,
+   "by_class": {}
+  },
+  "187_Судьбищи_1": {
+   "region": "187_Судьбищи_1",
+   "shape": [
+    5,
+    6283,
+    7730
+   ],
+   "res": 0.6000000000000001,
+   "n_cand": 50000,
+   "n_feats": 233,
+   "by_class": {
+    "kurgany_tselye": 8,
+    "kurgany_povrezhdennye": 14,
+    "gorodishcha": 86,
+    "fortifikatsii": 125
+   }
+  },
+  "188_Руна": {
+   "region": "188_Руна",
+   "shape": [
+    5,
+    1044,
+    967
+   ],
+   "res": 0.5,
+   "n_cand": 3199,
+   "n_feats": 53,
+   "by_class": {
+    "kurgany_povrezhdennye": 44,
+    "kurgany_tselye": 7,
+    "gorodishcha": 2
+   }
+  },
+  "189_Макеево": {
+   "region": "189_Макеево",
+   "shape": [
+    5,
+    2710,
+    1122
+   ],
+   "res": 0.5,
+   "n_cand": 3820,
+   "n_feats": 151,
+   "by_class": {
+    "kurgany_tselye": 57,
+    "kurgany_povrezhdennye": 64,
+    "gorodishcha": 7,
+    "fortifikatsii": 23
+   }
+  },
+  "191_Осечки_1.3км": {
+   "region": "191_Осечки_1.3км",
+   "shape": [
+    5,
+    355,
+    464
+   ],
+   "res": 0.5,
+   "n_cand": 248,
+   "n_feats": 3,
+   "by_class": {
+    "kurgany_tselye": 1,
+    "fortifikatsii": 2
+   }
+  },
+  "192_КЧР": {
+   "region": "192_КЧР",
+   "shape": [
+    5,
+    928,
+    930
+   ],
+   "res": 0.5,
+   "n_cand": 717,
+   "n_feats": 122,
+   "by_class": {
+    "kurgany_tselye": 58,
+    "kurgany_povrezhdennye": 39,
+    "gorodishcha": 12,
+    "fortifikatsii": 13
+   }
+  },
+  "200_Судьбищи_2": {
+   "region": "200_Судьбищи_2",
+   "shape": [
+    5,
+    2114,
+    2699
+   ],
+   "res": 0.5,
+   "n_cand": 5818,
+   "n_feats": 38,
+   "by_class": {
+    "kurgany_tselye": 2,
+    "kurgany_povrezhdennye": 4,
+    "gorodishcha": 10,
+    "fortifikatsii": 22
+   }
+  }
+ },
+ "written": {
+  "li|kurgany_tselye": 1512,
+  "li|kurgany_povrezhdennye": 3777,
+  "li|gorodishcha": 74,
+  "li|fortifikatsii": 111,
+  "li_coarse|gorodishcha": 329,
+  "li_coarse|fortifikatsii": 298
+ },
+ "dropped": {
+  "002_Тешилово|kurgany_tselye": 12,
+  "002_Тешилово|kurgany_povrezhdennye": 168,
+  "004_Боровичи_1|kurgany_tselye": 90,
+  "004_Боровичи_1|kurgany_povrezhdennye": 939,
+  "006_Осечки_1.1км|kurgany_tselye": 2,
+  "006_Осечки_1.1км|kurgany_povrezhdennye": 1,
+  "009_Хальвасборген|kurgany_tselye": 43,
+  "009_Хальвасборген|kurgany_povrezhdennye": 722,
+  "011_Эрентуна|kurgany_tselye": 253,
+  "011_Эрентуна|kurgany_povrezhdennye": 510,
+  "015_Демидовка|kurgany_tselye": 64,
+  "015_Демидовка|kurgany_povrezhdennye": 280,
+  "022_Лихуша|kurgany_tselye": 7,
+  "022_Лихуша|kurgany_povrezhdennye": 50,
+  "025_Вышенское|kurgany_povrezhdennye": 136,
+  "025_Вышенское|kurgany_tselye": 20,
+  "026_Золотаревка|kurgany_tselye": 12,
+  "026_Золотаревка|kurgany_povrezhdennye": 59,
+  "027_Вышегжа_1|kurgany_tselye": 17,
+  "027_Вышегжа_1|kurgany_povrezhdennye": 26,
+  "028_Вышегжа_2|kurgany_tselye": 103,
+  "028_Вышегжа_2|kurgany_povrezhdennye": 160,
+  "033_Елизаветинское|kurgany_tselye": 58,
+  "033_Елизаветинское|kurgany_povrezhdennye": 137,
+  "035_Шумгора|kurgany_povrezhdennye": 374,
+  "035_Шумгора|kurgany_tselye": 71,
+  "061_Граборг|kurgany_tselye": 72,
+  "061_Граборг|kurgany_povrezhdennye": 246,
+  "068_Стеклянуха_1|kurgany_tselye": 17,
+  "068_Стеклянуха_1|kurgany_povrezhdennye": 77,
+  "069_Стеклянуха_2|kurgany_tselye": 15,
+  "069_Стеклянуха_2|kurgany_povrezhdennye": 94,
+  "101_Гнёздово_Днепровская|kurgany_tselye": 148,
+  "101_Гнёздово_Днепровская|kurgany_povrezhdennye": 2974,
+  "101_Гнёздово_Днепровская|gorodishcha": 31,
+  "101_Гнёздово_Днепровская|fortifikatsii": 127,
+  "102_Гнёздово_Заольшанская|kurgany_tselye": 49,
+  "102_Гнёздово_Заольшанская|kurgany_povrezhdennye": 1096,
+  "102_Гнёздово_Заольшанская|gorodishcha": 28,
+  "102_Гнёздово_Заольшанская|fortifikatsii": 128,
+  "104_Шетнево|kurgany_povrezhdennye": 78,
+  "104_Шетнево|kurgany_tselye": 31,
+  "105_Вщиж|kurgany_tselye": 199,
+  "105_Вщиж|kurgany_povrezhdennye": 157,
+  "106_Верхмарево|kurgany_povrezhdennye": 133,
+  "106_Верхмарево|kurgany_tselye": 41,
+  "187_Судьбищи_1|kurgany_tselye": 8,
+  "187_Судьбищи_1|kurgany_povrezhdennye": 14,
+  "187_Судьбищи_1|gorodishcha": 86,
+  "187_Судьбищи_1|fortifikatsii": 125,
+  "189_Макеево|kurgany_tselye": 57,
+  "189_Макеево|kurgany_povrezhdennye": 64,
+  "200_Судьбищи_2|kurgany_tselye": 2,
+  "200_Судьбищи_2|kurgany_povrezhdennye": 4
+ },
+ "removed": {
+  "li|gorodishcha": 664,
+  "li|fortifikatsii": 379,
+  "li|kurgany_povrezhdennye": 37601,
+  "li|kurgany_tselye": 37601,
+  "li_coarse|gorodishcha": 2591,
+  "li_coarse|fortifikatsii": 775
+ },
+ "seconds": 118.2
+}
