@@ -12,6 +12,7 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
 * ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
 * ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
   ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
 * ``EXPDS_STRICT=1`` (bot-2) — при ``enabled=true`` и сбое импорта/загрузки D-FINE — громкий отказ
@@ -64,6 +65,9 @@ DEFAULTS = {
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
     # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
     "drop_min_det": 1,
+    # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
+    # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
+    "agreement_m": 0.0,
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",
@@ -197,6 +201,50 @@ def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
         return "sp_or"
 
     return [f for f in feats if not (f.get("region_name") in regions and grp(f) in groups and grp(f) != GROUP)]
+
+
+def _feat_xy(f: dict) -> tuple[float, float] | None:
+    g = f.get("geom")
+    if g is None:
+        return None
+    try:
+        c = g.centroid
+        return float(c.x), float(c.y)
+    except Exception:
+        return None
+
+
+def filter_agreement(feats: list[dict], anchors: list[dict], agreement_m: float) -> list[dict]:
+    """Оставить D-FINE, чей центр ≤ ``agreement_m`` м (EPSG:3857 ground) от якоря sp_or.
+
+    Якорь — объект с ``markup_type=sp_or`` и ``threshold_group != sp_dfine`` (U-Net / прочие).
+    ``agreement_m <= 0`` → без фильтра (OFF). Пустые якоря → все D-FINE отбрасываются при >0.
+    """
+    m = float(agreement_m or 0.0)
+    if m <= 0:
+        return feats
+    pts: list[tuple[float, float]] = []
+    for a in anchors or ():
+        if a.get("markup_type") != MARKUP:
+            continue
+        if a.get("threshold_group") == GROUP:
+            continue
+        xy = _feat_xy(a)
+        if xy is not None:
+            pts.append(xy)
+    if not pts:
+        return []
+    kept = []
+    for f in feats:
+        xy = _feat_xy(f)
+        if xy is None:
+            continue
+        x, y = xy
+        # ground metres ≈ Euclidean * ground_scale(y) in WebMercator
+        scale = ground_scale(y)
+        if any(math.hypot(x - ax, y - ay) * scale <= m for ax, ay in pts):
+            kept.append(f)
+    return kept
 
 
 # ── растр ────────────────────────────────────────────────────────────────────────────────────────────────
