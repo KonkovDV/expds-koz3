@@ -14,6 +14,11 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 * ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
 * ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
   ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
+* ``EXPDS_STRICT=1`` (bot-2) — при ``enabled=true`` и сбое импорта/загрузки D-FINE — громкий отказ
+  (ERROR + WARNING-файл + raise), а не тихий fallback «как v2»; по умолчанию ВЫКЛ. (сдача не падает,
+  но WARNING пишется всегда). Вендор ``inference/lib/vendor`` — manylinux/cp312 (площадка/Kaggle/docker);
+  на Windows-host без docker import падает (``regex``/``tokenizers`` .so) → нужен docker ``pantum/n7q``
+  или env transformers==5.21.0;
 * ансамбль фолдов: ``ensemble = "max"`` (кластер C берёт лучший из всех моделей, как NMS) или ``"mean"``
   (среднее по моделям, отсутствующая модель = 0, как score-averaging в WBF). Ни один не измерен честно —
   у фолдовых моделей нет общего OOF; по умолчанию одна модель.
@@ -326,7 +331,64 @@ _META_DEPS = {"tqdm": "tqdm", "regex": "regex", "packaging": "packaging", "filel
               "pillow": "PIL", "accelerate": "accelerate", "rich": "rich"}
 #: маркер WARNING в логе: версия пакета взята из module.__version__, а не из метаданных
 DEPMETA = "SP_DFINE_DEPMETA"
+#: WARNING-файл / строка STATUS: D-FINE включён, но не загрузился (не тихий fallback)
+WARN_MARKER = "WARNING SP_DFINE_UNAVAILABLE"
 _META_USED: dict = {}
+
+
+def strict_mode() -> bool:
+    """``EXPDS_STRICT=1`` — при сбое загрузки D-FINE (и enabled) поднимать исключение, не глотать."""
+    return (os.environ.get("EXPDS_STRICT") or "").strip() in ("1", "true", "TRUE", "yes", "YES")
+
+
+def status_dir() -> Path | None:
+    """Куда писать WARNING-файл: ``EXPDS_STATUS_DIR`` или ``EXPDS_DFINE_DUMP`` (если задан)."""
+    raw = (os.environ.get("EXPDS_STATUS_DIR") or "").strip()
+    if raw:
+        p = Path(raw)
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+    return dump_root()
+
+
+def vendor_platform_hint(vendor: Path) -> str:
+    """Подсказка при сбое импорта: Linux-.so на Windows / нет transformers в вендоре."""
+    import sys
+    if not vendor.is_dir():
+        return (f"vendor отсутствует: ожидался {vendor.as_posix()} "
+                f"(упакуйте inference/lib/vendor из bot-7 work6/vendor_test/lib; на Kaggle/docker Linux OK)")
+    has_tr = (vendor / "transformers").is_dir()
+    so = list(vendor.rglob("*.so"))[:3]
+    pyd = list(vendor.rglob("*.pyd"))[:1]
+    bits = []
+    if not has_tr:
+        bits.append("в вендоре нет каталога transformers/")
+    if sys.platform.startswith("win") and so and not pyd:
+        bits.append(
+            f"вендор Linux (.so, напр. {so[0].name}): на Windows-host не грузится — "
+            f"запускайте в docker pantum/n7q (как площадка/Kaggle) или поставьте "
+            f"transformers=={TRANSFORMERS_PIN} в env"
+        )
+    return "; ".join(bits)
+
+
+def write_unavailable_warning(reason: str, *, detail: str = "") -> Path | None:
+    """ERROR в лог уже вызван вызывающим; здесь — WARNING-файл для STATUS.txt раннера + stages."""
+    log.error("%s: %s", WARN_MARKER, reason)
+    d = status_dir()
+    if d is None:
+        return None
+    path = d / "SP_DFINE_WARNING.txt"
+    body = f"{WARN_MARKER}: {reason}\n"
+    if detail:
+        body += detail.rstrip() + "\n"
+    path.write_text(body, encoding="utf-8")
+    # sidecar for runners that append into JobDir/STATUS.txt
+    flag = d / "STATUS_WARNING.txt"
+    flag.write_text(f"{WARN_MARKER}: {reason}\n", encoding="utf-8")
+    return path
+
+
 
 
 def _norm_dist(name: str) -> str:
@@ -565,6 +627,10 @@ def import_dfine(root: Path) -> tuple:
         except Exception as exc:  # noqa: BLE001 — причина пишется в лог/FAIL
             info["errors"].append(f"{src}: {type(exc).__name__}: {str(exc)[:300]}")
             _purge(("transformers",))
+    hint = vendor_platform_hint(v)
+    if hint:
+        info["errors"].append(f"hint: {hint}")
+    info["platform"] = __import__("sys").platform
     raise ImportError(f"{UNAVAILABLE}: D-FINE недоступен — " + " | ".join(info["errors"]))
 
 
@@ -856,22 +922,43 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         cache["thresholds_ready"] = ready
         cache["thresholds_missing"] = missing
         if st["require_thresholds"] and not ready:
-            log.error("%s: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается, выдача как v2",
-                      UNAVAILABLE, ", ".join(missing))
+            msg = f"нет порогов [thresholds_by_markup.sp_dfine] для {', '.join(missing)}"
+            log.error("%s: %s — D-FINE не запускается, выдача как v2", UNAVAILABLE, msg)
             stage["skip_reason"] = "thresholds_missing:" + ",".join(missing)
+            stage["import_error"] = msg
+            cache["load_error"] = msg
+            write_unavailable_warning(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         elif not st["weights"]:
-            log.error("%s: weights пуст — D-FINE не запускается, выдача как v2", UNAVAILABLE)
+            msg = "weights пуст — D-FINE не запускается"
+            log.error("%s: %s, выдача как v2", UNAVAILABLE, msg)
             stage["skip_reason"] = "weights_empty"
+            stage["import_error"] = msg
+            cache["load_error"] = msg
+            write_unavailable_warning(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         else:
             try:
                 dev = _device(st)
                 t0 = time.monotonic()
                 cache["models"], cache["device"] = load_models(st, root, dev), dev
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
-            except Exception as exc:  # noqa: BLE001 — громко, но не роняем сдачу: выдача как v2
-                log.exception("%s: модели не загрузились (%s: %s) — D-FINE пропущен, выдача как v2",
-                              UNAVAILABLE, type(exc).__name__, str(exc)[:500])
+            except Exception as exc:  # noqa: BLE001 — по умолчанию не роняем сдачу: выдача как v2
+                detail = f"{type(exc).__name__}: {str(exc)[:800]}"
+                log.exception("%s: модели не загрузились (%s) — D-FINE пропущен, выдача как v2 "
+                              "(EXPDS_STRICT=1 → raise)",
+                              UNAVAILABLE, detail[:500])
                 stage["skip_reason"] = f"load_failed:{type(exc).__name__}"
+                stage["import_error"] = detail
+                cache["load_error"] = detail
+                write_unavailable_warning(
+                    f"enabled=true, но модели не загрузились ({type(exc).__name__})",
+                    detail=detail,
+                )
+                if strict_mode():
+                    raise
     models = cache["models"]
     stage["n_models"] = len(models)
     stage["thresholds_ready"] = cache.get("thresholds_ready")
