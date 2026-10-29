@@ -615,6 +615,25 @@ def test_check_submission_smoke_needs_weights(tmp_path):
     assert [r[0] for r in cs.RESULTS] == ["WARN"] and "смоук не выполнен" in cs.RESULTS[0][2]
 
 
+def test_check_submission_smoke_verdict_reaches_report(tmp_path, monkeypatch):
+    """bot-6 v4: первый настоящий прогон с весами bot-9 упал TypeError — report() звался с (статус, текст) без
+    раздела. Проба с данными и весами должна дойти до report(статус, "dfine", текст): n_det>0 — PASS, 0 — FAIL."""
+    cs = _cs()
+    reg = tmp_path / "train" / "185_Изборск" / "05_Изборск_Or_ортофото"
+    reg.mkdir(parents=True)
+    (reg / "01_Изборск_Or_ортофото.tif").write_bytes(b"")
+    cfg = {"dfine_aeor": {"enabled": True, "markups": ["or"], "weights": {"or": ["models/dfine_or"]}}}
+    z = _zip(tmp_path, "", [f"models/dfine_or/{f}" for f in ("config.json", "model.safetensors")])
+    args = SimpleNamespace(**{**vars(_args(tmp_path)), "dfine_aeor_root": str(tmp_path / "train")})
+    for n, want in ((94, "PASS"), (0, "FAIL")):
+        out = {"ok": True, "n_det": n, "max": 0.46, "windows": [1, 1], "models": 1, "min_score": 0.05}
+        monkeypatch.setattr(cs.subprocess, "run", lambda *a, _o=out, **k: SimpleNamespace(
+            stdout="DFINE_AEOR_JSON=" + json.dumps(_o), stderr="", returncode=0))
+        cs.RESULTS.clear()
+        cs.check_dfine_aeor_weights(z, cfg, args)
+        assert [(r[0], r[1]) for r in cs.RESULTS] == [(want, "dfine")] and "185_Изборск" in cs.RESULTS[0][2]
+
+
 def test_check_submission_missing_train_data_warns_not_pass(tmp_path):
     """bot-7 13:12: веса в архиве есть, а данных трейна для смоука на машине нет — явный WARN «смоук не выполнен»
     на каждую модальность, ни одного PASS; итог без FAIL (не дефект архива), но WARN виден."""
@@ -656,6 +675,34 @@ def test_scene_uses_overview_only_for_heavy_downsampling(tmp_path):
     sc.close()
     sc = A.Scene(p, UTM, 0.04)                                                # слабое уменьшение — как sp_dfine.Scene
     assert sc.overview_level is None
+    sc.close()
+
+
+def test_scene_geographic_rgba_not_1x1(tmp_path):
+    """bot-9 13:37: Or 008_Герите (EPSG:4326, пиксель ~1e-7°, RGBA, обзоры 2…511) у bot-9 прочитан 1×1 px.
+    Scene считает размер через calculate_default_transform в UTM (метры), а не res в градусах: сцена = охват/0,5 м,
+    альфа не читается, сетка окон покрывает сцену (замер на настоящем 008: work/aeor_v4/raster_probe.log)."""
+    import rasterio
+    from rasterio.transform import from_origin
+    p = tmp_path / "g.tif"
+    n, deg = 2048, 1e-6                                       # 57° с. ш.: ≈0,111 м по широте, ≈0,061 м по долготе
+    a = np.full((4, n, n), 90, dtype=np.uint8)
+    a[3] = 255
+    with rasterio.open(p, "w", driver="GTiff", width=n, height=n, count=4, dtype="uint8", crs="EPSG:4326",
+                       transform=from_origin(45.1, 57.0, deg, deg), tiled=True, photometric="RGB") as d:
+        d.write(a)
+        d.build_overviews([2, 4, 8, 16], rasterio.enums.Resampling.average)
+    crs = sp_dfine.utm_for(p, None)
+    assert crs == "EPSG:32638"
+    sc = A.Scene(p, crs, 0.5)
+    w_m, h_m = n * deg * 111320 * math.cos(math.radians(57)), n * deg * 110540
+    assert sc.overview_level == 0 and sc.bands == [1, 2, 3]   # 0,08 м × 2 ≤ 0,25; альфа (4) не читается
+    assert abs(sc.W - w_m / 0.5) / (w_m / 0.5) < 0.15 and abs(sc.H - h_m / 0.5) / (h_m / 0.5) < 0.15
+    assert abs(abs(sc.T.a) - 0.5) < 1e-9 and min(sc.W, sc.H) > 100
+    wins = A.windows(sc.W, sc.H, 128, 32)
+    assert max(x for x, _ in wins) + 128 >= sc.W and max(y for _, y in wins) + 128 >= sc.H
+    im = sc.read(sc.W // 2 - 32, sc.H // 2 - 32, 64)
+    assert im.shape == (64, 64, 3) and int(im[32, 32, 0]) == 90
     sc.close()
 
 
