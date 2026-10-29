@@ -1043,6 +1043,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     cfg = load_config(cfg_path)
     from . import ae_recall_relax as _ae_rr
     cfg = _ae_rr.apply(cfg)  # bot-3: [ae_recall_relax] default OFF (Fix B)
+    from . import dfine_ae_tile as _ae_tile
+    cfg = _ae_tile.apply(cfg)  # bot-3: [dfine_ae_tile] default OFF (train-matched windows/fuse)
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime

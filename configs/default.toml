@@ -416,3 +416,13 @@ enabled = false
 # thresholds_by_markup.li_ae.kurgany_tselye = 0.85
 # fusion.povr_min = 0.9
 # fusion.tselye_min = 0.7
+
+# bot-3: Ae D-FINE tiling/fuse aligned to FT OOF. Default OFF. When ON patches [dfine_aeor]
+# (windows_mode=train, fuse=nms). Does not enable dfine_aeor itself.
+# Keys: expds/dfine_ae_tile.py DEFAULTS.
+[dfine_ae_tile]
+enabled = false
+# windows_mode = "train"
+# fuse = "nms"
+# scales = [1.0]
+# budget_s = 120.0
