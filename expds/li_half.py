@@ -55,6 +55,8 @@ DEFAULTS = {
     "skip_mosaic": False,       # True — не идти по мозаике (Эрентуна — мозаика, см. REPORT2 §11)
     "skip_coarse": True,        # v1: огрублённый DEM li_coarse (без мозаики) пропускается
     "dedupe_m": 12.0,
+    # bot-8 (бот 2, 29.10): NMS между своими кругами li_half без учёта класса, м; 0 — выкл. (по умолчанию). См. self_nms.
+    "self_xclass_nms_m": 0.0,
     "group": "li_half",
     # bot-8: время — мягким потолком pipeline (_soft_ok "li_half": [time.soft] li_half /
     # EXPDS_SOFT_NEED_LI_HALF_S, по умолчанию 30 с) и оценкой на LAS est_s(); ключ soft_need_s здесь не читается.
@@ -87,7 +89,23 @@ def params(cfg: dict | None) -> dict:
     out = {**DEFAULTS, **{k: v for k, v in own.items() if k != "cand"}}
     out["cand"] = {**DEFAULTS["cand"], **(own.get("cand") or {})}
     out["enabled"] = _enabled_raw(own)
+    out["self_xclass_nms_m"] = _nms_m(own.get("self_xclass_nms_m", DEFAULTS["self_xclass_nms_m"]))
     return out
+
+
+#: bot-8: плохие значения self_xclass_nms_m, о которых уже предупредили.
+_NMS_WARNED: set = set()
+
+
+def _nms_m(v) -> float:
+    """self_xclass_nms_m — число метров ≥ 0 (int/float, не bool); иначе 0 (выкл.) с предупреждением один раз."""
+    if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v and 0 <= v < float("inf"):
+        return float(v)
+    key = repr(v)
+    if key not in _NMS_WARNED:
+        _NMS_WARNED.add(key)
+        log.warning("[li_half] self_xclass_nms_m=%s — не число метров ≥ 0: NMS li_half ВЫКЛЮЧЕН", key)
+    return 0.0
 
 
 def enabled(cfg: dict | None) -> bool:
@@ -229,6 +247,36 @@ def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
     from .pipeline import kept_kurgan_anchors
 
     return drop_near_any_class(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
+
+
+#: порядок предпочтения при равной уверенности: целый раньше повреждённого
+_NMS_CLASS_RANK = {"kurgany_tselye": 0, "kurgany_povrezhdennye": 1}
+
+
+def self_nms(feats: list[dict], dist_m: float) -> list[dict]:
+    """bot-8: NMS между кругами li_half одного участка БЕЗ учёта класса кургана ([li_half] self_xclass_nms_m).
+
+    dist_m <= 0 — вход без изменений (по умолчанию). Иначе жадно: круги-курганы (KUR) участка упорядочиваются по
+    (уверенность ↓, целый раньше повреждённого, исходный порядок), круг остаётся, если ни один уже оставленный
+    не ближе dist_m (≤, расстояние между ground_point, м). Итог — в исходном порядке; не курганы и круги
+    без геометрии не трогаются."""
+    if not dist_m or dist_m <= 0:
+        return feats
+    from .pipeline import ground_point
+
+    order = sorted((i for i, f in enumerate(feats) if f.get("class_name") in KUR and f.get("geom") is not None),
+                   key=lambda i: (-float(feats[i].get("confidence") or 0),
+                                  _NMS_CLASS_RANK.get(feats[i].get("class_name"), 9), i))
+    kept_pts: dict[object, list] = {}
+    drop = set()
+    for i in order:
+        reg = feats[i].get("region_name")
+        pt = ground_point(feats[i]["geom"])
+        if any(q.distance(pt) <= dist_m for q in kept_pts.get(reg, ())):
+            drop.add(i)
+        else:
+            kept_pts.setdefault(reg, []).append(pt)
+    return [f for i, f in enumerate(feats) if i not in drop]
 
 
 def floor(feats: list[dict], floors: dict[str, float]) -> list[dict]:

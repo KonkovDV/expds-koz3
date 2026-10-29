@@ -285,3 +285,51 @@ def test_run_sigma_uses_sigma_anchors():
     src = inspect.getsource(pipeline.run)
     assert "drop_near_kurgans(fresh, sigma_anchors(pool, cfg), 12.0)" in src
     assert "kept_kurgan_anchors(pool)" not in src
+
+
+# ---------------------------------------------------------------- [li_half] self_xclass_nms_m (бот 2, 29.10)
+def test_self_xclass_nms_param_default_off_and_bad_values(caplog):
+    assert li_half.params({})["self_xclass_nms_m"] == 0.0
+    assert li_half.params({"li_half": {"self_xclass_nms_m": 12}})["self_xclass_nms_m"] == 12.0
+    li_half._NMS_WARNED.clear()
+    with caplog.at_level(logging.WARNING):
+        for bad in (True, "12", -1.0, float("nan"), float("inf")):
+            assert li_half.params({"li_half": {"self_xclass_nms_m": bad}})["self_xclass_nms_m"] == 0.0
+    assert sum("self_xclass_nms_m" in r.getMessage() for r in caplog.records) == 5
+    import tomllib
+    from pathlib import Path
+    cfg = tomllib.loads((Path(__file__).resolve().parents[1] / "configs/default.toml").read_text(encoding="utf-8"))
+    assert cfg["li_half"]["self_xclass_nms_m"] == 0.0
+
+
+def _nms_set():
+    return [_circ(0.0, 0.6, "li_half"), _circ(1.0, 0.8, "li_half", cls="kurgany_povrezhdennye"),   # 1 м: 0,8 > 0,6
+            _circ(100.0, 0.7, "li_half", cls="kurgany_povrezhdennye"), _circ(105.0, 0.7, "li_half"),  # ничья → целый
+            _circ(200.0, 0.9, "li_half"), _circ(213.0, 0.5, "li_half"),                               # 13 м — оба
+            _circ(300.0, 0.9, "li_half"), _circ(301.0, 0.5, "li_half", region="region_0002"),        # другой участок
+            _circ(400.0, 0.9, "li_half"), _circ(410.0, 0.8, "li_half", cls="kurgany_povrezhdennye"),
+            _circ(420.0, 0.7, "li_half")]          # жадно: 410 вон из-за 400, 420 в 20 м от 400 — остаётся
+
+
+def test_self_nms_zero_is_no_change():
+    half = _nms_set()
+    assert li_half.self_nms(half, 0.0) is half and li_half.self_nms(half, 0) is half
+
+
+def test_self_nms_12m_keeps_higher_conf_then_intact():
+    out = li_half.self_nms(_nms_set(), 12.0)
+    assert [(round(f["geom"].centroid.x), f["class_name"][8], f["region_name"][-1]) for f in out] == [
+        (1, "p", "1"), (105, "t", "1"), (200, "t", "1"), (213, "t", "1"), (300, "t", "1"), (301, "t", "2"),
+        (400, "t", "1"), (420, "t", "1")]
+
+
+def test_lidar_feats_self_nms_after_new_only_before_emit(lidar_env, monkeypatch):
+    reg, calls, root = lidar_env
+    monkeypatch.setattr(li_half, "half_pass", lambda seg, d, region, *a, **k: [
+        _circ(3.0, 0.95, "li_half", cls="kurgany_povrezhdennye", region=region),  # у принятого li — вон до NMS
+        _circ(15.0, 0.8, "li_half", region=region),                                 # 15 м от li; 12 м от 3 — но 3 уже вон
+        _circ(50.0, 0.8, "li_half", region=region),
+        _circ(55.0, 0.9, "li_half", cls="kurgany_povrezhdennye", region=region),
+        _circ(200.0, 0.8, "li_half", region=region)])
+    assert _half(pipeline.lidar_feats(reg, _cfg(), TimeGuard(1000), {}, root)) == [15, 50, 55, 200]
+    assert _half(pipeline.lidar_feats(reg, _cfg(self_xclass_nms_m=12.0), TimeGuard(1000), {}, root)) == [15, 55, 200]
