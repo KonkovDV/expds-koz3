@@ -14,9 +14,13 @@
 from __future__ import annotations
 
 import math
+import os
+
+import numpy as np
 from collections import defaultdict
 
 from shapely.geometry import Polygon
+import shapely
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import polylabel, unary_union
 from shapely.strtree import STRtree
@@ -57,13 +61,28 @@ def merge_across_sources(items: list[dict], source_key: str = "source") -> list[
             a = parent[a]
         return a
 
-    for i, g in enumerate(geoms):
-        for j in tree.query(g):
-            j = int(j)
-            if j <= i or items[j].get(source_key) == items[i].get(source_key):
-                continue
-            if g.intersection(geoms[j]).area > 0:
-                parent[find(i)] = find(j)
+    if os.environ.get("EXPDS_POST_FAST", "1") != "0":
+        # w0: один пакетный запрос к STRtree и площади пересечений массивом; состав групп тот же
+        # (порядок объединений не влияет на выход: группы идут по наименьшему номеру, лучший — max conf).
+        arr = np.array(geoms, dtype=object)
+        ii, jj = tree.query(arr)
+        m = jj > ii
+        ii, jj = ii[m], jj[m]
+        src = [it.get(source_key) for it in items]
+        m = np.fromiter((src[a] != src[b] for a, b in zip(ii.tolist(), jj.tolist())), bool, len(ii))
+        ii, jj = ii[m], jj[m]
+        if len(ii):
+            hit = shapely.area(shapely.intersection(arr[ii], arr[jj])) > 0
+            for a, b in zip(ii[hit].tolist(), jj[hit].tolist()):
+                parent[find(a)] = find(b)
+    else:
+        for i, g in enumerate(geoms):
+            for j in tree.query(g):
+                j = int(j)
+                if j <= i or items[j].get(source_key) == items[i].get(source_key):
+                    continue
+                if g.intersection(geoms[j]).area > 0:
+                    parent[find(i)] = find(j)
     groups: dict[int, list[int]] = defaultdict(list)
     for i in range(len(items)):
         groups[find(i)].append(i)
@@ -122,7 +141,8 @@ def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict
 
 
 def _vertex_count(geom: BaseGeometry) -> int:
-    return len(geom.exterior.coords) + sum(len(r.coords) for r in geom.interiors)
+    # w0: то же число, что len(exterior.coords)+Σlen(interiors.coords), но в GEOS без копии координат (×20)
+    return int(shapely.get_num_coordinates(geom))
 
 
 def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> BaseGeometry:
@@ -156,7 +176,37 @@ def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> Base
 
 
 def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:
-    """Валидные отдельные Polygon с допустимым числом вершин."""
+    """Валидные отдельные Polygon с допустимым числом вершин.
+
+    w0: векторный путь shapely 2 (is_valid/area/num_coords массивом); результат тот же, что у
+    finalize_ref (tests/test_w0_post_fast.py). EXPDS_POST_FAST=0 — старый поэлементный путь.
+    """
+    if os.environ.get("EXPDS_POST_FAST", "1") == "0" or not feats:
+        return finalize_ref(feats, min_area)
+    geoms = np.array([f["geom"] for f in feats], dtype=object)
+    bad = ~shapely.is_valid(geoms)
+    if bad.any():
+        geoms[bad] = shapely.make_valid(geoms[bad])
+    simple = shapely.get_type_id(geoms) == 3          # Polygon: polygons_of(g) == [g], если не пустой
+    empty = shapely.is_empty(geoms)
+    area = shapely.area(geoms)
+    nv = shapely.get_num_coordinates(geoms)
+    out = []
+    for f, g, s_, e, a, n in zip(feats, geoms, simple, empty, area, nv):
+        if s_:
+            if e or a < min_area:
+                continue
+            out.append(dict(f, geom=g if n < MAX_VERTICES else limit_vertices(g)))
+            continue
+        for part in polygons_of(g):
+            if part.area < min_area:
+                continue
+            out.append(dict(f, geom=limit_vertices(part)))
+    return out
+
+
+def finalize_ref(feats: list[dict], min_area: float = 0.01) -> list[dict]:
+    """Эталон finalize (до w0): поэлементно."""
     out = []
     for f in feats:
         g = f["geom"]
@@ -272,6 +322,32 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
     per_class = dict(rad) if isinstance(rad, dict) else {}
     classes = set(spec.get("classes") or (per_class.keys() if per_class else ("arkhitektury",)))
     groups = set(spec.get("groups") or ())
+    if os.environ.get("EXPDS_POST_FAST", "1") != "0":
+        # w0: те же GEOS-вызовы массивом (centroid/contains/point_on_surface/buffer); тест — test_w0_post_fast.py
+        out = list(feats)
+        idx = [i for i, f in enumerate(feats)
+               if f.get("class_name") in classes
+               and not (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups)
+               and f["geom"] is not None]
+        if not idx:
+            return out
+        geoms = np.array([feats[i]["geom"] for i in idx], dtype=object)
+        keep = ~shapely.is_empty(geoms)
+        idx = [i for i, k in zip(idx, keep) if k]
+        geoms = geoms[keep]
+        if not idx:
+            return out
+        cen = shapely.centroid(geoms)
+        bad = ~shapely.contains(geoms, cen)
+        if bad.any():
+            cen[bad] = shapely.point_on_surface(geoms[bad])
+        ys = shapely.get_y(cen)
+        radii = np.array([float(per_class.get(feats[i].get("class_name"), rad if not per_class else 0.25))
+                          / _ground_scale(float(y)) for i, y in zip(idx, ys)])
+        circ = shapely.buffer(cen, radii, quad_segs=8)
+        for i, c in zip(idx, circ):
+            out[i] = dict(feats[i], geom=c)
+        return out
     out = []
     for f in feats:
         if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
