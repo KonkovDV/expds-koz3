@@ -227,6 +227,39 @@ def to_3857_ok(crs: str | None) -> bool:
     return True
 
 
+# Метры на земле в геофизике (opt-in: [geophys] ground_metres = true или env EXPDS_GROUND_M=1).
+# Пороги геофизики (GSD, площади, радиусы, окна признаков) заданы в метрах на земле; в EPSG:3857 единица
+# CRS — это cos φ метра (55° с. ш.: 0,57 м). Включено → шаг пикселя растра в веб-меркаторе умножается на
+# cos(широты центра растра). Для UTM и прочих метрических CRS множитель 1,0: выход побайтно прежний.
+GROUND_METRES: bool | None = None
+
+
+def ground_metres_on(value=None) -> bool:
+    """Аргумент, иначе GROUND_METRES (ставит конвейер из конфига), иначе env EXPDS_GROUND_M."""
+    import os
+
+    if value is None:
+        value = GROUND_METRES
+    if value is None:
+        value = os.environ.get("EXPDS_GROUND_M", "0")
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def ground_scale(crs: str | None, bounds=None, enable=None) -> float:
+    """Метров на земле в одной единице CRS растра: cos(широты центра) для EPSG:3857, иначе 1,0.
+    bounds — (left, bottom, right, top) в этой CRS. Выключено (по умолчанию) — всегда 1,0."""
+    if not crs or bounds is None or not ground_metres_on(enable):
+        return 1.0
+    try:
+        if CRS.from_user_input(crs).to_epsg() != 3857:
+            return 1.0
+    except Exception:
+        return 1.0
+    y = (float(bounds[1]) + float(bounds[3])) / 2.0
+    lat = math.degrees(math.atan(math.sinh(y / 6378137.0)))
+    return math.cos(math.radians(lat))
+
+
 def usable_raster_crs(declared: str | None, bounds, fallback_utm: str | None) -> str | None:
     """CRS растра для перевода в EPSG:3857.
 
