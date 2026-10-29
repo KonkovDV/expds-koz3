@@ -9,7 +9,7 @@
 
     # стек как у scoreboard (нужны --work/--train):
     python scripts/diff_match_scope.py --work F:/expds3/work --train F:/2/train-expds-3 \\
-        --out notes/bot7_diff_scope/
+        --honest 10 --out notes/bot7_diff_scope/
 """
 from __future__ import annotations
 
@@ -51,6 +51,10 @@ def main() -> None:
     ap.add_argument("--metric", default=str(ROOT / "materials" / "compute_metrics.py"))
     ap.add_argument("--out", required=True, help="каталог для CSV/JSON")
     ap.add_argument("--tau", type=float, default=0.0, help="порог conf для счётчиков (0 = все)")
+    ap.add_argument("--honest", type=int, default=0,
+                    help="как scoreboard: K фолдов семей для честного ALL (0=выкл); нужен --work")
+    ap.add_argument("--honest-by", choices=("family", "region"), default="family")
+    ap.add_argument("--honest-unseen", choices=("drop", "keep"), default="drop")
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -73,8 +77,11 @@ def main() -> None:
     else:
         if not args.pred or not args.gt:
             raise SystemExit("нужны --pred/--gt или --work/--train")
+        if args.honest:
+            raise SystemExit("--honest требует --work/--train (нужны new/optical регионы)")
         pred = json.loads(Path(args.pred).read_text(encoding="utf-8"))
         gt = json.loads(Path(args.gt).read_text(encoding="utf-8"))
+        new, optical = set(), set()
 
     metric._UTM_GEOM_CACHE.clear()
     metric._SCOPE_WARNED.clear()
@@ -91,12 +98,48 @@ def main() -> None:
     cross = [p for p in g_pairs if p["cross_layer"]]
     same = [p for p in g_pairs if not p["cross_layer"]]
 
+    honest_global = honest_layer = None
+    if args.honest:
+        from expds.metric import family_folds, honest_counts, score_counts
+        from expds.naming import site_family
+
+        def _honest(curves):
+            unit_of = site_family if args.honest_by == "family" else (lambda r: r)
+            regions = ({r for c in curves.values() for r in c.pred_region}
+                       | {r for c in curves.values() for r in c.gt_regions})
+            folds = family_folds(regions, unit_of, None if args.honest < 0 else args.honest)
+            counts, info = honest_counts(curves, folds, unseen=args.honest_unseen)
+            return {
+                "all": score_counts(counts)[0],
+                "new34": score_counts(counts, new)[0],
+                "optical": score_counts(counts, optical)[0],
+                "folds": info["folds"],
+                "unseen_dropped": info["unseen_dropped"],
+                "unseen_kept": info["unseen_kept"],
+            }
+
+        honest_global = _honest(g_curves)
+        honest_layer = _honest(l_curves)
+        print(
+            f"honest-{args.honest} global={honest_global['all']:.6f} "
+            f"layer={honest_layer['all']:.6f} "
+            f"Δ={honest_layer['all'] - honest_global['all']:+.6f} "
+            f"(34уч {honest_global['new34']:.6f}→{honest_layer['new34']:.6f}; "
+            f"ae/opt {honest_global['optical']:.6f}→{honest_layer['optical']:.6f})",
+            flush=True,
+        )
+
     # summary JSON
     summary = {
         "tau": args.tau,
         "score_global": g_score,
         "score_layer": l_score,
         "delta": l_score - g_score,
+        "honest_k": args.honest or None,
+        "honest_global": honest_global,
+        "honest_layer": honest_layer,
+        "honest_delta": (None if honest_global is None
+                         else honest_layer["all"] - honest_global["all"]),
         "n_tp_global": len(g_pairs),
         "n_tp_layer": len(l_pairs),
         "n_cross_layer_tp_global": len(cross),
