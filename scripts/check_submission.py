@@ -1064,6 +1064,10 @@ ALLOW_EMPTY = False
 
 def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
     """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
+    lif = [ln for ln in log.splitlines() if "LI_TO_AE_FAILED" in ln]
+    if lif:
+        report("FAIL", "li_to_ae", f"{len(lif)} строк LI_TO_AE_FAILED: копии курганов лидара в ae потеряны: "
+                                   + " | ".join(b[-300:] for b in lif[:3]))
     bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln]
     if bad:
         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
