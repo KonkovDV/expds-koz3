@@ -131,9 +131,13 @@ SOFT_CEILING_DEFAULT_S = 1200.0
 #:   wide_window — окно 256 м (sp_focal2) на участке без LAS, на каждый SpOr-растр: 120 (> 106 с снимка);
 #:   sigma       — канал σ (li_dev), на каждый участок с LAS: 60 (σ всего 57 с) + резерв кропа, если он включён;
 #:   verify      — проверка кропа курганов спутника после всех фаз: 60.
-#: Порядок отключения при росте времени: окно 256 м (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
+#:   li_half     — второй проход li на 1 м ([li_half]), на каждый LAS: 30 с — нижняя граница; к ней — оценка
+#:                 прохода li_half.est_s (max(5, 0,35 × t основного li на этом LAS × tta)) и резервы всех
+#:                 следующих шагов (wide_window + sigma + verify, при [li_cnx] — ещё его soft_need_s), см. _li_half_soft_ok.
+#: Порядок отключения при росте времени: li_half (первым: его порог больше порогов всех остальных) → окно 256 м
+#: (в оптике) → σ (раньше кропа: держит его резерв) → кроп.
 #: Обязательное (геофизика, лидар, основные сети оптики, finish/safe_finish, запись GeoJSON) потолок не трогает.
-SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0, "dfine_aeor": 120.0}
+SOFT_NEED_DEFAULT = {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0, "dfine_aeor": 120.0, "li_half": 30.0}
 
 
 def _warn(msg: str) -> None:
@@ -525,11 +529,17 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     half_feats: list[dict] = []
     crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    hp = li_half.params(cfg)
+    # bot-8: half_p (не hp — hp ниже занят параметрами [hillfort]: у бота 2 они затирали [li_half] со 2-го LAS).
+    half_p = li_half.params(cfg)
     half_dump = li_half.dump_dir()
-    half_on = bool(hp["enabled"]) or half_dump is not None
-    if hp["enabled"] and hp["group"] not in cfg.get("thresholds_by_markup", {}):
-        log.warning("[li_half] включён, но [thresholds_by_markup.%s] нет — проход только в выгрузку", hp["group"])
+    half_thr = li_half.has_thresholds(cfg, half_p)
+    # Объекты li_half — только при enabled=true И своей группе порогов; выгрузка (EXPDS_LI_HALF_DUMP) — при любом.
+    # Включён без порогов и без выгрузки — прохода нет совсем (время не тратится), как cnx без порогов.
+    half_on = (half_p["enabled"] and half_thr) or half_dump is not None
+    if half_p["enabled"] and not half_thr and not seg_cache.get("li_half_thr_warned"):
+        seg_cache["li_half_thr_warned"] = True          # одна строка на прогон, не на участок
+        log.warning("[li_half] включён, но %s — объекты li_half НЕ выдаются%s", li_half.threshold_problem(cfg, half_p),
+                    " (проход только в выгрузку)" if half_dump is not None else "")
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
@@ -570,6 +580,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
                 kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
+                t_li_main = time.monotonic()      # bot-8: время основного li на этом LAS — для оценки li_half
                 for seg in segs:
                     found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                       cand_p if rescore else None, cfg.get("li"), floors))
@@ -608,17 +619,22 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     # Второй проход на 1 м: мозаика (куски 400 м, поле 40 м), иначе тот же DEM.
                     d_half = mosaic if (split and mosaic is not None and mosaic.crs is not None) else d
                     coarse = int((d_half.info or {}).get("factor") or 1) > 1
-                    if (split and hp["skip_mosaic"]) or (coarse and hp["skip_coarse"]):
+                    est = li_half.est_s(time.monotonic() - t_li_main, half_p)
+                    if (split and half_p["skip_mosaic"]) or (coarse and half_p["skip_coarse"]):
                         log.info("%s: li_half пропущен (мозаика/li_coarse, v1)", las.name)
-                    elif not guard.ok(cfg.get("time", {}).get("reserve_s", 120) + float(hp["soft_need_s"])):
+                    elif not guard.ok(cfg.get("time", {}).get("reserve_s", 120) + est):
                         log.warning("%s: li_half пропущен — мало времени", las.name)
+                    elif not _li_half_soft_ok(guard, cfg, f"{reg.name}/{las.name}", est):
+                        pass                      # строка «мягкий потолок: li_half …» и guard.soft_skipped
                     else:
+                        t_half = time.monotonic()
                         try:
                             for seg in segs:
-                                half_feats += li_half.half_pass(seg, d_half, reg.name, las.name, cand_p, hp,
+                                half_feats += li_half.half_pass(seg, d_half, reg.name, las.name, cand_p, half_p,
                                                                 half_dump, {"mosaic": bool(split)})
                         except Exception:
                             log.exception("%s: li_half упал, пропуск", las.name)
+                        log.info("%s: li_half %.1f с (оценка %.1f с)", las.name, time.monotonic() - t_half, est)
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
                     # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
@@ -667,12 +683,15 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         if f.get("markup_type") == "li" and not f.get("threshold_group"):
             f["threshold_group"] = "li_mosaic"
     if half_feats:
-        if hp["enabled"] and hp["group"] in cfg.get("thresholds_by_markup", {}):
+        # Порядок отборов 12 м (bot-8): li_half — против принятых кругов основного li этого участка (li/li_mosaic,
+        # KEPT_KURGAN_CONF); cnx потом — против всего участка, включая принятые li_half (dedupe_cnx: группы вне
+        # таблицы — по своему порогу). Один и тот же курган li_half и cnx второй раз не выдаётся.
+        if half_p["enabled"] and half_thr:
             n0 = len(half_feats)
-            half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"], hp),
-                                       output_floors(cfg, hp["group"]))
+            half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"],
+                                                        half_p), output_floors(cfg, half_p["group"]))
             log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)", reg.name, n0, len(half_feats),
-                     float(hp["dedupe_m"]), hp["group"])
+                     float(half_p["dedupe_m"]), half_p["group"])
         else:
             half_feats = []
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
@@ -1102,6 +1121,21 @@ def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
     if fn is None or getattr(guard, "soft_ceiling", None) is None:
         return True
     return fn(guard.soft_need_s(phase) + extra_s, phase=phase, what=what)
+
+
+def _li_half_soft_ok(guard, cfg: dict, what: str, est_s: float) -> bool:
+    """bot-8: li_half на одном LAS — первым в порядке отключения. Нужно soft_left >
+    max(need(li_half), оценка прохода) + need(wide_window) + need(sigma) + need(verify) [+ soft_need_s cnx, если
+    [li_cnx] включён]: порог li_half всегда больше порога любого следующего шага, и при росте времени li_half
+    отключается раньше окна 256 м, cnx, σ и кропа."""
+    need = getattr(guard, "soft_need_s", None)
+    if need is None or getattr(guard, "soft_ceiling", None) is None:
+        return True
+    base = need("li_half")
+    extra = max(0.0, float(est_s) - base) + need("wide_window") + need("sigma") + need("verify")
+    if lidar_cnx.enabled(cfg):
+        extra += float(lidar_cnx.cnx_cfg(cfg).get("soft_need_s") or 0.0)
+    return _soft_ok(guard, "li_half", what, extra)
 
 
 def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,

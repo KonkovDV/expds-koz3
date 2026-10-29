@@ -52,23 +52,76 @@ DEFAULTS = {
     "skip_coarse": True,        # v1: огрублённый DEM li_coarse (без мозаики) пропускается
     "dedupe_m": 12.0,
     "group": "li_half",
-    "soft_need_s": 30.0,        # [time.soft] li_half у бота 8; здесь — запас сверх reserve_s
+    # bot-8: время — мягким потолком pipeline (_soft_ok "li_half": [time.soft] li_half /
+    # EXPDS_SOFT_NEED_LI_HALF_S, по умолчанию 30 с) и оценкой на LAS est_s(); ключ soft_need_s здесь не читается.
     # второй детектор кандидатов: шаг 1 м, окно рельефа 30 м; прочее — ×2 к [candidates]
     "cand": {"work_res": 1.0, "relief_radius_m": 30.0, "peak_radius_m": 5.0,
              "min_relief_m": 0.08, "r_in_m": 5.0, "r_out_m": 16.0, "circle_m": 2.0},
 }
 
 
+#: bot-8: значения enabled не-bool, о которых уже предупредили (одна строка на значение, как lidar_cnx).
+_ENABLED_WARNED: set = set()
+
+
+def _enabled_raw(own: dict) -> bool:
+    """bot-8: enabled — только TOML-bool true (то же правило, что [li_cnx] enabled и check_submission).
+    Строка "true", 1 и т. п. — выключено с предупреждением."""
+    en = own.get("enabled", False)
+    if isinstance(en, bool):
+        return en
+    key = repr(en)
+    if key not in _ENABLED_WARNED:
+        _ENABLED_WARNED.add(key)
+        log.warning("[li_half] enabled=%s — не bool (в TOML true/false без кавычек): li_half ВЫКЛЮЧЕН", key)
+    return False
+
+
 def params(cfg: dict | None) -> dict:
-    """[li_half] конфига поверх DEFAULTS (cand — поверх DEFAULTS["cand"])."""
+    """[li_half] конфига поверх DEFAULTS (cand — поверх DEFAULTS["cand"]). enabled — строго bool."""
     own = dict((cfg or {}).get("li_half") or {})
     out = {**DEFAULTS, **{k: v for k, v in own.items() if k != "cand"}}
     out["cand"] = {**DEFAULTS["cand"], **(own.get("cand") or {})}
+    out["enabled"] = _enabled_raw(own)
     return out
 
 
 def enabled(cfg: dict | None) -> bool:
-    return bool(params(cfg)["enabled"])
+    return params(cfg)["enabled"] is True
+
+
+#: bot-8: группы порогов других проходов — li_half их не берёт (своя шкала: другая сетка и детектор).
+FORBIDDEN_GROUPS = frozenset({"li", "li_coarse", "li_mosaic", "li_ae", "li_cpu", "li_dev", "li_mask", "li_fort",
+                              "li_cnx"})
+
+
+def threshold_problem(cfg: dict | None, hp: dict | None = None) -> str | None:
+    """bot-8: None — у li_half своя группа порогов на все его классы; иначе причина (объектов li_half тогда нет).
+    Правило то же, что у cnx (lidar_cnx.threshold_problem)."""
+    hp = hp or params(cfg)
+    group = hp.get("group")
+    if not group or not isinstance(group, str):
+        return "li_half.group не задан"
+    if group in FORBIDDEN_GROUPS:
+        return f"li_half.group={group!r} — пороги другого прохода"
+    own = ((cfg or {}).get("thresholds_by_markup") or {}).get(group)
+    if not isinstance(own, dict) or not own:
+        return f"нет [thresholds_by_markup.{group}]"
+    lost = [c for c in hp.get("classes") or [] if c not in own]
+    if lost:
+        return f"в [thresholds_by_markup.{group}] нет порогов для {lost}"
+    return None
+
+
+def has_thresholds(cfg: dict | None, hp: dict | None = None) -> bool:
+    """bot-8: своя группа порогов li_half на все классы прохода — без неё объектов li_half нет."""
+    return threshold_problem(cfg, hp) is None
+
+
+def est_s(t_main_s: float, hp: dict) -> float:
+    """bot-8: оценка времени прохода на LAS: max(5, 0,35 × время основного li на этом LAS × tta прохода).
+    Проход — сетка 1 м (¼ ячеек 0,5 м) и tta 1, плюс второй детектор; 0,35 — с запасом (бот 2: +2 с к 23 с)."""
+    return max(5.0, 0.35 * max(0.0, float(t_main_s)) * max(1, int(hp.get("tta") or 1)))
 
 
 def dump_dir() -> Path | None:
