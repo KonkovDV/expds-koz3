@@ -709,6 +709,19 @@ def optics_order(regions: list[Region], cfg: dict) -> list[Region]:
     return sorted(regions, key=lambda r: (optical_bytes(r), r.name))
 
 
+def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: dict[str, list[dict]]) -> None:
+    """bot-7 v3: оптика могла идти в порядке optics_order (small_first), но объекты в состоянии — в исходном
+    порядке участков, как при optics_order = "name". Поэтому выход при запасе времени побайтно тот же, а при
+    нехватке — те же объекты пройденных участков. Состояние сторож пишет и во время прохода (запись идёт сразу),
+    перестановка — только в конце, и только если в состояние за это время ничего чужого не добавилось."""
+    snap = state.snapshot()
+    n_opt = sum(len(v) for v in by_reg.values())
+    if len(snap) != n_before + n_opt:
+        log.warning("порядок оптики не восстановлен: состояние изменилось во время прохода")
+        return
+    state.replace(snap[:n_before] + [f for r in regions for f in by_reg.get(r.name, [])])
+
+
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
     """scene_drel для [post] frame_prior: положение объекта в кадре снимков своего типа (post.scene_drel)."""
     from .geophys import map_footprint
@@ -1248,6 +1261,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         phases.append(("лидар", n_phase, time.monotonic() - t_phase))
         t_phase = time.monotonic()
         n_phase = 0
+        n_before_optics = len(state.snapshot())
+        optics_by_reg: dict[str, list[dict]] = {}
         for reg in optics_order(regions, cfg):
             if not guard.ok(60):
                 log.warning("на оптику времени не осталось")
@@ -1258,9 +1273,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 log.exception("%s: оптика пропущена", reg.name)
                 found = []
             state.add(found)
+            optics_by_reg[reg.name] = found
             n_phase += len(found)
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        _restore_optics_order(state, regions, n_before_optics, optics_by_reg)
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
         if (cfg.get("sp_dfine") or {}).get("enabled"):
             # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит

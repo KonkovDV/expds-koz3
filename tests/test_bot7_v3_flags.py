@@ -348,3 +348,35 @@ def test_flag_modules_not_packaged_when_off():
     src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
     top = [l for l in src.splitlines() if l.startswith(("from .", "import ")) and ("sp_dfine" in l or "gor_gate" in l)]
     assert not top
+
+
+def test_time_protection_on_by_default_and_order_restored():
+    """v3: [time] optics_order = small_first и optics_s_per_gb > 0 по умолчанию; после прохода оптики объекты
+    стоят в исходном порядке участков (выход побайтно тот же), а при чужой записи в состояние — не трогаются."""
+    import tomllib
+    from types import SimpleNamespace
+    from expds import pipeline
+    from expds.watchdog import RunState
+
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    assert cfg["time"]["optics_order"] == "small_first" and 0 < cfg["time"]["optics_s_per_gb"] <= 64
+    regions = [SimpleNamespace(name=n) for n in ("a", "b", "c")]
+    st = RunState(Path("/nonexistent/out.geojson"), {})
+    st.add([{"id": "geo"}])
+    by = {}
+    for n in ("c", "a", "b"):            # порядок small_first
+        f = [{"id": f"{n}{i}"} for i in range(2)]
+        st.add(f)
+        by[n] = f
+    pipeline._restore_optics_order(st, regions, 1, by)
+    assert [f["id"] for f in st.snapshot()] == ["geo", "a0", "a1", "b0", "b1", "c0", "c1"]
+    # оптика оборвалась на «a» (не дошла до b): объекты пройденных участков сохранены в исходном порядке
+    st2 = RunState(Path("/nonexistent/out.geojson"), {})
+    st2.add([{"id": "c0"}, {"id": "a0"}])
+    pipeline._restore_optics_order(st2, regions, 0, {"c": [{"id": "c0"}], "a": [{"id": "a0"}]})
+    assert [f["id"] for f in st2.snapshot()] == ["a0", "c0"]
+    # состояние изменилось во время прохода — перестановки нет
+    st3 = RunState(Path("/nonexistent/out.geojson"), {})
+    st3.add([{"id": "c0"}, {"id": "x"}])
+    pipeline._restore_optics_order(st3, regions, 0, {"c": [{"id": "c0"}]})
+    assert [f["id"] for f in st3.snapshot()] == ["c0", "x"]
