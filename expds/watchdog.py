@@ -71,7 +71,7 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
+                                post.sat_thr_relax_by_markup(cfg))
     out = out + reranked
     out = post.merge_within_markup(out)
     post_cfg = cfg.get("post") or {}
@@ -131,7 +131,7 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
             reranked = []
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
+                                post.sat_thr_relax_by_markup(cfg))
     out = out + reranked
     pc = cfg.get("post") or {}
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
