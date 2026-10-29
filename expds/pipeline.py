@@ -1319,6 +1319,40 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
     return n
 
 
+def _aeor_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+    """bot-1 (кандидат v4): D-FINE всех классов на Ae/Or (группы ae_dfine/or_dfine). ВЫКЛ. по умолчанию."""
+    from . import aeor_dfine
+
+    st = aeor_dfine.settings(cfg)
+    cache: dict = {}
+    found_all: list[dict] = []
+    for reg in regions:
+        if not any((reg.rasters or {}).get(m) for m in st["markups"]):
+            continue
+        if not guard.ok(60):
+            log.warning("aeor_dfine: времени не осталось")
+            break
+        if not _soft_ok(guard, "aeor_dfine", f"D-FINE Ae/Or {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found = aeor_dfine.region_feats(
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
+                soft_ok=lambda what, need: _soft_ok(guard, "aeor_dfine", what, need))
+        except aeor_dfine.AeOrUnavailable:
+            raise   # strict: включённый флаг без весов/порогов — ошибка, не тихий v3
+        except Exception:
+            log.exception("%s: aeor_dfine пропущен", reg.name)
+            found = []
+        found_all += found
+    found_all = aeor_dfine.cap(found_all, int(st["max_objects"]))
+    state.add(found_all)
+    note = getattr(state, "note", None)
+    if isinstance(note, dict):
+        note.setdefault("aeor_dfine", {"enabled": True}).update({"raw": len(found_all)})
+    log.info("aeor_dfine: ИТОГ объектов %d", len(found_all))
+    return len(found_all)
+
+
 def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[dict]:
     """[raster_fix] zero_nodata: убирает объекты, чья внутренняя точка в поле нулей окна (zmask H×W)."""
     import math
@@ -1408,6 +1442,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         state.note["sp_dfine"] = _spd.preflight(cfg, root)
         log.info("sp_dfine: preflight ok, transformers %s", state.note["sp_dfine"]["transformers"])
+    if (cfg.get("aeor_dfine") or {}).get("enabled"):
+        from . import aeor_dfine as _aod   # bot-1: strict preflight до работы, как у sp_dfine
+
+        state.note["aeor_dfine"] = _aod.preflight(cfg, root)
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))
@@ -1508,6 +1546,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             t_phase = time.monotonic()
             n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("aeor_dfine") or {}).get("enabled"):
+            # bot-1 (v4-кандидат): D-FINE всех классов на Ae/Or; без флага ветка не входит
+            t_phase = time.monotonic()
+            n_phase = _aeor_dfine_phase(regions, cfg, guard, state, root)
+            phases.append(("aeor_dfine", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate
