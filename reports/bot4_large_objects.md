@@ -86,7 +86,7 @@ Stash: `boxes_to_ellipses` → `box_area_m2`; `cluster_circles` сохраняе
 
 ### QUEUE
 
-Docker mock+honest-10: оба плеча `[dfine_aeor] ae ON`; ON += Fix C only. Runner `pc/runners/run_bot4_fix_c_docker.ps1`, launch `launch_bot4_fix_c_schtasks.ps1`, JobDir `C:\Sloi\pc_jobs\bot4_fix_c`, tip **`fc18035`**.
+Docker mock+honest-10: оба плеча `[dfine_aeor] ae ON`; ON += Fix C only. Runner `pc/runners/run_bot4_fix_c_docker.ps1`, launch `launch_bot4_fix_c_schtasks.ps1`, JobDir `C:\Sloi\pc_jobs\bot4_fix_c`, tip **`62f7fb1`**.
 
 ## Следующий пункт BACKLOG
 
