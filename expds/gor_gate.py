@@ -226,6 +226,10 @@ def _epsg(reg) -> int | None:
     from .catalog import read_utm_json
 
     c = read_utm_json(getattr(reg, "utm_json", None))
+    paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
+    if c and paths:   # bot-6 crsfix: географическая CRS UTM.json (008_Герите, 4326) → зона UTM по центру растра
+        from .sp_dfine import utm_for
+        c = utm_for(Path(paths[0]), c)
     try:
         return int(str(c).split(":")[-1]) if c else None
     except ValueError:
