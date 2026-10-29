@@ -4,6 +4,13 @@
 
 ## 29.10.2026
 
+- **Сверка с утверждённым ТР (29.10, Grok Bot, ветка `compliance/tr-approved-2026-10-29`)** — `docs/COMPLIANCE_2026-10-29.md`, `docs/RULES.md`, отличия проекта от утв. ТР — `docs/background/TR_DIFF_draft_vs_approved.md` (сами утв. ТР и консультация №2 — в `docs/background/`).
+  - README ошибался: неизвестный `class_name` файл не отклоняет, по утв. ТР (Прил. 1) объект пропускается. Файл отклоняется за > 100 МБ, > 20 000 объектов или > 50 замечаний валидатора (Прил. 3).
+  - `expds/writer.py`: бюджет размера 97 МБ, валидность после округления (2→4→6 знаков, иначе объект отбрасывается), подсчёт замечаний Прил. 3, `validate()` > 50 → ошибка. `scripts/check_submission.py` проверяет то же. На реальных выходах результат побайтно прежний. Добавлено 11 тестов, итого 582 passed / 33 skipped.
+  - `docs/THIRD_PARTY.md`: компоненты NVIDIA, Kaggle/Colab по консультации №2, статус ADAF (CC BY-SA).
+  - `docs/README.md` и `docs/ai_declaration.md` — по шаблонам Платформы (Прил. 5); `docs/PKK_GAP.md` — план ПКК по Прил. 6, без реализации.
+  - Найдено: `[rerank_arch] enabled = true`, а `models/rerank_arch_lgbm.txt` в main нет, поэтому `build_submission.py` на чистом клоне падает. Файл нужно добавить при сборке.
+
 - **`li_decode` удалён из `main` (29.10, bot 1).** Докстринг `expds/li_decode.py` ссылался на «recipe studied in EhimenNathan-EXpedition» — по правилу владельца код линии EN не держим. Удалены `expds/li_decode.py`, `tests/test_li_decode.py`, `scripts/li_decode_{dump,stack}.py`, `scripts/li_real_eval.py`, `scripts/li_real_run{,_resume}.sh`, два патча `0001-li-decode-*`; ключ `[li] decode` из `configs/default.toml`; ветка `li_decode` в `expds/pipeline.py::_li_with_model` возвращена к пути v2 `1b62124` (по умолчанию было `"legacy"` — поведение сдачи не меняется). Тесты: 571 passed / 33 skipped (было 576: −5 тестов li_decode), centerhead 51.
 - **Провенанс 15 весов `.pt`** — `docs/WEIGHTS_PROVENANCE.md`: запрещённых (КОЗ №2) и неизвестных нет; 6 файлов подтверждены косвенно.
 - **PIXGBM**: `docs/PIXGBM_DECISION.md`; временная декларация линии EN в `docs/THIRD_PARTY.md` и `docs/AI_DECLARATION.md`; модуль по-прежнему вне git, добавляется при сборке (sha256 `35e4331b…`).
