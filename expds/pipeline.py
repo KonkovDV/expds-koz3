@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel, candidates, fusion, geophys, post, writer
+from . import accel, candidates, fusion, geophys, lidar_cnx, post, writer
 from .catalog import Region, read_utm_json, scan_root
 from .constants import DEFAULT_BUDGET_S
 
@@ -453,6 +453,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     mosaic_kurgans: list[dict] = []
     crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
+    cnx_on = lidar_cnx.enabled(cfg)
     for las in reg.las:
         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
             log.warning("время на исходе: пропускаю %s", las.name)
@@ -474,26 +475,36 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             return dems[key]
 
         produced = False
-        if segs:
+        no_crs = False
+        # bot-8 cnx: [li_cnx] включён — сначала ConvNeXt bot-9 вместо модели li; любой отказ — модель li.
+        cnx_b = _cnx_bind(las, cfg, guard, seg_cache, root, crs_region) if cnx_on else None
+        attempts = ([[cnx_b]] if cnx_b is not None else []) + ([segs] if segs else [])
+        for use in attempts:
+            is_cnx = use[0] is cnx_b and cnx_b is not None
+            part: list[dict] = []
+            mpart: list[dict] = []
             try:
                 from .lidar import DEFAULTS, build_dem_mosaic, would_coarsen
 
-                dp0 = dem_params(segs[0].meta, cfg)
+                dp0 = dem_params(use[0].meta, cfg)
                 split = (bool(cfg.get("lidar", {}).get("mosaic", False))
                          and would_coarsen(las, dp0["res"], DEFAULTS["max_pixels"]))
                 if split:
                     d = (prefetch.get(las, dp0["res"], dp0["fill"], crs_region) if prefetch is not None
                          else build_dem(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region))
                 else:
-                    d = dem_for(segs[0].meta)
+                    d = dem_for(use[0].meta)
                 if d.crs is None:
                     log.warning("%s: нет CRS (ни UTM.json, ни WKT в LAS) — пропуск", las.name)
-                    continue
+                    no_crs = True
+                    break
+                if is_cnx and not lidar_cnx._crs_equal(use[0].geo.get("crs"), d.crs):
+                    raise lidar_cnx.CnxError(f"CRS cnx {use[0].geo.get('crs')} ≠ CRS ЦМР {d.crs}")
                 rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
                 kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
-                for seg in segs:
+                for seg in use:
                     found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                       cand_p if rescore else None, cfg.get("li"), floors))
                     if split:
@@ -502,7 +513,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         for f in found:
                             if not f.get("threshold_group"):
                                 f["threshold_group"] = group
-                    feats += found
+                    part += found
                 if split:
                     try:
                         mosaic = build_dem_mosaic(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region)
@@ -511,12 +522,12 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         mosaic = None
                     fresh: list[dict] = []
                     if mosaic is not None and mosaic.crs is not None:
-                        for seg in segs:
+                        for seg in use:
                             found = _li_with_model(seg, mosaic, reg.name, las.name, hillshade_set,
                                                    cand_p if rescore else None, cfg.get("li"), None)
                             fresh += [f for f in found if f.get("class_name") in kur]
                     else:
-                        for seg in segs:
+                        for seg in use:
                             found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                               cand_p if rescore else None, cfg.get("li"), floors))
                             found = [f for f in found if f.get("class_name") in kur]
@@ -525,8 +536,8 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                                     if not f.get("threshold_group"):
                                         f["threshold_group"] = group
                             fresh = found
-                    mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
-                    feats += fresh
+                    mpart += [f for f in fresh if not f.get("threshold_group")]
+                    part += fresh
                 hf = cfg.get("hillfort") or {}
                 if hf.get("enabled", False):
                     # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
@@ -534,11 +545,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     try:
                         from . import hillfort
                         hp = hillfort.params_from(hf)
-                        feats += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
+                        part += hillfort.candidates(hillfort.build_dem(las, crs_region, hp), reg.name, las.name, hp)
                     except Exception:
                         log.exception("%s: кандидаты городищ по рельефу пропущены", las.name)
                 produced = True
             except Exception:
+                if is_cnx:
+                    log.exception("%s: cnx: постобработка упала — откат на модель li", las.name)
+                    continue
                 log.exception("%s: инференс li упал, запасной детектор", las.name)
                 try:
                     import torch
@@ -546,6 +560,19 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         torch.cuda.empty_cache()
                 except Exception:
                     pass
+            if is_cnx and not produced and not no_crs:
+                continue
+            tg = lidar_cnx.cnx_cfg(cfg).get("threshold_group") if is_cnx else None
+            if tg:
+                in_mosaic = {id(f) for f in mpart}
+                for f in part:
+                    if f.get("markup_type") == "li" and not f.get("threshold_group") and id(f) not in in_mosaic:
+                        f["threshold_group"] = str(tg)
+            feats += part
+            mosaic_kurgans += mpart
+            break
+        if no_crs:
+            continue
         if produced:
             if guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
                 try:
@@ -769,6 +796,39 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
     return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
 
 
+def _cnx_bind(las, cfg: dict, guard, seg_cache: dict, root: Path, crs_region):
+    """bot-8 cnx: модель [li_cnx] (один раз за прогон) + подготовка и инференс этого LAS → CnxBound.
+    None — модель li: веса не загрузились, мягкий потолок, нет времени, сбой подготовки или сети."""
+    opts = lidar_cnx.cnx_cfg(cfg)
+    if "li_cnx" not in seg_cache:
+        try:
+            seg_cache["li_cnx"] = lidar_cnx.load(cfg, root)
+        except Exception:
+            log.exception("cnx: веса [li_cnx] не загрузились — модель li")
+            seg_cache["li_cnx"] = None
+    seg = seg_cache["li_cnx"]
+    if seg is None:
+        return None
+    if getattr(guard, "soft_ceiling", None) is not None and \
+            not guard.soft_ok(float(opts["soft_need_s"]), phase="cnx", what=las.name):
+        log.warning("%s: cnx пропущен мягким потолком — модель li", las.name)
+        return None
+    reserve = float(cfg.get("time", {}).get("reserve_s", 120))
+    left = getattr(guard, "window_left", None) or guard.left
+    try:
+        return lidar_cnx.bind_las(seg, las, crs_region, opts, deadline=lambda: not guard.ok(reserve),
+                                  time_left=lambda: max(0.0, float(left()) - reserve))
+    except Exception as exc:
+        log.warning("%s: cnx не сработал (%s) — модель li", las.name, str(exc)[-400:])
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
+        return None
+
+
 def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
     """bot-8: мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
     fn = getattr(guard, "soft_ok", None)
@@ -858,11 +918,15 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
     from .candidates import downsample_mean
     from .infer_nn import probs_to_features
 
-    if seg.meta.get("li_source") == "las":
-        from .lidar import relief_channels
+    if seg.meta.get("li_source") in ("las", "cnx"):
+        if seg.meta.get("li_source") == "cnx":
+            # bot-8 cnx: вероятности уже посчитаны на сетке подготовки bot-9 (lidar_cnx.bind_las).
+            probs, tr = seg.probs, seg.transform
+        else:
+            from .lidar import relief_channels
 
-        img, tr = relief_channels(d, seg.res, tuple(seg.meta["li_tags"]))
-        probs = seg.predict(img)
+            img, tr = relief_channels(d, seg.res, tuple(seg.meta["li_tags"]))
+            probs = seg.predict(img)
         keep = getattr(seg, "keep", None)
         out_classes = [c for c in seg.classes if keep is None or c in keep]
         if seg.meta.get("target") == "centers":

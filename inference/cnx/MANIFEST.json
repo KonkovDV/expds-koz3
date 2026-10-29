@@ -1,0 +1,30 @@
+{
+ "what": "bot-8 vendored cnx prep (bot-9 CNX_CONTRACT_FOR_BOT8 §6)",
+ "prep_code_sha_expected": "6ed689552b4a978045a4956dee44ef96d8b7713d6019d41f361846e3d5dbdd79",
+ "sources": {
+  "cnx_prep.py": "/workspace/koz3_shared/bot-9/for_bot8/cnx_prep.py",
+  "vendor/*": "/workspace/koz3_shared/bot-9/kaggle/convnext_lidar/src/vendor",
+  "_deps/rvt/*": "wheels/rvt_py-2.2.1-py3-none-any.whl (rvt/*.py + dist-info/LICENSE)",
+  "wheels/*": "/workspace/koz3_shared/bot-9/for_bot8/wheels"
+ },
+ "sha256": {
+  "README.md": "02c34d9e0ce812f033ccd6c8cf4f03e1016be3bf221859931091e9b406da340b",
+  "_deps/rvt/LICENSE": "07dc13df1cbe6112452e71313961857da8ec86aa26f17510578cf85a04b0ad48",
+  "_deps/rvt/__init__.py": "b4fa5b7528bdd7f576b69718a30afd4f84472e5102c7cc0c2e44d0e4542e0a3b",
+  "_deps/rvt/blend.py": "ed709754f4fd02c3766adfca7dda6bab52b4a30de0ff8d24501fa0ecebcdedcd",
+  "_deps/rvt/blend_func.py": "187ef6a4fda696ba01a964d0d8076656607d5c3e6a5fd7b0f327e9627dcb7f35",
+  "_deps/rvt/default.py": "111e1bdf0952e2b18bab721b2e2514c3e750498cfdb4d7216ff81f40c77c6dab",
+  "_deps/rvt/multiproc.py": "70ec9cd2ce44a7552481c11a403332713c1baf3576e14c638e3142d62803f7d0",
+  "_deps/rvt/tile.py": "32fddf5be7771c4f7f89f33bb77da7be8bdbcf80cd28df317c38b3a3ef553d36",
+  "_deps/rvt/vis.py": "18b1ec4113f538bfb01b1a7a5010ad20c3b86d0ba40ba7b79a607639964c2ebf",
+  "cnx_prep.py": "77d3074928d5476a3339d65fcdd582a53d45fe0a03eb1cf2bb06d80ece4ad521",
+  "vendor/expds/__init__.py": "9028e45c371137948876d6cb577dd832ffca0f6ce3445cbd83b73ce4fd728758",
+  "vendor/expds/accel.py": "fc2ec8b6d2a9b2fca4fe3cb0efccda6e0057026eecdaa00fd973cd6066866e4b",
+  "vendor/expds/candidates.py": "96b9fbe12d5858bd93ef2f03b793581a9ad3b01eee1c1757c9daa1cc886a2248",
+  "vendor/expds/crs.py": "d93b855cb66851ea2492a76ac66708ec6a0d3282c0ff98a8b80bd1cd71107618",
+  "vendor/expds/lidar.py": "2bd79edbd604424b261274cf045384abe81cc5874f2c0e54093981430b84f222",
+  "vendor/expds_core.abi3.so": "7d847b9207f952222b14f17903cfc020c882cb3f4818cdec1eecb5edfe156110",
+  "vendor/relief_ext.py": "21194f67903a3eb349fe357ec3c61ab55c65f56f00c6769760e26a6b0a3d00c3",
+  "wheels/rvt_py-2.2.1-py3-none-any.whl": "f3b171e056d8a808b7c58d8ed74db6eb1b2088e728008e7a1c9f1e9fb1d2a513"
+ }
+}

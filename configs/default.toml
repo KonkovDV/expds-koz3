@@ -151,6 +151,25 @@ tselye_min = 0.8
 mode = "rescore"
 # Пики вероятности модели (nn_peaks) на том же OOF хуже: балл 0,283. Не включать.
 
+# bot-8: лидар ConvNeXt bot-9 (in_kind cnx3/cnx5, контракт bot-9/CNX_CONTRACT_FOR_BOT8.md §6) вместо
+# модели li. ВЫКЛЮЧЕНО. Вход — inference/cnx/cnx_prep.py подпроцессом на весь LAS (CRS из UTM.json);
+# выход [hm_t, hm_p, gor, fort, arch] идёт тем же путём, что у li: курганы rescore по пикам ЦМР,
+# остальное — маски; пороги — thresholds_by_markup.li (li_coarse / li_mosaic), своих OOF-порогов у
+# весов нет (oof_thresholds = None). Любой отказ cnx (веса, подготовка, время, сеть) — модель li.
+# Включение: enabled = true и weights = ["models/weights_cnx_c5-in_f0.pt", ...] (несколько — ансамбль,
+# среднее логитов; все одного in_kind). build_submission.py тогда кладёт веса и inference/cnx/.
+[li_cnx]
+enabled = false
+weights = []
+# tile = 1024          # окно CUDA (кратно 32), перекрытие overlap = 192
+# tile_cpu = 512       # окно CPU, overlap_cpu = 128
+# tta = 1              # 1…8 отражений (OOF bot-9 — 8), среднее логитов
+# amp = true           # CUDA: autocast float16, окно с NaN — заново в FP32; CPU всегда FP32
+# prep_timeout_s = 600 # и не дольше остатка бюджета минус [time] reserve_s
+# soft_need_s = 120    # мягкий потолок: cnx не начинается, если до него меньше
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]   # подмножество выходов; по умолчанию все 5
+# threshold_group = "li"  # своя группа порогов вместо li (только для не-грубой сетки)
+
 # DEM для запасного детектора курганов (без модели li). С моделью li параметры берутся
 # из её чекпойнта — так, как она обучалась.
 [lidar]
