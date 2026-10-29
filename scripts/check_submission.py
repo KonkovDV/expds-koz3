@@ -735,6 +735,129 @@ print("DFINE_JSON=" + json.dumps(out, ensure_ascii=False))
 """
 
 
+#: bot-7 (v3): опорные участки, на которых фолдовая модель f0 bot-9 даёт детекции (bot-7/work6/dfprobe/
+#: find_windows.py → windows_103_f0.json: окна 640 px на 0,5 м без отражения, запросы со score ≥ 0,3).
+#: n_det = 0 на таком участке значит: импорт прошёл, а веса не работают (не те/битые/не загрузились) — FAIL.
+DFINE_KNOWN = {
+    "103_Гнёздово_Ольшанская": {
+        "raster": "SpOr",
+        "windows": [[1440, 0], [2400, 0], [2880, 0], [1920, 480], [2400, 480], [1440, 960], [1920, 960],
+                    [1440, 1440], [1920, 1440], [2880, 1440], [3360, 1440], [2880, 1920]],
+        "ref_f0": {"n_ge": 14, "max": 0.704, "smoke_n_det": 154},
+    },
+}
+DFINE_MIN_SCORE = 0.3
+DFINE_REGION_DEFAULT = "/workspace/data/train-expds-3/103_Гнёздово_Ольшанская"
+
+DFINE_DET_PROBE = r"""
+import json, sys
+from pathlib import Path
+root, tif, wins, thr = Path(sys.argv[1]), Path(sys.argv[2]), json.loads(sys.argv[3]), float(sys.argv[4])
+sys.path.insert(0, str(root))
+out = {}
+try:
+    import torch
+    torch.set_num_threads(2)
+    import tomllib
+    from expds import sp_dfine as D
+    cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
+    st = dict(D.settings(cfg), batch=1, flip_tta=False)
+    models = D.load_models(st, root, torch.device("cpu"))
+    sc = D.Scene(tif, D.utm_for(tif, None), st["res_m"])
+    per = []
+    with torch.no_grad():
+        for mi, m in enumerate(models):
+            n = 0; mx = 0.0
+            for x, y in wins:
+                im = sc.read(int(x), int(y), int(st["tile"]))
+                o = m(pixel_values=torch.from_numpy(im.transpose(2, 0, 1)[None].astype("float32") / 255))
+                p = o.logits.float().sigmoid().flatten()
+                n += int((p >= thr).sum()); mx = max(mx, float(p.max()))
+            per.append({"weights": st["weights"][mi], "n_ge": n, "max": round(mx, 4)})
+    out = {"ok": True, "models": per}
+except Exception as exc:
+    out = {"ok": False, "err": f"{type(exc).__name__}: {str(exc)[:1500]}"}
+print("DFINE_DET_JSON=" + json.dumps(out, ensure_ascii=False))
+"""
+
+
+def dfine_region_raster(region: Path, spec: dict) -> Path | None:
+    tifs = sorted(p for p in Path(region).rglob("*") if p.suffix.lower() in (".tif", ".tiff") and spec["raster"] in p.name)
+    return tifs[0] if tifs else None
+
+
+def dfine_verdict(models: list[dict], region: str) -> list[tuple[str, str]]:
+    """Вердикт пробы весов: модель без единого запроса score ≥ DFINE_MIN_SCORE на окнах опорного участка — FAIL."""
+    ref = DFINE_KNOWN[region]["ref_f0"]
+    if not models:
+        return [("FAIL", f"{region}: ни одной модели D-FINE не загружено")]
+    res = []
+    for m in models:
+        msg = (f"{region}: {m['weights']} — запросов score ≥ {DFINE_MIN_SCORE} на {len(DFINE_KNOWN[region]['windows'])} "
+               f"опорных окнах {m['n_ge']} (f0: {ref['n_ge']}), max {m['max']} (f0: {ref['max']})")
+        res.append(("FAIL", msg + " — веса не дают детекций там, где фолдовая модель их даёт") if m["n_ge"] == 0
+                   else ("PASS", msg))
+    return res
+
+
+def check_dfine_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
+    """[sp_dfine] enabled: веса из архива на опорном участке с известными детекциями f0 (CPU, batch 1, без
+    отражения, ≤2 потока). n = 0 → FAIL. Без опорного участка — FAIL (проба обязательна), с --no-weights — WARN."""
+    if not bool((cfg.get("sp_dfine") or {}).get("enabled")):
+        return
+    if not args.weights:
+        report("WARN", "dfine", "--no-weights: проба весов D-FINE на опорном участке пропущена")
+        return
+    region = Path(args.dfine_region or DFINE_REGION_DEFAULT)
+    spec = DFINE_KNOWN.get(region.name)
+    tif = dfine_region_raster(region, spec) if spec and region.is_dir() else None
+    if spec is None or tif is None:
+        report("FAIL", "dfine", f"нет опорного участка для пробы весов D-FINE ({region}); нужен один из "
+                                f"{list(DFINE_KNOWN)} (--dfine-region)")
+        return
+    tmp = Path(tempfile.mkdtemp(prefix="b7dfw_", dir=args.workdir))
+    home = Path(tempfile.mkdtemp(prefix="b7dfwhome_", dir=args.workdir))
+    try:
+        wdirs = [str(w).rstrip("/") + "/" for w in ((cfg.get("sp_dfine") or {}).get("weights") or [])]
+        for n in z.namelist():
+            if (n.startswith("inference/lib/vendor/") or (n.startswith("expds/") and n.endswith(".py"))
+                    or n == "configs/default.toml" or any(n.startswith(w) for w in wdirs)):
+                z.extract(n, tmp)
+        cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_DET_PROBE, str(tmp), str(tif),
+                           json.dumps(spec["windows"]), str(DFINE_MIN_SCORE)], args.cpus, not args.allow_net)
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout,
+                               env=child_env(home, args.threads), cwd=str(tmp))
+        except subprocess.TimeoutExpired:
+            report("FAIL", "dfine", f"проба весов D-FINE не уложилась в {args.timeout} с")
+            return
+        line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_DET_JSON=")), None)
+        out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
+        if not out.get("ok"):
+            report("FAIL", "dfine", f"веса D-FINE из архива не загрузились/не отработали: {out.get('err')}")
+            return
+        for status, msg in dfine_verdict(out["models"], region.name):
+            report(status, "dfine", msg)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+        shutil.rmtree(home, ignore_errors=True)
+
+
+def dfine_ndet_verdict(log: str) -> list[tuple[str, str]]:
+    """Строки «sp_dfine n_det=N region=R» смоука: N = 0 на опорном участке (DFINE_KNOWN) — FAIL; итог 0 — WARN."""
+    import re
+    res = []
+    for m in re.finditer(r"sp_dfine n_det=(\d+) region=(\S+?)(?:\s|$)", log):
+        n, reg = int(m.group(1)), m.group(2)
+        if reg in DFINE_KNOWN and n == 0:
+            res.append(("FAIL", f"sp_dfine n_det=0 на опорном участке {reg} (f0: {DFINE_KNOWN[reg]['ref_f0']['smoke_n_det']})"
+                                " — веса не дают детекций"))
+    tot = [int(x) for x in re.findall(r"sp_dfine n_det=(\d+) total", log)]
+    if tot and tot[-1] == 0 and not res:
+        res.append(("WARN", "sp_dfine n_det=0 total (вход без опорного участка — проверить пробой весов)"))
+    return res
+
+
 def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     """[sp_dfine]/[gor_gate] enabled: вендор transformers закреплённой версии в архиве и импорт классов
     в чистом процессе целевого python (как на площадке). Иначе FAIL: на прогоне модуль молча дал бы выдачу v2."""
@@ -948,6 +1071,8 @@ def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
     nd = [ln.split("sp_dfine ", 1)[1][:160] for ln in log.splitlines() if "sp_dfine n_det=" in ln]
     if nd:
         report("INFO", "dfine", " ; ".join(nd[-6:]))
+        for status, msg in dfine_ndet_verdict(log):
+            report(status, "dfine", msg)
     else:
         try:
             on = bool((tomllib.loads(z.read("configs/default.toml").decode()).get("sp_dfine") or {}).get("enabled"))
@@ -1041,6 +1166,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Проверка архива КОЗ №3 перед отправкой (PASS/FAIL, код ≠0 при FAIL)")
     ap.add_argument("zip", type=Path, help="путь к submission.zip")
     ap.add_argument("--no-smoke", dest="smoke", action="store_false", help="без прогона main.py")
+    ap.add_argument("--dfine-region", help=f"опорный участок пробы весов D-FINE (по умолчанию {DFINE_REGION_DEFAULT})")
     ap.add_argument("--no-weights", dest="weights", action="store_false", help="не открывать .pt (быстрее)")
     ap.add_argument("--python", default=sys.executable, help="интерпретатор с пакетами образа (по умолчанию текущий)")
     ap.add_argument("--input", help="своя папка входа вместо синтетики (маленький регион!)")
@@ -1089,6 +1215,7 @@ def main() -> int:
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
     check_dfine(z, cfg, args)
+    check_dfine_weights(z, cfg or {}, args)
     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
         smoke(z, args)
     elif not args.smoke:

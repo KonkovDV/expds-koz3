@@ -248,3 +248,44 @@ def test_check_config_hf_weight_dirs_and_vendored_imports():
         lv = [g[0] for g in got if g[1] == "config" and ("отсутствуют" in g[2] or "путей к весам" in g[2])]
         assert lv == [want], got
         assert not any("models/dfine_f0/model.safetensors" in g[2] for g in got if g[0] == "WARN")
+
+
+def test_dfine_weights_verdict_fails_on_zero_detections():
+    """Веса загрузились, но на опорном участке (f0 даёт детекции) ни одного запроса ≥ 0,3 — FAIL."""
+    cs = _cs()
+    reg = "103_Гнёздово_Ольшанская"
+    assert reg in cs.DFINE_KNOWN and cs.DFINE_KNOWN[reg]["ref_f0"]["n_ge"] > 0
+    bad = cs.dfine_verdict([{"weights": "models/dfine_f0", "n_ge": 0, "max": 0.012}], reg)
+    assert [s for s, _ in bad] == ["FAIL"]
+    ok = cs.dfine_verdict([{"weights": "models/dfine_f0", "n_ge": 14, "max": 0.704}], reg)
+    assert [s for s, _ in ok] == ["PASS"]
+    assert [s for s, _ in cs.dfine_verdict([], reg)] == ["FAIL"]
+
+
+def test_dfine_smoke_ndet_zero_on_known_region_fails():
+    cs = _cs()
+    log0 = ("INFO sp_dfine n_det=0 region=103_Гнёздово_Ольшанская complete=True, прошло 40 с\n"
+            "INFO sp_dfine n_det=0 total, участков полностью 1, моделей 1\n")
+    assert [s for s, _ in cs.dfine_ndet_verdict(log0)] == ["FAIL"]
+    log1 = log0.replace("n_det=0 region", "n_det=154 region").replace("n_det=0 total", "n_det=154 total")
+    assert cs.dfine_ndet_verdict(log1) == []
+    synth = "sp_dfine n_det=0 region=000_synth complete=True\nsp_dfine n_det=0 total, участков полностью 1, моделей 1\n"
+    assert [s for s, _ in cs.dfine_ndet_verdict(synth)] == ["WARN"]
+
+
+def test_dfine_weights_probe_required_when_enabled(monkeypatch, tmp_path):
+    cs = _cs()
+    got = []
+    monkeypatch.setattr(cs, "report", lambda s, c, m: got.append((s, c, m)))
+    args = type("A", (), {"weights": True, "dfine_region": str(tmp_path / "nope"), "workdir": str(tmp_path)})()
+    cs.check_dfine_weights(_zip({"configs/default.toml": "[sp_dfine]\nenabled = true\n"}), {"sp_dfine": {"enabled": True}}, args)
+    assert got and got[0][0] == "FAIL"
+    got.clear()
+    cs.check_dfine_weights(_zip({}), {"sp_dfine": {"enabled": False}}, args)
+    assert got == []
+
+
+def test_sp_dfine_fp32_weights_autocast_no_half():
+    """T4: .half() без autocast падает (bot-9 §7); веса fp32, fp16 — только autocast на cuda."""
+    src = (ROOT / "expds" / "sp_dfine.py").read_text(encoding="utf-8")
+    assert ".half()" not in src and "torch.float16" in src and "torch.autocast(" in src
