@@ -2,7 +2,7 @@
 
     python scripts/pix_org_oof.py cand  --root TRAIN --cache OOF            # кандидаты + метки, oof/org/cand/{reg}.pkl
     python scripts/pix_org_oof.py fold  --root TRAIN --cache OOF --seed 0   # модель без участков фолда → oof/org/s0/{reg}.pkl
-    python scripts/pix_org_oof.py full  --cache OOF --out models/pixgbm/clean --seed 0   # модели на всех участках
+    python scripts/pix_org_oof.py full  --cache OOF --out models/pix_clean --seed 0   # модели на всех участках
 Затем: scripts/pix_clean_oof.py compose ... --org-tag s0.
 """
 from __future__ import annotations

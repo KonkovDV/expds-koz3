@@ -2,7 +2,7 @@
 
     python scripts/pix_org_et_oof.py cand --root TRAIN --cache OOF            # oof/orget/cand/{reg}.pkl
     python scripts/pix_org_et_oof.py fold --root TRAIN --cache OOF --seed 0   # geo5 F3–F5 → oof/orget/s0/{reg}.pkl
-    python scripts/pix_org_et_oof.py full --cache OOF --out models/pixgbm/clean/org --seed 0
+    python scripts/pix_org_et_oof.py full --cache OOF --out models/pix_clean/org --seed 0
 Порог каждой модели («карта»/«профиль») — внутренний LOSO по участкам обучения. Затем compose --orget-tag s0.
 """
 from __future__ import annotations

@@ -354,7 +354,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         try:
             if impl == "clean":
                 from . import pix_clean as geo_pixgbm
-                md_default = "models/pixgbm/clean"
+                md_default = "models/pix_clean"
             else:
                 from . import geo_pixgbm
                 md_default = "models/pixgbm/all"
@@ -385,7 +385,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         # (expds/pix_org_et.py) заменяют кандидатов object_poly/etgr (классику или pix); группа порога etgr_org.
         try:
             from . import pix_clean, pix_org_et
-            md = Path(pix.get("model_dir", "models/pixgbm/clean"))
+            # DOC-1: model_dir берётся только у impl="clean" (у legacy там models/pixgbm/all — в архив не идёт)
+            md = Path(pix.get("model_dir", "models/pix_clean") if str(pix.get("impl", "legacy")) == "clean"
+                      else "models/pix_clean")
             if not md.is_absolute():
                 md = Path(__file__).resolve().parents[1] / md
             est: dict = {}

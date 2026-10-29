@@ -1,6 +1,6 @@
 """GEO-ORG1: кандидаты MagGr по бейзлайну организаторов (ноутбук 01_baseline_maggr_anomalies) внутри clean-room PIXGBM.
 
-Источник идей и параметров — материалы организаторов (/workspace/koz3/org_baselines, разрешено); EN-код не используется.
+Источник идей и параметров — материалы организаторов (ноутбуки org_baselines, разрешено); EN-код не используется.
 Отличия от ноутбука: без skimage/sklearn/cv2 (нет в окружении инференса) — экстремумы через maximum_filter, свойства
 регионов через моменты, контур через rasterio.features.shapes, классификатор LightGBM (300 итераций, lr 0,05, баланс).
 Флаг: [geophys.pixgbm] org_maggr = false (по умолчанию выкл.), docs/PREREG_w4_pix_clean.md (дополнение 29.10).

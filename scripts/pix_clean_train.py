@@ -4,7 +4,7 @@
 1) Выборка пикселей по растрам 200–217 (кэш .npz на растр):
     python scripts/pix_clean_train.py sample --root TRAIN --cache CACHE
 2) Модели (все участки или без фолда):
-    python scripts/pix_clean_train.py fit --cache CACHE --out models/pixgbm/clean --seed 0 [--exclude 200 201 ...]
+    python scripts/pix_clean_train.py fit --cache CACHE --out models/pix_clean --seed 0 [--exclude 200 201 ...]
 
 Метка: finds_points — пиксели ≤ 0,4 м от GT-точки (кольцо 0,4–1,0 м не учится); object_poly —
 внутри GT-полигона своего слоя (кольцо 0,3 м вокруг не учится). Фон — недовыборка: половина
