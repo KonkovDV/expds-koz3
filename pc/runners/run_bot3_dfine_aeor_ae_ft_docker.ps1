@@ -21,7 +21,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PreflightPy = Join-Path $ScriptDir 'bot3_ae_weights_preflight.py'
 
 $Branch = 'bots/bot3-dfine-aeor-eval'
-$Sha    = 'PLACEHOLDER_SHA'
+$Sha    = 'ee8af7f918aed56ab5cb4371bc9618957d7385ac'  # tip bots/bot3-dfine-aeor-eval; override KOZ3_SHA
 if ($env:KOZ3_SHA) { $Sha = $env:KOZ3_SHA }
 
 if ($Variant -eq 'f4') {
