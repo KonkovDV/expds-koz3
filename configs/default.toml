@@ -530,3 +530,17 @@ enabled = false
 # zero_nodata = true        # объект с внутренней точкой в поле нулей/nodata ≥ zero_nodata_px² выбрасывается (017, 036)
 # zero_nodata_px = 5
 # markups = ["ae"]
+
+# bot-3 (aerial recall): ослабление порогов ae / li_ae / fusion. По умолчанию ВЫКЛ.
+# LB ae R≈0,013: ae_fort τ≈0,998; li_ae τ≈0,993/1,000001; povr_min=0,99; нет ae-курганной сети.
+# Включение: enabled = true (и при необходимости свои пороги ниже). Честная приёмка —
+# scripts/eval_aerial_honest10.py. D-FINE Ae — отдельно [dfine_aeor]; растры — [raster_fix].
+[ae_recall_relax]
+enabled = false
+# thresholds_by_markup.ae.fortifikatsii = 0.95
+# thresholds_by_markup.ae.kurgany_povrezhdennye = 0.90
+# thresholds_by_markup.ae.kurgany_tselye = 0.70
+# thresholds_by_markup.li_ae.kurgany_povrezhdennye = 0.90
+# thresholds_by_markup.li_ae.kurgany_tselye = 0.80
+# fusion.povr_min = 0.90
+# fusion.tselye_min = 0.70

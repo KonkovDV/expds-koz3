@@ -1216,8 +1216,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
     cfg = load_config(cfg_path)
+    from . import ae_recall_relax as _ae_rr
     from .raster import configure_raster_fix
 
+    cfg = _ae_rr.apply(cfg)  # bot-3: [ae_recall_relax] default OFF
     configure_raster_fix(cfg.get("raster_fix"))  # bot-6: правки чтения снимков, без секции — выключено
     infer = cfg.get("infer", {})
     try:
