@@ -304,6 +304,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     feats: list[dict] = []
     crs_region = region_crs(reg, cfg)
     geo_cfg = cfg.get("geophys", {})
+    if "ground_metres" in geo_cfg:                 # opt-in: шаг EPSG:3857 × cos φ (crs.ground_scale)
+        from . import crs as _crs
+        _crs.GROUND_METRES = bool(geo_cfg["ground_metres"])
     for mt in ("maggr", "etgr", "terfl"):
         maps = (geo_cfg.get(mt) or {}).get("maps", "gray")
         files = geophys.select_rasters(reg.rasters.get(mt, []), mt, maps)
