@@ -3,6 +3,7 @@
 set -u
 B2=/workspace/koz3_shared/bot-2; B10=/workspace/koz3_shared/bot-10; W=$B2/adaf
 PY2=$B2/venv/bin/python; PY=/workspace/rerank/venv/bin/python; G=/workspace/rerank/gt_train_v2.geojson
+export MALLOC_ARENA_MAX=1 MALLOC_TRIM_THRESHOLD_=65536
 export EXPDS_METRIC=$B10/repo/materials/compute_metrics.py PYTHONDONTWRITEBYTECODE=1
 ulimit -v 2500000
 thr() { echo 1; }   # 08:12 constraint: 1 thread, RAM <= 1 GB (another bot-2 job uses 1 thread)
