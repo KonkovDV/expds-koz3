@@ -31,7 +31,7 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def collect() -> list[Path]:
@@ -41,7 +41,7 @@ def collect() -> list[Path]:
     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
-    if (cfg.get("gor_gate") or {}).get("enabled"):
+    if (cfg.get("gor_gate") or {}).get("enabled") or (cfg.get("dfine_aeor") or {}).get("enabled"):
         off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
                     if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
@@ -67,7 +67,15 @@ def collect() -> list[Path]:
     if gg.get("enabled"):
         bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
         dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
-    if sd.get("enabled") or gg.get("enabled"):
+    ae = cfg.get("dfine_aeor") or {}
+    # bot-6: D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
+    if ae.get("enabled"):
+        w = ae.get("weights") or {}
+        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in v]
+        dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
+        if ae.get("thresholds_file"):
+            dfm.append(ae["thresholds_file"])
+    if sd.get("enabled") or gg.get("enabled") or ae.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():
             sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
