@@ -532,35 +532,40 @@ enabled = false
 # Не путать с отвергнутым bot-2 F1 (отдельные группы под sweep) и F2 (ядра глобально).
 # ---------------------------------------------------------------------------
 [large_objects]
+# Мастер OFF → байт-в-байт cbd4804. Sub-flags независимо false (ablation: enabled=true + один).
 enabled = false
+area_tau = false
+protect_merge = false
+shape_cores = false
+fort_to_gor = false
+coarse_hillfort = false
 min_area_m2 = 5000.0
 tau_relax = 0.15
 tau_floor = 0.05
 classes = ["gorodishcha", "fortifikatsii"]
-shape_cores = true
-fort_to_gor = true
-fort_to_gor_scale = 0.9
+fort_to_gor_scale = 0.8
+fort_to_gor_min_conf = 0.5
 fort_to_gor_group = "gor_from_fort"
-coarse_hillfort = true
 coarse_group = "gor_coarse_dem"
 coarse_work_res = 3.0
 coarse_relief_radius_m = 180.0
 coarse_relief_radius_l_m = 300.0
 coarse_max_area_m2 = 200000.0
-coarse_max_per_dem = 3
-coarse_min_enclosure = 0.20
-coarse_min_rel_height_m = 1.2
-coarse_flat_max_deg = 14.0
-coarse_scarp_min_deg = 16.0
+# Ужесточено после mock 337a27c ON Δ−0.01629 (вина: coarse +3 FP li/gorodishcha).
+coarse_max_per_dem = 1
+coarse_min_enclosure = 0.35
+coarse_min_rel_height_m = 1.8
+coarse_flat_max_deg = 12.0
+coarse_scarp_min_deg = 18.0
 [large_objects.core]
 frac = 0.35
 min_r_m = 2.0
 
-# Копии крупных fortifikatsii → gorodishcha (large_objects.fort_to_gor). Стартовые
-# пороги консервативные; подбор — заявка pc/QUEUE (OOF post-tuning).
+# Копии крупных fortifikatsii → gorodishcha (sub-flag fort_to_gor). Keep-original-label;
+# копия не добавляется при пересечении с существующим gor. OOF — pc/QUEUE.
 [thresholds_by_markup.gor_from_fort]
-gorodishcha = 0.20
+gorodishcha = 0.35
 
-# Грубый проход hillfort для площадок ≥5k м² (large_objects.coarse_hillfort).
+# Грубый hillfort (sub-flag coarse_hillfort). Порог поднят после mock FP.
 [thresholds_by_markup.gor_coarse_dem]
-gorodishcha = 0.30
+gorodishcha = 0.55

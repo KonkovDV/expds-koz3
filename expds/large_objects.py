@@ -1,7 +1,9 @@
 """Крупные объекты (>5k м²): пороги по площади, защита при склейке, ядра, грубые кандидаты.
 
-Всё за одним флагом [large_objects] enabled (по умолчанию false). При выключенном флаге
-код постобработки и пайплайна не вызывает эти функции — поведение байт-в-байт как v4.
+Мастер-флаг [large_objects] enabled (по умолчанию false) + независимые sub-flags
+(area_tau / protect_merge / shape_cores / fort_to_gor / coarse_hillfort), тоже false.
+При enabled=false или всех sub-flags=false — поведение байт-в-байт как v4 (cbd4804).
+Ablation: enabled=true + один sub-flag.
 
 Не повторяет отвергнутый bot-2 F1 (отдельные группы порогов под sweep — переобучение на
 малых группах): здесь те же калиброванные τ родителя, только ослабление по площади
@@ -24,6 +26,13 @@ DEFAULT_CLASSES = ("gorodishcha", "fortifikatsii")
 
 def enabled(cfg: dict | None) -> bool:
     return bool(((cfg or {}).get("large_objects") or {}).get("enabled"))
+
+
+def flag(cfg: dict | None, name: str) -> bool:
+    """Мастер enabled И sub-flag name (по умолчанию false)."""
+    if not enabled(cfg):
+        return False
+    return bool(((cfg or {}).get("large_objects") or {}).get(name))
 
 
 def spec(cfg: dict | None) -> dict:
@@ -161,7 +170,7 @@ def merge_within_markup(feats: list[dict], isolate, lo: dict) -> list[dict]:
 
 def shape_cores_large(feats: list[dict], lo: dict) -> list[dict]:
     """Ядра только у крупных городищ (не глобальный F2 bot-2)."""
-    if not lo.get("shape_cores", True):
+    if not lo.get("shape_cores"):
         return feats
     min_area = float(lo.get("min_area_m2", 5000.0))
     core_rule = lo.get("core") or {"frac": 0.35, "min_r_m": 2.0}
@@ -183,25 +192,38 @@ def shape_cores_large(feats: list[dict], lo: dict) -> list[dict]:
 def fort_to_gor(feats: list[dict], lo: dict) -> list[dict]:
     """Копии крупных fortifikatsii → gorodishcha (группа gor_from_fort) до порогов.
 
-    Закрывает часть no_cand, где есть крепость/окоп, но нет городища (ae без gor-модели,
-    спутник без gor). Масштаб conf < 1, чтобы не забить выдачу.
+    Оригинал fortifikatsii НЕ переименовывается (keep-original-label). Копия не
+    добавляется, если пересекается с уже имеющимся gorodishcha того же региона
+    (иначе FP поверх существующего TP/кандидата). Доп. порог fort_to_gor_min_conf.
     """
-    if not lo.get("fort_to_gor", True):
+    if not lo.get("fort_to_gor"):
         return feats
     min_area = float(lo.get("min_area_m2", 5000.0))
-    scale = float(lo.get("fort_to_gor_scale", 0.9))
+    scale = float(lo.get("fort_to_gor_scale", 0.8))
+    min_conf = float(lo.get("fort_to_gor_min_conf", 0.5))
     group = str(lo.get("fort_to_gor_group", "gor_from_fort"))
+    gors = [f for f in feats if f.get("class_name") == "gorodishcha" and f.get("geom") is not None]
     extra = []
     for f in feats:
         if f.get("class_name") != "fortifikatsii":
             continue
         if area_m2(f) < min_area:
             continue
+        conf = float(f.get("confidence", 1.0))
+        if conf < min_conf:
+            continue
+        geom = f.get("geom")
+        if geom is not None and not geom.is_empty:
+            # не копировать, если fort уже лежит на городище
+            if any(g.get("region_name") == f.get("region_name")
+                   and g["geom"] is not None and geom.intersects(g["geom"])
+                   for g in gors):
+                continue
         extra.append(dict(
             f,
             class_name="gorodishcha",
             threshold_group=group,
-            confidence=round(float(f.get("confidence", 1.0)) * scale, 6),
+            confidence=round(conf * scale, 6),
             large_objects_seed="fort_to_gor",
         ))
     if extra:
@@ -220,11 +242,11 @@ def coarse_hillfort_params(lo: dict | None = None):
         "relief_radius_l_m": float(lo.get("coarse_relief_radius_l_m", 300.0)),
         "min_area_m2": float(lo.get("min_area_m2", 5000.0)),
         "max_area_m2": float(lo.get("coarse_max_area_m2", 200_000.0)),
-        "max_per_dem": int(lo.get("coarse_max_per_dem", 3)),
-        "min_enclosure": float(lo.get("coarse_min_enclosure", 0.20)),
-        "min_rel_height_m": float(lo.get("coarse_min_rel_height_m", 1.2)),
-        "flat_max_deg": float(lo.get("coarse_flat_max_deg", 14.0)),
-        "scarp_min_deg": float(lo.get("coarse_scarp_min_deg", 16.0)),
+        "max_per_dem": int(lo.get("coarse_max_per_dem", 1)),
+        "min_enclosure": float(lo.get("coarse_min_enclosure", 0.35)),
+        "min_rel_height_m": float(lo.get("coarse_min_rel_height_m", 1.8)),
+        "flat_max_deg": float(lo.get("coarse_flat_max_deg", 12.0)),
+        "scarp_min_deg": float(lo.get("coarse_scarp_min_deg", 18.0)),
     }
     base = {f.name: getattr(HillfortParams(), f.name) for f in fields(HillfortParams)}
     base.update(overrides)
@@ -236,7 +258,7 @@ def coarse_hillfort_candidates(dem, region: str, source: str, lo: dict | None = 
     from . import hillfort
 
     lo = lo or {}
-    if not lo.get("coarse_hillfort", True):
+    if not lo.get("coarse_hillfort"):
         return []
     p = coarse_hillfort_params(lo)
     group = str(lo.get("coarse_group", "gor_coarse_dem"))
