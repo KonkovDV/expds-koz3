@@ -1,0 +1,94 @@
+{
+ "_rule": "Один слот = одна аренда. Перед kaggle push бот пишет аренду; без аренды push запрещён. Истёкшая (now > until + 1h) аренда снимается координатором после проверки kaggle kernels status.",
+ "quota_reset": "Сб 31.10 03:00 MSK (00:00 UTC)",
+ "slots": [
+  {
+   "slot": "acc1/gpu-1",
+   "account": "elenakonkova",
+   "holder": "bot-W2-lidar",
+   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f4",
+   "since": "2026-10-29 ~20:00 MSK",
+   "until": "2026-10-30 05:00 MSK"
+  },
+  {
+   "slot": "acc1/gpu-2",
+   "account": "elenakonkova",
+   "holder": "bot-W2-lidar",
+   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f23",
+   "since": "2026-10-29 ~20:00 MSK",
+   "until": "2026-10-30 05:00 MSK",
+   "next": "bot-W4-gate: elenakonkova/koz3-bot8-oof-honest10 (авто-push watcher, ~8 ч)"
+  },
+  {
+   "slot": "acc1/tpu",
+   "account": "elenakonkova",
+   "holder": "bot-W3-bigobj",
+   "kernel": "elenakonkova/koz3-acc2-tpu-smoke",
+   "state": "QUEUED"
+  },
+  {
+   "slot": "acc2/gpu-1",
+   "account": "dmitrijkv",
+   "holder": null,
+   "state": "квота GPU исчерпана до сброса",
+   "reserved_for": "bot-W1-aeor"
+  },
+  {
+   "slot": "acc2/gpu-2",
+   "account": "dmitrijkv",
+   "holder": null,
+   "state": "квота GPU исчерпана до сброса",
+   "reserved_for": "bot-W1-aeor / W3 kurgan_orch"
+  },
+  {
+   "slot": "acc2/tpu",
+   "account": "dmitrijkv",
+   "holder": "bot-W2-lidar",
+   "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
+   "state": "QUEUED"
+  },
+  {
+   "slot": "acc2/cpu",
+   "account": "dmitrijkv",
+   "holder": "bot-W4-gate",
+   "kernel": "dmitrijkv/koz3-bot6-pixgbm-cleanroom",
+   "state": "нужны растры геофизики в шардах"
+  },
+  {
+   "slot": "box/cpu",
+   "holder": "shared",
+   "rule": "не больше 3 тяжёлых процессов и 8 ГБ RAM на бота; nice -n 10"
+  },
+  {
+   "slot": "usertest1234/cpu",
+   "account": "usertest1234",
+   "holder": null,
+   "reserved_for": "bot-W1-aeor",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh usertest1234"
+  },
+  {
+   "slot": "aaaa0000004/cpu",
+   "account": "aaaa0000004",
+   "holder": null,
+   "reserved_for": "bot-W3-bigobj",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh aaaa0000004"
+  },
+  {
+   "slot": "aaaadg4gg4g4g/cpu",
+   "account": "aaaadg4gg4g4g",
+   "holder": null,
+   "reserved_for": "bot-W4-gate",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh aaaadg4gg4g4g"
+  }
+ ],
+ "kernel_prefix": {
+  "bot-W1-aeor": "koz3-w1-",
+  "bot-W2-lidar": "koz3-w2-",
+  "bot-W3-bigobj": "koz3-w3-",
+  "bot-W4-gate": "koz3-w4-"
+ },
+ "_tokens": "Токены acc3-5 читаются из local_ctx/ctx/kaggle_pool_4x2_t4.json в момент запуска (orch/pool_kaggle.sh); не печатать, не коммитить."
+}
