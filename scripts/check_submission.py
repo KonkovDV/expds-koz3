@@ -198,11 +198,8 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
                                    ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
-    px = (cfg.get("geophys") or {}).get("pixgbm") or {}   # bot-7 v2: model_dir — папка, нужны poly.txt и finds.txt
-    if any(k == "geophys.pixgbm.model_dir" for k, _ in refs):
-        d = str(px.get("model_dir", "")).rstrip("/")
-        refs = sorted({(k, v) for k, v in refs if k != "geophys.pixgbm.model_dir"} |
-                      ({(f"geophys.pixgbm.model_dir/{f}", f"{d}/{f}") for f in ("poly.txt", "finds.txt")} if px.get("enabled") else set()))
+    # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
+    # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))

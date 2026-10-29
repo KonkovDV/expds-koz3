@@ -20,8 +20,11 @@ _spec = importlib.util.spec_from_file_location("b8_check_submission", ROOT / "sc
 cs = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cs)
 
-CFG = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
 PIX_OFF = 'enabled = false\nmodel_dir = "models/pixgbm/all"'
+# bot-7 (cherry-pick на bot7-candidate-v3): в v2/v3 PIXGBM включён и у model_dir есть комментарий — тест берёт
+# ту же секцию, приведённую к «выкл.», а включает её сам через pix_cfg().
+CFG = re.sub(r'(?m)^enabled = (?:true|false)\nmodel_dir = "models/pixgbm/all".*$', PIX_OFF,
+             (ROOT / "configs" / "default.toml").read_text(encoding="utf-8"), count=1)
 assert PIX_OFF in CFG
 
 
