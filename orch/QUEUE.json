@@ -475,51 +475,6 @@
    "note": "code freeze 10.11"
   },
   {
-   "id": "GEO-ORG3",
-   "owner": "W5",
-   "kernel_folder": "bot5 clean-room (wt/w5): порт 02_baseline_etgr (HGB-режим) → expds",
-   "est_hours": 6,
-   "note": "ТОП-1 гео. 1:1 honest geo5: орг. EtGr (кандидаты-контуры по картам + профили, 16 призн., HGB вместо ResNet18, NMS, порог inner-LOSO) вместо нашего etgr: object_poly F1 +0,208 → Δglob +0,0208, p_region 0,998; вместе с MagGr-полигонами +0,0206, p_family 1,00, 5/5 фолдов ≥0 — гейт пройден на прокси. OOF: /workspace/koz3/org_repro/out/C_mgpoly_et.geojson. Сделать: перенос в чистый код, predict на test, затем CNN-сид (GPU, ResNet18 4-кан.) как опция. Код орг. можно, EN нельзя.",
-   "slot_window": "S1",
-   "start_msk": "30.10",
-   "end_msk": "31.10",
-   "account": "box",
-   "accelerator": "cpu(box, nice 19)",
-   "prerequisites": [],
-   "review_item": "REVIEW_ORG_GEO_BASELINES §6",
-   "status": "ready"
-  },
-  {
-   "id": "GEO-ORG1",
-   "owner": "W5",
-   "kernel_folder": "bot5 clean-room PIXGBM (wt/w5)",
-   "est_hours": 10,
-   "note": "1:1 honest (geo5, A17, pix_clean_eval) орг. MagGr: object_poly F1 +0,0195 (Δglob +0,0020, p_fam 0,77; fam-фолды +0,0045), finds F1 −0,063 (Δglob −0,0063) → брать ТОЛЬКО полигоны (многоуровневые контуры σ×фон + HGB 15 призн. + NMS/вложенные дети) и смешать с нашими; точки — лишь признаки орг. (диполь ±1,5 м, DoG/Гессиан ранги) в наш ранкер. Орг. не видит 211-цвет_2 и 212 (только цвет_2) — оставить наши. Код орг. можно (ai_declaration), EN нельзя. Репро: orch/geo_org_repro. Приёмка: Δ≥+0,009, P≥0,95.",
-   "slot_window": "S1–S2",
-   "start_msk": "30.10",
-   "end_msk": "02.11",
-   "account": "box",
-   "accelerator": "cpu(box, nice 19)",
-   "prerequisites": [],
-   "review_item": "REVIEW_ORG_GEO_BASELINES §4",
-   "status": "ready"
-  },
-  {
-   "id": "GEO-ORG2",
-   "owner": "W5",
-   "kernel_folder": "repo/expds/geophys.py (ветка bot5)",
-   "est_hours": 4,
-   "note": "Маска съёмки (0/255 от края ∩ границы.geojson, эрозия 2) + nearest-fill до фильтров; EtGr: маска «не палитра» (dist>110 до jet) + band_mode=jet. Гейт honest-10 без регресса. Делать после GEO-ORG3 (общий конвейер EtGr).",
-   "slot_window": "S1–S2",
-   "start_msk": "30.10",
-   "end_msk": "02.11",
-   "account": "box",
-   "accelerator": "cpu(box, nice 19)",
-   "prerequisites": [],
-   "review_item": "REVIEW_ORG_GEO_BASELINES §4",
-   "status": "ready"
-  },
-  {
    "id": "FINAL",
    "slot_window": "11.11",
    "start_msk": "11.11 09:00",
@@ -535,6 +490,355 @@
    "review_item": "final",
    "status": "planned",
    "note": "буфер до 14.11 не используем по плану"
+  },
+  {
+   "id": "P-D2-cleanroom",
+   "owner": "W4",
+   "slot": "box/acc2-cpu",
+   "start_msk": "30.10 12:00",
+   "kernel_folder": "clean-room PIXGBM: приёмка Δ≥+0.009, паритет v2 ±0.002, проверить EtGr G4 в v2",
+   "prerequisites": [
+    "спека bbebfe3"
+   ],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-v3a-build",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "30.10 14:00",
+   "kernel_folder": "сборка v3a: break-even, MagGr 0.05/micro-circle, дедуп, object_poly>30м, EtGr>2м, контур съёмки",
+   "prerequisites": [
+    "P-D2-cleanroom"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W3-seeds-fix",
+   "owner": "W3",
+   "slot": "usertest1234/aaaa0000004/aaaadg4gg4g4g cpu",
+   "start_msk": "30.10 12:00",
+   "kernel_folder": "разобрать ERROR kurgan-cpu-seeds 22:44, фикс, перезапуск через dispatch",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W2-hillshade-parity",
+   "owner": "W2",
+   "slot": "box",
+   "start_msk": "30.10 18:00",
+   "kernel_folder": "паритет отмывки с бейзлайном (L12/CI2-8)",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | 29.10 23:10 → CI2-8 dispatch dmitrijkv"
+  },
+  {
+   "id": "P-D3-ae",
+   "owner": "W1",
+   "slot": "acc1/gpu-1,gpu-2",
+   "start_msk": "31.10 03:00",
+   "kernel_folder": "e2e Ae/Or D-FINE all-class → в архив да/нет (P4 floors)",
+   "prerequisites": [
+    "S0 ae-final/or-final"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-compgate",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "31.10 18:00",
+   "kernel_folder": "gate по составу выборки (#12) + пересборка OOF-стека A на box (ПК офлайн)",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-replic-snap",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "31.10 23:59",
+   "kernel_folder": "репликация Li→Ae/SpOr/Or (#4), center snap (#5, от W2), NMS≤0.5 диаметра (L2)",
+   "prerequisites": [
+    "P-v3a-build"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W2-heatmap",
+   "owner": "W2",
+   "slot": "acc2/gpu-1,gpu-2 (+acc2/tpu)",
+   "start_msk": "31.10 03:00 → 04.11",
+   "kernel_folder": "lidar heatmap + copy-paste, 25–30 GPU-ч; D5 04.11 go/no-go: Δgate≥+0.01, runtime≤4 мин",
+   "prerequisites": [
+    "квота acc2 31.10 03:00",
+    "P-W2-hillshade-parity"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W3-bigobj",
+   "owner": "W3",
+   "slot": "acc1/gpu-1",
+   "start_msk": "31.10 → 04.11",
+   "kernel_folder": "gor/крупные без лидара + adaptive crop + признак «мыс» (L5), fort-цепочки (L6), ≤10 GPU-ч",
+   "prerequisites": [
+    "P-D3-ae (освобождение acc1)"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-multihyp",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "01.11",
+   "kernel_folder": "мультигипотезы и хедж povr/tselye (#6, L4)",
+   "prerequisites": [
+    "P-W4-replic-snap"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W1-or-multiclass",
+   "owner": "W1",
+   "slot": "acc1/gpu-2",
+   "start_msk": "01–02.11",
+   "kernel_folder": "Or multiclass (L7) + жёсткие негативы стога (L10)",
+   "prerequisites": [
+    "P-D3-ae"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D4-rerank",
+   "owner": "W5",
+   "slot": "GPU/TPU по очереди",
+   "start_msk": "03.11",
+   "kernel_folder": "реранкер DINOv2+LGBM (#7, CI2-1): да/нет",
+   "prerequisites": [
+    "w5-dino-emb",
+    "P-W4-compgate"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W1-sat",
+   "owner": "W1",
+   "slot": "acc1",
+   "start_msk": "03.11",
+   "kernel_folder": "спутник recall (#11), ≤2 GPU-ч",
+   "prerequisites": [
+    "P-D3-ae"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D5-heatmap",
+   "owner": "W2+W4",
+   "slot": "—",
+   "start_msk": "04.11",
+   "kernel_folder": "go/no-go heatmap и W3",
+   "prerequisites": [
+    "P-W2-heatmap",
+    "P-W3-bigobj"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-v4-integrate",
+   "owner": "W0",
+   "slot": "box",
+   "start_msk": "05–06.11",
+   "kernel_folder": "сборка v4 (реранкер+heatmap+gor), ≤22 мин, P1–P7",
+   "prerequisites": [
+    "P-D4-rerank",
+    "P-D5-heatmap"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D6-final-weights",
+   "owner": "все",
+   "slot": "acc1+acc2 GPU",
+   "start_msk": "07.11 03:00",
+   "kernel_folder": "дообучение на всех данных ≈20 GPU-ч, финальные пороги",
+   "prerequisites": [
+    "P-v4-integrate"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-docker-e2e",
+   "owner": "W0",
+   "slot": "box",
+   "start_msk": "08.11",
+   "kernel_folder": "docker-тест ×2 данных, 30 мин, 20000/3000/100 МБ, >50 замечаний, ai_declaration.md, README c CUDA",
+   "prerequisites": [
+    "P-D6-final-weights"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D7-AB",
+   "owner": "Elena+W0",
+   "slot": "—",
+   "start_msk": "09.11 12:00",
+   "kernel_folder": "выбор A/B",
+   "prerequisites": [
+    "P-docker-e2e"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D8-freeze",
+   "owner": "W0",
+   "slot": "—",
+   "start_msk": "10.11 23:59",
+   "kernel_folder": "заморозка: SHA, архивы, лицензии, декларация",
+   "prerequisites": [
+    "P-D7-AB"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "CI2-1",
+   "owner": "W5",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w5-cloudfeat: признаки облака у кандидата (плотность земли, не-первые отражения, z_std, доля интерп. ячеек)",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "REVIEW_SOTA CI2-1",
+   "note": "bot1 29.10 23:10: proposed→ready; только идея (нет лицензии), свой код"
+  },
+  {
+   "id": "CI2-3",
+   "owner": "W2/W3",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w2-ground-clip-audit: высота насыпи GT-курганов DEM класс 2 vs мягкий PMF/lowest",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "REVIEW_SOTA CI2-3",
+   "note": "bot1 29.10 23:10: proposed→ready"
+  },
+  {
+   "id": "CI2-7",
+   "owner": "W4",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w4-seed-ckpt-joint-sweep: выбор сида/чекпойнта после свипа порогов+min_area на honest-10",
+   "prerequisites": [
+    "OOF-кэш (kurgan seeds 11-42)"
+   ],
+   "status": "ready",
+   "review_item": "REVIEW_SOTA CI2-7",
+   "note": "bot1 29.10 23:10: proposed→ready"
+  },
+  {
+   "id": "CI2-8",
+   "owner": "W2",
+   "accelerator": "cpu",
+   "account": "dmitrijkv",
+   "kernel_folder": "koz3-w2-hillshade-parity-s3: отмывка из LAS (expds.lidar) vs Li_g/c/ch организаторов, corr/сдвиг по регионам",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "REVIEW_SOTA CI2-8 / P-W2-hillshade-parity",
+   "note": "bot1 29.10 23:10: proposed→dispatch на acc2/cpu | 23:15: acc2/cpu занят coord (kurgan 41,42) → dispatch w2-hsparity-ci2-8, автозапуск watcher-ом при освобождении acc2/cpu"
+  },
+  {
+   "id": "DOC-1",
+   "owner": "W5",
+   "kernel_folder": "bot5 clean-room (wt/w5)",
+   "est_hours": 2,
+   "status": "planned",
+   "slot_window": "S1",
+   "start_msk": "30.10",
+   "end_msk": "01.11",
+   "note": "ORG-review: в кандидате v4 [geophys.pixgbm] enabled=true + expds/geo_pixgbm.py (по мотивам EhimenNathan) и models/pixgbm/all/* в пути архива. Перед любой сдачей: выключить pixgbm или заменить clean-room/GEO-ORG1; в main pixgbm enabled, но модуля нет → тихий откат на классику (pipeline.py:361) — сделать флаг false явно."
+  },
+  {
+   "id": "DOC-2",
+   "owner": "W0",
+   "kernel_folder": "bots/w0-docs",
+   "est_hours": 1,
+   "status": "planned",
+   "slot_window": "FREEZE",
+   "start_msk": "до FREEZE",
+   "end_msk": "FINAL",
+   "note": "При FREEZE: синхронизировать docs/README_FINAL.md (флаги, sha256 dfine_ae, GEO-ORG, micro_circles) с configs сдаваемой версии; заполнить версии Grok Bot/Claude Code, ФИО, email; по шаблону переименовать README_FINAL.md → docs/README.md."
+  },
+  {
+   "id": "DOC-3",
+   "owner": "coord",
+   "kernel_folder": "orch/SCHEDULE.md + QUEUE FINAL",
+   "est_hours": 0.5,
+   "status": "planned",
+   "slot_window": "S1",
+   "start_msk": "30.10",
+   "end_msk": "30.10",
+   "note": "Консультация №1: финал 17–19.11 (лимит на весь период; без загрузки авто-берутся 2 лучших публичных). Elena держит 11.11 как свой срок — подтвердить; SCHEDULE не менять без её решения."
+  },
+  {
+   "id": "DOC-4",
+   "owner": "W4",
+   "kernel_folder": "repo/expds/geophys.py:557-558",
+   "est_hours": 2,
+   "status": "planned",
+   "slot_window": "S2",
+   "start_msk": "31.10",
+   "end_msk": "02.11",
+   "note": "AREA_M2 (MagGr 5–3000, EtGr 0.05–150, TerFl 0.05–1000) vs консультация №1 (MagGr obj 1–30, struct 2–400; EtGr 0.3–12; TerFl obj 0.3–10, struct 1–50). При FP=0.5 широкие пределы допустимы; проверить на honest-10 только нижнюю границу MagGr obj (5 м² > 1). Низкий приоритет."
+  },
+  {
+   "id": "CI2-5",
+   "owner": "W3",
+   "accelerator": "gpu(T4x2)",
+   "account": "elenakonkova",
+   "kernel_folder": "koz3-w3-bigobj-adacrop: адаптивный кроп gor/fort масок",
+   "prerequisites": [
+    "w1-ae-final",
+    "w1-or-final"
+   ],
+   "status": "planned",
+   "review_item": "REVIEW_SOTA CI2-5",
+   "note": "bot1 29.10 23:10: в GPU-очередь W3 после текущих acc1 (ae/or-final)"
   }
  ],
  "cooldown": {
@@ -581,12 +885,13 @@
    "account": "elenakonkova",
    "kernel_dir": "orch/bot-W1/kernels/koz3-w1-dfine-or-final",
    "ttl_h": 10.0,
-   "status": "pushed",
+   "status": "done",
    "after": [],
    "note": "бывш. очередь gpu_watcher; sp/or вне архива до gate↔docker",
    "kernel": "elenakonkova/koz3-w1-dfine-or-final",
    "slot": "acc1/gpu-2",
-   "started": "29.10 22:38"
+   "started": "29.10 22:38",
+   "finished": "30.10 00:41 COMPLETE"
   },
   {
    "id": "w5-dino-emb",
@@ -597,6 +902,134 @@
    "ttl_h": 4,
    "status": "hold",
    "note": "ждёт датасет elenakonkova/koz3-w5-cands (кандидаты из OOF A); TPU-вариант возможен (XLA-ветка в коде)"
+  },
+  {
+   "id": "coord-compliance-audit",
+   "owner": "coord",
+   "accel": "box",
+   "account": "box",
+   "cmd": "bash orch/tools/compliance_audit.sh origin/main origin/bots/w4-repro-v2",
+   "ttl_h": 1,
+   "status": "done",
+   "note": "read-only аудит EN/зависимостей/файлов ПКК; отчёты orch/logs/compliance_audit_*.md",
+   "slot": "box/q1",
+   "started": "29.10 23:07",
+   "pid": 19626,
+   "finished": "29.10 23:13 COMPLETE"
+  },
+  {
+   "id": "w2-hsparity-ci2-8",
+   "owner": "bot-W2-lidar",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12.0,
+   "status": "ready",
+   "after": [],
+   "kernel_dir": "w2hs/k",
+   "pull_to": "w2hs/out",
+   "note": "CI2-8: LAS→DEM→отмывка vs Li (S3, интернет нужен → только dmitrijkv). Датасет dmitrijkv/koz3-w2-hsparity-code ready"
+  },
+  {
+   "id": "w3-seeds-v5-usertest1234",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "usertest1234",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-usertest1234",
+   "pull_to": "orch/bot-W3/seeds_out/usertest1234",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-aaaa0000004",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-aaaa0000004",
+   "pull_to": "orch/bot-W3/seeds_out/aaaa0000004",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-aaaadg4gg4g4g",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "aaaadg4gg4g4g",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-aaaadg4gg4g4g",
+   "pull_to": "orch/bot-W3/seeds_out/aaaadg4gg4g4g",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-dmitrijkv",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-dmitrijkv",
+   "pull_to": "orch/bot-W3/seeds_out/dmitrijkv",
+   "note": "kurgan seeds 41,42 v5 offline fix (failover)"
+  },
+  {
+   "id": "w3-gorheads-cpu",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 9.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-gorheads-cpu",
+   "pull_to": "orch/bot-W3/gorheads_out",
+   "note": "gor heads retrain CPU, internet on; ref sha256 in WEIGHTS_MANIFEST_v4 40fa5997"
+  },
+  {
+   "id": "w0s-resweep-micro-rp",
+   "owner": "W5",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "ready",
+   "after": [],
+   "note": "AUDIT_SEAMS #1/#5: OOF transform micro(anchor=rp, r0.05 gor/arch/obj/fort) -> re-sweep group thresholds -> scoreboard --honest 10; base bots/w0-seams@5171c35"
+  },
+  {
+   "id": "w0s-dem-noground",
+   "owner": "W3",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "ready",
+   "after": [],
+   "note": "AUDIT_SEAMS #6: count LAS without class 2; if any, use min-per-cell+PMF ground filter instead of mean of all points (lidar.py:258)"
+  },
+  {
+   "id": "w0s-conf-ties",
+   "owner": "W4",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "ready",
+   "after": [],
+   "note": "AUDIT_SEAMS #7: kurgan confidence ties 96-98% in stack; find quantisation source, add tie-breaker, gate honest-10"
+  },
+  {
+   "id": "w3-gordense-timing",
+   "owner": "bot-W3-bigobj",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 1.5,
+   "status": "ready",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-gordense-timing",
+   "pull_to": "orch/bot-W3/gordense_timing_out",
+   "note": "gor_dense T4 timing (single GPU, 55 min hard cap); first free acc2 GPU slot"
   }
  ]
 }
