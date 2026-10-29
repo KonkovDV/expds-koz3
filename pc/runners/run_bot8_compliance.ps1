@@ -6,7 +6,7 @@
 $ErrorActionPreference = 'Continue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 
-$Sha     = '70335294fd0f09c246105bfd3c80a56ed26f8748'
+$Sha     = '4169266b941e8f5f5b2c743b8692320f91badcb3'
 if ($env:KOZ3_SHA) { $Sha = $env:KOZ3_SHA }
 $Short   = $Sha.Substring(0,7)
 $JobDir  = "C:\Sloi\pc_jobs\bot8_compliance_$Short"
