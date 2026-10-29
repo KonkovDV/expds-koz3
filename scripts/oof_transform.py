@@ -25,6 +25,10 @@
   micro          круги класса → микрокруги в том же центре ([post.micro_circles]).
                  Архитектура: попадание не теряется, промахи «центр внутри, покрытие
                  круга 2 м < 0,5» (стены, узкие комнаты) становятся попаданиями.
+  gormask        курганы внутри выданных городищ убираются ([post] kurgans_outside_hillforts):
+                 правило разметки — насыпи внутри городищ курганами не размечаются.
+  neigh          уверенность курганов × множитель соседства ([post] kurgan_neighbour_prior);
+                 пороги групп после него подбирает табло заново.
   shift          перенос объектов слоя на устойчивый сдвиг участка
                  (scripts/layer_shift.py или scripts/image_label_shift.py).
                  Остальные объекты файла не меняются. В сдачу не входит.
@@ -182,6 +186,37 @@ def cmd_rescue(a) -> None:
     write_feats(rescue(feats, taus, a.classes, a.k, a.floor), Path(a.out))
 
 
+def cmd_gormask(a) -> None:
+    from expds.post import kurgans_outside_hillforts
+
+    kur = [f for src in a.src for f in read_feats(Path(src))]
+    gor = [f for src in a.hillforts for f in read_feats(Path(src)) if f.get("class_name") == "gorodishcha"]
+    if a.taus:   # выданные городища: уверенность не ниже порога своей группы (JSON табло, поле thresholds)
+        taus = json.loads(Path(a.taus).read_text(encoding="utf-8")).get("thresholds", {})
+        gor = [f for f in gor if f["confidence"] >= taus.get(f.get("threshold_group") or f.get("markup_type") or "",
+                                                              {}).get("gorodishcha", float("inf"))]
+    spec = {"min_gor_conf": a.gor_min, "buffer_m": a.buffer, "groups": a.groups or None,
+            "gor_groups": a.gor_groups or None, "min_area_m2": a.min_area, "max_area_m2": a.max_area}
+    kept = kurgans_outside_hillforts(kur + gor, spec)
+    ids = {id(f) for f in gor}
+    out = [f for f in kept if id(f) not in ids]
+    print(f"курганов {len(kur)}, городищ-масок {len(gor)}, убрано {len(kur) - len(out)}")
+    write_feats(out, Path(a.out))
+
+
+def cmd_neigh(a) -> None:
+    from expds.post import kurgan_neighbour_prior, threshold_fn
+
+    feats = [f for src in a.src for f in read_feats(Path(src))]
+    tau = None
+    if a.taus:
+        tau = threshold_fn({}, float("inf"), json.loads(Path(a.taus).read_text(encoding="utf-8")).get("thresholds", {}))
+    spec = {"groups": a.groups, "count_groups": a.count_groups or None, "radius_m": a.radius, "k": a.k,
+            "floor": a.floor, "slope": a.slope, "cap": a.cap, "support_conf": a.support_conf}
+    out = kurgan_neighbour_prior(feats, spec, tau)
+    write_feats(out, Path(a.out))
+
+
 def cmd_pick(a) -> None:
     keep_mt = set(a.markups)
     keep_cls = set(a.classes or [])
@@ -314,6 +349,31 @@ def main() -> None:
     sh.add_argument("--all-regions", action="store_true", help="и неустойчивые сдвиги тоже")
     sh.add_argument("--out", required=True)
     sh.set_defaults(fn=cmd_shift)
+    gm = sub.add_parser("gormask", help="убрать курганы внутри выданных городищ ([post] kurgans_outside_hillforts)")
+    gm.add_argument("--src", nargs="+", required=True, help="OOF-файлы курганов (уже после порогов или с --taus табло)")
+    gm.add_argument("--hillforts", nargs="+", required=True, help="OOF-файлы городищ всех групп")
+    gm.add_argument("--taus", default="", help="JSON табло: городища ниже порога своей группы не маскируют")
+    gm.add_argument("--gor-min", type=float, default=0.0)
+    gm.add_argument("--buffer", type=float, default=0.0, help="м на земле; < 0 — сжать городище")
+    gm.add_argument("--groups", nargs="*", default=[], help="группы курганов (пусто — все)")
+    gm.add_argument("--gor-groups", nargs="*", default=[], help="группы городищ (пусто — все)")
+    gm.add_argument("--min-area", type=float, default=500.0)
+    gm.add_argument("--max-area", type=float, default=400_000.0)
+    gm.add_argument("--out", required=True)
+    gm.set_defaults(fn=cmd_gormask)
+    nb = sub.add_parser("neigh", help="множитель соседства курганов ([post] kurgan_neighbour_prior); пороги — табло")
+    nb.add_argument("--src", nargs="+", required=True, help="OOF-файлы курганов с низким порогом")
+    nb.add_argument("--groups", nargs="+", default=["li", "li_coarse", "li_mosaic"])
+    nb.add_argument("--count-groups", nargs="*", default=[])
+    nb.add_argument("--radius", type=float, default=200.0)
+    nb.add_argument("--k", type=float, default=3.0)
+    nb.add_argument("--floor", type=float, default=0.5)
+    nb.add_argument("--slope", type=float, default=0.5)
+    nb.add_argument("--cap", type=float, default=2.0)
+    nb.add_argument("--support-conf", type=float, default=None, help="опора соседа — абсолютная уверенность")
+    nb.add_argument("--taus", default="", help="или JSON табло: опора — порог своей группы (без приора)")
+    nb.add_argument("--out", required=True)
+    nb.set_defaults(fn=cmd_neigh)
     a = ap.parse_args()
     a.fn(a)
 
