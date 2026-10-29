@@ -18,7 +18,9 @@
 | `831365f` | candidates: fort→gor, coarse hillfort, ядра крупных gor |
 | `77a61d0` | report: reports/bot4_large_objects.md + unit-тесты (6) |
 | `337a27c` | docs: таблица коммитов в отчёте |
-| *(ниже)* | sub-flags независимо + fort overlap skip + stricter coarse; unit 9 |
+| `f1d33ab` | sub-flags независимо (все OFF) + fort overlap skip + stricter coarse |
+| `8f74d26` | unit-тесты sub-flags / fort skip (9) |
+| `f08bb5f` | отчёт mock 337a27c FAIL + план ablation |
 
 ## Mock e2e @ 337a27c (артефакты `pc/results/bot4_lo_mock_337a27c/`)
 - OFF vs v2: ALL Δ **+0.00036** (ok).
