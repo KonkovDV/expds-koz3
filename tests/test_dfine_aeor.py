@@ -278,6 +278,104 @@ def test_phase_deadline_stops_windows(tmp_path):
     assert _Model.calls < 4
 
 
+class _Clock:
+    """Поддельные часы модуля dfine_aeor: чтение окна медленной сцены двигает их на read_s."""
+    def __init__(self):
+        self.t = 0.0
+
+    def monotonic(self):
+        return self.t
+
+
+def _slow_scene(clock, read_s):
+    class Slow(_Scene):
+        reads = 0
+
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.W = self.H = 4000                 # много окон и на Or (окно 1024 px)
+
+        def read(self, x, y, n):
+            Slow.reads += 1
+            clock.t += read_s
+            return super().read(x, y, n)
+    return Slow
+
+
+def test_deadline_checked_before_each_window_not_only_batch(tmp_path, monkeypatch):
+    """bot-7 13:12: самый медленный Or (033 Елизаветинское: 4 окна за 89,2 с ≈ 22 с/окно чтения+warp (детектор — заглушка), work/aeor_rss/or_033.log).
+    Батч 4 окна, бюджет фазы 30 с, окно читается 23 с: проверка только между батчами прочла бы все 4 (92 с,
+    перерасход 62 с). Теперь — проверка перед каждым окном по замеру: 1 окно, фаза не переехала потолок."""
+    pytest.importorskip("torch")
+    clock = _Clock()
+    monkeypatch.setattr(A, "time", clock)
+    Slow = _slow_scene(clock, 23.0)
+    budget = 30.0
+    cfg = {"dfine_aeor": {"enabled": True, "flip_tta": False, "tile_s": 1e-6, "batch": 4}}
+    reg = _reg(tmp_path, {"or": [str(tmp_path / "o.tif")]})
+    _Model.calls = 0
+    A.region_feats(reg, cfg, None, {}, tmp_path, crs_for=lambda r: UTM, phase_left=lambda: budget - clock.t,
+                   scene_cls=Slow, loader=lambda st, mk, root, c: ([_Model()], list(A.MODEL_CLASSES)))
+    assert Slow.reads == 1 and clock.t <= budget   # до правки: 4 чтения, 92 с
+    assert _Model.calls == 1                       # прочитанное окно прогнано (на прямой проход время было)
+
+
+def test_deadline_guard_window_left_also_bounds_reads(tmp_path, monkeypatch):
+    """Срок сторожа (window_left − reserve) тоже проверяется перед каждым окном, а не только фазовый."""
+    pytest.importorskip("torch")
+    clock = _Clock()
+    monkeypatch.setattr(A, "time", clock)
+    Slow = _slow_scene(clock, 10.0)
+    guard = SimpleNamespace(window_ok=lambda: True, window_left=lambda: 45.0 - clock.t, window_reserve_s=5.0)
+    cfg = {"dfine_aeor": {"enabled": True, "flip_tta": False, "tile_s": 1e-6, "batch": 2}}
+    reg = _reg(tmp_path, {"or": [str(tmp_path / "o.tif")]})
+    A.region_feats(reg, cfg, guard, {}, tmp_path, crs_for=lambda r: UTM, phase_left=lambda: 1e9,
+                   scene_cls=Slow, loader=lambda st, mk, root, c: ([_Model()], list(A.MODEL_CLASSES)))
+    assert clock.t <= 40.0 and Slow.reads == 3   # 40 − 3·10 = 10 ≤ 10 → четвёртое окно не читается
+
+
+def test_phase_skips_region_via_soft_ok_and_never_waits(monkeypatch, caplog):
+    """Нехватка времени: участок пропускается по soft_ok (строка «мягкий потолок»), фаза сразу выходит —
+    ни ожидания, ни вызова region_feats для пропущенных; проверка phase_left перед каждым участком."""
+    from expds import pipeline
+
+    calls = []
+    monkeypatch.setattr(A, "region_feats", lambda reg, *a, **k: calls.append(reg.name) or [_df("ae", reg=reg.name)])
+    regs = [SimpleNamespace(name=n, rasters={"ae": [f"/nonexistent/{n}.tif"]}, utm_json=None) for n in ("r1", "r2", "r3")]
+    soft = iter([True, False, True])
+
+    class G:
+        soft_ceiling = 100.0
+        soft_skipped = []
+
+        def ok(self, need=0):
+            return True
+
+        def elapsed(self):
+            return 0.0
+
+        def soft_need_s(self, phase):
+            return 0.0
+
+        def soft_ok(self, need, phase=None, what=""):
+            r = next(soft)
+            if not r:
+                self.soft_skipped.append(what)
+                logging.getLogger("expds.pipeline").warning("мягкий потолок: %s пропущено (%s)", phase, what)
+            return r
+    state = SimpleNamespace(note={"dfine_aeor": {"ok": True}}, add=lambda fs: None)
+    with caplog.at_level(logging.INFO):
+        pipeline._dfine_aeor_phase(regs, {"dfine_aeor": {"enabled": True}}, G(), state, ROOT, {})
+    assert calls == ["r1"] and "мягкий потолок: dfine_aeor" in caplog.text
+    assert "dfine_aeor n_det=1 total" in caplog.text
+    # срок фазы исчерпан до участка — выход до region_feats
+    calls.clear()
+    monkeypatch.setattr(pipeline.time, "monotonic", iter([0.0] + [1e6] * 50).__next__)
+    pipeline._dfine_aeor_phase(regs, {"dfine_aeor": {"enabled": True}}, SimpleNamespace(ok=lambda n=0: True,
+                               elapsed=lambda: 0.0), state, ROOT, {})
+    assert calls == []
+
+
 # ── постобработка v3 не трогает dfine_ae / dfine_or ──────────────────────────────────────────────────────
 def _df(markup, cls="gorodishcha", conf=0.5, reg="r1"):
     return {"geom": Point(X0, Y0).buffer(4), "class_name": cls, "confidence": conf, "region_name": reg,
@@ -512,13 +610,23 @@ def test_check_submission_smoke_needs_weights(tmp_path):
     assert all("нужны веса" in r[2] for r in cs.RESULTS)
     assert cs.DFINE_AEOR_KNOWN["ae"]["region"] == "181_Гнёздово_Лесная_3"
     assert cs.DFINE_AEOR_KNOWN["or"]["region"] == "185_Изборск"
-    cs.RESULTS.clear()                                       # веса в архиве есть, а опорного участка нет — тоже FAIL
-    z2 = _zip(tmp_path, "", [f"models/dfine_{m}/{f}" for m in ("ae", "or") for f in ("config.json", "model.safetensors")])
-    cs.check_dfine_aeor_weights(z2, cfg, _args(tmp_path))
-    assert [r[0] for r in cs.RESULTS] == ["FAIL", "FAIL"] and all("опорного участка" in r[2] for r in cs.RESULTS)
     cs.RESULTS.clear()
     cs.check_dfine_aeor_weights(z, cfg, SimpleNamespace(**{**vars(_args(tmp_path)), "weights": False}))
-    assert [r[0] for r in cs.RESULTS] == ["WARN"]
+    assert [r[0] for r in cs.RESULTS] == ["WARN"] and "смоук не выполнен" in cs.RESULTS[0][2]
+
+
+def test_check_submission_missing_train_data_warns_not_pass(tmp_path):
+    """bot-7 13:12: веса в архиве есть, а данных трейна для смоука на машине нет — явный WARN «смоук не выполнен»
+    на каждую модальность, ни одного PASS; итог без FAIL (не дефект архива), но WARN виден."""
+    cs = _cs()
+    cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]}}}
+    z2 = _zip(tmp_path, "", [f"models/dfine_{m}/{f}" for m in ("ae", "or") for f in ("config.json", "model.safetensors")])
+    cs.check_dfine_aeor_weights(z2, cfg, _args(tmp_path))
+    assert [r[0] for r in cs.RESULTS] == ["WARN", "WARN"]
+    assert all(r[2].startswith("смоук не выполнен") and "опорного участка" in r[2] for r in cs.RESULTS)
+    cs.RESULTS.clear()
+    cs.check_dfine_aeor_weights(z2, {"dfine_aeor": {**cfg["dfine_aeor"], "markups": ["xx"]}}, _args(tmp_path))
+    assert [r[0] for r in cs.RESULTS] == ["WARN"] and "смоук не выполнен" in cs.RESULTS[0][2]
 
 
 def test_check_submission_aeor_verdicts():
