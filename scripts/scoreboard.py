@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -47,7 +48,39 @@ def load(path: Path) -> dict:
     p = Path(path)
     print(f"читаю {p.name}", flush=True)
     gc.disable()
-    return json.loads(p.read_bytes())
+    return load_json_bytes(p.read_bytes())
+
+
+def load_json_bytes(data: bytes):
+    """json.loads, но через orjson, если он установлен (в 2–3 раза быстрее на больших GeoJSON).
+
+    orjson даёт те же объекты (те же int/float/str, тот же порядок ключей); всё, что он не
+    принимает (NaN/Infinity, целые больше 64 бит, BOM, одиночные суррогаты), читается
+    стандартным json — результат тот же, что был. EXPDS_ORJSON=0 — всегда json."""
+    if os.environ.get("EXPDS_ORJSON", "1") != "0" and os.environ.get("EXPDS_FAST_METRIC", "1") != "0":
+        try:
+            import orjson
+        except ImportError:
+            orjson = None
+        if orjson is not None and not _long_digit_run(data):
+            try:
+                return orjson.loads(data)
+            except Exception:
+                pass
+    return json.loads(data)
+
+
+_DIGIT_MAP = bytes(49 if 48 <= i <= 57 else 48 for i in range(256))
+
+
+def _long_digit_run(data) -> bool:
+    """Есть ли 19+ цифр подряд: такое целое может не влезть в 64 бита, и orjson молча сделал бы из
+    него float (json — int). Тогда читаем стандартным json (ложные срабатывания лишь медленнее)."""
+    try:
+        import expds_core
+        return bool(expds_core.has_digit_run(bytes(data), 19))
+    except (ImportError, AttributeError):
+        return b"1" * 19 in bytes(data).translate(_DIGIT_MAP)
 
 
 def props(feat: dict) -> dict:

@@ -13,7 +13,7 @@
 Перебираются все различимые пороги, а не сетка; совпадение с полным официальным
 расчётом проверяет verify() (и тест test_metric_exact.py).
 
-    python -m expds.metric score --pred out.geojson --gt work/gt_val.geojson --metric <путь>/compute_metrics.py
+    python -m expds.metric score --pred out.geojson --gt work/gt_val.geojson --metric C:/koz3/compute_metrics.py
     python -m expds.metric sweep --pred cand.geojson --gt work/gt_train.geojson --metric ... \
         --markup li --regions holdout.txt --bootstrap 300 --out configs/thresholds.json
 """
@@ -32,6 +32,7 @@ from pathlib import Path
 import numpy as np
 
 from . import fastgeom as _fastgeom
+from . import geomcache as _geomcache
 from .constants import CLASS_WEIGHTS, CLASSES
 
 EPS = 1e-6
@@ -105,7 +106,7 @@ def threshold_group(props: dict) -> str:
 
 
 _UTM_GEOM_CACHE: dict[tuple, dict[int, tuple[object, object]]] = {}
-_SHM_CACHE_DIR = Path("/dev/shm/expds_utm_cache")
+_SHM_CACHE_DIR = _geomcache.default_dir()   # каталог файлового кэша по умолчанию; EXPDS_GEOM_CACHE важнее
 
 
 def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool, r_tol: float, c_pts: int) -> str:
@@ -166,7 +167,6 @@ def _collect(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) ->
 
 
 def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None) -> dict[str, list[tuple]]:
-    import pickle
     import shapely
 
     out: dict[str, list[tuple]] = {}
@@ -181,6 +181,8 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
 
     norm_cache: dict = {}
     slot_sites: list = []
+    get_conf = mod._get_confidence
+    sub_get = sub_cache.get
     for feature in fc.get("features", []):
         props = feature.get("properties", {}) or {}
         raw_cls = props.get("class_name", "unknown")
@@ -195,13 +197,19 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
         gdict = feature.get("geometry")
         if not gdict:
             continue
-        conf = mod._get_confidence(feature)
-        reg = str(props.get("region_name", "default_source"))
-        grp = threshold_group(props)
+        conf = props.get("confidence", 1.0)
+        if type(conf) is not float:      # для float официальная _get_confidence вернула бы его же
+            conf = get_conf(feature)
+        reg = props.get("region_name", "default_source")
+        if type(reg) is not str:
+            reg = str(reg)
+        grp = props.get("threshold_group") or props.get("markup_type") or ""   # = threshold_group(props)
+        if type(grp) is not str:
+            grp = str(grp)
         if sites_out is not None:
             slot_sites.append(site_key(props))
         gid = id(gdict)
-        hit = sub_cache.get(gid)
+        hit = sub_get(gid)
         if hit is not None and hit[0] is gdict:
             ordered_slots.append((cls, hit[1], conf, reg, grp))
         else:
@@ -212,14 +220,17 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
 
     if todo_feats:
         shm_loaded = False
-        shm_file = None
-        if len(todo_feats) >= 200 and Path("/dev/shm").is_dir():
+        cache_dir = _geomcache.resolve_dir(_SHM_CACHE_DIR) if len(todo_feats) >= _geomcache.min_batch() else None
+        flat = None
+        bkey = None
+        if cache_dir is not None or _fastgeom.enabled():
+            flat = _fastgeom.flatten([t[1] for t in todo_feats])
+        if cache_dir is not None:
             try:
-                bhash = _todo_batch_hash(todo_feats, todo_meta, mode, is_gt, r_tol, c_pts)
-                shm_file = _SHM_CACHE_DIR / f"{bhash}.wkb.pkl"
-                if shm_file.exists():
-                    valid_idx, wkbs = pickle.loads(shm_file.read_bytes())
-                    geoms = shapely.from_wkb(wkbs)
+                bkey = _geomcache.batch_key(mod, mode, is_gt, r_tol, c_pts, [t[1] for t in todo_feats], flat)
+                got = _geomcache.load(cache_dir, bkey, len(todo_feats))
+                if got is not None:
+                    valid_idx, geoms = got
                     for g, idx in zip(geoms, valid_idx):
                         _, gdict, gid = todo_feats[idx]
                         sub_cache[gid] = (gdict, g)
@@ -228,11 +239,12 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
                     shm_loaded = True
             except Exception:
                 shm_loaded = False
+                bkey = None
 
         if not shm_loaded:
             raw_geoms = []
             valid_idx = []
-            extracted = _fastgeom.extract_many(mod, [t[0] for t in todo_feats])
+            extracted = _fastgeom.extract_many(mod, [t[0] for t in todo_feats], flat)
             for idx, g in enumerate(extracted):
                 if g is not None:
                     raw_geoms.append(g)
@@ -279,15 +291,8 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
                     sub_cache[gid] = (gdict, g)
                     cls, conf, reg, grp, slot_idx = todo_meta[idx]
                     ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
-                if shm_file is not None and final_geoms:
-                    try:
-                        _SHM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                        wkbs = shapely.to_wkb(final_geoms)
-                        tmp = shm_file.with_suffix(f".tmp.{os.getpid()}")
-                        tmp.write_bytes(pickle.dumps((valid_idx, wkbs), protocol=pickle.HIGHEST_PROTOCOL))
-                        tmp.replace(shm_file)
-                    except Exception:
-                        pass
+                if bkey is not None and final_geoms:
+                    _geomcache.save(cache_dir, bkey, len(todo_feats), valid_idx, final_geoms)
 
     if sites_out is not None:
         for (cls, g, conf, reg, grp), site in zip(ordered_slots, slot_sites):
@@ -343,10 +348,11 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None 
     if todo_feats:
         shm_loaded = False
         shm_file = None
-        if len(todo_feats) >= 200 and Path("/dev/shm").is_dir():
+        ref_dir = _geomcache.resolve_dir(_SHM_CACHE_DIR)   # прежний pickle-кэш; каталог — как у нового (EXPDS_GEOM_CACHE)
+        if len(todo_feats) >= 200 and ref_dir is not None:
             try:
                 bhash = _todo_batch_hash(todo_feats, todo_meta, mode, is_gt, r_tol, c_pts)
-                shm_file = _SHM_CACHE_DIR / f"{bhash}.wkb.pkl"
+                shm_file = ref_dir / f"{bhash}.wkb.pkl"
                 if shm_file.exists():
                     valid_idx, wkbs = pickle.loads(shm_file.read_bytes())
                     geoms = shapely.from_wkb(wkbs)
@@ -408,7 +414,7 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None 
                     ordered_slots[slot_idx] = (cls, g, conf, reg, grp)
                 if shm_file is not None and final_geoms:
                     try:
-                        _SHM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                        ref_dir.mkdir(parents=True, exist_ok=True)
                         wkbs = shapely.to_wkb(final_geoms)
                         tmp = shm_file.with_suffix(f".tmp.{os.getpid()}")
                         tmp.write_bytes(pickle.dumps((valid_idx, wkbs), protocol=pickle.HIGHEST_PROTOCOL))
@@ -424,9 +430,247 @@ def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None 
     return out
 
 
+# ───────────── быстрое сопоставление: векторная проверка пар + память между вызовами ─────────────
+# sha256 исходников официальных _match_quality/_match_polygon_gt/_match_point_gt/_polygon_coverage/
+# _inner_point_in_mask (compute_metrics.py sha256 299792cc…0081). Если официальный код другой —
+# векторный путь выключается и каждая пара идёт через calc._match_quality, как раньше.
+_MATCH_SRC_SHA = "b9fce323c44c26837476d88b767d56cf02b9334e2773c438e15f613219d7bf8c"
+_MATCH_OK: dict = {}
+_PAIR_MEMO: dict = {}      # (id(mod), cov_thr, r_tol) -> {(id(pred), id(gt)): (pred, gt, ok, s)}
+_GT_TREES: dict = {}       # (r_tol, ids эталонов) -> (эталоны, STRtree)
+
+
+def _fast_match_enabled(mod, calc) -> bool:
+    if os.environ.get("EXPDS_FAST_MATCH", "1") == "0":
+        return False
+    if "_match_quality" in vars(calc) or type(calc) is not mod.F1Calculator:
+        return False
+    hit = _MATCH_OK.get(id(mod))
+    if hit is not None and hit[0] is mod:
+        return hit[1]
+    ok = False
+    try:
+        import hashlib
+        import inspect
+        import shapely.geometry
+
+        C = mod.F1Calculator
+        src = "".join(inspect.getsource(f) for f in (C._match_quality, C._match_polygon_gt, C._match_point_gt,
+                                                     mod._polygon_coverage, mod._inner_point_in_mask))
+        ok = (hashlib.sha256(src.encode()).hexdigest() == _MATCH_SRC_SHA
+              and mod.Point is shapely.geometry.Point and mod.math.hypot is __import__("math").hypot)
+    except Exception:
+        ok = False
+    _MATCH_OK[id(mod)] = (mod, ok)
+    return ok
+
+
+def _pair_quality_vec(calc, P: np.ndarray, G: np.ndarray) -> tuple[list, list]:
+    """[calc._match_quality(P[k], G[k]) for k], векторно (те же вызовы GEOS, та же арифметика float64)."""
+    import math
+
+    import shapely
+
+    n = len(P)
+    ok = np.zeros(n, dtype=bool)
+    sc = np.zeros(n, dtype=np.float64)
+    gpt = shapely.get_type_id(G) == 0          # isinstance(gt, Point)
+    ip = np.flatnonzero(gpt)
+    if ip.size:                                  # _match_point_gt
+        r = calc.r_tolerance
+        cen = shapely.centroid(P[ip])
+        cx, cy = shapely.get_x(cen).tolist(), shapely.get_y(cen).tolist()
+        gx, gy = shapely.get_x(G[ip]).tolist(), shapely.get_y(G[ip]).tolist()
+        for t, k in enumerate(ip.tolist()):
+            d = math.hypot(cx[t] - gx[t], cy[t] - gy[t])
+            if d <= r:
+                ok[k] = True
+                sc[k] = -d
+    iq = np.flatnonzero(~gpt)
+    if iq.size:                                  # _match_polygon_gt
+        A, B = P[iq], G[iq]
+        aa, ab = shapely.area(A), shapely.area(B)
+        mn = np.where(ab < aa, ab, aa)           # = min(a.area, b.area), включая NaN
+        need = shapely.is_valid(A) & shapely.is_valid(B) & ~(mn <= 0)
+        cov = np.zeros(iq.size, dtype=np.float64)
+        w = np.flatnonzero(need)
+        if w.size:
+            inter = shapely.area(shapely.intersection(A[w], B[w]))
+            with np.errstate(all="ignore"):
+                cov[w] = inter / mn[w]
+        h = np.flatnonzero(cov >= calc.coverage_threshold)
+        hit = np.zeros(iq.size, dtype=bool)
+        if h.size:
+            pts = shapely.point_on_surface(A[h])
+            inside = shapely.contains(B[h], pts)
+            rest = np.flatnonzero(~inside)
+            if rest.size:
+                inside[rest] = shapely.distance(shapely.boundary(B[h][rest]), pts[rest]) < 1e-10
+            hit[h] = inside
+        ok[iq] = hit
+        sc[iq] = cov
+    return ok.tolist(), sc.tolist()
+
+
+def _pair_quality(mod, calc, pg_ord: list, gg: list, qp: list, qg: list) -> tuple[list, list]:
+    """(ok, s) для пар (pg_ord[qp[k]], gg[qg[k]]) — с памятью между вызовами build_curves."""
+    n = len(qp)
+    if not _fast_match_enabled(mod, calc):
+        res = [calc._match_quality(pg_ord[r], gg[j]) for r, j in zip(qp, qg)]
+        return [x[0] for x in res], [x[1] for x in res]
+    try:
+        cap = int(os.environ.get("EXPDS_PAIR_MEMO", "2000000"))
+    except ValueError:
+        cap = 2_000_000
+    memo = _PAIR_MEMO.setdefault((id(mod), calc.coverage_threshold, calc.r_tolerance), {}) if cap > 0 else {}
+    oks: list = [False] * n
+    ss: list = [0.0] * n
+    miss: list[int] = []
+    get = memo.get
+    for k in range(n):
+        a = pg_ord[qp[k]]
+        b = gg[qg[k]]
+        v = get((id(a), id(b)))
+        if v is not None and v[0] is a and v[1] is b:
+            oks[k] = v[2]
+            ss[k] = v[3]
+        else:
+            miss.append(k)
+    if miss:
+        P = np.empty(len(miss), dtype=object)
+        G = np.empty(len(miss), dtype=object)
+        P[:] = [pg_ord[qp[k]] for k in miss]
+        G[:] = [gg[qg[k]] for k in miss]
+        try:
+            o2, s2 = _pair_quality_vec(calc, P, G)
+        except Exception:   # исключение GEOS в пачке — по одной паре официальной функцией (там свои except)
+            res = [calc._match_quality(a, b) for a, b in zip(P, G)]
+            o2, s2 = [x[0] for x in res], [x[1] for x in res]
+        if cap > 0 and len(memo) + len(miss) > cap:
+            memo.clear()
+        for t, k in enumerate(miss):
+            oks[k] = o2[t]
+            ss[k] = s2[t]
+            if cap > 0:
+                a, b = P[t], G[t]
+                memo[(id(a), id(b))] = (a, b, o2[t], s2[t])
+    return oks, ss
+
+
+def _gt_tree(calc, gg: list):
+    """STRtree эталонов класса (точки — буфер r_tolerance), с кэшем на тот же список объектов."""
+    import shapely
+    from shapely.strtree import STRtree
+
+    key = (calc.r_tolerance, tuple(map(id, gg)))
+    hit = _GT_TREES.get(key)
+    if hit is not None and len(hit[0]) == len(gg) and all(a is b for a, b in zip(hit[0], gg)):
+        return hit[1]
+    arr = np.empty(len(gg), dtype=object)
+    arr[:] = gg
+    is_pt = shapely.get_type_id(arr) == 0
+    geoms = arr.copy()
+    if is_pt.any():
+        geoms[is_pt] = shapely.buffer(arr[is_pt], calc.r_tolerance)   # = x.buffer(r) для каждой точки
+    tree = STRtree(geoms)
+    if len(_GT_TREES) >= 32:
+        _GT_TREES.clear()
+    _GT_TREES[key] = (list(gg), tree)
+    return tree
+
+
 def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
                  scope: str | None = None) -> dict[str, ClassCurve]:
     """Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+
+    Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+    (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+    scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+    "site" — пара допускается только внутри одного участка (site_key), что равно сумме
+    счётчиков calculate_f1 по каждому участку отдельно.
+    EXPDS_FAST_METRIC=0 — прежний путь целиком (build_curves_reference + _collect_reference).
+    """
+    import shapely
+
+    if not _fast_on():
+        return build_curves_reference(pred, gt, metric_path, scope)
+    mod = load_official(metric_path)
+    calc = mod.F1Calculator()
+    per_site = match_scope(scope) == "site"
+    p_sites: dict | None = {} if per_site else None
+    g_sites: dict | None = {} if per_site else None
+    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
+    return match_collected(calc, preds, gts, p_sites, g_sites, mod=mod)
+
+
+def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
+                    g_sites: dict | None = None, mod=None) -> dict[str, ClassCurve]:
+    """Сопоставление по уже собранным (геометрия UTM, conf, участок, группа) спискам.
+
+    Вынесено из build_curves, чтобы большой стек можно было собирать кусками
+    (по семьям, пачками) и не держать весь GeoJSON в памяти (scripts/family_curves.py).
+    p_sites/g_sites (site_key по классам, из _collect) — только для scope="site"; None = global.
+    mod — официальный модуль метрики; по умолчанию модуль, из которого создан calc.
+    """
+    import shapely
+
+    if mod is None:   # модуль load_official не регистрируется в sys.modules: пространство имён класса calc
+        import types
+        mod = types.SimpleNamespace(**type(calc).__init__.__globals__)
+    per_site = p_sites is not None and g_sites is not None
+    curves: dict[str, ClassCurve] = {}
+    for cls in calc.target_classes:
+        p, g = preds.get(cls, []), gts.get(cls, [])
+        order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+        hits = np.zeros(len(p), dtype=bool)
+        if p and g:
+            gg = [x[0] for x in g]
+            tree = _gt_tree(calc, gg)
+            pg_ord = [p[i][0] for i in order]
+            q_pred, q_gt = tree.query(pg_ord)
+            if per_site and len(q_pred):
+                site_ids: dict = {}
+                ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
+                gs = np.array([site_ids.setdefault(x, len(site_ids)) for x in g_sites[cls]], dtype=np.int64)
+                same = ps_ord[q_pred] == gs[q_gt]
+                q_pred, q_gt = q_pred[same], q_gt[same]
+            if len(q_pred):
+                # официально: предсказания не-Polygon пропускаются; пары — в порядке (ранг, индекс эталона)
+                arr = np.empty(len(pg_ord), dtype=object)
+                arr[:] = pg_ord
+                poly = shapely.get_type_id(arr) == 3
+                keep = poly[q_pred]
+                q_pred, q_gt = q_pred[keep], q_gt[keep]
+                o = np.lexsort((q_gt, q_pred))
+                qp, qg = q_pred[o].tolist(), q_gt[o].tolist()
+                oks, ss = _pair_quality(mod, calc, pg_ord, gg, qp, qg)
+                # жадный выбор, как в официальном цикле: пары с ok=False лучшего не меняют
+                matched: set[int] = set()
+                k, n_pairs = 0, len(qp)
+                while k < n_pairs:
+                    r_int = qp[k]
+                    best, best_j = float("-inf"), -1
+                    while k < n_pairs and qp[k] == r_int:
+                        if oks[k]:
+                            j = qg[k]
+                            if j not in matched:
+                                s_k = ss[k]
+                                if s_k > best + 1e-9:
+                                    best, best_j = s_k, j
+                        k += 1
+                    if best_j >= 0:
+                        matched.add(best_j)
+                        hits[r_int] = True
+        curves[cls] = ClassCurve(conf=np.array([p[i][1] for i in order], dtype=np.float64), hit=hits,
+                                 pred_region=[p[i][2] for i in order], n_gt=len(g),
+                                 gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])
+    return curves
+
+
+def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                 scope: str | None = None) -> dict[str, ClassCurve]:
+    """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+    calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
 
     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
     (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
@@ -441,21 +685,7 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
     per_site = match_scope(scope) == "site"
     p_sites: dict | None = {} if per_site else None
     g_sites: dict | None = {} if per_site else None
-    preds, gts = _collect(mod, calc, pred, False, p_sites), _collect(mod, calc, gt, True, g_sites)
-    return match_collected(calc, preds, gts, p_sites, g_sites)
-
-
-def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
-                    g_sites: dict | None = None) -> dict[str, ClassCurve]:
-    """Сопоставление по уже собранным (геометрия UTM, conf, участок, группа) спискам.
-
-    Вынесено из build_curves, чтобы большой стек можно было собирать кусками
-    (по семьям, пачками) и не держать весь GeoJSON в памяти. p_sites/g_sites
-    (site_key по классам, из _collect) — только для scope="site"; по умолчанию None = global.
-    """
-    from shapely.strtree import STRtree
-
-    per_site = p_sites is not None and g_sites is not None
+    preds, gts = _collect_reference(mod, calc, pred, False, p_sites), _collect_reference(mod, calc, gt, True, g_sites)
     curves: dict[str, ClassCurve] = {}
     for cls in calc.target_classes:
         p, g = preds.get(cls, []), gts.get(cls, [])
@@ -496,6 +726,7 @@ def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
                                  pred_region=[p[i][2] for i in order], n_gt=len(g),
                                  gt_regions=Counter(x[2] for x in g), pred_group=[p[i][3] for i in order])
     return curves
+
 
 
 def _group_cuts(conf: np.ndarray, hit: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

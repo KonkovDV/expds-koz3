@@ -97,7 +97,7 @@ def main() -> None:
 
         preds = collect_batched(mod, calc, it(), False, a.batch)
         gts = collect_batched(mod, calc, iter([f for m in members for f in gt_by_fam.get(m, [])]), True, a.batch)
-        curves = M.match_collected(calc, preds, gts)
+        curves = M.match_collected(calc, preds, gts, mod=mod)
         del preds, gts
         tmp = dst.with_suffix(".tmp")
         tmp.write_bytes(pickle.dumps(curves, protocol=pickle.HIGHEST_PROTOCOL))
