@@ -362,7 +362,7 @@ def apply(feats: list[dict], regions: dict, cfg: dict, root: Path, guard=None, s
         try:
             pts, ok = region_points(model, H, G, regions[name], st, dev, keep, soft_ok)
         except Exception:
-            log.exception("%s: gor_dense — ошибка, участок не трогается", name)
+            log.exception("%s: %s: gor_dense — ошибка, участок не трогается", UNAVAILABLE, name)
             continue
         if ok:
             done[name] = pts
