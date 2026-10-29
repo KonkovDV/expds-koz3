@@ -16,6 +16,7 @@ import math
 import os
 from pathlib import Path
 
+import numpy as np
 from shapely.geometry import mapping, shape
 
 from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VERTICES
@@ -23,12 +24,41 @@ from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VER
 log = logging.getLogger(__name__)
 
 
+def _polygon_coords(geoms: list) -> list | None:
+    """Координаты колец всех полигонов одним вызовом GEOS, округлённые как раньше (round Python).
+
+    То же, что mapping(g)["coordinates"] с округлением, но без кортежей shapely на каждую
+    вершину. None — есть не Polygon или пустая геометрия: тогда старый путь.
+    """
+    import shapely
+
+    if not geoms:
+        return []
+    arr = np.asarray(geoms, dtype=object)
+    if not (shapely.get_type_id(arr) == 3).all() or shapely.is_empty(arr).any():
+        return None
+    _, coords, (ring_off, poly_off) = shapely.to_ragged_array(arr, include_z=False)
+    flat = [round(v, 2) for v in coords.ravel().tolist()]
+    pts = [flat[i:i + 2] for i in range(0, len(flat), 2)]
+    rings = [pts[a:b] for a, b in zip(ring_off[:-1].tolist(), ring_off[1:].tolist())]
+    return [rings[a:b] for a, b in zip(poly_off[:-1].tolist(), poly_off[1:].tolist())]
+
+
 def to_feature_collection(feats: list[dict]) -> dict:
     """Объекты пайплайна → FeatureCollection (координаты округлены до 0,01 м)."""
     out = []
-    for f in feats:
-        geom = mapping(f["geom"])
-        geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring] for ring in geom["coordinates"]]
+    # speedup-2026-10-28 (харвест 29.10): координаты всех полигонов одним вызовом GEOS — по флагу
+    # fast_writer ([speed], по умолчанию ВЫКЛ.); побайтно тот же JSON (tests/test_writer_fast.py).
+    from . import speed
+
+    fast = _polygon_coords([f["geom"] for f in feats]) if speed.on("fast_writer") else None
+    for k, f in enumerate(feats):
+        if fast is not None:
+            geom = {"type": "Polygon", "coordinates": fast[k]}
+        else:
+            geom = mapping(f["geom"])
+            geom["coordinates"] = [[[round(x, 2), round(y, 2)] for x, y, *_ in ring]
+                                   for ring in geom["coordinates"]]
         if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy):
             continue                    # bot-8: NaN/inf дают невалидный JSON — объект отбрасывается
         props = {"fid": len(out), "class_name": f["class_name"],
