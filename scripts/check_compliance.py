@@ -294,4 +294,10 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    # Windows host cp1251 crash on Cyrillic/unicode in PASS/FAIL lines (lease 35ca3df).
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     raise SystemExit(main())
