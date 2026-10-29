@@ -436,3 +436,10 @@ enabled = false
 # Время: CPU 2 потока ≈0,45 с/виньетку (≈33 виньетки на участок); при нехватке — участок не гейтится (guard/soft_ok).
 [gor_gate]
 enabled = false
+
+# [raster_fix]              # bot-6, опыт за флагом (bot6-optics), без секции — выключено
+# reproject_3857 = true     # снимок EPSG:3857 → UTM из UTM.json участка (трейн: 015 Демидовка, 029 Вышегжа_3)
+# int16_identity = true     # int16/uint16 со значениями 0–255 — как uint8, без растяжки p1–p99 (трейн: 106 ×3,04)
+# zero_nodata = true        # объект с внутренней точкой в поле нулей/nodata ≥ zero_nodata_px² выбрасывается (017, 036)
+# zero_nodata_px = 5
+# markups = ["ae"]

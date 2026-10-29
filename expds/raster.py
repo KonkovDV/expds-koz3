@@ -177,6 +177,74 @@ def needs_warp(ds) -> str | None:
     return "geographic" if is_geographic(crs) else None
 
 
+#: Правки чтения снимков (bot-6, ветка bot6-optics). Секция конфига [raster_fix], по умолчанию пусто = выключено.
+#: reproject_3857 — снимок в EPSG:3857 читается перепроецированным в UTM участка (UTM.json):
+#:   на трейне 015 Демидовка и 029 Вышегжа_3, шаг файла 1,26 / 1,59 ед. при 0,73 / 0,88 м на земле.
+#: int16_identity — int16/uint16 со всеми значениями в 0–255 идёт в сеть как uint8, без растяжки p1–p99
+#:   (на трейне 106 Верхмарево растягивался ×3,04).
+#: zero_nodata — объект модели, чья внутренняя точка лежит в поле нулей (или nodata) не меньше
+#:   zero_nodata_px × zero_nodata_px пикселей окна, выбрасывается (чёрные поля 017 и 036 без nodata).
+#: markups — к каким разметкам растров это применяется, по умолчанию только ae.
+RASTER_FIX: dict = {}
+
+
+def configure_raster_fix(spec) -> None:
+    """Задаёт [raster_fix] на весь процесс. Кэш band_stats сбрасывается: растяжка от этого зависит."""
+    RASTER_FIX.clear()
+    if isinstance(spec, dict):
+        RASTER_FIX.update(spec)
+    try:
+        from .tiles import band_stats
+
+        band_stats.cache_clear()
+    except Exception:  # pragma: no cover - модуль tiles всегда есть
+        pass
+
+
+def raster_fix_on(key: str, markup: str | None) -> bool:
+    """Включена ли правка key для этой разметки (markup None — разметка неизвестна, правка не применяется)."""
+    if not RASTER_FIX.get(key) or markup is None:
+        return False
+    return markup in tuple(RASTER_FIX.get("markups") or ("ae",))
+
+
+def utm_json_crs(path: str | Path) -> str | None:
+    """CRS из UTM.json участка (ищется в папках выше файла): 'urn:ogc:def:crs:EPSG::32636' → 'EPSG:32636'."""
+    import json
+    import re
+
+    for d in list(Path(path).resolve().parents)[:3]:
+        f = d / "UTM.json"
+        if f.is_file():
+            try:
+                m = re.search(r"EPSG:+(\d+)", json.loads(f.read_text(encoding="utf-8-sig")).get("crs", ""))
+            except (OSError, ValueError, AttributeError):
+                return None
+            return f"EPSG:{m.group(1)}" if m else None
+    return None
+
+
+def _reproject_3857(src, path) -> bool:
+    from .naming import markup_type_of
+
+    if src.crs is None or not raster_fix_on("reproject_3857", markup_type_of(path)):
+        return False
+    try:
+        return src.crs.to_epsg() == 3857
+    except Exception:
+        return False
+
+
+def zero_field_mask(a: np.ndarray, nodata=None, px: int = 5) -> np.ndarray:
+    """H×W: True там, где пиксель лежит в поле нулей/nodata всех каналов размером не меньше px×px."""
+    from scipy.ndimage import minimum_filter
+
+    z = (a == 0).all(axis=0)
+    if nodata is not None:
+        z |= (a == nodata).all(axis=0)
+    return minimum_filter(z.astype(np.uint8), size=max(1, int(px)), mode="nearest") > 0
+
+
 @contextmanager
 def open_metric(path: str | Path):
     """Растр в метрах. UTM и EPSG:3857 открываются как есть. Градусы и GCP — через WarpedVRT."""
@@ -186,6 +254,18 @@ def open_metric(path: str | Path):
 
     with rasterio.open(path) as src:
         why = needs_warp(src)
+        if why is None and _reproject_3857(src, path):
+            # [raster_fix] reproject_3857 (bot-6): веб-меркатор → UTM участка, шаг файла = шаг на земле.
+            dst = utm_json_crs(path)
+            if dst is None:
+                b = src.bounds
+                lon, lat = transformer(src.crs.to_string(), "EPSG:4326").transform(
+                    (b.left + b.right) / 2, (b.bottom + b.top) / 2)
+                dst = utm_for_lonlat(lon, lat)
+            log.warning("%s: EPSG:3857 → перепроецирую в %s ([raster_fix] reproject_3857)", Path(path).name, dst)
+            with WarpedVRT(src, crs=dst, resampling=Resampling.bilinear) as vrt:
+                yield vrt
+            return
         if why is None:
             yield src
             return
