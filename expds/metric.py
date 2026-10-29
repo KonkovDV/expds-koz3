@@ -640,21 +640,31 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
     "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
     Счётчики TP/FP/FN по слоям складываются (микро-F1), как у scope=site по участкам.
     EXPDS_FAST_METRIC=0 — прежний путь целиком (build_curves_reference + _collect_reference).
+    EXPDS_METRIC_NOGC=0 — не останавливать циклический GC на время сопоставления
+    (на больших файлах он съедает заметную долю времени и на пары не влияет).
     """
+    import gc
     import shapely
 
-    if not _fast_on():
-        return build_curves_reference(pred, gt, metric_path, scope)
-    mod = load_official(metric_path)
-    calc = mod.F1Calculator()
-    scope_s = match_scope(scope)
-    keyed = scope_s in ("site", "layer")
-    key_fn = layer_key if scope_s == "layer" else site_key
-    p_sites: dict | None = {} if keyed else None
-    g_sites: dict | None = {} if keyed else None
-    preds = _collect(mod, calc, pred, False, p_sites, key_fn=key_fn)
-    gts = _collect(mod, calc, gt, True, g_sites, key_fn=key_fn)
-    return match_collected(calc, preds, gts, p_sites, g_sites, mod=mod)
+    pause = os.environ.get("EXPDS_METRIC_NOGC", "1") != "0" and gc.isenabled()
+    if pause:
+        gc.disable()
+    try:
+        if not _fast_on():
+            return build_curves_reference(pred, gt, metric_path, scope)
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        return match_collected(calc, preds, gts, p_sites, g_sites, mod=mod)
+    finally:
+        if pause:
+            gc.enable()
 
 
 def build_curves_with_pairs(pred: dict, gt: dict, metric_path: str | None = None,
