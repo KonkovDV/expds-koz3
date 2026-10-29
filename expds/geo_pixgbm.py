@@ -221,13 +221,41 @@ def raster_key(path: Path) -> str:
     return re.sub(r"_(серый|цвет)$", "", s)
 
 
-def pick_rasters(files: list[Path]) -> list[Path]:
-    """Одна карта на ключ: серая, если есть (серая и цветная копия — одна съёмка)."""
+def pick_rule(value=None) -> str:
+    """Правило выбора копии: аргумент, иначе env PIXGBM_PICK, иначе «gray» (как было). «hp_energy» — opt-in."""
+    v = str(value if value is not None else os.environ.get("PIXGBM_PICK", "") or "gray").strip().lower()
+    return v if v in ("gray", "hp_energy") else "gray"
+
+
+def hp_energy(d: dict) -> float:
+    """Медиана |z − среднее 2 м| в данных — сколько мелкой структуры несёт копия (без эталона; аудит 29.10, G2)."""
+    z, v = d["z"], d["valid"]
+    if v.sum() < 100:
+        return 0.0
+    k = max(3, int(round(2.0 / d["gsd"])) | 1)
+    hp = np.abs(z - ndi.uniform_filter(np.where(v, z, 0), k))
+    return float(np.median(hp[v]))
+
+
+def pick_rasters(files: list[Path], rule=None, mt: str | None = None, fallback_crs=None) -> list[Path]:
+    """Одна карта на ключ (серая и цветная копия — одна съёмка). rule «gray» (по умолчанию): серая, если есть.
+    rule «hp_energy»: из нескольких копий ключа — с наибольшей hp_energy (читается каждая копия на GSD метода)."""
+    rule = pick_rule(rule)
     by: dict[str, list[Path]] = {}
     for f in sorted(files):
         by.setdefault(raster_key(f), []).append(f)
     out = []
     for k, fs in by.items():
+        if rule == "hp_energy" and len(fs) > 1 and mt in GSD:
+            e = []
+            for f in fs:
+                try:
+                    e.append(hp_energy(load_map(f, GSD[mt], fallback_crs, sat_core_max_m2=0)))
+                except Exception as exc:                 # не прочиталась — не выбираем
+                    log.warning("pixgbm: hp_energy %s: %s", f.name, exc)
+                    e.append(-1.0)
+            out.append(fs[int(np.argmax(e))])
+            continue
         gray = [f for f in fs if "серый" in f.stem]
         out.append((gray or fs)[0])
     return out
@@ -792,7 +820,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     for mt in ("maggr", "etgr", "terfl"):
         if mt not in maps:
             continue
-        files = pick_rasters(reg.rasters.get(mt, []))
+        files = pick_rasters(reg.rasters.get(mt, []), pix.get("pick"), mt, crs_region)
         if not files:
             continue
         boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)

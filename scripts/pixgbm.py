@@ -73,7 +73,7 @@ def cmd_extract(a):
         for f, cls, mt in reg.annotations:
             anns.setdefault((mt, cls, G.label_key(f)), []).append(f)
         for mt in ("maggr", "etgr", "terfl"):
-            files = G.pick_rasters(reg.rasters.get(mt, []))
+            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
             if not files:
                 continue
             boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
@@ -184,7 +184,7 @@ def cmd_predict(a):
         bst = {k: lgb.Booster(model_file=str(md / f"{k}.txt")) for k in ("poly", "finds") if (md / f"{k}.txt").exists()}
         crs_region = region_crs(reg, cfg)
         for mt in ("maggr", "etgr", "terfl"):
-            files = G.pick_rasters(reg.rasters.get(mt, []))
+            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
             if not files:
                 continue
             boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
@@ -224,7 +224,7 @@ def cmd_oof(a):
         bst = lgb.Booster(model_file=str(Path(a.models) / fam / "poly.txt"))
         crs_region = region_crs(reg, cfg)
         for mt in a.markups.split(","):
-            files = G.pick_rasters(reg.rasters.get(mt, []))
+            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
             if not files:
                 continue
             t0 = time.time(); feats = []
