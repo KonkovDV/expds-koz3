@@ -334,10 +334,13 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                     mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
             except Exception as exc:
                 log.exception("%s: ошибка геофизики (%s)", path.name, exc)
-        if maps == "all" and "finds_points" in classes and len(files) > 1:
-            # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
-            mine = geophys.dedupe_points(mine, 2.0, crs_region)
         mt_cfg = geo_cfg.get(mt) or {}
+        if (maps == "all" and "finds_points" in classes and len(files) > 1
+                and mt_cfg.get("dedupe_maps", True)):
+            # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
+            # dedupe_maps = false: эталон размечен по каждой карте отдельно (211: серая и цвет_2),
+            # метрика сводит класс по всем картам — дубль на другой карте может быть попаданием.
+            mine = geophys.dedupe_points(mine, 2.0, crs_region)
         if mt_cfg.get("layer_copy", False):
             try:
                 layers = {f.name: geophys.source_crs(f, crs_region) for f in files}
@@ -734,7 +737,7 @@ def geo_model_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, r
                 for feat in found:
                     feat["threshold_group"] = group
                 added += found
-        if maps == "all" and len(files) > 1:
+        if maps == "all" and len(files) > 1 and ((cfg.get("geophys") or {}).get(mt) or {}).get("dedupe_maps", True):
             # Только находки этой модальности: чужие классы в том же списке не склеиваются.
             added = geophys.dedupe_points(added, 2.0, region_crs(reg, cfg))
         out += added
