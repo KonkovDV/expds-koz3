@@ -58,3 +58,13 @@
 - 29.10 23:08 MSK | lease | acquire kernel:dmitrijkv/koz3-w3-kurgan-cpu-seeds → bot-W3-bigobj до 30.10 11:08 MSK 
 - 29.10 23:08 MSK | coord | QUEUE (под .queue.lock): CI2-1/3/7 ready, CI2-8 dispatch→acc2/cpu, CI2-5 planned W3 GPU после w1-ae/or-final. Бокс перезагружался ~22:53: убит kurgan PID 20871 и старые watcher-ы; watcher.py PID 19507 единственный.
 - 29.10 23:08 MSK | coord | acc2/cpu свободен → fallback: dmitrijkv/koz3-w3-kurgan-cpu-seeds (seeds 41,42, датасет dmitrijkv/koz3-w3-kurgan-cpu-data), аренда bot-W3-bigobj; watcher.py был мёртв — перезапущен
+- 29.10 23:10 MSK | lease | acquire slot:dmitrijkv/cpu → bot-W2-lidar до 30.10 11:10 MSK CI2-8 паритет отмывки LAS vs Li, push coord
+- 29.10 23:10 MSK | lease | release slot:dmitrijkv/cpu (bot-W2-lidar) by bot-W2-lidar
+- 29.10 23:11 MSK | coord-exec | после ребута: 3× kurgan-cpu-seeds (usertest1234 v4, aaaa0000004 v5, aaaadg4gg4g4g v4) RUNNING; dfine-ae-final и dfine-or-final RUNNING; watcher.py PID 19507 единственный (дубль не запускал). Box kurgan уже перезапущен (run_resume PID 7867, кэш фолдов) — seeds 41,42 на боксе НЕ запускаю: их уже взял acc2/cpu (dmitrijkv/koz3-w3-kurgan-cpu-seeds). Бокс CPU занят полностью (w3_gate, w5_policies, pix_clean, seed_merge, mock_infer) — CI2-7/CI2-3 ждут свободных ядер.
+- 29.10 23:11 MSK | coord-exec | CI2-8: датасет dmitrijkv/koz3-w2-hsparity-code (expds из w2/repo 1aecea9 + expds_core.abi3.so из w2/repo/inference/lib, Rust-сборка на боксе не прошла: rustc 1.85 < 1.89), кернел w2hs/k; ошибочная аренда slot:dmitrijkv/cpu взята и сразу снята (конфликт с slot:acc2/cpu). В dispatch: w2-hsparity-ci2-8 → dmitrijkv cpu, пуллинг в w2hs/out.
+- 29.10 23:11 MSK | coord-exec | pixgbm-s3 (NON-CLEANROOM) выход есть: w4pix/out2 (pixgbm_retrain 295M, STATUS DONE wall 393 s).
+- 29.10 23:13 MSK | lease | release slot:box/q1 (coord) by coord
+- 29.10 23:13 MSK | watcher | box/q1: box → COMPLETE; аренда снята
+- 29.10 23:15 MSK | lease | acquire slot:acc2/gpu-1 → coord до 30.10 03:15 MSK fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU
+- 29.10 23:15 MSK | lease | acquire kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f01 → coord до 30.10 03:15 MSK 
+- 29.10 23:15 MSK | coord | acc2 GPU простаивал → fallback dmitrijkv/koz3-w2-cnx-c3sc-s2f01 (c3-sc seed2 f0,f1, копия s1f01 с CNX_SEED=2, deadline 2.6ч), аренда coord; выход для W2 → w2/oof/s2. Бокс CPU перегружен (load ~29/8) — новых бокс-задач не ставлю. TPU acc1/acc2 заняты QUEUED legacy-смоуками (decision: отмена).

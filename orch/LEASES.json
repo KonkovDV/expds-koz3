@@ -37,9 +37,12 @@
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": null,
-   "state": "квота GPU исчерпана до сброса",
-   "reserved_for": "bot-W1-aeor"
+   "holder": "coord",
+   "reserved_for": "bot-W1-aeor",
+   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f01",
+   "since": "29.10 23:15 MSK",
+   "until": "30.10 03:15 MSK",
+   "purpose": "fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU"
   },
   {
    "slot": "acc2/gpu-2",
@@ -112,10 +115,17 @@
   },
   {
    "slot": "box/q1",
-   "holder": "coord",
+   "holder": null,
    "kernel": null,
-   "since": "29.10 23:07 MSK",
-   "until": "30.10 00:07 MSK"
+   "state": "свободен",
+   "last": "снято coord 29.10 23:13 MSK"
+  },
+  {
+   "slot": "dmitrijkv/cpu",
+   "holder": null,
+   "kernel": null,
+   "state": "свободен",
+   "last": "снято bot-W2-lidar 29.10 23:10 MSK"
   }
  ],
  "kernel_prefix": {
@@ -323,15 +333,6 @@
    "pid": 78026
   },
   {
-   "resource": "slot:box/q1",
-   "owner": "coord",
-   "since": 1793304443.658534,
-   "expires": 1793308043.658534,
-   "note": "coord-compliance-audit",
-   "host": "grok-bot-vm-361051398",
-   "pid": 19621
-  },
-  {
    "resource": "slot:acc2/cpu",
    "owner": "bot-W3-bigobj",
    "since": 1793304493.037074,
@@ -358,6 +359,25 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 20871
+  },
+  {
+   "resource": "slot:acc2/gpu-1",
+   "owner": "coord",
+   "since": 1793304943.477116,
+   "expires": 1793319343.477116,
+   "note": "fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU",
+   "host": "grok-bot-vm-361051398",
+   "pid": 33707,
+   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f01"
+  },
+  {
+   "resource": "kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f01",
+   "owner": "coord",
+   "since": 1793304943.508163,
+   "expires": 1793319343.508163,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 33712
   }
  ]
 }
