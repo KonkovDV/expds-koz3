@@ -21,8 +21,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PreflightPy = Join-Path $ScriptDir 'bot3_ae_weights_preflight.py'
 
 $Branch = 'bots/bot3-dfine-aeor-eval'
-$Sha    = 'ee8af7f918aed56ab5cb4371bc9618957d7385ac'  # tip bots/bot3-dfine-aeor-eval; override KOZ3_SHA
-if ($env:KOZ3_SHA) { $Sha = $env:KOZ3_SHA }
+$Sha = if ($env:KOZ3_SHA) { $env:KOZ3_SHA } else { '' }
 
 if ($Variant -eq 'f4') {
   if (-not $JobDir)    { $JobDir = 'C:\Sloi\pc_jobs\bot3_dfine_aeor_ae_ft_f4' }
@@ -84,7 +83,7 @@ if (-not (Test-Path $PreflightPy)) {
 
 # --- resolve tip, then worktree on C: ---
 & cmd.exe /c "git -C `"$Repo`" fetch origin $Branch" *> "$JobDir\notes\git_fetch.log"
-if ($Sha -eq 'PLACEHOLDER_SHA') {
+if (-not $Sha) {
   $Sha = (& cmd.exe /c "git -C `"$Repo`" rev-parse origin/$Branch").Trim()
   if (-not $Sha) { Set-Status "FAILED resolve_sha origin/$Branch"; exit 2 }
   HB "resolved Sha from origin/$Branch -> $Sha"
