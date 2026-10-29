@@ -1,38 +1,42 @@
 # Kaggle kernel: PIXGBM clean-room retrain (TPU-VM as CPU host)
 
-Bot-6 / BACKLOG TPU-2. LightGBM only (no torch_xla). TPU accelerator selected so the
-session gets a large CPU/RAM host; training uses configurable `PIXGBM_NUM_THREADS`.
+Bot-6 / BACKLOG TPU-2. LightGBM only. TPU accelerator → large CPU/RAM host.
 
-## Enable flag (default OFF)
+## Datasets (closed: no single train-expds-3 slug)
 
-The repo script `scripts/pixgbm_retrain_cleanroom.py` refuses to train unless
-`--enable-retrain` is passed. This kernel always passes that flag when run as a
-job; do not merge enabling into submission configs.
-
-## Data (OPEN QUESTIONS for bot 1)
-
-| Item | Status |
+| Dataset | Role |
 |---|---|
-| Full КОЗ №3 train root with geo regions 200–217 | **OPEN**: no dedicated public/private Kaggle dataset slug confirmed for full `train-expds-3` rasters. Other kernels use S3 via `dmitrijkv/koz3-s3-cred`. |
-| Expected local layout after sync | `<ROOT>/<region>*/` with maggr/etgr/terfl rasters + ObjectPoly/FindsPoints annotations (same as `F:\2\train-expds-3`). |
-| Proposed dataset slug if packaging a subset | `dmitrijkv/koz3-train-geo-200-217` (does not exist yet — create only if DATA_PROTOCOL allows Kaggle copy). |
-| `expds/geo_pixgbm.py` | gitignored on main; kernel looks for `/kaggle/input/*/geo_pixgbm.py` or `REPO/expds/geo_pixgbm.py`. Attach build-time copy sha256 `35e4331b…` (see `docs/PIXGBM_DECISION.md`). |
+| `dmitrijkv/koz3-xfer-s000` | `small_files.tar.zst` + manifest (UTM, разметка, extra; labels for geo 200–217) |
+| `dmitrijkv/koz3-xfer-s001` … `s009` | large `f####.tif` / `f####.laz`; **per-shard manifest** maps blob → original path |
+| `dmitrijkv/koz3-gt-train-v2` | consolidated GT overlay (optional for PIXGBM; ObjectPoly/FindsPoints already in s000) |
 
-Env overrides (bot 1 fills after TPU probe):
+Kernel rebuilds `/kaggle/working/train-expds-3` via `rebuild_train_tree.py` (geo 200–217 only), then calls `scripts/pixgbm_retrain_cleanroom.py --enable-retrain`.
 
-- `PIXGBM_NUM_THREADS` (default 8; use 1 for max bit-exact chance)
-- `PIXGBM_ROUNDS` (default 300)
-- `PIXGBM_DATA_ROOT` (default: first existing among `/kaggle/input/*/train-expds-3`, `/kaggle/working/train-expds-3`)
-- `PIXGBM_METRIC_TOL` (default `1e-4`)
+Offline copy of s000 manifest: `/home/box/shared/koz3/kaggle/koz3-xfer-s000_manifest.json`.
 
-## Outputs (`/kaggle/working/pixgbm_retrain/`)
+### Manifests still needed offline (ask bot 1)
 
-- `STATUS.txt` — RUNNING/DONE/FAILED + ISO time
-- `retrain_log.json` — verdict vs MODELS_NOT_IN_GIT.md
-- `models/all/poly.txt`, `models/all/finds.txt` + `*.sha256`
-- `checkpoints/` — after extract, after each held-out family
-- `logs/train.log`
+To know **which** of s001–s009 hold MagGr/EtGr/TerFl for regions 200–217 without attaching all:
 
-## Pass criterion
+- `koz3-xfer-s001` … `koz3-xfer-s009` **manifest.json** (each shard).
 
-`retrain_log.json` status `ok` (sha256 match) **or** `metric_fallback.status == ok` within tolerance.
+Until then metadata attaches **all** s000–s009 (as instructed).
+
+## Env
+
+| Var | Default | Meaning |
+|---|---|---|
+| `PIXGBM_NUM_THREADS` | `os.cpu_count()` | LightGBM threads |
+| `PIXGBM_ROUNDS` | 300 | boosting rounds |
+| `PIXGBM_METRIC_TOL` | 1e-4 | sha mismatch fallback |
+| `PIXGBM_TREE` | `/kaggle/working/train-expds-3` | rebuild destination |
+| `PIXGBM_REBUILD_ALL` | unset | if `1`, materialize all regions (not only 200–217) |
+| `PIXGBM_OUT` | `/kaggle/working/pixgbm_retrain` | models + STATUS |
+
+## Outputs
+
+`STATUS.txt` (RUNNING/DONE/FAILED), `retrain_log.json`, `models/all/{poly,finds}.txt`+`.sha256`, `checkpoints/rebuild_report.json`, `logs/train.log`.
+
+## Pass
+
+sha256 == MODELS_NOT_IN_GIT.md **or** metric_fallback.status=ok.

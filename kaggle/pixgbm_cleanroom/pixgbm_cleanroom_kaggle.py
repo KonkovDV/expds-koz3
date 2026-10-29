@@ -1,9 +1,12 @@
-"""Kaggle entry: PIXGBM retrain on TPU-VM used as big CPU host (bot-6 / BACKLOG TPU-2).
+"""Kaggle entry: PIXGBM retrain on TPU-VM as big CPU host (bot-6 / BACKLOG TPU-2).
 
-Does not change submission inference. Requires contest train data + geo_pixgbm.py.
+Rebuilds train tree from xfer shards s000–s009 + gt-train-v2, then trains
+geo 200–217 only (original PIXGBM filter). Flags: --enable-retrain always
+passed by this job script; repo CLI still defaults OFF.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -17,6 +20,7 @@ OUT = Path(os.environ.get("PIXGBM_OUT", "/kaggle/working/pixgbm_retrain"))
 LOG_DIR = OUT / "logs"
 CKPT = OUT / "checkpoints"
 STATUS = OUT / "STATUS.txt"
+TREE = Path(os.environ.get("PIXGBM_TREE", "/kaggle/working/train-expds-3"))
 REPO_CANDIDATES = [
     Path("/kaggle/working/expds-koz3"),
     Path("/kaggle/input/expds-koz3"),
@@ -37,28 +41,13 @@ def find_repo() -> Path:
     for p in REPO_CANDIDATES:
         if (p / "scripts" / "pixgbm_retrain_cleanroom.py").is_file():
             return p.resolve()
-    # Kernel may ship only this file — clone is forbidden in factory; expect dataset attach.
+    # Kernel directory may sit next to scripts/ when push packs the repo snapshot
+    here = Path(__file__).resolve().parent
+    for p in (here.parent.parent, here.parent, Path("/kaggle/working")):
+        if (p / "scripts" / "pixgbm_retrain_cleanroom.py").is_file():
+            return p.resolve()
     raise FileNotFoundError(
-        "scripts/pixgbm_retrain_cleanroom.py not found; attach repo snapshot or copy scripts/"
-    )
-
-
-def find_data_root() -> Path:
-    env = os.environ.get("PIXGBM_DATA_ROOT")
-    if env and Path(env).is_dir():
-        return Path(env)
-    for base in Path("/kaggle/input").glob("*"):
-        for name in ("train-expds-3", "train_expds_3", "TRAIN"):
-            cand = base / name
-            if cand.is_dir():
-                return cand
-        # flat dataset that IS the train root (has region folders 200*)
-        if any(base.glob("200*")):
-            return base
-    raise FileNotFoundError(
-        "КОЗ №3 train root not found under /kaggle/input. "
-        "OPEN: create/attach private dataset or sync via S3 (koz3-s3-cred). "
-        "Set PIXGBM_DATA_ROOT."
+        "scripts/pixgbm_retrain_cleanroom.py not found; attach/copy repo snapshot"
     )
 
 
@@ -78,6 +67,29 @@ def ensure_geo_pixgbm(repo: Path) -> None:
     )
 
 
+def load_rebuild():
+    # Prefer sibling module in kernel dir; else repo path
+    here = Path(__file__).resolve().parent
+    mod_path = here / "rebuild_train_tree.py"
+    if not mod_path.is_file():
+        repo = find_repo()
+        mod_path = repo / "kaggle" / "pixgbm_cleanroom" / "rebuild_train_tree.py"
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("rebuild_train_tree", mod_path)
+    mod = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def default_threads() -> int:
+    env = os.environ.get("PIXGBM_NUM_THREADS")
+    if env:
+        return max(1, int(env))
+    return max(1, int(os.cpu_count() or 1))
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -85,19 +97,25 @@ def main() -> int:
     write_status("RUNNING", "start")
     log_path = LOG_DIR / "train.log"
     try:
-        # Idempotent: if DONE already and models exist, exit 0
         models = OUT / "models" / "all"
         if STATUS.exists() and "DONE" in STATUS.read_text() and (models / "poly.txt").is_file():
             print("already DONE — skip", flush=True)
             return 0
 
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-q", "lightgbm==4.7.0"],
+        # 1) rebuild data tree from xfer shards
+        write_status("RUNNING", "rebuild_tree")
+        rebuild = load_rebuild()
+        report = rebuild.rebuild_train_tree(dest=TREE)
+        (CKPT / "rebuild_report.json").write_text(
+            json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
+        print("rebuild:", json.dumps({k: report[k] for k in ("root", "geo_region_dirs", "shards_found")}, ensure_ascii=False), flush=True)
+        root = Path(report["root"])
+
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "lightgbm==4.7.0"])
         repo = find_repo()
         ensure_geo_pixgbm(repo)
-        root = find_data_root()
-        threads = int(os.environ.get("PIXGBM_NUM_THREADS", "8"))
+        threads = default_threads()
         rounds = int(os.environ.get("PIXGBM_ROUNDS", "300"))
         tol = os.environ.get("PIXGBM_METRIC_TOL", "1e-4")
         hashes = repo / "models" / "pixgbm" / "all" / "MODELS_NOT_IN_GIT.md"
@@ -124,11 +142,10 @@ def main() -> int:
             logf.write(f"\n=== {utc_now()} cmd={' '.join(cmd)}\n")
             logf.flush()
             proc = subprocess.run(cmd, cwd=str(repo), stdout=logf, stderr=subprocess.STDOUT, text=True)
-        # checkpoint marker after train attempt
         (CKPT / f"after_train_{utc_now().replace(':','')}.txt").write_text(
-            f"returncode={proc.returncode}\nwall_s={time.time() - t0:.1f}\n", encoding="utf-8"
+            f"returncode={proc.returncode}\nwall_s={time.time() - t0:.1f}\nthreads={threads}\n",
+            encoding="utf-8",
         )
-        # sha256 sidecars
         for name in ("poly.txt", "finds.txt"):
             p = models / name
             if p.is_file():
