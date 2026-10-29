@@ -89,7 +89,7 @@ def _fill_by_delaunay(dem: np.ndarray, valid: np.ndarray, to_fill: np.ndarray,
     if n <= DEFAULTS["max_vertices_rust"]:
         tin = accel.fill_tin(dem)
         if tin is not None:
-            return np.where(to_fill, tin, dem).astype(np.float32)
+            return np.where(to_fill, tin, dem).astype(np.float32, copy=False)
     if n > max_vertices:
         return None
     try:
@@ -131,7 +131,7 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
     unresolved = to_fill & ~np.isfinite(filled)
     if unresolved.any():
         filled = np.where(unresolved, accel.fill_pyramid(filled), filled)
-    return filled.astype(np.float32)
+    return filled.astype(np.float32, copy=False)
 
 
 LOWVEG_FILL = "tin_lowveg"   # P-W2-10: lidar.dem_fill="tin_lowveg"; по умолчанию "delaunay" (как было)
@@ -516,7 +516,7 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
     z_min = float(np.nanmin(d.dem))
     z_max = float(np.nanmax(d.dem))
     z_range = max(z_max - z_min, 1e-9)
-    filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32)
+    filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32, copy=False)
     out: dict[str, np.ndarray] = {}
     if "g" in tags or "i" in tags:
         shade = (_hillshade_li_match(filled, d.res) if style == "li_match"
@@ -669,17 +669,17 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
     mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
-    filled = np.where(valid, z, mean).astype(np.float32)
+    filled = np.where(valid, z, mean).astype(np.float32, copy=False)
     out = []
     opn_svf = None
     for t in tags:
         if t in ("lrm_s", "lrm_l", "lrm_xl"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
-            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius)
             unit = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF[f"{t}_clip_m"], -1, 1) * 0.5 + 0.5
         elif t in ("dev_s", "dev_l", "dev_xl"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
-            dev = accel.local_dev(np.where(valid, z, np.nan).astype(np.float32), radius,
+            dev = accel.local_dev(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius,
                                   float(RELIEF["dev_std_floor_m"]))
             unit = np.clip(np.nan_to_num(dev, nan=0.0) / RELIEF["dev_clip"], -1, 1) * 0.5 + 0.5
         elif t == "slope":
@@ -702,7 +702,7 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
         elif t == "prod":
             slope_u = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
             radius = max(1, round(RELIEF["lrm_s_m"] / step))
-            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius)
             lr_u = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF["lrm_s_clip_m"], -1, 1) * 0.5 + 0.5
             unit = np.clip(slope_u * lr_u, 0, 1)
         elif t == "ndi":
