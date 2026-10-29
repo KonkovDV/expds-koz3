@@ -12,10 +12,11 @@
 
 | Коммит | Суть |
 |---|---|
-| `fd27ff3` | flag+config: bot-4: [large_objects] модуль + конфиг (enabled=false) |
-| `f2cd571` | area τ: bot-4: area-aware τ в finish/safe_finish за [large_objects] |
-| `2853dd9` | NMS/dedup: bot-4: protect-склейка крупных в merge_within_markup |
-| `831365f` | candidates: bot-4: кандидаты fort→gor, coarse hillfort, ядра крупных gor |
+| `fd27ff3` | flag+config: модуль + конфиг (enabled=false) |
+| `f2cd571` | area τ: area-aware пороги в finish/safe_finish |
+| `2853dd9` | NMS/dedup: protect-склейка крупных |
+| `831365f` | candidates: fort→gor, coarse hillfort, ядра крупных gor |
+| `77a61d0` | report: reports/bot4_large_objects.md + unit-тесты (6) |
 | `08f83d7` | report: bot-4: отчёт reports/bot4_large_objects.md + unit-тесты |
 
 ## Тесты
