@@ -482,7 +482,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                     break
                 try:
                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
-                                                           min_conf=output_floors(cfg, mt),
+                                                           min_conf=_sp_floors(cfg, mt),
                                                            fallback_crs=region_crs(reg, cfg)))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
@@ -558,7 +558,7 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
         log.exception("модель sp_focal2 не загрузилась")
         seg_cache["sp_focal2"] = []
         return feats
-    floors = output_floors(cfg, "sp_focal2")
+    floors = _sp_floors(cfg, "sp_focal2")
     added: list[dict] = []
     for seg in segs:
         for path in reg.rasters.get("sp_or", []):
@@ -573,7 +573,33 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
             for feat in found:
                 feat["threshold_group"] = "sp_focal2"
             added += found
-    return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+    kept = drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
+    if _sp_fusion_spec(cfg) is not None:
+        # Со слиянием отброшенные отбором 12 м остаются соседями для sp_score_fusion, но не выдаются.
+        ids = {id(f) for f in kept}
+        for f in added:
+            if id(f) not in ids:
+                f["sp_partner_only"] = True
+        return feats + added
+    return feats + kept
+
+
+def _sp_fusion_spec(cfg: dict):
+    """[post] sp_score_fusion: None, если выключено; иначе словарь настроек."""
+    sf = (cfg.get("post") or {}).get("sp_score_fusion")
+    if not sf:
+        return None
+    return sf if isinstance(sf, dict) else {}
+
+
+def _sp_floors(cfg: dict, markup: str) -> dict[str, float]:
+    """Пол генерации: порог выдачи; со слиянием курганы sp_or / sp_focal2 — сырые от gen_floor."""
+    floors = output_floors(cfg, markup)
+    spec = _sp_fusion_spec(cfg)
+    if spec is None or markup not in ("sp_or", "sp_focal2"):
+        return floors
+    from .post import sp_fusion_gen_floors
+    return sp_fusion_gen_floors(floors, spec)
 
 
 def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,

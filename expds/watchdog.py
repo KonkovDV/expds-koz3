@@ -65,11 +65,13 @@ class RunState:
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
     out = post.only_known_classes(feats)
-    if (cfg.get("post") or {}).get("sp_score_fusion"):
-        sf = cfg["post"]["sp_score_fusion"]
+    sf = (cfg.get("post") or {}).get("sp_score_fusion")
+    by_markup = cfg.get("thresholds_by_markup", {})
+    if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
+        by_markup = post.sp_fusion_thresholds(by_markup, sf)
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
+                                by_markup)
     out = post.merge_within_markup(out)
     post_cfg = cfg.get("post") or {}
     if post_cfg.get("multipole_object_poly"):
