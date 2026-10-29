@@ -95,12 +95,20 @@ def test_diff_match_scope_script(tmp_path):
     assert "ae" in rows[1] and "li" in rows[1]
 
 
-def test_reference_scope_layer_no_nameerror():
-    """Регрессия: build_curves_reference(scope=layer|global) не падает на NameError per_site."""
+def test_reference_scope_default_and_layer_no_nameerror():
+    """Регрессия d1a98ae: build_curves_reference не NameError(per_site); default==global; layer фильтрует."""
     gt = fc([feat(sq(X0, Y0), K, "li")])
     pred = fc([feat(sq(X0, Y0), K, "ae", 0.9)])
-    a = metric.build_curves_reference(pred, gt, METRIC, scope="global")
+    # default (None) и явный global — без фильтра слоёв, hit=True
+    d = metric.build_curves_reference(pred, gt, METRIC)  # scope default
     metric._UTM_GEOM_CACHE.clear()
+    g = metric.build_curves_reference(pred, gt, METRIC, scope="global")
+    assert d[K].hit.tolist() == g[K].hit.tolist() == [True]
+    metric._UTM_GEOM_CACHE.clear()
+    # layer: ae≠li → hit=False (фильтр keyed по layer_key)
     b = metric.build_curves_reference(pred, gt, METRIC, scope="layer")
-    assert a[K].hit.tolist() == [True]
     assert b[K].hit.tolist() == [False]
+    metric._UTM_GEOM_CACHE.clear()
+    # site: один участок R — как global на этом примере
+    s = metric.build_curves_reference(pred, gt, METRIC, scope="site")
+    assert s[K].hit.tolist() == [True]
