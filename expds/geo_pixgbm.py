@@ -434,6 +434,37 @@ def features_for(d: dict, mt: str, rows: np.ndarray, cols: np.ndarray):
 _FW: dict = {}
 
 
+def _pool_init() -> None:
+    """bot-7: в детях пула — SIGTERM по умолчанию. Иначе ребёнок наследует обработчик сторожа main.py
+    (watchdog.arm_signal), pool.terminate() шлёт детям SIGTERM, ребёнок пишет пустой result.geojson и
+    может повиснуть на унаследованной блокировке; родитель висит в pool.join() до сторожа 1620 с
+    (bot-7/work5/check_8594842_217.log: 217, procs=2 — «сигнал 15», записано 0, 918 с, FAIL)."""
+    import signal
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+    try:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGTERM})
+    except (AttributeError, OSError, ValueError):
+        pass
+
+
+def make_pool(n: int):
+    """fork-пул из n процессов без обработчика SIGTERM родителя. На время fork SIGTERM в родителе
+    заблокирован (маска наследуется), дети снимают блок уже с SIG_DFL; пришедший родителю сигнал
+    доставится ему после восстановления маски."""
+    import multiprocessing as mp
+    import signal
+    old = None
+    try:
+        old = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+    except (AttributeError, OSError, ValueError):
+        old = None
+    try:
+        return mp.get_context("fork").Pool(n, initializer=_pool_init)
+    finally:
+        if old is not None:
+            signal.pthread_sigmask(signal.SIG_SETMASK, old)
+
+
 def _feat_window(args):
     """Признаки одного окна (в процессе пула: карта в _FW досталась от fork). → (y0, x0, rr, cc, {имя: X})."""
     ty, tx, (y0, x0, y1, x1) = args
@@ -480,9 +511,8 @@ def prob_map(d: dict, mt: str, boosters: dict, threads: int | None = None, procs
     try:
         np_ = min(int(procs or 1), len(wins))
         if np_ > 1:
-            import multiprocessing as mp
             try:
-                pool = mp.get_context("fork").Pool(np_)
+                pool = make_pool(np_)
                 it = pool.imap(_feat_window, wins)
             except Exception as exc:
                 log.warning("pixgbm: пул процессов не поднялся (%s) — последовательно", exc)
