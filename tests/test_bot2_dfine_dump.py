@@ -49,3 +49,24 @@ def test_write_boxes_dump_pixel_and_3857(tmp_path, monkeypatch):
 def test_write_gt_dump_empty_without_annotations(tmp_path):
     reg = SimpleNamespace(name="empty", annotations=[])
     assert sp_dfine.write_gt_dump(tmp_path, reg) is None
+
+
+def test_count_would_pass_and_append_stage(tmp_path, monkeypatch):
+    monkeypatch.setenv("EXPDS_DFINE_DUMP", str(tmp_path))
+    from shapely.geometry import Point
+    feats = [
+        {"geom": Point(0, 0).buffer(1), "class_name": "kurgany_povrezhdennye", "confidence": 0.7,
+         "threshold_group": "sp_dfine", "markup_type": "sp_or"},
+        {"geom": Point(1, 0).buffer(1), "class_name": "kurgany_povrezhdennye", "confidence": 0.2,
+         "threshold_group": "sp_dfine", "markup_type": "sp_or"},
+    ]
+    cfg = {"thresholds_by_markup": {"sp_dfine": {"kurgany_povrezhdennye": 0.55}},
+           "thresholds": {}, "default_threshold": 0.15}
+    assert sp_dfine.count_would_pass_thr(feats, cfg) == 1
+    sp_dfine.append_stage(tmp_path, {"region": "x", "n_raw_boxes": 2, "n_features": 2,
+                                     "n_would_pass_thr": 1, "n_ellipses": 2, "n_paths": 1, "n_paths_done": 1})
+    assert (tmp_path / "stages.jsonl").is_file()
+    summary = sp_dfine.write_stages_summary(tmp_path, [
+        json.loads((tmp_path / "stages.jsonl").read_text().splitlines()[0])
+    ], n_models=1)
+    assert json.loads(summary.read_text())["totals"]["n_would_pass_thr"] == 1
