@@ -158,7 +158,7 @@ $pfArgs = @(
   '-v',"${jdM}/notes/bot3_ae_weights_preflight.py:/preflight.py:ro",
   '-v',"${jdM}/notes/docker_preflight:/out",
   $Image,
-  'python','/preflight.py','--dir','/weights','--sha-prefix',$ShaPrefix,'--require-config'
+  'python','/preflight.py','--dir','/weights','--sha-prefix',$ShaPrefix,'--require-config','--full-load'
 )
 HB "docker preflight $CNamePf"
 $tpf = Get-Date
