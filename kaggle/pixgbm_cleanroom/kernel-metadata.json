@@ -1,0 +1,17 @@
+{
+  "id": "dmitrijkv/koz3-bot6-pixgbm-cleanroom",
+  "title": "koz3-bot6-pixgbm-cleanroom",
+  "code_file": "pixgbm_cleanroom_kaggle.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "dmitrijkv/koz3-s3-cred"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
