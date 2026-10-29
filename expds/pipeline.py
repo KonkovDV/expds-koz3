@@ -867,7 +867,17 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     thr = cfg.get("thresholds", {})
     own = cfg.get("thresholds_by_markup", {}).get(markup, {})
     default = cfg.get("default_threshold", 0.15)
-    return {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+    floors = {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+    # [post] kurgan_neighbour_prior поднимает уверенность до floor + slope·cap раз до порогов: курган
+    # группы приора ниже порога должен дожить до finish, иначе множитель только понижает.
+    prior = ((cfg.get("post") or {}).get("kurgan_neighbour_prior"))
+    if prior:
+        spec = prior if isinstance(prior, dict) else {}
+        if markup in set(spec.get("groups") or ("li", "li_coarse", "li_mosaic")):
+            top = float(spec.get("floor", 0.5)) + float(spec.get("slope", 0.5)) * float(spec.get("cap", 2.0))
+            for c in ("kurgany_povrezhdennye", "kurgany_tselye"):
+                floors[c] /= max(top, 1.0)
+    return floors
 
 
 def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
