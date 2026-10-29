@@ -281,10 +281,12 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
     from rasterio import features
     from rasterio.windows import Window
 
-    from .crs import WEB_MERCATOR, to_crs, usable_raster_crs
+    from .crs import WEB_MERCATOR, ground_scale, to_crs, usable_raster_crs
 
     with rasterio.open(path) as r:
-        f = max(1, int(round(gsd / abs(r.transform.a))))
+        crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
+        k = ground_scale(crs, r.bounds)               # м на земле в единице CRS (1,0 для UTM / выкл.)
+        f = max(1, int(round(gsd / (abs(r.transform.a) * k))))
         H, W = max(1, r.height // f), max(1, r.width // f)
         n = r.count
         alpha = [i for i, ci in enumerate(r.colorinterp) if getattr(ci, "name", "") == "alpha"]
@@ -309,10 +311,9 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
             lum[rows], dif[rows], valid[rows], sat[rows] = rgb.mean(0), rgb[0] - rgb[2], v, s_
             del blk, rgb
         T = r.transform @ r.transform.scale(r.width / W, r.height / H)
-        valid = restore_sat_cores(valid, sat, abs(T.a * T.e), sat_core_m2(sat_core_max_m2))
+        valid = restore_sat_cores(valid, sat, abs(T.a * T.e) * k * k, sat_core_m2(sat_core_max_m2))
         del sat
-        crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
-    up = abs(T.a) / gsd
+    up = abs(T.a) * k / gsd
     if up > 1.3:
         h0, w0 = lum.shape
         lum = ndi.zoom(lum, up, order=1).astype(np.float32)
@@ -333,7 +334,7 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
             if not g.is_empty:
                 nz = features.rasterize([(g, 1)], out_shape=lum.shape, transform=T, all_touched=True).astype(bool)
     return dict(z=_robust(lum, valid), zd=_robust(dif, valid), valid=valid, noise=nz, T=T, crs=crs,
-                gsd=float(abs(T.a)))
+                gsd=float(abs(T.a)) * k, k=k)
 
 
 def _robust(x, valid):
@@ -590,6 +591,7 @@ def label_masks(d: dict, polys, points):
     from .crs import WEB_MERCATOR, to_crs
 
     shape, T, crs, gsd = d["z"].shape, d["T"], d["crs"], d["gsd"]
+    k = d.get("k", 1.0)                                   # буферы 0,3 / 1,0 м — в единицах CRS карты
     out = []
     for geoms, kind in ((polys, "poly"), (points, "pt")):
         if geoms is None:
@@ -597,8 +599,8 @@ def label_masks(d: dict, polys, points):
             continue
         gs = [to_crs(g, WEB_MERCATOR, crs) for g in geoms]
         if kind == "pt":
-            pos_g = [Point(g.centroid.x, g.centroid.y).buffer(0.3) for g in gs]
-            ign_g = [Point(g.centroid.x, g.centroid.y).buffer(1.0) for g in gs]
+            pos_g = [Point(g.centroid.x, g.centroid.y).buffer(0.3 / k) for g in gs]
+            ign_g = [Point(g.centroid.x, g.centroid.y).buffer(1.0 / k) for g in gs]
             pos = features.rasterize([(g, 1) for g in pos_g], out_shape=shape, transform=T, all_touched=True).astype(bool) if gs else np.zeros(shape, bool)
             ign = features.rasterize([(g, 1) for g in ign_g], out_shape=shape, transform=T, all_touched=True).astype(bool) if gs else np.zeros(shape, bool)
         else:
@@ -643,7 +645,7 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
             pt = g.representative_point()
         out.append({"geom": circle_3857(pt.x, pt.y, POLE_R_M, d["crs"]), "class_name": "object_poly",
                     "confidence": conf, "region_name": region, "markup_type": mt, "source": source,
-                    "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": float(g.area)})
+                    "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": float(g.area) * d.get("k", 1.0) ** 2})
     return out
 
 
@@ -681,7 +683,7 @@ def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
                 pt = g.representative_point()
             g3, p3 = (to_crs(g, d["crs"], WEB_MERCATOR), to_crs(pt, d["crs"], WEB_MERCATOR)) if d["crs"] else (g, pt)
             out.append(dict(geom=g3, score=float(mean[v - 1]), max_p=float(mxp[v - 1]), t_pix=float(t),
-                            area_m2=float(g.area), pole_x=float(p3.x), pole_y=float(p3.y),
+                            area_m2=float(g.area) * d.get("k", 1.0) ** 2, pole_x=float(p3.x), pole_y=float(p3.y),
                             region=region, markup_type=mt, raster=source))
     return out
 
@@ -779,6 +781,9 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     from .pipeline import region_crs
 
     pix = (cfg.get("geophys", {}) or {}).get("pixgbm") or {}
+    if "ground_metres" in (cfg.get("geophys", {}) or {}):   # opt-in: шаг EPSG:3857 × cos φ
+        from . import crs as _crs
+        _crs.GROUND_METRES = bool(cfg["geophys"]["ground_metres"])
     nt = pix_threads()
     npr = pix_procs(pix, nt)
     backend = os.environ.get("EXPDS_PIXGBM_BACKEND", "") or pix.get("backend", "lightgbm")

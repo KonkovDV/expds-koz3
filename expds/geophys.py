@@ -108,7 +108,7 @@ def read_band(path: str | Path, mode: str = "first",
     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает
     fallback_crs (UTM.json участка), а не роняет детектор на переводе в EPSG:3857.
     """
-    from .crs import usable_raster_crs
+    from .crs import ground_scale, usable_raster_crs
     from .raster import open_metric
 
     with open_metric(path) as ds:
@@ -122,7 +122,8 @@ def read_band(path: str | Path, mode: str = "first",
                 bands[:, ds.read(alpha[0]) == 0] = np.nan
             a = scalar_from_bands(bands, mode)
         crs = usable_raster_crs(ds.crs.to_string() if ds.crs else None, ds.bounds, fallback_crs)
-        return a, ds.transform, crs, float(abs(ds.res[0]))
+        # шаг в метрах на земле (EPSG:3857 × cos φ, если включено ground_metres; иначе как было)
+        return a, ds.transform, crs, float(abs(ds.res[0])) * ground_scale(crs, ds.bounds)
 
 
 def robust_z(a: np.ndarray) -> np.ndarray:
