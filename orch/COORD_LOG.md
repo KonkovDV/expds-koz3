@@ -68,3 +68,33 @@
 - 29.10 23:15 MSK | lease | acquire slot:acc2/gpu-1 → coord до 30.10 03:15 MSK fallback: c3-sc seed2 f0,f1 на свободном acc2 GPU
 - 29.10 23:15 MSK | lease | acquire kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f01 → coord до 30.10 03:15 MSK 
 - 29.10 23:15 MSK | coord | acc2 GPU простаивал → fallback dmitrijkv/koz3-w2-cnx-c3sc-s2f01 (c3-sc seed2 f0,f1, копия s1f01 с CNX_SEED=2, deadline 2.6ч), аренда coord; выход для W2 → w2/oof/s2. Бокс CPU перегружен (load ~29/8) — новых бокс-задач не ставлю. TPU acc1/acc2 заняты QUEUED legacy-смоуками (decision: отмена).
+- 29.10 23:17 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 30.10 03:17 MSK W2 tools/notes
+- 29.10 23:17 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 29.10 23:18 MSK | lease | acquire slot:acc1/cpu → bot-W5-rerank до 30.10 11:18 MSK DINOv2 ViT-S emb 222929 pool cands, CPU
+- 29.10 23:18 MSK | lease | acquire kernel:elenakonkova/koz3-w5-dino-emb → bot-W5-rerank до 30.10 11:18 MSK 
+- 29.10 23:24 MSK | lease | acquire branch:bots/orch-protocol → coord до 30.10 00:24 MSK georeview push
+- 29.10 23:25 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 29.10 23:26 MSK | handoff | bot-W2 → W5: /workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s01avg.geojson (P-W2-2 c3-sc s0+s1 усреднение карт, n=81665, 5/5 фолдов, li_cnx, EPSG:3857, sha256 0b63a102…)
+- 29.10 23:30 MSK | lease | acquire branch:bots/w0-seams → coord до 30.10 23:30 MSK W0 seams audit executor
+- 29.10 23:32 MSK | lease | acquire dataset:dmitrijkv/koz3-w3-gorheads-code → bot-W3-bigobj до 30.10 01:32 MSK gor heads code ds (19ccc9cf)
+- 29.10 23:35 MSK | lease | acquire slot:acc2/gpu-2 → coord до 30.10 03:35 MSK fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2
+- 29.10 23:35 MSK | lease | acquire kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f23 → coord до 30.10 03:35 MSK 
+- 29.10 23:35 MSK | coord | acc2 GPU-2 простаивал → fallback dmitrijkv/koz3-w2-cnx-c3sc-s2f23 (c3-sc seed2 f2,f3, копия s2f01), аренда coord; выход для W2 → w2/oof/s2. Бокс load ~28/8 — новых бокс-задач нет. Остальные слоты заняты (TPU acc1/acc2 QUEUED smoke).
+- 29.10 23:36 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 30.10 00:36 MSK T3-T5 commit
+- 29.10 23:36 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 29.10 23:42 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 29.10 23:58 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 00:01 MSK | coord | проверка: все GPU/CPU слоты RUNNING (acc1 gpu×2 D-FINE, acc2 gpu×2 c3-sc s2, CPU×5 kurgan/dino), TPU acc1/acc2 QUEUED в очереди Kaggle; бокс load ~28/8. Новых запусков нет.
+- 30.10 00:15 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 00:28 MSK | coord | проверка: все GPU/CPU слоты RUNNING (acc1 gpu×2 D-FINE, acc2 gpu×2 c3-sc s2, CPU×5 kurgan/dino), TPU acc1/acc2 QUEUED; бокс load ~12/8. Новых запусков нет.
+- 30.10 00:31 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 00:41 MSK | lease | release slot:acc1/gpu-2 (bot-W1-aeor) by coord
+- 30.10 00:41 MSK | lease | release kernel:elenakonkova/koz3-w1-dfine-or-final (bot-W1-aeor) by coord
+- 30.10 00:41 MSK | watcher | acc1/gpu-2: elenakonkova/koz3-w1-dfine-or-final → COMPLETE; аренда снята
+- 30.10 00:45 MSK | lease | acquire dataset:dmitrijkv/koz3-w3-gordense-timing → bot-W3-bigobj до 30.10 02:45 MSK gor_dense timing ds: repo 86a60c5 + PC heads (v4 sha)
+- 30.10 00:46 MSK | check_conflicts | ERROR=1 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 00:56 MSK | lease | acquire branch:bots/w0-docs → coord до 30.10 06:56 MSK W0 docs executor: README_FINAL + ai_declaration
+- 30.10 01:02 MSK | check_conflicts | ERROR=1 WARN=4: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 01:04 MSK | lease | acquire slot:acc1/gpu-2 → coord до 30.10 05:04 MSK fallback c3-sc seed2 f4 (copy s1f4, CNX_SEED=2)
+- 30.10 01:04 MSK | lease | acquire kernel:elenakonkova/koz3-w2-cnx-c3sc-s2f4 → coord до 30.10 05:04 MSK 
+- 30.10 01:04 MSK | coord | acc1 GPU-2 простаивал с 00:41 → fallback elenakonkova/koz3-w2-cnx-c3sc-s2f4 (c3-sc seed2 f4, копия s1f4 с CNX_SEED=2, deadline 3ч), аренда coord; выход для W2 → w2/oof/s2

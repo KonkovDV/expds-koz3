@@ -16,14 +16,14 @@
   {
    "slot": "acc1/gpu-2",
    "account": "elenakonkova",
-   "holder": "bot-W1-aeor",
-   "kernel": "elenakonkova/koz3-w1-dfine-or-final",
-   "purpose": "or-final, push 22:38 старым gpu_watcher",
+   "holder": "coord",
+   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s2f4",
+   "purpose": "fallback c3-sc seed2 f4 (copy s1f4, CNX_SEED=2)",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f23 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 29.10 22:46 MSK",
-   "since": "29.10 22:46 MSK",
-   "until": "30.10 10:46 MSK"
+   "last": "снято coord 30.10 00:41 MSK",
+   "since": "30.10 01:04 MSK",
+   "until": "30.10 05:04 MSK"
   },
   {
    "slot": "acc1/tpu",
@@ -47,9 +47,12 @@
   {
    "slot": "acc2/gpu-2",
    "account": "dmitrijkv",
-   "holder": null,
-   "state": "квота GPU исчерпана до сброса",
-   "reserved_for": "bot-W1-aeor / W3 kurgan_orch"
+   "holder": "coord",
+   "reserved_for": "bot-W1-aeor / W3 kurgan_orch",
+   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f23",
+   "since": "29.10 23:35 MSK",
+   "until": "30.10 03:35 MSK",
+   "purpose": "fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2"
   },
   {
    "slot": "acc2/tpu",
@@ -126,6 +129,13 @@
    "kernel": null,
    "state": "свободен",
    "last": "снято bot-W2-lidar 29.10 23:10 MSK"
+  },
+  {
+   "slot": "acc1/cpu",
+   "holder": "bot-W5-rerank",
+   "kernel": "elenakonkova/koz3-w5-dino-emb",
+   "since": "29.10 23:18 MSK",
+   "until": "30.10 11:18 MSK"
   }
  ],
  "kernel_prefix": {
@@ -296,15 +306,6 @@
    "pid": 68911
   },
   {
-   "resource": "branch:bots/orch-protocol",
-   "owner": "coord",
-   "since": 1793302266.263569,
-   "expires": 1794511866.263569,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68916
-  },
-  {
    "resource": "branch:bots/w5-rerank",
    "owner": "bot-W5-rerank",
    "since": 1793302266.294999,
@@ -312,25 +313,6 @@
    "note": "worktree wt/w5",
    "host": "grok-bot-vm-361051398",
    "pid": 68921
-  },
-  {
-   "resource": "slot:acc1/gpu-2",
-   "owner": "bot-W1-aeor",
-   "since": 1793303174.844906,
-   "expires": 1793346374.844906,
-   "note": "or-final, push 22:38 старым gpu_watcher",
-   "host": "grok-bot-vm-361051398",
-   "pid": 78021,
-   "kernel": "elenakonkova/koz3-w1-dfine-or-final"
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-w1-dfine-or-final",
-   "owner": "bot-W1-aeor",
-   "since": 1793303174.875678,
-   "expires": 1793346374.875678,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 78026
   },
   {
    "resource": "slot:acc2/cpu",
@@ -378,6 +360,108 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 33712
+  },
+  {
+   "resource": "slot:acc1/cpu",
+   "owner": "bot-W5-rerank",
+   "since": 1793305084.635371,
+   "expires": 1793348284.635371,
+   "note": "DINOv2 ViT-S emb 222929 pool cands, CPU",
+   "host": "grok-bot-vm-361051398",
+   "pid": 36684,
+   "kernel": "elenakonkova/koz3-w5-dino-emb"
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w5-dino-emb",
+   "owner": "bot-W5-rerank",
+   "since": 1793305084.667393,
+   "expires": 1793348284.667393,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 36689
+  },
+  {
+   "resource": "branch:bots/orch-protocol",
+   "owner": "coord",
+   "since": 1793302266.263569,
+   "expires": 1794519427.357901,
+   "note": "georeview push",
+   "host": "grok-bot-vm-361051398",
+   "pid": 44006
+  },
+  {
+   "resource": "branch:bots/w0-seams",
+   "owner": "coord",
+   "since": 1793305820.647262,
+   "expires": 1793392220.647262,
+   "note": "W0 seams audit executor",
+   "host": "grok-bot-vm-361051398",
+   "pid": 50330
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-gorheads-code",
+   "owner": "bot-W3-bigobj",
+   "since": 1793305927.978967,
+   "expires": 1793313127.978967,
+   "note": "gor heads code ds (19ccc9cf)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 52503
+  },
+  {
+   "resource": "slot:acc2/gpu-2",
+   "owner": "coord",
+   "since": 1793306119.470466,
+   "expires": 1793320519.470466,
+   "note": "fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2",
+   "host": "grok-bot-vm-361051398",
+   "pid": 56317,
+   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f23"
+  },
+  {
+   "resource": "kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f23",
+   "owner": "coord",
+   "since": 1793306148.552726,
+   "expires": 1793320548.552726,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 56782
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-gordense-timing",
+   "owner": "bot-W3-bigobj",
+   "since": 1793310328.753734,
+   "expires": 1793317528.753734,
+   "note": "gor_dense timing ds: repo 86a60c5 + PC heads (v4 sha)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 117525
+  },
+  {
+   "resource": "branch:bots/w0-docs",
+   "owner": "coord",
+   "since": 1793310996.371025,
+   "expires": 1793332596.371025,
+   "note": "W0 docs executor: README_FINAL + ai_declaration",
+   "host": "grok-bot-vm-361051398",
+   "pid": 127340
+  },
+  {
+   "resource": "slot:acc1/gpu-2",
+   "owner": "coord",
+   "since": 1793311446.762558,
+   "expires": 1793325846.762558,
+   "note": "fallback c3-sc seed2 f4 (copy s1f4, CNX_SEED=2)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 136463,
+   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s2f4"
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w2-cnx-c3sc-s2f4",
+   "owner": "coord",
+   "since": 1793311456.252883,
+   "expires": 1793325856.252883,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 136687
   }
  ]
 }
