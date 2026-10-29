@@ -31,7 +31,7 @@
    "holder": "bot-W3-bigobj",
    "kernel": "elenakonkova/koz3-acc2-tpu-smoke",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 02:31 MSK",
+   "until": "30.10 03:33 MSK",
    "purpose": "QUEUED smoke; проверить нужность"
   },
   {
@@ -47,12 +47,12 @@
   {
    "slot": "acc2/gpu-2",
    "account": "dmitrijkv",
-   "holder": "coord",
+   "holder": null,
    "reserved_for": "bot-W1-aeor / W3 kurgan_orch",
-   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f23",
-   "since": "29.10 23:35 MSK",
-   "until": "30.10 03:35 MSK",
-   "purpose": "fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2"
+   "kernel": null,
+   "purpose": "fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2",
+   "state": "свободен",
+   "last": "снято coord 30.10 01:37 MSK"
   },
   {
    "slot": "acc2/tpu",
@@ -60,7 +60,7 @@
    "holder": "bot-W2-lidar",
    "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 02:31 MSK",
+   "until": "30.10 03:33 MSK",
    "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)"
   },
   {
@@ -118,10 +118,12 @@
   },
   {
    "slot": "box/q1",
-   "holder": null,
+   "holder": "coord",
    "kernel": null,
-   "state": "свободен",
-   "last": "снято coord 29.10 23:13 MSK"
+   "last": "снято coord 30.10 01:39 MSK",
+   "purpose": "W3 kurgan seeds 61,62 box (PID 168622 run_resume.py, cpu/kurgan_s61) — переарендовано, watcher снял ошибочно",
+   "since": "30.10 01:44 MSK",
+   "until": "30.10 04:44 MSK"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -169,7 +171,7 @@
    "resource": "slot:acc1/tpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.689213,
-   "expires": 1793316665.689213,
+   "expires": 1793320433.215887,
    "note": "QUEUED smoke; проверить нужность",
    "host": "grok-bot-vm-361051398",
    "pid": 68831,
@@ -179,7 +181,7 @@
    "resource": "kernel:elenakonkova/koz3-acc2-tpu-smoke",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.718667,
-   "expires": 1793316665.718667,
+   "expires": 1793320433.249568,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68836
@@ -188,7 +190,7 @@
    "resource": "slot:acc2/tpu",
    "owner": "bot-W2-lidar",
    "since": 1793302265.74699,
-   "expires": 1793316665.74699,
+   "expires": 1793320434.229653,
    "note": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
    "host": "grok-bot-vm-361051398",
    "pid": 68841,
@@ -198,7 +200,7 @@
    "resource": "kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "owner": "bot-W2-lidar",
    "since": 1793302265.777641,
-   "expires": 1793316665.777641,
+   "expires": 1793320434.260445,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68846
@@ -389,25 +391,6 @@
    "pid": 52503
   },
   {
-   "resource": "slot:acc2/gpu-2",
-   "owner": "coord",
-   "since": 1793306119.470466,
-   "expires": 1793320519.470466,
-   "note": "fallback: c3-sc seed2 f2,f3 на свободном acc2 GPU-2",
-   "host": "grok-bot-vm-361051398",
-   "pid": 56317,
-   "kernel": "dmitrijkv/koz3-w2-cnx-c3sc-s2f23"
-  },
-  {
-   "resource": "kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f23",
-   "owner": "coord",
-   "since": 1793306148.552726,
-   "expires": 1793320548.552726,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 56782
-  },
-  {
    "resource": "dataset:dmitrijkv/koz3-w3-gordense-timing",
    "owner": "bot-W3-bigobj",
    "since": 1793310328.753734,
@@ -443,6 +426,15 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 136687
+  },
+  {
+   "resource": "slot:box/q1",
+   "owner": "coord",
+   "since": 1793313883.683287,
+   "expires": 1793324683.683287,
+   "note": "W3 kurgan seeds 61,62 box (PID 168622 run_resume.py, cpu/kurgan_s61) — переарендовано, watcher снял ошибочно",
+   "host": "grok-bot-vm-361051398",
+   "pid": 175600
   }
  ]
 }

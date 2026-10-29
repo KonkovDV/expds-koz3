@@ -104,3 +104,16 @@
 - 30.10 01:18 MSK | watcher | acc2/gpu-1: dmitrijkv/koz3-w2-cnx-c3sc-s2f01 → COMPLETE; аренда снята
 - 30.10 01:18 MSK | check_conflicts | ERROR=1 WARN=3: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
 - 30.10 01:25 MSK | W0→W1/W5 | bots/w0-rust-speed 923d6b9: опц. Rust-матчинг гейтов EXPDS_RUST_MATCH=1 (+EXPDS_THREADS; по умолч. выкл., fallback Python). Бит-в-бит (hits/pairs sha) на stack_arch и 2 OOF; stack_arch 3.6→2.2 с. Матчинг ≠ узкое место 19-мин фолда. fill_tin не портирован (DEM не бит-в-бит), см. notes/w0_profile.md
+- 30.10 01:33 MSK | W2 | c3-sc seed2 f0/f1 (s2f01) скачаны и проверены: w2/oof/s2/koz3-w2-cnx-c3sc-s2f01 (li_cnx, region_fold == s0/s1, n f0 10299 / f1 1157); полный s2 ждёт s2f23 + s2f4
+- 30.10 01:33 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 30.10 02:33 MSK li_match flag
+- 30.10 01:33 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 30.10 01:34 MSK | check_conflicts | ERROR=1 WARN=4: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 01:37 MSK | lease | release slot:acc2/gpu-2 (coord) by coord
+- 30.10 01:37 MSK | lease | release kernel:dmitrijkv/koz3-w2-cnx-c3sc-s2f23 (coord) by coord
+- 30.10 01:38 MSK | lease | acquire slot:box/q1 → coord до 30.10 04:38 MSK fallback W3 kurgan seeds 61,62 на box CPU
+- 30.10 01:39 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 01:39 MSK | watcher | box/q1: box → COMPLETE; аренда снята
+- 30.10 01:41 MSK | coord | dmitrijkv/koz3-w2-cnx-c3sc-s2f23 COMPLETE → out/koz3-w2-cnx-c3sc-s2f23 (oof f2/f3, ckpt); аренды acc2/gpu-2 + kernel сняты. acc2 GPU×2 свободны, но cooldown квоты до 31.10 03:00 — не запускаю. Для W2: c3-sc s2 теперь f0–f3 есть, ждём s2f4 (acc1).
+- 30.10 01:41 MSK | coord | box CPU простаивал (load 0.6/8, kurgan box-run W3 завершён 01:01) → fallback W3 kurgan seeds 61,62 на box (cpu/kurgan_s61, venv, PID 168620, KTHREADS=8, ETA ~2 ч), аренда slot:box/q1 coord до 04:38. Остальные слоты RUNNING, TPU acc1/acc2 QUEUED.
+- 30.10 01:44 MSK | lease | acquire slot:box/q1 → coord до 30.10 04:44 MSK W3 kurgan seeds 61,62 box (PID 168622 run_resume.py, cpu/kurgan_s61) — переарендовано, watcher снял ошибочно
+- 30.10 01:45 MSK | coord | box/q1: watcher снял аренду, но kurgan s61/62 (PID 168622) работает (r18 f0 auc 0.60) → аренда восстановлена до 04:45. Кандидаты прочие слоты RUNNING; acc2 GPU — cooldown до 31.10 03:00.
