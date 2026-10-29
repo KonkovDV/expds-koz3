@@ -1005,7 +1005,7 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
             break
         try:
             found, complete = sp_dfine.region_feats(
-                reg, cfg, guard, cache, root, crs_for=lambda r: region_crs(r, cfg),
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),   # как в обучении bot-9 (Scene: UTM.json), не [crs] vote
                 soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
