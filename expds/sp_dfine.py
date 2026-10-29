@@ -12,6 +12,7 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
 * ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857) и GT; по умолчанию ВЫКЛ.;
 * ансамбль фолдов: ``ensemble = "max"`` (кластер C берёт лучший из всех моделей, как NMS) или ``"mean"``
   (среднее по моделям, отсутствующая модель = 0, как score-averaging в WBF). Ни один не измерен честно —
   у фолдовых моделей нет общего OOF; по умолчанию одна модель.
@@ -19,6 +20,9 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 torch / transformers импортируются лениво, только при enabled = true.
 """
 from __future__ import annotations
+
+import os
+import json
 
 import logging
 import math
@@ -580,6 +584,108 @@ def load_models(st: dict, root: Path, device) -> list:
     return models
 
 
+
+def dump_root() -> Path | None:
+    """Каталог дампа из ``EXPDS_DFINE_DUMP`` (пусто / не задан → ``None``, фича ВЫКЛ.)."""
+    raw = (os.environ.get("EXPDS_DFINE_DUMP") or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def write_boxes_dump(out_dir: Path, *, region: str, source: str, crs: str, transform,
+                     model_i: int, B, L, Cc, ellipses: list[dict]) -> Path:
+    """Пишет JSON: пиксельные xyxy + преобразованные центры/bbox в EPSG:3857 (+ crs сцены).
+
+    Нужен PC-прогону для проверки CRS-гипотезы (pixel → scene CRS → 3857 vs GT 3857).
+    """
+    from pyproj import Transformer
+
+    a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
+    to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
+    rows = []
+    for i, ((x0, y0, x1, y1), s, c) in enumerate(zip(B, L, Cc)):
+        cx, cy = (float(x0) + float(x1)) / 2, (float(y0) + float(y1)) / 2
+        # углы bbox в CRS сцены → 3857
+        corners_src = [
+            (a * float(x0) + b * float(y0) + c0, d * float(x0) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y0) + c0, d * float(x1) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y1) + c0, d * float(x1) + e * float(y1) + f0),
+            (a * float(x0) + b * float(y1) + c0, d * float(x0) + e * float(y1) + f0),
+        ]
+        corners_3857 = [to3857(x, y) for x, y in corners_src]
+        cx_src, cy_src = a * cx + b * cy + c0, d * cx + e * cy + f0
+        cx_3857, cy_3857 = to3857(cx_src, cy_src)
+        ell = ellipses[i] if i < len(ellipses) else None
+        eb = list(ell["geom"].bounds) if ell is not None else None
+        rows.append({
+            "i": i,
+            "class_name": CLASSES[int(c)] if int(c) < len(CLASSES) else str(int(c)),
+            "score": float(s),
+            "xyxy_px": [float(x0), float(y0), float(x1), float(y1)],
+            "center_px": [cx, cy],
+            "center_scene_crs": [cx_src, cy_src],
+            "center_3857": [cx_3857, cy_3857],
+            "bbox_corners_3857": [[float(x), float(y)] for x, y in corners_3857],
+            "ellipse_bounds_3857": eb,
+        })
+    payload = {
+        "region": region,
+        "source": source,
+        "scene_crs": crs,
+        "target_crs": "EPSG:3857",
+        "model_i": model_i,
+        "n": len(rows),
+        "affine_a_b_c_d_e_f": [a, b, c0, d, e, f0],
+        "boxes": rows,
+    }
+    safe_src = source.replace("/", "_").replace("\\", "_")
+    path = out_dir / f"{region}__{safe_src}__m{model_i}_boxes.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def write_gt_dump(out_dir: Path, reg) -> Path | None:
+    """GT участка (SpOr и пр.) в EPSG:3857 через ``expds.gt.read_annotation``; нет аннотаций → None."""
+    anns = list(getattr(reg, "annotations", None) or [])
+    if not anns:
+        return None
+    # importlib — чтобы AST-граф инференса не тянул train-only gt.py (test_train_only_modules…).
+    import importlib
+    from shapely.geometry import mapping
+    read_annotation = importlib.import_module(f"{__package__}.gt").read_annotation
+
+    feats = []
+    report: list[dict] = []
+    for path, cls, mt in anns:
+        for it in read_annotation(Path(path), cls, mt, reg, report=report):
+            g = it["geom"]
+            feats.append({
+                "type": "Feature",
+                "properties": {
+                    "class_name": it["class_name"],
+                    "markup_type": it["markup_type"],
+                    "region_name": it["region_name"],
+                    "source": it.get("source"),
+                    "src_crs": it.get("src_crs"),
+                },
+                "geometry": mapping(g),
+            })
+    payload = {
+        "type": "FeatureCollection",
+        "crs": {"type": "name", "properties": {"name": "EPSG:3857"}},
+        "region": getattr(reg, "name", None),
+        "n": len(feats),
+        "files": report,
+        "features": feats,
+    }
+    path = out_dir / f"{getattr(reg, 'name', 'region')}__gt_3857.geojson"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
 def detect_scene(models: list, scene, st: dict, device, keep_going=lambda: True) -> tuple[list, int, int]:
     """Окна сцены → по каждой модели (xyxy px, score, class) после NMS по классам. Окно читается один раз
     на все модели. Возвращает (по моделям список (B, L, C) numpy, окон сделано, окон всего)."""
@@ -714,8 +820,16 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             t0 = time.monotonic()
             res, done, total = detect_scene(models, sc, st, cache["device"], ok)
             complete &= done >= total
+            dump = dump_root()
             for mi, (B, L, Cc) in enumerate(res):
-                dets += boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                ell = boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                if dump is not None and len(L):
+                    try:
+                        write_boxes_dump(dump, region=reg.name, source=Path(path).name, crs=crs,
+                                         transform=sc.T, model_i=mi, B=B, L=L, Cc=Cc, ellipses=ell)
+                    except Exception:
+                        log.exception("sp_dfine: dump боксов не записан (%s m%d)", Path(path).name, mi)
+                dets += ell
             log.info("sp_dfine: %s %dx%d px, окон %d/%d, боксов %d, %.1f с", Path(path).name, sc.W, sc.H, done,
                      total, sum(len(r[1]) for r in res), time.monotonic() - t0)
         except Exception:
@@ -724,4 +838,12 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         finally:
             if sc is not None:
                 sc.close()
+    dump = dump_root()
+    if dump is not None:
+        try:
+            gp = write_gt_dump(dump, reg)
+            if gp is not None:
+                log.info("sp_dfine: GT dump %s", gp)
+        except Exception:
+            log.exception("sp_dfine: GT dump не записан (%s)", getattr(reg, "name", "?"))
     return as_features(dets, st, len(models)), complete
