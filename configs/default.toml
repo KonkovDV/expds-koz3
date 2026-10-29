@@ -510,14 +510,15 @@ enabled = false
 # +0,015406, P 1,000) — точки городищ плотного локализатора DINOv2-S на SpOr (expds/gor_dense.py) после sp_dfine/drop_groups,
 # группа порога gor_dense; conf = 0,5·(p участка головы gor_v3 + пик); гейт sp_or НЕ ставить (при R ему нечего гейтить).
 # noD (классы drop_dfine_classes sp_dfine удаляются кодом на участках, где точки посчитаны) — флаг ВКЛ. делает это сам.
-# ВЫКЛ.; без флага ветка не входит, выдача байт-в-байт как v3. Включение:
+# v4: пакет принят как компонент (τ=0.824066, centre_s=250); default OFF — байт-в-байт как v3-без-SpOr-D-FINE.
+# Включение (только для e2e/honest-10 приёмки пакета):
 #   enabled = true
 #   backbone = "models/dinov2-small"                 # тот же снапшот, что gor_gate (md5 ea251be6…)
 #   gate_head = "models/gor_gate/gor_v3_head.npz"     # md5 acb95c52…
 #   head = "models/gor_dense/gor_dense_head.npz"      # bot-5 export_head.py, вариант 'all', весь трейн; md5 e35570e1…
 #   head_md5 = "e35570e10d17edac32bea8d26fa0f5f4"
-#   centre_s = 250.0    # ПРЕДЛОЖЕНИЕ, ждёт бота 10: правило dense_probe на всём трейне (внутр. OOF, top-1 28/49)
-#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # ПРЕДЛОЖЕНИЕ, ждёт бота 10: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
+#   centre_s = 250.0    # пакет v4: dense_probe на всём трейне (внутр. OOF, top-1 28/49)
+#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # пакет v4: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
 #   + [thresholds_by_markup.sp_dfine]
 #     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
 #     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,
