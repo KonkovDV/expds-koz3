@@ -304,6 +304,7 @@ org_classes = ["finds_points", "object_poly"]   # which ORG1 classes replace mag
 org_t_ref = 0.5              # ORG1: parent-score threshold for splitting merged blobs
 org2_band_mode = "rgb"       # GEO-ORG2: "jet" = EtGr scalar from jet palette (needs models trained with --band-mode jet)
 org2_mask = false            # GEO-ORG2: drop non-palette EtGr pixels (needs models trained with --org-mask)
+org_etgr = false             # GEO-ORG3: EtGr object_poly per organizer baseline 02, HGB mode (expds/pix_org_et.py, models <model_dir>/org)
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
 

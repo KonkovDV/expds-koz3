@@ -113,6 +113,12 @@ def cmd_compose(args) -> None:
                 ocls = set(pix.get("org_classes", ["finds_points", "object_poly"]))
                 new = [x for x in rec["new"] if x["class_name"] in ocls]
                 found = pix_merge(found, new, rec["pst"], {"replace": True}, reg.name, pix_clean)
+        if getattr(args, "orget_tag", ""):
+            # GEO-ORG3: EtGr object_poly организаторов (бейзлайн 02) заменяют object_poly/etgr
+            ef = Path(args.cache) / "orget" / args.orget_tag / f"{reg.name}.pkl"
+            if ef.exists():
+                rec = pickle.loads(ef.read_bytes())
+                found = pix_merge(found, rec["new"], rec["pst"], {"replace": True}, reg.name, pix_clean)
         feats += found
     out = post.finalize(post.merge_within_markup(feats))
     fc = writer.to_feature_collection(out)
@@ -134,6 +140,7 @@ def main() -> None:
     ap.add_argument("--cache", required=True)
     ap.add_argument("--model-dir")
     ap.add_argument("--tag", default="")
+    ap.add_argument("--orget-tag", default="", help="GEO-ORG3: oof/orget/<tag>/ (scripts/pix_org_et_oof.py fold)")
     ap.add_argument("--org-tag", default="", help="GEO-ORG1: oof/org/<tag>/ (scripts/pix_org_oof.py fold)")
     ap.add_argument("--out")
     args = ap.parse_args()

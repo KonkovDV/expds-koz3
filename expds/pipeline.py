@@ -380,6 +380,22 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
                 raise
             log.exception("%s: pixgbm пропущен", reg.name)
+    if pix.get("org_etgr", False) and (guard is None or guard.left() > 60):
+        # W4 GEO-ORG3 (флаг org_etgr, по умолчанию выключен): EtGr object_poly по бейзлайну организаторов 02
+        # (expds/pix_org_et.py) заменяют кандидатов object_poly/etgr (классику или pix); группа порога etgr_org.
+        try:
+            from . import pix_clean, pix_org_et
+            md = Path(pix.get("model_dir", "models/pixgbm/clean"))
+            if not md.is_absolute():
+                md = Path(__file__).resolve().parents[1] / md
+            est: dict = {}
+            enew = pix_org_et.region_feats(reg, cfg, md / "org", status=est)
+            if enew:
+                feats = pix_merge(feats, enew, est, {"replace": True}, reg.name, pix_clean)
+        except Exception:
+            if os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
+                raise
+            log.exception("%s: org_etgr пропущен", reg.name)
     return feats
 
 
