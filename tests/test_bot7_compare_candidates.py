@@ -171,16 +171,20 @@ def test_cli_md_csv_experiments(tmp_path):
     assert (out / "summary.json").is_file()
     md = (out / "compare.md").read_text(encoding="utf-8")
     assert "candX" in md and "global" in md and "layer" in md
+    assert "| env |" in md or "| candidate | env |" in md
     with (out / "compare.csv").open(encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 2  # global + layer
     assert rows[0]["name"] == "candX"
+    assert "env" in rows[0] and rows[0]["env"] == "unknown"
     summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
     assert summary["results"][0]["liae_kurgany_cross_tp"] >= 1
+    assert summary["results"][0]["env"] == "unknown"
     exp_lines = exp_file.read_text(encoding="utf-8").strip().splitlines()
     assert len(exp_lines) == 2
     assert "compare_candidates:candX" in exp_lines[1]
     assert "deadbeef" in exp_lines[1]
+    assert "env=unknown" in exp_lines[1]
 
 
 def test_evaluate_rule_math():
@@ -195,3 +199,108 @@ def test_evaluate_rule_math():
     scores = {"ALL": 0.30, "li": 0.49, "sp_or": 0.4, "ae": 0.3}
     base = {"ALL": 0.3125, "li": 0.5, "sp_or": 0.4, "ae": 0.3}
     assert abs((scores["ALL"] - base["ALL"]) - (-0.0125)) < 1e-12
+
+def test_resolve_out_default_koz3_and_fallback(tmp_path, monkeypatch):
+    cc = _load_cc()
+    # explicit --out wins
+    got = cc.resolve_out(str(tmp_path / "explicit"))
+    assert got == (tmp_path / "explicit").resolve()
+
+    # KOZ3_OUT set → KOZ3_OUT/compare
+    koz = tmp_path / "koz3out"
+    monkeypatch.setenv("KOZ3_OUT", str(koz))
+    got = cc.resolve_out(None)
+    assert got == (koz / "compare").resolve()
+
+    # KOZ3_OUT unset → ./compare_out (cwd-relative resolve)
+    monkeypatch.delenv("KOZ3_OUT", raising=False)
+    monkeypatch.chdir(tmp_path)
+    got = cc.resolve_out(None)
+    assert got == (tmp_path / "compare_out").resolve()
+
+
+def test_cli_default_out_and_env_column(tmp_path, monkeypatch):
+    gt = fc([
+        feat(sq(X0, Y0), K, "li"),
+        feat(sq(X0 + 80, Y0), K, "ae"),
+    ])
+    gt_path = tmp_path / "gt.geojson"
+    gt_path.write_text(json.dumps(gt, ensure_ascii=False), encoding="utf-8")
+
+    v2 = tmp_path / "v2"
+    _write_cand(v2, [
+        feat(sq(X0, Y0), K, "li", 0.9),
+        feat(sq(X0 + 80, Y0), K, "ae", 0.9),
+    ], sub=None)
+
+    cand_d = tmp_path / "cand_d"
+    _write_cand(cand_d, [
+        feat(sq(X0, Y0), K, "li", 0.9),
+        feat(sq(X0 + 80, Y0), K, "ae", 0.9),
+    ], sub="out_B")
+    cand_h = tmp_path / "cand_h"
+    _write_cand(cand_h, [
+        feat(sq(X0, Y0), K, "li", 0.9),
+        feat(sq(X0 + 80, Y0), K, "ae", 0.9),
+    ], sub="out_B")
+
+    koz = tmp_path / "job"
+    monkeypatch.setenv("KOZ3_OUT", str(koz))
+    # no --out → should land in KOZ3_OUT/compare
+    cmd = [
+        sys.executable, str(SCRIPT),
+        "--gt", str(gt_path),
+        "--v2", str(v2),
+        "--workers", "2",
+        "--labels", "v2like,hostcand",
+        "--env", "docker,host",
+        "--branch", "bots/bot7-compare-candidates",
+        "--sha", "abc1234",
+        "--experiments-row",
+        str(cand_d), str(cand_h),
+    ]
+    proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr + proc.stdout
+    assert "out=" in proc.stdout
+    out = koz / "compare"
+    assert (out / "compare.md").is_file()
+    assert (out / "compare.csv").is_file()
+    md = (out / "compare.md").read_text(encoding="utf-8")
+    assert "| candidate | env |" in md
+    assert "| v2like | docker |" in md
+    assert "| hostcand | host |" in md
+    with (out / "compare.csv").open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    envs = {(r["name"], r["env"]) for r in rows}
+    assert ("v2like", "docker") in envs
+    assert ("hostcand", "host") in envs
+    # also accept path:env form
+    out2 = tmp_path / "out2"
+    cmd2 = [
+        sys.executable, str(SCRIPT),
+        "--gt", str(gt_path),
+        "--v2", str(v2),
+        "--out", str(out2),
+        "--workers", "1",
+        f"dockerA={cand_d}:docker",
+        f"hostB={cand_h}:host",
+    ]
+    proc2 = subprocess.run(cmd2, cwd=str(ROOT), capture_output=True, text=True)
+    assert proc2.returncode == 0, proc2.stderr + proc2.stdout
+    md2 = (out2 / "compare.md").read_text(encoding="utf-8")
+    assert "| dockerA | docker |" in md2
+    assert "| hostB | host |" in md2
+    summary = json.loads((out2 / "summary.json").read_text(encoding="utf-8"))
+    assert summary["results"][0]["env"] == "docker"
+    assert summary["results"][1]["env"] == "host"
+
+
+def test_parse_candidate_spec_windows_safe():
+    cc = _load_cc()
+    lab, path, env = cc.parse_candidate_spec(r"C:\Sloi\pc_jobs\v3e2e\res_v2")
+    assert lab is None and env == "unknown"
+    assert "res_v2" in str(path)
+    lab, path, env = cc.parse_candidate_spec("v2=C:/data/res_v2:docker")
+    assert lab == "v2" and env == "docker"
+    assert str(path).replace("\\", "/").endswith("res_v2") or "res_v2" in str(path)
+

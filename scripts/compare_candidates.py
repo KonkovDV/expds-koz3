@@ -18,6 +18,9 @@
         C:/Sloi/pc_jobs/bot5_v4_off_50f6f27
 
     python scripts/compare_candidates.py ... --experiments-row --experiments-file EXPERIMENTS.csv
+
+    # --out optional: %KOZ3_OUT%/compare или ./compare_out; --env docker,host,... per candidate
+    # candidate may be path, label=path, or path:env / label=path:env (env in {docker,host,unknown})
 """
 from __future__ import annotations
 
@@ -45,6 +48,49 @@ DEFAULT_BASELINE = {
 }
 LAYER_DROP_MAX = 0.01
 MSK = ZoneInfo("Europe/Moscow")
+
+VALID_ENVS = ("docker", "host", "unknown")
+
+
+def resolve_out(out_arg: str | None) -> Path:
+    """--out optional: KOZ3_OUT/compare if set, else ./compare_out. Print resolved path."""
+    if out_arg:
+        out = Path(out_arg)
+    else:
+        koz3 = os.environ.get("KOZ3_OUT")
+        if koz3:
+            out = Path(koz3) / "compare"
+        else:
+            out = Path("compare_out")
+    out = out.resolve()
+    print(f"out={out}")
+    return out
+
+
+def parse_candidate_spec(spec: str) -> tuple[str | None, Path, str]:
+    """Parse path | label=path | path:env | label=path:env.
+
+    env must be docker|host|unknown when taken from a trailing :suffix
+    (avoids eating Windows drive letters like C:\\...).
+    Returns (label_or_None, path, env).
+    """
+    label: str | None = None
+    rest = spec
+    if "=" in spec:
+        label, rest = spec.split("=", 1)
+        label = label.strip() or None
+        rest = rest.strip()
+    env = "unknown"
+    # trailing :env only when suffix is a known env token
+    if ":" in rest:
+        left, right = rest.rsplit(":", 1)
+        if right.strip().lower() in VALID_ENVS and left.strip():
+            # reject bare drive letter "C" as path
+            if not (len(left.strip()) == 1 and left.strip().isalpha()):
+                env = right.strip().lower()
+                rest = left.strip()
+    return label, Path(rest), env
+
 
 # предпочтение layout e2e: out_B (flags-off) > out_A > out > res_* > корень
 _GEOJSON_NAMES = ("result.geojson", "submission.geojson")
@@ -169,6 +215,7 @@ def evaluate_candidate(
     baseline: dict[str, float],
     metric_path: str | None,
     label: str | None = None,
+    env: str = "unknown",
 ) -> dict:
     geo = find_geojson(folder)
     pred = _load_fc(geo)
@@ -179,10 +226,14 @@ def evaluate_candidate(
               for k in ("ALL",) + LAYERS if k in g}
     rule, failed = evaluate_rule(g, baseline)
     name = label or folder.name
+    env_s = (env or "unknown").strip().lower()
+    if env_s not in VALID_ENVS:
+        env_s = "unknown"
     return {
         "name": name,
         "folder": str(folder),
         "geojson": str(geo),
+        "env": env_s,
         "scores": scores,
         "delta_vs_v2": deltas,
         "rule": rule,
@@ -207,10 +258,11 @@ def write_md(results: list[dict], baseline: dict[str, float], out: Path) -> None
         f"ae={_fmt(baseline.get('ae', float('nan')))}",
         f"rule: no layer drops by more than {LAYER_DROP_MAX} vs baseline",
         "",
-        "| candidate | scope | ALL | li | sp_or | ae | ΔALL | rule | li↔ae kurgany |",
-        "|---|---|---:|---:|---:|---:|---:|---|---:|",
+        "| candidate | env | scope | ALL | li | sp_or | ae | ΔALL | rule | li↔ae kurgany |",
+        "|---|---|---|---:|---:|---:|---:|---:|---|---:|",
     ]
     for r in results:
+        env_s = r.get("env", "unknown")
         for scope in SCOPES:
             s = r["scores"][scope]
             d = r["delta_vs_v2"] if scope == "global" else {}
@@ -220,7 +272,7 @@ def write_md(results: list[dict], baseline: dict[str, float], out: Path) -> None
                 rule_s = f"FAIL({','.join(r['rule_failed_layers'])})"
             liae_s = str(r["liae_kurgany_cross_tp"]) if scope == "global" else "—"
             lines.append(
-                f"| {r['name']} | {scope} | {_fmt(s['ALL'])} | {_fmt(s['li'])} | "
+                f"| {r['name']} | {env_s} | {scope} | {_fmt(s['ALL'])} | {_fmt(s['li'])} | "
                 f"{_fmt(s['sp_or'])} | {_fmt(s['ae'])} | {delta_s} | {rule_s} | {liae_s} |"
             )
     lines.append("")
@@ -229,7 +281,7 @@ def write_md(results: list[dict], baseline: dict[str, float], out: Path) -> None
 
 def write_csv(results: list[dict], out: Path) -> None:
     fields = [
-        "name", "scope", "ALL", "li", "sp_or", "ae",
+        "name", "env", "scope", "ALL", "li", "sp_or", "ae",
         "delta_ALL", "delta_li", "delta_sp_or", "delta_ae",
         "rule", "rule_failed_layers", "liae_kurgany_cross_tp", "geojson",
     ]
@@ -242,6 +294,7 @@ def write_csv(results: list[dict], out: Path) -> None:
                 d = r["delta_vs_v2"] if scope == "global" else {}
                 w.writerow({
                     "name": r["name"],
+                    "env": r.get("env", "unknown"),
                     "scope": scope,
                     "ALL": s["ALL"],
                     "li": s["li"],
@@ -269,6 +322,7 @@ def experiments_line(r: dict, branch: str, sha: str, bot: str = "bot7") -> str:
         + (f" fail={','.join(r['rule_failed_layers'])}" if r["rule_failed_layers"] else "")
         + f"; liae_kurgany={r['liae_kurgany_cross_tp']}"
         + f"; layer_ALL={_fmt(r['scores']['layer']['ALL'])}"
+        + f"; env={r.get('env', 'unknown')}"
     )
     return ",".join([
         now,
@@ -304,13 +358,23 @@ def compute_baseline(v2_folder: Path | None, gt: dict, metric_path: str | None,
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("candidates", nargs="+", help="папки mock e2e кандидатов (result.geojson внутри)")
+    ap.add_argument(
+        "candidates", nargs="+",
+        help="папки mock e2e (path | label=path | path:env | label=path:env; env=docker|host|unknown)",
+    )
     ap.add_argument("--gt", required=True, help="эталон mock (FeatureCollection или папка с gt.geojson)")
     ap.add_argument("--v2", default=None, help="папка v2 baseline для per-layer чисел")
     ap.add_argument("--baseline-all", type=float, default=0.3125, help="база ALL (по умолчанию 0.3125)")
     ap.add_argument("--labels", default=None, help="имена кандидатов через запятую (порядок = candidates)")
+    ap.add_argument(
+        "--env", default=None,
+        help="среды кандидатов через запятую (docker|host|unknown; порядок = candidates; default unknown)",
+    )
     ap.add_argument("--metric", default=None, help="materials/compute_metrics.py")
-    ap.add_argument("--out", required=True, help="каталог для compare.md / compare.csv / summary.json")
+    ap.add_argument(
+        "--out", default=None,
+        help="каталог для compare.md/csv/summary.json; default %%KOZ3_OUT%%/compare или ./compare_out",
+    )
     ap.add_argument("--workers", type=int, default=4, help="потоки CPU (cap 4)")
     ap.add_argument("--experiments-row", action="store_true", help="печатать строки EXPERIMENTS.csv")
     ap.add_argument("--experiments-file", default=None, help="дописать строки в этот CSV")
@@ -319,7 +383,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     workers = max(1, min(int(args.workers), 4))
-    out = Path(args.out)
+    out = resolve_out(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     gt_path = Path(args.gt)
@@ -342,24 +406,30 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.v2) if args.v2 else None, gt, metric_path, args.baseline_all
     )
 
-    labels = [x.strip() for x in args.labels.split(",")] if args.labels else None
-    if labels is not None and len(labels) != len(args.candidates):
+    labels_cli = [x.strip() for x in args.labels.split(",")] if args.labels else None
+    envs_cli = [x.strip().lower() for x in args.env.split(",")] if args.env else None
+    if labels_cli is not None and len(labels_cli) != len(args.candidates):
         raise SystemExit("--labels: число имён должно совпадать с числом candidates")
+    if envs_cli is not None and len(envs_cli) != len(args.candidates):
+        raise SystemExit("--env: число значений должно совпадать с числом candidates")
 
-    folders = [Path(c) for c in args.candidates]
     jobs = []
-    for i, folder in enumerate(folders):
-        lab = labels[i] if labels else None
-        jobs.append((folder, lab))
+    for i, spec in enumerate(args.candidates):
+        lab_s, folder, env_s = parse_candidate_spec(spec)
+        if labels_cli is not None:
+            lab_s = labels_cli[i]
+        if envs_cli is not None:
+            env_s = envs_cli[i] if envs_cli[i] in VALID_ENVS else "unknown"
+        jobs.append((folder, lab_s, env_s))
 
     results: list[dict] = [None] * len(jobs)  # type: ignore[list-item]
 
-    def _one(idx_folder_label):
-        idx, folder, lab = idx_folder_label
-        return idx, evaluate_candidate(folder, gt, baseline, metric_path, label=lab)
+    def _one(idx_folder_label_env):
+        idx, folder, lab, env = idx_folder_label_env
+        return idx, evaluate_candidate(folder, gt, baseline, metric_path, label=lab, env=env)
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futs = [pool.submit(_one, (i, f, lab)) for i, (f, lab) in enumerate(jobs)]
+        futs = [pool.submit(_one, (i, f, lab, env)) for i, (f, lab, env) in enumerate(jobs)]
         for fut in as_completed(futs):
             idx, res = fut.result()
             results[idx] = res
@@ -387,7 +457,8 @@ def main(argv: list[str] | None = None) -> int:
     for r in results:
         g = r["scores"]["global"]
         print(
-            f"  {r['name']}: ALL={_fmt(g['ALL'])} Δ={_fmt(r['delta_vs_v2'].get('ALL', float('nan')))} "
+            f"  {r['name']}: env={r.get('env', 'unknown')} ALL={_fmt(g['ALL'])} "
+            f"Δ={_fmt(r['delta_vs_v2'].get('ALL', float('nan')))} "
             f"rule={r['rule']} liae={r['liae_kurgany_cross_tp']}"
         )
     return 0
