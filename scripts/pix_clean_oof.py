@@ -105,6 +105,14 @@ def cmd_compose(args) -> None:
             # его классика остаётся (ключ не попадает в have у pix_merge)
             new = [x for x in rec["new"] if x["class_name"] in cls and x["markup_type"] in maps]
             found = pix_merge(found, new, rec["pst"], pix, reg.name, pix_clean)
+        if args.org_tag:
+            # GEO-ORG1: кандидаты MagGr организаторов заменяют MagGr (классику или pix) своего класса
+            of = Path(args.cache) / "org" / args.org_tag / f"{reg.name}.pkl"
+            if of.exists():
+                rec = pickle.loads(of.read_bytes())
+                ocls = set(pix.get("org_classes", ["finds_points", "object_poly"]))
+                new = [x for x in rec["new"] if x["class_name"] in ocls]
+                found = pix_merge(found, new, rec["pst"], {"replace": True}, reg.name, pix_clean)
         feats += found
     out = post.finalize(post.merge_within_markup(feats))
     fc = writer.to_feature_collection(out)
@@ -126,6 +134,7 @@ def main() -> None:
     ap.add_argument("--cache", required=True)
     ap.add_argument("--model-dir")
     ap.add_argument("--tag", default="")
+    ap.add_argument("--org-tag", default="", help="GEO-ORG1: oof/org/<tag>/ (scripts/pix_org_oof.py fold)")
     ap.add_argument("--out")
     args = ap.parse_args()
     {"classic": cmd_classic, "pix": cmd_pix, "compose": cmd_compose}[args.cmd](args)

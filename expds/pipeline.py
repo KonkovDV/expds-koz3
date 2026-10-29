@@ -368,6 +368,14 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
                    if f["class_name"] in cls]
             feats = pix_merge(feats, new, pst, pix, reg.name, geo_pixgbm)
+            # W4 GEO-ORG1 (флаг org_maggr, по умолчанию выключен): кандидаты MagGr по бейзлайну организаторов 01
+            # (expds/pix_org.py) заменяют кандидатов того же класса maggr; группа порога maggr_org.
+            if impl == "clean" and pix.get("org_maggr", False) and (guard is None or guard.left() > 60):
+                from . import pix_org
+                ost: dict = {}
+                onew = pix_org.region_feats(reg, cfg, md / "org", status=ost)
+                if onew:
+                    feats = pix_merge(feats, onew, ost, {"replace": True}, reg.name, geo_pixgbm)
         except Exception:
             if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
                 raise

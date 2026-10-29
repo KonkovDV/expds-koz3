@@ -298,6 +298,12 @@ backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <и
 budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
                  # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+# W4 (impl="clean" only, all OFF by default; PREREG docs/PREREG_w4_pix_clean.md):
+org_maggr = false            # GEO-ORG1: MagGr candidates per organizer baseline 01 (expds/pix_org.py, models <model_dir>/org)
+org_classes = ["finds_points", "object_poly"]   # which ORG1 classes replace maggr candidates
+org_t_ref = 0.5              # ORG1: parent-score threshold for splitting merged blobs
+org2_band_mode = "rgb"       # GEO-ORG2: "jet" = EtGr scalar from jet palette (needs models trained with --band-mode jet)
+org2_mask = false            # GEO-ORG2: drop non-palette EtGr pixels (needs models trained with --org-mask)
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
 

@@ -176,8 +176,43 @@ def is_color(path: Path) -> bool:
     return "цвет" in path.stem.lower()
 
 
+# GEO-ORG2 (флаги, по умолчанию выключены; см. docs/PREREG_w4_pix_clean.md):
+#   band_mode="jet" — скаляр EtGr = позиция ближайшего цвета шкалы jet вместо оси PCA и яркости;
+#   org_mask=True   — пиксели дальше PALETTE_MAX_DIST от шкалы jet (подписи, рамка) вне маски.
+# Источник идеи — бейзлайн организаторов 02_baseline_etgr_anomalies (29.10.2026).
+OPTS: dict = {"band_mode": "rgb", "org_mask": False}
+ORG2_METHODS = ("etgr",)
+PALETTE_MAX_DIST = 110.0
+
+
+def _jet_lut(n: int = 256) -> np.ndarray:
+    """Шкала jet (те же опорные точки, что у matplotlib), n×3 в единицах 0..255."""
+    x = np.linspace(0.0, 1.0, n)
+    segs = {"r": [(0, 0), (0.35, 0), (0.66, 1), (0.89, 1), (1, 0.5)],
+            "g": [(0, 0), (0.125, 0), (0.375, 1), (0.64, 1), (0.91, 0), (1, 0)],
+            "b": [(0, 0.5), (0.11, 1), (0.34, 1), (0.65, 0), (1, 0)]}
+    cols = [np.interp(x, [a for a, _ in segs[k]], [b for _, b in segs[k]]) for k in "rgb"]
+    return (np.stack(cols, 1) * 255.0).astype(np.float32)
+
+
+def jet_scalar(rgb_u: np.ndarray, chunk: int = 1 << 20) -> tuple[np.ndarray, np.ndarray]:
+    """rgb 3×H×W (0..255) → (позиция на шкале jet 0..1, расстояние до шкалы), оба H×W float32."""
+    from scipy.spatial import cKDTree
+    tree = cKDTree(_jet_lut())
+    H, W = rgb_u.shape[1:]
+    flat = rgb_u.reshape(3, -1)
+    t = np.empty(H * W, np.float32)
+    d = np.empty(H * W, np.float32)
+    for i in range(0, H * W, chunk):
+        dd, ii = tree.query(flat[:, i:i + chunk].T.astype(np.float32))
+        t[i:i + chunk] = ii / 255.0
+        d[i:i + chunk] = dd
+    return t.reshape(H, W), d.reshape(H, W)
+
+
 def prepare(path: str | Path, mt: str, fallback_crs: str | None = None,
-            step_m: float | None = None) -> Prep:
+            step_m: float | None = None, band_mode: str | None = None,
+            org_mask: bool | None = None) -> Prep:
     """Читает растр на рабочей сетке и считает общие для всех признаков слои."""
     import rasterio
     from rasterio.enums import Resampling
@@ -210,18 +245,32 @@ def prepare(path: str | Path, mt: str, fallback_crs: str | None = None,
         data = np.repeat(data, 3, axis=0)
     elif data.shape[0] == 2:
         data = np.concatenate([data, data[1:2]], axis=0)
+    band_mode = OPTS.get("band_mode", "rgb") if band_mode is None else band_mode
+    org_mask = bool(OPTS.get("org_mask", False)) if org_mask is None else bool(org_mask)
+    org2 = mt in ORG2_METHODS and (band_mode == "jet" or org_mask)
     bad = _background(data, alpha)
     if msk is not None:
         bad |= msk
+    jet_t = None
+    if org2:
+        jet_t, jet_d = jet_scalar(data)
+        if org_mask:
+            bad |= jet_d >= PALETTE_MAX_DIST
+        del jet_d
     valid = ~bad & np.all(np.isfinite(data), axis=0)
     del bad
     np.divide(data, 255.0, out=data)
     data[:, ~valid] = 0.0
     rgb = data                      # без копии: на 14 Мпикс это 170 МБ
     del data
-    axis = _pca_axis(rgb, valid)
-    scal = np.tensordot(axis.astype(np.float32), rgb, axes=1)
-    luma = np.tensordot(np.array([0.299, 0.587, 0.114], np.float32), rgb, axes=1)
+    if org2 and band_mode == "jet":
+        scal = np.where(valid, jet_t, 0.0).astype(np.float32)
+        luma = scal                 # jet: без яркости и среднего — оба канала из шкалы
+    else:
+        axis = _pca_axis(rgb, valid)
+        scal = np.tensordot(axis.astype(np.float32), rgb, axes=1)
+        luma = np.tensordot(np.array([0.299, 0.587, 0.114], np.float32), rgb, axes=1)
+    del jet_t
     step = float(abs(transform.a))
     bg = max(2.0, BACKGROUND_M.get(mt, 2.0) / step)
     z = _robust(scal, valid)
@@ -684,7 +733,8 @@ def region_feats(reg, cfg: dict, model_dir, guard=None, status: dict | None = No
                 continue
             t = time.monotonic()
             try:
-                p = prepare(path, mt, crs_region)
+                p = prepare(path, mt, crs_region, band_mode=str(pix.get("org2_band_mode", "rgb")),
+                            org_mask=bool(pix.get("org2_mask", False)))
                 probs = predict_maps(p, {c: models[c] for c in run}, threads,
                                      deadline=time.monotonic() + max(1.0, time_left(pix, guard)))
                 feats = raster_feats(p, probs, dec, reg.name, point_r)

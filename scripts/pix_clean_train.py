@@ -146,12 +146,14 @@ def cmd_sample(args) -> None:
                 if not todo:
                     print(f"  {reg.name} {path.name}: нет разметки своего слоя — пропуск", flush=True)
                     continue
-                out = cache / f"{hashlib.sha256(str(path).encode()).hexdigest()[:16]}_s{args.seed}_v{pc.FEATURE_VERSION}.npz"
+                org2 = "" if (args.band_mode == "rgb" and not args.org_mask) or mt not in pc.ORG2_METHODS \
+                    else f"_{args.band_mode}{'m' if args.org_mask else ''}"
+                out = cache / f"{hashlib.sha256(str(path).encode()).hexdigest()[:16]}_s{args.seed}_v{pc.FEATURE_VERSION}{org2}.npz"
                 if out.exists():
                     index.append(json.loads(out.with_suffix(".json").read_text(encoding="utf-8")))
                     continue
                 t = time.monotonic()
-                p = pc.prepare(path, mt, crs_region)
+                p = pc.prepare(path, mt, crs_region, band_mode=args.band_mode, org_mask=args.org_mask)
                 arrays, info = {}, {"raster": path.name, "region": reg.name, "mt": mt, "file": out.name,
                                     "shape": list(p.shape), "step": p.step, "classes": {}}
                 for cls, files in todo.items():
@@ -222,6 +224,8 @@ def main() -> None:
     s.add_argument("--cache", required=True)
     s.add_argument("--seed", type=int, default=0)
     s.add_argument("--regions", nargs="*", default=None, help="номера участков (по умолчанию все с геофизикой)")
+    s.add_argument("--band-mode", default="rgb", choices=["rgb", "jet"], help="GEO-ORG2: скаляр EtGr")
+    s.add_argument("--org-mask", action="store_true", help="GEO-ORG2: маска «не палитра» для EtGr")
     f = sub.add_parser("fit")
     f.add_argument("--cache", required=True)
     f.add_argument("--out", required=True)
