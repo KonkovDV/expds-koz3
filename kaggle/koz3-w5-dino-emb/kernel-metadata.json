@@ -1,0 +1,3 @@
+{"id": "elenakonkova/koz3-w5-dino-emb", "title": "koz3-w5-dino-emb", "code_file": "dino_emb.py", "language": "python", "kernel_type": "script",
+ "is_private": true, "enable_gpu": true, "enable_tpu": false, "enable_internet": true,
+ "dataset_sources": ["elenakonkova/koz3-w5-cands"], "competition_sources": [], "kernel_sources": []}
