@@ -86,6 +86,8 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
     if post_cfg.get("filter_finds_points"):
         out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
+    if post_cfg.get("geo_convex_hull"):
+        out = post.convex_hull_object_poly(out, post_cfg.get("geo_convex_hull"))
     if post_cfg.get("kurgan_twins"):
         out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
     elif post_cfg.get("kurgan_twins_only"):

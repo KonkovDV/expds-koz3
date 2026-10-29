@@ -376,6 +376,8 @@ model = "models/rerank_arch_lgbm.txt"
 meta = "models/rerank_arch_lgbm.json"
 
 # [post]
+# Выпуклая оболочка object_poly etgr/terfl (bot-6 GEO.md: LOSO +0,0017, P 0,998; на приёмке П1–П5 у bot-10).
+# geo_convex_hull = true            # или { markups = ["etgr", "terfl"] }
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
 # frac = 0.3
