@@ -214,7 +214,7 @@ def unit_of(by: str):
     return site_family if by == "family" else (lambda r: r)
 
 
-def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = "family"):
+def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = "family", unseen: str = "drop"):
     """Порог группы подбирается на других фолдах и применяется к своему (как cross_family.json).
 
     by="family" — фолд из целых семей: оценка для новых памятников. by="region" — фолд из
@@ -226,11 +226,11 @@ def honest(name: str, new: set[str], optical: set[str], folds_k: int, by: str = 
     curves = LAST_CURVES[name]
     regions = {r for c in curves.values() for r in c.pred_region} | {r for c in curves.values() for r in c.gt_regions}
     folds = family_folds(regions, unit_of(by), None if folds_k < 0 else folds_k)
-    counts, info = honest_counts(curves, folds)
+    counts, info = honest_counts(curves, folds, unseen=unseen)
     scores = [score_counts(counts)[0], score_counts(counts, new)[0], score_counts(counts, optical)[0]]
     unit = "семей" if by == "family" else "участков"
     print(f"{name}, честно ({info['folds']} фолдов {unit}): все {scores[0]:.6f}; 34 новых {scores[1]:.6f}; "
-          f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}", flush=True)
+          f"без лидара {scores[2]:.6f}; без порога выброшено {info['unseen_dropped']}, оставлено {info['unseen_kept']}", flush=True)
     return scores, counts
 
 
@@ -260,6 +260,9 @@ def main() -> None:
     ap.add_argument("--honest-by", choices=("family", "region"), default="family",
                     help="фолды из семей (новые памятники, приёмка) или из участков (соседние планшеты). "
                          "region — только после site_overlap.py на настоящих входах выборки, не на mock_val")
+    ap.add_argument("--honest-unseen", choices=("drop", "keep"), default="drop",
+                    help="группа без порога на обучающих фолдах: drop (как было) или keep (как сдача, уровень ближе к LB). "
+                         "Δ двух вариантов сравнимы, только если у них одинаковое число таких объектов")
     ap.add_argument("--official", action="store_true",
                     help="итоговые баллы полным официальным расчётом (медленно; для сверки)")
     ap.add_argument("--out", default=None, help="JSON с тремя числами, порогами и бутстрепом")
@@ -288,7 +291,7 @@ def main() -> None:
                                                     ensure_ascii=False), encoding="utf-8")
     if args.expect is not None and abs(base[0] - args.expect) > 0.0005:
         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
-    honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
+    honest_b = honest("база", new, optical, args.honest, args.honest_by, args.honest_unseen) if args.honest else None
     swap_li = bool(args.fused or args.mosaic_dir)
     if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment \
             and not args.sp_fusion:
@@ -339,7 +342,7 @@ def main() -> None:
         from expds.metric import paired_bootstrap_counts
         from expds.naming import site_family
 
-        honest_a = honest("опыт", new, optical, args.honest, args.honest_by)
+        honest_a = honest("опыт", new, optical, args.honest, args.honest_by, args.honest_unseen)
         # Бутстреп всегда по семьям: участки одной семьи не независимы при любой единице фолда.
         hboot = paired_bootstrap_counts(honest_a[1], honest_b[1], site_family, args.bootstrap)
         for label, b, a in zip(labels, honest_b[0], honest_a[0]):

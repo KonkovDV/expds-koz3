@@ -154,6 +154,9 @@ def main() -> None:
     ap.add_argument("--lb", type=int, default=2000)
     ap.add_argument("--lb-size", type=int, default=48)
     ap.add_argument("--seeds", type=int, default=5, help="случайных раскладок семей на 10 фолдов")
+    ap.add_argument("--unseen", choices=("drop", "keep"), default="drop",
+                    help="группа без порога на обучающих фолдах: drop — выбросить, keep — оставить целиком "
+                         "(как сдача: etgr/terfl object_poly есть только в Гнёздово, в сдаче их пороги 0,096635/0,0)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     t0 = time.time()
@@ -169,20 +172,20 @@ def main() -> None:
     folds10 = M.family_folds(regions, site_family, 10)
     for nm, cv in variants.items():
         ins = insample_counts(cv)
-        c10, info10 = M.honest_counts(cv, folds10)
+        c10, info10 = M.honest_counts(cv, folds10, unseen=a.unseen)
         canon[nm] = c10
         v = {"preds": int(sum(c.conf.size for c in cv.values())),
              "insample_all": M.score_counts(ins)[0], "insample_new34": M.score_counts(ins, new)[0],
              "honest10_all": M.score_counts(c10)[0], "honest10_new34": M.score_counts(c10, new)[0],
-             "honest10_unseen_dropped": info10["unseen_dropped"]}
+             "honest10_unseen_dropped": info10["unseen_dropped"], "honest10_unseen_kept": info10["unseen_kept"]}
         for k in (5, 20, -1):
-            ck, ik = M.honest_counts(cv, M.family_folds(regions, site_family, None if k < 0 else k))
+            ck, ik = M.honest_counts(cv, M.family_folds(regions, site_family, None if k < 0 else k), unseen=a.unseen)
             if k < 0:
                 lofo[nm] = ck
             v[f"honest{'LOFO' if k < 0 else k}_all"] = M.score_counts(ck)[0]
         v["honest10_random_seeds"] = []
         for s in range(a.seeds):
-            cs, _ = M.honest_counts(cv, random_family_folds(regions, 10, s))
+            cs, _ = M.honest_counts(cv, random_family_folds(regions, 10, s), unseen=a.unseen)
             v["honest10_random_seeds"].append(M.score_counts(cs)[0])
         v["per_class_honest10"] = {c: x for c, x in M.score_counts(c10)[1].items() if x["n_gt"] > 0}
         rep["variants"][nm] = v
