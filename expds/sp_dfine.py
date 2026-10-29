@@ -188,6 +188,9 @@ def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
 
 # ── растр ────────────────────────────────────────────────────────────────────────────────────────────────
 def utm_for(path: Path, fallback_crs: str | None) -> str:
+    """Метрическая CRS сцены: UTM.json участка, если она проецированная; иначе зона UTM по центру растра.
+    bot-6 crsfix (находка bot-9): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
+    сцена строилась с шагом 0,5° вместо 0,5 м (1×1 px, 0 предсказаний). Географическая CRS не берётся."""
     import rasterio
     from pyproj import Transformer
 
@@ -195,8 +198,8 @@ def utm_for(path: Path, fallback_crs: str | None) -> str:
 
     if fallback_crs and not is_geographic(fallback_crs):
         return fallback_crs
-    if fallback_crs:   # страховка: crs_for вне read_utm_json вернул градусы — зона по центру растра
-        log.warning("[crs] %s: CRS %s географическая — беру UTM по центру растра", path.name, fallback_crs)
+    if fallback_crs:   # страховка (bot-7 v3fix + bot-6 crsfix): градусы мимо read_utm_json — зона UTM по центру растра
+        log.warning("[crs] %s: CRS участка %s географическая — сцена в зоне UTM по центру растра", Path(path).name, fallback_crs)
     with rasterio.open(path) as ds:
         lon, lat = Transformer.from_crs(ds.crs, "EPSG:4326", always_xy=True).transform(
             *ds.xy(ds.height // 2, ds.width // 2))
