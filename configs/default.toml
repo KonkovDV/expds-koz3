@@ -409,6 +409,12 @@ min_conf = 0.05
 # Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
+# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+#   enabled = true
+#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
+#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
+#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
 
 # bot-7 (кандидат v3): шлюз городищ DINOv2 bot-5 — заготовка. ВЫКЛ.: нет головы (PCA+LR на всех данных) и порога sp_or_gated.
 [gor_gate]
