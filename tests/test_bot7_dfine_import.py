@@ -227,3 +227,24 @@ def test_gate_packs_sp_dfine_for_pinned_import():
     root = Path(__file__).resolve().parents[1]
     assert "import_dfine" in (root / "expds" / "gor_gate.py").read_text(encoding="utf-8")
     assert 'off.discard("sp_dfine.py")' in (root / "scripts" / "build_submission.py").read_text(encoding="utf-8")
+
+
+def test_check_config_hf_weight_dirs_and_vendored_imports():
+    """каталог весов D-FINE (config.json + model.safetensors) — не FAIL «отсутствует»; без файлов — FAIL."""
+    cs = _cs()
+    for files, want in ((("config.json", "model.safetensors"), "PASS"), (("config.json",), "FAIL")):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("configs/default.toml", '[sp_dfine]\nenabled = true\nweights = ["models/dfine_f0"]\n')
+            for f in files:
+                z.writestr(f"models/dfine_f0/{f}", b"x")
+        got = []
+        orig = cs.report
+        cs.report = lambda lvl, sec, msg, *a, **k: got.append((lvl, sec, msg))
+        try:
+            cs.check_config_static(zipfile.ZipFile(buf))
+        finally:
+            cs.report = orig
+        lv = [g[0] for g in got if g[1] == "config" and ("отсутствуют" in g[2] or "путей к весам" in g[2])]
+        assert lv == [want], got
+        assert not any("models/dfine_f0/model.safetensors" in g[2] for g in got if g[0] == "WARN")
