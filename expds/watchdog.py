@@ -95,6 +95,11 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    if post_cfg.get("big_groups"):
+        # bot-2 bigobj F1, выкл.: крупные маски городищ/фортификаций — своя группа порога (до порогов).
+        bg = _spec(post_cfg["big_groups"])
+        out = post.big_area_groups(out, bg)
+        by_markup = post.big_group_thresholds(by_markup, bg)
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 by_markup)
     out = out + reranked

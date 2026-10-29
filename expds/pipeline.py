@@ -1077,6 +1077,19 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     if calib and markup in set(calib.get("groups") or ()):
         for c in set(calib.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye")):
             floors[c] = min(floors[c], float(calib.get("floor", 0.05)))
+    # [post] big_groups (bot-2 bigobj F1): крупные маски получают свой порог <markup>_big в finish; ранний
+    # пол не выше него, иначе крупные объекты ниже порога родителя срезаются ещё при полигонизации.
+    big = (cfg.get("post") or {}).get("big_groups")
+    if big:
+        from .post import big_group_thresholds
+
+        spec = big if isinstance(big, dict) else {}
+        if not spec.get("groups") or markup in set(spec["groups"]):
+            suffix = str(spec.get("suffix", "_big"))
+            own_big = big_group_thresholds(cfg.get("thresholds_by_markup", {}), spec).get(markup + suffix, {})
+            for c in set(spec.get("classes") or ("gorodishcha", "fortifikatsii")):
+                if c in own_big:
+                    floors[c] = min(floors[c], float(own_big[c]))
     return floors
 
 

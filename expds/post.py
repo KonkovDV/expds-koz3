@@ -337,8 +337,70 @@ def shape_cores(feats: list[dict], spec: dict) -> list[dict]:
         if not rule or (rule.get("groups") and group not in rule["groups"]):
             out.append(feat)
             continue
+        # bot-2 bigobj F2: min_area_m2 — ядро только у полигонов не мельче (м² на земле); нет ключа — у всех.
+        if rule.get("min_area_m2") and _area_m2(feat["geom"]) < float(rule["min_area_m2"]):
+            out.append(feat)
+            continue
         core = core_of(feat["geom"], float(rule.get("frac", 0.3)), float(rule.get("min_r_m", 0.0)))
         out.append(dict(feat, geom=core) if core is not feat["geom"] else feat)
+    return out
+
+
+def _area_m2(geom: BaseGeometry) -> float:
+    """Площадь на земле, м²: EPSG:3857 с поправкой cos(широты) по середине охвата, иначе как есть."""
+    if geom is None or geom.is_empty:
+        return 0.0
+    minx, miny, maxx, maxy = geom.bounds
+    scale = _ground_scale((miny + maxy) / 2) if abs(maxx) > 1_000_000 else 1.0
+    return geom.area * scale * scale
+
+
+def big_area_groups(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """bot-2 bigobj F1: крупные прогнозы — в свою группу порога. По умолчанию выключено.
+
+    Уверенность масок городищ и фортификаций — пик вероятности экземпляра (infer_nn.probs_to_features),
+    одна шкала у мелкого пятна и у маски на весь памятник; порог группы (sp_or, ae, li_mask …) ставят
+    многочисленные мелкие ложные, и крупные попадания с уверенностью 0,93–0,999 отсекаются
+    (work/bigobj/A/gt_rows.csv: 113 из 204 пропущенных эталонов > 5000 м² — ниже честного порога).
+    Прогноз класса из spec.classes площадью ≥ min_area_m2 (м² на земле) получает threshold_group
+    «<группа><suffix>»; порог такой группы подбирается отдельно (big_group_thresholds).
+    spec = {min_area_m2 = 5000, classes = [gorodishcha, fortifikatsii], groups = [] (все), suffix = "_big"}.
+    Ставить ДО apply_thresholds (порог зависит от группы), геометрию не меняет.
+    """
+    spec = spec or {}
+    min_a = float(spec.get("min_area_m2", 5000.0))
+    suffix = str(spec.get("suffix", "_big"))
+    classes = set(spec.get("classes") or ("gorodishcha", "fortifikatsii"))
+    groups = set(spec.get("groups") or ())
+    out = []
+    for feat in feats:
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        if (feat.get("class_name") in classes and (not groups or group in groups)
+                and not str(group).endswith(suffix) and _area_m2(feat.get("geom")) >= min_a):
+            feat = dict(feat, threshold_group=f"{group}{suffix}")
+        out.append(feat)
+    return out
+
+
+def big_group_thresholds(by_markup: dict | None, spec: dict | None = None) -> dict:
+    """thresholds_by_markup с группами «<g><suffix>» из big_area_groups.
+
+    Свои пороги — из spec.thresholds = {"<g>_big": {класс: tau}}; группы и классы без своего порога
+    наследуют порог родителя <g> (тогда выдача та же, что без F1). Исходный словарь не меняется.
+    """
+    spec = spec or {}
+    suffix = str(spec.get("suffix", "_big"))
+    classes = set(spec.get("classes") or ("gorodishcha", "fortifikatsii"))
+    out = {g: dict(v) for g, v in (by_markup or {}).items()}
+    for g, v in list(out.items()):
+        if g.endswith(suffix):
+            continue
+        own = out.setdefault(f"{g}{suffix}", {})
+        for c in classes:
+            if c in v:
+                own.setdefault(c, v[c])
+    for g, v in (spec.get("thresholds") or {}).items():
+        out.setdefault(g, {}).update({c: float(t) for c, t in v.items()})
     return out
 
 
