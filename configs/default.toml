@@ -381,11 +381,19 @@ kurgan_twins_only = true
 # [post.site_calibration]
 # groups = ["li_cnx"]
 # mode = "mix"
-# Приор кадра: объект у края крупной спутниковой сцены × до 0,5. До порогов; пороги — после oof_transform.py frame.
-# [post.frame_prior]
-# groups = ["sp_or", "sp_focal", "sp_focal2"]
-# d0 = 0.5
-# edge = 0.5
+# Приор кадра без городищ FR1h (аудит d4edf2f post.frame_prior; bot-10 REPORT11_audit.md C3h): объект групп
+# sp_or/sp_focal/sp_focal2 у края спутниковой сцены (scene_drel > d0) × линейно до edge на краю. ВКЛ. в v3: принят
+# ботом 10 в пакет — в порядке сдачи TOFR − TO +0,004042, P 0,999, LOFO +0,004228, 5/5, new34 +0,000464.
+# Шаг ДО порогов (watchdog.finish: после calib/neigh, до sp_score_fusion и apply_thresholds; twins — после порогов),
+# как в замере (xform_frame.py до кривых/порогов, fr_exact.py: пороги → twins). Городища НЕ трогаются (FR1 со всеми
+# классами отклонён: new34 −0,003728, 7 лишних FP городищ). Рамки сцен = bot-10 frame_boxes.json (168/168,
+# bot-7/work6/fr1h/boxes_cmp.out). Пороги sp_* в пакете прежние (в выборке, как в v2), не перенастроены на FR1h.
+# При D-FINE R группы sp_or/sp_focal/sp_focal2 на полностью пройденных SpOr-участках удаляются — там FR1h ничего не меняет.
+[post.frame_prior]
+groups = ["sp_or", "sp_focal", "sp_focal2"]
+classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
+d0 = 0.5
+edge = 0.5
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
@@ -436,17 +444,19 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
-# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
+# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
+# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
 # Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
 #   enabled = true
-#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
-#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
+#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
 #   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log, калиброваны на фолдах под f0) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
+# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
+# и отдельная приёмка бота 10 (OOF у final нет, баллы ниже). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
 # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
 # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
