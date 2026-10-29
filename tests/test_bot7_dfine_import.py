@@ -220,3 +220,10 @@ def test_check_submission_probe_fails_on_broken_vendor(tmp_path):
     cs.check_dfine(_zip(files), {"sp_dfine": {"enabled": True}}, args)
     fails = [m for s, c, m in cs.RESULTS if s == "FAIL" and c == "dfine"]
     assert fails and "SP_DFINE_UNAVAILABLE" in fails[0], cs.RESULTS
+
+
+def test_gate_packs_sp_dfine_for_pinned_import():
+    """gor_gate.load_backbone берёт import_dfine из sp_dfine — сборщик обязан класть sp_dfine.py и при одном шлюзе."""
+    root = Path(__file__).resolve().parents[1]
+    assert "import_dfine" in (root / "expds" / "gor_gate.py").read_text(encoding="utf-8")
+    assert 'off.discard("sp_dfine.py")' in (root / "scripts" / "build_submission.py").read_text(encoding="utf-8")
