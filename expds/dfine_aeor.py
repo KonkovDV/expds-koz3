@@ -58,6 +58,8 @@ DEFAULTS = {
     "fuse": "wbf",                       # wbf | nms — только внутри одного растра
     "fuse_iou": 0.55,
     "nms_iou": 0.5,
+    # "aeor" = last tile pinned to edge (legacy infer); "train" = OOF/sp_dfine grid (overhang OK)
+    "windows_mode": "aeor",
     "fp16": True,
     "min_score": 0.05,                   # пол генерации (ниже порогов OOF)
     "max_det": 100,
@@ -189,8 +191,18 @@ def preflight(cfg: dict, root: Path) -> dict:
 
 
 # ── нарезка ──────────────────────────────────────────────────────────────────────────────────────────────
-def windows(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
-    """Сетка окон как в обучении (sp_dfine.windows), но последний ряд/столбец прижат к краю: покрытие полное."""
+def windows_train(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
+    """Сетка как в Ae FT OOF (koz3-dfine-ae-ft) и sp_dfine.windows: step=tile-overlap,
+    axis=range(0, max(1, n-overlap), step). Последнее окно может выходить за край (pad в Scene.read)."""
+    step = int(tile) - int(overlap)
+    assert step > 0, "overlap >= tile"
+    xs = list(range(0, max(1, int(W) - int(overlap)), step)) or [0]
+    ys = list(range(0, max(1, int(H) - int(overlap)), step)) or [0]
+    return [(x, y) for y in ys for x in xs]
+
+
+def windows_aeor(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
+    """Legacy infer grid: last row/col pinned to n-tile so the window fits inside the raster."""
     step = int(tile) - int(overlap)
     assert step > 0, "overlap >= tile"
 
@@ -204,8 +216,18 @@ def windows(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
     return [(x, y) for y in axis(int(H)) for x in axis(int(W))]
 
 
-def n_windows(W: int, H: int, tile: int, overlap: int) -> int:
-    return len(windows(W, H, tile, overlap))
+def windows(W: int, H: int, tile: int, overlap: int, mode: str = "aeor") -> list[tuple[int, int]]:
+    """Dispatch by windows_mode: "train" (OOF-matched) or "aeor" (legacy pin-edge, default)."""
+    m = (mode or "aeor").lower()
+    if m == "train":
+        return windows_train(W, H, tile, overlap)
+    if m != "aeor":
+        raise ValueError(f"windows_mode must be 'aeor' or 'train', got {mode!r}")
+    return windows_aeor(W, H, tile, overlap)
+
+
+def n_windows(W: int, H: int, tile: int, overlap: int, mode: str = "aeor") -> int:
+    return len(windows(W, H, tile, overlap, mode=mode))
 
 
 # ── слияние внутри одного растра ─────────────────────────────────────────────────────────────────────────
@@ -389,7 +411,7 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
     import torch
 
     T, ov, bs = int(st["tile"][mk]), int(st["overlap"][mk]), int(st["batch"][mk])
-    wins = windows(scene.W, scene.H, T, ov)
+    wins = windows(scene.W, scene.H, T, ov, mode=str(st.get("windows_mode", "aeor")))
     acc = [([], [], []) for _ in range(len(models) * len(flips))]
     buf = np.empty((bs, 3, T, T), dtype=np.float32)   # один буфер на сцену: bs×3×T×T×4 Б (Or: 4×3×1024²×4 = 48 МБ)
     done = 0
@@ -593,7 +615,8 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             sc.close()
             sc = None
             T, ov = int(st["tile"][mk]), int(st["overlap"][mk])
-            tiles = {s: n_windows(math.ceil(W / s), math.ceil(H / s), T, ov) for s in st["scales"]}
+            _wm = str(st.get("windows_mode", "aeor"))
+            tiles = {s: n_windows(math.ceil(W / s), math.ceil(H / s), T, ov, mode=_wm) for s in st["scales"]}
             left = phase_left()
             if guard is not None and hasattr(guard, "window_left"):
                 left = min(left, guard.window_left() - float(getattr(guard, "window_reserve_s", 0) or 0))

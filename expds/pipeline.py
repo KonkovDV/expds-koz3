@@ -1526,6 +1526,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     from .raster import configure_raster_fix
 
     cfg = _ae_rr.apply(cfg)  # bot-3: [ae_recall_relax] default OFF
+    from . import dfine_ae_tile as _ae_tile
+    cfg = _ae_tile.apply(cfg)  # bot-3: [dfine_ae_tile] default OFF (train-matched windows/fuse)
     configure_raster_fix(cfg.get("raster_fix"))  # bot-6: правки чтения снимков, без секции — выключено
     from . import speed
 
