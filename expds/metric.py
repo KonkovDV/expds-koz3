@@ -13,7 +13,7 @@
 Перебираются все различимые пороги, а не сетка; совпадение с полным официальным
 расчётом проверяет verify() (и тест test_metric_exact.py).
 
-    python -m expds.metric score --pred out.geojson --gt work/gt_val.geojson --metric C:/koz3/compute_metrics.py
+    python -m expds.metric score --pred out.geojson --gt work/gt_val.geojson --metric <путь>/compute_metrics.py
     python -m expds.metric sweep --pred cand.geojson --gt work/gt_train.geojson --metric ... \
         --markup li --regions holdout.txt --bootstrap 300 --out configs/thresholds.json
 """

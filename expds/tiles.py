@@ -6,7 +6,7 @@
 
 Маски хранятся битами: бит k = класс meta["classes"][k] (экономия ×5 по диску).
 
-    python -m expds.tiles --root D:/expds3 --gt work/gt_train.geojson --markup li \
+    python -m expds.tiles --root <данные> --gt work/gt_train.geojson --markup li \
         --out work/cache/li --res 0.5 --tile 256
 
 Для li каналы по умолчанию строятся из LAS (lidar.relief_channels) — той же
