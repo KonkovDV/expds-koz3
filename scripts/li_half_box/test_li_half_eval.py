@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Задача 11, поправка 29.10: отбор li_half перекрёстный по классу, якоря li / li_mosaic / li_dev.
+"""Задача 11, поправка 29.10: отбор li_half перекрёстный по классу, якоря li / li_mosaic / li_dev;
+вторичный вариант xnms12 (NMS 12 м внутри новых кругов li_half, перекрёстно по классу).
 Запуск: python test_li_half_eval.py (или pytest); li_half_run.sh запускает его перед оценкой."""
 import sys
 from pathlib import Path
@@ -51,6 +52,24 @@ def test_cross_class_drop_web_mercator():
     near = {"geom": Point(x0 + 1.8, y0).buffer(4.0), "class_name": P, "region_name": R}
     far = {"geom": Point(x0 + 30.0, y0).buffer(4.0), "class_name": P, "region_name": R}
     assert E.drop_near_any([near, far], [a], 12.0) == [far]
+
+
+def test_self_xclass_nms():
+    # вторичный вариант xnms12: внутри новых кругов li_half, любой класс, остаётся более уверенный
+    def c(x, y, cls, conf):
+        return {"geom": Point(x, y).buffer(2.0), "class_name": cls, "region_name": R, "confidence": conf}
+    a = c(500_000.0, 6_000_000.0, P, 0.30)      # тот же круг, другой класс (как пишет half_feats) — вон
+    b = c(500_000.0, 6_000_000.0, T, 0.55)      # самый уверенный — остаётся
+    d = c(500_010.0, 6_000_000.0, P, 0.40)      # 10 м от b — вон
+    e = c(500_000.0, 6_000_013.5, P, 0.10)      # 13,5 м от b — остаётся
+    f = c(500_030.0, 6_000_000.0, T, 0.20)      # далеко — остаётся
+    kept = E.xclass_nms([a, b, d, e, f], 12.0)
+    assert kept == [b, e, f]                    # порядок входа сохраняется
+    assert E.xclass_nms([a, b, d, e, f], 0.0) == [a, b, d, e, f]    # 0 — выкл. (основной вариант H)
+    assert E.xclass_nms([], 12.0) == []
+    # цепочка: x(0,9)→y(0,5 м)→z(0,7, ещё 11 м): y гасится x, z — нет (до x 16 м)
+    x = c(500_000.0, 6_100_000.0, P, 0.9); y = c(500_005.0, 6_100_000.0, T, 0.5); z = c(500_016.0, 6_100_000.0, P, 0.7)
+    assert E.xclass_nms([y, z, x], 12.0) == [z, x]
 
 
 if __name__ == "__main__":
