@@ -25,10 +25,30 @@
 
 | path | loader | статус | source |
 |---|---|---|---|
-| `models/dinov2-small/` | `gor_gate` / `gor_dense` backbone | **pending:** Kaggle `koz3-dfine-ae` / `koz3-dfine-or` outputs (бот 1 захэширует позже); md5 DEFAULTS `ea251be6e151ba8609ad0bc9b2e13a78` | DEFAULTS; не найден под `C:\Sloi` |
-| `models/gor_gate/gor_v3_head.npz` | `gor_gate.load_head` | **pending:** Kaggle / артефакты (md5 DEFAULTS `acb95c52956d712a16c3dd389237a691`) | DEFAULTS |
-| `models/gor_dense/gor_dense_head.npz` | `gor_dense.load_dense_head` | **pending:** Kaggle / export (`head_md5` пуст) | DEFAULTS |
-| `models/dfine_ae/`, `models/dfine_or/` | `dfine_aeor` | **pending:** Kaggle `koz3-dfine-ae` / `koz3-dfine-or` outputs | комментарий `[dfine_aeor]`; флаг **OFF** |
+| `models/dinov2-small/` | `gor_gate` / `gor_dense` backbone | **OK on PC** `C:\Sloi\wt_bot5_50f6f27\models\dinov2-small` (md5 `ea251be6…`); box `/tmp/dinov2-small` | PC bot1; DEFAULTS |
+| `models/gor_gate/gor_v3_head.npz` | `gor_gate.load_head` | **MISSING** — retrain queued (`scripts/gor_heads` @ `19ccc9c`); legacy md5 `acb95c52956d712a16c3dd389237a691`, 407736 B | was koz3_shared / phantom Kaggle |
+| `models/gor_dense/gor_dense_head.npz` | `gor_dense.load_dense_head` | **MISSING** — same retrain; legacy md5 `e35570e10d17edac32bea8d26fa0f5f4`, 204984 B; centre_s=250 | same |
+| `models/dfine_or/dfine_f{0,1,2}/` | `dfine_aeor` (or) | **READY** — see Or table below (Kaggle `koz3-dfine-or`) | SHA256SUMS verified 29.10 |
+| `models/dfine_ae/` | `dfine_aeor` (ae) | **pending** — bot3 fine-tune kernel `koz3-dfine-ae-ft` still running | Kaggle |
+
+
+
+## D-FINE Or (Kaggle `koz3-dfine-or`, pull `/workspace/kaggle/pulls/koz3-dfine-or`) — 29.10.2026
+
+SHA256SUMS recomputed on box: **all OK**. Source: **Kaggle koz3-dfine-or**.
+
+| path | bytes | sha256 |
+|---|---:|---|
+| `models/dfine_or/dfine_f0/model.safetensors` | 125001980 | `82c8a47a2ad0d0b12fd5467b38592d31910114ad4029242d933f2e807c517d9c` |
+| `models/dfine_or/dfine_f1/model.safetensors` | 125001980 | `7fcb58645366819e83f125b0078a5fdc0b4b896f1c2a1b0b3c995820586b6744` |
+| `models/dfine_or/dfine_f2/model.safetensors` | 125001980 | `29dcd3c633c31aa153abe420bde59766de25fa662b4b2b3065f7a78dacd0ed2e` |
+| `models/dfine_or/dfine_f{0,1,2}/config.json` | 4222 | `ff8bb6305c227c5e52ba7f7cc16bf0edaa7a9ac085104452b0aec3b6b9e90789` (identical) |
+| `oof_dfine_or.geojson` | — | `5c8758f33e6c7e1fa79b3dfb9576201a2574dbbe7d72e545838f47ea502fd45f` |
+| `dfine_report.json` | — | `43413de64f7ab153c594ef185efc5b906a8b4a27e96025f1a9b6d8dd77e8ed07` |
+
+**Quality note (from `dfine_report.json` + OOF, not yet honest-10 F1):** 3 folds × 2400 iters, total_sec≈5333 (~1.48 h), peak VRAM 7.76 GB. OOF union `oof_dfine_or.geojson`: **1228** dets (f0=258, f1=940, f2=30). Class mix: arkhitektury 1110, fortifikatsii 50, gorodishcha 44, kurgany_tselye 17, kurgany_povrezhdennye 7. Confidence quartiles ≈ 0.071 / 0.113 / 0.202. Loss last ≈ 26.3 / 31.4 / 26.5. **No platform F1 in kernel report** — needs PC/Kaggle honest eval. Ae still pending (`koz3-dfine-ae-ft`).
+
+**dfine_aeor Or-only:** possible — set `[dfine_aeor] markups = ["or"]` + `weights.or = ["models/dfine_or/dfine_f0", …]` + thresholds for `dfine_or`; leave ae out until FT finishes. Full Ae+Or mock waits for Ae weights.
 
 ## В git (box worktree models/)
 
@@ -60,7 +80,7 @@
 | секция | enabled default | примечание |
 |---|---|---|
 | `[sp_dfine]` | `false` | **отдельный** D-FINE SpOr; веса `dfine_f0` на PC подтверждены; не зависит от `[dfine_aeor]` |
-| `[dfine_aeor]` | `false` | D-FINE Ae/Or; веса **pending** Kaggle |
-| `[gor_gate]` / `[gor_dense]` | `false` | backbone/heads **pending** |
+| `[dfine_aeor]` | `false` | Or weights **READY** (table above); Ae **pending** bot3 FT |
+| `[gor_gate]` / `[gor_dense]` | `false` | backbone OK on PC; heads **retrain queued** @ `19ccc9c` |
 | `[orgate]` | `false` | — |
 | `[geophys.pixgbm]` / `[rerank_arch]` | `true` | PIXGBM sha256 = stub v2 eb268d6 |
