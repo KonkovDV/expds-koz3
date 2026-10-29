@@ -156,6 +156,8 @@ def main() -> None:
                     help="запустить несколько фолдов параллельно на cuda:0 и cuda:1 (2×T4 Kaggle)")
     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
+    ap.add_argument("--predict-only", action="store_true",
+                    help="только предсказание готовыми весами фолдов (с --resume); нет весов фолда — ошибка, без обучения")
     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
     ap.add_argument("--copy-paste", type=float, default=0.0,
                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
@@ -317,6 +319,8 @@ def main() -> None:
             model, done = fc / f"{args.markup}{tag}.pt", fc / f"done{tag}.json"
             if args.resume and done.exists() and model.exists():
                 res = json.loads(done.read_text(encoding="utf-8"))
+            elif args.predict_only:
+                raise SystemExit(f"--predict-only: нет готовых весов {model} / {done}")
             else:
                 train_rows = [r for r in rows if r["family"] not in test]
                 if repeat_regions and args.repeat > 1:
