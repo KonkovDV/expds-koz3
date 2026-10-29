@@ -1,0 +1,30 @@
+29.10 22:15 MSK | coord | acc1 gpu1/2 RUNNING (W2), TPU acc1/acc2 QUEUED, acc2 GPU квота 0, acc2/cpu pixgbm-cleanroom COMPLETE; box CPU занят kurgan (PID 20871); CPU-пул 3 акк свободны (зарезервированы W1/W3/W4, готовых ядер нет); блокер: OOF-стек A/table.pkl на ПК Элены (ПК офлайн)
+- 29.10 22:23 MSK | gpu_watcher | старт; очередь: elenakonkova/koz3-w1-dfine-ae-final, elenakonkova/koz3-w1-dfine-or-final
+- 29.10 22:23 MSK | gpu_watcher | acc1/gpu-1: elenakonkova/koz3-cnx-li-c3sc-s1f4 → KernelWorkerStatus.COMPLETE; аренда W1; push elenakonkova/koz3-w1-dfine-ae-final: Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/elenakonkova/koz3-w1-dfine-ae-final
+- 29.10 22:25 MSK | coord | dmitrijkv/koz3-w4-pixgbm-s3 = NON-CLEANROOM (geo_pixgbm.py от EhimenNathan), research/comparison only, not for archive. По завершении: вывод → w4pix/out2, аренда acc2/cpu снимается.
+- 29.10 22:28 MSK coord: datasets <acc>/koz3-w3-kurgan-cpu-data ready ×3; pushed koz3-w3-kurgan-cpu-seeds v1 on usertest1234 (s11,12), aaaa0000004 (s21,22), aaaadg4gg4g4g (s31,32) — RUNNING; leases <acc>/cpu → bot-W3-bigobj. Box: waiter queued seeds 41,42 after PID 20871.
+- 29.10 22:31 MSK | lease | acquire slot:acc1/gpu-1 → bot-W1-aeor до 30.10 10:31 MSK D-FINE ae final+5 фолдов OOF, push 22:23 gpu_watcher
+- 29.10 22:31 MSK | lease | acquire kernel:elenakonkova/koz3-w1-dfine-ae-final → bot-W1-aeor до 30.10 10:31 MSK 
+- 29.10 22:31 MSK | lease | acquire slot:acc1/gpu-2 → bot-W2-lidar до 30.10 05:01 MSK legacy c3sc s1 f2,f3; далее W1 or-final (gpu_watcher)
+- 29.10 22:31 MSK | lease | acquire kernel:elenakonkova/koz3-cnx-li-c3sc-s1f23 → bot-W2-lidar до 30.10 05:01 MSK legacy-prefix
+- 29.10 22:31 MSK | lease | acquire slot:acc1/tpu → bot-W3-bigobj до 30.10 02:31 MSK QUEUED smoke; проверить нужность
+- 29.10 22:31 MSK | lease | acquire kernel:elenakonkova/koz3-acc2-tpu-smoke → bot-W3-bigobj до 30.10 02:31 MSK legacy-prefix
+- 29.10 22:31 MSK | lease | acquire slot:acc2/tpu → bot-W2-lidar до 30.10 02:31 MSK QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)
+- 29.10 22:31 MSK | lease | acquire kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train → bot-W2-lidar до 30.10 02:31 MSK legacy-prefix
+- 29.10 22:31 MSK | lease | acquire slot:acc2/cpu → bot-W4-gate до 30.10 08:01 MSK PIXGBM s3 NON-CLEANROOM research; cpu_watcher снимет
+- 29.10 22:31 MSK | lease | acquire kernel:dmitrijkv/koz3-w4-pixgbm-s3 → bot-W4-gate до 30.10 08:01 MSK 
+- 29.10 22:31 MSK | lease | acquire slot:usertest1234/cpu → bot-W3-bigobj до 30.10 06:01 MSK kurgan subclass seeds
+- 29.10 22:31 MSK | lease | acquire kernel:usertest1234/koz3-w3-kurgan-cpu-seeds → bot-W3-bigobj до 30.10 06:01 MSK 
+- 29.10 22:31 MSK | lease | acquire dataset:usertest1234/koz3-w3-kurgan-cpu-data → bot-W3-bigobj до 01.11 22:31 MSK 
+- 29.10 22:31 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W3-bigobj до 30.10 06:01 MSK kurgan subclass seeds
+- 29.10 22:31 MSK | lease | acquire kernel:aaaa0000004/koz3-w3-kurgan-cpu-seeds → bot-W3-bigobj до 30.10 06:01 MSK 
+- 29.10 22:31 MSK | lease | acquire dataset:aaaa0000004/koz3-w3-kurgan-cpu-data → bot-W3-bigobj до 01.11 22:31 MSK 
+- 29.10 22:31 MSK | lease | acquire slot:aaaadg4gg4g4g/cpu → bot-W3-bigobj до 30.10 06:01 MSK kurgan subclass seeds
+- 29.10 22:31 MSK | lease | acquire kernel:aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds → bot-W3-bigobj до 30.10 06:01 MSK 
+- 29.10 22:31 MSK | lease | acquire dataset:aaaadg4gg4g4g/koz3-w3-kurgan-cpu-data → bot-W3-bigobj до 01.11 22:31 MSK 
+- 29.10 22:31 MSK | lease | acquire branch:bots/w4-gate → bot-W4-gate до 12.11 22:31 MSK 
+- 29.10 22:31 MSK | lease | acquire branch:bots/w0-rust-speed → coord до 12.11 22:31 MSK бот 1 / w0 executor
+- 29.10 22:31 MSK | lease | acquire branch:bots/orch-protocol → coord до 12.11 22:31 MSK 
+- 29.10 22:31 MSK | lease | acquire branch:bots/w5-rerank → bot-W5-rerank до 12.11 22:31 MSK worktree wt/w5
+- 29.10 22:33 MSK | bot-W5-rerank | заявка в очередь: elenakonkova/koz3-w5-dino-emb (kaggle/koz3-w5-dino-emb @ bots/w5-rerank 8a76da4) → acc1 gpu-1/2 после W1/W2 или CPU-аккаунт; НЕ пушить до cands.csv (нужен stack_arch с ПК)
+- 29.10 22:34 MSK | cpu_watcher | pixgbm-s3 COMPLETE"; STATUS: DONE	2026-10-29T19:28:34Z	wall_s=393.0; вывод w4pix/out2; аренда acc2/cpu снята

@@ -1,0 +1,495 @@
+{
+ "_doc": "Очередь KOZ3 по слотам; правит только coord (бот 1) или под арендой branch:bots/orch-protocol. Время MSK.",
+ "generated": "29.10 22:45 MSK",
+ "deadline": "11.11.2026 (официально 14.11)",
+ "freeze": "10.11 23:59",
+ "quota_reset": [
+  "31.10 03:00 MSK",
+  "07.11 03:00 MSK"
+ ],
+ "queue": [
+  {
+   "id": "S0-g1",
+   "slot_window": "S0",
+   "start_msk": "29.10 22:23",
+   "end_msk": "30.10 04:30",
+   "owner": "W1",
+   "kernel_folder": "bot-W1/kernels/koz3-w1-dfine-ae-final",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [],
+   "review_item": 2,
+   "status": "running",
+   "note": "ae final+5 фолдов OOF"
+  },
+  {
+   "id": "S0-g2",
+   "slot_window": "S0",
+   "start_msk": "29.10 20:10",
+   "end_msk": "30.10 05:00",
+   "owner": "W2",
+   "kernel_folder": "w2/kernels/koz3-cnx-li-c3sc-s1f23 (legacy)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 3,
+   "prerequisites": [],
+   "review_item": 8,
+   "status": "running",
+   "note": "c3sc seed1 f2,f3 → merge s1 → W4"
+  },
+  {
+   "id": "S0-c4",
+   "slot_window": "S0",
+   "start_msk": "29.10 —",
+   "end_msk": "30.10 08:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-pixgbm-s3",
+   "account": "dmitrijkv",
+   "accelerator": "cpu",
+   "est_hours": 9,
+   "prerequisites": [],
+   "review_item": 1,
+   "status": "running",
+   "note": "NON-CLEANROOM, только исследование паритета PIXGBM"
+  },
+  {
+   "id": "S0-c3x",
+   "slot_window": "S0",
+   "start_msk": "—",
+   "end_msk": "30.10 06:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-kurgan-cpu-seeds",
+   "account": "usertest1234,aaaa0000004,aaaadg4gg4g4g",
+   "accelerator": "cpu",
+   "est_hours": 7,
+   "prerequisites": [],
+   "review_item": 9,
+   "status": "running",
+   "note": "сиды 11-32"
+  },
+  {
+   "id": "S0-tpu1",
+   "slot_window": "S0",
+   "start_msk": "QUEUED",
+   "end_msk": "—",
+   "owner": "W3",
+   "kernel_folder": "koz3-acc2-tpu-smoke (legacy)",
+   "account": "elenakonkova",
+   "accelerator": "tpu",
+   "est_hours": 0.5,
+   "prerequisites": [],
+   "review_item": null,
+   "status": "decision",
+   "note": "смоук без цели → бот 1: отменить, если W3 не подтвердит до 23:30"
+  },
+  {
+   "id": "S0-tpu2",
+   "slot_window": "S0",
+   "start_msk": "QUEUED",
+   "end_msk": "—",
+   "owner": "W2",
+   "kernel_folder": "koz3-tpu-cnx-c3sc-train (legacy, внутри smoke c5)",
+   "account": "dmitrijkv",
+   "accelerator": "tpu",
+   "est_hours": 0.5,
+   "prerequisites": [],
+   "review_item": null,
+   "status": "decision",
+   "note": "c5 закрыт решением бота 1 → отменить"
+  },
+  {
+   "id": "S0-box1",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 06:00",
+   "owner": "W4",
+   "kernel_folder": "w4/repo: golden e2e main vs архив v2 (PIXGBM sha, n_raw по ступеням)",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 4,
+   "prerequisites": [
+    "архив v2 на box",
+    "table.pkl/OOF-стек A с ПК (ПК offline!)"
+   ],
+   "review_item": 1,
+   "status": "planned",
+   "note": "ПЕРВЫЙ на критическом пути; без него сабмитов нет"
+  },
+  {
+   "id": "S0-box2",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 03:00",
+   "owner": "W0",
+   "kernel_folder": "w0: профиль инференс-постпроцесса (тайлинг/полигонизация/dedup) + docker 30-мин тайминг",
+   "account": "box",
+   "accelerator": "cpu x2",
+   "est_hours": 3,
+   "prerequisites": [
+    "wt/w0"
+   ],
+   "review_item": "perf",
+   "status": "planned",
+   "note": "Rust-кандидаты для инференса"
+  },
+  {
+   "id": "S0-box3",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 02:00",
+   "owner": "W4",
+   "kernel_folder": "item14 same-markup dedup + item12 gate с весами состава (CPU, OOF-only)",
+   "account": "box",
+   "accelerator": "cpu x1",
+   "est_hours": 1.5,
+   "prerequisites": [
+    "OOF стека A"
+   ],
+   "review_item": "12,14",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-g1",
+   "slot_window": "S1",
+   "start_msk": "30.10 04:30",
+   "end_msk": "30.10 09:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-dfine-ae-allclass-fix (f4pack 249b86fb + window-grid Fix A/B/C + fort τ0.995)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 3,
+   "prerequisites": [
+    "S0-g1 OOF"
+   ],
+   "review_item": 2,
+   "status": "planned",
+   "note": "калибровка 2–4 GPU-ч"
+  },
+  {
+   "id": "S1-g2",
+   "slot_window": "S1",
+   "start_msk": "30.10 05:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-dfine-or-final (gpu_watcher)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 7,
+   "prerequisites": [
+    "S0-g2 complete"
+   ],
+   "review_item": "2b",
+   "status": "queued",
+   "note": "sp/or ВНЕ архива до согласия gate↔docker; нужен только для разрешения противоречия"
+  },
+  {
+   "id": "S1-c1",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-breakeven (п.3: τ per class×type по F/(4−F) + min-k)",
+   "account": "usertest1234",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "OOF стека A на Kaggle dataset koz3-w4-oofA"
+   ],
+   "review_item": 3,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c2",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-xlayer (п.4: кросс-слойные копии Li→Ae/Sp, Sp↔Or)",
+   "account": "aaaa0000004",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "koz3-w4-oofA"
+   ],
+   "review_item": 4,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c3",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-multihyp+objpoly (п.6, п.10: 2-й микрокруг, object_poly, MagGr 0.05, EtGr)",
+   "account": "aaaadg4gg4g4g",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "koz3-w4-oofA"
+   ],
+   "review_item": "6,10",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c4",
+   "slot_window": "S1",
+   "start_msk": "30.10 08:00",
+   "end_msk": "30.10 14:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-center-snap (п.5: snap к пику DEM/LRM для курганов)",
+   "account": "dmitrijkv",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "S0-c4 освобождает acc2/cpu",
+    "OOF c3sc s0/s1"
+   ],
+   "review_item": 5,
+   "status": "planned",
+   "note": "finds-snap — W4 геофизика на box"
+  },
+  {
+   "id": "S1-box",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 14:00",
+   "owner": "W4",
+   "kernel_folder": "gate: комбинирование рычагов 3/4/6/10/14 + honest-10 + 34 LAS/no-lidar + docker 30 мин",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 4,
+   "prerequisites": [
+    "S0-box1 PASS",
+    "S1-c1..c4"
+   ],
+   "review_item": "3-14",
+   "status": "planned",
+   "note": "кандидат v3a"
+  },
+  {
+   "id": "S2-g1",
+   "slot_window": "S2",
+   "start_msk": "30.10 12:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W5",
+   "kernel_folder": "koz3-w5-dino-embed-smoke (DINOv2-S кропы кандидатов, 1 фолд)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 2,
+   "prerequisites": [
+    "остаток квоты acc1",
+    "список кандидатов OOF A"
+   ],
+   "review_item": 7,
+   "status": "planned",
+   "note": "только если квота acc1 > 2 ч; иначе после 03:00 31.10"
+  },
+  {
+   "id": "S2-c",
+   "slot_window": "S2",
+   "start_msk": "30.10 14:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-gor-fixc (п.9 Fix C: Ae gor area_tau 0.20) + H1-3/K1-3 OOF-оценка",
+   "account": "usertest1234",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "kurgan seeds готовы"
+   ],
+   "review_item": 9,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S2-c2",
+   "slot_window": "S2",
+   "start_msk": "30.10 14:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-cnx-c3sc-merge-s1 + center-snap gate-пакет",
+   "account": "aaaa0000004",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "S0-g2"
+   ],
+   "review_item": "5,8",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "W2-a1g1",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "01.11 00:00",
+   "owner": "W5",
+   "kernel_folder": "koz3-w5-dino-embed (DINOv2-S/B 4 слоя, все кандидаты, 5 фолдов) → LGBM на CPU",
+   "account": "dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [
+    "S2-g1 smoke OK"
+   ],
+   "review_item": 7,
+   "status": "planned",
+   "note": "go/no-go D4 03.11"
+  },
+  {
+   "id": "W2-a1g2",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "02.11 12:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-lidar-heatmap (ConvNeXt-T U-Net, peaks, 5–8 каналов, 5 фолдов)",
+   "account": "dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 20,
+   "prerequisites": [
+    "PREREG W2 п.8"
+   ],
+   "review_item": 8,
+   "status": "planned",
+   "note": "go/no-go D5 04.11 по fold0"
+  },
+  {
+   "id": "W2-a0g1",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "31.10 12:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-sat-recall (п.11) + ae калибровка 2",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 4,
+   "prerequisites": [
+    "S1-g1"
+   ],
+   "review_item": "2,11",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "W2-a0g2",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "02.11 00:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-bigobj-dino (п.9: DINOv2 патчи 2–4 м/пикс + маска, hard-neg)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 8,
+   "prerequisites": [
+    "S2-c Fix C"
+   ],
+   "review_item": 9,
+   "status": "planned",
+   "note": "высокий риск; стоп при LOFO-дисперсии > эффекта"
+  },
+  {
+   "id": "W2-a0g3",
+   "slot_window": "31.10-06.11",
+   "start_msk": "01.11 00:00",
+   "end_msk": "03.11 00:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-copypaste-kurgan (п.13) — только если остаётся квота",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [
+    "D3"
+   ],
+   "review_item": 13,
+   "status": "planned",
+   "note": "впритык"
+  },
+  {
+   "id": "W2-tpu",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "05.11",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-cnx-tpu (обучение CNX c3sc сид2 на TPU, если код TPU-готов)",
+   "account": "dmitrijkv,elenakonkova",
+   "accelerator": "tpu",
+   "est_hours": 20,
+   "prerequisites": [
+    "смоук пройден"
+   ],
+   "review_item": 8,
+   "status": "planned",
+   "note": "иначе TPU простаивает — допустимо"
+  },
+  {
+   "id": "W2-cpu",
+   "slot_window": "31.10-06.11",
+   "start_msk": "ежедневно",
+   "end_msk": "—",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-gate-* (ночные honest-10 пакеты, LGBM-реранкер на эмбеддингах)",
+   "account": "5 CPU-акков по аренде",
+   "accelerator": "cpu",
+   "est_hours": 40,
+   "prerequisites": [],
+   "review_item": "7,12",
+   "status": "planned",
+   "note": ">=1 CPU-ядро всегда занято gate-ом"
+  },
+  {
+   "id": "W3-g",
+   "slot_window": "07.11-10.11",
+   "start_msk": "07.11 03:00",
+   "end_msk": "09.11 12:00",
+   "owner": "W1/W2/W5",
+   "kernel_folder": "финальные переобучения на всём трейне победивших вариантов (final weights)",
+   "account": "elenakonkova,dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 30,
+   "prerequisites": [
+    "D6 решение 07.11"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "только то, что прошло gate до 06.11"
+  },
+  {
+   "id": "W3-box",
+   "slot_window": "07.11-10.11",
+   "start_msk": "09.11 12:00",
+   "end_msk": "10.11 23:59",
+   "owner": "W4",
+   "kernel_folder": "сборка архивов A и B, docker e2e ≤30 мин, ≤2 ГБ, compliance, freeze",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 12,
+   "prerequisites": [
+    "W3-g"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "code freeze 10.11"
+  },
+  {
+   "id": "FINAL",
+   "slot_window": "11.11",
+   "start_msk": "11.11 09:00",
+   "end_msk": "11.11 18:00",
+   "owner": "Elena",
+   "kernel_folder": "сдача A, затем B (финал: 2 успешные сдачи всего)",
+   "account": "—",
+   "accelerator": "—",
+   "est_hours": 0,
+   "prerequisites": [
+    "FREEZE"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "буфер до 14.11 не используем по плану"
+  }
+ ]
+}
