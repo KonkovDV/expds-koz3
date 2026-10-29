@@ -44,7 +44,11 @@ def collect() -> list[Path]:
     seen = set()
     rr = cfg.get("rerank_arch") or {}
     rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
-    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank:
+    pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+    # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+    pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+        if pix.get("enabled") else []
+    for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm:
         if not rel or rel in seen:
             continue
         seen.add(rel)

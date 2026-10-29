@@ -59,15 +59,15 @@ def test_safe_finish_fallback_keeps_stack6(monkeypatch):
     assert calls == ["mp", "ff"] and len(out) == 1
 
 
-def test_candidate_twins_only_off_by_default_and_in_fallback(monkeypatch):
-    """bot-7: в конфиге кандидата kurgan_twins_only выключен; при включении запасная цепочка его тоже делает (dedup ae/li = 0)."""
+def test_candidate_twins_only_on_and_in_fallback(monkeypatch):
+    """bot-7: в конфиге кандидата v2 kurgan_twins_only = true (приёмка bot-10), полный twins выкл.; запасная цепочка его тоже делает (dedup ae/li = 0)."""
     import tomllib
     from pathlib import Path
 
     from expds import post, watchdog
 
     cfg = tomllib.loads((Path(__file__).resolve().parents[1] / "configs" / "default.toml").read_text(encoding="utf-8"))
-    assert not cfg["post"].get("kurgan_twins_only") and not cfg["post"].get("kurgan_twins")
+    assert cfg["post"].get("kurgan_twins_only") is True and not cfg["post"].get("kurgan_twins")
     seen = {}
     monkeypatch.setattr(post, "merge_within_markup", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("boom")))
     monkeypatch.setattr(post, "kurgan_cross_modal_twins", lambda fs, spec: seen.setdefault("spec", spec) and fs)

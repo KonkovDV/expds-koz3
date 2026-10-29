@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import tomllib
@@ -60,6 +61,10 @@ def main() -> None:
     cfg = load_config(args.config)
     for spec in args.set:
         apply_override(cfg, spec)
+    if not any("pixgbm.budget_s" in s for s in args.set) and not os.environ.get("PIXGBM_BUDGET_S"):
+        # срок фазы PIXGBM абсолютный от старта процесса (сдача: 300 с); здесь все участки трейна одним процессом —
+        # без явного --set geophys.pixgbm.budget_s / PIXGBM_BUDGET_S лестница не нужна
+        cfg.setdefault("geophys", {}).setdefault("pixgbm", {})["budget_s"] = 10 ** 9
     guard = TimeGuard(10 ** 9)
     feats: list[dict] = []
     t0 = time.monotonic()

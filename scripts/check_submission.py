@@ -197,6 +197,11 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
                                    ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
+    px = (cfg.get("geophys") or {}).get("pixgbm") or {}   # bot-7 v2: model_dir — папка, нужны poly.txt и finds.txt
+    if any(k == "geophys.pixgbm.model_dir" for k, _ in refs):
+        d = str(px.get("model_dir", "")).rstrip("/")
+        refs = sorted({(k, v) for k, v in refs if k != "geophys.pixgbm.model_dir"} |
+                      ({(f"geophys.pixgbm.model_dir/{f}", f"{d}/{f}") for f in ("poly.txt", "finds.txt")} if px.get("enabled") else set()))
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))]
@@ -258,6 +263,14 @@ def _module_of(rel: str) -> str | None:
             parts = parts[:-1]
         return ".".join(parts)
     return None
+
+
+# Необязательные сторонние пакеты: в коде инференса есть фолбэк без них (не FAIL, если не установлены / нет в lock).
+OPTIONAL_THIRD = {
+    "psutil": "geo_pixgbm.process_t0: ImportError → момент импорта модуля",
+    "tl2cgen": "geo_pixgbm backend=treelite (opt-in): ошибка → lightgbm",
+    "lleaves": "geo_pixgbm backend=lleaves (opt-in, .so через ctypes): ошибка → lightgbm",
+}
 
 
 def scan_imports(root: Path) -> tuple[dict, dict]:
@@ -326,7 +339,8 @@ def scan_imports(root: Path) -> tuple[dict, dict]:
 
 def check_imports_static(root: Path) -> tuple[set, set]:
     info, reach = scan_imports(root)
-    third_reach = set().union(*(info[m][0] for m in reach))
+    third_all = set().union(*(info[m][0] for m in reach))
+    third_reach = third_all - set(OPTIONAL_THIRD)
     fails, warns = [], []
     for m, (_t, _d, net, f) in sorted(info.items()):
         for line, what in net:
@@ -340,6 +354,9 @@ def check_imports_static(root: Path) -> tuple[set, set]:
     if warns:
         report("WARN", "imports", "проверить вручную (вероятно, только обучение): " + "; ".join(warns[:8]))
     report("INFO", "imports", f"сторонние пакеты инференса: {sorted(third_reach)}")
+    opt = sorted(third_all & set(OPTIONAL_THIRD))
+    if opt:
+        report("INFO", "imports", "необязательные (есть фолбэк, не проверяются): " + "; ".join(f"{k} — {OPTIONAL_THIRD[k]}" for k in opt))
     return reach, third_reach
 
 
@@ -378,6 +395,10 @@ try:
     from expds.pipeline import model_specs, model_files
     cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
     for name, sub in (cfg.get("geophys") or {}).items():
+        if name == "pixgbm" and isinstance(sub, dict):     # [geophys.pixgbm] maps — список типов методов, не режим карт
+            if not (isinstance(sub.get("maps", []), list) and all(isinstance(m, str) for m in sub.get("maps", []))):
+                out["cfg"].append(f"geophys.pixgbm.maps={sub.get('maps')!r} — ожидается список типов методов")
+            continue
         if isinstance(sub, dict) and "maps" in sub and sub["maps"] not in MAP_MODES:
             out["cfg"].append(f"geophys.{name}.maps={sub['maps']!r} не из {MAP_MODES} — ValueError, регион без геофизики")
     if "maps" in (cfg.get("geophys") or {}) and cfg["geophys"]["maps"] not in MAP_MODES:
