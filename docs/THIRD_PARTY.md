@@ -30,8 +30,9 @@
 | rasterio | BSD-3-Clause (внутри GDAL — MIT) | растры |
 | laspy, lazrs | BSD-2-Clause; lazrs — MIT [проверить по метаданным пакета] | чтение LAS/LAZ |
 | torch | BSD-3-Clause | нейросети |
-| segmentation-models-pytorch | MIT | U-Net |
-| timm | Apache-2.0 | энкодеры |
+| segmentation-models-pytorch | MIT | U-Net; ConvNeXt-лидар [li_cnx] собран на 0.5.0 |
+| timm | Apache-2.0 | энкодеры; [li_cnx] (ConvNeXt) — 1.0.30 |
+| rvt-py 2.2.1 | Apache-2.0, © 2020 ZRC SAZU and University of Ljubljana, https://github.com/EarthObservation/RVT_py | **вендорен** в `inference/cnx/_deps/rvt` (+ `LICENSE`) и `inference/cnx/wheels/rvt_py-2.2.1-py3-none-any.whl`: подготовка [li_cnx] cnx5 использует только `rvt.vis` (svf/openness); `rvt.blend`/`rvt.tile` (matplotlib, gdal) из cnx_prep не достижимы и не импортируются (проверяет check_submission). В образе пакета нет |
 | lightgbm | MIT | оценщик кандидатов |
 | opencv-python-headless | Apache-2.0 | только тесты паритета |
 
@@ -47,6 +48,7 @@
 | RF-DETR-Seg, все размеры таблицы | В таблице сегментации README стоит Apache-2.0, включая XL и 2XL. Брать файл весов только если карточка этого файла повторяет Apache-2.0. В сдачу не входит |
 | ADAF (Zenodo 15848663) | **Не использовать:** CC BY-SA 4.0. ShareAlike конфликтует с передачей исключительных прав (п. 12.5) |
 | DINOv3 | **Не использовать:** лицензия Meta требует распространять производные на её условиях и сохраняет права Meta. Это мешает передаче исключительных прав (п. 12.5) |
+| ConvNeXt [li_cnx] (bot-9, c3-sc f0/f1) | Обучены нами из ImageNet-инициализации timm (ImageNet-веса для КОЗ разрешены владельцем, 29.10 07:13 МСК). В git не хранятся: сборка берёт их по `inference/cnx/WEIGHTS_MANIFEST.json` со сверкой sha256+size; smoke-веса (c5-in f4, c3-sc f3) — в `never_pack`, в архив не попадают |
 | SegFormer `mit_b*` в segmentation-models-pytorch | **Не использовать:** исходная лицензия NVIDIA на эти веса — только некоммерческое использование |
 
 ## Сторонние данные

@@ -15,3 +15,8 @@ rvt-py 2.2.1 в образе (requirements.lock, docker/Dockerfile) **нет** �
 (зависимости rvt — numpy, scipy; в образе есть). `MANIFEST.json` — sha256 всех файлов каталога;
 check_submission.py сверяет его с архивом. Вендорный `expds` — другой пакет с тем же именем, поэтому
 в процесс пайплайна не импортируется (cnx_prep сам падает, если expds уже импортирован не из vendor).
+
+`WEIGHTS_MANIFEST.json` (не входит в `MANIFEST.json`) — список весов [li_cnx] с sha256/size и `never_pack`
+(smoke-веса). Веса в git не лежат (`models/cnx/` в .gitignore): `scripts/build_submission*.py` берут их по
+этому списку и отказывают при несовпадении sha/size или при попадании never_pack; check_submission сверяет sha
+внутри zip. Пороги — только своя группа `[thresholds_by_markup.li_cnx]` (без неё cnx не выдаёт объектов).

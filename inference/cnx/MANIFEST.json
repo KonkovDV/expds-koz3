@@ -8,7 +8,7 @@
   "wheels/*": "/workspace/koz3_shared/bot-9/for_bot8/wheels"
  },
  "sha256": {
-  "README.md": "02c34d9e0ce812f033ccd6c8cf4f03e1016be3bf221859931091e9b406da340b",
+  "README.md": "59980f447aeae1c734a5e1ac02f83fc24f3adaa4fd78b984e906170289728de9",
   "_deps/rvt/LICENSE": "07dc13df1cbe6112452e71313961857da8ec86aa26f17510578cf85a04b0ad48",
   "_deps/rvt/__init__.py": "b4fa5b7528bdd7f576b69718a30afd4f84472e5102c7cc0c2e44d0e4542e0a3b",
   "_deps/rvt/blend.py": "ed709754f4fd02c3766adfca7dda6bab52b4a30de0ff8d24501fa0ecebcdedcd",
