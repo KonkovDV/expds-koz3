@@ -152,8 +152,11 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
         if not shm_loaded:
             raw_geoms = []
             valid_idx = []
-            for idx, (feature, gdict, gid) in enumerate(todo_feats):
-                g = mod._extract_geometry(feature)
+            # w0: пакетный разбор (Rust flatten_polygons + shapely.from_ragged_array), побайтно = официальному;
+            # выключается EXPDS_FASTGEOM=0 / EXPDS_BACKEND=numpy / без собранного expds_core
+            from . import fastgeom as _fastgeom
+            extracted = _fastgeom.extract_many(mod, [t[0] for t in todo_feats])
+            for idx, g in enumerate(extracted):
                 if g is not None:
                     raw_geoms.append(g)
                     valid_idx.append(idx)
@@ -162,10 +165,16 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
                     proj_geoms = raw_geoms
                 else:
                     proj_geoms = list(raw_geoms)
-                    need_idx = [
-                        k_i for k_i, g in enumerate(raw_geoms)
-                        if mode == "webmercator" or mod._geom_max_abs_x(g) > mod._UTM_ABS_X_THRESHOLD
-                    ]
+                    if mode == "webmercator":
+                        need_idx = list(range(len(raw_geoms)))
+                    elif _fastgeom.enabled():
+                        need_idx = np.flatnonzero(
+                            _fastgeom.max_abs_x(raw_geoms) > mod._UTM_ABS_X_THRESHOLD).tolist()
+                    else:
+                        need_idx = [
+                            k_i for k_i, g in enumerate(raw_geoms)
+                            if mod._geom_max_abs_x(g) > mod._UTM_ABS_X_THRESHOLD
+                        ]
                     if need_idx:
                         try:
                             sub_raw = [raw_geoms[k_i] for k_i in need_idx]
@@ -179,9 +188,12 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
                                 z_mask = np.nonzero(epsgs == epsg)[0]
                                 tr = mod._get_transformer_3857_to_utm(int(epsg))
                                 z_geoms = [sub_raw[z_i] for z_i in z_mask]
-                                z_proj = shapely.transform(
-                                    z_geoms, lambda c, _tr=tr: np.column_stack(_tr.transform(c[:, 0], c[:, 1]))
-                                )
+                                if _fastgeom.enabled():
+                                    z_proj = shapely.transform(z_geoms, _fastgeom.utm_coords_fn(tr, int(epsg)))
+                                else:
+                                    z_proj = shapely.transform(
+                                        z_geoms, lambda c, _tr=tr: np.column_stack(_tr.transform(c[:, 0], c[:, 1]))
+                                    )
                                 for z_i, pg in zip(z_mask, z_proj):
                                     proj_geoms[need_idx[z_i]] = pg
                         except Exception:
