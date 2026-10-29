@@ -389,11 +389,14 @@ kurgan_twins_only = true
 # классами отклонён: new34 −0,003728, 7 лишних FP городищ). Рамки сцен = bot-10 frame_boxes.json (168/168,
 # bot-7/work6/fr1h/boxes_cmp.out). Пороги sp_* в пакете прежние (в выборке, как в v2), не перенастроены на FR1h.
 # При D-FINE R группы sp_or/sp_focal/sp_focal2 на полностью пройденных SpOr-участках удаляются — там FR1h ничего не меняет.
-[post.frame_prior]
-groups = ["sp_or", "sp_focal", "sp_focal2"]
-classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
-d0 = 0.5
-edge = 0.5
+# W4 (bots/w4-gate): FR1h за флагом, по умолчанию ВЫКЛ (секция включается самим присутствием,
+# ключа enabled в коде нет — expds/watchdog.py:90). Включённая версия — configs/v3_on.toml
+# (build_submission_git.py --config configs/v3_on.toml).
+# [post.frame_prior]
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
+# d0 = 0.5
+# edge = 0.5
 
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
