@@ -34,3 +34,16 @@ def test_option_restores_small_core_not_background(tmp_path, monkeypatch):
     assert not d["valid"][150, 50]                           # большое поле у края кадра — по-прежнему нет данных
     monkeypatch.setenv("PIXGBM_SAT_CORE_M2", "60")           # тот же переключатель для scripts/pixgbm.py
     assert G.load_map(_map(tmp_path), 0.1)["valid"][150, 200]
+
+
+def test_sat_flag_feature_opt_in(tmp_path, monkeypatch):
+    monkeypatch.delenv("PIXGBM_SAT_CORE_M2", raising=False)
+    monkeypatch.delenv("PIXGBM_SAT_FLAG", raising=False)
+    p = _map(tmp_path)
+    rr, cc = np.array([150, 150]), np.array([200, 250])
+    names, _ = G.features_for(G.load_map(p, 0.1, sat_core_max_m2=60), "maggr", rr, cc)
+    assert "sat" not in names                                  # по умолчанию набор признаков прежний
+    d = G.load_map(p, 0.1, sat_core_max_m2=60, sat_flag=True)
+    names, X = G.features_for(d, "maggr", rr, cc)
+    i = names.index("sat")
+    assert X[0, i] == 1 and X[1, i] == 0 and X[0, names.index("sat1.5")] > 0

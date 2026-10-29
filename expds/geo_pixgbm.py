@@ -249,6 +249,14 @@ def sat_core_m2(value=None) -> float:
         return 0.0
 
 
+def sat_flag_on(value=None) -> bool:
+    """Признак насыщения («sat», «sat1.5») в модели: аргумент, иначе env PIXGBM_SAT_FLAG, иначе выкл.
+    Меняет набор признаков → нужен свой extract/train; старые модели берут признаки по имени и не задеты."""
+    if value is None:
+        value = os.environ.get("PIXGBM_SAT_FLAG", "0")
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
 def restore_sat_cores(valid: np.ndarray, sat: np.ndarray, px_m2: float, max_m2: float) -> np.ndarray:
     """Связные пятна насыщения площадью ≤ max_m2, не касающиеся края кадра, возвращаются в данные.
 
@@ -271,7 +279,8 @@ def restore_sat_cores(valid: np.ndarray, sat: np.ndarray, px_m2: float, max_m2: 
     return valid | ok[lab]
 
 
-def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat_core_max_m2=None) -> dict:
+def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat_core_max_m2=None,
+             sat_flag=None) -> dict:
     import rasterio
     from rasterio import features
     from rasterio.windows import Window
@@ -304,8 +313,10 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
             lum[rows], dif[rows], valid[rows], sat[rows] = rgb.mean(0), rgb[0] - rgb[2], v, s_
             del blk, rgb
         T = r.transform @ r.transform.scale(r.width / W, r.height / H)
+        valid0 = valid
         valid = restore_sat_cores(valid, sat, abs(T.a * T.e), sat_core_m2(sat_core_max_m2))
-        del sat
+        satc = valid & ~valid0                       # восстановленные ядра (для признака и диагностики)
+        del valid0
         crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
     up = abs(T.a) / gsd
     if up > 1.3:
@@ -313,9 +324,12 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
         lum = ndi.zoom(lum, up, order=1).astype(np.float32)
         dif = ndi.zoom(dif, up, order=1).astype(np.float32)
         valid = ndi.zoom(valid.astype(np.uint8), up, order=0).astype(bool)
+        sat = ndi.zoom(sat.astype(np.uint8), up, order=0).astype(bool)
+        satc = ndi.zoom(satc.astype(np.uint8), up, order=0).astype(bool)
         h1 = min(lum.shape[0], dif.shape[0], valid.shape[0])
         w1 = min(lum.shape[1], dif.shape[1], valid.shape[1])
         lum, dif, valid = lum[:h1, :w1], dif[:h1, :w1], valid[:h1, :w1]
+        sat, satc = sat[:h1, :w1], satc[:h1, :w1]
         T = T @ T.scale(w0 / w1, h0 / h1)
     nz = np.zeros(lum.shape, bool)
     if crs:
@@ -327,8 +341,11 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
             g = to_crs(noise, WEB_MERCATOR, crs)
             if not g.is_empty:
                 nz = features.rasterize([(g, 1)], out_shape=lum.shape, transform=T, all_touched=True).astype(bool)
-    return dict(z=_robust(lum, valid), zd=_robust(dif, valid), valid=valid, noise=nz, T=T, crs=crs,
-                gsd=float(abs(T.a)))
+    out = dict(z=_robust(lum, valid), zd=_robust(dif, valid), valid=valid, noise=nz, T=T, crs=crs,
+               gsd=float(abs(T.a)), sat=sat, satc=satc)
+    if sat_flag_on(sat_flag):
+        out["sat_feat"] = True
+    return out
 
 
 def _robust(x, valid):
@@ -367,7 +384,7 @@ def _up(coarse, b, y0, x0, h, w):
 
 # ───────────────────────────── признаки ─────────────────────────────
 
-def features_at(zw, zdw, vw, m5, m15, gsd, mt_id, rr, cc) -> dict:
+def features_at(zw, zdw, vw, m5, m15, gsd, mt_id, rr, cc, sw=None) -> dict:
     """Признаки в пикселях (rr, cc) окна. Все входы — окна одного размера."""
     def px(m):
         return max(m / gsd, 0.5)
@@ -437,7 +454,14 @@ def features_at(zw, zdw, vw, m5, m15, gsd, mt_id, rr, cc) -> dict:
     F["zd_hp1.5"] = (dd - m1)[rr, cc]
     F["edge"] = np.minimum(ndi.distance_transform_edt(vw) * gsd, PAD_M)[rr, cc]
     F["mt"] = np.full(len(rr), float(mt_id))
+    if sw is not None:                               # признак насыщения (opt-in): пиксель в ядре и доля ядра в 1,5 м
+        F["sat"] = sw[rr, cc].astype(np.float32)
+        F["sat1.5"] = ndi.uniform_filter(sw.astype(np.float32), max(3, int(round(1.5 / gsd)) | 1))[rr, cc]
     return {k: np.asarray(v, np.float32) for k, v in F.items()}
+
+
+def _satw(d, y0, x0, y1, x1):
+    return d["satc"][y0:y1, x0:x1] if d.get("sat_feat") and d.get("satc") is not None else None
 
 
 def windows(H, W, gsd):
@@ -459,7 +483,7 @@ def features_for(d: dict, mt: str, rows: np.ndarray, cols: np.ndarray):
         h, w = y1 - y0, x1 - x0
         F = features_at(d["z"][y0:y1, x0:x1], d["zd"][y0:y1, x0:x1], d["valid"][y0:y1, x0:x1],
                         _up(c5, b, y0, x0, h, w), _up(c15, b, y0, x0, h, w), d["gsd"], MT_ID[mt],
-                        rows[sel] - y0, cols[sel] - x0)
+                        rows[sel] - y0, cols[sel] - x0, _satw(d, y0, x0, y1, x1))
         if X is None:
             names = list(F)
             X = np.zeros((len(rows), len(names)), np.float32)
@@ -484,7 +508,8 @@ def _feat_window(args):
     rr, cc = rr + ty - y0, cc + tx - x0
     h, ww = y1 - y0, x1 - x0
     F = features_at(d["z"][y0:y1, x0:x1], d["zd"][y0:y1, x0:x1], d["valid"][y0:y1, x0:x1],
-                    _up(c5, b, y0, x0, h, ww), _up(c15, b, y0, x0, h, ww), d["gsd"], MT_ID[mt], rr, cc)
+                    _up(c5, b, y0, x0, h, ww), _up(c15, b, y0, x0, h, ww), d["gsd"], MT_ID[mt], rr, cc,
+                    _satw(d, y0, x0, y1, x1))
     Xs, by = {}, {}
     for k, names in w["names"].items():
         key = tuple(names)
@@ -779,7 +804,8 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
             ran = set()
             step = "classic"
             try:
-                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"))
+                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"),
+                             pix.get("sat_flag"))
                 if not d["crs"]:
                     continue
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
