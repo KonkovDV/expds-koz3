@@ -65,9 +65,13 @@ def load(path: Path, boundary_3857=None) -> dict:
             mask &= rasterize([(g, 1)], out_shape=(H, W), transform=tr, fill=0, dtype=np.uint8) > 0
     if mask.sum() < 100:
         return {"z": None, "path": path}
-    _, (iy, ix) = ndimage.distance_transform_edt(~mask, return_indices=True)
-    vf = v.astype(np.float32)[iy, ix]
-    del iy, ix, v
+    if mask.all():
+        vf = v.astype(np.float32)
+    else:                           # без массива расстояний: на 213 (≈ 1e8 пикс) иначе > 5 ГБ
+        iy, ix = ndimage.distance_transform_edt(~mask, return_distances=False, return_indices=True)
+        vf = v[iy, ix].astype(np.float32)
+        del iy, ix
+    del v
     med = float(np.median(vf[mask]))
     mad = 1.4826 * float(np.median(np.abs(vf[mask] - med))) + 1e-6
     vf -= med
