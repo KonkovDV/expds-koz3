@@ -1,0 +1,17 @@
+{
+ "016_Хога": {
+  "seconds": 23.2,
+  "groups": {
+   "li:kurgany_povrezhdennye": 784,
+   "li:kurgany_tselye": 784
+  }
+ },
+ "018_Курган_Хога": {
+  "seconds": 24.2,
+  "groups": {
+   "li:kurgany_povrezhdennye": 1075,
+   "li:kurgany_tselye": 1075
+  }
+ },
+ "maxrss_mb": 1508.7
+}
