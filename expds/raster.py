@@ -9,6 +9,7 @@ import logging
 import math
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
@@ -164,6 +165,54 @@ def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 1
         px, py = transformer(crs, src).transform(float(x), float(y))
     poly = Point(px, py).buffer(radius_m, quad_segs=max(2, n // 4))
     return to_crs(poly, src, WEB_MERCATOR) if src else poly
+
+
+_radius_ground_cached = lru_cache(maxsize=256)(_radius_in_ground_meters)   # только для circles_3857
+
+
+def circles_3857(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
+    """circle_3857 для массива точек: те же полигоны побитно, но одним вызовом GEOS/PROJ на зону.
+
+    Порядок операций над каждой точкой тот же (PROJ и GEOS считают точки независимо),
+    поэтому координаты совпадают с поштучным вызовом до бита (tests/test_circles_batch.py).
+    """
+    import shapely
+
+    from .crs import transformer, utm_for_lonlat
+
+    px = np.asarray(xs, dtype=np.float64).ravel()
+    py = np.asarray(ys, dtype=np.float64).ravel()
+    if px.size == 0:
+        return []
+    qs = max(2, n // 4)
+    if not crs or _radius_ground_cached(crs):
+        polys = shapely.buffer(shapely.points(px, py), radius_m, quad_segs=qs)
+        if not crs:
+            return list(polys)
+        return list(_transform_many(polys, crs, WEB_MERCATOR))
+    lon, lat = transformer(crs, "EPSG:4326").transform(px, py)
+    zones = [utm_for_lonlat(float(a), float(b)) for a, b in zip(np.atleast_1d(lon), np.atleast_1d(lat))]
+    out = [None] * px.size
+    for z in dict.fromkeys(zones):
+        idx = np.array([i for i, q in enumerate(zones) if q == z])
+        ux, uy = transformer(crs, z).transform(px[idx], py[idx])
+        polys = shapely.buffer(shapely.points(np.asarray(ux, np.float64), np.asarray(uy, np.float64)),
+                               radius_m, quad_segs=qs)
+        for i, g in zip(idx, _transform_many(polys, z, WEB_MERCATOR)):
+            out[i] = g
+    return out
+
+
+def _transform_many(geoms, src: str, dst: str):
+    """to_crs для массива геометрий одним вызовом PROJ."""
+    import shapely
+
+    from .crs import transformer
+
+    if src == dst:
+        return geoms
+    tr = transformer(src, dst)
+    return shapely.transform(np.asarray(geoms, dtype=object), lambda x, y: tr.transform(x, y), interleaved=False)
 
 
 def needs_warp(ds) -> str | None:

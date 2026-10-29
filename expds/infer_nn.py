@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel
+from . import accel, speed
 from .raster import mask_to_polygons
 
 log = logging.getLogger(__name__)
@@ -71,14 +71,30 @@ class Segmenter:
         arch = ck.get("arch") or "Unet"
         arch_kwargs = ck.get("arch_kwargs") or {}
         # Сданные веса без поля arch — тот же U-Net, что и раньше. Другой декодер только из чекпойнта.
-        if arch == "Unet" and not arch_kwargs:
-            self.model = smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
-                                  in_channels=ck["in_channels"], classes=len(self.classes))
-        else:
-            self.model = smp.create_model(arch, encoder_name=ck["encoder"], encoder_weights=None,
-                                          in_channels=ck["in_channels"], classes=len(self.classes),
-                                          **arch_kwargs)
-        self.model.load_state_dict(ck["state_dict"])
+        def build():
+            if arch == "Unet" and not arch_kwargs:
+                return smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
+                                in_channels=ck["in_channels"], classes=len(self.classes))
+            return smp.create_model(arch, encoder_name=ck["encoder"], encoder_weights=None,
+                                    in_channels=ck["in_channels"], classes=len(self.classes),
+                                    **arch_kwargs)
+
+        # speedup-2026-10-28 (харвест 29.10), флаг meta_init ([speed], по умолчанию ВЫКЛ.): сеть строится на
+        # устройстве meta (без случайной инициализации весов, ~0,2 с на модель), веса чекпойнта подставляются
+        # как есть (assign). Если что-то осталось без значения (буфер вне state_dict) или веса не float32
+        # (assign сохранил бы их dtype) — обычный путь.
+        model = None
+        if speed.on("meta_init"):
+            with torch.device("meta"):
+                model = build()
+            model.load_state_dict(ck["state_dict"], assign=True)
+            if any(t.is_meta or (t.is_floating_point() and t.dtype != torch.float32)
+                   for t in (*model.parameters(), *model.buffers())):
+                model = None
+        if model is None:
+            model = build()
+            model.load_state_dict(ck["state_dict"])
+        self.model = model
         self.model.to(self.device).eval()
         self.amp = inference_amp(self.device)
         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
@@ -141,14 +157,25 @@ class Segmenter:
         if xs[-1] + t < w:
             xs.append(w - t)
         pad_h, pad_w = max(0, t - h), max(0, t - w)
-        x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w)))
+        # Флаг no_pad_copy ([speed], по умолчанию ВЫКЛ.): без паддинга np.pad всё равно копирует весь снимок.
+        if speed.on("no_pad_copy") and not (pad_h or pad_w):
+            x_all = np.ascontiguousarray(img)
+        else:
+            x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w)))
         ramp = np.minimum(np.arange(t) + 1, np.arange(t)[::-1] + 1).astype(np.float32)
         weight = np.minimum.outer(ramp, ramp)
         weight /= weight.max()
         coords = [(y, x) for y in ys for x in xs]
         need = x_all.nbytes + (len(self.classes) + 1) * x_all.shape[1] * x_all.shape[2] * 4
-        if self.device.type == "cuda" and need < 0.6 * torch.cuda.mem_get_info(self.device)[0]:
-            return self._predict_on_device(x_all, coords, weight, batch)[:, :h, :w]
+        if self.device.type == "cuda":
+            free = torch.cuda.mem_get_info(self.device)[0]
+            # Слоты — только явно (флаг slot_accum, EXPDS_SPEED_SLOT_ACCUM=1): побитно то же, но на CPU медленнее
+            # цикла, а на CUDA мелкие ядра цикла в основном прячутся за асинхронным проходом сети.
+            if (speed.on("slot_accum") and _slots_ok(ys, xs, t, step)
+                    and need + slot_bytes(len(self.classes), x_all.shape[1:]) < 0.6 * free):
+                return self._predict_on_device_slots(x_all, ys, xs, weight, batch, step)[:, :h, :w]
+            if need < 0.6 * free:
+                return self._predict_on_device(x_all, coords, weight, batch)[:, :h, :w]
         acc = np.zeros((len(self.classes), x_all.shape[1], x_all.shape[2]), np.float32)
         wsum = np.zeros(x_all.shape[1:], np.float32)
         with torch.inference_mode():
@@ -205,6 +232,101 @@ class Segmenter:
                     wsum[y:y + t, x0:x0 + t] += wt
                 s += len(chunk)
         return (acc / wsum.clamp_min(1e-6)).cpu().numpy()
+
+
+    def _predict_on_device_slots(self, x_all: np.ndarray, ys: list[int], xs: list[int], weight: np.ndarray,
+                                 batch: int, step: int) -> np.ndarray:
+        """То же, что _predict_on_device, бит в бит, но без питоновского цикла по окнам.
+
+        Окна строки/столбца с одной чётностью номера не пересекаются (шаг ≥ t/2), последнее
+        добавочное окно у края — свой слот. Поэтому окно батча не складывается, а
+        записывается (index_copy_) в плоскость своего слота: в плоскости у пикселя не
+        больше одного вклада. В конце вклады пикселя суммируются в том же порядке, что
+        и в цикле (окна по строкам, затем по столбцам, начиная с нуля), — сложения
+        float32 те же, результат совпадает побитно. Вместо 3–4 ядер на окно — ≤ 9
+        записей на батч и 9 сборок на снимок.
+        """
+        import torch
+
+        t = self.tile
+        dev = self.device
+        k_cls = len(self.classes)
+        c = k_cls + 1                       # последний канал — сумма весов
+        _, hh, ww = x_all.shape
+        hw = hh * ww
+        sy, cov_y = _axis_slots(ys, t, hh, step)  # слот окна по номеру; слоты пикселя по порядку
+        sx, cov_x = _axis_slots(xs, t, ww, step)
+        x = torch.from_numpy(x_all).to(dev)
+        planes = torch.zeros((10, c, hw), device=dev)   # 3×3 слота + нулевая плоскость
+        wt = torch.from_numpy(weight).to(dev)
+        base = (torch.arange(t, device=dev)[:, None] * ww + torch.arange(t, device=dev)[None, :]).reshape(-1)
+        coords = [(iy, ix) for iy in range(len(ys)) for ix in range(len(xs))]
+        with torch.inference_mode():
+            s = 0
+            while s < len(coords):
+                chunk = coords[s:s + batch]
+                xb = torch.stack([x[:, ys[iy]:ys[iy] + t, xs[ix]:xs[ix] + t] for iy, ix in chunk]).float()
+                xb = xb.div_(255.0).sub_(0.5).div_(0.25)
+                try:
+                    pr = self._forward(xb)
+                except RuntimeError as exc:
+                    del xb
+                    if not self._oom(exc) or batch == 1:
+                        raise
+                    torch.cuda.empty_cache()
+                    batch = max(1, batch // 2)
+                    log.warning("нехватка памяти, батч окон уменьшен до %s", batch)
+                    continue
+                vals = torch.cat([pr * wt, wt.expand(len(chunk), 1, t, t)], dim=1)
+                groups: dict[int, list[int]] = {}
+                for j, (iy, ix) in enumerate(chunk):
+                    groups.setdefault(sy[iy] * 3 + sx[ix], []).append(j)
+                for slot, js in groups.items():
+                    off = torch.tensor([ys[chunk[j][0]] * ww + xs[chunk[j][1]] for j in js], device=dev)
+                    idx = (off[:, None] + base[None, :]).reshape(-1)
+                    sel = vals if len(js) == len(chunk) else vals[torch.tensor(js, device=dev)]
+                    planes[slot].index_copy_(1, idx, sel.permute(1, 0, 2, 3).reshape(c, -1))
+                s += len(chunk)
+            acc = torch.zeros((c, hw), device=dev)
+            for a in range(cov_y.shape[0]):
+                for b in range(cov_x.shape[0]):
+                    ry, rx = cov_y[a], cov_x[b]
+                    n = np.where((ry[:, None] >= 0) & (rx[None, :] >= 0), ry[:, None] * 3 + rx[None, :], 9)
+                    n = torch.from_numpy(n.reshape(1, 1, -1)).to(dev).expand(1, c, hw)
+                    acc += torch.gather(planes, 0, n)[0]
+            del planes
+            acc = acc.view(c, hh, ww)
+        return (acc[:k_cls] / acc[k_cls].clamp_min(1e-6)).cpu().numpy()
+
+
+def _axis_slots(starts: list[int], t: int, n: int, step: int) -> tuple[list[int], np.ndarray]:
+    """Слоты окон одной оси и для каждого пикселя оси — слоты накрывающих его окон по порядку.
+
+    Слот окна — чётность номера, у последнего добавочного окна (не на шаге) — 2.
+    Возвращает (слот окна, массив A×n: слот a-го по порядку окна над пикселем, −1 — нет).
+    """
+    slot = [2 if s0 != i * step else i % 2 for i, s0 in enumerate(starts)]
+    cnt = np.zeros(n, np.int64)
+    cov = np.full((4, n), -1, np.int64)
+    for i, s0 in enumerate(starts):
+        seg = slice(s0, min(s0 + t, n))
+        cov[cnt[seg], np.arange(seg.start, seg.stop)] = slot[i]
+        cnt[seg] += 1
+    a = int(cnt.max()) if n else 1
+    return slot, cov[:max(a, 1)]
+
+
+def _slots_ok(ys: list[int], xs: list[int], t: int, step: int) -> bool:
+    """Слоты применимы, если окна одной чётности не пересекаются: шаг ≥ t/2, все окна на сетке
+    шага, кроме, может быть, последнего (добавочного у края)."""
+    if 2 * step < t:
+        return False
+    return all(s0 == i * step for st in (ys, xs) for i, s0 in enumerate(st[:-1]))
+
+
+def slot_bytes(k_cls: int, shape: tuple[int, int]) -> int:
+    """Память плоскостей слотов: 10 плоскостей и сумма, по (классы + вес) float32."""
+    return 11 * (k_cls + 1) * int(shape[0]) * int(shape[1]) * 4
 
 
 class Ensemble:

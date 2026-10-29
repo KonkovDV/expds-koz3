@@ -491,3 +491,17 @@ enabled = false
 # zero_nodata = true        # объект с внутренней точкой в поле нулей/nodata ≥ zero_nodata_px² выбрасывается (017, 036)
 # zero_nodata_px = 5
 # markups = ["ae"]
+
+[speed]
+# Харвест ветки speedup-2026-10-28 (29.10.2026): ускорения CPU-пути, задуманы побайтно тем же выходом,
+# но на реальных данных/4090 не перемерены — по умолчанию ВЫКЛ. (путь сдачи = v2). Описание флагов —
+# expds/speed.py; env EXPDS_SPEEDUP=1 / EXPDS_SPEED_<ИМЯ>=1 важнее конфига.
+enabled = false
+# meta_init = true      # сеть на meta + assign весов (без случайной инициализации)
+# no_pad_copy = true    # без копии снимка через np.pad, когда паддинг не нужен
+# read_ahead = true     # следующее окно растра читается в фоновом потоке
+# batch_circles = true  # круги точек одним вызовом GEOS/PROJ
+# fast_writer = true    # координаты GeoJSON одним вызовом GEOS
+# fast_channels = true  # fix_channels без repeat + concatenate
+# gdal_threads = true   # GDAL_NUM_THREADS=ALL_CPUS, если не задан
+# slot_accum = true     # CUDA: накопление окон «слотами» (не входит в enabled — только явно)
