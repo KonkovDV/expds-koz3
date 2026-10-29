@@ -1091,12 +1091,12 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     return feats
 
 
-def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
     """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
     from . import sp_dfine
 
     st = sp_dfine.settings(cfg)
-    cache: dict = {}
+    cache = {} if cache is None else cache   # bot-6: общий с dfine_aeor (модели по каталогу весов)
     n = 0
     full: list[str] = []
     for reg in regions:
@@ -1130,6 +1130,48 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
                  before - len(state.snapshot()))
     return n
 
+
+def _dfine_aeor_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
+    """bot-6 (на v3): D-FINE всех классов на Ae/Or, группы dfine_ae/dfine_or, markup_type родной.
+
+    Не готов (preflight: веса/пороги/импорт) → DFINE_AEOR_UNAVAILABLE в журнале, фаза пропущена. Участки — от
+    дешёвых к дорогим; мягкий потолок на каждый участок; потолок фазы [dfine_aeor] budget_s; сторож с запасом.
+    """
+    from . import dfine_aeor
+
+    st = dfine_aeor.settings(cfg)
+    pre = state.note.get("dfine_aeor") or {}
+    if not pre.get("ok"):
+        log.info("dfine_aeor n_det=0 total (не готов: %s)", "; ".join(pre.get("problems") or ["нет preflight"]))
+        return 0
+    cache = {} if cache is None else cache
+    cache["cfg"] = cfg
+    t_start = time.monotonic()
+    phase_left = lambda: float(st["budget_s"]) - (time.monotonic() - t_start)   # noqa: E731
+    n = 0
+    found_all: list[dict] = []
+    for reg in dfine_aeor.order_regions(regions, st["markups"]):
+        if not guard.ok(60) or phase_left() <= 0:
+            log.warning("dfine_aeor: времени не осталось (%s)", reg.name)
+            break
+        if not _soft_ok(guard, "dfine_aeor", f"D-FINE Ae/Or {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found = dfine_aeor.region_feats(
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
+                soft_ok=lambda what, need: _soft_ok(guard, "dfine_aeor", what, need), phase_left=phase_left)
+        except Exception:
+            log.exception("%s: dfine_aeor пропущен", reg.name)
+            found = []
+        found_all += found
+        n += len(found)
+        log.info("dfine_aeor n_det=%d region=%s, прошло %.0f с", len(found), reg.name, guard.elapsed())
+    found_all = dfine_aeor.cap(found_all, int(st["max_objects"]))
+    state.add(found_all)
+    state.note.setdefault("dfine_aeor", {}).update({"n_det": n, "kept": len(found_all),
+                                                    "t_view": cache.get("t_view", {})})
+    log.info("dfine_aeor n_det=%d total, после cap %d, %.0f с", n, len(found_all), time.monotonic() - t_start)
+    return len(found_all)
 
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
@@ -1186,6 +1228,14 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         "budget_s": cfg.get("time", {}).get("budget_s", DEFAULT_BUDGET_S),
         "reserve_s": cfg.get("time", {}).get("reserve_s", 120),
     })
+    if (cfg.get("dfine_aeor") or {}).get("enabled"):
+        from . import dfine_aeor as _dfa   # bot-6: ленивый импорт только при флаге; пороги из thresholds_file → cfg
+
+        try:
+            state.note["dfine_aeor"] = _dfa.preflight(cfg, root)
+        except Exception as exc:  # noqa: BLE001
+            log.error("%s: preflight упал (%s: %s) — фаза пропущена", _dfa.UNAVAILABLE, type(exc).__name__, exc)
+            state.note["dfine_aeor"] = {"ok": False, "problems": [str(exc)[:300]]}
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))
@@ -1284,12 +1334,18 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         _restore_optics_order(state, regions, n_before_optics, optics_by_reg)
+        dfine_cache: dict = {}   # bot-6: общий кэш моделей D-FINE (sp_dfine, dfine_aeor)
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
         if (cfg.get("sp_dfine") or {}).get("enabled"):
             # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
             t_phase = time.monotonic()
-            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
+            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("dfine_aeor") or {}).get("enabled"):
+            # bot-6: D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
+            t_phase = time.monotonic()
+            n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)
+            phases.append(("dfine_aeor", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate
