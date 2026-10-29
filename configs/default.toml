@@ -392,3 +392,20 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 tile = 96
 res = 0.5
 min_conf = 0.05
+
+# bot-8 (LB focus): per-layer TTA / multiscale for U-Net segmenters. Default OFF:
+# missing [tta]/[ms] -> tta=1, ms_scales=[1.0] (byte-identical to eb268d6).
+# Layers (markup keys): ae (aerial), or (ortho), sp_or (satellite).
+# Priority for LB>0.41238: ae (R=0.013) -> or (R=0.14) -> sp_or (R=0.25).
+# Honest note: ae model is fort-only (ae_fort_mask_r18) at tau~0.998; TTA cannot invent
+# kurgan detections — expect small fort/contour gains unless paired with bot3 thresholds/D-FINE.
+# Budget: base LB wall 3m48s; keep total <=20m (~5x). Prefer TTA=4 on ae/or first, then MS.
+# For PC gate only (not default submit):
+# [tta]
+# ae = 4
+# or = 4
+# sp_or = 4
+# [ms]
+# ae = [0.75, 1.0, 1.25]
+# or = [0.75, 1.0, 1.25]
+# sp_or = [0.75, 1.0, 1.25]
