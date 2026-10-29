@@ -29,3 +29,19 @@
 - **V6c** = stack + seed-fused cnx candidates as a new threshold_group `li_cnx`: s0-anchored, conf=(c0+max intersecting
   c1 same family)/2, s1-only dets conf=c1/2. Honest-10 thresholds on the merged stack, paired bootstrap vs A.
 - Gate unchanged: Δ≥0.003, P(Δ>0)≥0.9, no regression (≥−0.001) on new34 and optical. Acceptance only by W4.
+
+## Addendum 2026-10-30 01:20 MSK — WS-RR1 / WS-RR2 / micro-rp resweep (declared before any measurement; script ws_rr.py)
+Scores from nested_w5cnx.npz (V5x). Pairs: micro_circles anchor=rp (w0-seams 5171c35, w0_disk_pairs.pkl `rp`) for
+gorodishcha/arkhitektury/object_poly/fortifikatsii in ALL variants M, RR1, RR2 (kurgans/finds pairs = stack, as A).
+- **M** = A + rp pairs, thresholds re-swept honest-10 (QUEUE w0s-resweep-micro-rp).
+- **RR1** = M + V5x only on mk=li rows: S = α·r̃ + (1−α)·r_b, r_b = percentile of base conf among li rows of the class,
+  r̃ = rr order mapped onto the r_b quantiles of the pool rows (non-pool li rows: r_b; other layers: base conf untouched).
+  α ∈ {0.3, 0.6, 1.0}. Then isotonic p(hit|S) per class×layer(mk) fit on train regions (≥5 hits, else group τ from sweep);
+  keep iff p > F_c/(4−F_c), F_c = train-sweep F1 of class c (break-even); groups unseen in train dropped as before.
+- **RR2** = RR1 scores/calibration + per-(site, class) top-K, K = round(λ·Σp) over that site-class, λ ∈ {1, 1.5, 2}
+  (count-based selection instead of τ; calibration-less classes keep τ).
+- Nested: for outer fold k, α (RR1) and (α, λ) (RR2) chosen by inner honest score over the 9 other folds (train scores
+  inner[k], calibration+τ refit per inner fold), applied to k with outer scores. Reference rows: RR1 with sweep τ (no iso).
+- Gate vs A=0.314615: Δ≥+0.003, P(Δ>0)≥0.9 (paired family bootstrap 2000), per-class ΔF1 floors −0.002 kurgany_povr/
+  tselye/gorodishcha, −0.005 others (classes with <5 GT excluded); new34/optical split reported. Primary = RR2 if it
+  passes, else RR1, else M; Bonferroni ×3 noted (P≥0.967).
