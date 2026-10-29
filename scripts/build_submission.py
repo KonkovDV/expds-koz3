@@ -71,7 +71,11 @@ def collect() -> list[Path]:
     # bot-6: D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
     if ae.get("enabled"):
         w = ae.get("weights") or {}
-        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in v]
+        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in ([v] if isinstance(v, str) else v)]
+        absw = [x for x in wl if Path(str(x)).is_absolute()]
+        if absw:
+            sys.exit(f"[dfine_aeor] weights: абсолютные пути {absw} в архив не пакуются — свяжите их в models/ "
+                     f"(ln -s <каталог bot-9> models/dfine_ae) и укажите относительный путь")
         dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
         if ae.get("thresholds_file"):
             dfm.append(ae["thresholds_file"])

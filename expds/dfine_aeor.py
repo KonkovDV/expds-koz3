@@ -12,7 +12,11 @@
   UTM участка, 0,5 м (WarpedVRT; уменьшение average), RGB uint8 (1 канал → 3 копии, не-uint8 → растяжка 1–99 %),
   pixel_values = x/255 без mean/std. Окно/перекрытие — как при обучении: Ae 640/160, Or 1024/288 (§9).
 * Слияние видов TTA (flip × масштабы × модели) — WBF или NMS строго внутри ОДНОГО растра одной модальности;
-  круги варианта C — тоже внутри растра. Межрастровое слияние делает только общий post.merge_within_markup.
+  круги варианта C — тоже внутри растра. Межрастровое слияние — post.merge_within_markup с ключом
+  (регион, markup, класс, threshold_group): dfine_ae склеивается только с dfine_ae, не с прочими ae
+  (watchdog._aeor_split: своя короткая цепочка; merge_union=true — общая, по умолчанию выкл.).
+* Память: растр никогда не читается целиком — окна WarpedVRT (Scene.read), батч окон в один заранее
+  выделенный float32-буфер (без np.stack/astype-копий), кэш GDAL ограничен ``gdal_cache_mb``.
 * Сторож времени: оценка с/окно-вид (замер на первом растре или ``tile_s``), запас ``safety`` (8×) к остатку
   бюджета фазы (``budget_s``) и TimeGuard; деградация full → без flip → один масштаб → пропуск, с журналом.
 """
@@ -67,6 +71,8 @@ DEFAULTS = {
     "safety": 8.0,                       # оценка × safety ≤ остаток
     "tile_s": None,                      # с на окно-вид на целевой машине; None — замер на первом растре
     "device": "auto",
+    "gdal_cache_mb": 256,                # GDAL_CACHEMAX на время чтения растра (по умолчанию GDAL — 5 % ОЗУ)
+    "merge_union": False,                # True — dfine_* в общей цепочке и склейке с прочими ae/or (не включать)
 }
 _PER_MK = ("res_m", "tile", "overlap", "batch")
 
@@ -102,6 +108,10 @@ def _abs(root: Path, rel) -> Path:
     return p if p.is_absolute() else Path(root) / p
 
 
+#: Имена групп в OOF bot-9 → наши (bot-9 переименует; до тех пор загрузчик принимает оба).
+GROUP_ALIASES = {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
+
+
 def load_thresholds_file(cfg: dict, root: Path) -> dict:
     """Пороги из thresholds_file → cfg[thresholds_by_markup] (только группы dfine_*; ключи TOML главнее).
     Нет файла при заданном пути — AeOrUnavailable с путём."""
@@ -116,6 +126,7 @@ def load_thresholds_file(cfg: dict, root: Path) -> dict:
     tbm = cfg.setdefault("thresholds_by_markup", {})
     used: dict = {}
     for g, thr in data.items():
+        g = GROUP_ALIASES.get(g, g)   # OOF bot-9 называет группы ae_dfine/or_dfine
         if g not in GROUPS.values() or not isinstance(thr, dict):
             continue
         own = tbm.setdefault(g, {})
@@ -373,23 +384,27 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
     T, ov, bs = int(st["tile"][mk]), int(st["overlap"][mk]), int(st["batch"][mk])
     wins = windows(scene.W, scene.H, T, ov)
     acc = [([], [], []) for _ in range(len(models) * len(flips))]
+    buf = np.empty((bs, 3, T, T), dtype=np.float32)   # один буфер на сцену: bs×3×T×T×4 Б (Or: 4×3×1024²×4 = 48 МБ)
     done = 0
     use_amp = bool(st["fp16"]) and getattr(device, "type", str(device)) == "cuda"
     with torch.no_grad():
         for b in range(0, len(wins), bs):
             if not keep_going():
                 break
-            chunk, imgs = [], []
+            chunk = []
             for x, y in wins[b:b + bs]:
-                im = scene.read(x, y, T)
+                im = scene.read(x, y, T)          # одно окно (WarpedVRT), не весь растр
                 if (im.max(2) == 0).mean() > float(st["skip_empty"]):
                     continue
+                buf[len(chunk)] = im.transpose(2, 0, 1)   # uint8 → float32 прямо в буфер батча
                 chunk.append((x, y))
-                imgs.append(im)
+                del im
             done = min(b + bs, len(wins))
-            if not imgs:
+            if not chunk:
                 continue
-            px = torch.from_numpy(np.stack(imgs).transpose(0, 3, 1, 2).astype(np.float32) / 255).to(device)
+            arr = buf[:len(chunk)]
+            arr *= np.float32(1.0 / 255)
+            px = torch.from_numpy(arr).to(device)   # на CPU — тот же буфер, без копии
             v = 0
             for model in models:
                 for flip in flips:
@@ -409,11 +424,61 @@ def detect_scene(models: list, scene, st: dict, mk: str, flips, device, keep_goi
     return out, done, len(wins)
 
 
+class Scene(S.Scene):
+    """Как sp_dfine.Scene (UTM на res_m, WarpedVRT, average при уменьшении, окна RGB uint8), но для сильно
+    уменьшаемых растров (Or 1–3 см → 0,5 м) источник открывается на обзоре GDAL: самом грубом с пикселем
+    ≤ res_m × ovr_max_frac (по умолчанию ½ — усреднение до res_m остаётся). Без этого окно 1024 px на 0,5 м
+    читает ~40 000² пикселей полного разрешения (на 008_Герите Or GDAL просит 718 МБ на один кусок
+    варпа и падает при 2 ГБ). Пока пиксель источника ≥ res_m × frac (Ae, SpOr) — ровно sp_dfine.Scene."""
+
+    def __init__(self, path: Path, crs: str, res_m: float = 0.5, ovr_max_frac: float = 0.5,
+                 warp_mem_mb: int = 64):
+        import rasterio
+        from rasterio.enums import Resampling
+        from rasterio.vrt import WarpedVRT
+        from rasterio.warp import calculate_default_transform
+
+        src = rasterio.open(path)
+        try:
+            src_m = abs(calculate_default_transform(src.crs, crs, src.width, src.height, *src.bounds)[0].a)
+        except Exception:
+            src_m = res_m
+        ovrs = src.overviews(1) if src.count else []
+        lvl = None
+        for i, f in enumerate(ovrs):
+            if src_m * f <= res_m * float(ovr_max_frac):
+                lvl = i
+        self.overview_level, self.src_m = lvl, src_m
+        if lvl is None:
+            src.close()
+            super().__init__(path, crs, res_m)
+            return
+        bounds = src.bounds
+        src.close()
+        self.src = rasterio.open(path, overview_level=lvl)
+        self.crs = crs
+        tr, w, h = calculate_default_transform(self.src.crs, crs, self.src.width, self.src.height, *bounds,
+                                               resolution=res_m)
+        self.vrt = WarpedVRT(self.src, crs=crs, transform=tr, width=w, height=h, resampling=Resampling.average,
+                             nodata=0, warp_mem_limit=int(warp_mem_mb))
+        self.W, self.H, self.T = w, h, tr
+        self.bands = list(range(1, min(3, self.src.count) + 1))
+        self.stretch = None
+        if self.src.dtypes[0] != "uint8":
+            ov = self.src.read(1, out_shape=(min(1024, self.src.height), min(1024, self.src.width)))
+            v = ov[ov > 0]
+            self.stretch = tuple(np.percentile(v, [1, 99])) if v.size else (0, 1)
+
+
 def detect_image(models: list, path: Path, crs: str, st: dict, mk: str, level: str, device,
                  keep_going=lambda: True, scene_cls=None):
     """Виды выбранного уровня одного растра → слитые боксы в пикселях базовой сцены.
     Возвращает (B, L, C, transform базовой сцены, окон сделано, окон всего)."""
-    scene_cls = scene_cls or S.Scene
+    if scene_cls is None:   # настоящий растр: кэш GDAL ограничен (окна WarpedVRT, растр целиком не читается)
+        import rasterio
+
+        with rasterio.Env(GDAL_CACHEMAX=int(st.get("gdal_cache_mb") or 256) * 1024 * 1024):
+            return detect_image(models, path, crs, st, mk, level, device, keep_going, Scene)
     flips, scales = views_at(level, st)
     base_res = float(st["res_m"][mk])
     views: list = []
@@ -474,7 +539,8 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
                  phase_left=lambda: float("inf"), scene_cls=None, loader=None) -> list[dict]:
     """Объекты одного участка. cache — общий словарь прогона (модели, замер с/окно-вид)."""
     st = settings(cfg)
-    scene_cls = scene_cls or S.Scene
+    real = scene_cls is None
+    scene_cls = scene_cls or Scene
     loader = loader or _load
     items = sorted(((mk, p) for mk in st["markups"] if mk in GROUPS
                     for p in (getattr(reg, "rasters", {}) or {}).get(mk, [])), key=lambda t: raster_bytes(t[1]))
@@ -518,7 +584,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
                 return g and phase_left() > 0
             t0 = time.monotonic()
             B, L, C, T0, done, total = detect_image(models, Path(path), crs, st, mk, level, cache.get("device"), ok,
-                                                    scene_cls)
+                                                    None if real else scene_cls)
             dt = time.monotonic() - t0
             flips, _ = views_at(level, st)
             if done:
