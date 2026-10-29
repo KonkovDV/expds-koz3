@@ -1,0 +1,4 @@
+li kurgan rows 1209594 rerank R 1195813 pos 2071 left (valid<0.05) 13781 pos left 15
+lofo folds 103 base keep 0.3336891387354797 {'folds': 103, 'unseen_dropped': 0, 'unseen_kept': 723}
+resume lofo done folds [0, 1, 2, 3, 4]
+EXIT 143 2026-10-29 09:47:43

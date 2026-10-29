@@ -1,0 +1,13 @@
+{
+ "commit": "a0ac2efca20450f91606d6c3b9e7e58d5d032f5f",
+ "sources": {
+  "scripts/gor_patch/extract_feats.py": "adf2e0d2785f1bd8569c55b6d4f096007461f10525ba172d67c53a7111f9c9d5",
+  "scripts/det_train_hf.py": "eb392861b0b3069d2610697cf0ee41e1f45f364bf4676a3f167321a434351ce0"
+ },
+ "kernels": {
+  "koz3-b5-dinov2reg-gorpatch": {
+   "py_sha256": "7c6b8642eb25529b1c73e709921e7b6cd90b11c8dfd6a75ae2df03b1d2e8be0f",
+   "meta_sha256": "57017b419fc815280ea2066e6628b863c36a8143e71e4d47d130930aee8466f4"
+  }
+ }
+}

@@ -222,3 +222,51 @@ koz3-cnx-li-smoke готов к пушу сразу после COMPLETE koz3-dfi
 - **Честная метрика** (paired, k10, global; база A = 0.314615): X (+cnx f23) **−0.0115**, P 0.000, LOFO −0.0111, 0/5 сидов. Xx −0.0104. **f0–f3 вместе** X4 **−0.0114** (P 0.006, CI [−0.0237; −0.0022]), Xx4 −0.0112. П1–П4 ✗ везде, П5 — **не включать**. Сильнее всего страдает f2: −0.108 на участках фолда (повр. FP 193→664).
 - **Пороги честные**: li_cnx подбирается на 9 из 10 k10-фолдов, т. е. leave-family-out (`fam_delta.json`). С f0–f3 подбор идёт по ~20+ семьям, а не по одной, как в f01. Порог повр. 0.30–0.43 при оптимуме по фолдам CNN 0.43–0.45 (in-sample). Дело не в вырожденном переносе порога, а в том, что cnx в виде добавки к стеку проигрывает.
 - **Вывод**: c3sc как добавка (X/Xx) отклонён и на 4 фолдах. Следующий шаг — замена li-курганных групп (`replace_eval/`, раздел ниже).
+
+## 29.10.2026 ~09:10 МСК — c3-f4 ERROR — fork/filelock (бот 9)
+**Что случилось.** koz3-cnx-li-c3-f4: полоса `cuda:1 c3-sc:4` упала на 60-й с при старте воркеров DataLoader:
+`RuntimeError: os.fork is unsafe while filelock is changing descriptor ownership` (filelock 4.2.x, `_api._audit_fork_safety`, Python 3.13).
+Аудит-хук filelock на `os.fork` падает, если **другой поток** сейчас сам внутри fork (`fork_owner_depths`) или меняет владельца
+дескриптора блокировки. Полосы — `threading.Thread`, у каждой DataLoader с `num_workers=2` (fork); в c3-f4 обе полосы стартовали
+одновременно (c3-in ещё строил модель timm/HF с filelock и форкал своих воркеров) → гонка. Полоса `cuda:0 c3-in:4` доработала полностью.
+
+**c3-in:4 валиден и сохранён** (не перезапускать, не перезаписывать): `/workspace/kaggle_out/koz3-cnx-li-c3-f4/`
+— 12000 ит., n_det 2582, Li-only 0.2715 / thr0.3 0.3824 / лучший порог 0.4026; OOF `oof_cnx_c3-in_f4.geojson` (li_cnx, EPSG:3857).
+`oof_cnx_c3-sc.geojson` там пустой — не использовать. Лёгкие копии + README для бота 10: `kaggle/convnext_lidar/c3in_f4_out/`.
+
+**Фикс (`src/convnext_main.py` 6f0087a8… → 3f295186…; бэкап `backup/cnx_pre_forkfix_0905/`).**
+- `FORK_LOCK = threading.RLock()` — один на процесс. Под ним: `build_model` (timm/HF-hub filelock) и новая `make_loader`
+  (создание DataLoader + `iter` + 1-й батч, т. е. fork persistent-воркеров целиком). Соседняя полоса ждёт; `itertools.chain([first], it)` — 1-й батч не теряется.
+- `_mp_ctx`: `CNX_MP_CTX=auto|spawn|fork|0`. **spawn по умолчанию не включается**: ядро — скрипт без main-guard, WinDS живёт в `__main__`;
+  проверено на боксе (torch 2.15, Py 3.13) — spawn-воркер перезапускает весь скрипт как `__mp_main__` (в ядре: pip, S3, полосы…),
+  а лямбда `worker_init_fn` не пиклится (PicklingError). Поэтому auto = spawn только если датасет не из `__main__` (сейчас нет) → иначе
+  fork под FORK_LOCK. Если воркеры не стартовали — повтор с workers=0 (лог + `loader_fallback_error` в отчёте). Workers по умолчанию 2.
+- `worker_init_fn` — функция `_worker_init` вместо лямбды. В отчёт задания: `loader_workers, loader_ctx, loader_fallback_error, loader_lock_wait_s, loader_start_s`.
+- `CNX_SHARING` (опц., напр. `file_system`) → `torch.multiprocessing.set_sharing_strategy`; по умолчанию не меняется (к причине не относится).
+  Фикс-аудит filelock не отключался.
+- Проверка: `tests/test_forklock.py` (2 потока × 50 загрузчиков, fork, 2 воркера + поток с filelock): без замка 22/100 стартов упали
+  ровно этой ошибкой (фолбэк на 0 их спас), с FORK_LOCK 0/100 (`logs/test_forklock_0905.log`). Сухой прогон smoke на новом коде (CPU,
+  `CNX_ITERS=8`, HF offline, ULIM 3,5 ГБ): exit 0, 44,5 с, пик RSS 1 938 116 КБ; 1583 + 394 детекции, 0.0373394759 / 0.0 — как в прогоне 06:37
+  (`logs/dry_run_forkfix_0905.log`). На CPU воркеров нет — путь fork проверен только тестом выше.
+- TPU: `tpu_train.py` заменяет train_job целиком (свой DataLoader), полосы TPU — процессы, не потоки → не трогал. Якоря `convnext_lidar_tpu/build.py`
+  на новом src применяются (проверено), но его проверка «prep собран из того же convnext_main.py» теперь не пройдёт, пока не пересобран prep
+  (prep-ядро перепушивать НЕ нужно — его выход тот же).
+
+**Сборка (`build.py`, e953558d… → 06e372d7…).** `c3-f4` убран из FULL → `DONE = {"c3-f4": "c3-in:4"}` (больше не собирается); новое ядро
+`c3sc-f4` = `c3-sc:4` (одно задание); проверка «20 пар ровно один раз» по FULL+DONE. `CNX_BUILD_ONLY=<slug,…>` — собрать только указанные.
+Пересобраны только (`CNX_BUILD_ONLY=koz3-cnx-li-c3sc-f4,koz3-cnx-li-c3in-f01,koz3-cnx-li-c3in-f23`, `logs/build_forkfix_0905.log`, `logs/sha256_forkfix_0905.txt`):
+| ядро | .py sha256 | metadata sha256 |
+|---|---|---|
+| koz3-cnx-li-c3sc-f4 (новое) | 71ad2bf2d5113a79ef93df5d1f53b728d3ec4097f0e93564577398261d27151d | 0bdc582dc94b4652906a0170e8f231738ebf09a274f95dd6a4779cb5ab995024 |
+| koz3-cnx-li-c3in-f01 | 848893a53b5fa94ad7349921f829cea5ee1ba3a41c3b6ca44e0ef98e5d0e9a2c (было db371496…) | fac9de8f… (без изменений) |
+| koz3-cnx-li-c3in-f23 | 9a54a17bfe94f19ebfb8898b7a98edeb84694aed0b810b9f4c31d952fd185a53 (было 09813454…) | cea408be… (без изменений) |
+Вендор (распакованный tar) и FOLDS — байт-в-байт как в прежних ядрах (отличается только mtime в gzip-заголовке VENDOR_B64). metadata c3sc-f4 = c3sc-f23 кроме id/title/code_file.
+Не пересобраны (старый код, дуальные полосы): c3sc-f01/f23 (отработали), c5in-f01/f23, hold/c5-f4, hold/c5sc-f01, hold/c5sc-f23, smoke, prep, koz3-cnx-li-c3-f4 (оставлен как был, не пушить).
+
+Пуш (бот 1):
+```
+cd /workspace/koz3_shared/bot-9/kaggle/convnext_lidar
+KAGGLE_API_TOKEN=$(cat ~/.kaggle/access_token) ~/.local/bin/kaggle kernels push -p koz3-cnx-li-c3sc-f4
+KAGGLE_API_TOKEN=$(cat ~/.kaggle/access_token) ~/.local/bin/kaggle kernels push -p koz3-cnx-li-c3in-f01   # ImageNet — только замер
+KAGGLE_API_TOKEN=$(cat ~/.kaggle/access_token) ~/.local/bin/kaggle kernels push -p koz3-cnx-li-c3in-f23   # ImageNet — только замер
+```

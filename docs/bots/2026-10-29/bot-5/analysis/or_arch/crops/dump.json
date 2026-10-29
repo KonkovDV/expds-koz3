@@ -1,0 +1,11 @@
+{
+ "crops": 783,
+ "with_crop": 626,
+ "pos": 13,
+ "hits": 20,
+ "regions": 6,
+ "families": 6,
+ "npz": "../analysis/or_arch/crops/or_arch_crops.npz",
+ "bytes": 14437335,
+ "sha256": "6663649d6f85f4486bb64a478665eb489e7d9eabbe89647dff6de1f28972d44c"
+}

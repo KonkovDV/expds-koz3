@@ -1,0 +1,39 @@
+== check_submission: /workspace/koz3_shared/bot-7/work6/dist/submission_bot7cand_v3on_1d6c822.zip (2026-10-29 10:13:36 MSK)
+[PASS] zip       3495 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/roformer/configuration_roformer.py', 'inference/lib/vendor/transformers/models/cohere_compass/configuration_cohere_compass.py', 'inference/lib/vendor/transformers/image_transforms.py', 'inference/lib/vendor/transformers/models/mgp_str/configuration_mgp_str.py', 'inference/lib/vendor/transformers/models/segformer/modeling_segformer.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 638.2 МиБ (669213164 Б), распакованный 735.2 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[FAIL] config    файлы из default.toml отсутствуют в архиве (модель молча выключится, pipeline.py:98-101 на 24bd916): ['sp_dfine.weights[0]=models/dfine_f0']
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pixgbm/all/finds.txt', 'models/pixgbm/all/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/dfine_f0/config.json', 'models/dfine_f0/model.safetensors']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 29 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[INFO] imports   необязательные (есть фолбэк, не проверяются): psutil — geo_pixgbm.process_t0: ImportError → момент импорта модуля; tl2cgen — geo_pixgbm backend=treelite (opt-in): ошибка → lightgbm
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[FAIL] imports   не установлены в /workspace/koz3_shared/bot-8/venv/bin/python: {'transformers': 'не найден'}
+[PASS] imports   все сторонние пакеты закреплены в requirements.lock
+[PASS] weights   15 файлов весов открываются кодом архива на CPU
+[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+[INFO] smoke     запуск: unshare -rn nice -n 10 taskset -c 0 ... (сеть отключена, таймаут 900 с, лимит RSS 2000 МиБ)
+[FAIL] smoke     прогон снят: RSS 2011 МиБ > 2000; хвост лога:
+orm': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 6.5}, 'cgroup_mem_max': None, 'uid': 0, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=1'}
+2026-10-29 10:14:40,431 INFO expds.health: опись входа: {'regions': 1, 'rasters_by_modality': {'ae': 3, 'sp_or': 1}, 'las_files': 0, 'las_region_crs': {}, 'raster_read': {'ok': 4}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 10:14:41,078 INFO expds.geo_pixgbm: pixgbm 103_Гнёздово_Ольшанская: backend=lightgbm потоков=1 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 10:14:41,078 INFO expds.pipeline: лидар оставит оптике 0 с (0.03 ГБ снимков)
+2026-10-29 10:14:41,078 INFO expds.pipeline: 103_Гнёздово_Ольшанская: лидар +0, 0.0 с, прошло 3 с
+2026-10-29 10:17:32,129 INFO expds.pipeline: 103_Гнёздово_Ольшанская: оптика +4, прошло 175 с
+2026-10-29 10:17:47,942 INFO expds.sp_dfine: sp_dfine: transformers 5.21.0 из vendor (/tmp/b8smoke__lqhwe2n/code/inference/lib/vendor/transformers/__init__.py)
+2026-10-29 10:17:51,881 INFO expds.sp_dfine: sp_dfine: моделей 1 на cpu за 19.7 с
+
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=1
+[WARN] dfine     [sp_dfine] включён, а строк «sp_dfine n_det=» в логе нет (во входе нет SpOr?)
+[INFO] smoke     рабочая папка сохранена: /tmp/b8smoke__lqhwe2n
+== ИТОГ: FAIL — FAIL 3, WARN 3, проверок 27, 413.3 с
+watchdog max RSS MB 42 exit 1

@@ -106,3 +106,71 @@ Fast-forward: `bots/bot2-li-real` → 361a9b5, `bots/bot3-backbone` → 49d0200,
 Новые: `bots/bot2-adaf` 7e3639d, `bots/bot2-morph` e918a3b, `bots/bot3-audit` e3c4f41 (порт исправлений аудита, opt-in), `bots/bot5-gor-dense-loc-nodata` 8dfeb0b и `bots/bot5-dinov2reg-nodata` 3fd4743 (пересобраны поверх 82058b8 без `kaggle/gor_dense_inputs.json` — это разметка городищ), `bots/bot7-candidate-v3-nomodels` d420ceb (коммиты eb268d6..9138bff, перенесённые без `models/pixgbm/all/{poly,finds}.txt`; дерево отличается от 9138bff только этими файлами и `MODELS_NOT_IN_GIT.md`).
 
 Не отправлены: оригиналы `bot7-candidate-v2` eb268d6 / `-v3` 9138bff (веса PIXGBM), `bot5-gor-dense-loc` 6984c67 / `bot5-dinov2reg` a0ac2ef (разметка), `bot3-ehimen`, `bot8-cpu-a-speedup` (код EhimenNathan без LICENSE). Ветка аудита `claude/audit-2026-10-29` уже в origin (d4edf2f, содержит 6e26062).
+
+## Дополнение ~12:45 МСК (третья выгрузка 29.10)
+
+Дельта по `bot-*/` (с 28.10, всё, чего ещё не было в `main`): около 900 файлов. Пути `work`→`runs`, `data`→`data_`, `cache`→`cache_`. Ключевое:
+- `bot-3/patches_v4/` (README_v4 и 2 патча);
+- `bot-5/analysis/gor_dense_s59/confirm.json`;
+- `bot-7/work6/` (REPORT_v3, FOR_BOT1_e2e, `pc/pc_e2e_v3.ps1`, `pc/SHA256SUMS`);
+- `bot-1/pc/` (F_EXPDS3_TRASHED, TRASH_RECHECK, HW_PROFILE и др.);
+- `bot-6/AEOR_DETECT.md`, ORGATE, ORGATE_S;
+- `bot-10/REPORT11_audit.md`, `REPORT12_orgate.md`;
+- `bot-2/runs/bigobj/`;
+- общий журнал `docs/research/2026-10-29/EXPERIMENTS_shared.md` (обновлён).
+
+Лог LB `docs/background/LB_SCORING_v2_eb268d6_0.41238.log` и `COMPETITORS_2026-10-29.md` уже были в `main` и не изменились.
+
+**Не выложено:**
+- **Секреты и ключи:**
+  - `bot-1/pc_files/` целиком (в т. ч. `materials/s3_script/` с ключами S3 организаторов);
+  - содержимое конкурентских репо (в т. ч. maratgaliulin-EXpedition);
+  - `kaggle.json`, `kernel-metadata.json`;
+  - 4 исходника Kaggle-ядер с шаблонами ключей: `bot-9/kaggle/bot5/rfdetr/kernels/koz3-b5-rfdetr.py`, gorloc feats/smoke/probe-l12b.OLD.
+- **Встроенные base64-блоки разметки или вендора:** 8 собранных ядер (convnext_lidar c3in-f01/c3sc-f4/c3in-f23, dinov2reg-orcrops, gorloc probe-l12b0/l12a/l24/l12b1).
+- **Код EhimenNathan:**
+  - `bot-8/bench/bench_cpu_a.py`;
+  - `bot-8/patch/bot8-cpu-a-speedup*` (6 файлов);
+  - `bot-2/patch/0001-li-decode*.patch`.
+- **Сторонний код и данные:**
+  - `bot-2/adaf/adaf_src` (исходник ADAF) и `bot-2/adaf/dets`;
+  - `bot-9/.../s3cache`;
+  - `bot-5/.../gor_dense_s59/ckpt`;
+  - `bot-2` morphfast conf*/demli по участкам;
+  - `bot-10/work11/frame_boxes.json`;
+  - `gor_dense_inputs*`;
+  - `DATA_PROTOCOL` (20 файлов);
+  - геоданные json/csv/txt (12).
+- **Копии репо внутри папок ботов** (worktree/снимки): bot-3 audit/wt_*, bot-6 aeor_identity/base, bot-7 work4/mwt и work5/pc/tools/v2, bot-9 parity_bot8, bot-10 work11/wt_audit, audit2_src, work8/b6_78, work13/v2src.
+- **По размеру и типу:**
+  - > 5 МБ: 11 файлов (peaks.json, scores_cand7*.json, cands_*.json);
+  - json > 120 КБ: 66;
+  - логи > 1 МБ: 65;
+  - csv > 200 КБ: 3;
+  - дампы LightGBM: 3;
+  - mbox: 4;
+  - веса, zip, растры, кэши, `.uvcache`, `pytest_tmp`.
+
+### Ветки (push ~12:40, только fast-forward или новые, без force)
+
+- **Fast-forward:**
+  - `bots/bot2-adaf` → 0ce6ffa
+  - `bots/bot6-orsp` → abae911
+  - `bots/bot7-candidate-v3-nomodels` → dd58b4c (= 360c870 без весов)
+  - `bots/bot5-gor-dense-loc-nodata` → 4e815b2 (= 2a2ab5a без разметки)
+  - `bots/bot5-dinov2reg-nodata` → 6002660 (= f7cf5d2)
+- **Новые:**
+  - `bots/bot2-bigobj` 17c04e1
+  - `bots/bot2-li-half` 92448b3
+  - `bots/bot2-morph-fast` 0e1aa3b
+  - `bots/bot3-etgr-union` e0ec0ff
+  - `bots/bot3-opt` 8c86700
+  - `bots/bot8-li-half-pre0002` 1d904f9
+  - `bots/bot7-candidate-v4-nomodels` 26ab418 (= bd1046d)
+  - `bots/bot6-aeor-detect-nomodels` aba432d (= 3617be6)
+  - `bots/bot3-v4-patches-nomodels` 1327e88 (= deafc30)
+- **Не отправлены:**
+  - оригиналы с весами PIXGBM: `bot7-candidate-v2/v3/v4`, `bot6-aeor-detect`, `bot3-v4-patches`;
+  - с разметкой: `bot5-gor-dense-loc`, `bot5-dinov2reg`;
+  - `bot8-cpu-a-speedup` (EhimenNathan).
+- В origin не трогали `feat/aeor-detect-2026-10-29` (6c2511c) — это другая линия.

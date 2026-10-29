@@ -1,0 +1,14 @@
+k10      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011553 rw=+0.007487 | dR unw=+0.002017 rw=+0.003267 | P_rw(A)=0.846 P_rw(R)=0.990 ciR_rw=[0.00023, 0.00813] | P_unw(R)=0.997 sdR_unw=0.00116 sdA_unw=0.00442
+lofo      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011353 rw=+0.015801 | dR unw=+0.003484 rw=+0.013127
+seed0      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.002492 rw=-0.000802 | dR unw=+0.000077 rw=+0.002023
+seed1      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011891 rw=+0.019763 | dR unw=+0.003449 rw=+0.013323
+seed2      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011783 rw=+0.010325 | dR unw=+0.001270 rw=+0.003684
+seed3      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.010736 rw=+0.012210 | dR unw=+0.004468 rw=+0.011595
+seed4      N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.013493 rw=+0.020130 | dR unw=+0.006100 rw=+0.016992
+k10_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011593 rw=+0.007504 | dR unw=+0.002003 rw=+0.003258 | P_rw(A)=0.848 P_rw(R)=0.989 ciR_rw=[0.00022, 0.00811] | P_unw(R)=0.996 sdR_unw=0.00116 sdA_unw=0.00407
+lofo_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.011737 rw=+0.016027 | dR unw=+0.003586 rw=+0.013227
+seed0_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.002576 rw=+0.000467 | dR unw=-0.001316 rw=-0.000128
+seed1_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.010444 rw=+0.016750 | dR unw=+0.003449 rw=+0.013323
+seed2_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.012252 rw=+0.012013 | dR unw=+0.002488 rw=+0.006109
+seed3_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.013140 rw=+0.018965 | dR unw=+0.005030 rw=+0.017652
+seed4_site N=210 big=20 heavyEq=True nonArchEqA=True dA unw=+0.014216 rw=+0.020446 | dR unw=+0.006100 rw=+0.016992

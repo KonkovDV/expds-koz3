@@ -6,6 +6,20 @@ out-of-fold by family (bot-9 `region_fold.json`, folds {0:6, 1:1, 2:13, 3:18, 4:
 bot-9-compatible maps + OOF vectors.
 
 Status: code + CPU smoke test only. Nothing pushed, nothing submitted to Kaggle, no LB.
+
+**Verdict 29.10 (zero-shot, pre-declared): STUB ONLY — a GPU run is NOT recommended.**
+Zero-shot ADAF raw recall@0.05 on our GT: barrow → povr 3.7 %, tselye 3.8 % (AP 0.009 / 0.005);
+enclosure → gorodishcha 69.8 % (AP 0.129), fortifikatsii 1.5 % (AP 0.0001). Added to stack A (0.3146153):
+AB ΔA = −0.00345 (P(Δ>0) 0.015), ABE ΔA = −0.00706 (P 0.000); П1–П4 all fail → «отклонить».
+Per the declaration (barrow recall low and ΔA ≤ 0) this kernel stays a stub with a caveat: the Irish
+barrow prior transfers poorly, so fine-tuning would mostly be training a new lidar detector from a
+COCO-like init, which bot 9's own heads already do.
+CPU smoke (2 iters, 256 px, 005_Боровичи_2 test + 016_Хога train): pipeline runs end-to-end in 52 s,
+`check_maps.py` OK (hm peaks 38, mask max 85), **peak RSS 1781 MB** (more than 1 GB; fine on Kaggle,
+too much for the shared box). Smoke metrics are meaningless (2 iterations).
+SLRM inputs: our 59 regions in `bot-2/adaf/slrm/*.npz` (183 MB) — would have to be uploaded as a Kaggle dataset.
+Special regions: 037/101/102/187 have no class-2 points → DEM from all points; 037/069/101/102/105/200 built
+with `--lowmem` (pyramid hole fill), 187 with `--strips 4`.
 The zero-shot result that decides whether this is worth a GPU run is in `../REPORT2.md` (section «Задача 10»).
 
 ## Files

@@ -1,0 +1,9 @@
+k10 {'A_drop': 0.312067, 'A_keep': 0.327873, 'nb_drop': 0.313708, 'nb_keep': 0.329607, 'd_nb_drop': 0.001641, 'd_nb_keep': 0.001734}
+lofo {'A_drop': 0.312058, 'A_keep': 0.327865, 'nb_drop': 0.313438, 'nb_keep': 0.329337, 'd_nb_drop': 0.00138, 'd_nb_keep': 0.001472}
+seed0 {'A_drop': 0.312402, 'A_keep': 0.328208, 'nb_drop': 0.317358, 'nb_keep': 0.333259, 'd_nb_drop': 0.004956, 'd_nb_keep': 0.005051}
+seed1 {'A_drop': 0.305903, 'A_keep': 0.32171, 'nb_drop': 0.311568, 'nb_keep': 0.327466, 'd_nb_drop': 0.005665, 'd_nb_keep': 0.005757}
+seed2 {'A_drop': 0.315344, 'A_keep': 0.33115, 'nb_drop': 0.31733, 'nb_keep': 0.333229, 'd_nb_drop': 0.001986, 'd_nb_keep': 0.002079}
+seed3 {'A_drop': 0.305373, 'A_keep': 0.321179, 'nb_drop': 0.308301, 'nb_keep': 0.324203, 'd_nb_drop': 0.002928, 'd_nb_keep': 0.003023}
+seed4 {'A_drop': 0.287028, 'A_keep': 0.315889, 'nb_drop': 0.289964, 'nb_keep': 0.318917, 'd_nb_drop': 0.002936, 'd_nb_keep': 0.003028}
+nb_drop d10=+0.001641 P=0.963 CI=[-0.00016;+0.00371] lofo=+0.001380 seeds+=5/5 heavy=+0.001641 new34=+0.008819 acc=False
+nb_keep d10=+0.001734 P=0.972 CI=[-0.00005;+0.00382] lofo=+0.001472 seeds+=5/5 heavy=+0.001734 new34=+0.009801 acc=False

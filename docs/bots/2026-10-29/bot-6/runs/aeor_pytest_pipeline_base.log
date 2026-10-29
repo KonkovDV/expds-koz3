@@ -1,0 +1,451 @@
+F.......F.F.......F.......................F.....                         [100%]
+=================================== FAILURES ===================================
+________________________ test_main_writes_valid_geojson ________________________
+
+val_dir = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-3/test_main_writes_valid_geojson0/input')
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-3/test_main_writes_valid_geojson0')
+official_metric = None
+
+    def test_main_writes_valid_geojson(val_dir, tmp_path, official_metric):
+        out = tmp_path / "out" / "result.geojson"
+        r = subprocess.run([sys.executable, str(ROOT / "inference" / "main.py"), str(val_dir), str(out)],
+                           capture_output=True, text=True, timeout=600)
+        assert r.returncode == 0, r.stdout + r.stderr
+        rep = writer.validate(out)
+        assert rep["ok"], rep
+        by = rep["summary"]["by_class"]
+>       assert by.get("kurgany_tselye", 0) >= 1 and by.get("finds_points", 0) >= 1
+E       AssertionError: assert (0 >= 1)
+E        +  where 0 = <built-in method get of dict object at 0x7f4320538180>('kurgany_tselye', 0)
+E        +    where <built-in method get of dict object at 0x7f4320538180> = {'finds_points': 242}.get
+
+tests/test_pipeline.py:23: AssertionError
+________________________ test_ensemble_averages_members ________________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-3/test_ensemble_averages_members0')
+
+    def test_ensemble_averages_members(tmp_path):
+        torch = pytest.importorskip("torch")
+        smp = pytest.importorskip("segmentation_models_pytorch")
+        from expds.infer_nn import Ensemble, Segmenter
+        from expds.pipeline import _segmenters, model_files, model_specs
+    
+        classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+        paths = []
+        for s in range(2):
+            torch.manual_seed(s)
+            net = smp.Unet(encoder_name="resnet18", encoder_weights=None, in_channels=3, classes=2)
+            p = tmp_path / f"m{s}.pt"
+            torch.save({"state_dict": net.state_dict(), "encoder": "resnet18", "in_channels": 3,
+                        "classes": classes, "res": 0.5, "tile": 64}, p)
+            paths.append(p)
+        img = np.random.default_rng(0).integers(0, 255, (3, 70, 90), dtype=np.uint8)
+        a, b = (Segmenter(p, device="cpu").predict(img) for p in paths)
+>       ens = Ensemble([Segmenter(p, device="cpu") for p in paths])
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/infer_nn.py:75: in __init__
+    self.model = smp.Unet(encoder_name=ck["encoder"], encoder_weights=None,
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/base/hub_mixin.py:153: in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/decoders/unet/model.py:132: in __init__
+    self.encoder = get_encoder(
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py:107: in get_encoder
+    encoder = EncoderClass(**params)
+              ^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:45: in __init__
+    super().__init__(**kwargs)
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:204: in __init__
+    self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:254: in _make_layer
+    block(
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:84: in __init__
+    self.conv2 = conv3x3(planes, planes)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:42: in conv3x3
+    return nn.Conv2d(
+../../../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:519: in __init__
+    super().__init__(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Conv2d' object has no attribute 'bias'") raised in repr()] Conv2d object at 0x7f42cbb92f60>
+in_channels = 512, out_channels = 512, kernel_size = (3, 3), stride = (1, 1)
+padding = (1, 1), dilation = (1, 1), transposed = False, output_padding = (0, 0)
+groups = 1, bias = False, padding_mode = 'zeros', device = None, dtype = None
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tuple[int, ...],
+        stride: tuple[int, ...],
+        padding: str | tuple[int, ...],
+        dilation: tuple[int, ...],
+        transposed: bool,
+        output_padding: tuple[int, ...],
+        groups: int,
+        bias: bool,
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"],
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
+        super().__init__()
+        if groups <= 0:
+            raise ValueError("groups must be a positive integer")
+        if in_channels % groups != 0:
+            raise ValueError("in_channels must be divisible by groups")
+        if out_channels % groups != 0:
+            raise ValueError("out_channels must be divisible by groups")
+        valid_padding_strings = {"same", "valid"}
+        if isinstance(padding, str):
+            if padding not in valid_padding_strings:
+                raise ValueError(
+                    f"Invalid padding string {padding!r}, should be one of {valid_padding_strings}"
+                )
+            if padding == "same" and any(s != 1 for s in stride):
+                raise ValueError(
+                    "padding='same' is not supported for strided convolutions"
+                )
+    
+        valid_padding_modes = {"zeros", "reflect", "replicate", "circular"}
+        if padding_mode not in valid_padding_modes:
+            raise ValueError(
+                f"padding_mode must be one of {valid_padding_modes}, but got padding_mode='{padding_mode}'"
+            )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+        self.transposed = transposed
+        self.output_padding = output_padding
+        self.groups = groups
+        self.padding_mode = padding_mode
+        # `_reversed_padding_repeated_twice` is the padding to be passed to
+        # `F.pad` if needed (e.g., for non-zero padding types that are
+        # implemented as two ops: padding + conv). `F.pad` accepts paddings in
+        # reverse order than the dimension.
+        if isinstance(self.padding, str):
+            self._reversed_padding_repeated_twice = [0, 0] * len(kernel_size)
+            if padding == "same":
+                for d, k, i in zip(
+                    dilation,
+                    kernel_size,
+                    range(len(kernel_size) - 1, -1, -1),
+                    strict=False,
+                ):
+                    total_padding = d * (k - 1)
+                    left_pad = total_padding // 2
+                    self._reversed_padding_repeated_twice[2 * i] = left_pad
+                    self._reversed_padding_repeated_twice[2 * i + 1] = (
+                        total_padding - left_pad
+                    )
+        else:
+            self._reversed_padding_repeated_twice = _reverse_repeat_tuple(
+                self.padding, 2
+            )
+    
+        if transposed:
+            self.weight = Parameter(
+                torch.empty(
+                    (in_channels, out_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+        else:
+            self.weight = Parameter(
+>               torch.empty(
+                    (out_channels, in_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+E           RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:170: RuntimeError
+__________________________ test_train_and_infer_smoke __________________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-3/test_train_and_infer_smoke0')
+
+    def test_train_and_infer_smoke(tmp_path):
+        pytest.importorskip("torch")
+        pytest.importorskip("segmentation_models_pytorch")
+        from expds.infer_nn import Segmenter, probs_to_features
+        from expds.train import train
+    
+        cache = tmp_path / "cache"
+        cache.mkdir()
+        rng = np.random.default_rng(0)
+        n, t = 24, 64
+        imgs = rng.integers(0, 255, (n, 1, t, t), dtype=np.uint8)
+        masks = np.zeros((n, t, t), np.uint8)
+        masks[:, 20:30, 20:30] = 1 << 1          # класс kurgany_tselye
+        imgs[:, :, 20:30, 20:30] = 255
+        np.save(cache / "images_0000.npy", imgs)
+        np.save(cache / "masks_0000.npy", masks)
+        rows = "shard,idx,region,family,file,cx,cy,positive\n" + "".join(
+            f"0,{i},r{i % 3},{'A' if i % 3 else 'B'},f.tif,0,0,1\n" for i in range(n))
+        (cache / "index.csv").write_text(rows, encoding="utf-8")
+        meta = {"markup": "li", "classes": ["kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha",
+                                            "arkhitektury", "fortifikatsii"],
+                "res": 0.5, "tile": t, "li_tags": ["g"], "flips": False, "channels": 1}
+        (cache / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+>       res = train(str(cache), str(tmp_path / "m.pt"), epochs=1, batch=8, val_families=["B"], workers=0,
+                    pretrained=False)
+
+tests/test_pipeline.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/train.py:497: in train
+    model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/base/hub_mixin.py:153: in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/decoders/unet/model.py:132: in __init__
+    self.encoder = get_encoder(
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py:107: in get_encoder
+    encoder = EncoderClass(**params)
+              ^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:45: in __init__
+    super().__init__(**kwargs)
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:204: in __init__
+    self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:254: in _make_layer
+    block(
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:81: in __init__
+    self.conv1 = conv3x3(inplanes, planes, stride)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:42: in conv3x3
+    return nn.Conv2d(
+../../../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:519: in __init__
+    super().__init__(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Conv2d' object has no attribute 'bias'") raised in repr()] Conv2d object at 0x7f42c939eb40>
+in_channels = 512, out_channels = 512, kernel_size = (3, 3), stride = (1, 1)
+padding = (1, 1), dilation = (1, 1), transposed = False, output_padding = (0, 0)
+groups = 1, bias = False, padding_mode = 'zeros', device = None, dtype = None
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tuple[int, ...],
+        stride: tuple[int, ...],
+        padding: str | tuple[int, ...],
+        dilation: tuple[int, ...],
+        transposed: bool,
+        output_padding: tuple[int, ...],
+        groups: int,
+        bias: bool,
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"],
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
+        super().__init__()
+        if groups <= 0:
+            raise ValueError("groups must be a positive integer")
+        if in_channels % groups != 0:
+            raise ValueError("in_channels must be divisible by groups")
+        if out_channels % groups != 0:
+            raise ValueError("out_channels must be divisible by groups")
+        valid_padding_strings = {"same", "valid"}
+        if isinstance(padding, str):
+            if padding not in valid_padding_strings:
+                raise ValueError(
+                    f"Invalid padding string {padding!r}, should be one of {valid_padding_strings}"
+                )
+            if padding == "same" and any(s != 1 for s in stride):
+                raise ValueError(
+                    "padding='same' is not supported for strided convolutions"
+                )
+    
+        valid_padding_modes = {"zeros", "reflect", "replicate", "circular"}
+        if padding_mode not in valid_padding_modes:
+            raise ValueError(
+                f"padding_mode must be one of {valid_padding_modes}, but got padding_mode='{padding_mode}'"
+            )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+        self.transposed = transposed
+        self.output_padding = output_padding
+        self.groups = groups
+        self.padding_mode = padding_mode
+        # `_reversed_padding_repeated_twice` is the padding to be passed to
+        # `F.pad` if needed (e.g., for non-zero padding types that are
+        # implemented as two ops: padding + conv). `F.pad` accepts paddings in
+        # reverse order than the dimension.
+        if isinstance(self.padding, str):
+            self._reversed_padding_repeated_twice = [0, 0] * len(kernel_size)
+            if padding == "same":
+                for d, k, i in zip(
+                    dilation,
+                    kernel_size,
+                    range(len(kernel_size) - 1, -1, -1),
+                    strict=False,
+                ):
+                    total_padding = d * (k - 1)
+                    left_pad = total_padding // 2
+                    self._reversed_padding_repeated_twice[2 * i] = left_pad
+                    self._reversed_padding_repeated_twice[2 * i + 1] = (
+                        total_padding - left_pad
+                    )
+        else:
+            self._reversed_padding_repeated_twice = _reverse_repeat_tuple(
+                self.padding, 2
+            )
+    
+        if transposed:
+            self.weight = Parameter(
+                torch.empty(
+                    (in_channels, out_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+        else:
+            self.weight = Parameter(
+>               torch.empty(
+                    (out_channels, in_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+E           RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:170: RuntimeError
+_________________ test_watchdog_writes_a_valid_file_and_stops __________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-3/test_watchdog_writes_a_valid_f0')
+
+    def test_watchdog_writes_a_valid_file_and_stops(tmp_path):
+        import time
+    
+        from shapely.geometry import box
+    
+        from expds.watchdog import RunState, arm
+    
+        state = RunState(tmp_path / "result.geojson",
+                         {"thresholds": {}, "default_threshold": 0.0, "thresholds_by_markup": {}})
+        state.add([{"geom": box(0, 0, 10, 10), "class_name": "kurgany_tselye", "confidence": 0.5,
+                    "markup_type": "li", "region_name": "r"}])
+        flag = {}
+>       arm(state, 0.15, exit_fn=lambda code: flag.setdefault("code", code))
+
+tests/test_pipeline.py:471: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/watchdog.py:297: in arm
+    thread.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Thread(expds-watchdog, initial daemon)>
+
+    def start(self):
+        """Start the thread's activity.
+    
+        It must be called at most once per thread object. It arranges for the
+        object's run() method to be invoked in a separate thread of control.
+    
+        This method will raise a RuntimeError if called more than once on the
+        same thread object.
+    
+        """
+        if not self._initialized:
+            raise RuntimeError("thread.__init__() not called")
+    
+        if self._started.is_set():
+            raise RuntimeError("threads can only be started once")
+    
+        with _active_limbo_lock:
+            _limbo[self] = self
+        try:
+>           _start_new_thread(self._bootstrap, ())
+E           RuntimeError: can't start new thread
+
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/threading.py:994: RuntimeError
+_________________ test_pixgbm_deadline_uses_guard_t0_monotonic _________________
+
+    def test_pixgbm_deadline_uses_guard_t0_monotonic():
+        """bot-3 geo_pixgbm.pix_deadline: T0 = min(старт процесса, guard.t0) — та же шкала time.monotonic."""
+        import time as _time
+>       from expds import geo_pixgbm, watchdog
+
+tests/test_bot8_soft_ceiling.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/geo_pixgbm.py:25: in <module>
+    from scipy import ndimage as ndi
+../../../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:157: in <module>
+    from ._support_alternative_backends import *
+../../../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:7: in <module>
+    from ._ndimage_api import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:9: in <module>
+    from ._filters import *    # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    # Copyright (C) 2003-2005 Peter J. Verveer
+    #
+    # Redistribution and use in source and binary forms, with or without
+    # modification, are permitted provided that the following conditions
+    # are met:
+    #
+    # 1. Redistributions of source code must retain the above copyright
+    #    notice, this list of conditions and the following disclaimer.
+    #
+    # 2. Redistributions in binary form must reproduce the above
+    #    copyright notice, this list of conditions and the following
+    #    disclaimer in the documentation and/or other materials provided
+    #    with the distribution.
+    #
+    # 3. The name of the author may not be used to endorse or promote
+    #    products derived from this software without specific prior
+    #    written permission.
+    #
+    # THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
+    # OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    # ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    # GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    
+    from collections.abc import Iterable
+    import numbers
+    import warnings
+    import numpy as np
+    import operator
+    import math
+    
+    from scipy._lib._util import normalize_axis_index
+    from scipy._lib._array_api import array_namespace, is_cupy, xp_size
+    from . import _ni_support
+>   from . import _nd_image
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_nd_image.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_filters.py:41: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_pipeline.py::test_main_writes_valid_geojson - AssertionErro...
+FAILED tests/test_pipeline.py::test_ensemble_averages_members - RuntimeError:...
+FAILED tests/test_pipeline.py::test_train_and_infer_smoke - RuntimeError: [en...
+FAILED tests/test_pipeline.py::test_watchdog_writes_a_valid_file_and_stops - ...
+FAILED tests/test_bot8_soft_ceiling.py::test_pixgbm_deadline_uses_guard_t0_monotonic
+5 failed, 43 passed in 27.19s

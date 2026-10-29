@@ -1,0 +1,11 @@
+k10 {'A_drop': 0.314615, 'A0_drop': 0.314615, 'AB_drop': 0.311163, 'ABE_drop': 0.307558, 'd_A0_drop': 0.0, 'd_AB_drop': -0.003453, 'd_ABE_drop': -0.007058}
+lofo {'A_drop': 0.315067, 'A0_drop': 0.315067, 'AB_drop': 0.314174, 'ABE_drop': 0.312513, 'd_A0_drop': 0.0, 'd_AB_drop': -0.000893, 'd_ABE_drop': -0.002555}
+seed0 {'A_drop': 0.314698, 'A0_drop': 0.314698, 'AB_drop': 0.313122, 'ABE_drop': 0.310534, 'd_A0_drop': 0.0, 'd_AB_drop': -0.001576, 'd_ABE_drop': -0.004164}
+seed1 {'A_drop': 0.306042, 'A0_drop': 0.306042, 'AB_drop': 0.305642, 'ABE_drop': 0.304641, 'd_A0_drop': 0.0, 'd_AB_drop': -0.0004, 'd_ABE_drop': -0.0014}
+seed2 {'A_drop': 0.318393, 'A0_drop': 0.318393, 'AB_drop': 0.317744, 'ABE_drop': 0.314675, 'd_A0_drop': 0.0, 'd_AB_drop': -0.000648, 'd_ABE_drop': -0.003718}
+seed3 {'A_drop': 0.309721, 'A0_drop': 0.309721, 'AB_drop': 0.309245, 'ABE_drop': 0.307411, 'd_A0_drop': 0.0, 'd_AB_drop': -0.000476, 'd_ABE_drop': -0.00231}
+seed4 {'A_drop': 0.29063, 'A0_drop': 0.29063, 'AB_drop': 0.289444, 'ABE_drop': 0.286938, 'd_A0_drop': 0.0, 'd_AB_drop': -0.001187, 'd_ABE_drop': -0.003692}
+A0_drop d10=+0.000000 P=0.000 CI=[+0.00000;+0.00000] lofo=+0.000000 seeds+=0/5 heavy={'kurgany_povrezhdennye': 0.0, 'kurgany_tselye': 0.0, 'gorodishcha': 0.0} sl={'new34': 0.0, 'no_lidar': 0.0, 'lidar59': 0.0} wo3=+0.000000 fams=0 отклонить
+AB_drop d10=-0.003453 P=0.015 CI=[-0.00740;-0.00028] lofo=-0.000893 seeds+=0/5 heavy={'kurgany_povrezhdennye': -0.00222, 'kurgany_tselye': -0.00123, 'gorodishcha': 0.0} sl={'new34': 0.00473, 'no_lidar': 0.0, 'lidar59': -0.0046} wo3=-0.001599 fams=91 отклонить
+ABE_drop d10=-0.007058 P=0.000 CI=[-0.01333;-0.00211] lofo=-0.002555 seeds+=0/5 heavy={'kurgany_povrezhdennye': -0.00222, 'kurgany_tselye': -0.00123, 'gorodishcha': -0.0036} sl={'new34': -0.00114, 'no_lidar': 0.0, 'lidar59': -0.01377} wo3=-0.005207 fams=98 отклонить
+peak_rss_mb 1111 rc 0

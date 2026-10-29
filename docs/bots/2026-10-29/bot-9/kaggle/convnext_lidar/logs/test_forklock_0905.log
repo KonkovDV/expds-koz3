@@ -1,0 +1,2 @@
+{"guard": 0, "loaders": 100, "ok": 100, "fallback_to_0": 22, "workers": [0, 2], "ctx": ["None", "fork"], "sample_fallback": "RuntimeError('os.fork is unsafe while filelock is changing descriptor ownership')"}
+{"guard": 1, "loaders": 100, "ok": 100, "fallback_to_0": 0, "workers": [2], "ctx": ["fork"], "sample_fallback": null}

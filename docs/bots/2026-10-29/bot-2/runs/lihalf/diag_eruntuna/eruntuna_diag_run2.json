@@ -1,0 +1,109 @@
+{
+ "label": "ДИАГНОСТИКА, не вне обучения (li_r18_hard2 обучался в т.ч. на Эрентуне)",
+ "data": {
+  "las": "/workspace/data/train-expds-3/011_Эрентуна/01_Эрентуна_La_точки/01_Эрентуна_La_точки.laz",
+  "gt": "train-expds-3/011_Эрентуна/06_*/Эрентуна_Li_курганы_{поврежденные,целые}.geojson",
+  "weights": "models/li_r18_hard2.pt (repo main)"
+ },
+ "mosaic": {
+  "shape": [
+   2128,
+   3342
+  ],
+  "res": 0.5,
+  "tile_m": 200.0,
+  "halo_m": 40.0
+ },
+ "seconds": {
+  "mosaic": 210.9,
+  "main": 49.5,
+  "half": 8.8
+ },
+ "gt": {
+  "n": 69,
+  "d_median": 12.25,
+  "d_p90": 18.13,
+  "n_ge12": 37,
+  "n_ge12_by_cls": {
+   "kurgany_povrezhdennye": 13,
+   "kurgany_tselye": 24
+  }
+ },
+ "li_mosaic_thr": {
+  "kurgany_povrezhdennye": 0.959005,
+  "kurgany_tselye": 0.17042
+ },
+ "rows": [
+  {
+   "name": "main_all_candidates",
+   "n_circles": 12322,
+   "recall_ge12_any": "36/37",
+   "recall_ge12_cls": "36/37",
+   "recall_all_any": "68/69"
+  },
+  {
+   "name": "main_kept@li_mosaic",
+   "n_circles": 59,
+   "recall_ge12_any": "15/37",
+   "recall_ge12_cls": "11/37",
+   "recall_all_any": "30/69"
+  },
+  {
+   "name": "half_all_candidates",
+   "n_circles": 3718,
+   "recall_ge12_any": "36/37",
+   "recall_ge12_cls": "36/37",
+   "recall_all_any": "66/69"
+  },
+  {
+   "name": "half_new_all(12m)",
+   "n_circles": 3663,
+   "recall_ge12_any": "36/37",
+   "recall_ge12_cls": "26/37",
+   "recall_all_any": "65/69"
+  },
+  {
+   "name": "main_kept+half_new_all",
+   "n_circles": 3722,
+   "recall_ge12_any": "36/37",
+   "recall_ge12_cls": "36/37",
+   "recall_all_any": "66/69"
+  },
+  {
+   "name": "main_kept+half_new@0.3",
+   "n_circles": 101,
+   "recall_ge12_any": "22/37",
+   "recall_ge12_cls": "14/37",
+   "recall_all_any": "41/69"
+  },
+  {
+   "name": "main_kept+half_new@0.5",
+   "n_circles": 90,
+   "recall_ge12_any": "21/37",
+   "recall_ge12_cls": "14/37",
+   "recall_all_any": "39/69"
+  },
+  {
+   "name": "main_kept+half_new@0.7",
+   "n_circles": 85,
+   "recall_ge12_any": "20/37",
+   "recall_ge12_cls": "14/37",
+   "recall_all_any": "38/69"
+  },
+  {
+   "name": "main_kept+half_new@0.9",
+   "n_circles": 73,
+   "recall_ge12_any": "17/37",
+   "recall_ge12_cls": "13/37",
+   "recall_all_any": "34/69"
+  },
+  {
+   "name": "main_kept+half_new@0.95",
+   "n_circles": 68,
+   "recall_ge12_any": "17/37",
+   "recall_ge12_cls": "12/37",
+   "recall_all_any": "33/69"
+  }
+ ],
+ "maxrss_mb": 1179.1
+}

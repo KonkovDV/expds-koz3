@@ -1,0 +1,51 @@
+# PREREG_audit — bot-10, записано 29.10.2026 ДО любых замеров (время файла = mtime; замеры в work11/ позже)
+
+Источник: внешний аудит, ветка `claude/audit-2026-10-29`, коммит `6e26062` (`docs/AUDIT_CLAUDE_2026-10-29.md` §5.1–5.3).
+Код берётся без изменений из worktree `bot-10/work11/wt_audit` (@6e26062): `expds/post.py: kurgans_outside_hillforts`,
+`kurgan_neighbour_prior`, `threshold_fn`; логика `scripts/oof_transform.py cmd_gormask / cmd_neigh` повторяется
+пофайлово для семей стека A (`bot-10/work/fam`, 100 семей) — те же вызовы, те же аргументы по умолчанию.
+Метрика: только `materials/compute_metrics.py` (через `expds.metric`, EXPDS_METRIC). Данные `ackrome/satelite-scan` не используются.
+
+## Базы
+- **A keep-all** (основная): кривые `work/curves` (global), `work4/curves_site` (site, bot-10 provisional site-scope, сверен с bot-8), `work4/paired.py`, honest-10 (k10), LOFO, seed0–4, бутстреп по семьям 2000.
+- **Пакет** (S PIXGBM + stack6 в порядке сдачи, пороги pix `thr_pix_full.json`, twins 78add0e): S/stack6 трогают только finds_points/object_poly, а gormask/neigh — только курганы (городища — только как маска), сопоставление в метрике поклассовое → Δ правки к пакету = Δ к «A+twins» (TO) в точной оценке после порогов. Сравнение с пакетом = TOGM − TO / TONB − TO (twins = 78add0e с починкой масштаба, как work9/twins9.py).
+
+## Задача 1 — gormask (`kurgans_outside_hillforts`, параметры по умолчанию аудита)
+spec: classes = оба кургана, groups = все, gor_groups = все, min_gor_conf = 0, buffer_m = 0, min_area_m2 = 500, max_area_m2 = 400 000. Других вариантов нет, параметры не подбираются.
+1. **GM_oof** (маршрут аудита, табло): маска = городища стека с conf ≥ порога своей группы из `--taus`; `--taus` = пороги sweep_groups по ВСЕМ регионам кривых A (in-sample, как «табло» аудита) — утечка порогов городищ, помечается. Курганы убираются при любой уверенности; затем `family_curves.py` → `paired.py` (keep и drop), global и site; пороги курганов перенастраиваются вложенно (на остальных семьях).
+2. **GM_exact** (порядок сдачи, без утечки): для каждого фолда пороги (группа, класс) из кривых A на остальных семьях (`work6/taus_A.json`; для site — такой же файл по `work4/curves_site`), на удержанных семьях оставляем conf ≥ порога (unseen=drop), маска = прошедшие порог городища, затем `kurgans_outside_hillforts`; варианты A, GM, TO (twins), TOGM (twins → gormask, как watchdog.finish @6e26062). Global и site.
+- Приёмка: П1–П6 на GM_oof keep global к A; GM_exact должен подтвердить знак и П1–П4 (иначе не ACCEPT). Site — проверка устойчивости. Поклассово: TP/FP курганов до/после, сколько убранных совпадало с эталоном (TP убранные).
+- Сверка с фильтром bot-7 KIG (`bot-7/work6/kig`, центроид, без фильтра площади, до twins): описать отличия, сравнить числа.
+
+## Задача 2 — neigh (`kurgan_neighbour_prior`, параметры по умолчанию аудита)
+spec: groups = count_groups = [li, li_coarse, li_mosaic], radius_m 200, k 3, floor 0,5, slope 0,5, cap 2, self_m 1, support_conf = None → опора = conf ≥ порога своей группы из `--taus` (тот же in-sample JSON, что в задаче 1; утечка помечается).
+1. **NB_oof** (основной): преобразование стека до порогов, `family_curves.py` → `paired.py` keep/drop, global и site; пороги li/li_coarse/li_mosaic (и все остальные) перенастраиваются вложенно на каждом фолде (на обучающих семьях; внутри — та же sweep_groups, что scoreboard --honest 10).
+2. **NB_exact** (порядок сдачи): на фолде опора соседей = сырая conf ≥ фолдовых порогов NB (как `watchdog._tau(cfg)` в сдаче, где в конфиге уже новые пороги), затем множитель, затем фолдовые пороги NB; варианты NB, TONB (twins после), против A/TO.
+3. Проверка пола выдачи: доля курганов li* в стеке ниже `pipeline.output_floors` и ниже floor/1,5 (если стек обрезан полом, рост уверенности недооценивается — оговорка).
+- Сетка аудита (radius 100/200/400, k 2/3/5, floor 0,3/0,5/0,7) для приёмки НЕ используется (выбор по сетке не вложен). Допускается только справочный прогон radius 100 и 400 при k 3/floor 0,5, без права на ACCEPT.
+- Приёмка: П1–П6 на NB_oof keep global к A + подтверждение знака NB_exact; Δ к пакету = TONB − TO.
+
+## Правила П1–П6 (как в EXPERIMENTS.md)
+П1 Δk10 ≥ +0,002; П2 P(Δ>0) ≥ 0,85 (бутстреп по семьям); П3 LOFO > 0 и ≥ 4/5 случайных раскладок > 0; П4 взвешенное падение каждого тяжёлого класса (курганы повр., целые, городища) ≤ 0,0005; П5 Δ < 0,006 → только в пакет; П6 одинаковый unseen-режим у базы и варианта. Вердикты: ACCEPT / PACKAGE-ONLY / REJECT / PENDING.
+
+## Задачи 3–4 — не замеры кандидатов (без приёмки)
+3. Сверка весов классов в скриптах bot-10, scoreboard/metric и compute_metrics.py (grep), пересчёт затронутых вердиктов при расхождении.
+4. Сдвиг калибровки PIXGBM fold-OOF ↔ full-train: только существующие артефакты, без обучения; квантили, доля выше порогов `bot-3/pixgbm/pc/thr_pix_full.json`, оценка при квантильно-согласованных порогах.
+
+---
+# Дополнение 1 — 29.10.2026 08:18:49 МСК, ДО замеров калибровки (новый порядок оркестратора: calib → ConvNeXt → frame → gormask/neigh)
+Код аудита обновлён до `d4edf2f` (ветка claude/audit-2026-10-29, ч. 2; diff 6e26062..d4edf2f — `work11/audit_d4edf2f.diff`): `post.site_calibration`, `frame_prior`, `oof_transform.py calib|frame`. Данные ackrome/satelite-scan ЗАПРЕЩЕНЫ (PREREG_scan.md отменён) и не используются; всё, что на них, — REJECT.
+К моменту записи уже известен только GM_oof global (задача 4 нового порядка, gormask) — на калибровку не влияет.
+
+## Задача C1 — calib (`site_calibration` @d4edf2f, код без изменений)
+Стек A (`work/fam`): курганы есть в группах ae, li, li_ae, li_dev, li_mosaic, sp_focal, sp_focal2; в sp_or курганов нет (скан `work11/fam_conf_scan.json`, только уверенности, без эталона). Пол стека: li*/li_dev/li_mosaic до 0, sp_focal* ровно 0,05 = floor калибровки → распределение участка в OOF совпадает с тем, что даст сдача после `output_floors` @d4edf2f (пол калибруемых групп ≤ 0,05). ae/li_ae обрезаны полом 0,8–0,99 → не калибруются.
+Проверка «только данные теста»: шкала = уверенности объектов того же (участок, группа, класс) с conf ≥ 0,05; эталон не используется; участок = region_name, известный на инференсе. Шаг до порогов, первым (watchdog.finish @d4edf2f) → OOF-маршрут (преобразование стека → family_curves.py → paired.py) = порядок сдачи; пороги ВСЕХ групп подбираются вложенно на обучающих семьях каждого фолда (sweep_groups, как --honest 10).
+1. **CAL1 (основной, единственный с правом ACCEPT):** groups = [li, sp_or, sp_focal] (как в аудите §1.3 п.2), classes = оба кургана, mode = mix, alpha 0,5, q_level 0,99, floor 0,05, min_n 30. Global (основной) и site (устойчивость); keep и drop.
+2. Справочные (без права на ACCEPT, выбор не вложен): CAL1-rank, CAL1-quantile (тот же spec, другой mode); CALall = groups [li, li_dev, li_mosaic, sp_focal, sp_focal2], mix. Только global keep/drop.
+- Приёмка: П1–П6 на CAL1 keep global к A keep-all; site — проверка; поклассово (взвешенный вклад, П4). Пакет: калибровка трогает только курганы → Δ к пакету по курганам = Δ к A на тех же порогах прочих групп; точной проверки «к пакету» (TO+CAL) без новой оценки нет — помечается как PENDING-пакет, если CAL1 пройдёт П1–П4.
+
+## Задача C2 — ConvNeXt c3 как замена li для курганов + calib
+Входы — OOF бота 9: `/workspace/kaggle_out/koz3-cnx-li-c3sc-f01/oof_cnx_c3-sc.geojson` (фолды 0,1) и `.../koz3-cnx-li-c3sc-f23/oof_cnx_c3-sc.geojson` (фолды 2,3), threshold_group li_cnx; фолд 4 (`koz3-cnx-li-c3-f4`, c3-sc:4) нужен для полного покрытия.
+- Варианты (на юнитах с OOF cnx; остальные семьи без изменений): **R** = курганы группы li заменены курганами li_cnx (прочие классы li остаются); **RC** = R + site_calibration(groups [li_cnx], mix); **X** = добавка (повтор бота 9) для сверки. Пороги вложенно, keep и drop, global.
+- Перепроверка −0,0105: (а) пороги-оракул по участку (in-sample, только диагностика) у A и у X/R — если разрыв «честный ↔ оракул» у cnx заметно больше, чем у A, причина — перенос порога; (б) ранговые метрики внутри участка (AP / доля TP в top-N по уверенности на участке, N = числу эталонов курганов участка) для li и li_cnx на одних участках — без порогов.
+- Право на ACCEPT только у RC/R при полном покрытии (5 фолдов); при 4 фолдах — максимум PENDING.

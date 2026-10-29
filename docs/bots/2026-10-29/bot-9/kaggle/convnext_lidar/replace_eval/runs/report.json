@@ -1,0 +1,8110 @@
+{
+ "k10_folds": [
+  {
+   "k": 0,
+   "families": [
+    "Курганы"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3522,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6833,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.2417,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4989,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9415,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.982,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6322,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   }
+  },
+  {
+   "k": 1,
+   "families": [
+    "Гнёздово",
+    "Сож",
+    "Тоссор",
+    "Шниткино"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0631,
+     "li_ae": 0.9931,
+     "li_dev": 0.9941,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.1212,
+     "li_ae": 0.9931,
+     "li_cnx": 0.4343,
+     "li_dev": 0.9941,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2891,
+     "li_ae": 1.0,
+     "li_cnx": 0.8111,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.228,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.2682,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.499,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.497,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9631,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9929,
+     "li_ae": 0.9907,
+     "li_cnx": 0.982,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.7034,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9929,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7117,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.0648
+    }
+   }
+  },
+  {
+   "k": 2,
+   "families": [
+    "Кисловодская",
+    "Никола",
+    "Русская",
+    "Солдатское",
+    "Усть",
+    "Шумгора"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.2962,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6833,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.228,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4782,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9414,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.9803,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0321
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6322,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0321
+    }
+   }
+  },
+  {
+   "k": 3,
+   "families": [
+    "Каменные",
+    "Корумду",
+    "Лубно",
+    "Новенькое",
+    "Сакские",
+    "Старый",
+    "Фалхан",
+    "Шурскол"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.1212,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3522,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6311,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.2485,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4989,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9593,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.982,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6694,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   }
+  },
+  {
+   "k": 4,
+   "families": [
+    "Архангельское",
+    "Булан",
+    "Вышенское",
+    "Елизаветинское",
+    "Каменка",
+    "Костомаровское",
+    "Макеево",
+    "Нора",
+    "Саратов",
+    "Семибратнее",
+    "Сторожевое",
+    "Хальвасборген",
+    "Эрентуна"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2043,
+     "li_ae": 0.9907,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3846,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 0.9907,
+     "li_cnx": 0.6311,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.2129
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.228,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.347,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4872,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.5662,
+     "li_dev": 0.995,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9631,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.9824,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0322
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6322,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.995,
+     "li_mosaic": 0.0648
+    }
+   }
+  },
+  {
+   "k": 5,
+   "families": [
+    "Барскоон",
+    "Верхмарево",
+    "Герите",
+    "Золотаревка",
+    "Кан",
+    "Ксизово",
+    "Маяцкая",
+    "Орнок",
+    "Постройки",
+    "Сарское",
+    "Стрекаловка",
+    "Таш",
+    "Хога",
+    "Юшково"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_cnx": 0.3522,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6311,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_cnx": 0.228,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_cnx": 0.4989,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_cnx": 0.9515,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.982,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_cnx": 0.6322,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   }
+  },
+  {
+   "k": 6,
+   "families": [
+    "Верхнее",
+    "Воронеж",
+    "Городище",
+    "Изборск",
+    "Кароол",
+    "Курган",
+    "Миловидово",
+    "Осечки",
+    "Перынь",
+    "Сары",
+    "Тешилово",
+    "Тыва",
+    "Чудово"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.8529,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3846,
+     "li_dev": 0.8529,
+     "li_mosaic": 0.959
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6311,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.4,
+     "li_ae": 0.0,
+     "li_cnx": 0.2483,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9998,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.4,
+     "li_ae": 0.0,
+     "li_cnx": 0.4989,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9998,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.4,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9515,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9998,
+     "li_ae": 0.9907,
+     "li_cnx": 0.982,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.4,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6679,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9998,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.1697
+    }
+   }
+  },
+  {
+   "k": 7,
+   "families": [
+    "Боровичи",
+    "Верхний",
+    "Вышегжа",
+    "Гочево",
+    "КЧР",
+    "Кель",
+    "Курменту",
+    "Московиты",
+    "Примаки",
+    "Романово",
+    "Сельцо",
+    "Тимерево",
+    "Шаты",
+    "Эсбю"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.1317,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.198,
+     "li_ae": 1.0,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.2133
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.4538,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3121,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.5238,
+     "li_ae": 1.0,
+     "li_cnx": 0.5578,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.2133
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.3072,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.3677,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1783
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.5313,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.5844,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1783
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9593,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.9993,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1783
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6679,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 1.0,
+     "li_cnx": 0.7188,
+     "li_dev": 0.9996,
+     "li_mosaic": 0.1783
+    }
+   }
+  },
+  {
+   "k": 8,
+   "families": [
+    "Армиево",
+    "Белая",
+    "Верхняя",
+    "Граборг",
+    "Иссык",
+    "Кабардино",
+    "Калмыкия",
+    "Конур",
+    "Лешки",
+    "Мостище",
+    "Россошки",
+    "Селяне",
+    "Стеклянуха",
+    "Торт",
+    "Шетнево"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9588
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 1.0,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.3558,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9588
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 1.0,
+     "li_cnx": 0.6311,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.2483,
+     "li_dev": 0.9925,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9974,
+     "li_ae": 1.0,
+     "li_cnx": 0.347,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4989,
+     "li_dev": 0.9925,
+     "li_mosaic": 0.9454
+    },
+    "kurgany_tselye": {
+     "li": 0.9974,
+     "li_ae": 1.0,
+     "li_cnx": 0.5662,
+     "li_dev": 0.9915,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9631,
+     "li_dev": 0.9925,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9929,
+     "li_ae": 0.9907,
+     "li_cnx": 0.982,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.0648
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.6679,
+     "li_dev": 0.9925,
+     "li_mosaic": 0.5612
+    },
+    "kurgany_tselye": {
+     "li": 0.9974,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7195,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.0648
+    }
+   }
+  },
+  {
+   "k": 9,
+   "families": [
+    "Артпозиции",
+    "Бервенец",
+    "Вщиж",
+    "Демидовка",
+    "Каджы",
+    "Копанское",
+    "Красносельская",
+    "Лихуша",
+    "Муравлево",
+    "Новотитаровская",
+    "Руна",
+    "Скупая",
+    "Судьбищи",
+    "Тору",
+    "Шишкино"
+   ],
+   "A": {
+    "kurgany_povrezhdennye": {
+     "li": 0.0641,
+     "li_ae": 0.9931,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9594
+    },
+    "kurgany_tselye": {
+     "li": 0.1942,
+     "li_ae": 0.9907,
+     "li_dev": 0.995,
+     "li_mosaic": 0.1704
+    }
+   },
+   "add": {
+    "kurgany_povrezhdennye": {
+     "li": 0.2514,
+     "li_ae": 0.9931,
+     "li_cnx": 0.2962,
+     "li_dev": 0.9913,
+     "li_mosaic": 0.9594
+    },
+    "kurgany_tselye": {
+     "li": 0.2816,
+     "li_ae": 0.9907,
+     "li_cnx": 0.6311,
+     "li_dev": 0.995,
+     "li_mosaic": 0.4122
+    }
+   },
+   "rep_raw": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.228,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9627
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.2647,
+     "li_dev": 0.9909,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_mix": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.0,
+     "li_cnx": 0.4727,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9627
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.497,
+     "li_dev": 0.9909,
+     "li_mosaic": 0.1697
+    }
+   },
+   "rep_rank": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.9415,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9627
+    },
+    "kurgany_tselye": {
+     "li": 0.9929,
+     "li_ae": 0.9907,
+     "li_cnx": 0.9567,
+     "li_dev": 0.9691,
+     "li_mosaic": 0.1023
+    }
+   },
+   "rep_quantile": {
+    "kurgany_povrezhdennye": {
+     "li": 0.7084,
+     "li_ae": 0.9931,
+     "li_cnx": 0.4811,
+     "li_dev": 0.9985,
+     "li_mosaic": 0.9627
+    },
+    "kurgany_tselye": {
+     "li": 0.9976,
+     "li_ae": 0.9907,
+     "li_cnx": 0.7193,
+     "li_dev": 0.9909,
+     "li_mosaic": 0.1697
+    }
+   }
+  }
+ ],
+ "variants": [
+  "add",
+  "rep_raw",
+  "rep_mix",
+  "rep_rank",
+  "rep_quantile"
+ ],
+ "drop": {
+  "all": {
+   "add": {
+    "d10": -0.011445,
+    "A": 0.314615,
+    "V": 0.30317,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.013,
+     "kurgany_tselye": -0.0145,
+     "gorodishcha": -0.0293,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": -0.0046,
+     "finds_points": 0.0
+    }
+   },
+   "rep_raw": {
+    "d10": -0.014032,
+    "A": 0.314615,
+    "V": 0.300583,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0231,
+     "kurgany_tselye": -0.0356,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_mix": {
+    "d10": -0.019607,
+    "A": 0.314615,
+    "V": 0.295008,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0377,
+     "kurgany_tselye": -0.0415,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_rank": {
+    "d10": -0.048963,
+    "A": 0.314615,
+    "V": 0.265652,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0756,
+     "kurgany_tselye": -0.1314,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_quantile": {
+    "d10": -0.038796,
+    "A": 0.314615,
+    "V": 0.27582,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0753,
+     "kurgany_tselye": -0.081,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   }
+  },
+  "cnx_fams": {
+   "add": {
+    "d": -0.0306,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1560
+     ],
+     "povr_V": [
+      760,
+      2391
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      499,
+      884
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0279,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1560
+     ],
+     "povr_V": [
+      704,
+      2153
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      487,
+      1134
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0345,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1560
+     ],
+     "povr_V": [
+      613,
+      1608
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      470,
+      1085
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0898,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1560
+     ],
+     "povr_V": [
+      428,
+      1350
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      290,
+      846
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0732,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1560
+     ],
+     "povr_V": [
+      470,
+      1924
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      413,
+      1174
+     ]
+    }
+   }
+  },
+  "rest": {
+   "add": {
+    "d": -0.0007,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      185,
+      1024
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      164,
+      297
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0017,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      181,
+      991
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      173,
+      292
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0009,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      182,
+      1058
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      174,
+      307
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0108,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      237,
+      1222
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      177,
+      379
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0107,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      233,
+      1194
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      175,
+      347
+     ]
+    }
+   }
+  },
+  "cnn_f0": {
+   "add": {
+    "d": -0.0006,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      400,
+      835
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      281,
+      413
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.022,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      445,
+      607
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      324,
+      668
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0127,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      375,
+      368
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      314,
+      605
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0413,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      249,
+      170
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      221,
+      340
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0218,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      267,
+      237
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      278,
+      427
+     ]
+    }
+   }
+  },
+  "cnn_f1": {
+   "add": {
+    "d": -0.0268,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      249,
+      217
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      242
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1129,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      139,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1249,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      128,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      93,
+      56
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      44,
+      216
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1608,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      98,
+      62
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      244
+     ]
+    }
+   }
+  },
+  "cnn_f2": {
+   "add": {
+    "d": -0.1076,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      63,
+      664
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      115,
+      128
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1662,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      48,
+      964
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      67,
+      117
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1773,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      39,
+      716
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      59,
+      118
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.3018,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      16,
+      608
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      8,
+      153
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.24,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      34,
+      933
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      39,
+      250
+     ]
+    }
+   }
+  },
+  "cnn_f3": {
+   "add": {
+    "d": -0.0165,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      518
+     ],
+     "povr_V": [
+      48,
+      675
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      57,
+      101
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.01,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      518
+     ],
+     "povr_V": [
+      72,
+      507
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      51,
+      126
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0117,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      518
+     ],
+     "povr_V": [
+      71,
+      449
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      52,
+      139
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0507,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      518
+     ],
+     "povr_V": [
+      70,
+      516
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      17,
+      137
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0212,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      518
+     ],
+     "povr_V": [
+      71,
+      692
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      50,
+      253
+     ]
+    }
+   }
+  },
+  "fam_Бервенец": {
+   "add": {
+    "d": -0.0808,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      4,
+      9
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      1,
+      2
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.2192,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.2192,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.1122,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      8
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      2
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.2636,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Боровичи": {
+   "add": {
+    "d": -0.041,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      20,
+      183
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      9,
+      20
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0126,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      23,
+      131
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      8,
+      7
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0186,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      25,
+      157
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      9,
+      9
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1062,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      26,
+      212
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0085,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      26,
+      229
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      18,
+      78
+     ]
+    }
+   }
+  },
+  "fam_Верхмарево": {
+   "add": {
+    "d": -0.2612,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      1
+     ],
+     "povr_V": [
+      1,
+      17
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      11
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.3429,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      1
+     ],
+     "povr_V": [
+      0,
+      67
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.3429,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      1
+     ],
+     "povr_V": [
+      0,
+      46
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      15
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.3099,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      1
+     ],
+     "povr_V": [
+      1,
+      48
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.3111,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      1
+     ],
+     "povr_V": [
+      1,
+      50
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      30
+     ]
+    }
+   }
+  },
+  "fam_Вщиж": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      19
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      94
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      51
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      82
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      55
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      102
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      69
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      218
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      47
+     ]
+    }
+   }
+  },
+  "fam_Вышенское": {
+   "add": {
+    "d": -0.0869,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      26
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      19
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      14
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      49
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      25
+     ]
+    }
+   }
+  },
+  "fam_Гнёздово": {
+   "add": {
+    "d": -0.0006,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      400,
+      835
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      281,
+      413
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.022,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      445,
+      607
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      324,
+      668
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0127,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      375,
+      368
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      314,
+      605
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0413,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      249,
+      170
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      221,
+      340
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0218,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      267,
+      237
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      278,
+      427
+     ]
+    }
+   }
+  },
+  "fam_Демидовка": {
+   "add": {
+    "d": -0.2286,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      304
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      540
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      50
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      357
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      51
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      105
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      62
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      468
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      70
+     ]
+    }
+   }
+  },
+  "fam_Елизаветинское": {
+   "add": {
+    "d": -0.2143,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      47
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      39
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      40
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      11
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      56
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      25
+     ]
+    }
+   }
+  },
+  "fam_Золотаревка": {
+   "add": {
+    "d": -0.1385,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      8
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      3
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      40
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      16
+     ]
+    }
+   }
+  },
+  "fam_КЧР": {
+   "add": {
+    "d": 0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      7,
+      4
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      4,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Лихуша": {
+   "add": {
+    "d": -0.0857,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      3,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.032,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      11
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.032,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      11
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0122,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0778,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      14
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      1
+     ]
+    }
+   }
+  },
+  "fam_Макеево": {
+   "add": {
+    "d": -0.1761,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      1,
+      11
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      11,
+      9
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0667,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      3,
+      17
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0269,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      3,
+      13
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1782,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      2,
+      9
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      3,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0749,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      2,
+      10
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   }
+  },
+  "fam_Миловидово": {
+   "add": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0174,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      5,
+      12
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0174,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      5,
+      12
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   }
+  },
+  "fam_Московиты": {
+   "add": {
+    "d": -0.0022,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      8
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      3
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      4
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      7
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      20
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      34
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   }
+  },
+  "fam_Никола": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      133
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.1385,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      262
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      2,
+      17
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.1203,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      241
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      2,
+      22
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0966,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      352
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      3,
+      53
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0994,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      257
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      5,
+      93
+     ]
+    }
+   }
+  },
+  "fam_Новенькое": {
+   "add": {
+    "d": -0.0201,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      8,
+      68
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0765,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      10,
+      27
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0709,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      10,
+      22
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0729,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      9,
+      13
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0943,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      7,
+      7
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   }
+  },
+  "fam_Новотитаровская": {
+   "add": {
+    "d": 0.1419,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      3,
+      8
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0496,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      2,
+      6
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0842,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      5
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0581,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      2
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1099,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      9
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   }
+  },
+  "fam_Нора": {
+   "add": {
+    "d": -0.0471,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      22
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      16,
+      8
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0011,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      5,
+      39
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      17,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0102,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      4,
+      25
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      17,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1221,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      9
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      5,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0551,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      12
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      10,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Осечки": {
+   "add": {
+    "d": -0.0001,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      3,
+      279
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_raw": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      2
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   }
+  },
+  "fam_Примаки": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Руна": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      10
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      27
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   }
+  },
+  "fam_Семибратнее": {
+   "add": {
+    "d": 0.0449,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      3,
+      15
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.1698,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      16,
+      42
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      20
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.182,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      14,
+      27
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.1914,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      12,
+      15
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      8
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.2027,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      14,
+      19
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   }
+  },
+  "fam_Тешилово": {
+   "add": {
+    "d": -0.0686,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      2
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.049,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      1,
+      35
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0453,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      1,
+      39
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   }
+  },
+  "fam_Тимерево": {
+   "add": {
+    "d": -0.0268,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      249,
+      217
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      242
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1129,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      139,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1249,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      128,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      93,
+      56
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      44,
+      216
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1608,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      98,
+      62
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      244
+     ]
+    }
+   }
+  },
+  "fam_Усть": {
+   "add": {
+    "d": 0.2821,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      4,
+      10
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0877,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      7
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0877,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      7
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0303,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      10
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.1373,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      5
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Шетнево": {
+   "add": {
+    "d": -0.0571,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      3,
+      6
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      16,
+      7
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0784,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      8,
+      15
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      14,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.102,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      8,
+      12
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      14,
+      5
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1037,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      6,
+      6
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      4,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0483,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      7,
+      8
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      10,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Эсбю": {
+   "add": {
+    "d": -0.0234,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      49,
+      190
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      112,
+      103
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0629,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      42,
+      101
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      61,
+      31
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0907,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      34,
+      69
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      53,
+      27
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.3011,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      11,
+      30
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      1,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1593,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      27,
+      57
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      30,
+      25
+     ]
+    }
+   }
+  }
+ },
+ "keep": {
+  "all": {
+   "add": {
+    "d10": -0.011444,
+    "A": 0.333237,
+    "V": 0.321793,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.013,
+     "kurgany_tselye": -0.0145,
+     "gorodishcha": -0.0293,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": -0.0046,
+     "finds_points": 0.0
+    }
+   },
+   "rep_raw": {
+    "d10": -0.01394,
+    "A": 0.333237,
+    "V": 0.319297,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0228,
+     "kurgany_tselye": -0.0356,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_mix": {
+    "d10": -0.019509,
+    "A": 0.333237,
+    "V": 0.313728,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0374,
+     "kurgany_tselye": -0.0415,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_rank": {
+    "d10": -0.048962,
+    "A": 0.333237,
+    "V": 0.284275,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0756,
+     "kurgany_tselye": -0.1314,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   },
+   "rep_quantile": {
+    "d10": -0.038794,
+    "A": 0.333237,
+    "V": 0.294444,
+    "per_class": {
+     "kurgany_povrezhdennye": -0.0753,
+     "kurgany_tselye": -0.081,
+     "gorodishcha": 0.0,
+     "arkhitektury": 0.0,
+     "object_poly": 0.0,
+     "fortifikatsii": 0.0,
+     "finds_points": 0.0
+    }
+   }
+  },
+  "cnx_fams": {
+   "add": {
+    "d": -0.0306,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1561
+     ],
+     "povr_V": [
+      760,
+      2392
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      499,
+      884
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0278,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1561
+     ],
+     "povr_V": [
+      705,
+      2153
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      487,
+      1134
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0343,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1561
+     ],
+     "povr_V": [
+      614,
+      1608
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      470,
+      1085
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0898,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1561
+     ],
+     "povr_V": [
+      428,
+      1351
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      290,
+      846
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0732,
+    "kur_tp_fp": {
+     "povr_A": [
+      745,
+      1561
+     ],
+     "povr_V": [
+      470,
+      1925
+     ],
+     "tsel_A": [
+      520,
+      887
+     ],
+     "tsel_V": [
+      413,
+      1174
+     ]
+    }
+   }
+  },
+  "rest": {
+   "add": {
+    "d": -0.0007,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      185,
+      1024
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      164,
+      297
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0017,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      181,
+      991
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      173,
+      292
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0009,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      182,
+      1058
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      174,
+      307
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0108,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      237,
+      1222
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      177,
+      379
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0107,
+    "kur_tp_fp": {
+     "povr_A": [
+      187,
+      1196
+     ],
+     "povr_V": [
+      233,
+      1194
+     ],
+     "tsel_A": [
+      173,
+      312
+     ],
+     "tsel_V": [
+      175,
+      347
+     ]
+    }
+   }
+  },
+  "cnn_f0": {
+   "add": {
+    "d": -0.0006,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      400,
+      835
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      281,
+      413
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.022,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      445,
+      607
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      324,
+      668
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0127,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      375,
+      368
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      314,
+      605
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0413,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      249,
+      170
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      221,
+      340
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0218,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      267,
+      237
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      278,
+      427
+     ]
+    }
+   }
+  },
+  "cnn_f1": {
+   "add": {
+    "d": -0.0268,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      249,
+      217
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      242
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1129,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      139,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1249,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      128,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      93,
+      56
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      44,
+      216
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1608,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      98,
+      62
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      244
+     ]
+    }
+   }
+  },
+  "cnn_f2": {
+   "add": {
+    "d": -0.1076,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      63,
+      664
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      115,
+      128
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1662,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      48,
+      964
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      67,
+      117
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1773,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      39,
+      716
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      59,
+      118
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.3018,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      16,
+      608
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      8,
+      153
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.24,
+    "kur_tp_fp": {
+     "povr_A": [
+      54,
+      193
+     ],
+     "povr_V": [
+      34,
+      933
+     ],
+     "tsel_A": [
+      125,
+      117
+     ],
+     "tsel_V": [
+      39,
+      250
+     ]
+    }
+   }
+  },
+  "cnn_f3": {
+   "add": {
+    "d": -0.0165,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      519
+     ],
+     "povr_V": [
+      48,
+      676
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      57,
+      101
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.011,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      519
+     ],
+     "povr_V": [
+      73,
+      507
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      51,
+      126
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0127,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      519
+     ],
+     "povr_V": [
+      72,
+      449
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      52,
+      139
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0507,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      519
+     ],
+     "povr_V": [
+      70,
+      517
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      17,
+      137
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0212,
+    "kur_tp_fp": {
+     "povr_A": [
+      46,
+      519
+     ],
+     "povr_V": [
+      71,
+      693
+     ],
+     "tsel_A": [
+      58,
+      99
+     ],
+     "tsel_V": [
+      50,
+      253
+     ]
+    }
+   }
+  },
+  "fam_Бервенец": {
+   "add": {
+    "d": -0.0808,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      4,
+      9
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      1,
+      2
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.2192,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.2192,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.1122,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      8
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      2
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.2636,
+    "kur_tp_fp": {
+     "povr_A": [
+      4,
+      4
+     ],
+     "povr_V": [
+      5,
+      4
+     ],
+     "tsel_A": [
+      1,
+      2
+     ],
+     "tsel_V": [
+      2,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Боровичи": {
+   "add": {
+    "d": -0.041,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      20,
+      183
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      9,
+      20
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0126,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      23,
+      131
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      8,
+      7
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0186,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      25,
+      157
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      9,
+      9
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1062,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      26,
+      212
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      2,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0085,
+    "kur_tp_fp": {
+     "povr_A": [
+      14,
+      62
+     ],
+     "povr_V": [
+      26,
+      229
+     ],
+     "tsel_A": [
+      10,
+      20
+     ],
+     "tsel_V": [
+      18,
+      78
+     ]
+    }
+   }
+  },
+  "fam_Верхмарево": {
+   "add": {
+    "d": -0.2078,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      2
+     ],
+     "povr_V": [
+      1,
+      18
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      11
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.2616,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      2
+     ],
+     "povr_V": [
+      1,
+      67
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.2514,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      2
+     ],
+     "povr_V": [
+      1,
+      46
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      15
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.2534,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      2
+     ],
+     "povr_V": [
+      1,
+      49
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.2545,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      2
+     ],
+     "povr_V": [
+      1,
+      51
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      30
+     ]
+    }
+   }
+  },
+  "fam_Вщиж": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      19
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      94
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      51
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      82
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      55
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      102
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      69
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      218
+     ],
+     "tsel_A": [
+      0,
+      21
+     ],
+     "tsel_V": [
+      0,
+      47
+     ]
+    }
+   }
+  },
+  "fam_Вышенское": {
+   "add": {
+    "d": -0.0869,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      26
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      19
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      14
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      49
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      25
+     ]
+    }
+   }
+  },
+  "fam_Гнёздово": {
+   "add": {
+    "d": -0.0006,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      400,
+      835
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      281,
+      413
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.022,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      445,
+      607
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      324,
+      668
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0127,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      375,
+      368
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      314,
+      605
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0413,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      249,
+      170
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      221,
+      340
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0218,
+    "kur_tp_fp": {
+     "povr_A": [
+      372,
+      678
+     ],
+     "povr_V": [
+      267,
+      237
+     ],
+     "tsel_A": [
+      289,
+      416
+     ],
+     "tsel_V": [
+      278,
+      427
+     ]
+    }
+   }
+  },
+  "fam_Демидовка": {
+   "add": {
+    "d": -0.2286,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      304
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      540
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      50
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      357
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      51
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      105
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      62
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      2
+     ],
+     "povr_V": [
+      0,
+      468
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      70
+     ]
+    }
+   }
+  },
+  "fam_Елизаветинское": {
+   "add": {
+    "d": -0.2143,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      47
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      39
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      40
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      11
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      4
+     ],
+     "povr_V": [
+      0,
+      56
+     ],
+     "tsel_A": [
+      0,
+      5
+     ],
+     "tsel_V": [
+      0,
+      25
+     ]
+    }
+   }
+  },
+  "fam_Золотаревка": {
+   "add": {
+    "d": -0.1385,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      8
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      3
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      38
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      40
+     ],
+     "tsel_A": [
+      0,
+      4
+     ],
+     "tsel_V": [
+      0,
+      16
+     ]
+    }
+   }
+  },
+  "fam_КЧР": {
+   "add": {
+    "d": 0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      7,
+      4
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": -0.1944,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      2,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      7
+     ],
+     "povr_V": [
+      4,
+      0
+     ],
+     "tsel_A": [
+      0,
+      11
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Лихуша": {
+   "add": {
+    "d": -0.0857,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      3,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.032,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      11
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.032,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      11
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0122,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0778,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      14
+     ],
+     "tsel_A": [
+      3,
+      1
+     ],
+     "tsel_V": [
+      4,
+      1
+     ]
+    }
+   }
+  },
+  "fam_Макеево": {
+   "add": {
+    "d": -0.1761,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      1,
+      11
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      11,
+      9
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0667,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      3,
+      17
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0269,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      3,
+      13
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1782,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      2,
+      9
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      3,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0749,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      0
+     ],
+     "povr_V": [
+      2,
+      10
+     ],
+     "tsel_A": [
+      11,
+      8
+     ],
+     "tsel_V": [
+      9,
+      2
+     ]
+    }
+   }
+  },
+  "fam_Миловидово": {
+   "add": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0093,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      2,
+      8
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0174,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      5,
+      12
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0174,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      8
+     ],
+     "povr_V": [
+      5,
+      12
+     ],
+     "tsel_A": [
+      0,
+      12
+     ],
+     "tsel_V": [
+      0,
+      12
+     ]
+    }
+   }
+  },
+  "fam_Московиты": {
+   "add": {
+    "d": -0.0022,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      8
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      3
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      4
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      7
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      20
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      25
+     ],
+     "povr_V": [
+      0,
+      34
+     ],
+     "tsel_A": [
+      0,
+      6
+     ],
+     "tsel_V": [
+      0,
+      13
+     ]
+    }
+   }
+  },
+  "fam_Никола": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      133
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.1385,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      262
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      2,
+      17
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.1203,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      241
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      2,
+      22
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0966,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      352
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      3,
+      53
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0994,
+    "kur_tp_fp": {
+     "povr_A": null,
+     "povr_V": [
+      0,
+      257
+     ],
+     "tsel_A": [
+      0,
+      0
+     ],
+     "tsel_V": [
+      5,
+      93
+     ]
+    }
+   }
+  },
+  "fam_Новенькое": {
+   "add": {
+    "d": -0.0201,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      8,
+      68
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      4,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0765,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      10,
+      27
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0709,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      10,
+      22
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0729,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      9,
+      13
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0943,
+    "kur_tp_fp": {
+     "povr_A": [
+      11,
+      78
+     ],
+     "povr_V": [
+      7,
+      7
+     ],
+     "tsel_A": [
+      4,
+      4
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   }
+  },
+  "fam_Новотитаровская": {
+   "add": {
+    "d": 0.1419,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      3,
+      8
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0496,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      2,
+      6
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0842,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      5
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      2
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.0581,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      2
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1099,
+    "kur_tp_fp": {
+     "povr_A": [
+      2,
+      11
+     ],
+     "povr_V": [
+      1,
+      9
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   }
+  },
+  "fam_Нора": {
+   "add": {
+    "d": -0.0471,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      22
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      16,
+      8
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0011,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      5,
+      39
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      17,
+      3
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0102,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      4,
+      25
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      17,
+      3
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1221,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      9
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      5,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0551,
+    "kur_tp_fp": {
+     "povr_A": [
+      5,
+      35
+     ],
+     "povr_V": [
+      3,
+      12
+     ],
+     "tsel_A": [
+      16,
+      3
+     ],
+     "tsel_V": [
+      10,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Осечки": {
+   "add": {
+    "d": -0.0001,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      3,
+      279
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_raw": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      2
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_quantile": {
+    "d": -0.0405,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      278
+     ],
+     "povr_V": [
+      0,
+      0
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   }
+  },
+  "fam_Примаки": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.4,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      1
+     ],
+     "povr_V": [
+      0,
+      1
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      1,
+      0
+     ]
+    }
+   }
+  },
+  "fam_Руна": {
+   "add": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      10
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": null,
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": null
+    }
+   },
+   "rep_rank": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      6
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      31
+     ],
+     "povr_V": [
+      0,
+      27
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      4
+     ]
+    }
+   }
+  },
+  "fam_Семибратнее": {
+   "add": {
+    "d": 0.0449,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      3,
+      15
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.1698,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      16,
+      42
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      20
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.182,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      14,
+      27
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.1914,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      12,
+      15
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      8
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.2027,
+    "kur_tp_fp": {
+     "povr_A": [
+      1,
+      12
+     ],
+     "povr_V": [
+      14,
+      19
+     ],
+     "tsel_A": [
+      0,
+      1
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   }
+  },
+  "fam_Тешилово": {
+   "add": {
+    "d": -0.0686,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      2
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      0,
+      13
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      6
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.049,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      1,
+      35
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      10
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0453,
+    "kur_tp_fp": {
+     "povr_A": [
+      0,
+      0
+     ],
+     "povr_V": [
+      1,
+      39
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      21
+     ]
+    }
+   }
+  },
+  "fam_Тимерево": {
+   "add": {
+    "d": -0.0268,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      249,
+      217
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      242
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.1129,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      139,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.1249,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      128,
+      75
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      45,
+      223
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1643,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      93,
+      56
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      44,
+      216
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1608,
+    "kur_tp_fp": {
+     "povr_A": [
+      273,
+      171
+     ],
+     "povr_V": [
+      98,
+      62
+     ],
+     "tsel_A": [
+      48,
+      255
+     ],
+     "tsel_V": [
+      46,
+      244
+     ]
+    }
+   }
+  },
+  "fam_Усть": {
+   "add": {
+    "d": 0.2821,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      4,
+      10
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0877,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      7
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.0877,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      7
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      1
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": 0.0303,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      10
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.1373,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      22
+     ],
+     "povr_V": [
+      2,
+      5
+     ],
+     "tsel_A": [
+      0,
+      3
+     ],
+     "tsel_V": [
+      0,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Шетнево": {
+   "add": {
+    "d": -0.0571,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      3,
+      6
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      16,
+      7
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": 0.0784,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      8,
+      15
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      14,
+      5
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": 0.102,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      8,
+      12
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      14,
+      5
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.1037,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      6,
+      6
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      4,
+      0
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": 0.0483,
+    "kur_tp_fp": {
+     "povr_A": [
+      3,
+      0
+     ],
+     "povr_V": [
+      7,
+      8
+     ],
+     "tsel_A": [
+      16,
+      6
+     ],
+     "tsel_V": [
+      10,
+      3
+     ]
+    }
+   }
+  },
+  "fam_Эсбю": {
+   "add": {
+    "d": -0.0234,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      49,
+      190
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      112,
+      103
+     ]
+    }
+   },
+   "rep_raw": {
+    "d": -0.0629,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      42,
+      101
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      61,
+      31
+     ]
+    }
+   },
+   "rep_mix": {
+    "d": -0.0907,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      34,
+      69
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      53,
+      27
+     ]
+    }
+   },
+   "rep_rank": {
+    "d": -0.3011,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      11,
+      30
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      1,
+      1
+     ]
+    }
+   },
+   "rep_quantile": {
+    "d": -0.1593,
+    "kur_tp_fp": {
+     "povr_A": [
+      44,
+      126
+     ],
+     "povr_V": [
+      27,
+      57
+     ],
+     "tsel_A": [
+      122,
+      85
+     ],
+     "tsel_V": [
+      30,
+      25
+     ]
+    }
+   }
+  }
+ }
+}

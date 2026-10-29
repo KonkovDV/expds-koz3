@@ -1,0 +1,98 @@
+--- ../../backup/cnx_pre_forkfix_0905/convnext_main.py	2026-10-29 06:29:53.403466169 +0300
++++ src/convnext_main.py	2026-10-29 09:06:58.310663810 +0300
+@@ -87,6 +87,16 @@
+ import re, math, glob, random, threading, collections, concurrent.futures as cf
+ from pathlib import Path
+ import numpy as np, torch
++import multiprocessing, itertools
++# fork/filelock (c3-f4 ERROR, бот 9): полосы — потоки; filelock (Py3.13) ставит аудит-хук на os.fork и роняет fork, пока
++# другой поток меняет владельца дескриптора блокировки (timm/HF-hub при pretrained=True). FORK_LOCK — один на процесс:
++# под ним build_model (HF filelock) и создание DataLoader + 1-й батч (fork воркеров) → fork не пересекается с filelock.
++# Фикс-аудит не отключается env-хаками. spawn — только если датасет/init воркера импортируемы не из __main__ (ядро — скрипт
++# без main-guard: spawn перезапустил бы всё ядро в каждом воркере), иначе fork под FORK_LOCK; ошибка старта → workers=0.
++FORK_LOCK = threading.RLock()
++if os.environ.get("CNX_SHARING"):                        # опционально, напр. file_system; по умолчанию стратегия torch не меняется
++    try: torch.multiprocessing.set_sharing_strategy(os.environ["CNX_SHARING"])
++    except Exception as e: log("CNX_SHARING не применён:", repr(e))
+ 
+ E = lambda k, d: type(d)(os.environ.get(k, d))
+ SMOKE = MODE == "smoke"
+@@ -466,7 +476,8 @@
+ # ── Шаг 8. Модель, лосс, обучение ─────────────────────────────────────────────────────────────────────────────
+ import segmentation_models_pytorch as smp
+ def build_model(ch, init):
+-    return HEAD.build(ch, f"tu-{TIMM_NAME}" if init == "in" else "tu-convnext_tiny", True if init == "in" else None)
++    with FORK_LOCK:                      # timm/HF-hub берут filelock — не одновременно с fork загрузчика соседней полосы
++        return HEAD.build(ch, f"tu-{TIMM_NAME}" if init == "in" else "tu-convnext_tiny", True if init == "in" else None)
+ def norm(x): return (x.float() - 128.0) / 127.0
+ def mask_loss(logit, gt, valid):
+     v = valid[:, None].float(); g = gt.float(); lg = logit.float()
+@@ -481,6 +492,38 @@
+     return dict(max_memory_allocated_mb=round(torch.cuda.max_memory_allocated(dev) / 2**20, 1),
+                 max_memory_reserved_mb=round(torch.cuda.max_memory_reserved(dev) / 2**20, 1))
+ 
++def _worker_init(_): torch.set_num_threads(1)
++def _mp_ctx(ds, nw, log_j):
++    """→ (контекст multiprocessing | None, число воркеров). CNX_MP_CTX: auto (по умолч.) | spawn | fork | 0."""
++    want = os.environ.get("CNX_MP_CTX", "auto")
++    if nw <= 0 or want == "0": return None, 0
++    spawn_ok = type(ds).__module__ != "__main__" and _worker_init.__module__ != "__main__"
++    if want in ("auto", "spawn") and spawn_ok:
++        try: return multiprocessing.get_context("spawn"), nw
++        except ValueError as e: log_j("spawn недоступен:", repr(e))
++    if want == "spawn": log_j("spawn небезопасен/недоступен (датасет в __main__) → workers=0"); return None, 0
++    try: return multiprocessing.get_context("fork"), nw   # fork — только под FORK_LOCK (make_loader)
++    except ValueError as e: log_j("fork недоступен:", repr(e), "→ workers=0"); return None, 0
++def make_loader(ds, dev, log_j):
++    """DataLoader + 1-й батч под FORK_LOCK: воркеры (persistent) форкаются внутри блокировки, соседняя полоса ждёт.
++    → (dl, итератор, 1-й батч, инфо для отчёта). Если воркеры не стартовали — повтор с workers=0 (в лог и отчёт)."""
++    nw0 = CFG["workers"] if dev.type == "cuda" else 0; t = time.time()
++    with FORK_LOCK:
++        t_lock = time.time() - t; ctx, nw = _mp_ctx(ds, nw0, log_j); err = None
++        for n in ((nw, 0) if nw else (0,)):
++            try:
++                dl = torch.utils.data.DataLoader(ds, batch_size=CFG["bs"], shuffle=False, num_workers=n, pin_memory=dev.type == "cuda",
++                                                 persistent_workers=n > 0, prefetch_factor=4 if n else None, drop_last=True,
++                                                 multiprocessing_context=ctx if n else None, worker_init_fn=_worker_init if n else None)
++                it_ = iter(dl); first = next(it_); break
++            except Exception as e:
++                if not n: raise
++                err = repr(e); log_j(f"загрузчик workers={n} ({ctx.get_start_method()}) не стартовал: {err} → workers=0"); dl = it_ = None
++    info = dict(loader_workers=n, loader_ctx=(ctx.get_start_method() if n else None), loader_fallback_error=err,
++                loader_lock_wait_s=round(t_lock, 2), loader_start_s=round(time.time() - t - t_lock, 2))
++    log_j("загрузчик:", json.dumps(info, ensure_ascii=False))
++    return dl, it_, first, info
++
+ def train_job(job, dev, lane_left_iters, log_j):
+     torch.manual_seed(CFG["seed"] + job["fold"]); train, test = split(job["fold"], POOL)
+     model = build_model(job["ch"], job["init"]).to(dev).to(memory_format=torch.channels_last)
+@@ -493,16 +536,13 @@
+     use_amp = CFG["amp"] and dev.type == "cuda"
+     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+     ds = WinDS(train, job["ch"], CFG["seed"] * 1000 + job["fold"] * 10 + job["ch"], 10 ** 8)
+-    nw = CFG["workers"] if dev.type == "cuda" else 0
+-    dl = torch.utils.data.DataLoader(ds, batch_size=CFG["bs"], shuffle=False, num_workers=nw, pin_memory=dev.type == "cuda",
+-                                     persistent_workers=nw > 0, prefetch_factor=4 if nw else None, drop_last=True,
+-                                     worker_init_fn=lambda _: torch.set_num_threads(1))
++    dl, dl_it, first, ldi = make_loader(ds, dev, log_j)          # fork воркеров под FORK_LOCK (c3-f4 ERROR)
+     log_j(f"train: {len(train)} участков, объектов {sum(len(TGT[r]['samp']) for r in train)}, банк copy-paste {len(ds.bank)}; test {test}")
+     hist, t0, it, s_it = [], time.time(), 0, None; model.train()
+     if dev.type == "cuda": torch.cuda.reset_peak_memory_stats(dev)   # только счётчик пика памяти (лог/отчёт)
+     dw_all = dw_warm = 0.0; t_end = t_warm0 = t0                   # ожидание батча загрузчика: от конца прошлой ит. до получения батча (только лог/отчёт)
+     b_warm, b_it = int(CFG["budget_warm_it"]), int(CFG["budget_it"]); dts, t_prev = [], t0   # с/ит для бюджета — после прогрева загрузчиков/cudnn
+-    for x, tgt, m3, val in dl:
++    for x, tgt, m3, val in itertools.chain([first], dl_it):   # 1-й батч взят в make_loader
+         t_got = time.time(); dw_all += t_got - t_end
+         if it > b_warm: dw_warm += t_got - t_end
+         if it >= iters: break
+@@ -545,8 +585,8 @@
+     log_j(f"память/загрузчик (обучение): {json.dumps(dict(**mem, **dwi))}")
+     if s_it is None: s_it = t_train / max(1, it)
+     model.load_state_dict({k: v.to(model.state_dict()[k].dtype) for k, v in ema.items()}); model.eval()
+-    del dl
+-    return model, dict(iters_planned=CFG["iters"], iters_effective=it, s_per_it=round(s_it, 4), t_train_s=round(t_train, 1),
++    del first, dl_it, dl
++    return model, dict(**ldi, iters_planned=CFG["iters"], iters_effective=it, s_per_it=round(s_it, 4), t_train_s=round(t_train, 1),
+                        bank=len(ds.bank), hist=hist, train_regions=train, test_regions=test, vram_train=mem, **dwi)
+ 
+ # ── Шаг 9. Инференс (D8 TTA), декодирование пиков, OOF ────────────────────────────────────────────────────────

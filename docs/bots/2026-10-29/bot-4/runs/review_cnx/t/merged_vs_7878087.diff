@@ -1,0 +1,211 @@
+diff --git a/scripts/check_submission.py b/scripts/check_submission.py
+index a88d3f9..c73614c 100755
+--- a/scripts/check_submission.py
++++ b/scripts/check_submission.py
+@@ -105,7 +105,8 @@ def check_layout(z: zipfile.ZipFile) -> None:
+         report("PASS", "layout", f"ускоритель: {so[0]}")
+     else:
+         report("WARN", "layout", "нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)")
+-    extra_entry = [n for n in names if n.startswith("inference/") and n.endswith(".py") and n != "inference/main.py"]
++    extra_entry = [n for n in names if n.startswith("inference/") and n.endswith(".py") and n != "inference/main.py"
++                   and not n.startswith("inference/cnx/")]   # bot-8: подготовка [li_cnx], проверяет check_cnx
+     if extra_entry:
+         report("WARN", "layout", f"лишние .py в inference/: {extra_entry[:5]}")
+ 
+@@ -199,6 +200,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
+         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
+                                    ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
+     missing = [f"{k}={v}" for k, v in refs if v not in names
++               and not (k.startswith("li_cnx.") and not (cfg.get("li_cnx") or {}).get("enabled"))   # bot-8 [li_cnx] выкл.
+                and not (k.startswith("verify.") and not verify.get("enabled"))
+                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
+                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
+@@ -253,6 +255,111 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
+     return cfg
+ 
+ 
++# ---------------------------------------------------------------- [li_cnx]: ConvNeXt-лидар bot-9 (bot-8, bot8-cnx)
++#: без них подготовка cnx (отдельный процесс inference/cnx/cnx_prep.py) упадёт и пайплайн откатится на модель li
++CNX_REQUIRED = ("inference/cnx/cnx_prep.py", "inference/cnx/MANIFEST.json", "inference/cnx/vendor/expds_core.abi3.so",
++                "inference/cnx/vendor/relief_ext.py", "inference/cnx/vendor/expds/__init__.py",
++                "inference/cnx/vendor/expds/accel.py", "inference/cnx/vendor/expds/candidates.py",
++                "inference/cnx/vendor/expds/crs.py", "inference/cnx/vendor/expds/lidar.py",
++                "inference/cnx/_deps/rvt/__init__.py", "inference/cnx/_deps/rvt/vis.py")
++
++
++def _cnx_module(rel: str) -> str | None:
++    """inference/cnx/<...>.py → имя модуля, как его видит cnx_prep (sys.path: vendor, _deps)."""
++    p = PurePosixPath(rel)
++    if p.suffix != ".py" or p.parts[:2] != ("inference", "cnx"):
++        return None
++    parts = list(p.with_suffix("").parts[2:])
++    if parts[0] in ("vendor", "_deps"):
++        parts = parts[1:]
++    if parts and parts[-1] == "__init__":
++        parts = parts[:-1]
++    return ".".join(parts) or None
++
++
++def check_cnx(z: zipfile.ZipFile, cfg: dict | None) -> set:
++    """При [li_cnx] enabled: веса заданы, файлы подготовки на месте и совпадают с MANIFEST.json, в коде подготовки
++    нет сети. Возвращает сторонние пакеты подготовки (для пробы импорта)."""
++    lc = (cfg or {}).get("li_cnx") or {}
++    names = set(z.namelist())
++    has = sorted(n for n in names if n.startswith("inference/cnx/") and not n.endswith("/"))
++    if not lc.get("enabled"):
++        if has:
++            report("WARN", "cnx", f"[li_cnx] выключен, а inference/cnx/ в архиве ({len(has)} файлов) — лишний объём")
++        return set()
++    w = lc.get("weights")
++    w = [w] if isinstance(w, str) else list(w or [])
++    if not w:
++        report("FAIL", "cnx", "[li_cnx] enabled, но weights пуст — cnx не запустится (модель li)")
++    miss = [n for n in CNX_REQUIRED if n not in names]
++    if not any(n.startswith("inference/cnx/wheels/rvt_py-") and n.endswith(".whl") for n in has):
++        miss.append("inference/cnx/wheels/rvt_py-*.whl")
++    if miss:
++        report("FAIL", "cnx", f"[li_cnx] enabled, нет файлов подготовки (откат на модель li): {miss}")
++    try:
++        man = json.loads(z.read("inference/cnx/MANIFEST.json"))["sha256"]
++    except Exception as exc:
++        man = None
++        if "inference/cnx/MANIFEST.json" in names:
++            report("FAIL", "cnx", f"inference/cnx/MANIFEST.json не читается: {exc!r}")
++    if man is not None:
++        import hashlib
++        absent = sorted(r for r in man if f"inference/cnx/{r}" not in names)
++        bad = sorted(r for r in man if f"inference/cnx/{r}" in names
++                     and hashlib.sha256(z.read(f"inference/cnx/{r}")).hexdigest() != man[r])
++        extra = sorted(n for n in has if n != "inference/cnx/MANIFEST.json" and n[len("inference/cnx/"):] not in man)
++        if absent or bad:
++            report("FAIL", "cnx", f"inference/cnx не совпадает с MANIFEST.json: нет {absent[:5]}, sha ≠ {bad[:5]}")
++        else:
++            report("PASS", "cnx", f"inference/cnx: {len(man)} файлов совпадают с MANIFEST.json (sha256)")
++        if extra:
++            report("WARN", "cnx", f"inference/cnx: файлы вне MANIFEST.json: {extra[:5]}")
++    mods = {m: n for n in has if (m := _cnx_module(n))}
++    info = {}
++    for m, n in mods.items():
++        try:
++            tree = ast.parse(z.read(n).decode("utf-8"), filename=n)
++        except Exception as exc:
++            report("FAIL", "cnx", f"{n} не разбирается: {exc!r}")
++            continue
++        pkg = m if n.endswith("/__init__.py") else m.rpartition(".")[0]
++        imps = []
++        for node in ast.walk(tree):
++            if isinstance(node, ast.Import):
++                imps += [(node.lineno, a.name) for a in node.names]
++            elif isinstance(node, ast.ImportFrom):
++                if node.level:
++                    base = pkg.split(".")[: len(pkg.split(".")) - node.level + 1] if pkg else []
++                    head = ".".join(base + ([node.module] if node.module else []))
++                else:
++                    head = node.module or ""
++                imps += [(node.lineno, head)] + [(node.lineno, f"{head}.{a.name}") for a in node.names]
++        info[m] = (n, imps)
++    reach, todo = set(), ["cnx_prep"]
++    while todo:                                   # только достижимое из cnx_prep: rvt.blend/tile (matplotlib, osgeo) не нужны
++        m = todo.pop()
++        if m in reach or m not in info:
++            continue
++        reach.add(m)
++        parts = m.split(".")
++        todo += [".".join(parts[:i]) for i in range(1, len(parts))]
++        todo += [x for _, x in info[m][1] if x in info]
++    third, net = set(), []
++    for m in sorted(reach):
++        n, imps = info[m]
++        for line, x in imps:
++            top = x.split(".")[0]
++            if not x or x in info or top in {k.split(".")[0] for k in info} or top == "expds_core":
++                continue
++            if x in NET_MODULES or top in NET_MODULES or ".".join(x.split(".")[:2]) in NET_MODULES:
++                net.append(f"{n}:{line} import {x}")
++            if top not in sys.stdlib_module_names:
++                third.add(top)
++    if net:
++        report("FAIL", "cnx", "сетевые модули в подготовке cnx: " + "; ".join(net[:8]))
++    elif "cnx_prep" in reach:
++        report("PASS", "cnx", f"подготовка cnx: {len(reach)} модулей без сетевых импортов; сторонние пакеты {sorted(third)}")
++    return third
+ #: bot-3 PIXGBM (expds/geo_pixgbm.py): класс → файл модели в model_dir и методы, на которых он считается.
+ #: load_models молча пропускает отсутствующий <k>.txt (region_feats: «нет poly.txt/finds.txt — классика»),
+ #: поэтому при enabled=true каждый нужный файл обязан быть в архиве.
+@@ -499,6 +606,33 @@ try:
+                 out["weights"].append({"markup": "verify", "file": v["weights"], "ok": True, "classes": []})
+             except Exception as e:
+                 out["weights"].append({"markup": "verify", "file": v["weights"], "ok": False, "err": repr(e)[:300]})
++    lc = cfg.get("li_cnx") or {}
++    if lc.get("enabled"):                       # bot-8 [li_cnx]: вендорный expds — другой пакет, только подпроцесс
++        import os, subprocess
++        cx = root / "inference" / "cnx"
++        chk = ("import sys; sys.path[:0] = [sys.argv[1]]; import numpy, laspy, expds, expds.lidar, expds.candidates, "
++               "relief_ext, rvt.vis, expds_core; bad = [m.__name__ for m in (expds, relief_ext, expds_core) "
++               "if not m.__file__.startswith(sys.argv[1])]; print('CNX_OK' if not bad else f'CNX_BAD {bad}', rvt.vis.__file__)")
++        try:
++            r = subprocess.run([sys.executable, "-c", chk, str(cx / "vendor")], capture_output=True, text=True, timeout=300,
++                               cwd=str(cx), env=dict(os.environ, PYTHONPATH=str(cx / "_deps")))
++            ok = r.returncode == 0 and "CNX_OK" in r.stdout and str(cx / "_deps") in r.stdout
++            out["cnx_prep"] = {"ok": ok, "err": "" if ok else (r.stdout + r.stderr)[-400:]}
++        except Exception as e:
++            out["cnx_prep"] = {"ok": False, "err": repr(e)[:400]}
++        if load_w:
++            import gc
++            from expds import lidar_cnx
++            fs = lidar_cnx.weight_files(cfg)
++            try:
++                s = lidar_cnx.load(cfg, root, device="cpu")
++                for f in fs:
++                    out["weights"].append({"markup": "li_cnx", "file": f, "ok": True, "classes": [s.kind] + list(s.classes)})
++                del s
++            except Exception as e:
++                for f in fs:
++                    out["weights"].append({"markup": "li_cnx", "file": f, "ok": False, "err": repr(e)[:300]})
++            gc.collect()
+ except BaseException as e:
+     out["probe_err"] = traceback.format_exc()[-1500:]
+ print("PROBE_JSON=" + json.dumps(out, ensure_ascii=False))
+@@ -680,6 +814,11 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
+         report("FAIL", "config", f"проба конфига упала: {out['probe_err']}")
+     for msg in out["cfg"]:
+         report("FAIL", "config", msg)
++    if "cnx_prep" in out:   # bot-8 [li_cnx]
++        if out["cnx_prep"]["ok"]:
++            report("PASS", "cnx", "подготовка cnx (vendor expds/expds_core/relief_ext + _deps/rvt) импортируется в подпроцессе")
++        else:
++            report("FAIL", "cnx", f"подготовка cnx не импортируется (откат на модель li): {out['cnx_prep']['err']}")
+     if args.weights:
+         bad = [w for w in out["weights"] if not w["ok"]]
+         warn = [w for w in out["weights"] if w.get("warn")]
+@@ -902,7 +1041,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
+             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
+     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
+         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
+-        "упала", "запасной детектор", "MemoryError"))]
++        "упала", "запасной детектор", "MemoryError", "cnx не сработал", "cnx пропущен"))]
+     if problems:
+         report("WARN" if "сбой пайплайна" not in log else "FAIL", "smoke",
+                f"{len(problems)} тревожных строк лога: " + " | ".join(p[-200:] for p in problems[:5]))
+@@ -962,18 +1101,19 @@ def main() -> int:
+     check_size(args.zip, z)
+     check_metadata(z)
+     cfg = check_config_static(z)
++    cnx_third = check_cnx(z, cfg)
+     if "inference/main.py" in z.namelist() and "expds/pipeline.py" in z.namelist():
+         tmp = Path(tempfile.mkdtemp(prefix="b8static_", dir=args.workdir))
+         try:
+             for n in z.namelist():
+-                if n.endswith(".py") or n.endswith(".so") or n.endswith(".toml"):
++                if n.endswith(".py") or n.endswith(".so") or n.endswith(".toml") or n.startswith("inference/cnx/"):
+                     z.extract(n, tmp)
+             for n in z.namelist():                       # веса нужны пробе
+                 if args.weights and n.startswith("models/"):
+                     z.extract(n, tmp)
+             reach, third = check_imports_static(tmp)
+             check_so(tmp)
+-            run_probe(tmp, args.python, reach, third, args)
++            run_probe(tmp, args.python, reach, third | cnx_third, args)
+         finally:
+             shutil.rmtree(tmp, ignore_errors=True)
+     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):

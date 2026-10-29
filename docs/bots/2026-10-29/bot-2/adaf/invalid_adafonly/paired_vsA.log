@@ -1,0 +1,9 @@
+k10 {'A_drop': 0.314615, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.314615, 'd_ABE_drop': -0.314615}
+lofo {'A_drop': 0.315067, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.315067, 'd_ABE_drop': -0.315067}
+seed0 {'A_drop': 0.314698, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.314698, 'd_ABE_drop': -0.314698}
+seed1 {'A_drop': 0.306042, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.306042, 'd_ABE_drop': -0.306042}
+seed2 {'A_drop': 0.318393, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.318393, 'd_ABE_drop': -0.318393}
+seed3 {'A_drop': 0.309721, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.309721, 'd_ABE_drop': -0.309721}
+seed4 {'A_drop': 0.29063, 'AB_drop': 0.0, 'ABE_drop': 0.0, 'd_AB_drop': -0.29063, 'd_ABE_drop': -0.29063}
+AB_drop d10=-0.314615 P=0.000 CI=[-0.35213;-0.24518] lofo=-0.315067 seeds+=0/5 heavy={'kurgany_povrezhdennye': -0.0943, 'kurgany_tselye': -0.0966, 'gorodishcha': -0.0419} sl={'new34': -0.29645, 'no_lidar': -0.14427, 'lidar59': -0.36159} wo3=-0.295999 fams=103 отклонить
+ABE_drop d10=-0.314615 P=0.000 CI=[-0.35213;-0.24518] lofo=-0.315067 seeds+=0/5 heavy={'kurgany_povrezhdennye': -0.0943, 'kurgany_tselye': -0.0966, 'gorodishcha': -0.0419} sl={'new34': -0.29645, 'no_lidar': -0.14427, 'lidar59': -0.36159} wo3=-0.295999 fams=103 отклонить

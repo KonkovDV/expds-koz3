@@ -128,3 +128,27 @@ REPORT3.md и REPORT4.md готовы; bot8-merged=2f530a8, bot8-rust-metric=d07
 - Тесты: check_cnx + cnx + check_submission — 130 passed; харнесс bot-4 (адаптированная копия tests_out/cnx/bot4_rereview_adapted.py) — все случаи ожидаемые, N8–N13 и M6b закрыты.
 - Смоук cnx off @1aecea9: PASS, result.geojson 56be33ff… байт-в-байт.
 - Корневой check_submission.py = git (sha 724435e6…), вместе с rerank_arch.
+
+## 2026-10-29 09:25 МСК — li_half (патч бота 2) на ветке bot8-li-half (от 1aecea9, wt-lihalf, НЕ запушено)
+- 732efef (автор bot-2) — git am -3 bot-2/patch/0001-li-half.patch (sha 606ed00e…, = db332db). Один конфликт: импорт в expds/pipeline.py → объединён (li_half + lidar_cnx).
+- fa963e8 интеграция: SOFT_NEED_DEFAULT["li_half"]=30 ([time.soft] li_half, EXPDS_SOFT_NEED_LI_HALF_S); на LAS _li_half_soft_ok: need = max(need, est_s) + wide_window + sigma + verify (+ soft_need_s cnx при [li_cnx]) → li_half отключается ПЕРВЫМ, пропуски в guard.soft_skipped; est_s = max(5, 0,35·t_li_main·tta); жёсткий guard.ok(reserve+est) оставлен. enabled только bool. Без своей [thresholds_by_markup.li_half] (или с ошибкой порогов) объектов li_half нет, без выгрузки прохода нет совсем.
+  Баг бота 2 исправлен: hp ([li_half]) затирался hp = hillfort.params_from(...) в том же цикле LAS ([hillfort] enabled по умолчанию) → при включённом li_half лидар участка падал (TypeError/KeyError). Теперь half_p; регрессионный тест.
+  Порядок отборов 12 м: li_half — против принятых li того же участка; cnx позже — против всего пула, включая принятые li_half; σ — только против KEPT_KURGAN_CONF (li_half там нет). Отбор везде по классу.
+- 666a6e0 check_submission: check_li_half — не-bool enabled → WARN; включён без таблицы → WARN (режим выгрузки); чужая группа / нет класса / плохой tta → FAIL; ключи смоука «li_half упал/пропущен — мало времени/НЕ выдаются» → WARN. Корневой check_submission.py синхронизирован: sha 0a9a41cd…
+- pytest полный: 510 passed / 9 skipped / 1 failed (test_coco_roundtrip, известный). Новые: tests/test_bot8_li_half.py (16), tests/test_bot8_check_li_half.py (3).
+- Смоуки (CPU 0,1): off — PASS, 56be33ff… байт-в-байт, 17,2 с, RSS 978 МиБ; on (пробные пороги 0,5) — PASS, li_half 0,1 с на LAS, 20 → 0 новых, 56be33ff…, 15,7 с, 967 МиБ; on (0,01) — PASS, li_half 0,8 с, 20 → 3 новых, 83 объекта, 19,9 с, 924 МиБ. Разница во времени и RSS в пределах шума.
+
+## 2026-10-29 09:42 МСК — bot8-li-half @828401d (патч 0002 бота 2 + σ/cnx-якоря), не запушено
+- История: 732efef (бот 2, 0001) → fa963e8 → 666a6e0 (чекер) → 53d2b79 (бот 2, 0002 = их 6be0c94, `git am -3` без конфликтов; sha патча 6d960491…a7ac85c) → 828401d (бот 8). Прежняя моя версия сохранена в ветке bot8-li-half-pre0002 (1d904f9). bfb4ae8 бота 2 в патче нет и в нашем git нет.
+- new_only = drop_near_any_class бота 2 (их тест без изменений); якоря — kept_kurgan_anchors(main li), включая li_mosaic.
+- σ (li_dev): якоря = KEPT_KURGAN_CONF + принятые li_half и li_cnx (sigma_anchors); σ в пределах класса.
+- dedupe_cnx: против лидара (li/li_mosaic/li_half…) перекрёстно по классу курганов, против оптики — по классу.
+- Без soft_need_s в [li_half]; 0,35 в est_s оставлен для v1 (бот 2 намерил ≈0,2).
+- Тесты: выборочные 202 прошли; полный 515 прошли / 9 пропущено / 1 упал (известный test_coco_roundtrip). Смоук off PASS 80 об., sha 56be33ff… (как раньше); lo (пороги li_half 0.01) PASS 81 об. (было 83), li_half 20→1, σ +23, sha f3e7491b… (как в 1d904f9), RSS ≤974 МиБ.
+
+## 2026-10-29 09:44 МСК — bot8-li-half @e449736: [li_half] self_xclass_nms_m (по запросу бота 2), не запушено
+- bfb4ae8 не нужен (бот 2).
+- Новый ключ [li_half] self_xclass_nms_m (м, число ≥ 0; по умолчанию 0 — выкл.; bool/строка/отрицательное/nan/inf — выкл. + WARN один раз). li_half.self_nms применяется в lidar_feats после new_only (drop_near_any_class против li/li_mosaic) и пола группы li_half, до выдачи.
+- Правило: на участке круги-курганы li_half (оба класса) жадно по (уверенность ↓, целый раньше повреждённого, исходный порядок); круг остаётся, если ни один уже оставленный не ближе порога (≤, ground_point). Не курганы не трогаются. Описано в default.toml.
+- Тесты: 0 → вход без изменений; 12 м → остаётся более уверенный, при ничьей целый, 13 м — оба, другой участок — оба, жадная цепочка; интеграция в lidar_feats; дефолт в default.toml = 0. li_half/check_li_half/test_li_half/soft_ceiling/cnx/pipeline — 108 прошли, check_submission/check_cnx — 98 прошли.
+- Смоук off: PASS, 80 объектов, sha 56be33ff… (без изменений), 32,2 с, RSS 950 МиБ. Чекер не менялся (новый ключ он не проверяет).

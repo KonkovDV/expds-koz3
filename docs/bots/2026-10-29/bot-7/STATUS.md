@@ -152,3 +152,35 @@ Recall — по эталонам без лидара из 73 (в скобках 
 - 29.10 03:25 MSK: bot7-candidate-v2, голова **eb268d6** (67284ab → 4623c76 [bot-8 26e12ae, мягкий потолок] → 31594d2 [bot-8 428257f] → 8594842 [procs=2, soft_ceiling_s=1200 явно, budget 600 временно до ПК] → eb268d6 [починка SIGTERM в fork-пуле PIXGBM]). Конфликтов нет. **8594842 на 217: FAIL** — дети пула наследовали обработчик SIGTERM main.py, после pool.terminate() пустой результат и зависание в join, 918 с (`work5/check_8594842_217.log`); ошибка есть и в 67284ab на многоядерной платформе. eb268d6: pytest 364 passed / 1 failed (float-флаки bot-8, при повторе прошёл; `work5/pytest_eb268d6*.log`); zip `work5/dist/submission_bot7cand_v2_eb268d6.zip` sha256 8f3f2671…d589; check --lock PASS: синтетика, 210, 214, 217 (129 с, пик дерева 1541 МиБ), pixgbm full, выходы побайтно = 67284ab, строка мягкого потолка есть. diff/mbox/SHA256SUMS обновлены (8594842 удалён), pc_measure_v2.ps1 не тронут. REPORT4 §10.
 
 - 29.10 03:30 MSK, задача 7: предрегистрированная комбинация с честными скорами бота 5 (scores_cand7.json 02:02; MODE=comb и MODE=b5) не досчитана — оба прогона упёрлись в лимит 2 ГБ (watchdog kill, logs/eval_comb.log, eval_b5.log). Сверка совпала (430 286 из 430 586 со скором, фолды совпадают, база 0,314615 воспроизведена). Обе компоненты по отдельности отрицательны (моя −0,00037; у бота 5 gate −0,014), поэтому задача поставлена на паузу; при необходимости — пересчёт по классам по отдельности ради памяти.
+
+## 29.10.2026 10:50 МСК — bot-7 v3: починка загрузки D-FINE (срочно), аудит, ORSP
+- Ветка `bot7-candidate-v3` (без push), HEAD **85aee5e**. Цепочка: 9138bff → b5c51b9, c0790b4, 8f89294 (аудит: защита времени ВКЛ., выход побайтно тот же; gormask, neigh, calib, frame ВЫКЛ. по bot-10 REPORT11; KIG заменён gormask) → 4f03a3e (ORSP abae911, выкл.) → 1295c75, 1d6c822, 85aee5e (починка D-FINE).
+- PC e2e бота 1 **недействителен**. Нативный Windows python, а вендор regex и tokenizers собран под linux, поэтому D-FINE молча не загрузился и выдача совпала с v2. Исправлено:
+  - закреплённый импорт 5.21.0;
+  - ERROR `SP_DFINE_UNAVAILABLE`, затем выдача v2;
+  - check_submission FAIL на маркер и на пробу импорта;
+  - лог `sp_dfine n_det`;
+  - 14 тестов.
+  Подробности: `work6/FOR_BOT1_e2e.md`.
+- Архивы в `work6/dist` (sha256 — в `work6/dist/SHA256SUMS`):
+  - `submission_bot7cand_v3on_1d6c822.zip`, 3e459278…d817 (на повтор PC e2e);
+  - `submission_bot7cand_v3off_1d6c822.zip`, 1a12c286…6495;
+  - `submission_bot7cand_v3off_8857343.zip`, хранится.
+  v2 eb268d6 не тронут. Архивы 9138bff, 4f03a3e и TEST удалены.
+- pytest 440 passed, 9 skipped. Флаги ВКЛ. на 103 (CPU, batch 1): n_det 154, 220,7 с, RSS 1557 МБ. 4f03a3e на synth, 210, 214, 217 побайтно = v2.
+- Ждёт:
+  - бот 1: повтор PC e2e (docker);
+  - бот 10: приёмка, замер 4090;
+  - тест деградации времени `work6/tt`;
+  - проверки ORSP (a)–(e) — подготовлены, не запущены.
+
+## 29.10.2026 ≈11:30 МСК — bot-7 v3: FR1h ВКЛ., D-FINE f0 (final — резерв), проверка весов, ORSP, деградация
+- Ветка `bot7-candidate-v3` (без push), HEAD **36af6b7** (85aee5e → 1cefcee → 36af6b7).
+- FR1h (frame_prior @d4edf2f) ВКЛ.: группы sp_or/sp_focal/sp_focal2, все классы кроме городищ, d0 0,5, edge 0,5; до порогов в finish и safe_finish; рамки = bot-10 (168/168). gormask, KIG, neigh, calib — ВЫКЛ. Оговорка про пороги — QUESTIONS.md.
+- D-FINE: в сдаче **f0**; final — резерв, НЕ одной строкой (перенос порогов + приёмка; `work6/on/FINAL_VARIANT.md`). fp32 + autocast, без `.half()`.
+- check_submission: FAIL при n_det=0 — проба весов на 12 окнах 103 SpOr (f0: 14 запросов ≥0,3) и проверка смоук-лога; тесты.
+- Архивы (`work6/dist/SHA256SUMS`): **v3on_36af6b7** 9ec25962…74e9 (сдача: FR1h + D-FINE f0 R) — check --no-smoke PASS, проба 14/14; v3off_36af6b7 4d4107d1…c2f9; хранятся v3off_8857343, v2 eb268d6. Удалены 1d6c822, 1cefcee.
+- pytest: 451 passed / 9 skipped / 1 failed (coco_roundtrip — нет cv2 в venv, окружение).
+- ORSP на 103 (база v3off_36af6b7): povr 0,2665 и 0,3645 — Δ 0, выходы равны; курганы sp_or 1, sp_focal2 0. Под R ORSP — пустой шаг. Флаг выкл.
+- ПК-набор: pc_e2e_v3.ps1 (-ZipV3 по умолчанию v3on_36af6b7), `work6/pc/SHA256SUMS` обновлён; FOR_BOT1_e2e.md обновлён.
+- Деградация времени `work6/tt`: идёт (см. REPORT_v3 §4).

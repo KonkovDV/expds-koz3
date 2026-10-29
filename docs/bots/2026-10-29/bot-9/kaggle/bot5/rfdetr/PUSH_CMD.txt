@@ -1,0 +1,1 @@
+KAGGLE_API_TOKEN=$(cat ~/.kaggle/access_token) ~/.local/bin/kaggle kernels push -p /workspace/koz3_shared/bot-9/kaggle/bot5/rfdetr/kernels/koz3-b5-rfdetr

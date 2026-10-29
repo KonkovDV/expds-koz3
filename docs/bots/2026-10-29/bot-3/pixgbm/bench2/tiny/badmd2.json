@@ -1,0 +1,38 @@
+{
+ "case": "pix",
+ "budget": "1e9",
+ "model_dir": "/nonexistent",
+ "wall": 0.82,
+ "cpu": 0.79,
+ "since_proc_start": 0.91,
+ "ok": true,
+ "errors": [],
+ "warnings": [],
+ "summary": {
+  "features": 154,
+  "by_class": {
+   "finds_points": 29,
+   "object_poly": 125
+  },
+  "size_mb": 0.32
+ },
+ "crs": [
+  "EPSG:3857"
+ ],
+ "geom_types": [
+  "Polygon"
+ ],
+ "steps": {
+  "full": 0,
+  "finds_only": 0,
+  "classic": 0,
+  "classic_budget": 0,
+  "error": 17
+ },
+ "level": 0,
+ "by_group": {
+  "maggr|finds_points": 29,
+  "maggr|object_poly": 1,
+  "etgr|object_poly": 124
+ }
+}

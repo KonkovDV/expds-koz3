@@ -1,0 +1,517 @@
+{
+ "Армиево": {
+  "n": 5,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Артпозиции": {
+  "n": 866,
+  "changed": 2,
+  "dropped_below_new_floor": 160
+ },
+ "Архангельское": {
+  "n": 3149,
+  "changed": 40,
+  "dropped_below_new_floor": 1723
+ },
+ "Барскоон": {
+  "n": 896,
+  "changed": 3,
+  "dropped_below_new_floor": 473
+ },
+ "Белая": {
+  "n": 782,
+  "changed": 5,
+  "dropped_below_new_floor": 642
+ },
+ "Бервенец": {
+  "n": 14161,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Боровичи": {
+  "n": 156072,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Булан": {
+  "n": 411,
+  "changed": 1,
+  "dropped_below_new_floor": 134
+ },
+ "Верхмарево": {
+  "n": 32618,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Верхнее": {
+  "n": 518,
+  "changed": 0,
+  "dropped_below_new_floor": 261
+ },
+ "Верхний": {
+  "n": 230,
+  "changed": 0,
+  "dropped_below_new_floor": 106
+ },
+ "Верхняя": {
+  "n": 774,
+  "changed": 4,
+  "dropped_below_new_floor": 687
+ },
+ "Воронеж": {
+  "n": 2199,
+  "changed": 35,
+  "dropped_below_new_floor": 1863
+ },
+ "Вщиж": {
+  "n": 25423,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Вышегжа": {
+  "n": 180433,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Вышенское": {
+  "n": 48683,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Герите": {
+  "n": 43,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Гнёздово": {
+  "n": 119330,
+  "changed": 1,
+  "dropped_below_new_floor": 397
+ },
+ "Городище": {
+  "n": 1127,
+  "changed": 1,
+  "dropped_below_new_floor": 409
+ },
+ "Гочево": {
+  "n": 5340,
+  "changed": 21,
+  "dropped_below_new_floor": 2626
+ },
+ "Граборг": {
+  "n": 77058,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Демидовка": {
+  "n": 29351,
+  "changed": 0,
+  "dropped_below_new_floor": 817
+ },
+ "Елизаветинское": {
+  "n": 23387,
+  "changed": 1,
+  "dropped_below_new_floor": 232
+ },
+ "Золотаревка": {
+  "n": 128748,
+  "changed": 0,
+  "dropped_below_new_floor": 167
+ },
+ "Изборск": {
+  "n": 1131,
+  "changed": 5,
+  "dropped_below_new_floor": 530
+ },
+ "Иссык": {
+  "n": 340,
+  "changed": 6,
+  "dropped_below_new_floor": 278
+ },
+ "КЧР": {
+  "n": 2993,
+  "changed": 0,
+  "dropped_below_new_floor": 56
+ },
+ "Кабардино": {
+  "n": 4021,
+  "changed": 104,
+  "dropped_below_new_floor": 3430
+ },
+ "Каджы": {
+  "n": 713,
+  "changed": 19,
+  "dropped_below_new_floor": 455
+ },
+ "Калмыкия": {
+  "n": 5687,
+  "changed": 47,
+  "dropped_below_new_floor": 1910
+ },
+ "Каменка": {
+  "n": 402,
+  "changed": 2,
+  "dropped_below_new_floor": 341
+ },
+ "Каменные": {
+  "n": 1105,
+  "changed": 23,
+  "dropped_below_new_floor": 771
+ },
+ "Кан": {
+  "n": 736,
+  "changed": 4,
+  "dropped_below_new_floor": 367
+ },
+ "Кароол": {
+  "n": 1035,
+  "changed": 3,
+  "dropped_below_new_floor": 771
+ },
+ "Кель": {
+  "n": 348,
+  "changed": 12,
+  "dropped_below_new_floor": 283
+ },
+ "Кисловодская": {
+  "n": 4864,
+  "changed": 128,
+  "dropped_below_new_floor": 4509
+ },
+ "Конур": {
+  "n": 476,
+  "changed": 10,
+  "dropped_below_new_floor": 244
+ },
+ "Копанское": {
+  "n": 852,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Корумду": {
+  "n": 309,
+  "changed": 1,
+  "dropped_below_new_floor": 149
+ },
+ "Костомаровское": {
+  "n": 215,
+  "changed": 1,
+  "dropped_below_new_floor": 170
+ },
+ "Красносельская": {
+  "n": 3233,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Ксизово": {
+  "n": 261,
+  "changed": 0,
+  "dropped_below_new_floor": 64
+ },
+ "Курган": {
+  "n": 4089,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Курганы": {
+  "n": 25617,
+  "changed": 170,
+  "dropped_below_new_floor": 12927
+ },
+ "Курменту": {
+  "n": 1690,
+  "changed": 28,
+  "dropped_below_new_floor": 1515
+ },
+ "Лешки": {
+  "n": 128,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Лихуша": {
+  "n": 22100,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Лубно": {
+  "n": 12366,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Макеево": {
+  "n": 13906,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Маяцкая": {
+  "n": 409,
+  "changed": 0,
+  "dropped_below_new_floor": 358
+ },
+ "Миловидово": {
+  "n": 2462,
+  "changed": 4,
+  "dropped_below_new_floor": 954
+ },
+ "Московиты": {
+  "n": 13206,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Мостище": {
+  "n": 6156,
+  "changed": 49,
+  "dropped_below_new_floor": 2130
+ },
+ "Муравлево": {
+  "n": 34426,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Никола": {
+  "n": 2143,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Новенькое": {
+  "n": 6751,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Новотитаровская": {
+  "n": 9238,
+  "changed": 0,
+  "dropped_below_new_floor": 46
+ },
+ "Нора": {
+  "n": 3125,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Орнок": {
+  "n": 307,
+  "changed": 2,
+  "dropped_below_new_floor": 151
+ },
+ "Осечки": {
+  "n": 13918,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Перынь": {
+  "n": 975,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Постройки": {
+  "n": 509,
+  "changed": 0,
+  "dropped_below_new_floor": 244
+ },
+ "Примаки": {
+  "n": 7176,
+  "changed": 0,
+  "dropped_below_new_floor": 249
+ },
+ "Романово": {
+  "n": 9322,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Россошки": {
+  "n": 372,
+  "changed": 3,
+  "dropped_below_new_floor": 345
+ },
+ "Руна": {
+  "n": 12731,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Русская": {
+  "n": 1355,
+  "changed": 13,
+  "dropped_below_new_floor": 1146
+ },
+ "Сакские": {
+  "n": 161,
+  "changed": 16,
+  "dropped_below_new_floor": 127
+ },
+ "Саратов": {
+  "n": 4832,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Сарское": {
+  "n": 8132,
+  "changed": 44,
+  "dropped_below_new_floor": 3768
+ },
+ "Сары": {
+  "n": 39,
+  "changed": 0,
+  "dropped_below_new_floor": 35
+ },
+ "Сельцо": {
+  "n": 135,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Селяне": {
+  "n": 10421,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Семибратнее": {
+  "n": 5893,
+  "changed": 3,
+  "dropped_below_new_floor": 214
+ },
+ "Скупая": {
+  "n": 561,
+  "changed": 5,
+  "dropped_below_new_floor": 535
+ },
+ "Сож": {
+  "n": 6912,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Солдатское": {
+  "n": 7336,
+  "changed": 20,
+  "dropped_below_new_floor": 2126
+ },
+ "Старый": {
+  "n": 29,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Стеклянуха": {
+  "n": 30802,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Сторожевое": {
+  "n": 1151,
+  "changed": 12,
+  "dropped_below_new_floor": 1113
+ },
+ "Стрекаловка": {
+  "n": 1,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Судьбищи": {
+  "n": 23392,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Таш": {
+  "n": 136,
+  "changed": 4,
+  "dropped_below_new_floor": 101
+ },
+ "Тешилово": {
+  "n": 15630,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Тимерево": {
+  "n": 3174,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Торт": {
+  "n": 135,
+  "changed": 1,
+  "dropped_below_new_floor": 70
+ },
+ "Тору": {
+  "n": 566,
+  "changed": 6,
+  "dropped_below_new_floor": 377
+ },
+ "Тоссор": {
+  "n": 1050,
+  "changed": 1,
+  "dropped_below_new_floor": 186
+ },
+ "Тыва": {
+  "n": 1592,
+  "changed": 47,
+  "dropped_below_new_floor": 769
+ },
+ "Усть": {
+  "n": 8979,
+  "changed": 1,
+  "dropped_below_new_floor": 58
+ },
+ "Фалхан": {
+  "n": 17,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Хальвасборген": {
+  "n": 23500,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Хога": {
+  "n": 3115,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Чудово": {
+  "n": 3358,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Шаты": {
+  "n": 24,
+  "changed": 0,
+  "dropped_below_new_floor": 8
+ },
+ "Шетнево": {
+  "n": 34201,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Шишкино": {
+  "n": 1959,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Шниткино": {
+  "n": 564,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Шумгора": {
+  "n": 54242,
+  "changed": 4,
+  "dropped_below_new_floor": 659
+ },
+ "Шурскол": {
+  "n": 3999,
+  "changed": 4,
+  "dropped_below_new_floor": 437
+ },
+ "Эрентуна": {
+  "n": 25014,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Эсбю": {
+  "n": 10813,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ },
+ "Юшково": {
+  "n": 10042,
+  "changed": 0,
+  "dropped_below_new_floor": 0
+ }
+}

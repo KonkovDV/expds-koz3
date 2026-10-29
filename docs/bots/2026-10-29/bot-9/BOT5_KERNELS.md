@@ -129,3 +129,32 @@
 - Вопрос bot-5: откуда брать STACK (`scoreboard.py --dump-stack`) и GT? Подойдёт ли, если залить их приватным датасетом (заливает bot 1)?
 
 **Риск.** Задания 1 и 3A скачивают одни и те же 5,40 ГБ, по ~10–15 мин на сессию. Объединять их я не стал, чтобы не смешивать приоритеты.
+
+## Обновление 29.10 ~09:15 (bot-5 ANSWERS_BOT9_REVIEW)
+
+### gorloc probes пересобраны @4a39427
+Feats/smoke не трогали (sha feats e273f42c… как в очереди бота 1).
+Вшиты dense_probe abbe4ea8… и peaks_ckpt 36b864cc…. LOFO → два ядра.
+
+| ядро | .py sha256 |
+|---|---|
+| koz3-b5-gorloc-probe-l24 | ea50d3f40f9051fe7645a96d977326e3a942a5b5ad6230e305f838e5bbbfefd7 |
+| koz3-b5-gorloc-probe-l12a | 9762baeb67cb694cdf55fa9d045f3290054a6fab0527faab1ffafe3d1c70235d |
+| koz3-b5-gorloc-probe-l12b0 (FOLDS=0-51) | 1313a6dd97f439f78bb3c9da43cd1ba7fad16fc4f60749d784209739fa68e3d0 |
+| koz3-b5-gorloc-probe-l12b1 (FOLDS=52-102) | 401f079df019b30090c44ed0a7de410662051f3f7892da41f998cc5c2ca7cfdd |
+
+Пуш (CPU, после COMPLETE feats). Старый probe-l12b — не пушить (…OLD_do_not_push).
+Слияние LOFO: python peaks_ckpt.py CK0,CK1 OUT.json
+
+### RF-DETR
+GT confirmed: /workspace/rerank/gt_train_v2.geojson sha256 d4bc1a3b01350c9b3785155dc4d7c13403fdfe7a098664bcb259f96bc168ff86.
+Private dataset для бота 1: залить этот файл как gz (~11.5 МБ), id предлагаю dmitrijkv/koz3-gt-train-v2.
+Ядро со сборкой det05 внутри — в работе (не READY).
+
+### dinov2reg-B
+WAITING npz / новую версию от бота 5 (вариант B).
+
+## 29.10 ~09:40 — RF-DETR и dinov2reg-B (Or-кропы)
+- ВАЖНО: `kaggle kernels push` заливает только code_file → исходники встроены в .py (`kaggle/bot5/embed_src.py`).
+- RF-DETR `kaggle/bot5/rfdetr/kernels/koz3-b5-rfdetr/`: py b865e77e…43bb, meta 92033327…ffb2, src c43cb08 tar ba892509…1770 (встроен). Датасеты koz3-gt-train-v2 + koz3-s3-cred. Smoke: B9_MODE=smoke.
+- dinov2reg-B `kaggle/bot5/dinov2reg/kernels/koz3-b5-dinov2reg-orcrops/`: py 2b43a0e6…10ae, meta 91c3c6af…b25a; src f7cf5d2 (expds + crop_verify ca214839… + rerank_oof) tar 58efe695…6586 встроен. Вход: датасет dmitrijkv/koz3-b5-or-arch-crops (or_arch_crops.npz sha 6663649d…d44c, assert). Энкодеры resnet18 / DINOv2-S@ed25f3a3 / regB@a1d738cc / regL@e4c89a4e → gp/p_or_<tag>.{npz,json} → verify_or_reg.tgz. CPU dry-run (DINOv2-S): распаковка, sha, загрузка весов и эмбеддинг кропов идут (128/626 за ~4 мин на 2 потоках), остановлен — до конца не доводил.

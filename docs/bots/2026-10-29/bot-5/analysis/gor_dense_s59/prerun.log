@@ -1,0 +1,12 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[1s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[1s] SpOr tif regions 132 with sp_or candidates 132
+[1s] positive scenes 49 of 132
+[1s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[2s] variant snap rows 76 rows with an OK pair 7
+[2s] variant centre rows 132 rows with an OK pair 18
+[2s] variant csnap rows 132 rows with an OK pair 19
+[8s] honest-10 A 0.3146153226828423
+[8s] own gor routine == honest_counts gor: OK
+[9s] prerun written /workspace/koz3_shared/bot-5/analysis/gor_dense_s59/prerun.json {'seed5': 'e3c24e4a8e100be1787489e1ad15374b57e61e8108137a59185dac5041eeaddb', 'seed6': '1596f8e0dc007af1a7d13ee14d7734c911adb0b4b3d6424c42f0802a65fd5d8f', 'seed7': 'bfcc07ce8011347c7ae1d2c1c564a3a61326b4d81b0356d23ce61618c00320ad', 'seed8': 'fe82be608c9941ec0fcaf4f6b6d82c84358c3257ed56dd6f33e71d1f39197c3e', 'seed9': '9f42b70b099243f931f55f879652b926eb8ef1ab286057216f794b6cddd63d3f', 'fam10': '368330cac839ab50d5e51fc89b9252acea861acbc1015bacff74b1687bfec9d3', 'LOFO': '097de0df582fd898aaf6feaa7ab584f4e13fe9986b90da0fd0a9069d0edae64c', 'seed0': 'c30ccf2542873a74d6f95e64f162768c7b87bd26d3b480e2227bc5007013419a', 'seed1': 'adee20ec5de08d9c7baf6d3918c4e98fd9e53ec8ebd5c791bf6ba9a164e9a3c4', 'seed2': 'e0df8b88b29daa2cddd2af8c61b7233f50a856eb412ad65482e75e8d12fef85b', 'seed3': '1ca7450193fd65b1621eca689cc7146b2a9509694b8a8ad207e564feb28cf23f', 'seed4': '8d54a8f2b0268e0e90156fd77508678e7a93eea4fd8034efcdc08f647b0fb16a'} {'head': 'b90ba4bb34aba358e8d61c8e94edaf6d2c38b05d', 'dense_probe_last_commit': '4a39427c6c77834a41bf0bfd533462ab8ba444dd', 'probe_vs_4a39427_diff': 'none', 'dirty': ''}
+watchdog max RSS MB 809 exit 0

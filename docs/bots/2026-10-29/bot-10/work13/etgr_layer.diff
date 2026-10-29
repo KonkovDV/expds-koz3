@@ -1,0 +1,93 @@
+diff --git a/expds/metric.py b/expds/metric.py
+index d7c18b6..030c501 100644
+--- a/expds/metric.py
++++ b/expds/metric.py
+@@ -94,6 +94,30 @@ def _todo_batch_hash(todo_feats: list, todo_meta: list, mode: str, is_gt: bool,
+     return h.hexdigest()
+ 
+ 
++def _etgr_layer_on() -> bool:
++    """bot-10, task C: EXPDS_ETGR_LAYER=1 — EtGr object_poly сопоставляются только в пределах своего слоя
++    (карта глубин / профиль = отдельный эталон, RULES_ORG_2026-10-29_misc.md п.4). По умолчанию выкл."""
++    import os
++    return os.environ.get("EXPDS_ETGR_LAYER", "0") in ("1", "on", "true")
++
++
++def _etgr_layer_key(props: dict):
++    """None — не EtGr; иначе frozenset ключей слоя ('Гнёздово_Усадьба_EtGr_профиль_14')."""
++    import re
++    if str(props.get("markup_type", "")) != "etgr":
++        return None
++    lay = props.get("etgr_layers")
++    if lay:
++        return frozenset(str(lay).split("|"))
++    src = str(props.get("source", "") or "")
++    if not src:
++        return frozenset(["?"])
++    src = re.sub(r"\.(tif|tiff|geojson)$", "", src.split("/")[-1], flags=re.I)
++    src = re.sub(r"_ObjectPoly$", "", src)
++    src = re.sub(r"^\d+_", "", src)
++    return frozenset([src])
++
++
+ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+     """Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
+     import pickle
+@@ -108,6 +132,8 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+     todo_feats: list[tuple[dict, object, int]] = []
+     todo_meta: list[tuple[str, float, str, str, int]] = []
+     ordered_slots: list[tuple[str, object, float, str, str]] = []
++    lay_on = _etgr_layer_on()
++    slot_layer: list = []
+ 
+     for feature in fc.get("features", []):
+         props = feature.get("properties", {}) or {}
+@@ -120,6 +146,8 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+         conf = mod._get_confidence(feature)
+         reg = str(props.get("region_name", "default_source"))
+         grp = threshold_group(props)
++        if lay_on:
++            slot_layer.append(_etgr_layer_key(props))
+         gid = id(gdict)
+         hit = sub_cache.get(gid)
+         if hit is not None and hit[0] is gdict:
+@@ -206,6 +234,11 @@ def _collect(mod, calc, fc: dict, is_gt: bool) -> dict[str, list[tuple]]:
+                     except Exception:
+                         pass
+ 
++    if lay_on:
++        for (cls, g, conf, reg, grp), lay in zip(ordered_slots, slot_layer):
++            if g is not None:
++                out.setdefault(cls, []).append((g, conf, reg, grp, lay))
++        return out
+     for cls, g, conf, reg, grp in ordered_slots:
+         if g is not None:
+             out.setdefault(cls, []).append((g, conf, reg, grp))
+@@ -238,9 +271,11 @@ def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
+     # (region_name), как calculate_f1 по каждому участку split_merged_by_source_and_class.
+     # Штатная реализация — у bot-8 (EXPDS_MATCH_SCOPE, score_by_site); эту не сливать.
+     site = os.environ.get("EXPDS_MATCH_SCOPE", "global") == "site"
++    lay_on = _etgr_layer_on()
+     curves: dict[str, ClassCurve] = {}
+     for cls in calc.target_classes:
+         p, g = preds.get(cls, []), gts.get(cls, [])
++        lay = lay_on and cls == "object_poly" and bool(p) and bool(g) and len(p[0]) > 4 and len(g[0]) > 4
+         order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+         hits = np.zeros(len(p), dtype=bool)
+         if p and g:
+@@ -259,10 +294,15 @@ def match_collected(calc, preds: dict, gts: dict) -> dict[str, ClassCurve]:
+                     if pg.geom_type != "Polygon":
+                         continue
+                     own = p[order[r_int]][2]
++                    own_lay = p[order[r_int]][4] if lay else None
+                     best, best_j = float("-inf"), -1
+                     for j in sorted(int(k) for k in cand_js):
+                         if j in matched or (site and g[j][2] != own):
+                             continue
++                        if lay:
++                            gl = g[j][4]
++                            if (gl is None) != (own_lay is None) or (gl is not None and not (gl & own_lay)):
++                                continue
+                         ok, s = calc._match_quality(pg, gg[j])
+                         if ok and s > best + 1e-9:
+                             best, best_j = s, j

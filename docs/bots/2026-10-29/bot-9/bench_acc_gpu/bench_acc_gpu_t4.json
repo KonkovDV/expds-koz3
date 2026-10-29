@@ -1,0 +1,380 @@
+{
+ "note": "bot-8 bench_acc_gpu.py, чистая ветка (bench/acc_gpu_T4.md); встроен в koz3-cnx-li-smoke",
+ "runs": {
+  "stub_30M_1": {
+   "args": [
+    "--px",
+    "5480",
+    "5480",
+    "--net",
+    "stub",
+    "--tta",
+    "1"
+   ],
+   "timeout_s": 1800,
+   "rc": 0,
+   "stdout_tail": "host {'wall_med': 15.94, 'cpu_med': 16.76, 'peak_vram_mb': 132.0}\ndevice_exact {'wall_med': 7.799, 'cpu_med': 8.645, 'peak_vram_mb': 1877.0, 'byte_equal': True, 'max_abs': 0.0, 'px_diff': 0, 'flips': {'0.05': 0, '0.1': 0, '0.3': 0, '0.35': 0, '0.5': 0}, 'peaks': 745085, 'peaks_only_new': 0, 'peaks_only_ref': 0, 'peak_score_max_abs': 0.0, 'x_wall': 2.044, 'x_cpu': 1.939}\ndevice {'wall_med': 3.976, 'cpu_med': 3.977, 'peak_vram_mb': 2679.0, 'byte_equal': False, 'max_abs': 5.96e-08, 'px_diff': 35082587, 'flips': {'0.05': 0, '0.1': 5, '0.3': 0, '0.35': 0, '0.5': 0}, 'peaks': 745085, 'peaks_only_new': 0, 'peaks_only_ref': 0, 'peak_score_max_abs': 5.96e-08, 'x_wall': 4.009, 'x_cpu': 4.215}\n",
+   "stderr_tail": "",
+   "wall_s": 176.6,
+   "result": {
+    "dev": "cuda",
+    "gpu": "Tesla T4",
+    "torch": "2.11.0+cu128",
+    "px": [
+     5480,
+     5480
+    ],
+    "net": "stub",
+    "tta": "1",
+    "tile": 1024,
+    "threads": 2,
+    "load1": 1.1787109375,
+    "modes": {
+     "host": {
+      "wall": [
+       15.852676034000012,
+       15.954124158000013,
+       15.937417191999998
+      ],
+      "cpu": [
+       16.702641989,
+       16.831904570999995,
+       16.759604645000003
+      ],
+      "wall_med": 15.937417191999998,
+      "cpu_med": 16.759604645000003,
+      "peak_vram_mb": 132.0
+     },
+     "device_exact": {
+      "wall": [
+       7.880263259999992,
+       7.798748627000009,
+       7.789167384999985
+      ],
+      "cpu": [
+       8.731039409000005,
+       8.644734282999991,
+       8.47916934300001
+      ],
+      "wall_med": 7.798748627000009,
+      "cpu_med": 8.644734282999991,
+      "peak_vram_mb": 1876.92919921875,
+      "byte_equal": true,
+      "max_abs": 0.0,
+      "px_diff": 0,
+      "flips": {
+       "0.05": 0,
+       "0.1": 0,
+       "0.3": 0,
+       "0.35": 0,
+       "0.5": 0
+      },
+      "peaks": 745085,
+      "peaks_only_new": 0,
+      "peaks_only_ref": 0,
+      "peak_score_max_abs": 0.0,
+      "x_wall": 2.043586471914628,
+      "x_cpu": 1.9387067428964282
+     },
+     "device": {
+      "wall": [
+       3.959346283000002,
+       3.9805409090000126,
+       3.975804193999977
+      ],
+      "cpu": [
+       3.958861409000008,
+       3.9812034969999957,
+       3.976636357000018
+      ],
+      "wall_med": 3.975804193999977,
+      "cpu_med": 3.976636357000018,
+      "peak_vram_mb": 2678.92919921875,
+      "byte_equal": false,
+      "max_abs": 5.960464477539063e-08,
+      "px_diff": 35082587,
+      "flips": {
+       "0.05": 0,
+       "0.1": 5,
+       "0.3": 0,
+       "0.35": 0,
+       "0.5": 0
+      },
+      "peaks": 745085,
+      "peaks_only_new": 0,
+      "peaks_only_ref": 0,
+      "peak_score_max_abs": 5.960464477539063e-08,
+      "x_wall": 4.008602137915067,
+      "x_cpu": 4.214517783477562
+     }
+    },
+    "maxrss_mb": 12250.85546875
+   },
+   "summary": {
+    "host": {
+     "wall_med": 15.937417191999998,
+     "cpu_med": 16.759604645000003,
+     "peak_vram_mb": 132.0,
+     "byte_equal": null,
+     "max_abs": null,
+     "px_diff": null,
+     "flips": null,
+     "x_wall": null,
+     "peaks_only_new": null,
+     "peaks_only_ref": null
+    },
+    "device_exact": {
+     "wall_med": 7.798748627000009,
+     "cpu_med": 8.644734282999991,
+     "peak_vram_mb": 1876.92919921875,
+     "byte_equal": true,
+     "max_abs": 0.0,
+     "px_diff": 0,
+     "flips": {
+      "0.05": 0,
+      "0.1": 0,
+      "0.3": 0,
+      "0.35": 0,
+      "0.5": 0
+     },
+     "x_wall": 2.043586471914628,
+     "peaks_only_new": 0,
+     "peaks_only_ref": 0
+    },
+    "device": {
+     "wall_med": 3.975804193999977,
+     "cpu_med": 3.976636357000018,
+     "peak_vram_mb": 2678.92919921875,
+     "byte_equal": false,
+     "max_abs": 5.960464477539063e-08,
+     "px_diff": 35082587,
+     "flips": {
+      "0.05": 0,
+      "0.1": 5,
+      "0.3": 0,
+      "0.35": 0,
+      "0.5": 0
+     },
+     "x_wall": 4.008602137915067,
+     "peaks_only_new": 0,
+     "peaks_only_ref": 0
+    }
+   }
+  },
+  "unet_30M_1": {
+   "args": [
+    "--px",
+    "5480",
+    "5480",
+    "--net",
+    "unet",
+    "--tta",
+    "1",
+    "--reps",
+    "1"
+   ],
+   "timeout_s": 1623,
+   "rc": -9,
+   "stdout_tail": "host {'wall_med': 42.35, 'cpu_med': 43.2, 'peak_vram_mb': 1354.0}\n",
+   "stderr_tail": "",
+   "wall_s": 276.3
+  },
+  "stub_30M_d8": {
+   "args": [
+    "--px",
+    "5480",
+    "5480",
+    "--net",
+    "stub",
+    "--tta",
+    "d8"
+   ],
+   "timeout_s": 1347,
+   "rc": 0,
+   "stdout_tail": "host {'wall_med': 17.71, 'cpu_med': 18.59, 'peak_vram_mb': 208.0}\ndevice_exact {'wall_med': 8.252, 'cpu_med': 9.106, 'peak_vram_mb': 1877.0, 'byte_equal': True, 'max_abs': 0.0, 'px_diff': 0, 'flips': {'0.05': 0, '0.1': 0, '0.3': 0, '0.35': 0, '0.5': 0}, 'peaks': 745085, 'peaks_only_new': 0, 'peaks_only_ref': 0, 'peak_score_max_abs': 0.0, 'x_wall': 2.147, 'x_cpu': 2.042}\ndevice {'wall_med': 4.544, 'cpu_med': 4.546, 'peak_vram_mb': 2679.0, 'byte_equal': False, 'max_abs': 5.96e-08, 'px_diff': 38290955, 'flips': {'0.05': 0, '0.1': 0, '0.3': 0, '0.35': 0, '0.5': 0}, 'peaks': 745085, 'peaks_only_new': 0, 'peaks_only_ref': 0, 'peak_score_max_abs': 5.96e-08, 'x_wall': 3.898, 'x_cpu': 4.09}\n",
+   "stderr_tail": "",
+   "wall_s": 197.5,
+   "result": {
+    "dev": "cuda",
+    "gpu": "Tesla T4",
+    "torch": "2.11.0+cu128",
+    "px": [
+     5480,
+     5480
+    ],
+    "net": "stub",
+    "tta": "d8",
+    "tile": 1024,
+    "threads": 2,
+    "load1": 1.08203125,
+    "modes": {
+     "host": {
+      "wall": [
+       17.578371250000032,
+       17.713587256999972,
+       17.775108629999977
+      ],
+      "cpu": [
+       18.419790249999995,
+       18.590961546000003,
+       18.626327198
+      ],
+      "wall_med": 17.713587256999972,
+      "cpu_med": 18.590961546000003,
+      "peak_vram_mb": 208.0
+     },
+     "device_exact": {
+      "wall": [
+       8.252199642999926,
+       8.273548839,
+       8.210173336000025
+      ],
+      "cpu": [
+       9.106339882,
+       9.132909772000005,
+       9.071031755000007
+      ],
+      "wall_med": 8.252199642999926,
+      "cpu_med": 9.106339882,
+      "peak_vram_mb": 1876.92919921875,
+      "byte_equal": true,
+      "max_abs": 0.0,
+      "px_diff": 0,
+      "flips": {
+       "0.05": 0,
+       "0.1": 0,
+       "0.3": 0,
+       "0.35": 0,
+       "0.5": 0
+      },
+      "peaks": 745085,
+      "peaks_only_new": 0,
+      "peaks_only_ref": 0,
+      "peak_score_max_abs": 0.0,
+      "x_wall": 2.1465291708042757,
+      "x_cpu": 2.041540485738703
+     },
+     "device": {
+      "wall": [
+       4.480146020999996,
+       4.543888771999946,
+       4.564876054000024
+      ],
+      "cpu": [
+       4.480150951999974,
+       4.545774516999984,
+       4.564610673999994
+      ],
+      "wall_med": 4.543888771999946,
+      "cpu_med": 4.545774516999984,
+      "peak_vram_mb": 2678.92919921875,
+      "byte_equal": false,
+      "max_abs": 5.960464477539063e-08,
+      "px_diff": 38290955,
+      "flips": {
+       "0.05": 0,
+       "0.1": 0,
+       "0.3": 0,
+       "0.35": 0,
+       "0.5": 0
+      },
+      "peaks": 745085,
+      "peaks_only_new": 0,
+      "peaks_only_ref": 0,
+      "peak_score_max_abs": 5.960464477539063e-08,
+      "x_wall": 3.8983320556069683,
+      "x_cpu": 4.089723649176783
+     }
+    },
+    "maxrss_mb": 12271.5390625
+   },
+   "summary": {
+    "host": {
+     "wall_med": 17.713587256999972,
+     "cpu_med": 18.590961546000003,
+     "peak_vram_mb": 208.0,
+     "byte_equal": null,
+     "max_abs": null,
+     "px_diff": null,
+     "flips": null,
+     "x_wall": null,
+     "peaks_only_new": null,
+     "peaks_only_ref": null
+    },
+    "device_exact": {
+     "wall_med": 8.252199642999926,
+     "cpu_med": 9.106339882,
+     "peak_vram_mb": 1876.92919921875,
+     "byte_equal": true,
+     "max_abs": 0.0,
+     "px_diff": 0,
+     "flips": {
+      "0.05": 0,
+      "0.1": 0,
+      "0.3": 0,
+      "0.35": 0,
+      "0.5": 0
+     },
+     "x_wall": 2.1465291708042757,
+     "peaks_only_new": 0,
+     "peaks_only_ref": 0
+    },
+    "device": {
+     "wall_med": 4.543888771999946,
+     "cpu_med": 4.545774516999984,
+     "peak_vram_mb": 2678.92919921875,
+     "byte_equal": false,
+     "max_abs": 5.960464477539063e-08,
+     "px_diff": 38290955,
+     "flips": {
+      "0.05": 0,
+      "0.1": 0,
+      "0.3": 0,
+      "0.35": 0,
+      "0.5": 0
+     },
+     "x_wall": 3.8983320556069683,
+     "peaks_only_new": 0,
+     "peaks_only_ref": 0
+    }
+   }
+  },
+  "stub_75M_1": {
+   "args": [
+    "--px",
+    "8660",
+    "8660",
+    "--net",
+    "stub",
+    "--tta",
+    "1"
+   ],
+   "timeout_s": 1149,
+   "rc": -9,
+   "stdout_tail": "host {'wall_med': 40.9, 'cpu_med': 42.43, 'peak_vram_mb': 132.0}\n",
+   "stderr_tail": "",
+   "wall_s": 278.5
+  }
+ },
+ "source": {
+  "branch": "bot8-cpu-a-clean",
+  "commit": "95bc0a6a357d039872fa03769fa3265240c93e89",
+  "worktree": "/workspace/koz3_shared/bot-8/wt-cpua-clean",
+  "from": "git archive (закоммиченное состояние)",
+  "bench_acc_gpu.py": "/workspace/koz3_shared/bot-8/bench/bench_acc_gpu.py (вне git, sha256 ниже)",
+  "doc": "/workspace/koz3_shared/bot-8/bench/acc_gpu_T4.md",
+  "sha256": {
+   "bench/bench_acc_gpu.py": "ecb683dbc530c1765b8e60d9d5b841a5a5fcad2eac99a120100a3dfa0949f6ea",
+   "repo/expds/__init__.py": "a5e103cb9ac1408703996521e57b889876034b2b0630d66becd01709a267e7b7",
+   "repo/expds/cpu_threads.py": "a842fe194c444711495bf7691244fc1e18903425d95cfe3f3a4ce5de53b6cac0",
+   "repo/expds/lidar_a/__init__.py": "80753f86c935b1b6fcd6f485f1cca0ac2698fa29b841a2a79ad6cb06f43791dc",
+   "repo/expds/lidar_a/dtm_workers.py": "9c94beca0a146eafa177496900d4f2847be01943139dcf04356aacdb72705f2a",
+   "repo/expds/lidar_a/ground.py": "6d554fb6b41d19559b5c078bdebc67f8281eba2138b5630ed66faedab29436d0",
+   "repo/expds/lidar_a/runner.py": "5d17f538a288e31333d42bf8e02d291c5882b857ba1ec1f20497bc58e5ad117f",
+   "repo/expds/lidar_a/terrain.py": "3e1dc5d28cb4595acf2351067431ef44592be1c35c30c1050f32b33ef4ccf14b",
+   "repo/expds/lidar_a/tiling.py": "29c363f04562e2a4c8ad3f720cd3665bf53ae465899fb719dbbbe852c4a4ddfe"
+  }
+ },
+ "gpu": "Tesla T4",
+ "t_total_s": 929.3
+}

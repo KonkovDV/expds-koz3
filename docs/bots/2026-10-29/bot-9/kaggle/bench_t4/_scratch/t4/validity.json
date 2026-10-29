@@ -1,0 +1,47 @@
+{
+ "rule": "ConvNeXt-T fp16 тайл <5 мс или >500 мс → замер ошибочный; median SM <1300 МГц или power cap/HW slowdown → троттлинг (BUDGET.md §7.8 п.4–5)",
+ "configs": [
+  {
+   "cfg": "cnx_li9/fp16/b1",
+   "ms_single_per_item": 3.0,
+   "ms_d8_or_flip2_per_item": 24.0,
+   "sm_clock_median_mhz": 1590,
+   "throttle": [],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp16/b2",
+   "ms_single_per_item": 40.0,
+   "ms_d8_or_flip2_per_item": 320.0,
+   "sm_clock_median_mhz": 1200,
+   "throttle": [
+    "sw_power_cap"
+   ],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "cnx_li9/fp32/b1",
+   "ms_single_per_item": 150,
+   "ms_d8_or_flip2_per_item": 1200,
+   "sm_clock_median_mhz": 1590,
+   "throttle": [],
+   "nonfinite": 0
+  },
+  {
+   "cfg": "dfine_l/fp16/b1",
+   "ms_single_per_item": 30,
+   "ms_d8_or_flip2_per_item": 60,
+   "sm_clock_median_mhz": 1560,
+   "throttle": [],
+   "nonfinite": null
+  }
+ ],
+ "broken": [
+  "cnx_li9/fp16/b1: ConvNeXt-T fp16 3.0 мс/тайл вне [5, 500]",
+  "bench_t4_det.json:rtdetrv2_r50: fatal X"
+ ],
+ "throttled": [
+  "cnx_li9/fp16/b2: SM median 1200 МГц, ['sw_power_cap']"
+ ],
+ "verdict": "BROKEN"
+}

@@ -1,0 +1,11 @@
+k10 {'Ss6_drop': 0.325656, 'Ss6_keep': 0.346707, 'C2s6_drop': 0.304177, 'C2s6_keep': 0.319015, 'SATfs6_drop': 0.328737, 'SATfs6_keep': 0.349789, 'd_C2s6_drop': -0.021478, 'd_C2s6_keep': -0.027693, 'd_SATfs6_drop': 0.003082, 'd_SATfs6_keep': 0.003082}
+lofo {'Ss6_drop': 0.326107, 'Ss6_keep': 0.347159, 'C2s6_drop': 0.304629, 'C2s6_keep': 0.319467, 'SATfs6_drop': 0.329189, 'SATfs6_keep': 0.350241, 'd_C2s6_drop': -0.021478, 'd_C2s6_keep': -0.027693, 'd_SATfs6_drop': 0.003082, 'd_SATfs6_keep': 0.003082}
+seed0 {'Ss6_drop': 0.326071, 'Ss6_keep': 0.347123, 'C2s6_drop': 0.304292, 'C2s6_keep': 0.31915, 'SATfs6_drop': 0.328909, 'SATfs6_keep': 0.349961, 'd_C2s6_drop': -0.021778, 'd_C2s6_keep': -0.027973, 'd_SATfs6_drop': 0.002838, 'd_SATfs6_keep': 0.002838}
+seed1 {'Ss6_drop': 0.317082, 'Ss6_keep': 0.338134, 'C2s6_drop': 0.295604, 'C2s6_keep': 0.310441, 'SATfs6_drop': 0.320164, 'SATfs6_keep': 0.341216, 'd_C2s6_drop': -0.021478, 'd_C2s6_keep': -0.027693, 'd_SATfs6_drop': 0.003082, 'd_SATfs6_keep': 0.003082}
+seed2 {'Ss6_drop': 0.329433, 'Ss6_keep': 0.350485, 'C2s6_drop': 0.307955, 'C2s6_keep': 0.322792, 'SATfs6_drop': 0.332515, 'SATfs6_keep': 0.353567, 'd_C2s6_drop': -0.021478, 'd_C2s6_keep': -0.027693, 'd_SATfs6_drop': 0.003082, 'd_SATfs6_keep': 0.003082}
+seed3 {'Ss6_drop': 0.320761, 'Ss6_keep': 0.341813, 'C2s6_drop': 0.299283, 'C2s6_keep': 0.31412, 'SATfs6_drop': 0.323843, 'SATfs6_keep': 0.344895, 'd_C2s6_drop': -0.021478, 'd_C2s6_keep': -0.027693, 'd_SATfs6_drop': 0.003082, 'd_SATfs6_keep': 0.003082}
+seed4 {'Ss6_drop': 0.3052, 'Ss6_keep': 0.334838, 'C2s6_drop': 0.296807, 'C2s6_keep': 0.323567, 'SATfs6_drop': 0.317261, 'SATfs6_keep': 0.346898, 'd_C2s6_drop': -0.008394, 'd_C2s6_keep': -0.011271, 'd_SATfs6_drop': 0.01206, 'd_SATfs6_keep': 0.01206}
+C2s6_drop d10=-0.021478 P=0.000 CI=[-0.03599;+0.00000] lofo=-0.021478 seeds+=0/5 heavy=+0.000000 new34=-0.006531 acc=False
+C2s6_keep d10=-0.027693 P=0.000 CI=[-0.03599;+0.00000] lofo=-0.027693 seeds+=0/5 heavy=+0.000000 new34=-0.006531 acc=False
+SATfs6_drop d10=+0.003082 P=0.629 CI=[-0.00171;+0.00358] lofo=+0.003082 seeds+=5/5 heavy=+0.000000 new34=-0.001050 acc=False
+SATfs6_keep d10=+0.003082 P=0.629 CI=[-0.00171;+0.00358] lofo=+0.003082 seeds+=5/5 heavy=+0.000000 new34=-0.001050 acc=False

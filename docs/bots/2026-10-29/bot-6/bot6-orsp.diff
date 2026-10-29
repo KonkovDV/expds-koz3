@@ -1,0 +1,312 @@
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..9105d75 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -280,6 +280,16 @@ min_confidence = 0.1426
+ # [post.core.gorodishcha]
+ # frac = 0.3
+ # min_r_m = 8.0
++# Слияние уверенностей sp_focal/sp_focal2 для курганов (bot-6 ORSP), по умолчанию выключено:
++# [post.sp_score_fusion]
++# radius_m = 8.0
++# gen_floor = 0.05          # курганы sp_or / sp_focal2 генерируются сырыми, отбор 12 м — только из выдачи
++# thresholds.sp_focal = { kurgany_povrezhdennye = 0.2665015, kurgany_tselye = 0.3696 }
++# thresholds.sp_focal2 = { kurgany_povrezhdennye = 0.514733, kurgany_tselye = 0.701621 }
++# Пороги сдачи — медиана 10 значений sweep_groups, каждое подобрано только на обучающих участках своего
++# фолда k10 (bot-6/work/orsp3/taus_fold.json, k10_median); для оценки — свои пороги в каждом фолде (paired.py).
++# Прежние 0.27822/0.3696, 0.514733/0.701621 были подобраны на всех участках (утечка, bot-10 REPORT10 §3) — не использовать.
++# sp_focal здесь = курганы sp_or сдачи (одна карта центров; в табло подписана sp_focal) — пороги общие. Замер: bot-6/ORSP.md.
+ 
+ # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+ # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..7764521 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -482,7 +482,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
+                     break
+                 try:
+                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
+-                                                           min_conf=output_floors(cfg, mt),
++                                                           min_conf=_sp_floors(cfg, mt),
+                                                            fallback_crs=region_crs(reg, cfg)))
+                 except Exception as exc:
+                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
+@@ -558,7 +558,7 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
+         log.exception("модель sp_focal2 не загрузилась")
+         seg_cache["sp_focal2"] = []
+         return feats
+-    floors = output_floors(cfg, "sp_focal2")
++    floors = _sp_floors(cfg, "sp_focal2")
+     added: list[dict] = []
+     for seg in segs:
+         for path in reg.rasters.get("sp_or", []):
+@@ -573,7 +573,33 @@ def _wide_without_lidar(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dic
+             for feat in found:
+                 feat["threshold_group"] = "sp_focal2"
+             added += found
+-    return feats + drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
++    kept = drop_near_kurgans(added, kept_kurgan_anchors(feats), 12.0)
++    if _sp_fusion_spec(cfg) is not None:
++        # Со слиянием отброшенные отбором 12 м остаются соседями для sp_score_fusion, но не выдаются.
++        ids = {id(f) for f in kept}
++        for f in added:
++            if id(f) not in ids:
++                f["sp_partner_only"] = True
++        return feats + added
++    return feats + kept
++
++
++def _sp_fusion_spec(cfg: dict):
++    """[post] sp_score_fusion: None, если выключено; иначе словарь настроек."""
++    sf = (cfg.get("post") or {}).get("sp_score_fusion")
++    if not sf:
++        return None
++    return sf if isinstance(sf, dict) else {}
++
++
++def _sp_floors(cfg: dict, markup: str) -> dict[str, float]:
++    """Пол генерации: порог выдачи; со слиянием курганы sp_or / sp_focal2 — сырые от gen_floor."""
++    floors = output_floors(cfg, markup)
++    spec = _sp_fusion_spec(cfg)
++    if spec is None or markup not in ("sp_or", "sp_focal2"):
++        return floors
++    from .post import sp_fusion_gen_floors
++    return sp_fusion_gen_floors(floors, spec)
+ 
+ 
+ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root: Path,
+diff --git a/expds/post.py b/expds/post.py
+index eb7ce26..72dea03 100644
+--- a/expds/post.py
++++ b/expds/post.py
+@@ -518,3 +518,102 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
+                 continue
+             out.append(dict(f, class_name="kurgany_povrezhdennye", threshold_group="sp_focal_twin"))
+     return out
++
++
++SP_FUSION_GROUPS = ("sp_focal", "sp_focal2")
++SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
++
++
++def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
++    """Слияние уверенностей двух спутниковых групп для курганов (bot-6 ORSP, PREREG_ORSP.md).
++
++    Для кургана (povr или tselye) из sp_focal / sp_focal2: o = наибольшая уверенность курганов
++    (любого из двух классов) ДРУГОЙ sp-группы в радиусе radius_m метров на земле на том же
++    участке, иначе 0; новая уверенность = (conf + o) / 2. Объекты не добавляются и не
++    удаляются (кроме помеченных sp_partner_only — они только соседи); применять ДО порогов,
++    на сырых кандидатах (pipeline: gen_floor вместо порога выдачи), пороги — из spec.thresholds
++    (watchdog.finish подставляет их в thresholds_by_markup). Работает и с плоскими
++    признаками (geom, поля в корне), и с GeoJSON (geometry, properties).
++    """
++    from collections import defaultdict
++    from scipy.spatial import cKDTree
++    import numpy as np
++    from shapely.geometry import shape
++
++    cfg = spec or {}
++    radius = float(cfg.get("radius_m", 8.0))
++    groups = tuple(cfg.get("groups", SP_FUSION_GROUPS))
++    if len(groups) != 2:
++        raise ValueError("sp_score_fusion: нужны ровно две группы")
++
++    def _p(f):
++        return f["properties"] if isinstance(f.get("properties"), dict) else f
++
++    def _grp(p):
++        # В сдаче карта центров идёт с markup_type sp_or, в табло — с группой sp_focal.
++        g = p.get("threshold_group") or p.get("markup_type")
++        return "sp_focal" if g == "sp_or" else g
++
++    def _c(f):
++        g = f.get("geom")
++        if g is None:
++            g = shape(f["geometry"])
++        return g.centroid
++
++    idx = []
++    for i, f in enumerate(feats):
++        p = _p(f)
++        grp = _grp(p)
++        if p.get("class_name") in SP_FUSION_CLASSES and grp in groups:
++            c = _c(f)
++            idx.append((i, p.get("region_name") or "", grp, c.x, c.y, float(p.get("confidence", 0.0))))
++    if not idx:
++        return [f for f in feats if not _p(f).get("sp_partner_only")]
++    # Один cos φ на участок (как в kurgan_cross_modal_twins): метры на земле.
++    ys = defaultdict(list)
++    for _, reg, _, _, y, _ in idx:
++        ys[reg].append(y)
++    scale = {reg: _ground_scale(float(np.median(v))) for reg, v in ys.items()}
++    pts = defaultdict(list)
++    for i, reg, grp, x, y, conf in idx:
++        pts[(reg, grp)].append((x * scale[reg], y * scale[reg], conf))
++    trees = {k: (cKDTree(np.asarray([(a, b) for a, b, _ in v])), np.asarray([c for _, _, c in v]))
++             for k, v in pts.items()}
++    new_conf = {}
++    for i, reg, grp, x, y, conf in idx:
++        other = groups[1] if grp == groups[0] else groups[0]
++        o = 0.0
++        t = trees.get((reg, other))
++        if t is not None:
++            hit = t[0].query_ball_point((x * scale[reg], y * scale[reg]), radius)
++            if hit:
++                o = float(t[1][hit].max())
++        new_conf[i] = (conf + o) / 2.0
++    out = []
++    for i, f in enumerate(feats):
++        if _p(f).get("sp_partner_only"):
++            continue  # кандидат только как сосед для слияния (его выкинул отбор 12 м), не выдаётся
++        if i in new_conf:
++            f = dict(f)
++            if isinstance(f.get("properties"), dict):
++                f["properties"] = dict(f["properties"], confidence=new_conf[i])
++            else:
++                f["confidence"] = new_conf[i]
++        out.append(f)
++    return out
++
++
++def sp_fusion_thresholds(by_markup: dict | None, spec) -> dict:
++    """thresholds_by_markup с порогами курганов sp из [post.sp_score_fusion.thresholds] (sp_focal = sp_or в сдаче)."""
++    out = {k: dict(v) for k, v in (by_markup or {}).items()}
++    th = (spec or {}).get("thresholds", {}) if isinstance(spec, dict) else {}
++    for g, cls in th.items():
++        for key in (("sp_or", "sp_focal") if g == "sp_focal" else (g,)):
++            out.setdefault(key, {}).update({c: float(t) for c, t in cls.items()})
++    return out
++
++
++def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
++    """Пол генерации курганов sp при включённом слиянии: сырые кандидаты от gen_floor (по умолчанию 0,05)."""
++    g = float((spec if isinstance(spec, dict) else {}).get("gen_floor", 0.05))
++    return {c: (min(t, g) if c in SP_FUSION_CLASSES else t) for c, t in floors.items()}
+diff --git a/expds/watchdog.py b/expds/watchdog.py
+index 2e15b2d..71a035e 100644
+--- a/expds/watchdog.py
++++ b/expds/watchdog.py
+@@ -65,8 +65,13 @@ class RunState:
+ def finish(feats: list[dict], cfg: dict) -> list[dict]:
+     """Та же цепочка, что в конце pipeline.run."""
+     out = post.only_known_classes(feats)
++    sf = (cfg.get("post") or {}).get("sp_score_fusion")
++    by_markup = cfg.get("thresholds_by_markup", {})
++    if sf:
++        out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
++        by_markup = post.sp_fusion_thresholds(by_markup, sf)
+     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+-                                cfg.get("thresholds_by_markup", {}))
++                                by_markup)
+     out = post.merge_within_markup(out)
+     post_cfg = cfg.get("post") or {}
+     if post_cfg.get("multipole_object_poly"):
+diff --git a/scripts/scoreboard.py b/scripts/scoreboard.py
+index 0f4e8b5..5ff79c7 100644
+--- a/scripts/scoreboard.py
++++ b/scripts/scoreboard.py
+@@ -269,6 +269,8 @@ def main() -> None:
+                     help="стек базы до порогов — вход scripts/rerank_oof.py (в рабочую папку)")
+     ap.add_argument("--rerank", default=None,
+                     help="опыт — весь стек из файла scripts/rerank_oof.py вместо стека базы")
++    ap.add_argument("--sp-fusion", action="store_true",
++                    help="опыт — слияние уверенностей sp_focal/sp_focal2 для курганов (post.sp_score_fusion, bot-6 ORSP)")
+     args = ap.parse_args()
+     global OFFICIAL
+     OFFICIAL = args.official
+@@ -288,7 +290,8 @@ def main() -> None:
+         raise SystemExit(f"база {base[0]:.6f} не совпала с {args.expect:.6f}: стек собран не так")
+     honest_b = honest("база", new, optical, args.honest, args.honest_by) if args.honest else None
+     swap_li = bool(args.fused or args.mosaic_dir)
+-    if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment:
++    if not args.add and not args.replace and not swap_li and not args.rerank and not args.geo_experiment \
++            and not args.sp_fusion:
+         if args.out:
+             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
+                                                   "honest_base": honest_b[0] if honest_b else None},
+@@ -316,6 +319,9 @@ def main() -> None:
+     if args.rerank:
+         # Переоценённый стек заменяет базу целиком; --add и --replace к нему не применяются.
+         mixed = load(Path(args.rerank))["features"]
++    if args.sp_fusion:
++        from expds.post import sp_score_fusion
++        mixed = sp_score_fusion(mixed)
+     from expds.metric import build_curves, paired_bootstrap
+ 
+     after, taus, kept_a, per_a = evaluate("опыт", mixed, gt, new, optical, args.metric)
+diff --git a/tests/test_bot6_sp_fusion.py b/tests/test_bot6_sp_fusion.py
+new file mode 100644
+index 0000000..ba024be
+--- /dev/null
++++ b/tests/test_bot6_sp_fusion.py
+@@ -0,0 +1,69 @@
++from shapely.geometry import Point
++
++from expds import post
++
++
++def _f(grp, cls, x, conf, reg="r"):
++    return {"class_name": cls, "threshold_group": grp, "region_name": reg,
++            "confidence": conf, "geom": Point(x, 7_000_000.0)}
++
++
++def test_sp_score_fusion_averages_with_other_group_max():
++    feats = [_f("sp_focal", "kurgany_povrezhdennye", 0.0, 0.4),
++             _f("sp_focal2", "kurgany_tselye", 3.0, 0.8),
++             _f("sp_focal2", "kurgany_povrezhdennye", 4.0, 0.6),
++             _f("sp_focal", "kurgany_tselye", 1000.0, 0.5),          # нет соседа -> o = 0
++             _f("sp_focal2", "kurgany_povrezhdennye", 0.0, 0.9, reg="q"),  # другой участок
++             _f("li", "kurgany_povrezhdennye", 0.0, 0.7)]             # не sp — не трогаем
++    out = post.sp_score_fusion(feats)
++    assert len(out) == len(feats)
++    c = [f["confidence"] for f in out]
++    assert abs(c[0] - (0.4 + 0.8) / 2) < 1e-9
++    assert abs(c[1] - (0.8 + 0.4) / 2) < 1e-9
++    assert abs(c[2] - (0.6 + 0.4) / 2) < 1e-9
++    assert abs(c[3] - 0.25) < 1e-9
++    assert abs(c[4] - 0.45) < 1e-9
++    assert c[5] == 0.7
++    assert feats[0]["confidence"] == 0.4  # вход не меняется
++
++
++def test_sp_score_fusion_off_by_default_in_finish():
++    from expds import watchdog
++    feats = [_f("sp_focal", "kurgany_povrezhdennye", 0.0, 0.4)]
++    cfg = {"thresholds": {}, "default_threshold": 0.0}
++    assert "sp_score_fusion" not in (cfg.get("post") or {})
++    out = post.sp_score_fusion(feats, {"radius_m": 8.0})
++    assert out[0]["confidence"] == 0.2
++    assert callable(watchdog.finish)
++
++
++def test_sp_fusion_raw_partners_alias_and_thresholds():
++    # sp_or (markup сдачи) = sp_focal; сосед sp_focal2 ниже старого порога выдачи 0,501645 и
++    # помеченный sp_partner_only (выкинут отбором 12 м) всё равно поднимает уверенность и не выдаётся.
++    a = {"class_name": "kurgany_povrezhdennye", "markup_type": "sp_or", "region_name": "r",
++         "confidence": 0.30, "geom": Point(0.0, 7_000_000.0)}
++    b = _f("sp_focal2", "kurgany_povrezhdennye", 2.0, 0.40)
++    b["sp_partner_only"] = True
++    out = post.sp_score_fusion([a, b])
++    assert len(out) == 1 and abs(out[0]["confidence"] - 0.35) < 1e-9
++    spec = {"thresholds": {"sp_focal": {"kurgany_povrezhdennye": 0.2665015},
++                           "sp_focal2": {"kurgany_povrezhdennye": 0.514733}}}
++    bm = post.sp_fusion_thresholds({"sp_or": {"kurgany_povrezhdennye": 0.3645, "gorodishcha": 0.99}}, spec)
++    assert bm["sp_or"] == {"kurgany_povrezhdennye": 0.2665015, "gorodishcha": 0.99}
++    assert bm["sp_focal"]["kurgany_povrezhdennye"] == 0.2665015
++    assert bm["sp_focal2"]["kurgany_povrezhdennye"] == 0.514733
++    kept = post.apply_thresholds(out, {}, 0.15, bm)
++    assert len(kept) == 1  # 0,35 ≥ 0,2665015 (медиана порогов по фолдам); со старым 0,3645 был бы отрезан
++    fl = post.sp_fusion_gen_floors({"kurgany_povrezhdennye": 0.501645, "gorodishcha": 0.99}, {})
++    assert fl == {"kurgany_povrezhdennye": 0.05, "gorodishcha": 0.99}
++
++
++def test_pipeline_sp_floors_flag_off_is_unchanged():
++    import pytest
++    pytest.importorskip("rasterio")
++    from expds import pipeline
++    cfg = {"thresholds_by_markup": {"sp_focal2": {"kurgany_povrezhdennye": 0.501645}}}
++    assert pipeline._sp_floors(cfg, "sp_focal2") == pipeline.output_floors(cfg, "sp_focal2")
++    cfg["post"] = {"sp_score_fusion": {"gen_floor": 0.05}}
++    assert pipeline._sp_floors(cfg, "sp_focal2")["kurgany_povrezhdennye"] == 0.05
++    assert pipeline._sp_floors(cfg, "ae") == pipeline.output_floors(cfg, "ae")

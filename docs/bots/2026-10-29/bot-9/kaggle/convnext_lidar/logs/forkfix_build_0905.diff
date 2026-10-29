@@ -1,0 +1,35 @@
+--- ../../backup/cnx_pre_forkfix_0905/build.py	2026-10-28 23:43:15.523685603 +0300
++++ build.py	2026-10-29 09:08:27.172548271 +0300
+@@ -15,8 +15,12 @@
+     "c3sc-f01": "c3-sc:0,c3-sc:1", "c3sc-f23": "c3-sc:2,c3-sc:3",
+     "c5in-f01": "c5-in:0,c5-in:1", "c5in-f23": "c5-in:2,c5-in:3",
+     "c5sc-f01": "c5-sc:0,c5-sc:1", "c5sc-f23": "c5-sc:2,c5-sc:3",
+-    "c3-f4": "c3-in:4,c3-sc:4", "c5-f4": "c5-in:4,c5-sc:4",
++    "c3sc-f4": "c3-sc:4", "c5-f4": "c5-in:4,c5-sc:4",
+ }
++# c3-f4 (c3-in:4 + c3-sc:4) отработал 29.10: c3-in:4 OK (OOF в /workspace/kaggle_out/koz3-cnx-li-c3-f4), c3-sc:4 упал на fork/filelock
++# → c3-sc:4 перенесён в отдельное ядро c3sc-f4; ядро koz3-cnx-li-c3-f4 больше НЕ собирается (не перезапускать c3-in:4).
++DONE = {"c3-f4": "c3-in:4"}
++ONLY = {s.strip() for s in os.environ.get("CNX_BUILD_ONLY", "").split(",") if s.strip()}   # пусто = все ядра; иначе только эти slug
+ 
+ # ── фолды: семьи из index.csv li_tin_59_t128, кластеры — folds_family_k5 (обе карты проверяются в ядре) ─────────
+ L = json.load(open(BOT9 / "configs/folds_li_tin_59_t128.json", encoding="utf-8"))
+@@ -92,6 +96,7 @@
+ def emit(name, mode, jobs, regions, gpu, ksrc, extra=""):
+     emb = (f"{extra}CNX_MODE_DEFAULT = {mode!r}\nCNX_HEAD_DEFAULT = {HEAD_DEFAULT!r}\nCNX_JOBS_DEFAULT = {jobs!r}\nCNX_REGIONS_DEFAULT = {regions!r}\n"
+            f"FOLDS = __import__('json').loads(r'''{json.dumps(folds, ensure_ascii=False)}''')\nVENDOR_B64 = {B64!r}")
++    if ONLY and name not in ONLY: return None
+     d = H / name; d.mkdir(exist_ok=True)
+     code = src.replace("# @@EMBED@@", emb); (d / f"{name}.py").write_text(code, encoding="utf-8")
+     md = {"id": f"{OWNER}/{name}", "title": name, "code_file": f"{name}.py", "language": "python", "kernel_type": "script",
+@@ -105,8 +110,8 @@
+ out.append(emit("koz3-cnx-li-smoke", "smoke", "c5-in:4,c3-sc:3", SMOKE_REGIONS, True, [], f"BENCH_B64 = {BENCH_B64!r}\n"))
+ for tail, jobs in FULL.items(): out.append(emit(f"koz3-cnx-li-{tail}", "full", jobs, "", True, [f"{OWNER}/{PREP_SLUG}"]))
+ # все 20 пар (вариант, фолд) покрыты ровно один раз
+-pairs = [p for j in FULL.values() for p in j.split(",")]
++pairs = [p for j in [*FULL.values(), *DONE.values()] for p in j.split(",")]
+ assert len(pairs) == len(set(pairs)) == 20, pairs
+-for d, n in out: print(d.name, n, "байт")
++for d, n in filter(None, out): print(d.name, n, "байт")
+ print("vendor sha256:", json.dumps(sha, indent=0))
+ print("bench bot-8:", B8_BRANCH, B8_SHA, json.dumps(bman["sha256"], indent=0))

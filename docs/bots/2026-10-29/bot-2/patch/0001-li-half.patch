@@ -1,0 +1,483 @@
+From db332db88ac417f6d79b32c00d4c92823d4a4989 Mon Sep 17 00:00:00 2001
+From: bot-2 <bot-2@local>
+Date: Thu, 29 Oct 2026 08:55:33 +0300
+Subject: [PATCH] =?UTF-8?q?li=5Fhalf:=20=D0=B2=D1=82=D0=BE=D1=80=D0=BE?=
+ =?UTF-8?q?=D0=B9=20=D0=BF=D1=80=D0=BE=D1=85=D0=BE=D0=B4=20li=201=20=D0=BC?=
+ =?UTF-8?q?=20+=20=D0=B4=D0=B5=D1=82=D0=B5=D0=BA=D1=82=D0=BE=D1=80=20relie?=
+ =?UTF-8?q?f=2030=20=D0=BC=20(=D1=84=D0=BB=D0=B0=D0=B3=20[li=5Fhalf],=20?=
+ =?UTF-8?q?=D0=BF=D0=BE=20=D1=83=D0=BC=D0=BE=D0=BB=D1=87=D0=B0=D0=BD=D0=B8?=
+ =?UTF-8?q?=D1=8E=20=D0=B2=D1=8B=D0=BA=D0=BB.),=20=D0=B2=D1=8B=D0=B3=D1=80?=
+ =?UTF-8?q?=D1=83=D0=B7=D0=BA=D0=B0=20EXPDS=5FLI=5FHALF=5FDUMP,=20nn=5Foof?=
+ =?UTF-8?q?=20--predict-only?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ configs/default.toml  |  24 +++++++
+ expds/li_half.py      | 153 ++++++++++++++++++++++++++++++++++++++++++
+ expds/pipeline.py     |  35 +++++++++-
+ scripts/nn_oof.py     |  21 ++++--
+ tests/test_li_half.py | 106 +++++++++++++++++++++++++++++
+ 5 files changed, 333 insertions(+), 6 deletions(-)
+ create mode 100644 expds/li_half.py
+ create mode 100644 tests/test_li_half.py
+
+diff --git a/configs/default.toml b/configs/default.toml
+index 6a95c82..77a670d 100644
+--- a/configs/default.toml
++++ b/configs/default.toml
+@@ -198,6 +198,30 @@ relief_radius_l_m = 0
+ [thresholds_by_markup.gor_phys]
+ gorodishcha = 0.43049
+ 
++# Второй проход сети li на 1 м (крупные курганы, OSINT п. 4: Эрентуна ⌀ медиана 12 м, p90 18 м).
++# Выключен. Включать только вместе с [thresholds_by_markup.li_half], подобранными вложенно
++# по семьям на OOF-выгрузке (EXPDS_LI_HALF_DUMP + scripts/nn_oof.py --predict-only):
++# без них проход идёт только в выгрузку. Выдаются лишь новые курганы — дальше 12 м от
++# кругов основного li, которые оставляет его принятый порог (как li_dev). Код — expds/li_half.py.
++[li_half]
++enabled = false
++res = 1.0
++tta = 1
++max_px = 30_000_000
++skip_mosaic = false   # мозаика (куски 400 м, поле 40 м) проходится: Эрентуна — мозаичный LAS
++skip_coarse = true    # огрублённый DEM без мозаики (li_coarse) — пропуск в v1
++dedupe_m = 12.0
++group = "li_half"
++soft_need_s = 30
++[li_half.cand]        # второй детектор: шаг 1 м, окно рельефа 30 м
++work_res = 1.0
++relief_radius_m = 30.0
++peak_radius_m = 5.0
++min_relief_m = 0.08
++r_in_m = 5.0
++r_out_m = 16.0
++circle_m = 2.0
++
+ [candidates]
+ work_res = 0.5
+ relief_radius_m = 15.0
+diff --git a/expds/li_half.py b/expds/li_half.py
+new file mode 100644
+index 0000000..ec81996
+--- /dev/null
++++ b/expds/li_half.py
+@@ -0,0 +1,153 @@
++"""Второй проход лидарной сети на половинном разрешении (1 м) — крупные курганы.
++
++Зачем: обучающий zoom-aug сети li — ×0,7…1,45, а курганы Эрентуны (OSINT п. 4) —
++медиана диаметра 12 м, p90 18 м. Те же веса на сетке 1,0 м вместо 0,5 м видят
++насыпь вдвое меньшей в пикселях, то есть внутри обученного диапазона.
++
++Как устроено (бот 8, bench/half_res_lidar_estimate.md, и решение пользователя 29.10):
++- тот же DEM, что у основного прохода (reuse_dem): каналы relief_channels(d, res=1.0);
++  радиусы LRM (8/30 м) фиксированы в метрах и не меняются;
++- tta = 1 (TTA8 в ×10 медленнее);
++- ВТОРОЙ candidates.detect на шаге 1 м с relief_radius ≈ 30 м: детектор основного
++  прохода от seg.res не зависит, и без него кандидаты те же — проход только
++  пересчитал бы уверенность у уже найденных пиков;
++- только классы курганов; уверенность — максимум карты в окне 5×5 вокруг пика;
++- группа порога li_half (thresholds_by_markup.li_half);
++- выдаются только НОВЫЕ курганы: отбор 12 м против кругов основного li,
++  которые принятый порог уже оставляет (как li_dev: drop_near_kurgans + KEPT_KURGAN_CONF);
++- мозаика (LAS > 60 млн ячеек на 0,1 м): проход идёт по DEM мозаики 0,5 м, которая
++  строится кусками 400 м с полем 40 м (lidar.build_dem_mosaic) — перекрытие ≥ 40 м.
++
++Выгрузка карт: EXPDS_LI_HALF_DUMP=<папка> — на каждый LAS файл
++<участок>__<las>.npz (карты курганов float16 на 1 м, привязка, CRS, кандидаты
++и их оценки). Работает и в pipeline, и в scripts/nn_oof.py (--predict-only):
++там проход идёт только в выгрузку, основной --out не меняется.
++"""
++from __future__ import annotations
++
++import dataclasses
++import json
++import logging
++import os
++import re
++from pathlib import Path
++
++import numpy as np
++
++from . import candidates
++
++log = logging.getLogger(__name__)
++
++KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
++DUMP_ENV = "EXPDS_LI_HALF_DUMP"
++
++DEFAULTS = {
++    "enabled": False,
++    "res": 1.0,                 # шаг входа сети, м (основной проход — 0,5)
++    "tta": 1,
++    "reuse_dem": True,          # тот же DEM, что у основного прохода (другого пути нет)
++    "classes": list(KUR),
++    "max_px": 30_000_000,       # ячеек на шаге res; больше — LAS пропускается
++    "skip_mosaic": False,       # True — не идти по мозаике (Эрентуна — мозаика, см. REPORT2 §11)
++    "skip_coarse": True,        # v1: огрублённый DEM li_coarse (без мозаики) пропускается
++    "dedupe_m": 12.0,
++    "group": "li_half",
++    "soft_need_s": 30.0,        # [time.soft] li_half у бота 8; здесь — запас сверх reserve_s
++    # второй детектор кандидатов: шаг 1 м, окно рельефа 30 м; прочее — ×2 к [candidates]
++    "cand": {"work_res": 1.0, "relief_radius_m": 30.0, "peak_radius_m": 5.0,
++             "min_relief_m": 0.08, "r_in_m": 5.0, "r_out_m": 16.0, "circle_m": 2.0},
++}
++
++
++def params(cfg: dict | None) -> dict:
++    """[li_half] конфига поверх DEFAULTS (cand — поверх DEFAULTS["cand"])."""
++    own = dict((cfg or {}).get("li_half") or {})
++    out = {**DEFAULTS, **{k: v for k, v in own.items() if k != "cand"}}
++    out["cand"] = {**DEFAULTS["cand"], **(own.get("cand") or {})}
++    return out
++
++
++def enabled(cfg: dict | None) -> bool:
++    return bool(params(cfg)["enabled"])
++
++
++def dump_dir() -> Path | None:
++    v = os.environ.get(DUMP_ENV)
++    return Path(v) if v else None
++
++
++def cand_params(base: candidates.CandidateParams | None, hp: dict) -> candidates.CandidateParams:
++    """Параметры второго детектора: [candidates] с заменой полей из hp["cand"]."""
++    base = base or candidates.CandidateParams()
++    fields = {f.name for f in dataclasses.fields(base)}
++    return dataclasses.replace(base, **{k: v for k, v in hp["cand"].items() if k in fields})
++
++
++def n_px(d, res: float) -> int:
++    h, w = d.dem.shape
++    return int(np.ceil(h * d.res / res) * np.ceil(w * d.res / res))
++
++
++def _safe(s: str) -> str:
++    return re.sub(r"[^\w.-]+", "_", s, flags=re.UNICODE)
++
++
++def half_pass(seg, d, region: str, source: str, base_cand: candidates.CandidateParams | None,
++              hp: dict, dump: Path | None = None, extra: dict | None = None) -> list[dict]:
++    """Один LAS: каналы на шаге hp["res"] → карта курганов → второй детектор → круги группы li_half.
++
++    Уверенности не режутся (пол выдачи применяет вызывающий). seg.tta на время
++    прохода ставится hp["tta"] и возвращается.
++    """
++    from .lidar import relief_channels
++
++    if seg.meta.get("li_source") != "las" or seg.meta.get("target") == "centers":
++        return []
++    kur = [c for c in hp["classes"] if c in seg.classes and (getattr(seg, "keep", None) is None or c in seg.keep)]
++    if not kur:
++        return []
++    res = float(hp["res"])
++    if n_px(d, res) > int(hp["max_px"]):
++        log.warning("%s/%s: li_half пропущен — %d ячеек > max_px %d", region, source, n_px(d, res), hp["max_px"])
++        return []
++    img, tr = relief_channels(d, res, tuple(seg.meta["li_tags"]))
++    old_tta = seg.tta
++    try:
++        seg.tta = int(hp["tta"])
++        probs = seg.predict(img)
++    finally:
++        seg.tta = old_tta
++    del img
++    kp = np.ascontiguousarray(probs[[seg.classes.index(k) for k in kur]], np.float32)
++    del probs
++    cp = cand_params(base_cand, hp)
++    c = candidates.detect(d, cp)
++    s = candidates.sample_probs(c, kp, tr)
++    if dump is not None:
++        dump.mkdir(parents=True, exist_ok=True)
++        name = f"{_safe(region)}__{_safe(Path(source).stem)}.npz"
++        np.savez_compressed(
++            dump / name, probs=kp.astype(np.float16), classes=np.array(kur), transform=np.array(tuple(tr)[:6]),
++            crs=np.array(str(d.crs)), x=np.asarray(c["x"], np.float64), y=np.asarray(c["y"], np.float64),
++            cand_feats=np.asarray(c["features"], np.float32), scores=s.astype(np.float32),
++            region=np.array(region), source=np.array(source), dem_res=np.array(float(d.res)),
++            meta=np.array(json.dumps({"res": res, "tta": int(hp["tta"]), "cand": dataclasses.asdict(cp),
++                                      "dem_info_factor": (d.info or {}).get("factor"),
++                                      "dem_tiled": bool((d.info or {}).get("tiled")), **(extra or {})},
++                                     ensure_ascii=False)))
++    scores = np.column_stack([np.zeros(len(s), np.float32), s])
++    feats = candidates.to_features(c, scores, d.crs, region, cp, classes=tuple(kur), source=source)
++    for f in feats:
++        f["threshold_group"] = hp["group"]
++    return feats
++
++
++def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
++    """Только новые курганы: ближе dedupe_m к оставленному кругу основного li того же класса — вон."""
++    from .pipeline import drop_near_kurgans, kept_kurgan_anchors
++
++    return drop_near_kurgans(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
++
++
++def floor(feats: list[dict], floors: dict[str, float]) -> list[dict]:
++    return [f for f in feats if float(f.get("confidence") or 0) >= floors.get(f["class_name"], 0.0)]
+diff --git a/expds/pipeline.py b/expds/pipeline.py
+index 2657c29..1c25dfe 100644
+--- a/expds/pipeline.py
++++ b/expds/pipeline.py
+@@ -21,7 +21,7 @@ from pathlib import Path
+ 
+ import numpy as np
+ 
+-from . import accel, candidates, fusion, geophys, post, writer
++from . import accel, candidates, fusion, geophys, li_half, post, writer
+ from .catalog import Region, read_utm_json, scan_root
+ from .constants import DEFAULT_BUDGET_S
+ 
+@@ -260,8 +260,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
+ 
+     feats: list[dict] = []
+     mosaic_kurgans: list[dict] = []
++    half_feats: list[dict] = []
+     crs_region = region_crs(reg, cfg)
+     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
++    hp = li_half.params(cfg)
++    half_dump = li_half.dump_dir()
++    half_on = bool(hp["enabled"]) or half_dump is not None
++    if hp["enabled"] and hp["group"] not in cfg.get("thresholds_by_markup", {}):
++        log.warning("[li_half] включён, но [thresholds_by_markup.%s] нет — проход только в выгрузку", hp["group"])
+     for las in reg.las:
+         if not guard.ok(cfg.get("time", {}).get("reserve_s", 120)):
+             log.warning("время на исходе: пропускаю %s", las.name)
+@@ -336,6 +342,21 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
+                             fresh = found
+                     mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
+                     feats += fresh
++                if half_on:
++                    # Второй проход на 1 м: мозаика (куски 400 м, поле 40 м), иначе тот же DEM.
++                    d_half = mosaic if (split and mosaic is not None and mosaic.crs is not None) else d
++                    coarse = int((d_half.info or {}).get("factor") or 1) > 1
++                    if (split and hp["skip_mosaic"]) or (coarse and hp["skip_coarse"]):
++                        log.info("%s: li_half пропущен (мозаика/li_coarse, v1)", las.name)
++                    elif not guard.ok(cfg.get("time", {}).get("reserve_s", 120) + float(hp["soft_need_s"])):
++                        log.warning("%s: li_half пропущен — мало времени", las.name)
++                    else:
++                        try:
++                            for seg in segs:
++                                half_feats += li_half.half_pass(seg, d_half, reg.name, las.name, cand_p, hp,
++                                                                half_dump, {"mosaic": bool(split)})
++                        except Exception:
++                            log.exception("%s: li_half упал, пропуск", las.name)
+                 hf = cfg.get("hillfort") or {}
+                 if hf.get("enabled", False):
+                     # Своя ЦМР, как в scripts/hillfort_oof.py. Параметры, включая
+@@ -383,13 +404,23 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
+     for f in mosaic_kurgans:
+         if f.get("markup_type") == "li" and not f.get("threshold_group"):
+             f["threshold_group"] = "li_mosaic"
++    if half_feats:
++        if hp["enabled"] and hp["group"] in cfg.get("thresholds_by_markup", {}):
++            n0 = len(half_feats)
++            half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"], hp),
++                                       output_floors(cfg, hp["group"]))
++            log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)", reg.name, n0, len(half_feats),
++                     float(hp["dedupe_m"]), hp["group"])
++        else:
++            half_feats = []
+     fp = _params(fusion.FusionParams, cfg.get("fusion"))
+     if fp.li_to_ae and reg.rasters.get("ae"):
+         try:
+             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
+         except Exception as exc:
+             log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+-    return _with_copies(feats, reg, cfg)
++    # li_half — после копий li→ae: в слой ae не копируется (как li_dev).
++    return _with_copies(feats, reg, cfg) + half_feats
+ 
+ 
+ # Круги, которые принятый пакет уже оставляет. Новый круг ближе 12 м к такому
+diff --git a/scripts/nn_oof.py b/scripts/nn_oof.py
+index 9835f33..034be4c 100644
+--- a/scripts/nn_oof.py
++++ b/scripts/nn_oof.py
+@@ -29,7 +29,7 @@ import numpy as np
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT))
+ 
+-from expds import candidates, post, writer
++from expds import candidates, li_half, post, writer
+ from expds.catalog import read_utm_json, scan_root
+ from expds.lidar import DemPrefetch, build_dem, dem_params, hillshade_set
+ from expds.naming import site_family
+@@ -77,7 +77,7 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
+ 
+ 
+ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None,
+-                   geo_maps: str = "gray") -> list[dict]:
++                   geo_maps: str = "gray", half_cfg: dict | None = None) -> list[dict]:
+     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region.
+ 
+     geo_maps="all" — карты геофизики все, и серые, и цветные; находки в одном месте
+@@ -92,6 +92,15 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
+                  else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs))
+             if d.crs is not None:
+                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
++                if half_cfg is not None and li_half.dump_dir() is not None:
++                    # EXPDS_LI_HALF_DUMP: второй проход 1 м только в выгрузку, --out не меняется.
++                    # DEM здесь без мозаики: у крупных LAS он огрублён (0,2–0,3 м); на шаге 1 м
++                    # это лишь другое усреднение блоков, потому skip_coarse тут не действует.
++                    try:
++                        li_half.half_pass(seg, d, reg.name, las.name, cand_p, li_half.params(half_cfg),
++                                          li_half.dump_dir(), {"oof": True})
++                    except Exception:
++                        log.exception("%s/%s: li_half пропущен", reg.name, las.name)
+         return feats
+     files = reg.rasters.get(markup, [])
+     if markup in ("maggr", "etgr", "terfl"):
+@@ -124,7 +133,7 @@ def predict_with_weights(args, predict_mts: list[str]) -> None:
+             continue
+         try:
+             for mt in predict_mts:
+-                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps)
++                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps, half_cfg=cfg)
+             n_reg += 1
+         except Exception:
+             log.exception("%s: предсказание пропущено", reg.name)
+@@ -156,6 +165,8 @@ def main() -> None:
+                     help="запустить несколько фолдов параллельно на cuda:0 и cuda:1 (2×T4 Kaggle)")
+     ap.add_argument("--config", default=str(ROOT / "configs" / "default.toml"))
+     ap.add_argument("--resume", action="store_true", help="не переобучать фолды с отметкой done.json")
++    ap.add_argument("--predict-only", action="store_true",
++                    help="только предсказание готовыми весами фолдов (с --resume); нет весов фолда — ошибка, без обучения")
+     ap.add_argument("--tta", type=int, default=None, help="вариантов отражений на инференсе (иначе [tta] конфига)")
+     ap.add_argument("--copy-paste", type=float, default=0.0,
+                     help="вероятность Simple Copy-Paste кургана на другой тайл при обучении")
+@@ -317,6 +328,8 @@ def main() -> None:
+             model, done = fc / f"{args.markup}{tag}.pt", fc / f"done{tag}.json"
+             if args.resume and done.exists() and model.exists():
+                 res = json.loads(done.read_text(encoding="utf-8"))
++            elif args.predict_only:
++                raise SystemExit(f"--predict-only: нет готовых весов {model} / {done}")
+             else:
+                 train_rows = [r for r in rows if r["family"] not in test]
+                 if repeat_regions and args.repeat > 1:
+@@ -366,7 +379,7 @@ def main() -> None:
+                 try:
+                     got = []
+                     for mt in predict_mts:
+-                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps)
++                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps, half_cfg=cfg)
+                 except Exception:
+                     log.exception("%s: предсказание пропущено", reg.name)
+                     continue
+diff --git a/tests/test_li_half.py b/tests/test_li_half.py
+new file mode 100644
+index 0000000..1505945
+--- /dev/null
++++ b/tests/test_li_half.py
+@@ -0,0 +1,106 @@
++"""li_half: второй проход сети li на 1 м — синтетика, без весов."""
++import numpy as np
++import pytest
++from shapely.geometry import Point
++
++from expds import candidates, li_half
++from expds.crs import WEB_MERCATOR, to_crs
++from expds.lidar import Dem
++
++UTM = "EPSG:32637"
++X0, Y0 = 500_000.0, 6_000_000.0
++
++
++def _dem(res=0.1, size_m=200.0, mounds=((60.0, 60.0, 9.0, 0.8), (140.0, 140.0, 2.0, 0.3))):
++    n = int(size_m / res)
++    ax = (np.arange(n) + 0.5) * res
++    xx, yy = np.meshgrid(ax, ax)                     # строки — сверху вниз от top
++    z = np.zeros((n, n), np.float32)
++    for mx, my, r, h in mounds:                      # my — от верхнего края
++        d2 = (xx - mx) ** 2 + (yy - my) ** 2
++        z += (h * np.clip(1 - d2 / r ** 2, 0, None)).astype(np.float32)
++    return Dem(dem=z, left=X0, top=Y0 + size_m, res=res, crs=UTM, info={"factor": 1})
++
++
++class FakeSeg:
++    classes = ["kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha"]
++    meta = {"li_source": "las", "li_tags": ["lrm_s", "lrm_l", "slope"]}
++    keep = None
++
++    def __init__(self):
++        self.tta = 8
++        self.seen_tta = None
++        self.shapes = []
++
++    def predict(self, img):
++        self.seen_tta = self.tta
++        self.shapes.append(img.shape)
++        a = img[0].astype(np.float32) / 255.0                 # lrm_s как «вероятность»
++        return np.stack([a, a * 0.5, np.zeros_like(a)])
++
++
++def test_defaults_off_and_config_merge():
++    assert li_half.enabled({}) is False
++    hp = li_half.params({"li_half": {"enabled": True, "cand": {"relief_radius_m": 25.0}}})
++    assert hp["enabled"] and hp["res"] == 1.0 and hp["tta"] == 1 and hp["group"] == "li_half"
++    assert hp["cand"]["relief_radius_m"] == 25.0 and hp["cand"]["work_res"] == 1.0
++    cp = li_half.cand_params(candidates.CandidateParams(circle_m=1.5), hp)
++    assert cp.work_res == 1.0 and cp.relief_radius_m == 25.0 and cp.circle_m == 2.0
++
++
++def test_default_toml_keeps_li_half_off():
++    from conftest import ROOT
++    from expds.pipeline import load_config
++
++    cfg = load_config(ROOT / "configs" / "default.toml")
++    assert li_half.enabled(cfg) is False
++    assert "li_half" not in cfg.get("thresholds_by_markup", {})
++
++
++def test_half_pass_grid_tta_group_and_dump(tmp_path):
++    d = _dem()
++    seg = FakeSeg()
++    hp = li_half.params({})
++    feats = li_half.half_pass(seg, d, "r1", "a.laz", candidates.CandidateParams(), hp, tmp_path)
++    assert seg.seen_tta == 1 and seg.tta == 8                # tta прохода 1, потом возвращён
++    assert seg.shapes[0][1:] == (200, 200)                   # вход сети на 1 м, не 0,5
++    assert feats and {f["threshold_group"] for f in feats} == {"li_half"}
++    assert {f["class_name"] for f in feats} == {"kurgany_povrezhdennye", "kurgany_tselye"}
++    # крупная насыпь ⌀ 18 м найдена вторым детектором (центр в 1,5 м)
++    c = to_crs(Point(X0 + 60, Y0 + 200 - 60), UTM, WEB_MERCATOR)
++    near = [f for f in feats if f["geom"].centroid.distance(c) < 1.5 * 1.8]
++    assert near
++    files = list(tmp_path.glob("*.npz"))
++    assert len(files) == 1
++    z = np.load(files[0])
++    assert z["probs"].dtype == np.float16 and z["probs"].shape == (2, 200, 200)
++    assert z["scores"].shape == (len(z["x"]), 2) and str(z["region"]) == "r1"
++    assert abs(float(z["transform"][0]) - 1.0) < 1e-9
++
++
++def test_half_pass_max_px_guard():
++    d = _dem()
++    hp = li_half.params({"li_half": {"max_px": 100}})
++    assert li_half.half_pass(FakeSeg(), d, "r1", "a.laz", None, hp) == []
++
++
++def test_new_only_drops_near_kept_main_li():
++    def circ(x, y, cls, conf, group=None):
++        f = {"geom": to_crs(Point(X0 + x, Y0 + y).buffer(2), UTM, WEB_MERCATOR), "class_name": cls,
++             "confidence": conf, "region_name": "r1", "markup_type": "li"}
++        if group:
++            f["threshold_group"] = group
++        return f
++
++    main = [circ(0, 0, "kurgany_tselye", 0.9),               # оставлен порогом li (0,19422)
++            circ(100, 0, "kurgany_tselye", 0.01),            # ниже порога — не якорь
++            circ(200, 0, "kurgany_tselye", 0.99, "li_dev")]  # чужая группа — не якорь
++    half = [circ(5, 0, "kurgany_tselye", 0.5, "li_half"),   # 5 м от якоря — вон
++            circ(5, 0, "kurgany_povrezhdennye", 0.5, "li_half"),  # другой класс — остаётся
++            circ(100, 5, "kurgany_tselye", 0.5, "li_half"),
++            circ(200, 5, "kurgany_tselye", 0.5, "li_half"),
++            circ(30, 0, "kurgany_tselye", 0.5, "li_half")]  # 30 м — остаётся
++    out = li_half.new_only(half, main, li_half.params({}))
++    kept = sorted((round(to_crs(f["geom"], WEB_MERCATOR, UTM).centroid.x - X0), f["class_name"]) for f in out)
++    assert kept == [(5, "kurgany_povrezhdennye"), (30, "kurgany_tselye"), (100, "kurgany_tselye"),
++                    (200, "kurgany_tselye")]
+-- 
+2.47.3
+

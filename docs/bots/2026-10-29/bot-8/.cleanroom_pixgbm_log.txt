@@ -1,0 +1,28 @@
+# log of consulted items (PIXGBM clean-room), times MSK
+ls /workspace/koz3_shared ; ls bot-8 ; ls bot-8/wt-cnx ; git log -1 (verify 1aecea9)
+ls of wt-cnx/{expds,configs,docs,materials,models,inference,scripts,tests} (names only)
+wc -l bot-8/CLEANROOM_SPEC_li_a.md (my earlier spec, format reference)
+# --- продолжение журнала (все чтения — только чтение) ---
+wt-cnx/configs/default.toml: секции [geophys.pixgbm] (стр. 270–284), [time], [crs], [infer], default_threshold, [thresholds], [thresholds_by_markup.*], [geophys], [geophys.maggr|etgr|terfl], [post] — интерфейс конфигурации
+wt-cnx/expds/pipeline.py: TimeGuard (стр. 32–112), geophys_feats (стр. 302–383), run() (настройка guard, порядок фаз), стр. ~975 (группы порогов) — интерфейс вызова
+wt-cnx/expds/geophys.py (классика, не PIXGBM): формат признака, read_band, select_rasters, AREA_M2, маски, rank_within_source, dedupe_points — формат выхода/входа
+wt-cnx/expds/catalog.py: dataclass Region — входная структура
+wt-cnx/expds/post.py: docstring, merge_within_markup, apply_thresholds, cap_features, multipole_object_poly, filter_finds_points_regimes — потребление результата
+wt-cnx/expds/constants.py: CLASS_WEIGHTS, MODALITY_TO_MARKUP, лимиты
+wt-cnx/expds/writer.py: формат GeoJSON
+wt-cnx/expds/watchdog.py: PROCESS_START, deadline_left, finish() стр. 60–115 — порядок пост-обработки
+wt-cnx/expds/naming.py: целиком (коды модальностей, site_family) — формат данных/семьи
+wt-cnx/inference/main.py: rg по thread|PIXGBM|psutil|environ — потоки/окружение
+wt-cnx/requirements.txt, requirements.lock (rg по библиотекам), metadata.json — среда
+wt-cnx/scripts/check_submission.py: стр. 1–30, 536–590, 830–846, 900–915 — проверки упаковки
+wt-cnx/scripts/build_submission.py: rg 'pixgbm|models/' — упаковка
+wt-cnx/tests/test_bot8_soft_ceiling.py: стр. 192–202 — контракт process_t0/pix_deadline
+wt-cnx/tests/test_bot8_check_submission.py: стр. 1–22, 95–160 (+rg ранее) — контракт моделей/импортов
+wt-cnx/materials/README.md, materials/compute_metrics.py — официальная метрика koz3-1.5.0
+wt-cnx/docs/DATA_PROTOCOL.md (rg -c pixgbm = 0, затем прочитан целиком) — правила данных
+wt-cnx/docs/background/KOZ3_ORGANIZER_MATERIALS_2026-10-21.md (rg -c pixgbm = 0; стр. 30–130, 150–200) — описание классов, платформа
+wt-cnx/docs/ARCHITECTURE.md, README.md, models/README.md — только rg -c pixgbm (0 совпадений), содержимое не читалось
+bot-8/BUDGET.md §7.13 (стр. 553–580) — свой отчёт о времени; содержит пересказ чисел времени из bot-3/pixgbm/BUDGET_PIXGBM.md (сам файл не открывался)
+/workspace/data/train-expds-3: ls регионов 200–217; rasterio-профили 97 tif (бэнды, dtype, размер, разрешение, CRS); сводка 06_*разметка geojson (число, типы геометрий, CRS, ключи свойств); площади ObjectPoly по модальностям; UTM.json (212); extra/*_шум и *_границы (200)
+wt-cnx/scripts/build_submission.py: стр. 1–15 + rg 'def model_files|models' — упаковка моделей
+29.10 10:49 МСК (v1.1): bot-8/REPORT4.md (rg honest|bootstrap|scoreboard, стр. 1–91 выборочно; rg -c pixgbm = 0) — определение honest-10; rg -l honest-10 по bot-8 (без wt-*, repo, *pixgbm*, analysis, NOTES_*) и по wt-cnx (без docs, notes, *pixgbm*, analysis) — только имена файлов; wt-cnx/expds/metric.py: сигнатуры и docstring paired_bootstrap (стр. 478–484), family_folds (538–543), honest_counts (559–565) — инструменты приёмки

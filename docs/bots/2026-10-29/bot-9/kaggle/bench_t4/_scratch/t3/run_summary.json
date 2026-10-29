@@ -1,0 +1,33 @@
+{
+ "steps": [
+  {
+   "step": "smi_before",
+   "cmd": "nvidia-smi -q -d CLOCK,POWER,PERFORMANCE > smi_before.txt",
+   "rc": 0,
+   "wall_s": 0.0,
+   "log": "logs/smi_before.log"
+  },
+  {
+   "step": "bench_cnx",
+   "cmd": "python bench_tile.py --models cnx_li9,cnx_li12,cnx_sp3 --dtypes fp16,fp32,bf16 --batches 1,2,4 --warmup 10 --iters 30 --out bench_t4_cnx.json",
+   "rc": 1,
+   "wall_s": 4.3,
+   "log": "logs/bench_cnx.log"
+  },
+  {
+   "step": "bench_det",
+   "cmd": "python bench_tile.py --models dfine_l,rtdetrv2_r50 --dtypes fp16,fp32 --batches 1,4,8 --warmup 10 --iters 30 --out bench_t4_det.json --hf-config-dir hf_configs",
+   "rc": 1,
+   "wall_s": 3.0,
+   "log": "logs/bench_det.log"
+  },
+  {
+   "step": "smi_after",
+   "cmd": "nvidia-smi -q -d CLOCK,POWER,PERFORMANCE > smi_after.txt",
+   "rc": 0,
+   "wall_s": 0.0,
+   "log": "logs/smi_after.log"
+  }
+ ],
+ "validity_verdict": "BROKEN"
+}

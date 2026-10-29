@@ -1,0 +1,971 @@
+{
+ "full/191_Осечки_1.3км.npz": {
+  "n": 988,
+  "worst_frac_tol": 1.0,
+  "worst_nan_match": 1.0,
+  "bad": {},
+  "all": {
+   "morph_valid": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_bg_slope": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_h0": {
+    "nan_match": 1.0,
+    "max_abs": 2.9802322387695312e-08,
+    "frac_tol": 1.0,
+    "p99": 2.9802322387695312e-08,
+    "corr": 0.9999999999999957
+   },
+   "morph_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 2.9802322387695312e-08,
+    "frac_tol": 1.0,
+    "p99": 2.9802322387695312e-08,
+    "corr": 0.9999999999999958
+   },
+   "morph_r_peak": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999999
+   },
+   "morph_ring": {
+    "nan_match": 1.0,
+    "max_abs": 4.0046870708465576e-08,
+    "frac_tol": 1.0,
+    "p99": 3.5390257835388184e-08,
+    "corr": 0.99999999999994
+   },
+   "morph_ring_rel": {
+    "nan_match": 1.0,
+    "max_abs": 2.384185791015625e-07,
+    "frac_tol": 1.0,
+    "p99": 2.384185791015625e-07,
+    "corr": 0.9999999999999565
+   },
+   "morph_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-07,
+    "frac_tol": 1.0,
+    "p99": 8.940696716308594e-08,
+    "corr": 0.9999999999999164
+   },
+   "morph_vol": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 7.62939453125e-06,
+    "corr": 0.9999999999999973
+   },
+   "morph_shape": {
+    "nan_match": 1.0,
+    "max_abs": 2.384185791015625e-07,
+    "frac_tol": 1.0,
+    "p99": 1.7881393432617188e-07,
+    "corr": 0.9999999999999638
+   },
+   "morph_top_ratio": {
+    "nan_match": 1.0,
+    "max_abs": 2.980232238769531e-07,
+    "frac_tol": 1.0,
+    "p99": 1.7881393432617188e-07,
+    "corr": 0.9999999999999839
+   },
+   "morph_asym4": {
+    "nan_match": 1.0,
+    "max_abs": 2.384185791015625e-07,
+    "frac_tol": 1.0,
+    "p99": 1.341104507446289e-07,
+    "corr": 0.9999999999999937
+   },
+   "morph_secmin4": {
+    "nan_match": 1.0,
+    "max_abs": 4.470348358154297e-08,
+    "frac_tol": 1.0,
+    "p99": 3.173947334289544e-08,
+    "corr": 0.9999999999999937
+   },
+   "morph_secmin8": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-07,
+    "frac_tol": 1.0,
+    "p99": 1.043081283569336e-07,
+    "corr": 0.9999999999999686
+   },
+   "morph_elong": {
+    "nan_match": 1.0,
+    "max_abs": 2.2649765014648438e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.999999999999864
+   },
+   "morph_cent_off": {
+    "nan_match": 1.0,
+    "max_abs": 9.5367431640625e-07,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999882
+   },
+   "morph_peak_off": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_std3": {
+    "nan_match": 1.0,
+    "max_abs": 1.4901161193847656e-08,
+    "frac_tol": 1.0,
+    "p99": 1.4901161193847656e-08,
+    "corr": 0.9999999999999982
+   },
+   "morph_std8": {
+    "nan_match": 1.0,
+    "max_abs": 1.4901161193847656e-08,
+    "frac_tol": 1.0,
+    "p99": 7.450580596923828e-09,
+    "corr": 0.999999999999999
+   },
+   "morph_slope2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope_max5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 7.450580596923828e-09,
+    "frac_tol": 1.0,
+    "p99": 3.725290298461914e-09,
+    "corr": 0.9999999999999956
+   },
+   "morph_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 1.862645149230957e-09,
+    "frac_tol": 1.0,
+    "p99": 1.862645149230957e-09,
+    "corr": 0.999999999999997
+   },
+   "morph_rz_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_h0": {
+    "nan_match": 1.0,
+    "max_abs": 3.814697265625e-06,
+    "frac_tol": 1.0,
+    "p99": 1.430511474609375e-06,
+    "corr": 0.9999999999999942
+   },
+   "morph_rz_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 4.76837158203125e-06,
+    "frac_tol": 1.0,
+    "p99": 1.6689300537109375e-06,
+    "corr": 0.9999999999999963
+   },
+   "morph_rz_ring": {
+    "nan_match": 1.0,
+    "max_abs": 1.430511474609375e-06,
+    "frac_tol": 1.0,
+    "p99": 1.3113021850585938e-06,
+    "corr": 0.9999999999999393
+   },
+   "morph_rz_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 3.814697265625e-06,
+    "frac_tol": 1.0,
+    "p99": 2.7418136596679688e-06,
+    "corr": 0.9999999999999151
+   },
+   "morph_rz_vol": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 3.814697265625e-06,
+    "corr": 0.9999999999999973
+   },
+   "morph_rz_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_rz_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_std3": {
+    "nan_match": 1.0,
+    "max_abs": 1.430511474609375e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.9999999999999979
+   },
+   "morph_rz_std8": {
+    "nan_match": 1.0,
+    "max_abs": 9.5367431640625e-07,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999983
+   },
+   "morph_rz_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 1.430511474609375e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.9999999999999938
+   },
+   "morph_rz_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 4.76837158203125e-06,
+    "frac_tol": 1.0,
+    "p99": 3.814697265625e-06,
+    "corr": 0.9999999999999957
+   }
+  }
+ },
+ "full/001_Гнёздово_Нивленское.npz": {
+  "n": 9450,
+  "worst_frac_tol": 1.0,
+  "worst_nan_match": 1.0,
+  "bad": {},
+  "all": {
+   "morph_valid": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_bg_slope": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_h0": {
+    "nan_match": 1.0,
+    "max_abs": 3.5762786865234375e-07,
+    "frac_tol": 1.0,
+    "p99": 1.1920928955078125e-07,
+    "corr": 0.9999999999999974
+   },
+   "morph_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 3.5762786865234375e-07,
+    "frac_tol": 1.0,
+    "p99": 1.1920928955078125e-07,
+    "corr": 0.9999999999999971
+   },
+   "morph_r_peak": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999999
+   },
+   "morph_ring": {
+    "nan_match": 1.0,
+    "max_abs": 3.5762786865234375e-07,
+    "frac_tol": 1.0,
+    "p99": 1.601874828338623e-07,
+    "corr": 0.9999999999996869
+   },
+   "morph_ring_rel": {
+    "nan_match": 1.0,
+    "max_abs": 2.384185791015625e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999775
+   },
+   "morph_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 8.344650268554688e-07,
+    "frac_tol": 1.0,
+    "p99": 4.470348358154297e-07,
+    "corr": 0.9999999999996428
+   },
+   "morph_vol": {
+    "nan_match": 1.0,
+    "max_abs": 6.103515625e-05,
+    "frac_tol": 1.0,
+    "p99": 6.103515625e-05,
+    "corr": 0.9999999999999982
+   },
+   "morph_shape": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999934
+   },
+   "morph_top_ratio": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999967
+   },
+   "morph_asym4": {
+    "nan_match": 1.0,
+    "max_abs": 3.337860107421875e-06,
+    "frac_tol": 1.0,
+    "p99": 3.5762786865234375e-07,
+    "corr": 0.9999999999999725
+   },
+   "morph_secmin4": {
+    "nan_match": 1.0,
+    "max_abs": 5.960464477539062e-07,
+    "frac_tol": 1.0,
+    "p99": 2.384185791015625e-07,
+    "corr": 0.9999999999999898
+   },
+   "morph_secmin8": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-06,
+    "frac_tol": 1.0,
+    "p99": 3.5762786865234375e-07,
+    "corr": 0.9999999999999786
+   },
+   "morph_elong": {
+    "nan_match": 1.0,
+    "max_abs": 0.00228118896484375,
+    "frac_tol": 1.0,
+    "p99": 5.960464477539062e-07,
+    "corr": 0.9999999999994607
+   },
+   "morph_cent_off": {
+    "nan_match": 1.0,
+    "max_abs": 3.814697265625e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999938
+   },
+   "morph_peak_off": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_std3": {
+    "nan_match": 1.0,
+    "max_abs": 5.960464477539063e-08,
+    "frac_tol": 1.0,
+    "p99": 2.9802322387695312e-08,
+    "corr": 0.9999999999999974
+   },
+   "morph_std8": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-07,
+    "frac_tol": 1.0,
+    "p99": 5.960464477539063e-08,
+    "corr": 0.999999999999999
+   },
+   "morph_slope2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope_max5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 5.960464477539063e-08,
+    "frac_tol": 1.0,
+    "p99": 2.2351741790771484e-08,
+    "corr": 0.9999999999999942
+   },
+   "morph_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 1.4901161193847656e-08,
+    "frac_tol": 1.0,
+    "p99": 7.450580596923828e-09,
+    "corr": 0.999999999999996
+   },
+   "morph_rz_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_h0": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999962
+   },
+   "morph_rz_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.999999999999998
+   },
+   "morph_rz_ring": {
+    "nan_match": 1.0,
+    "max_abs": 1.1444091796875e-05,
+    "frac_tol": 1.0,
+    "p99": 5.334615707397461e-06,
+    "corr": 0.9999999999996858
+   },
+   "morph_rz_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 3.528594970703125e-05,
+    "frac_tol": 1.0,
+    "p99": 2.0503997802734375e-05,
+    "corr": 0.9999999999996415
+   },
+   "morph_rz_vol": {
+    "nan_match": 1.0,
+    "max_abs": 2.86102294921875e-06,
+    "frac_tol": 1.0,
+    "p99": 1.9073486328125e-06,
+    "corr": 0.9999999999999977
+   },
+   "morph_rz_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_rz_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_std3": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.9999999999999977
+   },
+   "morph_rz_std8": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 7.152557373046875e-07,
+    "corr": 0.9999999999999988
+   },
+   "morph_rz_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 3.814697265625e-06,
+    "corr": 0.9999999999999946
+   },
+   "morph_rz_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.9999999999999963
+   }
+  }
+ },
+ "full/028_Вышегжа_2.npz": {
+  "n": 146094,
+  "worst_frac_tol": 0.9991375415828165,
+  "worst_nan_match": 1.0,
+  "bad": {},
+  "all": {
+   "morph_valid": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_bg_slope": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_h0": {
+    "nan_match": 1.0,
+    "max_abs": 4.76837158203125e-07,
+    "frac_tol": 1.0,
+    "p99": 1.1920928955078125e-07,
+    "corr": 0.999999999999997
+   },
+   "morph_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 2.980232238769531e-07,
+    "frac_tol": 1.0,
+    "p99": 1.1920928955078125e-07,
+    "corr": 0.999999999999997
+   },
+   "morph_r_peak": {
+    "nan_match": 1.0,
+    "max_abs": 2.0,
+    "frac_tol": 0.9991375415828165,
+    "p99": 0.0,
+    "corr": 0.9999685568869583
+   },
+   "morph_ring": {
+    "nan_match": 1.0,
+    "max_abs": 4.172325134277344e-07,
+    "frac_tol": 1.0,
+    "p99": 1.043081283569336e-07,
+    "corr": 0.9999999999999122
+   },
+   "morph_ring_rel": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999737
+   },
+   "morph_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 1.5,
+    "frac_tol": 0.9999040517572235,
+    "p99": 0.0,
+    "corr": 0.9999964112930794
+   },
+   "morph_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 4.5,
+    "frac_tol": 0.9999589305515627,
+    "p99": 0.0,
+    "corr": 0.9999916937696168
+   },
+   "morph_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 2.2034062681086652e-06,
+    "frac_tol": 1.0,
+    "p99": 2.682209014892578e-07,
+    "corr": 0.9999999999998225
+   },
+   "morph_vol": {
+    "nan_match": 1.0,
+    "max_abs": 0.06459459266625345,
+    "frac_tol": 0.9999726203677085,
+    "p99": 3.0517578125e-05,
+    "corr": 0.9999999999966276
+   },
+   "morph_shape": {
+    "nan_match": 1.0,
+    "max_abs": 6.917538121342659e-05,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999437
+   },
+   "morph_top_ratio": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.9999999999999907
+   },
+   "morph_asym4": {
+    "nan_match": 1.0,
+    "max_abs": 3.0994415283203125e-06,
+    "frac_tol": 1.0,
+    "p99": 3.5762786865234375e-07,
+    "corr": 0.9999999999999488
+   },
+   "morph_secmin4": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-06,
+    "frac_tol": 1.0,
+    "p99": 1.7881393432617188e-07,
+    "corr": 0.9999999999999849
+   },
+   "morph_secmin8": {
+    "nan_match": 1.0,
+    "max_abs": 2.1457672119140625e-06,
+    "frac_tol": 1.0,
+    "p99": 2.384185791015625e-07,
+    "corr": 0.9999999999999679
+   },
+   "morph_elong": {
+    "nan_match": 1.0,
+    "max_abs": 0.0552978515625,
+    "frac_tol": 0.9999858856739591,
+    "p99": 1.0967254638671875e-05,
+    "corr": 0.9999999999730679
+   },
+   "morph_cent_off": {
+    "nan_match": 1.0,
+    "max_abs": 0.0005059242248535156,
+    "frac_tol": 1.0,
+    "p99": 1.0505318641662598e-05,
+    "corr": 0.9999999999929372
+   },
+   "morph_peak_off": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999999
+   },
+   "morph_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_std3": {
+    "nan_match": 1.0,
+    "max_abs": 5.960464477539063e-08,
+    "frac_tol": 1.0,
+    "p99": 1.4901161193847656e-08,
+    "corr": 0.9999999999999968
+   },
+   "morph_std8": {
+    "nan_match": 1.0,
+    "max_abs": 1.1920928955078125e-07,
+    "frac_tol": 1.0,
+    "p99": 2.9802322387695312e-08,
+    "corr": 0.9999999999999996
+   },
+   "morph_slope2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_slope_max5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 8.940696716308594e-08,
+    "frac_tol": 1.0,
+    "p99": 1.4901161193847656e-08,
+    "corr": 0.9999999999999921
+   },
+   "morph_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 1.4901161193847656e-08,
+    "frac_tol": 1.0,
+    "p99": 3.725290298461914e-09,
+    "corr": 0.9999999999999952
+   },
+   "morph_rz_bg_rough": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999999
+   },
+   "morph_rz_h0": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 2.86102294921875e-06,
+    "corr": 0.9999999999999946
+   },
+   "morph_rz_hmax": {
+    "nan_match": 1.0,
+    "max_abs": 3.814697265625e-06,
+    "frac_tol": 1.0,
+    "p99": 1.430511474609375e-06,
+    "corr": 0.9999999999999961
+   },
+   "morph_rz_ring": {
+    "nan_match": 1.0,
+    "max_abs": 1.1444091796875e-05,
+    "frac_tol": 1.0,
+    "p99": 2.2371672093868386e-06,
+    "corr": 0.9999999999999112
+   },
+   "morph_rz_r_half": {
+    "nan_match": 1.0,
+    "max_abs": 1.0117361545562744,
+    "frac_tol": 0.9999040517572235,
+    "p99": 0.0,
+    "corr": 0.9999964112939722
+   },
+   "morph_rz_r_edge": {
+    "nan_match": 1.0,
+    "max_abs": 6.070417404174805,
+    "frac_tol": 0.9999589305515627,
+    "p99": 0.0,
+    "corr": 0.9999916937682908
+   },
+   "morph_rz_slope_edge": {
+    "nan_match": 1.0,
+    "max_abs": 2.3365020751953125e-05,
+    "frac_tol": 1.0,
+    "p99": 2.9206275939941406e-06,
+    "corr": 0.9999999999998217
+   },
+   "morph_rz_vol": {
+    "nan_match": 1.0,
+    "max_abs": 0.01830047369003296,
+    "frac_tol": 0.9999863101838542,
+    "p99": 7.62939453125e-06,
+    "corr": 0.9999999999966266
+   },
+   "morph_rz_tpi2": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 0.9999999999999998
+   },
+   "morph_rz_tpi5": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_tpi8": {
+    "nan_match": 1.0,
+    "max_abs": 0.0,
+    "frac_tol": 1.0,
+    "p99": 0.0,
+    "corr": 1.0
+   },
+   "morph_rz_std3": {
+    "nan_match": 1.0,
+    "max_abs": 1.9073486328125e-06,
+    "frac_tol": 1.0,
+    "p99": 4.76837158203125e-07,
+    "corr": 0.999999999999996
+   },
+   "morph_rz_std8": {
+    "nan_match": 1.0,
+    "max_abs": 7.62939453125e-06,
+    "frac_tol": 1.0,
+    "p99": 1.9073486328125e-06,
+    "corr": 0.9999999999999978
+   },
+   "morph_rz_curv1_5": {
+    "nan_match": 1.0,
+    "max_abs": 5.7220458984375e-06,
+    "frac_tol": 1.0,
+    "p99": 9.5367431640625e-07,
+    "corr": 0.9999999999999915
+   },
+   "morph_rz_curv3": {
+    "nan_match": 1.0,
+    "max_abs": 1.1444091796875e-05,
+    "frac_tol": 1.0,
+    "p99": 3.814697265625e-06,
+    "corr": 0.9999999999999948
+   }
+  }
+ }
+}

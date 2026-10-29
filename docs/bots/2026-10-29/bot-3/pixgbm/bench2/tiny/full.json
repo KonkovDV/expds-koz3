@@ -1,0 +1,38 @@
+{
+ "case": "pix",
+ "budget": "1e9",
+ "model_dir": "/workspace/koz3_shared/bot-3/pixgbm/models/all",
+ "wall": 14.57,
+ "cpu": 21.72,
+ "since_proc_start": 14.66,
+ "ok": true,
+ "errors": [],
+ "warnings": [],
+ "summary": {
+  "features": 388,
+  "by_class": {
+   "object_poly": 228,
+   "finds_points": 160
+  },
+  "size_mb": 0.27
+ },
+ "crs": [
+  "EPSG:3857"
+ ],
+ "geom_types": [
+  "Polygon"
+ ],
+ "steps": {
+  "full": 17,
+  "finds_only": 0,
+  "classic": 0,
+  "classic_budget": 0,
+  "error": 0
+ },
+ "level": 0,
+ "by_group": {
+  "maggr|object_poly": 9,
+  "maggr|finds_points": 160,
+  "etgr|object_poly": 219
+ }
+}

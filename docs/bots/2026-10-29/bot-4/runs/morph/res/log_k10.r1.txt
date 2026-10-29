@@ -1,0 +1,16 @@
+li kurgan rows 1209594 rerank R 1195813 pos 2071 left (valid<0.05) 13781 pos left 15
+k10 folds 10 base keep 0.3332373211123479 {'folds': 10, 'unseen_dropped': 0, 'unseen_kept': 723}
+resume k10 done folds [0, 1]
+  k10 fold 3/10 527s rss 1337MB
+  k10 fold 4/10 1469s rss 1337MB
+  k10 fold 5/10 1823s rss 1337MB
+  k10 fold 6/10 2296s rss 1337MB
+  k10 fold 7/10 2861s rss 1337MB
+  k10 fold 8/10 3210s rss 1337MB
+  k10 fold 9/10 3380s rss 1337MB
+  k10 fold 10/10 3546s rss 1337MB
+k10 C d=-0.010944 P=0.023 [-0.02009;-0.00176] new34=+0.028947 opt=-0.000488 {'kurgany_povrezhdennye': -0.008914, 'kurgany_tselye': -0.002031, 'gorodishcha': 0.0, 'arkhitektury': 0.0, 'object_poly': 0.0, 'fortifikatsii': 0.0, 'finds_points': 0.0}
+k10 M d=-0.008124 P=0.054 [-0.01682;+0.00025] new34=+0.028239 opt=-0.000510 {'kurgany_povrezhdennye': -0.005121, 'kurgany_tselye': -0.003002, 'gorodishcha': 0.0, 'arkhitektury': 0.0, 'object_poly': 0.0, 'fortifikatsii': 0.0, 'finds_points': 0.0}
+k10 M-C {'d': 0.00282076897746103, 'boot': {'mean': 0.0024450753662839286, 'p5': -0.001960282152114151, 'p50': 0.002495138622043952, 'p95': 0.006455130676128184, 'p_gt0': 0.847, 'samples': 2000, 'families': 103}}
+maxrss 1337
+EXIT 0 2026-10-29 10:48:17

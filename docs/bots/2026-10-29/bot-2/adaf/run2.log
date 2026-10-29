@@ -1,0 +1,7 @@
+start2 10:47:52 disk 8219M
+curves A0 10:49:44 100 files
+fam AB 10:49:53 {"adaf_b|kurgany_povrezhdennye": 1058, "adaf_b|kurgany_tselye": 1058, "regions": 57, "families_symlinked": 60, "regions_without_family_file": 0} du 929M disk 5342M
+curves AB 10:52:08 100 files
+fam ABE 10:52:29 {"adaf_b|kurgany_povrezhdennye": 1058, "adaf_b|kurgany_tselye": 1058, "adaf_e|gorodishcha": 856, "adaf_e|fortifikatsii": 856, "regions": 57, "families_symlinked": 60, "regions_without_family_file": 0} du 930M disk 4957M
+curves ABE 10:55:43 100 files
+done2 11:07:25 disk 1319M

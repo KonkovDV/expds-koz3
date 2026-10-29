@@ -4,3 +4,6 @@ seed0 {'A_drop': 0.314698, 'A_keep': 0.33332, 'fr1_drop': 0.320802, 'fr1_keep': 
 seed1 {'A_drop': 0.306042, 'A_keep': 0.324664, 'fr1_drop': 0.313906, 'fr1_keep': 0.332527, 'd_fr1_drop': 0.007864, 'd_fr1_keep': 0.007863}
 seed2 {'A_drop': 0.318393, 'A_keep': 0.337015, 'fr1_drop': 0.319902, 'fr1_keep': 0.338523, 'd_fr1_drop': 0.001509, 'd_fr1_keep': 0.001509}
 seed3 {'A_drop': 0.309721, 'A_keep': 0.328343, 'fr1_drop': 0.315358, 'fr1_keep': 0.33398, 'd_fr1_drop': 0.005637, 'd_fr1_keep': 0.005637}
+seed4 {'A_drop': 0.29063, 'A_keep': 0.322307, 'fr1_drop': 0.300358, 'fr1_keep': 0.332034, 'd_fr1_drop': 0.009728, 'd_fr1_keep': 0.009727}
+fr1_drop d10=+0.008344 P=0.997 CI=[+0.00227;+0.01865] lofo=+0.006542 seeds+=5/5 heavy=+0.008344 new34=-0.003728 acc=False
+fr1_keep d10=+0.008344 P=0.997 CI=[+0.00227;+0.01865] lofo=+0.006542 seeds+=5/5 heavy=+0.008344 new34=-0.003728 acc=False

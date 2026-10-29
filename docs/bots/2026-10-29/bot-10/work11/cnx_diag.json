@@ -1,0 +1,3891 @@
+{
+ "regions": [
+  "001_Гнёздово_Нивленское",
+  "002_Тешилово",
+  "004_Боровичи_1",
+  "005_Боровичи_2",
+  "006_Осечки_1.1км",
+  "010_Эсбю_укрепление",
+  "013_Нора_Виннон",
+  "015_Демидовка",
+  "021_Новенькое",
+  "022_Лихуша",
+  "023_Бервенец",
+  "025_Вышенское",
+  "026_Золотаревка",
+  "030_Эсбю",
+  "031_Новотитаровская",
+  "033_Елизаветинское",
+  "034_Усть_река",
+  "036_Тимерево",
+  "037_Никола_Ленивец",
+  "039_Примаки_0.7км",
+  "040_Примаки_1.3км",
+  "041_Миловидово",
+  "044_Новотитаровская_1.8км",
+  "045_Новотитаровская_2.8км",
+  "066_Московиты",
+  "101_Гнёздово_Днепровская",
+  "102_Гнёздово_Заольшанская",
+  "104_Шетнево",
+  "105_Вщиж",
+  "106_Верхмарево",
+  "179_Гнёздово_Лесная_1",
+  "180_Гнёздово_Лесная_2",
+  "181_Гнёздово_Лесная_3",
+  "186_Семибратнее_1",
+  "188_Руна",
+  "189_Макеево",
+  "191_Осечки_1.3км",
+  "192_КЧР"
+ ],
+ "oracle": {
+  "A": {
+   "kurgany_povrezhdennye": {
+    "n_gt": 2099,
+    "single_f1": 0.37770034843205574,
+    "single_tp": 813,
+    "single_fp": 1393,
+    "persite_f1": 0.44583243592504845,
+    "persite_tp": 1035,
+    "persite_fp": 1509,
+    "single_taus": {
+     "ae": 0.99053,
+     "li": 0.06415,
+     "li_ae": 0.993061,
+     "li_dev": 0.99131,
+     "li_mosaic": 0.982915,
+     "sp_focal": 0.82327,
+     "sp_focal2": 0.457435
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 77
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "site_tp": 1,
+      "site_fp": 69,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "site_tp": 10,
+      "site_fp": 9,
+      "single_tp": 7,
+      "single_fp": 6
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "site_tp": 7,
+      "site_fp": 28,
+      "single_tp": 6,
+      "single_fp": 60
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "site_tp": 1,
+      "site_fp": 6,
+      "single_tp": 1,
+      "single_fp": 10
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 20
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "site_tp": 5,
+      "site_fp": 23,
+      "single_tp": 5,
+      "single_fp": 35
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "site_tp": 8,
+      "site_fp": 5,
+      "single_tp": 11,
+      "single_fp": 78
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "site_tp": 4,
+      "site_fp": 3,
+      "single_tp": 4,
+      "single_fp": 4
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "site_tp": 65,
+      "site_fp": 199,
+      "single_tp": 53,
+      "single_fp": 149
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 4,
+      "single_tp": 2,
+      "single_fp": 9
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 1,
+      "single_tp": 3,
+      "single_fp": 18
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "site_tp": 453,
+      "site_fp": 355,
+      "single_tp": 329,
+      "single_fp": 228
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 21,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 14,
+      "single_tp": 1,
+      "single_fp": 9
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "site_tp": 29,
+      "site_fp": 155,
+      "single_tp": 2,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "site_tp": 2,
+      "site_fp": 31,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 45
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "site_tp": 62,
+      "site_fp": 28,
+      "single_tp": 13,
+      "single_fp": 1
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "site_tp": 18,
+      "site_fp": 93,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "site_tp": 6,
+      "site_fp": 7,
+      "single_tp": 3,
+      "single_fp": 0
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "site_tp": 69,
+      "site_fp": 58,
+      "single_tp": 80,
+      "single_fp": 137
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "site_tp": 151,
+      "site_fp": 123,
+      "single_tp": 175,
+      "single_fp": 271
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "site_tp": 107,
+      "site_fp": 160,
+      "single_tp": 109,
+      "single_fp": 187
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "site_tp": 12,
+      "site_fp": 99,
+      "single_tp": 1,
+      "single_fp": 1
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 31
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 1,
+      "single_fp": 0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "site_tp": 1,
+      "site_fp": 13,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "site_tp": 8,
+      "site_fp": 4,
+      "single_tp": 5,
+      "single_fp": 12
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "n_gt": 933,
+    "single_f1": 0.47765640516385305,
+    "single_tp": 481,
+    "single_fp": 600,
+    "persite_f1": 0.5008960573476703,
+    "persite_tp": 559,
+    "persite_fp": 740,
+    "single_taus": {
+     "ae": 0.995955,
+     "li": 0.19422,
+     "li_ae": 1.000001,
+     "li_dev": 0.99989,
+     "li_mosaic": 0.6127,
+     "sp_focal": 0.602731,
+     "sp_focal2": 0.506541
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "site_tp": 3,
+      "site_fp": 2,
+      "single_tp": 3,
+      "single_fp": 2
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "site_tp": 15,
+      "site_fp": 27,
+      "single_tp": 9,
+      "single_fp": 10
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "site_tp": 22,
+      "site_fp": 5,
+      "single_tp": 17,
+      "single_fp": 3
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "site_tp": 6,
+      "site_fp": 3,
+      "single_tp": 4,
+      "single_fp": 4
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "site_tp": 4,
+      "site_fp": 0,
+      "single_tp": 3,
+      "single_fp": 0
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 2
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "site_tp": 124,
+      "site_fp": 85,
+      "single_tp": 123,
+      "single_fp": 84
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "site_tp": 47,
+      "site_fp": 224,
+      "single_tp": 22,
+      "single_fp": 124
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "site_tp": 1,
+      "site_fp": 3,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "site_tp": 15,
+      "site_fp": 2,
+      "single_tp": 16,
+      "single_fp": 5
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 2,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "site_tp": 62,
+      "site_fp": 84,
+      "single_tp": 46,
+      "single_fp": 53
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "site_tp": 182,
+      "site_fp": 198,
+      "single_tp": 167,
+      "single_fp": 158
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "site_tp": 61,
+      "site_fp": 105,
+      "single_tp": 59,
+      "single_fp": 114
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "site_tp": 12,
+      "site_fp": 0,
+      "single_tp": 11,
+      "single_fp": 6
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 11
+     }
+    }
+   }
+  },
+  "R": {
+   "kurgany_povrezhdennye": {
+    "n_gt": 2099,
+    "single_f1": 0.3144208037825059,
+    "single_tp": 665,
+    "single_fp": 1466,
+    "persite_f1": 0.4146125199503458,
+    "persite_tp": 1169,
+    "persite_fp": 2371,
+    "single_taus": {
+     "ae": 0.0,
+     "li_ae": 0.993061,
+     "li_cnx": 0.296235,
+     "li_dev": 0.99131,
+     "li_mosaic": 0.982915,
+     "sp_focal": 0.23295,
+     "sp_focal2": 0.457435
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "site_tp": 1,
+      "site_fp": 856,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "site_tp": 1,
+      "site_fp": 15,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "site_tp": 12,
+      "site_fp": 19,
+      "single_tp": 13,
+      "single_fp": 150
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "site_tp": 7,
+      "site_fp": 20,
+      "single_tp": 5,
+      "single_fp": 17
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 9,
+      "single_tp": 1,
+      "single_fp": 10
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "site_tp": 3,
+      "site_fp": 8,
+      "single_tp": 3,
+      "single_fp": 16
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 308
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "site_tp": 14,
+      "site_fp": 34,
+      "single_tp": 9,
+      "single_fp": 15
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 3,
+      "single_tp": 4,
+      "single_fp": 3
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "site_tp": 88,
+      "site_fp": 269,
+      "single_tp": 45,
+      "single_fp": 105
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 6,
+      "single_tp": 2,
+      "single_fp": 5
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 31
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 2,
+      "single_fp": 7
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "site_tp": 453,
+      "site_fp": 238,
+      "single_tp": 149,
+      "single_fp": 76
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 133
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "site_tp": 2,
+      "site_fp": 8,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 11,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "site_tp": 29,
+      "site_fp": 156,
+      "single_tp": 9,
+      "single_fp": 23
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 20,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 4
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "site_tp": 125,
+      "site_fp": 77,
+      "single_tp": 72,
+      "single_fp": 35
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "site_tp": 28,
+      "site_fp": 127,
+      "single_tp": 10,
+      "single_fp": 26
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "site_tp": 8,
+      "site_fp": 15,
+      "single_tp": 5,
+      "single_fp": 11
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 37
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 25
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "site_tp": 76,
+      "site_fp": 111,
+      "single_tp": 65,
+      "single_fp": 80
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "site_tp": 176,
+      "site_fp": 218,
+      "single_tp": 159,
+      "single_fp": 187
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "site_tp": 103,
+      "site_fp": 132,
+      "single_tp": 92,
+      "single_fp": 96
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "site_tp": 14,
+      "site_fp": 5,
+      "single_tp": 14,
+      "single_fp": 25
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 2,
+      "single_fp": 12
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "site_tp": 1,
+      "site_fp": 13,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "site_tp": 9,
+      "site_fp": 0,
+      "single_tp": 2,
+      "single_fp": 0
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "n_gt": 933,
+    "single_f1": 0.4053601340033501,
+    "single_tp": 484,
+    "single_fp": 971,
+    "persite_f1": 0.49745762711864405,
+    "persite_tp": 587,
+    "persite_fp": 840,
+    "single_taus": {
+     "ae": 0.802255,
+     "li_ae": 1.000001,
+     "li_cnx": 0.34699,
+     "li_dev": 0.99989,
+     "li_mosaic": 0.6127,
+     "sp_focal": 0.602731,
+     "sp_focal2": 0.506541
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 8
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "site_tp": 11,
+      "site_fp": 11,
+      "single_tp": 10,
+      "single_fp": 26
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "site_tp": 22,
+      "site_fp": 13,
+      "single_tp": 14,
+      "single_fp": 7
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 11
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "site_tp": 7,
+      "site_fp": 91,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 2,
+      "single_tp": 4,
+      "single_fp": 3
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 1,
+      "single_fp": 1
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "site_tp": 150,
+      "site_fp": 128,
+      "single_tp": 67,
+      "single_fp": 39
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "site_tp": 47,
+      "site_fp": 228,
+      "single_tp": 46,
+      "single_fp": 223
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 13,
+      "single_tp": 2,
+      "single_fp": 17
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 7
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "site_tp": 2,
+      "site_fp": 4,
+      "single_tp": 1,
+      "single_fp": 44
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 24
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "site_tp": 15,
+      "site_fp": 2,
+      "single_tp": 16,
+      "single_fp": 24
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 28
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 2,
+      "single_tp": 0,
+      "single_fp": 16
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "site_tp": 62,
+      "site_fp": 79,
+      "single_tp": 59,
+      "single_fp": 78
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "site_tp": 184,
+      "site_fp": 178,
+      "single_tp": 187,
+      "single_fp": 226
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "site_tp": 62,
+      "site_fp": 88,
+      "single_tp": 65,
+      "single_fp": 128
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 19
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "site_tp": 12,
+      "site_fp": 0,
+      "single_tp": 11,
+      "single_fp": 16
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     }
+    }
+   }
+  },
+  "RC": {
+   "kurgany_povrezhdennye": {
+    "n_gt": 2099,
+    "single_f1": 0.29394420503515534,
+    "single_tp": 648,
+    "single_fp": 1662,
+    "persite_f1": 0.4734925131525698,
+    "persite_tp": 1170,
+    "persite_fp": 1673,
+    "single_taus": {
+     "ae": 0.0,
+     "li_ae": 0.993061,
+     "li_cnx": 0.498934,
+     "li_dev": 0.99131,
+     "li_mosaic": 0.982915,
+     "sp_focal": 0.23295,
+     "sp_focal2": 0.457435
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "site_tp": 1,
+      "site_fp": 102,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "site_tp": 1,
+      "site_fp": 15,
+      "single_tp": 0,
+      "single_fp": 13
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "site_tp": 12,
+      "site_fp": 19,
+      "single_tp": 15,
+      "single_fp": 233
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "site_tp": 7,
+      "site_fp": 20,
+      "single_tp": 7,
+      "single_fp": 21
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 9,
+      "single_tp": 1,
+      "single_fp": 10
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 8
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "site_tp": 3,
+      "site_fp": 8,
+      "single_tp": 4,
+      "single_fp": 20
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 301
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "site_tp": 15,
+      "site_fp": 36,
+      "single_tp": 10,
+      "single_fp": 22
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 9
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 3,
+      "single_tp": 5,
+      "single_fp": 3
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 18
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 4
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "site_tp": 88,
+      "site_fp": 269,
+      "single_tp": 39,
+      "single_fp": 87
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 6,
+      "single_tp": 2,
+      "single_fp": 7
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 47
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 2,
+      "single_fp": 10
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "site_tp": 453,
+      "site_fp": 238,
+      "single_tp": 147,
+      "single_fp": 75
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 192
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "site_tp": 2,
+      "site_fp": 8,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 11,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "site_tp": 29,
+      "site_fp": 156,
+      "single_tp": 9,
+      "single_fp": 23
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 20,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 8
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "site_tp": 122,
+      "site_fp": 77,
+      "single_tp": 83,
+      "single_fp": 48
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "site_tp": 31,
+      "site_fp": 181,
+      "single_tp": 14,
+      "single_fp": 51
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "site_tp": 8,
+      "site_fp": 15,
+      "single_tp": 6,
+      "single_fp": 17
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 63
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 46
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "site_tp": 76,
+      "site_fp": 111,
+      "single_tp": 59,
+      "single_fp": 58
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "site_tp": 176,
+      "site_fp": 218,
+      "single_tp": 145,
+      "single_fp": 142
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "site_tp": 103,
+      "site_fp": 132,
+      "single_tp": 80,
+      "single_fp": 72
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "site_tp": 14,
+      "site_fp": 5,
+      "single_tp": 14,
+      "single_fp": 30
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 2,
+      "single_fp": 13
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "site_tp": 1,
+      "site_fp": 13,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "site_tp": 9,
+      "site_fp": 0,
+      "single_tp": 3,
+      "single_fp": 0
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "n_gt": 933,
+    "single_f1": 0.40883458646616544,
+    "single_tp": 435,
+    "single_fp": 760,
+    "persite_f1": 0.5,
+    "persite_tp": 581,
+    "persite_fp": 810,
+    "single_taus": {
+     "ae": 0.802255,
+     "li_ae": 1.000001,
+     "li_cnx": 0.629682,
+     "li_dev": 0.99956,
+     "li_mosaic": 0.914345,
+     "sp_focal": 0.602731,
+     "sp_focal2": 0.506541
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 6
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "site_tp": 11,
+      "site_fp": 11,
+      "single_tp": 10,
+      "single_fp": 9
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "site_tp": 22,
+      "site_fp": 13,
+      "single_tp": 12,
+      "single_fp": 3
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "site_tp": 7,
+      "site_fp": 91,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 2,
+      "single_tp": 4,
+      "single_fp": 2
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 1,
+      "single_fp": 1
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "site_tp": 150,
+      "site_fp": 128,
+      "single_tp": 48,
+      "single_fp": 16
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "site_tp": 47,
+      "site_fp": 228,
+      "single_tp": 46,
+      "single_fp": 222
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 13,
+      "single_tp": 1,
+      "single_fp": 8
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 5
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "site_tp": 2,
+      "site_fp": 4,
+      "single_tp": 2,
+      "single_fp": 36
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 16
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "site_tp": 15,
+      "site_fp": 2,
+      "single_tp": 16,
+      "single_fp": 14
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 20
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 2,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "site_tp": 56,
+      "site_fp": 49,
+      "single_tp": 54,
+      "single_fp": 56
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "site_tp": 184,
+      "site_fp": 178,
+      "single_tp": 167,
+      "single_fp": 187
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "site_tp": 62,
+      "site_fp": 88,
+      "single_tp": 62,
+      "single_fp": 110
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 13
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "site_tp": 12,
+      "site_fp": 0,
+      "single_tp": 11,
+      "single_fp": 9
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     }
+    }
+   }
+  },
+  "X": {
+   "kurgany_povrezhdennye": {
+    "n_gt": 2099,
+    "single_f1": 0.358264081255771,
+    "single_tp": 776,
+    "single_fp": 1457,
+    "persite_f1": 0.4820747520976354,
+    "persite_tp": 1264,
+    "persite_fp": 1881,
+    "single_taus": {
+     "ae": 0.99053,
+     "li": 0.251415,
+     "li_ae": 0.993061,
+     "li_cnx": 0.43425,
+     "li_dev": 0.99131,
+     "li_mosaic": 0.982915,
+     "sp_focal": 0.82327,
+     "sp_focal2": 0.457435
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 11
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "site_tp": 1,
+      "site_fp": 15,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "site_tp": 12,
+      "site_fp": 19,
+      "single_tp": 10,
+      "single_fp": 32
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "site_tp": 7,
+      "site_fp": 28,
+      "single_tp": 7,
+      "single_fp": 36
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 9,
+      "single_tp": 1,
+      "single_fp": 10
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "site_tp": 4,
+      "site_fp": 21,
+      "single_tp": 3,
+      "single_fp": 21
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 60
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "site_tp": 14,
+      "site_fp": 47,
+      "single_tp": 8,
+      "single_fp": 34
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 7,
+      "single_tp": 3,
+      "single_fp": 8
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "site_tp": 88,
+      "site_fp": 363,
+      "single_tp": 41,
+      "single_fp": 135
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "site_tp": 3,
+      "site_fp": 4,
+      "single_tp": 2,
+      "single_fp": 6
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "site_tp": 4,
+      "site_fp": 1,
+      "single_tp": 4,
+      "single_fp": 6
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "site_tp": 589,
+      "site_fp": 651,
+      "single_tp": 279,
+      "single_fp": 257
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 33
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "site_tp": 2,
+      "site_fp": 6,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 3,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "site_tp": 29,
+      "site_fp": 156,
+      "single_tp": 1,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "site_tp": 1,
+      "site_fp": 20,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 12
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "site_tp": 125,
+      "site_fp": 77,
+      "single_tp": 50,
+      "single_fp": 14
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "site_tp": 27,
+      "site_fp": 128,
+      "single_tp": 2,
+      "single_fp": 3
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "site_tp": 8,
+      "site_fp": 15,
+      "single_tp": 3,
+      "single_fp": 3
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 9
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 6
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "site_tp": 70,
+      "site_fp": 62,
+      "single_tp": 78,
+      "single_fp": 161
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "site_tp": 152,
+      "site_fp": 123,
+      "single_tp": 176,
+      "single_fp": 351
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "site_tp": 89,
+      "site_fp": 106,
+      "single_tp": 97,
+      "single_fp": 219
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "site_tp": 14,
+      "site_fp": 5,
+      "single_tp": 3,
+      "single_fp": 4
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 10
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "site_tp": 2,
+      "site_fp": 1,
+      "single_tp": 1,
+      "single_fp": 7
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "site_tp": 1,
+      "site_fp": 13,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "site_tp": 10,
+      "site_fp": 1,
+      "single_tp": 5,
+      "single_fp": 5
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "n_gt": 933,
+    "single_f1": 0.4736582964057115,
+    "single_tp": 481,
+    "single_fp": 617,
+    "persite_f1": 0.4970995091477019,
+    "persite_tp": 557,
+    "persite_fp": 751,
+    "single_taus": {
+     "ae": 0.995955,
+     "li": 0.281575,
+     "li_ae": 1.000001,
+     "li_cnx": 0.683285,
+     "li_dev": 0.99989,
+     "li_mosaic": 0.6127,
+     "sp_focal": 0.602731,
+     "sp_focal2": 0.506541
+    },
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "site_tp": 3,
+      "site_fp": 2,
+      "single_tp": 3,
+      "single_fp": 3
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "site_tp": 11,
+      "site_fp": 11,
+      "single_tp": 9,
+      "single_fp": 10
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "site_tp": 21,
+      "site_fp": 5,
+      "single_tp": 16,
+      "single_fp": 4
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "site_tp": 5,
+      "site_fp": 1,
+      "single_tp": 4,
+      "single_fp": 3
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "site_tp": 5,
+      "site_fp": 2,
+      "single_tp": 3,
+      "single_fp": 1
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 1,
+      "single_fp": 2
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "site_tp": 118,
+      "site_fp": 77,
+      "single_tp": 117,
+      "single_fp": 86
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 2
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "site_tp": 47,
+      "site_fp": 228,
+      "single_tp": 22,
+      "single_fp": 120
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "site_tp": 2,
+      "site_fp": 13,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "site_tp": 2,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "site_tp": 2,
+      "site_fp": 4,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 1
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "site_tp": 15,
+      "site_fp": 2,
+      "single_tp": 16,
+      "single_fp": 5
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 6
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "site_tp": 1,
+      "site_fp": 2,
+      "single_tp": 0,
+      "single_fp": 3
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "site_tp": 65,
+      "site_fp": 104,
+      "single_tp": 46,
+      "single_fp": 58
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "site_tp": 185,
+      "site_fp": 198,
+      "single_tp": 173,
+      "single_fp": 176
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "site_tp": 61,
+      "site_fp": 102,
+      "single_tp": 60,
+      "single_fp": 111
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "site_tp": 12,
+      "site_fp": 0,
+      "single_tp": 11,
+      "single_fp": 7
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 0
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "site_tp": 0,
+      "site_fp": 0,
+      "single_tp": 0,
+      "single_fp": 7
+     }
+    }
+   }
+  }
+ },
+ "rank": {
+  "A": {
+   "kurgany_povrezhdennye": {
+    "mean_ap": 0.1549259013527978,
+    "gt_weighted_ap": 0.263698505410041,
+    "topN_share_pooled": 0.354454502143878,
+    "n_sites_with_gt": 29,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "n_pred": 2416,
+      "tp_all": 1,
+      "ap": 0.1111,
+      "tp_topN": 1,
+      "topN_share": 0.1111
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "n_pred": 709,
+      "tp_all": 7,
+      "ap": 0.114,
+      "tp_topN": 4,
+      "topN_share": 0.1739
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 1556
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "n_pred": 803,
+      "tp_all": 5,
+      "ap": 0.1053,
+      "tp_topN": 1,
+      "topN_share": 0.125
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "n_pred": 1708,
+      "tp_all": 22,
+      "ap": 0.1915,
+      "tp_topN": 9,
+      "topN_share": 0.2143
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "n_pred": 3535,
+      "tp_all": 4,
+      "ap": 0.4143,
+      "tp_topN": 2,
+      "topN_share": 0.4
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "n_pred": 1313,
+      "tp_all": 97,
+      "ap": 0.2363,
+      "tp_topN": 35,
+      "topN_share": 0.2991
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "n_pred": 2016,
+      "tp_all": 3,
+      "ap": 0.2924,
+      "tp_topN": 2,
+      "topN_share": 0.5
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "n_pred": 2232,
+      "tp_all": 3,
+      "ap": 0.6875,
+      "tp_topN": 3,
+      "topN_share": 0.75
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "n_pred": 970,
+      "tp_all": 420,
+      "ap": 0.3445,
+      "tp_topN": 418,
+      "topN_share": 0.538
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "n_pred": 218,
+      "tp_all": 3,
+      "ap": 0.1176,
+      "tp_topN": 1,
+      "topN_share": 0.25
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "n_pred": 1481,
+      "tp_all": 2,
+      "ap": 0.0449,
+      "tp_topN": 1,
+      "topN_share": 0.1667
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "n_pred": 185,
+      "tp_all": 2,
+      "ap": 0.01,
+      "tp_topN": 2,
+      "topN_share": 0.0185
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "n_pred": 86,
+      "tp_all": 1,
+      "ap": 0.0088,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "n_pred": 175,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 2434
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "n_pred": 376,
+      "tp_all": 88,
+      "ap": 0.5954,
+      "tp_topN": 55,
+      "topN_share": 0.5789
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "n_pred": 373,
+      "tp_all": 158,
+      "ap": 0.5092,
+      "tp_topN": 135,
+      "topN_share": 0.5895
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "n_pred": 360,
+      "tp_all": 100,
+      "ap": 0.4321,
+      "tp_topN": 70,
+      "topN_share": 0.4965
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 3199
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "n_pred": 248,
+      "tp_all": 1,
+      "ap": 0.0098,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "n_pred": 715,
+      "tp_all": 7,
+      "ap": 0.2684,
+      "tp_topN": 5,
+      "topN_share": 0.3571
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "mean_ap": 0.11818130820561004,
+    "gt_weighted_ap": 0.19321606066007158,
+    "topN_share_pooled": 0.2765273311897106,
+    "n_sites_with_gt": 20,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "n_pred": 2416,
+      "tp_all": 2,
+      "ap": 0.15,
+      "tp_topN": 2,
+      "topN_share": 0.2
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "n_pred": 709,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 1556
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "n_pred": 803,
+      "tp_all": 18,
+      "ap": 0.5874,
+      "tp_topN": 18,
+      "topN_share": 0.6207
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "n_pred": 1708,
+      "tp_all": 8,
+      "ap": 0.2303,
+      "tp_topN": 4,
+      "topN_share": 0.2353
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "n_pred": 3535,
+      "tp_all": 1,
+      "ap": 0.5,
+      "tp_topN": 1,
+      "topN_share": 0.5
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "n_pred": 1313,
+      "tp_all": 150,
+      "ap": 0.5581,
+      "tp_topN": 114,
+      "topN_share": 0.6298
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "n_pred": 2016
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "n_pred": 2232
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "n_pred": 970,
+      "tp_all": 26,
+      "ap": 0.0146,
+      "tp_topN": 6,
+      "topN_share": 0.0556
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "n_pred": 218
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "n_pred": 1481,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "n_pred": 185,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "n_pred": 86
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "n_pred": 175
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 2434
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "n_pred": 0
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "n_pred": 376,
+      "tp_all": 37,
+      "ap": 0.1182,
+      "tp_topN": 27,
+      "topN_share": 0.2935
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "n_pred": 373,
+      "tp_all": 77,
+      "ap": 0.1394,
+      "tp_topN": 68,
+      "topN_share": 0.2677
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "n_pred": 360,
+      "tp_all": 21,
+      "ap": 0.0656,
+      "tp_topN": 18,
+      "topN_share": 0.1488
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 3199
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "n_pred": 0,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "n_pred": 248
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "n_pred": 715
+     }
+    }
+   }
+  },
+  "R": {
+   "kurgany_povrezhdennye": {
+    "mean_ap": 0.1993131829023151,
+    "gt_weighted_ap": 0.22861748541826296,
+    "topN_share_pooled": 0.3368270605050024,
+    "n_sites_with_gt": 29,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "n_pred": 330,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "n_pred": 741,
+      "tp_all": 2,
+      "ap": 0.0121,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "n_pred": 5526,
+      "tp_all": 8,
+      "ap": 0.0271,
+      "tp_topN": 2,
+      "topN_share": 0.087
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "n_pred": 309,
+      "tp_all": 8,
+      "ap": 0.2024,
+      "tp_topN": 5,
+      "topN_share": 0.2174
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "n_pred": 29,
+      "tp_all": 1,
+      "ap": 0.0833,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 396
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "n_pred": 303,
+      "tp_all": 8,
+      "ap": 0.1955,
+      "tp_topN": 2,
+      "topN_share": 0.25
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 1757
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "n_pred": 517,
+      "tp_all": 29,
+      "ap": 0.2467,
+      "tp_topN": 12,
+      "topN_share": 0.2857
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "n_pred": 209
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "n_pred": 212,
+      "tp_all": 5,
+      "ap": 0.6926,
+      "tp_topN": 3,
+      "topN_share": 0.6
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 1021
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 772
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "n_pred": 567,
+      "tp_all": 95,
+      "ap": 0.2822,
+      "tp_topN": 37,
+      "topN_share": 0.3162
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "n_pred": 44,
+      "tp_all": 2,
+      "ap": 0.2885,
+      "tp_topN": 1,
+      "topN_share": 0.25
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 953
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "n_pred": 133,
+      "tp_all": 3,
+      "ap": 0.5417,
+      "tp_topN": 2,
+      "topN_share": 0.5
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "n_pred": 525,
+      "tp_all": 351,
+      "ap": 0.2942,
+      "tp_topN": 351,
+      "topN_share": 0.4517
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "n_pred": 6010
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "n_pred": 10,
+      "tp_all": 1,
+      "ap": 0.0625,
+      "tp_topN": 1,
+      "topN_share": 0.25
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "n_pred": 21,
+      "tp_all": 1,
+      "ap": 0.1667,
+      "tp_topN": 1,
+      "topN_share": 0.1667
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "n_pred": 12,
+      "tp_all": 1,
+      "ap": 0.0046,
+      "tp_topN": 1,
+      "topN_share": 0.0093
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "n_pred": 14,
+      "tp_all": 1,
+      "ap": 0.5,
+      "tp_topN": 1,
+      "topN_share": 0.5
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "n_pred": 29,
+      "tp_all": 1,
+      "ap": 0.0172,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 476
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "n_pred": 1898,
+      "tp_all": 132,
+      "ap": 0.2324,
+      "tp_topN": 85,
+      "topN_share": 0.3232
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "n_pred": 1797,
+      "tp_all": 57,
+      "ap": 0.0644,
+      "tp_topN": 18,
+      "topN_share": 0.1324
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "n_pred": 309,
+      "tp_all": 4,
+      "ap": 0.0621,
+      "tp_topN": 2,
+      "topN_share": 0.2
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "n_pred": 1728,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 997,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "n_pred": 236,
+      "tp_all": 63,
+      "ap": 0.3815,
+      "tp_topN": 43,
+      "topN_share": 0.4526
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "n_pred": 391,
+      "tp_all": 97,
+      "ap": 0.134,
+      "tp_topN": 67,
+      "topN_share": 0.2926
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "n_pred": 278,
+      "tp_all": 80,
+      "ap": 0.2699,
+      "tp_topN": 54,
+      "topN_share": 0.383
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "n_pred": 353,
+      "tp_all": 16,
+      "ap": 0.5642,
+      "tp_topN": 13,
+      "topN_share": 0.7647
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 87
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "n_pred": 272,
+      "tp_all": 1,
+      "ap": 0.0256,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "n_pred": 29,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "n_pred": 36,
+      "tp_all": 6,
+      "ap": 0.4286,
+      "tp_topN": 6,
+      "topN_share": 0.4286
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "mean_ap": 0.10766414371694448,
+    "gt_weighted_ap": 0.21344255607415202,
+    "topN_share_pooled": 0.28510182207931406,
+    "n_sites_with_gt": 20,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "n_pred": 320,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "n_pred": 545
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "n_pred": 3038,
+      "tp_all": 13,
+      "ap": 0.0723,
+      "tp_topN": 3,
+      "topN_share": 0.1429
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "n_pred": 154,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "n_pred": 20
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 387
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "n_pred": 231,
+      "tp_all": 21,
+      "ap": 0.5323,
+      "tp_topN": 17,
+      "topN_share": 0.5862
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 1417
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "n_pred": 314,
+      "tp_all": 11,
+      "ap": 0.0284,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "n_pred": 172,
+      "tp_all": 1,
+      "ap": 0.0667,
+      "tp_topN": 1,
+      "topN_share": 0.2
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "n_pred": 72,
+      "tp_all": 1,
+      "ap": 0.25,
+      "tp_topN": 1,
+      "topN_share": 0.5
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 748
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 501
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "n_pred": 511,
+      "tp_all": 164,
+      "ap": 0.5749,
+      "tp_topN": 110,
+      "topN_share": 0.6077
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "n_pred": 25
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 613
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "n_pred": 52
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "n_pred": 446,
+      "tp_all": 30,
+      "ap": 0.0191,
+      "tp_topN": 6,
+      "topN_share": 0.0556
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "n_pred": 2835,
+      "tp_all": 5,
+      "ap": 0.1426,
+      "tp_topN": 1,
+      "topN_share": 0.1667
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "n_pred": 1
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "n_pred": 9,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "n_pred": 6,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "n_pred": 6
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "n_pred": 19
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 238
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "n_pred": 1574,
+      "tp_all": 9,
+      "ap": 0.0195,
+      "tp_topN": 1,
+      "topN_share": 0.0357
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "n_pred": 1491
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "n_pred": 191,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "n_pred": 1481
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 668,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "n_pred": 250,
+      "tp_all": 38,
+      "ap": 0.1789,
+      "tp_topN": 26,
+      "topN_share": 0.2826
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "n_pred": 456,
+      "tp_all": 98,
+      "ap": 0.1835,
+      "tp_topN": 77,
+      "topN_share": 0.3031
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "n_pred": 341,
+      "tp_all": 32,
+      "ap": 0.0851,
+      "tp_topN": 23,
+      "topN_share": 0.1901
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "n_pred": 345,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 78
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "n_pred": 167,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "n_pred": 17
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "n_pred": 44
+     }
+    }
+   }
+  },
+  "RC": {
+   "kurgany_povrezhdennye": {
+    "mean_ap": 0.2010510220428495,
+    "gt_weighted_ap": 0.23284348890925033,
+    "topN_share_pooled": 0.340161981896141,
+    "n_sites_with_gt": 29,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 9,
+      "n_pred": 330,
+      "tp_all": 1,
+      "ap": 0.0011,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "002_Тешилово": {
+      "n_gt": 6,
+      "n_pred": 741,
+      "tp_all": 3,
+      "ap": 0.0136,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "004_Боровичи_1": {
+      "n_gt": 23,
+      "n_pred": 5526,
+      "tp_all": 9,
+      "ap": 0.0294,
+      "tp_topN": 2,
+      "topN_share": 0.087
+     },
+     "005_Боровичи_2": {
+      "n_gt": 23,
+      "n_pred": 309,
+      "tp_all": 8,
+      "ap": 0.2024,
+      "tp_topN": 5,
+      "topN_share": 0.2174
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 3,
+      "n_pred": 29,
+      "tp_all": 1,
+      "ap": 0.0833,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 396
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 8,
+      "n_pred": 303,
+      "tp_all": 8,
+      "ap": 0.1955,
+      "tp_topN": 2,
+      "topN_share": 0.25
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 1757
+     },
+     "021_Новенькое": {
+      "n_gt": 42,
+      "n_pred": 517,
+      "tp_all": 30,
+      "ap": 0.2561,
+      "tp_topN": 12,
+      "topN_share": 0.2857
+     },
+     "022_Лихуша": {
+      "n_gt": 0,
+      "n_pred": 209
+     },
+     "023_Бервенец": {
+      "n_gt": 5,
+      "n_pred": 212,
+      "tp_all": 5,
+      "ap": 0.6926,
+      "tp_topN": 3,
+      "topN_share": 0.6
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 1021
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 772
+     },
+     "030_Эсбю": {
+      "n_gt": 117,
+      "n_pred": 567,
+      "tp_all": 95,
+      "ap": 0.2822,
+      "tp_topN": 37,
+      "topN_share": 0.3162
+     },
+     "031_Новотитаровская": {
+      "n_gt": 4,
+      "n_pred": 44,
+      "tp_all": 2,
+      "ap": 0.2885,
+      "tp_topN": 1,
+      "topN_share": 0.25
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 953
+     },
+     "034_Усть_река": {
+      "n_gt": 4,
+      "n_pred": 133,
+      "tp_all": 3,
+      "ap": 0.5417,
+      "tp_topN": 2,
+      "topN_share": 0.5
+     },
+     "036_Тимерево": {
+      "n_gt": 777,
+      "n_pred": 525,
+      "tp_all": 351,
+      "ap": 0.2942,
+      "tp_topN": 351,
+      "topN_share": 0.4517
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 0,
+      "n_pred": 6010
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 4,
+      "n_pred": 10,
+      "tp_all": 1,
+      "ap": 0.0625,
+      "tp_topN": 1,
+      "topN_share": 0.25
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 6,
+      "n_pred": 21,
+      "tp_all": 1,
+      "ap": 0.1667,
+      "tp_topN": 1,
+      "topN_share": 0.1667
+     },
+     "041_Миловидово": {
+      "n_gt": 108,
+      "n_pred": 12,
+      "tp_all": 1,
+      "ap": 0.0046,
+      "tp_topN": 1,
+      "topN_share": 0.0093
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 2,
+      "n_pred": 14,
+      "tp_all": 1,
+      "ap": 0.5,
+      "tp_topN": 1,
+      "topN_share": 0.5
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 2,
+      "n_pred": 29,
+      "tp_all": 1,
+      "ap": 0.0172,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 476
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 263,
+      "n_pred": 1898,
+      "tp_all": 148,
+      "ap": 0.2599,
+      "tp_topN": 91,
+      "topN_share": 0.346
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 136,
+      "n_pred": 1797,
+      "tp_all": 66,
+      "ap": 0.0731,
+      "tp_topN": 19,
+      "topN_share": 0.1397
+     },
+     "104_Шетнево": {
+      "n_gt": 10,
+      "n_pred": 309,
+      "tp_all": 4,
+      "ap": 0.0621,
+      "tp_topN": 2,
+      "topN_share": 0.2
+     },
+     "105_Вщиж": {
+      "n_gt": 44,
+      "n_pred": 1728,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 997,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 95,
+      "n_pred": 236,
+      "tp_all": 63,
+      "ap": 0.3815,
+      "tp_topN": 43,
+      "topN_share": 0.4526
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 229,
+      "n_pred": 391,
+      "tp_all": 97,
+      "ap": 0.134,
+      "tp_topN": 67,
+      "topN_share": 0.2926
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 141,
+      "n_pred": 278,
+      "tp_all": 80,
+      "ap": 0.2699,
+      "tp_topN": 54,
+      "topN_share": 0.383
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 17,
+      "n_pred": 353,
+      "tp_all": 16,
+      "ap": 0.5642,
+      "tp_topN": 13,
+      "topN_share": 0.7647
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 87
+     },
+     "189_Макеево": {
+      "n_gt": 3,
+      "n_pred": 272,
+      "tp_all": 1,
+      "ap": 0.0256,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 3,
+      "n_pred": 29,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "192_КЧР": {
+      "n_gt": 14,
+      "n_pred": 36,
+      "tp_all": 6,
+      "ap": 0.4286,
+      "tp_topN": 6,
+      "topN_share": 0.4286
+     }
+    }
+   },
+   "kurgany_tselye": {
+    "mean_ap": 0.11140500080860571,
+    "gt_weighted_ap": 0.21598304096756263,
+    "topN_share_pooled": 0.28938906752411575,
+    "n_sites_with_gt": 20,
+    "per_region": {
+     "001_Гнёздово_Нивленское": {
+      "n_gt": 10,
+      "n_pred": 320,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "002_Тешилово": {
+      "n_gt": 0,
+      "n_pred": 545
+     },
+     "004_Боровичи_1": {
+      "n_gt": 21,
+      "n_pred": 3038,
+      "tp_all": 15,
+      "ap": 0.1303,
+      "tp_topN": 5,
+      "topN_share": 0.2381
+     },
+     "005_Боровичи_2": {
+      "n_gt": 11,
+      "n_pred": 154,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "006_Осечки_1.1км": {
+      "n_gt": 0,
+      "n_pred": 20
+     },
+     "010_Эсбю_укрепление": {
+      "n_gt": 0,
+      "n_pred": 387
+     },
+     "013_Нора_Виннон": {
+      "n_gt": 29,
+      "n_pred": 231,
+      "tp_all": 21,
+      "ap": 0.5323,
+      "tp_topN": 17,
+      "topN_share": 0.5862
+     },
+     "015_Демидовка": {
+      "n_gt": 0,
+      "n_pred": 1417
+     },
+     "021_Новенькое": {
+      "n_gt": 17,
+      "n_pred": 314,
+      "tp_all": 11,
+      "ap": 0.0284,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "022_Лихуша": {
+      "n_gt": 5,
+      "n_pred": 172,
+      "tp_all": 1,
+      "ap": 0.0667,
+      "tp_topN": 1,
+      "topN_share": 0.2
+     },
+     "023_Бервенец": {
+      "n_gt": 2,
+      "n_pred": 72,
+      "tp_all": 1,
+      "ap": 0.25,
+      "tp_topN": 1,
+      "topN_share": 0.5
+     },
+     "025_Вышенское": {
+      "n_gt": 0,
+      "n_pred": 748
+     },
+     "026_Золотаревка": {
+      "n_gt": 0,
+      "n_pred": 501
+     },
+     "030_Эсбю": {
+      "n_gt": 181,
+      "n_pred": 511,
+      "tp_all": 164,
+      "ap": 0.5749,
+      "tp_topN": 110,
+      "topN_share": 0.6077
+     },
+     "031_Новотитаровская": {
+      "n_gt": 0,
+      "n_pred": 25
+     },
+     "033_Елизаветинское": {
+      "n_gt": 0,
+      "n_pred": 613
+     },
+     "034_Усть_река": {
+      "n_gt": 0,
+      "n_pred": 52
+     },
+     "036_Тимерево": {
+      "n_gt": 108,
+      "n_pred": 446,
+      "tp_all": 30,
+      "ap": 0.0191,
+      "tp_topN": 6,
+      "topN_share": 0.0556
+     },
+     "037_Никола_Ленивец": {
+      "n_gt": 6,
+      "n_pred": 2835,
+      "tp_all": 5,
+      "ap": 0.1426,
+      "tp_topN": 1,
+      "topN_share": 0.1667
+     },
+     "039_Примаки_0.7км": {
+      "n_gt": 0,
+      "n_pred": 1
+     },
+     "040_Примаки_1.3км": {
+      "n_gt": 1,
+      "n_pred": 9,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "041_Миловидово": {
+      "n_gt": 1,
+      "n_pred": 6,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "044_Новотитаровская_1.8км": {
+      "n_gt": 0,
+      "n_pred": 6
+     },
+     "045_Новотитаровская_2.8км": {
+      "n_gt": 0,
+      "n_pred": 19
+     },
+     "066_Московиты": {
+      "n_gt": 0,
+      "n_pred": 238
+     },
+     "101_Гнёздово_Днепровская": {
+      "n_gt": 28,
+      "n_pred": 1574,
+      "tp_all": 9,
+      "ap": 0.0195,
+      "tp_topN": 1,
+      "topN_share": 0.0357
+     },
+     "102_Гнёздово_Заольшанская": {
+      "n_gt": 0,
+      "n_pred": 1491
+     },
+     "104_Шетнево": {
+      "n_gt": 16,
+      "n_pred": 191,
+      "tp_all": 1,
+      "ap": 0.0052,
+      "tp_topN": 1,
+      "topN_share": 0.0625
+     },
+     "105_Вщиж": {
+      "n_gt": 0,
+      "n_pred": 1481
+     },
+     "106_Верхмарево": {
+      "n_gt": 1,
+      "n_pred": 668,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "179_Гнёздово_Лесная_1": {
+      "n_gt": 92,
+      "n_pred": 250,
+      "tp_all": 39,
+      "ap": 0.1905,
+      "tp_topN": 27,
+      "topN_share": 0.2935
+     },
+     "180_Гнёздово_Лесная_2": {
+      "n_gt": 254,
+      "n_pred": 456,
+      "tp_all": 98,
+      "ap": 0.1835,
+      "tp_topN": 77,
+      "topN_share": 0.3031
+     },
+     "181_Гнёздово_Лесная_3": {
+      "n_gt": 121,
+      "n_pred": 341,
+      "tp_all": 32,
+      "ap": 0.0851,
+      "tp_topN": 23,
+      "topN_share": 0.1901
+     },
+     "186_Семибратнее_1": {
+      "n_gt": 2,
+      "n_pred": 345,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "188_Руна": {
+      "n_gt": 0,
+      "n_pred": 78
+     },
+     "189_Макеево": {
+      "n_gt": 27,
+      "n_pred": 167,
+      "tp_all": 0,
+      "ap": 0.0,
+      "tp_topN": 0,
+      "topN_share": 0.0
+     },
+     "191_Осечки_1.3км": {
+      "n_gt": 0,
+      "n_pred": 17
+     },
+     "192_КЧР": {
+      "n_gt": 0,
+      "n_pred": 44
+     }
+    }
+   }
+  }
+ }
+}

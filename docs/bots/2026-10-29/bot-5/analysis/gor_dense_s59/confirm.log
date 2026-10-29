@@ -1,0 +1,28 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[8s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[8s] SpOr tif regions 132 with sp_or candidates 132
+[8s] positive scenes 49 of 132
+[8s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[8s] variant snap rows 76 rows with an OK pair 7
+[8s] variant centre rows 132 rows with an OK pair 18
+[8s] variant csnap rows 132 rows with an OK pair 19
+[27s] honest-10 A 0.3146153226828423
+[27s] own gor routine == honest_counts gor: OK
+[27s] patches 3982 dim 1536 scenes 122
+[27s] labels Counter({0: 3507, -1: 249, 1: 226}) sp_or hillforts with ≥1 pos patch 63 of 65
+[30s] peaks tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0] layouts ['fam10', 'LOFO', 'seed0', 'seed1', 'seed2', 'seed3', 'seed4'] variants ['pu', 'pu+cp', 'pu_edge', 'pu_edge+cp', 'all', 'all+cp']
+[30s] new34 regions 34 of them SpOr scenes 8
+[227s] fam10 {'base': {'tp': 25, 'fp': 72, 'n_gt': 118, 'f1': 0.27932915651893264}, 'gate': {'tp': 27, 'fp': 55, 'n_gt': 118, 'f1': 0.31304304238664865}, 'F': {'tp': 44, 'fp': 116, 'n_gt': 118, 'f1': 0.3999994990088828}, 'FN': {'tp': 38, 'fp': 127, 'n_gt': 118, 'f1': 0.3462409575299919}}
+[819s] LOFO {'base': {'tp': 25, 'fp': 76, 'n_gt': 118, 'f1': 0.27624263703868607}, 'gate': {'tp': 25, 'fp': 56, 'n_gt': 118, 'f1': 0.2923972296439331}, 'F': {'tp': 47, 'fp': 124, 'n_gt': 118, 'f1': 0.4140964134376955}, 'FN': {'tp': 38, 'fp': 121, 'n_gt': 118, 'f1': 0.3510387617840586}}
+[926s] seed5 {'base': {'tp': 22, 'fp': 65, 'n_gt': 118, 'f1': 0.2550720285661584}, 'gate': {'tp': 22, 'fp': 47, 'n_gt': 118, 'f1': 0.2691127448686872}, 'F': {'tp': 43, 'fp': 158, 'n_gt': 118, 'f1': 0.3583328304868084}, 'FN': {'tp': 34, 'fp': 116, 'n_gt': 118, 'f1': 0.3238090283907711}}
+[965s] seed6 {'base': {'tp': 25, 'fp': 75, 'n_gt': 118, 'f1': 0.2770078544524389}, 'gate': {'tp': 25, 'fp': 53, 'n_gt': 118, 'f1': 0.2949848242189809}, 'F': {'tp': 37, 'fp': 136, 'n_gt': 118, 'f1': 0.33183806374624886}, 'FN': {'tp': 38, 'fp': 102, 'n_gt': 118, 'f1': 0.36714926472095116}}
+[1005s] seed7 {'base': {'tp': 24, 'fp': 72, 'n_gt': 118, 'f1': 0.2696624714058651}, 'gate': {'tp': 26, 'fp': 56, 'n_gt': 118, 'f1': 0.3023251471071563}, 'F': {'tp': 42, 'fp': 137, 'n_gt': 118, 'f1': 0.36761437697160015}, 'FN': {'tp': 33, 'fp': 120, 'n_gt': 118, 'f1': 0.31279571258584904}}
+[1048s] seed8 {'base': {'tp': 23, 'fp': 70, 'n_gt': 118, 'f1': 0.261363191503845}, 'gate': {'tp': 25, 'fp': 55, 'n_gt': 118, 'f1': 0.29325470231655926}, 'F': {'tp': 35, 'fp': 131, 'n_gt': 118, 'f1': 0.32036563299879617}, 'FN': {'tp': 30, 'fp': 115, 'n_gt': 118, 'f1': 0.29197031109298605}}
+[1083s] seed9 {'base': {'tp': 24, 'fp': 71, 'n_gt': 118, 'f1': 0.27042208647563915}, 'gate': {'tp': 26, 'fp': 74, 'n_gt': 118, 'f1': 0.28729236067346703}, 'F': {'tp': 48, 'fp': 168, 'n_gt': 118, 'f1': 0.383999498496647}, 'FN': {'tp': 40, 'fp': 132, 'n_gt': 118, 'f1': 0.35714235538972655}}
+[1083s] gate {"LOFO": 0.0024231888907870563, "seeds5_9": [0.0021061074453793184, 0.0026965454649813007, 0.004899401355193683, 0.004783726621907136, 0.0025305411296741827], "seeds5_9_mean": 0.0034032644034271238} {'delta_exact': 0.0050570828801574375, 'delta_new34': 0.0025533209845190474, 'delta_optical': 0.007643292360792031}
+[1084s] F {"LOFO": 0.020678066459851416, "seeds5_9": [0.015489120288097503, 0.008224531394071491, 0.014692785834860262, 0.008850366224242673, 0.017036611803151178], "seeds5_9_mean": 0.012858683108884623} {'delta_exact': 0.01810055137349259, 'delta_new34': 0.0006260546559202496, 'delta_optical': 0.046153772895916156}
+[1084s] FN {"LOFO": 0.011219418711805875, "seeds5_9": [0.0103105499736919, 0.013521211540276835, 0.006469986176997594, 0.004591067938371154, 0.013008040337113112], "seeds5_9_mean": 0.00958017119329012} {'delta_exact': 0.01003677015165888, 'delta_new34': 0.0019025557248177893, 'delta_optical': 0.03119992661777024}
+[1084s] criteria {"seeds5_9_mean>0_and_>=4of5": [0.012858683108884623, [0.015489120288097503, 0.008224531394071491, 0.014692785834860262, 0.008850366224242673, 0.017036611803151178], true], "P1_exact>=0.002_and_LOFO>=0.002": [0.01810055137349259, 0.020678066459851416, true], "P2_family_boot_p>=0.85": [1.0, true], "P4_heavy_each_drop<=0.0005": [{"kurgany_povrezhdennye": 0.0, "kurgany_tselye": 0.0, "gorodishcha": 0.018100551373492525}, true], "P4_new34>=-0.001": [0.0006260546559202496, true], "P6_same_unseen_mode": ["drop/drop", true], "PRIMARY_CONFIRMED": true}
+[1084s] FN {"FN_minus_F_seeds5_9_mean>=0.002": [-0.003278511915594502, [-0.005178570314405603, 0.0052966801462053445, -0.008222799657862668, -0.004259298285871519, -0.004028571466038066], false], "P>=0.85_seeds5_9": [{"mean": -0.0034711981640869116, "p5": -0.007929616775566922, "p95": 0.00039062750626676804, "p_gt0": 0.078, "n": 1000}, false], "FN_REPLACES_F": false}
+[1084s] verdict PACKAGE-ONLY (post-hoc ceiling), pending paired submission-order run on package
+watchdog max RSS MB 913 exit 0

@@ -1,0 +1,79 @@
+{
+ "train_regions_by_mk": {
+  "sp_or": 132,
+  "ae": 32,
+  "or": 6
+ },
+ "public_regions_by_mk": {
+  "sp_or": 30,
+  "ae": 4,
+  "or": 1
+ },
+ "groups": {
+  "ae_fort/fortifikatsii": {
+   "train_all": 60987,
+   "train_pool": 9148,
+   "mk": "ae",
+   "test_all_est": 7623,
+   "test_pool_est": 1144
+  },
+  "sp_arch/arkhitektury": {
+   "train_all": 46735,
+   "train_pool": 7010,
+   "mk": "sp_or",
+   "test_all_est": 10622,
+   "test_pool_est": 1593
+  },
+  "or/arkhitektury": {
+   "train_all": 783,
+   "train_pool": 783,
+   "mk": "or",
+   "test_all_est": 130,
+   "test_pool_est": 130
+  },
+  "sp_focal/kurgany_povrezhdennye": {
+   "train_all": 31941,
+   "train_pool": 4791,
+   "mk": "sp_or",
+   "test_all_est": 7259,
+   "test_pool_est": 1089
+  },
+  "sp_focal/kurgany_tselye": {
+   "train_all": 6665,
+   "train_pool": 1000,
+   "mk": "sp_or",
+   "test_all_est": 1515,
+   "test_pool_est": 1000
+  },
+  "sp_focal2/kurgany_povrezhdennye": {
+   "train_all": 13226,
+   "train_pool": 1983,
+   "mk": "sp_or",
+   "test_all_est": 3006,
+   "test_pool_est": 1000
+  },
+  "sp_focal2/kurgany_tselye": {
+   "train_all": 4757,
+   "train_pool": 4757,
+   "mk": "sp_or",
+   "test_all_est": 1081,
+   "test_pool_est": 1000
+  },
+  "ae/kurgany_povrezhdennye": {
+   "train_all": 379,
+   "train_pool": 379,
+   "mk": "ae",
+   "test_all_est": 47,
+   "test_pool_est": 47
+  },
+  "ae/kurgany_tselye": {
+   "train_all": 812,
+   "train_pool": 812,
+   "mk": "ae",
+   "test_all_est": 102,
+   "test_pool_est": 102
+  }
+ },
+ "test_pool_total_est": 7105,
+ "test_all_total_est": 31385
+}

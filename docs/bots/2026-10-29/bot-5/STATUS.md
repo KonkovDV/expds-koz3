@@ -35,3 +35,19 @@
 - Диагностика (probe_all.log): позитивные токены от центра кадра q50/q90 = 212,5/487,5 м; доля краевых негативов 0,71.
 - fam10 (probe_all.log [1097s]): top-1 попадание в отложенный эталон (49 участков с sp_or): pu 25 → pu+cp 30; pu_edge 25 → pu_edge+cp 31; all 24 → all+cp 26; центр кадра 18/49.
   token AUC (поз. сцены): pu 0,840, pu_edge 0,753, all 0,848. Копия пиков: analysis/gor_dense/peaks_fam10_v2prior.json. LOFO+seed ещё считаются (~110 с/фолд при load 15–17).
+
+- 09:09 MSK: ответы на ревью bot-9 → ANSWERS_BOT9_REVIEW.md; probe pid 882911 идёт (LOFO 103 + seeds 5×10 фолдов, ~110 с/фолд → ОЦЕНКА окончания ~13–14 MSK).
+- 09:30 MSK: ЗАДАЧА 3 часть B (вариант B, кропы): wt_rf bot5-dinov2reg f7cf5d2 — crop_verify.py --dump-crops/--from-crops/--apply-p (sha256 ca214839…9779); подвыборка 3 участка: прежний путь == раздельный байт-в-байт (tmp/cv_test). analysis/or_arch/crops/or_arch_crops.npz 14 437 335 B sha256 6663649d…d44c: 783 канд., 626 с кропом, 13 полож. (только Герите, Фалхан) — мощность низкая. Правка ноутбука dinov2reg_kaggle.ipynb не записана (ошибка авто-проверки команды); текст ячеек tmp/nb_cell{5,6,7}.txt. Probe 882911: fam10 готов, LOFO идёт (с 08:36).
+- 11:10 MSK: **ЗАДАЧА 0 — замер плотного локализатора городищ готов.** Probe pid 882911 (код 6984c67) завершён в 10:50 MSK: 9047 с, пик RSS 1289 MB, все 7 раскладок. Лог analysis/gor_dense/probe_all.log, пики analysis/gor_dense/peaks.json (sha256 6db5ec12…c6b7).
+  Eval: analysis/gor_dense/gor_dense_eval.json (sha256 82979013…cf85) и eval.log; 922 с, пик RSS 898 MB; A = 0.3146153.
+  Первый запуск eval по ошибке прочитал DOUT=tmp/ckpt_test (переменная осталась в окружении shell от теста чекпойнтов); его лог перенесён в tmp/ckpt_test/eval_wrongdout.log, в расчётах не используется.
+  Итог: **П4 не проходит ни один вариант с точками.** delta_new34 от −0.0037 до −0.0082 при пороге ≥ −0.001; без точек gate даёт +0.00255. Лучший all+cp:add+gate: exact +0.01585, p_gt0 0.993, LOFO +0.0203, seeds 5/5 > 0, но new34 −0.00634. В сдачу не идёт. Подробности — NOLIDAR §14.
+- 11:25 MSK: **ЗАДАЧА 0b — просадка new34 у точек объяснена и исправлена (NOLIDAR §14a).**
+  Причина: совместный sweep поднимает пороги gor_phys/li_coarse стека, и стек теряет 3 TP (Елизаветинское, Верхмарево, Золотаревка). Дублей и смещений нет.
+  Исправление F (пороги стека заморожены на контроле, t_d по train F1): F|all+cp:add+gate — exact +0.01810, p_gt0 1.000, LOFO +0.0207, 5/5 seeds, new34 +0.00063, optical +0.0462. **П1–П4 проходят.**
+  Файлы: analysis/gor_dense_diag/fix_eval.json (sha256 2bf37da7…8357), fix.log, diag_fam10.json; скрипт repo/scripts/gor_dense/gor_dense_diag.py.
+
+- 12:15 МСК (K): подтверждение gor_dense F|all+cp:add+gate по PREREG bot-10 на сидах 5–9 пройдено. Сиды: среднее +0,01286, 5/5. fam10 exact +0,01810, LOFO +0,02068, P 1,000. new34 +0,00063, тяжёлые классы 0/0. Режим drop/drop.
+  - Вердикт PACKAGE-ONLY. FN отклонён: FN−F −0,00328, P 0,078.
+  - JSON: analysis/gor_dense_s59/confirm.json, sha256 50c22a47…dc13c; prerun.json 157ad8f6…; код 2a2ab5a.
+  - Парный прогон поверх пакета не выполнен: нет кривых D-FINE R и общего набора FR1h+G+R; при R гейт не включается (NOLIDAR §14b).

@@ -1,0 +1,151 @@
+{
+ "fold": 2,
+ "n_det": 18730,
+ "n_gt": 355,
+ "metric": null,
+ "final_score_nothr": 0.13451129792065697,
+ "per_class_nothr": {
+  "kurgany_povrezhdennye": {
+   "f1": 0.0358289237482044,
+   "tp": 106,
+   "fp": 11358,
+   "fn": 26,
+   "num_predictions": 11464,
+   "num_ground_truth": 132
+  },
+  "kurgany_tselye": {
+   "f1": 0.09315933868464922,
+   "tp": 175,
+   "fp": 6780,
+   "fn": 17,
+   "num_predictions": 6955,
+   "num_ground_truth": 192
+  },
+  "gorodishcha": {
+   "f1": 0.3733329777780631,
+   "tp": 7,
+   "fp": 45,
+   "fn": 1,
+   "num_predictions": 52,
+   "num_ground_truth": 8
+  },
+  "fortifikatsii": {
+   "f1": 0.17554834032718494,
+   "tp": 14,
+   "fp": 245,
+   "fn": 9,
+   "num_predictions": 259,
+   "num_ground_truth": 23
+  }
+ },
+ "final_score_thr0_3": 0.3295892152743045,
+ "per_class_thr0_3": {
+  "kurgany_povrezhdennye": {
+   "f1": 0.22075013793819165,
+   "tp": 50,
+   "fp": 542,
+   "fn": 82,
+   "num_predictions": 592,
+   "num_ground_truth": 132
+  },
+  "kurgany_tselye": {
+   "f1": 0.49855022813743477,
+   "tp": 86,
+   "fp": 134,
+   "fn": 106,
+   "num_predictions": 220,
+   "num_ground_truth": 192
+  },
+  "gorodishcha": {
+   "f1": 0.3733329777780631,
+   "tp": 7,
+   "fp": 45,
+   "fn": 1,
+   "num_predictions": 52,
+   "num_ground_truth": 8
+  },
+  "fortifikatsii": {
+   "f1": 0.17554834032718494,
+   "tp": 14,
+   "fp": 245,
+   "fn": 9,
+   "num_predictions": 259,
+   "num_ground_truth": 23
+  }
+ },
+ "best_per_class": {
+  "kurgany_povrezhdennye": {
+   "thr": 0.45,
+   "f1": 0.23866301604661483,
+   "tp": 25,
+   "fp": 105,
+   "fn": 107,
+   "num_predictions": 130,
+   "num_ground_truth": 132
+  },
+  "kurgany_tselye": {
+   "thr": 0.25,
+   "f1": 0.522588021975515,
+   "tp": 107,
+   "fp": 221,
+   "fn": 85,
+   "num_predictions": 328,
+   "num_ground_truth": 192
+  },
+  "gorodishcha": {
+   "thr": 0.9,
+   "f1": 0.5925920219482752,
+   "tp": 4,
+   "fp": 3,
+   "fn": 4,
+   "num_predictions": 7,
+   "num_ground_truth": 8
+  },
+  "fortifikatsii": {
+   "thr": 0.85,
+   "f1": 0.23728765182514086,
+   "tp": 7,
+   "fp": 58,
+   "fn": 16,
+   "num_predictions": 65,
+   "num_ground_truth": 23
+  }
+ },
+ "final_score_best_thr": 0.3955281358465511,
+ "per_class_best": {
+  "kurgany_povrezhdennye": {
+   "f1": 0.23866301604661483,
+   "tp": 25,
+   "fp": 105,
+   "fn": 107,
+   "num_predictions": 130,
+   "num_ground_truth": 132
+  },
+  "kurgany_tselye": {
+   "f1": 0.522588021975515,
+   "tp": 107,
+   "fp": 221,
+   "fn": 85,
+   "num_predictions": 328,
+   "num_ground_truth": 192
+  },
+  "gorodishcha": {
+   "f1": 0.5925920219482752,
+   "tp": 4,
+   "fp": 3,
+   "fn": 4,
+   "num_predictions": 7,
+   "num_ground_truth": 8
+  },
+  "fortifikatsii": {
+   "f1": 0.23728765182514086,
+   "tp": 7,
+   "fp": 58,
+   "fn": 16,
+   "num_predictions": 65,
+   "num_ground_truth": 23
+  }
+ },
+ "t_s": 26.6,
+ "note": "in-sample пороги по GT теста фолда — оптимистично"
+}

@@ -1,0 +1,17 @@
+# ADAF Задача 10 — progress (for resume)
+- 10:43 MSK: barrow dets 59/59, enclosure 58/59, 0 FAIL. run.sh PID 918955 alive — do NOT restart; it continues to splice→curves→paired (adaf/paired_vsA.json)→recall (adaf/recall.json)→"done".
+- smoke_cpu.sh fixed (peak.sh, OUT=adaf/smoke_out); run only after run.sh done.
+- TODO after done: verdict П1–П5, REPORT2/STATUS, smoke, copy kernel to repo, commit bot-2/adaf.
+- 10:46 run.sh DONE (10:45:27). Next: check splice warning regions_without_family_file=57, read paired/recall.
+- 10:50 PROBLEM: bot-10/work/fam is gone -> fam_AB/ABE contained ONLY ADAF dets; curves_AB/ABE + paired_vsA are INVALID as A+ADAF. Need to rebuild base fam.
+- 10:55 recall.json VALID (fam-independent): barrow recall@0.05 povr 0.037 / tselye 0.038 (AP .009/.005); enclosure gor recall@0.05 0.698 AP 0.129, fort 0.015 AP 0.0001.
+- Invalid ADAF-only curves/paired moved to adaf/invalid_adafonly/. Rebuild: src = bot-10/work11/fam0 (rebuilt by bot-10 from same stack_arch.geojson, 1386709 objs, sha-list c80d881fbe647c32 = work/fam of tasks 8/9). run2.sh: A0 curves on fam0 (sanity vs work/curves), AB, ABE.
+- 10:50 curves_A0 done (100 files); fam AB OK 57 regions spliced
+- curves_A0 byte-identical to bot-10/work/curves (diff -rq: 0 diffs) => fam0 is a valid base
+- 10:57 curves AB/ABE done; paired running (first line: A0 Δ=0, AB Δ=-0.0035, ABE Δ=-0.0071 'drop')
+- 11:05 lofo: AB -0.000893, ABE -0.002555. Waiting seeds+boot. Plan: kernel=stub per declaration (barrow recall low & ΔA<=0).
+- 11:15 run2 DONE 11:07; paired_vsA.json ready. AB d10 -0.003453 P .015; ABE -0.007058 P 0. both отклонить. paired peak RSS 1111MB (>1GB, note).
+- 11:17 verdict both отклонить; kernel = stub. smoke_cpu.sh started, OUT adaf/smoke_out (delete after).
+- 11:18 smoke OK (52 s, maps check OK) BUT peak RSS 1781 MB (> 1 GB limit, ~1 min). next: rm smoke_out, README, copy kernel to repo, commit, STATUS/REPORT2
+- commit 0ce6ffa (kernel in repo/scripts/adaf/kernel). next: REPORT2 §15, STATUS line
+- 11:19 REPORT2 §15 + STATUS written; weights deleted. Remaining: final commit of docs? (docs are outside repo) -> DONE

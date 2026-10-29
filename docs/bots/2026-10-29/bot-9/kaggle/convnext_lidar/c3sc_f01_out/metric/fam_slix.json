@@ -1,0 +1,13 @@
+{
+ "variant": "slix",
+ "cnx_feats": 10578,
+ "Гнёздово": {
+  "base_lines": 112689,
+  "cnx": 9604
+ },
+ "Тимерево": {
+  "base_lines": 2746,
+  "cnx": 974
+ },
+ "size_MB": 91.3
+}

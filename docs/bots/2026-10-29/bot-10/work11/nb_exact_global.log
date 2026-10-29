@@ -1,0 +1,68 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+prefilter A 14713 58 s
+prefilter NB 14929 29 s
+gt collected
+    A {'kurgany_tselye': (695.0, 1197.0), 'kurgany_povrezhdennye': (947.0, 2741.0)}
+k10 A 0.319519 {}
+    TO {'kurgany_tselye': (695.0, 1197.0), 'kurgany_povrezhdennye': (983.0, 2903.0)}
+k10 TO 0.321238 {'twins': 198, 'dropped': 0}
+    NB {'kurgany_tselye': (682.0, 1130.0), 'kurgany_povrezhdennye': (951.0, 2718.0)}
+k10 NB 0.319799 {'nb_up': 3072, 'nb_down': 270}
+    TONB {'kurgany_tselye': (682.0, 1130.0), 'kurgany_povrezhdennye': (986.0, 2877.0)}
+k10 TONB 0.32145 {'nb_up': 3072, 'nb_down': 270, 'twins': 194, 'dropped': 0}
+k10 time 20 s
+    A {'kurgany_tselye': (685.0, 1192.0), 'kurgany_povrezhdennye': (961.0, 2838.0)}
+lofo A 0.318488 {}
+    TO {'kurgany_tselye': (685.0, 1192.0), 'kurgany_povrezhdennye': (996.0, 3001.0)}
+lofo TO 0.320091 {'twins': 198, 'dropped': 0}
+    NB {'kurgany_tselye': (669.0, 1135.0), 'kurgany_povrezhdennye': (958.0, 2817.0)}
+lofo NB 0.317646 {'nb_up': 3106, 'nb_down': 244}
+    TONB {'kurgany_tselye': (669.0, 1135.0), 'kurgany_povrezhdennye': (992.0, 2960.0)}
+lofo TONB 0.319331 {'nb_up': 3106, 'nb_down': 244, 'twins': 177, 'dropped': 0}
+lofo time 7 s
+    A {'kurgany_tselye': (677.0, 1165.0), 'kurgany_povrezhdennye': (930.0, 2508.0)}
+seed0 A 0.319698 {}
+    TO {'kurgany_tselye': (677.0, 1165.0), 'kurgany_povrezhdennye': (973.0, 2687.0)}
+seed0 TO 0.321898 {'twins': 222, 'dropped': 0}
+    NB {'kurgany_tselye': (677.0, 1126.0), 'kurgany_povrezhdennye': (938.0, 2498.0)}
+seed0 NB 0.321136 {'nb_up': 3092, 'nb_down': 260}
+    TONB {'kurgany_tselye': (677.0, 1126.0), 'kurgany_povrezhdennye': (980.0, 2676.0)}
+seed0 TONB 0.323241 {'nb_up': 3092, 'nb_down': 260, 'twins': 220, 'dropped': 0}
+seed0 time 7 s
+    A {'kurgany_tselye': (631.0, 1086.0), 'kurgany_povrezhdennye': (959.0, 2925.0)}
+seed1 A 0.310923 {}
+    TO {'kurgany_tselye': (631.0, 1086.0), 'kurgany_povrezhdennye': (994.0, 3095.0)}
+seed1 TO 0.312477 {'twins': 205, 'dropped': 0}
+    NB {'kurgany_tselye': (672.0, 1095.0), 'kurgany_povrezhdennye': (957.0, 2924.0)}
+seed1 NB 0.315136 {'nb_up': 3097, 'nb_down': 260}
+    TONB {'kurgany_tselye': (672.0, 1095.0), 'kurgany_povrezhdennye': (991.0, 3092.0)}
+seed1 TONB 0.316627 {'nb_up': 3097, 'nb_down': 260, 'twins': 202, 'dropped': 0}
+seed1 time 10 s
+    A {'kurgany_tselye': (700.0, 1192.0), 'kurgany_povrezhdennye': (963.0, 2755.0)}
+seed2 A 0.321865 {}
+    TO {'kurgany_tselye': (700.0, 1192.0), 'kurgany_povrezhdennye': (998.0, 2927.0)}
+seed2 TO 0.323389 {'twins': 207, 'dropped': 0}
+    NB {'kurgany_tselye': (694.0, 1137.0), 'kurgany_povrezhdennye': (959.0, 2683.0)}
+seed2 NB 0.322419 {'nb_up': 3093, 'nb_down': 255}
+    TONB {'kurgany_tselye': (694.0, 1137.0), 'kurgany_povrezhdennye': (993.0, 2852.0)}
+seed2 TONB 0.32389 {'nb_up': 3093, 'nb_down': 255, 'twins': 203, 'dropped': 0}
+seed2 time 5 s
+    A {'kurgany_tselye': (673.0, 1139.0), 'kurgany_povrezhdennye': (886.0, 2588.0)}
+seed3 A 0.313506 {}
+    TO {'kurgany_tselye': (673.0, 1139.0), 'kurgany_povrezhdennye': (919.0, 2750.0)}
+seed3 TO 0.315087 {'twins': 195, 'dropped': 0}
+    NB {'kurgany_tselye': (664.0, 1060.0), 'kurgany_povrezhdennye': (889.0, 2580.0)}
+seed3 NB 0.314204 {'nb_up': 3088, 'nb_down': 267}
+    TONB {'kurgany_tselye': (664.0, 1060.0), 'kurgany_povrezhdennye': (922.0, 2740.0)}
+seed3 TONB 0.315795 {'nb_up': 3088, 'nb_down': 267, 'twins': 193, 'dropped': 0}
+seed3 time 5 s
+    A {'kurgany_tselye': (679.0, 1157.0), 'kurgany_povrezhdennye': (971.0, 2837.0)}
+seed4 A 0.294177 {}
+    TO {'kurgany_tselye': (679.0, 1157.0), 'kurgany_povrezhdennye': (1003.0, 3004.0)}
+seed4 TO 0.295483 {'twins': 199, 'dropped': 0}
+    NB {'kurgany_tselye': (675.0, 1108.0), 'kurgany_povrezhdennye': (967.0, 2816.0)}
+seed4 NB 0.294414 {'nb_up': 3106, 'nb_down': 245}
+    TONB {'kurgany_tselye': (675.0, 1108.0), 'kurgany_povrezhdennye': (999.0, 2981.0)}
+seed4 TONB 0.295743 {'nb_up': 3106, 'nb_down': 245, 'twins': 197, 'dropped': 0}
+seed4 time 3 s
+done

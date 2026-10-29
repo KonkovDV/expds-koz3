@@ -1,0 +1,29 @@
+{
+ "stack": 2,
+ "anchors": 1,
+ "maps": 2,
+ "regions": {
+  "016_Хога": {
+   "maps": 1,
+   "half": 354,
+   "new": 353,
+   "mosaic": false,
+   "dem_res": [
+    1.0
+   ]
+  },
+  "018_Курган_Хога": {
+   "maps": 1,
+   "half": 588,
+   "new": 588,
+   "mosaic": false,
+   "dem_res": [
+    1.0
+   ]
+  }
+ },
+ "new": 941,
+ "stack_groups": {
+  "li": 2
+ }
+}

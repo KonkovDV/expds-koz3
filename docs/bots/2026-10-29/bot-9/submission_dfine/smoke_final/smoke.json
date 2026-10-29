@@ -1,0 +1,144 @@
+{
+ "fp32_circles": {
+  "sec": 43.9,
+  "n_boxes": 292,
+  "n_feats": 96,
+  "info": {
+   "params_M": 31.09,
+   "num_labels": 5,
+   "ckpt": "/workspace/kaggle_out/koz3-dfine-spor-final/dfine_final"
+  },
+  "crs": "EPSG:32644",
+  "W": 2536,
+  "H": 1657,
+  "windows_total": 20,
+  "maxrss_MB": 801
+ },
+ "fp32_ellipses": {
+  "sec": 67.0,
+  "n_boxes": 292,
+  "n_feats": 292,
+  "info": {
+   "params_M": 31.09,
+   "num_labels": 5,
+   "ckpt": "/workspace/kaggle_out/koz3-dfine-spor-final/dfine_final"
+  },
+  "crs": "EPSG:32644",
+  "W": 2536,
+  "H": 1657,
+  "windows_total": 20,
+  "maxrss_MB": 825
+ },
+ "fp16w_circles": {
+  "sec": 48.5,
+  "n_boxes": 281,
+  "n_feats": 98,
+  "info": {
+   "params_M": 31.09,
+   "num_labels": 5,
+   "ckpt": "/workspace/koz3_shared/bot-9/submission_dfine/smoke_final/dfine_final_fp16"
+  },
+  "crs": "EPSG:32644",
+  "W": 2536,
+  "H": 1657,
+  "windows_total": 20,
+  "maxrss_MB": 868
+ },
+ "valid_circles": {
+  "n": 96,
+  "types": [
+   "Polygon"
+  ],
+  "invalid": 0,
+  "groups": [
+   "sp_dfine"
+  ],
+  "markup": [
+   "sp_or"
+  ],
+  "classes": {
+   "kurgany_tselye": 28,
+   "kurgany_povrezhdennye": 40,
+   "gorodishcha": 10,
+   "fortifikatsii": 16,
+   "arkhitektury": 2
+  },
+  "conf_max": 0.91809,
+  "x_range": [
+   8708633.67,
+   8710005.64
+  ]
+ },
+ "valid_ellipses": {
+  "n": 292,
+  "types": [
+   "Polygon"
+  ],
+  "invalid": 0,
+  "groups": [
+   "sp_dfine"
+  ],
+  "markup": [
+   "sp_or"
+  ],
+  "classes": {
+   "kurgany_tselye": 34,
+   "kurgany_povrezhdennye": 77,
+   "gorodishcha": 50,
+   "fortifikatsii": 129,
+   "arkhitektury": 2
+  },
+  "conf_max": 0.91809,
+  "x_range": [
+   8708625.959566172,
+   8710012.527591962
+  ]
+ },
+ "fp16w_vs_fp32": {
+  "n_a": 292,
+  "n_b": 281,
+  "matched": 237,
+  "score_absdiff_max": 0.04665607959032059,
+  "score_absdiff_mean": 0.003526991466060281,
+  "top_a": [
+   0.91809,
+   0.62502,
+   0.5067,
+   0.44706,
+   0.41977
+  ],
+  "top_b": [
+   0.92584,
+   0.63395,
+   0.50461,
+   0.44368,
+   0.41545
+  ]
+ },
+ "bot7_port": {
+  "sec": 34.0,
+  "n_boxes": 292,
+  "maxrss_MB": 946,
+  "vs_mine": {
+   "n_a": 292,
+   "n_b": 292,
+   "matched": 292,
+   "score_absdiff_max": 0.0,
+   "score_absdiff_mean": 0.0,
+   "top_a": [
+    0.91809,
+    0.62502,
+    0.5067,
+    0.44706,
+    0.41977
+   ],
+   "top_b": [
+    0.91809,
+    0.62502,
+    0.5067,
+    0.44706,
+    0.41977
+   ]
+  }
+ }
+}

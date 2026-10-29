@@ -1,0 +1,13 @@
+{
+ "n": 59029,
+ "filled_old": 9962,
+ "filled_new": 9962,
+ "both_same": 9962,
+ "both_diff": 0,
+ "old_only": 0,
+ "new_only": 0,
+ "changed_total": 0,
+ "filled_new_by_kind": {
+  "SpOr": 9962
+ }
+}

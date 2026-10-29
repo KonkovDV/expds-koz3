@@ -1,0 +1,15 @@
+2026-10-29 10:14:40,092 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-29 10:14:40,092 INFO expds.pipeline: мягкий потолок 1200 с от старта процесса (прошло 2 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-10-29 10:14:40,092 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=1
+2026-10-29 10:14:40,092 INFO expds.pipeline: устройство: cpu
+2026-10-29 10:14:40,092 INFO expds.watchdog: сторож сработает через 1618 с
+2026-10-29 10:14:40,111 INFO expds.catalog: найдено регионов: 1 в /workspace/koz3_shared/bot-7/work6/in/103
+2026-10-29 10:14:40,111 INFO expds.pipeline: к разбору: регионов 1, LAS 0, растров 4 (ae 3, sp_or 1), пропущено файлов 0
+2026-10-29 10:14:40,135 INFO expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 6.5}, 'cgroup_mem_max': None, 'uid': 0, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=1'}
+2026-10-29 10:14:40,431 INFO expds.health: опись входа: {'regions': 1, 'rasters_by_modality': {'ae': 3, 'sp_or': 1}, 'las_files': 0, 'las_region_crs': {}, 'raster_read': {'ok': 4}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 10:14:41,078 INFO expds.geo_pixgbm: pixgbm 103_Гнёздово_Ольшанская: backend=lightgbm потоков=1 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 10:14:41,078 INFO expds.pipeline: лидар оставит оптике 0 с (0.03 ГБ снимков)
+2026-10-29 10:14:41,078 INFO expds.pipeline: 103_Гнёздово_Ольшанская: лидар +0, 0.0 с, прошло 3 с
+2026-10-29 10:17:32,129 INFO expds.pipeline: 103_Гнёздово_Ольшанская: оптика +4, прошло 175 с
+2026-10-29 10:17:47,942 INFO expds.sp_dfine: sp_dfine: transformers 5.21.0 из vendor (/tmp/b8smoke__lqhwe2n/code/inference/lib/vendor/transformers/__init__.py)
+2026-10-29 10:17:51,881 INFO expds.sp_dfine: sp_dfine: моделей 1 на cpu за 19.7 с

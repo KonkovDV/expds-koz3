@@ -1,0 +1,48 @@
+{
+ "all": {
+  "A": {
+   "stack_fp": 72,
+   "stack_tp": 25
+  },
+  "AF": {
+   "stack_fp": 55,
+   "dense_fp": 61,
+   "stack_tp": 27,
+   "dense_tp": 17
+  },
+  "P": {
+   "dfine_fp": 67,
+   "stack_fp": 48,
+   "stack_tp": 25,
+   "dfine_tp": 6
+  },
+  "PF": {
+   "dense_fp": 49,
+   "dfine_fp": 72,
+   "stack_fp": 48,
+   "stack_tp": 25,
+   "dense_tp": 16,
+   "dfine_tp": 1
+  }
+ },
+ "new34": {
+  "A": {
+   "stack_fp": 39,
+   "stack_tp": 23
+  },
+  "AF": {
+   "stack_fp": 35,
+   "stack_tp": 23,
+   "dense_fp": 3
+  },
+  "P": {
+   "stack_fp": 35,
+   "stack_tp": 23
+  },
+  "PF": {
+   "stack_fp": 35,
+   "stack_tp": 23,
+   "dense_fp": 1
+  }
+ }
+}

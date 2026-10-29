@@ -1,0 +1,14 @@
+{
+ "note": "scripts/geo_predict.py на audit/mock_val, 2 потока, procs=1, budget_s 1e9, ulimit -v 2,3 ГБ; обе ветки — одинаковые 2 ошибки памяти классики (MagGr 01_Гнёздово_Усадьба цвет_2, 01_Судьбищи_2 серый)",
+ "S": {
+  "wall_s": 150.66,
+  "user_s": 195.938,
+  "objects": 5543
+ },
+ "C2": {
+  "wall_s": 318.405,
+  "user_s": 466.629,
+  "objects": 4890
+ },
+ "source": "out/opt/mock_S.log, out/opt/mock_C2.log"
+}

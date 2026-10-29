@@ -1,2 +1,3 @@
 08:2x bot-10/work11 (процесс аудита): work/fam удалён другим процессом bot-10 в 08:21 → стек пересоздаётся в work11/fam0 тем же split_stack_by_family.py из /workspace/rerank/stack_arch.geojson
 08:38:25 cal1 global paired (pid 903134) получил SIGTERM в 08:35 (rc=143, источник неизвестен; k10/LOFO успели записаться в cal1_global.log); повтор вставлен в run11d.sh после site fr1
+09:02:32 nb_global paired (pid 871194, SIGSTOP с ~08:13) убит: бюджет RAM 2 ГБ превышен (cnx_full 1,16 ГБ); повтор neigh — позже от curves_nb_g

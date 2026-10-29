@@ -1,0 +1,28 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[2s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[2s] SpOr tif regions 132 with sp_or candidates 132
+[2s] positive scenes 49 of 132
+[2s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[2s] variant snap rows 76 rows with an OK pair 7
+[2s] variant centre rows 132 rows with an OK pair 18
+[2s] variant csnap rows 132 rows with an OK pair 19
+[9s] honest-10 A 0.3146153226828423
+[9s] own gor routine == honest_counts gor: OK
+[9s] patches 3982 dim 1536 scenes 122
+[9s] labels Counter({0: 3507, -1: 249, 1: 226}) sp_or hillforts with ≥1 pos patch 63 of 65
+[11s] peaks tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0] layouts ['fam10', 'LOFO', 'seed0', 'seed1', 'seed2', 'seed3', 'seed4'] variants ['pu', 'pu+cp', 'pu_edge', 'pu_edge+cp', 'all', 'all+cp']
+[11s] new34 regions 34 of them SpOr scenes 8
+[13s] fold done 34
+[16s] fold done 20
+[18s] fold done 20
+[20s] fold done 20
+[23s] fold done 20
+[26s] fold done 20
+[28s] fold done 19
+[31s] fold done 19
+[33s] fold done 19
+[36s] fold done 19
+[36s] all+cp:add+gate new34 [0.2990041736911985, 0.29011050952602957] {'control': [23, 35, 36], 'variant': [20, 34, 36]} agg {'new34': {'v_dense_tp': 0, 'v_dense_fp': 3, 'v_stack_tp': 8, 'v_stack_fp': 4, 'c_stack_tp': 11, 'c_stack_fp': 8, 'd_tp': -3, 'd_fp': -1}, 'new34_scene_types': {'small+hf': 3, 'no_SpOr_scene': 2, 'small-hf': 1}, 'other': {'v_dense_tp': 17, 'v_dense_fp': 58, 'v_stack_tp': 2, 'v_stack_fp': 4, 'c_stack_tp': 2, 'c_stack_fp': 8, 'd_tp': 17, 'd_fp': 54}, 'other_scene_types': {'small+hf': 31, 'no_SpOr_scene': 1, 'small-hf': 8, 'big+hf': 1, 'big-hf': 2}} tau changed {np.str_('gor_phys'): 1, np.str_('li_coarse'): 2}
+[36s] pu_edge+cp:add+gate new34 [0.2990041736911985, 0.2894892565115886] {'control': [23, 35, 36], 'variant': [20, 35, 36]} agg {'new34': {'v_dense_tp': 0, 'v_dense_fp': 4, 'v_stack_tp': 6, 'v_stack_fp': 5, 'c_stack_tp': 9, 'c_stack_fp': 9, 'd_tp': -3, 'd_fp': 0}, 'new34_scene_types': {'small+hf': 3, 'no_SpOr_scene': 2, 'small-hf': 1}, 'other': {'v_dense_tp': 18, 'v_dense_fp': 129, 'v_stack_tp': 2, 'v_stack_fp': 10, 'c_stack_tp': 2, 'c_stack_fp': 14, 'd_tp': 18, 'd_fp': 125}, 'other_scene_types': {'small-hf': 38, 'small+hf': 33, 'no_SpOr_scene': 1, 'big-hf': 6, 'big+hf': 1}} tau changed {np.str_('gor_phys'): 1, np.str_('li_coarse'): 2}
+[36s] done; peak RSS MB 893.078125
+watchdog max RSS MB 837 exit 0

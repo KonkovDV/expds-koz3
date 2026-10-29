@@ -1,2 +1,4 @@
 li kurgan rows 1209594 rerank R 1195813 pos 2071 left (valid<0.05) 13781 pos left 15
 k10 folds 10 base keep 0.3332373211123479 {'folds': 10, 'unseen_dropped': 0, 'unseen_kept': 723}
+  k10 fold 2/10 566s rss 1918MB
+EXIT 137 2026-10-29 09:37:04

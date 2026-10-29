@@ -95,3 +95,15 @@
 - honest-10 против S: B1 от −0,0036 до −0,0079, B2 от −0,0045 до −0,0170, P(>0)=0,000 во всех 4 режимах → **оба отклонены** (backbone/eval_bb.out, honest_bb.json).
 - RSS procs 1/2/4 (204, 1,2 Мпикс): 492/1013/1505 МБ, ≈+0,25 ГБ на ребёнка (backbone/rss_procs.out).
 - Код: bot3-backbone 49d0200 (локально), diff backbone/backbone.diff. Отчёт: backbone/BACKBONE_REPORT.md. /tmp/bb3 удалён.
+
+## 29.10 10:50 МСК — аудит геофизики завершён, отчёт audit/AUDIT_GEO_REPORT.md
+- SATf (пост-хок, SAT только для finds): +0,0040…+0,0041 во всех 4 режимах, П2 нет (P 0,65–0,74). SAT полный — П4 нет. PICK/SATPICK −0,020…−0,032 — отклонены.
+- Калибровка: сдвиг fold→all разнонаправленный; C1 (сдвиг порогов) ≈0/−; C2 (ансамбль фолд-моделей) +0,037…+0,051 геофиз. F1, P 0,87–0,91; цена ×2,5 времени prob_map.
+- CRS: трейн весь UTM; 92/92 карт тождественны, прогноз 3 участков = S.
+
+## 29.10 11:15 МСК — follow-up bot-1: п.1 остановлен (main без PIXGBM, cherry-pick e3c4f41 конфликтует в geo_pixgbm.py), см. audit/FOLLOWUP_REPORT.md
+- 11:13 MSK bot-3: п.4 EtGr — в сдаче слои не сливаются; латентно dedupe_union (H, выкл.); фикс ветка bot3-etgr-union e0ec0ff, не смержен. FOLLOWUP_REPORT.md §4
+- 11:21 MSK bot-3: п.2/3 код opt-in на ветке bot3-opt 8c86700 (выкл. = S байт в байт), PREREG_C2.md / PREREG_SATf.md 11:15; идёт время mock_val S vs C2
+- 11:33 MSK bot-3: п.2 время mock_val S 150,7 с / C2 318,4 с; п.3 перемер SATf по PREREG: +0,0040…0,0041, П2 нет → не принимать. Всё в FOLLOWUP_REPORT.md
+
+- 29.10 ~12:10 МСК: патчи v4 для линии bot-7 — patches_v4/ (README_v4.md); идентичность трейна sha256 bbdfadc6…21ae во всех 4 прогонах; применяются к bot7-candidate-v3 360c870.

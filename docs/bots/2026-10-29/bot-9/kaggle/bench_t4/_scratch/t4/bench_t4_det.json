@@ -1,0 +1,1 @@
+{"models": [{"model": "dfine_l", "kind": "detector", "configs": [{"dtype": "fp16", "batch": 1, "ms_per_chip_single_median": 30, "ms_per_chip_flip2_median": 60, "clocks_during_timing": {"sm_clock_mhz": {"median": 1560}, "throttle_reasons_active": ["0x0000000000000001"]}}]}, {"model": "rtdetrv2_r50", "fatal": "X"}]}

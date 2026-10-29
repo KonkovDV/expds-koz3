@@ -1,0 +1,19 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+[4s] loaded 1386709 gor GT 118 Counter({np.str_('sp_or'): 65, np.str_('li'): 30, np.str_('ae'): 19, np.str_('or'): 4})
+[4s] SpOr tif regions 132 with sp_or candidates 132
+[4s] positive scenes 49 of 132
+[4s] features ['g_n', 'g_max', 'g_top3', 'g_n05', 'g_n09', 'g_best_area', 'g_area05', 'kurgany_povrezhdennye_max', 'kurgany_povrezhdennye_n05', 'kurgany_tselye_max', 'kurgany_tselye_n05', 'arkhitektury_max', 'arkhitektury_n05', 'object_poly_max', 'object_poly_n05', 'fortifikatsii_max', 'fortifikatsii_n05', 'finds_points_max', 'finds_points_n05', 'fp_logw', 'fp_logh', 'tif_n', 'tif_logmax', 'tif_logsum', 'has_las', 'g_best_dcen']
+[4s] variant snap rows 76 rows with an OK pair 7
+[4s] variant centre rows 132 rows with an OK pair 18
+[4s] variant csnap rows 132 rows with an OK pair 19
+[15s] honest-10 A 0.3146153226828423
+[15s] own gor routine == honest_counts gor: OK
+[15s] patches 3982 dim 1536 scenes 122
+[15s] labels Counter({0: 3507, -1: 249, 1: 226}) sp_or hillforts with ≥1 pos patch 63 of 65
+[17s] peaks tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0] layouts ['fam10', 'LOFO', 'seed0', 'seed1', 'seed2', 'seed3', 'seed4'] variants ['pu', 'pu+cp', 'pu_edge', 'pu_edge+cp', 'all', 'all+cp']
+[17s] new34 regions 34 of them SpOr scenes 8
+[18s] R: dropped stack gor rows 1006 kept 3670 dfine circles 4683 with OK pair 80 cov regions 132 SCNS<=COV True
+[108s] A {'stack_fp': 72, 'stack_tp': 25} new34 {'stack_fp': 39, 'stack_tp': 23}
+[108s] AF {'dense_fp': 61, 'dense_tp': 17, 'stack_fp': 55, 'stack_tp': 27} new34 {'dense_fp': 3, 'stack_fp': 35, 'stack_tp': 23}
+[108s] P {'dfine_fp': 67, 'dfine_tp': 6, 'stack_fp': 48, 'stack_tp': 25} new34 {'stack_fp': 35, 'stack_tp': 23}
+[108s] PF {'dense_fp': 49, 'dense_tp': 16, 'dfine_fp': 72, 'dfine_tp': 1, 'stack_fp': 48, 'stack_tp': 25} new34 {'dense_fp': 1, 'stack_fp': 35, 'stack_tp': 23}

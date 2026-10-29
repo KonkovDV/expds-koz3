@@ -4,6 +4,17 @@
 
 ## 29.10.2026
 
+- **Третья выгрузка и единый STATUS (~12:45, Grok Bot).**
+  - `docs/STATUS_2026-10-29.md` переписан как единая точка входа: разделы 1–10 — актуальное, срезы 09:00/07:30 — ниже, в разделе «Ранее».
+  - В `docs/bots/2026-10-29/bot-N/` добавлены отчёты, анализы, конфиги и скрипты ботов 1–10 после 09:00, в том числе:
+    - `bot-3/patches_v4/`;
+    - `bot-5/analysis/gor_dense_s59/confirm.json`;
+    - `bot-7/work6/pc/{pc_e2e_v3.ps1,SHA256SUMS}`;
+    - `bot-1/pc/{F_EXPDS3_TRASHED,TRASH_RECHECK}.md`;
+    - `bot-6/AEOR_DETECT.md`.
+  - Исключения перечислены в `docs/bots/2026-10-29/README.md`: секреты, код EhimenNathan, данные, веса, > 5 МБ.
+  - Ветки отправлены обычным push, без force; список — в STATUS §9.
+  - Исправление: v3 теперь `36af6b7` (ветка `360c870`), а не `8857343`/`9138bff` из README 09:00.
 - **Документы после лога LB v2 и ответов организаторов (29.10, Grok Bot)**. Посылка 08:47 (0,41238) подтверждена как v2 `eb268d6`: имя архива `submission_bot7cand_v2_eb268d6.zip` в логе. Раньше в README и LB_LOG было «предположительно». Лог — `docs/background/LB_SCORING_v2_eb268d6_0.41238.log`, разбор — в `docs/LB_LOG.md`. Добавлены `docs/PLAN_PIVOT_2026-10-29.md`, ответы организаторов (`docs/background/RULES_ORG_2026-10-29_data.md`, `_misc.md`, сводка в `docs/RULES.md`) и `docs/COMPETITORS_2026-10-29.md` из ветки `research/competitors-2026-10-29` (только этот файл). Квалификация по тексту организаторов — до 14.11 (в README было 11.11, работаем к 11.11).
 - **Сверка с утверждённым ТР (29.10, Grok Bot, ветка `compliance/tr-approved-2026-10-29`)** — `docs/COMPLIANCE_2026-10-29.md`, `docs/RULES.md`, отличия проекта от утв. ТР — `docs/background/TR_DIFF_draft_vs_approved.md` (сами утв. ТР и консультация №2 — в `docs/background/`).
   - README ошибался: неизвестный `class_name` файл не отклоняет, по утв. ТР (Прил. 1) объект пропускается. Файл отклоняется за > 100 МБ, > 20 000 объектов или > 50 замечаний валидатора (Прил. 3).

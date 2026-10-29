@@ -1,0 +1,8 @@
+S_wt exit=0
+OFF_opt exit=0
+C2one_opt exit=0
+SATf_opt exit=0
+SAT_wt exit=0
+mock_S exit=0
+mock_C2 exit=0
+ALLDONE

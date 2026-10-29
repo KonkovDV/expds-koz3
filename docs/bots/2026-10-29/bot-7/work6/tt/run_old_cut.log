@@ -1,0 +1,75 @@
+2026-10-29 11:36:34,844 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-10-29 11:36:34,844 INFO expds.pipeline: мягкий потолок 150 с от старта процесса (прошло 2 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-10-29 11:36:34,844 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:34,844 INFO expds.pipeline: устройство: cpu
+2026-10-29 11:36:34,844 INFO expds.watchdog: сторож сработает через 1618 с
+2026-10-29 11:36:34,886 INFO expds.catalog: найдено регионов: 18 в /workspace/koz3_shared/bot-7/work6/in/multi
+2026-10-29 11:36:34,886 INFO expds.pipeline: к разбору: регионов 18, LAS 2, растров 24 (ae 4, or 1, sp_or 19), пропущено файлов 0
+2026-10-29 11:36:34,899 INFO expds.pipeline: среда: {'python': '3.12.16', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 5.7}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.11.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=2'}
+2026-10-29 11:36:35,036 INFO expds.health: опись входа: {'regions': 18, 'rasters_by_modality': {'sp_or': 19, 'ae': 4, 'or': 1}, 'las_files': 2, 'las_region_crs': {'EPSG:32637': 2}, 'raster_read': {'ok': 24}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-29 11:36:35,998 INFO expds.geo_pixgbm: pixgbm 044_Новотитаровская_1.8км: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,029 INFO expds.geo_pixgbm: pixgbm 191_Осечки_1.3км: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,062 INFO expds.geo_pixgbm: pixgbm 046_Тыва_1: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,088 INFO expds.geo_pixgbm: pixgbm 103_Гнёздово_Ольшанская: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,112 INFO expds.geo_pixgbm: pixgbm 107_Сары_Булун: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,134 INFO expds.geo_pixgbm: pixgbm 108_Скупая_Полудань: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,156 INFO expds.geo_pixgbm: pixgbm 109_Россошки: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,177 INFO expds.geo_pixgbm: pixgbm 111_Каменные_выкладки_1: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,207 INFO expds.geo_pixgbm: pixgbm 112_Каменные_выкладки_2: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,244 INFO expds.geo_pixgbm: pixgbm 113_Каменные_выкладки_3: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,274 INFO expds.geo_pixgbm: pixgbm 124_Постройки_1: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,295 INFO expds.geo_pixgbm: pixgbm 125_Постройки_2: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,343 INFO expds.geo_pixgbm: pixgbm 130_Курганы_1: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,398 INFO expds.geo_pixgbm: pixgbm 131_Курганы_2: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,432 INFO expds.geo_pixgbm: pixgbm 132_Курганы_3: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,454 INFO expds.geo_pixgbm: pixgbm 161_Курганы_32: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,476 INFO expds.geo_pixgbm: pixgbm 165_Кисловодская_котловина_2: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:36,498 INFO expds.geo_pixgbm: pixgbm 185_Изборск: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-29 11:36:38,868 INFO expds.lidar: DEM 01_Новотитаровская_1.8км_La_точки.laz: 725x1017 @ 0.1 м, точек 262114, пустот 541572, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:39,181 INFO expds.lidar: DEM 01_Новотитаровская_1.8км_La_точки.laz: 146x205 @ 0.5 м, точек 262114, пустот 5288, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:39,183 INFO expds.hillfort: 01_Новотитаровская_1.8км_La_точки.laz: кандидатов городищ по рельефу 0
+2026-10-29 11:36:39,417 INFO expds.lidar: DEM 01_Осечки_1.3км_La_точки.laz: 2324x1779 @ 0.1 м, точек 130242, пустот 4021059, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:39,639 INFO expds.lidar: DEM 01_Осечки_1.3км_La_точки.laz: 234x179 @ 1 м, точек 130242, пустот 21924, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:39,669 INFO expds.lidar: DEM 01_Новотитаровская_1.8км_La_точки.laz: 74x104 @ 1 м, точек 262114, пустот 747, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:40,927 INFO expds.pipeline: 044_Новотитаровская_1.8км: лидар +172, 4.4 с, прошло 8 с
+2026-10-29 11:36:42,552 INFO expds.lidar: DEM 01_Осечки_1.3км_La_точки.laz: 466x357 @ 0.5 м, точек 130242, пустот 121602, rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:36:42,615 INFO expds.hillfort: 01_Осечки_1.3км_La_точки.laz: кандидатов городищ по рельефу 0
+2026-10-29 11:36:44,864 INFO expds.pipeline: 191_Осечки_1.3км: лидар +496, 3.9 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 046_Тыва_1: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 103_Гнёздово_Ольшанская: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 107_Сары_Булун: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 108_Скупая_Полудань: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 109_Россошки: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,864 INFO expds.pipeline: 111_Каменные_выкладки_1: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 112_Каменные_выкладки_2: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 113_Каменные_выкладки_3: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 124_Постройки_1: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 125_Постройки_2: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 130_Курганы_1: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 131_Курганы_2: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 132_Курганы_3: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 161_Курганы_32: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 165_Кисловодская_котловина_2: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:36:44,865 INFO expds.pipeline: 185_Изборск: лидар +0, 0.0 с, прошло 12 с
+2026-10-29 11:37:53,895 WARNING expds.pipeline: мягкий потолок: wide_window пропущено (окно 256 м sp_focal2, 046_Тыва_1) — soft_left 69 с ≤ 120 с (потолок 150 с, прошло 81 с)
+2026-10-29 11:37:53,995 INFO expds.pipeline: 046_Тыва_1: оптика +8, прошло 81 с
+2026-10-29 11:39:02,038 INFO expds.pipeline: 103_Гнёздово_Ольшанская: оптика +1, прошло 149 с
+2026-10-29 11:39:02,061 WARNING expds.pipeline: на оптику времени не осталось
+2026-10-29 11:39:02,061 WARNING expds.pipeline: на канал σ времени не осталось
+2026-10-29 11:39:03,019 INFO expds.rerank_arch: реранк архитектуры: 4 кандидатов, в пуле 4, оставлено 4
+2026-10-29 11:39:03,067 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-29 11:39:03,068 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-29 11:39:03,068 INFO expds.watchdog: устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+2026-10-29 11:39:03,068 INFO expds.watchdog: конфиг SHA256 ab8bb0a3b800ba4da5df78cc632c6c7ebd85f9d672985d4bd942379966bad741; бюджет 200 с; запас 120 с
+2026-10-29 11:39:03,068 INFO expds.watchdog: вход: регионов 18, из них с LAS 2; файлов LAS 2; растров ae 4, or 1, sp_or 19; пропущено файлов 0
+2026-10-29 11:39:03,068 INFO expds.watchdog: фазы: геофизика: сырых 0, 2 с, лидар: сырых 668, 8 с, оптика: сырых 9, 137 с, канал σ: сырых 0, 0 с
+2026-10-29 11:39:03,068 INFO expds.watchdog: мягкий потолок отключил: wide_window (soft_left 69 с)
+2026-10-29 11:39:03,068 INFO expds.watchdog: до порога 677, по слоям: ae 1, li 668, sp_or 8
+2026-10-29 11:39:03,068 INFO expds.watchdog: до порога по классам: arkhitektury 4, fortifikatsii 1, kurgany_povrezhdennye 335, kurgany_tselye 337
+2026-10-29 11:39:03,068 INFO expds.watchdog: записано 14, файл 19498 байт
+2026-10-29 11:39:03,068 INFO expds.watchdog: после порога по классам: arkhitektury 4, fortifikatsii 1, kurgany_povrezhdennye 6, kurgany_tselye 3
+2026-10-29 11:39:03,068 INFO expds.watchdog: после порога по слоям: ae 1, li 2, sp_or 11
+2026-10-29 11:39:03,068 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-10-29 11:39:03,101 INFO main: готово: {"regions": 18, "raw": 677, "phases": {"геофизика": {"raw": 0, "seconds": 1.5}, "лидар": {"raw": 668, "seconds": 8.4}, "оптика": {"raw": 9, "seconds": 137.2}, "канал σ": {"raw": 0, "seconds": 0.0}}, "soft_skipped": [{"phase": "wide_window", "what": "окно 256 м sp_focal2, 046_Тыва_1", "soft_left_s": 69.0, "need_s": 120.0, "elapsed_s": 81.0}], "written": 14, "seconds": 148.2, "partial_files": []}
+2026-10-29 11:39:03,163 INFO main: общее время 150.3 с
+watchdog max RSS MB 1344 exit 0

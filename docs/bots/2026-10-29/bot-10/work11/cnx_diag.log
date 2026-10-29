@@ -1,0 +1,14 @@
+A kurgany_povrezhdennye n_gt 2099 single F1 0.3777 (TP 813 FP 1393) per-site F1 0.4458 (TP 1035 FP 1509)
+A kurgany_tselye n_gt 933 single F1 0.4777 (TP 481 FP 600) per-site F1 0.5009 (TP 559 FP 740)
+A li kurgany_povrezhdennye sites 29 meanAP 0.1549 gtwAP 0.2637 topN 0.3545
+A li kurgany_tselye sites 20 meanAP 0.1182 gtwAP 0.1932 topN 0.2765
+R kurgany_povrezhdennye n_gt 2099 single F1 0.3144 (TP 665 FP 1466) per-site F1 0.4146 (TP 1169 FP 2371)
+R kurgany_tselye n_gt 933 single F1 0.4054 (TP 484 FP 971) per-site F1 0.4975 (TP 587 FP 840)
+R li_cnx kurgany_povrezhdennye sites 29 meanAP 0.1993 gtwAP 0.2286 topN 0.3368
+R li_cnx kurgany_tselye sites 20 meanAP 0.1077 gtwAP 0.2134 topN 0.2851
+RC kurgany_povrezhdennye n_gt 2099 single F1 0.2939 (TP 648 FP 1662) per-site F1 0.4735 (TP 1170 FP 1673)
+RC kurgany_tselye n_gt 933 single F1 0.4088 (TP 435 FP 760) per-site F1 0.5000 (TP 581 FP 810)
+RC li_cnx kurgany_povrezhdennye sites 29 meanAP 0.2011 gtwAP 0.2328 topN 0.3402
+RC li_cnx kurgany_tselye sites 20 meanAP 0.1114 gtwAP 0.2160 topN 0.2894
+X kurgany_povrezhdennye n_gt 2099 single F1 0.3583 (TP 776 FP 1457) per-site F1 0.4821 (TP 1264 FP 1881)
+X kurgany_tselye n_gt 933 single F1 0.4737 (TP 481 FP 617) per-site F1 0.4971 (TP 557 FP 751)

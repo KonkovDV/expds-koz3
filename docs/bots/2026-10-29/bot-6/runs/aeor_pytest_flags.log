@@ -1,0 +1,3819 @@
+........................................................................ [ 64%]
+...................FFF.....FF.....FFFF.                                  [100%]
+=================================== FAILURES ===================================
+_________________ test_crop_classifier_beats_stack_confidence __________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_crop_classifier_beats_sta0')
+
+    def test_crop_classifier_beats_stack_confidence(tmp_path):
+        pytest.importorskip("segmentation_models_pytorch")
+        cv = load()
+        root, stack, gt = scene(tmp_path)
+>       out, rep = cv.run(str(root), stack, gt, "sp_or", {"kurgany_povrezhdennye"}, {"sp_focal"}, 0.05,
+                          res=1.0, tile=24, li_tags=(), folds=2, mode="geo",
+                          metric_path=str(ROOT / "materials" / "compute_metrics.py"),
+                          epochs=10, batch=16, lr=1e-3, encoder="resnet18", pretrained=False, device="cpu")
+
+tests/test_crop_verify.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/crop_verify.py:305: in run
+    p[idx] = oof_verify(X[idx], y[idx], [regions[i] for i in idx], folds, **kw)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:234: in oof_verify
+    p[te] = fit_predict(X[tr], y[tr], X[te], seed=int(k), **kw)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:197: in fit_predict
+    model = fit(Xtr, ytr, epochs=epochs, batch=batch, lr=lr, encoder=encoder, pretrained=pretrained,
+scripts/crop_verify.py:174: in fit
+    loss_fn(model(x), y).backward()
+../../bot-8/venv/lib/python3.12/site-packages/torch/_tensor.py:631: in backward
+    torch.autograd.backward(
+../../bot-8/venv/lib/python3.12/site-packages/torch/autograd/__init__.py:381: in backward
+    _engine_run_backward(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+t_outputs = (tensor(0.9730, grad_fn=<BinaryCrossEntropyWithLogitsBackward0>),)
+args = ((tensor(1.),), False, False, ())
+kwargs = {'allow_unreachable': True, 'accumulate_grad': True}
+
+    def _engine_run_backward(
+        t_outputs: Sequence[Union[torch.Tensor, GradientEdge]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> tuple[torch.Tensor, ...]:
+        attach_logging_hooks = log.getEffectiveLevel() <= logging.DEBUG
+        if attach_logging_hooks:
+            unregister_hooks = _register_logging_hooks_on_whole_graph(t_outputs)
+        try:
+>           return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+                t_outputs, *args, **kwargs
+            )  # Calls into the C++ engine to run the backward pass
+E           RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../bot-8/venv/lib/python3.12/site-packages/torch/autograd/graph.py:869: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+кандидатов в стеке 68
+геометрий 68, ставлю обе метки
+меток any 24, first 24 из 68
+------------------------------ Captured log call -------------------------------
+WARNING  koz3_compute_metrics:compute_metrics.py:76 config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+______________ test_default_output_does_not_read_the_ground_truth ______________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_default_output_does_not_r0')
+
+    def test_default_output_does_not_read_the_ground_truth(tmp_path):
+        """Без --demote-with-gt второй круг на эталоне не обнуляется: эталона на площадке нет."""
+        pytest.importorskip("segmentation_models_pytorch")
+        cv = load()
+        root, stack, gt = scene(tmp_path)
+        twin = json.loads(json.dumps(stack["features"][0]))
+        twin["properties"]["confidence"] = 0.1
+        stack["features"].append(twin)
+        kw = dict(res=1.0, tile=24, li_tags=(), folds=2, mode="p",
+                  metric_path=str(ROOT / "materials" / "compute_metrics.py"),
+                  epochs=2, batch=16, lr=1e-3, encoder="resnet18", pretrained=False, device="cpu")
+>       out, _ = cv.run(str(root), stack, gt, "sp_or", {"kurgany_povrezhdennye"}, {"sp_focal"}, 0.05, **kw)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_crop_verify.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/crop_verify.py:305: in run
+    p[idx] = oof_verify(X[idx], y[idx], [regions[i] for i in idx], folds, **kw)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:234: in oof_verify
+    p[te] = fit_predict(X[tr], y[tr], X[te], seed=int(k), **kw)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:197: in fit_predict
+    model = fit(Xtr, ytr, epochs=epochs, batch=batch, lr=lr, encoder=encoder, pretrained=pretrained,
+scripts/crop_verify.py:174: in fit
+    loss_fn(model(x), y).backward()
+            ^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:135: in forward
+    return self.head(self.enc(x)[-1].mean(dim=(2, 3))).squeeze(1)
+                     ^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:84: in forward
+    x = self.layer4(x)
+        ^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:96: in forward
+    out = self.conv2(out)
+          ^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:553: in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+input = tensor([[[[0.0000]],
+
+         [[0.1639]],
+
+         [[0.5378]],
+
+         ...,
+
+         [[1.3512]],
+
+         [[0.81...[[0.0000]],
+
+         ...,
+
+         [[0.5461]],
+
+         [[0.0000]],
+
+         [[0.0000]]]], grad_fn=<ReluBackward0>)
+weight = Parameter containing:
+tensor([[[[-0.0122,  0.0227, -0.0103],
+          [-0.0122, -0.0149,  0.0028],
+          [-0.0042...-0.0278,  0.0460],
+          [ 0.0223, -0.0076,  0.0151],
+          [-0.0077,  0.0430, -0.0159]]]], requires_grad=True)
+bias = None
+
+    def _conv_forward(self, input: Tensor, weight: Tensor, bias: Tensor | None):
+        if self.padding_mode != "zeros":
+            return F.conv2d(
+                F.pad(
+                    input, self._reversed_padding_repeated_twice, mode=self.padding_mode
+                ),
+                weight,
+                bias,
+                self.stride,
+                _pair(0),
+                self.dilation,
+                self.groups,
+            )
+    
+>       return F.conv2d(
+            input, weight, bias, self.stride, self.padding, self.dilation, self.groups
+        )
+E       RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:548: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+кандидатов в стеке 69
+геометрий 69, ставлю обе метки
+меток any 25, first 24 из 69
+________________ test_saved_weights_load_in_the_inference_hook _________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_saved_weights_load_in_the0')
+
+    def test_saved_weights_load_in_the_inference_hook(tmp_path):
+        pytest.importorskip("segmentation_models_pytorch")
+        from expds.crop_model import _network
+    
+        import torch
+    
+        cv = load()
+        X = np.zeros((8, 3, 16, 16), np.uint8)
+        X[:4] = 200
+        y = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+>       info = cv.save_model(str(tmp_path / "crop.pt"), X, y, "sp_or", 0.5, 16, epochs=1, batch=4,
+                             pretrained=False, device="cpu")
+
+tests/test_crop_verify.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/crop_verify.py:210: in save_model
+    model = fit(X, y, encoder=encoder, pretrained=pretrained, **kw)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:154: in fit
+    model = make_model(encoder, pretrained).to(dev)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:126: in make_model
+    enc = smp.encoders.get_encoder(encoder, in_channels=3, depth=5, weights="imagenet" if pretrained else None)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py:107: in get_encoder
+    encoder = EncoderClass(**params)
+              ^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:45: in __init__
+    super().__init__(**kwargs)
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:204: in __init__
+    self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:247: in _make_layer
+    block(
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:84: in __init__
+    self.conv2 = conv3x3(planes, planes)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:42: in conv3x3
+    return nn.Conv2d(
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:519: in __init__
+    super().__init__(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Conv2d' object has no attribute 'bias'") raised in repr()] Conv2d object at 0x7f27d7c3f920>
+in_channels = 512, out_channels = 512, kernel_size = (3, 3), stride = (1, 1)
+padding = (1, 1), dilation = (1, 1), transposed = False, output_padding = (0, 0)
+groups = 1, bias = False, padding_mode = 'zeros', device = None, dtype = None
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tuple[int, ...],
+        stride: tuple[int, ...],
+        padding: str | tuple[int, ...],
+        dilation: tuple[int, ...],
+        transposed: bool,
+        output_padding: tuple[int, ...],
+        groups: int,
+        bias: bool,
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"],
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
+        super().__init__()
+        if groups <= 0:
+            raise ValueError("groups must be a positive integer")
+        if in_channels % groups != 0:
+            raise ValueError("in_channels must be divisible by groups")
+        if out_channels % groups != 0:
+            raise ValueError("out_channels must be divisible by groups")
+        valid_padding_strings = {"same", "valid"}
+        if isinstance(padding, str):
+            if padding not in valid_padding_strings:
+                raise ValueError(
+                    f"Invalid padding string {padding!r}, should be one of {valid_padding_strings}"
+                )
+            if padding == "same" and any(s != 1 for s in stride):
+                raise ValueError(
+                    "padding='same' is not supported for strided convolutions"
+                )
+    
+        valid_padding_modes = {"zeros", "reflect", "replicate", "circular"}
+        if padding_mode not in valid_padding_modes:
+            raise ValueError(
+                f"padding_mode must be one of {valid_padding_modes}, but got padding_mode='{padding_mode}'"
+            )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+        self.transposed = transposed
+        self.output_padding = output_padding
+        self.groups = groups
+        self.padding_mode = padding_mode
+        # `_reversed_padding_repeated_twice` is the padding to be passed to
+        # `F.pad` if needed (e.g., for non-zero padding types that are
+        # implemented as two ops: padding + conv). `F.pad` accepts paddings in
+        # reverse order than the dimension.
+        if isinstance(self.padding, str):
+            self._reversed_padding_repeated_twice = [0, 0] * len(kernel_size)
+            if padding == "same":
+                for d, k, i in zip(
+                    dilation,
+                    kernel_size,
+                    range(len(kernel_size) - 1, -1, -1),
+                    strict=False,
+                ):
+                    total_padding = d * (k - 1)
+                    left_pad = total_padding // 2
+                    self._reversed_padding_repeated_twice[2 * i] = left_pad
+                    self._reversed_padding_repeated_twice[2 * i + 1] = (
+                        total_padding - left_pad
+                    )
+        else:
+            self._reversed_padding_repeated_twice = _reverse_repeat_tuple(
+                self.padding, 2
+            )
+    
+        if transposed:
+            self.weight = Parameter(
+                torch.empty(
+                    (in_channels, out_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+        else:
+            self.weight = Parameter(
+>               torch.empty(
+                    (out_channels, in_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+E           RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:170: RuntimeError
+__________________ test_lidar_crops_come_from_the_las_relief ___________________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_lidar_crops_come_from_the0')
+
+    def test_lidar_crops_come_from_the_las_relief(tmp_path):
+        from conftest import MOUNDS, write_las
+    
+        from expds.lidar import RELIEF_TAGS
+    
+        cv = load()
+        region = "101_Альфа_1"
+>       write_las(tmp_path / region / f"01_{region}_La_точки" / f"01_{region}_La_точки.las")
+
+tests/test_crop_verify.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:31: in write_las
+    import laspy
+../../bot-8/venv/lib/python3.12/site-packages/laspy/__init__.py:6: in <module>
+    from .copc import Bounds, CopcReader
+../../bot-8/venv/lib/python3.12/site-packages/laspy/copc.py:23: in <module>
+    import lazrs
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   from .lazrs import *
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/lazrs/lazrs.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../bot-8/venv/lib/python3.12/site-packages/lazrs/__init__.py:1: ImportError
+____________ test_inference_hook_matches_the_board_crops_and_scores ____________
+
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_inference_hook_matches_th0')
+
+    def test_inference_hook_matches_the_board_crops_and_scores(tmp_path):
+        """Сдача (`expds.crop_model`) режет те же окна и даёт ту же вероятность, что табло (`crop_verify`).
+    
+        Кандидат без окна получает медиану группы и там, и там: иначе табло мерит не то, что сдаётся.
+        """
+        pytest.importorskip("segmentation_models_pytorch")
+        from shapely.geometry import shape
+    
+        from expds.catalog import scan_root
+        from expds.crop_model import maybe_verify
+    
+        cv = load()
+        root, stack, _ = scene(tmp_path)
+        picked = cv.select(stack, {"kurgany_povrezhdennye"}, "sp_or", {"sp_focal"}, 0.05)
+        X, ok = cv.extract_crops(str(root), stack, picked, "sp_or", 1.0, 24, ())
+        y = np.array([1 if i % 2 == 0 else 0 for i in range(len(picked))])
+        weights = tmp_path / "crop.pt"
+>       cv.save_model(str(weights), X[ok], y[ok], "sp_or", 1.0, 24, epochs=1, batch=8, pretrained=False, device="cpu")
+
+tests/test_crop_verify.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/crop_verify.py:210: in save_model
+    model = fit(X, y, encoder=encoder, pretrained=pretrained, **kw)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:154: in fit
+    model = make_model(encoder, pretrained).to(dev)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/crop_verify.py:126: in make_model
+    enc = smp.encoders.get_encoder(encoder, in_channels=3, depth=5, weights="imagenet" if pretrained else None)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py:107: in get_encoder
+    encoder = EncoderClass(**params)
+              ^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py:45: in __init__
+    super().__init__(**kwargs)
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:204: in __init__
+    self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:247: in _make_layer
+    block(
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:84: in __init__
+    self.conv2 = conv3x3(planes, planes)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/torchvision/models/resnet.py:42: in conv3x3
+    return nn.Conv2d(
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:519: in __init__
+    super().__init__(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Conv2d' object has no attribute 'bias'") raised in repr()] Conv2d object at 0x7f27d7b49970>
+in_channels = 512, out_channels = 512, kernel_size = (3, 3), stride = (1, 1)
+padding = (1, 1), dilation = (1, 1), transposed = False, output_padding = (0, 0)
+groups = 1, bias = False, padding_mode = 'zeros', device = None, dtype = None
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tuple[int, ...],
+        stride: tuple[int, ...],
+        padding: str | tuple[int, ...],
+        dilation: tuple[int, ...],
+        transposed: bool,
+        output_padding: tuple[int, ...],
+        groups: int,
+        bias: bool,
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"],
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
+        super().__init__()
+        if groups <= 0:
+            raise ValueError("groups must be a positive integer")
+        if in_channels % groups != 0:
+            raise ValueError("in_channels must be divisible by groups")
+        if out_channels % groups != 0:
+            raise ValueError("out_channels must be divisible by groups")
+        valid_padding_strings = {"same", "valid"}
+        if isinstance(padding, str):
+            if padding not in valid_padding_strings:
+                raise ValueError(
+                    f"Invalid padding string {padding!r}, should be one of {valid_padding_strings}"
+                )
+            if padding == "same" and any(s != 1 for s in stride):
+                raise ValueError(
+                    "padding='same' is not supported for strided convolutions"
+                )
+    
+        valid_padding_modes = {"zeros", "reflect", "replicate", "circular"}
+        if padding_mode not in valid_padding_modes:
+            raise ValueError(
+                f"padding_mode must be one of {valid_padding_modes}, but got padding_mode='{padding_mode}'"
+            )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+        self.transposed = transposed
+        self.output_padding = output_padding
+        self.groups = groups
+        self.padding_mode = padding_mode
+        # `_reversed_padding_repeated_twice` is the padding to be passed to
+        # `F.pad` if needed (e.g., for non-zero padding types that are
+        # implemented as two ops: padding + conv). `F.pad` accepts paddings in
+        # reverse order than the dimension.
+        if isinstance(self.padding, str):
+            self._reversed_padding_repeated_twice = [0, 0] * len(kernel_size)
+            if padding == "same":
+                for d, k, i in zip(
+                    dilation,
+                    kernel_size,
+                    range(len(kernel_size) - 1, -1, -1),
+                    strict=False,
+                ):
+                    total_padding = d * (k - 1)
+                    left_pad = total_padding // 2
+                    self._reversed_padding_repeated_twice[2 * i] = left_pad
+                    self._reversed_padding_repeated_twice[2 * i + 1] = (
+                        total_padding - left_pad
+                    )
+        else:
+            self._reversed_padding_repeated_twice = _reverse_repeat_tuple(
+                self.padding, 2
+            )
+    
+        if transposed:
+            self.weight = Parameter(
+                torch.empty(
+                    (in_channels, out_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+        else:
+            self.weight = Parameter(
+>               torch.empty(
+                    (out_channels, in_channels // groups, *kernel_size),
+                    **factory_kwargs,
+                )
+            )
+E           RuntimeError: [enforce fail at alloc_cpu.cpp:127] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 9437184 bytes. Error code 12 (Cannot allocate memory)
+
+../../bot-8/venv/lib/python3.12/site-packages/torch/nn/modules/conv.py:170: RuntimeError
+_____________________ test_replace_S_then_stack6_sees_pix ______________________
+
+cfg = {'default_threshold': 0.15, 'time': {'budget_s': 1500, 'reserve_s': 120, 'watchdog': True, 'guard_margin_s': 180, ...}, 'crs': {'policy': 'vote'}, 'infer': {'amp': False, 'tf32': False, 'deterministic': True}, ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f27d7bab8c0>
+
+    def test_replace_S_then_stack6_sees_pix(cfg, monkeypatch):
+>       from expds import geo_pixgbm
+
+tests/test_bot7_candidate_v2.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/geo_pixgbm.py:25: in <module>
+    from scipy import ndimage as ndi
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:157: in <module>
+    from ._support_alternative_backends import *
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:7: in <module>
+    from ._ndimage_api import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:11: in <module>
+    from ._interpolation import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_interpolation.py:38: in <module>
+    from scipy import special
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    ========================================
+    Special functions (:mod:`scipy.special`)
+    ========================================
+    
+    .. currentmodule:: scipy.special
+    
+    .. toctree::
+       :hidden:
+    
+       special.cython_special
+    
+    Almost all of the functions below accept NumPy arrays as input
+    arguments as well as single numbers. This means they follow
+    broadcasting and automatic array-looping rules. Technically,
+    they are `NumPy universal functions
+    <https://numpy.org/doc/stable/user/basics.ufuncs.html#ufuncs-basics>`_.
+    Functions which do not accept NumPy arrays are marked by a warning
+    in the section description.
+    
+    .. seealso::
+    
+       `scipy.special.cython_special` -- Typed Cython versions of special functions
+    
+    
+    Error handling
+    ==============
+    
+    Errors are handled by returning NaNs or other appropriate values.
+    Some of the special function routines can emit warnings or raise
+    exceptions when an error occurs. By default this is disabled, except
+    for memory allocation errors, which result in an exception being raised.
+    To query and control the current error handling state the following
+    functions are provided.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       geterr                 -- Get the current way of handling special-function errors.
+       seterr                 -- Set how special-function errors are handled.
+       errstate               -- Context manager for special-function error handling.
+       SpecialFunctionWarning -- Warning that can be emitted by special functions.
+       SpecialFunctionError   -- Exception that can be raised by special functions.
+    
+    Available functions
+    ===================
+    
+    Airy functions
+    --------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       airy     -- Airy functions and their derivatives.
+       airye    -- Exponentially scaled Airy functions and their derivatives.
+       ai_zeros -- Compute `nt` zeros and values of the Airy function Ai and its derivative.
+       bi_zeros -- Compute `nt` zeros and values of the Airy function Bi and its derivative.
+       itairy   -- Integrals of Airy functions
+    
+    
+    Elliptic functions and integrals
+    --------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellipj    -- Jacobian elliptic functions.
+       ellipk    -- Complete elliptic integral of the first kind.
+       ellipkm1  -- Complete elliptic integral of the first kind around `m` = 1.
+       ellipkinc -- Incomplete elliptic integral of the first kind.
+       ellipe    -- Complete elliptic integral of the second kind.
+       ellipeinc -- Incomplete elliptic integral of the second kind.
+       elliprc   -- Degenerate symmetric integral RC.
+       elliprd   -- Symmetric elliptic integral of the second kind.
+       elliprf   -- Completely-symmetric elliptic integral of the first kind.
+       elliprg   -- Completely-symmetric elliptic integral of the second kind.
+       elliprj   -- Symmetric elliptic integral of the third kind.
+    
+    Bessel functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jv                -- Bessel function of the first kind of real order and \
+                            complex argument.
+       jve               -- Exponentially scaled Bessel function of order `v`.
+       yn                -- Bessel function of the second kind of integer order and \
+                            real argument.
+       yv                -- Bessel function of the second kind of real order and \
+                            complex argument.
+       yve               -- Exponentially scaled Bessel function of the second kind \
+                            of real order.
+       iv                -- Modified Bessel function of the first kind of real order.
+       ive               -- Exponentially scaled modified Bessel function of the \
+                            first kind.
+       kn                -- Modified Bessel function of the second kind of integer \
+                            order `n`
+       kv                -- Modified Bessel function of the second kind of real order \
+                            `v`
+       kve               -- Exponentially scaled modified Bessel function of the \
+                            second kind.
+       hankel1           -- Hankel function of the first kind.
+       hankel1e          -- Exponentially scaled Hankel function of the first kind.
+       hankel2           -- Hankel function of the second kind.
+       hankel2e          -- Exponentially scaled Hankel function of the second kind.
+       wright_bessel     -- Wright's generalized Bessel function.
+       log_wright_bessel -- Logarithm of Wright's generalized Bessel function.
+    
+    The following function does not accept NumPy arrays (it is not a
+    universal function):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lmbda -- Jahnke-Emden Lambda function, Lambdav(x).
+    
+    Zeros of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jnjnp_zeros -- Compute zeros of integer-order Bessel functions Jn and Jn'.
+       jnyn_zeros  -- Compute nt zeros of Bessel functions Jn(x), Jn'(x), Yn(x), and Yn'(x).
+       jn_zeros    -- Compute zeros of integer-order Bessel function Jn(x).
+       jnp_zeros   -- Compute zeros of integer-order Bessel function derivative Jn'(x).
+       yn_zeros    -- Compute zeros of integer-order Bessel function Yn(x).
+       ynp_zeros   -- Compute zeros of integer-order Bessel function derivative Yn'(x).
+       y0_zeros    -- Compute nt zeros of Bessel function Y0(z), and derivative at each zero.
+       y1_zeros    -- Compute nt zeros of Bessel function Y1(z), and derivative at each zero.
+       y1p_zeros   -- Compute nt zeros of Bessel derivative Y1'(z), and value at each zero.
+    
+    Faster versions of common Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       j0  -- Bessel function of the first kind of order 0.
+       j1  -- Bessel function of the first kind of order 1.
+       y0  -- Bessel function of the second kind of order 0.
+       y1  -- Bessel function of the second kind of order 1.
+       i0  -- Modified Bessel function of order 0.
+       i0e -- Exponentially scaled modified Bessel function of order 0.
+       i1  -- Modified Bessel function of order 1.
+       i1e -- Exponentially scaled modified Bessel function of order 1.
+       k0  -- Modified Bessel function of the second kind of order 0, :math:`K_0`.
+       k0e -- Exponentially scaled modified Bessel function K of order 0
+       k1  -- Modified Bessel function of the second kind of order 1, :math:`K_1(x)`.
+       k1e -- Exponentially scaled modified Bessel function K of order 1.
+    
+    Integrals of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       itj0y0     -- Integrals of Bessel functions of order 0.
+       it2j0y0    -- Integrals related to Bessel functions of order 0.
+       iti0k0     -- Integrals of modified Bessel functions of order 0.
+       it2i0k0    -- Integrals related to modified Bessel functions of order 0.
+       besselpoly -- Weighted integral of a Bessel function.
+    
+    Derivatives of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jvp  -- Compute nth derivative of Bessel function Jv(z) with respect to `z`.
+       yvp  -- Compute nth derivative of Bessel function Yv(z) with respect to `z`.
+       ivp  -- Compute nth derivative of modified Bessel function Iv(z) with respect to `z`.
+       kvp  -- Compute nth derivative of real-order modified Bessel function Kv(z)
+       h1vp -- Compute nth derivative of Hankel function H1v(z) with respect to `z`.
+       h2vp -- Compute nth derivative of Hankel function H2v(z) with respect to `z`.
+    
+    Spherical Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       spherical_jn -- Spherical Bessel function of the first kind or its derivative.
+       spherical_yn -- Spherical Bessel function of the second kind or its derivative.
+       spherical_in -- Modified spherical Bessel function of the first kind or its derivative.
+       spherical_kn -- Modified spherical Bessel function of the second kind or its derivative.
+    
+    Riccati-Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       riccati_jn -- Compute Riccati-Bessel function of the first kind and its derivative.
+       riccati_yn -- Compute Riccati-Bessel function of the second kind and its derivative.
+    
+    Struve functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       struve       -- Struve function.
+       modstruve    -- Modified Struve function.
+       itstruve0    -- Integral of the Struve function of order 0.
+       it2struve0   -- Integral related to the Struve function of order 0.
+       itmodstruve0 -- Integral of the modified Struve function of order 0.
+    
+    
+    Raw statistical functions
+    -------------------------
+    
+    .. seealso:: :mod:`scipy.stats`: Friendly versions of these functions.
+    
+    Binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       bdtr         -- Binomial distribution cumulative distribution function.
+       bdtrc        -- Binomial distribution survival function.
+       bdtri        -- Inverse function to `bdtr` with respect to `p`.
+       bdtrik       -- Inverse function to `bdtr` with respect to `k`.
+       bdtrin       -- Inverse function to `bdtr` with respect to `n`.
+    
+    Beta distribution
+    ^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       btdtria      -- Inverse of `betainc` with respect to `a`.
+       btdtrib      -- Inverse of `betainc` with respect to `b`.
+    
+    F distribution
+    ^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       fdtr         -- F cumulative distribution function.
+       fdtrc        -- F survival function.
+       fdtri        -- The `p`-th quantile of the F-distribution.
+       fdtridfd     -- Inverse to `fdtr` vs dfd.
+    
+    Gamma distribution
+    ^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gdtr         -- Gamma distribution cumulative distribution function.
+       gdtrc        -- Gamma distribution survival function.
+       gdtria       -- Inverse of `gdtr` vs a.
+       gdtrib       -- Inverse of `gdtr` vs b.
+       gdtrix       -- Inverse of `gdtr` vs x.
+    
+    Negative binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nbdtr        -- Negative binomial cumulative distribution function.
+       nbdtrc       -- Negative binomial survival function.
+       nbdtri       -- Inverse of `nbdtr` vs `p`.
+       nbdtrik      -- Inverse of `nbdtr` vs `k`.
+       nbdtrin      -- Inverse of `nbdtr` vs `n`.
+    
+    Noncentral F distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ncfdtr       -- Cumulative distribution function of the non-central F distribution.
+       ncfdtridfd   -- Calculate degrees of freedom (denominator) for the noncentral F-distribution.
+       ncfdtridfn   -- Calculate degrees of freedom (numerator) for the noncentral F-distribution.
+       ncfdtri      -- Inverse cumulative distribution function of the non-central F distribution.
+       ncfdtrinc    -- Calculate non-centrality parameter for non-central F distribution.
+    
+    Noncentral t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nctdtr       -- Cumulative distribution function of the non-central `t` distribution.
+       nctdtridf    -- Calculate degrees of freedom for non-central t distribution.
+       nctdtrit     -- Inverse cumulative distribution function of the non-central t distribution.
+       nctdtrinc    -- Calculate non-centrality parameter for non-central t distribution.
+    
+    Normal distribution
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nrdtrimn     -- Calculate mean of normal distribution given other params.
+       nrdtrisd     -- Calculate standard deviation of normal distribution given other params.
+       ndtr         -- Normal cumulative distribution function.
+       log_ndtr     -- Logarithm of normal cumulative distribution function.
+       ndtri        -- Inverse of `ndtr` vs x.
+       ndtri_exp    -- Inverse of `log_ndtr` vs x.
+    
+    Poisson distribution
+    ^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pdtr         -- Poisson cumulative distribution function.
+       pdtrc        -- Poisson survival function.
+       pdtri        -- Inverse to `pdtr` vs m.
+       pdtrik       -- Inverse to `pdtr` vs k.
+    
+    Student t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       stdtr        -- Student t distribution cumulative distribution function.
+       stdtridf     -- Inverse of `stdtr` vs df.
+       stdtrit      -- Inverse of `stdtr` vs `t`.
+    
+    Chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chdtr        -- Chi square cumulative distribution function.
+       chdtrc       -- Chi square survival function.
+       chdtri       -- Inverse to `chdtrc`.
+       chdtriv      -- Inverse to `chdtr` vs `v`.
+    
+    Non-central chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chndtr       -- Non-central chi square cumulative distribution function.
+       chndtridf    -- Inverse to `chndtr` vs `df`.
+       chndtrinc    -- Inverse to `chndtr` vs `nc`.
+       chndtrix     -- Inverse to `chndtr` vs `x`.
+    
+    Kolmogorov distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       smirnov      -- Kolmogorov-Smirnov complementary cumulative distribution function.
+       smirnovi     -- Inverse to `smirnov`.
+       kolmogorov   -- Complementary cumulative distribution function of Kolmogorov distribution.
+       kolmogi      -- Inverse function to `kolmogorov`.
+    
+    Box-Cox transformation
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       boxcox       -- Compute the Box-Cox transformation.
+       boxcox1p     -- Compute the Box-Cox transformation of 1 + `x`.
+       inv_boxcox   -- Compute the inverse of the Box-Cox transformation.
+       inv_boxcox1p -- Compute the inverse of the Box-Cox transformation.
+    
+    
+    Sigmoidal functions
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       logit        -- Logit ufunc for ndarrays.
+       expit        -- Logistic sigmoid function.
+       log_expit    -- Logarithm of the logistic sigmoid function.
+    
+    Miscellaneous
+    ^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       tklmbda      -- Tukey-Lambda cumulative distribution function.
+       owens_t      -- Owen's T Function.
+    
+    
+    Information Theory functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       entr         -- Elementwise function for computing entropy.
+       rel_entr     -- Elementwise function for computing relative entropy.
+       kl_div       -- Elementwise function for computing Kullback-Leibler divergence.
+       huber        -- Huber loss function.
+       pseudo_huber -- Pseudo-Huber loss function.
+    
+    
+    Gamma and related functions
+    ---------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gamma        -- Gamma function.
+       gammaln      -- Logarithm of the absolute value of the Gamma function for real inputs.
+       loggamma     -- Principal branch of the logarithm of the Gamma function.
+       gammasgn     -- Sign of the gamma function.
+       gammainc     -- Regularized lower incomplete gamma function.
+       gammaincinv  -- Inverse to `gammainc`.
+       gammaincc    -- Regularized upper incomplete gamma function.
+       gammainccinv -- Inverse to `gammaincc`.
+       beta         -- Beta function.
+       betaln       -- Natural logarithm of absolute value of beta function.
+       betainc      -- Incomplete beta integral.
+       betaincc     -- Complemented incomplete beta integral.
+       betaincinv   -- Inverse function to beta integral.
+       betainccinv  -- Inverse of the complemented incomplete beta integral.
+       psi          -- The digamma function.
+       rgamma       -- Gamma function inverted.
+       polygamma    -- Polygamma function n.
+       multigammaln -- Returns the log of multivariate gamma, also sometimes called the generalized gamma.
+       digamma      -- psi(x[, out]).
+       poch         -- Rising factorial (z)_m.
+    
+    Error function and Fresnel integrals
+    ------------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf           -- Returns the error function of complex argument.
+       erfc          -- Complementary error function, ``1 - erf(x)``.
+       erfcx         -- Scaled complementary error function, ``exp(x**2) * erfc(x)``.
+       erfi          -- Imaginary error function, ``-i erf(i z)``.
+       erfinv        -- Inverse function for erf.
+       erfcinv       -- Inverse function for erfc.
+       wofz          -- Faddeeva function.
+       dawsn         -- Dawson's integral.
+       fresnel       -- Fresnel sin and cos integrals.
+       fresnel_zeros -- Compute nt complex zeros of sine and cosine Fresnel integrals S(z) and C(z).
+       modfresnelp   -- Modified Fresnel positive integrals.
+       modfresnelm   -- Modified Fresnel negative integrals.
+       voigt_profile -- Voigt profile.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf_zeros      -- Compute nt complex zeros of error function erf(z).
+       fresnelc_zeros -- Compute nt complex zeros of cosine Fresnel integral C(z).
+       fresnels_zeros -- Compute nt complex zeros of sine Fresnel integral S(z).
+    
+    Legendre functions
+    ------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre_p                 -- Legendre polynomials of the first kind.
+       legendre_p_all             -- All Legendre polynomials of the first kind up to a specified order.
+       assoc_legendre_p           -- Associated Legendre polynomials of the first kind.
+       assoc_legendre_p_all       -- All associated Legendre polynomials of the first kind up to a specified order and degree.
+       sph_legendre_p             -- Spherical Legendre polynomials of the first kind.
+       sph_legendre_p_all         -- All spherical Legendre polynomials of the first kind up to a specified order and degree.
+       sph_harm_y                 -- Spherical harmonics.
+       sph_harm_y_all             -- All spherical harmonics up to a specified order and degree.
+    
+    The following functions are in the process of being deprecated in favor of the above,
+    which provide a more flexible and consistent interface.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lpmv                       -- Associated Legendre function of integer order and real degree.
+       lqn                        -- Legendre function of the second kind.
+       lqmn                       -- Sequence of associated Legendre functions of the second kind.
+    
+    Ellipsoidal harmonics
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellip_harm   -- Ellipsoidal harmonic functions E^p_n(l).
+       ellip_harm_2 -- Ellipsoidal harmonic functions F^p_n(l).
+       ellip_normal -- Ellipsoidal harmonic normalization constants gamma^p_n.
+    
+    Orthogonal polynomials
+    ----------------------
+    
+    The following functions evaluate values of orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       assoc_laguerre   -- Compute the generalized (associated) Laguerre polynomial of degree n and order k.
+       eval_legendre    -- Evaluate Legendre polynomial at a point.
+       eval_chebyt      -- Evaluate Chebyshev polynomial of the first kind at a point.
+       eval_chebyu      -- Evaluate Chebyshev polynomial of the second kind at a point.
+       eval_chebyc      -- Evaluate Chebyshev polynomial of the first kind on [-2, 2] at a point.
+       eval_chebys      -- Evaluate Chebyshev polynomial of the second kind on [-2, 2] at a point.
+       eval_jacobi      -- Evaluate Jacobi polynomial at a point.
+       eval_laguerre    -- Evaluate Laguerre polynomial at a point.
+       eval_genlaguerre -- Evaluate generalized Laguerre polynomial at a point.
+       eval_hermite     -- Evaluate physicist's Hermite polynomial at a point.
+       eval_hermitenorm -- Evaluate probabilist's (normalized) Hermite polynomial at a point.
+       eval_gegenbauer  -- Evaluate Gegenbauer polynomial at a point.
+       eval_sh_legendre -- Evaluate shifted Legendre polynomial at a point.
+       eval_sh_chebyt   -- Evaluate shifted Chebyshev polynomial of the first kind at a point.
+       eval_sh_chebyu   -- Evaluate shifted Chebyshev polynomial of the second kind at a point.
+       eval_sh_jacobi   -- Evaluate shifted Jacobi polynomial at a point.
+    
+    The following functions compute roots and quadrature weights for
+    orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       roots_legendre    -- Gauss-Legendre quadrature.
+       roots_chebyt      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebyu      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_chebyc      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebys      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_jacobi      -- Gauss-Jacobi quadrature.
+       roots_laguerre    -- Gauss-Laguerre quadrature.
+       roots_genlaguerre -- Gauss-generalized Laguerre quadrature.
+       roots_hermite     -- Gauss-Hermite (physicist's) quadrature.
+       roots_hermitenorm -- Gauss-Hermite (statistician's) quadrature.
+       roots_gegenbauer  -- Gauss-Gegenbauer quadrature.
+       roots_sh_legendre -- Gauss-Legendre (shifted) quadrature.
+       roots_sh_chebyt   -- Gauss-Chebyshev (first kind, shifted) quadrature.
+       roots_sh_chebyu   -- Gauss-Chebyshev (second kind, shifted) quadrature.
+       roots_sh_jacobi   -- Gauss-Jacobi (shifted) quadrature.
+    
+    The functions below, in turn, return the polynomial coefficients in
+    ``orthopoly1d`` objects, which function similarly as `numpy.poly1d`.
+    The ``orthopoly1d`` class also has an attribute ``weights``, which returns
+    the roots, weights, and total weights for the appropriate form of Gaussian
+    quadrature. These are returned in an ``n x 3`` array with roots in the first
+    column, weights in the second column, and total weights in the final column.
+    Note that ``orthopoly1d`` objects are converted to `~numpy.poly1d` when doing
+    arithmetic, and lose information of the original orthogonal polynomial.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre    -- Legendre polynomial.
+       chebyt      -- Chebyshev polynomial of the first kind.
+       chebyu      -- Chebyshev polynomial of the second kind.
+       chebyc      -- Chebyshev polynomial of the first kind on :math:`[-2, 2]`.
+       chebys      -- Chebyshev polynomial of the second kind on :math:`[-2, 2]`.
+       jacobi      -- Jacobi polynomial.
+       laguerre    -- Laguerre polynomial.
+       genlaguerre -- Generalized (associated) Laguerre polynomial.
+       hermite     -- Physicist's Hermite polynomial.
+       hermitenorm -- Normalized (probabilist's) Hermite polynomial.
+       gegenbauer  -- Gegenbauer (ultraspherical) polynomial.
+       sh_legendre -- Shifted Legendre polynomial.
+       sh_chebyt   -- Shifted Chebyshev polynomial of the first kind.
+       sh_chebyu   -- Shifted Chebyshev polynomial of the second kind.
+       sh_jacobi   -- Shifted Jacobi polynomial.
+    
+    .. warning::
+    
+       Computing values of high-order polynomials (around ``order > 20``) using
+       polynomial coefficients is numerically unstable. To evaluate polynomial
+       values, the ``eval_*`` functions should be used instead.
+    
+    
+    Hypergeometric functions
+    ------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       hyp2f1 -- Gauss hypergeometric function 2F1(a, b; c; z).
+       hyp1f1 -- Confluent hypergeometric function 1F1(a, b; x).
+       hyperu -- Confluent hypergeometric function U(a, b, x) of the second kind.
+       hyp0f1 -- Confluent hypergeometric limit function 0F1.
+    
+    
+    Parabolic cylinder functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv -- Parabolic cylinder function D.
+       pbvv -- Parabolic cylinder function V.
+       pbwa -- Parabolic cylinder function W.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv_seq -- Parabolic cylinder functions Dv(x) and derivatives.
+       pbvv_seq -- Parabolic cylinder functions Vv(x) and derivatives.
+       pbdn_seq -- Parabolic cylinder functions Dn(z) and derivatives.
+    
+    Mathieu and related functions
+    -----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_a -- Characteristic value of even Mathieu functions.
+       mathieu_b -- Characteristic value of odd Mathieu functions.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_even_coef -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+       mathieu_odd_coef  -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+    
+    The following return both function and first derivative:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_cem     -- Even Mathieu function and its derivative.
+       mathieu_sem     -- Odd Mathieu function and its derivative.
+       mathieu_modcem1 -- Even modified Mathieu function of the first kind and its derivative.
+       mathieu_modcem2 -- Even modified Mathieu function of the second kind and its derivative.
+       mathieu_modsem1 -- Odd modified Mathieu function of the first kind and its derivative.
+       mathieu_modsem2 -- Odd modified Mathieu function of the second kind and its derivative.
+    
+    Spheroidal wave functions
+    -------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1   -- Prolate spheroidal angular function of the first kind and its derivative.
+       pro_rad1   -- Prolate spheroidal radial function of the first kind and its derivative.
+       pro_rad2   -- Prolate spheroidal radial function of the second kind and its derivative.
+       obl_ang1   -- Oblate spheroidal angular function of the first kind and its derivative.
+       obl_rad1   -- Oblate spheroidal radial function of the first kind and its derivative.
+       obl_rad2   -- Oblate spheroidal radial function of the second kind and its derivative.
+       pro_cv     -- Characteristic value of prolate spheroidal function.
+       obl_cv     -- Characteristic value of oblate spheroidal function.
+       pro_cv_seq -- Characteristic values for prolate spheroidal wave functions.
+       obl_cv_seq -- Characteristic values for oblate spheroidal wave functions.
+    
+    The following functions require pre-computed characteristic value:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1_cv -- Prolate spheroidal angular function pro_ang1 for precomputed characteristic value.
+       pro_rad1_cv -- Prolate spheroidal radial function pro_rad1 for precomputed characteristic value.
+       pro_rad2_cv -- Prolate spheroidal radial function pro_rad2 for precomputed characteristic value.
+       obl_ang1_cv -- Oblate spheroidal angular function obl_ang1 for precomputed characteristic value.
+       obl_rad1_cv -- Oblate spheroidal radial function obl_rad1 for precomputed characteristic value.
+       obl_rad2_cv -- Oblate spheroidal radial function obl_rad2 for precomputed characteristic value.
+    
+    Kelvin functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       kelvin       -- Kelvin functions as complex numbers.
+       kelvin_zeros -- Compute nt zeros of all Kelvin functions.
+       ber          -- Kelvin function ber.
+       bei          -- Kelvin function bei
+       berp         -- Derivative of the Kelvin function `ber`.
+       beip         -- Derivative of the Kelvin function `bei`.
+       ker          -- Kelvin function ker.
+       kei          -- Kelvin function ker.
+       kerp         -- Derivative of the Kelvin function ker.
+       keip         -- Derivative of the Kelvin function kei.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ber_zeros  -- Compute nt zeros of the Kelvin function ber(x).
+       bei_zeros  -- Compute nt zeros of the Kelvin function bei(x).
+       berp_zeros -- Compute nt zeros of the Kelvin function ber'(x).
+       beip_zeros -- Compute nt zeros of the Kelvin function bei'(x).
+       ker_zeros  -- Compute nt zeros of the Kelvin function ker(x).
+       kei_zeros  -- Compute nt zeros of the Kelvin function kei(x).
+       kerp_zeros -- Compute nt zeros of the Kelvin function ker'(x).
+       keip_zeros -- Compute nt zeros of the Kelvin function kei'(x).
+    
+    Combinatorics
+    -------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       comb -- The number of combinations of N things taken k at a time.
+       perm -- Permutations of N things taken k at a time, i.e., k-permutations of N.
+       stirling2 -- Stirling numbers of the second kind.
+    
+    Lambert W and related functions
+    -------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lambertw    -- Lambert W function.
+       wrightomega -- Wright Omega function.
+    
+    Other special functions
+    -----------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       agm         -- Arithmetic, Geometric Mean.
+       bernoulli   -- Bernoulli numbers B0..Bn (inclusive).
+       binom       -- Binomial coefficient
+       diric       -- Periodic sinc function, also called the Dirichlet kernel.
+       euler       -- Euler numbers E0..En (inclusive).
+       expn        -- Exponential integral E_n.
+       exp1        -- Exponential integral E_1 of complex argument z.
+       expi        -- Exponential integral Ei.
+       factorial   -- The factorial of a number or array of numbers.
+       factorial2  -- Double factorial.
+       factorialk  -- Multifactorial of n of order k, n(!!...!).
+       shichi      -- Hyperbolic sine and cosine integrals.
+       sici        -- Sine and cosine integrals.
+       softmax     -- Softmax function.
+       log_softmax -- Logarithm of softmax function.
+       spence      -- Spence's function, also known as the dilogarithm.
+       zeta        -- Riemann zeta function.
+       zetac       -- Riemann zeta function minus 1.
+       softplus    -- Softplus function.
+    
+    Convenience functions
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       cbrt      -- Cube root of `x`.
+       exp10     -- 10**x.
+       exp2      -- 2**x.
+       radian    -- Convert from degrees to radians.
+       cosdg     -- Cosine of the angle `x` given in degrees.
+       sindg     -- Sine of angle given in degrees.
+       tandg     -- Tangent of angle x given in degrees.
+       cotdg     -- Cotangent of the angle `x` given in degrees.
+       log1p     -- Calculates log(1+x) for use when `x` is near zero.
+       expm1     -- ``exp(x) - 1`` for use when `x` is near zero.
+       cosm1     -- ``cos(x) - 1`` for use when `x` is near zero.
+       powm1     -- ``x**y - 1`` for use when `y` is near zero or `x` is near 1.
+       round     -- Round to nearest integer.
+       xlogy     -- Compute ``x*log(y)`` so that the result is 0 if ``x = 0``.
+       xlog1py   -- Compute ``x*log1p(y)`` so that the result is 0 if ``x = 0``.
+       logsumexp -- Compute the log of the sum of exponentials of input elements.
+       exprel    -- Relative error exponential, (exp(x)-1)/x, for use when `x` is near zero.
+       sinc      -- Return the sinc function.
+    
+    """  # noqa: E501
+    
+    
+    from ._sf_error import SpecialFunctionWarning, SpecialFunctionError
+    
+>   from . import _ufuncs
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../bot-8/venv/lib/python3.12/site-packages/scipy/special/__init__.py:785: ImportError
+_________________________ test_flags_off_independently _________________________
+
+cfg = {'default_threshold': 0.15, 'time': {'budget_s': 1500, 'reserve_s': 120, 'watchdog': True, 'guard_margin_s': 180, ...}, 'crs': {'policy': 'vote'}, 'infer': {'amp': False, 'tf32': False, 'deterministic': True}, ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f27d6c166f0>
+
+    def test_flags_off_independently(cfg, monkeypatch):
+>       from expds import geo_pixgbm
+
+tests/test_bot7_candidate_v2.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/geo_pixgbm.py:25: in <module>
+    from scipy import ndimage as ndi
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:157: in <module>
+    from ._support_alternative_backends import *
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:7: in <module>
+    from ._ndimage_api import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:11: in <module>
+    from ._interpolation import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_interpolation.py:38: in <module>
+    from scipy import special
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    ========================================
+    Special functions (:mod:`scipy.special`)
+    ========================================
+    
+    .. currentmodule:: scipy.special
+    
+    .. toctree::
+       :hidden:
+    
+       special.cython_special
+    
+    Almost all of the functions below accept NumPy arrays as input
+    arguments as well as single numbers. This means they follow
+    broadcasting and automatic array-looping rules. Technically,
+    they are `NumPy universal functions
+    <https://numpy.org/doc/stable/user/basics.ufuncs.html#ufuncs-basics>`_.
+    Functions which do not accept NumPy arrays are marked by a warning
+    in the section description.
+    
+    .. seealso::
+    
+       `scipy.special.cython_special` -- Typed Cython versions of special functions
+    
+    
+    Error handling
+    ==============
+    
+    Errors are handled by returning NaNs or other appropriate values.
+    Some of the special function routines can emit warnings or raise
+    exceptions when an error occurs. By default this is disabled, except
+    for memory allocation errors, which result in an exception being raised.
+    To query and control the current error handling state the following
+    functions are provided.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       geterr                 -- Get the current way of handling special-function errors.
+       seterr                 -- Set how special-function errors are handled.
+       errstate               -- Context manager for special-function error handling.
+       SpecialFunctionWarning -- Warning that can be emitted by special functions.
+       SpecialFunctionError   -- Exception that can be raised by special functions.
+    
+    Available functions
+    ===================
+    
+    Airy functions
+    --------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       airy     -- Airy functions and their derivatives.
+       airye    -- Exponentially scaled Airy functions and their derivatives.
+       ai_zeros -- Compute `nt` zeros and values of the Airy function Ai and its derivative.
+       bi_zeros -- Compute `nt` zeros and values of the Airy function Bi and its derivative.
+       itairy   -- Integrals of Airy functions
+    
+    
+    Elliptic functions and integrals
+    --------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellipj    -- Jacobian elliptic functions.
+       ellipk    -- Complete elliptic integral of the first kind.
+       ellipkm1  -- Complete elliptic integral of the first kind around `m` = 1.
+       ellipkinc -- Incomplete elliptic integral of the first kind.
+       ellipe    -- Complete elliptic integral of the second kind.
+       ellipeinc -- Incomplete elliptic integral of the second kind.
+       elliprc   -- Degenerate symmetric integral RC.
+       elliprd   -- Symmetric elliptic integral of the second kind.
+       elliprf   -- Completely-symmetric elliptic integral of the first kind.
+       elliprg   -- Completely-symmetric elliptic integral of the second kind.
+       elliprj   -- Symmetric elliptic integral of the third kind.
+    
+    Bessel functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jv                -- Bessel function of the first kind of real order and \
+                            complex argument.
+       jve               -- Exponentially scaled Bessel function of order `v`.
+       yn                -- Bessel function of the second kind of integer order and \
+                            real argument.
+       yv                -- Bessel function of the second kind of real order and \
+                            complex argument.
+       yve               -- Exponentially scaled Bessel function of the second kind \
+                            of real order.
+       iv                -- Modified Bessel function of the first kind of real order.
+       ive               -- Exponentially scaled modified Bessel function of the \
+                            first kind.
+       kn                -- Modified Bessel function of the second kind of integer \
+                            order `n`
+       kv                -- Modified Bessel function of the second kind of real order \
+                            `v`
+       kve               -- Exponentially scaled modified Bessel function of the \
+                            second kind.
+       hankel1           -- Hankel function of the first kind.
+       hankel1e          -- Exponentially scaled Hankel function of the first kind.
+       hankel2           -- Hankel function of the second kind.
+       hankel2e          -- Exponentially scaled Hankel function of the second kind.
+       wright_bessel     -- Wright's generalized Bessel function.
+       log_wright_bessel -- Logarithm of Wright's generalized Bessel function.
+    
+    The following function does not accept NumPy arrays (it is not a
+    universal function):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lmbda -- Jahnke-Emden Lambda function, Lambdav(x).
+    
+    Zeros of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jnjnp_zeros -- Compute zeros of integer-order Bessel functions Jn and Jn'.
+       jnyn_zeros  -- Compute nt zeros of Bessel functions Jn(x), Jn'(x), Yn(x), and Yn'(x).
+       jn_zeros    -- Compute zeros of integer-order Bessel function Jn(x).
+       jnp_zeros   -- Compute zeros of integer-order Bessel function derivative Jn'(x).
+       yn_zeros    -- Compute zeros of integer-order Bessel function Yn(x).
+       ynp_zeros   -- Compute zeros of integer-order Bessel function derivative Yn'(x).
+       y0_zeros    -- Compute nt zeros of Bessel function Y0(z), and derivative at each zero.
+       y1_zeros    -- Compute nt zeros of Bessel function Y1(z), and derivative at each zero.
+       y1p_zeros   -- Compute nt zeros of Bessel derivative Y1'(z), and value at each zero.
+    
+    Faster versions of common Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       j0  -- Bessel function of the first kind of order 0.
+       j1  -- Bessel function of the first kind of order 1.
+       y0  -- Bessel function of the second kind of order 0.
+       y1  -- Bessel function of the second kind of order 1.
+       i0  -- Modified Bessel function of order 0.
+       i0e -- Exponentially scaled modified Bessel function of order 0.
+       i1  -- Modified Bessel function of order 1.
+       i1e -- Exponentially scaled modified Bessel function of order 1.
+       k0  -- Modified Bessel function of the second kind of order 0, :math:`K_0`.
+       k0e -- Exponentially scaled modified Bessel function K of order 0
+       k1  -- Modified Bessel function of the second kind of order 1, :math:`K_1(x)`.
+       k1e -- Exponentially scaled modified Bessel function K of order 1.
+    
+    Integrals of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       itj0y0     -- Integrals of Bessel functions of order 0.
+       it2j0y0    -- Integrals related to Bessel functions of order 0.
+       iti0k0     -- Integrals of modified Bessel functions of order 0.
+       it2i0k0    -- Integrals related to modified Bessel functions of order 0.
+       besselpoly -- Weighted integral of a Bessel function.
+    
+    Derivatives of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jvp  -- Compute nth derivative of Bessel function Jv(z) with respect to `z`.
+       yvp  -- Compute nth derivative of Bessel function Yv(z) with respect to `z`.
+       ivp  -- Compute nth derivative of modified Bessel function Iv(z) with respect to `z`.
+       kvp  -- Compute nth derivative of real-order modified Bessel function Kv(z)
+       h1vp -- Compute nth derivative of Hankel function H1v(z) with respect to `z`.
+       h2vp -- Compute nth derivative of Hankel function H2v(z) with respect to `z`.
+    
+    Spherical Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       spherical_jn -- Spherical Bessel function of the first kind or its derivative.
+       spherical_yn -- Spherical Bessel function of the second kind or its derivative.
+       spherical_in -- Modified spherical Bessel function of the first kind or its derivative.
+       spherical_kn -- Modified spherical Bessel function of the second kind or its derivative.
+    
+    Riccati-Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       riccati_jn -- Compute Riccati-Bessel function of the first kind and its derivative.
+       riccati_yn -- Compute Riccati-Bessel function of the second kind and its derivative.
+    
+    Struve functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       struve       -- Struve function.
+       modstruve    -- Modified Struve function.
+       itstruve0    -- Integral of the Struve function of order 0.
+       it2struve0   -- Integral related to the Struve function of order 0.
+       itmodstruve0 -- Integral of the modified Struve function of order 0.
+    
+    
+    Raw statistical functions
+    -------------------------
+    
+    .. seealso:: :mod:`scipy.stats`: Friendly versions of these functions.
+    
+    Binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       bdtr         -- Binomial distribution cumulative distribution function.
+       bdtrc        -- Binomial distribution survival function.
+       bdtri        -- Inverse function to `bdtr` with respect to `p`.
+       bdtrik       -- Inverse function to `bdtr` with respect to `k`.
+       bdtrin       -- Inverse function to `bdtr` with respect to `n`.
+    
+    Beta distribution
+    ^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       btdtria      -- Inverse of `betainc` with respect to `a`.
+       btdtrib      -- Inverse of `betainc` with respect to `b`.
+    
+    F distribution
+    ^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       fdtr         -- F cumulative distribution function.
+       fdtrc        -- F survival function.
+       fdtri        -- The `p`-th quantile of the F-distribution.
+       fdtridfd     -- Inverse to `fdtr` vs dfd.
+    
+    Gamma distribution
+    ^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gdtr         -- Gamma distribution cumulative distribution function.
+       gdtrc        -- Gamma distribution survival function.
+       gdtria       -- Inverse of `gdtr` vs a.
+       gdtrib       -- Inverse of `gdtr` vs b.
+       gdtrix       -- Inverse of `gdtr` vs x.
+    
+    Negative binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nbdtr        -- Negative binomial cumulative distribution function.
+       nbdtrc       -- Negative binomial survival function.
+       nbdtri       -- Inverse of `nbdtr` vs `p`.
+       nbdtrik      -- Inverse of `nbdtr` vs `k`.
+       nbdtrin      -- Inverse of `nbdtr` vs `n`.
+    
+    Noncentral F distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ncfdtr       -- Cumulative distribution function of the non-central F distribution.
+       ncfdtridfd   -- Calculate degrees of freedom (denominator) for the noncentral F-distribution.
+       ncfdtridfn   -- Calculate degrees of freedom (numerator) for the noncentral F-distribution.
+       ncfdtri      -- Inverse cumulative distribution function of the non-central F distribution.
+       ncfdtrinc    -- Calculate non-centrality parameter for non-central F distribution.
+    
+    Noncentral t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nctdtr       -- Cumulative distribution function of the non-central `t` distribution.
+       nctdtridf    -- Calculate degrees of freedom for non-central t distribution.
+       nctdtrit     -- Inverse cumulative distribution function of the non-central t distribution.
+       nctdtrinc    -- Calculate non-centrality parameter for non-central t distribution.
+    
+    Normal distribution
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nrdtrimn     -- Calculate mean of normal distribution given other params.
+       nrdtrisd     -- Calculate standard deviation of normal distribution given other params.
+       ndtr         -- Normal cumulative distribution function.
+       log_ndtr     -- Logarithm of normal cumulative distribution function.
+       ndtri        -- Inverse of `ndtr` vs x.
+       ndtri_exp    -- Inverse of `log_ndtr` vs x.
+    
+    Poisson distribution
+    ^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pdtr         -- Poisson cumulative distribution function.
+       pdtrc        -- Poisson survival function.
+       pdtri        -- Inverse to `pdtr` vs m.
+       pdtrik       -- Inverse to `pdtr` vs k.
+    
+    Student t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       stdtr        -- Student t distribution cumulative distribution function.
+       stdtridf     -- Inverse of `stdtr` vs df.
+       stdtrit      -- Inverse of `stdtr` vs `t`.
+    
+    Chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chdtr        -- Chi square cumulative distribution function.
+       chdtrc       -- Chi square survival function.
+       chdtri       -- Inverse to `chdtrc`.
+       chdtriv      -- Inverse to `chdtr` vs `v`.
+    
+    Non-central chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chndtr       -- Non-central chi square cumulative distribution function.
+       chndtridf    -- Inverse to `chndtr` vs `df`.
+       chndtrinc    -- Inverse to `chndtr` vs `nc`.
+       chndtrix     -- Inverse to `chndtr` vs `x`.
+    
+    Kolmogorov distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       smirnov      -- Kolmogorov-Smirnov complementary cumulative distribution function.
+       smirnovi     -- Inverse to `smirnov`.
+       kolmogorov   -- Complementary cumulative distribution function of Kolmogorov distribution.
+       kolmogi      -- Inverse function to `kolmogorov`.
+    
+    Box-Cox transformation
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       boxcox       -- Compute the Box-Cox transformation.
+       boxcox1p     -- Compute the Box-Cox transformation of 1 + `x`.
+       inv_boxcox   -- Compute the inverse of the Box-Cox transformation.
+       inv_boxcox1p -- Compute the inverse of the Box-Cox transformation.
+    
+    
+    Sigmoidal functions
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       logit        -- Logit ufunc for ndarrays.
+       expit        -- Logistic sigmoid function.
+       log_expit    -- Logarithm of the logistic sigmoid function.
+    
+    Miscellaneous
+    ^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       tklmbda      -- Tukey-Lambda cumulative distribution function.
+       owens_t      -- Owen's T Function.
+    
+    
+    Information Theory functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       entr         -- Elementwise function for computing entropy.
+       rel_entr     -- Elementwise function for computing relative entropy.
+       kl_div       -- Elementwise function for computing Kullback-Leibler divergence.
+       huber        -- Huber loss function.
+       pseudo_huber -- Pseudo-Huber loss function.
+    
+    
+    Gamma and related functions
+    ---------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gamma        -- Gamma function.
+       gammaln      -- Logarithm of the absolute value of the Gamma function for real inputs.
+       loggamma     -- Principal branch of the logarithm of the Gamma function.
+       gammasgn     -- Sign of the gamma function.
+       gammainc     -- Regularized lower incomplete gamma function.
+       gammaincinv  -- Inverse to `gammainc`.
+       gammaincc    -- Regularized upper incomplete gamma function.
+       gammainccinv -- Inverse to `gammaincc`.
+       beta         -- Beta function.
+       betaln       -- Natural logarithm of absolute value of beta function.
+       betainc      -- Incomplete beta integral.
+       betaincc     -- Complemented incomplete beta integral.
+       betaincinv   -- Inverse function to beta integral.
+       betainccinv  -- Inverse of the complemented incomplete beta integral.
+       psi          -- The digamma function.
+       rgamma       -- Gamma function inverted.
+       polygamma    -- Polygamma function n.
+       multigammaln -- Returns the log of multivariate gamma, also sometimes called the generalized gamma.
+       digamma      -- psi(x[, out]).
+       poch         -- Rising factorial (z)_m.
+    
+    Error function and Fresnel integrals
+    ------------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf           -- Returns the error function of complex argument.
+       erfc          -- Complementary error function, ``1 - erf(x)``.
+       erfcx         -- Scaled complementary error function, ``exp(x**2) * erfc(x)``.
+       erfi          -- Imaginary error function, ``-i erf(i z)``.
+       erfinv        -- Inverse function for erf.
+       erfcinv       -- Inverse function for erfc.
+       wofz          -- Faddeeva function.
+       dawsn         -- Dawson's integral.
+       fresnel       -- Fresnel sin and cos integrals.
+       fresnel_zeros -- Compute nt complex zeros of sine and cosine Fresnel integrals S(z) and C(z).
+       modfresnelp   -- Modified Fresnel positive integrals.
+       modfresnelm   -- Modified Fresnel negative integrals.
+       voigt_profile -- Voigt profile.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf_zeros      -- Compute nt complex zeros of error function erf(z).
+       fresnelc_zeros -- Compute nt complex zeros of cosine Fresnel integral C(z).
+       fresnels_zeros -- Compute nt complex zeros of sine Fresnel integral S(z).
+    
+    Legendre functions
+    ------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre_p                 -- Legendre polynomials of the first kind.
+       legendre_p_all             -- All Legendre polynomials of the first kind up to a specified order.
+       assoc_legendre_p           -- Associated Legendre polynomials of the first kind.
+       assoc_legendre_p_all       -- All associated Legendre polynomials of the first kind up to a specified order and degree.
+       sph_legendre_p             -- Spherical Legendre polynomials of the first kind.
+       sph_legendre_p_all         -- All spherical Legendre polynomials of the first kind up to a specified order and degree.
+       sph_harm_y                 -- Spherical harmonics.
+       sph_harm_y_all             -- All spherical harmonics up to a specified order and degree.
+    
+    The following functions are in the process of being deprecated in favor of the above,
+    which provide a more flexible and consistent interface.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lpmv                       -- Associated Legendre function of integer order and real degree.
+       lqn                        -- Legendre function of the second kind.
+       lqmn                       -- Sequence of associated Legendre functions of the second kind.
+    
+    Ellipsoidal harmonics
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellip_harm   -- Ellipsoidal harmonic functions E^p_n(l).
+       ellip_harm_2 -- Ellipsoidal harmonic functions F^p_n(l).
+       ellip_normal -- Ellipsoidal harmonic normalization constants gamma^p_n.
+    
+    Orthogonal polynomials
+    ----------------------
+    
+    The following functions evaluate values of orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       assoc_laguerre   -- Compute the generalized (associated) Laguerre polynomial of degree n and order k.
+       eval_legendre    -- Evaluate Legendre polynomial at a point.
+       eval_chebyt      -- Evaluate Chebyshev polynomial of the first kind at a point.
+       eval_chebyu      -- Evaluate Chebyshev polynomial of the second kind at a point.
+       eval_chebyc      -- Evaluate Chebyshev polynomial of the first kind on [-2, 2] at a point.
+       eval_chebys      -- Evaluate Chebyshev polynomial of the second kind on [-2, 2] at a point.
+       eval_jacobi      -- Evaluate Jacobi polynomial at a point.
+       eval_laguerre    -- Evaluate Laguerre polynomial at a point.
+       eval_genlaguerre -- Evaluate generalized Laguerre polynomial at a point.
+       eval_hermite     -- Evaluate physicist's Hermite polynomial at a point.
+       eval_hermitenorm -- Evaluate probabilist's (normalized) Hermite polynomial at a point.
+       eval_gegenbauer  -- Evaluate Gegenbauer polynomial at a point.
+       eval_sh_legendre -- Evaluate shifted Legendre polynomial at a point.
+       eval_sh_chebyt   -- Evaluate shifted Chebyshev polynomial of the first kind at a point.
+       eval_sh_chebyu   -- Evaluate shifted Chebyshev polynomial of the second kind at a point.
+       eval_sh_jacobi   -- Evaluate shifted Jacobi polynomial at a point.
+    
+    The following functions compute roots and quadrature weights for
+    orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       roots_legendre    -- Gauss-Legendre quadrature.
+       roots_chebyt      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebyu      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_chebyc      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebys      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_jacobi      -- Gauss-Jacobi quadrature.
+       roots_laguerre    -- Gauss-Laguerre quadrature.
+       roots_genlaguerre -- Gauss-generalized Laguerre quadrature.
+       roots_hermite     -- Gauss-Hermite (physicist's) quadrature.
+       roots_hermitenorm -- Gauss-Hermite (statistician's) quadrature.
+       roots_gegenbauer  -- Gauss-Gegenbauer quadrature.
+       roots_sh_legendre -- Gauss-Legendre (shifted) quadrature.
+       roots_sh_chebyt   -- Gauss-Chebyshev (first kind, shifted) quadrature.
+       roots_sh_chebyu   -- Gauss-Chebyshev (second kind, shifted) quadrature.
+       roots_sh_jacobi   -- Gauss-Jacobi (shifted) quadrature.
+    
+    The functions below, in turn, return the polynomial coefficients in
+    ``orthopoly1d`` objects, which function similarly as `numpy.poly1d`.
+    The ``orthopoly1d`` class also has an attribute ``weights``, which returns
+    the roots, weights, and total weights for the appropriate form of Gaussian
+    quadrature. These are returned in an ``n x 3`` array with roots in the first
+    column, weights in the second column, and total weights in the final column.
+    Note that ``orthopoly1d`` objects are converted to `~numpy.poly1d` when doing
+    arithmetic, and lose information of the original orthogonal polynomial.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre    -- Legendre polynomial.
+       chebyt      -- Chebyshev polynomial of the first kind.
+       chebyu      -- Chebyshev polynomial of the second kind.
+       chebyc      -- Chebyshev polynomial of the first kind on :math:`[-2, 2]`.
+       chebys      -- Chebyshev polynomial of the second kind on :math:`[-2, 2]`.
+       jacobi      -- Jacobi polynomial.
+       laguerre    -- Laguerre polynomial.
+       genlaguerre -- Generalized (associated) Laguerre polynomial.
+       hermite     -- Physicist's Hermite polynomial.
+       hermitenorm -- Normalized (probabilist's) Hermite polynomial.
+       gegenbauer  -- Gegenbauer (ultraspherical) polynomial.
+       sh_legendre -- Shifted Legendre polynomial.
+       sh_chebyt   -- Shifted Chebyshev polynomial of the first kind.
+       sh_chebyu   -- Shifted Chebyshev polynomial of the second kind.
+       sh_jacobi   -- Shifted Jacobi polynomial.
+    
+    .. warning::
+    
+       Computing values of high-order polynomials (around ``order > 20``) using
+       polynomial coefficients is numerically unstable. To evaluate polynomial
+       values, the ``eval_*`` functions should be used instead.
+    
+    
+    Hypergeometric functions
+    ------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       hyp2f1 -- Gauss hypergeometric function 2F1(a, b; c; z).
+       hyp1f1 -- Confluent hypergeometric function 1F1(a, b; x).
+       hyperu -- Confluent hypergeometric function U(a, b, x) of the second kind.
+       hyp0f1 -- Confluent hypergeometric limit function 0F1.
+    
+    
+    Parabolic cylinder functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv -- Parabolic cylinder function D.
+       pbvv -- Parabolic cylinder function V.
+       pbwa -- Parabolic cylinder function W.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv_seq -- Parabolic cylinder functions Dv(x) and derivatives.
+       pbvv_seq -- Parabolic cylinder functions Vv(x) and derivatives.
+       pbdn_seq -- Parabolic cylinder functions Dn(z) and derivatives.
+    
+    Mathieu and related functions
+    -----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_a -- Characteristic value of even Mathieu functions.
+       mathieu_b -- Characteristic value of odd Mathieu functions.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_even_coef -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+       mathieu_odd_coef  -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+    
+    The following return both function and first derivative:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_cem     -- Even Mathieu function and its derivative.
+       mathieu_sem     -- Odd Mathieu function and its derivative.
+       mathieu_modcem1 -- Even modified Mathieu function of the first kind and its derivative.
+       mathieu_modcem2 -- Even modified Mathieu function of the second kind and its derivative.
+       mathieu_modsem1 -- Odd modified Mathieu function of the first kind and its derivative.
+       mathieu_modsem2 -- Odd modified Mathieu function of the second kind and its derivative.
+    
+    Spheroidal wave functions
+    -------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1   -- Prolate spheroidal angular function of the first kind and its derivative.
+       pro_rad1   -- Prolate spheroidal radial function of the first kind and its derivative.
+       pro_rad2   -- Prolate spheroidal radial function of the second kind and its derivative.
+       obl_ang1   -- Oblate spheroidal angular function of the first kind and its derivative.
+       obl_rad1   -- Oblate spheroidal radial function of the first kind and its derivative.
+       obl_rad2   -- Oblate spheroidal radial function of the second kind and its derivative.
+       pro_cv     -- Characteristic value of prolate spheroidal function.
+       obl_cv     -- Characteristic value of oblate spheroidal function.
+       pro_cv_seq -- Characteristic values for prolate spheroidal wave functions.
+       obl_cv_seq -- Characteristic values for oblate spheroidal wave functions.
+    
+    The following functions require pre-computed characteristic value:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1_cv -- Prolate spheroidal angular function pro_ang1 for precomputed characteristic value.
+       pro_rad1_cv -- Prolate spheroidal radial function pro_rad1 for precomputed characteristic value.
+       pro_rad2_cv -- Prolate spheroidal radial function pro_rad2 for precomputed characteristic value.
+       obl_ang1_cv -- Oblate spheroidal angular function obl_ang1 for precomputed characteristic value.
+       obl_rad1_cv -- Oblate spheroidal radial function obl_rad1 for precomputed characteristic value.
+       obl_rad2_cv -- Oblate spheroidal radial function obl_rad2 for precomputed characteristic value.
+    
+    Kelvin functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       kelvin       -- Kelvin functions as complex numbers.
+       kelvin_zeros -- Compute nt zeros of all Kelvin functions.
+       ber          -- Kelvin function ber.
+       bei          -- Kelvin function bei
+       berp         -- Derivative of the Kelvin function `ber`.
+       beip         -- Derivative of the Kelvin function `bei`.
+       ker          -- Kelvin function ker.
+       kei          -- Kelvin function ker.
+       kerp         -- Derivative of the Kelvin function ker.
+       keip         -- Derivative of the Kelvin function kei.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ber_zeros  -- Compute nt zeros of the Kelvin function ber(x).
+       bei_zeros  -- Compute nt zeros of the Kelvin function bei(x).
+       berp_zeros -- Compute nt zeros of the Kelvin function ber'(x).
+       beip_zeros -- Compute nt zeros of the Kelvin function bei'(x).
+       ker_zeros  -- Compute nt zeros of the Kelvin function ker(x).
+       kei_zeros  -- Compute nt zeros of the Kelvin function kei(x).
+       kerp_zeros -- Compute nt zeros of the Kelvin function ker'(x).
+       keip_zeros -- Compute nt zeros of the Kelvin function kei'(x).
+    
+    Combinatorics
+    -------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       comb -- The number of combinations of N things taken k at a time.
+       perm -- Permutations of N things taken k at a time, i.e., k-permutations of N.
+       stirling2 -- Stirling numbers of the second kind.
+    
+    Lambert W and related functions
+    -------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lambertw    -- Lambert W function.
+       wrightomega -- Wright Omega function.
+    
+    Other special functions
+    -----------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       agm         -- Arithmetic, Geometric Mean.
+       bernoulli   -- Bernoulli numbers B0..Bn (inclusive).
+       binom       -- Binomial coefficient
+       diric       -- Periodic sinc function, also called the Dirichlet kernel.
+       euler       -- Euler numbers E0..En (inclusive).
+       expn        -- Exponential integral E_n.
+       exp1        -- Exponential integral E_1 of complex argument z.
+       expi        -- Exponential integral Ei.
+       factorial   -- The factorial of a number or array of numbers.
+       factorial2  -- Double factorial.
+       factorialk  -- Multifactorial of n of order k, n(!!...!).
+       shichi      -- Hyperbolic sine and cosine integrals.
+       sici        -- Sine and cosine integrals.
+       softmax     -- Softmax function.
+       log_softmax -- Logarithm of softmax function.
+       spence      -- Spence's function, also known as the dilogarithm.
+       zeta        -- Riemann zeta function.
+       zetac       -- Riemann zeta function minus 1.
+       softplus    -- Softplus function.
+    
+    Convenience functions
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       cbrt      -- Cube root of `x`.
+       exp10     -- 10**x.
+       exp2      -- 2**x.
+       radian    -- Convert from degrees to radians.
+       cosdg     -- Cosine of the angle `x` given in degrees.
+       sindg     -- Sine of angle given in degrees.
+       tandg     -- Tangent of angle x given in degrees.
+       cotdg     -- Cotangent of the angle `x` given in degrees.
+       log1p     -- Calculates log(1+x) for use when `x` is near zero.
+       expm1     -- ``exp(x) - 1`` for use when `x` is near zero.
+       cosm1     -- ``cos(x) - 1`` for use when `x` is near zero.
+       powm1     -- ``x**y - 1`` for use when `y` is near zero or `x` is near 1.
+       round     -- Round to nearest integer.
+       xlogy     -- Compute ``x*log(y)`` so that the result is 0 if ``x = 0``.
+       xlog1py   -- Compute ``x*log1p(y)`` so that the result is 0 if ``x = 0``.
+       logsumexp -- Compute the log of the sum of exponentials of input elements.
+       exprel    -- Relative error exponential, (exp(x)-1)/x, for use when `x` is near zero.
+       sinc      -- Return the sinc function.
+    
+    """  # noqa: E501
+    
+    
+    from ._sf_error import SpecialFunctionWarning, SpecialFunctionError
+    
+>   from . import _ufuncs
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../bot-8/venv/lib/python3.12/site-packages/scipy/special/__init__.py:785: ImportError
+______________________ test_pix_fell_raster_keeps_classic ______________________
+
+cfg = {'default_threshold': 0.15, 'time': {'budget_s': 1500, 'reserve_s': 120, 'watchdog': True, 'guard_margin_s': 180, ...}, 'crs': {'policy': 'vote'}, 'infer': {'amp': False, 'tf32': False, 'deterministic': True}, ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f27d7a54740>
+
+    def test_pix_fell_raster_keeps_classic(cfg, monkeypatch):
+        """bot-3 5deb94a: растр, где pix не отработал (срок/ошибка, status["fell"]), сохраняет классику своего
+        (класс, метод); где отработал (status["done"]) — классика заменена."""
+>       from expds import geo_pixgbm
+
+tests/test_bot7_candidate_v2.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/geo_pixgbm.py:25: in <module>
+    from scipy import ndimage as ndi
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:157: in <module>
+    from ._support_alternative_backends import *
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:7: in <module>
+    from ._ndimage_api import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:11: in <module>
+    from ._interpolation import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_interpolation.py:38: in <module>
+    from scipy import special
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    ========================================
+    Special functions (:mod:`scipy.special`)
+    ========================================
+    
+    .. currentmodule:: scipy.special
+    
+    .. toctree::
+       :hidden:
+    
+       special.cython_special
+    
+    Almost all of the functions below accept NumPy arrays as input
+    arguments as well as single numbers. This means they follow
+    broadcasting and automatic array-looping rules. Technically,
+    they are `NumPy universal functions
+    <https://numpy.org/doc/stable/user/basics.ufuncs.html#ufuncs-basics>`_.
+    Functions which do not accept NumPy arrays are marked by a warning
+    in the section description.
+    
+    .. seealso::
+    
+       `scipy.special.cython_special` -- Typed Cython versions of special functions
+    
+    
+    Error handling
+    ==============
+    
+    Errors are handled by returning NaNs or other appropriate values.
+    Some of the special function routines can emit warnings or raise
+    exceptions when an error occurs. By default this is disabled, except
+    for memory allocation errors, which result in an exception being raised.
+    To query and control the current error handling state the following
+    functions are provided.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       geterr                 -- Get the current way of handling special-function errors.
+       seterr                 -- Set how special-function errors are handled.
+       errstate               -- Context manager for special-function error handling.
+       SpecialFunctionWarning -- Warning that can be emitted by special functions.
+       SpecialFunctionError   -- Exception that can be raised by special functions.
+    
+    Available functions
+    ===================
+    
+    Airy functions
+    --------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       airy     -- Airy functions and their derivatives.
+       airye    -- Exponentially scaled Airy functions and their derivatives.
+       ai_zeros -- Compute `nt` zeros and values of the Airy function Ai and its derivative.
+       bi_zeros -- Compute `nt` zeros and values of the Airy function Bi and its derivative.
+       itairy   -- Integrals of Airy functions
+    
+    
+    Elliptic functions and integrals
+    --------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellipj    -- Jacobian elliptic functions.
+       ellipk    -- Complete elliptic integral of the first kind.
+       ellipkm1  -- Complete elliptic integral of the first kind around `m` = 1.
+       ellipkinc -- Incomplete elliptic integral of the first kind.
+       ellipe    -- Complete elliptic integral of the second kind.
+       ellipeinc -- Incomplete elliptic integral of the second kind.
+       elliprc   -- Degenerate symmetric integral RC.
+       elliprd   -- Symmetric elliptic integral of the second kind.
+       elliprf   -- Completely-symmetric elliptic integral of the first kind.
+       elliprg   -- Completely-symmetric elliptic integral of the second kind.
+       elliprj   -- Symmetric elliptic integral of the third kind.
+    
+    Bessel functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jv                -- Bessel function of the first kind of real order and \
+                            complex argument.
+       jve               -- Exponentially scaled Bessel function of order `v`.
+       yn                -- Bessel function of the second kind of integer order and \
+                            real argument.
+       yv                -- Bessel function of the second kind of real order and \
+                            complex argument.
+       yve               -- Exponentially scaled Bessel function of the second kind \
+                            of real order.
+       iv                -- Modified Bessel function of the first kind of real order.
+       ive               -- Exponentially scaled modified Bessel function of the \
+                            first kind.
+       kn                -- Modified Bessel function of the second kind of integer \
+                            order `n`
+       kv                -- Modified Bessel function of the second kind of real order \
+                            `v`
+       kve               -- Exponentially scaled modified Bessel function of the \
+                            second kind.
+       hankel1           -- Hankel function of the first kind.
+       hankel1e          -- Exponentially scaled Hankel function of the first kind.
+       hankel2           -- Hankel function of the second kind.
+       hankel2e          -- Exponentially scaled Hankel function of the second kind.
+       wright_bessel     -- Wright's generalized Bessel function.
+       log_wright_bessel -- Logarithm of Wright's generalized Bessel function.
+    
+    The following function does not accept NumPy arrays (it is not a
+    universal function):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lmbda -- Jahnke-Emden Lambda function, Lambdav(x).
+    
+    Zeros of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jnjnp_zeros -- Compute zeros of integer-order Bessel functions Jn and Jn'.
+       jnyn_zeros  -- Compute nt zeros of Bessel functions Jn(x), Jn'(x), Yn(x), and Yn'(x).
+       jn_zeros    -- Compute zeros of integer-order Bessel function Jn(x).
+       jnp_zeros   -- Compute zeros of integer-order Bessel function derivative Jn'(x).
+       yn_zeros    -- Compute zeros of integer-order Bessel function Yn(x).
+       ynp_zeros   -- Compute zeros of integer-order Bessel function derivative Yn'(x).
+       y0_zeros    -- Compute nt zeros of Bessel function Y0(z), and derivative at each zero.
+       y1_zeros    -- Compute nt zeros of Bessel function Y1(z), and derivative at each zero.
+       y1p_zeros   -- Compute nt zeros of Bessel derivative Y1'(z), and value at each zero.
+    
+    Faster versions of common Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       j0  -- Bessel function of the first kind of order 0.
+       j1  -- Bessel function of the first kind of order 1.
+       y0  -- Bessel function of the second kind of order 0.
+       y1  -- Bessel function of the second kind of order 1.
+       i0  -- Modified Bessel function of order 0.
+       i0e -- Exponentially scaled modified Bessel function of order 0.
+       i1  -- Modified Bessel function of order 1.
+       i1e -- Exponentially scaled modified Bessel function of order 1.
+       k0  -- Modified Bessel function of the second kind of order 0, :math:`K_0`.
+       k0e -- Exponentially scaled modified Bessel function K of order 0
+       k1  -- Modified Bessel function of the second kind of order 1, :math:`K_1(x)`.
+       k1e -- Exponentially scaled modified Bessel function K of order 1.
+    
+    Integrals of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       itj0y0     -- Integrals of Bessel functions of order 0.
+       it2j0y0    -- Integrals related to Bessel functions of order 0.
+       iti0k0     -- Integrals of modified Bessel functions of order 0.
+       it2i0k0    -- Integrals related to modified Bessel functions of order 0.
+       besselpoly -- Weighted integral of a Bessel function.
+    
+    Derivatives of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jvp  -- Compute nth derivative of Bessel function Jv(z) with respect to `z`.
+       yvp  -- Compute nth derivative of Bessel function Yv(z) with respect to `z`.
+       ivp  -- Compute nth derivative of modified Bessel function Iv(z) with respect to `z`.
+       kvp  -- Compute nth derivative of real-order modified Bessel function Kv(z)
+       h1vp -- Compute nth derivative of Hankel function H1v(z) with respect to `z`.
+       h2vp -- Compute nth derivative of Hankel function H2v(z) with respect to `z`.
+    
+    Spherical Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       spherical_jn -- Spherical Bessel function of the first kind or its derivative.
+       spherical_yn -- Spherical Bessel function of the second kind or its derivative.
+       spherical_in -- Modified spherical Bessel function of the first kind or its derivative.
+       spherical_kn -- Modified spherical Bessel function of the second kind or its derivative.
+    
+    Riccati-Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       riccati_jn -- Compute Riccati-Bessel function of the first kind and its derivative.
+       riccati_yn -- Compute Riccati-Bessel function of the second kind and its derivative.
+    
+    Struve functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       struve       -- Struve function.
+       modstruve    -- Modified Struve function.
+       itstruve0    -- Integral of the Struve function of order 0.
+       it2struve0   -- Integral related to the Struve function of order 0.
+       itmodstruve0 -- Integral of the modified Struve function of order 0.
+    
+    
+    Raw statistical functions
+    -------------------------
+    
+    .. seealso:: :mod:`scipy.stats`: Friendly versions of these functions.
+    
+    Binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       bdtr         -- Binomial distribution cumulative distribution function.
+       bdtrc        -- Binomial distribution survival function.
+       bdtri        -- Inverse function to `bdtr` with respect to `p`.
+       bdtrik       -- Inverse function to `bdtr` with respect to `k`.
+       bdtrin       -- Inverse function to `bdtr` with respect to `n`.
+    
+    Beta distribution
+    ^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       btdtria      -- Inverse of `betainc` with respect to `a`.
+       btdtrib      -- Inverse of `betainc` with respect to `b`.
+    
+    F distribution
+    ^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       fdtr         -- F cumulative distribution function.
+       fdtrc        -- F survival function.
+       fdtri        -- The `p`-th quantile of the F-distribution.
+       fdtridfd     -- Inverse to `fdtr` vs dfd.
+    
+    Gamma distribution
+    ^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gdtr         -- Gamma distribution cumulative distribution function.
+       gdtrc        -- Gamma distribution survival function.
+       gdtria       -- Inverse of `gdtr` vs a.
+       gdtrib       -- Inverse of `gdtr` vs b.
+       gdtrix       -- Inverse of `gdtr` vs x.
+    
+    Negative binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nbdtr        -- Negative binomial cumulative distribution function.
+       nbdtrc       -- Negative binomial survival function.
+       nbdtri       -- Inverse of `nbdtr` vs `p`.
+       nbdtrik      -- Inverse of `nbdtr` vs `k`.
+       nbdtrin      -- Inverse of `nbdtr` vs `n`.
+    
+    Noncentral F distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ncfdtr       -- Cumulative distribution function of the non-central F distribution.
+       ncfdtridfd   -- Calculate degrees of freedom (denominator) for the noncentral F-distribution.
+       ncfdtridfn   -- Calculate degrees of freedom (numerator) for the noncentral F-distribution.
+       ncfdtri      -- Inverse cumulative distribution function of the non-central F distribution.
+       ncfdtrinc    -- Calculate non-centrality parameter for non-central F distribution.
+    
+    Noncentral t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nctdtr       -- Cumulative distribution function of the non-central `t` distribution.
+       nctdtridf    -- Calculate degrees of freedom for non-central t distribution.
+       nctdtrit     -- Inverse cumulative distribution function of the non-central t distribution.
+       nctdtrinc    -- Calculate non-centrality parameter for non-central t distribution.
+    
+    Normal distribution
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nrdtrimn     -- Calculate mean of normal distribution given other params.
+       nrdtrisd     -- Calculate standard deviation of normal distribution given other params.
+       ndtr         -- Normal cumulative distribution function.
+       log_ndtr     -- Logarithm of normal cumulative distribution function.
+       ndtri        -- Inverse of `ndtr` vs x.
+       ndtri_exp    -- Inverse of `log_ndtr` vs x.
+    
+    Poisson distribution
+    ^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pdtr         -- Poisson cumulative distribution function.
+       pdtrc        -- Poisson survival function.
+       pdtri        -- Inverse to `pdtr` vs m.
+       pdtrik       -- Inverse to `pdtr` vs k.
+    
+    Student t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       stdtr        -- Student t distribution cumulative distribution function.
+       stdtridf     -- Inverse of `stdtr` vs df.
+       stdtrit      -- Inverse of `stdtr` vs `t`.
+    
+    Chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chdtr        -- Chi square cumulative distribution function.
+       chdtrc       -- Chi square survival function.
+       chdtri       -- Inverse to `chdtrc`.
+       chdtriv      -- Inverse to `chdtr` vs `v`.
+    
+    Non-central chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chndtr       -- Non-central chi square cumulative distribution function.
+       chndtridf    -- Inverse to `chndtr` vs `df`.
+       chndtrinc    -- Inverse to `chndtr` vs `nc`.
+       chndtrix     -- Inverse to `chndtr` vs `x`.
+    
+    Kolmogorov distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       smirnov      -- Kolmogorov-Smirnov complementary cumulative distribution function.
+       smirnovi     -- Inverse to `smirnov`.
+       kolmogorov   -- Complementary cumulative distribution function of Kolmogorov distribution.
+       kolmogi      -- Inverse function to `kolmogorov`.
+    
+    Box-Cox transformation
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       boxcox       -- Compute the Box-Cox transformation.
+       boxcox1p     -- Compute the Box-Cox transformation of 1 + `x`.
+       inv_boxcox   -- Compute the inverse of the Box-Cox transformation.
+       inv_boxcox1p -- Compute the inverse of the Box-Cox transformation.
+    
+    
+    Sigmoidal functions
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       logit        -- Logit ufunc for ndarrays.
+       expit        -- Logistic sigmoid function.
+       log_expit    -- Logarithm of the logistic sigmoid function.
+    
+    Miscellaneous
+    ^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       tklmbda      -- Tukey-Lambda cumulative distribution function.
+       owens_t      -- Owen's T Function.
+    
+    
+    Information Theory functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       entr         -- Elementwise function for computing entropy.
+       rel_entr     -- Elementwise function for computing relative entropy.
+       kl_div       -- Elementwise function for computing Kullback-Leibler divergence.
+       huber        -- Huber loss function.
+       pseudo_huber -- Pseudo-Huber loss function.
+    
+    
+    Gamma and related functions
+    ---------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gamma        -- Gamma function.
+       gammaln      -- Logarithm of the absolute value of the Gamma function for real inputs.
+       loggamma     -- Principal branch of the logarithm of the Gamma function.
+       gammasgn     -- Sign of the gamma function.
+       gammainc     -- Regularized lower incomplete gamma function.
+       gammaincinv  -- Inverse to `gammainc`.
+       gammaincc    -- Regularized upper incomplete gamma function.
+       gammainccinv -- Inverse to `gammaincc`.
+       beta         -- Beta function.
+       betaln       -- Natural logarithm of absolute value of beta function.
+       betainc      -- Incomplete beta integral.
+       betaincc     -- Complemented incomplete beta integral.
+       betaincinv   -- Inverse function to beta integral.
+       betainccinv  -- Inverse of the complemented incomplete beta integral.
+       psi          -- The digamma function.
+       rgamma       -- Gamma function inverted.
+       polygamma    -- Polygamma function n.
+       multigammaln -- Returns the log of multivariate gamma, also sometimes called the generalized gamma.
+       digamma      -- psi(x[, out]).
+       poch         -- Rising factorial (z)_m.
+    
+    Error function and Fresnel integrals
+    ------------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf           -- Returns the error function of complex argument.
+       erfc          -- Complementary error function, ``1 - erf(x)``.
+       erfcx         -- Scaled complementary error function, ``exp(x**2) * erfc(x)``.
+       erfi          -- Imaginary error function, ``-i erf(i z)``.
+       erfinv        -- Inverse function for erf.
+       erfcinv       -- Inverse function for erfc.
+       wofz          -- Faddeeva function.
+       dawsn         -- Dawson's integral.
+       fresnel       -- Fresnel sin and cos integrals.
+       fresnel_zeros -- Compute nt complex zeros of sine and cosine Fresnel integrals S(z) and C(z).
+       modfresnelp   -- Modified Fresnel positive integrals.
+       modfresnelm   -- Modified Fresnel negative integrals.
+       voigt_profile -- Voigt profile.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf_zeros      -- Compute nt complex zeros of error function erf(z).
+       fresnelc_zeros -- Compute nt complex zeros of cosine Fresnel integral C(z).
+       fresnels_zeros -- Compute nt complex zeros of sine Fresnel integral S(z).
+    
+    Legendre functions
+    ------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre_p                 -- Legendre polynomials of the first kind.
+       legendre_p_all             -- All Legendre polynomials of the first kind up to a specified order.
+       assoc_legendre_p           -- Associated Legendre polynomials of the first kind.
+       assoc_legendre_p_all       -- All associated Legendre polynomials of the first kind up to a specified order and degree.
+       sph_legendre_p             -- Spherical Legendre polynomials of the first kind.
+       sph_legendre_p_all         -- All spherical Legendre polynomials of the first kind up to a specified order and degree.
+       sph_harm_y                 -- Spherical harmonics.
+       sph_harm_y_all             -- All spherical harmonics up to a specified order and degree.
+    
+    The following functions are in the process of being deprecated in favor of the above,
+    which provide a more flexible and consistent interface.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lpmv                       -- Associated Legendre function of integer order and real degree.
+       lqn                        -- Legendre function of the second kind.
+       lqmn                       -- Sequence of associated Legendre functions of the second kind.
+    
+    Ellipsoidal harmonics
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellip_harm   -- Ellipsoidal harmonic functions E^p_n(l).
+       ellip_harm_2 -- Ellipsoidal harmonic functions F^p_n(l).
+       ellip_normal -- Ellipsoidal harmonic normalization constants gamma^p_n.
+    
+    Orthogonal polynomials
+    ----------------------
+    
+    The following functions evaluate values of orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       assoc_laguerre   -- Compute the generalized (associated) Laguerre polynomial of degree n and order k.
+       eval_legendre    -- Evaluate Legendre polynomial at a point.
+       eval_chebyt      -- Evaluate Chebyshev polynomial of the first kind at a point.
+       eval_chebyu      -- Evaluate Chebyshev polynomial of the second kind at a point.
+       eval_chebyc      -- Evaluate Chebyshev polynomial of the first kind on [-2, 2] at a point.
+       eval_chebys      -- Evaluate Chebyshev polynomial of the second kind on [-2, 2] at a point.
+       eval_jacobi      -- Evaluate Jacobi polynomial at a point.
+       eval_laguerre    -- Evaluate Laguerre polynomial at a point.
+       eval_genlaguerre -- Evaluate generalized Laguerre polynomial at a point.
+       eval_hermite     -- Evaluate physicist's Hermite polynomial at a point.
+       eval_hermitenorm -- Evaluate probabilist's (normalized) Hermite polynomial at a point.
+       eval_gegenbauer  -- Evaluate Gegenbauer polynomial at a point.
+       eval_sh_legendre -- Evaluate shifted Legendre polynomial at a point.
+       eval_sh_chebyt   -- Evaluate shifted Chebyshev polynomial of the first kind at a point.
+       eval_sh_chebyu   -- Evaluate shifted Chebyshev polynomial of the second kind at a point.
+       eval_sh_jacobi   -- Evaluate shifted Jacobi polynomial at a point.
+    
+    The following functions compute roots and quadrature weights for
+    orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       roots_legendre    -- Gauss-Legendre quadrature.
+       roots_chebyt      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebyu      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_chebyc      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebys      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_jacobi      -- Gauss-Jacobi quadrature.
+       roots_laguerre    -- Gauss-Laguerre quadrature.
+       roots_genlaguerre -- Gauss-generalized Laguerre quadrature.
+       roots_hermite     -- Gauss-Hermite (physicist's) quadrature.
+       roots_hermitenorm -- Gauss-Hermite (statistician's) quadrature.
+       roots_gegenbauer  -- Gauss-Gegenbauer quadrature.
+       roots_sh_legendre -- Gauss-Legendre (shifted) quadrature.
+       roots_sh_chebyt   -- Gauss-Chebyshev (first kind, shifted) quadrature.
+       roots_sh_chebyu   -- Gauss-Chebyshev (second kind, shifted) quadrature.
+       roots_sh_jacobi   -- Gauss-Jacobi (shifted) quadrature.
+    
+    The functions below, in turn, return the polynomial coefficients in
+    ``orthopoly1d`` objects, which function similarly as `numpy.poly1d`.
+    The ``orthopoly1d`` class also has an attribute ``weights``, which returns
+    the roots, weights, and total weights for the appropriate form of Gaussian
+    quadrature. These are returned in an ``n x 3`` array with roots in the first
+    column, weights in the second column, and total weights in the final column.
+    Note that ``orthopoly1d`` objects are converted to `~numpy.poly1d` when doing
+    arithmetic, and lose information of the original orthogonal polynomial.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre    -- Legendre polynomial.
+       chebyt      -- Chebyshev polynomial of the first kind.
+       chebyu      -- Chebyshev polynomial of the second kind.
+       chebyc      -- Chebyshev polynomial of the first kind on :math:`[-2, 2]`.
+       chebys      -- Chebyshev polynomial of the second kind on :math:`[-2, 2]`.
+       jacobi      -- Jacobi polynomial.
+       laguerre    -- Laguerre polynomial.
+       genlaguerre -- Generalized (associated) Laguerre polynomial.
+       hermite     -- Physicist's Hermite polynomial.
+       hermitenorm -- Normalized (probabilist's) Hermite polynomial.
+       gegenbauer  -- Gegenbauer (ultraspherical) polynomial.
+       sh_legendre -- Shifted Legendre polynomial.
+       sh_chebyt   -- Shifted Chebyshev polynomial of the first kind.
+       sh_chebyu   -- Shifted Chebyshev polynomial of the second kind.
+       sh_jacobi   -- Shifted Jacobi polynomial.
+    
+    .. warning::
+    
+       Computing values of high-order polynomials (around ``order > 20``) using
+       polynomial coefficients is numerically unstable. To evaluate polynomial
+       values, the ``eval_*`` functions should be used instead.
+    
+    
+    Hypergeometric functions
+    ------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       hyp2f1 -- Gauss hypergeometric function 2F1(a, b; c; z).
+       hyp1f1 -- Confluent hypergeometric function 1F1(a, b; x).
+       hyperu -- Confluent hypergeometric function U(a, b, x) of the second kind.
+       hyp0f1 -- Confluent hypergeometric limit function 0F1.
+    
+    
+    Parabolic cylinder functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv -- Parabolic cylinder function D.
+       pbvv -- Parabolic cylinder function V.
+       pbwa -- Parabolic cylinder function W.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv_seq -- Parabolic cylinder functions Dv(x) and derivatives.
+       pbvv_seq -- Parabolic cylinder functions Vv(x) and derivatives.
+       pbdn_seq -- Parabolic cylinder functions Dn(z) and derivatives.
+    
+    Mathieu and related functions
+    -----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_a -- Characteristic value of even Mathieu functions.
+       mathieu_b -- Characteristic value of odd Mathieu functions.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_even_coef -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+       mathieu_odd_coef  -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+    
+    The following return both function and first derivative:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_cem     -- Even Mathieu function and its derivative.
+       mathieu_sem     -- Odd Mathieu function and its derivative.
+       mathieu_modcem1 -- Even modified Mathieu function of the first kind and its derivative.
+       mathieu_modcem2 -- Even modified Mathieu function of the second kind and its derivative.
+       mathieu_modsem1 -- Odd modified Mathieu function of the first kind and its derivative.
+       mathieu_modsem2 -- Odd modified Mathieu function of the second kind and its derivative.
+    
+    Spheroidal wave functions
+    -------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1   -- Prolate spheroidal angular function of the first kind and its derivative.
+       pro_rad1   -- Prolate spheroidal radial function of the first kind and its derivative.
+       pro_rad2   -- Prolate spheroidal radial function of the second kind and its derivative.
+       obl_ang1   -- Oblate spheroidal angular function of the first kind and its derivative.
+       obl_rad1   -- Oblate spheroidal radial function of the first kind and its derivative.
+       obl_rad2   -- Oblate spheroidal radial function of the second kind and its derivative.
+       pro_cv     -- Characteristic value of prolate spheroidal function.
+       obl_cv     -- Characteristic value of oblate spheroidal function.
+       pro_cv_seq -- Characteristic values for prolate spheroidal wave functions.
+       obl_cv_seq -- Characteristic values for oblate spheroidal wave functions.
+    
+    The following functions require pre-computed characteristic value:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1_cv -- Prolate spheroidal angular function pro_ang1 for precomputed characteristic value.
+       pro_rad1_cv -- Prolate spheroidal radial function pro_rad1 for precomputed characteristic value.
+       pro_rad2_cv -- Prolate spheroidal radial function pro_rad2 for precomputed characteristic value.
+       obl_ang1_cv -- Oblate spheroidal angular function obl_ang1 for precomputed characteristic value.
+       obl_rad1_cv -- Oblate spheroidal radial function obl_rad1 for precomputed characteristic value.
+       obl_rad2_cv -- Oblate spheroidal radial function obl_rad2 for precomputed characteristic value.
+    
+    Kelvin functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       kelvin       -- Kelvin functions as complex numbers.
+       kelvin_zeros -- Compute nt zeros of all Kelvin functions.
+       ber          -- Kelvin function ber.
+       bei          -- Kelvin function bei
+       berp         -- Derivative of the Kelvin function `ber`.
+       beip         -- Derivative of the Kelvin function `bei`.
+       ker          -- Kelvin function ker.
+       kei          -- Kelvin function ker.
+       kerp         -- Derivative of the Kelvin function ker.
+       keip         -- Derivative of the Kelvin function kei.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ber_zeros  -- Compute nt zeros of the Kelvin function ber(x).
+       bei_zeros  -- Compute nt zeros of the Kelvin function bei(x).
+       berp_zeros -- Compute nt zeros of the Kelvin function ber'(x).
+       beip_zeros -- Compute nt zeros of the Kelvin function bei'(x).
+       ker_zeros  -- Compute nt zeros of the Kelvin function ker(x).
+       kei_zeros  -- Compute nt zeros of the Kelvin function kei(x).
+       kerp_zeros -- Compute nt zeros of the Kelvin function ker'(x).
+       keip_zeros -- Compute nt zeros of the Kelvin function kei'(x).
+    
+    Combinatorics
+    -------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       comb -- The number of combinations of N things taken k at a time.
+       perm -- Permutations of N things taken k at a time, i.e., k-permutations of N.
+       stirling2 -- Stirling numbers of the second kind.
+    
+    Lambert W and related functions
+    -------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lambertw    -- Lambert W function.
+       wrightomega -- Wright Omega function.
+    
+    Other special functions
+    -----------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       agm         -- Arithmetic, Geometric Mean.
+       bernoulli   -- Bernoulli numbers B0..Bn (inclusive).
+       binom       -- Binomial coefficient
+       diric       -- Periodic sinc function, also called the Dirichlet kernel.
+       euler       -- Euler numbers E0..En (inclusive).
+       expn        -- Exponential integral E_n.
+       exp1        -- Exponential integral E_1 of complex argument z.
+       expi        -- Exponential integral Ei.
+       factorial   -- The factorial of a number or array of numbers.
+       factorial2  -- Double factorial.
+       factorialk  -- Multifactorial of n of order k, n(!!...!).
+       shichi      -- Hyperbolic sine and cosine integrals.
+       sici        -- Sine and cosine integrals.
+       softmax     -- Softmax function.
+       log_softmax -- Logarithm of softmax function.
+       spence      -- Spence's function, also known as the dilogarithm.
+       zeta        -- Riemann zeta function.
+       zetac       -- Riemann zeta function minus 1.
+       softplus    -- Softplus function.
+    
+    Convenience functions
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       cbrt      -- Cube root of `x`.
+       exp10     -- 10**x.
+       exp2      -- 2**x.
+       radian    -- Convert from degrees to radians.
+       cosdg     -- Cosine of the angle `x` given in degrees.
+       sindg     -- Sine of angle given in degrees.
+       tandg     -- Tangent of angle x given in degrees.
+       cotdg     -- Cotangent of the angle `x` given in degrees.
+       log1p     -- Calculates log(1+x) for use when `x` is near zero.
+       expm1     -- ``exp(x) - 1`` for use when `x` is near zero.
+       cosm1     -- ``cos(x) - 1`` for use when `x` is near zero.
+       powm1     -- ``x**y - 1`` for use when `y` is near zero or `x` is near 1.
+       round     -- Round to nearest integer.
+       xlogy     -- Compute ``x*log(y)`` so that the result is 0 if ``x = 0``.
+       xlog1py   -- Compute ``x*log1p(y)`` so that the result is 0 if ``x = 0``.
+       logsumexp -- Compute the log of the sum of exponentials of input elements.
+       exprel    -- Relative error exponential, (exp(x)-1)/x, for use when `x` is near zero.
+       sinc      -- Return the sinc function.
+    
+    """  # noqa: E501
+    
+    
+    from ._sf_error import SpecialFunctionWarning, SpecialFunctionError
+    
+>   from . import _ufuncs
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../bot-8/venv/lib/python3.12/site-packages/scipy/special/__init__.py:785: ImportError
+___________________ test_region_feats_deadline_and_no_models ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f27d6d7fe60>
+tmp_path = PosixPath('/workspace/koz3_shared/bot-6/work/pytest_tmp/pytest-of-box/pytest-4/test_region_feats_deadline_and0')
+
+    def test_region_feats_deadline_and_no_models(monkeypatch, tmp_path):
+        """Срок вышел (budget 0) — pix не считается, оба растра в status["fell"]; в срок — full, оба в done;
+        нет моделей — [] без чтения растров (bot-7)."""
+>       from expds import geo_pixgbm
+
+tests/test_bot7_candidate_v2.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+expds/geo_pixgbm.py:25: in <module>
+    from scipy import ndimage as ndi
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/__init__.py:157: in <module>
+    from ._support_alternative_backends import *
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_support_alternative_backends.py:7: in <module>
+    from ._ndimage_api import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_ndimage_api.py:11: in <module>
+    from ._interpolation import *   # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../bot-8/venv/lib/python3.12/site-packages/scipy/ndimage/_interpolation.py:38: in <module>
+    from scipy import special
+../../bot-8/venv/lib/python3.12/site-packages/scipy/__init__.py:137: in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/box/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    ========================================
+    Special functions (:mod:`scipy.special`)
+    ========================================
+    
+    .. currentmodule:: scipy.special
+    
+    .. toctree::
+       :hidden:
+    
+       special.cython_special
+    
+    Almost all of the functions below accept NumPy arrays as input
+    arguments as well as single numbers. This means they follow
+    broadcasting and automatic array-looping rules. Technically,
+    they are `NumPy universal functions
+    <https://numpy.org/doc/stable/user/basics.ufuncs.html#ufuncs-basics>`_.
+    Functions which do not accept NumPy arrays are marked by a warning
+    in the section description.
+    
+    .. seealso::
+    
+       `scipy.special.cython_special` -- Typed Cython versions of special functions
+    
+    
+    Error handling
+    ==============
+    
+    Errors are handled by returning NaNs or other appropriate values.
+    Some of the special function routines can emit warnings or raise
+    exceptions when an error occurs. By default this is disabled, except
+    for memory allocation errors, which result in an exception being raised.
+    To query and control the current error handling state the following
+    functions are provided.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       geterr                 -- Get the current way of handling special-function errors.
+       seterr                 -- Set how special-function errors are handled.
+       errstate               -- Context manager for special-function error handling.
+       SpecialFunctionWarning -- Warning that can be emitted by special functions.
+       SpecialFunctionError   -- Exception that can be raised by special functions.
+    
+    Available functions
+    ===================
+    
+    Airy functions
+    --------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       airy     -- Airy functions and their derivatives.
+       airye    -- Exponentially scaled Airy functions and their derivatives.
+       ai_zeros -- Compute `nt` zeros and values of the Airy function Ai and its derivative.
+       bi_zeros -- Compute `nt` zeros and values of the Airy function Bi and its derivative.
+       itairy   -- Integrals of Airy functions
+    
+    
+    Elliptic functions and integrals
+    --------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellipj    -- Jacobian elliptic functions.
+       ellipk    -- Complete elliptic integral of the first kind.
+       ellipkm1  -- Complete elliptic integral of the first kind around `m` = 1.
+       ellipkinc -- Incomplete elliptic integral of the first kind.
+       ellipe    -- Complete elliptic integral of the second kind.
+       ellipeinc -- Incomplete elliptic integral of the second kind.
+       elliprc   -- Degenerate symmetric integral RC.
+       elliprd   -- Symmetric elliptic integral of the second kind.
+       elliprf   -- Completely-symmetric elliptic integral of the first kind.
+       elliprg   -- Completely-symmetric elliptic integral of the second kind.
+       elliprj   -- Symmetric elliptic integral of the third kind.
+    
+    Bessel functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jv                -- Bessel function of the first kind of real order and \
+                            complex argument.
+       jve               -- Exponentially scaled Bessel function of order `v`.
+       yn                -- Bessel function of the second kind of integer order and \
+                            real argument.
+       yv                -- Bessel function of the second kind of real order and \
+                            complex argument.
+       yve               -- Exponentially scaled Bessel function of the second kind \
+                            of real order.
+       iv                -- Modified Bessel function of the first kind of real order.
+       ive               -- Exponentially scaled modified Bessel function of the \
+                            first kind.
+       kn                -- Modified Bessel function of the second kind of integer \
+                            order `n`
+       kv                -- Modified Bessel function of the second kind of real order \
+                            `v`
+       kve               -- Exponentially scaled modified Bessel function of the \
+                            second kind.
+       hankel1           -- Hankel function of the first kind.
+       hankel1e          -- Exponentially scaled Hankel function of the first kind.
+       hankel2           -- Hankel function of the second kind.
+       hankel2e          -- Exponentially scaled Hankel function of the second kind.
+       wright_bessel     -- Wright's generalized Bessel function.
+       log_wright_bessel -- Logarithm of Wright's generalized Bessel function.
+    
+    The following function does not accept NumPy arrays (it is not a
+    universal function):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lmbda -- Jahnke-Emden Lambda function, Lambdav(x).
+    
+    Zeros of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jnjnp_zeros -- Compute zeros of integer-order Bessel functions Jn and Jn'.
+       jnyn_zeros  -- Compute nt zeros of Bessel functions Jn(x), Jn'(x), Yn(x), and Yn'(x).
+       jn_zeros    -- Compute zeros of integer-order Bessel function Jn(x).
+       jnp_zeros   -- Compute zeros of integer-order Bessel function derivative Jn'(x).
+       yn_zeros    -- Compute zeros of integer-order Bessel function Yn(x).
+       ynp_zeros   -- Compute zeros of integer-order Bessel function derivative Yn'(x).
+       y0_zeros    -- Compute nt zeros of Bessel function Y0(z), and derivative at each zero.
+       y1_zeros    -- Compute nt zeros of Bessel function Y1(z), and derivative at each zero.
+       y1p_zeros   -- Compute nt zeros of Bessel derivative Y1'(z), and value at each zero.
+    
+    Faster versions of common Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       j0  -- Bessel function of the first kind of order 0.
+       j1  -- Bessel function of the first kind of order 1.
+       y0  -- Bessel function of the second kind of order 0.
+       y1  -- Bessel function of the second kind of order 1.
+       i0  -- Modified Bessel function of order 0.
+       i0e -- Exponentially scaled modified Bessel function of order 0.
+       i1  -- Modified Bessel function of order 1.
+       i1e -- Exponentially scaled modified Bessel function of order 1.
+       k0  -- Modified Bessel function of the second kind of order 0, :math:`K_0`.
+       k0e -- Exponentially scaled modified Bessel function K of order 0
+       k1  -- Modified Bessel function of the second kind of order 1, :math:`K_1(x)`.
+       k1e -- Exponentially scaled modified Bessel function K of order 1.
+    
+    Integrals of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       itj0y0     -- Integrals of Bessel functions of order 0.
+       it2j0y0    -- Integrals related to Bessel functions of order 0.
+       iti0k0     -- Integrals of modified Bessel functions of order 0.
+       it2i0k0    -- Integrals related to modified Bessel functions of order 0.
+       besselpoly -- Weighted integral of a Bessel function.
+    
+    Derivatives of Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       jvp  -- Compute nth derivative of Bessel function Jv(z) with respect to `z`.
+       yvp  -- Compute nth derivative of Bessel function Yv(z) with respect to `z`.
+       ivp  -- Compute nth derivative of modified Bessel function Iv(z) with respect to `z`.
+       kvp  -- Compute nth derivative of real-order modified Bessel function Kv(z)
+       h1vp -- Compute nth derivative of Hankel function H1v(z) with respect to `z`.
+       h2vp -- Compute nth derivative of Hankel function H2v(z) with respect to `z`.
+    
+    Spherical Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       spherical_jn -- Spherical Bessel function of the first kind or its derivative.
+       spherical_yn -- Spherical Bessel function of the second kind or its derivative.
+       spherical_in -- Modified spherical Bessel function of the first kind or its derivative.
+       spherical_kn -- Modified spherical Bessel function of the second kind or its derivative.
+    
+    Riccati-Bessel functions
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       riccati_jn -- Compute Riccati-Bessel function of the first kind and its derivative.
+       riccati_yn -- Compute Riccati-Bessel function of the second kind and its derivative.
+    
+    Struve functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       struve       -- Struve function.
+       modstruve    -- Modified Struve function.
+       itstruve0    -- Integral of the Struve function of order 0.
+       it2struve0   -- Integral related to the Struve function of order 0.
+       itmodstruve0 -- Integral of the modified Struve function of order 0.
+    
+    
+    Raw statistical functions
+    -------------------------
+    
+    .. seealso:: :mod:`scipy.stats`: Friendly versions of these functions.
+    
+    Binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       bdtr         -- Binomial distribution cumulative distribution function.
+       bdtrc        -- Binomial distribution survival function.
+       bdtri        -- Inverse function to `bdtr` with respect to `p`.
+       bdtrik       -- Inverse function to `bdtr` with respect to `k`.
+       bdtrin       -- Inverse function to `bdtr` with respect to `n`.
+    
+    Beta distribution
+    ^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       btdtria      -- Inverse of `betainc` with respect to `a`.
+       btdtrib      -- Inverse of `betainc` with respect to `b`.
+    
+    F distribution
+    ^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       fdtr         -- F cumulative distribution function.
+       fdtrc        -- F survival function.
+       fdtri        -- The `p`-th quantile of the F-distribution.
+       fdtridfd     -- Inverse to `fdtr` vs dfd.
+    
+    Gamma distribution
+    ^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gdtr         -- Gamma distribution cumulative distribution function.
+       gdtrc        -- Gamma distribution survival function.
+       gdtria       -- Inverse of `gdtr` vs a.
+       gdtrib       -- Inverse of `gdtr` vs b.
+       gdtrix       -- Inverse of `gdtr` vs x.
+    
+    Negative binomial distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nbdtr        -- Negative binomial cumulative distribution function.
+       nbdtrc       -- Negative binomial survival function.
+       nbdtri       -- Inverse of `nbdtr` vs `p`.
+       nbdtrik      -- Inverse of `nbdtr` vs `k`.
+       nbdtrin      -- Inverse of `nbdtr` vs `n`.
+    
+    Noncentral F distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ncfdtr       -- Cumulative distribution function of the non-central F distribution.
+       ncfdtridfd   -- Calculate degrees of freedom (denominator) for the noncentral F-distribution.
+       ncfdtridfn   -- Calculate degrees of freedom (numerator) for the noncentral F-distribution.
+       ncfdtri      -- Inverse cumulative distribution function of the non-central F distribution.
+       ncfdtrinc    -- Calculate non-centrality parameter for non-central F distribution.
+    
+    Noncentral t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nctdtr       -- Cumulative distribution function of the non-central `t` distribution.
+       nctdtridf    -- Calculate degrees of freedom for non-central t distribution.
+       nctdtrit     -- Inverse cumulative distribution function of the non-central t distribution.
+       nctdtrinc    -- Calculate non-centrality parameter for non-central t distribution.
+    
+    Normal distribution
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       nrdtrimn     -- Calculate mean of normal distribution given other params.
+       nrdtrisd     -- Calculate standard deviation of normal distribution given other params.
+       ndtr         -- Normal cumulative distribution function.
+       log_ndtr     -- Logarithm of normal cumulative distribution function.
+       ndtri        -- Inverse of `ndtr` vs x.
+       ndtri_exp    -- Inverse of `log_ndtr` vs x.
+    
+    Poisson distribution
+    ^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pdtr         -- Poisson cumulative distribution function.
+       pdtrc        -- Poisson survival function.
+       pdtri        -- Inverse to `pdtr` vs m.
+       pdtrik       -- Inverse to `pdtr` vs k.
+    
+    Student t distribution
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       stdtr        -- Student t distribution cumulative distribution function.
+       stdtridf     -- Inverse of `stdtr` vs df.
+       stdtrit      -- Inverse of `stdtr` vs `t`.
+    
+    Chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chdtr        -- Chi square cumulative distribution function.
+       chdtrc       -- Chi square survival function.
+       chdtri       -- Inverse to `chdtrc`.
+       chdtriv      -- Inverse to `chdtr` vs `v`.
+    
+    Non-central chi square distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       chndtr       -- Non-central chi square cumulative distribution function.
+       chndtridf    -- Inverse to `chndtr` vs `df`.
+       chndtrinc    -- Inverse to `chndtr` vs `nc`.
+       chndtrix     -- Inverse to `chndtr` vs `x`.
+    
+    Kolmogorov distribution
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       smirnov      -- Kolmogorov-Smirnov complementary cumulative distribution function.
+       smirnovi     -- Inverse to `smirnov`.
+       kolmogorov   -- Complementary cumulative distribution function of Kolmogorov distribution.
+       kolmogi      -- Inverse function to `kolmogorov`.
+    
+    Box-Cox transformation
+    ^^^^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       boxcox       -- Compute the Box-Cox transformation.
+       boxcox1p     -- Compute the Box-Cox transformation of 1 + `x`.
+       inv_boxcox   -- Compute the inverse of the Box-Cox transformation.
+       inv_boxcox1p -- Compute the inverse of the Box-Cox transformation.
+    
+    
+    Sigmoidal functions
+    ^^^^^^^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       logit        -- Logit ufunc for ndarrays.
+       expit        -- Logistic sigmoid function.
+       log_expit    -- Logarithm of the logistic sigmoid function.
+    
+    Miscellaneous
+    ^^^^^^^^^^^^^
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       tklmbda      -- Tukey-Lambda cumulative distribution function.
+       owens_t      -- Owen's T Function.
+    
+    
+    Information Theory functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       entr         -- Elementwise function for computing entropy.
+       rel_entr     -- Elementwise function for computing relative entropy.
+       kl_div       -- Elementwise function for computing Kullback-Leibler divergence.
+       huber        -- Huber loss function.
+       pseudo_huber -- Pseudo-Huber loss function.
+    
+    
+    Gamma and related functions
+    ---------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       gamma        -- Gamma function.
+       gammaln      -- Logarithm of the absolute value of the Gamma function for real inputs.
+       loggamma     -- Principal branch of the logarithm of the Gamma function.
+       gammasgn     -- Sign of the gamma function.
+       gammainc     -- Regularized lower incomplete gamma function.
+       gammaincinv  -- Inverse to `gammainc`.
+       gammaincc    -- Regularized upper incomplete gamma function.
+       gammainccinv -- Inverse to `gammaincc`.
+       beta         -- Beta function.
+       betaln       -- Natural logarithm of absolute value of beta function.
+       betainc      -- Incomplete beta integral.
+       betaincc     -- Complemented incomplete beta integral.
+       betaincinv   -- Inverse function to beta integral.
+       betainccinv  -- Inverse of the complemented incomplete beta integral.
+       psi          -- The digamma function.
+       rgamma       -- Gamma function inverted.
+       polygamma    -- Polygamma function n.
+       multigammaln -- Returns the log of multivariate gamma, also sometimes called the generalized gamma.
+       digamma      -- psi(x[, out]).
+       poch         -- Rising factorial (z)_m.
+    
+    Error function and Fresnel integrals
+    ------------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf           -- Returns the error function of complex argument.
+       erfc          -- Complementary error function, ``1 - erf(x)``.
+       erfcx         -- Scaled complementary error function, ``exp(x**2) * erfc(x)``.
+       erfi          -- Imaginary error function, ``-i erf(i z)``.
+       erfinv        -- Inverse function for erf.
+       erfcinv       -- Inverse function for erfc.
+       wofz          -- Faddeeva function.
+       dawsn         -- Dawson's integral.
+       fresnel       -- Fresnel sin and cos integrals.
+       fresnel_zeros -- Compute nt complex zeros of sine and cosine Fresnel integrals S(z) and C(z).
+       modfresnelp   -- Modified Fresnel positive integrals.
+       modfresnelm   -- Modified Fresnel negative integrals.
+       voigt_profile -- Voigt profile.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       erf_zeros      -- Compute nt complex zeros of error function erf(z).
+       fresnelc_zeros -- Compute nt complex zeros of cosine Fresnel integral C(z).
+       fresnels_zeros -- Compute nt complex zeros of sine Fresnel integral S(z).
+    
+    Legendre functions
+    ------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre_p                 -- Legendre polynomials of the first kind.
+       legendre_p_all             -- All Legendre polynomials of the first kind up to a specified order.
+       assoc_legendre_p           -- Associated Legendre polynomials of the first kind.
+       assoc_legendre_p_all       -- All associated Legendre polynomials of the first kind up to a specified order and degree.
+       sph_legendre_p             -- Spherical Legendre polynomials of the first kind.
+       sph_legendre_p_all         -- All spherical Legendre polynomials of the first kind up to a specified order and degree.
+       sph_harm_y                 -- Spherical harmonics.
+       sph_harm_y_all             -- All spherical harmonics up to a specified order and degree.
+    
+    The following functions are in the process of being deprecated in favor of the above,
+    which provide a more flexible and consistent interface.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lpmv                       -- Associated Legendre function of integer order and real degree.
+       lqn                        -- Legendre function of the second kind.
+       lqmn                       -- Sequence of associated Legendre functions of the second kind.
+    
+    Ellipsoidal harmonics
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ellip_harm   -- Ellipsoidal harmonic functions E^p_n(l).
+       ellip_harm_2 -- Ellipsoidal harmonic functions F^p_n(l).
+       ellip_normal -- Ellipsoidal harmonic normalization constants gamma^p_n.
+    
+    Orthogonal polynomials
+    ----------------------
+    
+    The following functions evaluate values of orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       assoc_laguerre   -- Compute the generalized (associated) Laguerre polynomial of degree n and order k.
+       eval_legendre    -- Evaluate Legendre polynomial at a point.
+       eval_chebyt      -- Evaluate Chebyshev polynomial of the first kind at a point.
+       eval_chebyu      -- Evaluate Chebyshev polynomial of the second kind at a point.
+       eval_chebyc      -- Evaluate Chebyshev polynomial of the first kind on [-2, 2] at a point.
+       eval_chebys      -- Evaluate Chebyshev polynomial of the second kind on [-2, 2] at a point.
+       eval_jacobi      -- Evaluate Jacobi polynomial at a point.
+       eval_laguerre    -- Evaluate Laguerre polynomial at a point.
+       eval_genlaguerre -- Evaluate generalized Laguerre polynomial at a point.
+       eval_hermite     -- Evaluate physicist's Hermite polynomial at a point.
+       eval_hermitenorm -- Evaluate probabilist's (normalized) Hermite polynomial at a point.
+       eval_gegenbauer  -- Evaluate Gegenbauer polynomial at a point.
+       eval_sh_legendre -- Evaluate shifted Legendre polynomial at a point.
+       eval_sh_chebyt   -- Evaluate shifted Chebyshev polynomial of the first kind at a point.
+       eval_sh_chebyu   -- Evaluate shifted Chebyshev polynomial of the second kind at a point.
+       eval_sh_jacobi   -- Evaluate shifted Jacobi polynomial at a point.
+    
+    The following functions compute roots and quadrature weights for
+    orthogonal polynomials:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       roots_legendre    -- Gauss-Legendre quadrature.
+       roots_chebyt      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebyu      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_chebyc      -- Gauss-Chebyshev (first kind) quadrature.
+       roots_chebys      -- Gauss-Chebyshev (second kind) quadrature.
+       roots_jacobi      -- Gauss-Jacobi quadrature.
+       roots_laguerre    -- Gauss-Laguerre quadrature.
+       roots_genlaguerre -- Gauss-generalized Laguerre quadrature.
+       roots_hermite     -- Gauss-Hermite (physicist's) quadrature.
+       roots_hermitenorm -- Gauss-Hermite (statistician's) quadrature.
+       roots_gegenbauer  -- Gauss-Gegenbauer quadrature.
+       roots_sh_legendre -- Gauss-Legendre (shifted) quadrature.
+       roots_sh_chebyt   -- Gauss-Chebyshev (first kind, shifted) quadrature.
+       roots_sh_chebyu   -- Gauss-Chebyshev (second kind, shifted) quadrature.
+       roots_sh_jacobi   -- Gauss-Jacobi (shifted) quadrature.
+    
+    The functions below, in turn, return the polynomial coefficients in
+    ``orthopoly1d`` objects, which function similarly as `numpy.poly1d`.
+    The ``orthopoly1d`` class also has an attribute ``weights``, which returns
+    the roots, weights, and total weights for the appropriate form of Gaussian
+    quadrature. These are returned in an ``n x 3`` array with roots in the first
+    column, weights in the second column, and total weights in the final column.
+    Note that ``orthopoly1d`` objects are converted to `~numpy.poly1d` when doing
+    arithmetic, and lose information of the original orthogonal polynomial.
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       legendre    -- Legendre polynomial.
+       chebyt      -- Chebyshev polynomial of the first kind.
+       chebyu      -- Chebyshev polynomial of the second kind.
+       chebyc      -- Chebyshev polynomial of the first kind on :math:`[-2, 2]`.
+       chebys      -- Chebyshev polynomial of the second kind on :math:`[-2, 2]`.
+       jacobi      -- Jacobi polynomial.
+       laguerre    -- Laguerre polynomial.
+       genlaguerre -- Generalized (associated) Laguerre polynomial.
+       hermite     -- Physicist's Hermite polynomial.
+       hermitenorm -- Normalized (probabilist's) Hermite polynomial.
+       gegenbauer  -- Gegenbauer (ultraspherical) polynomial.
+       sh_legendre -- Shifted Legendre polynomial.
+       sh_chebyt   -- Shifted Chebyshev polynomial of the first kind.
+       sh_chebyu   -- Shifted Chebyshev polynomial of the second kind.
+       sh_jacobi   -- Shifted Jacobi polynomial.
+    
+    .. warning::
+    
+       Computing values of high-order polynomials (around ``order > 20``) using
+       polynomial coefficients is numerically unstable. To evaluate polynomial
+       values, the ``eval_*`` functions should be used instead.
+    
+    
+    Hypergeometric functions
+    ------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       hyp2f1 -- Gauss hypergeometric function 2F1(a, b; c; z).
+       hyp1f1 -- Confluent hypergeometric function 1F1(a, b; x).
+       hyperu -- Confluent hypergeometric function U(a, b, x) of the second kind.
+       hyp0f1 -- Confluent hypergeometric limit function 0F1.
+    
+    
+    Parabolic cylinder functions
+    ----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv -- Parabolic cylinder function D.
+       pbvv -- Parabolic cylinder function V.
+       pbwa -- Parabolic cylinder function W.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pbdv_seq -- Parabolic cylinder functions Dv(x) and derivatives.
+       pbvv_seq -- Parabolic cylinder functions Vv(x) and derivatives.
+       pbdn_seq -- Parabolic cylinder functions Dn(z) and derivatives.
+    
+    Mathieu and related functions
+    -----------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_a -- Characteristic value of even Mathieu functions.
+       mathieu_b -- Characteristic value of odd Mathieu functions.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_even_coef -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+       mathieu_odd_coef  -- Fourier coefficients for even Mathieu and modified Mathieu functions.
+    
+    The following return both function and first derivative:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       mathieu_cem     -- Even Mathieu function and its derivative.
+       mathieu_sem     -- Odd Mathieu function and its derivative.
+       mathieu_modcem1 -- Even modified Mathieu function of the first kind and its derivative.
+       mathieu_modcem2 -- Even modified Mathieu function of the second kind and its derivative.
+       mathieu_modsem1 -- Odd modified Mathieu function of the first kind and its derivative.
+       mathieu_modsem2 -- Odd modified Mathieu function of the second kind and its derivative.
+    
+    Spheroidal wave functions
+    -------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1   -- Prolate spheroidal angular function of the first kind and its derivative.
+       pro_rad1   -- Prolate spheroidal radial function of the first kind and its derivative.
+       pro_rad2   -- Prolate spheroidal radial function of the second kind and its derivative.
+       obl_ang1   -- Oblate spheroidal angular function of the first kind and its derivative.
+       obl_rad1   -- Oblate spheroidal radial function of the first kind and its derivative.
+       obl_rad2   -- Oblate spheroidal radial function of the second kind and its derivative.
+       pro_cv     -- Characteristic value of prolate spheroidal function.
+       obl_cv     -- Characteristic value of oblate spheroidal function.
+       pro_cv_seq -- Characteristic values for prolate spheroidal wave functions.
+       obl_cv_seq -- Characteristic values for oblate spheroidal wave functions.
+    
+    The following functions require pre-computed characteristic value:
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       pro_ang1_cv -- Prolate spheroidal angular function pro_ang1 for precomputed characteristic value.
+       pro_rad1_cv -- Prolate spheroidal radial function pro_rad1 for precomputed characteristic value.
+       pro_rad2_cv -- Prolate spheroidal radial function pro_rad2 for precomputed characteristic value.
+       obl_ang1_cv -- Oblate spheroidal angular function obl_ang1 for precomputed characteristic value.
+       obl_rad1_cv -- Oblate spheroidal radial function obl_rad1 for precomputed characteristic value.
+       obl_rad2_cv -- Oblate spheroidal radial function obl_rad2 for precomputed characteristic value.
+    
+    Kelvin functions
+    ----------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       kelvin       -- Kelvin functions as complex numbers.
+       kelvin_zeros -- Compute nt zeros of all Kelvin functions.
+       ber          -- Kelvin function ber.
+       bei          -- Kelvin function bei
+       berp         -- Derivative of the Kelvin function `ber`.
+       beip         -- Derivative of the Kelvin function `bei`.
+       ker          -- Kelvin function ker.
+       kei          -- Kelvin function ker.
+       kerp         -- Derivative of the Kelvin function ker.
+       keip         -- Derivative of the Kelvin function kei.
+    
+    The following functions do not accept NumPy arrays (they are not
+    universal functions):
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       ber_zeros  -- Compute nt zeros of the Kelvin function ber(x).
+       bei_zeros  -- Compute nt zeros of the Kelvin function bei(x).
+       berp_zeros -- Compute nt zeros of the Kelvin function ber'(x).
+       beip_zeros -- Compute nt zeros of the Kelvin function bei'(x).
+       ker_zeros  -- Compute nt zeros of the Kelvin function ker(x).
+       kei_zeros  -- Compute nt zeros of the Kelvin function kei(x).
+       kerp_zeros -- Compute nt zeros of the Kelvin function ker'(x).
+       keip_zeros -- Compute nt zeros of the Kelvin function kei'(x).
+    
+    Combinatorics
+    -------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       comb -- The number of combinations of N things taken k at a time.
+       perm -- Permutations of N things taken k at a time, i.e., k-permutations of N.
+       stirling2 -- Stirling numbers of the second kind.
+    
+    Lambert W and related functions
+    -------------------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       lambertw    -- Lambert W function.
+       wrightomega -- Wright Omega function.
+    
+    Other special functions
+    -----------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       agm         -- Arithmetic, Geometric Mean.
+       bernoulli   -- Bernoulli numbers B0..Bn (inclusive).
+       binom       -- Binomial coefficient
+       diric       -- Periodic sinc function, also called the Dirichlet kernel.
+       euler       -- Euler numbers E0..En (inclusive).
+       expn        -- Exponential integral E_n.
+       exp1        -- Exponential integral E_1 of complex argument z.
+       expi        -- Exponential integral Ei.
+       factorial   -- The factorial of a number or array of numbers.
+       factorial2  -- Double factorial.
+       factorialk  -- Multifactorial of n of order k, n(!!...!).
+       shichi      -- Hyperbolic sine and cosine integrals.
+       sici        -- Sine and cosine integrals.
+       softmax     -- Softmax function.
+       log_softmax -- Logarithm of softmax function.
+       spence      -- Spence's function, also known as the dilogarithm.
+       zeta        -- Riemann zeta function.
+       zetac       -- Riemann zeta function minus 1.
+       softplus    -- Softplus function.
+    
+    Convenience functions
+    ---------------------
+    
+    .. autosummary::
+       :toctree: generated/
+    
+       cbrt      -- Cube root of `x`.
+       exp10     -- 10**x.
+       exp2      -- 2**x.
+       radian    -- Convert from degrees to radians.
+       cosdg     -- Cosine of the angle `x` given in degrees.
+       sindg     -- Sine of angle given in degrees.
+       tandg     -- Tangent of angle x given in degrees.
+       cotdg     -- Cotangent of the angle `x` given in degrees.
+       log1p     -- Calculates log(1+x) for use when `x` is near zero.
+       expm1     -- ``exp(x) - 1`` for use when `x` is near zero.
+       cosm1     -- ``cos(x) - 1`` for use when `x` is near zero.
+       powm1     -- ``x**y - 1`` for use when `y` is near zero or `x` is near 1.
+       round     -- Round to nearest integer.
+       xlogy     -- Compute ``x*log(y)`` so that the result is 0 if ``x = 0``.
+       xlog1py   -- Compute ``x*log1p(y)`` so that the result is 0 if ``x = 0``.
+       logsumexp -- Compute the log of the sum of exponentials of input elements.
+       exprel    -- Relative error exponential, (exp(x)-1)/x, for use when `x` is near zero.
+       sinc      -- Return the sinc function.
+    
+    """  # noqa: E501
+    
+    
+    from ._sf_error import SpecialFunctionWarning, SpecialFunctionError
+    
+>   from . import _ufuncs
+E   ImportError: /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-x86_64-linux-gnu.so: failed to map segment from shared object
+
+../../bot-8/venv/lib/python3.12/site-packages/scipy/special/__init__.py:785: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_crop_verify.py::test_crop_classifier_beats_stack_confidence
+FAILED tests/test_crop_verify.py::test_default_output_does_not_read_the_ground_truth
+FAILED tests/test_crop_verify.py::test_saved_weights_load_in_the_inference_hook
+FAILED tests/test_crop_verify.py::test_lidar_crops_come_from_the_las_relief
+FAILED tests/test_crop_verify.py::test_inference_hook_matches_the_board_crops_and_scores
+FAILED tests/test_bot7_candidate_v2.py::test_replace_S_then_stack6_sees_pix
+FAILED tests/test_bot7_candidate_v2.py::test_flags_off_independently - Import...
+FAILED tests/test_bot7_candidate_v2.py::test_pix_fell_raster_keeps_classic - ...
+FAILED tests/test_bot7_candidate_v2.py::test_region_feats_deadline_and_no_models
+9 failed, 102 passed in 34.20s

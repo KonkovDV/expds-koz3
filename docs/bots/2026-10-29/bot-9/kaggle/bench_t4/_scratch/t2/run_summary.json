@@ -1,0 +1,36 @@
+{
+ "kernel": "dmitrijkv/koz3-bench-t4",
+ "started_utc": "2026-10-28T18:36:30Z",
+ "steps": [],
+ "bench_tile_sha256": "70b37afb82e124a69212de6a377b0a35584884bdfe6a06eabbb64b33c27079ea",
+ "hf_configs": {
+  "dfine_l": {
+   "repo": "ustc-community/dfine-large-coco",
+   "revision": "aa8f8211545e4cff5adf52ea512f9ac74a9824ec",
+   "sha256": "fd5dc81fbbdc89f5d0fdb2afff55e5e5088a03d87220950f13009dcefb421ac3"
+  },
+  "rtdetrv2_r50": {
+   "repo": "PekingU/rtdetr_v2_r50vd",
+   "revision": "282494075698cab9faa1096ae26856890030c817",
+   "sha256": "d754c04c9a4c6d015d8393fa2dae4c63f4a9f0ba173c3d1a66e55cff59d8f060"
+  }
+ },
+ "nvidia_smi_L": "GPU 0: Tesla T4 (UUID: fake)",
+ "versions_preinstalled": {
+  "torch": "2.11.0+cpu",
+  "torchvision": "0.26.0+cpu",
+  "transformers": "5.16.1",
+  "timm": "1.0.29",
+  "segmentation-models-pytorch": "0.6.0"
+ },
+ "pip_check_rc": 0,
+ "versions_after_pip": {
+  "torch": "2.11.0+cpu",
+  "torchvision": "0.26.0+cpu",
+  "transformers": "5.16.1",
+  "timm": "1.0.29",
+  "segmentation-models-pytorch": "0.6.0"
+ },
+ "fatal": "импорт-чек не пройден: AssertionError: torch.cuda.is_available() == False",
+ "elapsed_s": 14.4
+}
