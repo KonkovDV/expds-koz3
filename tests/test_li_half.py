@@ -95,12 +95,17 @@ def test_new_only_drops_near_kept_main_li():
     main = [circ(0, 0, "kurgany_tselye", 0.9),               # оставлен порогом li (0,19422)
             circ(100, 0, "kurgany_tselye", 0.01),            # ниже порога — не якорь
             circ(200, 0, "kurgany_tselye", 0.99, "li_dev")]  # чужая группа — не якорь
+    main.append(circ(300, 0, "kurgany_povrezhdennye", 0.07))   # оставлен порогом li (0,06415), повреждённый
     half = [circ(5, 0, "kurgany_tselye", 0.5, "li_half"),   # 5 м от якоря — вон
-            circ(5, 0, "kurgany_povrezhdennye", 0.5, "li_half"),  # другой класс — остаётся
+            circ(1, 0, "kurgany_povrezhdennye", 0.5, "li_half"),  # другой класс в 1 м — тоже вон (поправка 29.10)
             circ(100, 5, "kurgany_tselye", 0.5, "li_half"),
             circ(200, 5, "kurgany_tselye", 0.5, "li_half"),
+            circ(300, 4, "kurgany_tselye", 0.5, "li_half"),  # целый рядом с принятым повреждённым — вон
+            circ(313, 0, "kurgany_povrezhdennye", 0.5, "li_half"),  # 13 м — остаётся
             circ(30, 0, "kurgany_tselye", 0.5, "li_half")]  # 30 м — остаётся
     out = li_half.new_only(half, main, li_half.params({}))
     kept = sorted((round(to_crs(f["geom"], WEB_MERCATOR, UTM).centroid.x - X0), f["class_name"]) for f in out)
-    assert kept == [(5, "kurgany_povrezhdennye"), (30, "kurgany_tselye"), (100, "kurgany_tselye"),
-                    (200, "kurgany_tselye")]
+    assert kept == [(30, "kurgany_tselye"), (100, "kurgany_tselye"), (200, "kurgany_tselye"),
+                    (313, "kurgany_povrezhdennye")]
+    other = dict(circ(1, 0, "kurgany_povrezhdennye", 0.5, "li_half"), region_name="r2")   # другой участок — остаётся
+    assert li_half.new_only([other], main, li_half.params({})) == [other]
