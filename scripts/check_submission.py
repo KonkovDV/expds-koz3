@@ -725,7 +725,8 @@ out = {}
 try:
     from expds.sp_dfine import import_dfine
     C, M, info = import_dfine(root)
-    out = {"ok": True, **{k: info.get(k) for k in ("source", "version", "file", "errors", "purged_preloaded")}}
+    out = {"ok": True, **{k: info.get(k) for k in ("source", "version", "file", "errors", "purged_preloaded",
+                                                   "meta_fallback")}}
     if sys.argv[2] == "1":
         from transformers import Dinov2Config, Dinov2Model  # noqa: F401
         out["dinov2"] = True
@@ -733,6 +734,12 @@ except Exception as exc:
     out = {"ok": False, "err": f"{type(exc).__name__}: {str(exc)[:1500]}"}
 print("DFINE_JSON=" + json.dumps(out, ensure_ascii=False))
 """
+
+
+#: bot-7 (29.10): пакеты образа, у которых вторая проба check_dfine прячет версию (пустой <имя>-<версия>.dist-info
+#: раньше настоящего): как tqdm в pantum/n7q:20261024 («Unable to compare versions for tqdm>=4.60 … found=None»).
+DFINE_NOMETA = ("tqdm-4.70.1", "packaging-26.3", "filelock-4.2.4", "numpy-2.5.4", "huggingface_hub-2.2.0",
+                "safetensors-0.8.0", "PyYAML-6.0.3", "torch-2.11.0", "torchvision-0.26.0")
 
 
 #: bot-7 (v3): опорные участки, на которых фолдовая модель f0 bot-9 даёт детекции (bot-7/work6/dfprobe/
@@ -886,24 +893,48 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
         for n in names:
             if n.startswith(vend) or (n.startswith("expds/") and n.endswith(".py")):
                 z.extract(n, tmp)
-        cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_PROBE, str(tmp), "1" if gate else "0"], args.cpus,
-                          not args.allow_net)
-        try:
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout, env=child_env(home, args.threads),
-                               cwd=str(tmp))
-        except subprocess.TimeoutExpired:
-            report("FAIL", "dfine", f"проба импорта D-FINE не уложилась в {args.timeout} с")
+        def probe(pythonpath: str | None) -> dict | None:
+            cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_PROBE, str(tmp), "1" if gate else "0"], args.cpus,
+                              not args.allow_net)
+            env = child_env(home, args.threads)
+            if pythonpath:
+                env["PYTHONPATH"] = pythonpath
+            try:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout, env=env, cwd=str(tmp))
+            except subprocess.TimeoutExpired:
+                report("FAIL", "dfine", f"проба импорта D-FINE не уложилась в {args.timeout} с")
+                return None
+            line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_JSON=")), None)
+            return json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
+
+        out = probe(None)
+        if out is None:
             return
-        line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_JSON=")), None)
-        out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
         if not out.get("ok"):
             report("FAIL", "dfine", f"{what} включён, а классы D-FINE не импортируются в {args.python}: {out.get('err')}")
-        elif out.get("source") != "vendor":
+            return
+        if out.get("source") != "vendor":
             report("WARN", "dfine", f"transformers {out.get('version')} взят из окружения, не из вендора "
                                     f"(вендор: {out.get('errors')})")
         else:
             report("PASS", "dfine", f"{what}: DFineConfig/DFineForObjectDetection из вендора transformers "
                                     f"{out.get('version')}{' + Dinov2' if gate else ''} в чистом процессе")
+        # bot-7 (29.10, PC e2e бота 1 в pantum/n7q:20261024): у tqdm в образе нет версии в метаданных, и вендорный
+        # transformers падал в dependency_versions_check. Вторая проба: те же пакеты образа с пустыми dist-info
+        # (version → None) раньше настоящих на sys.path — импорт обязан пройти (вендор tqdm + шим sp_dfine).
+        shadow = home / "b7_nometa"
+        for d in DFINE_NOMETA:
+            (shadow / f"{d}.dist-info").mkdir(parents=True, exist_ok=True)
+        out2 = probe(str(shadow))
+        if out2 is None:
+            return
+        if not out2.get("ok"):
+            report("FAIL", "dfine", f"{what}: при пакетах образа без версии в метаданных ({', '.join(DFINE_NOMETA)}) "
+                                    f"классы D-FINE не импортируются (так было бы на площадке): {out2.get('err')}")
+        else:
+            fb = out2.get("meta_fallback") or {}
+            report("PASS", "dfine", f"{what}: импорт проходит и при пакетах образа без версии в метаданных "
+                                    f"(источник {out2.get('source')}; SP_DFINE_DEPMETA: {sorted(fb) or 'нет'})")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
         shutil.rmtree(home, ignore_errors=True)
