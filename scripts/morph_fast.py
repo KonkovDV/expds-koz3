@@ -12,6 +12,10 @@
   --dem-from-li    ЦМР не строится заново: берётся сетка li-пайплайна 0,1 м (expds.accel.las_grid, до
                    заполнения) → блоковое среднее 5×5 со сдвигом на сетку 0,5 м → пирамидальное заполнение.
                    В пайплайне это массив, который build_dem уже прочитал; здесь эмулируется его построением.
+  --ringw          (задача 14) ещё 4 «оконных» признака кольца morph_ringw_* (см. RW_* ниже): максимум по
+                   29 сдвигам центра (шаг 1 м, радиус 3 м) кольцевого шаблона §13 (дно r<1 м, вал 1,5–5 м, фон
+                   12–20 м). Время добавки — t_ringw_s / ms_per_cand_ringw в .json региона.
+  --save ringw     сохранять в .npz только stack_idx + ringw (без feats45) — экономия диска.
 Метки, классы и фолды не используются; conf — только для отсева.
 """
 import argparse, json, os, resource, sys, time
@@ -62,13 +66,67 @@ AAT = (A_lat[:, :, None] * A_lat[:, None, :]).reshape(-1, 9)
 RC = ((np.arange(NB) + 0.5) * RBIN).astype(np.float32)
 REF_N = cut(1.0)
 
+# --- задача 14: оконные признаки кольца (параметры зафиксированы заранее, без подбора по GT) ---
+RW_R, RW_STEP = 3.0, 1.0                      # радиус сдвигов центра и шаг, м
+_sp = np.arange(-int(RW_R / RW_STEP), int(RW_R / RW_STEP) + 1) * int(round(RW_STEP / RES))
+_gy, _gx = np.meshgrid(_sp, _sp, indexing="ij")
+_gd = np.hypot(_gy, _gx).ravel() * RES
+_keep = np.flatnonzero(_gd <= RW_R + 1e-9)
+_keep = _keep[np.argsort(_gd[_keep], kind="stable")]  # от центра наружу: при равенстве — ближний сдвиг
+RW_SY, RW_SX, RW_SD = _gy.ravel()[_keep], _gx.ravel()[_keep], _gd[_keep].astype(np.float32)
+assert RW_SY.size == 29 and RW_SD[0] == 0
+nRW = int(E40[10])                            # пиксели r<5 м = кольца 0..9 по 0,5 м
+RW_NAMES = ["morph_ringw_ring", "morph_ringw_depth", "morph_ringw_rimbg", "morph_ringw_off"]
+RW_T = [0.0]                                  # накопленное время ringw, с
+
+
+def _rw_index():
+    h = int(np.ceil(20.0 / RES))
+    lut = np.full((2 * h + 1, 2 * h + 1), -1, np.int64)
+    lut[OFFY + h, OFFX + h] = np.arange(n20)
+    idx = lut[OFFY[:nRW][None] + RW_SY[:, None] + h, OFFX[:nRW][None] + RW_SX[:, None] + h]
+    assert (idx >= 0).all()                   # сдвиг ≤3 м + r<5 м ⊂ окно r≤20 м
+    return idx
+
+
+RW_IDX = _rw_index()                          # 29 × nRW индексов в окне z (порядок OFFY/OFFX)
+
+
+def ringw(zp0, finf, bg):
+    """zp0/finf — B×n20 (z за вычетом плоскости, NaN→0 / маска), bg — фон 12–20 м вокруг исходного центра.
+    Для каждого сдвига s: дно = среднее r<1 м, профиль колец 0,5 м на 1,5–5 м, вал = max профиля,
+    кольцо = вал − дно, глубина = среднее по кольцу 1,5–5 м − дно (перевёрнутый TPI/кольцевой шаблон).
+    → B×4: max_s кольцо, max_s глубина, вал(s*) − фон, |s*| (s* = argmax кольца)."""
+    t0 = time.perf_counter()
+    B = zp0.shape[0]; ar = np.arange(B)
+    e = E40[:10]
+    S = np.add.reduceat(zp0[:, RW_IDX], e, axis=2).astype(np.float64)     # B×29×10
+    N = np.add.reduceat(finf[:, RW_IDX], e, axis=2).astype(np.float64)
+    out = np.full((B, 4), np.nan, np.float32)
+    with np.errstate(all="ignore"):
+        nb = N[..., :2].sum(2); bot = np.where(nb > 0, S[..., :2].sum(2) / np.maximum(nb, 1), np.nan)
+        prof = np.where(N[..., 3:10] > 0, S[..., 3:10] / np.maximum(N[..., 3:10], 1), -np.inf)
+        rim = prof.max(2); rim = np.where(np.isfinite(rim), rim, np.nan)
+        na = N[..., 3:10].sum(2); ann = np.where(na > 0, S[..., 3:10].sum(2) / np.maximum(na, 1), np.nan)
+        ring = rim - bot; depth = ann - bot
+        rr = np.where(np.isfinite(ring), ring, -np.inf); ks = np.argmax(rr, 1); best = rr[ar, ks]
+        okb = np.isfinite(best)
+        out[:, 0] = np.where(okb, best, np.nan)
+        dm = np.where(np.isfinite(depth), depth, -np.inf).max(1)
+        out[:, 1] = np.where(np.isfinite(dm), dm, np.nan)
+        out[:, 2] = np.where(okb, rim[ar, ks] - bg, np.nan)
+        out[:, 3] = np.where(okb, RW_SD[ks], np.nan)
+    RW_T[0] += time.perf_counter() - t0
+    return out
+
 
 def _rsum(v, edges):
     return np.add.reduceat(v[:, edges[0]:edges[-1]], edges[:-1] - edges[0], axis=1)
 
 
-def features(z, zl):
-    """z — B×n20 (r≤20 м, отн. опорной высоты), zl — B×nL решётка 2 м → B×30 (порядок RAW)."""
+def features(z, zl, rw=None):
+    """z — B×n20 (r≤20 м, отн. опорной высоты), zl — B×nL решётка 2 м → B×30 (порядок RAW).
+    rw — B×4 массив: если задан, туда пишутся признаки ringw (задача 14)."""
     B = z.shape[0]
     ar = np.arange(B)
     out = np.full((B, 30), np.nan, np.float32)
@@ -95,6 +153,8 @@ def features(z, zl):
         c1 = S[:, :2].sum(1) / N[:, :2].sum(1)
         prof = np.where(N[:, :NB] > 0, S[:, :NB] / np.maximum(N[:, :NB], 1), np.nan)
         out[:, 3] = c1 - bg
+        if rw is not None:
+            rw[:] = ringw(zp0, finf, bg)
         p10 = prof[:, :20]
         allnan = ~np.isfinite(p10).any(1)
         kpk = np.argmax(np.where(np.isfinite(p10), p10, -np.inf), 1)
@@ -162,6 +222,8 @@ def features(z, zl):
             out[:, j] = np.where(okk, zp0[:, :n] @ K, np.nan)
     out[out[:, 0] < 0.05, 1:] = np.nan
     out[~np.isfinite(z0), 3:] = np.nan
+    if rw is not None:
+        rw[~(out[:, 0] >= 0.05) | ~np.isfinite(z0)] = np.nan    # те же правила валидности, что у RAW
     return out
 
 
@@ -259,6 +321,8 @@ def main():
     ap.add_argument("--conf-min", type=float, default=0.0)
     ap.add_argument("--rz-sample", type=int, default=2000)
     ap.add_argument("--dem-from-li", action="store_true")
+    ap.add_argument("--ringw", action="store_true")
+    ap.add_argument("--save", choices=["all", "ringw"], default="all")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     C = np.load(a.cands, allow_pickle=False)
@@ -271,6 +335,8 @@ def main():
         m = np.flatnonzero(reg == region)
         info = {"region": region, "n": int(m.size), "conf_min": a.conf_min, "dem_from_li": a.dem_from_li}
         F = np.full((m.size, 30), np.nan, np.float32)
+        RWa = np.full((m.size, 4), np.nan, np.float32) if a.ringw else None
+        RW_T[0] = 0.0
         laz = ML.find_laz(a.root, region)
         if conf is not None:
             hi = conf[m] >= a.conf_min
@@ -310,17 +376,33 @@ def main():
                 ii = np.flatnonzero(todo)
                 for s in range(0, ii.size, a.batch):
                     j = ii[s:s + a.batch]
-                    F[j] = features(*windows(dem, left, top, ccx[j], ccy[j]))
+                    if RWa is None:
+                        F[j] = features(*windows(dem, left, top, ccx[j], ccy[j]))
+                    else:
+                        rwb = np.empty((j.size, 4), np.float32)
+                        F[j] = features(*windows(dem, left, top, ccx[j], ccy[j]), rw=rwb)
+                        RWa[j] = rwb
                 info["status"] = "ok"
             t3 = time.perf_counter()
             info["t_feat_s"] = round(t3 - t2, 3)
             info["ms_per_cand_feat"] = round(1000 * (t3 - t2) / max(int(todo.sum()), 1), 4)
             info["t_total_s"] = round(t3 - t0, 2)
+            if RWa is not None:
+                info["t_ringw_s"] = round(RW_T[0], 3)
+                info["ms_per_cand_ringw"] = round(1000 * RW_T[0] / max(int(todo.sum()), 1), 4)
             del dem
+        if a.save == "ringw":
+            np.savez(out / f"{region}.npz", stack_idx=sidx[m].astype(np.int32), ringw=RWa, computed=todo,
+                     names=np.array(RW_NAMES))
+            info["maxrss_mb"] = round(maxrss_mb(), 1)
+            (out / f"{region}.json").write_text(json.dumps(info, ensure_ascii=False))
+            print(json.dumps(info, ensure_ascii=False), flush=True)
+            continue
         rz = rz_stats(F, stat)
         np.savez(out / f"{region}.npz", stack_idx=sidx[m].astype(np.int32), feats45=np.hstack([F, rz]),
                  computed=todo, names=np.array(NAMES45),
-                 **({"rz_mix": rz_stats(F, stat_mix)} if stat_mix is not None else {}))
+                 **({"rz_mix": rz_stats(F, stat_mix)} if stat_mix is not None else {}),
+                 **({"ringw": RWa, "ringw_names": np.array(RW_NAMES)} if RWa is not None else {}))
         info["maxrss_mb"] = round(maxrss_mb(), 1)
         (out / f"{region}.json").write_text(json.dumps(info, ensure_ascii=False))
         print(json.dumps(info, ensure_ascii=False), flush=True)
