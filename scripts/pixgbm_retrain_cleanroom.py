@@ -306,8 +306,8 @@ def main() -> None:
     ap.add_argument(
         "--num-threads",
         type=int,
-        default=1,
-        help="LightGBM num_threads (default 1 for bit-exact; TPU-VM CPU host may raise).",
+        default=0,
+        help="LightGBM num_threads; 0/default = os.cpu_count() (set 1 for max bit-exact chance).",
     )
     ap.add_argument(
         "--subprocess",
@@ -321,6 +321,9 @@ def main() -> None:
         help="Subdir under --out/models to compare (default: all)",
     )
     a = ap.parse_args()
+    if a.num_threads is None or a.num_threads <= 0:
+        import os as _os
+        a.num_threads = max(1, int(_os.cpu_count() or 1))
 
     log: dict = {
         "utc": datetime.now(timezone.utc).isoformat(),
