@@ -1,20 +1,22 @@
 # bot-4 large_objects mock ablation in Docker pantum/n7q (PROTOCOL section 10).
 # Modeled on run_bot2_v2_base_docker.ps1 + run_bot5_gor_dense_e2e_docker.ps1.
 # Host .venv ONLY for scoring. Gate inference MUST be docker.
-# JobDir on C:\Sloi\pc_jobs (F: is low on space). Worktree on F:\Sloi_wt.
+# JobDir + worktree BOTH under C:\Sloi\pc_jobs (F: ~3.5 GB free - do not use).
 # Variants: off; on+each sub-flag alone; on+all_except_coarse. Idempotent per-run skip.
-# Launch via schtasks (session-detached). ASCII-only. Summary via bot4_lo_ablate_summary.py.
+# Launch via schtasks (session-detached). ASCII-only.
+# Summary: bot4_lo_ablate_summary.py. Weights torch smoke: bot4_lo_ablate_torch_preflight.py.
 # Container name prefix koz3- only.
 $ErrorActionPreference = 'Continue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SummaryPy = Join-Path $ScriptDir 'bot4_lo_ablate_summary.py'
+$TorchPy   = Join-Path $ScriptDir 'bot4_lo_ablate_torch_preflight.py'
 
 $Sha       = '5097c4a'
 $Branch    = 'bots/bot4-large-objects'
 $JobDir    = 'C:\Sloi\pc_jobs\bot4_lo_ablate_5097c4a'
-$Wt        = 'F:\Sloi_wt\wt_bot4_lo_ablate_5097c4a'
+$Wt        = 'C:\Sloi\pc_jobs\wt_bot4_lo_ablate_5097c4a'
 $Repo      = 'C:\Sloi\wt_bots'
 $Image     = 'pantum/n7q:20261024'
 $EnvTag    = 'ENV=docker:pantum/n7q:20261024'
@@ -27,7 +29,7 @@ $PyHost    = 'C:\Sloi\expds-koz3_v0.2.0\expds-koz3\.venv\Scripts\python.exe'
 $ModelsFillCandidates = @(
   'C:\Sloi\wt_bot4_lo_337a27c\models',
   'C:\Sloi\wt_bot5_50f6f27\models',
-  'F:\Sloi_wt\wt_bot5_gor_dense_e2e\models'
+  'C:\Sloi\pc_jobs\wt_bot5_gor_dense_e2e\models'
 )
 
 $Variants = [ordered]@{
@@ -66,6 +68,10 @@ if (-not (Test-Path $SummaryPy)) {
   Set-Status "FAILED no_summary_py $SummaryPy"
   exit 2
 }
+if (-not (Test-Path $TorchPy)) {
+  Set-Status "FAILED no_torch_preflight_py $TorchPy"
+  exit 2
+}
 
 if (-not (Test-Path "$Repo\.git") -and -not (Test-Path "$Repo\HEAD")) {
   Set-Status "FAILED no_repo $Repo"; exit 2
@@ -85,18 +91,71 @@ if (-not ($head.StartsWith($Sha))) {
   exit 2
 }
 
+# Drop zero-byte weight stubs so robocopy will refill (/XO skips existing empties)
+Get-ChildItem "$Wt\models" -Recurse -File -EA SilentlyContinue |
+  Where-Object { $_.Length -eq 0 -and $_.Extension -match '\.(pt|pth|safetensors|npz|bin)$' } |
+  ForEach-Object { HB "remove_empty $($_.FullName)"; Remove-Item -Force $_.FullName }
+
 $ModelsFill = $null
 foreach ($c in $ModelsFillCandidates) {
   if (Test-Path $c) { $ModelsFill = $c; break }
 }
 if ($ModelsFill) {
   HB "robocopy models from $ModelsFill"
-  & robocopy $ModelsFill "$Wt\models" /E /XO /NFL /NDL /NJH /NJS *> "$JobDir\notes\robocopy_models.log"
+  & robocopy $ModelsFill "$Wt\models" /E /IS /IT /NFL /NDL /NJH /NJS *> "$JobDir\notes\robocopy_models.log"
 } else {
   HB 'WARN no ModelsFill - relying on worktree models'
 }
+
 if (-not (Test-Path "$Wt\inference\main.py")) { Set-Status 'FAILED no_inference_main'; exit 3 }
 if (-not (Test-Path "$Wt\configs\default.toml")) { Set-Status 'FAILED no_default_toml'; exit 3 }
+
+# Required assets for mock e2e (same critical set as bot5 gor_dense runner)
+$RequiredAssets = @(
+  "$Wt\models\li_gor_mask_r18.pt",
+  "$Wt\models\li_r18_hard2.pt",
+  "$Wt\models\ae_fort_mask_r18.pt",
+  "$Wt\models\spor_gor_r18.pt",
+  "$Wt\models\pixgbm\all\poly.txt"
+)
+foreach ($f in $RequiredAssets) {
+  if (-not (Test-Path $f)) { Set-Status "FAILED missing_asset $f"; exit 3 }
+  if ((Get-Item $f).Length -le 0) { Set-Status "FAILED empty_asset $f"; exit 3 }
+}
+
+# Preflight: every .pt/.pth/.safetensors must be >0 bytes
+$wbad = @()
+Get-ChildItem "$Wt\models" -Recurse -File -EA SilentlyContinue |
+  Where-Object { $_.Extension -match '\.(pt|pth|safetensors)$' } | ForEach-Object {
+    if ($_.Length -le 0) { $wbad += $_.FullName }
+  }
+if ($wbad.Count -gt 0) {
+  $wbad | Set-Content -Encoding utf8 "$JobDir\notes\empty_weights.txt"
+  Set-Status ("FAILED empty_weights " + ($wbad -join ';'))
+  exit 3
+}
+$wn = @(Get-ChildItem "$Wt\models" -Recurse -File -EA SilentlyContinue |
+  Where-Object { $_.Extension -match '\.(pt|pth|safetensors)$' }).Count
+HB "preflight_weights_ok n=$wn"
+
+# Host torch.load smoke via committed .py (no inline python)
+if (-not (Test-Path $PyHost)) {
+  Set-Status "FAILED no_PyHost $PyHost"
+  exit 3
+}
+$crit = @(
+  "$Wt\models\li_gor_mask_r18.pt",
+  "$Wt\models\li_r18_hard2.pt",
+  "$Wt\models\ae_fort_mask_r18.pt",
+  "$Wt\models\spor_gor_r18.pt"
+)
+Copy-Item -Force $TorchPy "$JobDir\notes\bot4_lo_ablate_torch_preflight.py"
+$tr = & $PyHost $TorchPy @crit 2>&1
+HB "torch_preflight $tr"
+if ($LASTEXITCODE -ne 0) {
+  Set-Status "FAILED torch_preflight"
+  exit 3
+}
 
 $TomlPath = "$Wt\configs\default.toml"
 $Utf8 = [Text.UTF8Encoding]::new($false)
@@ -199,7 +258,6 @@ HB "scorer=$ScorePy metric=$MetricPy gt=$KitGt"
 if (-not $ScorePy -or -not $MetricPy -or -not (Test-Path $KitGt)) {
   Set-Status 'FAILED no_scorer_or_gt'; exit 7
 }
-if (-not (Test-Path $PyHost)) { Set-Status "FAILED no_PyHost $PyHost"; exit 7 }
 
 $offGeo = "$JobDir\out_off\result.geojson"
 foreach ($name in $Variants.Keys) {
