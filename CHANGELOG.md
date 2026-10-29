@@ -4,6 +4,10 @@
 
 ## 29.10.2026
 
+- **`li_decode` удалён из `main` (29.10, bot 1).** Докстринг `expds/li_decode.py` ссылался на «recipe studied in EhimenNathan-EXpedition» — по правилу владельца код линии EN не держим. Удалены `expds/li_decode.py`, `tests/test_li_decode.py`, `scripts/li_decode_{dump,stack}.py`, `scripts/li_real_eval.py`, `scripts/li_real_run{,_resume}.sh`, два патча `0001-li-decode-*`; ключ `[li] decode` из `configs/default.toml`; ветка `li_decode` в `expds/pipeline.py::_li_with_model` возвращена к пути v2 `1b62124` (по умолчанию было `"legacy"` — поведение сдачи не меняется). Тесты: 571 passed / 33 skipped (было 576: −5 тестов li_decode), centerhead 51.
+- **Провенанс 15 весов `.pt`** — `docs/WEIGHTS_PROVENANCE.md`: запрещённых (КОЗ №2) и неизвестных нет; 6 файлов подтверждены косвенно.
+- **PIXGBM**: `docs/PIXGBM_DECISION.md`; временная декларация линии EN в `docs/THIRD_PARTY.md` и `docs/AI_DECLARATION.md`; модуль по-прежнему вне git, добавляется при сборке (sha256 `35e4331b…`).
+- **Ветки `bots/bot8-cpu-a-clean`, `bots/bot8-cpu-a-clean-on-v2`, `speedup-2026-10-28` заархивированы тегами `archive/*`** (не влиты, не удалены) — `docs/BRANCHES_ARCHIVE.md`.
 - **Веса классов в мастер-промте 28.10 были указаны неверно.** Верно (метрика `materials/compute_metrics.py`, koz3-1.5.0): **архитектура 10, фортификации 5** (городища 15; Σw = 100). Выводы о «вкладе» класса, сделанные по промту 28.10, пересчитывать по этим весам. См. `docs/STATUS_2026-10-29.md` §0.
 - **«Сканирование» (данные КОЗ №2, Kaggle `ackrome/satelite-scan`) ненадолго рассматривалось как доп. источник, затем ЗАПРЕЩЕНО.** 08:01–08:16 бот 9 читал метаданные и скачал малую часть (geojson/UTM.json); ничего не обучалось и не замерялось. ~08:20 всё удалено. Любой замер с этими данными — REJECT (бот 10, PREREG_scan). Подробно — `docs/bots/2026-10-29/bot-9/DATA_PROTOCOL_SCAN_NOTE.md`.
 - **Ложная тревога «ПК offline».** ПК был доступен; перемер v2 `eb268d6` на нём выполнен: `mock_val` 649 с, RAM 4,62 GiB, VRAM ≈ 3,1 ГБ (`docs/bots/2026-10-29/bot-9/PC_RESULTS.md`). Планы, перестроенные под «ПК недоступен», не действуют.

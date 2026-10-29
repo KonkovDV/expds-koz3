@@ -174,9 +174,6 @@ tselye_min = 0.8
 # rescore — курганы по пикам рельефа с уверенностью модели li (на отложенном Гнёздово 0,674
 # против 0,538 у масок); segment — все классы масками модели.
 mode = "rescore"
-# decode = "peaks" — точечное декодирование карт сетей li (expds/li_decode.py, REPORT2 bot-2 §7).
-# По умолчанию "legacy" (как было). Параметры — [li.peaks]. EXPDS_LI_DUMP=<папка> пишет карты в .npz.
-decode = "legacy"
 # Пики вероятности модели (nn_peaks) на том же OOF хуже: балл 0,283. Не включать.
 
 # bot-8: лидар ConvNeXt bot-9 (in_kind cnx3/cnx5, контракт bot-9/CNX_CONTRACT_FOR_BOT8.md §6). ВЫКЛЮЧЕНО.
