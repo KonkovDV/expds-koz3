@@ -61,10 +61,7 @@ def model_refs(cfg: dict) -> list[str]:
     out += [v["weights"]] if v.get("enabled") and v.get("weights") else []
     rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
     out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
-    lc = cfg.get("li_cnx") or {}        # bot-8 bot8-cnx: ConvNeXt-лидар bot-9, только если включён и есть веса
-    if lc.get("enabled") and lc.get("weights"):
-        w = lc["weights"]
-        out += [w] if isinstance(w, str) else list(w)
+    # bot-8 bot8-cnx: веса [li_cnx] сюда не входят — их берёт cnx_weights() по WEIGHTS_MANIFEST (не из git)
     seen, uniq = set(), []
     for p in out:
         if p not in seen:
@@ -76,6 +73,45 @@ def model_refs(cfg: dict) -> list[str]:
 def cnx_enabled(cfg: dict) -> bool:
     lc = cfg.get("li_cnx") or {}
     return bool(lc.get("enabled")) and bool(lc.get("weights"))
+
+
+CNX_WEIGHTS_MANIFEST = "inference/cnx/WEIGHTS_MANIFEST.json"
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def cnx_weights(cfg: dict, wman: dict, overrides: dict, tracked: set) -> dict[str, Path]:
+    """bot-8: веса [li_cnx] → {путь в архиве: локальный файл}. Только из WEIGHTS_MANIFEST.json: файл —
+    --weight или поле source; sha256 и size обязаны совпасть, sha из never_pack (smoke-веса) — отказ.
+    Веса cnx в git не держим: путь, отслеживаемый git, — отказ."""
+    w = (cfg.get("li_cnx") or {}).get("weights")
+    want = [w] if isinstance(w, str) else list(w or [])
+    entries = {e.get("path"): e for e in wman.get("weights") or []}
+    never = {e.get("sha256") for e in wman.get("never_pack") or []}
+    out = {}
+    for rel in want:
+        e = entries.get(rel)
+        if e is None:
+            sys.exit(f"[li_cnx] {rel}: нет в {CNX_WEIGHTS_MANIFEST} — веса cnx пакуются только по манифесту")
+        if rel in tracked:
+            sys.exit(f"[li_cnx] {rel} отслеживается git — веса cnx в репозиторий не кладём")
+        src = overrides.get(rel) or Path(str(e.get("source") or ""))
+        if not src.is_file():
+            sys.exit(f"[li_cnx] {rel}: нет файла {src} (source манифеста или --weight)")
+        size, sha = src.stat().st_size, _sha256_file(src)
+        if sha in never:
+            sys.exit(f"[li_cnx] {rel}: {src} — smoke-веса из never_pack, паковать нельзя")
+        if size != int(e.get("size", -1)) or sha != e.get("sha256"):
+            sys.exit(f"[li_cnx] {rel}: {src} не совпадает с манифестом (size {size} vs {e.get('size')}, "
+                     f"sha256 {sha[:12]} vs {str(e.get('sha256'))[:12]})")
+        out[rel] = src
+    return out
 
 
 def main() -> int:
@@ -138,6 +174,8 @@ def main() -> int:
             sys.exit("[li_cnx] включён, но в коммите нет inference/cnx/ (вендор подготовки cnx)")
         for p in cnx:
             files[p] = blob(p)
+        if CNX_WEIGHTS_MANIFEST not in files:
+            sys.exit(f"[li_cnx] включён, но в коммите нет {CNX_WEIGHTS_MANIFEST}")
     meta = json.loads(files["metadata.json"])
     if not meta.get("image") or "<" in str(meta.get("image")) or not meta.get("entry_point"):
         sys.exit(f"metadata.json не заполнен: {meta}")
@@ -157,6 +195,11 @@ def main() -> int:
             missing.append(rel)
     if missing:
         sys.exit(f"веса из конфига не найдены ни в коммите, ни в --weight: {missing}")
+    cnx_src = cnx_weights(cfg, json.loads(files[CNX_WEIGHTS_MANIFEST]), overrides, set(tracked)) \
+        if cnx_enabled(cfg) else {}
+    for rel, src in cnx_src.items():
+        files[rel] = src.read_bytes()
+        print(f"[li_cnx] {rel} ← {src} (sha256 и size = WEIGHTS_MANIFEST)")
     unused = sorted(set(overrides) - set(files))
     if unused:
         print(f"ВНИМАНИЕ: --weight {unused} не упомянуты в конфиге — в архив не попадут", file=sys.stderr)
@@ -188,6 +231,7 @@ def main() -> int:
     manifest = {"zip": name, "sha256": zsha, "bytes": size, "git": sha, "ref": args.ref, "label": args.label,
                 "config_sha256": cfg_sha, "config_source": str(args.config) if args.config else f"{sha[:7]}:configs/default.toml",
                 "only_classes": args.only_classes, "weight_overrides": {k: str(v) for k, v in overrides.items()},
+                "cnx_weights": {k: str(v) for k, v in cnx_src.items()},
                 "so_override": str(args.so) if args.so else None,
                 "files": {p: hashlib.sha256(b).hexdigest() for p, b in sorted(files.items())},
                 "built": time.strftime("%Y-%m-%d %H:%M:%S %Z")}

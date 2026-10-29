@@ -44,3 +44,6 @@ Desktop.ini
 .cursor/
 *.tmp
 *.bak
+
+# bot-8: веса [li_cnx] — не в git (inference/cnx/WEIGHTS_MANIFEST.json, сборка берёт по sha256)
+models/cnx/

@@ -1,0 +1,37 @@
+{
+ "what": "bot-8: веса [li_cnx] (ConvNeXt-лидар bot-9) — НЕ в git. Сборка берёт файл по path (в архиве) из source (или --weight / жёсткой ссылки в models/cnx/) и сверяет sha256 и size; check_submission сверяет sha256 внутри архива. Файлы вне weights и из never_pack не пакуются.",
+ "format": 1,
+ "weights": [
+  {
+   "path": "models/cnx/weights_cnx_c3-sc_f0.pt",
+   "sha256": "e84af54a9d110842fe22223e26beed03bdc0c01a383281a0ead360bd69000157",
+   "size": 64170657,
+   "source": "/workspace/kaggle_out/koz3-cnx-li-c3sc-f01/weights_cnx_c3-sc_f0.pt",
+   "status": "bot-9 c3-sc fold 0 (koz3-cnx-li-c3sc-f01), in_kind cnx3; OOF-порогов нет"
+  },
+  {
+   "path": "models/cnx/weights_cnx_c3-sc_f1.pt",
+   "sha256": "fc6a03b637e11418d0f6bef2a1ae333f5d5aeb8c8f80dd6c1eb33381ba7f02e4",
+   "size": 64170657,
+   "source": "/workspace/kaggle_out/koz3-cnx-li-c3sc-f01/weights_cnx_c3-sc_f1.pt",
+   "status": "bot-9 c3-sc fold 1 (koz3-cnx-li-c3sc-f01), in_kind cnx3; OOF-порогов нет"
+  }
+ ],
+ "never_pack": [
+  {
+   "sha256": "9b6b4c98f64f19f1c37a560ea99ca72e45604631f06987f4b6077dc66c83ba0e",
+   "size": 64176865,
+   "source": "/workspace/kaggle_out/koz3-cnx-li-smoke/weights_cnx_c5-in_f4.pt",
+   "why": "smoke-веса bot-9 (10 итераций, koz3-cnx-li-smoke) — НИКОГДА не паковать"
+  },
+  {
+   "sha256": "cfb231e7e2035420903e5f72d28e0f001ca716bf6fc43232894717b621fc7e61",
+   "size": 64170657,
+   "source": "/workspace/kaggle_out/koz3-cnx-li-smoke/weights_cnx_c3-sc_f3.pt",
+   "why": "smoke-веса bot-9 (10 итераций, koz3-cnx-li-smoke) — НИКОГДА не паковать"
+  }
+ ],
+ "pending": [
+  "/workspace/kaggle_out/koz3-cnx-li-c3sc-f23/ (c3-sc f2/f3) — bot-9 ещё проверяет, не вносить"
+ ]
+}
