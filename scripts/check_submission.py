@@ -311,6 +311,55 @@ def cnx_on(cfg: dict | None) -> bool:
     return ((cfg or {}).get("li_cnx") or {}).get("enabled") is True
 
 
+# ---------------------------------------------------------------- [li_half]: второй проход li на 1 м (бот 2, bot8-li-half)
+#: как expds/li_half.py (DEFAULTS, FORBIDDEN_GROUPS) — чекер expds не импортирует
+LI_HALF_CLASSES = ["kurgany_povrezhdennye", "kurgany_tselye"]
+LI_HALF_FORBIDDEN_GROUPS = CNX_FORBIDDEN_GROUPS | {"li_cnx"}
+
+
+def li_half_on(cfg: dict | None) -> bool:
+    """[li_half] включён, только если enabled — TOML-bool true (как expds/li_half.enabled и cnx_on)."""
+    return ((cfg or {}).get("li_half") or {}).get("enabled") is True
+
+
+def check_li_half(cfg: dict | None) -> None:
+    """[li_half]: enabled не bool — WARN (выключен). Включён без [thresholds_by_markup.<group>] — WARN: так задумано
+    ботом 2 (проход только в выгрузку EXPDS_LI_HALF_DUMP), пайплайн объектов li_half без своих порогов не выдаёт.
+    Включён с ошибкой порогов (чужая группа, нет порога на класс) — FAIL, как у cnx: включили выдачу, а её не будет."""
+    lh = (cfg or {}).get("li_half")
+    if not isinstance(lh, dict):
+        return
+    en = lh.get("enabled", False)
+    if not isinstance(en, bool):
+        report("WARN", "li_half", f"li_half.enabled={en!r} — не bool (в TOML true/false без кавычек): "
+                                  f"пайплайн и чекер считают li_half ВЫКЛЮЧЕННЫМ")
+    if not li_half_on(cfg):
+        return
+    group = lh.get("group", "li_half")
+    classes = lh.get("classes", LI_HALF_CLASSES)
+    own = ((cfg or {}).get("thresholds_by_markup") or {}).get(group) if isinstance(group, str) else None
+    bad = []
+    if not group or not isinstance(group, str):
+        bad.append(f"li_half.group={group!r} не задан")
+    elif group in LI_HALF_FORBIDDEN_GROUPS:
+        bad.append(f"li_half.group={group!r} — пороги другого прохода")
+    elif not isinstance(own, dict) or not own:
+        report("WARN", "li_half", f"[li_half] включён, но нет [thresholds_by_markup.{group}]: объектов li_half НЕ "
+                                  f"будет (проход только в выгрузку при EXPDS_LI_HALF_DUMP, иначе не идёт)")
+        return
+    else:
+        lost = [c for c in classes or [] if c not in own]
+        if lost:
+            bad.append(f"в [thresholds_by_markup.{group}] нет порогов для {lost}")
+    tta = lh.get("tta", 1)
+    if isinstance(tta, bool) or not isinstance(tta, int) or tta < 1:
+        bad.append(f"li_half.tta={tta!r}")
+    if bad:
+        report("FAIL", "li_half", "[li_half] включён, но объектов li_half не выдаст: " + "; ".join(bad))
+    else:
+        report("PASS", "li_half", f"[li_half]: своя группа порогов {group!r} на {list(classes)}, tta {tta}")
+
+
 def cnx_weights_of(cfg: dict | None) -> list[str]:
     w = ((cfg or {}).get("li_cnx") or {}).get("weights")
     return [w] if isinstance(w, str) else list(w or [])
@@ -1238,6 +1287,8 @@ CNX_SMOKE_OK2 = ": ch="
 #: cnx включён, но не работает целиком — FAIL
 CNX_SMOKE_FAIL = ("веса [li_cnx] не загрузились", "объекты cnx НЕ выдаются")
 #: частичные отказы (один участок, время) — WARN
+#: bot-8 [li_half]: частичные отказы второго прохода — WARN (строки expds/pipeline.py, сверяет тест)
+LI_HALF_SMOKE_WARN = ("li_half упал", "li_half пропущен — мало времени", "объекты li_half НЕ выдаются")
 CNX_SMOKE_WARN = ("cnx не сработал", "cnx пропущен", "cnx: постобработка упала", "на cnx времени не осталось",
                   "cnx — время на исходе", "cnx: TTA ")
 
@@ -1314,7 +1365,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
-        "упала", "запасной детектор", "MemoryError") + CNX_SMOKE_WARN + CNX_SMOKE_FAIL)]
+        "упала", "запасной детектор", "MemoryError") + CNX_SMOKE_WARN + CNX_SMOKE_FAIL + LI_HALF_SMOKE_WARN)]
     if problems:
         report("WARN" if "сбой пайплайна" not in log else "FAIL", "smoke",
                f"{len(problems)} тревожных строк лога: " + " | ".join(p[-200:] for p in problems[:5]))
@@ -1377,6 +1428,7 @@ def main() -> int:
     check_metadata(z)
     cfg = check_config_static(z)
     cnx_third = check_cnx(z, cfg)
+    check_li_half(cfg)
     if "inference/main.py" in z.namelist() and "expds/pipeline.py" in z.namelist():
         tmp = Path(tempfile.mkdtemp(prefix="b8static_", dir=args.workdir))
         try:
