@@ -810,9 +810,13 @@ def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
         hits = np.zeros(len(p), dtype=bool)
         if p and g:
             gg = [x[0] for x in g]
-            tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
             pg_ord = [p[i][0] for i in order]
-            q_pred, q_gt = tree.query(pg_ord)
+            from . import fastmatch as _fm   # w0: EXPDS_RUST_MATCH=1 — Rust-префильтр пар, hit побайтно тот же
+            q = _fm.prefilter(pg_ord, gg, calc)
+            if q is None:
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                q = tree.query(pg_ord)
+            q_pred, q_gt = q
             if keyed and len(q_pred):
                 site_ids: dict = {}
                 ps_ord = np.array([site_ids.setdefault(p_sites[cls][i], len(site_ids)) for i in order], dtype=np.int64)
