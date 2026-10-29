@@ -31,7 +31,7 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def collect() -> list[Path]:
@@ -54,6 +54,9 @@ def collect() -> list[Path]:
     seen = set()
     rr = cfg.get("rerank_arch") or {}
     rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    og = cfg.get("orgate") or {}
+    # bot-6: гейт ORGATE G (модель + meta) — только если [orgate] enabled
+    rerank += [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json")] if og.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
     # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \

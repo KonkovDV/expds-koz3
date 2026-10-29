@@ -1250,6 +1250,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
+        if (cfg.get("orgate") or {}).get("enabled"):
+            # bot-6 ORGATE: правило LAS и r_las — по наличию LAS во входном каталоге участка (как las_boxes_59 в трейне)
+            from .orgate import CATALOG_KEY, catalog_info
+
+            cfg[CATALOG_KEY] = catalog_info(regions)
         n_las = sum(len(r.las) for r in regions)
         by_raster: dict[str, int] = {}
         n_skipped = 0

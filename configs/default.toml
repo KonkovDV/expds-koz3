@@ -412,6 +412,17 @@ enabled = true
 model = "models/rerank_arch_lgbm.txt"
 meta = "models/rerank_arch_lgbm.json"
 
+# bot-6 ORGATE G: гейт FP архитектуры (or / sp_arch) — ЗАМЕНА [rerank_arch] на том же месте цепочки finish
+# (после only_known_classes, до site_calibration / kurgan_neighbour_prior / frame_prior FR1h / порогов; dfine_ae|or
+# сюда не попадают, sp_dfine гейт не оценивает). Правило LAS: arch на участке с LAS во входе удаляется.
+# Пороги по группам — медиана 10 порогов вложенной k10 (or 0,004086, sp_arch 0,008176), см. meta.
+# Обучен на стеке A (без sp_dfine/dfine_aeor): при смене стека кандидатов arch — переобучить и перемерить.
+# Замер: bot-10/REPORT12_orgate.md (k10 dR +0,001933 к R). Нет файлов/сбой → ORGATE_UNAVAILABLE в логе и откат на R.
+[orgate]
+enabled = false
+model = "models/orgate_g.txt"
+meta = "models/orgate_g.json"
+
 # [post]
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
