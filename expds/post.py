@@ -713,3 +713,112 @@ def kurgan_neighbour_prior(feats: list[dict], spec: dict | None = None, tau=None
         out.append(dict(f, confidence=float(f.get("confidence", 0.0)) * factor, neighbours=n,
                         conf_raw=float(f.get("confidence", 0.0))))
     return out
+
+
+def scene_drel(pt, boxes) -> float | None:
+    """Положение точки в кадре: max(|dx|/полуширина, |dy|/полувысота) от центра сцены, 0 — центр, 1 — край.
+
+    Из нескольких сцен, накрывающих точку, берётся наименьшее значение; точка вне всех сцен — None.
+    boxes — рамки сцен в той же CRS, что и точка (EPSG:3857: масштаб внутри одной сцены общий).
+    """
+    best = None
+    for b in boxes:
+        x0, y0, x1, y1 = b.bounds if hasattr(b, "bounds") else b
+        hw, hh = (x1 - x0) / 2.0, (y1 - y0) / 2.0
+        if hw <= 0 or hh <= 0 or not (x0 <= pt.x <= x1 and y0 <= pt.y <= y1):
+            continue
+        d = max(abs(pt.x - (x0 + hw)) / hw, abs(pt.y - (y0 + hh)) / hh)
+        best = d if best is None else min(best, d)
+    return best
+
+
+def annotate_scene_drel(feats: list[dict], boxes_by_markup: dict[str, list]) -> list[dict]:
+    """Поле scene_drel у объектов тех типов снимков, для которых даны рамки сцен участка."""
+    for f in feats:
+        boxes = boxes_by_markup.get(f.get("markup_type") or "")
+        if boxes and f.get("geom") is not None and not f["geom"].is_empty:
+            d = scene_drel(f["geom"].representative_point(), boxes)
+            if d is not None:
+                f["scene_drel"] = float(d)
+    return feats
+
+
+def frame_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Уверенность объекта у края крупной сцены снижается: метки есть только около памятника в центре кадра.
+
+    Публичная выборка: 17 из 30 спутниковых участков — крупные сцены (57 % против 15 % в трейне). У соперника
+    precision спутника падает от центра к углам с 0,38 до 0,05, а приор кадра дал спутниковый OOF 0,279 → 0,297
+    в 4/4 фолдах (OSINT 29.10 §1.2). Шаг идёт ДО порогов: пороги групп из spec.groups подбирать заново по OOF
+    после scripts/oof_transform.py frame. Множитель не больше 1, поэтому ранний пол выдачи не мешает.
+
+    spec: groups (по умолчанию ["sp_or", "sp_focal", "sp_focal2"]), classes (пусто — все), d0 (0,5 — до него
+    множитель 1), edge (0,5 — множитель на краю кадра, линейно от d0). Объект без scene_drel не меняется.
+    """
+    spec = spec or {}
+    groups = set(spec.get("groups") or ("sp_or", "sp_focal", "sp_focal2"))
+    classes = set(spec.get("classes") or ())
+    d0 = min(max(float(spec.get("d0", 0.5)), 0.0), 0.999)
+    edge = min(max(float(spec.get("edge", 0.5)), 0.0), 1.0)
+    out = []
+    for f in feats:
+        d = f.get("scene_drel")
+        if d is None or _group_of(f) not in groups or (classes and f.get("class_name") not in classes) or d <= d0:
+            out.append(f)
+            continue
+        m = 1.0 - (1.0 - edge) * min((float(d) - d0) / (1.0 - d0), 1.0)
+        out.append(dict(f, confidence=float(f.get("confidence", 0.0)) * m))
+    return out
+
+
+CALIB_MODES = ("rank", "quantile", "mix")
+
+
+def site_calibration(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Калибровка уверенности по участку без эталона: шкала каждой (участок, группа, класс) — по её же объектам.
+
+    Одна сеть на разных участках откалибрована по-разному: ConvNeXt лидара (bot-9 CONVNEXT.md §2) имеет лучший
+    порог повреждённых 0,329 на одной семье и 0,064 на другой; честный порог группы, снятый на одной семье,
+    дал на другой 5142 FP против 678 у базы. Геофизика решает то же рангом внутри карты (geophys.rank_within_source).
+    Шаг идёт ДО порогов; пороги групп из spec.groups подбирать заново после scripts/oof_transform.py calib.
+
+    Режимы (s — уверенность, n — объектов участка с s ≥ floor):
+      rank     — r = доля объектов участка со s не выше (0…1]: шкала карты не важна, только порядок;
+      quantile — s / q, q — квантиль q_level распределения участка (обрезка до 1): поднимает недоуверенный
+                 участок и прижимает переуверенный хвост;
+      mix      — s^(1−alpha) · r^alpha: участок без объектов (весь шум с низким s) не выходит наверх по рангу.
+    spec: groups (обязательно), classes (по умолчанию курганы), mode ("mix"), alpha (0,5), q_level (0,99),
+    floor (0,05: объекты ниже не калибруются и не входят в распределение — тот же набор, что в OOF),
+    min_n (30: на участке с меньшим числом объектов уверенность не меняется).
+    """
+    import numpy as np
+
+    spec = spec or {}
+    groups = set(spec.get("groups") or ())
+    if not groups:
+        raise ValueError("site_calibration: нужен список groups")
+    classes = set(spec.get("classes") or KURGANS)
+    mode = spec.get("mode", "mix")
+    if mode not in CALIB_MODES:
+        raise ValueError(f"site_calibration: неизвестный режим {mode}")
+    alpha, q_level = float(spec.get("alpha", 0.5)), float(spec.get("q_level", 0.99))
+    floor, min_n = float(spec.get("floor", 0.05)), int(spec.get("min_n", 30))
+    sites: dict[tuple, list[int]] = defaultdict(list)
+    for i, f in enumerate(feats):
+        if (f.get("class_name") in classes and _group_of(f) in groups
+                and float(f.get("confidence", 0.0)) >= floor):
+            sites[(f.get("region_name") or "", _group_of(f), f["class_name"])].append(i)
+    out = list(feats)
+    for idx in sites.values():
+        if len(idx) < min_n:
+            continue
+        s = np.array([float(feats[i]["confidence"]) for i in idx])
+        r = np.searchsorted(np.sort(s), s, side="right") / len(s)
+        if mode == "rank":
+            new = r
+        elif mode == "quantile":
+            new = np.minimum(s / max(float(np.quantile(s, q_level)), 1e-6), 1.0)
+        else:
+            new = s ** (1.0 - alpha) * r ** alpha
+        for i, v in zip(idx, new):
+            out[i] = dict(feats[i], confidence=float(v), conf_raw=float(feats[i]["confidence"]))
+    return out

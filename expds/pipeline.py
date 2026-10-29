@@ -679,7 +679,51 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
+    if (cfg.get("post") or {}).get("frame_prior"):
+        feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
+
+
+def optical_bytes(reg: Region) -> int:
+    """Размер снимков ae / sp_or / or участка в байтах (0, если файл не читается)."""
+    total = 0
+    for mt in ("ae", "sp_or", "or"):
+        for path in reg.rasters.get(mt, []):
+            try:
+                total += Path(path).stat().st_size
+            except OSError:
+                pass
+    return total
+
+
+def optics_order(regions: list[Region], cfg: dict) -> list[Region]:
+    """Порядок участков в проходе оптики. [time] optics_order = "small_first" — от дешёвых снимков к дорогим.
+
+    Проход оптики идёт третьим и обрывается по бюджету. Спутниковая сцена — это обычно один памятник
+    в центре и курганы рядом, а время растёт с размером файла. Поэтому при нехватке времени выгоднее
+    обойти больше участков: гигантское ортофото в начале списка иначе съедает оптику всех остальных
+    (на ПК один участок с 25,5 ГБ ортофото шёл 1624 с). Если время есть, выход тот же. По умолчанию — прежний порядок.
+    """
+    if (cfg.get("time") or {}).get("optics_order", "name") != "small_first":
+        return list(regions)
+    return sorted(regions, key=lambda r: (optical_bytes(r), r.name))
+
+
+def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
+    """scene_drel для [post] frame_prior: положение объекта в кадре снимков своего типа (post.scene_drel)."""
+    from .geophys import map_footprint
+
+    boxes: dict[str, list] = {}
+    for mt in ("ae", "sp_or", "or"):
+        for path in reg.rasters.get(mt, []):
+            try:
+                fp = map_footprint(path, region_crs(reg, cfg))
+            except Exception:
+                log.exception("%s: рамка снимка не прочитана, приор кадра без неё", Path(path).name)
+                fp = None
+            if fp is not None:
+                boxes.setdefault(mt, []).append(fp)
+    return post.annotate_scene_drel(feats, boxes)
 
 
 #: Модальности геофизики, для которых [models] может назвать сеть. Группа порога — «<модальность>_nn».
@@ -851,6 +895,12 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
             top = float(spec.get("floor", 0.5)) + float(spec.get("slope", 0.5)) * float(spec.get("cap", 2.0))
             for c in ("kurgany_povrezhdennye", "kurgany_tselye"):
                 floors[c] /= max(top, 1.0)
+    # [post] site_calibration считает шкалу участка по всем объектам с s ≥ floor, как в OOF: ранний пол
+    # калибруемых групп не выше этого floor, иначе распределение участка на сдаче будет другим.
+    calib = (cfg.get("post") or {}).get("site_calibration")
+    if calib and markup in set(calib.get("groups") or ()):
+        for c in set(calib.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye")):
+            floors[c] = min(floors[c], float(calib.get("floor", 0.05)))
     return floors
 
 
@@ -1112,9 +1162,13 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         reserve = cfg.get("time", {}).get("reserve_s", 120)
         t_phase = time.monotonic()
         n_phase = 0
+        optics_gb = sum(optical_bytes(r) for r in regions) / 2 ** 30
+        optics_need = float(cfg.get("time", {}).get("optics_s_per_gb", 0.0)) * optics_gb
+        if optics_need > 0:
+            log.info("лидар оставит оптике %.0f с (%.2f ГБ снимков)", optics_need, optics_gb)
         for reg in regions:
-            if not guard.ok(reserve):
-                log.warning("бюджет времени исчерпан, оставшийся лидар пропущен")
+            if not guard.ok(reserve + optics_need):
+                log.warning("бюджет времени исчерпан (запас оптике %.0f с), оставшийся лидар пропущен", optics_need)
                 break
             t = time.monotonic()
             try:
@@ -1129,7 +1183,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         phases.append(("лидар", n_phase, time.monotonic() - t_phase))
         t_phase = time.monotonic()
         n_phase = 0
-        for reg in regions:
+        for reg in optics_order(regions, cfg):
             if not guard.ok(60):
                 log.warning("на оптику времени не осталось")
                 break
