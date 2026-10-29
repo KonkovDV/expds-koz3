@@ -1361,6 +1361,20 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                                              soft_ok=lambda what, need: _soft_ok(guard, "gor_gate", what, need)))
             except Exception:
                 log.exception("gor_gate пропущен")
+        if (cfg.get("gor_dense") or {}).get("enabled"):
+            # bot-5 (PFnoD бота 10): точки городищ плотного локализатора DINOv2-S на SpOr после sp_dfine/drop_groups,
+            # группа gor_dense + noD (без флага ветка не входит: выдача байт-в-байт как v3)
+            t_phase = time.monotonic()
+            n_phase = 0
+            try:
+                from . import gor_dense
+
+                snap, n_phase = gor_dense.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root, guard=guard,
+                                                soft_ok=lambda what, need: _soft_ok(guard, "gor_dense", what, need))
+                state.replace(snap)
+            except Exception:
+                log.exception("gor_dense пропущен")
+            phases.append(("gor_dense", n_phase, time.monotonic() - t_phase))
         if guard.partial:
             state.note["partial_files"] = list(guard.partial)
             log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),

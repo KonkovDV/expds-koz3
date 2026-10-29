@@ -31,7 +31,7 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+FLAG_MODULES = ("sp_dfine", "gor_gate", "dfine_aeor", "orgate", "gor_dense")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5: + gor_dense)
 
 
 def collect() -> list[Path]:
@@ -41,8 +41,11 @@ def collect() -> list[Path]:
     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
-    if (cfg.get("gor_gate") or {}).get("enabled") or (cfg.get("dfine_aeor") or {}).get("enabled"):
+    if ((cfg.get("gor_gate") or {}).get("enabled") or (cfg.get("dfine_aeor") or {}).get("enabled")
+            or (cfg.get("gor_dense") or {}).get("enabled")):
         off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+    if (cfg.get("gor_dense") or {}).get("enabled"):
+        off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
                     if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
@@ -82,10 +85,16 @@ def collect() -> list[Path]:
         dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
         if ae.get("thresholds_file"):
             dfm.append(ae["thresholds_file"])
-    if sd.get("enabled") or gg.get("enabled") or ae.get("enabled"):
+    gd = cfg.get("gor_dense") or {}
+    # bot-5: плотный локализатор городищ (тот же DINOv2-S, голова сцены gor_v3 и плотная голова npz) — только если [gor_dense] enabled
+    if gd.get("enabled"):
+        bb = str(gd.get("backbone", "models/dinov2-small")).rstrip("/")
+        dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gd.get("gate_head", "models/gor_gate/gor_v3_head.npz"),
+                gd.get("head", "models/gor_dense/gor_dense_head.npz")]
+    if sd.get("enabled") or gg.get("enabled") or ae.get("enabled") or gd.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():
-            sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            sys.exit("[sp_dfine]/[gor_gate]/[gor_dense] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
         files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
         if not rel or rel in seen:
