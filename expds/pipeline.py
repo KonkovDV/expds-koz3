@@ -1113,10 +1113,11 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
         n += len(found)
         if complete:
             full.append(reg.name)
-        if found:
-            log.info("%s: sp_dfine %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        log.info("sp_dfine n_det=%d region=%s complete=%s, прошло %.0f с", len(found), reg.name, complete,
+                 guard.elapsed())
         if not cache.get("models"):
             break
+    log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
     if st["drop_groups"] and full:
         before = len(state.snapshot())
         state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))
