@@ -194,6 +194,10 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                    PurePosixPath(v).suffix in {".pt", ".pth", ".onnx", ".ckpt"}})
     verify = cfg.get("verify") or {}
     pixgbm = (cfg.get("geophys") or {}).get("pixgbm") or {}
+    og = cfg.get("orgate") or {}
+    if og.get("enabled"):   # bot-6: без файлов гейт ORGATE откатится на R с маркером — пути по умолчанию тоже проверяем
+        refs = sorted(set(refs) | {("orgate.model", og.get("model", "models/orgate_g.txt")),
+                                   ("orgate.meta", og.get("meta", "models/orgate_g.json"))})
     rr = cfg.get("rerank_arch") or {}
     if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
@@ -208,6 +212,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
+               and not (k.startswith("orgate.") and not og.get("enabled"))   # bot-6 ORGATE выкл.
                and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
@@ -1190,6 +1195,87 @@ def validate_output(path: Path) -> None:
 ALLOW_EMPTY = False
 
 
+def orgate_lines(log: str) -> None:
+    """bot-6: ORGATE_UNAVAILABLE в логе — FAIL (гейт включён, но выдача шла через R/базу)."""
+    bad = [ln for ln in log.splitlines() if "ORGATE_UNAVAILABLE" in ln]
+    if bad:
+        report("FAIL", "orgate", f"{len(bad)} строк ORGATE_UNAVAILABLE в логе (гейт не работал, откат на R): "
+                                 + " | ".join(b[-300:] for b in bad[:3]))
+
+
+#: bot-6: опорный вход смоука гейта ORGATE (43 кандидата arch участка 008_Герите, стек A, EPSG:3857) с ожидаемыми
+#: решениями. Это производное конкурсных данных — в git не кладётся (.gitignore: *.geojson, п. 13.11 ТР), лежит на боксе,
+#: как и трейн для смоука dfine_aeor; другой путь — --orgate-smoke.
+ORGATE_SMOKE_DEFAULT = "/workspace/koz3_shared/bot-6/work/orgate_final/orgate_smoke_008.geojson"
+ORGATE_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+try:
+    from shapely.geometry import shape
+    from expds import orgate
+    import tomllib
+    cfg = tomllib.loads(open(sys.argv[1] + "/configs/default.toml", encoding="utf-8").read())
+    fx = json.load(open(sys.argv[2], encoding="utf-8"))
+    feats = [dict(f["properties"], geom=shape(f["geometry"])) for f in fx["features"]]
+    import os; os.chdir(sys.argv[1])
+    rest, kept, info = orgate.decide(feats, cfg.get("orgate") or {}, fx["catalog"])
+    out = dict(ok=True, n_arch=len(info["target"]), removed=info["removed_idx"], kept=info["kept_idx"],
+               expected_removed=fx["expected_removed_idx"])
+except Exception as e:
+    out = dict(ok=False, err=f"{type(e).__name__}: {e}")
+print("ORGATE_JSON=" + json.dumps(out))
+"""
+
+
+def orgate_verdict(out: dict) -> tuple[str, str, str]:
+    if not out.get("ok"):
+        return "FAIL", "orgate", f"смоук гейта ORGATE упал (на прогоне был бы ORGATE_UNAVAILABLE и откат на R): {out.get('err')}"
+    if len(out["removed"]) < 1:
+        return "FAIL", "orgate", f"смоук гейта ORGATE: на опорном участке 008_Герите не удалено ни одного arch из {out['n_arch']}"
+    if out["removed"] != out["expected_removed"]:
+        return "FAIL", "orgate", (f"смоук гейта ORGATE: удалены {out['removed']}, ожидалось {out['expected_removed']} "
+                                  f"(модель/meta не те, что при сборке смоука)")
+    return "PASS", "orgate", f"смоук гейта ORGATE: 008_Герите — удалено {len(out['removed'])} из {out['n_arch']} arch, как ожидалось"
+
+
+def check_orgate(z: zipfile.ZipFile, cfg: dict, args) -> None:
+    """[orgate] enabled: код expds + модель/meta из архива на опорном входе (--orgate-smoke, по умолчанию ORGATE_SMOKE_DEFAULT) в чистом процессе;
+    гейт должен удалить ≥ 1 arch и ровно ожидаемые. Флаг выкл. — ничего."""
+    og = cfg.get("orgate") or {}
+    if not og.get("enabled"):
+        return
+    names = z.namelist()
+    need = [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json"), "expds/orgate.py"]
+    miss = [n for n in need if n not in names]
+    if miss:
+        report("FAIL", "orgate", f"[orgate] enabled, в архиве нет {miss}")
+        return
+    smoke_fx = Path(getattr(args, "orgate_smoke", None) or ORGATE_SMOKE_DEFAULT)
+    if not smoke_fx.is_file():
+        report("FAIL", "orgate", f"нет опорного входа смоука гейта {smoke_fx} (--orgate-smoke)")
+        return
+    tmp = Path(tempfile.mkdtemp(prefix="b6orgate_", dir=args.workdir))
+    home = Path(tempfile.mkdtemp(prefix="b6orgatehome_", dir=args.workdir))
+    try:
+        for n in names:
+            if (n.startswith("expds/") and n.endswith(".py")) or n == "configs/default.toml" or n in need:
+                z.extract(n, tmp)
+        cmd = sandbox_cmd([args.python, "-s", "-c", ORGATE_PROBE, str(tmp), str(smoke_fx)], args.cpus,
+                          not args.allow_net)
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout,
+                               env=child_env(home, args.threads), cwd=str(tmp))
+        except subprocess.TimeoutExpired:
+            report("FAIL", "orgate", f"смоук гейта ORGATE не уложился в {args.timeout} с")
+            return
+        line = next((x for x in r.stdout.splitlines() if x.startswith("ORGATE_JSON=")), None)
+        out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
+        report(*orgate_verdict(out))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+        shutil.rmtree(home, ignore_errors=True)
+
+
 def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
     """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
     bad = [ln for ln in log.splitlines() if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln
@@ -1271,6 +1357,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
         if "фазы:" in ln or "общее время" in ln or "записано" in ln or "ускоритель" in ln:
             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
     dfine_lines(z, log)
+    orgate_lines(log)   # bot-6: маркер недоступности гейта ORGATE
     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
         "упала", "запасной детектор", "MemoryError"))]
@@ -1302,6 +1389,7 @@ def main() -> int:
     ap.add_argument("--no-smoke", dest="smoke", action="store_false", help="без прогона main.py")
     ap.add_argument("--dfine-region", help=f"опорный участок пробы весов D-FINE (по умолчанию {DFINE_REGION_DEFAULT})")
     ap.add_argument("--dfine-aeor-root", help=f"трейн с опорными участками dfine_aeor (по умолчанию {DFINE_AEOR_ROOT_DEFAULT})")
+    ap.add_argument("--orgate-smoke", help=f"опорный вход смоука гейта ORGATE (по умолчанию {ORGATE_SMOKE_DEFAULT})")
     ap.add_argument("--no-weights", dest="weights", action="store_false", help="не открывать .pt (быстрее)")
     ap.add_argument("--python", default=sys.executable, help="интерпретатор с пакетами образа (по умолчанию текущий)")
     ap.add_argument("--input", help="своя папка входа вместо синтетики (маленький регион!)")
@@ -1352,6 +1440,7 @@ def main() -> int:
     check_dfine(z, cfg, args)
     check_dfine_weights(z, cfg or {}, args)
     check_dfine_aeor_weights(z, cfg or {}, args)   # bot-6: смоук весов D-FINE Ae/Or (только при enabled)
+    check_orgate(z, cfg or {}, args)   # bot-6: смоук гейта ORGATE на опорном входе (только при enabled)
     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
         smoke(z, args)
     elif not args.smoke:
