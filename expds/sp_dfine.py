@@ -145,10 +145,16 @@ def cluster_circles(dets: list[dict], radius_m: float = 4.0, merge_m: float = 4.
             else:
                 conf = b[2]
             src = b[5]
-            out.append({"geom": Point(b[0], b[1]).buffer(radius_m / ground_scale(b[1]), quad_segs=4),
-                        "class_name": cls, "confidence": float(conf), "region_name": reg,
-                        "markup_type": MARKUP, "threshold_group": GROUP, "views": len(cl),
-                        "source": src.get("source"), "original_crs": src.get("original_crs")})
+            # max box_area_m2 по кластеру (Fix C area-aware τ; круг r=4 ≈ 50 м²).
+            areas = [float(m[5]["box_area_m2"]) for m in cl
+                     if m[5].get("box_area_m2") is not None]
+            row = {"geom": Point(b[0], b[1]).buffer(radius_m / ground_scale(b[1]), quad_segs=4),
+                   "class_name": cls, "confidence": float(conf), "region_name": reg,
+                   "markup_type": MARKUP, "threshold_group": GROUP, "views": len(cl),
+                   "source": src.get("source"), "original_crs": src.get("original_crs")}
+            if areas:
+                row["box_area_m2"] = max(areas)
+            out.append(row)
     return out
 
 
@@ -652,15 +658,17 @@ def boxes_to_ellipses(B, L, Cc, transform, crs: str, region: str, source: str, m
     to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
     t = np.linspace(0, 2 * np.pi, 33)[:-1]
     a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
+    pix_m2 = abs(a * e - b * d)
     out = []
     for (x0, y0, x1, y1), s, c in zip(B, L, Cc):
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         rx, ry = max((x1 - x0) / 2, 0.5), max((y1 - y0) / 2, 0.5)
         px, py = cx + rx * np.cos(t), cy + ry * np.sin(t)
         gx, gy = to3857(a * px + b * py + c0, d * px + e * py + f0)
+        box_area_m2 = float(abs(x1 - x0) * abs(y1 - y0) * pix_m2)
         out.append({"geom": Polygon(np.column_stack([gx, gy])), "class_name": CLASSES[int(c)],
                     "confidence": round(float(s), 5), "region_name": region, "source": source,
-                    "original_crs": crs, "model": model_i})
+                    "original_crs": crs, "model": model_i, "box_area_m2": box_area_m2})
     return out
 
 

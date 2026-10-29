@@ -1,9 +1,14 @@
 """Крупные объекты (>5k м²): пороги по площади, защита при склейке, ядра, грубые кандидаты.
 
 Мастер-флаг [large_objects] enabled (по умолчанию false) + независимые sub-flags
-(area_tau / protect_merge / shape_cores / fort_to_gor / coarse_hillfort), тоже false.
+(area_tau / protect_merge / shape_cores / fort_to_gor / coarse_hillfort /
+dfine_ae_gor_area_tau), тоже false.
 При enabled=false или всех sub-flags=false — поведение байт-в-байт как v4 (cbd4804).
 Ablation: enabled=true + один sub-flag.
+
+Fix C (dfine_ae_gor_area_tau): абсолютный τ для крупных (box_area_m2≥min) gorodishcha
+только группы dfine_ae/ae_dfine и markup ae — li не трогаем. Нужен stash box_area_m2
+из D-FINE (круги r=4 иначе ~50 м²).
 
 Не повторяет отвергнутый bot-2 F1 (отдельные группы порогов под sweep — переобучение на
 малых группах): здесь те же калиброванные τ родителя, только ослабление по площади
@@ -41,17 +46,20 @@ def spec(cfg: dict | None) -> dict:
 
 
 def area_m2(feat: dict) -> float:
-    """Площадь объекта в м². Учитывает EPSG:3857 через post._ground_scale; иначе geom.area."""
+    """Площадь объекта в м². Учитывает EPSG:3857 через post._ground_scale; иначе geom.area.
+
+    Приоритет метаданных: box_area_m2 (D-FINE бокс до круга) → hillfort_area_m2 → geom.
+    """
+    for key in ("box_area_m2", "hillfort_area_m2"):
+        stored = feat.get(key)
+        if stored is not None:
+            try:
+                return float(stored)
+            except (TypeError, ValueError):
+                pass
     geom = feat.get("geom")
     if geom is None or geom.is_empty:
         return 0.0
-    # hillfort уже кладёт площадь площадки в метаданные (круг-выход маленький).
-    stored = feat.get("hillfort_area_m2")
-    if stored is not None:
-        try:
-            return float(stored)
-        except (TypeError, ValueError):
-            pass
     minx, miny, maxx, maxy = geom.bounds
     # Эвристика как в post.split_large: 3857 имеет огромные координаты.
     if abs(maxx) > 1_000_000 or abs(maxy) > 1_000_000:
@@ -90,11 +98,47 @@ def area_tau(base_tau, lo: dict):
     return tau
 
 
+#: Группы порога D-FINE Ae (OOF bot-9 иногда пишет ae_dfine).
+DFINE_AE_GROUPS = frozenset({"dfine_ae", "ae_dfine"})
+
+
+def dfine_ae_gor_area_tau(base_tau, lo: dict):
+    """Fix C: для крупных gorodishcha группы dfine_ae на ae — абсолютный τ_large.
+
+    Иначе база (обычно 1.01 = OFF). li / прочие группы / мелкие — без изменений.
+    Площадь: box_area_m2 (бокс D-FINE), не круг r=4.
+    """
+    min_area = float(lo.get("min_area_m2", 5000.0))
+    tau_large = float(lo.get("dfine_ae_gor_tau_large", 0.20))
+    classes = set(lo.get("dfine_ae_gor_classes") or ("gorodishcha",))
+    markups = set(lo.get("dfine_ae_gor_markups") or ("ae",))
+    groups = set(lo.get("dfine_ae_gor_groups") or DFINE_AE_GROUPS)
+
+    def tau(f: dict) -> float:
+        t = float(base_tau(f))
+        if f.get("class_name") not in classes:
+            return t
+        if f.get("markup_type") not in markups:
+            return t
+        tg = f.get("threshold_group")
+        if tg not in groups:
+            return t
+        if area_m2(f) < min_area:
+            return t
+        return min(t, tau_large)
+
+    return tau
+
+
 def apply_thresholds(feats: list[dict], thresholds: dict, default: float, by_markup: dict | None,
                      lo: dict) -> list[dict]:
-    """Как post.apply_thresholds, но с area_tau при включённом флаге."""
+    """Как post.apply_thresholds + опционально area_tau и/или Fix C (dfine_ae_gor_area_tau)."""
     base = post.threshold_fn(thresholds, default, by_markup)
-    tau = area_tau(base, lo)
+    tau = base
+    if lo.get("area_tau"):
+        tau = area_tau(tau, lo)
+    if lo.get("dfine_ae_gor_area_tau"):
+        tau = dfine_ae_gor_area_tau(tau, lo)
     return [f for f in feats if f.get("confidence", 1.0) >= tau(f)]
 
 

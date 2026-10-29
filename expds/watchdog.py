@@ -142,7 +142,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     from . import large_objects as _lo
     if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
-    if _lo.flag(cfg, "area_tau"):
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
     else:
@@ -254,8 +254,9 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     from . import large_objects as _lo
-    if _lo.enabled(cfg):
+    if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    cfg.get("thresholds_by_markup", {}), _lo.spec(cfg))
     else:
