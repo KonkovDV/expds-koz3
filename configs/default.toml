@@ -523,3 +523,44 @@ enabled = false
 #     gorodishcha = 1.01
 [gor_dense]
 enabled = false
+
+
+# ---------------------------------------------------------------------------
+# bot-4: крупные объекты (>5k м²). По умолчанию ВЫКЛЮЧЕНО — поведение = v4/cbd4804.
+# Включать только вместе с честным замером (honest-10 / по слою): area-aware τ,
+# защита крупного при склейке, ядра только у крупных gor, fort→gor, грубый hillfort.
+# Не путать с отвергнутым bot-2 F1 (отдельные группы под sweep) и F2 (ядра глобально).
+# ---------------------------------------------------------------------------
+[large_objects]
+enabled = false
+min_area_m2 = 5000.0
+tau_relax = 0.15
+tau_floor = 0.05
+classes = ["gorodishcha", "fortifikatsii"]
+shape_cores = true
+fort_to_gor = true
+fort_to_gor_scale = 0.9
+fort_to_gor_group = "gor_from_fort"
+coarse_hillfort = true
+coarse_group = "gor_coarse_dem"
+coarse_work_res = 3.0
+coarse_relief_radius_m = 180.0
+coarse_relief_radius_l_m = 300.0
+coarse_max_area_m2 = 200000.0
+coarse_max_per_dem = 3
+coarse_min_enclosure = 0.20
+coarse_min_rel_height_m = 1.2
+coarse_flat_max_deg = 14.0
+coarse_scarp_min_deg = 16.0
+[large_objects.core]
+frac = 0.35
+min_r_m = 2.0
+
+# Копии крупных fortifikatsii → gorodishcha (large_objects.fort_to_gor). Стартовые
+# пороги консервативные; подбор — заявка pc/QUEUE (OOF post-tuning).
+[thresholds_by_markup.gor_from_fort]
+gorodishcha = 0.20
+
+# Грубый проход hillfort для площадок ≥5k м² (large_objects.coarse_hillfort).
+[thresholds_by_markup.gor_coarse_dem]
+gorodishcha = 0.30
