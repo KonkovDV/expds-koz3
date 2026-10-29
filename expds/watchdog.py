@@ -81,9 +81,15 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
     post_cfg = cfg.get("post") or {}
+    if post_cfg.get("site_calibration"):
+        # Первым: соседство и пороги дальше работают в калиброванной шкале, как в замере oof_transform.py calib.
+        out = post.site_calibration(out, post_cfg["site_calibration"])
     if post_cfg.get("kurgan_neighbour_prior"):
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("frame_prior"):
+        # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
+        out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = cfg.get("thresholds_by_markup", {})
     if sf:
@@ -152,12 +158,22 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
             reranked = []
     pc = cfg.get("post") or {}
+    if pc.get("site_calibration"):
+        try:
+            out = post.site_calibration(out, pc["site_calibration"])
+        except Exception:
+            log.exception("site_calibration в запасной цепочке упал, шаг пропущен")
     if pc.get("kurgan_neighbour_prior"):
         # Пороги курганов подобраны после множителя: без него в запасной цепочке разошлись бы с замером.
         try:
             out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
         except Exception:
             log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["frame_prior"]))
+        except Exception:
+            log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
