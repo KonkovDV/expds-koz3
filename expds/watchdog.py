@@ -138,8 +138,14 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
-    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                by_markup)
+    # bot-4 large_objects: area-aware τ (и дальше protect-склейка / ядра — см. ниже).
+    from . import large_objects as _lo
+    if _lo.enabled(cfg):
+        out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                   by_markup, _lo.spec(cfg))
+    else:
+        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                    by_markup)
     out = out + reranked
     out = post.merge_within_markup(out, isolate)
     if post_cfg.get("multipole_object_poly"):
@@ -238,8 +244,13 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
-    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
-                                cfg.get("thresholds_by_markup", {}))
+    from . import large_objects as _lo
+    if _lo.enabled(cfg):
+        out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                   cfg.get("thresholds_by_markup", {}), _lo.spec(cfg))
+    else:
+        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                    cfg.get("thresholds_by_markup", {}))
     out = out + reranked
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
