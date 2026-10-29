@@ -11,9 +11,9 @@ $PreflightPy = Join-Path $ScriptDir 'bot3_ae_weights_preflight.py'
 $SummaryPy   = Join-Path $ScriptDir 'bot4_lo_ablate_summary.py'
 
 $Branch = 'bots/bot4-large-objects'
-$Sha    = if ($env:KOZ3_SHA) { $env:KOZ3_SHA } else { '17e35a5' }
-$JobDir = if ($env:KOZ3_JOBDIR) { $env:KOZ3_JOBDIR } else { 'C:\Sloi\pc_jobs\bot4_fix_c_17e35a5' }
-$Wt     = if ($env:KOZ3_WT) { $env:KOZ3_WT } else { 'C:\Sloi\pc_jobs\wt_bot4_fix_c_17e35a5' }
+$Sha    = if ($env:KOZ3_SHA) { $env:KOZ3_SHA } else { 'e9d187a' }
+$JobDir = if ($env:KOZ3_JOBDIR) { $env:KOZ3_JOBDIR } else { 'C:\Sloi\pc_jobs\bot4_fix_c_e9d187a' }
+$Wt     = if ($env:KOZ3_WT) { $env:KOZ3_WT } else { 'C:\Sloi\pc_jobs\wt_bot4_fix_c_e9d187a' }
 $WeightsAe = if ($env:KOZ3_WEIGHTS_AE) { $env:KOZ3_WEIGHTS_AE } else { 'C:\Sloi\pc_jobs\weights\dfine_ae_ft' }
 $ShaPrefix = if ($env:KOZ3_AE_SHA_PREFIX) { $env:KOZ3_AE_SHA_PREFIX } else { '3e619878' }
 
