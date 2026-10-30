@@ -18,4 +18,4 @@ with open(out, 'w', encoding='utf-8') as o, open(st, 'rb') as fh:
         p = dict(f['properties']); assert p['threshold_group'] == 'li_cnx' and p['markup_type'] == 'li'; p['fid'] = f'{pre}_{i}'
         o.write(', ' + json.dumps({'type': 'Feature', 'geometry': f['geometry'], 'properties': p}, ensure_ascii=False))
     o.write(']}')
-print(json.dumps(dict(kept=kept, dropped=sum(drop.values()), added=len(F), drop={f'{g}|{c}': n for (g, c), n in sorted(drop.items())}), ensure_ascii=False))
+print(json.dumps(dict(kept=kept, dropped=sum(drop.values()), added=len(F), drop={f'{g}|{c}': n for (g, c), n in sorted(drop.items(), key=str)}), ensure_ascii=False))
