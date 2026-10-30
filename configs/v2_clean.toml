@@ -424,7 +424,10 @@ kurgan_twins_only = true
 # Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются
 # (bot-7/work3/insample_tau_kur.json).
 [post.micro_circles]
-radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# M_rp (W0-seams 5171c35 / W5 c4e18a9 / W4 gate b03a4fd): +0.00437 honest-10 P0.989 on OOF A.
+# Enabled for Elena LB#1 package (v2clean+ORG3+M_rp). Kurgan radii unchanged; NK → 0.05 m at rp.
+radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5, gorodishcha = 0.05, arkhitektury = 0.05, object_poly = 0.05, fortifikatsii = 0.05 }
+anchor = "rp"
 
 # Реранк архитектуры (LightGBM, отчёт REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
 # Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log

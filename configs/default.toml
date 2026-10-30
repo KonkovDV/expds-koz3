@@ -413,6 +413,11 @@ kurgan_twins_only = true
 # (bot-7/work3/insample_tau_kur.json).
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# W0-seams (30.10, analysis/2026-10-30/w0_seams/g2_decomp.json): диск 0,05 м в representative_point
+# для неклассов-курганов (NK) поверх курганов 0,5 м: honest-10 +0,004366, P 0,9885, new34 +0,00225,
+# optical +0,00852 (fort +0,00205 P 0,982; gor +0,00248 P 0,867). В пакет — после перемера порогов:
+# radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5, gorodishcha = 0.05, arkhitektury = 0.05, object_poly = 0.05, fortifikatsii = 0.05 }
+# anchor = "rp"   # ВНИМАНИЕ: anchor общий для всех классов; курганы (круги 2 м) — rp ≈ центр, kur_rp −0,00034 (шум)
 
 # Реранк архитектуры (LightGBM, отчёт REPORT_rerank.md, nested3.py): ВКЛЮЧЁН в кандидате bot-7.
 # Замер: EXPERIMENTS.md (rerank_arch, +0,00974, P 0,966); перемер bot-10/work4/rerank/*.log
