@@ -1,10 +1,10 @@
 """bot-5. ТОЛЬКО ЧЕСТНЫЙ ЗАМЕР (не для сдачи). Виньетки SpOr 384 м (шаг 192 м) + контекст 768 м с тем же центром
 -> замороженный DINOv2 (Apache-2.0): [CLS, mean(patch tokens)] каждой шкалы. Метки здесь НЕ используются.
 Выход: $OUT/feats$TAG.npz (F float16) + meta$TAG.json (участок, файл, центр и углы виньетки в UTM участка).
-Окружение: DATA (train-expds-3), OUT, MODEL (локальная папка снапшота HF или id, по умолчанию facebook/dinov2-small; годится и
-facebook/dinov2-with-registers-{small,base,large} — регистры отбрасываются), REVISION,
+Окружение: DATA (train-expds-3), OUT, MODEL (локальная папка снапшота HF или id, по умолчанию facebook/dinov2-small),
 DEVICE (cpu|cuda), TAG, LIMIT_FILES. На боксе: CPU, 2 потока. Оценка — scripts/gor_patch/gor_patch_eval.py на боксе."""
 import os, sys, json, glob, math, time, resource
+from pathlib import Path
 import numpy as np, rasterio, torch
 from rasterio.windows import Window
 from rasterio.enums import Resampling
@@ -12,14 +12,12 @@ from pyproj import Transformer
 torch.set_num_threads(int(os.environ.get('THREADS', '2')))
 D = os.environ.get('DATA', '/workspace/data/train-expds-3'); OUT = os.environ.get('OUT', '/workspace/koz3_shared/bot-5/analysis/gor_patch')
 MD = os.environ.get('MODEL', 'facebook/dinov2-small'); DEV = os.environ.get('DEVICE', 'cpu'); TAG = os.environ.get('TAG', '')
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from transformers import AutoConfig, AutoModel
-from det_train_hf import assert_no_meta
-REV = os.environ.get('REVISION') or None  # пин ревизии HF для id модели
-cfg = AutoConfig.from_pretrained(MD, revision=REV); NPRE = 1 + int(getattr(cfg, 'num_register_tokens', 0) or 0)  # CLS + регистры (DINOv2-reg)
-m = AutoModel.from_pretrained(MD, revision=REV).eval(); assert_no_meta(m, MD); m = m.to(DEV)  # пин transformers==5.21.0, грузить в одном потоке
-if DEV.startswith('cuda'): m = m.half()
-DT = next(m.parameters()).dtype
+# Same loader as inference (gor_gate.load_backbone → import_dfine vendor pin). No Hub.
+_REPO = os.environ.get('REPO') or str(Path(__file__).resolve().parents[2])
+sys.path.insert(0, _REPO)
+from pathlib import Path as _Path
+from scripts.gor_heads.dinov2_loader import load_dinov2_for_train
+m, _dinov2_info = load_dinov2_for_train(MD, DEV, repo=_Path(_REPO))
 PS, ST, CTX, PX = 384.0, 192.0, 768.0, 224
 MEAN = np.array([0.485, 0.456, 0.406])[:, None, None]; STD = np.array([0.229, 0.224, 0.225])[:, None, None]
 LIMIT = int(os.environ.get('LIMIT_FILES', '0'))
@@ -76,8 +74,8 @@ for fi, f in enumerate(files):
                     x = xp[:, r0:r0 + PX, c0:c0 + PX]; valid = vp[r0:r0 + PX, c0:c0 + PX]
                     if size == PS and valid.mean() < 0.5: ok = False; break
                     with torch.no_grad():
-                        o = m(pixel_values=torch.from_numpy(np.ascontiguousarray(x)[None]).to(DEV).to(DT)).last_hidden_state[0].float().cpu()
-                    feats.append(torch.cat([o[0], o[NPRE:].mean(0)]).numpy())  # регистры не входят в среднее патчей
+                        o = m(pixel_values=torch.from_numpy(np.ascontiguousarray(x)[None]).to(DEV)).last_hidden_state[0].float().cpu()
+                    feats.append(torch.cat([o[0], o[1:].mean(0)]).numpy())
                 if not ok: continue
                 X0, Y0 = d.xy(cpy, cpx)  # row, col -> map coords (центр)
                 ux, uy = tr.transform(X0, Y0)

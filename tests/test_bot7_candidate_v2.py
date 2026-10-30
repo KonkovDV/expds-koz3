@@ -45,6 +45,7 @@ def test_pix_thresholds_present(cfg):
 
 @requires_submission_files
 def test_pix_models_shipped(cfg):
+    """Real weight SHA check — skip on clean clones (poly/finds.txt not in git)."""
     md = ROOT / cfg["geophys"]["pixgbm"]["model_dir"]
     if not all((md / name).is_file() for name in SHA):
         pytest.skip("ветка -nomodels: весов legacy PIXGBM нет (W4 DOC-1: в архив они и не идут)")
@@ -56,6 +57,8 @@ def test_build_submission_excludes_legacy_pix():
     """W4 DOC-1 (было: веса legacy PIXGBM в архиве): [geophys.pixgbm] выключен, в архив не идут
     ни веса models/pixgbm/*, ни модули expds/geo_pixgbm.py / geo_finds_gbm.py."""
     import importlib.util
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     spec = importlib.util.spec_from_file_location("bs", ROOT / "scripts" / "build_submission.py")
     bs = importlib.util.module_from_spec(spec); spec.loader.exec_module(bs)
     rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}

@@ -1400,6 +1400,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     info = note.setdefault("sp_dfine", {"enabled": True}) if isinstance(note, dict) else {}
     info.update({"models": len(cache.get("models") or []), "raw": n, "regions_full": len(full)})
     log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
+    if not (cache.get("models") or []) and cache.get("load_error"):
+        log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
     if st["drop_groups"] and full:
         before = len(state.snapshot())
         state.replace(sp_dfine.drop_groups(state.snapshot(), st["drop_groups"], full))

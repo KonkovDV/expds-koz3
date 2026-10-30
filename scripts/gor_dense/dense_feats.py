@@ -8,6 +8,7 @@ UTM участка), vf (доля валидных пикселей); files$TAG.
 Env: DATA, OUT, MODEL (папка снапшота HF или id; поддерживаются dinov2 и dinov2-with-registers), DEVICE, TAG,
 REVISION, GSDS ("2,4"), TILE (518), STRIDE (392), THREADS (2), LIMIT_FILES, ONLY_REGS (через запятую)."""
 import os, sys, json, glob, math, time, resource
+from pathlib import Path
 import numpy as np, rasterio, torch
 from rasterio.enums import Resampling
 from pyproj import Transformer
@@ -18,16 +19,13 @@ GSDS = [float(s) for s in os.environ.get('GSDS', '2,4').split(',')]; TILE = int(
 LIMIT = int(os.environ.get('LIMIT_FILES', '0')); ONLY = [s for s in os.environ.get('ONLY_REGS', '').split(',') if s]
 assert TILE % 14 == 0 and STRIDE % 14 == 0
 os.makedirs(OUT, exist_ok=True)
-from transformers import AutoConfig
-REV = os.environ.get('REVISION') or None   # пин ревизии HF (для id), для локальной папки не нужен
-cfg = AutoConfig.from_pretrained(MD, revision=REV)
-if getattr(cfg, 'num_register_tokens', 0):
-    from transformers import Dinov2WithRegistersModel as MC
-else:
-    from transformers import Dinov2Model as MC
-m = MC.from_pretrained(MD, revision=REV).eval()
-bad = [n for n, t in list(m.named_parameters()) + list(m.named_buffers()) if t.device.type == 'meta']; assert not bad, bad[:5]
-m = m.to(DEV); NPRE = 1 + int(getattr(cfg, 'num_register_tokens', 0)); C = cfg.hidden_size
+# Same loader as inference (gor_gate.load_backbone → import_dfine vendor pin). No Hub.
+_REPO = os.environ.get('REPO') or str(Path(__file__).resolve().parents[2])
+sys.path.insert(0, _REPO)
+from pathlib import Path as _Path
+from scripts.gor_heads.dinov2_loader import load_dinov2_for_train
+m, _info = load_dinov2_for_train(MD, DEV, repo=_Path(_REPO))
+NPRE = int(_info['n_prefix']); C = int(_info['hidden_size'])
 if DEV == 'cuda': m = m.half()
 MEAN = np.array([0.485, 0.456, 0.406], np.float32)[:, None, None]; STD = np.array([0.229, 0.224, 0.225], np.float32)[:, None, None]
 files = sorted(glob.glob(f'{D}/*/*SpOr*/*.tif*'))

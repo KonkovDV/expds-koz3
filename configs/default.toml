@@ -511,19 +511,24 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
-# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
-# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+# bot-7 (кандидат v3) / bot-5 (v4): D-FINE bot-9 на SpOr (группа порога sp_dfine).
+# v4 (bot1_v3_spor_diag 29.10): SpOr D-FINE ВЫКЛ. — enabled = false. pipeline.run вызывает _sp_dfine_phase
+# ТОЛЬКО при enabled; drop_groups применяется только внутри фазы. Поэтому enabled=false достаточен, чтобы
+# сохранить U-Net sp_or/sp_focal/sp_arch/sp_focal2 (путь v2/v3 pre-D-FINE); отдельно drop_groups=[] не нужно,
+# пока фаза не входит. DEFAULTS.drop_groups уже []. Вариант R (drop_groups = SpOr-группы) на mock дал
+# soft_tp 0/13 (медиана ~191 м до GT) — НЕ включать R, пока D-FINE не локализует курганы.
+# Архив сдачи v3on собирал bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor.
+# Ключи — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
+# Включение (НЕ для v4 до фикса локализации; принято ботом 10 для v3on, модель СДАЧИ — f0):
 #   enabled = true
 #   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
-#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
-# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
-# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
-# и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+#   drop_groups = []               # v4-safe: добавить D-FINE БЕЗ снятия U-Net; НЕ вариант R, пока soft_tp≈0
+#   # drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R — регрессия mock sp_or→0
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: OOF фолдовых моделей под f0) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
+# Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
 # bot-1 (кандидат v4, 29.10): D-FINE всех классов на Ae/Or (группы порога ae_dfine / or_dfine),
 # круги варианта C, слияние TTA (flip × масштабы) и моделей — WBF внутри ОДНОГО снимка. ВЫКЛ.:
@@ -592,14 +597,15 @@ enabled = false
 # +0,015406, P 1,000) — точки городищ плотного локализатора DINOv2-S на SpOr (expds/gor_dense.py) после sp_dfine/drop_groups,
 # группа порога gor_dense; conf = 0,5·(p участка головы gor_v3 + пик); гейт sp_or НЕ ставить (при R ему нечего гейтить).
 # noD (классы drop_dfine_classes sp_dfine удаляются кодом на участках, где точки посчитаны) — флаг ВКЛ. делает это сам.
-# ВЫКЛ.; без флага ветка не входит, выдача байт-в-байт как v3. Включение:
+# v4: пакет принят как компонент (τ=0.824066, centre_s=250); default OFF — байт-в-байт как v3-без-SpOr-D-FINE.
+# Включение (только для e2e/honest-10 приёмки пакета):
 #   enabled = true
 #   backbone = "models/dinov2-small"                 # тот же снапшот, что gor_gate (md5 ea251be6…)
 #   gate_head = "models/gor_gate/gor_v3_head.npz"     # md5 acb95c52…
 #   head = "models/gor_dense/gor_dense_head.npz"      # bot-5 export_head.py, вариант 'all', весь трейн; md5 e35570e1…
 #   head_md5 = "e35570e10d17edac32bea8d26fa0f5f4"
-#   centre_s = 250.0    # ПРЕДЛОЖЕНИЕ, ждёт бота 10: правило dense_probe на всём трейне (внутр. OOF, top-1 28/49)
-#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # ПРЕДЛОЖЕНИЕ, ждёт бота 10: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
+#   centre_s = 250.0    # пакет v4: dense_probe на всём трейне (внутр. OOF, top-1 28/49)
+#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # пакет v4: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
 #   + [thresholds_by_markup.sp_dfine]
 #     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
 #     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,

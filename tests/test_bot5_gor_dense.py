@@ -66,10 +66,12 @@ def test_default_flag_off_and_noop():
 def test_enable_block_parses_and_is_complete():
     blk = _enable_block()
     assert blk["gor_dense"]["enabled"] is True
-    assert blk["gor_dense"]["head_md5"] and blk["gor_dense"]["centre_s"] > 0
+    assert blk["gor_dense"]["head_md5"] and blk["gor_dense"]["centre_s"] == 250.0
+    assert blk["thresholds_by_markup"]["gor_dense"]["gorodishcha"] == 0.824066
     st = GD.settings(blk)
     assert st["drop_dfine_classes"] == ["gorodishcha"] and st["k"] == 2 and st["suppress_m"] == 150.0
     assert st["gsds"] == [2.0, 4.0] and st["tile"] == 518 and st["stride"] == 392 and st["circle_r_m"] == 10.0
+    assert st["centre_s"] == 250.0
     # параметры есть; в корне репо артефактов нет → только файлы в списке недостающего
     miss = GD.missing_artifacts(blk, Path("/nonexistent"))
     assert miss and all("=" in m for m in miss)
@@ -246,8 +248,10 @@ def _build_mod():
     return mod
 
 
-def test_package_flag_off_excludes_gor_dense():
+def test_package_flag_off_excludes_gor_dense(monkeypatch):
     """Флаг ВЫКЛ.: gor_dense.py и его артефакты в архив не идут (набор файлов как v3 + ничего)."""
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     mod = _build_mod()
     names = {p.name for p in mod.collect() if p.parent == ROOT / "expds"}
     assert "gor_dense.py" not in names
