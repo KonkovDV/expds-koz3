@@ -91,3 +91,5 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 30.10 14:30 MSK | C | Gate prep: geo5 harness FOUND (pix_clean_eval/oof, R17* JSONs, compute_metrics). S3 geo pull started 320f/1.43GiB → w4geo/train. MISSING: bot7cand_v2 zip (Elena PC), oof/geojsons, modality-P/R-vs-v2 wrapper. No aaaa/cpu-2. Await PIXGBM_RECOVER brief for concrete GO.
 
 30.10 14:35 MSK | C | PIXGBM_RECOVER GO: geo pull DONE w4geo/train 1.5G; scripts/pix_geo_pr_gate.py added (C* vs REF, LB geo P/R); v2_clean terfl_pix=0.58017, maps etgr-only until gate. Await Elena v2-ref + A/D OOF finds-fix. v3a frozen.
+
+30.10 14:35 MSK | C | A ack: train/ canonical; v2-ref=Elena; OOF/finds-fix=A/exec, D=CPU folds. C (1)(2) DONE @81d502b pix_geo_pr_gate + terfl_pix=0.58017 maps=[etgr]. Idle for C*/REF geojsons. No aaaa/cpu-2.
