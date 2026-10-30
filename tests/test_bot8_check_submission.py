@@ -147,9 +147,12 @@ def test_guarded_import_sites(tmp_path, src, guarded):
 
 
 def test_real_code_lazy_imports_are_guarded():
-    """Текущий код: psutil (geo_pixgbm.process_t0) и tl2cgen (TreeliteModel под try в load_models) — с фолбэком."""
+    """Текущий код: ленивые psutil/tl2cgen, если достижимы из main, — только с фолбэком.
+
+    W4 DOC-1: legacy-модуль PIXGBM больше не достижим из inference/main.py (в архив не идёт), поэтому
+    мест импорта может не быть вовсе; требование — ни одного незащищённого."""
     _, reach = cs.scan_imports(ROOT)
     sites = cs.guarded_import_sites(ROOT, reach, {"psutil", "tl2cgen", "lleaves"})
-    assert sites["psutil"] and all(g for _, g in sites["psutil"]), sites["psutil"]
-    assert sites["tl2cgen"] and all(g for _, g in sites["tl2cgen"]), sites["tl2cgen"]
+    assert all(g for _, g in sites["psutil"]), sites["psutil"]
+    assert all(g for _, g in sites["tl2cgen"]), sites["tl2cgen"]
     assert sites["lleaves"] == []
