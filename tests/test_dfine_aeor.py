@@ -456,7 +456,10 @@ def test_phase_logs_per_region_and_total(monkeypatch, caplog):
     assert "dfine_aeor n_det=2 total" in caplog.text
 
 
-def test_not_packaged_when_off():
+def test_not_packaged_when_off(monkeypatch):
+    """Flag OFF → dfine_aeor.py not packaged. Must not require gitignored weights (pixgbm)."""
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     spec = importlib.util.spec_from_file_location("b6_build", ROOT / "scripts" / "build_submission.py")
     bs = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(bs)

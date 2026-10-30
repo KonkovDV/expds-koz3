@@ -366,6 +366,8 @@ def test_train_only_modules_unreachable_and_not_packaged():
     """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
     import ast
     import importlib.util
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
 
     mods = {p.stem: p for p in (ROOT / "expds").glob("*.py")}
 
@@ -427,7 +429,9 @@ def test_flag_modules_not_packaged_when_off():
     pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""
     import importlib.util
     import tomllib
+    from conftest import allow_missing_submission_models
 
+    allow_missing_submission_models(monkeypatch)
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     assert not cfg["sp_dfine"]["enabled"] and not cfg["gor_gate"]["enabled"]
     spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")
