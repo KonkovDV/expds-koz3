@@ -193,9 +193,10 @@ def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.nda
     Множитель e^(−|k|·h) — тот же, что у продолжения потенциального поля вверх
     (Nabighian, 1972; Roest et al., 1992): он гасит шум пикселя. kx, ky — рад/м
     при шаге res в метрах. Знак вертикальной производной не важен: она входит
-    квадратом. Пустые пиксели на время преобразования — ноль. Ступенька на краю
-    дырки дала бы ложный пик, поэтому ближнее поле дырки (радиус продолжения)
-    на выходе тоже пустое. Сплошная карта без дырок не меняется.
+    квадратом. Пустые пиксели на время преобразования — ноль. Ноль за краем растра и за
+    дыркой — ступенька, и она даёт ложный пик. Ближнее поле этой ступеньки
+    (радиус продолжения) не входит ни в масштаб, ни в карту пиков. Сданный
+    детектор по модулю этой функции не вызывает.
     """
     finite = np.isfinite(hp)
     f = np.where(finite, hp, 0.0).astype(np.float64)
@@ -210,14 +211,24 @@ def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.nda
         return np.fft.irfft2(spec * m, s=(py, px))[:ny, :nx]
 
     amp = np.sqrt(back(1j * kx) ** 2 + back(1j * ky) ** 2 + back(k) ** 2)
-    v = amp[finite]
+    reach = 1
+    if res > 0:
+        reach = max(1, int(np.ceil(max(float(upward_m), 0.0) / float(res))))
+    blind = np.zeros(finite.shape, dtype=bool)
+    if min(ny, nx) <= 2 * reach:
+        blind[:] = True
+    else:
+        blind[:reach, :] = blind[-reach:, :] = True
+        blind[:, :reach] = blind[:, -reach:] = True
+    if not finite.all():
+        blind |= _near_nodata(~finite, reach)
+    trust = finite & ~blind
+    v = amp[trust]
     if v.size:
         med = float(np.median(v))
         mad = float(np.median(np.abs(v - med))) * 1.4826 or 1.0
         amp = (amp - med) / mad
-    if not finite.all() and res > 0:
-        reach = max(1, int(np.ceil(max(float(upward_m), 0.0) / float(res))))
-        amp = np.where(_near_nodata(~finite, reach), np.nan, amp)
+    amp = np.where(blind, np.nan, amp)
     return np.where(finite, amp, np.nan).astype(np.float32)
 
 
