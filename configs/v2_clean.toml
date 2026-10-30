@@ -165,7 +165,8 @@ object_poly = 0.684725
 object_poly = 0.545825
 
 [thresholds_by_markup.terfl_pix]
-object_poly = 0.746421   # = default.toml; в v2-clean не используется (maps без terfl)
+# PIXGBM_RECOVER 30.10: sweep OOF 18 уч. → 0.58017 (26ad1ba/99002ab). Used only when maps includes "terfl".
+object_poly = 0.58017
 
 [thresholds_by_markup.etgr_org]
 # W4 v2-clean GEO-ORG3, PREREG 5ea8aea N0: без группового sweep — работает внутренний LOSO-порог моделей ORG3
@@ -303,7 +304,9 @@ model_dir = "models/pix_clean"   # относительный путь — от 
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
-maps = ["etgr"]   # v2-clean: TerFl pix выкл. (не гейтован); методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
+maps = ["etgr"]   # DEFAULT OFF TerFl until geo P/R gate vs v2 (PIXGBM_RECOVER 30.10).
+                       # To enable TerFl pix after gate PASS: maps = ["etgr", "terfl"]
+                       # (C-et was etgr+terfl; thr terfl_pix = 0.58017 below).
 t_pix = 0.5   # порог пикселя для object_poly
 backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
                        # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
