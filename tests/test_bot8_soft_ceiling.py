@@ -74,7 +74,9 @@ def test_t0_is_process_start_in_monotonic_base_budget_unchanged():
     assert g.t0 == watchdog.PROCESS_START <= g.run_t0
     assert g.elapsed() >= g.run_elapsed()
     assert abs(g.elapsed() - (time.monotonic() - watchdog.PROCESS_START)) < 5
-    assert abs(g.left() - (1500 - g.run_elapsed())) < 1e-6
+    # left() и run_elapsed() вызывают clock() отдельно — под нагрузкой suite
+    # разница двух семплов ~1e-6; допуск 1 мс (семантика: бюджет от run_t0).
+    assert abs(g.left() - (1500 - g.run_elapsed())) < 1e-3
     # 1620-сторож и мягкий потолок считают от одного начала
     assert abs((watchdog.PLATFORM_LIMIT_S - 180 - g.elapsed()) - watchdog.deadline_left(180)) < 1
 
