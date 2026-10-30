@@ -9,6 +9,8 @@ mod cpu;
 mod delaunay;
 mod fill;
 mod geo;
+mod gmatch;
+mod jsonfilter;
 mod grid;
 mod peaks;
 mod relief;
