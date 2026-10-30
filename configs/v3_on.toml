@@ -1,10 +1,9 @@
-# configs/v3_on.toml — сборка v3 «всё включено» (W4, bots/w4-gate).
-# = configs/default.toml bot-7 work8/default_v3on.toml (make_on.py): sp_dfine ВКЛ (f0, вариант R,
-# пороги bot-9 R_max f0), [thresholds_by_markup.or] arkhitektury 0.483891, [post.frame_prior] FR1h ВКЛ.
-# main.py читает только configs/default.toml → подставлять при сборке:
-#   python scripts/build_submission_git.py --repo . --label v3on --config configs/v3_on.toml
-# Приёмка: D-FINE R−A +0.019802 P 0.976 (bot-9 paired_5f, REPORT10_accept §1);
-# FR1h TOFR−TO +0.004042 P 0.999 (REPORT11_audit C3h) — измерен БЕЗ R; при R на трейне FR1h = 0 (PREREG_aeor §1).
+# configs/v3_on.toml — сборка v3 «всё включено» (W4, bots/w4-gate) поверх v2-clean (DOC-1 чистый).
+# = configs/v2_clean.toml (PIXGBM impl="clean" expds/pix_clean.py, maps=["etgr"], org_etgr=true; legacy PIXGBM в архив
+# не идёт) + флаги v3: sp_dfine ВКЛ (f0, вариант R, пороги bot-9 R_max f0), [thresholds_by_markup.or] arkhitektury
+# 0.483891, [post.frame_prior] FR1h ВКЛ. main.py читает только configs/default.toml → подставлять при сборке:
+#   python scripts/build_submission_git.py --repo . --label v3on --config configs/v3_on.toml --weight ...
+# Приёмка v3 поверх v2-clean: docs/PREREG_w4_v3on.md (honest-10 против базы v2clean).
 # Конфигурация инференса КОЗ №3. Пути к моделям — относительно корня архива.
 
 default_threshold = 0.15
@@ -152,7 +151,7 @@ kurgany_tselye = 1.000001
 [thresholds_by_markup.etgr]
 object_poly = 0.096635
 
-# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — bot-3/pixgbm/pc/thr_pix_full.json (bot-9, fit_thr.py:
+# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — thr_pix_full.json бота 3 (bot-9, fit_thr.py:
 # sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
 # те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
 # Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
@@ -166,7 +165,12 @@ object_poly = 0.684725
 object_poly = 0.545825
 
 [thresholds_by_markup.terfl_pix]
-object_poly = 0.746421
+object_poly = 0.746421   # = default.toml; в v2-clean не используется (maps без terfl)
+
+[thresholds_by_markup.etgr_org]
+# W4 v2-clean GEO-ORG3, PREREG 5ea8aea N0: без группового sweep — работает внутренний LOSO-порог моделей ORG3
+# (meta thr map/prof 0.1). Гейт FINAL19_gate_N0 PASS. (0.21579 из 99002ab — in-sample, снят.)
+object_poly = 0.0
 
 # Запасной путь без модели li: пики рельефа + LightGBM (3 класса); пороги — по его предсказаниям
 # вне обучения (F1 0,455 и 0,344).
@@ -291,12 +295,15 @@ point_circle_m = 0.3
 # Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
 # Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
 # потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
+# W4 DOC-1: выключено явно — legacy PIXGBM (по мотивам EN) не используется и в архив не идёт
+# (scripts/check_archive_clean.py); clean-room перепись — только impl = "clean" за флагом.
 enabled = true
-model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
+impl = "clean"
+model_dir = "models/pix_clean"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
-maps = ["maggr", "etgr", "terfl"]   # методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
+maps = ["etgr"]   # v2-clean: TerFl pix выкл. (не гейтован); методы, на которых работает pix (пресет U bot-6: ["etgr", "terfl"])
 t_pix = 0.5   # порог пикселя для object_poly
 backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <имя>.lleaves.so/.tl2cgen.so рядом с моделью
                        # (scripts/pixgbm_compile.py), те же вероятности; нет файла/не грузится → lightgbm
@@ -305,6 +312,13 @@ backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <и
 budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
                  # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+# W4 (impl="clean" only, all OFF by default; PREREG docs/PREREG_w4_pix_clean.md):
+org_maggr = false            # GEO-ORG1: MagGr candidates per organizer baseline 01 (expds/pix_org.py, models <model_dir>/org)
+org_classes = ["finds_points", "object_poly"]   # which ORG1 classes replace maggr candidates
+org_t_ref = 0.5              # ORG1: parent-score threshold for splitting merged blobs
+org2_band_mode = "rgb"       # GEO-ORG2: "jet" = EtGr scalar from jet palette (needs models trained with --band-mode jet)
+org2_mask = false            # GEO-ORG2: drop non-palette EtGr pixels (needs models trained with --org-mask)
+org_etgr = true              # GEO-ORG3: EtGr object_poly per organizer baseline 02, HGB mode (expds/pix_org_et.py, models <model_dir>/org)
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
 
@@ -396,6 +410,9 @@ kurgan_twins_only = true
 # классами отклонён: new34 −0,003728, 7 лишних FP городищ). Рамки сцен = bot-10 frame_boxes.json (168/168,
 # bot-7/work6/fr1h/boxes_cmp.out). Пороги sp_* в пакете прежние (в выборке, как в v2), не перенастроены на FR1h.
 # При D-FINE R группы sp_or/sp_focal/sp_focal2 на полностью пройденных SpOr-участках удаляются — там FR1h ничего не меняет.
+# W4 (bots/w4-gate): FR1h за флагом, по умолчанию ВЫКЛ (секция включается самим присутствием,
+# ключа enabled в коде нет — expds/watchdog.py:90). Включённая версия — configs/v3_on.toml
+# (build_submission_git.py --config configs/v3_on.toml).
 [post.frame_prior]
 groups = ["sp_or", "sp_focal", "sp_focal2"]
 classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
@@ -456,7 +473,7 @@ min_conf = 0.05
 # Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
 [sp_dfine]
 enabled = true
-weights = ["models/dfine_f0"]   # модель сдачи — dfine_f0 (final только после переноса порогов и приёмки)
+weights = ["models/dfine_f0"]   # модель сдачи — dfine_f0
 flip_tta = true
 fp16 = true
 convert = "circle"
