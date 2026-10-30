@@ -325,6 +325,11 @@ budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / ста
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
+ensemble_dirs = []   # C2 (opt-in, audit/PREREG_C2.md): P = среднее моделей этих каталогов, напр. ["models/pixgbm/Судьбищи",
+                     # "models/pixgbm/Семибратнее", "models/pixgbm/Гнёздово"]; [] — одна модель model_dir (как в сдаче)
+# SATf (opt-in, audit/PREREG_SATf.md): только finds_points MagGr — на карте с ядрами насыщения как данными + признак sat,
+# своей моделью; object_poly — как в S. Нет таблицы — выключено.
+# sat_finds = {core_max_m2 = 60, flag = true, model_dir = "models/pixgbm_sat/all"}
 
 [geophys.maggr.finds_points]
 background_m = 2.0
