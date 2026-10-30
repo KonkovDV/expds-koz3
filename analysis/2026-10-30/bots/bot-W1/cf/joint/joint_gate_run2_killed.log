@@ -1,0 +1,14 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+16:25:40 кэш стека meta_5606f42d02724784.json: кластеров 60
+16:25:40 кривые A из кэша curvesA_5606f42d02724784.pkl
+16:25:42 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1299 МБ
+16:25:44 A honest 0.3146153227 (ws_rr A 0.3146153227)
+16:25:46 S0a M_rp on A: 0.3189814936 vs ws_rr 0.3189814936 (Δ +0.004366)
+16:25:53 S0b RR1s-cf on A: 0.3323344499 vs ws_rr 0.3323344499 (Δ +0.017719)
+16:26:13 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+16:26:18 S1 V3P honest 0.333787 (W4 0.333787)
+16:26:23 extras pairs plain->rp {'gorodishcha': [80, 80], 'arkhitektury': [133, 133], 'fortifikatsii': [6, 6], 'object_poly': [1257, 1282]}
+16:26:34 J2_RR1s_cf_Mrp vs V3P: V 0.349399 Δall +0.015612 P 0.9845 | new34 +0.014787 | nolidar +0.001997 | floor True [] | PASS True
+16:26:34 J1_Mrp vs V3P: V 0.334549 Δall +0.000762 P 0.997 | new34 +0.000233 | nolidar +0.001361 | floor True [] | PASS False
+16:26:34 J2_vs_J1 vs J1: V 0.349399 Δall +0.014849 P 0.982 | new34 +0.014554 | nolidar +0.000636 | floor True [] | PASS False
+16:26:34 done 55 s

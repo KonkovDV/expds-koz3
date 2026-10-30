@@ -1,0 +1,1077 @@
+{
+ "stack": "/workspace/koz3/w5data/stack_arch.geojson",
+ "gt": "/workspace/koz3/w5data/gt_train_v2.geojson",
+ "metric": "/workspace/koz3/wt/w1/materials/compute_metrics.py",
+ "tau_mode": "fixed",
+ "base_mode": "frozen",
+ "folds": 10,
+ "clusters": 60,
+ "engine": "table",
+ "table": "/workspace/koz3/w5data/work/table.pkl",
+ "engine_check": {
+  "table_A_honest": 0.3146153226828423,
+  "hits_equal": {
+   "kurgany_povrezhdennye": true,
+   "kurgany_tselye": true,
+   "gorodishcha": true,
+   "arkhitektury": true,
+   "object_poly": true,
+   "fortifikatsii": true,
+   "finds_points": true
+  },
+  "n_pred_equal": {
+   "kurgany_povrezhdennye": true,
+   "kurgany_tselye": true,
+   "gorodishcha": true,
+   "arkhitektury": true,
+   "object_poly": true,
+   "fortifikatsii": true,
+   "finds_points": true
+  }
+ },
+ "A": {
+  "honest": {
+   "all": 0.3146153226828423,
+   "new34": 0.2964508527066795,
+   "nolidar": 0.14427407342564424
+  },
+  "reference_0314615": 0.3146153226828423,
+  "equal_to_M_honest_counts": true,
+  "unseen_dropped": 723,
+  "per_class": {
+   "kurgany_povrezhdennye": {
+    "f1": 0.3143334197423369,
+    "tp": 932.0,
+    "fp": 2756.0,
+    "fn": 2688.0,
+    "n_gt": 3620.0
+   },
+   "kurgany_tselye": {
+    "f1": 0.4830104821010559,
+    "tp": 693.0,
+    "fp": 1199.0,
+    "fn": 884.0,
+    "n_gt": 1577.0
+   },
+   "gorodishcha": {
+    "f1": 0.27932915651893264,
+    "tp": 25.0,
+    "fp": 72.0,
+    "fn": 93.0,
+    "n_gt": 118.0
+   },
+   "arkhitektury": {
+    "f1": 0.05824061944147095,
+    "tp": 25.0,
+    "fp": 853.0,
+    "fn": 382.0,
+    "n_gt": 407.0
+   },
+   "object_poly": {
+    "f1": 0.13054376295675083,
+    "tp": 78.0,
+    "fp": 68.0,
+    "fn": 1005.0,
+    "n_gt": 1083.0
+   },
+   "fortifikatsii": {
+    "f1": 0.15151468020075198,
+    "tp": 85.0,
+    "fp": 682.0,
+    "fn": 611.0,
+    "n_gt": 696.0
+   },
+   "finds_points": {
+    "f1": 0.5535965461223044,
+    "tp": 1641.0,
+    "fp": 1619.0,
+    "fn": 1837.0,
+    "n_gt": 3478.0
+   }
+  }
+ },
+ "variants": {
+  "V7": {
+   "spec": [
+    {
+     "oof": "/workspace/koz3/out/w1-dfine-ae-final/oof_dfine_ae_flipwbf.geojson",
+     "markup": "ae",
+     "tta": "flipwbf",
+     "tau": 0.7,
+     "tau_cls": {
+      "gorodishcha": 1.01,
+      "arkhitektury": 1.01
+     }
+    },
+    {
+     "oof": "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson",
+     "markup": "or",
+     "tta": "noflip",
+     "tau": 0.6,
+     "tau_cls": {
+      "gorodishcha": 1.01
+     }
+    }
+   ],
+   "n_extra": 244,
+   "touched_clusters": null,
+   "overlap_warnings": [],
+   "rebuild_equal": null,
+   "extra_by_class": {
+    "kurgany_povrezhdennye": 148,
+    "kurgany_tselye": 57,
+    "fortifikatsii": 10,
+    "arkhitektury": 29
+   },
+   "extra_regions": 19,
+   "new_regions_vs_A": [],
+   "frozen": {
+    "scores": {
+     "all": {
+      "A": 0.3146153226828423,
+      "B": 0.31791330167782256,
+      "delta": 0.003297978994980244,
+      "P_B_gt_A": 0.935,
+      "p5": -0.00018147227215180856,
+      "p95": 0.006367835708567975
+     },
+     "new34": {
+      "A": 0.2964508527066795,
+      "B": 0.2968947803544235,
+      "delta": 0.0004439276477440357,
+      "P_B_gt_A": 0.558,
+      "p5": -0.0010333828420846457,
+      "p95": 0.002734226950475213
+     },
+     "nolidar": {
+      "A": 0.14427407342564424,
+      "B": 0.15300277546772204,
+      "delta": 0.00872870204207779,
+      "P_B_gt_A": 0.874,
+      "p5": -0.0010445334410427172,
+      "p95": 0.027151711197537613
+     }
+    },
+    "floor": {
+     "kurgany_povrezhdennye": {
+      "f1_A": 0.3143334197423369,
+      "f1_B": 0.32240343827526313,
+      "d": 0.008070018532926215,
+      "tol": -0.002,
+      "tp": [
+       932.0,
+       971.0
+      ],
+      "fp": [
+       2756.0,
+       2865.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "f1_A": 0.4830104821010559,
+      "f1_B": 0.4812958317071812,
+      "d": -0.0017146503938746949,
+      "tol": -0.002,
+      "tp": [
+       693.0,
+       698.0
+      ],
+      "fp": [
+       1199.0,
+       1251.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "gorodishcha": {
+      "f1_A": 0.27932915651893264,
+      "f1_B": 0.27932915651893264,
+      "d": 0.0,
+      "tol": -0.002,
+      "tp": [
+       25.0,
+       25.0
+      ],
+      "fp": [
+       72.0,
+       72.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "arkhitektury": {
+      "f1_A": 0.05824061944147095,
+      "f1_B": 0.07077575805430904,
+      "d": 0.012535138612838087,
+      "tol": -0.005,
+      "tp": [
+       25.0,
+       31.0
+      ],
+      "fp": [
+       853.0,
+       876.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "object_poly": {
+      "f1_A": 0.13054376295675083,
+      "f1_B": 0.13054376295675083,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       78.0,
+       78.0
+      ],
+      "fp": [
+       68.0,
+       68.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "f1_A": 0.15151468020075198,
+      "f1_B": 0.15084247325262126,
+      "d": -0.0006722069481307213,
+      "tol": -0.005,
+      "tp": [
+       85.0,
+       85.0
+      ],
+      "fp": [
+       682.0,
+       692.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "finds_points": {
+      "f1_A": 0.5535965461223044,
+      "f1_B": 0.5535965461223044,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       1641.0,
+       1641.0
+      ],
+      "fp": [
+       1619.0,
+       1619.0
+      ],
+      "excluded": false,
+      "ok": true
+     }
+    },
+    "gate": {
+     "delta_ge_0.003": true,
+     "P_ge_0.9": true,
+     "floor_ok": true,
+     "new34_nolidar_not_down": true,
+     "PASS": true
+    },
+    "unseen_dropped": 723
+   },
+   "sec": 0.8
+  },
+  "V8b": {
+   "spec": [
+    {
+     "oof": "/workspace/koz3/w1/v8/oof/v8b.geojson",
+     "markup": "ae",
+     "tta": "flipwbf",
+     "tau": 0.7,
+     "tau_cls": {
+      "gorodishcha": 1.01,
+      "arkhitektury": 1.01
+     }
+    },
+    {
+     "oof": "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson",
+     "markup": "or",
+     "tta": "noflip",
+     "tau": 0.6,
+     "tau_cls": {
+      "gorodishcha": 1.01
+     }
+    }
+   ],
+   "n_extra": 240,
+   "touched_clusters": null,
+   "overlap_warnings": [],
+   "rebuild_equal": null,
+   "extra_by_class": {
+    "kurgany_povrezhdennye": 151,
+    "kurgany_tselye": 50,
+    "fortifikatsii": 10,
+    "arkhitektury": 29
+   },
+   "extra_regions": 19,
+   "new_regions_vs_A": [],
+   "frozen": {
+    "scores": {
+     "all": {
+      "A": 0.3146153226828423,
+      "B": 0.3179756086603803,
+      "delta": 0.0033602859775380134,
+      "P_B_gt_A": 0.941,
+      "p5": -0.00014206511744538206,
+      "p95": 0.006446527339567121
+     },
+     "new34": {
+      "A": 0.2964508527066795,
+      "B": 0.2968947803544235,
+      "delta": 0.0004439276477440357,
+      "P_B_gt_A": 0.558,
+      "p5": -0.0010333828420846457,
+      "p95": 0.002734226950475213
+     },
+     "nolidar": {
+      "A": 0.14427407342564424,
+      "B": 0.15245327446328616,
+      "delta": 0.008179201037641914,
+      "P_B_gt_A": 0.874,
+      "p5": -0.0010445334410427172,
+      "p95": 0.025471951430972282
+     }
+    },
+    "floor": {
+     "kurgany_povrezhdennye": {
+      "f1_A": 0.3143334197423369,
+      "f1_B": 0.3226283476900459,
+      "d": 0.008294927947708974,
+      "tol": -0.002,
+      "tp": [
+       932.0,
+       972.0
+      ],
+      "fp": [
+       2756.0,
+       2867.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "f1_A": 0.4830104821010559,
+      "f1_B": 0.48127000249779583,
+      "d": -0.00174047960326007,
+      "tol": -0.002,
+      "tp": [
+       693.0,
+       697.0
+      ],
+      "fp": [
+       1199.0,
+       1245.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "gorodishcha": {
+      "f1_A": 0.27932915651893264,
+      "f1_B": 0.27932915651893264,
+      "d": 0.0,
+      "tol": -0.002,
+      "tp": [
+       25.0,
+       25.0
+      ],
+      "fp": [
+       72.0,
+       72.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "arkhitektury": {
+      "f1_A": 0.05824061944147095,
+      "f1_B": 0.07077575805430904,
+      "d": 0.012535138612838087,
+      "tol": -0.005,
+      "tp": [
+       25.0,
+       31.0
+      ],
+      "fp": [
+       853.0,
+       876.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "object_poly": {
+      "f1_A": 0.13054376295675083,
+      "f1_B": 0.13054376295675083,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       78.0,
+       78.0
+      ],
+      "fp": [
+       68.0,
+       68.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "f1_A": 0.15151468020075198,
+      "f1_B": 0.15084247325262126,
+      "d": -0.0006722069481307213,
+      "tol": -0.005,
+      "tp": [
+       85.0,
+       85.0
+      ],
+      "fp": [
+       682.0,
+       692.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "finds_points": {
+      "f1_A": 0.5535965461223044,
+      "f1_B": 0.5535965461223044,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       1641.0,
+       1641.0
+      ],
+      "fp": [
+       1619.0,
+       1619.0
+      ],
+      "excluded": false,
+      "ok": true
+     }
+    },
+    "gate": {
+     "delta_ge_0.003": true,
+     "P_ge_0.9": true,
+     "floor_ok": true,
+     "new34_nolidar_not_down": true,
+     "PASS": true
+    },
+    "unseen_dropped": 723
+   },
+   "sec": 0.9
+  },
+  "V8bctl": {
+   "spec": [
+    {
+     "oof": "/workspace/koz3/w1/v8/oof/v8bctl.geojson",
+     "markup": "ae",
+     "tta": "flipwbf",
+     "tau": 0.7,
+     "tau_cls": {
+      "gorodishcha": 1.01,
+      "arkhitektury": 1.01
+     }
+    },
+    {
+     "oof": "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson",
+     "markup": "or",
+     "tta": "noflip",
+     "tau": 0.6,
+     "tau_cls": {
+      "gorodishcha": 1.01
+     }
+    }
+   ],
+   "n_extra": 240,
+   "touched_clusters": null,
+   "overlap_warnings": [],
+   "rebuild_equal": null,
+   "extra_by_class": {
+    "kurgany_povrezhdennye": 151,
+    "kurgany_tselye": 50,
+    "fortifikatsii": 10,
+    "arkhitektury": 29
+   },
+   "extra_regions": 19,
+   "new_regions_vs_A": [],
+   "frozen": {
+    "scores": {
+     "all": {
+      "A": 0.3146153226828423,
+      "B": 0.3179756086603803,
+      "delta": 0.0033602859775380134,
+      "P_B_gt_A": 0.941,
+      "p5": -0.00014206511744538206,
+      "p95": 0.006446527339567121
+     },
+     "new34": {
+      "A": 0.2964508527066795,
+      "B": 0.2968947803544235,
+      "delta": 0.0004439276477440357,
+      "P_B_gt_A": 0.558,
+      "p5": -0.0010333828420846457,
+      "p95": 0.002734226950475213
+     },
+     "nolidar": {
+      "A": 0.14427407342564424,
+      "B": 0.15245327446328616,
+      "delta": 0.008179201037641914,
+      "P_B_gt_A": 0.874,
+      "p5": -0.0010445334410427172,
+      "p95": 0.025471951430972282
+     }
+    },
+    "floor": {
+     "kurgany_povrezhdennye": {
+      "f1_A": 0.3143334197423369,
+      "f1_B": 0.3226283476900459,
+      "d": 0.008294927947708974,
+      "tol": -0.002,
+      "tp": [
+       932.0,
+       972.0
+      ],
+      "fp": [
+       2756.0,
+       2867.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "f1_A": 0.4830104821010559,
+      "f1_B": 0.48127000249779583,
+      "d": -0.00174047960326007,
+      "tol": -0.002,
+      "tp": [
+       693.0,
+       697.0
+      ],
+      "fp": [
+       1199.0,
+       1245.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "gorodishcha": {
+      "f1_A": 0.27932915651893264,
+      "f1_B": 0.27932915651893264,
+      "d": 0.0,
+      "tol": -0.002,
+      "tp": [
+       25.0,
+       25.0
+      ],
+      "fp": [
+       72.0,
+       72.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "arkhitektury": {
+      "f1_A": 0.05824061944147095,
+      "f1_B": 0.07077575805430904,
+      "d": 0.012535138612838087,
+      "tol": -0.005,
+      "tp": [
+       25.0,
+       31.0
+      ],
+      "fp": [
+       853.0,
+       876.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "object_poly": {
+      "f1_A": 0.13054376295675083,
+      "f1_B": 0.13054376295675083,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       78.0,
+       78.0
+      ],
+      "fp": [
+       68.0,
+       68.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "f1_A": 0.15151468020075198,
+      "f1_B": 0.15084247325262126,
+      "d": -0.0006722069481307213,
+      "tol": -0.005,
+      "tp": [
+       85.0,
+       85.0
+      ],
+      "fp": [
+       682.0,
+       692.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "finds_points": {
+      "f1_A": 0.5535965461223044,
+      "f1_B": 0.5535965461223044,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       1641.0,
+       1641.0
+      ],
+      "fp": [
+       1619.0,
+       1619.0
+      ],
+      "excluded": false,
+      "ok": true
+     }
+    },
+    "gate": {
+     "delta_ge_0.003": true,
+     "P_ge_0.9": true,
+     "floor_ok": true,
+     "new34_nolidar_not_down": true,
+     "PASS": true
+    },
+    "unseen_dropped": 723
+   },
+   "sec": 0.8
+  },
+  "V8": {
+   "spec": [
+    {
+     "oof": "/workspace/koz3/w1/v8/oof/v8.geojson",
+     "markup": "ae",
+     "tta": "flipwbf",
+     "tau": 0.7,
+     "tau_cls": {
+      "gorodishcha": 1.01,
+      "arkhitektury": 1.01
+     }
+    },
+    {
+     "oof": "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson",
+     "markup": "or",
+     "tta": "noflip",
+     "tau": 0.6,
+     "tau_cls": {
+      "gorodishcha": 1.01
+     }
+    }
+   ],
+   "n_extra": 240,
+   "touched_clusters": null,
+   "overlap_warnings": [],
+   "rebuild_equal": null,
+   "extra_by_class": {
+    "kurgany_povrezhdennye": 151,
+    "kurgany_tselye": 50,
+    "fortifikatsii": 10,
+    "arkhitektury": 29
+   },
+   "extra_regions": 19,
+   "new_regions_vs_A": [],
+   "frozen": {
+    "scores": {
+     "all": {
+      "A": 0.3146153226828423,
+      "B": 0.3179756086603803,
+      "delta": 0.0033602859775380134,
+      "P_B_gt_A": 0.941,
+      "p5": -0.00014206511744538206,
+      "p95": 0.006446527339567121
+     },
+     "new34": {
+      "A": 0.2964508527066795,
+      "B": 0.2968947803544235,
+      "delta": 0.0004439276477440357,
+      "P_B_gt_A": 0.558,
+      "p5": -0.0010333828420846457,
+      "p95": 0.002734226950475213
+     },
+     "nolidar": {
+      "A": 0.14427407342564424,
+      "B": 0.15245327446328616,
+      "delta": 0.008179201037641914,
+      "P_B_gt_A": 0.874,
+      "p5": -0.0010445334410427172,
+      "p95": 0.025471951430972282
+     }
+    },
+    "floor": {
+     "kurgany_povrezhdennye": {
+      "f1_A": 0.3143334197423369,
+      "f1_B": 0.3226283476900459,
+      "d": 0.008294927947708974,
+      "tol": -0.002,
+      "tp": [
+       932.0,
+       972.0
+      ],
+      "fp": [
+       2756.0,
+       2867.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "f1_A": 0.4830104821010559,
+      "f1_B": 0.48127000249779583,
+      "d": -0.00174047960326007,
+      "tol": -0.002,
+      "tp": [
+       693.0,
+       697.0
+      ],
+      "fp": [
+       1199.0,
+       1245.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "gorodishcha": {
+      "f1_A": 0.27932915651893264,
+      "f1_B": 0.27932915651893264,
+      "d": 0.0,
+      "tol": -0.002,
+      "tp": [
+       25.0,
+       25.0
+      ],
+      "fp": [
+       72.0,
+       72.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "arkhitektury": {
+      "f1_A": 0.05824061944147095,
+      "f1_B": 0.07077575805430904,
+      "d": 0.012535138612838087,
+      "tol": -0.005,
+      "tp": [
+       25.0,
+       31.0
+      ],
+      "fp": [
+       853.0,
+       876.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "object_poly": {
+      "f1_A": 0.13054376295675083,
+      "f1_B": 0.13054376295675083,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       78.0,
+       78.0
+      ],
+      "fp": [
+       68.0,
+       68.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "f1_A": 0.15151468020075198,
+      "f1_B": 0.15084247325262126,
+      "d": -0.0006722069481307213,
+      "tol": -0.005,
+      "tp": [
+       85.0,
+       85.0
+      ],
+      "fp": [
+       682.0,
+       692.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "finds_points": {
+      "f1_A": 0.5535965461223044,
+      "f1_B": 0.5535965461223044,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       1641.0,
+       1641.0
+      ],
+      "fp": [
+       1619.0,
+       1619.0
+      ],
+      "excluded": false,
+      "ok": true
+     }
+    },
+    "gate": {
+     "delta_ge_0.003": true,
+     "P_ge_0.9": true,
+     "floor_ok": true,
+     "new34_nolidar_not_down": true,
+     "PASS": true
+    },
+    "unseen_dropped": 723
+   },
+   "sec": 0.8
+  },
+  "V8ctl": {
+   "spec": [
+    {
+     "oof": "/workspace/koz3/w1/v8/oof/v8ctl.geojson",
+     "markup": "ae",
+     "tta": "flipwbf",
+     "tau": 0.7,
+     "tau_cls": {
+      "gorodishcha": 1.01,
+      "arkhitektury": 1.01
+     }
+    },
+    {
+     "oof": "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson",
+     "markup": "or",
+     "tta": "noflip",
+     "tau": 0.6,
+     "tau_cls": {
+      "gorodishcha": 1.01
+     }
+    }
+   ],
+   "n_extra": 240,
+   "touched_clusters": null,
+   "overlap_warnings": [],
+   "rebuild_equal": null,
+   "extra_by_class": {
+    "kurgany_povrezhdennye": 151,
+    "kurgany_tselye": 50,
+    "fortifikatsii": 10,
+    "arkhitektury": 29
+   },
+   "extra_regions": 19,
+   "new_regions_vs_A": [],
+   "frozen": {
+    "scores": {
+     "all": {
+      "A": 0.3146153226828423,
+      "B": 0.3179756086603803,
+      "delta": 0.0033602859775380134,
+      "P_B_gt_A": 0.941,
+      "p5": -0.00014206511744538206,
+      "p95": 0.006446527339567121
+     },
+     "new34": {
+      "A": 0.2964508527066795,
+      "B": 0.2968947803544235,
+      "delta": 0.0004439276477440357,
+      "P_B_gt_A": 0.558,
+      "p5": -0.0010333828420846457,
+      "p95": 0.002734226950475213
+     },
+     "nolidar": {
+      "A": 0.14427407342564424,
+      "B": 0.15245327446328616,
+      "delta": 0.008179201037641914,
+      "P_B_gt_A": 0.874,
+      "p5": -0.0010445334410427172,
+      "p95": 0.025471951430972282
+     }
+    },
+    "floor": {
+     "kurgany_povrezhdennye": {
+      "f1_A": 0.3143334197423369,
+      "f1_B": 0.3226283476900459,
+      "d": 0.008294927947708974,
+      "tol": -0.002,
+      "tp": [
+       932.0,
+       972.0
+      ],
+      "fp": [
+       2756.0,
+       2867.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "f1_A": 0.4830104821010559,
+      "f1_B": 0.48127000249779583,
+      "d": -0.00174047960326007,
+      "tol": -0.002,
+      "tp": [
+       693.0,
+       697.0
+      ],
+      "fp": [
+       1199.0,
+       1245.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "gorodishcha": {
+      "f1_A": 0.27932915651893264,
+      "f1_B": 0.27932915651893264,
+      "d": 0.0,
+      "tol": -0.002,
+      "tp": [
+       25.0,
+       25.0
+      ],
+      "fp": [
+       72.0,
+       72.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "arkhitektury": {
+      "f1_A": 0.05824061944147095,
+      "f1_B": 0.07077575805430904,
+      "d": 0.012535138612838087,
+      "tol": -0.005,
+      "tp": [
+       25.0,
+       31.0
+      ],
+      "fp": [
+       853.0,
+       876.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "object_poly": {
+      "f1_A": 0.13054376295675083,
+      "f1_B": 0.13054376295675083,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       78.0,
+       78.0
+      ],
+      "fp": [
+       68.0,
+       68.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "f1_A": 0.15151468020075198,
+      "f1_B": 0.15084247325262126,
+      "d": -0.0006722069481307213,
+      "tol": -0.005,
+      "tp": [
+       85.0,
+       85.0
+      ],
+      "fp": [
+       682.0,
+       692.0
+      ],
+      "excluded": false,
+      "ok": true
+     },
+     "finds_points": {
+      "f1_A": 0.5535965461223044,
+      "f1_B": 0.5535965461223044,
+      "d": 0.0,
+      "tol": -0.005,
+      "tp": [
+       1641.0,
+       1641.0
+      ],
+      "fp": [
+       1619.0,
+       1619.0
+      ],
+      "excluded": false,
+      "ok": true
+     }
+    },
+    "gate": {
+     "delta_ge_0.003": true,
+     "P_ge_0.9": true,
+     "floor_ok": true,
+     "new34_nolidar_not_down": true,
+     "PASS": true
+    },
+    "unseen_dropped": 723
+   },
+   "sec": 0.7
+  }
+ },
+ "pairwise": {
+  "V8b_vs_V7": {
+   "delta": 6.230698255776934e-05,
+   "P": 0.819
+  },
+  "V8bctl_vs_V7": {
+   "delta": 6.230698255776934e-05,
+   "P": 0.819
+  },
+  "V8_vs_V7": {
+   "delta": 6.230698255776934e-05,
+   "P": 0.819
+  },
+  "V8ctl_vs_V7": {
+   "delta": 6.230698255776934e-05,
+   "P": 0.819
+  },
+  "V7_vs_V8bctl": {
+   "delta": -6.230698255776934e-05,
+   "P": 0.051
+  },
+  "V8b_vs_V8bctl": {
+   "delta": 0.0,
+   "P": 0.0
+  },
+  "V8_vs_V8bctl": {
+   "delta": 0.0,
+   "P": 0.0
+  },
+  "V8ctl_vs_V8bctl": {
+   "delta": 0.0,
+   "P": 0.0
+  },
+  "V7_vs_V8ctl": {
+   "delta": -6.230698255776934e-05,
+   "P": 0.051
+  },
+  "V8b_vs_V8ctl": {
+   "delta": 0.0,
+   "P": 0.0
+  },
+  "V8bctl_vs_V8ctl": {
+   "delta": 0.0,
+   "P": 0.0
+  },
+  "V8_vs_V8ctl": {
+   "delta": 0.0,
+   "P": 0.0
+  }
+ },
+ "sec_total": 29.3,
+ "peak_rss_mb": 1796
+}

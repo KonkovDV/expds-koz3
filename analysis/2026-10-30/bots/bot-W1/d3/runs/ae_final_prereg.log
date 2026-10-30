@@ -1,0 +1,26 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+04:01:00 кэш стека meta_5606f42d02724784.json: кластеров 60
+04:01:00 кривые A из кэша curvesA_5606f42d02724784.pkl
+04:01:03 table.pkl: 1386709 объектов стека, 3 с, ОЗУ 1273 МБ
+04:01:04 движок table: A honest 0.3146153227; попадания = clusters: True; число предсказаний =: True
+04:01:05 A honest-10: all 0.3146153227 new34 0.2964508527 nolidar 0.1442740734; == M.honest_counts: True
+04:01:06 SANITY_AvsA_empty [frozen]: Δall +0.000000 P 0.0 | new34 +0.000000 | nolidar +0.000000 | floor True | PASS False
+04:01:07 SANITY_AvsA_rebuild [frozen]: Δall +0.000000 P 0.0 | new34 +0.000000 | nolidar +0.000000 | floor True | PASS False
+04:01:12 SANITY_pos_gt_circles [frozen]: Δall +0.137628 P 1.0 | new34 +0.134825 | nolidar +0.204053 | floor True | PASS True
+04:01:13 SANITY_neg_shift300 [frozen]: Δall -0.027147 P 0.0 | new34 -0.011049 | nolidar -0.006987 | floor False | PASS False
+04:01:17   часть ae/noflip oof_dfine_ae_noflip.geojson: детекций ≥пол 1251, растров 31 → объектов 1243
+04:01:18 V1 [frozen]: Δall -0.005194 P 0.17 | new34 -0.006027 | nolidar +0.003288 | floor False | PASS False
+04:01:23   часть ae/noflip oof_dfine_ae_noflip.geojson: детекций ≥пол 559, растров 23 → объектов 558
+04:01:23 V2 [frozen]: Δall -0.000047 P 0.486 | new34 -0.001209 | nolidar +0.005722 | floor False | PASS False
+04:01:28   часть ae/noflip oof_dfine_ae_noflip.geojson: детекций ≥пол 277, растров 16 → объектов 276
+04:01:28 V3 [frozen]: Δall +0.001024 P 0.743 | new34 +0.000001 | nolidar +0.005014 | floor False | PASS False
+04:01:32   часть ae/noflip oof_dfine_ae_noflip.geojson: детекций ≥пол 1438, растров 33 → объектов 1381
+04:01:33 V4 [frozen]: Δall -0.001480 P 0.335 | new34 -0.002134 | nolidar +0.005150 | floor False | PASS False
+04:01:34   часть or/noflip oof_dfine_or_noflip.geojson: детекций ≥пол 35, растров 3 → объектов 30
+04:01:34 V6 [frozen]: Δall +0.001250 P 0.631 | new34 +0.000000 | nolidar +0.001922 | floor True | PASS False
+04:01:38   часть ae/flipwbf oof_dfine_ae_flipwbf.geojson: детекций ≥пол 214, растров 16 → объектов 214
+04:01:39 V5 [frozen]: Δall +0.002048 P 0.85 | new34 +0.000444 | nolidar +0.006807 | floor True | PASS False
+04:01:42   часть ae/flipwbf oof_dfine_ae_flipwbf.geojson: детекций ≥пол 214, растров 16 → объектов 214
+04:01:42   часть or/noflip oof_dfine_or_noflip.geojson: детекций ≥пол 35, растров 3 → объектов 30
+04:01:43 V7 [frozen]: Δall +0.003298 P 0.935 | new34 +0.000444 | nolidar +0.008729 | floor True | PASS True
+04:01:43 готово за 44.2 с, ОЗУ пик 1747 МБ
