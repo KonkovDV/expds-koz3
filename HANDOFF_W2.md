@@ -34,7 +34,7 @@
    PASS → ждать f234 (до ~11,3 ч, ≈ до 14:30), забрать в `$K/w2/oof/r50c5/koz3-w2-cnx-r50c5-f234`, снять аренды.
 7. **Гейт (только PASS, после 5/5 фолдов).** Склейка: `$K/w2/tools/merge_cnx.py` (как для c3-sc, проверки: threshold_group, region_fold, 0 вне фолда, EPSG:3857), группа переименовывается в `li_r50c5`.
    Прогон по образцу `w2_gate/gate_s2/run_varb.sh` (prep.py → gate_v6c.py → gate_detail.py), см. раздел «Гейт honest-10». H1 аддитивно; H2 (замена курганов) только если H1 FAIL, P ≥ 0,95. Результат → боту 1 (принимают W4/W5).
-8. **P-W2-10 (DEM fill), если не закончен.** Код: флаг `lidar.dem_fill="tin_lowveg"` в `expds/lidar.py` (по умолчанию "delaunay"); скрипты `$K/w2/demfill/` (копия `w2_demfill/`): `build_relief.py` (C/T рельеф 015/021/186/190) → `run_inf.sh`/`infer_cpu.py` (c3-sc s0/s1/s2 веса своего фолда, CPU, `nice -n 10`) → `swap_sites.py` → `run_gate.sh`. Условия PASS — PREREG P-W2-10. Логи `$K/w2/demfill/*.log`, выход `$K/w2/demfill/out`.
+8. **P-W2-10 (DEM fill) — ЗАВЕРШЁН 30.10, FAIL, линия закрыта** (итог: `w2_demfill/out/result_P-W2-10.json`). Код: флаг `lidar.dem_fill="tin_lowveg"` в `expds/lidar.py` (по умолчанию "delaunay"); скрипты `$K/w2/demfill/` (копия `w2_demfill/`): `build_relief.py` (C/T рельеф 015/021/186/190) → `run_inf.sh`/`infer_cpu.py` (c3-sc s0/s1/s2 веса своего фолда, CPU, `nice -n 10`) → `swap_sites.py` → `run_gate.sh`. Условия PASS — PREREG P-W2-10. Логи `$K/w2/demfill/*.log`, выход `$K/w2/demfill/out`.
 9. **li_match (P-W2-5)** — после r50c5 и только если бот 1 даст GPU-квоту: нужно пофолдовое обучение c3-sc с `lidar.hillshade_style="li_match"` (5 фолдов, ~как s2: f01 + f23 + f4). Иначе закрыть как непроверяемое.
 
 ## Данные и как ими пользоваться
@@ -50,7 +50,7 @@
 | `elenakonkova/koz3-cnx-li-prep` | рельеф `cnx_relief/*.npy` (5 каналов) + `.json` | 1,6 ГБ | вход всех c3-sc/r50c5 ядер и CPU-инференса |
 | `aaaa0000004/koz3-w2-gaudit-las` | LAS 015/021/186/190 + Li-разметка + UTM | 10 ГБ | аудит земли, DEM fill (только аккаунт aaaa0000004) |
 | S3 `train-expds-3` | все LAS и разметка Li | — | первоисточник (`w2_tools/s3get.py`, ключи — koz3-s3-cred) |
-| `elenakonkova/koz3-w2-demfill` | появится после P-W2-10 | ~125 МБ | см. п. 8 |
+| `elenakonkova/koz3-w2-demfill` | создан 30.10 (приватный), P-W2-10 rel/maps/out | ≈177 МБ (56 файлов) | см. п. 8 |
 
 **Скачать:** `$PK elenakonkova datasets download -d elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip` (для gaudit — `$PK aaaa0000004 …`).
 **В ядро:** `kernel-metadata.json` → `"dataset_sources": ["elenakonkova/koz3-w2-weights", "elenakonkova/koz3-cnx-li-prep"]`; пути `/kaggle/input/<slug>/…` (на новых образах `/kaggle/input/datasets/<owner>/<slug>/…` — надёжно искать `glob('/kaggle/input/**/имя', recursive=True)`).
@@ -129,10 +129,10 @@ P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 
 | Рельеф `w2/relief/cnx_relief` (119 .npy/.json, 1,6 ГБ) | уже был: **elenakonkova/koz3-cnx-li-prep** (119/119 совпали по размеру) | download; пересборка — ядро dmitrijkv/koz3-cnx-li-prep (S3 → рельеф) |
 | LAS/Li-карты/разметка `w2/las` (54 файла, 1,9 ГБ; 7 участков) | S3 бакет `train-expds-3` (endpoint `https://s3.ru-7.storage.selcloud.ru`) — 54/54 совпали по пути и размеру со снимком листинга `$K/s3_keys.tsv` (29.10) | boto3 как в ядрах (ключи — приватный датасет elenakonkova/koz3-s3-cred, не печатать) |
 | `w2/gaudit/ds` LAS 015/021/186/190 + Li-разметка (10 ГБ) | S3 (те же LAS по размеру) + **aaaa0000004/koz3-w2-gaudit-las** (16 файлов, ready) | download с aaaa0000004 или S3 |
+| `w2/demfill/{rel,maps,out}` — P-W2-10 (рельеф C/T 4 участков, карты 2 арма × 3 сида, merged/gate/liscore/result json) | **elenakonkova/koz3-w2-demfill** — 56 файлов, ≈177 МБ (rel 100M, maps 67M, out 10M); `rel/{C,T}/`, `maps/{C,T}/s{0,1,2}/`, `out/` | download; пересборка: `w2/demfill/build_relief.py <участок> <delaunay\|tin_lowveg> rel/<C\|T>` → `run_inf.sh` (веса из koz3-w2-weights) → `run_gate.sh C <counts_s012.pkl>`, `run_gate.sh T <counts_C.pkl>`, `liscore.py` |
 | `w2/kernels` (скрипты ядер, 9 МБ) | git, эта ветка `w2_kernels/` | — |
 
 **Не выгружено (и почему):**
-- `w2/demfill/{rel,maps,out}` (≈125 МБ) — тест P-W2-10 ещё идёт, частичные результаты не бэкапились. Когда закончится: `mkdir -p $K/w2/bk/stage/demfill && cp -al $K/w2/demfill/{rel,maps,out} $K/w2/bk/stage/demfill/`, `dataset-metadata.json` с `"id":"elenakonkova/koz3-w2-demfill"`, затем `orch/lease.sh acquire dataset:elenakonkova/koz3-w2-demfill bot-W2-lidar 4` и `cd $K/w2/bk/stage/demfill && $PK elenakonkova datasets create -p . --dir-mode zip` (приватный по умолчанию). Веса для демфилла (`demfill/w`) уже в koz3-w2-weights. Рельеф пересобирается `w2/demfill/build_relief.py` из LAS в S3.
 - `w2/repo` (1,6 ГБ) — клон `KonkovDV/expds-koz3`, есть на GitHub.
 - `w2/bak/merged_pre_s2_0334` — дубль merged s0/s1/s01avg до s2 (те же файлы в koz3-w2-oof).
 - `w5data/work/X*.npy, geom_wkb.pkl, nested_*` — данные W5 (не W2), пересобираются `prep.py` из stack_arch + gt (см. «Гейт honest-10»).
@@ -142,7 +142,7 @@ P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 
 - `$K/w2/oof/merged/` — oof_cnx_c3-sc_{s0 64M, s1 62M, s2 71M, s01avg 62M (отдан W5), s012avg 63M}.geojson; s0 129M, s1 126M, s2 677M (`oof/s*`); li_hm `oof/lihm` 1,7G (карты npz)
 - `$K/w2/gate_s2/{s2,s012}` по 2,0G (стеки 1,1G, pkl), `varb` 206M, `varb_kur` 213M
 - `$K/w2/las` 5,2G, `$K/w2/gaudit/las` 6,7G (015/021/186/190), `$K/w2/relief/cnx_relief` 1,6G
-- `$K/w2/demfill/{rel 100M, w 368M (веса c3-sc), maps 13M}`
+- `$K/w2/demfill/{rel 100M, maps 67M, out 10M}` (в koz3-w2-demfill), `w 368M` (веса c3-sc, в koz3-w2-weights); `gate/{C,T}/work/counts_*.pkl` (стеки и table.pkl удалены, пересобираются run_gate.sh)
 - `$K/w5data/stack_arch.geojson` 1,1G (.gz 185M, sha 42ff3087…), `gt_train_v2.geojson` 38M, `work/table.pkl` 348M
 - Веса c3-sc: в output ядер Kaggle (elenakonkova/dmitrijkv, слаги koz3-w2-cnx-c3sc-*).
 

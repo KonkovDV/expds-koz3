@@ -17,3 +17,57 @@ wrote maps/C/s1/maps_cnx_186_Семибратнее_1.npz 20 tiles 57 s
 20/20 tiles 59s
 wrote maps/C/s2/maps_cnx_186_Семибратнее_1.npz 20 tiles 59 s
 == 11:16:00 T s0 015_Демидовка f2
+40/40 tiles 121s
+wrote maps/T/s0/maps_cnx_015_Демидовка.npz 40 tiles 121 s
+== 11:18:05 T s1 015_Демидовка f2
+40/40 tiles 125s
+wrote maps/T/s1/maps_cnx_015_Демидовка.npz 40 tiles 126 s
+== 11:20:14 T s2 015_Демидовка f2
+40/40 tiles 122s
+wrote maps/T/s2/maps_cnx_015_Демидовка.npz 40 tiles 123 s
+== 11:22:20 C s0 015_Демидовка f2
+40/40 tiles 121s
+wrote maps/C/s0/maps_cnx_015_Демидовка.npz 40 tiles 121 s
+== 11:24:25 C s1 015_Демидовка f2
+40/40 tiles 142s
+wrote maps/C/s1/maps_cnx_015_Демидовка.npz 40 tiles 143 s
+== 11:26:52 C s2 015_Демидовка f2
+40/40 tiles 178s
+wrote maps/C/s2/maps_cnx_015_Демидовка.npz 40 tiles 179 s
+== 11:29:54 T s0 021_Новенькое f3
+15/15 tiles 55s
+wrote maps/T/s0/maps_cnx_021_Новенькое.npz 15 tiles 55 s
+== 11:30:55 T s1 021_Новенькое f3
+15/15 tiles 59s
+wrote maps/T/s1/maps_cnx_021_Новенькое.npz 15 tiles 59 s
+== 11:31:57 T s2 021_Новенькое f3
+15/15 tiles 47s
+wrote maps/T/s2/maps_cnx_021_Новенькое.npz 15 tiles 47 s
+== 11:32:48 C s0 021_Новенькое f3
+15/15 tiles 54s
+wrote maps/C/s0/maps_cnx_021_Новенькое.npz 15 tiles 54 s
+== 11:33:45 C s1 021_Новенькое f3
+15/15 tiles 69s
+wrote maps/C/s1/maps_cnx_021_Новенькое.npz 15 tiles 69 s
+== 11:34:59 C s2 021_Новенькое f3
+15/15 tiles 47s
+wrote maps/C/s2/maps_cnx_021_Новенькое.npz 15 tiles 47 s
+== 11:35:52 T s0 190_Муравлево f4
+49/49 tiles 149s
+wrote maps/T/s0/maps_cnx_190_Муравлево.npz 49 tiles 149 s
+== 11:38:25 T s1 190_Муравлево f4
+49/49 tiles 154s
+wrote maps/T/s1/maps_cnx_190_Муравлево.npz 49 tiles 154 s
+== 11:41:02 T s2 190_Муравлево f4
+49/49 tiles 158s
+wrote maps/T/s2/maps_cnx_190_Муравлево.npz 49 tiles 159 s
+== 11:43:45 C s0 190_Муравлево f4
+49/49 tiles 366s
+wrote maps/C/s0/maps_cnx_190_Муравлево.npz 49 tiles 366 s
+== 11:49:56 C s1 190_Муравлево f4
+49/49 tiles 192s
+wrote maps/C/s1/maps_cnx_190_Муравлево.npz 49 tiles 193 s
+== 11:53:14 C s2 190_Муравлево f4
+49/49 tiles 176s
+wrote maps/C/s2/maps_cnx_190_Муравлево.npz 49 tiles 176 s
+ALLDONE 11:56:14
