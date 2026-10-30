@@ -171,15 +171,31 @@ SIGNALS = ("abs", "asa")
 POLARITIES = ("abs", "pos", "neg")
 
 
-def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.ndarray:
-    """Амплитуда аналитического сигнала √(gx² + gy² + gz²) в единицах MAD самой амплитуды.
+def _near_nodata(hole: np.ndarray, reach: int) -> np.ndarray:
+    """Дырка и пиксели в пределах reach: ближнее поле ступеньки «пусто → ноль»."""
+    if reach <= 0 or not hole.any():
+        return hole
+    h, w = hole.shape
+    pad = np.pad(hole, reach, mode="constant", constant_values=False)
+    out = np.zeros((h, w), dtype=bool)
+    r2 = reach * reach
+    for dr in range(2 * reach + 1):
+        for dc in range(2 * reach + 1):
+            if (dr - reach) ** 2 + (dc - reach) ** 2 <= r2:
+                out |= pad[dr:dr + h, dc:dc + w]
+    return out
 
-    Все производные — в спектре: gx = F⁻¹(i·kx·F), gy = F⁻¹(i·ky·F), gz = F⁻¹(|k|·F)
-    (Nabighian, 1972; Roest et al., 1992). Перед ними поле продолжается вверх на
-    upward_m: множитель e^(−|k|·h) — физический фильтр потенциального поля, без него
-    производные раздувают шум пикселя. Максимум амплитуды стоит над компактным
-    источником при любом наклонении. Пустые пиксели на время преобразования — ноль,
-    на выходе снова NaN.
+
+def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.ndarray:
+    """Амплитуда √(gx² + gy² + gz²) карты в единицах MAD самой амплитуды.
+
+    На вход приходит карта в своих единицах (после robust_z это уже не нТл).
+    Множитель e^(−|k|·h) — тот же, что у продолжения потенциального поля вверх
+    (Nabighian, 1972; Roest et al., 1992): он гасит шум пикселя. kx, ky — рад/м
+    при шаге res в метрах. Знак вертикальной производной не важен: она входит
+    квадратом. Пустые пиксели на время преобразования — ноль. Ступенька на краю
+    дырки дала бы ложный пик, поэтому ближнее поле дырки (радиус продолжения)
+    на выходе тоже пустое. Сплошная карта без дырок не меняется.
     """
     finite = np.isfinite(hp)
     f = np.where(finite, hp, 0.0).astype(np.float64)
@@ -199,6 +215,9 @@ def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.nda
         med = float(np.median(v))
         mad = float(np.median(np.abs(v - med))) * 1.4826 or 1.0
         amp = (amp - med) / mad
+    if not finite.all() and res > 0:
+        reach = max(1, int(np.ceil(max(float(upward_m), 0.0) / float(res))))
+        amp = np.where(_near_nodata(~finite, reach), np.nan, amp)
     return np.where(finite, amp, np.nan).astype(np.float32)
 
 

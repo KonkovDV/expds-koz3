@@ -29,3 +29,6 @@ def test_steep_ramp_is_dropped_and_flat_ground_is_kept():
     hole[n // 2, n // 2] = np.nan
     missing = Dem(dem=hole, left=left, top=top, res=res, crs="EPSG:32636")
     assert gentle_mask(missing, x, y, 12.0, res).tolist() == [True]
+    rim_x = np.array([left + 0.5 * res])
+    rim_y = np.array([top - 0.5 * res])
+    assert gentle_mask(steep, rim_x, rim_y, 12.0, res).tolist() == [True]

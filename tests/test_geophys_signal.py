@@ -75,6 +75,18 @@ def test_gradiometer_dipole_peaks_over_the_source(depth):
     assert v_asa[0] > 10 * v_asa[1]
 
 
+def test_asa_hole_is_not_a_source():
+    """Ноль в дырке — ступенька. Её ближнее поле не должно быть пиком находки."""
+    z = np.zeros((64, 64), np.float32)
+    yy, xx = np.mgrid[:64, :64]
+    z += np.exp(-((yy - 8) ** 2 + (xx - 8) ** 2) / 8.0).astype(np.float32)
+    z[28:36, 28:36] = np.nan
+    amp = geophys.analytic_signal(z, 0.25, upward_m=0.5)
+    assert np.isnan(amp[28:36, 28:36]).all()
+    assert np.isnan(amp[27, 28:36]).all()
+    assert np.isfinite(amp[8, 8]) and amp[8, 8] > amp[8, 50]
+
+
 def test_polarity_keeps_one_sign():
     hp = dipole()
     pos, neg = geophys.polarity_image(hp, "pos"), geophys.polarity_image(hp, "neg")

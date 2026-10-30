@@ -34,6 +34,12 @@ def gentle_mask(dem, xs, ys, max_deg: float, work_res: float) -> np.ndarray:
             for dc in range(3):
                 touch |= pad[dr:dr + h, dc:dc + w]
         sl[touch] = np.nan
+    # Край растра для ядра Хорна — повтор крайнего пикселя, не измеренный уклон.
+    if min(sl.shape) < 3:
+        sl[:] = np.nan
+    else:
+        sl[0, :] = sl[-1, :] = np.nan
+        sl[:, 0] = sl[:, -1] = np.nan
     cols = np.floor((xs - dem.left) / step).astype(np.int64)
     rows = np.floor((dem.top - ys) / step).astype(np.int64)
     inside = (rows >= 0) & (cols >= 0) & (rows < sl.shape[0]) & (cols < sl.shape[1])
