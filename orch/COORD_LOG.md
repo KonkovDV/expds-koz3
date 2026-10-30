@@ -305,3 +305,17 @@
 - 30.10 09:38 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
 - 30.10 09:50 MSK | coord | 15-мин проверка: box load 7.7/8 (полно); acc1/acc2 GPU/TPU заняты/hold; aaaa0000004/cpu и aaaadg4gg4g4g/cpu свободны (без интернета; CI2-1 ждёт ввод через датасет от W5, w3-seeds-v5 hold до 12:00). Новых запусков нет.
 - 30.10 09:55 MSK coord: добавлен orch/HANDOFF.md. ПРАВИЛО: HANDOFF.md (и STATE.md) обновлять и пушить после каждого значимого шага.
+- 30.10 09:57 MSK | coord | 15-мин проверка: box load 11.7/8 (полно); изменений с 09:50 нет; aaaa0000004/cpu и aaaadg4gg4g4g/cpu свободны (без интернета, готовых элементов нет: CI2-1 ждёт датасет-ввод от W5, w3-seeds-v5 hold до 12:00). Новых запусков нет.
+- 30.10 10:06 MSK | lease | release slot:acc2/cpu (bot-W2-lidar) by coord
+- 30.10 10:06 MSK | lease | release kernel:dmitrijkv/koz3-w2-hillshade-parity-s3 (bot-W2-lidar) by coord
+- 30.10 10:06 MSK | watcher | acc2/cpu: dmitrijkv/koz3-w2-hillshade-parity-s3 → COMPLETE; аренда снята; вывод → w2hs/out
+- 30.10 10:09 MSK | lease | release dataset:aaaa0000004/koz3-w2-gaudit-las (bot-W2-lidar) by bot-W2-lidar
+- 30.10 10:10 MSK | lease | release slot:acc1/gpu-1 (bot-W2-lidar) by bot-W2-lidar
+- 30.10 10:10 MSK | lease | release kernel:elenakonkova/koz3-w2-lihm-c3sc-f01234 (bot-W2-lidar) by bot-W2-lidar
+- 30.10 10:15 MSK | bot-W2 | P-W2-7 li_hm: COMPLETE → ранний стоп FAIL (Li-only mean f0/f1 0,3137 ≤ 0,3492), гейт не считался, линия heatmap закрыта; release slot:acc1/gpu-1 + kernel:elenakonkova/koz3-w2-lihm-c3sc-f01234
+- 30.10 10:10 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 30.10 11:10 MSK save W2 work
+- 30.10 10:10 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 30.10 10:11 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 30.10 11:11 MSK save w2_kernels
+- 30.10 10:11 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 30.10 10:14 MSK | lease | acquire slot:acc2/cpu → coord до 30.10 17:14 MSK fallback W3 kurgan seeds 69,70
+- 30.10 10:20 MSK | coord | 15-мин проверка: box load 8.5/8 (полно); acc2/cpu свободен с 10:06 (hillshade-parity COMPLETE) → push dmitrijkv/koz3-w3-kurgan-cpu-seeds seeds 69,70 (аренда coord 7 ч). acc1/gpu-1 свободен с 10:10 (li_hm FAIL, линия закрыта): готового GPU-ядра нет, CI2-5 (W3 bigobj, prereq ae/or-final выполнены) — нужен W3. acc2 GPU cooldown до сб 03:00; aaaa0000004/aaaadg4gg4g4g без интернета, готовых элементов нет.

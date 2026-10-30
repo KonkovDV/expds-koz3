@@ -5,14 +5,13 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": "bot-W2-lidar",
-   "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234",
+   "holder": null,
+   "kernel": null,
    "purpose": "P-W2-7 li_hm heatmap 5 folds (bot1 30.10 03:59)",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 30.10 03:47 MSK",
-   "since": "30.10 04:04 MSK",
-   "until": "30.10 14:04 MSK"
+   "last": "снято bot-W2-lidar 30.10 10:10 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc1/gpu-2",
@@ -67,14 +66,14 @@
   {
    "slot": "acc2/cpu",
    "account": "dmitrijkv",
-   "holder": "bot-W2-lidar",
-   "kernel": "dmitrijkv/koz3-w2-hillshade-parity-s3",
-   "purpose": "CI2-8 hsparity all S3 LAS (bot1 30.10 08:21)",
+   "holder": "coord",
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds",
+   "purpose": "fallback W3 kurgan seeds 69,70",
    "code": "w4pix/k",
    "class": "NON-CLEANROOM (geo_pixgbm.py от публичного решения EhimenNathan, вариант B): только исследование/сравнение, НЕ для архива",
-   "last": "снято coord 30.10 08:09 MSK",
-   "since": "30.10 08:27 MSK",
-   "until": "30.10 20:27 MSK"
+   "last": "снято coord 30.10 10:06 MSK",
+   "since": "30.10 10:14 MSK",
+   "until": "30.10 17:14 MSK"
   },
   {
    "slot": "box/cpu",
@@ -325,25 +324,6 @@
    "pid": 127340
   },
   {
-   "resource": "slot:acc1/gpu-1",
-   "owner": "bot-W2-lidar",
-   "since": 1793322285.136482,
-   "expires": 1793358285.136482,
-   "note": "P-W2-7 li_hm heatmap 5 folds (bot1 30.10 03:59)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 287098,
-   "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234"
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-w2-lihm-c3sc-f01234",
-   "owner": "bot-W2-lidar",
-   "since": 1793322285.167829,
-   "expires": 1793358285.167829,
-   "note": "P-W2-7",
-   "host": "grok-bot-vm-361051398",
-   "pid": 287103
-  },
-  {
    "resource": "slot:acc1/gpu-2",
    "owner": "coord",
    "since": 1793329482.962824,
@@ -390,34 +370,6 @@
    "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds"
   },
   {
-   "resource": "dataset:aaaa0000004/koz3-w2-gaudit-las",
-   "owner": "bot-W2-lidar",
-   "since": 1793338071.014545,
-   "expires": 1793597271.014545,
-   "note": "4 multi-class LAS for CI2-3v2",
-   "host": "grok-bot-vm-361051398",
-   "pid": 377001
-  },
-  {
-   "resource": "slot:acc2/cpu",
-   "owner": "bot-W2-lidar",
-   "since": 1793338071.044809,
-   "expires": 1793381271.044809,
-   "note": "CI2-8 hsparity all S3 LAS (bot1 30.10 08:21)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 377006,
-   "kernel": "dmitrijkv/koz3-w2-hillshade-parity-s3"
-  },
-  {
-   "resource": "kernel:dmitrijkv/koz3-w2-hillshade-parity-s3",
-   "owner": "bot-W2-lidar",
-   "since": 1793338071.079384,
-   "expires": 1793381271.079384,
-   "note": "CI2-8",
-   "host": "grok-bot-vm-361051398",
-   "pid": 377011
-  },
-  {
    "resource": "branch:bots/w4-pix-clean",
    "owner": "bot-W4-doc1g",
    "since": 1793341076.515846,
@@ -434,6 +386,16 @@
    "note": "W4 check_submission нового архива 545ef32a (DOC-1 guard)",
    "host": "grok-bot-vm-361051398",
    "pid": 461488
+  },
+  {
+   "resource": "slot:acc2/cpu",
+   "owner": "coord",
+   "since": 1793344458.104156,
+   "expires": 1793369658.104156,
+   "note": "fallback W3 kurgan seeds 69,70",
+   "host": "grok-bot-vm-361051398",
+   "pid": 486026,
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds"
   }
  ]
 }
