@@ -1,0 +1,1 @@
+{"n_elig": 1209619, "no_relief": 0, "moved": 204304, "tp_before": 3503, "G": 45, "L": 51, "near5_out": 976, "near5_moved": 239, "near5_G": 40, "shift_m_3857_p50": 4.4183537404706605, "net": -6, "net_frac_of_tp": -0.0017128175849272054, "net_conf>=0.1": 2, "net_conf>=0.3": 3, "net_conf>=0.5": 4, "stop": true}

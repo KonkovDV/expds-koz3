@@ -1,0 +1,17 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+50000
+100000
+150000
+200000
+250000
+geoms
+kurgany_povrezhdennye kurgany_povrezhdennye 4389
+kurgany_povrezhdennye kurgany_tselye 1592
+kurgany_tselye kurgany_povrezhdennye 3920
+kurgany_tselye kurgany_tselye 1715
+gorodishcha gorodishcha 207
+arkhitektury arkhitektury 228
+object_poly object_poly 796
+fortifikatsii fortifikatsii 596
+finds_points finds_points 2191
+done

@@ -134,6 +134,68 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
     return filled.astype(np.float32)
 
 
+LOWVEG_FILL = "tin_lowveg"   # P-W2-10: lidar.dem_fill="tin_lowveg"; по умолчанию "delaunay" (как было)
+LOWVEG = dict(classes=(1, 3), parent_m=0.5, open_r_m=1.5, dz_lo=-0.5, dz_hi=3.0)
+
+
+def fill_lowveg(dem: np.ndarray, las_path: str | Path, info: dict, max_pixels: int = DEFAULTS["max_pixels"],
+                ground_class: int = 2, base: str = "delaunay", p: dict = LOWVEG) -> tuple[np.ndarray, dict]:
+    """Дыры класса 2 → вершины из нижних отражений классов 1/3 (P-W2-10, PREREG_W2_cnx.md).
+
+    N = поклеточный min средних z классов 1 и 3 на сетке DEM; Lmin — min N в родителе 0,5 м; Lo — серое открытие Lmin
+    диском r=1,5 м. Родитель без точек класса 2 с −0,5 ≤ Lo − T0 ≤ +3 м (T0 — обычная заливка base) даёт вершину Lo
+    в центральной ячейке DEM внутри оболочки; затем та же fill_interior_holes(base). Без классов 1/3 — как base.
+    """
+    from scipy import ndimage as ndi
+
+    res = float(info["res"])
+    t0 = fill_interior_holes(dem, method=base)
+    low = None
+    for c in p["classes"]:
+        g, gi = accel.las_grid(las_path, res, int(c), max_pixels)
+        if g.shape != dem.shape or abs(float(gi["res"]) - res) > 1e-9:
+            raise RuntimeError(f"lowveg: сетка класса {c} {g.shape}@{gi['res']} ≠ DEM {dem.shape}@{res}")
+        low = g if low is None else np.fmin(low, g)
+    stats = dict(n_accept=0, n_parent_holes=0, params=dict(p, classes=list(p["classes"])))
+    if low is None or not np.isfinite(low).any():
+        return t0, stats
+    h, w = dem.shape
+    pm = float(p["parent_m"])
+    ri = np.minimum(((np.arange(h) + 0.5) * res // pm).astype(np.int64), int(h * res // pm + 1))
+    ci = np.minimum(((np.arange(w) + 0.5) * res // pm).astype(np.int64), int(w * res // pm + 1))
+    ph, pw = int(ri.max()) + 1, int(ci.max()) + 1
+    lmin = np.full((ph, pw), np.inf, np.float32)
+    hasg = np.zeros((ph, pw), bool)
+    for r0 in range(0, h, 2048):  # построчными блоками: без копии сетки на int64
+        sl = slice(r0, min(h, r0 + 2048))
+        R = np.broadcast_to(ri[sl, None], (sl.stop - sl.start, w)).ravel()
+        C = np.broadcast_to(ci[None, :], (sl.stop - sl.start, w)).ravel()
+        lv = low[sl].ravel(); fin = np.isfinite(lv)
+        np.minimum.at(lmin, (R[fin], C[fin]), lv[fin])
+        gv = np.isfinite(dem[sl]).ravel()
+        hasg[R[gv], C[gv]] = True
+    rad = int(round(p["open_r_m"] / pm))
+    yy, xx = np.mgrid[-rad:rad + 1, -rad:rad + 1]
+    disk = (yy * yy + xx * xx) <= rad * rad
+    lo = ndi.grey_opening(lmin, footprint=disk, mode="nearest")
+    lo[~np.isfinite(lmin)] = np.inf
+    # центральная ячейка DEM каждого родителя
+    cr = np.minimum(((np.arange(ph) + 0.5) * pm / res).astype(np.int64), h - 1)
+    cc = np.minimum(((np.arange(pw) + 0.5) * pm / res).astype(np.int64), w - 1)
+    CR, CC = np.meshgrid(cr, cc, indexing="ij")
+    t0c = t0[CR, CC]
+    dz = lo - t0c
+    ok = (~hasg) & np.isfinite(lo) & np.isfinite(t0c) & (dz >= p["dz_lo"]) & (dz <= p["dz_hi"]) & ~np.isfinite(dem[CR, CC])
+    stats.update(n_parent_holes=int((~hasg & np.isfinite(t0c)).sum()), n_accept=int(ok.sum()),
+                 n_lowveg_parents=int((~hasg & np.isfinite(lo) & np.isfinite(t0c)).sum()),
+                 dz_accept_med=float(np.median(dz[ok])) if ok.any() else None)
+    if not ok.any():
+        return t0, stats
+    d2 = dem.copy()
+    d2[CR[ok], CC[ok]] = lo[ok]
+    return fill_interior_holes(d2, method=base), stats
+
+
 def thin_keep(name: str, seed: int = 0) -> float:
     """С вероятностью 0,5 оставить 25–100 % точек земли, иначе все.
 
@@ -154,7 +216,11 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
     dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
     t1 = time.perf_counter()
     holes = int(np.count_nonzero(~np.isfinite(dem)))
-    dem = fill_interior_holes(dem, method=fill)
+    if fill == LOWVEG_FILL:
+        dem, lv = fill_lowveg(dem, las_path, info, max_pixels, ground_class)
+        info = dict(info, lowveg=lv)
+    else:
+        dem = fill_interior_holes(dem, method=fill)
     t2 = time.perf_counter()
     info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
                 backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
@@ -410,8 +476,39 @@ def dem_params(meta: dict | None = None, cfg: dict | None = None) -> dict:
     return {"res": float(lid.get("dem_res", MODEL_DEM["res"])), "fill": lid.get("dem_fill", MODEL_DEM["fill"])}
 
 
+HILLSHADE_STYLES = ("vendor", "li_match")
+
+
+def _hillshade_li_match(filled: np.ndarray, res: float) -> np.ndarray:
+    """CI2-8 (W2 T3, notes/w2/ci2_8/SUMMARY.md): отмывка ближе к Li_g организаторов —
+    Horn 3×3 по DEM, сглаженному гауссом σ=1 px; ESRI 315/45/z1. MAE к Li_g 2,4–4,6 против 3,1–6,1 у vendor."""
+    import math
+    from scipy import ndimage as ndi
+
+    z = ndi.gaussian_filter(np.asarray(filled, np.float32), 1.0)
+    k = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], np.float32) / (8.0 * res)
+    gx = -ndi.correlate(z, k, mode="nearest")
+    gy = ndi.correlate(z, k.T, mode="nearest")
+    slope = np.arctan(np.hypot(gx, gy))
+    aspect = np.arctan2(-gx, -gy)
+    zen, az = math.radians(45.0), math.radians(315.0)
+    shade = 255.0 * (math.cos(zen) * np.cos(slope) + math.sin(zen) * np.sin(slope) * np.cos(az - aspect))
+    return np.rint(np.clip(shade, 0.0, 255.0)).astype(np.uint8)
+
+
+def hillshade_for(cfg: dict | None):
+    """hillshade_set с lidar.hillshade_style из конфига (по умолчанию "vendor" — как было)."""
+    style = str(((cfg or {}).get("lidar", {}) or {}).get("hillshade_style", "vendor"))
+    if style not in HILLSHADE_STYLES:
+        raise ValueError(f"lidar.hillshade_style={style!r}, ожидается одно из {HILLSHADE_STYLES}")
+    if style == "vendor":
+        return hillshade_set
+    import functools
+    return functools.partial(hillshade_set, style=style)
+
+
 def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
-                  cycles_ch: float | None = None) -> dict[str, np.ndarray]:
+                  cycles_ch: float | None = None, style: str = "vendor") -> dict[str, np.ndarray]:
     """Отмывки по DEM: g, i — H×W uint8 (nodata 255); c, ch — 3×H×W uint8 (nodata 0)."""
     valid = np.isfinite(d.dem)
     if not valid.any():
@@ -422,13 +519,15 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
     filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32)
     out: dict[str, np.ndarray] = {}
     if "g" in tags or "i" in tags:
-        shade = accel.hillshade(filled, d.res, d.res)
+        shade = (_hillshade_li_match(filled, d.res) if style == "li_match"
+                 else accel.hillshade(filled, d.res, d.res))
         if "g" in tags:
             g = shade.copy()
             g[~valid] = 255
             out["g"] = g
         if "i" in tags:
-            i = (255 - shade.astype(np.int16)).astype(np.uint8)
+            # Li организаторов: g + i = 253 (CI2-8), у vendor 255
+            i = np.clip((253 if style == "li_match" else 255) - shade.astype(np.int16), 0, 255).astype(np.uint8)
             i[~valid] = 255
             out["i"] = i
     cycles = {"c": float(cycles_c),

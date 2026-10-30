@@ -1,0 +1,18 @@
+{
+ "time": "30.10 10:15 MSK",
+ "by": "bot-W2 (бот 3)",
+ "prereg": "P-W2-7 (f89a875)",
+ "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234 COMPLETE (t_total ~6 ч, report errors=[])",
+ "oof": {"path": "/workspace/koz3/w2/oof/lihm/koz3-w2-lihm-c3sc-f01234/oof_cnx_c3-sc.geojson", "sha256": "66663d351eb3ef9d1cb0ca3da00809fe3b6f2ee8f72df435a3880d32d570976e", "n": 80240,
+         "n_det": {"0": 7273, "1": 592, "2": 11750, "3": 17347, "4": 43278}},
+ "checks": {"folds_5of5": true, "threshold_group_li_hm": "80240/80240", "markup_type_li": "80240/80240",
+            "crs": "EPSG:3857 (urn:ogc:def:crs:EPSG::3857)", "region_fold": "region_fold и region_family совпадают со всеми 9 region_fold.json s0/s1/s2",
+            "outside_fold": 0, "region_missing": 0},
+ "li_only_score_compute_metrics": {"f0": 0.20989321162022118, "f1": 0.4175435617525448, "f2": 0.16103779920946032, "f3": 0.08620595901018699, "f4": 0.12171437739297926},
+ "early_stop": {"rule": "mean(f0,f1) li_hm <= 0.3492 (c3-sc s2: 0.2198/0.4786) -> линия закрыта, гейт не считается",
+                "mean_f0_f1": 0.3137, "triggered": true},
+ "gate": "НЕ считался (ранний стоп D5 по PREREG P-W2-7); H1/H2 не мерялись",
+ "verdict": "FAIL (ранний стоп). Линия heatmap закрыта без донастройки порогов/σ/β и без новых сидов; квота → W1/r50c5",
+ "kernel_warnings": "в каждом фолде 'контракт весов bot-8: ОШИБКА (задание продолжается) TypeError(контракт: голова li_hm не описана)' — несмертельно, только метаданные весов",
+ "leases_released": ["slot:acc1/gpu-1", "kernel:elenakonkova/koz3-w2-lihm-c3sc-f01234"]
+}

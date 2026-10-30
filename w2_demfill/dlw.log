@@ -1,0 +1,26 @@
+ok dmitrijkv/koz3-cnx-li-c3sc-f23
+total 125416
+drwxr-xr-x 2 box box     4096 Oct 30 10:58 .
+drwxr-xr-x 3 box box     4096 Oct 30 10:58 ..
+-rw-r--r-- 1 box box    71392 Oct 30 10:58 koz3-cnx-li-c3sc-f23.log
+-rw-r--r-- 1 box box 64170657 Oct 29 04:10 weights_cnx_c3-sc_f2.pt
+-rw-r--r-- 1 box box 64170657 Oct 29 04:10 weights_cnx_c3-sc_f3.pt
+ok dmitrijkv/koz3-cnx-li-c3sc-f4-v2
+total 62716
+drwxr-xr-x 2 box box     4096 Oct 30 10:58 .
+drwxr-xr-x 4 box box     4096 Oct 30 10:58 ..
+-rw-r--r-- 1 box box    40590 Oct 30 10:58 koz3-cnx-li-c3sc-f4-v2.log
+-rw-r--r-- 1 box box 64170657 Oct 29 14:51 weights_cnx_c3-sc_f4.pt
+ok elenakonkova/koz3-cnx-li-c3sc-s1f23
+total 125428
+drwxr-xr-x 2 box box     4096 Oct 30 10:58 .
+drwxr-xr-x 3 box box     4096 Oct 30 10:58 ..
+-rw-r--r-- 1 box box    82250 Oct 30 10:58 koz3-cnx-li-c3sc-s1f23.log
+-rw-r--r-- 1 box box 64170657 Oct 29 19:34 weights_cnx_c3-sc_f2.pt
+-rw-r--r-- 1 box box 64170657 Oct 29 19:34 weights_cnx_c3-sc_f3.pt
+ok elenakonkova/koz3-cnx-li-c3sc-s1f4
+total 62728
+drwxr-xr-x 2 box box     4096 Oct 30 10:58 .
+drwxr-xr-x 4 box box     4096 Oct 30 10:58 ..
+-rw-r--r-- 1 box box    49359 Oct 30 10:58 koz3-cnx-li-c3sc-s1f4.log
+-rw-r--r-- 1 box box 64170657 Oct 30 00:27 weights_cnx_c3-sc_f4.pt
