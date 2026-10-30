@@ -1,0 +1,52 @@
+# KOZ3 — доска задач оркестрации (единственный источник правды).
+# Основа: docs/STATUS_2026-10-29.md, docs/PLAN_PIVOT_2026-10-29.md, docs/MERGE_2026-10-29.md,
+#         docs/GPU_FARM_AND_SOTA_AUDIT_2026-10-28.md, kaggle/README_KAGGLE.md, docs/bots/2026-10-29/*.
+# Цель: ноль простоя CPU/GPU/TPU до 11.11 (квалификация 14.11, работаем к 11.11).
+# Правила: статус пишет только orch/dispatcher.py (runtime → orch/state.json); люди/боты правят
+#          priority/owner/depends_on через PR. Приёмка = honest-10 (PR #7) + гейт #8; в main — флагом off.
+version: 1
+deadline: "2026-11-11"
+accounts:
+  acc1: {user: elenakonkova, token_env: KAGGLE_JSON_1}
+  acc2: {user: dmitrijkv,    token_env: KAGGLE_JSON_2}
+quota:            # недельно, сброс — сб 00:00 UTC (03:00 МСК). API квоту не отдаёт → ОЦЕНКА по логам.
+  GPU: {hours: 30, concurrent: 2}
+  TPU: {hours: 20, concurrent: 1}
+  safety_margin_h: 2.0      # не пушим, если остаток − est_hours < margin
+  # снимок 29.10 21:00 МСК: acc2 GPU ≈32/30 (до сб 31.10 03:00), acc1 GPU ≈2/30, TPU 0/20 у обоих
+policy:
+  max_retries: 2
+  poll_minutes: 10
+  dry_run_default: false
+resources: [cpu-box, gpu@acc1, gpu@acc2, tpu@acc1, tpu@acc2]
+
+tasks:
+  # ── уже на Kaggle (не трогаем; диспетчер только отслеживает и освобождает слот) ──
+  - {id: cnx-c3sc-s1f4,  owner: bot-9, resource: gpu@acc1, kernel: koz3-cnx-li-c3sc-s1f4,  external: true, priority: 90, est_hours: 9}
+  - {id: cnx-c3sc-s1f23, owner: bot-9, resource: gpu@acc1, kernel: koz3-cnx-li-c3sc-s1f23, external: true, priority: 90, est_hours: 9}
+  - {id: tpu-smoke-acc1, owner: "2",   resource: tpu@acc1, kernel: koz3-acc2-tpu-smoke,    external: true, priority: 80, est_hours: 0.5}
+  - {id: tpu-cnx-c3sc,   owner: "2",   resource: tpu@acc2, kernel: koz3-tpu-cnx-c3sc-train, external: true, priority: 80, est_hours: 8}
+
+  # ── GPU: очередь ──
+  - id: kurgan-subclass             # упал: нет segmentation_models_pytorch → pip-фолбэк, enable_internet=true
+    owner: bot-4
+    resource: gpu@acc2              # датасеты dmitrijkv/* приватные: acc1 получает 403 (проверено 29.10)
+    alt_resources: [gpu@acc1]       # станет доступно после шаринга датасетов на elenakonkova (preflight проверит)
+    kernel: koz3-kurgan-subclass
+    dir: kaggle/2026-10-29/01_kurgan_subclass
+    priority: 85
+    est_hours: 3
+    depends_on: [cnx-c3sc-s1f4]     # «после текущих фолдов»
+    acceptance: honest-10
+  - {id: cnx-c5sc-f01, owner: bot-9, resource: gpu@acc2, alt_resources: [gpu@acc1], kernel: koz3-cnx-li-c5sc-f01, dir: kaggle/2026-10-28/convnext_lidar/koz3-cnx-li-c5sc-f01, priority: 60, est_hours: 9, depends_on: [cnx-c3sc-s1f23], acceptance: honest-10}
+  - {id: cnx-c5sc-f23, owner: bot-9, resource: gpu@acc2, alt_resources: [gpu@acc1], kernel: koz3-cnx-li-c5sc-f23, dir: kaggle/2026-10-28/convnext_lidar/koz3-cnx-li-c5sc-f23, priority: 58, est_hours: 9, depends_on: [cnx-c5sc-f01], acceptance: honest-10}
+  - {id: nolidar-verifier, owner: bot-6, resource: gpu@acc2, alt_resources: [gpu@acc1], kernel: koz3-nolidar-verifier, dir: kaggle/2026-10-28/nolidar_verifier/kernel, priority: 50, est_hours: 3, acceptance: honest-10}
+
+  # ── TPU: очередь (20 ч/нед на акк. — ЗАНЯТЬ) ──
+  - {id: tpu-cnx-c5sc, owner: "2", resource: tpu@acc2, alt_resources: [tpu@acc1], kernel: koz3-cnx-li-tpu-c5sc, dir: kaggle/2026-10-28/convnext_lidar_tpu/koz3-cnx-li-tpu-c5sc, priority: 70, est_hours: 8, depends_on: [tpu-cnx-c3sc], acceptance: honest-10}
+  - {id: tpu-cnx-sc,   owner: "2", resource: tpu@acc1, alt_resources: [tpu@acc2], kernel: koz3-cnx-li-tpu-sc,   dir: kaggle/2026-10-28/convnext_lidar_tpu/koz3-cnx-li-tpu-sc,   priority: 65, est_hours: 8, depends_on: [tpu-smoke-acc1], acceptance: honest-10}
+
+  # ── CPU box (8 ядер; данных конкурса нет → только код/анализ по выгрузкам) ──
+  - {id: aero-recall-audit, owner: "3", resource: cpu-box, priority: 95, est_hours: 4, note: "PLAN_PIVOT п.1: GSD/CRS, фильтры площади, NMS, пороги, dedupe по типу, лимит 20 000"}
+  - {id: honest10-gate,     owner: "4", resource: cpu-box, priority: 88, est_hours: 1, note: "прогон OOF honest-10 (PR #7) по каждому завершённому ядру; вердикт в state.json"}
+  - {id: submission-assembly, owner: "5", resource: cpu-box, priority: 40, est_hours: 1, note: "check_submission + сборка финальных 2 кандидатов; только флаги прошедшие гейт"}
