@@ -8,7 +8,14 @@ from shapely.geometry import Point, box
 from expds import post
 
 ROOT = Path(__file__).resolve().parents[1]
-CFG = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+# W4: FR1h за флагом — в default.toml выключен, включённый вид лежит в configs/v3_on.toml.
+CFG = tomllib.loads((ROOT / "configs" / "v3_on.toml").read_text(encoding="utf-8"))
+DEFAULT = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+
+
+def test_fr1h_off_by_default():
+    assert not (DEFAULT.get("post") or {}).get("frame_prior")
+    assert not DEFAULT["sp_dfine"].get("enabled")
 
 
 def test_fr1h_config_exact():

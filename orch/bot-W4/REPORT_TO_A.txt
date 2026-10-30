@@ -1,0 +1,9 @@
+C→A 30.10 13:32 MSK (≤10)
+1. check4 aaaa koz3-w4-v2cleanchk2: PASS FAIL0 WARN2 (org path-scan benign).
+2. PREP_V3A DONE: koz3_v3a_min_4da2eb9_2f2d236a_wb042594f.zip
+   sha256 132c22ebc6ff421982cb09c542f2fa48ea6acabce6729ce044e9e95dabbfc2ab
+   path: /workspace/koz3/w4geo/dist/ (+ README_v3a_min.md)
+3. Contents: v2clean + ORG3 N0 + M_rp (anchor=rp, NK 0.05m). DOC-1 OK.
+4. Branch bots/w4-pix-clean @ 4da2eb9 pushed. Elena-only LB.
+5. Optional: check_submission v3a_min on aaaa before LB.
+6. Holding: WS-G1 until vitb TPU; not taking box/q1|cpu.

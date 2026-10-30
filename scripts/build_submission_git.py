@@ -141,7 +141,9 @@ def main() -> int:
     files: dict[str, bytes] = {}
     pick = ["metadata.json", "inference/main.py"]
     pick += [p for p in tracked if p.startswith("inference/lib/expds_core") and p.endswith(".so")]
-    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")]
+    # W4 DOC-1: файлы, производные от EN, в архив не идут (scripts/check_archive_clean.py)
+    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")
+             and PurePosixPath(p).name not in {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}]
     for p in pick:
         files[p] = blob(p)
     # expds_fast*.so (Rust-сетка LAS для lidar_a, expds/las_grid_fast.py) — из колеса, закоммиченного в этом коммите
@@ -235,6 +237,12 @@ def main() -> int:
     if size > LIMIT:
         tmp.unlink()
         sys.exit(f"архив {size / 2**20:.0f} МиБ > 2048 МиБ — уберите веса из конфига")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_archive_clean import check as doc1_check   # W4 DOC-1
+    viol = doc1_check(tmp)
+    if viol:
+        tmp.unlink()
+        sys.exit("DOC-1: архив не чистый:\n" + "\n".join(viol))
     tmp.replace(out)
     zsha = hashlib.sha256(out.read_bytes()).hexdigest()
     manifest = {"zip": name, "sha256": zsha, "bytes": size, "git": sha, "ref": args.ref, "label": args.label,
