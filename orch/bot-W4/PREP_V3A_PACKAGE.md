@@ -1,3 +1,6 @@
+# ⛔ НЕ ДЛЯ LB (30.10 14:27 MSK)
+Elena LB 0.41238→0.37838: весь спад — геофизика (PIXGBM cut / TerFl off). v3a_min **не** следующий LB. См. `orch/LB_DROP_20261030.md`. Путь: cleanroom PIXGBM + TerFl 0.58017; gate geo P/R ≥ v2 (~.769/.656) vs bot7cand_v2/geo5, не vs A.
+
 # PREP: пакет v2clean + ORG3 + M_rp для Елены (C, 30.10 13:32 MSK) — DONE
 Цель LB#1. Не сабмитить ботам — только Елена.
 

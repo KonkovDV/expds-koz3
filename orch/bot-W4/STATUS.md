@@ -85,3 +85,5 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 30.10 13:32 MSK | C | check4 PASS (aaaa koz3-w4-v2cleanchk2, FAIL0 WARN2). PREP_V3A DONE: koz3_v3a_min_4da2eb9_2f2d236a_wb042594f.zip sha256 132c22eb… (v2clean+ORG3+M_rp), DOC-1 OK, README_v3a_min.md. Branch bots/w4-pix-clean @ 4da2eb9. Не сабмитить — Елена. Next: optional check_submission v3a_min on aaaa; WS-G1 after vitb.
 
 30.10 13:37 MSK | C | v3a_min check_submission aaaa/koz3-w4-v3amin-chk: PASS FAIL0 WARN2 (sha132c22eb OK, smoke 14s). Log: w4geo/kaggle/out_v3a_min_chk/check_submission.log. Leases aaaa/cpu-2 + dataset/kernel released. Elena-ready; LB untouched.
+
+30.10 14:27 MSK | C | A PRIORITY: LB 0.412→0.378 = geo PIXGBM cut (DOC-1). v3a_min **NOT next LB**. Path: cleanroom PIXGBM per PIXGBM_SPEC_CLEANROOM + TerFl 0.58017; gate geo P/R ≥ v2 (~.769/.656) vs bot7cand_v2/geo5, not A. Waiting PIXGBM_RECOVER_*.md from coord. No LB submit. WS-G1 hold. Blockers: recover brief not on disk yet; need geo5/v2 baseline artifacts + TerFl re-enable; box still lacks full geo rasters for retrain if needed.
