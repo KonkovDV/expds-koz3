@@ -609,7 +609,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
         except Exception as exc:
-            log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+            # bot-7 (v4, REPORT13_lbv2 бота 10): громкий отказ — копии аэро-курганов с лидара потеряны, маркер ловит check_submission
+            log.exception("LI_TO_AE_FAILED: %s: копирование курганов лидара в ae не выполнено, ae без копий (%s: %s)",
+                          reg.name, type(exc).__name__, str(exc)[:300])
     return _with_copies(feats, reg, cfg)
 
 
@@ -736,6 +738,19 @@ def optics_order(regions: list[Region], cfg: dict) -> list[Region]:
     if (cfg.get("time") or {}).get("optics_order", "name") != "small_first":
         return list(regions)
     return sorted(regions, key=lambda r: (optical_bytes(r), r.name))
+
+
+def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: dict[str, list[dict]]) -> None:
+    """bot-7 v3: оптика могла идти в порядке optics_order (small_first), но объекты в состоянии — в исходном
+    порядке участков, как при optics_order = "name". Поэтому выход при запасе времени побайтно тот же, а при
+    нехватке — те же объекты пройденных участков. Состояние сторож пишет и во время прохода (запись идёт сразу),
+    перестановка — только в конце, и только если в состояние за это время ничего чужого не добавилось."""
+    snap = state.snapshot()
+    n_opt = sum(len(v) for v in by_reg.values())
+    if len(snap) != n_before + n_opt:
+        log.warning("порядок оптики не восстановлен: состояние изменилось во время прохода")
+        return
+    state.replace(snap[:n_before] + [f for r in regions for f in by_reg.get(r.name, [])])
 
 
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
@@ -1307,12 +1322,12 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     return feats
 
 
-def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
     """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
     from . import sp_dfine
 
     st = sp_dfine.settings(cfg)
-    cache: dict = {}
+    cache = {} if cache is None else cache   # bot-6: общий с dfine_aeor (модели по каталогу весов)
     n = 0
     full: list[str] = []
     for reg in regions:
@@ -1336,8 +1351,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
         n += len(found)
         if complete:
             full.append(reg.name)
-        if found:
-            log.info("%s: sp_dfine %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        log.info("sp_dfine n_det=%d region=%s complete=%s, прошло %.0f с", len(found), reg.name, complete,
+                 guard.elapsed())
         if not cache.get("models"):
             break
     note = getattr(state, "note", None)
@@ -1407,6 +1422,48 @@ def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[d
         out.append(f)
     return out
 
+
+def _dfine_aeor_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
+    """bot-6 (на v3): D-FINE всех классов на Ae/Or, группы dfine_ae/dfine_or, markup_type родной.
+
+    Не готов (preflight: веса/пороги/импорт) → DFINE_AEOR_UNAVAILABLE в журнале, фаза пропущена. Участки — от
+    дешёвых к дорогим; мягкий потолок на каждый участок; потолок фазы [dfine_aeor] budget_s; сторож с запасом.
+    """
+    from . import dfine_aeor
+
+    st = dfine_aeor.settings(cfg)
+    pre = state.note.get("dfine_aeor") or {}
+    if not pre.get("ok"):
+        log.info("dfine_aeor n_det=0 total (не готов: %s)", "; ".join(pre.get("problems") or ["нет preflight"]))
+        return 0
+    cache = {} if cache is None else cache
+    cache["cfg"] = cfg
+    t_start = time.monotonic()
+    phase_left = lambda: float(st["budget_s"]) - (time.monotonic() - t_start)   # noqa: E731
+    n = 0
+    found_all: list[dict] = []
+    for reg in dfine_aeor.order_regions(regions, st["markups"]):
+        if not guard.ok(60) or phase_left() <= 0:
+            log.warning("dfine_aeor: времени не осталось (%s)", reg.name)
+            break
+        if not _soft_ok(guard, "dfine_aeor", f"D-FINE Ae/Or {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found = dfine_aeor.region_feats(
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
+                soft_ok=lambda what, need: _soft_ok(guard, "dfine_aeor", what, need), phase_left=phase_left)
+        except Exception:
+            log.exception("%s: dfine_aeor пропущен", reg.name)
+            found = []
+        found_all += found
+        n += len(found)
+        log.info("dfine_aeor n_det=%d region=%s, прошло %.0f с", len(found), reg.name, guard.elapsed())
+    found_all = dfine_aeor.cap(found_all, int(st["max_objects"]))
+    state.add(found_all)
+    state.note.setdefault("dfine_aeor", {}).update({"n_det": n, "kept": len(found_all),
+                                                    "t_view": cache.get("t_view", {})})
+    log.info("dfine_aeor n_det=%d total, после cap %d, %.0f с", n, len(found_all), time.monotonic() - t_start)
+    return len(found_all)
 
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
@@ -1480,6 +1537,14 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         from . import aeor_dfine as _aod   # bot-1: strict preflight до работы, как у sp_dfine
 
         state.note["aeor_dfine"] = _aod.preflight(cfg, root)
+    if (cfg.get("dfine_aeor") or {}).get("enabled"):
+        from . import dfine_aeor as _dfa   # bot-6: ленивый импорт только при флаге; пороги из thresholds_file → cfg
+
+        try:
+            state.note["dfine_aeor"] = _dfa.preflight(cfg, root)
+        except Exception as exc:  # noqa: BLE001
+            log.error("%s: preflight упал (%s: %s) — фаза пропущена", _dfa.UNAVAILABLE, type(exc).__name__, exc)
+            state.note["dfine_aeor"] = {"ok": False, "problems": [str(exc)[:300]]}
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))
@@ -1494,6 +1559,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
+        if (cfg.get("orgate") or {}).get("enabled"):
+            # bot-6 ORGATE: правило LAS и r_las — по наличию LAS во входном каталоге участка (как las_boxes_59 в трейне)
+            from .orgate import CATALOG_KEY, catalog_info
+
+            cfg[CATALOG_KEY] = catalog_info(regions)
         n_las = sum(len(r.las) for r in regions)
         by_raster: dict[str, int] = {}
         n_skipped = 0
@@ -1561,6 +1631,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         phases.append(("лидар", n_phase, time.monotonic() - t_phase))
         t_phase = time.monotonic()
         n_phase = 0
+        n_before_optics = len(state.snapshot())
+        optics_by_reg: dict[str, list[dict]] = {}
         for reg in optics_order(regions, cfg):
             if not guard.ok(60):
                 log.warning("на оптику времени не осталось")
@@ -1571,20 +1643,43 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 log.exception("%s: оптика пропущена", reg.name)
                 found = []
             state.add(found)
+            optics_by_reg[reg.name] = found
             n_phase += len(found)
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        _restore_optics_order(state, regions, n_before_optics, optics_by_reg)
+        dfine_cache: dict = {}   # bot-6: общий кэш моделей D-FINE (sp_dfine, dfine_aeor)
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
         if (cfg.get("sp_dfine") or {}).get("enabled"):
             # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
             t_phase = time.monotonic()
-            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
+            n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
         if (cfg.get("aeor_dfine") or {}).get("enabled"):
             # bot-1 (v4-кандидат): D-FINE всех классов на Ae/Or; без флага ветка не входит
             t_phase = time.monotonic()
             n_phase = _aeor_dfine_phase(regions, cfg, guard, state, root)
             phases.append(("aeor_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("dfine_aeor") or {}).get("enabled"):
+            # bot-6: D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
+            t_phase = time.monotonic()
+            n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)
+            phases.append(("dfine_aeor", n_phase, time.monotonic() - t_phase))
+        # Порядок (v4): _sp_dfine_phase → dfine_aeor → gor_dense → gor_gate → пороги/merge (watchdog.finish).
+        if (cfg.get("gor_dense") or {}).get("enabled"):
+            # bot-5 (PFnoD бота 10): точки городищ плотного локализатора DINOv2-S на SpOr после sp_dfine/drop_groups и ДО gor_gate,
+            # группа gor_dense + noD (без флага ветка не входит: выдача байт-в-байт как v3)
+            t_phase = time.monotonic()
+            n_phase = 0
+            try:
+                from . import gor_dense
+
+                snap, n_phase = gor_dense.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root, guard=guard,
+                                                soft_ok=lambda what, need: _soft_ok(guard, "gor_dense", what, need))
+                state.replace(snap)
+            except Exception:
+                log.exception("GOR_DENSE_UNAVAILABLE: gor_dense пропущен (выдача без точек и без noD)")
+            phases.append(("gor_dense", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate

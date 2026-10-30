@@ -124,9 +124,9 @@ def load_backbone(st: dict, root: Path, device):
     import torch
     from safetensors.torch import load_file
 
-    from .sp_dfine import _vendor_path
+    from .sp_dfine import import_dfine
 
-    _vendor_path(root)
+    import_dfine(root)   # тот же закреплённый transformers 5.21.0 (вендор → env той же версии), иначе ImportError
     from transformers import Dinov2Config, Dinov2Model
 
     d = _p(root, st["backbone"])
@@ -226,6 +226,10 @@ def _epsg(reg) -> int | None:
     from .catalog import read_utm_json
 
     c = read_utm_json(getattr(reg, "utm_json", None))
+    paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
+    if c and paths:   # bot-6 crsfix: географическая CRS UTM.json (008_Герите, 4326) → зона UTM по центру растра
+        from .sp_dfine import utm_for
+        c = utm_for(Path(paths[0]), c)
     try:
         return int(str(c).split(":")[-1]) if c else None
     except ValueError:
@@ -252,7 +256,7 @@ def apply(feats: list[dict], regions: dict, cfg: dict, root: Path, guard=None, s
         dev = _device(st)
         model = load_backbone(st, root, dev)
     except Exception:
-        log.exception("gor_gate: голова/бэкбон не загружены — шлюз не применён")
+        log.exception("GOR_GATE_UNAVAILABLE: голова/бэкбон не загружены — шлюз не применён, выдача как v2")
         return feats
     keep = (lambda: guard.ok(30)) if guard is not None else (lambda: True)
     region_p: dict[str, float] = {}

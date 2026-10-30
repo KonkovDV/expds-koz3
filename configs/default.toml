@@ -448,6 +448,17 @@ enabled = false
 model = "models/rerank_arch_lgbm.txt"
 meta = "models/rerank_arch_lgbm.json"
 
+# bot-6 ORGATE G: гейт FP архитектуры (or / sp_arch) — ЗАМЕНА [rerank_arch] на том же месте цепочки finish
+# (после only_known_classes, до site_calibration / kurgan_neighbour_prior / frame_prior FR1h / порогов; dfine_ae|or
+# сюда не попадают, sp_dfine гейт не оценивает). Правило LAS: arch на участке с LAS во входе удаляется.
+# Пороги по группам — медиана 10 порогов вложенной k10 (or 0,004086, sp_arch 0,008176), см. meta.
+# Обучен на стеке A (без sp_dfine/dfine_aeor): при смене стека кандидатов arch — переобучить и перемерить.
+# Замер: bot-10/REPORT12_orgate.md (k10 dR +0,001933 к R). Нет файлов/сбой → ORGATE_UNAVAILABLE в логе и откат на R.
+[orgate]
+enabled = false
+model = "models/orgate_g.txt"
+meta = "models/orgate_g.json"
+
 # [post]
 # Выпуклая оболочка object_poly etgr/terfl (bot-6 GEO.md: LOSO +0,0017, P 0,998; на приёмке П1–П5 у bot-10).
 # geo_convex_hull = true            # или { markups = ["etgr", "terfl"] }
@@ -482,17 +493,40 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
-# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
+# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
+# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
 # Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
 #   enabled = true
-#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
-#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
+#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
 #   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
+# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
+# и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+
+# bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
+# до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
+# порогов из вложенного OOF (bot-6/AEOR_DETECT.md). Ключи и умолчания — expds/dfine_aeor.py DEFAULTS
+# (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
+#   enabled = true
+#   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
+#     # = чекпойнты bot-9 koz3_shared/bot-9/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
+#     # 5 классов в порядке sp_dfine.CLASSES), в репозиторий — ln -s (полные пути: bot-6/AEOR_DETECT.md; личные
+#     # абсолютные пути в конфиге архива запрещены тестом test_no_personal_paths_in_packaged_code,
+#     # build_submission их не пакует)
+#   thresholds_file = "models/dfine_aeor/thresholds_oof.json"   # {"dfine_ae": {класс: порог}, "dfine_or": {...}}; ae_dfine/or_dfine тоже принимаются
+#   # scales = [1.0, 1.5]   # второй масштаб — только после замера времени на 4090
+# Рецепт входа (bot-9): RGB/255 без нормализации, flip-TTA, NMS IoU 0,5, fp16 только autocast на CUDA (.half() не вызывается).
+[dfine_aeor]
+enabled = false
+
+# bot-6: городища из D-FINE Or выключены порогом > 1, пока bot-10 не замерит их вместе с gor_dense bot-5.
+# Ключи TOML главнее thresholds_file. Объектов dfine_or нет при [dfine_aeor] enabled=false.
+[thresholds_by_markup.dfine_or]
+gorodishcha = 1.01
 
 # bot-1 (кандидат v4, 29.10): D-FINE всех классов на Ae/Or (группы порога ae_dfine / or_dfine),
 # круги варианта C, слияние TTA (flip × масштабы) и моделей — WBF внутри ОДНОГО снимка. ВЫКЛ.:
@@ -536,3 +570,25 @@ enabled = false
 # fast_channels = true  # fix_channels без repeat + concatenate
 # gdal_threads = true   # GDAL_NUM_THREADS=ALL_CPUS, если не задан
 # slot_accum = true     # CUDA: накопление окон «слотами» (не входит в enabled — только явно)
+# bot-5 (ветка bot5-gor-dense-v4): PFnoD бота 10 (bot-10/REPORT14_gor_dense.md, work14/pkg_gor2.json; PACKAGE-ONLY
+# +0,015406, P 1,000) — точки городищ плотного локализатора DINOv2-S на SpOr (expds/gor_dense.py) после sp_dfine/drop_groups,
+# группа порога gor_dense; conf = 0,5·(p участка головы gor_v3 + пик); гейт sp_or НЕ ставить (при R ему нечего гейтить).
+# noD (классы drop_dfine_classes sp_dfine удаляются кодом на участках, где точки посчитаны) — флаг ВКЛ. делает это сам.
+# ВЫКЛ.; без флага ветка не входит, выдача байт-в-байт как v3. Включение:
+#   enabled = true
+#   backbone = "models/dinov2-small"                 # тот же снапшот, что gor_gate (md5 ea251be6…)
+#   gate_head = "models/gor_gate/gor_v3_head.npz"     # md5 acb95c52…
+#   head = "models/gor_dense/gor_dense_head.npz"      # bot-5 export_head.py, вариант 'all', весь трейн; md5 e35570e1…
+#   head_md5 = "e35570e10d17edac32bea8d26fa0f5f4"
+#   centre_s = 250.0    # ПРЕДЛОЖЕНИЕ, ждёт бота 10: правило dense_probe на всём трейне (внутр. OOF, top-1 28/49)
+#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # ПРЕДЛОЖЕНИЕ, ждёт бота 10: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
+#   + [thresholds_by_markup.sp_dfine]
+#     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
+#     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,
+#     второй заголовок [thresholds_by_markup.sp_dfine] = дубль таблицы TOML (ошибка разбора).
+#   + v4 (решение бота 10): городища D-FINE Ae/Or бота 6 — порогом > 1 (TOML главнее thresholds_file):
+#     [thresholds_by_markup.dfine_or] gorodishcha = 1.01 — уже стоит выше (bot-6), не дублировать;
+#   + [thresholds_by_markup.dfine_ae]
+#     gorodishcha = 1.01
+[gor_dense]
+enabled = false

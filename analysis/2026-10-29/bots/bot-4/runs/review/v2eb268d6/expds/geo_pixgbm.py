@@ -55,18 +55,23 @@ def avail_cores() -> int:
     return max(1, int(n or 1))
 
 
+PIX_THREADS_CAP = 2   # bot-7 v3: потолок потоков PIXGBM (bot-3: пул procs=1/2/4 — 43/37/36 с, +0,25 ГБ на ребёнка)
+
+
 def pix_threads() -> int:
-    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, avail_cores())."""
+    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе avail_cores(); всегда ≤ PIX_THREADS_CAP (2).
+
+    bot-7 v3: потолок 2 (было min(8, ядра)). Предсказание LightGBM от числа потоков не зависит — выход тот же."""
     for k in ("EXPDS_PIXGBM_THREADS", "EXPDS_THREADS"):
         v = os.environ.get(k, "").strip()
         if v:
             try:
                 n = int(v)
                 if n > 0:
-                    return n
+                    return min(n, PIX_THREADS_CAP)
             except ValueError:
                 log.warning("%s=%r не число — пропущено", k, v)
-    return max(1, min(8, avail_cores()))
+    return max(1, min(PIX_THREADS_CAP, avail_cores()))
 
 
 def pix_procs(pix: dict | None, nt: int) -> int:
@@ -239,15 +244,49 @@ def label_key(path: Path) -> str:
 
 # ───────────────────────────── чтение карты ─────────────────────────────
 
-def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> dict:
+def sat_core_m2(value=None) -> float:
+    """Порог «пятна насыщения как данных», м²: аргумент, иначе env PIXGBM_SAT_CORE_M2, иначе 0 (выключено)."""
+    if value is None:
+        value = os.environ.get("PIXGBM_SAT_CORE_M2", "0")
+    try:
+        return max(float(value), 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def restore_sat_cores(valid: np.ndarray, sat: np.ndarray, px_m2: float, max_m2: float) -> np.ndarray:
+    """Связные пятна насыщения площадью ≤ max_m2, не касающиеся края кадра, возвращаются в данные.
+
+    Визуализация градиентометра упирается в край шкалы (0 или 255) в ядре сильной аномалии. Правило
+    load_map «все каналы ≥ 254 или ≤ 1 — нет данных» делает из этого ядра дыру: z = медиане, P = 0, и
+    находка/объект видны только кольцом по кромке. Большое пятно (фон листа, поля вне съёмки) остаётся
+    без данных. Тот же предел, что у классики (geophys.plateau_centers, plateau_max_m2 = 60).
+    """
+    if max_m2 <= 0 or not sat.any():
+        return valid
+    lab, n = ndi.label(sat)
+    if not n:
+        return valid
+    area = ndi.sum_labels(np.ones_like(lab, np.float32), lab, np.arange(1, n + 1)) * px_m2
+    edge = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
+    ok = np.zeros(n + 1, bool)
+    ok[1:] = area <= max_m2
+    ok[edge] = False
+    ok[0] = False
+    return valid | ok[lab]
+
+
+def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat_core_max_m2=None) -> dict:
     import rasterio
     from rasterio import features
     from rasterio.windows import Window
 
-    from .crs import WEB_MERCATOR, to_crs, usable_raster_crs
+    from .crs import WEB_MERCATOR, ground_scale, to_crs, usable_raster_crs
 
     with rasterio.open(path) as r:
-        f = max(1, int(round(gsd / abs(r.transform.a))))
+        crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
+        k = ground_scale(crs, r.bounds)               # м на земле в единице CRS (1,0 для UTM / выкл.)
+        f = max(1, int(round(gsd / (abs(r.transform.a) * k))))
         H, W = max(1, r.height // f), max(1, r.width // f)
         n = r.count
         alpha = [i for i, ci in enumerate(r.colorinterp) if getattr(ci, "name", "") == "alpha"]
@@ -256,6 +295,7 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> 
         lum = np.zeros((H, W), np.float32)
         dif = np.zeros((H, W), np.float32)
         valid = np.zeros((H, W), bool)
+        sat = np.zeros((H, W), bool)
         step = max(f, (6_000_000 // max(r.width * n, 1)) // f * f)
         for y0 in range(0, H * f, step):
             h = min(step, H * f - y0)
@@ -263,14 +303,17 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> 
             blk = blk.reshape(n, h // f, f, W, f).mean((2, 4))
             rows = slice(y0 // f, (y0 + h) // f)
             rgb = blk[:3] if n >= 3 else np.repeat(blk[:1], 3, 0)
-            v = ~((rgb.min(0) >= 254) | (rgb.max(0) <= 1))
+            s_ = (rgb.min(0) >= 254) | (rgb.max(0) <= 1)
+            v = ~s_
             if alpha:
                 v &= blk[alpha[0]] > 0
-            lum[rows], dif[rows], valid[rows] = rgb.mean(0), rgb[0] - rgb[2], v
+                s_ &= blk[alpha[0]] > 0
+            lum[rows], dif[rows], valid[rows], sat[rows] = rgb.mean(0), rgb[0] - rgb[2], v, s_
             del blk, rgb
         T = r.transform @ r.transform.scale(r.width / W, r.height / H)
-        crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
-    up = abs(T.a) / gsd
+        valid = restore_sat_cores(valid, sat, abs(T.a * T.e) * k * k, sat_core_m2(sat_core_max_m2))
+        del sat
+    up = abs(T.a) * k / gsd
     if up > 1.3:
         h0, w0 = lum.shape
         lum = ndi.zoom(lum, up, order=1).astype(np.float32)
@@ -291,7 +334,7 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> 
             if not g.is_empty:
                 nz = features.rasterize([(g, 1)], out_shape=lum.shape, transform=T, all_touched=True).astype(bool)
     return dict(z=_robust(lum, valid), zd=_robust(dif, valid), valid=valid, noise=nz, T=T, crs=crs,
-                gsd=float(abs(T.a)))
+                gsd=float(abs(T.a)) * k, k=k)
 
 
 def _robust(x, valid):
@@ -548,6 +591,7 @@ def label_masks(d: dict, polys, points):
     from .crs import WEB_MERCATOR, to_crs
 
     shape, T, crs, gsd = d["z"].shape, d["T"], d["crs"], d["gsd"]
+    k = d.get("k", 1.0)                                   # буферы 0,3 / 1,0 м — в единицах CRS карты
     out = []
     for geoms, kind in ((polys, "poly"), (points, "pt")):
         if geoms is None:
@@ -555,8 +599,8 @@ def label_masks(d: dict, polys, points):
             continue
         gs = [to_crs(g, WEB_MERCATOR, crs) for g in geoms]
         if kind == "pt":
-            pos_g = [Point(g.centroid.x, g.centroid.y).buffer(0.3) for g in gs]
-            ign_g = [Point(g.centroid.x, g.centroid.y).buffer(1.0) for g in gs]
+            pos_g = [Point(g.centroid.x, g.centroid.y).buffer(0.3 / k) for g in gs]
+            ign_g = [Point(g.centroid.x, g.centroid.y).buffer(1.0 / k) for g in gs]
             pos = features.rasterize([(g, 1) for g in pos_g], out_shape=shape, transform=T, all_touched=True).astype(bool) if gs else np.zeros(shape, bool)
             ign = features.rasterize([(g, 1) for g in ign_g], out_shape=shape, transform=T, all_touched=True).astype(bool) if gs else np.zeros(shape, bool)
         else:
@@ -601,7 +645,7 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
             pt = g.representative_point()
         out.append({"geom": circle_3857(pt.x, pt.y, POLE_R_M, d["crs"]), "class_name": "object_poly",
                     "confidence": conf, "region_name": region, "markup_type": mt, "source": source,
-                    "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": float(g.area)})
+                    "original_crs": d["crs"], "threshold_group": f"{mt}_pix", "area_m2": float(g.area) * d.get("k", 1.0) ** 2})
     return out
 
 
@@ -639,7 +683,7 @@ def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
                 pt = g.representative_point()
             g3, p3 = (to_crs(g, d["crs"], WEB_MERCATOR), to_crs(pt, d["crs"], WEB_MERCATOR)) if d["crs"] else (g, pt)
             out.append(dict(geom=g3, score=float(mean[v - 1]), max_p=float(mxp[v - 1]), t_pix=float(t),
-                            area_m2=float(g.area), pole_x=float(p3.x), pole_y=float(p3.y),
+                            area_m2=float(g.area) * d.get("k", 1.0) ** 2, pole_x=float(p3.x), pole_y=float(p3.y),
                             region=region, markup_type=mt, raster=source))
     return out
 
@@ -737,6 +781,9 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     from .pipeline import region_crs
 
     pix = (cfg.get("geophys", {}) or {}).get("pixgbm") or {}
+    if "ground_metres" in (cfg.get("geophys", {}) or {}):   # opt-in: шаг EPSG:3857 × cos φ
+        from . import crs as _crs
+        _crs.GROUND_METRES = bool(cfg["geophys"]["ground_metres"])
     nt = pix_threads()
     npr = pix_procs(pix, nt)
     backend = os.environ.get("EXPDS_PIXGBM_BACKEND", "") or pix.get("backend", "lightgbm")
@@ -774,7 +821,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
             ran = set()
             step = "classic"
             try:
-                d = load_map(f, GSD[mt], crs_region, boundary, noise)
+                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"))
                 if not d["crs"]:
                     continue
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6

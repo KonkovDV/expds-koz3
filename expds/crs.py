@@ -66,6 +66,69 @@ def utm_for_lonlat(lon: float, lat: float) -> str:
     return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
 
 
+def _lonlat_center(crs: str, box: tuple) -> tuple[float, float] | None:
+    ll = _box_in(crs, "EPSG:4326", box)
+    if ll is None or not (-180 <= ll[0] <= ll[2] <= 180 and -90 <= ll[1] <= ll[3] <= 90):
+        return None
+    return (ll[0] + ll[2]) / 2, (ll[1] + ll[3]) / 2
+
+
+def region_center_lonlat(region_dir: str | Path, geographic: str = "EPSG:4326") -> tuple[float, float] | None:
+    """Центр участка (lon, lat): первый растр с CRS, иначе LAS с CRS в заголовке,
+    иначе растр без CRS с правдоподобными градусами (как geographic). None — не определить."""
+    import rasterio
+
+    root = Path(region_dir)
+    files = sorted(p for p in root.rglob("*") if p.is_file())
+    tifs = [p for p in files if p.suffix.lower() in (".tif", ".tiff")]
+    lases = [p for p in files if p.suffix.lower() in (".las", ".laz")]
+    bare = []
+    for p in tifs:
+        try:
+            with rasterio.open(p) as ds:
+                b = tuple(ds.bounds)
+                crs = ds.crs.to_string() if ds.crs else None
+        except Exception:
+            continue
+        if crs is None:
+            bare.append(b)
+            continue
+        c = _lonlat_center(crs, b)
+        if c:
+            return c
+    for p in lases:
+        crs, b = las_crs(p), las_box(p)
+        if crs and b:
+            c = _lonlat_center(crs, b)
+            if c:
+                return c
+    for b in bare:
+        if coords_kind([b[0], b[2]], [min(b[1], b[3]), max(b[1], b[3])]) == "wgs84":
+            return _lonlat_center(geographic, b)
+    return None
+
+
+@lru_cache(maxsize=256)
+def _project_region_crs(crs: str, region_dir: str) -> str:
+    c = region_center_lonlat(region_dir, crs)
+    if c is None:
+        log.warning("[crs] %s: CRS участка %s географическая, центр участка не определить "
+                    "(нет растров/LAS с CRS) — оставляю как есть", Path(region_dir).name, crs)
+        return crs
+    utm = utm_for_lonlat(*c)
+    log.warning("[crs] %s: CRS участка %s географическая — беру UTM по центру участка %s "
+                "(lon %.4f, lat %.4f)", Path(region_dir).name, crs, utm, c[0], c[1])
+    return utm
+
+
+def project_region_crs(crs: str | None, region_dir: str | Path | None) -> str | None:
+    """Нормализация CRS участка: географическая (градусы) → зона UTM 326xx/327xx по центру участка
+    с WARNING; проекционная или None — без изменений. Одна точка для всех детекторов."""
+    if not crs or not is_geographic(crs) or region_dir is None:
+        return crs
+    return _project_region_crs(crs, str(region_dir))
+
+
 @lru_cache(maxsize=256)
 def valid_crs(text: str | None) -> str | None:
     """Строка, если pyproj её понимает. «EPSG» без кода — None."""

@@ -96,16 +96,25 @@ def _repaired(feat: dict) -> dict | None:
     return feat
 
 
-def merge_within_markup(feats: list[dict]) -> list[dict]:
+#: bot-6: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
+ISOLATED_GROUPS = ("dfine_ae", "dfine_or")
+
+
+def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict]:
     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
 
     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
+    bot-6: у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
+    с dfine_ae (не с прочими ae). У остальных четвёртый элемент ключа None — их группы как в v3.
     """
+    iso = set(isolate or ())
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for raw in feats:
         feat = _repaired(raw)
         if feat is not None:
-            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"])].append(feat)
+            tg = feat.get("threshold_group")
+            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"],
+                    tg if tg in iso else None)].append(feat)
     out = []
     for key, items in groups.items():
         out.extend(items if key[1] == "etgr" else merge_across_sources(items))
@@ -665,32 +674,6 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     return out
 
 
-def drop_kurgans_in_hillforts(feats: list[dict]) -> list[dict]:
-    """bot-7 v3, флаг [post] kurgan_in_gor (по умолчанию выкл.). Правило разметки (research/OSINT_2026-10-29.md §1.2):
-    курганы внутри городищ не размечаются. Удаляет kurgany_* с центроидом внутри объединения полигонов
-    gorodishcha того же региона (любая группа), уже прошедших пороги. Критерий зафиксирован до замера
-    (bot-7/work6/kig/PREREG_kig.md). Честный замер на стеке A: −0,000848, P 0,187 — ОТКЛОНЕНО
-    (предсказанные городища ложно ложатся на курганные поля), поэтому флаг выключен."""
-    from shapely.prepared import prep
-
-    kur = {"kurgany_tselye", "kurgany_povrezhdennye"}
-    by: dict = defaultdict(list)
-    for f in feats:
-        if f.get("class_name") == "gorodishcha" and f.get("geom") is not None and not f["geom"].is_empty:
-            g = f["geom"] if f["geom"].is_valid else make_valid(f["geom"])
-            by[f.get("region_name")].append(g)
-    if not by:
-        return feats
-    U = {r: prep(unary_union(v)) for r, v in by.items()}
-    out = []
-    for f in feats:
-        if f.get("class_name") in kur and f.get("region_name") in U and f.get("geom") is not None \
-                and not f["geom"].is_empty and U[f["region_name"]].contains(f["geom"].centroid):
-            continue
-        out.append(f)
-    return out
-
-
 SP_FUSION_GROUPS = ("sp_focal", "sp_focal2")
 SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
 
@@ -773,6 +756,76 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
         out.append(f)
     return out
 
+
+KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def _group_of(f: dict) -> str:
+    return f.get("threshold_group") or f.get("markup_type") or ""
+
+
+def _region_scales(feats: list[dict]) -> dict[str, float]:
+    """Один cos φ на участок: метры на земле = единицы EPSG:3857 × масштаб (как в kurgan_cross_modal_twins)."""
+    ys: dict[str, list[float]] = defaultdict(list)
+    for f in feats:
+        g = f.get("geom")
+        if g is not None and not g.is_empty:
+            ys[f.get("region_name") or ""].append(g.centroid.y)
+    return {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
+
+
+def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Курганы, чья внутренняя точка внутри выданного городища того же участка, убираются.
+
+    Правило разметки организаторов: насыпи внутри городищ курганами не размечаются. На трейне
+    внутри городищ 7 из 974 курганов (все на одном участке); у соперника кандидаты-насыпи внутри
+    лидарных городищ — курганы в 2 % случаев против 45 % снаружи (DATA_INSIGHTS EN, разобрано в
+    docs/research/OSINT_2026-10-29.md). Безубыточность добавления — F/(4−F) ≈ 0,1–0,14, так что такой
+    курган в ожидании отнимает балл. Шаг идёт после порогов: убирает только выданное.
+
+    spec:
+      classes      — классы курганов (по умолчанию оба);
+      groups       — только эти группы порога курганов (пусто — все);
+      min_gor_conf — городища слабее этой уверенности не маскируют (по умолчанию 0: всё выданное);
+      gor_groups   — только городища этих групп (пусто — все);
+      buffer_m     — расширить (+) или сжать (−) городище, метры на земле (по умолчанию 0);
+      min_area_m2 / max_area_m2 — городища вне диапазона не маскируют (ядро-круг или ложная гигантская
+                     маска); по умолчанию 500 и 400 000 м² (p90 эталона спутника ≈ 57 000, аэрофото ≈ 83 000).
+    """
+    spec = spec or {}
+    classes = set(spec.get("classes") or KURGANS)
+    groups = set(spec.get("groups") or ())
+    gor_groups = set(spec.get("gor_groups") or ())
+    min_conf = float(spec.get("min_gor_conf", 0.0))
+    buf_m = float(spec.get("buffer_m", 0.0))
+    lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
+    scale = _region_scales(feats)
+    masks: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") != "gorodishcha" or float(f.get("confidence", 1.0)) < min_conf:
+            continue
+        if gor_groups and _group_of(f) not in gor_groups:
+            continue
+        g = f.get("geom")
+        if g is None or g.is_empty:
+            continue
+        s = scale.get(f.get("region_name") or "", 1.0)
+        if not lo <= g.area * s * s <= hi:
+            continue
+        masks[f.get("region_name") or ""].append(g.buffer(buf_m / s) if buf_m else g)
+    if not masks:
+        return feats
+    trees = {r: (STRtree(gs), gs) for r, gs in masks.items()}
+    out = []
+    for f in feats:
+        reg = f.get("region_name") or ""
+        if f.get("class_name") in classes and reg in trees and (not groups or _group_of(f) in groups):
+            pt = f["geom"].representative_point()
+            tree, gs = trees[reg]
+            if any(gs[int(i)].covers(pt) for i in tree.query(pt)):
+                continue
+        out.append(f)
+    return out
 
 def sp_fusion_thresholds(by_markup: dict | None, spec) -> dict:
     """thresholds_by_markup с порогами курганов sp из [post.sp_score_fusion.thresholds] (sp_focal = sp_or в сдаче)."""

@@ -72,14 +72,67 @@ def _tau(cfg: dict):
                              cfg.get("thresholds_by_markup", {}))
 
 
+def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
+    """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
+
+    По умолчанию D-FINE Ae/Or идёт своей короткой цепочкой (пороги своей группы → склейка только внутри
+    группы → finalize → остаток лимита), и прежние объекты проходят цепочку v3 без изменений: реранк,
+    соседские приоры и twins не видят новых кандидатов. merge_union=true — межисточниковое объединение
+    в общей цепочке (по умолчанию выкл.; в v4 для этого dedupe_union bot-3 после порогов).
+    """
+    dc = cfg.get("dfine_aeor") or {}
+    iso = set(post.ISOLATED_GROUPS)
+    if not dc.get("enabled") or dc.get("merge_union") or not any(f.get("threshold_group") in iso for f in feats):
+        return None
+    return ([f for f in feats if f.get("threshold_group") not in iso],
+            [f for f in feats if f.get("threshold_group") in iso])
+
+
+def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
+    """Короткая цепочка D-FINE Ae/Or: свои пороги, склейка внутри группы, валидные полигоны, остаток лимита."""
+    if room <= 0 or not dfeats:
+        return []
+    out = post.only_known_classes(dfeats)
+    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                cfg.get("thresholds_by_markup", {}))
+    out = post.finalize(post.merge_within_markup(out))
+    out = post.cap_features(out, room)
+    only = (cfg.get("post") or {}).get("only_classes")
+    return post.keep_classes(out, only) if only is not None else out
+
+
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
-    """Та же цепочка, что в конце pipeline.run."""
+    """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    split = _aeor_split(feats, cfg)
+    if split is not None:
+        out = _finish_v3(split[0], cfg)
+        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
+    union = bool((cfg.get("dfine_aeor") or {}).get("merge_union"))
+    return _finish_v3(feats, cfg, isolate=() if union else post.ISOLATED_GROUPS)
+
+
+def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> list[dict]:
+    """Цепочка v3 (до bot-6 — тело finish)."""
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
-    if (cfg.get("rerank_arch") or {}).get("enabled"):
+    if (cfg.get("orgate") or {}).get("enabled"):
+        from . import orgate           # bot-6: гейт G ВМЕСТО R (то же место цепочки); сбой → маркер и R/база
+
+        out, reranked = orgate.apply_or_fallback(out, cfg)
+    elif (cfg.get("rerank_arch") or {}).get("enabled"):
         from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
+    post_cfg = cfg.get("post") or {}
+    if post_cfg.get("site_calibration"):
+        # Первым: соседство и пороги дальше работают в калиброванной шкале, как в замере oof_transform.py calib.
+        out = post.site_calibration(out, post_cfg["site_calibration"])
+    if post_cfg.get("kurgan_neighbour_prior"):
+        # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
+        out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("frame_prior"):
+        # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
+        out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = cfg.get("thresholds_by_markup", {})
     if sf:
@@ -103,10 +156,7 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 by_markup)
     out = out + reranked
-    post_cfg = cfg.get("post") or {}
-    if post_cfg.get("kurgan_in_gor"):
-        out = post.drop_kurgans_in_hillforts(out)   # bot-7 v3, выкл.: отклонено (work6/kig/stats_kig.log)
-    out = post.merge_within_markup(out)
+    out = post.merge_within_markup(out, isolate)
     if post_cfg.get("multipole_object_poly"):
         out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
     if post_cfg.get("filter_finds_points"):
@@ -155,10 +205,31 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
         return finish(feats, cfg)
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
+    split = _aeor_split(feats, cfg)   # bot-6: D-FINE Ae/Or и в запасной цепочке отдельно
+    if split is None:
+        return _safe_v3(feats, cfg)
+    out = _safe_v3(split[0], cfg)
+    try:
+        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
+    except Exception:
+        log.exception("dfine_aeor в запасной цепочке упал, без него")
+        return out
+
+
+def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
+    """Запасная цепочка v3 (до bot-6 — хвост safe_finish)."""
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
     rr = cfg.get("rerank_arch") or {}
-    if rr.get("enabled"):
+    if (cfg.get("orgate") or {}).get("enabled"):
+        try:   # bot-6: гейт G вместо R и в запасной цепочке
+            from . import orgate
+
+            out, reranked = orgate.apply_or_fallback(out, cfg)
+        except Exception:
+            log.exception("orgate в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
+    elif rr.get("enabled"):
         # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
         try:
             from . import rerank_arch
@@ -187,12 +258,6 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked
-    pc = cfg.get("post") or {}
-    if pc.get("kurgan_in_gor"):
-        try:
-            out = post.drop_kurgans_in_hillforts(out)
-        except Exception:
-            log.exception("kurgan_in_gor в запасной цепочке упал, шаг пропущен")
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
                     ("filter_finds_points", post.filter_finds_points_regimes)):
