@@ -37,6 +37,56 @@
 8. **P-W2-10 (DEM fill), если не закончен.** Код: флаг `lidar.dem_fill="tin_lowveg"` в `expds/lidar.py` (по умолчанию "delaunay"); скрипты `$K/w2/demfill/` (копия `w2_demfill/`): `build_relief.py` (C/T рельеф 015/021/186/190) → `run_inf.sh`/`infer_cpu.py` (c3-sc s0/s1/s2 веса своего фолда, CPU, `nice -n 10`) → `swap_sites.py` → `run_gate.sh`. Условия PASS — PREREG P-W2-10. Логи `$K/w2/demfill/*.log`, выход `$K/w2/demfill/out`.
 9. **li_match (P-W2-5)** — после r50c5 и только если бот 1 даст GPU-квоту: нужно пофолдовое обучение c3-sc с `lidar.hillshade_style="li_match"` (5 фолдов, ~как s2: f01 + f23 + f4). Иначе закрыть как непроверяемое.
 
+## Данные и как ими пользоваться
+
+Все датасеты — ПРИВАТНЫЕ. В каждом есть `DATASETS.md` с пофайловым описанием (то же — в описании датасета на Kaggle).
+
+| Датасет | Что внутри | Размер | Зачем |
+|---|---|---|---|
+| `elenakonkova/koz3-w2-oof` | OOF-детекции c3-sc: `merged/` (s0 85 647, s1 83 519, s2 94 959, s01avg 81 665, s012avg 82 996 детекций, EPSG:3857, group `li_cnx`) + по ядрам/фолдам (gt_li, region_fold, report_cnx_full с cfg) + li_hm | 1 ГБ | подмешивать в стек и гейтить; пересклейка/усреднение сидов |
+| `elenakonkova/koz3-w2-weights` | `weights_cnx_c3-sc_f{0..4}.pt` для s0/s1/s2 (15 шт.), ckpt s2 f2–f4, li_hm ckpt f0–4 | 1,5 ГБ | инференс без переобучения (только веса своего фолда!), дообучение |
+| `elenakonkova/koz3-w2-maps` | `maps_cnx_c3-sc_f{K}_{участок}.npz` (hm/wh/off/mask/valid/meta) s0/s1/s2/li_hm | 2,1 ГБ | пере-декодирование, усреднение карт, отладка участков |
+| `elenakonkova/koz3-w2-gate` | `w5base/` (stack_arch = база A, gt_train_v2, base_counts.pkl, table.pkl) + `gate_s2/{s2,s012,varb,varb_kur}` (стеки, work/*.pkl, итоги) | 5,4 ГБ | воспроизвести A=0,314615 и все W2-замеры; база для нового гейта |
+| `elenakonkova/koz3-cnx-li-prep` | рельеф `cnx_relief/*.npy` (5 каналов) + `.json` | 1,6 ГБ | вход всех c3-sc/r50c5 ядер и CPU-инференса |
+| `aaaa0000004/koz3-w2-gaudit-las` | LAS 015/021/186/190 + Li-разметка + UTM | 10 ГБ | аудит земли, DEM fill (только аккаунт aaaa0000004) |
+| S3 `train-expds-3` | все LAS и разметка Li | — | первоисточник (`w2_tools/s3get.py`, ключи — koz3-s3-cred) |
+| `elenakonkova/koz3-w2-demfill` | появится после P-W2-10 | ~125 МБ | см. п. 8 |
+
+**Скачать:** `$PK elenakonkova datasets download -d elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip` (для gaudit — `$PK aaaa0000004 …`).
+**В ядро:** `kernel-metadata.json` → `"dataset_sources": ["elenakonkova/koz3-w2-weights", "elenakonkova/koz3-cnx-li-prep"]`; пути `/kaggle/input/<slug>/…` (на новых образах `/kaggle/input/datasets/<owner>/<slug>/…` — надёжно искать `glob('/kaggle/input/**/имя', recursive=True)`).
+**Воспроизвести гейт (A + s2, ожидается 0,29840 / Δ−0,0162):** скачать gate и oof → `w2_tools/stack_add_cnx.py w5base/stack_arch.geojson oof/merged/oof_cnx_c3-sc_s2.geojson $D/stack_arch_s2.geojson cnx_s2` (+ `gt_train_v2.geojson` в `$D`) → в `$K/wt/w5/analysis/2026-10-30/w5_rerank`: `W5_DATA=$D W5_STACK=stack_arch_s2.geojson python prep.py` → `W5_DATA=$D python gate_v6c.py --vs w5base/base_counts.pkl --save counts_s2.pkl --out w6c_gate_s2.json` → `gate_detail.py`. Полная команда — `DATASETS.md` в koz3-w2-gate.
+**Инференс весами:** `python w2_demfill/infer_cpu.py --relief cnx_relief/X.npy --meta cnx_relief/X.json --weights s2/koz3-w2-cnx-c3sc-s2f23/weights_cnx_c3-sc_f2.pt --fold 2 --out maps_X.npz` (участок X должен быть в фолде 2; cfg из `report_cnx_full.json` в koz3-w2-oof).
+
+### Карта файлов ветки `bots/w2-lidar` (в каждой папке есть README.md)
+| Путь | Что | Куда идёт |
+|---|---|---|
+| `HANDOFF_W2.md` | эта записка | начать отсюда |
+| `orch_bot-W2/` | PREREG P-W2-1…10, STATUS, TASKS | PREREG до любого замера |
+| `w2_kernels/` | код+metadata ядер (r50c5 готов к запуску) | `kernels push` |
+| `w2_tools/` (= `tools/w2/`) | склейка, стек, гейт-детали, аудиты, S3 | стек → гейт |
+| `w2_gate/` | итоги гейтов (json/логи), `run_varb.sh` | образец прогона |
+| `w2_notes/` (+ `notes/w2/`) | итоговые JSON замеров, ci2_8, PREREG-копия | справка |
+| `w2_gaudit/` | ядро и итоги аудита земли (закрыт) | справка |
+| `w2_merge/` | merge_summary | проверка OOF |
+| `w2_demfill/` | код P-W2-10 | п. 8 |
+| `expds/lidar.py` | флаги `lidar.hillshade_style` ("vendor" по умолч., "li_match" — P-W2-5) и `lidar.dem_fill` ("delaunay" по умолч., "tin_lowveg" — P-W2-10); оба выключены | cfg ядра → `lidar:` |
+
+### Ключевые пути бокса (`K=/workspace/koz3`)
+| Путь | Что | Бэкап |
+|---|---|---|
+| `$K/orch/` | координация: BRIEF_COMMON, PROTOCOL, QUEUE.json, LEASES.json (`lease.sh`), COORD_LOG, `pool_kaggle.sh`, watcher'ы | ветка `bots/orch-protocol` (`lease.sh sync`), `bot-W2/` → `orch_bot-W2/` здесь |
+| `$K/wt/w2` | worktree этой ветки | GitHub |
+| `$K/w2/oof/{s0,s1,s2,lihm,merged}` | выходы ядер и склейки | koz3-w2-oof (+maps/weights) |
+| `$K/w2/maps` | карты npz | koz3-w2-maps |
+| `$K/w2/gate_s2` | стеки и pkl гейта | koz3-w2-gate |
+| `$K/w5data/` | база A, GT, work/ W5 | koz3-w2-gate `w5base/` |
+| `$K/w2/relief/cnx_relief` | рельеф | koz3-cnx-li-prep |
+| `$K/w2/las`, `$K/w2/gaudit` | LAS | S3, koz3-w2-gaudit-las |
+| `$K/w2/kernels`, `$K/w2/tools` | код | git `w2_kernels/`, `w2_tools/` |
+| `$K/w2/demfill` | P-W2-10 | git `w2_demfill/` + koz3-w2-demfill |
+| `$K/w2/vendor` | вендор-код ядер (cnx_head и др.) для CPU-инференса | внутри .py ядер в `w2_kernels/` |
+| `$K/w2/bk/stage/<s>` | стейджинг датасетов (хардлинки + dataset-metadata.json) | — |
+
 ## Состояние линий W2
 | Линия | Итог |
 |---|---|
