@@ -57,6 +57,18 @@ def test_a_ridge_is_not_a_dome_and_a_plane_is_not_lifted():
     assert plane[0] == np.float32(1.0)
 
 
+def test_quadratic_crest_and_lidar_noise():
+    res, n, c = 0.5, 41, 20
+    yy, xx = np.mgrid[0:n, 0:n]
+    x = (xx - c) * res
+    y = (c - yy) * res
+    bowl = (-0.01 * (x * x + y * y)).astype(np.float32)
+    assert abs(lesser_curvature(bowl, c, c, res, span_m=3.0) - 0.02) < 1e-3
+    rng = np.random.default_rng(0)
+    noisy = rng.normal(0.0, 0.05, (81, 81)).astype(np.float32)
+    assert abs(lesser_curvature(noisy, 40, 40, res, span_m=5.0)) < 0.002
+
+
 def test_slope_is_not_a_dome():
     z = _slope()
     c = z.shape[0] // 2

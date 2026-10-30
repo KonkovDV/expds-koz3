@@ -71,32 +71,8 @@ def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8
     return float(1.0 / (1.0 + spread / 0.05))
 
 
-def lesser_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m: float = 3.0) -> float:
-    """Меньшая главная кривизна графика высоты, 1/м. Купол — плюс, вал и яма — нет.
-
-    На вершине профильная кривизна не определена: нет направления склона.
-    У купола выпуклы обе главные кривизны, у вала — одна. Берётся меньшая,
-    поэтому вал не считается насыпью. Производные — по метрам плана.
-    В канале curv знак обратный (купол меньше нуля), этот канал не меняется.
-    """
-    if res <= 0:
-        return np.nan
-    half = max(1, int(round(span_m / res)))
-    if not (half <= row < z.shape[0] - half and half <= col < z.shape[1] - half):
-        return np.nan
-    zc = float(z[row, col])
-    ze, zw = float(z[row, col + half]), float(z[row, col - half])
-    zn, zs = float(z[row - half, col]), float(z[row + half, col])
-    zne, znw = float(z[row - half, col + half]), float(z[row - half, col - half])
-    zse, zsw = float(z[row + half, col + half]), float(z[row + half, col - half])
-    if not np.isfinite([zc, ze, zw, zn, zs, zne, znw, zse, zsw]).all():
-        return np.nan
-    dx = half * float(res)
-    zx = (ze - zw) / (2.0 * dx)
-    zy = (zn - zs) / (2.0 * dx)
-    zxx = (ze - 2.0 * zc + zw) / (dx * dx)
-    zyy = (zn - 2.0 * zc + zs) / (dx * dx)
-    zxy = (zne - znw - zse + zsw) / (4.0 * dx * dx)
+def _principal_min(zx: float, zy: float, zxx: float, zyy: float, zxy: float) -> float:
+    """Меньшая главная кривизна графика, выпуклый купол — плюс."""
     p2q2 = zx * zx + zy * zy
     w2 = 1.0 + p2q2
     w = w2 ** 0.5
@@ -106,6 +82,34 @@ def lesser_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m
     rad = (max(0.0, mean * mean - gauss)) ** 0.5
     # Большая по алгебре главная кривизна ближе к нулю у вытянутого вала и положительна у ямы.
     return float(-(mean + rad))
+
+
+def lesser_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m: float = 3.0) -> float:
+    """Меньшая главная кривизна, 1/м, по квадратичной регрессии диска.
+
+    Восемь отсчётов на шуме лидара в несколько сантиметров дают ложную кривизну
+    порядка σ√6 / R². Квадратичный полином по всем ячейкам диска этот шум усредняет.
+    На вершине профильная кривизна не определена. У купола выпуклы обе главные,
+    у вала одна: берётся меньшая. В канале curv знак обратный, канал не меняется.
+    """
+    if res <= 0:
+        return np.nan
+    rad = max(1, int(round(span_m / res)))
+    r0, r1 = max(0, row - rad), min(z.shape[0], row + rad + 1)
+    c0, c1 = max(0, col - rad), min(z.shape[1], col + rad + 1)
+    yy, xx = np.mgrid[r0:r1, c0:c1]
+    x = (xx - col) * float(res)
+    y = (row - yy) * float(res)
+    patch = z[r0:r1, c0:c1]
+    mask = (x * x + y * y <= (rad * float(res)) ** 2) & np.isfinite(patch)
+    if int(mask.sum()) < max(12, 0.5 * np.pi * rad * rad):
+        return np.nan
+    x, y = x[mask].astype(np.float64), y[mask].astype(np.float64)
+    zz = patch[mask].astype(np.float64)
+    design = np.column_stack([np.ones_like(x), x, y, x * x, y * y, x * y])
+    coef, *_ = np.linalg.lstsq(design, zz, rcond=None)
+    return _principal_min(float(coef[1]), float(coef[2]), 2.0 * float(coef[3]),
+                          2.0 * float(coef[4]), float(coef[5]))
 
 
 def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: float, top: float,
