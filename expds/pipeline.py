@@ -454,6 +454,8 @@ def li_mask_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Нет файла весов — пустой список, основной лидар не трогается.
     """
     from .lidar import hillshade_set
+    from .lidar import hillshade_for
+    hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
     segs = _cached_segmenters(seg_cache, cfg, "li_mask", root)
     out: list[dict] = []
@@ -478,6 +480,8 @@ def li_fort_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Нет файла весов — пустой список, основной лидар не трогается.
     """
     from .lidar import hillshade_set
+    from .lidar import hillshade_for
+    hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
     segs = _cached_segmenters(seg_cache, cfg, "li_fort", root)
     out: list[dict] = []
@@ -503,6 +507,8 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     для этого LAS считается запасной детектор.
     """
     from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import hillshade_for
+    hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
     feats: list[dict] = []
     mosaic_kurgans: list[dict] = []
@@ -917,6 +923,8 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
     пустой список с предупреждением: без cnx остаётся выдача как при enabled=false.
     """
     from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import hillshade_for
+    hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
     if not reg.las or not lidar_cnx.enabled(cfg):
         return []
@@ -1061,6 +1069,8 @@ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root
     Нет весов — пустой список.
     """
     from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import hillshade_for
+    hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
     if not reg.las or not cfg.get("models", {}).get("li_dev"):
         return []
