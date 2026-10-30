@@ -5,7 +5,7 @@
 | Путь | Что | Ядро-источник |
 |---|---|---|
 | `s0/koz3-cnx-li-c3sc-f01/weights_cnx_c3-sc_f{0,1}.pt`, `s0/…-f23/…f{2,3}.pt`, `s0/…-f4-v2/…f4.pt` | сид 0, 5 фолдов | dmitrijkv/koz3-cnx-li-c3sc-* |
-| `s1/koz3-cnx-li-c3sc-{s1f01,s1f23,s1f4}/weights_*.pt` | сид 1 | dmitrijkv / elenakonkova |
+| `s1/koz3-cnx-li-c3sc-{s1f01,s1f23,s1f4}/weights_*.pt` | сид 1. **ВНИМАНИЕ (P-W2-11):** файл `s1f4/weights_cnx_c3-sc_f4.pt` в v2 — это веса **s2f4** (md5 f34ff787…); настоящие s1f4 — `kaggle kernels output elenakonkova/koz3-w2-cnx-c3sc-s2f4/1` (md5 efbff0f3…) | dmitrijkv / elenakonkova |
 | `s2/koz3-w2-cnx-c3sc-{s2f01,s2f23,s2f4}/weights_*.pt` | сид 2 (+ `ckpt_*.pt` f2–f4 — чекпойнты с оптимизатором, для дообучения; `*.log`) | dmitrijkv / elenakonkova |
 | `lihm/koz3-w2-lihm-c3sc-f01234/ckpt_cnx_c3-sc_f{0..4}.pt` | heatmap-голова (P-W2-7, FAIL); только ckpt, в метаданных нет описания новой головы | elenakonkova/koz3-w2-lihm-c3sc-f01234 |
 

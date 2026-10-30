@@ -47,7 +47,7 @@
 8. **P-W2-10 (DEM fill) — ЗАВЕРШЁН 30.10, FAIL, линия закрыта** (итог: `w2_demfill/out/result_P-W2-10.json`). Код: флаг `lidar.dem_fill="tin_lowveg"` в `expds/lidar.py` (по умолчанию "delaunay"); скрипты `$K/w2/demfill/` (копия `w2_demfill/`): `build_relief.py` (C/T рельеф 015/021/186/190) → `run_inf.sh`/`infer_cpu.py` (c3-sc s0/s1/s2 веса своего фолда, CPU, `nice -n 10`) → `swap_sites.py` → `run_gate.sh`. Условия PASS — PREREG P-W2-10. Логи `$K/w2/demfill/*.log`, выход `$K/w2/demfill/out`.
 9. **li_match (P-W2-5)** — после r50c5 и только если бот 1 даст GPU-квоту: нужно пофолдовое обучение c3-sc с `lidar.hillshade_style="li_match"` (5 фолдов, ~как s2: f01 + f23 + f4). Иначе закрыть как непроверяемое.
 
-10. **(Низкий приоритет) Проверить находку по 190_Муравлево.** Карты s1 f4 из Kaggle (elenakonkova/koz3-cnx-li-c3sc-s1f4) не совпадают с CPU-инференсом по скачанным весам s1f4: Li F1 на 190 — 0,666 против 0,515 в текущем OOF. Проверить, те ли веса сохранило ядро (эпоха или чекпойнт) и не занижен ли OOF s1 на фолде 4. Данные: koz3-w2-demfill `out/liscore*.json`, `maps/C/s1/`.
+10. **ЗАКРЫТО 30.10 (P-W2-11).** Находка по 190_Муравлево — не ошибка OOF: тест P-W2-10 взял под видом «s1f4» веса **s2f4** (ядро s2f4 coord скопировано с тем же `id_no` → версия 2 ядра s1f4; `kernels output` отдал последнюю версию). OOF и Kaggle-карты s1 f4 настоящие (CPU-инференс настоящими весами: MAD ≤ 1e-5, Δn_det ≤ 0,2 %). Гейт исправленного s012avg: 0,307574 (= прежнему s012 ±0,00001, FAIL против A). **Остаток:** в koz3-w2-weights и `w2/demfill/w/s1`, `w2/bk/stage/weights/s1/…s1f4` лежат веса s2f4 под именем s1f4; настоящие — `elenakonkova/koz3-w2-cnx-c3sc-s2f4/1` (md5 efbff0f3…, на боксе `w2/p11/s1f4_v1/`). При копировании ядер удалять `id_no`. Подробно: `w2_p11/README.md`, `w2_notes/p11_s1f4_audit.json`.
 
 ## Данные и как ими пользоваться
 
@@ -74,7 +74,7 @@
 |---|---|---|
 | `HANDOFF_W2.md` | эта записка | начать отсюда |
 | `w2_datasets/` | `DATASETS.md` + `dataset-metadata.json` всех 5 датасетов koz3-w2-* (git-копия — источник истины) | понять, что в датасете, до скачивания; новая версия датасета |
-| `orch_bot-W2/` | PREREG P-W2-1…10, STATUS, TASKS | PREREG до любого замера |
+| `orch_bot-W2/` | PREREG P-W2-1…11, STATUS, TASKS | PREREG до любого замера |
 | `w2_kernels/` | код+metadata ядер (r50c5 готов к запуску); `source_c3sc/` — исходники отработавших c3-sc s0/s1/s2 и рельефа | `kernels push` |
 | `w2_tools/` (= `tools/w2/`) | склейка, стек, гейт-детали, аудиты, S3 | стек → гейт |
 | `w2_gate/` | итоги гейтов (json/логи), `run_varb.sh`, `gate_lihm/early_stop.json` | образец прогона |
@@ -82,6 +82,7 @@
 | `w2_gaudit/` | ядро и итоги аудита земли (закрыт) | справка |
 | `w2_merge/` | merge_summary | проверка OOF |
 | `w2_demfill/` | код P-W2-10 | п. 8 |
+| `w2_p11/` | аудит s1 f4 P-W2-11 (провенанс весов, CPU-карты, гейт s012avg_p11) | п. 10 (закрыт) |
 | `expds/lidar.py` | флаги `lidar.hillshade_style` ("vendor" по умолч., "li_match" — P-W2-5) и `lidar.dem_fill` ("delaunay" по умолч., "tin_lowveg" — P-W2-10); оба выключены | cfg ядра → `lidar:` |
 
 ### Ключевые пути бокса (`K=/workspace/koz3`)

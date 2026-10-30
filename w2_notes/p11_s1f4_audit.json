@@ -1,0 +1,86 @@
+{
+ "id": "P-W2-11",
+ "date": "2026-10-30",
+ "prereg": "orch_bot-W2/PREREG_W2_cnx.md#P-W2-11 (commit a7a38aa, ~14:16 MSK, до измерений)",
+ "root_cause": "Тест P-W2-10 считал 's1f4' весами s2f4: coord-ядро s2f4 (30.10 01:04 MSK) скопировано из папки s1f4 с тем же id_no 141541113 → стало версией 2 ядра s1f4 (переименовано в elenakonkova/koz3-w2-cnx-c3sc-s2f4); dlw.sh (10:58) скачал последнюю версию. OOF/Kaggle-карты s1 f4 (29.10 19:20) — настоящие (версия 1). Стек A не содержит li_cnx.",
+ "genuine_s1f4": {
+  "source": "kaggle kernels output elenakonkova/koz3-w2-cnx-c3sc-s2f4/1",
+  "weights_md5": "efbff0f38cea7ee96f2ada3d8bbb575d",
+  "box_path": "w2/p11/s1f4_v1/"
+ },
+ "mislabeled": {
+  "md5": "f34ff787… (= s2f4)",
+  "paths": [
+   "w2/demfill/w/s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt",
+   "w2/bk/stage/weights/s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt (hardlink)",
+   "Kaggle dataset elenakonkova/koz3-w2-weights v2: s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt"
+  ]
+ },
+ "M1": {
+  "sites": 21,
+  "mask_MAD_max": 1e-05,
+  "hm_MAD_max": 1e-05,
+  "dn_det_max_rel": 0.0016,
+  "n_det_total": {
+   "oof": 27442,
+   "kaggle_maps_decoded": 27442,
+   "box_cpu": 27448
+  },
+  "kaggle_maps_decode_reproduces_oof": "точно, все 21 участок",
+  "li_f1_t03_diff_ge_0.01": {
+   "190_Муравлево": [
+    0.51288,
+    0.66673
+   ]
+  },
+  "cause_190": "1 лишняя детекция gorodishcha (conf 0.630, компонента маски на пороге; u8-квантование/fp32 CPU vs GPU) при 2 GT gorodishcha на участке → макро-F1 участка +0.154",
+  "pool_f4_t03": {
+   "oof": 0.34178,
+   "box": 0.3505
+  }
+ },
+ "M2": "15/15 единиц: seed в логе = сид, n_det лог=OOF=merge_summary; единственный дубль md5 — s1f4=s2f4 (неверная метка)",
+ "M3": {
+  "units": "s1 f0 179, s1 f1 036, s1 f2 030, s1 f3 005, s0 f4 038, s2 f4 038",
+  "mask_MAD_max": 1e-05,
+  "ok": true
+ },
+ "M4": {
+  "190_s012avg_f1_t03": {
+   "genuine_s0+s1+s2": 0.5151,
+   "P-W2-10_C(s0+s2+s2)": 0.6663
+  },
+  "note": "0.666 vs 0.515 из P-W2-10 воспроизведено; разница — та же 1 детекция gorodishcha"
+ },
+ "verdict": "Формально по букве PREREG сработало условие H1 (Li F1 участка 190 ±0.01) при выполненных H0-критериях карт/n_det → ветка H1 выполнена: s012avg пересобран с CPU-картами s1 f4 и прогнан гейт. Существенной разницы нет: OOF корректен.",
+ "gate": {
+  "variant": "стек A + s012avg_p11 аддитивно (stack_add_cnx)",
+  "n_add": 82993,
+  "orig_s012_n": 82996,
+  "score": 0.3075744,
+  "vs_A": {
+   "A": 0.3146153,
+   "d": -0.007041,
+   "p_gt0": 0.1055,
+   "new34": -0.000449,
+   "floors_violated": [
+    "kurgany_povrezhdennye",
+    "kurgany_tselye",
+    "gorodishcha",
+    "fortifikatsii"
+   ],
+   "PASS": false
+  },
+  "vs_prev_s012": {
+   "B": 0.3075641,
+   "d": 1.03e-05,
+   "p_gt0": 0.853
+  }
+ },
+ "unregistered": "Первый прогон по ошибке в режиме stack_replace_li (как varb): 0.29525 — не по PREREG, только для записи (gate/UNREG_replace_mode_w6c_gate.json)",
+ "P-W2-10": "итог FAIL в силе (T и C с одинаковыми весами); абсолютные цифры 190 — для s0+s2+s2",
+ "actions_recommended": [
+  "заменить s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt в koz3-w2-weights на efbff0f3 (новая версия датасета — с согласия Елены; не сделано)",
+  "coord: при копировании ядер удалять id_no из kernel-metadata.json"
+ ]
+}
