@@ -8,6 +8,7 @@ rasterio = pytest.importorskip("rasterio")
 from rasterio.transform import from_origin
 
 from expds import crs as C
+from expds import geo_pixgbm as G
 from expds import geophys
 
 
