@@ -123,7 +123,7 @@ def heuristic_score(feats: np.ndarray) -> np.ndarray:
 
 
 def dome_multiplier(d: Dem, found: dict, near_m: float = 5.0, far_m: float = 40.0) -> np.ndarray:
-    """Множитель 0,9…1,1 по форме насыпи. Пустой список кандидатов — пустой множитель."""
+    """Множитель 1…1,1 по форме насыпи. Пустой список кандидатов — пустой множитель."""
     from .dome import priors
 
     z, step = to_work_grid(d.dem, d.res, float(found["res"]))

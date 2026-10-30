@@ -16,11 +16,31 @@ def _slope(n=81):
 
 
 def test_mound_is_a_local_dome():
-    z, _res = _mound()
+    z, res = _mound()
     c = z.shape[0] // 2
     assert tpi(z, c, c, radius_px=10) > 0.2
     assert symmetry(z, c, c, radius_px=12) > 0.7
-    assert profile_curvature(z, c, c) > 0
+    assert profile_curvature(z, c, c, res) > 0
+
+
+def test_curvature_does_not_change_when_the_cell_size_changes():
+    def gauss(res):
+        sigma, h, span = 4.0, 1.2, 40.0
+        n = int(round(span / res))
+        n += (n + 1) % 2
+        c = n // 2
+        yy, xx = np.mgrid[0:n, 0:n]
+        x = (xx - c) * res
+        y = (yy - c) * res
+        z = (h * np.exp(-(x * x + y * y) / (2 * sigma * sigma))).astype(np.float32)
+        return z, c
+
+    fine, cf = gauss(0.5)
+    coarse, cc = gauss(1.0)
+    a = profile_curvature(fine, cf, cf, 0.5, span_m=3.0)
+    b = profile_curvature(coarse, cc, cc, 1.0, span_m=3.0)
+    assert a > 0.02 and b > 0.02
+    assert abs(a - b) / max(a, b) < 0.15
 
 
 def test_slope_is_not_a_dome():

@@ -62,24 +62,38 @@ def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8
     if len(means) < sectors // 2:
         return np.nan
     arr = np.asarray(means, np.float64)
-    # Разброс в метрах, не относительно абсолютной высоты: иначе ровный склон
-    # выглядит «симметричным» только потому, что стоит высоко.
+    # Разброс средних секторов в метрах высоты, не в долях от отметки и не в
+    # метрах плана: иначе ровный высокий склон выглядит «симметричным».
     spread = float(np.std(arr))
     return float(1.0 / (1.0 + spread / 0.05))
 
 
-def profile_curvature(z: np.ndarray, row: int, col: int) -> float:
-    """Профильная кривизна по окну 3×3. Выпуклый центр (насыпь) — положительный."""
-    if not (1 <= row < z.shape[0] - 1 and 1 <= col < z.shape[1] - 1):
+def profile_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m: float = 3.0) -> float:
+    """Профильная кривизна, 1/м. Выпуклый центр (насыпь) — положительный.
+
+    Производные берутся по метрам плана, не по пикселям: иначе та же насыпь
+    на шаге 0,5 м и 1 м даёт разные числа. Окно в несколько метров, не 3 пикселя:
+    лапласиан 3×3 на шаге 0,5 м — шум высоты. В канале curv купол отрицательный;
+    здесь знак обратный, чтобы порог читался как «выпукло».
+    """
+    if res <= 0:
         return np.nan
-    win = z[row - 1:row + 2, col - 1:col + 2].astype(np.float64)
-    if not np.isfinite(win).all():
+    half = max(1, int(round(span_m / res)))
+    if not (half <= row < z.shape[0] - half and half <= col < z.shape[1] - half):
         return np.nan
-    zx = (win[1, 2] - win[1, 0]) / 2.0
-    zy = (win[0, 1] - win[2, 1]) / 2.0
-    zxx = win[1, 2] - 2.0 * win[1, 1] + win[1, 0]
-    zyy = win[0, 1] - 2.0 * win[1, 1] + win[2, 1]
-    zxy = (win[0, 2] - win[0, 0] - win[2, 2] + win[2, 0]) / 4.0
+    zc = float(z[row, col])
+    ze, zw = float(z[row, col + half]), float(z[row, col - half])
+    zn, zs = float(z[row - half, col]), float(z[row + half, col])
+    zne, znw = float(z[row - half, col + half]), float(z[row - half, col - half])
+    zse, zsw = float(z[row + half, col + half]), float(z[row + half, col - half])
+    if not np.isfinite([zc, ze, zw, zn, zs, zne, znw, zse, zsw]).all():
+        return np.nan
+    dx = half * float(res)
+    zx = (ze - zw) / (2.0 * dx)
+    zy = (zn - zs) / (2.0 * dx)
+    zxx = (ze - 2.0 * zc + zw) / (dx * dx)
+    zyy = (zn - 2.0 * zc + zs) / (dx * dx)
+    zxy = (zne - znw - zse + zsw) / (4.0 * dx * dx)
     p2q2 = zx * zx + zy * zy
     if p2q2 < 1e-8:
         return float(-(zxx + zyy) / 2.0)
@@ -102,13 +116,13 @@ def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: floa
         near = tpi(z, row, col, near_px)
         far = tpi(z, row, col, far_px)
         sym = symmetry(z, row, col, near_px)
-        curv = profile_curvature(z, row, col)
+        curv = profile_curvature(z, row, col, res, span_m=near_m)
         votes = 0
         known = 0
         for ok in (np.isfinite(near) and near > 0.05,
                    np.isfinite(near) and np.isfinite(far) and near > far,
                    np.isfinite(sym) and sym >= 0.65,
-                   np.isfinite(curv) and curv > 1e-3):
+                   np.isfinite(curv) and curv > 0.002):
             known += 1
             votes += int(bool(ok))
         if known and votes:
