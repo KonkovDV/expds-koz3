@@ -1,0 +1,777 @@
+{
+ "backend": "rust 0.1.0 avx2=true/true threads=8",
+ "exact": {
+  "015_Демидовка": {
+   "dem_res": 0.2,
+   "hull_cells": 19217145,
+   "valid_cells": 7238815,
+   "hole_frac_hull": 0.6233,
+   "hole_area_m2": 479133,
+   "largest_hole_m2": 378947.7,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.9361,
+    "ge10m2": 0.9134,
+    "ge100m2": 0.8754
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 2188953,
+   "hole_frac05": 0.195,
+   "hole05_share_comp_ge10m2": 0.5761,
+   "hole05_share_comp_ge100m2": 0.3768,
+   "largest_hole05_m2": 5214.25,
+   "t_s": 6.9
+  },
+  "016_Хога": {
+   "dem_res": 0.1,
+   "hull_cells": 14535735,
+   "valid_cells": 265416,
+   "hole_frac_hull": 0.9817,
+   "hole_area_m2": 142703,
+   "largest_hole_m2": 142703.1,
+   "hole_area_share_in_comp": {
+    "ge1m2": 1.0,
+    "ge10m2": 1.0,
+    "ge100m2": 1.0
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 196315,
+   "hole_frac05": 0.0,
+   "hole05_share_comp_ge10m2": 0.0,
+   "hole05_share_comp_ge100m2": 0.0,
+   "largest_hole05_m2": 0.0,
+   "t_s": 0.6
+  },
+  "018_Курган_Хога": {
+   "dem_res": 0.1,
+   "hull_cells": 30300313,
+   "valid_cells": 458195,
+   "hole_frac_hull": 0.9849,
+   "hole_area_m2": 298421,
+   "largest_hole_m2": 298421.2,
+   "hole_area_share_in_comp": {
+    "ge1m2": 1.0,
+    "ge10m2": 1.0,
+    "ge100m2": 1.0
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 424836,
+   "hole_frac05": 0.0,
+   "hole05_share_comp_ge10m2": 0.0,
+   "hole05_share_comp_ge100m2": 0.0,
+   "largest_hole05_m2": 0.0,
+   "t_s": 0.9
+  },
+  "021_Новенькое": {
+   "dem_res": 0.1,
+   "hull_cells": 32372628,
+   "valid_cells": 12248299,
+   "hole_frac_hull": 0.6216,
+   "hole_area_m2": 201243,
+   "largest_hole_m2": 91716.4,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.674,
+    "ge10m2": 0.6292,
+    "ge100m2": 0.6066
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 1052435,
+   "hole_frac05": 0.0344,
+   "hole05_share_comp_ge10m2": 0.5628,
+   "hole05_share_comp_ge100m2": 0.2191,
+   "largest_hole05_m2": 301.25,
+   "t_s": 6.8
+  },
+  "036_Тимерево": {
+   "dem_res": 0.1,
+   "hull_cells": 8031199,
+   "valid_cells": 2008896,
+   "hole_frac_hull": 0.7499,
+   "hole_area_m2": 60223,
+   "largest_hole_m2": 58604.1,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.9772,
+    "ge10m2": 0.9738,
+    "ge100m2": 0.9731
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 313609,
+   "hole_frac05": 0.0,
+   "hole05_share_comp_ge10m2": 0.0,
+   "hole05_share_comp_ge100m2": 0.0,
+   "largest_hole05_m2": 0.0,
+   "t_s": 1.0
+  },
+  "180_Гнёздово_Лесная_2": {
+   "dem_res": 0.1,
+   "hull_cells": 3878653,
+   "valid_cells": 482471,
+   "hole_frac_hull": 0.8756,
+   "hole_area_m2": 33962,
+   "largest_hole_m2": 33431.6,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.9853,
+    "ge10m2": 0.9844,
+    "ge100m2": 0.9844
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 109676,
+   "hole_frac05": 0.0,
+   "hole05_share_comp_ge10m2": 0.0,
+   "hole05_share_comp_ge100m2": 0.0,
+   "largest_hole05_m2": 0.0,
+   "t_s": 0.3
+  },
+  "182_Красносельская_1.7км": {
+   "dem_res": 0.1,
+   "hull_cells": 4813856,
+   "valid_cells": 1267873,
+   "hole_frac_hull": 0.7366,
+   "hole_area_m2": 35460,
+   "largest_hole_m2": 28456.5,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.8616,
+    "ge10m2": 0.8063,
+    "ge100m2": 0.8025
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 155071,
+   "hole_frac05": 0.0,
+   "hole05_share_comp_ge10m2": 0.0,
+   "hole05_share_comp_ge100m2": 0.0,
+   "largest_hole05_m2": 0.0,
+   "t_s": 0.5
+  },
+  "186_Семибратнее_1": {
+   "dem_res": 0.2,
+   "hull_cells": 15256374,
+   "valid_cells": 6381545,
+   "hole_frac_hull": 0.5817,
+   "hole_area_m2": 354993,
+   "largest_hole_m2": 181230.1,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.8095,
+    "ge10m2": 0.7064,
+    "ge100m2": 0.6697
+   },
+   "fill_method_now": "tin(rust)",
+   "survey_cells05": 2396527,
+   "hole_frac05": 0.146,
+   "hole05_share_comp_ge10m2": 0.4595,
+   "hole05_share_comp_ge100m2": 0.2888,
+   "largest_hole05_m2": 2241.25,
+   "t_s": 13.1
+  },
+  "190_Муравлево": {
+   "dem_res": 0.2,
+   "hull_cells": 32981056,
+   "valid_cells": 28362102,
+   "hole_frac_hull": 0.14,
+   "hole_area_m2": 184758,
+   "largest_hole_m2": 8972.6,
+   "hole_area_share_in_comp": {
+    "ge1m2": 0.261,
+    "ge10m2": 0.1564,
+    "ge100m2": 0.085
+   },
+   "fill_method_now": "pyramid",
+   "survey_cells05": 5270543,
+   "hole_frac05": 0.0063,
+   "hole05_share_comp_ge10m2": 0.1232,
+   "hole05_share_comp_ge100m2": 0.0125,
+   "largest_hole05_m2": 104.5,
+   "t_s": 42.8
+  }
+ },
+ "poisson": {
+  "001_Гнёздово_Нивленское": {
+   "est_hole_frac05": 0.0043,
+   "est_valid_dem_cells": 6652130,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.22,
+   "est_hole_frac": 0.8044
+  },
+  "002_Тешилово": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 10422467,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 1.88,
+   "est_hole_frac": 0.1533
+  },
+  "003_Лубно": {
+   "est_hole_frac05": 0.0116,
+   "est_valid_dem_cells": 6303177,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.18,
+   "est_hole_frac": 0.8368
+  },
+  "004_Боровичи_1": {
+   "est_hole_frac05": 0.0027,
+   "est_valid_dem_cells": 26691461,
+   "est_fill": "pyramid",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 2.13,
+   "est_hole_frac": 0.1185
+  },
+  "005_Боровичи_2": {
+   "est_hole_frac05": 0.0003,
+   "est_valid_dem_cells": 2334377,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.32,
+   "est_hole_frac": 0.723
+  },
+  "006_Осечки_1.1км": {
+   "est_hole_frac05": 0.0779,
+   "est_valid_dem_cells": 2700375,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.41,
+   "est_hole_frac": 0.6647
+  },
+  "007_Армиево": {
+   "est_hole_frac05": 0.0021,
+   "est_valid_dem_cells": 18480515,
+   "est_fill": "tin",
+   "dem_res": 0.4,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 3.96,
+   "est_hole_frac": 0.0191
+  },
+  "009_Хальвасборген": {
+   "est_hole_frac05": 0.7636,
+   "est_valid_dem_cells": 800721,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.04,
+   "est_hole_frac": 0.9578
+  },
+  "010_Эсбю_укрепление": {
+   "est_hole_frac05": 0.7901,
+   "est_valid_dem_cells": 227265,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.01,
+   "est_hole_frac": 0.9906
+  },
+  "011_Эрентуна": {
+   "est_hole_frac05": 0.58,
+   "est_valid_dem_cells": 3710770,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.09,
+   "est_hole_frac": 0.9165
+  },
+  "013_Нора_Виннон": {
+   "est_hole_frac05": 0.4936,
+   "est_valid_dem_cells": 524592,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.03,
+   "est_hole_frac": 0.9722
+  },
+  "015_Демидовка": {
+   "est_hole_frac05": 0.0016,
+   "est_valid_dem_cells": 12375880,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 0.5894,
+   "used_all": false,
+   "pts_per_cell": 1.03,
+   "est_hole_frac": 0.3566
+  },
+  "016_Хога": {
+   "est_hole_frac05": 0.6305,
+   "est_valid_dem_cells": 266370,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.02,
+   "est_hole_frac": 0.9817
+  },
+  "017_Юшково": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 9357051,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.48,
+   "est_hole_frac": 0.6163
+  },
+  "018_Курган_Хога": {
+   "est_hole_frac05": 0.6851,
+   "est_valid_dem_cells": 454802,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.02,
+   "est_hole_frac": 0.985
+  },
+  "019_Селяне": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 8999099,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.45,
+   "est_hole_frac": 0.637
+  },
+  "021_Новенькое": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 13276862,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 0.6251,
+   "used_all": false,
+   "pts_per_cell": 0.53,
+   "est_hole_frac": 0.5906
+  },
+  "022_Лихуша": {
+   "est_hole_frac05": 0.005,
+   "est_valid_dem_cells": 6015312,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.85,
+   "est_hole_frac": 0.429
+  },
+  "023_Бервенец": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 8239296,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.43,
+   "est_hole_frac": 0.6518
+  },
+  "024_Стрекаловка": {
+   "est_hole_frac05": 0.0001,
+   "est_valid_dem_cells": 14919426,
+   "est_fill": "tin",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 3.31,
+   "est_hole_frac": 0.0367
+  },
+  "025_Вышенское": {
+   "est_hole_frac05": 0.4468,
+   "est_valid_dem_cells": 3391675,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.13,
+   "est_hole_frac": 0.8791
+  },
+  "026_Золотаревка": {
+   "est_hole_frac05": 0.0448,
+   "est_valid_dem_cells": 15915136,
+   "est_fill": "tin",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 1.12,
+   "est_hole_frac": 0.3269
+  },
+  "027_Вышегжа_1": {
+   "est_hole_frac05": 0.2062,
+   "est_valid_dem_cells": 3976882,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.25,
+   "est_hole_frac": 0.7767
+  },
+  "028_Вышегжа_2": {
+   "est_hole_frac05": 0.0004,
+   "est_valid_dem_cells": 24170144,
+   "est_fill": "pyramid",
+   "dem_res": 0.4,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 5.05,
+   "est_hole_frac": 0.0064
+  },
+  "030_Эсбю": {
+   "est_hole_frac05": 0.6875,
+   "est_valid_dem_cells": 280557,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.01,
+   "est_hole_frac": 0.9851
+  },
+  "031_Новотитаровская": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 9998090,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.5,
+   "est_hole_frac": 0.6067
+  },
+  "032_Красносельская_0.5км": {
+   "est_hole_frac05": 0.0001,
+   "est_valid_dem_cells": 3070097,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.36,
+   "est_hole_frac": 0.6956
+  },
+  "033_Елизаветинское": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 13844318,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 2.19,
+   "est_hole_frac": 0.1115
+  },
+  "034_Усть_река": {
+   "est_hole_frac05": 0.0001,
+   "est_valid_dem_cells": 5485126,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.36,
+   "est_hole_frac": 0.6961
+  },
+  "035_Шумгора": {
+   "est_hole_frac05": 0.0978,
+   "est_valid_dem_cells": 8553794,
+   "est_fill": "tin",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.84,
+   "est_hole_frac": 0.4331
+  },
+  "036_Тимерево": {
+   "est_hole_frac05": 0.0008,
+   "est_valid_dem_cells": 2009306,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.29,
+   "est_hole_frac": 0.7508
+  },
+  "037_Никола_Ленивец": {
+   "est_hole_frac05": 1.0,
+   "est_valid_dem_cells": 0,
+   "est_fill": "tin",
+   "dem_res": 0.6000000000000001,
+   "g2_frac": 0.0,
+   "used_all": true,
+   "pts_per_cell": 0.0,
+   "est_hole_frac": 1.0
+  },
+  "038_Копанское": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 2370237,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.84,
+   "est_hole_frac": 0.4331
+  },
+  "039_Примаки_0.7км": {
+   "est_hole_frac05": 0.5,
+   "est_valid_dem_cells": 130011,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.03,
+   "est_hole_frac": 0.9727
+  },
+  "040_Примаки_1.3км": {
+   "est_hole_frac05": 0.1297,
+   "est_valid_dem_cells": 1975805,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.08,
+   "est_hole_frac": 0.9215
+  },
+  "041_Миловидово": {
+   "est_hole_frac05": 0.0492,
+   "est_valid_dem_cells": 166514,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.12,
+   "est_hole_frac": 0.8865
+  },
+  "044_Новотитаровская_1.8км": {
+   "est_hole_frac05": 0.0001,
+   "est_valid_dem_cells": 219962,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.36,
+   "est_hole_frac": 0.6966
+  },
+  "045_Новотитаровская_2.8км": {
+   "est_hole_frac05": 0.0031,
+   "est_valid_dem_cells": 700713,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.23,
+   "est_hole_frac": 0.7933
+  },
+  "061_Граборг": {
+   "est_hole_frac05": 0.7635,
+   "est_valid_dem_cells": 1935875,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.04,
+   "est_hole_frac": 0.9577
+  },
+  "066_Московиты": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 11867098,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.85,
+   "est_hole_frac": 0.4292
+  },
+  "068_Стеклянуха_1": {
+   "est_hole_frac05": 0.0007,
+   "est_valid_dem_cells": 11057043,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 1.17,
+   "est_hole_frac": 0.3092
+  },
+  "069_Стеклянуха_2": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 8542669,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 2.64,
+   "est_hole_frac": 0.071
+  },
+  "101_Гнёздово_Днепровская": {
+   "est_hole_frac05": 1.0,
+   "est_valid_dem_cells": 0,
+   "est_fill": "tin",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 0.0,
+   "used_all": true,
+   "pts_per_cell": 0.0,
+   "est_hole_frac": 1.0
+  },
+  "102_Гнёздово_Заольшанская": {
+   "est_hole_frac05": 1.0,
+   "est_valid_dem_cells": 0,
+   "est_fill": "tin",
+   "dem_res": 0.30000000000000004,
+   "g2_frac": 0.0,
+   "used_all": true,
+   "pts_per_cell": 0.0,
+   "est_hole_frac": 1.0
+  },
+  "104_Шетнево": {
+   "est_hole_frac05": 0.0088,
+   "est_valid_dem_cells": 7908409,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.76,
+   "est_hole_frac": 0.4692
+  },
+  "105_Вщиж": {
+   "est_hole_frac05": 0.0203,
+   "est_valid_dem_cells": 12020067,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.62,
+   "est_hole_frac": 0.5362
+  },
+  "106_Верхмарево": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 16101052,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 2.12,
+   "est_hole_frac": 0.1203
+  },
+  "179_Гнёздово_Лесная_1": {
+   "est_hole_frac05": 0.0003,
+   "est_valid_dem_cells": 1038738,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.32,
+   "est_hole_frac": 0.7258
+  },
+  "180_Гнёздово_Лесная_2": {
+   "est_hole_frac05": 0.0268,
+   "est_valid_dem_cells": 520977,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.14,
+   "est_hole_frac": 0.8652
+  },
+  "181_Гнёздово_Лесная_3": {
+   "est_hole_frac05": 0.0334,
+   "est_valid_dem_cells": 372958,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.14,
+   "est_hole_frac": 0.8729
+  },
+  "182_Красносельская_1.7км": {
+   "est_hole_frac05": 0.0001,
+   "est_valid_dem_cells": 1432283,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.35,
+   "est_hole_frac": 0.7026
+  },
+  "186_Семибратнее_1": {
+   "est_hole_frac05": 0.0223,
+   "est_valid_dem_cells": 6957198,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 0.1208,
+   "used_all": false,
+   "pts_per_cell": 0.61,
+   "est_hole_frac": 0.5443
+  },
+  "187_Судьбищи_1": {
+   "est_hole_frac05": 1.0,
+   "est_valid_dem_cells": 0,
+   "est_fill": "tin",
+   "dem_res": 0.6000000000000001,
+   "g2_frac": 0.0,
+   "used_all": true,
+   "pts_per_cell": 0.0,
+   "est_hole_frac": 1.0
+  },
+  "188_Руна": {
+   "est_hole_frac05": 0.0069,
+   "est_valid_dem_cells": 3776748,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.2,
+   "est_hole_frac": 0.8197
+  },
+  "189_Макеево": {
+   "est_hole_frac05": 0.3426,
+   "est_valid_dem_cells": 1534722,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.17,
+   "est_hole_frac": 0.8425
+  },
+  "190_Муравлево": {
+   "est_hole_frac05": 0.0,
+   "est_valid_dem_cells": 29693330,
+   "est_fill": "pyramid",
+   "dem_res": 0.2,
+   "g2_frac": 0.4271,
+   "used_all": false,
+   "pts_per_cell": 2.3,
+   "est_hole_frac": 0.1002
+  },
+  "191_Осечки_1.3км": {
+   "est_hole_frac05": 0.3768,
+   "est_valid_dem_cells": 127732,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.04,
+   "est_hole_frac": 0.9617
+  },
+  "192_КЧР": {
+   "est_hole_frac05": 0.0008,
+   "est_valid_dem_cells": 5392180,
+   "est_fill": "tin",
+   "dem_res": 0.1,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.29,
+   "est_hole_frac": 0.7501
+  },
+  "200_Судьбищи_2": {
+   "est_hole_frac05": 0.0275,
+   "est_valid_dem_cells": 10022098,
+   "est_fill": "tin",
+   "dem_res": 0.2,
+   "g2_frac": 1.0,
+   "used_all": false,
+   "pts_per_cell": 0.58,
+   "est_hole_frac": 0.5626
+  }
+ }
+}

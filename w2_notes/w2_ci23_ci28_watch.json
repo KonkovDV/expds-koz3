@@ -1,0 +1,1 @@
+{"updated":"2026-10-30T10:10+03:00","ci2-3":{"kernel":"aaaa0000004/koz3-w2-ground-clip-audit","status":"COMPLETE","reported":true,"decision":"P-W2-8 A=false B=false -> CI2-3 closed"},"ci2-8":{"kernel":"dmitrijkv/koz3-w2-hillshade-parity-s3","status":"COMPLETE","reported":true},"leases_released":true,"routine_deleted":true}

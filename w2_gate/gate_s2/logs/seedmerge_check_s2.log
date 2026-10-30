@@ -1,0 +1,4 @@
+seeds {'s2': 59} common regions 59
+/workspace/koz3/w2/tools/seed_merge_cnx.py:51: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+  g = stf(to3857, Point(ux, uy).buffer(CIRCLE_R, quad_segs=4)); ring = [[round(a, 2), round(b, 2)] for a, b in g.exterior.coords]
+wrote gate_s2/check_s2only.geojson 94959

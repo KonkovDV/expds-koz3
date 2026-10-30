@@ -1,0 +1,189 @@
+{
+ "time": "30.10 04:00 MSK",
+ "by": "bot-W2 (бот 3)",
+ "prereg": "P-W2-6 (orch/bot-W2/PREREG_W2_cnx.md, commit 9b19d6e bots/w2-lidar, до замера)",
+ "status": "измерение для W4/W5, не приём",
+ "oof": {
+  "path": "/workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s012avg.geojson",
+  "sha256": "a88c65053beed31f9d529a640cb4940bc8c30b005728897017d0ca4a9b9bac98",
+  "n": 82996
+ },
+ "definition": "удалены все строки стека A с markup_type=li (threshold_group li_dev, li_mosaic, li, li_coarse, li_fort, li_mask, gor_phys; в стеке у 76 245 строк (группа li) threshold_group нет в properties — выводится metric.threshold_group), 1 214 793 строк, 59 LAS-участков; li_ae и прочие слои без изменений; дописан s012avg как li_cnx",
+ "gate_method": "w2/tools/stack_replace_li.py → prep.py → gate_v6c.py --vs w5data/work/base_counts.pkl (honest-10 по семьям, bootstrap 2000, 103 семьи) → w2/tools/gate_detail.py; runner w2/gate_s2/run_varb.sh",
+ "A_repro": 0.3146153226828423,
+ "varb": {
+  "build": {
+   "kept": 171916,
+   "dropped": 1214793,
+   "added": 82996,
+   "drop": {
+    "gor_phys|gorodishcha": 122,
+    "li_coarse|fortifikatsii": 775,
+    "li_coarse|gorodishcha": 2591,
+    "li_dev|kurgany_povrezhdennye": 324981,
+    "li_dev|kurgany_tselye": 326333,
+    "li_fort|fortifikatsii": 375,
+    "li_mask|gorodishcha": 293,
+    "li_mosaic|kurgany_povrezhdennye": 241539,
+    "li_mosaic|kurgany_tselye": 241539,
+    "None|fortifikatsii": 379,
+    "None|gorodishcha": 664,
+    "None|kurgany_povrezhdennye": 37601,
+    "None|kurgany_tselye": 37601
+   }
+  },
+  "A": 0.3146153226828423,
+  "B": 0.2951330459511779,
+  "d": -0.019482276731664416,
+  "boot": {
+   "mean": -0.020075808441374916,
+   "p5": -0.05035498436459112,
+   "p50": -0.01888328021354929,
+   "p95": 0.006259154615109083,
+   "p_gt0": 0.1195,
+   "families": 103
+  },
+  "per_class_dF1": {
+   "kurgany_povrezhdennye": -0.018732724084806696,
+   "kurgany_tselye": -0.028066667133854528,
+   "gorodishcha": -0.05532962545307271,
+   "arkhitektury": 0.0,
+   "object_poly": 0.0,
+   "fortifikatsii": 0.001006354770187845,
+   "finds_points": 0.0
+  },
+  "floor_violations": {
+   "kurgany_povrezhdennye": -0.018732724084806696,
+   "kurgany_tselye": -0.028066667133854528,
+   "gorodishcha": -0.05532962545307271
+  },
+  "new34": {
+   "A": 0.2964508527066795,
+   "B": 0.24609312166032668,
+   "d": -0.0503577310463528,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.0218714168035401,
+    "kurgany_tselye": -0.04589435858457791,
+    "gorodishcha": -0.20624041988994207
+   }
+  },
+  "optical_nolidar": {
+   "A": 0.14427407342564424,
+   "B": 0.15363972398915332,
+   "d": 0.009365650563509076
+  },
+  "lidar59": {
+   "d": -0.035015527750781206,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.025951710783468973,
+    "kurgany_tselye": -0.03929383603533687,
+    "gorodishcha": -0.12846728357797954
+   }
+  },
+  "las_sites_changed": 54,
+  "las_sites_drop": 29,
+  "worst5": {
+   "188_Руна": -0.9999985000012501,
+   "061_Граборг": -0.7041656747576336,
+   "007_Армиево": -0.6973673846961054,
+   "069_Стеклянуха_2": -0.5555545987664627,
+   "033_Елизаветинское": -0.49999950000025
+  },
+  "gate": {
+   "d_ok": false,
+   "p_ok": false,
+   "floors_ok": false,
+   "new34_ok": false,
+   "optical_ok": true,
+   "PASS": false
+  },
+  "detail": "/workspace/koz3/w2/gate_s2/detail_varb.json",
+  "gate_json": "/workspace/koz3/w2/gate_s2/varb/work/w6c_gate_varb.json"
+ },
+ "varb_kur_secondary": {
+  "build": {
+   "kept": 177115,
+   "dropped": 1209594,
+   "added": 81896,
+   "drop": {
+    "li_dev|kurgany_povrezhdennye": 324981,
+    "li_dev|kurgany_tselye": 326333,
+    "li_mosaic|kurgany_povrezhdennye": 241539,
+    "li_mosaic|kurgany_tselye": 241539,
+    "None|kurgany_povrezhdennye": 37601,
+    "None|kurgany_tselye": 37601
+   }
+  },
+  "A": 0.3146153226828423,
+  "B": 0.30338217203062945,
+  "d": -0.011233150652212864,
+  "boot": {
+   "mean": -0.011816042199305004,
+   "p5": -0.03529721830110212,
+   "p50": -0.010358181323884497,
+   "p95": 0.00696740347641778,
+   "p_gt0": 0.2005,
+   "families": 103
+  },
+  "per_class_dF1": {
+   "kurgany_povrezhdennye": -0.018732724084806696,
+   "kurgany_tselye": -0.028066667133854528,
+   "gorodishcha": 0.0,
+   "arkhitektury": 0.0,
+   "object_poly": 0.0,
+   "fortifikatsii": 0.0,
+   "finds_points": 0.0
+  },
+  "floor_violations": {
+   "kurgany_povrezhdennye": -0.018732724084806696,
+   "kurgany_tselye": -0.028066667133854528
+  },
+  "new34": {
+   "A": 0.2964508527066795,
+   "B": 0.2789616340867043,
+   "d": -0.017489218619975155,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.0218714168035401,
+    "kurgany_tselye": -0.04589435858457791
+   }
+  },
+  "optical_nolidar": {
+   "A": 0.14427407342564424,
+   "B": 0.14998121680569643,
+   "d": 0.005707143380052182
+  },
+  "lidar59": {
+   "d": -0.015644280442108027,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.025951710783468973,
+    "kurgany_tselye": -0.03929383603533687
+   }
+  },
+  "las_sites_changed": 35,
+  "las_sites_drop": 16,
+  "worst5": {
+   "106_Верхмарево": -0.342856662857472,
+   "192_КЧР": -0.3111107437041808,
+   "036_Тимерево": -0.10135429246524214,
+   "028_Вышегжа_2": -0.08553167104617837,
+   "001_Гнёздово_Нивленское": -0.0842422456405737
+  },
+  "gate": {
+   "d_ok": false,
+   "p_ok": false,
+   "floors_ok": false,
+   "new34_ok": false,
+   "optical_ok": true,
+   "PASS": false
+  },
+  "detail": "/workspace/koz3/w2/gate_s2/detail_varb_kur.json",
+  "gate_json": "/workspace/koz3/w2/gate_s2/varb_kur/work/w6c_gate_varb_kur.json"
+ },
+ "note_optical": "Δ на участках без лидара > 0 при неизменных детекциях там: honest-пороги прочих групп подбираются по F1 класса в целом, без li-слоя оптимум сдвигается; это не выигрыш варианта",
+ "verdict": "FAIL: (b) Δ=-0.0195, P=0.12, полы povr/tselye/gor, new34 -0.050. b-kur тоже FAIL. По PREREG ветка c3-sc закрыта целиком; s3f4 не используется.",
+ "files": {
+  "detail_varb": "/workspace/koz3/w2/gate_s2/detail_varb.json",
+  "detail_varb_kur": "/workspace/koz3/w2/gate_s2/detail_varb_kur.json",
+  "logs": "/workspace/koz3/w2/gate_s2/logs/"
+ }
+}
