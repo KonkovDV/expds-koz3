@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import numpy as np
-import torch
+import pytest
+
+torch = pytest.importorskip("torch")  # W4: окружение без torch — skip, а не ошибка сбора
 
 from expds.infer_nn import Ensemble, Segmenter
 

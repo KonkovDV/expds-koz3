@@ -3,7 +3,8 @@ import json
 
 import numpy as np
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")  # W4: окружение без torch — skip, а не ошибка сбора
 from shapely.geometry import LineString, Point
 
 from expds.centers import focal_center_loss, gaussians_from_binary, small_component_weights
