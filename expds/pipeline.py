@@ -1642,6 +1642,20 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             t_phase = time.monotonic()
             n_phase = _aeor_dfine_phase(regions, cfg, guard, state, root)
             phases.append(("aeor_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("gor_dense") or {}).get("enabled"):
+            # bot-5 (PFnoD бота 10): точки городищ плотного локализатора DINOv2-S на SpOr после sp_dfine/drop_groups и ДО gor_gate,
+            # группа gor_dense + noD (без флага ветка не входит: выдача байт-в-байт как v3)
+            t_phase = time.monotonic()
+            n_phase = 0
+            try:
+                from . import gor_dense
+
+                snap, n_phase = gor_dense.apply(state.snapshot(), {r.name: r for r in regions}, cfg, root, guard=guard,
+                                                soft_ok=lambda what, need: _soft_ok(guard, "gor_dense", what, need))
+                state.replace(snap)
+            except Exception:
+                log.exception("GOR_DENSE_UNAVAILABLE: gor_dense пропущен (выдача без точек и без noD)")
+            phases.append(("gor_dense", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate
