@@ -13,7 +13,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--split-dir", type=Path, required=True); ap.add_argument("--gt", type=Path, required=True)
 ap.add_argument("--clusters", type=Path, required=True); ap.add_argument("--variant", action="append", default=[])
 ap.add_argument("--honest", type=int, default=10); ap.add_argument("--boot", type=int, default=1000)
-ap.add_argument("--out", type=Path, required=True)
+ap.add_argument("--out", type=Path, required=True); ap.add_argument("--pair", action="append", default=[])
 a = ap.parse_args()
 metric = str(ROOT / "materials" / "compute_metrics.py")
 cl = json.loads(a.clusters.read_text(encoding="utf-8"))["clusters"]
@@ -81,4 +81,10 @@ for n in V:
     out["variants"][n] = {"honest": s, "delta": [x - y for x, y in zip(s, s0)], "boot": b, "gate_w3": acc, "per_class_tp_fp_ngt": per}
     print(f"{n}: honest {s[0]:.6f} Δ {s[0]-s0[0]:+.6f} | 34new Δ {s[1]-s0[1]:+.6f} | optical Δ {s[2]-s0[2]:+.6f} | "
           f"P(A>B) {b.get('p_gt0'):.3f} 90% [{b.get('p5'):+.4f};{b.get('p95'):+.4f}] gate {'PASS' if acc else 'fail'}", flush=True)
+out["pairs"] = {}
+for pq in a.pair:
+    n1, n0 = pq.split(":"); b = M.paired_bootstrap_counts(H[n1][0], H[n0][0], site_family, a.boot); s1, s0 = H[n1][1], H[n0][1]
+    d = [x - y for x, y in zip(s1, s0)]; acc = d[0] >= 0.003 and b.get("p_gt0", 0) >= 0.9 and d[1] >= 0 and d[2] >= 0
+    out["pairs"][pq] = {"delta": d, "boot": b, "gate_w3": acc}
+    print(f"PAIR {pq}: Δ {d[0]:+.6f} | 34new Δ {d[1]:+.6f} | optical Δ {d[2]:+.6f} | P {b.get('p_gt0'):.3f} 90% [{b.get('p5'):+.4f};{b.get('p95'):+.4f}] gate {'PASS' if acc else 'fail'}", flush=True)
 a.out.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")

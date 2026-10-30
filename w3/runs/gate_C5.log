@@ -1,0 +1,71 @@
+N 110379 emb ok 0.1507 pos {(np.str_('gorodishcha'), np.str_('sp_or'), np.int64(0)): 987, (np.str_('gorodishcha'), np.str_('sp_or'), np.int64(1)): 19, (np.str_('object_poly'), np.str_('maggr'), np.int64(0)): 37, (np.str_('object_poly'), np.str_('maggr'), np.int64(1)): 109, (np.str_('object_poly'), np.str_('etgr'), np.int64(1)): 238, (np.str_('object_poly'), np.str_('etgr'), np.int64(0)): 165, (np.str_('object_poly'), np.str_('terfl'), np.int64(0)): 213, (np.str_('object_poly'), np.str_('terfl'), np.int64(1)): 106, (np.str_('fortifikatsii'), np.str_('ae'), np.int64(0)): 60441, (np.str_('fortifikatsii'), np.str_('ae'), np.int64(1)): 546, (np.str_('arkhitektury'), np.str_('sp_or'), np.int64(1)): 172, (np.str_('arkhitektury'), np.str_('sp_or'), np.int64(0)): 46563, (np.str_('arkhitektury'), np.str_('or'), np.int64(0)): 757, (np.str_('arkhitektury'), np.str_('or'), np.int64(1)): 26}
+{"N": 110379, "pos": 1216, "done": 16630, "big2000": 2639, "auc_goro_all_conf": 0.6185, "auc_goro_all_C5A": 0.4991, "auc_goro_sp_or_conf": 0.6185, "auc_goro_sp_or_C5A": 0.4991, "auc_fort_all_conf": 0.7525, "auc_fort_all_C5A": 0.8351, "auc_fort_ae_conf": 0.7525, "auc_fort_ae_C5A": 0.8351, "auc_arkh_all_conf": 0.5295, "auc_arkh_all_C5A": 0.7803, "auc_arkh_or_conf": 0.5019, "auc_arkh_or_C5A": 0.4446, "auc_arkh_sp_or_conf": 0.6203, "auc_arkh_sp_or_C5A": 0.8149, "auc_obje_all_conf": 0.5636, "auc_obje_all_C5A": 0.6046, "auc_obje_etgr_conf": 0.5034, "auc_obje_etgr_C5A": 0.5823, "auc_obje_maggr_conf": 0.6058, "auc_obje_maggr_C5A": 0.4349}
+C5A extras 16630 drop 16630
+C5B extras 16630 drop 16630
+C5C extras 16630 drop 16630
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево done 1s rss 1296MB
+Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты done 13s rss 2301MB
+Архангельское done 15s rss 2301MB
+Белая+Воронеж+Россошки done 16s rss 2301MB
+Бервенец done 18s rss 2301MB
+Боровичи done 30s rss 2376MB
+Верхмарево done 33s rss 2444MB
+Верхнее done 35s rss 2444MB
+Верхний done 36s rss 2444MB
+Верхняя done 37s rss 2444MB
+Вщиж done 40s rss 2444MB
+Вышегжа done 53s rss 2744MB
+Вышенское done 58s rss 2758MB
+Гнёздово done 77s rss 3186MB
+Гочево done 79s rss 3186MB
+Граборг done 83s rss 3186MB
+Демидовка done 86s rss 3186MB
+Золотаревка done 96s rss 3203MB
+Изборск done 98s rss 3203MB
+Каменка done 99s rss 3203MB
+Костомаровское done 101s rss 3203MB
+Ксизово done 102s rss 3203MB
+Курган done 104s rss 3203MB
+Лихуша done 106s rss 3203MB
+Лубно done 108s rss 3203MB
+Макеево done 110s rss 3203MB
+Маяцкая done 111s rss 3203MB
+Московиты done 114s rss 3203MB
+Мостище done 116s rss 3203MB
+Муравлево done 118s rss 3203MB
+Никола done 120s rss 3203MB
+Новенькое done 122s rss 3203MB
+Нора done 123s rss 3203MB
+Перынь done 125s rss 3203MB
+Романово done 127s rss 3203MB
+Руна done 129s rss 3203MB
+Русская done 131s rss 3203MB
+Саратов+Тыва done 134s rss 3203MB
+Сарское done 136s rss 3203MB
+Сельцо done 137s rss 3203MB
+Селяне done 139s rss 3203MB
+Скупая done 140s rss 3203MB
+Сож done 143s rss 3203MB
+Солдатское done 145s rss 3203MB
+Сторожевое done 146s rss 3203MB
+Стрекаловка done 148s rss 3203MB
+Судьбищи done 150s rss 3203MB
+Тешилово done 152s rss 3203MB
+Тимерево done 154s rss 3203MB
+Усть done 155s rss 3203MB
+Хальвасборген+Эсбю done 158s rss 3203MB
+Хога done 160s rss 3203MB
+Чудово done 162s rss 3203MB
+Шетнево done 165s rss 3203MB
+Шишкино done 167s rss 3203MB
+Шниткино done 168s rss 3203MB
+Шумгора done 172s rss 3203MB
+Шурскол done 174s rss 3203MB
+Эрентуна done 177s rss 3203MB
+Юшково done 179s rss 3203MB
+A0 honest all/new/optical [0.314615, 0.296451, 0.144274]
+C5A: honest 0.306853 Δ -0.007763 | 34new Δ -0.010400 | optical Δ -0.009973 | P(A>B) 0.055 90% [-0.0120;+0.0001] gate fail
+C5B: honest 0.318487 Δ +0.003872 | 34new Δ +0.002952 | optical Δ +0.000413 | P(A>B) 0.998 90% [+0.0012;+0.0070] gate PASS
+C5C: honest 0.311175 Δ -0.003441 | 34new Δ -0.010400 | optical Δ -0.005876 | P(A>B) 0.218 90% [-0.0089;+0.0034] gate fail
+C5GATE_EXIT 0

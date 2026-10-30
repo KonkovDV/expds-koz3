@@ -26,3 +26,5 @@
 30.10 14:14 MSK | W3 | CI2-7 закрыт (не имеет смысла): KS FAIL, усреднение 8 сидов не дало прироста AUC (0.707=база), линия kurgan-subclass закрыта ботом 1 → свип сид×постобработка выбирать не из чего | — | prereg/WS-K1_PREREG.md, runs/gate_KS.json
 30.10 14:14 MSK | W3 | CI2-5 PREREG (CPU-вариант: adaptive-crop DINOv2 + LR LOFO, non-li gor/fort/arch/obj) | — | prereg/CI2-5_PREREG.md
 30.10 14:15 MSK | W3 | CI2-5: box/q1,q2 заняты (W1 до 19:12, W2 до 20:12) → в dispatch w3-ci25-cpu (box, nice10, thr4, ttl 2ч) | — | runs/run_c5gate.sh
+30.10 15:53 MSK | W3 | C5B verified alone: Δ+0.003872 P0.998 (34new +0.002952, optical +0.000413) PASS | 0.318487 | runs/gate_C5.json
+30.10 15:53 MSK | W3 | C5B joint (prereg/C5B_JOINT_PREREG.md): MRP +0.004670 PASS; ORG proxy −0.000649; S0=MRP+ORG +0.004346; S1=S0+C5B +0.004093; S1 vs S0 Δ−0.000253 P0.457 (34new +0.00147, optical −0.00784) → FAIL: C5B overlaps M_rp (same classes); C5B not taken to final, no handoff | −0.000253 | runs/gate_J.json
