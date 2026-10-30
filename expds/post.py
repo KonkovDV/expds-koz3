@@ -284,6 +284,7 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
     per_class = dict(rad) if isinstance(rad, dict) else {}
     classes = set(spec.get("classes") or (per_class.keys() if per_class else ("arkhitektury",)))
     groups = set(spec.get("groups") or ())
+    anchor = str(spec.get("anchor", "centroid"))
     out = []
     for f in feats:
         if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
@@ -293,9 +294,14 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
         if g is None or g.is_empty:
             out.append(f)
             continue
-        c = g.centroid
-        if not g.contains(c):
+        if anchor == "rp":
+            # W0-seams: метрика проверяет representative_point(P) ∈ G; диск r ≪ G в этой же точке
+            # засчитывается всегда, когда засчитан P (cov = 1), — слабое доминирование для любого P.
             c = g.representative_point()
+        else:
+            c = g.centroid
+            if not g.contains(c):
+                c = g.representative_point()
         radius = float(per_class.get(f.get("class_name"), rad if not per_class else 0.25))
         out.append(dict(f, geom=c.buffer(radius / _ground_scale(c.y), quad_segs=8)))
     return out
