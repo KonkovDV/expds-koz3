@@ -55,7 +55,7 @@ def enabled(cfg: dict) -> bool:
 
 def catalog_info(regions) -> dict:
     """Region из catalog.scan_root → {имя: {"las": есть ли LAS, "utm_json": путь|None}}."""
-    return {r.name: {"las": bool(r.las), "utm_json": str(r.utm_json) if getattr(r, "utm_json", None) else None}
+    return {r.name: {"las": bool(r.las), "utm_json": Path(r.utm_json).as_posix() if getattr(r, "utm_json", None) else None}
             for r in regions}
 
 

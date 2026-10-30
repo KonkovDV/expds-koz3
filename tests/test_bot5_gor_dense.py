@@ -259,7 +259,10 @@ def test_package_flag_on_ships_module_backbone_heads_vendor(tmp_path, monkeypatc
     r = tmp_path / "root"
     (r / "inference" / "lib" / "vendor" / "transformers").mkdir(parents=True)
     (r / "inference" / "lib" / "vendor" / "transformers" / "__init__.py").write_text("")
-    (r / "inference" / "main.py").symlink_to(ROOT / "inference" / "main.py")
+    try:
+        (r / "inference" / "main.py").symlink_to(ROOT / "inference" / "main.py")
+    except OSError:
+        pytest.skip("нет права на символические ссылки (Windows без режима разработчика)")
     (r / "metadata.json").symlink_to(ROOT / "metadata.json")
     (r / "expds").symlink_to(ROOT / "expds")
     (r / "configs").mkdir()
@@ -288,7 +291,7 @@ def test_package_flag_on_ships_module_backbone_heads_vendor(tmp_path, monkeypatc
 # ---------------------------------------------------------------- порядок фаз, шлюз, сборка/проверка
 def test_phase_order_after_sp_dfine_before_gor_gate():
     src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
-    i_sd = src.index("n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)")
+    i_sd = src.index("n_phase = _sp_dfine_phase(regions, cfg, guard, state, root")
     i_gd = src.index('if (cfg.get("gor_dense") or {}).get("enabled"):')
     i_gg = src.index('if (cfg.get("gor_gate") or {}).get("enabled"):\n            try:\n                from . import gor_gate')
     i_pf = src.index("if guard.partial:\n            state.note")

@@ -35,7 +35,7 @@ def _thr(v=0.3):
 def test_default_off_and_names():
     cfg = _cfg()
     assert cfg["dfine_aeor"] == {"enabled": False}
-    assert "aeor_dfine" not in cfg
+    assert not (cfg.get("aeor_dfine") or {}).get("enabled")   # вторая реализация (bot-1) тоже выключена
     assert not A.enabled(cfg)
     assert A.GROUPS == {"ae": "dfine_ae", "or": "dfine_or"}
     tbm = cfg.get("thresholds_by_markup") or {}
