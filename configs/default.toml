@@ -305,7 +305,9 @@ point_circle_m = 0.3
 # Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
 # Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
 # потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
-enabled = true
+# W4 DOC-1: выключено явно — legacy PIXGBM (по мотивам EN) не используется и в архив не идёт
+# (scripts/check_archive_clean.py); clean-room перепись — только impl = "clean" за флагом.
+enabled = false
 model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
