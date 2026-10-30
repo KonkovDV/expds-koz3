@@ -210,3 +210,59 @@
 - 30.10 07:33 MSK | lease | acquire slot:usertest1234/cpu → coord до 30.10 11:33 MSK fill: W4 v2clean check_submission (slug renamed after 409)
 - 30.10 07:33 MSK | lease | acquire kernel:usertest1234/koz3-w4-v2cleanchk-k → coord до 30.10 11:33 MSK W4 v2clean check
 - 30.10 07:34 MSK | coord-check | usertest1234/cpu свободен с 07:21 (push W4 v2clean-check → 409 конфликт slug); переименован в usertest1234/koz3-w4-v2cleanchk-k, аренда coord до 11:33, push OK (для W4: вывод — check_submission v2clean). Остальные слоты под арендой; box load ~9/8
+- 30.10 07:37 MSK | lease | release slot:usertest1234/cpu (coord) by coord
+- 30.10 07:37 MSK | lease | release kernel:usertest1234/koz3-w4-v2cleanchk-k (coord) by coord
+- 30.10 07:37 MSK | watcher | usertest1234/cpu: usertest1234/koz3-w4-v2cleanchk-k → COMPLETE; аренда снята
+- 30.10 07:37 MSK | lease | acquire slot:usertest1234/cpu → bot-W4-clean до 30.10 10:37 MSK w4-v2clean-check
+- 30.10 07:37 MSK | lease | acquire kernel:usertest1234/koz3-w4-v2cleanchk-k → bot-W4-clean до 30.10 10:37 MSK 
+- 30.10 07:37 MSK | watcher | usertest1234/cpu ← usertest1234/koz3-w4-v2cleanchk-k (w4-v2clean-check): Kernel version 2 successfully pushed.  Please check progress at https://www.kaggle.com/code/usertest1234/koz3-w4-v2cleanchk-k
+- 30.10 07:50 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 07:52 MSK | coord-check | box q2: run_rev.py ЗАВЕРШЁН (10077 с, kurgan s63 OOF+финальные r18/r34 в work); q2 → fallback w0s-dem-noground (счёт класса 2 в 7 LAS на box, out/w0s-dem-noground, аренда coord 3 ч). Kaggle-слоты все под арендой; run_resume (q1) жив
+- 30.10 07:50 MSK | lease | acquire slot:box/q2 → coord до 30.10 10:50 MSK fallback w0s-dem-noground: class-2 count, 7 box LAS
+- 30.10 07:50 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 07:53 MSK | w0s-dem-noground | DONE на 7 box-LAS: класс 2 есть во всех 7; 5 сайтов = только земля (100% cls2), но 021_Новенькое (62% земли) и 186_Семибратнее_1 (12% земли; 3–5 растительность, 6 нет) — если lidar.py:258 усредняет ВСЕ точки, DEM там = поверхность с лесом → для W2/W3: фильтр cls==2 (+min-per-cell) и проверить остальные LAS в S3. out/w0s-dem-noground/class_counts.json; q2 освобождён
+- 30.10 07:55 MSK | lease | release slot:usertest1234/cpu (bot-W4-clean) by coord
+- 30.10 07:55 MSK | lease | release kernel:usertest1234/koz3-w4-v2cleanchk-k (bot-W4-clean) by coord
+- 30.10 07:55 MSK | watcher | usertest1234/cpu: usertest1234/koz3-w4-v2cleanchk-k → COMPLETE; аренда снята; вывод → w4geo/kaggle/out_v2clean_check
+- 30.10 08:07 MSK | lease | acquire slot:box/q1 → coord до 30.10 12:07 MSK fallback W3 kurgan seeds 65,66 box CPU (cpu/kurgan_s65)
+- 30.10 08:07 MSK | lease | acquire slot:box/q2 → coord до 30.10 12:07 MSK fallback W3 kurgan seeds 67,68 box CPU (cpu/kurgan_s67)
+- 30.10 08:08 MSK | lease | acquire slot:usertest1234/cpu → coord до 30.10 14:08 MSK fallback W3 kurgan seeds 13,14
+- 30.10 08:09 MSK | coord-check | box простаивал (load 0.7/8: run_resume/run_rev s63-64 ЗАВЕРШЕНЫ) → fallback W3 kurgan seeds 65,66 (q1, cpu/kurgan_s65) и 67,68 (q2, cpu/kurgan_s67), venv, KTHREADS=4 nice10, аренды до 12:07. usertest1234/cpu свободен с 07:55 → push koz3-w3-kurgan-cpu-seeds v5 seeds 13,14 (аренда coord до 14:08). acc2 GPU cooldown до 31.10 03:00; остальные слоты под арендой
+- 30.10 08:09 MSK | lease | release slot:aaaa0000004/cpu (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | lease | release kernel:aaaa0000004/koz3-w3-kurgan-cpu-seeds (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+- 30.10 08:09 MSK | lease | release slot:aaaadg4gg4g4g/cpu (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | lease | release kernel:aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | watcher | aaaadg4gg4g4g/cpu: aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+- 30.10 08:09 MSK | lease | release slot:acc2/cpu (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | lease | release kernel:dmitrijkv/koz3-w3-kurgan-cpu-seeds (bot-W3-bigobj) by coord
+- 30.10 08:09 MSK | watcher | acc2/cpu: dmitrijkv/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+- 30.10 08:10 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 08:22 MSK | coord | CPU-слоты aaaa0000004, aaaadg4gg4g4g, acc2(dmitrijkv) свободны с 08:09; kurgan-сиды NO-GO (не перезапускаю); у ready CI2-1/3/7/8 нет kernel-папок → бот-владельцы (W2: CI2-8, CI2-3; W5: CI2-1) должны подготовить ядра
+- 30.10 08:23 MSK | lease | release dataset:usertest1234/koz3-w4-v2clean-check (bot-W4-clean) by bot-W4-clean
+- 30.10 08:23 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-v2clean-check → bot-W4-chk2 до 30.10 20:23 MSK v2-clean 15d59e9f check_submission + deps
+- 30.10 08:23 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-chk2 до 30.10 20:23 MSK check_submission with pip laspy/smp
+- 30.10 08:26 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 08:27 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W2-lidar до 30.10 20:27 MSK CI2-3v2 ground-clip audit (bot1 30.10 08:21)
+- 30.10 08:27 MSK | lease | acquire kernel:aaaa0000004/koz3-w2-ground-clip-audit → bot-W2-lidar до 30.10 20:27 MSK CI2-3v2
+- 30.10 08:27 MSK | lease | acquire dataset:aaaa0000004/koz3-w2-gaudit-las → bot-W2-lidar до 02.11 08:27 MSK 4 multi-class LAS for CI2-3v2
+- 30.10 08:27 MSK | lease | acquire slot:acc2/cpu → bot-W2-lidar до 30.10 20:27 MSK CI2-8 hsparity all S3 LAS (bot1 30.10 08:21)
+- 30.10 08:27 MSK | lease | acquire kernel:dmitrijkv/koz3-w2-hillshade-parity-s3 → bot-W2-lidar до 30.10 20:27 MSK CI2-8
+- 30.10 08:30 MSK | lease | acquire dataset:aaaadg4gg4g4g/koz3-w5-cloudfeat-in → bot-W5-w1exec до 30.10 12:30 MSK CI2-1 input; executor bot-W1-aeor по поручению бота 1
+- 30.10 08:30 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 09:30 MSK P-W2-8 prereg commit
+- 30.10 08:30 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 08:31 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 09:31 MSK P-W2-8 prereg commit
+- 30.10 08:31 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 08:35 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 09:35 MSK P-W2-8 time fix
+- 30.10 08:35 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 08:42 MSK | lease | release slot:aaaa0000004/cpu (bot-W2-lidar) by coord
+- 30.10 08:42 MSK | lease | release kernel:aaaa0000004/koz3-w2-ground-clip-audit (bot-W2-lidar) by coord
+- 30.10 08:42 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w2-ground-clip-audit → COMPLETE; аренда снята; вывод → w2/gaudit/out
+- 30.10 08:42 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk2 до 30.10 11:42 MSK w4-v2clean-check2
+- 30.10 08:42 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-chk2 до 30.10 11:42 MSK 
+- 30.10 08:42 MSK | watcher | aaaa0000004/cpu ← aaaa0000004/koz3-w4-v2cleanchk2 (w4-v2clean-check2): Kernel version 2 successfully pushed.  Please check progress at https://www.kaggle.com/code/aaaa0000004/koz3-w4-v2cleanchk2
+- 30.10 08:43 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 08:44 MSK | lease | acquire branch:bots/w4-aidecl → coord до 30.10 09:14 MSK push snapshot
+- 30.10 08:44 MSK | lease | release branch:bots/w4-aidecl (coord) by coord
+- 30.10 08:44 MSK | lease | acquire branch:bots/w3-kurgan-seeds → coord до 30.10 09:14 MSK push snapshot
+- 30.10 08:44 MSK | lease | release branch:bots/w3-kurgan-seeds (coord) by coord
