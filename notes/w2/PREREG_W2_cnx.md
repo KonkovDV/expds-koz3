@@ -24,3 +24,17 @@
 - Затрагивает только hillshade_set → li-модели (li_r18_hard2, li_mask, li_fort) на отмывке из DEM; cnx (каналы lrm/slope/svf) не затрагивает.
 - Замер: honest-10 только по сценам, где li-модель видит отмывку из DEM (Li организаторов отсутствует) — срез lidar59 через scripts/li_real_paired.py-логику; остальные группы без изменений. Гейт: Δ≥+0.003, P(A>B)≥0.9, полы −0.002 povr/tselye/gor, −0.005 прочие, классы с <5 GT в типе исключены.
 - Требуется (не на боксе): OOF-инференс li-моделей по фолдам на 59 LAS с флагом (GPU или ПК; фолдовые веса li_r18 нужны на руках). Пока не подтверждено, что такие веса есть на боксе → замер не запускаю.
+
+## P-W2-6  вариант (b): замена li-слоя стека A на c3-sc s012avg (зарегистрировано 30.10 03:56 MSK, ДО измерений; запрос бота 1 30.10)
+- Контекст: аддитивно c3-sc (s2 и s012avg) — FAIL (w2/notes/w2_c3sc_s2_gate.json). (b) — последний шанс c3-sc; s3+ сиды в hold до итога (b).
+- Определение «li-групп»: все детекции стека A (/workspace/koz3/w5data/stack_arch.geojson, sha .gz 42ff3087) с markup_type == "li",
+  т.е. threshold_group ∈ {li_dev, li_mosaic, li, li_coarse, li_fort, li_mask, gor_phys} = 1 214 793 строк (59 LAS-участков; классы
+  kurgany_povr/tselye, gorodishcha, fortifikatsii). li_ae (markup_type=ae) и все прочие слои не трогаются.
+- **b (основной, решающий)**: удалить ВСЕ li-строки выше (все классы, все 59 участков, включая 182_Красносельская_1.7км, где у cnx 0 детекций)
+  и дописать /workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s012avg.geojson (82 996, sha a88c6505…, threshold_group=li_cnx, markup_type=li) без изменений conf.
+- b-kur (вторичный, только диагностика, решения не меняет): удалить только li-строки классов kurgany_* и дописать только kurgany_* из s012avg; li gor/fort остаются.
+- Протокол как в w2/gate_s2 (s2-гейт): w2/tools/stack_replace_li.py → prep.py → gate_v6c.py --vs w5data/work/base_counts.pkl (honest-10 по семьям,
+  paired bootstrap 2000 по 103 семьям, metric materials/compute_metrics.py) → w2/tools/gate_detail.py. База A = 0.314615.
+- PASS (b) ⇔ Δ ≥ +0.003 И P(B>A) ≥ 0.9 И нет нарушений полов по классам (−0.002 kurgany_povr/tselye/gorodishcha, −0.005 прочие; классы с n_GT<5 исключены)
+  И Δ new34 ≥ −0.001 И Δ участки без лидара ≥ −0.001 (те же допуски, что в s2-гейте; будет показан и знак Δ). Принимают только W4/W5.
+- Решение без подглядывания: (b) FAIL → ветка c3-sc закрыта целиком, s3f4 не используется, GPU → heatmap/r50c5 после Сб 03:00. (b) PASS → передать W4/W5, s3f4 — в s0123avg только после повторного гейта.
