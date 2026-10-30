@@ -9,6 +9,22 @@ def _mound() -> np.ndarray:
     return np.exp(-(xx ** 2 + yy ** 2) / (2 * 8.0 ** 2)).astype(np.float32)
 
 
+def test_hillshade_lights_the_northwest_face():
+    from expds import accel
+    from expds.lidar import _hillshade_li_match
+
+    n, res = 41, 1.0
+    yy, xx = np.mgrid[:n, :n]
+    x = xx.astype(np.float32)
+    y = (n - 1 - yy).astype(np.float32)
+    faces_nw = x - y
+    faces_se = -x + y
+    for fn in (lambda z: accel.hillshade(z, res, res), lambda z: _hillshade_li_match(z, res)):
+        lit = int(fn(faces_nw)[n // 2, n // 2])
+        dark = int(fn(faces_se)[n // 2, n // 2])
+        assert lit > 200 and dark < 30
+
+
 def test_shipped_lidar_tags_stay_the_three_relief_channels():
     assert RELIEF_TAGS == ("lrm_s", "lrm_l", "slope")
     d = Dem(dem=_mound(), left=0.0, top=81.0, res=1.0, crs="EPSG:32636")

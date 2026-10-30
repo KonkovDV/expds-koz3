@@ -495,7 +495,10 @@ def _hillshade_li_match(filled: np.ndarray, res: float) -> np.ndarray:
     gy = ndi.correlate(z, k.T, mode="nearest")
     slope = np.arctan(np.hypot(gx, gy))
     aspect = np.arctan2(-gx, -gy)
-    zen, az = math.radians(45.0), math.radians(315.0)
+    # 45° здесь — угол от зенита (90° − высота солнца 45°), как в accel.hillshade.
+    # Азимут 315° — свет с северо-запада, картографический, не полуденное солнце с юга.
+    altitude, azimuth = 45.0, 315.0
+    zen, az = math.radians(90.0 - altitude), math.radians(azimuth)
     shade = 255.0 * (math.cos(zen) * np.cos(slope) + math.sin(zen) * np.sin(slope) * np.cos(az - aspect))
     return np.rint(np.clip(shade, 0.0, 255.0)).astype(np.uint8)
 

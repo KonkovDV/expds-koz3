@@ -250,7 +250,11 @@ def convex_hull_mask(valid: np.ndarray) -> np.ndarray:
 
 def hillshade(filled: np.ndarray, res_x: float, res_y: float, azimuth: float = 315.0,
               altitude: float = 45.0, z_factor: float = 1.0) -> np.ndarray:
-    """Серая отмывка ESRI/ArcGIS (uint8), как у бейзлайна организаторов."""
+    """Серая отмывка ESRI/ArcGIS (uint8), как у бейзлайна организаторов.
+
+    Азимут 315° — свет с северо-запада, чтобы тень падала на юго-восток.
+    Полуденное солнце с юга переворачивает чтение рельефа и сюда не ставится.
+    """
     import math
 
     filled = np.ascontiguousarray(filled, np.float32)
