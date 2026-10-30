@@ -25,7 +25,7 @@ def cfg():
 
 
 def test_flags_independent_and_as_documented(cfg):
-    assert pipeline.load_config(ROOT / "configs" / "default.toml")["geophys"]["pixgbm"]["enabled"] is False
+    assert pipeline.load_config(ROOT / "configs" / "default.toml")["geophys"]["pixgbm"]["enabled"] is False   # DOC-1
     pix = cfg["geophys"]["pixgbm"]
     assert pix["enabled"] is True and pix["replace"] is True         # фикстура: флаг включён в памяти (вариант S)
     assert set(pix["classes"]) == {"finds_points", "object_poly"} and pix["union_name_re"] == ""
