@@ -37,6 +37,8 @@
 8. **P-W2-10 (DEM fill) — ЗАВЕРШЁН 30.10, FAIL, линия закрыта** (итог: `w2_demfill/out/result_P-W2-10.json`). Код: флаг `lidar.dem_fill="tin_lowveg"` в `expds/lidar.py` (по умолчанию "delaunay"); скрипты `$K/w2/demfill/` (копия `w2_demfill/`): `build_relief.py` (C/T рельеф 015/021/186/190) → `run_inf.sh`/`infer_cpu.py` (c3-sc s0/s1/s2 веса своего фолда, CPU, `nice -n 10`) → `swap_sites.py` → `run_gate.sh`. Условия PASS — PREREG P-W2-10. Логи `$K/w2/demfill/*.log`, выход `$K/w2/demfill/out`.
 9. **li_match (P-W2-5)** — после r50c5 и только если бот 1 даст GPU-квоту: нужно пофолдовое обучение c3-sc с `lidar.hillshade_style="li_match"` (5 фолдов, ~как s2: f01 + f23 + f4). Иначе закрыть как непроверяемое.
 
+10. **(Низкий приоритет) Проверить находку по 190_Муравлево.** Карты s1 f4 из Kaggle (elenakonkova/koz3-cnx-li-c3sc-s1f4) не совпадают с CPU-инференсом по скачанным весам s1f4: Li F1 на 190 — 0,666 против 0,515 в текущем OOF. Проверить, те ли веса сохранило ядро (эпоха или чекпойнт) и не занижен ли OOF s1 на фолде 4. Данные: koz3-w2-demfill `out/liscore*.json`, `maps/C/s1/`.
+
 ## Данные и как ими пользоваться
 
 Все датасеты — ПРИВАТНЫЕ. В каждом есть `DATASETS.md` с пофайловым описанием (то же — в описании датасета на Kaggle).
@@ -50,7 +52,7 @@
 | `elenakonkova/koz3-cnx-li-prep` | рельеф `cnx_relief/*.npy` (5 каналов) + `.json` | 1,6 ГБ | вход всех c3-sc/r50c5 ядер и CPU-инференса |
 | `aaaa0000004/koz3-w2-gaudit-las` | LAS 015/021/186/190 + Li-разметка + UTM | 10 ГБ | аудит земли, DEM fill (только аккаунт aaaa0000004) |
 | S3 `train-expds-3` | все LAS и разметка Li | — | первоисточник (`w2_tools/s3get.py`, ключи — koz3-s3-cred) |
-| `elenakonkova/koz3-w2-demfill` | создан 30.10 (приватный), P-W2-10 rel/maps/out | ≈177 МБ (55 файлов) | см. п. 8 |
+| `elenakonkova/koz3-w2-demfill` | P-W2-10 (DEM fill): рельеф C/T 4 участков (015/021/186/190), карты s0–s2, OOF с подменой, гейт, `out/result_P-W2-10.json` | ~125 МБ | итог **FAIL** (Δ+0,0014, P 0,99, ниже +0,003); побочная находка по 190 (см. п. 10) |
 
 **Скачать:** `$PK elenakonkova datasets download -d elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip` (для gaudit — `$PK aaaa0000004 …`).
 **В ядро:** `kernel-metadata.json` → `"dataset_sources": ["elenakonkova/koz3-w2-weights", "elenakonkova/koz3-cnx-li-prep"]`; пути `/kaggle/input/<slug>/…` (на новых образах `/kaggle/input/datasets/<owner>/<slug>/…` — надёжно искать `glob('/kaggle/input/**/имя', recursive=True)`).
@@ -98,13 +100,13 @@
 | Center snap курганов (P-W2-4) | закрыт, нетто −6 |
 | c5 (P-W2-1) | закрыт решением бота 1 |
 | r50c5 (P-W2-9) | ждёт запуска Сб 31.10 03:00 (выше) |
-| DEM fill (P-W2-10) | в работе (CPU) |
+| DEM fill (P-W2-10) | FAIL: Δ+0,0014, P 0,99 (< +0,003); флаг выкл.; данные koz3-w2-demfill |
 | li_match (P-W2-5) | флаг есть (выкл.), замер заблокирован — нет пофолдовых весов |
 
 182_Красносельская_1.7км — 0 детекций (распаханные насыпи вне распределения), не чинится.
 
 ## PREREG (orch_bot-W2/PREREG_W2_cnx.md)
-P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 контроль — выполнен; P-W2-4 center snap — FAIL; P-W2-5 li_match — заблокирован; P-W2-6 (b) — FAIL; P-W2-7 li_hm — FAIL (ранний стоп); P-W2-8 ground-clip — закрыт (условие не выполнено); P-W2-9 r50c5 — зарегистрирован, ждёт запуска; P-W2-10 dem_fill — в работе.
+P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 контроль — выполнен; P-W2-4 center snap — FAIL; P-W2-5 li_match — заблокирован; P-W2-6 (b) — FAIL; P-W2-7 li_hm — FAIL (ранний стоп); P-W2-8 ground-clip — закрыт (условие не выполнено); P-W2-9 r50c5 — зарегистрирован, ждёт запуска; P-W2-10 dem_fill — FAIL (Δ+0,0014).
 
 ## Гейт honest-10
 - База A=0.314615 (`materials/compute_metrics.py`), пайплайн W5 `$K/wt/w5/analysis/2026-10-30/w5_rerank` (`prep.py`, `gate_v6c.py --vs $K/w5data/work/base_counts.pkl`), детали `$K/w2/tools/gate_detail.py`; сборка стека `$K/w2/tools/stack_replace_li.py` / `seed_merge_cnx.py`. Пример: `w2_gate/gate_s2/run_varb.sh`.
