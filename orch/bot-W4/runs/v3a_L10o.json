@@ -1,0 +1,122 @@
+{
+ "lever": "L10o",
+ "base": 0.3146153226828423,
+ "base_comp": 0.35997711966639545,
+ "base_by_site_modality": {
+  "geo": 0.3307989154683743,
+  "li": 0.39235395137949214,
+  "sp_or": 0.10329834455768028,
+  "ae": 0.007758590391021577,
+  "or": 0.04282618971460377
+ },
+ "variants": {
+  "L10o=30.0": {
+   "score": 0.3146207871201004,
+   "d": 5.464437258073662e-06,
+   "boot": {
+    "mean": 2.4413980224159083e-05,
+    "p5": 0.0,
+    "p50": 5.374099545096822e-06,
+    "p95": 0.00010052795577719653,
+    "p_gt0": 0.629,
+    "families": 103
+   },
+   "d_new34": 0.0,
+   "d_optical": 5.510462713187447e-06,
+   "d_comp": 5.4644372732282065e-06,
+   "d_by_site_modality": {
+    "geo": 2e-05,
+    "li": 0.0,
+    "sp_or": 0.0,
+    "ae": 0.0,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 5e-05,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "floors_ok": true,
+   "param": 30.0,
+   "sec": 2,
+   "ref_only": false,
+   "accept": false
+  },
+  "L10o=20.0": {
+   "score": 0.314474975808669,
+   "d": -0.00014034687417330272,
+   "boot": {
+    "mean": -5.451322193169685e-05,
+    "p5": -0.0001830039010327078,
+    "p50": -0.0001398744302817112,
+    "p95": 0.00020164037817660407,
+    "p_gt0": 0.2255,
+    "families": 103
+   },
+   "d_new34": 0.0,
+   "d_optical": -0.00014082233430309787,
+   "d_comp": -0.00014034687433039927,
+   "d_by_site_modality": {
+    "geo": -0.00056,
+    "li": 0.0,
+    "sp_or": 0.0,
+    "ae": 0.0,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": -0.0014,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "floors_ok": true,
+   "param": 20.0,
+   "sec": 2,
+   "ref_only": true,
+   "accept": false
+  },
+  "L10o=50.0": {
+   "score": 0.3146207871201004,
+   "d": 5.464437258073662e-06,
+   "boot": {
+    "mean": 2.4413980224159083e-05,
+    "p5": 0.0,
+    "p50": 5.374099545096822e-06,
+    "p95": 0.00010052795577719653,
+    "p_gt0": 0.629,
+    "families": 103
+   },
+   "d_new34": 0.0,
+   "d_optical": 5.510462713187447e-06,
+   "d_comp": 5.4644372732282065e-06,
+   "d_by_site_modality": {
+    "geo": 2e-05,
+    "li": 0.0,
+    "sp_or": 0.0,
+    "ae": 0.0,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 5e-05,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "floors_ok": true,
+   "param": 50.0,
+   "sec": 2,
+   "ref_only": true,
+   "accept": false
+  }
+ }
+}

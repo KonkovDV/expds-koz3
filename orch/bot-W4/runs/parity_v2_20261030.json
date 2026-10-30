@@ -1,0 +1,18 @@
+{
+ "task": "S0-box1 parity: golden e2e main == archive v2 (eb268d6, LB 0.41238)",
+ "time_msk": "2026-10-30 13:20",
+ "verdict": "PARTIAL",
+ "checks": {
+  "release_artifacts_sha_in_git_eb268d6": {"result": "PASS", "detail": "git cat-file eb268d6:<path> | sha256 matches MANIFEST of scripts/v2_release_artifacts.py (bots/w4-repro-v2 56cdf39) for expds/geo_pixgbm.py 35e4331b.., models/pixgbm/all/poly.txt d1fe3efa.., models/pixgbm/all/finds.txt 5fa8c09d.., models/rerank_arch_lgbm.txt 0bc2e924.."},
+  "golden_e2e_rerun_on_this_box": {"result": "NOT_RUN", "blocker": "no raw site inputs on box (find / -name *.las|*.laz|*.tif -> 0 files; pc_data empty 4K); v2 zip submission_bot7cand_v2_eb268d6.zip (sha 8f3f2671..) only on Elena PC; w4geo/dist (v2clean zips) absent after box re-create"},
+  "prior_golden_e2e_evidence": {"result": "PASS (29.10 22:55 MSK, old box)", "detail": "main 70dedf4 + 4 artifacts == rebuild eb268d6: result.geojson byte-identical on synth/210/214/217/044/181; residual 210 written 380 vs 383 (bot-7 log) same for both builds -> env/input", "src": "bots/w4-repro-v2 56cdf39 docs/REPRO_V2.md; orch/bot-W4/STATUS.md 29.10 22:55"},
+  "offline_A_on_OOF": {"result": "PASS", "score": 0.3146153226828423, "families": 103, "d": 0, "src": "w5data/work/w6c_base_repro_A.json / base_repro_A.log"}
+ },
+ "lb_blockers": [
+  "v2 archive itself is not resubmittable: contains EN-derived geo_pixgbm + pixgbm weights (DOC-1 hold); main w/o them falls back to classic geophysics (~-0.012 offline)",
+  "clean replacement v2clean 545ef32a (DOC-1 guard PASS, ORG3 N0 gate PASS +0.023191 vs A): check_submission check4 output missing (kernel aaaa0000004/koz3-w4-v2cleanchk2 v4 COMPLETE, needs aaaa CPU-pool key); 15d59e9f check3 PASS (same 58 files, diff = comment + rename)",
+  "no raw inputs on box to rerun golden e2e for v2clean vs v2 stage counters",
+  "LB submit only by Elena"
+ ],
+ "next": ["Elena/A: provide aaaa key or pull out_v2clean_check4 -> W4 reads check4", "mirror 6 golden sites (synth/210/214/217/044/181 inputs) to box -> rerun golden_compare v2 vs main+artifacts and v2clean stage diff"]
+}
