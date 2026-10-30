@@ -266,3 +266,42 @@
 - 30.10 08:44 MSK | lease | release branch:bots/w4-aidecl (coord) by coord
 - 30.10 08:44 MSK | lease | acquire branch:bots/w3-kurgan-seeds → coord до 30.10 09:14 MSK push snapshot
 - 30.10 08:44 MSK | lease | release branch:bots/w3-kurgan-seeds (coord) by coord
+- 30.10 08:48 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk2) by coord
+- 30.10 08:48 MSK | lease | release kernel:aaaa0000004/koz3-w4-v2cleanchk2 (bot-W4-chk2) by coord
+- 30.10 08:48 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v2cleanchk2 → COMPLETE; аренда снята; вывод → w4geo/kaggle/out_v2clean_check2
+- 30.10 08:50 MSK | coord | 15-мин проверка: box load 10.8/8 (полно); acc1 GPU×2/TPU/CPU, acc2 TPU/CPU, usertest1234 заняты; aaaa0000004 свободен с 08:48 (W4 chk2 COMPLETE, бот-владелец разбирает), aaaadg4gg4g4g под CI2-1 (dataset cloudfeat-in готовит W5/W1); acc2 GPU — hold w2-r50c5 до сб 03:00. Фолбэк не запускаю, чтобы не конфликтовать с бот-подготовками.
+- 30.10 08:54 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-wheels → bot-W4-chk2 до 30.10 20:54 MSK offline wheels laspy 2.7.0/lazrs 0.8.2/smp 0.5.0 (lock pins)
+- 30.10 08:58 MSK | coord | 15-мин проверка: box load 12.4/8 (полно); acc1 GPU×2/TPU/CPU, acc2 TPU/CPU, usertest1234 заняты; aaaa0000004 (W4 готовит wheels-датасет) и aaaadg4gg4g4g (CI2-1 cloudfeat-in, W5/W1) — CPU пусты, зарезервированы под подготовки ботов; acc2 GPU — hold до сб 03:00 (w3-gordense-timing ждёт тот же слот). w0s-* ждут box-слот.
+- 30.10 08:58 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk2 до 30.10 11:58 MSK w4-v2clean-check3
+- 30.10 08:58 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-chk2 до 30.10 11:58 MSK 
+- 30.10 08:58 MSK | watcher | aaaa0000004/cpu ← aaaa0000004/koz3-w4-v2cleanchk2 (w4-v2clean-check3): Kernel version 3 successfully pushed.  Please check progress at https://www.kaggle.com/code/aaaa0000004/koz3-w4-v2cleanchk2
+- 30.10 08:59 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 09:04 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk2) by coord
+- 30.10 09:04 MSK | lease | release kernel:aaaa0000004/koz3-w4-v2cleanchk2 (bot-W4-chk2) by coord
+- 30.10 09:04 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v2cleanchk2 → COMPLETE; аренда снята; вывод → w4geo/kaggle/out_v2clean_check3
+- 30.10 09:04 MSK | lease | acquire slot:aaaadg4gg4g4g/cpu → bot-W5-w1exec до 30.10 22:04 MSK CI2-1-cloudfeat
+- 30.10 09:04 MSK | lease | acquire kernel:aaaadg4gg4g4g/koz3-w5-cloudfeat → bot-W5-w1exec до 30.10 22:04 MSK 
+- 30.10 09:04 MSK | watcher | aaaadg4gg4g4g/cpu ← aaaadg4gg4g4g/koz3-w5-cloudfeat (CI2-1-cloudfeat): Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/aaaadg4gg4g4g/koz3-w5-cloudfeat
+- 30.10 09:08 MSK | lease | release dataset:aaaa0000004/koz3-w4-v2clean-check (bot-W4-chk2) by bot-W4-chk2
+- 30.10 09:08 MSK | lease | release dataset:aaaa0000004/koz3-w4-wheels (bot-W4-chk2) by bot-W4-chk2
+- 30.10 09:14 MSK | coord | 15-мин проверка: box load 14.3/8 (полно, w0s-* ждут); acc1 GPU/TPU/CPU, acc2 TPU + CPU (w2-hsparity RUNNING), usertest1234, aaaadg4gg4g4g (CI2-1) заняты; aaaa0000004/cpu свободен с 09:04, зарезервирован за bot-W3-bigobj (w3-seeds-v5 в hold до фикса W3); acc2 GPU — hold до сб 03:00. Новых запусков нет.
+- 30.10 09:14 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 09:17 MSK | lease | acquire branch:bots/w4-pix-clean → bot-W4-doc1g до 30.10 21:17 MSK DOC-1 hard guard + push W4 work
+- 30.10 09:20 MSK | lease | release slot:aaaadg4gg4g4g/cpu (bot-W5-w1exec) by coord
+- 30.10 09:20 MSK | lease | release kernel:aaaadg4gg4g4g/koz3-w5-cloudfeat (bot-W5-w1exec) by coord
+- 30.10 09:20 MSK | watcher | aaaadg4gg4g4g/cpu: aaaadg4gg4g4g/koz3-w5-cloudfeat → ERROR; аренда снята; вывод → /workspace/koz3/w1/cf/out
+- 30.10 09:20 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-v2clean-check → bot-W4-chk3 до 30.10 21:20 MSK W4 check_submission нового архива 545ef32a (DOC-1 guard)
+- 30.10 09:20 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-chk3 до 30.10 21:20 MSK W4 check_submission нового архива 545ef32a (DOC-1 guard)
+- 30.10 09:25 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk3 до 30.10 19:25 MSK w4-v2clean-check4
+- 30.10 09:25 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-chk3 до 30.10 19:25 MSK 
+- 30.10 09:25 MSK | watcher | aaaa0000004/cpu ← aaaa0000004/koz3-w4-v2cleanchk2 (w4-v2clean-check4): Kernel version 4 successfully pushed.  Please check progress at https://www.kaggle.com/code/aaaa0000004/koz3-w4-v2cleanchk2
+- 30.10 09:30 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk3) by coord
+- 30.10 09:30 MSK | lease | release kernel:aaaa0000004/koz3-w4-v2cleanchk2 (bot-W4-chk3) by coord
+- 30.10 09:30 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v2cleanchk2 → COMPLETE; аренда снята; вывод → /workspace/koz3/w4geo/kaggle/out_v2clean_check4
+- 30.10 09:36 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 09:36 MSK | lease | release dataset:aaaadg4gg4g4g/koz3-w5-cloudfeat-in (bot-W5-w1exec) by bot-W5-w1exec
+- 30.10 09:37 MSK | coord | 15-мин проверка: box load 11.9/8 (полно); acc1/acc2 GPU/TPU заняты или hold; свободны aaaa0000004/cpu (с 09:30) и aaaadg4gg4g4g/cpu (с 09:20: CI2-1-cloudfeat ERROR — S3 UNREACHABLE при enable_internet=true, нужен фикс W5: проверка интернета аккаунта/ввод через датасет). Готовых CPU-элементов нет (w3-seeds-v5 hold до P-W3-seeds-fix 12:00). Новых запусков нет.
+- 30.10 09:38 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 11:38 MSK commit+push W1 work (bot1 / Elena)
+- 30.10 09:38 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 09:50 MSK | coord | 15-мин проверка: box load 7.7/8 (полно); acc1/acc2 GPU/TPU заняты/hold; aaaa0000004/cpu и aaaadg4gg4g4g/cpu свободны (без интернета; CI2-1 ждёт ввод через датасет от W5, w3-seeds-v5 hold до 12:00). Новых запусков нет.
+- 30.10 09:55 MSK coord: добавлен orch/HANDOFF.md. ПРАВИЛО: HANDOFF.md (и STATE.md) обновлять и пушить после каждого значимого шага.

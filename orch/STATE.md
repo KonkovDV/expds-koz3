@@ -1,3 +1,19 @@
+# STATE KOZ3 — актуально на 30.10.2026 09:55 MSK (coord)
+## PASS (в финал)
+- M_rp (пороги, micro_circles→rp): **+0.0044** — bots/w5-rerank c4e18a9
+- ORG3 EtGr (212–217): **+0.0232** — PREREG 5ea8aea, nested-fold порог, TerFl off
+- Архив v2clean sha **545ef32a…** (DOC-1 guard ok), check4 в очереди (lease bot-W4-chk3 до 21:20); прошлый 15d59e9f check_submission PASS
+- Подтверждено ≈ +0.028 к A=0.314615
+## REJECTED
+V7 D-FINE (Бонферрони/7 FAIL), c3-sc (аддитивно и замена), WS-RR1/2, K1-5/KT, H1-5, WS-A1, V8 max_det 300, гипотеза «кроны в DEM»
+## RUNNING
+lihm heatmap (elenakonkova GPU, ~10:15–10:45); dino-emb; CI2-1 cloudfeat на боксе (бот 2); CI2-3 ground audit / CI2-8 hillshade parity (бот 3, Kaggle CPU)
+## NEXT
+r50c5: снять hold Сб 31.10 03:00 на dmitrijkv GPU; WS-G1 после dino-emb; фикс сидов курганов 12:00 (бот 3)
+## OPEN
+Декларация ИИ: ФИО/роли/ИИ-инструменты — от Елены (позже, до 11.11). S3 cred датасет удалён 09:40.
+
+---
 # STATE KOZ3: единый источник правды (обновлено 29.10.2026 22:55 MSK, coord / бот 1)
 Правит только coord или держатель аренды `branch:bots/orch-protocol`. Потоки пишут в `orch/bot-WN/STATUS.md`, coord сводит их сюда.
 

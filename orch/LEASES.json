@@ -32,7 +32,7 @@
    "holder": "bot-W3-bigobj",
    "kernel": "elenakonkova/koz3-acc2-tpu-smoke",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 10:09 MSK",
+   "until": "30.10 11:14 MSK",
    "purpose": "QUEUED smoke; проверить нужность"
   },
   {
@@ -61,7 +61,7 @@
    "holder": "bot-W2-lidar",
    "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 10:09 MSK",
+   "until": "30.10 11:14 MSK",
    "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)"
   },
   {
@@ -97,15 +97,14 @@
   {
    "slot": "aaaa0000004/cpu",
    "account": "aaaa0000004",
-   "holder": "bot-W4-chk2",
+   "holder": null,
    "reserved_for": "bot-W3-bigobj",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaa0000004",
-   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
-   "purpose": "w4-v2clean-check2",
-   "last": "снято coord 30.10 08:42 MSK",
-   "since": "30.10 08:42 MSK",
-   "until": "30.10 11:42 MSK"
+   "kernel": null,
+   "purpose": "w4-v2clean-check4",
+   "last": "снято coord 30.10 09:30 MSK",
+   "state": "свободен"
   },
   {
    "slot": "aaaadg4gg4g4g/cpu",
@@ -115,9 +114,9 @@
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaadg4gg4g4g",
    "kernel": null,
-   "purpose": "kurgan subclass seeds",
-   "state": "свободен",
-   "last": "снято coord 30.10 08:09 MSK"
+   "purpose": "CI2-1-cloudfeat",
+   "last": "снято coord 30.10 09:20 MSK",
+   "state": "свободен"
   },
   {
    "slot": "box/q1",
@@ -164,7 +163,7 @@
    "resource": "slot:acc1/tpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.689213,
-   "expires": 1793344184.367272,
+   "expires": 1793348060.711002,
    "note": "QUEUED smoke; проверить нужность",
    "host": "grok-bot-vm-361051398",
    "pid": 68831,
@@ -174,7 +173,7 @@
    "resource": "kernel:elenakonkova/koz3-acc2-tpu-smoke",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.718667,
-   "expires": 1793344184.399524,
+   "expires": 1793348060.745567,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68836
@@ -183,7 +182,7 @@
    "resource": "slot:acc2/tpu",
    "owner": "bot-W2-lidar",
    "since": 1793302265.74699,
-   "expires": 1793344185.141308,
+   "expires": 1793348061.501166,
    "note": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
    "host": "grok-bot-vm-361051398",
    "pid": 68841,
@@ -193,7 +192,7 @@
    "resource": "kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "owner": "bot-W2-lidar",
    "since": 1793302265.777641,
-   "expires": 1793344185.173122,
+   "expires": 1793348061.543524,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68846
@@ -391,15 +390,6 @@
    "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds"
   },
   {
-   "resource": "dataset:aaaa0000004/koz3-w4-v2clean-check",
-   "owner": "bot-W4-chk2",
-   "since": 1793337781.509044,
-   "expires": 1793380981.509044,
-   "note": "v2-clean 15d59e9f check_submission + deps",
-   "host": "grok-bot-vm-361051398",
-   "pid": 373711
-  },
-  {
    "resource": "dataset:aaaa0000004/koz3-w2-gaudit-las",
    "owner": "bot-W2-lidar",
    "since": 1793338071.014545,
@@ -428,32 +418,22 @@
    "pid": 377011
   },
   {
-   "resource": "dataset:aaaadg4gg4g4g/koz3-w5-cloudfeat-in",
-   "owner": "bot-W5-w1exec",
-   "since": 1793338253.731737,
-   "expires": 1793352653.731737,
-   "note": "CI2-1 input; executor bot-W1-aeor по поручению бота 1",
+   "resource": "branch:bots/w4-pix-clean",
+   "owner": "bot-W4-doc1g",
+   "since": 1793341076.515846,
+   "expires": 1793384276.515846,
+   "note": "DOC-1 hard guard + push W4 work",
    "host": "grok-bot-vm-361051398",
-   "pid": 379168
+   "pid": 459990
   },
   {
-   "resource": "slot:aaaa0000004/cpu",
-   "owner": "bot-W4-chk2",
-   "since": 1793338973.913364,
-   "expires": 1793349773.913364,
-   "note": "w4-v2clean-check2",
+   "resource": "dataset:aaaa0000004/koz3-w4-v2clean-check",
+   "owner": "bot-W4-chk3",
+   "since": 1793341221.994118,
+   "expires": 1793384421.994118,
+   "note": "W4 check_submission нового архива 545ef32a (DOC-1 guard)",
    "host": "grok-bot-vm-361051398",
-   "pid": 384097,
-   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2"
-  },
-  {
-   "resource": "kernel:aaaa0000004/koz3-w4-v2cleanchk2",
-   "owner": "bot-W4-chk2",
-   "since": 1793337781.537289,
-   "expires": 1793349773.945983,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 384102
+   "pid": 461488
   }
  ]
 }
