@@ -18,6 +18,7 @@
   29.10, смоук бота 8): круг li_half любого класса вон, если рядом принятый целый ИЛИ
   повреждённый курган — метрика сопоставляет по классу, тот же холм в другом классе — ложное
   срабатывание. Канал σ (li_dev) в pipeline считается позже, поэтому здесь не якорь;
+  (bot-8) принятые li_half потом сами — якоря cnx (dedupe_cnx) и σ (pipeline.sigma_anchors);
 - мозаика (LAS > 60 млн ячеек на 0,1 м): проход идёт по DEM мозаики 0,5 м, которая
   строится кусками 400 м с полем 40 м (lidar.build_dem_mosaic) — перекрытие ≥ 40 м.
 
@@ -175,6 +176,36 @@ def new_only(half: list[dict], main_li: list[dict], hp: dict) -> list[dict]:
     from .pipeline import kept_kurgan_anchors
 
     return drop_near_any_class(half, kept_kurgan_anchors(main_li), float(hp["dedupe_m"]))
+
+
+#: порядок предпочтения при равной уверенности: целый раньше повреждённого
+_NMS_CLASS_RANK = {"kurgany_tselye": 0, "kurgany_povrezhdennye": 1}
+
+
+def self_nms(feats: list[dict], dist_m: float) -> list[dict]:
+    """bot-8: NMS между кругами li_half одного участка БЕЗ учёта класса кургана ([li_half] self_xclass_nms_m).
+
+    dist_m <= 0 — вход без изменений (по умолчанию). Иначе жадно: круги-курганы (KUR) участка упорядочиваются по
+    (уверенность ↓, целый раньше повреждённого, исходный порядок), круг остаётся, если ни один уже оставленный
+    не ближе dist_m (≤, расстояние между ground_point, м). Итог — в исходном порядке; не курганы и круги
+    без геометрии не трогаются."""
+    if not dist_m or dist_m <= 0:
+        return feats
+    from .pipeline import ground_point
+
+    order = sorted((i for i, f in enumerate(feats) if f.get("class_name") in KUR and f.get("geom") is not None),
+                   key=lambda i: (-float(feats[i].get("confidence") or 0),
+                                  _NMS_CLASS_RANK.get(feats[i].get("class_name"), 9), i))
+    kept_pts: dict[object, list] = {}
+    drop = set()
+    for i in order:
+        reg = feats[i].get("region_name")
+        pt = ground_point(feats[i]["geom"])
+        if any(q.distance(pt) <= dist_m for q in kept_pts.get(reg, ())):
+            drop.add(i)
+        else:
+            kept_pts.setdefault(reg, []).append(pt)
+    return [f for i, f in enumerate(feats) if i not in drop]
 
 
 def floor(feats: list[dict], floors: dict[str, float]) -> list[dict]:
