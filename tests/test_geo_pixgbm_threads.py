@@ -25,7 +25,7 @@ def test_threads_follow_affinity(clean_env):
 
 def test_threads_cap_and_fallback(clean_env):
     clean_env.setattr(os, "sched_getaffinity", lambda pid: set(range(32)), raising=False)
-    assert gp.pix_threads() == 8                       # потолок 8
+    assert gp.pix_threads() == 2                       # потолок 2 (bot-7 v3; было 8)
     assert gp.pix_procs(None, 8) == 4                  # пул признаков ≤ 4
     clean_env.delattr(os, "sched_getaffinity", raising=False)
     clean_env.setattr(os, "cpu_count", lambda: 3)
@@ -40,12 +40,14 @@ def test_threads_cap_and_fallback(clean_env):
 
 def test_env_overrides(clean_env):
     clean_env.setattr(os, "sched_getaffinity", lambda pid: {0, 1}, raising=False)
+    clean_env.setenv("EXPDS_THREADS", "1")
+    assert gp.pix_threads() == 1
     clean_env.setenv("EXPDS_THREADS", "5")
-    assert gp.pix_threads() == 5
-    clean_env.setenv("EXPDS_PIXGBM_THREADS", "3")
-    assert gp.pix_threads() == 3                       # EXPDS_PIXGBM_THREADS важнее EXPDS_THREADS
+    assert gp.pix_threads() == 2                       # потолок 2 и для env (bot-7 v3)
+    clean_env.setenv("EXPDS_PIXGBM_THREADS", "1")
+    assert gp.pix_threads() == 1                       # EXPDS_PIXGBM_THREADS важнее EXPDS_THREADS
     clean_env.setenv("EXPDS_PIXGBM_THREADS", "x")
-    assert gp.pix_threads() == 5                       # не число → следующий ключ
+    assert gp.pix_threads() == 2                       # не число → следующий ключ
 
 
 def test_rate_uses_procs():

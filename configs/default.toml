@@ -20,7 +20,14 @@ window_reserve_s = 30
 soft_ceiling_s = 1200
 # Аудит 29.10: закрытая выборка финала может быть больше публичной (48 участков). Выход при запасе времени тот же.
 # optics_order = "small_first"  — оптика от дешёвых снимков к дорогим (гигантское ортофото не съедает остальных).
-# optics_s_per_gb = 0           — лидар оставляет оптике столько с на ГБ снимков (снять с лога площадки; 0 — выкл.).
+# optics_s_per_gb               — лидар оставляет оптике столько с на ГБ снимков (0 — выкл.).
+# bot-7 v3: защита ВКЛЮЧЕНА по умолчанию. Объекты после прохода оптики возвращаются в исходный порядок участков
+# (pipeline._restore_optics_order), так что при запасе времени выход побайтно тот же (проверено на synth/210/214/217).
+# optics_s_per_gb = 10 — неполный запас (на ПК оптика ≈ 64 с/ГБ: 25,5 ГБ за 1624 с, аудит R5): лидар не берёт новый
+# участок, если прошло больше 1500 − 120 − 10·ГБ с. На прогоне в бюджете (≤ 1200 с всего) лидар кончается раньше
+# этой черты, пока снимков меньше ~(1380 − конец лидара)/10 ГБ, — выход не меняется.
+optics_order = "small_first"
+optics_s_per_gb = 10.0
 
 # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
 # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
@@ -302,7 +309,9 @@ point_circle_m = 0.3
 # Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
 # Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
 # потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
-enabled = true
+# W4 DOC-1: выключено явно — legacy PIXGBM (по мотивам EN) не используется и в архив не идёт
+# (scripts/check_archive_clean.py); clean-room перепись — только impl = "clean" за флагом.
+enabled = false
 model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
@@ -318,6 +327,13 @@ backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <и
 budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
                  # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+# W4 (impl="clean" only, all OFF by default; PREREG docs/PREREG_w4_pix_clean.md):
+org_maggr = false            # GEO-ORG1: MagGr candidates per organizer baseline 01 (expds/pix_org.py, models <model_dir>/org)
+org_classes = ["finds_points", "object_poly"]   # which ORG1 classes replace maggr candidates
+org_t_ref = 0.5              # ORG1: parent-score threshold for splitting merged blobs
+org2_band_mode = "rgb"       # GEO-ORG2: "jet" = EtGr scalar from jet palette (needs models trained with --band-mode jet)
+org2_mask = false            # GEO-ORG2: drop non-palette EtGr pixels (needs models trained with --org-mask)
+org_etgr = false             # GEO-ORG3: EtGr object_poly per organizer baseline 02, HGB mode (expds/pix_org_et.py, models <model_dir>/org)
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
 
@@ -383,10 +399,8 @@ filter_finds_points = true
 # P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
 # bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
 kurgan_twins_only = true
-# bot-7 v3: курганы внутри предсказанных городищ (правило разметки, OSINT_2026-10-29 §1.2; PREREG bot-7/work6/kig).
-# ВЫКЛ.: честно −0,000848, P 0,187, LOFO −0,000932, 0/5, new34 −0,002876 (bot-7/work6/kig/stats_kig.log);
-# с эталонными городищами (оракул) всего +0,000537 — потолок ниже П1.
-kurgan_in_gor = false
+# bot-7 v3: наш kurgan_in_gor (курганы в предсказанных городищах) удалён — заменён правилом аудита
+# kurgans_outside_hillforts ниже. Наш замер был: −0,000848, P 0,187, LOFO −0,000932, 0/5 (bot-7/work6/kig/stats_kig.log).
 # Аудит 29.10 (docs/AUDIT_CLAUDE_2026-10-29.md §5): два рычага соперника, которых в v2 нет. ВЫКЛЮЧЕНЫ до табло.
 # Правило разметки «насыпи внутри городищ не размечаются»: курган внутри выданного городища убирается
 # (после порогов, порогов не трогает). Замер: oof_transform.py gormask → scoreboard.py --honest 10.
@@ -403,9 +417,20 @@ kurgan_in_gor = false
 # [post.site_calibration]
 # groups = ["li_cnx"]
 # mode = "mix"
-# Приор кадра: объект у края крупной спутниковой сцены × до 0,5. До порогов; пороги — после oof_transform.py frame.
+# Приор кадра без городищ FR1h (аудит d4edf2f post.frame_prior; bot-10 REPORT11_audit.md C3h): объект групп
+# sp_or/sp_focal/sp_focal2 у края спутниковой сцены (scene_drel > d0) × линейно до edge на краю. ВКЛ. в v3: принят
+# ботом 10 в пакет — в порядке сдачи TOFR − TO +0,004042, P 0,999, LOFO +0,004228, 5/5, new34 +0,000464.
+# Шаг ДО порогов (watchdog.finish: после calib/neigh, до sp_score_fusion и apply_thresholds; twins — после порогов),
+# как в замере (xform_frame.py до кривых/порогов, fr_exact.py: пороги → twins). Городища НЕ трогаются (FR1 со всеми
+# классами отклонён: new34 −0,003728, 7 лишних FP городищ). Рамки сцен = bot-10 frame_boxes.json (168/168,
+# bot-7/work6/fr1h/boxes_cmp.out). Пороги sp_* в пакете прежние (в выборке, как в v2), не перенастроены на FR1h.
+# При D-FINE R группы sp_or/sp_focal/sp_focal2 на полностью пройденных SpOr-участках удаляются — там FR1h ничего не меняет.
+# W4 (bots/w4-gate): FR1h за флагом, по умолчанию ВЫКЛ (секция включается самим присутствием,
+# ключа enabled в коде нет — expds/watchdog.py:90). Включённая версия — configs/v3_on.toml
+# (build_submission_git.py --config configs/v3_on.toml).
 # [post.frame_prior]
 # groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
 # d0 = 0.5
 # edge = 0.5
 
@@ -415,6 +440,11 @@ kurgan_in_gor = false
 # (bot-7/work3/insample_tau_kur.json).
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# W0-seams (30.10, analysis/2026-10-30/w0_seams/g2_decomp.json): диск 0,05 м в representative_point
+# для неклассов-курганов (NK) поверх курганов 0,5 м: honest-10 +0,004366, P 0,9885, new34 +0,00225,
+# optical +0,00852 (fort +0,00205 P 0,982; gor +0,00248 P 0,867). В пакет — после перемера порогов:
+# radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5, gorodishcha = 0.05, arkhitektury = 0.05, object_poly = 0.05, fortifikatsii = 0.05 }
+# anchor = "rp"   # ВНИМАНИЕ: anchor общий для всех классов; курганы (круги 2 м) — rp ≈ центр, kur_rp −0,00034 (шум)
 # LOCALIZE (bot-6, 28.10, bot-6/LOCALIZE.md): + фортификации 0,5 м — точный пост-порог honest-10
 # +0,000257 (fort +3 TP / −3 FP), P(Δ>0) 0,75, lofo +0,00047, 5/5 случайных раскладок > 0;
 # П1 не выполнено (< 0,002) — только в пакет, после перемера на ПК (oof_transform.py micro + scoreboard).
@@ -442,9 +472,12 @@ meta = "models/rerank_arch_lgbm.json"
 # [post.sp_score_fusion]
 # radius_m = 8.0
 # gen_floor = 0.05          # курганы sp_or / sp_focal2 генерируются сырыми, отбор 12 м — только из выдачи
-# thresholds.sp_focal = { kurgany_povrezhdennye = 0.27822, kurgany_tselye = 0.3696 }
+# thresholds.sp_focal = { kurgany_povrezhdennye = 0.2665015, kurgany_tselye = 0.3696 }
 # thresholds.sp_focal2 = { kurgany_povrezhdennye = 0.514733, kurgany_tselye = 0.701621 }
-# Пороги — sweep_groups на всех участках по кривым fusion (bot-6/work/orsp2/taus_all.json). Замер см. bot-6/ORSP.md.
+# Пороги сдачи — медиана 10 значений sweep_groups, каждое подобрано только на обучающих участках своего
+# фолда k10 (bot-6/work/orsp3/taus_fold.json, k10_median); для оценки — свои пороги в каждом фолде (paired.py).
+# Прежние 0.27822/0.3696, 0.514733/0.701621 были подобраны на всех участках (утечка, bot-10 REPORT10 §3) — не использовать.
+# sp_focal здесь = курганы sp_or сдачи (одна карта центров; в табло подписана sp_focal) — пороги общие. Замер: bot-6/ORSP.md.
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
@@ -462,17 +495,19 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
-# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
+# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). В архиве по умолчанию ВЫКЛ.; архив сдачи v3on
+# собирает bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor (в образе его нет).
 # Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+# Включение (принято ботом 10, bot-10/REPORT10_accept.md §1; решение 29.10: модель СДАЧИ — f0):
 #   enabled = true
-#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
-#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
+#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
 #   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: подобраны по OOF фолдовых моделей, т.е. под f0-семейство) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель на всём SpOr (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ. Это НЕ замена одной строкой:
+# пороги sp_dfine калиброваны под f0, для final нужен перенос порогов по квантилям (или честная перекалибровка)
+# и отдельная приёмка бота 10 (у final нет OOF). Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
 # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
 # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.

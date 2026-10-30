@@ -46,14 +46,14 @@ def test_sp_fusion_raw_partners_alias_and_thresholds():
     b["sp_partner_only"] = True
     out = post.sp_score_fusion([a, b])
     assert len(out) == 1 and abs(out[0]["confidence"] - 0.35) < 1e-9
-    spec = {"thresholds": {"sp_focal": {"kurgany_povrezhdennye": 0.27822},
+    spec = {"thresholds": {"sp_focal": {"kurgany_povrezhdennye": 0.2665015},
                            "sp_focal2": {"kurgany_povrezhdennye": 0.514733}}}
     bm = post.sp_fusion_thresholds({"sp_or": {"kurgany_povrezhdennye": 0.3645, "gorodishcha": 0.99}}, spec)
-    assert bm["sp_or"] == {"kurgany_povrezhdennye": 0.27822, "gorodishcha": 0.99}
-    assert bm["sp_focal"]["kurgany_povrezhdennye"] == 0.27822
+    assert bm["sp_or"] == {"kurgany_povrezhdennye": 0.2665015, "gorodishcha": 0.99}
+    assert bm["sp_focal"]["kurgany_povrezhdennye"] == 0.2665015
     assert bm["sp_focal2"]["kurgany_povrezhdennye"] == 0.514733
     kept = post.apply_thresholds(out, {}, 0.15, bm)
-    assert len(kept) == 1  # 0,35 ≥ 0,27822; со старым 0,3645 был бы отрезан
+    assert len(kept) == 1  # 0,35 ≥ 0,2665015 (медиана порогов по фолдам); со старым 0,3645 был бы отрезан
     fl = post.sp_fusion_gen_floors({"kurgany_povrezhdennye": 0.501645, "gorodishcha": 0.99}, {})
     assert fl == {"kurgany_povrezhdennye": 0.05, "gorodishcha": 0.99}
 

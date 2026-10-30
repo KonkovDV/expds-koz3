@@ -237,8 +237,12 @@ def utm_for(path: Path, fallback_crs: str | None) -> str:
     import rasterio
     from pyproj import Transformer
 
-    if fallback_crs:
+    from .crs import is_geographic
+
+    if fallback_crs and not is_geographic(fallback_crs):
         return fallback_crs
+    if fallback_crs:   # страховка: crs_for вне read_utm_json вернул градусы — зона по центру растра
+        log.warning("[crs] %s: CRS %s географическая — беру UTM по центру растра", path.name, fallback_crs)
     with rasterio.open(path) as ds:
         lon, lat = Transformer.from_crs(ds.crs, "EPSG:4326", always_xy=True).transform(
             *ds.xy(ds.height // 2, ds.width // 2))
@@ -324,6 +328,188 @@ def _rename_keys(sd: dict) -> dict:
 
 
 VENDOR = "inference/lib/vendor"   # распакованные колёса bot-9 submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
+#: закреплённая версия transformers (вендор); другая версия — только если совпадает ровно (напр. venv ПК с колёсами win)
+TRANSFORMERS_PIN = "5.21.0"
+#: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
+UNAVAILABLE = "SP_DFINE_UNAVAILABLE"
+#: пакеты вендора: при сбое импорта из вендора их полу-импортированные модули вычищаются из sys.modules
+_VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdown_it", "mdurl", "pygments",
+                "shellingham", "annotated_doc")
+
+
+#: bot-7 (29.10, PC e2e бота 1 в образе pantum/n7q:20261024): у tqdm в образе нет версии в метаданных
+#: (importlib.metadata.version → None), и transformers.dependency_versions_check падал при импорте
+#: («Unable to compare versions for tqdm>=4.60: need=4.60 found=None»). Пакеты, версии которых transformers
+#: 5.21.0 читает из метаданных при импорте (dependency_versions_check, is_*_available): имя дистрибутива
+#: (нормализованное) → имя модуля. Для них при отсутствии/пустой версии метаданных берётся module.__version__.
+_META_DEPS = {"tqdm": "tqdm", "regex": "regex", "packaging": "packaging", "filelock": "filelock", "numpy": "numpy",
+              "tokenizers": "tokenizers", "huggingface-hub": "huggingface_hub", "safetensors": "safetensors",
+              "pyyaml": "yaml", "torch": "torch", "torchvision": "torchvision", "typer": "typer",
+              "pillow": "PIL", "accelerate": "accelerate", "rich": "rich"}
+#: маркер WARNING в логе: версия пакета взята из module.__version__, а не из метаданных
+DEPMETA = "SP_DFINE_DEPMETA"
+_META_USED: dict = {}
+
+
+def _norm_dist(name: str) -> str:
+    import re
+    return re.sub(r"[-_.]+", "-", str(name)).lower()
+
+
+def _mod_version(mod_name: str | None):
+    """module.__version__, если модуль импортируется и версия похожа на версию (tqdm без метаданных даёт None/UNKNOWN)."""
+    import importlib
+    if mod_name is None:
+        return None
+    try:
+        mv = getattr(importlib.import_module(mod_name), "__version__", None)
+    except Exception:  # noqa: BLE001 — модуля нет
+        return None
+    mv = str(mv) if mv is not None else ""
+    return mv if mv[:1].isdigit() else None
+
+
+def _dir_version(distribution_name: str):
+    """Версия из имени каталога метаданных (<имя>-<версия>.dist-info / .egg-info), если METADATA пуст или нет."""
+    import importlib.metadata as md
+    import re
+    try:
+        path = getattr(md.distribution(distribution_name), "_path", None)
+    except Exception:  # noqa: BLE001
+        return None
+    m = re.match(r"^[^-]+-([0-9][^-]*?)(?:-py[0-9.]+)?\.(?:dist|egg)-info$", Path(str(path or "")).name)
+    return m.group(1) if m else None
+
+
+def _depmeta_warn(name: str, how: str, value) -> None:
+    if name not in _META_USED:
+        _META_USED[name] = value
+        log.warning("%s: %s %s", DEPMETA, name, how)
+
+
+def _metadata_shim() -> None:
+    """Защита импорта transformers от неполных метаданных пакетов образа (только в этом процессе, один раз).
+
+    1) importlib.metadata.version для _META_DEPS: если метаданных нет (PackageNotFoundError) или в них нет
+       версии (None), версия берётся из module.__version__ (модуль импортируется), затем из имени каталога
+       <имя>-<версия>.dist-info; WARNING SP_DFINE_DEPMETA с именем пакета. Иначе — как без шима.
+    2) крючок импорта transformers.utils.versions: require_version (dependency_versions_check при импорте) при
+       «Unable to compare versions … found=None» или «distribution was not found» для пакета из _META_DEPS,
+       модуль которого импортируется, — WARNING SP_DFINE_DEPMETA вместо исключения. Слишком старая версия
+       (ImportError) и неимпортируемый модуль по-прежнему роняют импорт → SP_DFINE_UNAVAILABLE."""
+    import importlib.abc
+    import importlib.metadata as md
+    import sys
+    if not getattr(md.version, "_b7_shim", False):
+        orig = md.version
+
+        def version(distribution_name):
+            missing = False
+            try:
+                got = orig(distribution_name)
+            except md.PackageNotFoundError:
+                got, missing = None, True
+            if got:
+                return got
+            key = _norm_dist(distribution_name)
+            if key not in _META_DEPS:
+                if missing:
+                    raise md.PackageNotFoundError(distribution_name)
+                return got
+            why = "нет dist-info" if missing else "version=None в метаданных"
+            mv = _mod_version(_META_DEPS[key])
+            if mv:
+                _depmeta_warn(distribution_name, f"{why} — взята {_META_DEPS[key]}.__version__ = {mv}", mv)
+                return mv
+            dv = None if missing else _dir_version(distribution_name)
+            if dv:
+                _depmeta_warn(distribution_name, f"{why} — взята версия из имени каталога метаданных = {dv}", dv)
+                return dv
+            if missing:
+                raise md.PackageNotFoundError(distribution_name)
+            return got
+
+        version._b7_shim = True
+        version._b7_orig = orig
+        md.version = version
+
+    if "transformers.utils.versions" in sys.modules:
+        _patch_versions(sys.modules["transformers.utils.versions"])
+    if not any(isinstance(f, _VersionsHook) for f in sys.meta_path):
+        sys.meta_path.insert(0, _VersionsHook())
+
+
+def _patch_versions(mod) -> None:
+    """transformers.utils.versions.require_version: см. _metadata_shim, п. 2."""
+    import importlib.metadata as md
+    import re
+    orig = getattr(mod, "require_version", None)
+    if orig is None or getattr(orig, "_b7_shim", False):
+        return
+
+    def require_version(requirement, hint=None):
+        try:
+            return orig(requirement, hint)
+        except (ValueError, md.PackageNotFoundError) as exc:
+            msg = str(exc)
+            if not ("found=None" in msg or isinstance(exc, md.PackageNotFoundError)):
+                raise
+            m = re.match(r"^\s*([A-Za-z0-9_.\-]+)", str(requirement))
+            key = _norm_dist(m.group(1)) if m else ""
+            if key not in _META_DEPS or not _importable(_META_DEPS[key]):
+                raise
+            _depmeta_warn(f"require:{key}", f"«{requirement}»: версия не определяется ({type(exc).__name__}), модуль "
+                          f"{_META_DEPS[key]} импортируется — проверка версии transformers пропущена", None)
+            return None
+
+    require_version._b7_shim = True
+    mod.require_version = require_version
+
+
+def _importable(mod_name: str) -> bool:
+    import importlib
+    try:
+        importlib.import_module(mod_name)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+try:
+    import importlib.abc as _iabc
+    _MetaBase = _iabc.MetaPathFinder
+except Exception:  # pragma: no cover
+    _MetaBase = object
+
+
+class _VersionsHook(_MetaBase):
+    """После исполнения transformers.utils.versions подменяет require_version (_patch_versions) — до того, как
+    dependency_versions_check возьмёт эти имена."""
+
+    def find_spec(self, name, path=None, target=None):
+        if name != "transformers.utils.versions":
+            return None
+        import sys
+        spec = None
+        for f in sys.meta_path:
+            if f is self or not hasattr(f, "find_spec"):
+                continue
+            spec = f.find_spec(name, path, target)
+            if spec is not None:
+                break
+        if spec is None or spec.loader is None or not hasattr(spec.loader, "exec_module"):
+            return spec
+        inner = spec.loader.exec_module
+
+        def exec_module(module, _inner=inner):
+            _inner(module)
+            _patch_versions(module)
+
+        try:
+            spec.loader.exec_module = exec_module
+        except Exception:  # noqa: BLE001 — не вышло: как без крючка
+            pass
+        return spec
 
 
 def _vendor_path(root: Path) -> None:
@@ -333,8 +519,75 @@ def _vendor_path(root: Path) -> None:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     v = Path(root) / VENDOR
-    if v.is_dir() and str(v) not in sys.path:
+    if v.is_dir():
+        if str(v) in sys.path:
+            sys.path.remove(str(v))
         sys.path.insert(0, str(v))
+
+
+def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
+    """Выгрузить модули пакетов pkgs из sys.modules (кроме загруженных из keep_under). Возвращает выгруженные."""
+    import sys
+    gone = []
+    for name in list(sys.modules):
+        top = name.split(".", 1)[0]
+        if top not in pkgs:
+            continue
+        mod = sys.modules.get(name)
+        f = getattr(mod, "__file__", None) or ""
+        if keep_under is not None and f and Path(f).resolve().is_relative_to(keep_under.resolve()):
+            continue
+        sys.modules.pop(name, None)
+        gone.append(name)
+    return gone
+
+
+def import_dfine(root: Path) -> tuple:
+    """Классы D-FINE строго закреплённой версии. Порядок:
+    1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
+    0) шим importlib.metadata.version (_metadata_shim): у зависимостей без версии в метаданных (tqdm в образе
+       площадки) версия берётся из module.__version__, WARNING SP_DFINE_DEPMETA; модуля нет → громкий отказ;
+    2) вендор архива первым в sys.path → import (в образе python:3.12 linux так и должно быть; в вендоре и tqdm
+       с dist-info, его метаданные находятся раньше метаданных образа);
+    3) сбой (на Windows/другом python не грузятся .so regex/tokenizers из вендора) → вендор вычищается из sys.path
+       и sys.modules, пробуем transformers окружения, но только версии ровно TRANSFORMERS_PIN;
+    иначе ImportError с причинами обеих попыток. Возвращает (DFineConfig, DFineForObjectDetection, info)."""
+    import importlib
+    import sys
+    v = Path(root) / VENDOR
+    info: dict = {"pin": TRANSFORMERS_PIN, "vendor": str(v), "vendor_present": v.is_dir(), "errors": []}
+    tr = sys.modules.get("transformers")
+    if tr is not None and not (v.is_dir() and Path(getattr(tr, "__file__", "") or "/").resolve().is_relative_to(v.resolve())):
+        info["purged_preloaded"] = getattr(tr, "__version__", "?")
+        _purge(("transformers",))
+    if v.is_dir():   # и чужие tokenizers/regex, загруженные до нас, — иначе вендорный transformers возьмёт их
+        _purge(("tokenizers", "regex"), keep_under=v)
+    _metadata_shim()   # до импорта transformers: dependency_versions_check читает версии из метаданных
+    attempts = (["vendor"] if v.is_dir() else []) + ["env"]
+    for src in attempts:
+        if src == "vendor":
+            _vendor_path(root)
+        else:
+            if v.is_dir():
+                while str(v) in sys.path:
+                    sys.path.remove(str(v))
+                _purge(_VENDOR_PKGS)
+            import os
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        importlib.invalidate_caches()
+        try:
+            import transformers
+            ver = getattr(transformers, "__version__", "?")
+            if ver != TRANSFORMERS_PIN:
+                raise ImportError(f"transformers {ver} != закреплённой {TRANSFORMERS_PIN} ({transformers.__file__})")
+            from transformers import DFineConfig, DFineForObjectDetection
+            info.update(source=src, version=ver, file=str(transformers.__file__), meta_fallback=dict(_META_USED))
+            return DFineConfig, DFineForObjectDetection, info
+        except Exception as exc:  # noqa: BLE001 — причина пишется в лог/FAIL
+            info["errors"].append(f"{src}: {type(exc).__name__}: {str(exc)[:300]}")
+            _purge(("transformers",))
+    raise ImportError(f"{UNAVAILABLE}: D-FINE недоступен — " + " | ".join(info["errors"]))
 
 
 def load_models(st: dict, root: Path, device) -> list:
@@ -344,8 +597,8 @@ def load_models(st: dict, root: Path, device) -> list:
     пропущенные ключи допустимы только связанные (tied) копии уже загруженных тензоров."""
     import torch
     from safetensors.torch import load_file
-    _vendor_path(root)
-    from transformers import DFineConfig, DFineForObjectDetection
+    DFineConfig, DFineForObjectDetection, info = import_dfine(root)
+    log.info("sp_dfine: transformers %s из %s (%s)", info["version"], info["source"], info["file"])
 
     models = []
     for rel in st["weights"]:
@@ -475,22 +728,23 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         cache["models"], cache["device"] = [], None
         ready, missing = thresholds_ready(cfg)
         if st["require_thresholds"] and not ready:
-            log.error("sp_dfine: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается",
-                      ", ".join(missing))
+            log.error("%s: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается, выдача как v2",
+                      UNAVAILABLE, ", ".join(missing))
         elif not st["weights"]:
-            log.error("sp_dfine: weights пуст — D-FINE не запускается")
-        if st["strict"] and (not ready and st["require_thresholds"] or not st["weights"]):
-            raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
+            log.error("%s: weights пуст — D-FINE не запускается, выдача как v2", UNAVAILABLE)
         else:
             try:
                 dev = _device(st)
                 t0 = time.monotonic()
                 cache["models"], cache["device"] = load_models(st, root, dev), dev
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
-            except Exception as e:
+            except Exception as exc:  # noqa: BLE001 — громко; без strict сдача не падает, выдача как v2
                 if st["strict"]:
-                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({type(e).__name__}: {e})") from e
-                log.exception("sp_dfine: модели не загрузились, D-FINE пропущен")
+                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({type(exc).__name__}: {exc})") from exc
+                log.exception("%s: модели не загрузились (%s: %s) — D-FINE пропущен, выдача как v2",
+                              UNAVAILABLE, type(exc).__name__, str(exc)[:500])
+        if st["strict"] and ((not ready and st["require_thresholds"]) or not st["weights"]):
+            raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
     models = cache["models"]
     if not models:
         return [], False
