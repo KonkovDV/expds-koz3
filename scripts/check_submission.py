@@ -212,8 +212,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
-               and k != "geophys.pixgbm.model_dir"   # папка: файлы по классам проверяет check_pixgbm_static
-               and not k.startswith("sp_dfine.weights")]   # каталоги D-FINE: файлы — check_sp_dfine_static
+               and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
         report("FAIL", "config", f"файлы из default.toml отсутствуют в архиве (модель молча выключится, "
                                  f"pipeline.py:98-101 на 24bd916): {missing}")

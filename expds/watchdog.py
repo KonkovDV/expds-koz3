@@ -95,16 +95,6 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
-    post_cfg = cfg.get("post") or {}
-    if post_cfg.get("site_calibration"):
-        # Первым: соседство и пороги дальше работают в калиброванной шкале, как в замере oof_transform.py calib.
-        out = post.site_calibration(out, post_cfg["site_calibration"])
-    if post_cfg.get("kurgan_neighbour_prior"):
-        # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
-        out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
-    if post_cfg.get("frame_prior"):
-        # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
-        out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
     if post_cfg.get("big_groups"):
         # bot-2 bigobj F1, выкл.: крупные маски городищ/фортификаций — своя группа порога (до порогов).
         bg = _spec(post_cfg["big_groups"])

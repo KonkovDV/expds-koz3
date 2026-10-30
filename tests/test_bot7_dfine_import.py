@@ -10,6 +10,7 @@ import io
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -36,7 +37,11 @@ def _root(tmp: Path, vendor: Path | None) -> Path:
     r = tmp / "pkg"
     (r / "inference" / "lib").mkdir(parents=True)
     if vendor is not None:
-        (r / "inference" / "lib" / "vendor").symlink_to(vendor, target_is_directory=True)
+        link = r / "inference" / "lib" / "vendor"
+        try:
+            link.symlink_to(vendor, target_is_directory=True)
+        except OSError:   # Windows без права на символические ссылки
+            shutil.copytree(vendor, link)
     return r
 
 
@@ -107,7 +112,7 @@ def test_region_feats_logs_unavailable_and_returns_v2(monkeypatch, tmp_path, cap
     def boom(st, root, dev):
         raise ImportError(f"{sp_dfine.UNAVAILABLE}: D-FINE недоступен — vendor: ImportError: x")
     monkeypatch.setattr(sp_dfine, "load_models", boom)
-    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"], "device": "cpu"},
+    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"], "device": "cpu", "strict": False},
            "thresholds_by_markup": {"sp_dfine": {c: 0.5 for c in sp_dfine.CLASSES}}}
     reg = SimpleNamespace(name="r", rasters={"sp_or": [tmp_path / "a.tif"]})
     with caplog.at_level(logging.ERROR, logger=sp_dfine.log.name):
@@ -118,7 +123,7 @@ def test_region_feats_logs_unavailable_and_returns_v2(monkeypatch, tmp_path, cap
 
 
 def test_region_feats_no_thresholds_is_loud(tmp_path, caplog):
-    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"]}}
+    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"], "strict": False}}
     reg = SimpleNamespace(name="r", rasters={"sp_or": [tmp_path / "a.tif"]})
     with caplog.at_level(logging.ERROR, logger=sp_dfine.log.name):
         assert sp_dfine.region_feats(reg, cfg, None, {}, tmp_path) == ([], False)
