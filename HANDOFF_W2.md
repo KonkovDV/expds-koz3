@@ -66,7 +66,29 @@ P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 
 - `orch/pool_kaggle.sh <user> <kaggle args>` — токен берётся из env/локального файла, не печатается. Обычный `kaggle` CLI не авторизован.
 - Аренды: `orch/lease.sh acquire|renew|release|who|list`, ресурсы `slot:<acc>/<gpu-1|gpu-2|tpu|cpu>`, `kernel:<acc>/<slug>`, `branch:<name>`; файл `orch/LEASES.json`. Префикс ядер `koz3-w2-`. Чужие RUNNING/QUEUED не трогать. Известный баг: аренда иногда сразу GONE — у бота 1.
 
-## Большие артефакты (только на боксе, не в git)
+## Где лежат большие файлы (бэкап 30.10 ~11:50 MSK)
+
+Все датасеты ПРИВАТНЫЕ, на аккаунте elenakonkova, статус `ready`, список файлов и размеры сверены с боксом 1:1 (скрипт сверки — `datasets files --csv` vs `os.walk`). Скачать: `$PK elenakonkova datasets download elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip`. Лимиты Kaggle: 200 ГБ на датасет и 200 ГБ приватных на аккаунт, ≤ 50 файлов в корне (поэтому всё по подпапкам). Kaggle сам распаковывает загруженные .gz/.zip — файлы лежат несжатыми.
+
+| Артефакт на боксе | Где хранится | Как достать / пересобрать |
+|---|---|---|
+| `w2/oof/merged/*` (s0, s1, s2, s01avg, s012avg + merge_summary), `w2/oof/{s0,s1,s2,lihm}/<ядро>/` (oof по фолдам, gt, region_fold, report_cnx_full, логи; без .pt и maps), `w2/seedmerge/` | **elenakonkova/koz3-w2-oof** — 92 файла, 0,99 ГБ | download; также output ядер (`$PK <acc> kernels output <acc>/<slug>`); merged пересобирается `w2/tools/collect_cnx.sh` → `merge_cnx.py` / `seed_merge_cnx.py` |
+| Веса c3-sc `weights_cnx_c3-sc_f{0..4}.pt` для s0, s1, s2 (15 шт.), `ckpt_*` s2 f2–f4, li_hm `ckpt_cnx_c3-sc_f{0..4}.pt` (у li_hm только ckpt) | **elenakonkova/koz3-w2-weights** (v2) — 24 файла, 1,47 ГБ; структура `s0|s1|s2|lihm/<ядро>/` | download; первоисточник — output ядер dmitrijkv/koz3-cnx-li-c3sc-{f01,f23,f4-v2}, dmitrijkv/koz3-cnx-li-c3sc-s1f01, elenakonkova/koz3-cnx-li-c3sc-{s1f23,s1f4}, dmitrijkv/koz3-w2-cnx-c3sc-{s2f01,s2f23}, elenakonkova/koz3-w2-cnx-c3sc-s2f4, elenakonkova/koz3-w2-lihm-c3sc-f01234 (`--file-pattern '^weights_.*\.pt$'`) |
+| Карты `maps_*.npz`: `w2/maps/{s0,s1,s2}` (+симлинки), `oof/s2/*/maps`, `oof/lihm/*/maps` | **elenakonkova/koz3-w2-maps** — 295 файлов, 2,11 ГБ; `w2maps/…`, `koz3-w2-cnx-c3sc-s2f23/`, `koz3-w2-cnx-c3sc-s2f4/`, `koz3-w2-lihm-c3sc-f01234/` | download; или output соответствующих ядер (`--file-pattern 'maps/'`) |
+| Гейт: `w2/gate_s2/{s2,s012,varb,varb_kur}` (стеки + work/*.pkl), `logs`, `detail_*.json`, `check_s2only.geojson`; база W5: `w5data/stack_arch.geojson`, `gt_train_v2.geojson`, `work/base_counts.pkl`, `work/table.pkl` | **elenakonkova/koz3-w2-gate** — 54 файла, 5,43 ГБ; `gate_s2/…`, `w5base/…` | download; либо пересобрать: `w2/gate_s2/run_varb.sh` (stack_replace_li.py → prep.py → gate_v6c.py → gate_detail.py; для s2/s012 — тот же шаблон с OOF s2/s012avg, аддитивно через `seed_merge_cnx.py`), ~10–20 мин CPU на вариант, ~2 ГБ на вариант |
+| Рельеф `w2/relief/cnx_relief` (119 .npy/.json, 1,6 ГБ) | уже был: **elenakonkova/koz3-cnx-li-prep** (119/119 совпали по размеру) | download; пересборка — ядро dmitrijkv/koz3-cnx-li-prep (S3 → рельеф) |
+| LAS/Li-карты/разметка `w2/las` (54 файла, 1,9 ГБ; 7 участков) | S3 бакет `train-expds-3` (endpoint `https://s3.ru-7.storage.selcloud.ru`) — 54/54 совпали по пути и размеру со снимком листинга `$K/s3_keys.tsv` (29.10) | boto3 как в ядрах (ключи — приватный датасет elenakonkova/koz3-s3-cred, не печатать) |
+| `w2/gaudit/ds` LAS 015/021/186/190 + Li-разметка (10 ГБ) | S3 (те же LAS по размеру) + **aaaa0000004/koz3-w2-gaudit-las** (16 файлов, ready) | download с aaaa0000004 или S3 |
+| `w2/kernels` (скрипты ядер, 9 МБ) | git, эта ветка `w2_kernels/` | — |
+
+**Не выгружено (и почему):**
+- `w2/demfill/{rel,maps,out}` (≈125 МБ) — тест P-W2-10 ещё идёт, частичные результаты не бэкапились. Когда закончится: `mkdir -p $K/w2/bk/stage/demfill && cp -al $K/w2/demfill/{rel,maps,out} $K/w2/bk/stage/demfill/`, `dataset-metadata.json` с `"id":"elenakonkova/koz3-w2-demfill"`, затем `orch/lease.sh acquire dataset:elenakonkova/koz3-w2-demfill bot-W2-lidar 4` и `cd $K/w2/bk/stage/demfill && $PK elenakonkova datasets create -p . --dir-mode zip` (приватный по умолчанию). Веса для демфилла (`demfill/w`) уже в koz3-w2-weights. Рельеф пересобирается `w2/demfill/build_relief.py` из LAS в S3.
+- `w2/repo` (1,6 ГБ) — клон `KonkovDV/expds-koz3`, есть на GitHub.
+- `w2/bak/merged_pre_s2_0334` — дубль merged s0/s1/s01avg до s2 (те же файлы в koz3-w2-oof).
+- `w5data/work/X*.npy, geom_wkb.pkl, nested_*` — данные W5 (не W2), пересобираются `prep.py` из stack_arch + gt (см. «Гейт honest-10»).
+- Стейджинг бэкапа: `$K/w2/bk/stage/{oof,weights,maps,gate}` (хардлинки + dataset-metadata.json). Новая версия: `cd $K/w2/bk/stage/<s> && $PK elenakonkova datasets version -p . --dir-mode zip -m "..."` (сначала аренда `dataset:elenakonkova/koz3-w2-<s>`).
+
+## Большие артефакты (только на боксе, не в git) — см. раздел выше, всё кроме перечисленного выгружено
 - `$K/w2/oof/merged/` — oof_cnx_c3-sc_{s0 64M, s1 62M, s2 71M, s01avg 62M (отдан W5), s012avg 63M}.geojson; s0 129M, s1 126M, s2 677M (`oof/s*`); li_hm `oof/lihm` 1,7G (карты npz)
 - `$K/w2/gate_s2/{s2,s012}` по 2,0G (стеки 1,1G, pkl), `varb` 206M, `varb_kur` 213M
 - `$K/w2/las` 5,2G, `$K/w2/gaudit/las` 6,7G (015/021/186/190), `$K/w2/relief/cnx_relief` 1,6G
