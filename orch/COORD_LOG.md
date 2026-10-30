@@ -345,3 +345,25 @@
 - 30.10 11:06 MSK | lease | acquire slot:acc1/cpu → coord до 30.10 18:06 MSK CI2-1 cloudfeat на acc1/cpu (есть интернет; бокс-слоты заняты до 14:30) kernel elenakonkova/koz3-w5-cloudfeat
 - 30.10 11:08 MSK | lease | acquire kernel:elenakonkova/koz3-w5-cloudfeat → coord до 30.10 18:08 MSK CI2-1 cloudfeat
 - 30.10 11:12 MSK | coord | 15-мин проверка: box load 12.4/8 (полно). acc1/cpu простаивал с 10:42 → push elenakonkova/koz3-w5-cloudfeat (CI2-1, ядро W1 без изменений, приватный датасет elenakonkova/koz3-w5-cloudfeat-in с cred.json, интернет есть), аренда coord 7 ч. Выход → w1/cf/box_out-эквивалент: bot-W1 может снять ожидающий run_box.sh и взять cloudfeat.csv из out/w5-cloudfeat. Остальное: dino-emb-gpu и kurgan-seeds RUNNING, TPU QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00.
+30.10 ~12:57 MSK | A→C | dino-emb зеркало: /workspace/koz3/out/w5-dino-emb (pull elenakonkova/koz3-w5-dino-emb). table.pkl/OOF A — нет (ждём ПК Елены → /workspace/koz3/pc_data или w5data/work). out_v2clean_check4 — нет токена aaaa0000004 (local_ctx пуст); ядро COMPLETE, цель w4geo/kaggle/out_v2clean_check4.
+- 30.10 12:57 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 01.11 12:57 MSK D/W1: e2e Ae V7 + CI2-5 prep; GPU after 31.10 03:00
+- 30.10 12:57 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-kurgan до 01.11 12:57 MSK D/W3: kurgan seeds; CPU pool keys pending
+30.10 ~12:58 MSK | A→D | lease acquire branch:bots/w1-aeor → bot-W1-aeor 48h; branch:bots/w3-kurgan-seeds → bot-W3-kurgan 48h. local_ctx/kaggle_pool — нет (блокер Елены).
+- 30.10 13:00 MSK | lease | release kernel:elenakonkova/koz3-w5-cloudfeat (coord) by coord
+- 30.10 13:00 MSK | lease | release slot:acc1/cpu (coord) by coord
+- 30.10 13:00 MSK | lease | acquire slot:acc1/cpu → coord до 30.10 23:00 MSK attribution: RUNNING с 11:23 MSK без аренды (W3/D); проверено A 13:0x
+- 30.10 13:00 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 13:00 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 13:00 MSK | lease | release branch:bots/w0-docs (coord) by coord
+- 30.10 13:00 MSK | lease | release dataset:dmitrijkv/koz3-w3-gordense-timing (bot-W3-bigobj) by coord
+- 30.10 13:00 MSK | lease | release dataset:dmitrijkv/koz3-w3-gorheads-code (bot-W3-bigobj) by coord
+- 30.10 13:00 MSK | lease | release dataset:dmitrijkv/koz3-w3-kurgan-cpu-data (bot-W3-bigobj) by coord
+- 30.10 13:00 MSK | check_conflicts | ERROR=1 WARN=9: общий клон /workspace/koz3/repo на ветке '', должен быть main (только чтение)
+- 30.10 13:01 MSK | check_conflicts | ERROR=1 WARN=9: общий клон /workspace/koz3/repo на ветке '', должен быть main (только чтение)
+- 30.10 13:01 MSK | check_conflicts | ERROR=1 WARN=10: worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]
+- 30.10 13:02 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)
+- 30.10 13:03 MSK | check_conflicts | ERROR=1 WARN=10: worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]
+- 30.10 13:10 MSK | A coord | HARDEN PASS (Елена t18u/t19u/t21u): ROSTER.md (Grok A/B/C/D ↔ W0–W5), STATE NOW + ARCHIVE, local_ctx/README.md (схема пула без секретов), BRIEF «Grok Bot map», PATH_TO_061.md, STATUS W1–W5.
+- 30.10 13:10 MSK | A coord | аренды: renew acc1/gpu-2+kernel dino-emb-gpu (RUNNING) до 19:00; release acc1/cpu cloudfeat (COMPLETE) → acquire acc1/cpu под RUNNING elenakonkova kurgan-cpu-seeds (был без аренды) до 23:00; release box/q1,q2 (бокс пересоздан, процессов нет); release истёкших branch:bots/w0-docs + 3 dataset bot-W3. Не тронуты: истёкшие TPU-смоуки (QUEUED, решение D0), CPU-пул (не проверяем без ключей).
+- 30.10 13:10 MSK | A coord | QUEUE: cooldown всех GPU/TPU до 31.10.2026 03:05; w3-gordense-timing ready→hold; w0s-* ready→hold (нет cmd, нужен OOF); w2-r50c5 ready_after 31.10 03:05. Ready-элементов 0.
+- 30.10 13:10 MSK | A coord | repo: создан /workspace/koz3/repo = git worktree main (read-only). check_conflicts 13:05: ERROR=1 (основной чекаут expds-koz3 на bots/w2-lidar — рабочая копия B, не трогаю; миграция после сессии B: B коммитит → `git -C expds-koz3 checkout --detach` → `rm wt/w2` симлинк → `git worktree add wt/w2 bots/w2-lidar`), WARN=10 (истёкшие TPU-смоуки ×6, пул без ключей ×3, 1 коммит grok-bot в bots/orch-protocol). watcher v2 запущен pid в orch/.watcher.pid, лог orch/logs/watcher.out.
