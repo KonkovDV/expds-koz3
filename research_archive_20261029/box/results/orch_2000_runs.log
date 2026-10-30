@@ -1,0 +1,46 @@
+== ee8af7f 20:01
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+541 passed, 37 skipped, 22 warnings in 68.25s (0:01:08)
+### EXIT 0
+=== META exit=0 elapsed=70.3s peak_rss_mb=1978.6 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/ee8af7f_ee8af7f.md
+LOG:    /home/box/shared/koz3/box/results/ee8af7f_ee8af7f.log
+passed=541 failed=0 errors=0 skipped=37 peak_rss_mb=1978.6 elapsed_s=70.3 exit=0 paths=tests
+== ed73c5e 20:02
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+548 passed, 37 skipped, 22 warnings in 69.40s (0:01:09)
+### EXIT 0
+=== META exit=0 elapsed=71.5s peak_rss_mb=1927.9 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/ed73c5e_ed73c5e.md
+LOG:    /home/box/shared/koz3/box/results/ed73c5e_ed73c5e.log
+passed=548 failed=0 errors=0 skipped=37 peak_rss_mb=1927.9 elapsed_s=71.5 exit=0 paths=tests
+== 73b1fee 20:03
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+424 passed, 7 skipped, 21 warnings in 72.33s (0:01:12)
+### EXIT 0
+=== META exit=0 elapsed=74.5s peak_rss_mb=1838.7 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/73b1fee_73b1fee.md
+LOG:    /home/box/shared/koz3/box/results/73b1fee_73b1fee.log
+passed=424 failed=0 errors=0 skipped=7 peak_rss_mb=1838.7 elapsed_s=74.5 exit=0 paths=tests
+== fc5a0f9 20:05
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+542 passed, 37 skipped, 22 warnings in 69.77s (0:01:09)
+### EXIT 0
+=== META exit=0 elapsed=71.9s peak_rss_mb=1905.2 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/fc5a0f9_fc5a0f9.md
+LOG:    /home/box/shared/koz3/box/results/fc5a0f9_fc5a0f9.log
+passed=542 failed=0 errors=0 skipped=37 peak_rss_mb=1905.2 elapsed_s=71.9 exit=0 paths=tests
+== 69a9a85 20:06
+SKIPPED [1] centerhead/tests/test_rerank_export.py:44: нет официального compute_metrics.py
+50 passed, 1 skipped, 1 warning in 6.33s
+### EXIT 0
+=== META exit=1 elapsed=111.9s peak_rss_mb=2253.5 paths=['tests', 'centerhead/tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/69a9a85_69a9a85.md
+LOG:    /home/box/shared/koz3/box/results/69a9a85_69a9a85.log
+passed=684 failed=1 errors=0 skipped=44 peak_rss_mb=2253.5 elapsed_s=111.9 exit=1 paths=tests centerhead/tests
+ALLDONE 20:08

@@ -1,0 +1,10 @@
+who: bot5
+what: mock e2e v4 flags-OFF DONE PASS
+branch: bots/bot5-candidate-v4
+sha: 50f6f27
+start_msk: 2026-10-29 16:27
+expected_end_msk: 2026-10-29 16:30
+heartbeat_msk: 2026-10-29 16:34
+status: DONE
+owner: pc-job-runner
+note: ALL=0.312873 sp_or=0.245064 wall=100.1s honest10_global=0.297118

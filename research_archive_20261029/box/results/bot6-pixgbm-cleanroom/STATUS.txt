@@ -1,0 +1,7 @@
+worktree=/workspace/koz3-wt/bot6-pixgbm-cleanroom
+branch=bots/bot6-pixgbm-cleanroom
+sha=70dedf49b0fa7013718885d466fb9fcaab5f3c00
+official_run_tests_sh=FAILED exit=4 (missing tests/test_check_compliance.py — runner stale name)
+gate_existing_files_rc=0
+bot6_suite_rc=0 (5 passed)
+finished=2026-10-29 16:09:21 MSK

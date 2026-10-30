@@ -1,0 +1,12 @@
+DONE 2026-10-29T18:42:29+03:00
+SCORED 2026-10-29T18:45:00+03:00
+ENV=docker:pantum/n7q:20261024
+sha_zip=eb268d6e4adfbed32670cabeef15a709649b8246
+JobDir=C:\Sloi\pc_jobs\bot2_v2_base_docker_eb268d6
+container=koz3-bot2-v2base-20261029183101 (removed; docker Wait-Process exit=-1 quirk salvaged)
+wall_sec=680.4
+geojson_bytes=428032
+ALL_F1=0.312509 li=0.336983 sp_or=0.242915 ae=0.095556
+vs_kit_ref delta_ALL=0.0 (exact match n=248)
+gate: PASS vs QUEUE targets 0.312509/0.336983/0.242915/0.095556
+honest-10: deferred (mock regions only)

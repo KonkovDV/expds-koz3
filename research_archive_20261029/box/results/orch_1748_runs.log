@@ -1,0 +1,323 @@
+== fetch ==
+ref=bots/bot2-e2e-v3-prep resolved=origin/bots/bot2-e2e-v3-prep sha=10e9936
+== worktree ==
+Previous HEAD position was fb66c89 fix(sp_dfine): stages dump + A≡B path tests; reject geographic CRS
+HEAD is now at 10e9936 docs(bot2): runtime env — LB=Linux Docker, v2 base docker recompute
+HEAD is now at 10e9936 docs(bot2): runtime env — LB=Linux Docker, v2 base docker recompute
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+💥 maturin failed
+  Caused by: Failed to run rustc to get the host target
+  Caused by: error from command -- stderr:
+
+error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
+help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
+
+
+stderr:
+
+
+WARN: expds_core build failed; tests will use NumPy fallbacks
+== smoke import ==
+Can't list 'centerhead'
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+..............................................................ss....ssss [ 14%]
+ssssss...s.............................................s..s............. [ 28%]
+........................................................................ [ 43%]
+........................................................................ [ 57%]
+...............................................................sssss.... [ 72%]
+............s........................................................... [ 86%]
+..................................................ss...............      [100%]
+=============================== warnings summary ===============================
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot2-e2e-v3-prep/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot2-e2e-v3-prep/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
+SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+476 passed, 23 skipped, 21 warnings in 62.23s (0:01:02)
+### EXIT 0
+=== META exit=0 elapsed=64.0s peak_rss_mb=1750.2 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot2-e2e-v3-prep_10e9936.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot2-e2e-v3-prep_10e9936.log
+passed=476 failed=0 errors=0 skipped=23 peak_rss_mb=1750.2 elapsed_s=64.0 exit=0 paths=tests
+== fetch ==
+ref=bots/bot4-large-objects resolved=origin/bots/bot4-large-objects sha=5097c4a
+== worktree ==
+Previous HEAD position was 337a27c bot-4: docs — таблица коммитов в отчёте (добавлен sha отчёта)
+HEAD is now at 5097c4a bot-4: docs — sha f1d33ab/8f74d26/f08bb5f в таблице отчёта
+HEAD is now at 5097c4a bot-4: docs — sha f1d33ab/8f74d26/f08bb5f в таблице отчёта
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+💥 maturin failed
+  Caused by: Failed to run rustc to get the host target
+  Caused by: error from command -- stderr:
+
+error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
+help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
+
+
+stderr:
+
+
+WARN: expds_core build failed; tests will use NumPy fallbacks
+== smoke import ==
+Can't list 'centerhead'
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+................................................sss.....s...ssssss..ss.s [ 12%]
+..........ss....s...sssssssss...s....................................... [ 24%]
+...........s..s......................................................... [ 37%]
+........................................................................ [ 49%]
+.........s.............................................................. [ 62%]
+..................................................................sssss. [ 74%]
+...............s........................................................ [ 87%]
+.....................................................ss................. [ 99%]
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_bot7_geographic_utm_json.py::test_geographic_utm_json_becomes_center_zone
+  /workspace/koz3-wt/bots-bot4-large-objects/tests/test_bot7_geographic_utm_json.py:52: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    cx, cy = sc.T * (sc.W / 2, sc.H / 2)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot4-large-objects/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot4-large-objects/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_bot5_gor_dense.py:218: нет артефактов бокса bot-5 (work/gd/root, analysis/gor_dense)
+SKIPPED [2] tests/test_bot5_gor_dense.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot5_gor_dense.py:333: нет трейна 008_Герите на машине
+SKIPPED [6] tests/test_bot6_orgate.py:29: нет опорного входа смоука ORGATE (вне git, п. 13.11 ТР)
+SKIPPED [2] tests/test_bot6_orgate.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot6_orgate.py:189: нет опорного входа смоука ORGATE (вне git)
+SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
+SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_dfine_aeor.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+542 passed, 37 skipped, 22 warnings in 79.01s (0:01:19)
+### EXIT 0
+=== META exit=0 elapsed=80.6s peak_rss_mb=1963.1 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot4-large-objects_5097c4a.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot4-large-objects_5097c4a.log
+passed=542 failed=0 errors=0 skipped=37 peak_rss_mb=1963.1 elapsed_s=80.6 exit=0 paths=tests
+== fetch ==
+ref=bots/bot7-compare-candidates resolved=origin/bots/bot7-compare-candidates sha=b6f835d
+== worktree ==
+Preparing worktree (detached HEAD b6f835d)
+Updating files:  89% (4193/4704)Updating files:  89% (4195/4704)Updating files:  89% (4197/4704)Updating files:  89% (4199/4704)Updating files:  89% (4204/4704)Updating files:  89% (4206/4704)Updating files:  89% (4208/4704)Updating files:  90% (4234/4704)Updating files:  91% (4281/4704)Updating files:  92% (4328/4704)Updating files:  93% (4375/4704)Updating files:  94% (4422/4704)Updating files:  95% (4469/4704)Updating files:  96% (4516/4704)Updating files:  97% (4563/4704)Updating files:  98% (4610/4704)Updating files:  99% (4657/4704)Updating files: 100% (4704/4704)Updating files: 100% (4704/4704), done.
+HEAD is now at b6f835d test(bot7): compare_candidates rule PASS/FAIL, Δ, li↔ae, md/csv
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+💥 maturin failed
+  Caused by: Failed to run rustc to get the host target
+  Caused by: error from command -- stderr:
+
+error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
+help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
+
+
+stderr:
+
+
+WARN: expds_core build failed; tests will use NumPy fallbacks
+== smoke import ==
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests centerhead/tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+...........................................sssssss...................... [ 10%]
+s...................s..s......................s..............s.......... [ 21%]
+.....s....ss............s.................................s............. [ 32%]
+..ss..................s........ssss........................ss........... [ 43%]
+........................................................................ [ 53%]
+.................................................ss..................... [ 64%]
+...................................................sssss................ [ 75%]
+s....................................................................... [ 86%]
+......................................................................ss [ 97%]
+....................                                                     [100%]
+=============================== warnings summary ===============================
+tests/test_bot8_fast_metric.py: 11 warnings
+tests/test_writer_fast.py: 1 warning
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/creation.py:324: RuntimeWarning: invalid value encountered in linearrings
+    return lib.linearrings(coords, np.intc(handle_nan), out=out, **kwargs)
+
+tests/test_bot8_fast_metric.py: 10 warnings
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:372: RuntimeWarning: overflow encountered in centroid
+    return lib.centroid(geometry, **kwargs)
+
+tests/test_bot8_fast_metric.py: 10 warnings
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:372: RuntimeWarning: invalid value encountered in centroid
+    return lib.centroid(geometry, **kwargs)
+
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-1]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-2]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-1]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[0]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_empty_sides
+  /workspace/koz3-wt/bots-bot7-compare-candidates/expds/metric.py:309: RuntimeWarning: invalid value encountered in cast
+    zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-1]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-2]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-1]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[0]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_empty_sides
+  /workspace/koz3-wt/bots-bot7-compare-candidates/expds/metric.py:430: RuntimeWarning: invalid value encountered in cast
+    zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:830: RuntimeWarning: invalid value encountered in point_on_surface
+    return lib.point_on_surface(geometry, **kwargs)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot7-compare-candidates/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot7-compare-candidates/expds/raster.py:134: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_bot7_pix_pool_sigterm.py:11: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot8_check_cnx.py:18: rvt_py wheel is not committed to main (archives excluded by the 29.10 merge policy); restore inference/cnx/wheels/ from origin/bots/bot8-cnx to run the [li_cnx] checker tests
+SKIPPED [1] tests/test_claude_pix_sat_cores.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_geo_pixgbm_peaks.py:6: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_geo_pixgbm_threads.py:8: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_pix_pick.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_pix_sat_cores.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:43: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_candidate_v2.py:50: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_candidate_v2.py:91: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:117: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:131: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:173: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, models/rerank_arch_lgbm.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_rerank_arch.py:41: models/rerank_arch_lgbm.txt: LightGBM weights are not kept in git (trained on competition data)
+SKIPPED [1] tests/test_bot7_v3_flags.py:280: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_v3_flags.py:347: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot8_check_submission.py:152: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot8_cnx.py:208: нет LAZ Осечки или эталона подготовки bot-9
+SKIPPED [1] tests/test_bot8_cnx.py:493: rvt_py wheel is not committed to main (archives excluded by the 29.10 merge policy); restore it from origin/bots/bot8-cnx before enabling [li_cnx]
+SKIPPED [1] tests/test_bot8_fast_metric.py:118: expds_core без flatten_polygons
+SKIPPED [1] tests/test_bot8_fast_metric.py:128: expds_core без flatten_polygons
+SKIPPED [1] tests/test_bot8_fast_metric.py:271: нет реальной выборки бота 8
+SKIPPED [1] tests/test_bot8_fast_metric.py:378: реальный прогон: BOT8_REAL=1 и выборка бота 8
+SKIPPED [1] tests/test_bot8_site_scope.py:161: нет выборки соседних участков bot-8
+SKIPPED [1] tests/test_bot8_site_scope.py:169: нет выборки соседних участков bot-8
+SKIPPED [1] tests/test_bot8_soft_ceiling.py:195: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [4] tests/test_bot8_speed_cache.py:121: нет реальной выборки бота 8
+SKIPPED [1] tests/test_bot8_speed_cache.py:333: нет файла
+SKIPPED [1] tests/test_bot8_speed_cache.py:341: старый expds_core
+SKIPPED [1] tests/test_ground_metres.py:39: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_ground_metres.py:60: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py:35: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+632 passed, 43 skipped, 71 warnings in 90.71s (0:01:30)
+### EXIT 0
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env centerhead/tests
+### PATH: centerhead/tests
+.......s...........................................                      [100%]
+=============================== warnings summary ===============================
+centerhead/tests/test_rerank_export.py::test_export_writer_conventions
+  /workspace/koz3-wt/bots-bot7-compare-candidates/centerhead/tests/test_rerank_export.py:166: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    back = transform(Transformer.from_crs("EPSG:3857", UTM, always_xy=True).transform, g)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] centerhead/tests/test_rerank_export.py:44: нет официального compute_metrics.py
+50 passed, 1 skipped, 1 warning in 5.21s
+### EXIT 0
+=== META exit=0 elapsed=99.3s peak_rss_mb=2215.2 paths=['tests', 'centerhead/tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot7-compare-candidates_b6f835d.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot7-compare-candidates_b6f835d.log
+passed=682 failed=0 errors=0 skipped=44 peak_rss_mb=2215.2 elapsed_s=99.3 exit=0 paths=tests centerhead/tests

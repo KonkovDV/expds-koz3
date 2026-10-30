@@ -1,0 +1,10 @@
+﻿# candidate env tags (inference origin, not scoring ENV)
+# scoring ENV=docker:pantum/n7q:20261024
+v2 env=docker (v3e2e kit BOARD)
+v3 env=docker (v3e2e kit BOARD)
+hotfix_B env=host (bot2 v3 hotfix mock)
+v4_off env=host (bot5_v4_off_50f6f27)
+bot4_off env=host (bot4_lo_mock_337a27c)
+bot4_on env=host (bot4_lo_mock_337a27c)
+GT=F:\Sloi_pc_jobs_archive\v3e2e\out_v3fix2\gt.geojson sha256=e0e72411bd79f44b0784b34aa41ff9b7a2700c420236d25077b21a0126827487
+GT_note=same path family as prior v3e2e gates (archived from C:\Sloi\pc_jobs\v3e2e); n_gt totals in bot5/bot7 honest notes match 3620 ALL

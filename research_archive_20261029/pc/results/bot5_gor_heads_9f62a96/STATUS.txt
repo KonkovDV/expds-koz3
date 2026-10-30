@@ -1,0 +1,3 @@
+DONE
+started_or_updated=2026-10-29T14:58:23+0000
+{"gor_v3_head": {"bytes": 407736, "sha256": "5bd88f69b3ffbfdc5312214b4d6012c92be12c66539b7bf8ad35564c76a75e7d", "md5": "487c48e49b5945300cefeed70bc2df00"}, "gor_dense_head": {"bytes": 204984, "sha256": "feb1591bb1e9ada63b32829178eae44a7e19fdfd7e99d7d222e3b1389c5b2cb7", "md5": "d92f38f3cbf916a198b363b3f7c84158"}, "legacy_md5": {"gor_v3": "acb95c52956d712a16c3dd389237a691", "gor_dense": "e35570e10d17edac32bea8d26fa0f5f4"}, "note": "Byte-identical md5 vs legacy only if feats match original extract; recipe+seed match."}

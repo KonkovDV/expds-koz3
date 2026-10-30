@@ -1,0 +1,560 @@
+{
+  "n_gt": 184,
+  "n_pred": 1228,
+  "folds": {
+    "008_Герите": 0,
+    "014_Лешки": 0,
+    "093_Старый_Барах": 0,
+    "033_Елизаветинское": 1,
+    "056_Фалхан": 1,
+    "185_Изборск": 2
+  },
+  "nested_per_fold": [
+    {
+      "test_fold": 0,
+      "test_regs": [
+        "008_Герите",
+        "014_Лешки",
+        "093_Старый_Барах"
+      ],
+      "thr": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.5,
+        "fortifikatsii": 1.01
+      },
+      "wF1": 0.0613,
+      "detail": {
+        "kurgany_povrezhdennye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "kurgany_tselye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "arkhitektury": {
+          "tp": 4,
+          "fp": 3,
+          "fn": 121,
+          "P": 0.5714,
+          "R": 0.032,
+          "F1_koz": 0.0613
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        }
+      },
+      "nn2": {
+        "n_pass": 7,
+        "soft_tp_unique_gt": 2,
+        "soft_recall": 0.016
+      },
+      "n_gt": 125,
+      "n_pred_raw": 258
+    },
+    {
+      "test_fold": 1,
+      "test_regs": [
+        "033_Елизаветинское",
+        "056_Фалхан"
+      ],
+      "thr": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.08,
+        "fortifikatsii": 1.01
+      },
+      "wF1": 0.04967,
+      "detail": {
+        "kurgany_povrezhdennye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "kurgany_tselye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 28,
+          "fp": 740,
+          "fn": 25,
+          "P": 0.0365,
+          "R": 0.5283,
+          "F1_koz": 0.1242
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        }
+      },
+      "nn2": {
+        "n_pass": 768,
+        "soft_tp_unique_gt": 28,
+        "soft_recall": 0.509090909090909
+      },
+      "n_gt": 55,
+      "n_pred_raw": 940
+    },
+    {
+      "test_fold": 2,
+      "test_regs": [
+        "185_Изборск"
+      ],
+      "thr": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.2,
+        "fortifikatsii": 1.01
+      },
+      "wF1": 0.0,
+      "detail": {
+        "kurgany_povrezhdennye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "kurgany_tselye": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "P": null,
+          "R": null,
+          "F1_koz": null
+        },
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "P": 0.0,
+          "R": null,
+          "F1_koz": null
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      },
+      "nn2": {
+        "n_pass": 1,
+        "soft_tp_unique_gt": 0,
+        "soft_recall": 0.0
+      },
+      "n_gt": 4,
+      "n_pred_raw": 30
+    }
+  ],
+  "nested_pooled": {
+    "wF1": 0.03666,
+    "detail": {
+      "kurgany_povrezhdennye": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "F1_koz": 0.0,
+        "P": null,
+        "R": null
+      },
+      "kurgany_tselye": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "F1_koz": 0.0,
+        "P": null,
+        "R": null
+      },
+      "gorodishcha": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 4,
+        "F1_koz": 0.0,
+        "P": null,
+        "R": 0.0
+      },
+      "arkhitektury": {
+        "tp": 32,
+        "fp": 744,
+        "fn": 146,
+        "F1_koz": 0.11,
+        "P": 0.0412,
+        "R": 0.1798
+      },
+      "fortifikatsii": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "F1_koz": 0.0,
+        "P": null,
+        "R": 0.0
+      }
+    },
+    "fold_thrs": {
+      "0": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.5,
+        "fortifikatsii": 1.01
+      },
+      "1": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.08,
+        "fortifikatsii": 1.01
+      },
+      "2": {
+        "kurgany_povrezhdennye": 1.01,
+        "kurgany_tselye": 1.01,
+        "gorodishcha": 1.01,
+        "arkhitektury": 0.2,
+        "fortifikatsii": 1.01
+      }
+    }
+  },
+  "deploy_median_thr": {
+    "thr": {
+      "kurgany_povrezhdennye": 1.01,
+      "kurgany_tselye": 1.01,
+      "gorodishcha": 1.01,
+      "arkhitektury": 0.2,
+      "fortifikatsii": 1.01
+    },
+    "wF1": 0.04866,
+    "detail": {
+      "kurgany_povrezhdennye": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "P": null,
+        "R": null,
+        "F1_koz": null
+      },
+      "kurgany_tselye": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "P": null,
+        "R": null,
+        "F1_koz": null
+      },
+      "gorodishcha": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 4,
+        "P": null,
+        "R": 0.0,
+        "F1_koz": 0.0
+      },
+      "arkhitektury": {
+        "tp": 25,
+        "fp": 279,
+        "fn": 153,
+        "P": 0.0822,
+        "R": 0.1404,
+        "F1_koz": 0.146
+      },
+      "fortifikatsii": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "P": null,
+        "R": 0.0,
+        "F1_koz": 0.0
+      }
+    }
+  },
+  "provisional": {
+    "thr": {
+      "kurgany_tselye": 0.0544,
+      "kurgany_povrezhdennye": 0.05311,
+      "gorodishcha": 0.05943,
+      "fortifikatsii": 0.05845,
+      "arkhitektury": 0.07682
+    },
+    "wF1": 0.03598,
+    "detail": {
+      "kurgany_povrezhdennye": {
+        "tp": 0,
+        "fp": 6,
+        "fn": 0,
+        "P": 0.0,
+        "R": null,
+        "F1_koz": null
+      },
+      "kurgany_tselye": {
+        "tp": 0,
+        "fp": 13,
+        "fn": 0,
+        "P": 0.0,
+        "R": null,
+        "F1_koz": null
+      },
+      "gorodishcha": {
+        "tp": 0,
+        "fp": 33,
+        "fn": 4,
+        "P": 0.0,
+        "R": 0.0,
+        "F1_koz": 0.0
+      },
+      "arkhitektury": {
+        "tp": 33,
+        "fp": 801,
+        "fn": 145,
+        "P": 0.0396,
+        "R": 0.1854,
+        "F1_koz": 0.1079
+      },
+      "fortifikatsii": {
+        "tp": 0,
+        "fp": 38,
+        "fn": 2,
+        "P": 0.0,
+        "R": 0.0,
+        "F1_koz": 0.0
+      }
+    },
+    "nn2": {
+      "n_pass": 924,
+      "soft_tp_unique_gt": 34,
+      "soft_recall": 0.18478260869565216
+    }
+  },
+  "uniform": {
+    "0.05": {
+      "wF1": 0.02935,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 44,
+          "fn": 4,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 33,
+          "fp": 1077,
+          "fn": 145,
+          "P": 0.0297,
+          "R": 0.1854,
+          "F1_koz": 0.0881
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 50,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    },
+    "0.1": {
+      "wF1": 0.03903,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 12,
+          "fn": 4,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 31,
+          "fp": 641,
+          "fn": 147,
+          "P": 0.0461,
+          "R": 0.1742,
+          "F1_koz": 0.1171
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 8,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    },
+    "0.2": {
+      "wF1": 0.04866,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 4,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 25,
+          "fp": 279,
+          "fn": 153,
+          "P": 0.0822,
+          "R": 0.1404,
+          "F1_koz": 0.146
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 3,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    },
+    "0.3": {
+      "wF1": 0.04309,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 4,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 17,
+          "fp": 136,
+          "fn": 161,
+          "P": 0.1111,
+          "R": 0.0955,
+          "F1_koz": 0.1293
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 3,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    },
+    "0.5": {
+      "wF1": 0.04228,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 4,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 13,
+          "fp": 28,
+          "fn": 165,
+          "P": 0.3171,
+          "R": 0.073,
+          "F1_koz": 0.1268
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    },
+    "0.7": {
+      "wF1": 0.03141,
+      "detail": {
+        "gorodishcha": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 4,
+          "P": null,
+          "R": 0.0,
+          "F1_koz": 0.0
+        },
+        "arkhitektury": {
+          "tp": 9,
+          "fp": 8,
+          "fn": 169,
+          "P": 0.5294,
+          "R": 0.0506,
+          "F1_koz": 0.0942
+        },
+        "fortifikatsii": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 2,
+          "P": 0.0,
+          "R": 0.0,
+          "F1_koz": 0.0
+        }
+      }
+    }
+  },
+  "note": "Official soft_match (cov>=0.5 + rep_point in GT). Nested: thr fit on other folds OOF, scored on held-out fold OOF."
+}

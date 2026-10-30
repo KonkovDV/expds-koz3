@@ -1,0 +1,5 @@
+exit=0
+elapsed_s=75.6
+peak_rss_bytes=2391695360
+peak_rss_mb=2280.9
+paths=["tests", "centerhead/tests"]

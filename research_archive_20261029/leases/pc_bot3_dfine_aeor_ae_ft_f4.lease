@@ -1,0 +1,17 @@
+owner=pc-job-runner
+status=QUEUED
+sha=2f46f20a05e0e4c4a1998016db33fe23e22e3404
+branch=bots/bot3-dfine-aeor-eval
+job=C:\Sloi\pc_jobs\bot3_dfine_aeor_ae_ft_f4
+wt=C:\Sloi\pc_jobs\wt_bot3_dfine_aeor_ae_ft_f4
+weights=C:\Sloi\pc_jobs\weights\dfine_ae_ft_f4
+device=gpu-docker
+image=pantum/n7q:20261024
+ENV=docker:pantum/n7q:20261024
+runner=pc/runners/run_bot3_dfine_aeor_ae_ft_docker.ps1 -Variant f4
+launch=pc/runners/launch_bot3_dfine_aeor_ae_ft_f4_schtasks.ps1
+variant=f4
+sha_prefix=249b86fb
+pack=/workspace/kaggle/out/dfine-ae-ft-f4pack
+heartbeat=2026-10-29T20:00:00+03:00
+note=QUEUED Ae-ft FOLD4 (2000 iters) on C:; pack from box dfine-ae-ft-f4pack; not LB

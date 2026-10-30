@@ -1,0 +1,7 @@
+sha256	bytes	file (PC path example)
+81ef82280c43dd5e48255587f449683603ece375c976981db4f9a243e8509ed8	125001980	models/dfine_f0/model.safetensors  (C:\Sloi\pc_jobs\v3e2e\out_v3fix2\zip_v3\)
+5fa8c09d77d0914cc925fb6bb925a0ab1b64ccecf3c823d7f3546e71c4ceb04a	2111596	models/pixgbm/all/finds.txt  (zip v2 eb268d6, zip v3, C:\Sloi\wt_pix)
+d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800	2122321	models/pixgbm/all/poly.txt  (same)
+39702cd8a5d92d0c0c06132690febc265519ed7a35b3c6ff02ed1fd7c1fdd8ef	57426355	models/li_gor_mask_r18.pt
+00d5c08539d1bced03d373c018d9e31432d987c7d848196a4afac6b0d44f1cbe	57425599	models/spor_gor_r18.pt
+# dinov2 / D-FINE Ae/Or heads: not found under C:\Sloi (search: *.pth,*.pt,*.safetensors,*.onnx,*.bin,*.ckpt with dfine|dinov2|gor in path). Kaggle outputs koz3-dfine-ae / koz3-dfine-or may hold them.
