@@ -38,6 +38,10 @@ def test_prior_keeps_one_without_evidence_and_lifts_a_mound():
     mound = priors(z, res, [center[0]], [center[1]], left, top)
     slope = priors(_slope(n), res, [center[0]], [center[1]], left, top)
     assert mound[0] > slope[0]
-    assert 0.9 <= slope[0] <= 1.1
+    assert slope[0] == np.float32(1.0)
+    assert mound[0] <= np.float32(1.1)
+    wedge = z + np.linspace(0, 0.4, n, dtype=np.float32)[None, :]
+    irregular = priors(wedge, res, [center[0]], [center[1]], left, top)
+    assert irregular[0] >= np.float32(1.0)
     empty = priors(z, res, [], [], left, top)
     assert empty.shape == (0,)

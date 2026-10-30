@@ -88,7 +88,7 @@ def profile_curvature(z: np.ndarray, row: int, col: int) -> float:
 
 def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: float, top: float,
            near_m: float = 5.0, far_m: float = 40.0) -> np.ndarray:
-    """Множитель уверенности по каждому центру. Без признаков насыпи остаётся 1."""
+    """Множитель уверенности по каждому центру. Ниже 1 не опускается."""
     xs = np.asarray(xs, np.float64)
     ys = np.asarray(ys, np.float64)
     out = np.ones(xs.shape[0], np.float32)
@@ -108,9 +108,11 @@ def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: floa
         for ok in (np.isfinite(near) and near > 0.05,
                    np.isfinite(near) and np.isfinite(far) and near > far,
                    np.isfinite(sym) and sym >= 0.65,
-                   np.isfinite(curv) and curv > 0.0):
+                   np.isfinite(curv) and curv > 1e-3):
             known += 1
             votes += int(bool(ok))
-        if known:
-            out[i] = np.float32(0.9 + 0.2 * (votes / known))
+        if known and votes:
+            # Только вверх. Повреждённая насыпь часто несимметрична: штраф
+            # за «не купол» бил бы по самому тяжёлому классу.
+            out[i] = np.float32(1.0 + 0.1 * (votes / known))
     return out
