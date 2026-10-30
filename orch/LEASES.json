@@ -149,11 +149,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W2-lidar",
    "kernel": null,
    "last": "снято coord 30.10 14:11 MSK",
-   "purpose": "fallback W3 kurgan seeds 77,78 box CPU (cpu/kurgan_s77) pid ",
-   "state": "свободен"
+   "purpose": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
+   "since": "30.10 14:12 MSK",
+   "until": "30.10 20:12 MSK"
   }
  ],
  "kernel_prefix": {
@@ -366,6 +367,15 @@
    "note": "CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4",
    "host": "grok-bot-vm-361051398",
    "pid": 601565
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W2-lidar",
+   "since": 1793358759.044123,
+   "expires": 1793380359.044123,
+   "note": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 603434
   }
  ]
 }

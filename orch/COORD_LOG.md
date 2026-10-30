@@ -426,3 +426,7 @@
 - 30.10 14:12 MSK | lease | acquire slot:box/q1 → bot-W1-aeor до 30.10 19:12 MSK CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4
 - 30.10 14:13 MSK | coord | проверка: без изменений с 14:03 — kurgan seeds RUNNING acc1(a,b)/acc2/aaaa0000004, dino-vitb-tpu QUEUED (очередь Kaggle), box load 13/8 (полно), GPU-квоты до Сб 03:00 исчерпаны, acc2 TPU свободен (TPU-готовой задачи нет); aaaa0000004 v3amin-chk COMPLETE (W4); токены usertest1234/aaaadg4gg4g4g по-прежнему отклоняются
 - 30.10 14:14 coord: WS-G1 FAIL, KS FAIL — kurgan subclass closed; box seeds 75–78 killed, q1→W3 CI2-5, q2→W2 check s1f4 site-190 OOF mismatch (0.666 vs 0.515). Kaggle tokens usertest1234/aaaadg4gg4g4g dead, waiting on Elena.
+- 30.10 14:12 MSK | lease | acquire slot:box/q2 → bot-W2-lidar до 30.10 20:12 MSK P-W2-11 s1f4 OOF/maps audit (CPU, nice10)
+- 30.10 14:16 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 14:46 MSK W3 CI2-5 prep commit
+- 30.10 14:16 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:17 coord: CI2-7 CLOSED. W3 CI2-5 in dispatch (w3-ci25-cpu) → runs/gate_C5.json; when it appears, hand off to parent to ping bot 4.
