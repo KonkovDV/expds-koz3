@@ -55,23 +55,18 @@ def avail_cores() -> int:
     return max(1, int(n or 1))
 
 
-PIX_THREADS_CAP = 2   # bot-7 v3: потолок потоков PIXGBM (bot-3: пул procs=1/2/4 — 43/37/36 с, +0,25 ГБ на ребёнка)
-
-
 def pix_threads() -> int:
-    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе avail_cores(); всегда ≤ PIX_THREADS_CAP (2).
-
-    bot-7 v3: потолок 2 (было min(8, ядра)). Предсказание LightGBM от числа потоков не зависит — выход тот же."""
+    """Потоки PIXGBM: EXPDS_PIXGBM_THREADS, иначе EXPDS_THREADS, иначе min(8, avail_cores())."""
     for k in ("EXPDS_PIXGBM_THREADS", "EXPDS_THREADS"):
         v = os.environ.get(k, "").strip()
         if v:
             try:
                 n = int(v)
                 if n > 0:
-                    return min(n, PIX_THREADS_CAP)
+                    return n
             except ValueError:
                 log.warning("%s=%r не число — пропущено", k, v)
-    return max(1, min(PIX_THREADS_CAP, avail_cores()))
+    return max(1, min(8, avail_cores()))
 
 
 def pix_procs(pix: dict | None, nt: int) -> int:
@@ -244,39 +239,7 @@ def label_key(path: Path) -> str:
 
 # ───────────────────────────── чтение карты ─────────────────────────────
 
-def sat_core_m2(value=None) -> float:
-    """Порог «пятна насыщения как данных», м²: аргумент, иначе env PIXGBM_SAT_CORE_M2, иначе 0 (выключено)."""
-    if value is None:
-        value = os.environ.get("PIXGBM_SAT_CORE_M2", "0")
-    try:
-        return max(float(value), 0.0)
-    except (TypeError, ValueError):
-        return 0.0
-
-
-def restore_sat_cores(valid: np.ndarray, sat: np.ndarray, px_m2: float, max_m2: float) -> np.ndarray:
-    """Связные пятна насыщения площадью ≤ max_m2, не касающиеся края кадра, возвращаются в данные.
-
-    Визуализация градиентометра упирается в край шкалы (0 или 255) в ядре сильной аномалии. Правило
-    load_map «все каналы ≥ 254 или ≤ 1 — нет данных» делает из этого ядра дыру: z = медиане, P = 0, и
-    находка/объект видны только кольцом по кромке. Большое пятно (фон листа, поля вне съёмки) остаётся
-    без данных. Тот же предел, что у классики (geophys.plateau_centers, plateau_max_m2 = 60).
-    """
-    if max_m2 <= 0 or not sat.any():
-        return valid
-    lab, n = ndi.label(sat)
-    if not n:
-        return valid
-    area = ndi.sum_labels(np.ones_like(lab, np.float32), lab, np.arange(1, n + 1)) * px_m2
-    edge = np.unique(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]])
-    ok = np.zeros(n + 1, bool)
-    ok[1:] = area <= max_m2
-    ok[edge] = False
-    ok[0] = False
-    return valid | ok[lab]
-
-
-def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat_core_max_m2=None) -> dict:
+def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None) -> dict:
     import rasterio
     from rasterio import features
     from rasterio.windows import Window
@@ -293,7 +256,6 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
         lum = np.zeros((H, W), np.float32)
         dif = np.zeros((H, W), np.float32)
         valid = np.zeros((H, W), bool)
-        sat = np.zeros((H, W), bool)
         step = max(f, (6_000_000 // max(r.width * n, 1)) // f * f)
         for y0 in range(0, H * f, step):
             h = min(step, H * f - y0)
@@ -301,16 +263,12 @@ def load_map(path, gsd: float, fallback_crs=None, boundary=None, noise=None, sat
             blk = blk.reshape(n, h // f, f, W, f).mean((2, 4))
             rows = slice(y0 // f, (y0 + h) // f)
             rgb = blk[:3] if n >= 3 else np.repeat(blk[:1], 3, 0)
-            s_ = (rgb.min(0) >= 254) | (rgb.max(0) <= 1)
-            v = ~s_
+            v = ~((rgb.min(0) >= 254) | (rgb.max(0) <= 1))
             if alpha:
                 v &= blk[alpha[0]] > 0
-                s_ &= blk[alpha[0]] > 0
-            lum[rows], dif[rows], valid[rows], sat[rows] = rgb.mean(0), rgb[0] - rgb[2], v, s_
+            lum[rows], dif[rows], valid[rows] = rgb.mean(0), rgb[0] - rgb[2], v
             del blk, rgb
         T = r.transform @ r.transform.scale(r.width / W, r.height / H)
-        valid = restore_sat_cores(valid, sat, abs(T.a * T.e), sat_core_m2(sat_core_max_m2))
-        del sat
         crs = usable_raster_crs(r.crs.to_string() if r.crs else None, r.bounds, fallback_crs)
     up = abs(T.a) / gsd
     if up > 1.3:
@@ -816,7 +774,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
             ran = set()
             step = "classic"
             try:
-                d = load_map(f, GSD[mt], crs_region, boundary, noise, pix.get("sat_core_max_m2"))
+                d = load_map(f, GSD[mt], crs_region, boundary, noise)
                 if not d["crs"]:
                     continue
                 mpxv = float((d["valid"] & ~d["noise"]).sum()) / 1e6
@@ -869,27 +827,17 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     return out
 
 
-def _union_key(f: dict) -> tuple:
-    """Группа сравнения правила U: класс и метод; для EtGr ещё и слой (source).
-
-    Правила организатора 29.10 (п. 4–5): каждый срез и профиль EtGr — отдельный эталон,
-    объекты разных типов данных не объединяются."""
-    mt = f.get("markup_type")
-    return (f.get("class_name"), mt, f.get("source") if mt == "etgr" else None)
-
-
 def dedupe_union(base: list[dict], new: list[dict], r_m: float = 1.0) -> list[dict]:
-    """Правило U: из new убрать кандидатов, чей центр внутри полигона базы той же группы (object_poly)
-    или ≤ r_m (EPSG:3857, как в оценке eval_pix.py) от центра находки базы (finds_points).
-    Группа — _union_key: тот же класс и метод, у EtGr — тот же слой."""
+    """Правило U: из new убрать кандидатов, чей центр внутри полигона базы того же класса (object_poly)
+    или ≤ r_m (EPSG:3857, как в оценке eval_pix.py) от центра находки базы (finds_points)."""
     from shapely.strtree import STRtree
     out = []
     by = {}
     for f in base:
-        by.setdefault(_union_key(f), []).append(f["geom"])
+        by.setdefault(f.get("class_name"), []).append(f["geom"])
     trees = {c: (STRtree(v), v) for c, v in by.items()}
     for f in new:
-        t = trees.get(_union_key(f)); ce = f["geom"].centroid
+        t = trees.get(f["class_name"]); ce = f["geom"].centroid
         if t is not None:
             if f["class_name"] == "object_poly":
                 hit = any(t[1][int(j)].contains(ce) for j in t[0].query(ce))

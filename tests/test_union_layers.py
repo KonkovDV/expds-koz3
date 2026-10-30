@@ -1,7 +1,9 @@
 """Правило U (dedupe_union) не гасит кандидата другого слоя EtGr и другого метода (правила 29.10, п. 4–5)."""
+import pytest
 from shapely.geometry import Point
 
-from expds.geo_pixgbm import dedupe_union
+G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+dedupe_union = G.dedupe_union
 
 
 def _poly(x, y, mt, src, r=3.0):
