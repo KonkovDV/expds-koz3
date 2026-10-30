@@ -75,6 +75,13 @@ def test_gradiometer_dipole_peaks_over_the_source(depth):
     assert v_asa[0] > 10 * v_asa[1]
 
 
+def test_highpass_of_a_flat_map_with_a_hole_is_zero():
+    z = np.ones((80, 80), np.float32)
+    z[30:50, 30:50] = np.nan
+    hp = geophys.highpass(z, 0.25, 4.0)
+    assert np.nanmax(np.abs(hp)) == 0.0
+
+
 def test_asa_pad_is_not_a_source():
     """Дополнение нулём за краем растра не должно становиться находкой."""
     amp = geophys.analytic_signal(np.ones((80, 80), np.float32), 0.2, upward_m=0.4)

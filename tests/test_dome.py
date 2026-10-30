@@ -81,6 +81,19 @@ def test_axes_of_an_anisotropic_dome_stay_put():
     assert lesser_curvature(saddle, c, c, res, span_m=4.0) < -0.005
 
 
+def test_a_ramp_does_not_change_tpi():
+    res, n, c = 0.5, 81, 40
+    yy, xx = np.mgrid[:n, :n]
+    x = (xx - c) * res
+    y = (c - yy) * res
+    mound = (1.2 * np.exp(-(x * x + y * y) / (2 * 3.0 ** 2))).astype(np.float32)
+    ramp = (np.tan(np.deg2rad(20.0)) * x).astype(np.float32)
+    assert tpi(mound, c, c, 5.0 / res) == tpi(mound + ramp, c, c, 5.0 / res)
+    flat = lesser_curvature(mound, c, c, res, span_m=5.0)
+    tilted = lesser_curvature(mound + ramp, c, c, res, span_m=5.0)
+    assert tilted > 0.02 and tilted < flat
+
+
 def test_slope_is_not_a_dome():
     z = _slope()
     c = z.shape[0] // 2
