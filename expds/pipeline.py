@@ -1503,6 +1503,7 @@ def _dfine_aeor_phase(regions, cfg: dict, guard, state, root: Path, cache: dict 
     log.info("dfine_aeor n_det=%d total, после cap %d, %.0f с", n, len(found_all), time.monotonic() - t_start)
     return len(found_all)
 
+
 def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path | None = None,
         root: str | Path | None = None) -> dict:
     """Полный прогон: геофизика, лидар, оптика, затем канал σ.
