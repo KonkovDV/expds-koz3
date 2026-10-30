@@ -69,6 +69,18 @@ def test_quadratic_crest_and_lidar_noise():
     assert abs(lesser_curvature(noisy, 40, 40, res, span_m=5.0)) < 0.002
 
 
+def test_axes_of_an_anisotropic_dome_stay_put():
+    res, n, c = 0.5, 81, 40
+    yy, xx = np.mgrid[:n, :n]
+    x = (xx - c) * res
+    y = (c - yy) * res
+    z = (-0.02 * x * x - 0.005 * y * y).astype(np.float32)
+    k = lesser_curvature(z, c, c, res, span_m=4.0)
+    assert abs(k - 0.01) < 1e-4
+    saddle = (0.01 * x * y).astype(np.float32)
+    assert lesser_curvature(saddle, c, c, res, span_m=4.0) < -0.005
+
+
 def test_slope_is_not_a_dome():
     z = _slope()
     c = z.shape[0] // 2

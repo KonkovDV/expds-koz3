@@ -11,20 +11,24 @@ import numpy as np
 DOME_NAMES = ("tpi_near", "tpi_far", "symmetry", "k_min")
 
 
-def _disk_mean(z: np.ndarray, row: int, col: int, radius_px: int) -> float:
-    r0, r1 = max(0, row - radius_px), min(z.shape[0], row + radius_px + 1)
-    c0, c1 = max(0, col - radius_px), min(z.shape[1], col + radius_px + 1)
+def _disk_mean(z: np.ndarray, row: int, col: int, radius_px: float) -> float:
+    rad = float(radius_px)
+    if not np.isfinite(rad) or rad < 1.0:
+        return np.nan
+    r = int(np.ceil(rad - 1e-9))
+    r0, r1 = max(0, row - r), min(z.shape[0], row + r + 1)
+    c0, c1 = max(0, col - r), min(z.shape[1], col + r + 1)
     yy, xx = np.ogrid[r0:r1, c0:c1]
     dist = (yy - row) ** 2 + (xx - col) ** 2
     patch = z[r0:r1, c0:c1]
-    mask = (dist > 0) & (dist <= radius_px ** 2) & np.isfinite(patch)
-    # Обрезанный край — не окрестность: половина круга сравнивает центр не с тем кольцом.
-    if int(mask.sum()) < 0.5 * np.pi * radius_px * radius_px:
+    # Граница круга — в метрах, переведённых в пиксели, а не в округлённом радиусе.
+    mask = (dist > 0) & (dist <= rad * rad) & np.isfinite(patch)
+    if int(mask.sum()) < 0.5 * np.pi * rad * rad:
         return np.nan
     return float(patch[mask].mean())
 
 
-def tpi(z: np.ndarray, row: int, col: int, radius_px: int) -> float:
+def tpi(z: np.ndarray, row: int, col: int, radius_px: float) -> float:
     """Высота центра минус средняя высота окрестности. Насыпь даёт плюс."""
     if radius_px < 1 or not (0 <= row < z.shape[0] and 0 <= col < z.shape[1]):
         return np.nan
@@ -37,19 +41,21 @@ def tpi(z: np.ndarray, row: int, col: int, radius_px: int) -> float:
     return float(center - around)
 
 
-def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8) -> float:
+def symmetry(z: np.ndarray, row: int, col: int, radius_px: float, sectors: int = 8) -> float:
     """Близко к 1, когда сектора кольца одной высоты. Круглая насыпь выше косогора."""
-    if radius_px < 2:
+    rad = float(radius_px)
+    if not np.isfinite(rad) or rad < 2.0:
         return np.nan
-    inner = max(1, radius_px // 3)
-    r0, r1 = max(0, row - radius_px), min(z.shape[0], row + radius_px + 1)
-    c0, c1 = max(0, col - radius_px), min(z.shape[1], col + radius_px + 1)
+    inner = max(1.0, rad / 3.0)
+    r = int(np.ceil(rad - 1e-9))
+    r0, r1 = max(0, row - r), min(z.shape[0], row + r + 1)
+    c0, c1 = max(0, col - r), min(z.shape[1], col + r + 1)
     yy, xx = np.ogrid[r0:r1, c0:c1]
     dy, dx = yy - row, xx - col
     dist2 = dy ** 2 + dx ** 2
     patch = z[r0:r1, c0:c1]
-    ring = (dist2 >= inner ** 2) & (dist2 <= radius_px ** 2) & np.isfinite(patch)
-    annulus = np.pi * (radius_px ** 2 - inner ** 2)
+    ring = (dist2 >= inner ** 2) & (dist2 <= rad * rad) & np.isfinite(patch)
+    annulus = np.pi * (rad * rad - inner ** 2)
     if int(ring.sum()) < max(sectors, 0.5 * annulus):
         return np.nan
     ang = np.arctan2(dy, dx)
@@ -92,17 +98,18 @@ def lesser_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m
     На вершине профильная кривизна не определена. У купола выпуклы обе главные,
     у вала одна: берётся меньшая. В канале curv знак обратный, канал не меняется.
     """
-    if res <= 0:
+    if res <= 0 or span_m <= 0:
         return np.nan
-    rad = max(1, int(round(span_m / res)))
+    rad = max(1, int(np.ceil(float(span_m) / float(res) - 1e-9)))
     r0, r1 = max(0, row - rad), min(z.shape[0], row + rad + 1)
     c0, c1 = max(0, col - rad), min(z.shape[1], col + rad + 1)
     yy, xx = np.mgrid[r0:r1, c0:c1]
     x = (xx - col) * float(res)
     y = (row - yy) * float(res)
     patch = z[r0:r1, c0:c1]
-    mask = (x * x + y * y <= (rad * float(res)) ** 2) & np.isfinite(patch)
-    if int(mask.sum()) < max(12, 0.5 * np.pi * rad * rad):
+    reach = float(span_m) / float(res)
+    mask = (x * x + y * y <= float(span_m) ** 2) & np.isfinite(patch)
+    if int(mask.sum()) < max(12, 0.5 * np.pi * reach * reach):
         return np.nan
     x, y = x[mask].astype(np.float64), y[mask].astype(np.float64)
     zz = patch[mask].astype(np.float64)
@@ -120,8 +127,8 @@ def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: floa
     out = np.ones(xs.shape[0], np.float32)
     if xs.size == 0 or res <= 0:
         return out
-    near_px = max(1, int(round(near_m / res)))
-    far_px = max(near_px + 1, int(round(far_m / res)))
+    near_px = float(near_m) / float(res)
+    far_px = max(near_px + 1.0, float(far_m) / float(res))
     for i, (x, y) in enumerate(zip(xs, ys)):
         # Ячейка, которая содержит точку: левый и верхний край, как у from_origin.
         col = int(np.floor((x - left) / res))

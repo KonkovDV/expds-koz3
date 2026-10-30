@@ -32,3 +32,15 @@ def test_steep_ramp_is_dropped_and_flat_ground_is_kept():
     rim_x = np.array([left + 0.5 * res])
     rim_y = np.array([top - 0.5 * res])
     assert gentle_mask(steep, rim_x, rim_y, 12.0, res).tolist() == [True]
+
+
+def test_block_mean_keeps_the_slope_of_a_plane():
+    n, src = 201, 0.1
+    xs = (np.arange(n) + 0.5) * src
+    ramp = np.repeat((np.tan(np.deg2rad(20.0)) * xs).astype(np.float32)[None, :], n, axis=0)
+    left, top = 0.0, n * src
+    d = Dem(dem=ramp, left=left, top=top, res=src, crs="EPSG:32636")
+    x = np.array([left + 10.25])
+    y = np.array([top - 10.25])
+    assert gentle_mask(d, x, y, 12.0, 0.5).tolist() == [False]
+    assert gentle_mask(d, x, y, 25.0, 0.5).tolist() == [True]

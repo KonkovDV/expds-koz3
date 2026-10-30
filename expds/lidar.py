@@ -672,6 +672,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
+    # Пустые ячейки перед уклоном и отмывкой заменяются средней высотой. У края дырки
+    # это ложный обрыв, и он уже в сданных весах: кэш тайлов и инференс идут сюда же.
+    # Отсев slope_gate эту заливку не повторяет и сеть не кормит.
     mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
     filled = np.where(valid, z, mean).astype(np.float32, copy=False)
     out = []
