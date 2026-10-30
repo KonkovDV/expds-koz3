@@ -13,7 +13,7 @@ from rasterio.transform import from_origin
 from shapely.geometry import Point
 
 from conftest import write_las
-from expds import geo_pixgbm, geophys, hillfort, pipeline
+from expds import geophys, hillfort, pipeline, pix_clean
 from expds.catalog import scan_region
 from expds.crs import WEB_MERCATOR, to_crs
 from expds.lidar import DemPrefetch, build_dem
@@ -65,7 +65,7 @@ def test_geophys_dedupe_2m_in_projected_region_crs(tmp_path):
 
 def test_lidar_and_geophys_phases_use_single_crs_point():
     for fn in (pipeline.geophys_feats, pipeline.lidar_feats, pipeline.li_dev_feats, pipeline.geo_model_feats,
-               geo_pixgbm.region_feats):
+               pix_clean.region_feats):
         src = inspect.getsource(fn)
         assert "region_crs(reg, cfg)" in src, fn.__name__
         for bad in ("read_utm_json", "_read_utm_json_raw", "las_crs(", "utm_json"):

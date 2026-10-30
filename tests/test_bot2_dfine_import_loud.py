@@ -54,7 +54,7 @@ def test_load_failed_writes_warning_and_import_error(tmp_path, monkeypatch, capl
     monkeypatch.setattr(sp_dfine, "load_models", boom)
     monkeypatch.setenv("EXPDS_STATUS_DIR", str(tmp_path / "status"))
     monkeypatch.delenv("EXPDS_STRICT", raising=False)
-    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"], "device": "cpu"},
+    cfg = {"sp_dfine": {"enabled": True, "weights": ["w"], "device": "cpu", "strict": False},
            "thresholds_by_markup": {"sp_dfine": {c: 0.5 for c in sp_dfine.CLASSES}}}
     reg = SimpleNamespace(name="r", rasters={"sp_or": [tmp_path / "a.tif"]})
     cache: dict = {}

@@ -814,13 +814,15 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
             except Exception as exc:  # noqa: BLE001 — без strict сдача не падает: выдача как v2
                 detail = f"{type(exc).__name__}: {str(exc)[:800]}"
-                if st["strict"]:
-                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({detail[:500]})") from exc
                 log.exception("%s: модели не загрузились (%s) — D-FINE пропущен, выдача как v2",
                               UNAVAILABLE, detail[:500])
                 cache["load_error"] = detail
                 write_unavailable_warning(f"enabled=true, но модели не загрузились ({type(exc).__name__})",
                                           detail=detail)
+                if strict_mode():   # EXPDS_STRICT=1: исходная ошибка как есть
+                    raise
+                if st["strict"]:
+                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({detail[:500]})") from exc
         if st["strict"] and ((not ready and st["require_thresholds"]) or not st["weights"]):
             raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
     models = cache["models"]

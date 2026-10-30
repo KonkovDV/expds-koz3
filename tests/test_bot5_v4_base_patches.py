@@ -6,10 +6,10 @@
 Полные сценарии — tests/test_ground_metres.py, tests/test_union_layers.py.
 Здесь только страж «дефолт OFF / ключ группы» для сборки v4.
 """
+import pytest
 from shapely.geometry import Point
 
 from expds import crs
-from expds.geo_pixgbm import _union_key, dedupe_union
 
 
 def test_v4_ground_metres_opt_in_default_off():
@@ -18,6 +18,8 @@ def test_v4_ground_metres_opt_in_default_off():
 
 
 def test_v4_dedupe_union_rule_u_present():
+    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+    _union_key, dedupe_union = G._union_key, G.dedupe_union
     mag_a = {"geom": Point(0, 0).buffer(3), "class_name": "object_poly",
              "markup_type": "maggr", "source": "gray.tif"}
     mag_b = dict(mag_a, source="color.tif", geom=Point(0, 0).buffer(1))

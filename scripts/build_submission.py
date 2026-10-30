@@ -33,7 +33,7 @@ LIMIT = 2 * 1024 ** 3
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
 EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5, bot-6)
+FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5, bot-6, bot-1)
 
 
 def _doc1_check(out: Path) -> None:

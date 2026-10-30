@@ -53,7 +53,7 @@ def test_pix_models_shipped(cfg):
         assert hashlib.sha256((md / name).read_bytes()).hexdigest() == h
 
 
-def test_build_submission_excludes_legacy_pix():
+def test_build_submission_excludes_legacy_pix(monkeypatch):
     """W4 DOC-1 (было: веса legacy PIXGBM в архиве): [geophys.pixgbm] выключен, в архив не идут
     ни веса models/pixgbm/*, ни модули expds/geo_pixgbm.py / geo_finds_gbm.py."""
     import importlib.util
