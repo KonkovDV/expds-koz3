@@ -155,6 +155,13 @@
    "purpose": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
    "since": "30.10 14:12 MSK",
    "until": "30.10 20:12 MSK"
+  },
+  {
+   "slot": "box/q3",
+   "holder": "bot-W3-bigobj",
+   "kernel": null,
+   "since": "30.10 15:15 MSK",
+   "until": "30.10 17:15 MSK"
   }
  ],
  "kernel_prefix": {
@@ -376,6 +383,15 @@
    "note": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
    "host": "grok-bot-vm-361051398",
    "pid": 603434
+  },
+  {
+   "resource": "slot:box/q3",
+   "owner": "bot-W3-bigobj",
+   "since": 1793362512.580245,
+   "expires": 1793369712.580245,
+   "note": "CI2-5 gate (run_c5gate.sh) coord-launched: box idle load 1.4/8",
+   "host": "grok-bot-vm-361051398",
+   "pid": 632521
   }
  ]
 }
