@@ -1,0 +1,11 @@
+owner=pc-job-runner
+status=QUEUED
+sha=9f62a9676b84e6963b892e6eb9f0907ad975f6ba
+branch=bots/bot5-candidate-v4
+job=C:\Sloi\pc_jobs\bot5_gor_heads_9f62a96
+worktree=C:\Sloi\wt_bot5_gor_heads
+threads=8
+device=cpu-docker
+image=pantum/n7q:20261024
+heartbeat=2026-10-29T17:29:05+03:00
+note=Docker train_heads; unique koz3-* container; do not modify image

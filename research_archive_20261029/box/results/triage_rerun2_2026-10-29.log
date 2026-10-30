@@ -1,0 +1,1112 @@
+=== Thu Oct 29 16:30:16 MSK 2026 bot7-honest-eval-layer ===
+== fetch ==
+ref=bots/bot7-honest-eval-layer resolved=origin/bots/bot7-honest-eval-layer sha=ae4c816
+== worktree ==
+HEAD is now at ae4c816 docs: MATCH_SCOPE_LAYER usage (flag default off)
+HEAD is now at ae4c816 docs: MATCH_SCOPE_LAYER usage (flag default off)
+Removing centerhead/__pycache__/
+Removing centerhead/tests/__pycache__/
+Removing centerhead/tools/__pycache__/
+Removing expds/__pycache__/
+Removing inference/__pycache__/
+Removing inference/cnx/__pycache__/
+Removing inference/cnx/_deps/rvt/__pycache__/
+Removing inference/cnx/vendor/__pycache__/
+Removing inference/cnx/vendor/expds/__pycache__/
+Removing materials/__pycache__/
+Removing scripts/__pycache__/
+Removing scripts/adaf/__pycache__/
+Removing scripts/gor_dense/__pycache__/
+Removing scripts/gor_patch/__pycache__/
+Removing tests/__pycache__/
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+🐍 Found CPython 3.13 at /workspace/koz3-venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+📡 Using build options features from pyproject.toml
+Requirement already satisfied: numpy>=1.26 in /workspace/koz3-venv/lib/python3.13/site-packages (2.5.4)
+    Finished `release` profile [optimized] target(s) in 0.02s
+📦 Built wheel for abi3 Python ≥ 3.12 to /tmp/.tmplq52xI/expds_core-0.1.0-cp312-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed expds-core-0.1.0
+expds_core 0.1.0 avx2=true/true threads=8
+== smoke import ==
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests centerhead/tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+...........................................sssssss..............s....... [ 10%]
+............s..s......................s..............s...............s.. [ 21%]
+..ss............s.................................s...............ss.... [ 32%]
+..............sFFFFFFFFssssF......F.F..............ss................... [ 43%]
+........................................................................ [ 54%]
+.........................................ss............................. [ 65%]
+...........................................sssss................s....... [ 76%]
+........................................................................ [ 87%]
+..............................................................ss........ [ 98%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+____________ test_build_curves_equal_reference_synthetic[0-global] _____________
+
+seed = 0, scope = 'global'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...s': {'class_name': 'kurgany_povrezhdennye', 'region_name': 'region_0002', 'markup_type': 'li', 'confidence': 1}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'MultiPolygon', 'coordinates': [[[....], [...]]]}, 'properties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0001', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+_____________ test_build_curves_equal_reference_synthetic[0-site] ______________
+
+seed = 0, scope = 'site'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...s': {'class_name': 'kurgany_povrezhdennye', 'region_name': 'region_0002', 'markup_type': 'li', 'confidence': 1}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'MultiPolygon', 'coordinates': [[[....], [...]]]}, 'properties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0001', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'site'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+____________ test_build_curves_equal_reference_synthetic[1-global] _____________
+
+seed = 1, scope = 'global'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...: {'class_name': 'kurgany_povrezhdennye', 'region_name': 'region_0001', 'markup_type': None, 'confidence': 0.5}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],.....], [...], [...]]]}, 'properties': {'class_name': 'dorogi', 'region_name': 'region_0002', 'markup_type': 'li'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+_____________ test_build_curves_equal_reference_synthetic[1-site] ______________
+
+seed = 1, scope = 'site'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...: {'class_name': 'kurgany_povrezhdennye', 'region_name': 'region_0001', 'markup_type': None, 'confidence': 0.5}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],.....], [...], [...]]]}, 'properties': {'class_name': 'dorogi', 'region_name': 'region_0002', 'markup_type': 'li'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'site'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+____________ test_build_curves_equal_reference_synthetic[2-global] _____________
+
+seed = 2, scope = 'global'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...erties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0002', 'markup_type': 'ae', 'confidence': 0.5}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...[...], [...]]]}, 'properties': {'class_name': 'gorodishcha', 'region_name': 'region_0002', 'markup_type': 'li'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+_____________ test_build_curves_equal_reference_synthetic[2-site] ______________
+
+seed = 2, scope = 'site'
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    @pytest.mark.parametrize("seed", [0, 1, 2])
+    def test_build_curves_equal_reference_synthetic(seed, scope):
+        pred, gt = synth(seed, 700), synth(seed + 50, 350, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...erties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0002', 'markup_type': 'ae', 'confidence': 0.5}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...[...], [...]]]}, 'properties': {'class_name': 'gorodishcha', 'region_name': 'region_0002', 'markup_type': 'li'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'site'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+______________________ test_fast_match_off_equal[global] _______________________
+
+scope = 'global'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86602fcde0>
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    def test_fast_match_off_equal(scope, monkeypatch):
+        pred, gt = synth(9, 400), synth(10, 200, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...s_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae', 'confidence': 0.6478529664200047}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],......], ...]]}, 'properties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+_______________________ test_fast_match_off_equal[site] ________________________
+
+scope = 'site'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f86461aa2e0>
+
+    @pytest.mark.parametrize("scope", ["global", "site"])
+    def test_fast_match_off_equal(scope, monkeypatch):
+        pred, gt = synth(9, 400), synth(10, 200, gt=True)
+>       ref = blob(reference(pred, gt, scope))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...s_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae', 'confidence': 0.6478529664200047}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],......], ...]]}, 'properties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'site'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+_________________ test_mutated_input_is_not_served_from_cache __________________
+
+    def test_mutated_input_is_not_served_from_cache():
+        pred, gt = synth(3, 300), synth(4, 150, gt=True)
+        metric.build_curves(pred, gt, METRIC)
+        gt["features"][0]["geometry"] = {"type": "Polygon", "coordinates": [ring(X0 + 1, Y0 + 1, 4)]}
+        pred["features"][1]["geometry"]["coordinates"] = [X0 + 2, Y0 + 2] \
+            if pred["features"][1]["geometry"]["type"] == "Point" else [ring(X0 + 2, Y0 + 2, 5)]
+        metric._UTM_GEOM_CACHE.clear()
+>       assert blob(metric.build_curves(pred, gt, METRIC)) == blob(reference(pred, gt, "global"))
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'MultiPolygon', 'coordinates': [[[...s_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae', 'confidence': 0.3138305199160917}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],.....]]}, 'properties': {'class_name': 'kurgany_povrezhdennye', 'region_name': 'region_0001', 'markup_type': 'li'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+________________ test_corrupt_cache_file_does_not_change_curves ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-41/test_corrupt_cache_file_does_n0')
+
+    def test_corrupt_cache_file_does_not_change_curves(tmp_path):
+        pred, gt = synth(11, 300), synth(12, 150, gt=True)
+>       ref = blob(reference(pred, gt, "global"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:197: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [3545249.8...{'class_name': 'dorogi', 'region_name': 'region_0001', 'markup_type': 'li', 'confidence': 0.042107820431155685}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...], [[...]]]}, 'properties': {'class_name': 'kurgany_tselye', 'region_name': 'region_0000', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+________________________________ test_disabled _________________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8645fcc2f0>
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-41/test_disabled0')
+
+    def test_disabled(monkeypatch, tmp_path):
+        for v in ("off", "0", "none", "false"):
+            monkeypatch.setenv("EXPDS_GEOM_CACHE", v)
+            assert geomcache.resolve_dir(tmp_path) is None
+        monkeypatch.setenv("EXPDS_GEOM_CACHE", "off")
+        pred, gt = synth(13, 300), synth(14, 150, gt=True)
+>       ref = blob(reference(pred, gt, "global"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot8_speed_cache.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_bot8_speed_cache.py:87: in reference
+    return metric.build_curves_reference(pred, gt, METRIC, scope=scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [3545163.6...roperties': {'class_name': 'gorodishcha', 'region_name': 'region_0001', 'markup_type': 'li', 'confidence': 0.5}}, ...]}
+gt = {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[...],...[...], [...]]]}, 'properties': {'class_name': 'gorodishcha', 'region_name': 'region_0000', 'markup_type': 'ae'}}, ...]}
+metric_path = '/workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py'
+scope = 'global'
+
+    def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
+                     scope: str | None = None) -> dict[str, ClassCurve]:
+        """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+        calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
+    
+        Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
+        (по возрастанию индекса) и правило выбора лучшего — как в официальном коде.
+        scope (или EXPDS_MATCH_SCOPE): "global" — весь файл одним пулом, как calculate_f1;
+        "site" — пара допускается только внутри одного участка (site_key);
+        "layer" — пара допускается только внутри одного слоя данных (layer_key / markup_type).
+        """
+        from shapely.strtree import STRtree
+    
+        mod = load_official(metric_path)
+        calc = mod.F1Calculator()
+        scope_s = match_scope(scope)
+        keyed = scope_s in ("site", "layer")
+        key_fn = layer_key if scope_s == "layer" else site_key
+        p_sites: dict | None = {} if keyed else None
+        g_sites: dict | None = {} if keyed else None
+        preds = _collect_reference(mod, calc, pred, False, p_sites, key_fn=key_fn)
+        gts = _collect_reference(mod, calc, gt, True, g_sites, key_fn=key_fn)
+        curves: dict[str, ClassCurve] = {}
+        for cls in calc.target_classes:
+            p, g = preds.get(cls, []), gts.get(cls, [])
+            order = sorted(range(len(p)), key=lambda i: p[i][1], reverse=True)   # стабильно, как sorted()
+            hits = np.zeros(len(p), dtype=bool)
+            if p and g:
+                gg = [x[0] for x in g]
+                tree = STRtree([x.buffer(calc.r_tolerance) if x.geom_type == "Point" else x for x in gg])
+                pg_ord = [p[i][0] for i in order]
+                q_pred, q_gt = tree.query(pg_ord)
+>               if per_site and len(q_pred):
+                   ^^^^^^^^
+E               NameError: name 'per_site' is not defined
+
+expds/metric.py:745: NameError
+=============================== warnings summary ===============================
+tests/test_bot8_fast_metric.py: 11 warnings
+tests/test_writer_fast.py: 1 warning
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/creation.py:324: RuntimeWarning: invalid value encountered in linearrings
+    return lib.linearrings(coords, np.intc(handle_nan), out=out, **kwargs)
+
+tests/test_bot8_fast_metric.py: 10 warnings
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:372: RuntimeWarning: overflow encountered in centroid
+    return lib.centroid(geometry, **kwargs)
+
+tests/test_bot8_fast_metric.py: 10 warnings
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:372: RuntimeWarning: invalid value encountered in centroid
+    return lib.centroid(geometry, **kwargs)
+
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-1]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-2]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-1]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[0]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_empty_sides
+  /workspace/koz3-wt/bots-bot7-honest-eval-layer/expds/metric.py:309: RuntimeWarning: invalid value encountered in cast
+    zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-1]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[False-2]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-0]
+tests/test_bot8_fast_metric.py::test_collect_synthetic[True-1]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[0]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_empty_sides
+  /workspace/koz3-wt/bots-bot7-honest-eval-layer/expds/metric.py:430: RuntimeWarning: invalid value encountered in cast
+    zones = np.clip(((np.asarray(lons) + 180.0) // 6).astype(np.int32) + 1, 1, 60)
+
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+tests/test_bot8_fast_metric.py::test_build_curves_synthetic[5]
+  /workspace/koz3-venv/lib/python3.13/site-packages/shapely/constructive.py:830: RuntimeWarning: invalid value encountered in point_on_surface
+    return lib.point_on_surface(geometry, **kwargs)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot7-honest-eval-layer/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot7-honest-eval-layer/expds/raster.py:134: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[0-global]
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[0-site]
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[1-global]
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[1-site]
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[2-global]
+FAILED tests/test_bot8_speed_cache.py::test_build_curves_equal_reference_synthetic[2-site]
+FAILED tests/test_bot8_speed_cache.py::test_fast_match_off_equal[global] - Na...
+FAILED tests/test_bot8_speed_cache.py::test_fast_match_off_equal[site] - Name...
+FAILED tests/test_bot8_speed_cache.py::test_mutated_input_is_not_served_from_cache
+FAILED tests/test_bot8_speed_cache.py::test_corrupt_cache_file_does_not_change_curves
+FAILED tests/test_bot8_speed_cache.py::test_disabled - NameError: name 'per_s...
+SKIPPED [1] tests/test_bot7_pix_pool_sigterm.py:11: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot8_check_cnx.py:18: rvt_py wheel is not committed to main (archives excluded by the 29.10 merge policy); restore inference/cnx/wheels/ from origin/bots/bot8-cnx to run the [li_cnx] checker tests
+SKIPPED [1] tests/test_claude_pix_sat_cores.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_geo_pixgbm_peaks.py:6: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_geo_pixgbm_threads.py:8: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_pix_pick.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_pix_sat_cores.py:8: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:43: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_candidate_v2.py:50: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_candidate_v2.py:91: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:117: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:131: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py:173: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [1] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, models/rerank_arch_lgbm.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_rerank_arch.py:41: models/rerank_arch_lgbm.txt: LightGBM weights are not kept in git (trained on competition data)
+SKIPPED [1] tests/test_bot7_v3_flags.py:280: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot7_v3_flags.py:347: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_bot8_check_submission.py:152: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_bot8_cnx.py:208: нет LAZ Осечки или эталона подготовки bot-9
+SKIPPED [1] tests/test_bot8_cnx.py:493: rvt_py wheel is not committed to main (archives excluded by the 29.10 merge policy); restore it from origin/bots/bot8-cnx before enabling [li_cnx]
+SKIPPED [1] tests/test_bot8_fast_metric.py:118: expds_core без flatten_polygons
+SKIPPED [1] tests/test_bot8_fast_metric.py:128: expds_core без flatten_polygons
+SKIPPED [1] tests/test_bot8_fast_metric.py:271: нет реальной выборки бота 8
+SKIPPED [1] tests/test_bot8_fast_metric.py:378: реальный прогон: BOT8_REAL=1 и выборка бота 8
+SKIPPED [1] tests/test_bot8_site_scope.py:161: нет выборки соседних участков bot-8
+SKIPPED [1] tests/test_bot8_site_scope.py:169: нет выборки соседних участков bot-8
+SKIPPED [1] tests/test_bot8_soft_ceiling.py:195: expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)
+SKIPPED [4] tests/test_bot8_speed_cache.py:121: нет реальной выборки бота 8
+SKIPPED [1] tests/test_bot8_speed_cache.py:333: нет файла
+SKIPPED [1] tests/test_bot8_speed_cache.py:341: старый expds_core
+SKIPPED [1] tests/test_ground_metres.py:39: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [1] tests/test_ground_metres.py:60: expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py:35: submission files not kept in git: models/rerank_arch_lgbm.txt, models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt, expds/geo_pixgbm.py
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+11 failed, 613 passed, 43 skipped, 71 warnings in 65.21s (0:01:05)
+### EXIT 1
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env centerhead/tests
+### PATH: centerhead/tests
+.......s...........................................                      [100%]
+=============================== warnings summary ===============================
+centerhead/tests/test_rerank_export.py::test_export_writer_conventions
+  /workspace/koz3-wt/bots-bot7-honest-eval-layer/centerhead/tests/test_rerank_export.py:166: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    back = transform(Transformer.from_crs("EPSG:3857", UTM, always_xy=True).transform, g)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] centerhead/tests/test_rerank_export.py:44: нет официального compute_metrics.py
+50 passed, 1 skipped, 1 warning in 3.98s
+### EXIT 0
+=== META exit=1 elapsed=71.2s peak_rss_mb=2080.6 paths=['tests', 'centerhead/tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot7-honest-eval-layer_ae4c816.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot7-honest-eval-layer_ae4c816.log
+passed=663 failed=11 errors=0 skipped=44 peak_rss_mb=2080.6 elapsed_s=71.2 exit=1 paths=tests centerhead/tests
+exit=1
+=== Thu Oct 29 16:31:30 MSK 2026 bot2-e2e-v3-prep ===
+== fetch ==
+ref=bots/bot2-e2e-v3-prep resolved=origin/bots/bot2-e2e-v3-prep sha=1ec2d7c
+== worktree ==
+HEAD is now at 1ec2d7c fix(sp_dfine): hotfix docs — drop_groups=[] (A) / enabled=false (B); R запрещён
+HEAD is now at 1ec2d7c fix(sp_dfine): hotfix docs — drop_groups=[] (A) / enabled=false (B); R запрещён
+Removing expds/__pycache__/
+Removing inference/__pycache__/
+Removing materials/__pycache__/
+Removing scripts/__pycache__/
+Removing tests/__pycache__/
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+🐍 Found CPython 3.13 at /workspace/koz3-venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+📡 Using build options features from pyproject.toml
+Requirement already satisfied: numpy>=1.26 in /workspace/koz3-venv/lib/python3.13/site-packages (2.5.4)
+    Finished `release` profile [optimized] target(s) in 0.02s
+📦 Built wheel for abi3 Python ≥ 3.12 to /tmp/.tmp3uzogU/expds_core-0.1.0-cp312-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed expds-core-0.1.0
+expds_core 0.1.0 avx2=true/true threads=8
+== smoke import ==
+Can't list 'centerhead'
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+.........................................ss....ssssssssss...s........... [ 15%]
+..................................s..s.................................. [ 30%]
+........................................................................ [ 45%]
+........................................................................ [ 60%]
+..........................................sssss................s........ [ 75%]
+........................................................................ [ 90%]
+.............................ss...............                           [100%]
+=============================== warnings summary ===============================
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot2-e2e-v3-prep/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot2-e2e-v3-prep/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
+SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+455 passed, 23 skipped, 21 warnings in 44.89s
+### EXIT 0
+=== META exit=0 elapsed=46.0s peak_rss_mb=2008.0 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot2-e2e-v3-prep_1ec2d7c.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot2-e2e-v3-prep_1ec2d7c.log
+passed=455 failed=0 errors=0 skipped=23 peak_rss_mb=2008.0 elapsed_s=46.0 exit=0 paths=tests
+exit=0
+=== Thu Oct 29 16:32:19 MSK 2026 bot3-aerial-recall ===
+== fetch ==
+ref=bots/bot3-aerial-recall resolved=origin/bots/bot3-aerial-recall sha=475bafa
+== worktree ==
+HEAD is now at 475bafa scripts(bot3): eval_aerial_honest10 wrapper around scoreboard --honest 10
+HEAD is now at 475bafa scripts(bot3): eval_aerial_honest10 wrapper around scoreboard --honest 10
+Removing expds/__pycache__/
+Removing inference/__pycache__/
+Removing materials/__pycache__/
+Removing scripts/__pycache__/
+Removing scripts/gor_dense/__pycache__/
+Removing tests/__pycache__/
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+🐍 Found CPython 3.13 at /workspace/koz3-venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+📡 Using build options features from pyproject.toml
+Requirement already satisfied: numpy>=1.26 in /workspace/koz3-venv/lib/python3.13/site-packages (2.5.4)
+    Finished `release` profile [optimized] target(s) in 0.05s
+📦 Built wheel for abi3 Python ≥ 3.12 to /tmp/.tmphxdTmw/expds_core-0.1.0-cp312-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed expds-core-0.1.0
+expds_core 0.1.0 avx2=true/true threads=8
+== smoke import ==
+Can't list 'centerhead'
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+...........................................sss.....s...ssssss..ss.s..... [ 12%]
+.........ss....s...sssssssss...s........................................ [ 24%]
+..........s..s.......................................................... [ 37%]
+........................................................................ [ 49%]
+........s............................................................... [ 62%]
+.................................................................sssss.. [ 74%]
+..............s......................................................... [ 87%]
+....................................................ss.................. [ 99%]
+..                                                                       [100%]
+=============================== warnings summary ===============================
+tests/test_bot7_geographic_utm_json.py::test_geographic_utm_json_becomes_center_zone
+  /workspace/koz3-wt/bots-bot3-aerial-recall/tests/test_bot7_geographic_utm_json.py:52: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    cx, cy = sc.T * (sc.W / 2, sc.H / 2)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot3-aerial-recall/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot3-aerial-recall/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_bot5_gor_dense.py:218: нет артефактов бокса bot-5 (work/gd/root, analysis/gor_dense)
+SKIPPED [2] tests/test_bot5_gor_dense.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot5_gor_dense.py:333: нет трейна 008_Герите на машине
+SKIPPED [6] tests/test_bot6_orgate.py:29: нет опорного входа смоука ORGATE (вне git, п. 13.11 ТР)
+SKIPPED [2] tests/test_bot6_orgate.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot6_orgate.py:189: нет опорного входа смоука ORGATE (вне git)
+SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
+SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_dfine_aeor.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+541 passed, 37 skipped, 22 warnings in 46.54s
+### EXIT 0
+=== META exit=0 elapsed=47.5s peak_rss_mb=1807.4 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot3-aerial-recall_475bafa.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot3-aerial-recall_475bafa.log
+passed=541 failed=0 errors=0 skipped=37 peak_rss_mb=1807.4 elapsed_s=47.5 exit=0 paths=tests
+exit=0
+=== Thu Oct 29 16:33:09 MSK 2026 bot4-large-objects ===
+== fetch ==
+ref=bots/bot4-large-objects resolved=origin/bots/bot4-large-objects sha=337a27c
+== worktree ==
+HEAD is now at 337a27c bot-4: docs — таблица коммитов в отчёте (добавлен sha отчёта)
+HEAD is now at 337a27c bot-4: docs — таблица коммитов в отчёте (добавлен sha отчёта)
+Removing expds/__pycache__/
+Removing inference/__pycache__/
+Removing materials/__pycache__/
+Removing scripts/__pycache__/
+Removing scripts/gor_dense/__pycache__/
+Removing tests/__pycache__/
+## HEAD (no branch)
+== build rust (optional, best-effort) ==
+🐍 Found CPython 3.13 at /workspace/koz3-venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+📡 Using build options features from pyproject.toml
+Requirement already satisfied: numpy>=1.26 in /workspace/koz3-venv/lib/python3.13/site-packages (2.5.4)
+    Finished `release` profile [optimized] target(s) in 0.04s
+📦 Built wheel for abi3 Python ≥ 3.12 to /tmp/.tmpNDaGpU/expds_core-0.1.0-cp312-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed expds-core-0.1.0
+expds_core 0.1.0 avx2=true/true threads=8
+== smoke import ==
+Can't list 'centerhead'
+import ok
+== pytest (existing dirs only, low RAM) ==
+test paths: tests
+
+### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
+### PATH: tests
+.............................................sss.....s...ssssss..ss.s... [ 12%]
+.......ss....s...sssssssss...s.......................................... [ 25%]
+........s..s............................................................ [ 37%]
+........................................................................ [ 50%]
+......s................................................................. [ 62%]
+...............................................................sssss.... [ 75%]
+............s........................................................... [ 87%]
+..................................................ss.................... [100%]
+=============================== warnings summary ===============================
+tests/test_bot7_geographic_utm_json.py::test_geographic_utm_json_becomes_center_zone
+  /workspace/koz3-wt/bots-bot4-large-objects/tests/test_bot7_geographic_utm_json.py:52: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    cx, cy = sc.T * (sc.W / 2, sc.H / 2)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3-wt/bots-bot4-large-objects/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3-wt/bots-bot4-large-objects/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_bot5_gor_dense.py:218: нет артефактов бокса bot-5 (work/gd/root, analysis/gor_dense)
+SKIPPED [2] tests/test_bot5_gor_dense.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot5_gor_dense.py:333: нет трейна 008_Герите на машине
+SKIPPED [6] tests/test_bot6_orgate.py:29: нет опорного входа смоука ORGATE (вне git, п. 13.11 ТР)
+SKIPPED [2] tests/test_bot6_orgate.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot6_orgate.py:189: нет опорного входа смоука ORGATE (вне git)
+SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
+SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
+SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_dfine_aeor.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
+SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
+SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
+SKIPPED [1] tests/test_train_data.py:61: нет CUDA
+SKIPPED [1] tests/test_train_data.py:79: нет CUDA
+539 passed, 37 skipped, 22 warnings in 46.02s
+### EXIT 0
+=== META exit=0 elapsed=47.3s peak_rss_mb=1870.9 paths=['tests'] ===
+
+REPORT: /home/box/shared/koz3/box/results/bots-bot4-large-objects_337a27c.md
+LOG:    /home/box/shared/koz3/box/results/bots-bot4-large-objects_337a27c.log
+passed=539 failed=0 errors=0 skipped=37 peak_rss_mb=1870.9 elapsed_s=47.3 exit=0 paths=tests
+exit=0
+=== DONE Thu Oct 29 16:33:59 MSK 2026 ===

@@ -1,0 +1,116 @@
+# bot5 (b') mock e2e gor_dense ON vs flags-OFF v4 — BOTH in Docker pantum/n7q (gate env = LB env, PROTOCOL §10).
+# Host .venv only for scoring (same as run_bot2_v2_base_docker.ps1). Resumable: STATUS.txt + per-variant result.geojson skip.
+# Container name prefix koz3- only. No leases created here (bot1 owns leases).
+$ErrorActionPreference = 'Continue'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+
+$Sha      = '40fa5997a046c8b08fbb65af0a5f043dd0fd75af'
+$JobDir   = 'C:\Sloi\pc_jobs\bot5_gor_dense_e2e_40fa599'
+$Wt       = 'F:\Sloi_wt\wt_bot5_gor_dense_e2e'
+$Image    = 'pantum/n7q:20261024'
+$Regions  = 'C:\Sloi\pc_jobs\v3e2e\regions'
+$ModelsFill = 'C:\Sloi\wt_bot5_50f6f27\models'          # pixgbm, dinov2-small etc. (not in git)
+$Heads    = 'C:\Sloi\pc_jobs\bot5_gor_heads_9f62a96\heads'
+$ZipV3    = 'C:\Sloi\pc_jobs\_vendor_zips\submission_bot7cand_v3on_0876090.zip'
+$PyHost   = 'C:\Sloi\expds-koz3_v0.2.0\expds-koz3\.venv\Scripts\python.exe'  # scoring only
+$ToolsTar = 'C:\Sloi\pc_jobs\v3e2e\kit\tools_v3e2e.tar'
+$KitGt    = 'C:\Sloi\pc_jobs\v3e2e\out_v3fix2\gt.geojson'
+$HeadV3Md5 = '487c48e49b5945300cefeed70bc2df00'
+$HeadDnMd5 = 'd92f38f3cbf916a198b363b3f7c84158'
+
+New-Item -ItemType Directory -Force -Path $JobDir, "$JobDir\notes", "$JobDir\out_off", "$JobDir\out_on" | Out-Null
+function HB($m){ Add-Content -Encoding utf8 "$JobDir\heartbeat.log" "$(Get-Date -Format o) $m"; Write-Host $m }
+function Set-Status($s){ $l="$s $(Get-Date -Format o)"; Set-Content -Encoding utf8 "$JobDir\STATUS.txt" $l; HB $l }
+$st = if (Test-Path "$JobDir\STATUS.txt") { Get-Content "$JobDir\STATUS.txt" -Raw } else { '' }
+if ($st -match '^DONE') { Write-Host 'already DONE'; exit 0 }
+Set-Status 'RUNNING'
+HB "start sha=$Sha image=$Image"
+
+# --- worktree @Sha ---
+if (-not (Test-Path "$Wt\.git")) {
+  & cmd.exe /c "git -C C:\Sloi\wt_bots fetch origin bots/bot5-candidate-v4" *> "$JobDir\notes\git_fetch.log"
+  & cmd.exe /c "git -C C:\Sloi\wt_bots worktree add --detach `"$Wt`" $Sha" *> "$JobDir\notes\git_wt.log"
+} else {
+  & cmd.exe /c "git -C `"$Wt`" fetch origin bots/bot5-candidate-v4" *> "$JobDir\notes\git_fetch.log"
+  & cmd.exe /c "git -C `"$Wt`" checkout --force --detach $Sha" *> "$JobDir\notes\git_wt.log"
+}
+$head = (& cmd.exe /c "git -C `"$Wt`" rev-parse HEAD").Trim()
+HB "worktree HEAD=$head"
+if ($head -ne $Sha) { Set-Status "FAILED bad_sha want=$Sha got=$head"; exit 2 }
+
+# --- non-git assets: models fill (missing files only), heads, vendor ---
+& robocopy $ModelsFill "$Wt\models" /E /XC /XN /XO /NFL /NDL /NJH /NJS *> "$JobDir\notes\robocopy_models.log"
+New-Item -ItemType Directory -Force -Path "$Wt\models\gor_gate", "$Wt\models\gor_dense" | Out-Null
+Copy-Item -Force "$Heads\gor_v3_head.npz" "$Wt\models\gor_gate\gor_v3_head.npz"
+Copy-Item -Force "$Heads\gor_dense_head.npz" "$Wt\models\gor_dense\gor_dense_head.npz"
+foreach ($f in @("$Wt\models\gor_gate\gor_v3_head.npz","$Wt\models\gor_dense\gor_dense_head.npz","$Wt\models\dinov2-small\model.safetensors","$Wt\models\pixgbm\all\poly.txt")) {
+  if (-not (Test-Path $f)) { Set-Status "FAILED missing_asset $f"; exit 3 }
+}
+Get-FileHash -Algorithm SHA256 "$Wt\models\gor_gate\gor_v3_head.npz","$Wt\models\gor_dense\gor_dense_head.npz" |
+  Out-File -Encoding utf8 "$JobDir\heads_sha256.txt"
+if (-not (Test-Path "$Wt\inference\lib\vendor\transformers")) {
+  $Tmp = Join-Path $JobDir 'vendor_unpack'
+  New-Item -ItemType Directory -Force -Path $Tmp | Out-Null
+  & tar -xf $ZipV3 -C $Tmp --wildcards 'inference/lib/vendor/*' *> "$JobDir\notes\vendor_tar.log"
+  if (-not (Test-Path "$Tmp\inference\lib\vendor\transformers")) { Expand-Archive -Path $ZipV3 -DestinationPath $Tmp -Force }
+  if (-not (Test-Path "$Tmp\inference\lib\vendor\transformers")) { Set-Status 'FAILED vendor_not_in_zip'; exit 3 }
+  Copy-Item -Recurse -Force "$Tmp\inference\lib\vendor" "$Wt\inference\lib\vendor"
+  HB 'vendor copied'
+}
+
+# --- configs: OFF = default.toml untouched; ON = copy with [gor_dense] block (UTF-8 no BOM) ---
+$Toml = "$Wt\configs\default.toml"
+$OffToml = [IO.File]::ReadAllText($Toml)
+$OnBlock = @(
+  '[gor_dense]','enabled = true','backbone = "models/dinov2-small"',
+  'gate_head = "models/gor_gate/gor_v3_head.npz"',"gate_head_md5 = `"$HeadV3Md5`"",
+  'head = "models/gor_dense/gor_dense_head.npz"',"head_md5 = `"$HeadDnMd5`"",'centre_s = 250.0','',
+  '[thresholds_by_markup.gor_dense]','gorodishcha = 0.824066'
+) -join "`n"
+if ($OffToml -notmatch "\[gor_dense\]\r?\nenabled = false") { Set-Status 'FAILED toml_anchor_missing'; exit 6 }
+$OnToml = [regex]::Replace($OffToml, "\[gor_dense\]\r?\nenabled = false", $OnBlock)
+$Utf8 = [Text.UTF8Encoding]::new($false)
+
+function Run-Variant([string]$name, [string]$tomlText) {
+  $res = "$JobDir\out_$name\result.geojson"
+  if (Test-Path $res) { HB "skip $name (result exists)"; return 0 }
+  [IO.File]::WriteAllText($Toml, $tomlText, $Utf8)
+  Copy-Item -Force $Toml "$JobDir\out_$name\default.toml"
+  $CName = "koz3-bot5-gordense-$name-" + (Get-Date -Format 'yyyyMMddHHmmss')
+  $args2 = @('run','--rm','--name',$CName,'--gpus','all','--network','none',
+    '-e','PYTHONDONTWRITEBYTECODE=1','-e','PYTHONUNBUFFERED=1','-e','HF_HUB_OFFLINE=1','-e','TRANSFORMERS_OFFLINE=1',
+    '-v',"$(($Wt -replace '\\','/')):/data/zip:ro",'-v',"$(($Regions -replace '\\','/')):/data/regions:ro",
+    '-v',"$(($JobDir -replace '\\','/')):/data/output",'-w','/data/zip',$Image,
+    'python','inference/main.py','/data/regions',"/data/output/out_$name/result.geojson")
+  HB "docker run $name $CName"
+  $t1 = Get-Date
+  $p = Start-Process -FilePath 'docker' -ArgumentList $args2 -PassThru -NoNewWindow `
+    -RedirectStandardOutput "$JobDir\out_$name\main.log" -RedirectStandardError "$JobDir\out_$name\main.err"
+  while (-not $p.HasExited) { HB "$name running $([int]((Get-Date)-$t1).TotalSeconds)s"; Start-Sleep 20 }
+  $sec = [math]::Round(((Get-Date)-$t1).TotalSeconds,1)
+  Set-Content "$JobDir\out_$name\wall_sec.txt" $sec
+  HB "$name exit=$($p.ExitCode) wall_sec=$sec"
+  return $p.ExitCode
+}
+
+$ecOff = Run-Variant 'off' $OffToml
+$ecOn  = Run-Variant 'on'  $OnToml
+[IO.File]::WriteAllText($Toml, $OffToml, $Utf8)   # restore
+
+Select-String -Path "$JobDir\out_*\main.log","$JobDir\out_*\main.err" -Pattern 'gor_dense|GOR_|UNAVAILABLE|среда:|md5|Traceback' -EA SilentlyContinue |
+  ForEach-Object { "$($_.Filename): $($_.Line)" } | Set-Content -Encoding UTF8 "$JobDir\warn_scan.txt"
+
+if ($ecOff -ne 0 -or -not (Test-Path "$JobDir\out_off\result.geojson")) { Set-Status "FAILED off exit=$ecOff"; exit 4 }
+if ($ecOn  -ne 0 -or -not (Test-Path "$JobDir\out_on\result.geojson"))  { Set-Status "FAILED on exit=$ecOn"; exit 5 }
+
+# --- score (host python, scoring only) ---
+if (-not (Test-Path "$JobDir\tools")) { tar -xf $ToolsTar -C $JobDir 2>$null }
+$ScorePy  = Get-ChildItem -Path $JobDir -Recurse -Filter e2e_score.py -EA SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+$MetricPy = Get-ChildItem -Path $JobDir -Recurse -Filter compute_metrics.py -EA SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+if (-not $ScorePy -or -not (Test-Path $KitGt)) { Set-Status 'FAILED no_scorer_or_gt'; exit 7 }
+& $PyHost $ScorePy --metric $MetricPy --gt $KitGt `
+  --a "v4off_docker=$JobDir\out_off\result.geojson" --b "gordense_on_docker=$JobDir\out_on\result.geojson" `
+  --out "$JobDir\scores.json" *> "$JobDir\scores.log"
+if (-not (Test-Path "$JobDir\scores.json")) { Set-Status 'FAILED score'; exit 8 }
+Set-Status 'DONE'
+Get-Content "$JobDir\scores.json" | Select-Object -First 60

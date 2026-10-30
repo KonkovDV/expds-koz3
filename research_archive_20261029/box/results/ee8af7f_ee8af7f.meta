@@ -1,0 +1,5 @@
+exit=0
+elapsed_s=70.3
+peak_rss_bytes=2074705920
+peak_rss_mb=1978.6
+paths=["tests"]

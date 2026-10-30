@@ -1,0 +1,7 @@
+owner=pc-job-runner
+status=FAILED
+sha=4dadeab1788dbf9f259623a5f8afda14d6917f60
+branch=bots/bot5-candidate-v4
+job=C:\Sloi\pc_jobs\bot5_gor_heads_4dadeab
+reason=No module named transformers (host venv); do not rerun — bot5 will file Docker runner
+heartbeat=2026-10-29T17:21:58+03:00

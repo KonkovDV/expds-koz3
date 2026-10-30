@@ -1,0 +1,10 @@
+who: bot2
+what: mock e2e v3 hotfix A/B DONE
+branch: bots/bot2-e2e-v3-prep
+sha: 1ec2d7c
+start_msk: 2026-10-29 16:20
+expected_end_msk: 2026-10-29 16:27
+heartbeat_msk: 2026-10-29 16:28
+status: DONE
+owner: pc-job-runner
+note: A≡B ALL=0.312873 sp_or=0.245064 vs v2 ALL=0.312509; honest-10 may still run

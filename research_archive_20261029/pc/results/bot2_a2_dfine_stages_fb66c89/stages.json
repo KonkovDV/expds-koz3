@@ -1,0 +1,30 @@
+{
+  "regions": [
+    {
+      "region": "101_Гнёздово_Днепровская",
+      "n_paths": 1,
+      "n_paths_done": 0,
+      "n_raw_boxes": 0,
+      "n_ellipses": 0,
+      "n_features": 0,
+      "n_would_pass_thr": 0,
+      "n_models": 0,
+      "thresholds_ready": true,
+      "skip_reason": "load_failed:ImportError"
+    }
+  ],
+  "totals": {
+    "n_raw_boxes": 0,
+    "n_ellipses": 0,
+    "n_features": 0,
+    "n_would_pass_thr": 0,
+    "n_paths": 1,
+    "n_paths_done": 0
+  },
+  "n_models": 0,
+  "thresholds_ready": true,
+  "thresholds_missing": [],
+  "n_features_added_total": 0,
+  "n_sp_dfine_in_state": 0,
+  "regions_complete": []
+}

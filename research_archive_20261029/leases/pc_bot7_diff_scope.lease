@@ -1,0 +1,11 @@
+who: bot7
+what: diff_match_scope --honest 10 dump (cross-layer TP + class×layer Δ for honest Δ −0.020621)
+branch: bots/bot7-honest-eval-layer
+sha: aa3694f
+start_msk: 2026-10-29 16:42
+expected_end_msk: 2026-10-29 17:15
+heartbeat_msk: 2026-10-29 17:15
+status: DONE
+owner: executor «1» (PC job bot7_diff_scope_aa3694f)
+note: results /home/box/shared/koz3/pc/results/bot7_diff_scope_aa3694f; honest reproduced; analysis closed by bot7 17:15 МСК
+released_msk: 2026-10-29 17:15
