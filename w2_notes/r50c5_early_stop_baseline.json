@@ -1,0 +1,12 @@
+{
+ "what": "Базы раннего стопа P-W2-9 (r50c5): c3-sc seed2, OOF ядра dmitrijkv/koz3-w2-cnx-c3sc-s2f01, Li-only, materials/compute_metrics.py (встроенные дефолты, без config.py)",
+ "computed": "30.10.2026 ~12:50 MSK, бот 3, из koz3-w2-oof s2/koz3-w2-cnx-c3sc-s2f01/{oof,gt_li}_cnx_c3-sc_f{0,1}.geojson",
+ "c3sc_s2": {
+  "f0": {"final": 0.21978, "kurgany_povrezhdennye_f1": 0.31442, "kurgany_tselye_f1": 0.15934, "n_gt_povr": 591, "n_gt_tselye": 246},
+  "f1": {"final": 0.47859, "kurgany_povrezhdennye_f1": 0.77435, "kurgany_tselye_f1": 0.03496, "n_gt_povr": 378, "n_gt_tselye": 9}
+ },
+ "rule1_threshold_mean_f0_f1": 0.3492,
+ "rule2_c3sc_s2_f0_kurgan_mean_f1": 0.2369,
+ "rule2_note": "PREREG говорит «F1 курганов (kurgany_tselye + kurgany_povrezhdennye) на f0 не выше c3-sc s2»; здесь принято среднее двух per_class F1. Для справки проверять и каждый класс отдельно (0.3144 / 0.1593).",
+ "tool": "python w2_tools/early_stop_r50c5.py <output f01>"
+}

@@ -11,4 +11,5 @@
 | `ci23_ground_cut.py`, `las_cls_probe.py` | аудит классов LAS (CI2-3) | — |
 | `ci28_hs_fit.py` | hillshade parity (CI2-8) | — |
 | `pull_maps.sh` | скачать maps/ из ядер | — |
-| `s3get.py` | скачать из S3 train-expds-3 (ключи из датасета koz3-s3-cred) | — |
+| `early_stop_r50c5.py` | ранний стоп P-W2-9 по f0/f1 (правила 1+2, базы в `w2_notes/r50c5_early_stop_baseline.json`) → PASS/FAIL | `$K/venv/bin/python w2_tools/early_stop_r50c5.py <output f01>` |
+| `s3get.py` | скачать из S3 train-expds-3 (env `S3_ENDPOINT`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` — значения из приватного датасета koz3-s3-cred, не печатать) | — |

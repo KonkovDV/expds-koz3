@@ -1,11 +1,20 @@
-# HANDOFF W2 (бот 3, лидар / ConvNeXt, тег [li_cnx]) — 30.10.2026 ~11:20 MSK
+# HANDOFF W2 (бот 3, лидар / ConvNeXt, тег [li_cnx]) — 30.10.2026 ~11:20 MSK, полная сверка «от и до» 30.10 ~13:00 MSK
 
 Ветка: `bots/w2-lidar` (worktree бокса `/workspace/koz3/wt/w2`). Координатор — бот 1. В `main` не пушить, LB-сабмитов нет, токены не коммитить.
 Время везде MSK. База A = 0.314615 (стек `/workspace/koz3/w5data/stack_arch.geojson`).
 
 ## Что делать дальше (по порядку)
 
-ВАЖНО: на аккаунте Grok Bot бота 3 стояли 2 задачи по расписанию (запуск 03:10 и наблюдение/гейт 05:00–15:30 в Сб 31.10). На другом аккаунте их НЕТ — делать вручную по шагам ниже.
+ВАЖНО: на аккаунте Grok Bot бота 3 стояли 2 задачи по расписанию — `koz3-w2-r50c5-f01-f234` (разовая, Сб 31.10 03:10: квота → аренды → push f01+f234 → отчёт боту 1) и `koz3-w2-r50c5` (каждые 30 мин 05:00–15:30 31.10: ранний стоп по f01, при FAIL отмена f234, после f234 — гейт). Они живут ТОЛЬКО на том аккаунте Grok Bot и не переносятся. На другом аккаунте их НЕТ — делать вручную по шагам ниже (или завести такие же задачи по расписанию).
+
+### 0. Новый бокс / новый аккаунт с нуля (секреты — только по именам, значения не печатать и не коммитить)
+- Код: `git clone https://github.com/KonkovDV/expds-koz3 /workspace/koz3/repo`; worktree'ы: `git worktree add /workspace/koz3/wt/w2 bots/w2-lidar`, `… /workspace/koz3/wt/w5 bots/w5-rerank` (пайплайн гейта W5: `analysis/2026-10-30/w5_rerank/{prep,gate_v6c}.py`), `… /workspace/koz3/wt/orch bots/orch-protocol` → `cp -r wt/orch/orch /workspace/koz3/orch` (pool_kaggle.sh, lease.sh/.py, enqueue.py, PROTOCOL.md, QUEUE/LEASES.json). Если бота-координатора (бот 1) больше нет — аренды можно не брать, но перед push всё равно проверить `kernels list --mine`, что слот не занят чужим RUNNING.
+- Python: `python3 -m venv /workspace/koz3/venv && /workspace/koz3/venv/bin/pip install -r /workspace/koz3/wt/w2/w2_notes/box_misc/venv_freeze.txt` (точный снимок venv бокса: torch 2.15 cpu, timm 1.0.30, segmentation_models_pytorch 0.5.0, shapely 2.2, pyproj, boto3, lightgbm, scikit-learn; torch — с `--index-url https://download.pytorch.org/whl/cpu`; если freeze не встанет — `requirements.txt` + `torch timm boto3 lightgbm scikit-learn`). Скрипты гейта зовут `$K/venv/bin/python`.
+- Kaggle CLI ≥ 2.0 (у нас 2.2.5) в `~/.local/bin/kaggle`. `orch/pool_kaggle.sh` берёт токены: env `KAGGLE_KEY_1` (API-токен elenakonkova, KGAT_…), `KAGGLE_KEY_2` (dmitrijkv); CPU-пул — файл `/workspace/koz3/local_ctx/ctx/kaggle_pool_4x2_t4.json` (`nodes[].username/token`, нужен только для aaaa0000004 и др.). Токены выдаёт Елена (kaggle.com → Settings → API → Generate New Token), в git не класть.
+- GitHub: push в `bots/w2-lidar` (не в main) — нужен токен/доступ к KonkovDV/expds-koz3.
+- S3 (только для пересборки из первоисточника): env `S3_ENDPOINT=https://s3.ru-7.storage.selcloud.ru`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` — значения в приватном датасете elenakonkova/koz3-s3-cred (в ядрах — `KOZ3_S3_ACCESS_KEY_ID`/`KOZ3_S3_SECRET_ACCESS_KEY`).
+- Ядра r50c5 на новом боксе: `mkdir -p /workspace/koz3/w2 && cp -r /workspace/koz3/wt/w2/w2_kernels /workspace/koz3/w2/kernels` (пути ниже и в `make_r50c5.py` — `$K/w2/kernels/...`).
+- Данные: см. «Данные и как ими пользоваться» и `w2_datasets/` (описания всех 5 датасетов).
 
 Обозначения: `K=/workspace/koz3`, `PK=$K/orch/pool_kaggle.sh`, `L=$K/orch/lease.sh`, owner аренд `bot-W2-lidar`.
 
@@ -20,7 +29,7 @@
 3. **Push обоих ядер параллельно.**
    `$PK elenakonkova kernels push -p $K/w2/kernels/elenakonkova/koz3-w2-cnx-r50c5-f01`
    `$PK dmitrijkv kernels push -p $K/w2/kernels/dmitrijkv/koz3-w2-cnx-r50c5-f234`
-   (копии в git: `w2_kernels/...`). Статус: `$PK <acc> kernels status <acc>/<slug>`. Строку в `orch/bot-W2/STATUS.md` + `orch/COORD_LOG.md`.
+   (копии в git: `w2_kernels/...`; на новом боксе сначала скопировать, см. п. 0). Статус: `$PK <acc> kernels status <acc>/<slug>`. Строку в `orch/bot-W2/STATUS.md` + `orch/COORD_LOG.md`.
 4. **≈05:40–06:30 — f01 готов** (оценка 2,6–3,3 ч). Проверять раз в 30 мин:
    `$PK elenakonkova kernels status elenakonkova/koz3-w2-cnx-r50c5-f01`; при COMPLETE —
    `$PK elenakonkova kernels output elenakonkova/koz3-w2-cnx-r50c5-f01 -p $K/w2/oof/r50c5/koz3-w2-cnx-r50c5-f01` (read-only).
@@ -28,7 +37,8 @@
 5. **Ранний стоп (P-W2-9, без гейта).** Из лога/`report_cnx_full.json` ядра (Li-only, materials/compute_metrics.py):
    (1) среднее Li-only f0,f1 r50c5 ≤ **0,3492** (c3-sc s2: f0 0,2198 / f1 0,4786) → FAIL;
    (2) F1 курганов (kurgany_tselye+kurgany_povrezhdennye) на f0 r50c5 не выше c3-sc s2 на f0 → FAIL.
-   Шаблон проверки: `w2_gate/gate_lihm/early_stop.json`, `w2_notes/w2_lihm_gate.json`.
+   Базы посчитаны заранее (`w2_notes/r50c5_early_stop_baseline.json`): c3-sc s2 f0 0,2198 / f1 0,4786; курганы f0: povr 0,3144, tselye 0,1593, среднее **0,2369** (правило 2 — среднее двух per_class F1; для справки сравнить и каждый класс).
+   Готовая проверка: `$K/venv/bin/python $K/wt/w2/w2_tools/early_stop_r50c5.py $K/w2/oof/r50c5/koz3-w2-cnx-r50c5-f01` → JSON с `verdict` PASS/FAIL. Шаблон оформления: `w2_gate/gate_lihm/early_stop.json`, `w2_notes/w2_lihm_gate.json`. Итог — строкой в PREREG P-W2-9 и `orch_bot-W2/STATUS.md`, коммит.
 6. **f234 по итогу:**
    FAIL → `$PK dmitrijkv kernels ...` отменить/не использовать выход f234 (на сайте Kaggle: Cancel run), снять аренды `$L release slot:acc2/gpu-1 bot-W2-lidar` (+ kernel:, slot:acc1/gpu-1), ничего нового не запускать, квота → W1; отчёт боту 1.
    PASS → ждать f234 (до ~11,3 ч, ≈ до 14:30), забрать в `$K/w2/oof/r50c5/koz3-w2-cnx-r50c5-f234`, снять аренды.
@@ -48,11 +58,11 @@
 | `elenakonkova/koz3-w2-oof` | OOF-детекции c3-sc: `merged/` (s0 85 647, s1 83 519, s2 94 959, s01avg 81 665, s012avg 82 996 детекций, EPSG:3857, group `li_cnx`) + по ядрам/фолдам (gt_li, region_fold, report_cnx_full с cfg) + li_hm | 1 ГБ | подмешивать в стек и гейтить; пересклейка/усреднение сидов |
 | `elenakonkova/koz3-w2-weights` | `weights_cnx_c3-sc_f{0..4}.pt` для s0/s1/s2 (15 шт.), ckpt s2 f2–f4, li_hm ckpt f0–4 | 1,5 ГБ | инференс без переобучения (только веса своего фолда!), дообучение |
 | `elenakonkova/koz3-w2-maps` | `maps_cnx_c3-sc_f{K}_{участок}.npz` (hm/wh/off/mask/valid/meta) s0/s1/s2/li_hm | 2,1 ГБ | пере-декодирование, усреднение карт, отладка участков |
-| `elenakonkova/koz3-w2-gate` | `w5base/` (stack_arch = база A, gt_train_v2, base_counts.pkl, table.pkl) + `gate_s2/{s2,s012,varb,varb_kur}` (стеки, work/*.pkl, итоги) | 5,4 ГБ | воспроизвести A=0,314615 и все W2-замеры; база для нового гейта |
+| `elenakonkova/koz3-w2-gate` | `w5base/` (stack_arch = база A, gt_train_v2, base_counts.pkl, table.pkl) + `gate_s2/{s2,s012,varb,varb_kur}` (стеки, work/*.pkl, итоги) | 5,4 ГБ загрузка (6,4 ГБ несжато на Kaggle) | воспроизвести A=0,314615 и все W2-замеры; база для нового гейта |
 | `elenakonkova/koz3-cnx-li-prep` | рельеф `cnx_relief/*.npy` (5 каналов) + `.json` | 1,6 ГБ | вход всех c3-sc/r50c5 ядер и CPU-инференса |
 | `aaaa0000004/koz3-w2-gaudit-las` | LAS 015/021/186/190 + Li-разметка + UTM | 10 ГБ | аудит земли, DEM fill (только аккаунт aaaa0000004) |
 | S3 `train-expds-3` | все LAS и разметка Li | — | первоисточник (`w2_tools/s3get.py`, ключи — koz3-s3-cred) |
-| `elenakonkova/koz3-w2-demfill` | P-W2-10 (DEM fill): рельеф C/T 4 участков (015/021/186/190), карты s0–s2, OOF с подменой, гейт, `out/result_P-W2-10.json` | ~125 МБ | итог **FAIL** (Δ+0,0014, P 0,99, ниже +0,003); побочная находка по 190 (см. п. 10) |
+| `elenakonkova/koz3-w2-demfill` | P-W2-10 (DEM fill): рельеф C/T 4 участков (015/021/186/190), карты s0–s2, OOF с подменой, гейт, `out/result_P-W2-10.json` | ≈180 МБ | итог **FAIL** (Δ+0,0014, P 0,99, ниже +0,003); побочная находка по 190 (см. п. 10) |
 
 **Скачать:** `$PK elenakonkova datasets download -d elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip` (для gaudit — `$PK aaaa0000004 …`).
 **В ядро:** `kernel-metadata.json` → `"dataset_sources": ["elenakonkova/koz3-w2-weights", "elenakonkova/koz3-cnx-li-prep"]`; пути `/kaggle/input/<slug>/…` (на новых образах `/kaggle/input/datasets/<owner>/<slug>/…` — надёжно искать `glob('/kaggle/input/**/имя', recursive=True)`).
@@ -63,11 +73,12 @@
 | Путь | Что | Куда идёт |
 |---|---|---|
 | `HANDOFF_W2.md` | эта записка | начать отсюда |
+| `w2_datasets/` | `DATASETS.md` + `dataset-metadata.json` всех 5 датасетов koz3-w2-* (git-копия — источник истины) | понять, что в датасете, до скачивания; новая версия датасета |
 | `orch_bot-W2/` | PREREG P-W2-1…10, STATUS, TASKS | PREREG до любого замера |
-| `w2_kernels/` | код+metadata ядер (r50c5 готов к запуску) | `kernels push` |
+| `w2_kernels/` | код+metadata ядер (r50c5 готов к запуску); `source_c3sc/` — исходники отработавших c3-sc s0/s1/s2 и рельефа | `kernels push` |
 | `w2_tools/` (= `tools/w2/`) | склейка, стек, гейт-детали, аудиты, S3 | стек → гейт |
-| `w2_gate/` | итоги гейтов (json/логи), `run_varb.sh` | образец прогона |
-| `w2_notes/` (+ `notes/w2/`) | итоговые JSON замеров, ci2_8, PREREG-копия | справка |
+| `w2_gate/` | итоги гейтов (json/логи), `run_varb.sh`, `gate_lihm/early_stop.json` | образец прогона |
+| `w2_notes/` (+ `notes/w2/`) | итоговые JSON замеров, ci2_8, PREREG-копия, `r50c5_early_stop_baseline.json`, `box_misc/` | справка; базы раннего стопа |
 | `w2_gaudit/` | ядро и итоги аудита земли (закрыт) | справка |
 | `w2_merge/` | merge_summary | проверка OOF |
 | `w2_demfill/` | код P-W2-10 | п. 8 |
@@ -135,6 +146,10 @@ P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 
 | `w2/kernels` (скрипты ядер, 9 МБ) | git, эта ветка `w2_kernels/` | — |
 
 **Не выгружено (и почему):**
+- Токены/секреты (`local_ctx/`, env `KAGGLE_KEY_*`, S3-ключи) — никогда в git/датасеты; см. п. 0, как получить заново.
+- `$K/venv` — пересоздаётся по `requirements.txt` (п. 0); `w2/vendor/**/__pycache__` — мусор (сам вендор-код в git внутри ядер и `$K/w2/vendor/*.py` = код ядер).
+- `w2/prep_probe/cnx_relief`, `w2/probe182/prep/cnx_relief` (пробный рельеф 036/032/038/182) — тот же рельеф, что в koz3-cnx-li-prep; логи — `w2_notes/box_misc/`.
+- `w2/bk/stage/*` — хардлинки на уже выгруженные файлы (не копия, место не занимает).
 - `w2/repo` (1,6 ГБ) — клон `KonkovDV/expds-koz3`, есть на GitHub.
 - `w2/bak/merged_pre_s2_0334` — дубль merged s0/s1/s01avg до s2 (те же файлы в koz3-w2-oof).
 - `w5data/work/X*.npy, geom_wkb.pkl, nested_*` — данные W5 (не W2), пересобираются `prep.py` из stack_arch + gt (см. «Гейт honest-10»).
