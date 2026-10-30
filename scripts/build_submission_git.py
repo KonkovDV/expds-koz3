@@ -61,6 +61,12 @@ def model_refs(cfg: dict) -> list[str]:
     out += [v["weights"]] if v.get("enabled") and v.get("weights") else []
     rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
     out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
+    pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+    if pix.get("enabled") and pix.get("impl") == "clean":   # W4: модели clean-room pix (legacy PIXGBM не собирается)
+        md = str(pix.get("model_dir", "models/pix_clean")).rstrip("/")
+        out += [f"{md}/poly.txt", f"{md}/finds.txt", f"{md}/meta.json"]
+        if pix.get("org_etgr"):   # W4 GEO-ORG3
+            out += [f"{md}/org/org_etgr_map.txt", f"{md}/org/org_etgr_prof.txt", f"{md}/org/org_etgr_meta.json"]
     seen, uniq = set(), []
     for p in out:
         if p not in seen:
@@ -96,7 +102,9 @@ def main() -> int:
     files: dict[str, bytes] = {}
     pick = ["metadata.json", "inference/main.py"]
     pick += [p for p in tracked if p.startswith("inference/lib/expds_core") and p.endswith(".so")]
-    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")]
+    # W4 DOC-1: файлы, производные от EN, в архив не идут (scripts/check_archive_clean.py)
+    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")
+             and PurePosixPath(p).name not in {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}]
     for p in pick:
         files[p] = blob(p)
     if args.so:
@@ -168,6 +176,12 @@ def main() -> int:
     if size > LIMIT:
         tmp.unlink()
         sys.exit(f"архив {size / 2**20:.0f} МиБ > 2048 МиБ — уберите веса из конфига")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_archive_clean import check as doc1_check   # W4 DOC-1
+    viol = doc1_check(tmp)
+    if viol:
+        tmp.unlink()
+        sys.exit("DOC-1: архив не чистый:\n" + "\n".join(viol))
     tmp.replace(out)
     zsha = hashlib.sha256(out.read_bytes()).hexdigest()
     manifest = {"zip": name, "sha256": zsha, "bytes": size, "git": sha, "ref": args.ref, "label": args.label,

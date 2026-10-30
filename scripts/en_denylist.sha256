@@ -1,0 +1,39 @@
+# W4 DOC-1 (30.10.2026): sha256 файлов, производных от EN (EhimenNathan) / legacy PIXGBM. Посчитаны sha256sum
+# без просмотра содержимого. Отбор по имени: geo_pixgbm*.py, geo_finds_gbm*.py, pixgbm*.py, */models/pixgbm/* —
+# git-история всех веток (вкл. analysis/**) + файлы на боксе (w4pix/, */models/pixgbm/). Пустой файл исключён.
+# Формат: <sha256><2 пробела><метка>.
+3e2abc7b9b4e2fd9dfd14c6c8db68f6e5b51a4833fd87f8602d55256a1d5ea63  git:scripts/pixgbm_retrain_cleanroom.py@004a723c6c
+f143a81876ced13b85f85f86170a6b070ce77d8cd576d3ba09ed2b8da47fa15d  git:scripts/pixgbm_bb.py@0dc6474c83
+088f1c22a556714da6d43ad96479cda8dbd8ed1ea35852ab1a706eab1841c0e7  git:expds/geo_pixgbm.py@10cd5a99d6
+562143b2b123c77bc7c54e8bd5141d6792a3800ab08a018501c5247e9269aa73  git:scripts/pixgbm_retrain_cleanroom.py@1b20e89ce2
+99ae2d278eb08cd03bd2c981ea4e2e614359e87cf1142c814f6daf2a4ad679d6  git:expds/geo_pixgbm.py@1cc6ce9c87
+a176760abc7434e25f5caa3fb7843603c490ae7cc96f291d2d8251bf06c48b56  git:expds/geo_pixgbm.py@1d727a4f84
+3be24d27c76127a4b28bd585317855c8e32dd11863e0b0c9acfbaac83c867a06  git:scripts/pixgbm.py@24a880d125
+aa9d7bebef96a9c62574d8ff710828eeaaff802ca869136308a830af98e00e70  git:expds/geo_pixgbm.py@2634956742
+be64c5c582decce68e6cc86ac1d77b327aee4110403629ff0c0c822f17a5e278  git:expds/geo_pixgbm.py@3e8bfce5b9
+b3687b51701c5300cd39119242d4ffe5faf26b4706a94fd8a4100c8aea0dbfe8  git:scripts/pixgbm.py@45366b0d07
+c7ff4be9c9e319cc300e9b8835d50780c72bde01d39005fec9990264a7c56fc2  git:expds/geo_pixgbm.py@49d57c16c8
+5fa8c09d77d0914cc925fb6bb925a0ab1b64ccecf3c823d7f3546e71c4ceb04a  git:models/pixgbm/all/finds.txt@53bafd61fc
+120df83e5b2d94835f4e25674af070594353398a1f6f1b40a8fb2521033df00b  git:expds/geo_pixgbm.py@5b86add049
+35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b  git:analysis/2026-10-29/bots/bot-4/runs/review/v2eb268d6/expds/geo_pixgbm.py@6ff6118e2b
+35a6b74a0a263b49dcb4715f6233440cb85412f75c3f10cde6c99cee9d249747  git:scripts/pixgbm_compile.py@74c6027680
+1c6236c81063346728fd315258e85afdb2cb1e501fb958710f231571293480db  git:analysis/2026-10-29/bots/bot-7/work5/pc/tools/v2/expds/geo_pixgbm.py@7cd4392cc1
+d21d0c54ee3ace9e3c642fa95844cc47ee5ae9a34aaa63d37997033e7c660861  git:scripts/pixgbm.py@7ee7b25500
+ac50a067c5c115639bd2f12b0dbc9b5fe32ceef805104a10d12cbcede83b2cdb  git:expds/geo_pixgbm.py@8ab8034a4f
+7edcb78c96845744f0dfd7ebc1506ffcdbbabbed6a5c658d53ab291ab5ebce12  git:scripts/pixgbm_retrain_cleanroom.py@8e7b12f7b3
+c684076fcae0f9a93978ef045c2fb7718baaf11ba988228b55d93af7cfb9c6a5  git:expds/geo_pixgbm.py@97b111d3b4
+139c6c9ae8c7df504612db644319e7ec6148f612f9cf11dffc03571f72c2e7ae  git:expds/geo_pixgbm.py@b0a65517d7
+8868d6edee57e44c4442ea0900b9d40c091f5a244c82056ebcfea143fd9a8cc1  git:expds/geo_pixgbm.py@b81733c76d
+3b1582f4828e4799ceab1098714efce991a71c80491898777cff1ce4b96b97bd  git:scripts/pixgbm.py@b86dbfce68
+54bf41a66c54a507d20001187e595d31c4ef77dd524df7c69d7f2176b07c6d18  git:models/pixgbm/all/MODELS_NOT_IN_GIT.md@bd14e2ddd2
+1dde04bfa62f091b4c43c5696bca74ac242b28774d0a1425414abe0445f31bbf  git:analysis/2026-10-29/bots/bot-4/runs/review/pixgbm428/expds/geo_pixgbm.py@bd77e36578
+d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800  git:models/pixgbm/all/poly.txt@c88cd664aa
+5ace6c5203654f3cb654c7df611b88ddc6d2fea75f0f546028645457a76d9a77  git:expds/geo_pixgbm.py@cc2708140f
+222466f77e2a1191b39dbb57720d74e44d0bc4aecc4074c00e91b4f7d297b811  git:scripts/pixgbm.py@cef9dfb07e
+27a078d2d48655d962394fdd37aa61ce623f68df6e09d9daf3310a481a5f0a9c  git:expds/geo_pixgbm.py@cf86761f85
+6051c591019aff54a3e88320a73dc5261a06e9bddc397760a12bff0a7c5cd15b  git:expds/geo_pixgbm.py@dcd7a25f99
+444c451a9cda6a00191ead255a535b72ab73eadef3db3ccdf1345f04163f19d7  git:scripts/pixgbm_retrain_cleanroom.py@eae98e6000
+096f23952ccaf6158992644c6fa1074400eebe56b239bf6072b984da76ca8194  git:expds/geo_pixgbm.py@f5bcea37ee
+20dde115ffaa0c9af9849700cb2a1f3b56b4fad38ce16a20660bd445098033d5  git:expds/geo_pixgbm.py@f69c7e18fd
+92a2eae05bf992a1366078edd2317e9543e8744704561f854785797d2c9afeaf  git:expds/geo_pixgbm.py@f718e9eb70
+3eb70cf74576a8ad494151d09b21691a3cb3bb2410f9a25371a7b08936776603  git:scripts/pixgbm.py@ffb03898fc
