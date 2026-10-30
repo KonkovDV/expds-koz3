@@ -25,6 +25,21 @@ def test_hillshade_lights_the_northwest_face():
         assert lit > 200 and dark < 30
 
 
+def test_hillshade_hole_is_not_a_pit_down_to_the_lowest_ground():
+    from expds.lidar import hillshade_set
+
+    z = np.full((21, 21), 10.0, np.float32)
+    z[4:17, 4:17] = 14.0
+    holed = z.copy()
+    holed[10, 10] = np.nan
+    plain = Dem(dem=z, left=0.0, top=2.1, res=0.1, crs="EPSG:32636")
+    cut = Dem(dem=holed, left=0.0, top=2.1, res=0.1, crs="EPSG:32636")
+    g0 = hillshade_set(plain, tags=("g",))["g"]
+    g1 = hillshade_set(cut, tags=("g",))["g"]
+    assert int(g1[10, 10]) == 255
+    assert abs(int(g1[10, 9]) - int(g0[10, 9])) <= 2
+
+
 def test_shipped_lidar_tags_stay_the_three_relief_channels():
     assert RELIEF_TAGS == ("lrm_s", "lrm_l", "slope")
     d = Dem(dem=_mound(), left=0.0, top=81.0, res=1.0, crs="EPSG:32636")

@@ -524,10 +524,18 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
     z_max = float(np.nanmax(d.dem))
     z_range = max(z_max - z_min, 1e-9)
     filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32, copy=False)
+    # Для уклона отмывки дырка — не колодец до минимума всей съёмки: ближайшая
+    # измеренная высота. Цветная шкала по-прежнему считает диапазон по съёмке.
+    shade_src = filled
+    if (~valid).any():
+        from scipy.ndimage import distance_transform_edt
+
+        nearest = distance_transform_edt(~valid, return_distances=False, return_indices=True)
+        shade_src = np.asarray(d.dem, np.float32)[tuple(nearest)]
     out: dict[str, np.ndarray] = {}
     if "g" in tags or "i" in tags:
-        shade = (_hillshade_li_match(filled, d.res) if style == "li_match"
-                 else accel.hillshade(filled, d.res, d.res))
+        shade = (_hillshade_li_match(shade_src, d.res) if style == "li_match"
+                 else accel.hillshade(shade_src, d.res, d.res))
         if "g" in tags:
             g = shade.copy()
             g[~valid] = 255
