@@ -1,0 +1,72 @@
+pool gor/fort 15353
+pos {(np.str_('gorodishcha'), np.int64(0)): 4520, (np.str_('fortifikatsii'), np.int64(0)): 10372, (np.str_('gorodishcha'), np.int64(1)): 156, (np.str_('fortifikatsii'), np.int64(1)): 305} emb ok 0.9934214811437504
+{"N": 15353, "pos": 461, "ring_cov": 0.3131635510975054, "auc_gor_conf": 0.6945, "auc_gor_s_knn": 0.709, "auc_gor_G1A": 0.714, "auc_gor_G1B": 0.7047, "auc_gor_G1C": 0.7143, "auc_gor_ring_contrast": 0.4981, "auc_for_conf": 0.7127, "auc_for_s_knn": 0.7118, "auc_for_G1A": 0.7303, "auc_for_G1B": 0.7257, "auc_for_G1C": 0.6644, "auc_for_ring_contrast": 0.5024}
+G1A extras 15252 drop 15252
+G1B extras 15252 drop 15252
+G1C extras 15252 drop 15252
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево done 1s rss 1345MB
+Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты done 14s rss 2349MB
+Архангельское done 16s rss 2349MB
+Белая+Воронеж+Россошки done 17s rss 2349MB
+Бервенец done 19s rss 2349MB
+Боровичи done 32s rss 2469MB
+Верхмарево done 36s rss 2496MB
+Верхнее done 38s rss 2496MB
+Верхний done 39s rss 2496MB
+Верхняя done 41s rss 2496MB
+Вщиж done 44s rss 2496MB
+Вышегжа done 59s rss 2790MB
+Вышенское done 63s rss 2803MB
+Гнёздово done 78s rss 2815MB
+Гочево done 81s rss 2815MB
+Граборг done 87s rss 2815MB
+Демидовка done 90s rss 2815MB
+Золотаревка done 102s rss 2815MB
+Изборск done 104s rss 2815MB
+Каменка done 105s rss 2815MB
+Костомаровское done 107s rss 2815MB
+Ксизово done 108s rss 2815MB
+Курган done 110s rss 2815MB
+Лихуша done 113s rss 2815MB
+Лубно done 116s rss 2815MB
+Макеево done 118s rss 2815MB
+Маяцкая done 120s rss 2815MB
+Московиты done 123s rss 2815MB
+Мостище done 125s rss 2815MB
+Муравлево done 129s rss 2815MB
+Никола done 132s rss 2815MB
+Новенькое done 133s rss 2815MB
+Нора done 135s rss 2815MB
+Перынь done 137s rss 2815MB
+Романово done 140s rss 2815MB
+Руна done 142s rss 2815MB
+Русская done 143s rss 2815MB
+Саратов+Тыва done 146s rss 2815MB
+Сарское done 149s rss 2815MB
+Сельцо done 150s rss 2815MB
+Селяне done 152s rss 2815MB
+Скупая done 154s rss 2815MB
+Сож done 158s rss 2815MB
+Солдатское done 160s rss 2815MB
+Сторожевое done 161s rss 2815MB
+Стрекаловка done 163s rss 2815MB
+Судьбищи done 165s rss 2815MB
+Тешилово done 168s rss 2815MB
+Тимерево done 170s rss 2815MB
+Усть done 172s rss 2815MB
+Хальвасборген+Эсбю done 175s rss 2815MB
+Хога done 177s rss 2815MB
+Чудово done 180s rss 2815MB
+Шетнево done 184s rss 2815MB
+Шишкино done 186s rss 2815MB
+Шниткино done 187s rss 2815MB
+Шумгора done 192s rss 2815MB
+Шурскол done 194s rss 2815MB
+Эрентуна done 197s rss 2815MB
+Юшково done 199s rss 2815MB
+A0 honest all/new/optical [0.314615, 0.296451, 0.144274]
+G1A: honest 0.307459 Δ -0.007156 | 34new Δ -0.015921 | optical Δ -0.003750 | P(A>B) 0.084 90% [-0.0140;+0.0013] gate fail
+G1B: honest 0.307731 Δ -0.006884 | 34new Δ -0.017736 | optical Δ -0.003750 | P(A>B) 0.067 90% [-0.0123;+0.0007] gate fail
+G1C: honest 0.289495 Δ -0.025120 | 34new Δ -0.074718 | optical Δ +0.012831 | P(A>B) 0.001 90% [-0.0383;-0.0126] gate fail
+G1GATE_EXIT 0

@@ -1,0 +1,6 @@
+{"id": "dmitrijkv/koz3-w3-gordense-timing", "title": "koz3-w3-gordense-timing", "code_file": "koz3-w3-gordense-timing.py",
+ "language": "python", "kernel_type": "script", "is_private": true, "enable_gpu": true, "enable_tpu": false, "enable_internet": true,
+ "machine_shape": "NvidiaTeslaT4",
+ "dataset_sources": ["dmitrijkv/koz3-w3-gordense-timing", "dmitrijkv/koz3-xfer-s000", "dmitrijkv/koz3-xfer-s001", "dmitrijkv/koz3-xfer-s002", "dmitrijkv/koz3-xfer-s003", "dmitrijkv/koz3-xfer-s004", "dmitrijkv/koz3-xfer-s005", "dmitrijkv/koz3-xfer-s006", "dmitrijkv/koz3-xfer-s007", "dmitrijkv/koz3-xfer-s008", "dmitrijkv/koz3-xfer-s009"],
+ "competition_sources": [], "kernel_sources": ["dmitrijkv/koz3-dfine-spor-full-rest"], "model_sources": [],
+ "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435"}
