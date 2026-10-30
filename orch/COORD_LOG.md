@@ -462,3 +462,14 @@
 - 30.10 15:55 MSK | lease | release branch:bots/w4-pix-clean (bot-W4-doc1g) by bot-W4-doc1g
 - 30.10 15:55 MSK | lease | release slot:aaaa0000004/cpu (coord) by coord
 - 30.10 15:57 coord: v3_on PASS vs v2clean Δ+0.0198 (W4). aaaa0000004/cpu released for W4 v3 check_submission. C5B joint FAIL (overlaps M_rp).
+- 30.10 15:56 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 17:56 MSK W3 C5B NST nested gate, nice10 thr4
+- 30.10 15:57 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 15:57 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk4 до 30.10 23:57 MSK check_submission v3_on ebc8e4ba
+- 30.10 15:57 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-v3on-check → bot-W4-chk4 до 30.10 23:57 MSK v3on archive
+- 30.10 15:57 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-wheels-v3 → bot-W4-chk4 до 30.10 23:57 MSK py313 wheels
+- 30.10 15:58 MSK | coord | короткая проверка (5 мин после 15:52): box load 1.6/8 — q1 W3 NST, q3 coord noground; q2 свободен после W4 v3 (W4 переходит к check_submission на aaaa0000004); готовые box-пункты P-W2-hillshade-parity/P-W4-compgate не автозапуск (старт 18:00/31.10). Kaggle без изменений с 15:52.
+- 30.10 16:01 MSK | lease | acquire slot:box/q2 → bot-W4-cg до 31.10 00:01 MSK W4 compgate + OOF A rebuild + v3on+M_rp
+- 30.10 16:02 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v3onchk → bot-W4-chk4 до 31.10 00:02 MSK v3on check
+- 30.10 16:05 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:05 MSK commit gate_cf
+- 30.10 16:05 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:08 coord: CI2-1 cloudfeat FAIL (W1). Deleted elenakonkova/koz3-w5-cloudfeat-in (contained S3 cred.json). RULE: never put cred.json into datasets.

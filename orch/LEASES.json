@@ -99,14 +99,15 @@
   {
    "slot": "aaaa0000004/cpu",
    "account": "aaaa0000004",
-   "holder": null,
+   "holder": "bot-W4-chk4",
    "reserved_for": "bot-W3-bigobj",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaa0000004",
-   "kernel": null,
-   "purpose": "fallback W3 kurgan seeds 75,76 (OOF для CI2-7)",
+   "kernel": "aaaa0000004/koz3-w4-v3onchk",
+   "purpose": "check_submission v3_on ebc8e4ba",
    "last": "снято coord 30.10 15:55 MSK",
-   "state": "свободен"
+   "since": "30.10 15:57 MSK",
+   "until": "30.10 23:57 MSK"
   },
   {
    "slot": "aaaadg4gg4g4g/cpu",
@@ -123,11 +124,12 @@
   },
   {
    "slot": "box/q1",
-   "holder": null,
+   "holder": "bot-W3-bigobj",
    "kernel": null,
    "last": "снято bot-W3-bigobj 30.10 15:53 MSK",
-   "purpose": "W3 C5B joint gate (A+M_rp+ORG3+C5B), nice10 thr4",
-   "state": "свободен"
+   "purpose": "W3 C5B NST nested gate, nice10 thr4",
+   "since": "30.10 15:56 MSK",
+   "until": "30.10 17:56 MSK"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -147,11 +149,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W4-cg",
    "kernel": null,
    "last": "снято bot-W4-v3 30.10 15:55 MSK",
-   "purpose": "W4: порт pix_clean в w4-gate (v3_on), гейт honest-10, P-D2-cleanroom",
-   "state": "свободен"
+   "purpose": "W4 compgate + OOF A rebuild + v3on+M_rp",
+   "since": "30.10 16:01 MSK",
+   "until": "31.10 00:01 MSK"
   },
   {
    "slot": "box/q3",
@@ -345,6 +348,61 @@
    "note": "w0s-dem-noground full-file class2 count (S3 stream)",
    "host": "grok-bot-vm-361051398",
    "pid": 651035
+  },
+  {
+   "resource": "slot:box/q1",
+   "owner": "bot-W3-bigobj",
+   "since": 1793364977.098169,
+   "expires": 1793372177.098169,
+   "note": "W3 C5B NST nested gate, nice10 thr4",
+   "host": "grok-bot-vm-361051398",
+   "pid": 657372
+  },
+  {
+   "resource": "slot:aaaa0000004/cpu",
+   "owner": "bot-W4-chk4",
+   "since": 1793365055.746482,
+   "expires": 1793393855.746482,
+   "note": "check_submission v3_on ebc8e4ba",
+   "host": "grok-bot-vm-361051398",
+   "pid": 658422,
+   "kernel": "aaaa0000004/koz3-w4-v3onchk"
+  },
+  {
+   "resource": "dataset:aaaa0000004/koz3-w4-v3on-check",
+   "owner": "bot-W4-chk4",
+   "since": 1793365064.684363,
+   "expires": 1793393864.684363,
+   "note": "v3on archive",
+   "host": "grok-bot-vm-361051398",
+   "pid": 658525
+  },
+  {
+   "resource": "dataset:aaaa0000004/koz3-w4-wheels-v3",
+   "owner": "bot-W4-chk4",
+   "since": 1793365064.71598,
+   "expires": 1793393864.71598,
+   "note": "py313 wheels",
+   "host": "grok-bot-vm-361051398",
+   "pid": 658530
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W4-cg",
+   "since": 1793365301.125242,
+   "expires": 1793394101.125242,
+   "note": "W4 compgate + OOF A rebuild + v3on+M_rp",
+   "host": "grok-bot-vm-361051398",
+   "pid": 660989
+  },
+  {
+   "resource": "kernel:aaaa0000004/koz3-w4-v3onchk",
+   "owner": "bot-W4-chk4",
+   "since": 1793365367.341034,
+   "expires": 1793394167.341034,
+   "note": "v3on check",
+   "host": "grok-bot-vm-361051398",
+   "pid": 661471
   }
  ]
 }
