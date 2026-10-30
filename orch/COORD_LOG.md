@@ -473,3 +473,27 @@
 - 30.10 16:05 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:05 MSK commit gate_cf
 - 30.10 16:05 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
 - 30.10 16:08 coord: CI2-1 cloudfeat FAIL (W1). Deleted elenakonkova/koz3-w5-cloudfeat-in (contained S3 cred.json). RULE: never put cred.json into datasets.
+- 30.10 16:07 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk4) by coord
+- 30.10 16:07 MSK | lease | release kernel:aaaa0000004/koz3-w4-v3onchk (bot-W4-chk4) by coord
+- 30.10 16:07 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v3onchk → ERROR; аренда снята
+- 30.10 16:13 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 16:19 MSK | lease | release slot:box/q1 (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 16:19 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 17:19 MSK NST commit
+- 30.10 16:19 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 16:19 MSK | lease | acquire slot:box/q1 → bot-W1-aeor до 30.10 18:19 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:20 MSK | lease | release slot:box/q1 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:21 MSK | lease | release slot:box/q3 (coord) by coord
+- 30.10 16:22 MSK | coord | проверка: box load 1.4/8 — q3 coord noground завершён (w0/noground/full_cls.json 15:59), аренда снята; q2 W4-cg compgate, gap.py NST идёт; kurgan RUNNING acc1(a,b)/acc2/aaaa0000004 (v3onchk ERROR — у W4), dino-vitb-tpu QUEUED acc1+acc2 (очередь Kaggle), GPU до Сб 03:00 исчерпаны; токены usertest1234/aaaadg4gg4g4g мертвы (ждём Елену)
+- 30.10 16:22 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 19:22 MSK W3 gap breakdown + lever gate (q2 busy W4), nice10 thr4
+- 30.10 16:22 MSK | lease | release slot:box/q2 (bot-W4-cg) by bot-W4-cg
+- 30.10 16:25 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 30.10 18:25 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:26 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:28 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 16:30 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 30.10 18:30 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:31 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:31 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:31 MSK commit joint gate
+- 30.10 16:32 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:32 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:32 MSK commit joint gate
+- 30.10 16:32 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:35 MSK | coord | проверка: box load 1.6/8 — q1 W3 gap.py; q2/q3 свободны, W1 (joint gate) и W4 (compgate) циклят box-слоты короткими прогонами; Kaggle без изменений с 16:22 (kurgan RUNNING, dino-vitb-tpu QUEUED acc1+acc2, aaaa0000004 v3onchk ERROR у W4); GPU до Сб 03:00 исчерпаны; токены usertest1234/aaaadg4gg4g4g мертвы. Замечание: kurgan-сиды (CI2-7 CLOSED, KS FAIL) прироста не дают — новые сиды не перезапускать.
+- 30.10 16:35 coord: W1 J2 (RR1s-cf+M_rp over v3_on) Δ+0.0156 P0.9845 borderline Bonferroni → W4 independent regate (α reselected on v3, P≥0.9857); W1 builds cloudfeat inference module (flag w5_cloudfeat). M_rp over v3_on only +0.0008.
