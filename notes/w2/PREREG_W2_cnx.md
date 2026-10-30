@@ -38,3 +38,28 @@
 - PASS (b) ⇔ Δ ≥ +0.003 И P(B>A) ≥ 0.9 И нет нарушений полов по классам (−0.002 kurgany_povr/tselye/gorodishcha, −0.005 прочие; классы с n_GT<5 исключены)
   И Δ new34 ≥ −0.001 И Δ участки без лидара ≥ −0.001 (те же допуски, что в s2-гейте; будет показан и знак Δ). Принимают только W4/W5.
 - Решение без подглядывания: (b) FAIL → ветка c3-sc закрыта целиком, s3f4 не используется, GPU → heatmap/r50c5 после Сб 03:00. (b) PASS → передать W4/W5, s3f4 — в s0123avg только после повторного гейта.
+
+## P-W2-7  li_hm: lidar heatmap-детектор шага 1 с QFL (зарегистрировано 30.10 04:08 MSK, ДО запуска и измерений; запрос бота 1 30.10 03:59)
+- Гипотеза (REVIEW_SOTA #8, CI2-4): c3-sc (centerhead, шаг 4 = 2 м, penalty-reduced focal по пикам) теряет мелкие/близкие курганы на
+  огрублении до 2 м; теплокарта полного разрешения (0,5 м) с Quality-Focal (β=2) по гауссиане, нормировкой max(Σg·valid, 50), маской nodata
+  и float32-лоссом даёт более точные пики курганов → полезный второй член ансамбля li-слоя.
+- Вариант (единственный, без перебора): ядро elenakonkova/koz3-w2-lihm-c3sc-f01234 = проверенное ядро coord s3f4 (U-Net tu-convnext_tiny,
+  scratch, каналы c3 lrm_s/lrm_l/slope, кроп 512, 12k ит., bs 8, copy-paste, height ×0,5–2,2, zoom ×0,7–1,45, d8-TTA, EMA, AMP) с изменениями
+  ТОЛЬКО флагами: CNX_HEAD=w2hm_head:make_head (голова QflHeatHead, kaggle/2026-10-30/lidar_heatmap/w2hm_head.py: гауссианы σ=max(1, 0,15·D) px,
+  декод maxfilter peak_k=11, min_score 0,05, класс = argmax, круг 0,5 м как у cnx), CNX_TGROUP=li_hm (threshold_group), seed 0,
+  jobs c3-sc:0..4 (2 полосы T4×2), CNX_BUILD_RELIEF=1, deadline 8,5 ч. Маска-голова gor/fort/arch — без изменений. По умолчанию ядро
+  (CNX_HEAD_DEFAULT=centerhead, группа li_cnx) не меняется. Фолды = region_fold s0/s1 (встроенный FOLDS, те же 5 семейных фолдов).
+  c3 (а не c5) — чтобы отличие от c3-sc было только в голове; c5 закрыт ботом 1 и покрывается r50c5.
+- Выход: oof_cnx_c3-sc_f{0..4}.geojson + слитый oof_cnx_c3-sc.geojson (имена ядра cnx, но threshold_group=li_hm, markup_type=li),
+  gt_li_cnx_*, region_fold.json, report_cnx_full.json, maps/ (теплокарты шага 1), weights_cnx_*. Забор → w2/oof/lihm/koz3-w2-lihm-c3sc-f01234/.
+- Ранний стоп (D5, без гейта): Li-only score (compute_metrics, лог ядра) li_hm на f0 и f1 против c3-sc s2 на тех же фолдах (0,2198 / 0,4786):
+  если среднее(f0,f1) li_hm ≤ 0,3492 → линия heatmap закрыта, гейт не считается, квота → W1/r50c5. Иначе — гейт по полному OOF.
+- Гейт (протокол w2/gate_s2, как P-W2-6: prep.py → gate_v6c.py --vs w5data/work/base_counts.pkl, honest-10 по семьям, paired bootstrap 2000
+  по 103 семьям, materials/compute_metrics.py, база A = 0.314615):
+  · H1 аддитивно (основной, решающий): стек A + все строки li_hm (своя группа порогов li_hm, conf без изменений).
+  · H2 замена (вторичный): из стека A удалить li-строки классов kurgany_* (группы markup_type=li) и дописать kurgany_* li_hm; li gor/fort остаются.
+    Решающий ТОЛЬКО если H1 FAIL, и тогда с ужесточением P(B>A) ≥ 0.95 (поправка на второе сравнение).
+  · PASS ⇔ Δ ≥ +0.003 И P(B>A) ≥ 0.9 (H2: ≥ 0.95) И нет нарушений полов по классам (−0.002 kurgany_povr/tselye/gorodishcha, −0.005 прочие;
+    классы с n_GT<5 исключены) И Δ new34 LAS ≥ −0.001 И Δ участки без лидара ≥ −0.001. Принимают только W4/W5.
+- Стоп-правило: H1 и H2 FAIL → линия heatmap закрыта (без донастройки порогов/σ/β на тех же фолдах, без новых сидов); квота → W1/r50c5.
+  PASS → передать W4/W5; доп. сиды — только новым PREREG. Ошибка ядра/таймаут до f0+f1 → одна повторная попытка с тем же кодом, затем стоп.
