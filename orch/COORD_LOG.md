@@ -319,3 +319,29 @@
 - 30.10 10:11 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
 - 30.10 10:14 MSK | lease | acquire slot:acc2/cpu → coord до 30.10 17:14 MSK fallback W3 kurgan seeds 69,70
 - 30.10 10:20 MSK | coord | 15-мин проверка: box load 8.5/8 (полно); acc2/cpu свободен с 10:06 (hillshade-parity COMPLETE) → push dmitrijkv/koz3-w3-kurgan-cpu-seeds seeds 69,70 (аренда coord 7 ч). acc1/gpu-1 свободен с 10:10 (li_hm FAIL, линия закрыта): готового GPU-ядра нет, CI2-5 (W3 bigobj, prereq ae/or-final выполнены) — нужен W3. acc2 GPU cooldown до сб 03:00; aaaa0000004/aaaadg4gg4g4g без интернета, готовых элементов нет.
+- 30.10 10:16 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 10:18 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 11:18 MSK P-W2-9 PREREG + r50c5 kernels push
+- 30.10 10:19 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 10:19 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 11:19 MSK P-W2-9 PREREG + r50c5 kernels push
+- 30.10 10:19 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 10:30 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 10:30 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 10:30 MSK | lease | acquire slot:box/q1 → coord до 30.10 14:30 MSK fallback W3 kurgan seeds 71,72 box CPU (cpu/kurgan_s71)
+- 30.10 10:30 MSK | lease | acquire slot:box/q2 → coord до 30.10 14:30 MSK fallback W3 kurgan seeds 73,74 box CPU (cpu/kurgan_s73)
+- 30.10 10:32 MSK | coord | 15-мин проверка: box простаивал (load 0.9/8: kurgan s65-68 ГОТОВО 8455 с) → release q1/q2, fallback W3 kurgan seeds 71,72 (q1, cpu/kurgan_s71) и 73,74 (q2, cpu/kurgan_s73), venv, KTHREADS=4 nice10, аренды до 14:30. Kaggle: acc1 dino-emb(-gpu) RUNNING, acc2 kurgan-cpu-seeds RUNNING, TPU acc1/acc2 QUEUED (простой из-за очереди Kaggle). acc1/gpu-1 свободен: квота ~3,1 GPU-ч бережём под r50c5-f01 W3 после сб 03:00.
+- 30.10 10:32 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 10:42 MSK | lease | release slot:acc1/cpu (bot-W5-rerank) by coord
+- 30.10 10:42 MSK | lease | release kernel:elenakonkova/koz3-w5-dino-emb (bot-W5-rerank) by coord
+- 30.10 10:42 MSK | watcher | acc1/cpu: elenakonkova/koz3-w5-dino-emb → COMPLETE; аренда снята
+- 30.10 10:48 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 10:50 MSK | lease | acquire slot:aaaa0000004/cpu → coord до 30.10 17:50 MSK fallback W3 kurgan seeds 75,76 (OOF для CI2-7)
+- 30.10 10:51 MSK | lease | acquire slot:aaaadg4gg4g4g/cpu → coord до 30.10 17:51 MSK fallback W3 kurgan seeds 77,78 (OOF для CI2-7)
+- 30.10 10:55 MSK | coord | 15-мин проверка: box load 11/8 (полно, kurgan s71-74). acc1 dino-emb COMPLETE → выход в out/w5-dino-emb (emb.npy 342 МБ), dino-emb-gpu RUNNING; acc2 и usertest1234 kurgan-seeds RUNNING; TPU acc1/acc2 QUEUED (очередь Kaggle). aaaa0000004/aaaadg4gg4g4g/cpu свободны → push kurgan seeds 75,76 (v6) и 77,78 (v5) из своих датасетов (OOF для CI2-7), аренды coord 7 ч. acc1/cpu свободен: доступа к kurgan-data нет (403), готового ядра нет — нужен W5/W2 (CI2-1/CI2-3). acc1/gpu-1 бережём под r50c5 после сб 03:00.
+- 30.10 10:55 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 11:55 MSK follow-up commit cf scripts
+- 30.10 10:55 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 11:00 MSK | lease | acquire slot:box/cpu → bot-W2-lidar до 30.10 16:00 MSK P-W2-10 DEM-fill: gap stats + relief rebuild + CPU infer (nice10, RAYON/torch 3 thr, <=8GB)
+- 30.10 11:03 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 11:05 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 15:05 MSK P-W2-10 DEM-fill prereg/code/results
+- 30.10 11:06 MSK | lease | acquire slot:acc1/cpu → coord до 30.10 18:06 MSK CI2-1 cloudfeat на acc1/cpu (есть интернет; бокс-слоты заняты до 14:30) kernel elenakonkova/koz3-w5-cloudfeat
+- 30.10 11:08 MSK | lease | acquire kernel:elenakonkova/koz3-w5-cloudfeat → coord до 30.10 18:08 MSK CI2-1 cloudfeat
+- 30.10 11:12 MSK | coord | 15-мин проверка: box load 12.4/8 (полно). acc1/cpu простаивал с 10:42 → push elenakonkova/koz3-w5-cloudfeat (CI2-1, ядро W1 без изменений, приватный датасет elenakonkova/koz3-w5-cloudfeat-in с cred.json, интернет есть), аренда coord 7 ч. Выход → w1/cf/box_out-эквивалент: bot-W1 может снять ожидающий run_box.sh и взять cloudfeat.csv из out/w5-cloudfeat. Остальное: dino-emb-gpu и kurgan-seeds RUNNING, TPU QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00.
