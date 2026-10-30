@@ -18,7 +18,22 @@ for p in glob.glob("/kaggle/input/**/", recursive=True):
 log("inputs:", sorted(x.name for x in inp.iterdir()))
 code = inp / "koz3-w3-gorheads-code"
 repo = W / "repo"; repo.mkdir(exist_ok=True)
-with tarfile.open(code / "gorheads_code.tar.gz") as tf: tf.extractall(repo, filter="data")
+tar = code / "gorheads_code.tar.gz"
+src_tree = code / "gorheads_code"
+if tar.exists():
+    with tarfile.open(tar) as tf: tf.extractall(repo, filter="data")
+elif src_tree.is_dir():
+    # dataset was uploaded unpacked (no tar.gz)
+    import shutil
+    for child in src_tree.iterdir():
+        dest = repo / child.name
+        if child.is_dir():
+            shutil.copytree(child, dest, dirs_exist_ok=True)
+        else:
+            shutil.copy2(child, dest)
+    log("repo from unpacked gorheads_code/")
+else:
+    raise FileNotFoundError(f"neither {tar} nor {src_tree}")
 try:
     import rasterio, pyproj, transformers  # noqa
 except ImportError:
