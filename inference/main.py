@@ -6,8 +6,8 @@
 (simple_solution, бейзлайн) передают папку. Если это папка или путь без
 .geojson, результат пишется в <путь>/result.geojson.
 
-Rust-ускоритель подключается из inference/lib/ (файл expds_core*.so), если он
-там есть; иначе работают NumPy-версии тех же функций. Файл результата
+Rust-ускорители подключаются из inference/lib/ (файлы expds_core*.so и
+expds_fast*.so — сетка LAS 0,25 м, expds/las_grid_fast.py), если они там есть; иначе работают NumPy-версии тех же функций. Файл результата
 записывается всегда: при любой ошибке — хотя бы пустой FeatureCollection,
 чтобы запуск не считался упавшим.
 """
@@ -19,6 +19,8 @@ import os
 faulthandler.enable()
 os.environ["GDAL_PAM_ENABLED"] = "NO"
 os.environ["OMP_NUM_THREADS"] = "8"
+# Декодирование блоков GeoTIFF (zstd/deflate) во все потоки; пиксели те же (проверено sha).
+os.environ.setdefault("GDAL_NUM_THREADS", "ALL_CPUS")
 os.environ.setdefault("USER", "solution")
 os.environ.setdefault("LOGNAME", "solution")
 

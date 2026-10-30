@@ -13,7 +13,8 @@ FROM python:3.12-slim-bookworm
 ARG TORCH_INDEX=https://download.pytorch.org/whl/cu128
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 GDAL_PAM_ENABLED=NO OMP_NUM_THREADS=8
+    PIP_DISABLE_PIP_VERSION_CHECK=1 GDAL_PAM_ENABLED=NO OMP_NUM_THREADS=8 \
+    GDAL_NUM_THREADS=ALL_CPUS
 
 # libexpat1: колесо rasterio (GDAL) без неё не импортируется в slim-образе
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libexpat1 \
@@ -28,4 +29,7 @@ COPY requirements.lock /tmp/requirements.lock
 RUN pip install -r /tmp/requirements.lock && rm /tmp/requirements.lock \
     && python -c "import torch, rasterio, shapely, pyproj, laspy, scipy, segmentation_models_pytorch; print('ok')"
 
+# expds_fast (rust/expds_fast, сетка LAS 0,25 м) НЕ ставится в образ: образ публичный, а код едет
+# в архиве. scripts/build_submission.py достаёт expds_fast*.so из rust/expds_fast/wheels/*.whl
+# в inference/lib/. Для локального образа можно: pip install --no-index rust/expds_fast/wheels/*.whl
 WORKDIR /app
