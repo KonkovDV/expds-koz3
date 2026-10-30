@@ -115,7 +115,11 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     """Цепочка v3 (до bot-6 — тело finish)."""
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
-    if (cfg.get("rerank_arch") or {}).get("enabled"):
+    if (cfg.get("orgate") or {}).get("enabled"):
+        from . import orgate           # bot-6: гейт G ВМЕСТО R (то же место цепочки); сбой → маркер и R/база
+
+        out, reranked = orgate.apply_or_fallback(out, cfg)
+    elif (cfg.get("rerank_arch") or {}).get("enabled"):
         from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
@@ -207,7 +211,15 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
     rr = cfg.get("rerank_arch") or {}
-    if rr.get("enabled"):
+    if (cfg.get("orgate") or {}).get("enabled"):
+        try:   # bot-6: гейт G вместо R и в запасной цепочке
+            from . import orgate
+
+            out, reranked = orgate.apply_or_fallback(out, cfg)
+        except Exception:
+            log.exception("orgate в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
+    elif rr.get("enabled"):
         # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
         try:
             from . import rerank_arch

@@ -234,6 +234,9 @@ def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
 
 # ── растр ────────────────────────────────────────────────────────────────────────────────────────────────
 def utm_for(path: Path, fallback_crs: str | None) -> str:
+    """Метрическая CRS сцены: UTM.json участка, если она проецированная; иначе зона UTM по центру растра.
+    bot-6 crsfix (находка bot-9): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
+    сцена строилась с шагом 0,5° вместо 0,5 м (1×1 px, 0 предсказаний). Географическая CRS не берётся."""
     import rasterio
     from pyproj import Transformer
 

@@ -650,7 +650,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
         except Exception as exc:
-            log.exception("%s: ошибка слияния li→ae (%s)", reg.name, exc)
+            # bot-7 (v4, REPORT13_lbv2 бота 10): громкий отказ — копии аэро-курганов с лидара потеряны, маркер ловит check_submission
+            log.exception("LI_TO_AE_FAILED: %s: копирование курганов лидара в ae не выполнено, ae без копий (%s: %s)",
+                          reg.name, type(exc).__name__, str(exc)[:300])
     return _with_copies(feats, reg, cfg)
 
 
@@ -1598,6 +1600,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
+        if (cfg.get("orgate") or {}).get("enabled"):
+            # bot-6 ORGATE: правило LAS и r_las — по наличию LAS во входном каталоге участка (как las_boxes_59 в трейне)
+            from .orgate import CATALOG_KEY, catalog_info
+
+            cfg[CATALOG_KEY] = catalog_info(regions)
         n_las = sum(len(r.las) for r in regions)
         by_raster: dict[str, int] = {}
         n_skipped = 0

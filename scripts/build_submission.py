@@ -33,7 +33,7 @@ LIMIT = 2 * 1024 ** 3
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
 EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5, bot-6)
+FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py (bot-5, bot-6)
 
 
 def _doc1_check(out: Path) -> None:
@@ -69,6 +69,9 @@ def collect() -> list[Path]:
     seen = set()
     rr = cfg.get("rerank_arch") or {}
     rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    og = cfg.get("orgate") or {}
+    # bot-6: гейт ORGATE G (модель + meta) — только если [orgate] enabled
+    rerank += [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json")] if og.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
     # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
