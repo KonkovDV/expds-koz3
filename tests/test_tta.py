@@ -1,6 +1,8 @@
 """Отражения на инференсе: обратное преобразование возвращает карту на место."""
 import numpy as np
-import torch
+import pytest
+
+torch = pytest.importorskip("torch")  # W4: окружение без torch — skip, а не ошибка сбора
 
 from expds.infer_nn import Segmenter
 

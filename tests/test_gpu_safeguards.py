@@ -31,6 +31,7 @@ def _make_tiny_cache(tmp_path: Path) -> Path:
 
 
 def test_train_refuses_silent_cpu_fallback_when_require_gpu(tmp_path: Path) -> None:
+    pytest.importorskip("torch")  # W4: patch("torch.cuda...") требует torch
     cache = _make_tiny_cache(tmp_path)
     out_pt = tmp_path / "out.pt"
     with patch("torch.cuda.is_available", return_value=False):
@@ -47,6 +48,7 @@ def test_train_refuses_silent_cpu_fallback_when_require_gpu(tmp_path: Path) -> N
 
 
 def test_train_refuses_cuda_device_when_cuda_unavailable(tmp_path: Path) -> None:
+    pytest.importorskip("torch")  # W4: patch("torch.cuda...") требует torch
     cache = _make_tiny_cache(tmp_path)
     out_pt = tmp_path / "out.pt"
     with patch("torch.cuda.is_available", return_value=False):

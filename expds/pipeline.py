@@ -348,40 +348,82 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
     pix = geo_cfg.get("pixgbm") or {}
     if pix.get("enabled", False):
         # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        # W4: impl="clean" — чистая перепись по docs/PIXGBM_SPEC_CLEANROOM.md (expds/pix_clean.py),
+        # тот же контракт region_feats/status/dedupe_union; по умолчанию прежняя реализация.
+        impl = str(pix.get("impl", "legacy"))
         try:
-            from . import geo_pixgbm
+            if impl == "clean":
+                from . import pix_clean as pixmod
+                md_default = "models/pix_clean"
+            else:  # DOC-1: прежняя реализация грузится через expds/pix_legacy.py — в архив решения не входит
+                from . import pix_legacy
+                pixmod, md_default = pix_legacy.load(), pix_legacy.MODEL_DIR
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
-            md = Path(pix.get("model_dir", "models/pixgbm/all"))
+            md = Path(pix.get("model_dir", md_default))
             if not md.is_absolute():
                 md = Path(__file__).resolve().parents[1] / md
             # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
             pst: dict = {}
-            new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
+            new = [f for f in pixmod.region_feats(reg, cfg, md, guard=guard, status=pst)
                    if f["class_name"] in cls]
-            import re
-            ure = pix.get("union_name_re", "")
-            if ure and re.search(ure, reg.name):
-                # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
-                # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
-                # или ≤1 м от классической находки (finds_points)
-                new = geo_pixgbm.dedupe_union(feats, new)
-            elif pix.get("replace", False):
-                # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
-                # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
-                have = {(f["class_name"], f["markup_type"]) for f in new}
-                done, fell = pst.get("done", {}), pst.get("fell", {})
-
-                def _drop(f):
-                    key = (f.get("class_name"), f.get("markup_type"))
-                    if key not in have:
-                        return False
-                    return not fell.get(key) or f.get("source") in done.get(key, set())
-                feats = [f for f in feats if not _drop(f)]
-            feats += new
+            feats = pix_merge(feats, new, pst, pix, reg.name, pixmod)
+            # W4 GEO-ORG1 (флаг org_maggr, по умолчанию выключен): кандидаты MagGr по бейзлайну организаторов 01
+            # (expds/pix_org.py) заменяют кандидатов того же класса maggr; группа порога maggr_org.
+            if impl == "clean" and pix.get("org_maggr", False) and (guard is None or guard.left() > 60):
+                from . import pix_org
+                ost: dict = {}
+                onew = pix_org.region_feats(reg, cfg, md / "org", status=ost)
+                if onew:
+                    feats = pix_merge(feats, onew, ost, {"replace": True}, reg.name, pixmod)
         except Exception:
+            if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
+                raise
             log.exception("%s: pixgbm пропущен", reg.name)
+    if pix.get("org_etgr", False) and (guard is None or guard.left() > 60):
+        # W4 GEO-ORG3 (флаг org_etgr, по умолчанию выключен): EtGr object_poly по бейзлайну организаторов 02
+        # (expds/pix_org_et.py) заменяют кандидатов object_poly/etgr (классику или pix); группа порога etgr_org.
+        try:
+            from . import pix_clean, pix_org_et
+            # DOC-1: model_dir берётся только у impl="clean" (у legacy — свой каталог моделей, в архив не идёт)
+            md = Path(pix.get("model_dir", "models/pix_clean") if str(pix.get("impl", "legacy")) == "clean"
+                      else "models/pix_clean")
+            if not md.is_absolute():
+                md = Path(__file__).resolve().parents[1] / md
+            est: dict = {}
+            enew = pix_org_et.region_feats(reg, cfg, md / "org", status=est)
+            if enew:
+                feats = pix_merge(feats, enew, est, {"replace": True}, reg.name, pix_clean)
+        except Exception:
+            if os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
+                raise
+            log.exception("%s: org_etgr пропущен", reg.name)
     return feats
+
+
+def pix_merge(feats: list[dict], new: list[dict], pst: dict, pix: dict, reg_name: str, mod) -> list[dict]:
+    """Классика участка + кандидаты PIXGBM по [geophys.pixgbm] union_name_re / replace (вынесено из geophys_feats
+    без изменения поведения, W4: тот же код собирает OOF из кэша классики, scripts/pix_clean_oof.py)."""
+    import re
+    ure = pix.get("union_name_re", "")
+    if ure and re.search(ure, reg_name):
+        # вариант H/U на участках, чьё имя подходит под union_name_re (H: «Гнёздово»): классика остаётся,
+        # pix-кандидат выбрасывается, если его центр внутри классического полигона (object_poly)
+        # или ≤1 м от классической находки (finds_points)
+        new = mod.dedupe_union(feats, new)
+    elif pix.get("replace", False):
+        # вариант S: классика того же класса и метода на этом участке заменяется кандидатами pix
+        # Растры, где pix не отработал (бюджет/ошибка, status["fell"]), сохраняют классику.
+        have = {(f["class_name"], f["markup_type"]) for f in new}
+        done, fell = pst.get("done", {}), pst.get("fell", {})
+
+        def _drop(f):
+            key = (f.get("class_name"), f.get("markup_type"))
+            if key not in have:
+                return False
+            return not fell.get(key) or f.get("source") in done.get(key, set())
+        feats = [f for f in feats if not _drop(f)]
+    return feats + new
 
 
 def cpu_kurgans(d, region: str, source: str, cfg: dict, root: Path, cand_p) -> list[dict]:
