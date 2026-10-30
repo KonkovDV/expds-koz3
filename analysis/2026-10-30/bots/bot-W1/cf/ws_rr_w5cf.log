@@ -1,0 +1,16 @@
+A 0.3146153226828423
+fold 0 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 131s
+fold 1 {'sw': 0.3, 'be': 1.0, 'tk': (1.0, 2.0)} 139s
+fold 2 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 143s
+fold 3 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 134s
+fold 4 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 134s
+fold 5 {'sw': 0.3, 'be': 1.0, 'tk': (1.0, 2.0)} 122s
+fold 6 {'sw': 1.0, 'be': 1.0, 'tk': (1.0, 2.0)} 125s
+fold 7 {'sw': 1.0, 'be': 1.0, 'tk': (1.0, 2.0)} 129s
+fold 8 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 139s
+fold 9 {'sw': 0.6, 'be': 1.0, 'tk': (1.0, 2.0)} 136s
+M_rp {"score": 0.31898, "d": 0.00437, "P": 0.9885, "p5": 0.001, "p95": 0.00815, "d_new34": 0.00225, "d_optical": 0.00852, "floors_ok": true, "PASS": true} {'kurgan': 0.0, 'gorodi': 0.0166, 'arkhit': -0.0001, 'object': -0.0016, 'fortif': 0.041, 'finds_': 0.0}
+RR1s_ref {"score": 0.33233, "d": 0.01772, "P": 0.996, "p5": 0.00629, "p95": 0.02906, "d_new34": 0.01469, "d_optical": 0.0083, "floors_ok": true, "PASS": true} {'kurgan': 0.0119, 'gorodi': 0.0187, 'arkhit': -0.0001, 'object': -0.0016, 'fortif': 0.0403, 'finds_': 0.0}
+RR1 {"score": 0.32945, "d": 0.01483, "P": 0.9245, "p5": -0.002, "p95": 0.02564, "d_new34": 0.00983, "d_optical": -0.01066, "floors_ok": false, "PASS": false} {'kurgan': -0.0097, 'gorodi': 0.042, 'arkhit': -0.0001, 'object': -0.0016, 'fortif': 0.0302, 'finds_': 0.0}
+RR2 {"score": 0.30521, "d": -0.00941, "P": 0.231, "p5": -0.02784, "p95": 0.00884, "d_new34": -0.02812, "d_optical": 0.00995, "floors_ok": false, "PASS": false} {'kurgan': -0.036, 'gorodi': 0.0088, 'arkhit': -0.0372, 'object': -0.0047, 'fortif': -0.0465, 'finds_': -0.0356}
+WSRRDONE

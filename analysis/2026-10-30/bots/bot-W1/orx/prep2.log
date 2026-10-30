@@ -1,0 +1,5 @@
+/workspace/koz3/w1/orx/prep2.py:24: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  v = np.unique(s.read(4, out_shape=(min(512, s.height), min(512, s.width)), resampling=Resampling.nearest)) if s.count >= 4 else []
+nat 0.017993520886207492 f 13 W,H 3931 3569 R 12 alpha_bug False alpha_fix False band4 vals [-32768      0    255]
+0 3569 106
