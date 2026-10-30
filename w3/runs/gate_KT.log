@@ -1,0 +1,71 @@
+{"auc_geo_all": 0.5898673170709958, "auc_geo_cand": 0.5263834719258224, "auc_blend_all": 0.7338560309780512, "auc_blend_cand": 0.6992953859739495, "auc_cnn_cand": 0.706772941349621}
+replaced 6109
+KT1 extras 6109 drop 6109
+KT2 extras 6109 drop 6109
+KT3 extras 6109 drop 6109
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево done 0s rss 303MB
+Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты done 14s rss 1306MB
+Архангельское done 15s rss 1306MB
+Белая+Воронеж+Россошки done 17s rss 1306MB
+Бервенец done 18s rss 1306MB
+Боровичи done 33s rss 1422MB
+Верхмарево done 36s rss 1458MB
+Верхнее done 37s rss 1458MB
+Верхний done 37s rss 1458MB
+Верхняя done 38s rss 1458MB
+Вщиж done 41s rss 1458MB
+Вышегжа done 58s rss 1750MB
+Вышенское done 62s rss 1769MB
+Гнёздово done 75s rss 1783MB
+Гочево done 77s rss 1783MB
+Граборг done 84s rss 1783MB
+Демидовка done 86s rss 1783MB
+Золотаревка done 97s rss 1802MB
+Изборск done 99s rss 1802MB
+Каменка done 100s rss 1802MB
+Костомаровское done 102s rss 1802MB
+Ксизово done 103s rss 1802MB
+Курган done 104s rss 1802MB
+Лихуша done 106s rss 1802MB
+Лубно done 107s rss 1802MB
+Макеево done 109s rss 1802MB
+Маяцкая done 109s rss 1802MB
+Московиты done 111s rss 1802MB
+Мостище done 112s rss 1802MB
+Муравлево done 115s rss 1802MB
+Никола done 116s rss 1802MB
+Новенькое done 117s rss 1802MB
+Нора done 118s rss 1802MB
+Перынь done 118s rss 1802MB
+Романово done 120s rss 1802MB
+Руна done 121s rss 1802MB
+Русская done 121s rss 1802MB
+Саратов+Тыва done 123s rss 1802MB
+Сарское done 124s rss 1802MB
+Сельцо done 125s rss 1802MB
+Селяне done 126s rss 1802MB
+Скупая done 126s rss 1802MB
+Сож done 129s rss 1802MB
+Солдатское done 130s rss 1802MB
+Сторожевое done 130s rss 1802MB
+Стрекаловка done 131s rss 1802MB
+Судьбищи done 133s rss 1802MB
+Тешилово done 135s rss 1802MB
+Тимерево done 135s rss 1802MB
+Усть done 136s rss 1802MB
+Хальвасборген+Эсбю done 139s rss 1802MB
+Хога done 140s rss 1802MB
+Чудово done 141s rss 1802MB
+Шетнево done 144s rss 1802MB
+Шишкино done 145s rss 1802MB
+Шниткино done 146s rss 1802MB
+Шумгора done 151s rss 1802MB
+Шурскол done 152s rss 1802MB
+Эрентуна done 154s rss 1802MB
+Юшково done 156s rss 1802MB
+A0 honest all/new/optical [0.314615, 0.296451, 0.144274]
+KT1: honest 0.316199 Δ +0.001583 | 34new Δ +0.000088 | optical Δ +0.000000 | P(A>B) 0.956 90% [+0.0001;+0.0035] gate fail
+KT2: honest 0.316058 Δ +0.001443 | 34new Δ +0.000044 | optical Δ +0.000000 | P(A>B) 0.774 90% [-0.0004;+0.0034] gate fail
+KT3: honest 0.315504 Δ +0.000889 | 34new Δ +0.001215 | optical Δ +0.000000 | P(A>B) 0.739 90% [-0.0006;+0.0024] gate fail
+KTGATE_EXIT 0
