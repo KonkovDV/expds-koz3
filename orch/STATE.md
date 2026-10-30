@@ -37,5 +37,3 @@
 - Аренды: `orch/lease.sh` (flock). Конфликты: `orch/check_conflicts.sh --all --log` (последний прогон 22:32: ERROR 0, WARN 2 — отдельные клоны w2/repo, w4/repo).
 - Rust: `rust/expds_core` в bots/w0-rust-speed; колесо в /workspace/koz3/w0/pylib (PYTHONPATH). `inference/lib/expds_core.abi3.so` архива **не** обновлён (нужна проверка glibc контейнера).
 - Данные ПК: `/workspace/koz3/pc_data/` ещё не создан; ПК сейчас offline. S3 организаторов (train-expds-3) — сырые данные, OOF/table.pkl не заменяет.
-
-- 30.10 00:50 коорд.: репро бейзлайнов орг. (MagGr 207 = 0,595/0,688 1:1), сравнение 1:1 на прокси: EtGr орг. +0,0208 глоб. (гейт пройден), MagGr полигоны +0,002, точки −0,006. Добавлен GEO-ORG3 (W5), GEO-ORG1 сужен. Код: orch/geo_org_repro.

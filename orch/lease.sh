@@ -15,7 +15,7 @@ cmd="${1:-list}"
 if [[ "$cmd" == sync ]]; then
   exec 9>"$LOCK"; flock -w 60 9
   cd "$WT"
-  git fetch -q origin bots/orch-protocol && git rebase -q origin/bots/orch-protocol || { echo "rebase failed"; exit 1; }
+  git fetch -q origin bots/orch-protocol && git rebase -q --autostash origin/bots/orch-protocol || { echo "rebase failed"; exit 1; }
   cp "$ORCH/LEASES.json" "$ORCH/COORD_LOG.md" orch/
   if grep -qE 'KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}' orch/LEASES.json orch/COORD_LOG.md; then echo "SECRET PATTERN — отмена"; exit 2; fi
   git add orch/LEASES.json orch/COORD_LOG.md

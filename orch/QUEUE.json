@@ -422,8 +422,8 @@
     "смоук пройден"
    ],
    "review_item": 8,
-   "status": "planned",
-   "note": "иначе TPU простаивает — допустимо"
+   "status": "hold",
+   "note": "иначе TPU простаивает — допустимо | hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes"
   },
   {
    "id": "W2-cpu",
@@ -526,7 +526,7 @@
    "prerequisites": [],
    "status": "ready",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: логиты сидов нужны для WS-K1 (тай-брейк)"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
   },
   {
    "id": "P-W2-hillshade-parity",
@@ -550,7 +550,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: WS-A1 — сначала дешёвый вариант ae_nolidar_only + τ-сетка {0.5,0.7,0.85,0.95} по class + cap/участок (CPU<1 ч, Δ +0.002…+0.008, можно до 31.10 на старых выходах); WS-A2 — псевдометки Li→Ae (TP OOF conf≥0.9) + 1 эпоха D-FINE ae, GPU 3–4 ч после ae-final"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
   },
   {
    "id": "P-W4-compgate",
@@ -601,7 +601,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: гигант-курганы 182 вынесены в WS-182 (W2, CPU), не смешивать"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
   },
   {
    "id": "P-W4-multihyp",
@@ -641,7 +641,7 @@
    ],
    "status": "planned",
    "review_item": "MASTER_PLAN",
-   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md: V5/V5x/V6c reject (V5x new34 +0.022, optical −0.038) → сначала WS-RR1; DINOv2-признаки добавлять в WS-RR1 только для Li/La и gor/fort (WS-G1)"
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
   },
   {
    "id": "P-W1-sat",
@@ -841,67 +841,15 @@
    "note": "bot1 29.10 23:10: в GPU-очередь W3 после текущих acc1 (ae/or-final)"
   },
   {
-   "id": "WS-RR1",
-   "owner": "W5",
-   "accelerator": "cpu",
-   "account": "box",
-   "kernel_folder": "реранкер V5x: гейт по модальности (только Li/La), rank-бленд α∈{0.3,0.5,0.7,1.0}, изотоника class×layer (family-CV), пересвип τ P(hit)>F/(4−F)+floor top-k; метка = hit по метрике",
-   "prerequisites": [
-    "chain2 OOF (w5data/log/chain2.log, done)"
-   ],
-   "status": "ready",
-   "review_item": "WEAKSPOTS_PLAN #1",
-   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.008…+0.02; CPU 1–2 ч; основание: V5x d_new34 +0.022, d_optical −0.038"
-  },
-  {
-   "id": "WS-RR2",
-   "owner": "W5",
-   "accelerator": "cpu",
-   "account": "box",
-   "kernel_folder": "кардинальный prior: k̂ GT по (class,layer,площадь,модальность), отбор top-k(λ·k̂), λ∈{1,1.5,2}",
-   "prerequisites": [
-    "WS-RR1"
-   ],
-   "status": "ready",
-   "review_item": "WEAKSPOTS_PLAN #4",
-   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.003…+0.01; CPU 1 ч"
-  },
-  {
-   "id": "WS-K1",
-   "owner": "W3",
-   "accelerator": "cpu",
-   "account": "box",
-   "kernel_folder": "тай-брейк курганов: conf+1e-3·z(LRM-пик r10/20, проминенция, циркулярность, fill-доля) + среднее логитов сидов",
-   "prerequisites": [
-    "P-W3-seeds-fix (сиды 41/42)"
-   ],
-   "status": "ready",
-   "review_item": "WEAKSPOTS_PLAN #2",
-   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.004…+0.012; CPU 1–2 ч; тай-брейк можно мерить сразу, сиды добавить по готовности"
-  },
-  {
-   "id": "WS-G1",
-   "owner": "W3",
-   "accelerator": "cpu",
-   "account": "box",
-   "kernel_folder": "few-shot верификатор gor/fort: DINOv2 кропы → kNN к прототипам GT vs hard-neg (LOFO), признак/множитель conf; + радиальный профиль LRM вал/ров (WS-G2) как признак",
-   "prerequisites": [
-    "w5-dino-emb (elenakonkova CPU)"
-   ],
-   "status": "planned",
-   "review_item": "WEAKSPOTS_PLAN #5,#6",
-   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ +0.002…+0.01; CPU 2 ч; НЕ детектор (MORPH_RING/coarse_hillfort были −)"
-  },
-  {
-   "id": "WS-182",
+   "id": "W2-c3sc-s3f4-run",
    "owner": "W2",
-   "accelerator": "cpu",
-   "account": "box",
-   "kernel_folder": "крупномасштабная ветка: DEM 1 м, LRM r 60–80 м, DoG-блобы d 80–170 м, проминенция≥0.3 м, ≤1/участок, полигон=контур; флаг off",
-   "prerequisites": [],
-   "status": "planned",
-   "review_item": "WEAKSPOTS_PLAN #8",
-   "note": "coord 30.10 01:20: orch/WEAKSPOTS_PLAN.md; Δ 0…+0.003; CPU 2–3 ч; низкий приоритет — только при простое CPU"
+   "kernel_folder": "orch/coordk/s3f4",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "slot": "acc1/gpu-2",
+   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s3f4",
+   "status": "running",
+   "note": "запущен coord 30.10 03:35 (аренда до 07:35), НЕ трогать; результат используется только если вариант (b) P-W2-6 PASS, иначе в архив без использования. hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes"
   }
  ],
  "cooldown": {
@@ -916,8 +864,9 @@
    "account": "elenakonkova",
    "kernel": "elenakonkova/koz3-w1-dfine-ae-final",
    "slot": "acc1/gpu-1",
-   "status": "pushed",
-   "started": "29.10 22:23"
+   "status": "done",
+   "started": "29.10 22:23",
+   "finished": "30.10 03:47 COMPLETE"
   },
   {
    "id": "w2-c3sc-s1f23",
@@ -986,11 +935,14 @@
    "accel": "cpu",
    "account": "dmitrijkv",
    "ttl_h": 12.0,
-   "status": "ready",
+   "status": "pushed",
    "after": [],
    "kernel_dir": "w2hs/k",
    "pull_to": "w2hs/out",
-   "note": "CI2-8: LAS→DEM→отмывка vs Li (S3, интернет нужен → только dmitrijkv). Датасет dmitrijkv/koz3-w2-hsparity-code ready"
+   "note": "CI2-8 v2 all S3 LAS; manual push by bot-W2 per bot1 30.10 08:21 under lease",
+   "kernel": "dmitrijkv/koz3-w2-hillshade-parity-s3",
+   "slot": "acc2/cpu",
+   "started": "30.10 08:29"
   },
   {
    "id": "w3-seeds-v5-usertest1234",
@@ -1093,6 +1045,97 @@
    "kernel_dir": "wt/w3/kernels/koz3-w3-gordense-timing",
    "pull_to": "orch/bot-W3/gordense_timing_out",
    "note": "gor_dense T4 timing (single GPU, 55 min hard cap); first free acc2 GPU slot"
+  },
+  {
+   "id": "w2-r50c5",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "w2/kernels/koz3-w2-cnx-r50c5-f01",
+   "pull_to": "w2/oof/r50c5",
+   "note": "T5 2-й лидарный детектор ResNet50 c5 sc f0/f1; acc2 после сброса 31.10 03:00; приоритет ПОСЛЕ W3 CI2-5 (CI2-5 не в dispatch → after не ставлю, держу hold; снимает coord/bot1)"
+  },
+  {
+   "id": "w4-v2clean-check",
+   "owner": "bot-W4-clean",
+   "accel": "cpu",
+   "account": "usertest1234",
+   "ttl_h": 3.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w4geo/kaggle/koz3-w4-v2clean-check",
+   "pull_to": "w4geo/kaggle/out_v2clean_check",
+   "note": "check_submission v2-clean 26ad1ba sha 15d59e9f (бот 1 разрешил)",
+   "errors": [
+    "30.10 07:21 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel",
+    "30.10 07:32 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel"
+   ],
+   "kernel": "usertest1234/koz3-w4-v2cleanchk-k",
+   "slot": "usertest1234/cpu",
+   "started": "30.10 07:37",
+   "finished": "30.10 07:55 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-c3sc-s3plus",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "(не создан) koz3-w2-cnx-c3sc-s3f01 / -s3f23 / s4* …",
+   "note": "hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes | заглушка-запрет: любые дальнейшие c3-sc сиды (s3f01, s3f23, s4+ …) не ставить и не пушить; снимает только бот 1"
+  },
+  {
+   "id": "w2-lihm-c3sc",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 10.0,
+   "status": "pushed",
+   "after": [],
+   "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-lihm-c3sc-f01234",
+   "pull_to": "w2/oof/lihm/koz3-w2-lihm-c3sc-f01234",
+   "note": "P-W2-7 li_hm; manual push by bot-W2 per bot1 30.10 03:59 under lease",
+   "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234",
+   "slot": "acc1/gpu-1",
+   "started": "30.10 04:04"
+  },
+  {
+   "id": "w4-v2clean-check2",
+   "owner": "bot-W4-chk2",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 3.0,
+   "status": "pushed",
+   "after": [],
+   "kernel_dir": "w4geo/kaggle/koz3-w4-v2cleanchk2",
+   "pull_to": "w4geo/kaggle/out_v2clean_check2",
+   "note": "check_submission v2-clean 15d59e9f + pip laspy/smp (lock versions)",
+   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 08:42"
+  },
+  {
+   "id": "w2-gaudit-ci2-3",
+   "owner": "bot-W2-lidar",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 12.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w2/gaudit/k",
+   "pull_to": "w2/gaudit/out",
+   "note": "CI2-3v2 ground-clip audit, P-W2-8; manual push by bot-W2 per bot1 30.10 08:21 under lease",
+   "kernel": "aaaa0000004/koz3-w2-ground-clip-audit",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 08:34",
+   "finished": "30.10 08:42 COMPLETE",
+   "pulled": "rc=0"
   }
  ]
 }

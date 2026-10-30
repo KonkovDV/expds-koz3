@@ -69,6 +69,12 @@ def watch_running():
         if not res.startswith("slot:"): continue
         slot = res[5:]
         if slot.startswith("box/"):
+            # fix 30.10: трогаем только аренды, выданные самим watcher-ом (note == id элемента dispatch);
+            # ручные аренды ботов на box/* снимаются только по expiry или владельцем.
+            it = next((x for x in json.load(open(O / "QUEUE.json"))["dispatch"] if x.get("slot") == slot and x["status"] == "running"), None)
+            if not it or L.get("note") != it.get("id"):
+                procs.pop(slot, None) if (procs.get(slot) is not None and procs[slot].poll() is not None) else None
+                continue
             p = procs.get(slot)
             if p is not None:
                 if p.poll() is not None: finish(slot, L, "COMPLETE" if p.returncode == 0 else f"EXIT{p.returncode}")
