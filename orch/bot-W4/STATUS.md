@@ -46,3 +46,50 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 - DOC-1 hard guard: bots/w4-pix-clean 70d335a — scripts/check_archive_clean.py (EN names + scripts/en_denylist.sha256 (35 sha, sha256sum-only) + bytes grep geo_pixgbm|EhimenNathan|pixgbm/ (i) + configs/*.toml must not reference w4pix/models/pixgbm/geo_pixgbm/kurgan-pix/hillshade-parity runs); legacy import moved to expds/pix_legacy.py (excluded from archives). tests/test_doc1_guard.py 20 passed incl. e2e negative (planted geo_pixgbm.py → rc≠0, no zip).
 - Rebuilt v2clean from 70d335a (same config + 6 weights): guard PASS, sha256 545ef32a70b4994f4d694828ae5eb28f27c9161d7f19a96f5a9d3833b87e093f (changed from 15d59e9f: only configs/default.toml comment + expds/pipeline.py rename; same 58 files). Old 15d59e9f fails the new guard (2 pattern hits). check_submission of 545ef32a queued: watcher w4-v2clean-check4 (lease bot-W4-chk3 dataset+kernel aaaa0000004, until 21:20 MSK).
 - Ported to bots/w4-gate ab9fd82 (20 passed). v3 probe build (configs/v3_on.toml) fails the guard as intended: legacy PIXGBM enabled + model_dir models/pixgbm/all + geo_pixgbm in pipeline.py → v3/v4 need a pix_clean port before any archive. Not ported to bots/w4-doc1-v4 (different build script; its default.toml model_dir would trip it).
+
+## 30.10 12:55 MSK — bot C (агент 3) принял роль W4 gate + W5 rerank
+- wt/w4 @ bots/w4-gate 7eb271c; wt/w5 @ bots/w5-rerank c4e18a9; orch lease.sh ok.
+- Жду гейт после r50c5 f234 (hold до 31.10 03:00). Независимая перепроверка: A=0.314615, Δ≥+0.003, P≥0.9.
+- Очередь: v3a / check4(545ef32a) / DOC-1 guard; WS-G1+OOF-реранкер после dino-emb.
+- GPU push только с арендой от A. Чужие RUNNING не трогаю. Отчёты A ≤10 строк.
+- Блокер: на боксе нет table.pkl/OOF-стека A, out/w5-dino-emb, w4geo/kaggle/out_v2clean_check4 — нужны пути/зеркало от A.
+
+## 30.10 12:57 MSK — зеркала для C
+- /workspace/koz3/out/w5-dino-emb восстановлен с Kaggle (emb.npy 327M).
+- table.pkl/OOF A: блокер ПК Елены (F:\\expds3\\work → /workspace/koz3/pc_data или w5data/work).
+- out_v2clean_check4: нужен pull aaaa0000004/koz3-w4-v2cleanchk2; CPU-пул ключей нет.
+
+30.10 12:57 MSK | bot C | пути A подтверждены: dino-emb OK (emb 327M n~222929); table/OOF A hold (pc_data пуст); check4 пуст — нет токенов aaaa/usertest; GPU не пушу; жду f234→гейт 31.10 03:05
+30.10 13:05 MSK | A (coord) | orch refresh: ROSTER.md, STATE NOW, local_ctx/README, GPU cooldown до 31.10 03:05, watcher запущен; аренды D: branch:bots/w1-aeor + branch:bots/w3-kurgan-seeds до 01.11 12:57 | — | orch/ROSTER.md
+
+30.10 13:10 MSK | bot C | GO от A: table/OOF A снят. Старт: паритет v2 → v3a рычаги → WS-G1. A=0.314615 подтверждён. GPU не пушу. check4 ждёт ключи.
+30.10 13:11 MSK | C | GO: паритет v2 → v3a → WS-G1/OOF-rerank; box/q1 leased; A=0.314615 d=0
+
+30.10 13:12 MSK | C | Елена via A: цель 0.61 строго. Приоритет: (1) паритет v2 PASS (2) v3a max Δ на аэро/4-й мод. + крупные 5–10k м² (3) OOF-rerank/WS-G1. Ищем прорыв aerial recall (сейчас 0.013); план ~0.45–0.50 недостаточен.
+
+30.10 13:16 MSK | C | BREAKTHROUGH_061 START: parity PARTIAL (нет LAS/tif/v2 zip на боксе; prior golden PASS 56cdf39). L10o/L3a FAIL; L3m Δ+0.008 но d_new34−0.05 FAIL. Далее: #12 → v3a-min(ORG3+M_rp) → xlayer → τ/MagGr → WS-G1 parallel на box/cpu. GPU нет. acc1/cpu-2: готового ядра нет — пока не прошу.
+
+## 30.10 13:24 MSK — bot C: parity / #12 / v3a levers (OOF A, honest-10, PREREG bot-W4/PREREG_v3a_levers.md)
+- Parity v2: PARTIAL (pass-with-caveat): 4 v2 release artifacts in git eb268d6 sha256 == REPRO_V2 manifest; golden e2e NOT re-runnable on box (no LAS/tif inputs, no v2 zip, no w4geo/dist). Prior 29.10 byte-identical evidence stands. LB blocker = v2clean 545ef32a check4 (needs aaaa key). runs/parity_v2_20261030.json
+- #12 composition gate implemented (public/closed mixes, weighted family bootstrap). runs/compgate_notes.md
+- M_rp reproduced on box (rebuilt geom_wkb/gt_wkb + W0 rp pairs): Δ+0.00437 P0.989 new34 +0.0022 opt +0.0085; #12 pub +0.0021 P0.92, closed +0.0038 P0.999 -> PASS = v3a-minimum (ORG3 part not on this OOF). runs/v3a_stack_gate.json
+- FAIL: X1 xlayer Li→Ae/Sp, Sp↔Or −0.0110 P0.01 (metric matches globally -> copies can't add hits); L3be break-even +0.0015 P0.87; L3m modality-τ +0.0080 P0.80 but new34 −0.054; L3a area-bin τ −0.0035; L10o obj>30m +0.00001; L14 dedup −0.019; L14s −0.009; L14g no-op.
+- Aerial: oracle (any candidate) recall ae kurgan povr 0.45 / tselye 0.45, ae arch 0.0, ae gor 0.37 -> 639 ae povr GT have no candidate: aerial is detector-bound (W1 GPU), not post-proc.
+- Blocked: MagGr 0.05 m (inference param, needs raw geophysics), L8 EtGr depth, L13 survey contour (no inputs on box).
+30.10 13:24 MSK | C | pushed bots/w4-gate b03a4fd, bots/w5-rerank 8c5c37b; released slot:box/q1 + slot:box/cpu (work done; WS-G1 retry waits ViT-B emb)
+
+30.10 13:26 MSK | C | A ack: ORG3∉LB OK; xlayer закрыт; M_rp PASS. Дальше: (1) check4 ждать aaaa-ключ (2) пакет v2clean+ORG3+M_rp для Елены (3) WS-G1 только после vitb TPU COMPLETE. box/q1→D e2e, box/cpu→B WS-182 — не беру. GPU 03:05 = ae V7/WS-A2.
+
+30.10 13:27 MSK | C | A: usertest+aaaadg keys в local_ctx; aaaa0000004 нет → check4 HOLD. GO pull check4 сразу как aaaa появится.
+
+30.10 13:32 MSK | C | check4 PASS (aaaa koz3-w4-v2cleanchk2, FAIL0 WARN2). PREP_V3A DONE: koz3_v3a_min_4da2eb9_2f2d236a_wb042594f.zip sha256 132c22eb… (v2clean+ORG3+M_rp), DOC-1 OK, README_v3a_min.md. Branch bots/w4-pix-clean @ 4da2eb9. Не сабмитить — Елена. Next: optional check_submission v3a_min on aaaa; WS-G1 after vitb.
+
+30.10 13:37 MSK | C | v3a_min check_submission aaaa/koz3-w4-v3amin-chk: PASS FAIL0 WARN2 (sha132c22eb OK, smoke 14s). Log: w4geo/kaggle/out_v3a_min_chk/check_submission.log. Leases aaaa/cpu-2 + dataset/kernel released. Elena-ready; LB untouched.
+
+30.10 14:27 MSK | C | A PRIORITY: LB 0.412→0.378 = geo PIXGBM cut (DOC-1). v3a_min **NOT next LB**. Path: cleanroom PIXGBM per PIXGBM_SPEC_CLEANROOM + TerFl 0.58017; gate geo P/R ≥ v2 (~.769/.656) vs bot7cand_v2/geo5, not A. Waiting PIXGBM_RECOVER_*.md from coord. No LB submit. WS-G1 hold. Blockers: recover brief not on disk yet; need geo5/v2 baseline artifacts + TerFl re-enable; box still lacks full geo rasters for retrain if needed.
+
+30.10 14:30 MSK | C | Gate prep: geo5 harness FOUND (pix_clean_eval/oof, R17* JSONs, compute_metrics). S3 geo pull started 320f/1.43GiB → w4geo/train. MISSING: bot7cand_v2 zip (Elena PC), oof/geojsons, modality-P/R-vs-v2 wrapper. No aaaa/cpu-2. Await PIXGBM_RECOVER brief for concrete GO.
+
+30.10 14:35 MSK | C | PIXGBM_RECOVER GO: geo pull DONE w4geo/train 1.5G; scripts/pix_geo_pr_gate.py added (C* vs REF, LB geo P/R); v2_clean terfl_pix=0.58017, maps etgr-only until gate. Await Elena v2-ref + A/D OOF finds-fix. v3a frozen.
+
+30.10 14:35 MSK | C | A ack: train/ canonical; v2-ref=Elena; OOF/finds-fix=A/exec, D=CPU folds. C (1)(2) DONE @81d502b pix_geo_pr_gate + terfl_pix=0.58017 maps=[etgr]. Idle for C*/REF geojsons. No aaaa/cpu-2.
