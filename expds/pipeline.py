@@ -30,6 +30,10 @@ from .constants import DEFAULT_BUDGET_S
 log = logging.getLogger(__name__)
 
 
+class PixgbmModuleMissing(RuntimeError):
+    """bot-6: [geophys.pixgbm] enabled=true, а expds/geo_pixgbm.py нет и EXPDS_PIXGBM_STRICT=1."""
+
+
 class TimeGuard:
     """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
 
@@ -366,9 +370,13 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 try:
                     pixmod, md_default = pix_legacy.load(), pix_legacy.MODEL_DIR
                 except ImportError:
-                    # expds/geo_pixgbm.py не хранится в main (docs/MERGE_2026-10-29.md) — классика
-                    log.warning("%s: pixgbm impl=legacy, но expds/geo_pixgbm.py нет в этой сборке — классика",
-                                reg.name)
+                    # expds/geo_pixgbm.py не хранится в main (docs/MERGE_2026-10-29.md) — классика.
+                    # bot-6: ERROR, не WARNING — иначе прогон тихо отличается от v2.
+                    # EXPDS_PIXGBM_STRICT=1 — исключение вместо классики (прогоны на ПК и в CI).
+                    log.error("%s: pixgbm impl=legacy, но expds/geo_pixgbm.py нет в этой сборке — классика "
+                              "(сборка ≠ v2 LB; см. docs/PIXGBM_DECISION.md)", reg.name)
+                    if os.environ.get("EXPDS_PIXGBM_STRICT", "") == "1":
+                        raise PixgbmModuleMissing("expds/geo_pixgbm.py нет, а [geophys.pixgbm] impl=legacy")
                     return feats
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
@@ -388,6 +396,8 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 onew = pix_org.region_feats(reg, cfg, md / "org", status=ost)
                 if onew:
                     feats = pix_merge(feats, onew, ost, {"replace": True}, reg.name, pixmod)
+        except PixgbmModuleMissing:
+            raise
         except Exception:
             if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
                 raise
