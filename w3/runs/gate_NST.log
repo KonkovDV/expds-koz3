@@ -1,0 +1,70 @@
+m0 115578
+m0_O 116753
+m1 115578
+m1_O 116753
+m2 115578
+m2_O 116753
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево done 9s rss 5389MB
+Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты done 35s rss 6820MB
+Архангельское done 44s rss 6820MB
+Белая+Воронеж+Россошки done 51s rss 6820MB
+Бервенец done 60s rss 6820MB
+Боровичи done 82s rss 6839MB
+Верхмарево done 93s rss 6839MB
+Верхнее done 101s rss 6839MB
+Верхний done 108s rss 6839MB
+Верхняя done 115s rss 6839MB
+Вщиж done 126s rss 6839MB
+Вышегжа done 151s rss 7182MB
+Вышенское done 164s rss 7182MB
+Гнёздово done 187s rss 7182MB
+Гочево done 196s rss 7182MB
+Граборг done 209s rss 7182MB
+Демидовка done 220s rss 7182MB
+Золотаревка done 238s rss 7182MB
+Изборск done 246s rss 7182MB
+Каменка done 254s rss 7182MB
+Костомаровское done 261s rss 7182MB
+Ксизово done 269s rss 7182MB
+Курган done 277s rss 7182MB
+Лихуша done 288s rss 7182MB
+Лубно done 298s rss 7182MB
+Макеево done 307s rss 7182MB
+Маяцкая done 314s rss 7182MB
+Московиты done 324s rss 7182MB
+Мостище done 333s rss 7182MB
+Муравлево done 344s rss 7182MB
+Никола done 352s rss 7182MB
+Новенькое done 361s rss 7182MB
+Нора done 369s rss 7182MB
+Перынь done 377s rss 7182MB
+Романово done 388s rss 7182MB
+Руна done 397s rss 7182MB
+Русская done 406s rss 7182MB
+Саратов+Тыва done 415s rss 7182MB
+Сарское done 424s rss 7182MB
+Сельцо done 432s rss 7182MB
+Селяне done 441s rss 7182MB
+Скупая done 450s rss 7182MB
+Сож done 460s rss 7182MB
+Солдатское done 469s rss 7182MB
+Сторожевое done 478s rss 7182MB
+Стрекаловка done 486s rss 7182MB
+Судьбищи done 495s rss 7182MB
+Тешилово done 505s rss 7182MB
+Тимерево done 513s rss 7182MB
+Усть done 522s rss 7182MB
+Хальвасборген+Эсбю done 533s rss 7182MB
+Хога done 541s rss 7182MB
+Чудово done 550s rss 7182MB
+Шетнево done 560s rss 7182MB
+Шишкино done 569s rss 7182MB
+Шниткино done 577s rss 7182MB
+Шумгора done 590s rss 7182MB
+Шурскол done 599s rss 7182MB
+Эрентуна done 610s rss 7182MB
+Юшково done 619s rss 7182MB
+main: B 0.319285 NST 0.319236 Δ -0.000049 | 34new +0.001855 | optical -0.007894 | P 0.483 [-0.0037;+0.0037] fail | choice {'gorodishcha': ['m2', 'm2', 'm2', 'm2', 'm1', 'm1', 'm2', 'm2', 'm2', 'm2'], 'arkhitektury': ['m0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0'], 'object_poly': ['m0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0', 'm0'], 'fortifikatsii': ['m1', 'm1', 'm1', 'm2', 'm1', 'm1', 'm1', 'm0', 'm1', 'm1']} | f1 {'gorodishcha': [0.2959, 0.295], 'arkhitektury': [0.0582, 0.0582], 'fortifikatsii': [0.1954, 0.1971], 'object_poly': [0.1305, 0.1305]}
+org3: B 0.358443 NST 0.358394 Δ -0.000049 | 34new +0.001855 | optical -0.007894 | P 0.483 [-0.0037;+0.0037] fail | choice {'gorodishcha': ['m2_O', 'm2_O', 'm2_O', 'm2_O', 'm1_O', 'm1_O', 'm2_O', 'm2_O', 'm2_O', 'm2_O'], 'arkhitektury': ['m0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O'], 'object_poly': ['m0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O', 'm0_O'], 'fortifikatsii': ['m1_O', 'm1_O', 'm1_O', 'm2_O', 'm1_O', 'm1_O', 'm1_O', 'm0_O', 'm1_O', 'm1_O']} | f1 {'gorodishcha': [0.2959, 0.295], 'arkhitektury': [0.0582, 0.0582], 'fortifikatsii': [0.1954, 0.1971], 'object_poly': [0.5221, 0.5221]}
+NST_EXIT 0
