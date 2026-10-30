@@ -353,11 +353,11 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         impl = str(pix.get("impl", "legacy"))
         try:
             if impl == "clean":
-                from . import pix_clean as geo_pixgbm
+                from . import pix_clean as pixmod
                 md_default = "models/pix_clean"
-            else:
-                from . import geo_pixgbm
-                md_default = "models/pixgbm/all"
+            else:  # DOC-1: прежняя реализация грузится через expds/pix_legacy.py — в архив решения не входит
+                from . import pix_legacy
+                pixmod, md_default = pix_legacy.load(), pix_legacy.MODEL_DIR
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
             md = Path(pix.get("model_dir", md_default))
@@ -365,9 +365,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 md = Path(__file__).resolve().parents[1] / md
             # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
             pst: dict = {}
-            new = [f for f in geo_pixgbm.region_feats(reg, cfg, md, guard=guard, status=pst)
+            new = [f for f in pixmod.region_feats(reg, cfg, md, guard=guard, status=pst)
                    if f["class_name"] in cls]
-            feats = pix_merge(feats, new, pst, pix, reg.name, geo_pixgbm)
+            feats = pix_merge(feats, new, pst, pix, reg.name, pixmod)
             # W4 GEO-ORG1 (флаг org_maggr, по умолчанию выключен): кандидаты MagGr по бейзлайну организаторов 01
             # (expds/pix_org.py) заменяют кандидатов того же класса maggr; группа порога maggr_org.
             if impl == "clean" and pix.get("org_maggr", False) and (guard is None or guard.left() > 60):
@@ -375,7 +375,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 ost: dict = {}
                 onew = pix_org.region_feats(reg, cfg, md / "org", status=ost)
                 if onew:
-                    feats = pix_merge(feats, onew, ost, {"replace": True}, reg.name, geo_pixgbm)
+                    feats = pix_merge(feats, onew, ost, {"replace": True}, reg.name, pixmod)
         except Exception:
             if impl == "clean" and os.environ.get("EXPDS_PIXGBM_STRICT") == "1":
                 raise
@@ -385,7 +385,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         # (expds/pix_org_et.py) заменяют кандидатов object_poly/etgr (классику или pix); группа порога etgr_org.
         try:
             from . import pix_clean, pix_org_et
-            # DOC-1: model_dir берётся только у impl="clean" (у legacy там models/pixgbm/all — в архив не идёт)
+            # DOC-1: model_dir берётся только у impl="clean" (у legacy — свой каталог моделей, в архив не идёт)
             md = Path(pix.get("model_dir", "models/pix_clean") if str(pix.get("impl", "legacy")) == "clean"
                       else "models/pix_clean")
             if not md.is_absolute():

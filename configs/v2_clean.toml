@@ -151,7 +151,7 @@ kurgany_tselye = 1.000001
 [thresholds_by_markup.etgr]
 object_poly = 0.096635
 
-# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — bot-3/pixgbm/pc/thr_pix_full.json (bot-9, fit_thr.py:
+# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — thr_pix_full.json бота 3 (bot-9, fit_thr.py:
 # sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
 # те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
 # Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
