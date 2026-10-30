@@ -604,6 +604,9 @@ enabled = false
 #     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
 #     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,
 #     второй заголовок [thresholds_by_markup.sp_dfine] = дубль таблицы TOML (ошибка разбора).
-#   v4 (bot-7): выключить gorodishcha и в dfine_ae/dfine_or бота 6 — в этой ветке (360c870) их нет.
+#   + v4 (решение бота 10): городища D-FINE Ae/Or бота 6 — порогом > 1 (TOML главнее thresholds_file):
+#     [thresholds_by_markup.dfine_or] gorodishcha = 1.01 — уже стоит выше (bot-6), не дублировать;
+#   + [thresholds_by_markup.dfine_ae]
+#     gorodishcha = 1.01
 [gor_dense]
 enabled = false

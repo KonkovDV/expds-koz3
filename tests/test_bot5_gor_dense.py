@@ -36,7 +36,7 @@ def _cfg():
 def _enable_block() -> dict:
     """Закомментированный блок включения [gor_dense] из default.toml → dict (ключи `#   key = value`)."""
     txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
-    head = txt[txt.index("# bot-5 (ветка bot5-gor-dense-v3)"):txt.index("[gor_dense]\nenabled = false")]
+    head = txt[txt.index("# bot-5 (ветка bot5-gor-dense-v"):txt.index("[gor_dense]\nenabled = false")]
     lines = [m.group(1) for m in re.finditer(r"^#   ([a-z0-9_]+ = .+?)(?:[ \t]+#.*)?$", head, re.M)]
     sec = tomllib.loads("\n".join(lines))
     thr = re.search(r"\[thresholds_by_markup\.gor_dense\] gorodishcha = ([0-9.]+)", head)
@@ -291,11 +291,12 @@ def test_package_flag_on_ships_module_backbone_heads_vendor(tmp_path, monkeypatc
 # ---------------------------------------------------------------- порядок фаз, шлюз, сборка/проверка
 def test_phase_order_after_sp_dfine_before_gor_gate():
     src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
-    i_sd = src.index("n_phase = _sp_dfine_phase(regions, cfg, guard, state, root")
+    i_sd = src.index("n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)")
+    i_ae = src.index("n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)")
     i_gd = src.index('if (cfg.get("gor_dense") or {}).get("enabled"):')
     i_gg = src.index('if (cfg.get("gor_gate") or {}).get("enabled"):\n            try:\n                from . import gor_gate')
     i_pf = src.index("if guard.partial:\n            state.note")
-    assert i_sd < i_gd < i_gg < i_pf
+    assert i_sd < i_ae < i_gd < i_gg < i_pf
     assert "GOR_DENSE_UNAVAILABLE" in src[i_gd:i_gg]
 
 
@@ -317,3 +318,27 @@ def test_sp_dfine_gorodishcha_101_block_kills_dfine_gorodishcha():
 def test_check_submission_knows_gor_dense():
     src = (ROOT / "scripts" / "check_submission.py").read_text(encoding="utf-8")
     assert "GOR_DENSE_UNAVAILABLE" in src and '"gor_dense.backbone"' in src and '"expds/gor_dense.py", dense' in src
+
+
+def test_v4_dfine_aeor_gorodishcha_off_in_enable_block():
+    """v4 (решение бота 10): городища D-FINE Ae/Or бота 6 выключены порогом > 1 (dfine_or — уже активно, dfine_ae — в блоке)."""
+    txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
+    cfg = tomllib.loads(txt)
+    assert cfg["thresholds_by_markup"]["dfine_or"]["gorodishcha"] > 1.0
+    assert "#   + [thresholds_by_markup.dfine_ae]\n#     gorodishcha = 1.01" in txt
+    d = dict(_dfine("gorodishcha", conf=1.0), threshold_group="dfine_ae")
+    assert d not in post.apply_thresholds([d], {}, 0.15, {"dfine_ae": {"gorodishcha": 1.01}})
+
+
+_U008 = Path("/workspace/data/train-expds-3/008_Герите/UTM.json")
+
+
+@pytest.mark.skipif(not _U008.is_file(), reason="нет трейна 008_Герите на машине")
+def test_gor_dense_crs_on_geographic_region_008_is_projected_utm():
+    """bot-7 f3526cf: UTM.json EPSG:4326 (008_Герите) → UTM-зона по центру; gor_dense берёт CRS через gor_gate._epsg."""
+    from expds import gor_gate
+    import inspect
+    assert "gor_gate._epsg(reg)" in inspect.getsource(GD)
+    e = gor_gate._epsg(SimpleNamespace(utm_json=_U008))
+    assert e == 32638 and 32601 <= e <= 32660
+    assert GD.point_features("008_Герите", [(0.9, 500000.0, 4743000.0)], 0.8, e, GD.settings({}), "a.tif")[0]["original_crs"] == "EPSG:32638"

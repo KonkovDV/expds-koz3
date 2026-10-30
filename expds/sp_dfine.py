@@ -244,8 +244,8 @@ def utm_for(path: Path, fallback_crs: str | None) -> str:
 
     if fallback_crs and not is_geographic(fallback_crs):
         return fallback_crs
-    if fallback_crs:   # страховка: crs_for вне read_utm_json вернул градусы — зона по центру растра
-        log.warning("[crs] %s: CRS %s географическая — беру UTM по центру растра", path.name, fallback_crs)
+    if fallback_crs:   # страховка (bot-7 v3fix + bot-6 crsfix): градусы мимо read_utm_json — зона UTM по центру растра
+        log.warning("[crs] %s: CRS участка %s географическая — сцена в зоне UTM по центру растра", Path(path).name, fallback_crs)
     with rasterio.open(path) as ds:
         lon, lat = Transformer.from_crs(ds.crs, "EPSG:4326", always_xy=True).transform(
             *ds.xy(ds.height // 2, ds.width // 2))

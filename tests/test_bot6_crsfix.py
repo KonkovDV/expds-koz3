@@ -29,9 +29,12 @@ def _utm_json(p: Path, crs: str) -> Path:
 def test_geographic_utm_json_falls_back_to_raster_utm_zone(tmp_path):
     tif = _geo_tif(tmp_path / "r" / "05_r_Or_ортофото" / "01_r_Or_ортофото.tif")
     fb = read_utm_json(_utm_json(tmp_path / "r" / "UTM.json", "urn:ogc:def:crs:EPSG::4326"))
-    assert fb in ("EPSG:4326", "EPSG:32638")                   # read_utm_json сам переводит градусы в зону UTM
-    assert sp_dfine.utm_for(tif, "EPSG:4326") == "EPSG:32638"  # как в данных 008_Герите: 45,1° в. д. → зона 38N
+    # v4 (слияние с bot-7 v3fix): read_utm_json — единая точка, градусы 008_Герите уже переведены в зону UTM
+    assert fb == "EPSG:32638"
     assert sp_dfine.utm_for(tif, fb) == "EPSG:32638"
+    # второй слой — страховка utm_for: сырая географическая CRS мимо read_utm_json → зона по центру растра
+    assert sp_dfine.utm_for(tif, "EPSG:4326") == "EPSG:32638"  # 45,1° в. д. → зона 38N
+    assert sp_dfine.utm_for(tif, "urn:ogc:def:crs:EPSG::4326") == "EPSG:32638"
     assert sp_dfine.utm_for(tif, "EPSG:32636") == "EPSG:32636"  # проецированная UTM.json — как раньше, без чтения растра
     assert sp_dfine.utm_for(tif, None) == "EPSG:32638"
     sc = A.Scene(tif, sp_dfine.utm_for(tif, fb), 0.5)
