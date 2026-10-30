@@ -10,7 +10,7 @@ import numpy as np
 
 
 def gentle_mask(dem, xs, ys, max_deg: float, work_res: float) -> np.ndarray:
-    """True там, где уклон в точке не выше max_deg. Точка вне сетки остаётся."""
+    """True там, где уклон не выше max_deg. Точка вне сетки и точка без измерения остаются."""
     from .candidates import to_work_grid
     from .lidar import slope_deg
 
@@ -21,11 +21,21 @@ def gentle_mask(dem, xs, ys, max_deg: float, work_res: float) -> np.ndarray:
         return keep
     z, step = to_work_grid(dem.dem, dem.res, work_res)
     valid = np.isfinite(z)
-    fill = float(np.nanmean(z)) if valid.any() else 0.0
-    filled = np.where(valid, z, fill).astype(np.float32)
-    sl = slope_deg(filled, step)
-    cols = np.rint((xs - dem.left) / step - 0.5).astype(np.int64)
-    rows = np.rint((dem.top - ys) / step - 0.5).astype(np.int64)
+    # Ноль только чтобы ядро Хорна не увидело NaN. Окно, которое касается дырки,
+    # после расчёта стирается: заливка средней высотой рисует ложный обрыв.
+    filled = np.where(valid, z, 0).astype(np.float32)
+    sl = slope_deg(filled, step).astype(np.float64, copy=True)
+    if not valid.all():
+        bad = ~valid
+        pad = np.pad(bad, 1, mode="constant", constant_values=False)
+        touch = np.zeros(bad.shape, dtype=bool)
+        h, w = bad.shape
+        for dr in range(3):
+            for dc in range(3):
+                touch |= pad[dr:dr + h, dc:dc + w]
+        sl[touch] = np.nan
+    cols = np.floor((xs - dem.left) / step).astype(np.int64)
+    rows = np.floor((dem.top - ys) / step).astype(np.int64)
     inside = (rows >= 0) & (cols >= 0) & (rows < sl.shape[0]) & (cols < sl.shape[1])
     sampled = np.zeros(xs.shape[0], np.float64)
     sampled[inside] = sl[rows[inside], cols[inside]]

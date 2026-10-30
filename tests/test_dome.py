@@ -1,7 +1,7 @@
 """Насыпь отличается от склона по TPI, симметрии и кривизне. Сдача этот множитель не включает."""
 import numpy as np
 
-from expds.dome import priors, profile_curvature, symmetry, tpi
+from expds.dome import lesser_curvature, priors, symmetry, tpi
 
 
 def _mound(n=81, res=0.5):
@@ -20,7 +20,8 @@ def test_mound_is_a_local_dome():
     c = z.shape[0] // 2
     assert tpi(z, c, c, radius_px=10) > 0.2
     assert symmetry(z, c, c, radius_px=12) > 0.7
-    assert profile_curvature(z, c, c, res) > 0
+    assert lesser_curvature(z, c, c, res) > 0
+    assert not np.isfinite(tpi(z, 0, 0, radius_px=10))
 
 
 def test_curvature_does_not_change_when_the_cell_size_changes():
@@ -37,10 +38,23 @@ def test_curvature_does_not_change_when_the_cell_size_changes():
 
     fine, cf = gauss(0.5)
     coarse, cc = gauss(1.0)
-    a = profile_curvature(fine, cf, cf, 0.5, span_m=3.0)
-    b = profile_curvature(coarse, cc, cc, 1.0, span_m=3.0)
+    a = lesser_curvature(fine, cf, cf, 0.5, span_m=3.0)
+    b = lesser_curvature(coarse, cc, cc, 1.0, span_m=3.0)
     assert a > 0.02 and b > 0.02
     assert abs(a - b) / max(a, b) < 0.15
+
+
+def test_a_ridge_is_not_a_dome_and_a_plane_is_not_lifted():
+    n, res, sigma, h = 81, 0.5, 3.0, 1.2
+    c = n // 2
+    yy, xx = np.mgrid[0:n, 0:n]
+    x = (xx - c) * res
+    ridge = (h * np.exp(-(x * x) / (2 * sigma * sigma))).astype(np.float32)
+    assert lesser_curvature(ridge, c, c, res, span_m=3.0) < 0.002
+    left, top = 0.0, n * res
+    center = (left + (c + 0.5) * res, top - (c + 0.5) * res)
+    plane = priors(np.full((n, n), 100.0, np.float32), res, [center[0]], [center[1]], left, top)
+    assert plane[0] == np.float32(1.0)
 
 
 def test_slope_is_not_a_dome():

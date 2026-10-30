@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import numpy as np
 
-DOME_NAMES = ("tpi_near", "tpi_far", "symmetry", "profile_curv")
+DOME_NAMES = ("tpi_near", "tpi_far", "symmetry", "k_min")
 
 
 def _disk_mean(z: np.ndarray, row: int, col: int, radius_px: int) -> float:
@@ -18,7 +18,8 @@ def _disk_mean(z: np.ndarray, row: int, col: int, radius_px: int) -> float:
     dist = (yy - row) ** 2 + (xx - col) ** 2
     patch = z[r0:r1, c0:c1]
     mask = (dist > 0) & (dist <= radius_px ** 2) & np.isfinite(patch)
-    if not np.any(mask):
+    # Обрезанный край — не окрестность: половина круга сравнивает центр не с тем кольцом.
+    if int(mask.sum()) < 0.5 * np.pi * radius_px * radius_px:
         return np.nan
     return float(patch[mask].mean())
 
@@ -48,7 +49,8 @@ def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8
     dist2 = dy ** 2 + dx ** 2
     patch = z[r0:r1, c0:c1]
     ring = (dist2 >= inner ** 2) & (dist2 <= radius_px ** 2) & np.isfinite(patch)
-    if int(ring.sum()) < sectors:
+    annulus = np.pi * (radius_px ** 2 - inner ** 2)
+    if int(ring.sum()) < max(sectors, 0.5 * annulus):
         return np.nan
     ang = np.arctan2(dy, dx)
     bins = np.floor((ang + np.pi) / (2 * np.pi) * sectors).astype(np.int64)
@@ -59,7 +61,8 @@ def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8
         take = flat_m & (flat_b == s)
         if np.any(take):
             means.append(float(flat_p[take].mean()))
-    if len(means) < sectors // 2:
+    # Кольцо без сектора — не симметрия: обрывок склона у края может выглядеть ровным.
+    if len(means) < sectors:
         return np.nan
     arr = np.asarray(means, np.float64)
     # Разброс средних секторов в метрах высоты, не в долях от отметки и не в
@@ -68,13 +71,13 @@ def symmetry(z: np.ndarray, row: int, col: int, radius_px: int, sectors: int = 8
     return float(1.0 / (1.0 + spread / 0.05))
 
 
-def profile_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m: float = 3.0) -> float:
-    """Профильная кривизна, 1/м. Выпуклый центр (насыпь) — положительный.
+def lesser_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_m: float = 3.0) -> float:
+    """Меньшая главная кривизна графика высоты, 1/м. Купол — плюс, вал и яма — нет.
 
-    Производные берутся по метрам плана, не по пикселям: иначе та же насыпь
-    на шаге 0,5 м и 1 м даёт разные числа. Окно в несколько метров, не 3 пикселя:
-    лапласиан 3×3 на шаге 0,5 м — шум высоты. В канале curv купол отрицательный;
-    здесь знак обратный, чтобы порог читался как «выпукло».
+    На вершине профильная кривизна не определена: нет направления склона.
+    У купола выпуклы обе главные кривизны, у вала — одна. Берётся меньшая,
+    поэтому вал не считается насыпью. Производные — по метрам плана.
+    В канале curv знак обратный (купол меньше нуля), этот канал не меняется.
     """
     if res <= 0:
         return np.nan
@@ -95,9 +98,14 @@ def profile_curvature(z: np.ndarray, row: int, col: int, res: float = 1.0, span_
     zyy = (zn - 2.0 * zc + zs) / (dx * dx)
     zxy = (zne - znw - zse + zsw) / (4.0 * dx * dx)
     p2q2 = zx * zx + zy * zy
-    if p2q2 < 1e-8:
-        return float(-(zxx + zyy) / 2.0)
-    return float(-(zx * zx * zxx + 2.0 * zx * zy * zxy + zy * zy * zyy) / (p2q2 * (1.0 + p2q2) ** 1.5))
+    w2 = 1.0 + p2q2
+    w = w2 ** 0.5
+    ll, mm, nn = zxx / w, zxy / w, zyy / w
+    mean = ((1.0 + zx * zx) * nn - 2.0 * zx * zy * mm + (1.0 + zy * zy) * ll) / (2.0 * w2)
+    gauss = (ll * nn - mm * mm) / w2
+    rad = (max(0.0, mean * mean - gauss)) ** 0.5
+    # Большая по алгебре главная кривизна ближе к нулю у вытянутого вала и положительна у ямы.
+    return float(-(mean + rad))
 
 
 def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: float, top: float,
@@ -111,20 +119,26 @@ def priors(z: np.ndarray, res: float, xs: np.ndarray, ys: np.ndarray, left: floa
     near_px = max(1, int(round(near_m / res)))
     far_px = max(near_px + 1, int(round(far_m / res)))
     for i, (x, y) in enumerate(zip(xs, ys)):
-        col = int(round((x - left) / res - 0.5))
-        row = int(round((top - y) / res - 0.5))
+        # Ячейка, которая содержит точку: левый и верхний край, как у from_origin.
+        col = int(np.floor((x - left) / res))
+        row = int(np.floor((top - y) / res))
         near = tpi(z, row, col, near_px)
         far = tpi(z, row, col, far_px)
         sym = symmetry(z, row, col, near_px)
-        curv = profile_curvature(z, row, col, res, span_m=near_m)
-        votes = 0
-        known = 0
-        for ok in (np.isfinite(near) and near > 0.05,
-                   np.isfinite(near) and np.isfinite(far) and near > far,
-                   np.isfinite(sym) and sym >= 0.65,
-                   np.isfinite(curv) and curv > 0.002):
-            known += 1
-            votes += int(bool(ok))
+        curv = lesser_curvature(z, row, col, res, span_m=near_m)
+        # Нет измерения — не голос против. Плоскость симметрична, но это не насыпь:
+        # симметрия считается только вместе с превышением центра над кольцом.
+        checks = []
+        if np.isfinite(near):
+            checks.append(bool(near > 0.05))
+        if np.isfinite(near) and np.isfinite(far):
+            checks.append(bool(near > far))
+        if np.isfinite(sym) and np.isfinite(near):
+            checks.append(bool(sym >= 0.65 and near > 0.05))
+        if np.isfinite(curv):
+            checks.append(bool(curv > 0.002))
+        votes = sum(checks)
+        known = len(checks)
         if known and votes:
             # Только вверх. Повреждённая насыпь часто несимметрична: штраф
             # за «не купол» бил бы по самому тяжёлому классу.
