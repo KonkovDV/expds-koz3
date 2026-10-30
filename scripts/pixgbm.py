@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import resource
+import os
+import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -27,9 +29,79 @@ from expds.pipeline import load_config, region_crs         # noqa: E402
 
 GEO_REGIONS = tuple(str(n) for n in range(200, 218))
 
+def _path_has_non_ascii(path) -> bool:
+    """True if path cannot be encoded as ASCII (Windows LightGBM C API fails then)."""
+    try:
+        os.fspath(path).encode("ascii")
+        return False
+    except UnicodeEncodeError:
+        return True
+
+
+def save_booster(bst, path) -> None:
+    """Save LightGBM model; bridge via ASCII tempfile when path has non-ASCII chars.
+
+    LightGBM's C API on Windows rejects model paths with Cyrillic/other non-ASCII
+    characters. Save to a NamedTemporaryFile in the system temp dir (ASCII), then
+    move into place. On ASCII paths, call save_model directly (all platforms).
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not _path_has_non_ascii(path):
+        bst.save_model(str(path))
+        return
+    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt")
+    os.close(fd)
+    tmp_p = Path(tmp)
+    try:
+        bst.save_model(str(tmp_p))
+        # replace destination atomically when possible
+        shutil.move(str(tmp_p), str(path))
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
+
+
+def load_booster(path):
+    """Load LightGBM Booster; bridge via ASCII tempfile when path has non-ASCII chars."""
+    import lightgbm as lgb
+
+    path = Path(path)
+    if not _path_has_non_ascii(path):
+        return lgb.Booster(model_file=str(path))
+    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt")
+    os.close(fd)
+    tmp_p = Path(tmp)
+    try:
+        shutil.copy2(path, tmp_p)
+        return lgb.Booster(model_file=str(tmp_p))
+    finally:
+        if tmp_p.exists():
+            try:
+                tmp_p.unlink()
+            except OSError:
+                pass
+
+
 
 def rss_mb():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    """Peak RSS in MiB. `resource` is Unix-only; Windows returns -1 if psutil absent."""
+    try:
+        import resource  # Unix
+
+        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # Linux: KiB; Darwin: bytes
+        return rss / (1024 * 1024) if sys.platform == "darwin" else rss / 1024
+    except (ImportError, AttributeError, OSError):
+        try:
+            import psutil
+
+            return psutil.Process().memory_info().rss / (1024 * 1024)
+        except Exception:  # noqa: BLE001
+            return -1.0
 
 
 def regions(root, only=None):
@@ -73,7 +145,7 @@ def cmd_extract(a):
         for f, cls, mt in reg.annotations:
             anns.setdefault((mt, cls, G.label_key(f)), []).append(f)
         for mt in ("maggr", "etgr", "terfl"):
-            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
+            files = G.pick_rasters(reg.rasters.get(mt, []))
             if not files:
                 continue
             boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
@@ -164,7 +236,7 @@ def cmd_train(a):
                 continue
             t0 = time.time()
             b, inf = fit(sub, target, a.rounds)
-            b.save_model(str(out / held / f"{name}.txt"))
+            save_booster(b, out / held / f"{name}.txt")
             inf.update(sec=round(time.time() - t0, 1), maxrss_mb=round(rss_mb()))
             imp = sorted(zip(b.feature_name(), b.feature_importance("gain")), key=lambda t: -t[1])[:12]
             inf["top_gain"] = [(k, round(float(v))) for k, v in imp]
@@ -181,10 +253,10 @@ def cmd_predict(a):
     for reg in regions(a.root, a.regions):
         held = "all" if a.all else site_family(reg.name)
         md = Path(a.models) / held
-        bst = {k: lgb.Booster(model_file=str(md / f"{k}.txt")) for k in ("poly", "finds") if (md / f"{k}.txt").exists()}
+        bst = {k: load_booster(md / f"{k}.txt") for k in ("poly", "finds") if (md / f"{k}.txt").exists()}
         crs_region = region_crs(reg, cfg)
         for mt in ("maggr", "etgr", "terfl"):
-            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
+            files = G.pick_rasters(reg.rasters.get(mt, []))
             if not files:
                 continue
             boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
@@ -221,10 +293,10 @@ def cmd_oof(a):
     levels = tuple(float(x) for x in a.levels.split(","))
     for reg in regions(a.root, a.regions):
         fam = site_family(reg.name)
-        bst = lgb.Booster(model_file=str(Path(a.models) / fam / "poly.txt"))
+        bst = load_booster(Path(a.models) / fam / "poly.txt")
         crs_region = region_crs(reg, cfg)
         for mt in a.markups.split(","):
-            files = G.pick_rasters(reg.rasters.get(mt, []), None, mt, crs_region)
+            files = G.pick_rasters(reg.rasters.get(mt, []))
             if not files:
                 continue
             t0 = time.time(); feats = []
