@@ -1,0 +1,13 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+08:28:04 кэш стека meta_5606f42d02724784.json: кластеров 60
+08:28:04 кривые A из кэша curvesA_5606f42d02724784.pkl
+08:28:07 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1274 МБ
+08:28:08 движок table: A honest 0.3146153227; попадания = clusters: True; число предсказаний =: True
+08:28:09 A honest-10: all 0.3146153227 new34 0.2964508527 nolidar 0.1442740734; == M.honest_counts: True
+08:28:13   часть ae/flipwbf oof_dfine_ae_flipwbf.geojson: детекций ≥пол 214, растров 16 → объектов 214
+08:28:13   V7: после фильтров nolidar=False cap=None: 214 объектов, участков 16
+08:28:13   часть or/noflip oof_dfine_or_noflip.geojson: детекций ≥пол 35, растров 3 → объектов 30
+08:28:13   V7: после фильтров nolidar=False cap=None: 30 объектов, участков 3
+08:28:17 V7 [frozen]: Δall +0.003298 P 0.9341 | new34 +0.000444 | nolidar +0.008729 | floor True | PASS True
+08:28:21 V7 [joint]: Δall +0.002585 P 0.8478 | new34 +0.000444 | nolidar +0.008014 | floor True | PASS False
+08:28:21 готово за 18.3 с, ОЗУ пик 1718 МБ

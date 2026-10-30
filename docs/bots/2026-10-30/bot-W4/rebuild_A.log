@@ -1,0 +1,4 @@
+16:04:18 разрезано по семьям: 1386709 объектов, 19 с
+16:06:34 рамки и кластеры: 60 кластеров, 155 с
+16:08:30 кривые A: 60 кластеров, 116 с, ОЗУ пик 1895 МБ
+16:08:35 {"key": "5606f42d02724784", "clusters": 60, "clusters_old": 60, "blob_equal": 60, "honest_R": 0.3146153226828423, "honest_cached": 0.3146153226828423, "ref": 0.3146153227, "PASS": true, "n_rows": {"kurgany_povrezhdennye": 649668, "kurgany_tselye": 617731, "gorodishcha": 4676, "arkhitektury": 47518, "object_poly": 868, "fortifikatsii": 62516, "finds_points": 3732}}

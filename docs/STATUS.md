@@ -9,6 +9,32 @@
 29.10 22:15 MSK | W4 | перезамер v3 одним пакетом на коробке невозможен: нет table.pkl / OOF-стека A (F:/expds3/work на ПК, ПК офлайн) | — | orch/bot-W4/STATUS.md
 29.10 22:15 MSK | W4 | v3 e2e на ПК (pc_e2e_v3.ps1) и замер времени 4090 — не сделаны | — | docs/STATUS_2026-10-29.md
 
+## 29.10 22:55 MSK — W4: воспроизведение v2 (eb268d6, LB 0.41238) из main — ветка bots/w4-repro-v2 56cdf39
+
+* Причина разрыва ≈−0.012: в main нет 4 release-артефактов v2 — `expds/geo_pixgbm.py`, `models/pixgbm/all/{poly,finds}.txt`,
+  `models/rerank_arch_lgbm.txt` (сняты интеграцией 29.10 09:18–09:29). Без модуля pipeline молча уходит в «классику» геофизики.
+* Фикс (56cdf39): `scripts/v2_release_artifacts.py` (build-time injection из git-объектов eb268d6, сверка sha256, `--check`),
+  `scripts/golden_compare.py` (постадийные счётчики, первая расходящаяся стадия), `.gitignore`, `docs/REPRO_V2.md`. Main не тронут.
+* main 70dedf4 + артефакты ≡ пересборка eb268d6: result.geojson побайтно равен на synth, 210, 214, 217, 044, 181 (CPU, threads=1).
+  Остальной дрейф кода (16 файлов) на выход не влияет. Первая расходящаяся стадия у «main без артефактов» — geophysics.
+
+| вход | стадия | ориг. (лог бота-7) | пересборка v2 | main+арт. | main классика |
+|---|---|---|---|---|---|
+| synth | geophysics / записано | +494 / 230 | +494 / 230 | +494 / 230 | +72 / 80 |
+| 210 | geophysics / записано | +1542 / 383 | +1542 / 380 | +1542 / 380 | +369 / 369 |
+| 214 | geophysics / записано | +64 / 56 | +64 / 56 | +64 / 56 | +37 / 125 |
+| 217 | geophysics / записано | +722 / 298 | +722 / 298 | +722 / 298 | +113 / 170 |
+| 044 | записано | — | 2 | 2 | — |
+| 181 | записано | — | 486 | 486 | — |
+
+* Остаток: 210 — 380 vs 383 (до порога fp1400/op142 vs 1399/143) одинаково у обеих сборок на коробке → окружение/копия входа, не код.
+* Оригинальный zip (sha 8f3f2671…) только на ПК Елены — по sha не сверен (sha zip зависит от mtime); сверено по составу/CRC/размеру 525158901 Б.
+* КОМПЛАЕНС: в main отслеживаются копии geo_pixgbm.py в analysis/…/bot-4/…/{pixgbm428,v2eb268d6}/expds/ и analysis/…/bot-7/work5/pc/tools/v2/expds/
+  (найдено `git ls-files`, содержимое W4 не открывал).
+
+* 22:55 MSK, bot 1's decision: 210 380 vs 383 — environment (py3.12.15 vs 3.12.16 / S3 copy of the input), not code; recorded in docs/REPRO_V2.md.
+  The v2 line is only a comparison reference; the final archives contain no EN-derived files. The analysis/ copies of geo_pixgbm.py are not touched by W4.
+
 ## 29.10 22:30 MSK — W4: PIXGBM и патчи bot-3
 
 * PREREG: `docs/PREREG_w4_pixgbm.md` (до замеров). `koz3-w4-pixgbm-s3` = P-retrain (EN-линия), не clean room.
@@ -50,3 +76,4 @@
 - Архив v2-clean 26ad1ba: koz3_v2clean_26ad1ba_0aa67b2b_wb042594f.zip, sha256 15d59e9f7c120b56079f4cc7bc8cb83c14b698db9a57228e75e286dddd9842c9,
   58 файлов, DOC-1 OK. Старый 81b48731… (8bb5803) заменён. (Время PREREG 5ea8aea — по git, «~01:55» в тексте — оценка.)
 - check_submission (полный, со смоуком) — Kaggle CPU usertest1234/koz3-w4-v2clean-check, в очереди watcher (w4-v2clean-check).
+| 29.10 | коробка /tmp/w4rp/in, in2 (вне git) | S3: участки 210/214/217 (tif+UTM.json, 36 ф.) и 044/181 (tif+las+UTM.json, 13 ф.) | 151,5 МБ + 129 МБ | W4 | после отчёта (rm -rf /tmp/w4rp/in*) |
