@@ -83,3 +83,5 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 30.10 13:27 MSK | C | A: usertest+aaaadg keys в local_ctx; aaaa0000004 нет → check4 HOLD. GO pull check4 сразу как aaaa появится.
 
 30.10 13:32 MSK | C | check4 PASS (aaaa koz3-w4-v2cleanchk2, FAIL0 WARN2). PREP_V3A DONE: koz3_v3a_min_4da2eb9_2f2d236a_wb042594f.zip sha256 132c22eb… (v2clean+ORG3+M_rp), DOC-1 OK, README_v3a_min.md. Branch bots/w4-pix-clean @ 4da2eb9. Не сабмитить — Елена. Next: optional check_submission v3a_min on aaaa; WS-G1 after vitb.
+
+30.10 13:37 MSK | C | v3a_min check_submission aaaa/koz3-w4-v3amin-chk: PASS FAIL0 WARN2 (sha132c22eb OK, smoke 14s). Log: w4geo/kaggle/out_v3a_min_chk/check_submission.log. Leases aaaa/cpu-2 + dataset/kernel released. Elena-ready; LB untouched.
