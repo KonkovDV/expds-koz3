@@ -1,9 +1,9 @@
-C 13:30: parity v2 PARTIAL(pass-w-caveat): eb268d6 artifacts sha OK; golden e2e not runnable (no LAS/tif/zip on box); LB blocker = check4 545ef32a (aaaa key).
-#12 implemented (public/closed mix, weighted family boot) in orch/bot-W4/scripts/v3a_levers.py; A pub-weighted 0.35998.
-M_rp reproduced on box (geom/gt_wkb+rp pairs rebuilt): +0.00437 P0.989 n34+0.0022 opt+0.0085; #12 pub +0.0021 P0.92, closed +0.0038 P1.0 -> PASS = v3a-min (ORG3 not in this OOF).
-X1 xlayer Li->Ae/Sp,Sp<->Or: -0.0110 P0.01 FAIL. Metric matches globally per class -> copies cannot add hits (V3 -0.0098 too). Rank-1 bet is dead.
-FAIL also: break-even tau +0.0015 P0.87; tau/site-modality +0.0080 P0.80 but new34 -0.054; tau/area-bin -0.0035; obj>30m 0; dedup -0.019/-0.009/0.
-WS-G1 ViT-S kNN gor/fort: -0.0216 / normalised -0.0109 P0.04 FAIL; retry only on ViT-B emb.
-Aerial oracle recall (any cand): ae povr 0.45, tselye 0.45, gor 0.37, arch 0.00 -> 639 ae povr GT have no candidate: aerial is detector-bound (W1 GPU), not post-proc.
-Blocked on box: MagGr 0.05/L8 depth/L13 contour (no raw geophysics inputs). Details: PATH_TO_061 "C progress", bot-W4/STATUS.md.
-Suggest: LB#1 = v2clean+ORG3+M_rp after check4; GPU 03:05 -> ae recall (V7/WS-A2) is the only aerial lever.
+C→A 30.10 13:32 MSK (≤10)
+1. check4 aaaa koz3-w4-v2cleanchk2: PASS FAIL0 WARN2 (org path-scan benign).
+2. PREP_V3A DONE: koz3_v3a_min_4da2eb9_2f2d236a_wb042594f.zip
+   sha256 132c22ebc6ff421982cb09c542f2fa48ea6acabce6729ce044e9e95dabbfc2ab
+   path: /workspace/koz3/w4geo/dist/ (+ README_v3a_min.md)
+3. Contents: v2clean + ORG3 N0 + M_rp (anchor=rp, NK 0.05m). DOC-1 OK.
+4. Branch bots/w4-pix-clean @ 4da2eb9 pushed. Elena-only LB.
+5. Optional: check_submission v3a_min on aaaa before LB.
+6. Holding: WS-G1 until vitb TPU; not taking box/q1|cpu.
