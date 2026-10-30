@@ -8,3 +8,7 @@ Score (covered candidate rows only): z = clip(logit(p),−3,3)/3; povr copy conf
 Variants: KT1 p=p_geo, ε=1e-3 | KT2 p=σ(mean(logit p_geo, logit p_povr_ens)), ε=1e-3 | KT3 = KT2 with ε=1e-2 (sensitivity).
 Seed average (41/42/2): seed kernels not finished → KS variants later under the same rule.
 Gate: standard w3_gate (honest-10 Δ≥+0.003, P≥0.9, 34new and optical not below A=0.314615). Adopt only if pass; flag default off.
+
+## Addendum KS (30.10 14:20 MSK, BEFORE measuring)
+Seed average: mean of logit(p_povr) over all aligned kurgan OOFs available now: base 7867, out/w3-kurgan-cpu-seeds (s11/12), cpu/kurgan_s61,s63,s65,s67,s71,s73 (8 ensembles). Later seeds are not waited for.
+Variants: KS1–KS5 = make_k.py rules on p_avg (prefix KS); KST = tie-break rule (z from p_avg only, ε=1e-3). Diagnostic: AUC p_avg on cand. Standard gate.

@@ -34,7 +34,8 @@ pb = 1 / (1 + np.exp(-(lg(pg) + lg(pp)) / 2))
 rep = {"auc_geo_all": roc_auc_score(y[lab], pg[lab]), "auc_geo_cand": roc_auc_score(y[cand], pg[cand]), "auc_blend_all": roc_auc_score(y[lab], pb[lab]), "auc_blend_cand": roc_auc_score(y[cand], pb[cand]), "auc_cnn_cand": roc_auc_score(y[cand], pp[cand])}
 print(json.dumps(rep))
 Z = {}
-for name, p, eps in (("KT1", pg, 1e-3), ("KT2", pb, 1e-3), ("KT3", pb, 1e-2)):
+VARS = (("KST", pp, 1e-3),) if len(sys.argv) > 5 and sys.argv[5] == "KST" else (("KT1", pg, 1e-3), ("KT2", pb, 1e-3), ("KT3", pb, 1e-2))
+for name, p, eps in VARS:
     Z[name] = (eps, {int(s): float(np.clip(lg(q), -3, 3) / 3) for s, q, kd in zip(D["stack_idx"], p, D["kind"]) if kd == "cand" and s >= 0})
 cov = set(next(iter(Z.values()))[1])
 fh = {n: open(OUT / f"{n}.jsonl", "w", encoding="utf-8") for n in Z}; drop = []

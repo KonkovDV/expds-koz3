@@ -154,13 +154,7 @@ def s3_client():
         u = UserSecretsClient(); kid, sec = u.get_secret("KOZ3_S3_ACCESS_KEY_ID"), u.get_secret("KOZ3_S3_SECRET_ACCESS_KEY")
     except Exception as e: log("Kaggle Secrets недоступны:", type(e).__name__)
     if not kid or not sec: kid, sec = os.environ.get("AWS_ACCESS_KEY_ID"), os.environ.get("AWS_SECRET_ACCESS_KEY")
-    if not kid or not sec:
-        for p in sorted(glob.glob("/kaggle/input/**/cred.json", recursive=True)):
-            try: c = json.load(open(p, encoding="utf-8"))
-            except Exception: continue
-            kid, sec = c.get("id") or c.get("aws_access_key_id"), c.get("key") or c.get("aws_secret_access_key")
-            if kid and sec: log("ключи S3 из приватного датасета"); break
-    if not kid or not sec: die("нет ключей S3 (Secrets KOZ3_S3_* или датасет koz3-s3-cred)")
+    if not kid or not sec: die("нет ключей S3 (только Kaggle Secrets KOZ3_S3_* или env AWS_*)")
     return boto3.client("s3", endpoint_url=ENDPOINT, aws_access_key_id=kid, aws_secret_access_key=sec, region_name="ru-7",
                         config=Config(retries={"max_attempts": 10, "mode": "adaptive"}, max_pool_connections=32))
 def list_prefix(cli, prefix, delim=None):

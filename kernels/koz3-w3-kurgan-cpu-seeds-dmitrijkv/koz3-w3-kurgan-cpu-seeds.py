@@ -75,7 +75,7 @@ import sys as _sys
 os.environ["HF_HUB_OFFLINE"] = "1"; os.environ["HF_HUB_CACHE"] = "/kaggle/working/hf_hub_cache"  # до import smp/hf_hub (константы читаются при импорте)
 _smp = sorted(_glob.glob("/kaggle/input/**/smp_pkg/segmentation_models_pytorch/__init__.py", recursive=True))
 if _smp: _sys.path.insert(0, str(Path(_smp[0]).parent.parent))
-_SEEDS = [int(x) for x in os.environ.get("W3_SEEDS", "41,42").split(",")]
+_SEEDS = [int(x) for x in os.environ.get("W3_SEEDS", "69,70").split(",")]
 for _m, _s in zip(CFG["models"], _SEEDS): _m["seed"] = _s; _m["name"] = f'{_m["name"]}_s{_s}'
 os.environ.setdefault("KTHREADS", "2")
 print("coord CPU variant:", CFG["input_dir"], CFG["code_bundle_dir"], [(m["name"], m["seed"]) for m in CFG["models"]], flush=True)
