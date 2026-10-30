@@ -619,6 +619,59 @@ def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
     return gone
 
 
+WARN_MARKER = "WARNING SP_DFINE_UNAVAILABLE"
+
+
+def strict_mode() -> bool:
+    """EXPDS_STRICT=1 — при сбое загрузки D-FINE поднимать исключение, не глотать."""
+    return (os.environ.get("EXPDS_STRICT") or "").strip() in ("1", "true", "TRUE", "yes", "YES")
+
+
+def status_dir() -> Path | None:
+    """Куда писать WARNING-файл: EXPDS_STATUS_DIR или каталог дампа, если он задан."""
+    raw = (os.environ.get("EXPDS_STATUS_DIR") or "").strip()
+    if raw:
+        p = Path(raw)
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+    return dump_root()
+
+
+def vendor_platform_hint(vendor: Path) -> str:
+    """Подсказка при сбое импорта: Linux-.so на Windows или нет transformers в вендоре."""
+    import sys
+    if not vendor.is_dir():
+        return (f"vendor отсутствует: ожидался {vendor.as_posix()} "
+                "(упакуйте inference/lib/vendor; на Kaggle и в docker Linux это нормально)")
+    has_tr = (vendor / "transformers").is_dir()
+    so = list(vendor.rglob("*.so"))[:3]
+    pyd = list(vendor.rglob("*.pyd"))[:1]
+    bits = []
+    if not has_tr:
+        bits.append("в вендоре нет каталога transformers/")
+    if sys.platform.startswith("win") and so and not pyd:
+        bits.append(
+            f"вендор Linux (.so, напр. {so[0].name}): на Windows не грузится — "
+            f"запускайте в docker pantum/n7q или поставьте transformers=={TRANSFORMERS_PIN} в окружение"
+        )
+    return "; ".join(bits)
+
+
+def write_unavailable_warning(reason: str, *, detail: str = "") -> Path | None:
+    """Файл предупреждения рядом со статусом прогона. Строка ERROR пишется и в лог."""
+    log.error("%s: %s", WARN_MARKER, reason)
+    d = status_dir()
+    if d is None:
+        return None
+    path = d / "SP_DFINE_WARNING.txt"
+    body = f"{WARN_MARKER}: {reason}\n"
+    if detail:
+        body += detail.rstrip() + "\n"
+    path.write_text(body, encoding="utf-8")
+    (d / "STATUS_WARNING.txt").write_text(f"{WARN_MARKER}: {reason}\n", encoding="utf-8")
+    return path
+
+
 def import_dfine(root: Path) -> tuple:
     """Классы D-FINE строго закреплённой версии. Порядок:
     1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
