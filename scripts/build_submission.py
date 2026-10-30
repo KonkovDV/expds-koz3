@@ -32,7 +32,7 @@ LIMIT = 2 * 1024 ** 3
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
-EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}
+EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}
 FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
@@ -53,8 +53,8 @@ def collect() -> list[Path]:
     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
-    if any((cfg.get(sec) or {}).get("enabled") for sec in ("gor_gate", "gor_dense", "dfine_aeor")):
-        off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+    if any((cfg.get(sec) or {}).get("enabled") for sec in ("gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine")):
+        off.discard("sp_dfine.py")   # gor_gate, dfine_aeor и aeor_dfine импортируют sp_dfine на уровне модуля
     if (cfg.get("gor_dense") or {}).get("enabled"):
         off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")

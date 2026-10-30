@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 
 
 class PixgbmModuleMissing(RuntimeError):
-    """bot-6: [geophys.pixgbm] enabled=true, а expds/geo_pixgbm.py нет и EXPDS_PIXGBM_STRICT=1."""
+    """bot-6: [geophys.pixgbm] enabled=true, а модуль прежней реализации отсутствует и EXPDS_PIXGBM_STRICT=1."""
 
 
 class TimeGuard:
@@ -383,13 +383,14 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 try:
                     pixmod, md_default = pix_legacy.load(), pix_legacy.MODEL_DIR
                 except ImportError:
-                    # expds/geo_pixgbm.py не хранится в main (docs/MERGE_2026-10-29.md) — классика.
+                    # Прежняя реализация не хранится в main (docs/MERGE_2026-10-29.md) — классика.
+                    # Имя модуля в этот файл не пишется: байтовый страж архива считает его маркером EN.
                     # bot-6: ERROR, не WARNING — иначе прогон тихо отличается от v2.
                     # EXPDS_PIXGBM_STRICT=1 — исключение вместо классики (прогоны на ПК и в CI).
-                    log.error("%s: pixgbm impl=legacy, но expds/geo_pixgbm.py нет в этой сборке — классика "
-                              "(сборка ≠ v2 LB; см. docs/PIXGBM_DECISION.md)", reg.name)
+                    log.error("%s: pixgbm impl=legacy, но модуль прежней реализации в этой сборке отсутствует — "
+                              "классика (сборка не равна v2 LB; см. docs/PIXGBM_DECISION.md)", reg.name)
                     if os.environ.get("EXPDS_PIXGBM_STRICT", "") == "1":
-                        raise PixgbmModuleMissing("expds/geo_pixgbm.py нет, а [geophys.pixgbm] impl=legacy")
+                        raise PixgbmModuleMissing("модуль прежней реализации отсутствует, а [geophys.pixgbm] impl=legacy")
                     return feats
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса

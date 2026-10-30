@@ -31,7 +31,7 @@ def test_missing_module_logs_error(tmp_path, monkeypatch, caplog):
     with caplog.at_level(logging.WARNING, logger="expds.pipeline"):
         out = pipeline.geophys_feats(_reg(tmp_path), CFG, pipeline.TimeGuard(1000))
     assert out == []
-    hits = [r for r in caplog.records if "geo_pixgbm.py нет в этой сборке" in r.getMessage()]
+    hits = [r for r in caplog.records if "модуль прежней реализации в этой сборке отсутствует" in r.getMessage()]
     assert hits and all(r.levelno == logging.ERROR for r in hits)
 
 

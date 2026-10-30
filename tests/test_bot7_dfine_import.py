@@ -228,10 +228,22 @@ def test_check_submission_probe_fails_on_broken_vendor(tmp_path):
 
 
 def test_gate_packs_sp_dfine_for_pinned_import():
-    """gor_gate.load_backbone берёт import_dfine из sp_dfine — сборщик обязан класть sp_dfine.py и при одном шлюзе."""
+    """gor_gate, dfine_aeor и aeor_dfine импортируют sp_dfine на уровне модуля — сборщик оставляет файл."""
     root = Path(__file__).resolve().parents[1]
+    text = (root / "scripts" / "build_submission.py").read_text(encoding="utf-8")
     assert "import_dfine" in (root / "expds" / "gor_gate.py").read_text(encoding="utf-8")
-    assert 'off.discard("sp_dfine.py")' in (root / "scripts" / "build_submission.py").read_text(encoding="utf-8")
+    assert "from . import sp_dfine as S" in (root / "expds" / "aeor_dfine.py").read_text(encoding="utf-8")
+    assert 'off.discard("sp_dfine.py")' in text
+    assert '"aeor_dfine"' in text.split('off.discard("sp_dfine.py")')[0].split("for sec in")[-1]
+
+
+def test_check_submission_fails_aeor_dfine_without_vendor(tmp_path):
+    """[aeor_dfine] один, без вендора transformers: тот же FAIL, что у sp_dfine. Иначе архив молча не загрузит детектор."""
+    cs = _cs()
+    z = _zip({"configs/default.toml": "[aeor_dfine]\nenabled = true\n", "expds/aeor_dfine.py": "x = 1\n"})
+    args = SimpleNamespace(python=sys.executable, cpus="", allow_net=True, timeout=60, threads=1, workdir=str(tmp_path))
+    cs.check_dfine(z, {"aeor_dfine": {"enabled": True}}, args)
+    assert any(s == "FAIL" and c == "dfine" and "вендора" in m for s, c, m in cs.RESULTS)
 
 
 def test_check_config_hf_weight_dirs_and_vendored_imports():

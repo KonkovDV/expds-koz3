@@ -21,10 +21,12 @@ cs = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cs)
 
 PIX_OFF = 'enabled = false\nmodel_dir = "models/pixgbm/all"'
-# bot-7 (cherry-pick на bot7-candidate-v3): в v2/v3 PIXGBM включён и у model_dir есть комментарий — тест берёт
-# ту же секцию, приведённую к «выкл.», а включает её сам через pix_cfg().
-CFG = re.sub(r'(?m)^enabled = (?:true|false)\nmodel_dir = "models/pixgbm/all".*$', PIX_OFF,
-             (ROOT / "configs" / "default.toml").read_text(encoding="utf-8"), count=1)
+# В default.toml каталог старых весов не записан (DOC-1 режет подстроку pixgbm/ в архиве).
+# В синтетический конфиг чекера строка возвращается: check_pixgbm_static смотрит именно её.
+_raw = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
+_pix = re.search(r"(?m)^\[geophys\.pixgbm\]\n(?:.*\n)*?^enabled = false\n", _raw)
+assert _pix, "в default.toml нет секции [geophys.pixgbm] с enabled = false"
+CFG = _raw[:_pix.start()] + "[geophys.pixgbm]\n" + PIX_OFF + "\n" + _raw[_pix.end():]
 assert PIX_OFF in CFG
 
 

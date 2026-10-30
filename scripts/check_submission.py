@@ -209,7 +209,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
     # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
     hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k in ("gor_gate.backbone", "gor_dense.backbone")
-               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or
+               or k.startswith("dfine_aeor.weights") or k.startswith("aeor_dfine.weights")}
     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (k.startswith("li_cnx.") and not cnx_on(cfg))   # bot-8 [li_cnx] выкл.
@@ -218,6 +218,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
                and not (k.startswith("orgate.") and not og.get("enabled"))   # bot-6 ORGATE выкл.
                and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
+               and not (k.startswith("aeor_dfine.") and not (cfg.get("aeor_dfine") or {}).get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
@@ -1480,10 +1481,11 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
     dense = bool((cfg.get("gor_dense") or {}).get("enabled"))   # bot-5: gor_dense = бэкбон/tif_feats gor_gate + import_dfine
     aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
-    if not (dfine or gate or dense or aeor):
+    aeor1 = bool((cfg.get("aeor_dfine") or {}).get("enabled"))  # bot-1: from . import sp_dfine на уровне модуля
+    if not (dfine or gate or dense or aeor or aeor1):
         return
     what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("gor_dense", dense),
-                                    ("dfine_aeor", aeor)) if on)
+                                    ("dfine_aeor", aeor), ("aeor_dfine", aeor1)) if on)
     names = z.namelist()
     vend = "inference/lib/vendor/"
     meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
@@ -1494,7 +1496,7 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
         report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
     mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate or dense), ("expds/gor_dense.py", dense),
-                        ("expds/dfine_aeor.py", aeor))
+                        ("expds/dfine_aeor.py", aeor), ("expds/aeor_dfine.py", aeor1))
             if m[1] and m[0] not in names]
     if mods:
         report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")

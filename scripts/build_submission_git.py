@@ -154,7 +154,7 @@ def main() -> int:
     pick += [p for p in tracked if p.startswith("inference/lib/expds_core") and p.endswith(".so")]
     # W4 DOC-1: файлы, производные от EN, в архив не идут (scripts/check_archive_clean.py)
     pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")
-             and PurePosixPath(p).name not in {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py"}]
+             and PurePosixPath(p).name not in {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}]
     for p in pick:
         files[p] = blob(p)
     if args.so:
