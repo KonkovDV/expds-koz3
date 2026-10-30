@@ -402,3 +402,27 @@
 - 30.10 13:12 MSK | lease | acquire slot:box/q1 → coord до 30.10 17:12 MSK fallback W3 kurgan seeds 75,76 box CPU (cpu/kurgan_s75) pid 
 - 30.10 13:12 MSK | lease | acquire slot:box/q2 → coord до 30.10 17:12 MSK fallback W3 kurgan seeds 77,78 box CPU (cpu/kurgan_s77) pid 
 - 30.10 13:13 MSK | coord | проверка: box простаивал (load 0.65/8: kurgan s71-74 ГОТОВО ~8900-9040 с) → release q1/q2, fallback W3 kurgan seeds 75,76 (q1, cpu/kurgan_s75) и 77,78 (q2, cpu/kurgan_s77), аренды до 17:12. Kaggle: kurgan-cpu-seeds RUNNING на всех 5 акк., acc1 dino-emb-gpu RUNNING, TPU acc1/acc2 QUEUED (очередь Kaggle), GPU-квоты до Сб 03:00 исчерпаны
+- 30.10 13:19 MSK | lease | release slot:acc1/tpu (bot-W3-bigobj) by coord
+- 30.10 13:19 MSK | lease | release kernel:elenakonkova/koz3-acc2-tpu-smoke (bot-W3-bigobj) by coord
+- 30.10 13:19 MSK | watcher | acc1/tpu: elenakonkova/koz3-acc2-tpu-smoke → COMPLETE; аренда снята
+- 30.10 13:19 MSK | lease | release slot:acc2/tpu (bot-W2-lidar) by coord
+- 30.10 13:19 MSK | lease | release kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train (bot-W2-lidar) by coord
+- 30.10 13:19 MSK | watcher | acc2/tpu: dmitrijkv/koz3-tpu-cnx-c3sc-train → COMPLETE; аренда снята
+- 30.10 13:35 MSK | coord | проверка: TPU-смоуки acc1/acc2 COMPLETE → S0-tpu1/2 закрыты; TPU свободны, но TPU-готовой задачи нет (W2-tpu hold до прохождения варианта (b)); box load 4.8→рост (kurgan s75-78 на q1/q2, старт 13:26); Kaggle CPU kurgan seeds RUNNING, acc1 gpu-2 RUNNING, GPU-квоты до Сб 03:00
+- 30.10 13:39 MSK | check_conflicts | ERROR=3 WARN=11: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 13:50 MSK | coord | проверка: box load 12/8 (полно, kurgan s75-78), acc1 kurgan-b RUNNING + W5 dino-vitb-tpu QUEUED (очередь Kaggle), acc2 kurgan RUNNING, wsg2-cpu COMPLETE, gorheads-cpu ERROR (W3), aaaa0000004 kurgan RUNNING; БЛОКЕР: токены usertest1234 и aaaadg4gg4g4g отклоняются API (Authentication required) — статус их ядер не виден, нужны новые токены от Элены; acc2 TPU свободен, TPU-готовой задачи нет
+- 30.10 14:01 MSK | lease | release kernel:elenakonkova/koz3-w5-dino-emb-gpu (coord) by coord
+- 30.10 14:01 MSK | lease | release slot:acc1/gpu-2 (coord) by coord
+- 30.10 14:03 MSK | coord | проверка: acc1 dino-emb-gpu COMPLETE → выход в out/w5-dino-emb-gpu-1030, аренды gpu-2 сняты (GPU-квоты до Сб 03:00 исчерпаны); kurgan seeds RUNNING acc1(a,b)/acc2/aaaa0000004, box load 11/8, dino-vitb-tpu QUEUED (очередь Kaggle), acc2 TPU свободен — TPU-готовой задачи нет; БЛОКЕР повторно: токены usertest1234 и aaaadg4gg4g4g отклоняются API
+- 30.10 14:01 MSK | check_conflicts | ERROR=3 WARN=11: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 14:03 MSK | lease | acquire slot:box/cpu → bot-W3-bigobj до 30.10 18:03 MSK W3 KS gate + WS-G1
+- 30.10 14:10 MSK | lease | release slot:box/cpu (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:10 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 15:10 MSK W3 push
+- 30.10 14:10 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:11 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 15:11 MSK W3 push
+- 30.10 14:11 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:11 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 14:11 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 14:12 MSK | lease | acquire slot:box/q1 → bot-W1-aeor до 30.10 19:12 MSK CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4
+- 30.10 14:13 MSK | coord | проверка: без изменений с 14:03 — kurgan seeds RUNNING acc1(a,b)/acc2/aaaa0000004, dino-vitb-tpu QUEUED (очередь Kaggle), box load 13/8 (полно), GPU-квоты до Сб 03:00 исчерпаны, acc2 TPU свободен (TPU-готовой задачи нет); aaaa0000004 v3amin-chk COMPLETE (W4); токены usertest1234/aaaadg4gg4g4g по-прежнему отклоняются
+- 30.10 14:14 coord: WS-G1 FAIL, KS FAIL — kurgan subclass closed; box seeds 75–78 killed, q1→W3 CI2-5, q2→W2 check s1f4 site-190 OOF mismatch (0.666 vs 0.515). Kaggle tokens usertest1234/aaaadg4gg4g4g dead, waiting on Elena.

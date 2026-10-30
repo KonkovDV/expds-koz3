@@ -16,23 +16,22 @@
   {
    "slot": "acc1/gpu-2",
    "account": "elenakonkova",
-   "holder": "coord",
-   "kernel": "elenakonkova/koz3-w5-dino-emb-gpu",
+   "holder": null,
+   "kernel": null,
    "purpose": "fallback: GPU-копия W5 dino-emb (fp16, тот же код); CPU-ядро W5 не трогаю",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f23 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 30.10 05:50 MSK",
-   "since": "30.10 06:04 MSK",
-   "until": "30.10 16:30 MSK"
+   "last": "снято coord 30.10 14:01 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc1/tpu",
    "account": "elenakonkova",
-   "holder": "bot-W3-bigobj",
-   "kernel": "elenakonkova/koz3-acc2-tpu-smoke",
-   "since": "29.10 22:31 MSK",
-   "until": "30.10 14:19 MSK",
-   "purpose": "QUEUED smoke; проверить нужность"
+   "holder": null,
+   "kernel": null,
+   "purpose": "QUEUED smoke; проверить нужность",
+   "state": "свободен",
+   "last": "снято coord 30.10 13:19 MSK"
   },
   {
    "slot": "acc2/gpu-1",
@@ -57,11 +56,11 @@
   {
    "slot": "acc2/tpu",
    "account": "dmitrijkv",
-   "holder": "bot-W2-lidar",
-   "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
-   "since": "29.10 22:31 MSK",
-   "until": "30.10 14:19 MSK",
-   "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)"
+   "holder": null,
+   "kernel": null,
+   "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
+   "state": "свободен",
+   "last": "снято coord 30.10 13:19 MSK"
   },
   {
    "slot": "acc2/cpu",
@@ -80,9 +79,9 @@
    "holder": null,
    "rule": "не больше 3 тяжёлых процессов и 8 ГБ RAM на бота; nice -n 10",
    "kernel": null,
-   "purpose": "P-W2-10 DEM-fill: gap stats + relief rebuild + CPU infer (nice10, RAYON/torch 3 thr, <=8GB)",
-   "state": "свободен",
-   "last": "снято bot-W2-lidar 30.10 12:12 MSK"
+   "purpose": "W3 KS gate + WS-G1",
+   "last": "снято bot-W3-bigobj 30.10 14:10 MSK",
+   "state": "свободен"
   },
   {
    "slot": "usertest1234/cpu",
@@ -95,7 +94,7 @@
    "purpose": "fallback W3 kurgan seeds 13,14",
    "last": "снято coord 30.10 07:55 MSK",
    "since": "30.10 08:08 MSK",
-   "until": "30.10 14:08 MSK"
+   "until": "30.10 15:13 MSK"
   },
   {
    "slot": "aaaa0000004/cpu",
@@ -125,12 +124,12 @@
   },
   {
    "slot": "box/q1",
-   "holder": "coord",
+   "holder": "bot-W1-aeor",
    "kernel": null,
-   "last": "снято coord 30.10 13:12 MSK",
-   "purpose": "fallback W3 kurgan seeds 75,76 box CPU (cpu/kurgan_s75) pid ",
-   "since": "30.10 13:12 MSK",
-   "until": "30.10 17:12 MSK"
+   "last": "снято coord 30.10 14:11 MSK",
+   "purpose": "CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4",
+   "since": "30.10 14:12 MSK",
+   "until": "30.10 19:12 MSK"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -150,12 +149,11 @@
   },
   {
    "slot": "box/q2",
-   "holder": "coord",
+   "holder": null,
    "kernel": null,
-   "last": "снято coord 30.10 13:12 MSK",
+   "last": "снято coord 30.10 14:11 MSK",
    "purpose": "fallback W3 kurgan seeds 77,78 box CPU (cpu/kurgan_s77) pid ",
-   "since": "30.10 13:12 MSK",
-   "until": "30.10 17:12 MSK"
+   "state": "свободен"
   }
  ],
  "kernel_prefix": {
@@ -166,44 +164,6 @@
  },
  "_tokens": "Токены acc3-5 читаются из local_ctx/ctx/kaggle_pool_4x2_t4.json в момент запуска (orch/pool_kaggle.sh); не печатать, не коммитить.",
  "leases": [
-  {
-   "resource": "slot:acc1/tpu",
-   "owner": "bot-W3-bigobj",
-   "since": 1793302265.689213,
-   "expires": 1793359157.270476,
-   "note": "QUEUED smoke; проверить нужность",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68831,
-   "kernel": "elenakonkova/koz3-acc2-tpu-smoke"
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-acc2-tpu-smoke",
-   "owner": "bot-W3-bigobj",
-   "since": 1793302265.718667,
-   "expires": 1793359157.297975,
-   "note": "legacy-prefix",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68836
-  },
-  {
-   "resource": "slot:acc2/tpu",
-   "owner": "bot-W2-lidar",
-   "since": 1793302265.74699,
-   "expires": 1793359158.051162,
-   "note": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68841,
-   "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train"
-  },
-  {
-   "resource": "kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train",
-   "owner": "bot-W2-lidar",
-   "since": 1793302265.777641,
-   "expires": 1793359158.088527,
-   "note": "legacy-prefix",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68846
-  },
   {
    "resource": "dataset:usertest1234/koz3-w3-kurgan-cpu-data",
    "owner": "bot-W3-bigobj",
@@ -313,28 +273,10 @@
    "pid": 127340
   },
   {
-   "resource": "slot:acc1/gpu-2",
-   "owner": "coord",
-   "since": 1793329482.962824,
-   "expires": 1793367014.087643,
-   "note": "fallback: GPU-копия W5 dino-emb (fp16, тот же код); CPU-ядро W5 не трогаю",
-   "host": "grok-bot-vm-361051398",
-   "pid": 335536
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-w5-dino-emb-gpu",
-   "owner": "coord",
-   "since": 1793329482.998258,
-   "expires": 1793351082.998258,
-   "note": "fallback dino GPU",
-   "host": "grok-bot-vm-361051398",
-   "pid": 335544
-  },
-  {
    "resource": "slot:usertest1234/cpu",
    "owner": "coord",
    "since": 1793336913.911841,
-   "expires": 1793358513.911841,
+   "expires": 1793362401.404109,
    "note": "fallback W3 kurgan seeds 13,14",
    "host": "grok-bot-vm-361051398",
    "pid": 365599,
@@ -418,21 +360,12 @@
   },
   {
    "resource": "slot:box/q1",
-   "owner": "coord",
-   "since": 1793355150.434388,
-   "expires": 1793369550.434388,
-   "note": "fallback W3 kurgan seeds 75,76 box CPU (cpu/kurgan_s75) pid ",
+   "owner": "bot-W1-aeor",
+   "since": 1793358720.018333,
+   "expires": 1793376720.018333,
+   "note": "CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4",
    "host": "grok-bot-vm-361051398",
-   "pid": 580898
-  },
-  {
-   "resource": "slot:box/q2",
-   "owner": "coord",
-   "since": 1793355150.477204,
-   "expires": 1793369550.477204,
-   "note": "fallback W3 kurgan seeds 77,78 box CPU (cpu/kurgan_s77) pid ",
-   "host": "grok-bot-vm-361051398",
-   "pid": 580910
+   "pid": 601565
   }
  ]
 }
