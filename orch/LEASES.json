@@ -18,13 +18,13 @@
    "slot": "acc1/gpu-2",
    "account": "elenakonkova",
    "holder": "coord",
-   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s3f4",
-   "purpose": "fallback c3-sc seed3 f4 (copy s2f4, CNX_SEED=3)",
+   "kernel": null,
+   "purpose": "fallback: GPU-копия W5 dino-emb (fp16, тот же код); CPU-ядро W5 не трогаю",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f23 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 30.10 03:35 MSK",
-   "since": "30.10 03:35 MSK",
-   "until": "30.10 07:35 MSK"
+   "last": "снято coord 30.10 05:50 MSK",
+   "since": "30.10 06:04 MSK",
+   "until": "30.10 12:04 MSK"
   },
   {
    "slot": "acc1/tpu",
@@ -32,7 +32,7 @@
    "holder": "bot-W3-bigobj",
    "kernel": "elenakonkova/koz3-acc2-tpu-smoke",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 05:42 MSK",
+   "until": "30.10 09:04 MSK",
    "purpose": "QUEUED smoke; проверить нужность"
   },
   {
@@ -61,7 +61,7 @@
    "holder": "bot-W2-lidar",
    "kernel": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 05:42 MSK",
+   "until": "30.10 09:04 MSK",
    "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)"
   },
   {
@@ -84,14 +84,15 @@
   {
    "slot": "usertest1234/cpu",
    "account": "usertest1234",
-   "holder": "bot-W3-bigobj",
+   "holder": "coord",
    "reserved_for": "bot-W1-aeor",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh usertest1234",
-   "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds",
-   "since": "29.10 22:31 MSK",
-   "until": "30.10 06:01 MSK",
-   "purpose": "kurgan subclass seeds"
+   "kernel": "usertest1234/koz3-w4-v2cleanchk-k",
+   "purpose": "fill: W4 v2clean check_submission (slug renamed after 409)",
+   "last": "снято bot-W4-clean 30.10 07:32 MSK",
+   "since": "30.10 07:33 MSK",
+   "until": "30.10 11:33 MSK"
   },
   {
    "slot": "aaaa0000004/cpu",
@@ -102,7 +103,7 @@
    "auth": "orch/pool_kaggle.sh aaaa0000004",
    "kernel": "aaaa0000004/koz3-w3-kurgan-cpu-seeds",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 06:01 MSK",
+   "until": "30.10 09:32 MSK",
    "purpose": "kurgan subclass seeds"
   },
   {
@@ -114,16 +115,17 @@
    "auth": "orch/pool_kaggle.sh aaaadg4gg4g4g",
    "kernel": "aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds",
    "since": "29.10 22:31 MSK",
-   "until": "30.10 06:01 MSK",
+   "until": "30.10 09:21 MSK",
    "purpose": "kurgan subclass seeds"
   },
   {
    "slot": "box/q1",
-   "holder": null,
+   "holder": "coord",
    "kernel": null,
    "last": "снято coord 30.10 04:03 MSK",
-   "purpose": "W1 ae-final D3 gate + WS-A1 (nice 10, <=6 cores, <=8GB)",
-   "state": "свободен"
+   "purpose": "fallback W3 kurgan seeds 63,64 на box CPU (cpu/kurgan_s63, KTHREADS=6)",
+   "since": "30.10 04:17 MSK",
+   "until": "30.10 10:20 MSK"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -141,11 +143,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "coord",
    "kernel": null,
-   "last": "снято bot-W2-lidar 30.10 03:58 MSK",
-   "purpose": "W2 P-W2-6 varb honest-10 (build+prep+gate, nice 10, <=6GB, 1 proc)",
-   "state": "свободен"
+   "last": "снято bot-W1-aeor 30.10 04:39 MSK",
+   "purpose": "fallback W3 kurgan s63/64 обратный проход фолдов (run_rev.py, общий work, KTHREADS=4)",
+   "since": "30.10 04:49 MSK",
+   "until": "30.10 07:49 MSK"
   }
  ],
  "kernel_prefix": {
@@ -160,7 +163,7 @@
    "resource": "slot:acc1/tpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.689213,
-   "expires": 1793328145.95948,
+   "expires": 1793340265.902588,
    "note": "QUEUED smoke; проверить нужность",
    "host": "grok-bot-vm-361051398",
    "pid": 68831,
@@ -170,7 +173,7 @@
    "resource": "kernel:elenakonkova/koz3-acc2-tpu-smoke",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.718667,
-   "expires": 1793328146.002,
+   "expires": 1793340265.934376,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68836
@@ -179,7 +182,7 @@
    "resource": "slot:acc2/tpu",
    "owner": "bot-W2-lidar",
    "since": 1793302265.74699,
-   "expires": 1793328146.775009,
+   "expires": 1793340266.564621,
    "note": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
    "host": "grok-bot-vm-361051398",
    "pid": 68841,
@@ -189,29 +192,10 @@
    "resource": "kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train",
    "owner": "bot-W2-lidar",
    "since": 1793302265.777641,
-   "expires": 1793328146.809016,
+   "expires": 1793340266.59353,
    "note": "legacy-prefix",
    "host": "grok-bot-vm-361051398",
    "pid": 68846
-  },
-  {
-   "resource": "slot:usertest1234/cpu",
-   "owner": "bot-W3-bigobj",
-   "since": 1793302265.907881,
-   "expires": 1793329265.907881,
-   "note": "kurgan subclass seeds",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68861,
-   "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds"
-  },
-  {
-   "resource": "kernel:usertest1234/koz3-w3-kurgan-cpu-seeds",
-   "owner": "bot-W3-bigobj",
-   "since": 1793302265.937743,
-   "expires": 1793329265.937743,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68866
   },
   {
    "resource": "dataset:usertest1234/koz3-w3-kurgan-cpu-data",
@@ -226,7 +210,7 @@
    "resource": "slot:aaaa0000004/cpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302265.996747,
-   "expires": 1793329265.996747,
+   "expires": 1793341966.509355,
    "note": "kurgan subclass seeds",
    "host": "grok-bot-vm-361051398",
    "pid": 68876,
@@ -236,7 +220,7 @@
    "resource": "kernel:aaaa0000004/koz3-w3-kurgan-cpu-seeds",
    "owner": "bot-W3-bigobj",
    "since": 1793302266.030903,
-   "expires": 1793329266.030903,
+   "expires": 1793341966.547831,
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 68881
@@ -254,7 +238,7 @@
    "resource": "slot:aaaadg4gg4g4g/cpu",
    "owner": "bot-W3-bigobj",
    "since": 1793302266.092474,
-   "expires": 1793329266.092474,
+   "expires": 1793341289.555227,
    "note": "kurgan subclass seeds",
    "host": "grok-bot-vm-361051398",
    "pid": 68891,
@@ -264,7 +248,7 @@
    "resource": "kernel:aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds",
    "owner": "bot-W3-bigobj",
    "since": 1793302266.13284,
-   "expires": 1793329266.13284,
+   "expires": 1793341289.586459,
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 68896
@@ -407,34 +391,6 @@
    "pid": 186727
   },
   {
-   "resource": "kernel:usertest1234/koz3-w4-v2clean-check",
-   "owner": "bot-W4-clean",
-   "since": 1793314356.30112,
-   "expires": 1793400756.30112,
-   "note": "v2-clean check_submission CPU",
-   "host": "grok-bot-vm-361051398",
-   "pid": 186732
-  },
-  {
-   "resource": "slot:acc1/gpu-2",
-   "owner": "coord",
-   "since": 1793320539.313922,
-   "expires": 1793334939.313922,
-   "note": "fallback c3-sc seed3 f4 (copy s2f4, CNX_SEED=3)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 262540,
-   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s3f4"
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-w2-cnx-c3sc-s3f4",
-   "owner": "coord",
-   "since": 1793320539.359978,
-   "expires": 1793334939.359978,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 262550
-  },
-  {
    "resource": "slot:acc1/gpu-1",
    "owner": "bot-W2-lidar",
    "since": 1793322285.136482,
@@ -452,6 +408,61 @@
    "note": "P-W2-7",
    "host": "grok-bot-vm-361051398",
    "pid": 287103
+  },
+  {
+   "resource": "slot:box/q1",
+   "owner": "coord",
+   "since": 1793323063.425065,
+   "expires": 1793344854.847567,
+   "note": "fallback W3 kurgan seeds 63,64 на box CPU (cpu/kurgan_s63, KTHREADS=6)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 295442
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "coord",
+   "since": 1793324994.093997,
+   "expires": 1793335794.093997,
+   "note": "fallback W3 kurgan s63/64 обратный проход фолдов (run_rev.py, общий work, KTHREADS=4)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 315387
+  },
+  {
+   "resource": "slot:acc1/gpu-2",
+   "owner": "coord",
+   "since": 1793329482.962824,
+   "expires": 1793351082.962824,
+   "note": "fallback: GPU-копия W5 dino-emb (fp16, тот же код); CPU-ядро W5 не трогаю",
+   "host": "grok-bot-vm-361051398",
+   "pid": 335536
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w5-dino-emb-gpu",
+   "owner": "coord",
+   "since": 1793329482.998258,
+   "expires": 1793351082.998258,
+   "note": "fallback dino GPU",
+   "host": "grok-bot-vm-361051398",
+   "pid": 335544
+  },
+  {
+   "resource": "slot:usertest1234/cpu",
+   "owner": "coord",
+   "since": 1793334790.166119,
+   "expires": 1793349190.166119,
+   "note": "fill: W4 v2clean check_submission (slug renamed after 409)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 357248,
+   "kernel": "usertest1234/koz3-w4-v2cleanchk-k"
+  },
+  {
+   "resource": "kernel:usertest1234/koz3-w4-v2cleanchk-k",
+   "owner": "coord",
+   "since": 1793334790.19808,
+   "expires": 1793349190.19808,
+   "note": "W4 v2clean check",
+   "host": "grok-bot-vm-361051398",
+   "pid": 357258
   }
  ]
 }

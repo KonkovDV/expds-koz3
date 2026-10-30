@@ -161,3 +161,52 @@
 - 30.10 04:04 MSK | lease | acquire kernel:elenakonkova/koz3-w2-lihm-c3sc-f01234 → bot-W2-lidar до 30.10 14:04 MSK P-W2-7
 - 30.10 04:06 MSK | watcher | старт v2 (poll 300s, conflicts 15 мин)
 - 30.10 04:06 MSK | coord | watcher fix: аренды slot:box/* снимаются только если выданы самим watcher-ом (note==dispatch id); ручные — только по expiry/владельцем. Kaggle-слоты без изменений. Бэкап watcher.py.bak_0410, рестарт PID 288306
+- 30.10 04:06 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 04:08 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 30.10 08:08 MSK W1 V8 max_det300 CPU-реинференс ae (036/103/180…) + диагностика or 093/014
+- 30.10 04:17 MSK | lease | acquire slot:box/q1 → coord до 30.10 07:17 MSK fallback W3 kurgan seeds 63,64 на box CPU (cpu/kurgan_s63, KTHREADS=6)
+- 30.10 04:19 MSK | coord-check | box простаивал (load 0.9/8, q1 свободен) → fallback W3 kurgan seeds 63,64 на box (cpu/kurgan_s63, nice10, KTHREADS=6, ETA ~2 ч; s61/62 готово в cpu/kurgan_s61/work), аренда slot:box/q1 coord до 07:17. Kaggle: все слоты под арендой (acc1 gpu-1 W2 lihm, gpu-2 s3f4, cpu dino-emb; kurgan ×4 CPU; acc2 GPU cooldown до 31.10 03:00). Ready-пункты — ботовые, не автозапуск
+- 30.10 04:22 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 04:30 MSK | coord-check | все слоты заняты (Kaggle 5 акк. под арендой, acc2 GPU cooldown до 31.10 03:00); box load 12.5/8 — перегруз, новых задач не ставлю; watcher v2 жив (PID 288306)
+- 30.10 04:38 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 04:39 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 04:49 MSK | lease | acquire slot:box/q2 → coord до 30.10 07:49 MSK fallback W3 kurgan s63/64 обратный проход фолдов (run_rev.py, общий work, KTHREADS=4)
+- 30.10 04:52 MSK | coord-check | box q2 освобождён W1 (04:39), ~4 ядра простаивали → fallback: run_rev.py (копия run_resume.py, фолды в обратном порядке, общий work cpu/kurgan_s63/work, кэш по фолдам — без дублей; KTHREADS=4 nice10, PID 315392), аренда slot:box/q2 coord до 07:49. Kaggle: все слоты под арендой, acc2 GPU cooldown до 31.10 03:00
+- 30.10 05:00 MSK | coord-check | все слоты под арендой (Kaggle 5 акк., acc2 GPU cooldown до 31.10 03:00); box load 14.7/8 — перегруз, новых задач нет
+- 30.10 05:02 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 05:16 MSK | coord-check | все слоты под арендой (Kaggle 5 акк., acc2 GPU cooldown до 31.10 03:00); box load 11.1/8 — перегруз, новых задач нет; watcher v2 следит за Kaggle
+- 30.10 05:18 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 05:29 MSK | coord-check | все слоты под арендой (Kaggle 5 акк.; acc2 GPU cooldown до 31.10 03:00); box load ~6.5/8 (kurgan s63/64 run_resume+run_rev), новых задач нет; check_conflicts ERROR=1 (грязный общий клон, известное)
+- 30.10 05:47 MSK | coord-check | все слоты под арендой (Kaggle 5 акк.; acc2 GPU cooldown до 31.10 03:00); box load 8.6/8 — полная загрузка, новых задач нет; watcher v2 жив
+- 30.10 05:50 MSK | lease | release slot:acc1/gpu-2 (coord) by coord
+- 30.10 05:50 MSK | lease | release kernel:elenakonkova/koz3-w2-cnx-c3sc-s3f4 (coord) by coord
+- 30.10 05:50 MSK | watcher | acc1/gpu-2: elenakonkova/koz3-w2-cnx-c3sc-s3f4 → COMPLETE; аренда снята
+- 30.10 05:51 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 06:04 MSK | lease | acquire slot:acc1/gpu-2 → coord до 30.10 12:04 MSK fallback: GPU-копия W5 dino-emb (fp16, тот же код); CPU-ядро W5 не трогаю
+- 30.10 06:04 MSK | lease | acquire kernel:elenakonkova/koz3-w5-dino-emb-gpu → coord до 30.10 12:04 MSK fallback dino GPU
+- 30.10 06:05 MSK | coord-check | acc1/gpu-2 свободен после s3f4 (вывод → out/w2-cnx-c3sc-s3f4). Готовых GPU-пунктов нет (S1-g2 or-final уже COMPLETE 29.10; S1-g1/S2-g1 без папок) → fallback: elenakonkova/koz3-w5-dino-emb-gpu (копия W5 dino_emb.py, enable_gpu, fp16 — для W5: не байт-идентично CPU-fp32), аренда coord до 12:04. CPU-ядро W5 не тронуто. Box load 17.6/8 — перегруз, новых задач нет. Остальные слоты под арендой; acc2 GPU cooldown до 31.10 03:00
+- 30.10 06:07 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 06:18 MSK | coord-check | все слоты под арендой (Kaggle 5 акк.; acc2 GPU cooldown до 31.10 03:00); box load 11.8/8 — полная загрузка, новых задач нет
+- 30.10 06:30 MSK | coord-check | все Kaggle-слоты под арендой (acc2 GPU cooldown до 31.10 03:00); box ~6/8 ядер (W3 run_resume+run_rev); готовых пунктов в QUEUE нет; watcher жив, новых завершений с 05:50 нет
+- 30.10 06:32 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 06:47 MSK | coord-check | все Kaggle-слоты заняты (acc1 gpu×2 RUNNING, TPU acc1/acc2 QUEUED, CPU ×5 RUNNING; acc2 GPU cooldown до 31.10 03:00); box load 7.4/8 — загружен; новых задач нет
+- 30.10 06:48 MSK | check_conflicts | ERROR=1 WARN=6: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 07:03 MSK | coord-check | все Kaggle-слоты под арендой (acc2 GPU cooldown до 31.10 03:00); box load 7.2/8 — загружен; новых задач нет; утренняя сводка Елене
+- 30.10 07:04 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 07:20 MSK | coord-check | Kaggle-слоты все под арендой (acc2 GPU cooldown до 31.10 03:00); box load 6.7/8 (W3 run_resume+run_rev); аренда slot:box/q1 продлена на 3 ч (run_resume жив); новых задач нет
+- 30.10 07:21 MSK | lease | release slot:usertest1234/cpu (bot-W3-bigobj) by coord
+- 30.10 07:21 MSK | lease | release kernel:usertest1234/koz3-w3-kurgan-cpu-seeds (bot-W3-bigobj) by coord
+- 30.10 07:21 MSK | watcher | usertest1234/cpu: usertest1234/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+- 30.10 07:21 MSK | lease | acquire slot:usertest1234/cpu → bot-W4-clean до 30.10 10:21 MSK w4-v2clean-check
+- 30.10 07:21 MSK | lease | acquire kernel:usertest1234/koz3-w4-v2clean-check → bot-W4-clean до 30.10 10:21 MSK 
+- 30.10 07:21 MSK | lease | release slot:usertest1234/cpu (bot-W4-clean) by bot-W4-clean
+- 30.10 07:21 MSK | lease | release kernel:usertest1234/koz3-w4-v2clean-check (bot-W4-clean) by bot-W4-clean
+- 30.10 07:21 MSK | watcher | usertest1234/cpu: push usertest1234/koz3-w4-v2clean-check не удался: 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel
+- 30.10 07:21 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 07:32 MSK | lease | acquire slot:usertest1234/cpu → bot-W4-clean до 30.10 10:32 MSK w4-v2clean-check
+- 30.10 07:32 MSK | lease | acquire kernel:usertest1234/koz3-w4-v2clean-check → bot-W4-clean до 30.10 10:32 MSK 
+- 30.10 07:32 MSK | lease | release slot:usertest1234/cpu (bot-W4-clean) by bot-W4-clean
+- 30.10 07:32 MSK | lease | release kernel:usertest1234/koz3-w4-v2clean-check (bot-W4-clean) by bot-W4-clean
+- 30.10 07:32 MSK | watcher | usertest1234/cpu: push usertest1234/koz3-w4-v2clean-check не удался: 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel
+- 30.10 07:33 MSK | lease | acquire slot:usertest1234/cpu → coord до 30.10 11:33 MSK fill: W4 v2clean check_submission (slug renamed after 409)
+- 30.10 07:33 MSK | lease | acquire kernel:usertest1234/koz3-w4-v2cleanchk-k → coord до 30.10 11:33 MSK W4 v2clean check
+- 30.10 07:34 MSK | coord-check | usertest1234/cpu свободен с 07:21 (push W4 v2clean-check → 409 конфликт slug); переименован в usertest1234/koz3-w4-v2cleanchk-k, аренда coord до 11:33, push OK (для W4: вывод — check_submission v2clean). Остальные слоты под арендой; box load ~9/8
