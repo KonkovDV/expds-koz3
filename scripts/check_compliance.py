@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Проверка ФИНАЛЬНОГО ответа КОЗ №3 (result.geojson или zip с ним) — bot-8.
 
+LESSONS §5: validate the submission output scored on LB, NEVER a code/weights kit zip.
+LB scores e.g. submission_bot7cand_v2_eb268d6.zip → result.geojson (FeatureCollection).
+
 Лимиты ТР / compute_metrics / Прил. 3:
   zip/файл ≤ 100 МБ; ≤ 20 000 объектов; ≤ 3000 вершин на объект;
   EPSG:3857 (по координатам / properties.crs); только Polygon;
@@ -33,6 +36,60 @@ CLASSES = (
     "object_poly", "finds_points", "fortifikatsii",
 )
 _MANY_DECIMALS = re.compile(r"\d\.\d{16,}")
+WEIGHT_SUFFIXES = (".pt", ".pth", ".onnx", ".safetensors", ".bin", ".ckpt")
+KIT_NAME_HINTS = ("v3on", "kit", "models/", "weights/")
+
+
+def looks_like_kit_zip(path: Path) -> str | None:
+    """Return reason string if path is a code/weights kit, else None.
+
+    Loud reject for LESSONS §5: compliance must target submission output, not kit.
+    """
+    size = path.stat().st_size
+    name_l = path.name.lower()
+    # GeoJSON submission is never a kit
+    if path.suffix.lower() in (".geojson", ".json"):
+        return None
+    if path.suffix.lower() != ".zip":
+        return None
+    weight_hits: list[str] = []
+    has_models_dir = False
+    has_result = False
+    try:
+        with zipfile.ZipFile(path) as zf:
+            names = [n for n in zf.namelist() if not n.endswith("/")]
+            for n in names:
+                nl = n.lower()
+                if nl.endswith("result.geojson") or Path(nl).name == "result.geojson":
+                    has_result = True
+                if "/models/" in nl or nl.startswith("models/"):
+                    has_models_dir = True
+                if nl.endswith(WEIGHT_SUFFIXES):
+                    weight_hits.append(n)
+                    if len(weight_hits) >= 5:
+                        break
+    except zipfile.BadZipFile as exc:
+        return f"не читается как zip: {exc}"
+    if weight_hits:
+        sample = ", ".join(weight_hits[:3])
+        return (
+            f"KIT-ZIP REJECT: в архиве веса модели ({sample}"
+            f"{'…' if len(weight_hits) > 3 else ''}). "
+            f"Нужен submission output (result.geojson / zip ≤100 МБ без .pt/.onnx), "
+            f"не kit. См. LESSONS §5. path={path}"
+        )
+    if has_models_dir and not has_result:
+        return (
+            f"KIT-ZIP REJECT: есть models/ без result.geojson. "
+            f"Нужен финальный ответ пайплайна. path={path}"
+        )
+    if size > MAX_FILE_BYTES and (has_models_dir or any(h in name_l for h in KIT_NAME_HINTS)):
+        return (
+            f"KIT-ZIP REJECT: размер {size/1e6:.1f} МБ > {MAX_FILE_MB} МБ "
+            f"и признаки kit (models/ или имя). path={path}"
+        )
+    return None
+
 
 
 def _load(path: Path) -> tuple[dict, str, int]:
@@ -206,6 +263,10 @@ def main(argv: list[str] | None = None) -> int:
     path = Path(args.path)
     if not path.exists():
         print(f"FAIL path: нет файла {path}", file=sys.stderr)
+        return 2
+    kit_reason = looks_like_kit_zip(path)
+    if kit_reason:
+        print(f"FAIL kit: {kit_reason}", file=sys.stderr)
         return 2
     try:
         fc, raw, size = _load(path)

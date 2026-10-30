@@ -134,3 +134,41 @@ def test_fail_zip_oversize(tmp_path: Path, monkeypatch):
 
 def test_cli_missing_file(tmp_path: Path):
     assert cc.main([str(tmp_path / "nope.zip")]) == 2
+
+
+def test_reject_kit_zip_with_weights(tmp_path: Path):
+    """LESSONS §5: kit with .pt must FAIL loudly (exit 2), not parse as submission."""
+    p = tmp_path / "submission_bot7cand_v3on_kit.zip"
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("models/ae_fort_mask_r18.pt", b"FAKE_WEIGHTS" * 100)
+        zf.writestr("inference/main.py", b"print(1)\n")
+    p.write_bytes(buf.getvalue())
+    reason = cc.looks_like_kit_zip(p)
+    assert reason and "KIT-ZIP" in reason
+    assert cc.main([str(p)]) == 2
+
+
+def test_reject_kit_zip_models_dir_no_result(tmp_path: Path):
+    p = tmp_path / "kit_no_result.zip"
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("models/readme.txt", b"no weights ext but models tree")
+        zf.writestr("configs/default.toml", b"x=1\n")
+    p.write_bytes(buf.getvalue())
+    reason = cc.looks_like_kit_zip(p)
+    assert reason and "KIT-ZIP" in reason
+    assert cc.main([str(p)]) == 2
+
+
+def test_ok_submission_zip_not_kit(tmp_path: Path):
+    p = tmp_path / "submission_bot7cand_v2_eb268d6.zip"
+    p.write_bytes(_zip_bytes(_fc([_poly(4_200_000.0, 7_500_000.0)])))
+    assert cc.looks_like_kit_zip(p) is None
+    assert cc.main([str(p)]) == 0
+
+
+def test_geojson_never_kit(tmp_path: Path):
+    p = tmp_path / "result.geojson"
+    p.write_text(json.dumps(_fc([_poly(4_200_000.0, 7_500_000.0)])), encoding="utf-8")
+    assert cc.looks_like_kit_zip(p) is None
