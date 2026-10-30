@@ -99,15 +99,14 @@
   {
    "slot": "aaaa0000004/cpu",
    "account": "aaaa0000004",
-   "holder": "coord",
+   "holder": null,
    "reserved_for": "bot-W3-bigobj",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaa0000004",
-   "kernel": "aaaa0000004/koz3-w3-kurgan-cpu-seeds",
+   "kernel": null,
    "purpose": "fallback W3 kurgan seeds 75,76 (OOF для CI2-7)",
-   "last": "снято coord 30.10 09:30 MSK",
-   "since": "30.10 10:50 MSK",
-   "until": "30.10 17:50 MSK"
+   "last": "снято coord 30.10 15:55 MSK",
+   "state": "свободен"
   },
   {
    "slot": "aaaadg4gg4g4g/cpu",
@@ -124,12 +123,11 @@
   },
   {
    "slot": "box/q1",
-   "holder": "bot-W1-aeor",
+   "holder": null,
    "kernel": null,
-   "last": "снято coord 30.10 14:11 MSK",
-   "purpose": "CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4",
-   "since": "30.10 14:12 MSK",
-   "until": "30.10 19:12 MSK"
+   "last": "снято bot-W3-bigobj 30.10 15:53 MSK",
+   "purpose": "W3 C5B joint gate (A+M_rp+ORG3+C5B), nice10 thr4",
+   "state": "свободен"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -149,19 +147,20 @@
   },
   {
    "slot": "box/q2",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "kernel": null,
-   "last": "снято coord 30.10 14:11 MSK",
-   "purpose": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
-   "since": "30.10 14:12 MSK",
-   "until": "30.10 20:12 MSK"
+   "last": "снято bot-W4-v3 30.10 15:55 MSK",
+   "purpose": "W4: порт pix_clean в w4-gate (v3_on), гейт honest-10, P-D2-cleanroom",
+   "state": "свободен"
   },
   {
    "slot": "box/q3",
-   "holder": "bot-W3-bigobj",
+   "holder": "coord",
    "kernel": null,
-   "since": "30.10 15:15 MSK",
-   "until": "30.10 17:15 MSK"
+   "last": "снято bot-W3-bigobj 30.10 15:31 MSK",
+   "since": "30.10 15:45 MSK",
+   "until": "30.10 19:45 MSK",
+   "purpose": "w0s-dem-noground full-file class2 count (S3 stream)"
   }
  ],
  "kernel_prefix": {
@@ -198,15 +197,6 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 68901
-  },
-  {
-   "resource": "branch:bots/w4-gate",
-   "owner": "bot-W4-gate",
-   "since": 1793302266.198332,
-   "expires": 1794511866.198332,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68906
   },
   {
    "resource": "branch:bots/w0-rust-speed",
@@ -291,24 +281,6 @@
    "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds"
   },
   {
-   "resource": "branch:bots/w4-pix-clean",
-   "owner": "bot-W4-doc1g",
-   "since": 1793341076.515846,
-   "expires": 1793384276.515846,
-   "note": "DOC-1 hard guard + push W4 work",
-   "host": "grok-bot-vm-361051398",
-   "pid": 459990
-  },
-  {
-   "resource": "dataset:aaaa0000004/koz3-w4-v2clean-check",
-   "owner": "bot-W4-chk3",
-   "since": 1793341221.994118,
-   "expires": 1793384421.994118,
-   "note": "W4 check_submission нового архива 545ef32a (DOC-1 guard)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 461488
-  },
-  {
    "resource": "slot:acc2/cpu",
    "owner": "coord",
    "since": 1793344458.104156,
@@ -317,16 +289,6 @@
    "host": "grok-bot-vm-361051398",
    "pid": 486026,
    "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds"
-  },
-  {
-   "resource": "slot:aaaa0000004/cpu",
-   "owner": "coord",
-   "since": 1793346659.580819,
-   "expires": 1793371859.580819,
-   "note": "fallback W3 kurgan seeds 75,76 (OOF для CI2-7)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 504619,
-   "kernel": "aaaa0000004/koz3-w3-kurgan-cpu-seeds"
   },
   {
    "resource": "slot:aaaadg4gg4g4g/cpu",
@@ -367,31 +329,22 @@
    "pid": 526570
   },
   {
-   "resource": "slot:box/q1",
-   "owner": "bot-W1-aeor",
-   "since": 1793358720.018333,
-   "expires": 1793376720.018333,
-   "note": "CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4",
+   "resource": "branch:bots/w4-gate",
+   "owner": "bot-W4-gate",
+   "since": 1793302266.198332,
+   "expires": 1793399572.45425,
+   "note": "W4 v3_on pix_clean port",
    "host": "grok-bot-vm-361051398",
-   "pid": 601565
-  },
-  {
-   "resource": "slot:box/q2",
-   "owner": "bot-W2-lidar",
-   "since": 1793358759.044123,
-   "expires": 1793380359.044123,
-   "note": "P-W2-11 s1f4 OOF/maps audit (CPU, nice10)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 603434
+   "pid": 642615
   },
   {
    "resource": "slot:box/q3",
-   "owner": "bot-W3-bigobj",
-   "since": 1793362512.580245,
-   "expires": 1793369712.580245,
-   "note": "CI2-5 gate (run_c5gate.sh) coord-launched: box idle load 1.4/8",
+   "owner": "coord",
+   "since": 1793364351.231439,
+   "expires": 1793378751.231439,
+   "note": "w0s-dem-noground full-file class2 count (S3 stream)",
    "host": "grok-bot-vm-361051398",
-   "pid": 632521
+   "pid": 651035
   }
  ]
 }
