@@ -1,0 +1,10 @@
+base 0.3146153226828423 comp 0.35997711966639545 site modality counts {'sp_or': 121, 'ae': 9, 'li': 58, 'geo': 18, 'or': 4}
+dedup pairs 1537402 same-group 608952 7 s
+L14=0.3 {"d": -0.01732, "d_new34": -0.00075, "d_optical": 0.00139, "d_comp": -0.01924, "d_closed": -0.01589, "accept": false} P 0.0475 Ppub 0.047 Pcl 0.027 {'geo': 0.00952, 'li': -0.02333, 'sp_or': 0.00264, 'ae': 0.0, 'or': 0.0}
+L14=0.5 {"d": -0.01854, "d_new34": -0.00488, "d_optical": 0.00217, "d_comp": -0.02209, "d_closed": -0.01635, "accept": false} P 0.015 Ppub 0.004 Pcl 0.006 {'geo': 0.00952, 'li': -0.02867, 'sp_or': 0.0039, 'ae': 0.0, 'or': 0.0}
+L14=0.7 {"d": -0.01886, "d_new34": -0.0054, "d_optical": -0.00062, "d_comp": -0.02217, "d_closed": -0.01656, "accept": false} P 0.003 Ppub 0.002 Pcl 0.0 {'geo': 0.00952, 'li': -0.02877, 'sp_or': -0.00083, 'ae': 0.0, 'or': 0.0}
+L14_nested {"d": -0.01889, "d_new34": -0.00471, "d_optical": 0.00129, "d_comp": -0.02136, "d_closed": -0.01694, "accept": false} P 0.0185 Ppub 0.02 Pcl 0.005 {'geo': 0.00952, 'li': -0.02637, 'sp_or': 0.00241, 'ae': 0.0, 'or': 0.0}
+L14s=0.5 {"d": -0.00908, "d_new34": 0.00522, "d_optical": -0.0004, "d_comp": -0.00937, "d_closed": -0.00858, "accept": false} P 0.002 Ppub 0.005 Pcl 0.0 {'geo': 0.0, 'li': -0.01146, 'sp_or': -0.00051, 'ae': 1e-05, 'or': 0.0}
+L14s=0.7 {"d": -0.0091, "d_new34": 0.0052, "d_optical": -0.00042, "d_comp": -0.00939, "d_closed": -0.00859, "accept": false} P 0.002 Ppub 0.005 Pcl 0.0 {'geo': 0.0, 'li': -0.01147, 'sp_or': -0.00052, 'ae': 0.0, 'or': 0.0}
+L14s_nested {"d": -0.00908, "d_new34": 0.00522, "d_optical": -0.0004, "d_comp": -0.00937, "d_closed": -0.00858, "accept": false} P 0.002 Ppub 0.005 Pcl 0.0 {'geo': 0.0, 'li': -0.01146, 'sp_or': -0.00051, 'ae': 1e-05, 'or': 0.0}
+done

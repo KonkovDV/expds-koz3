@@ -1,0 +1,20 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Traceback (most recent call last):
+  File "/workspace/koz3/wt/w4-pix/scripts/pix_geo_pr_gate.py", line 208, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/koz3/wt/w4-pix/scripts/pix_geo_pr_gate.py", line 128, in main
+    c_fc = _filter_fc(args.c, regions)
+  File "/workspace/koz3/wt/w4-pix/scripts/pix_geo_pr_gate.py", line 40, in _filter_fc
+    fc = json.loads(Path(path).read_text(encoding="utf-8"))
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'cstar/C_L_noTFc_dummy.geojson'

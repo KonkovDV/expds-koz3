@@ -1,0 +1,7 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+F1 taus {'etgr_org': {'object_poly': 0.2158}, 'maggr': {'object_poly': 0.0}, 'maggr_pix_cvhi': {'finds_points': 0.51}, 'maggr_pix_cvlo': {'finds_points': 0.0377}, 'maggr_pix_grhi': {'finds_points': 0.2695}, 'maggr_pix_grlo': {'finds_points': 0.0143}} in 3124
+F2 taus {'etgr_org': {'object_poly': 0.2158}, 'maggr': {'object_poly': 0.0}, 'maggr_pix_cvhi': {'finds_points': 0.3985}, 'maggr_pix_cvlo': {'finds_points': 0.0377}, 'maggr_pix_grhi': {'finds_points': 0.2657}, 'maggr_pix_grlo': {'finds_points': 0.0113}} in 14377
+F3 taus {'etgr_org': {'object_poly': 0.0971}, 'maggr': {'object_poly': 0.0}, 'maggr_pix_cvhi': {'finds_points': 0.5108}, 'maggr_pix_cvlo': {'finds_points': 0.0}, 'maggr_pix_grhi': {'finds_points': 0.2692}, 'maggr_pix_grlo': {'finds_points': 0.0}} in 1638
+F4 taus {'etgr_org': {'object_poly': 0.2158}, 'maggr': {'object_poly': 0.0}, 'maggr_pix_cvhi': {'finds_points': 0.3985}, 'maggr_pix_cvlo': {'finds_points': 0.0603}, 'maggr_pix_grhi': {'finds_points': 0.2692}, 'maggr_pix_grlo': {'finds_points': 0.0346}} in 1776
+F5 taus {'etgr_org': {'object_poly': 0.0}, 'maggr': {'object_poly': 0.0}, 'maggr_pix_cvhi': {'finds_points': 0.5108}, 'maggr_pix_cvlo': {'finds_points': 0.0377}, 'maggr_pix_grhi': {'finds_points': 0.2692}, 'maggr_pix_grlo': {'finds_points': 0.0143}} in 867
+kept 7158 cstar/C_CetO3_Sr8G_LAug_noTFc_ht.geojson

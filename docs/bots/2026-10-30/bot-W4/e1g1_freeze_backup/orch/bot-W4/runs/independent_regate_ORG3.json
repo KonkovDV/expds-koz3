@@ -1,0 +1,178 @@
+{
+ "item": "GEO-ORG3",
+ "by": "coord (independent)",
+ "date_msk": "30.10.2026 01:40",
+ "code": "bots/w4-pix-clean 823bda8 (git archive, read-only), PREREG c5e5c7e; bot5 caches classic/pix s0/org cand,s0/orget cand,s0 symlinked read-only; own cache /workspace/koz3/regate5/oof",
+ "claim": "C-et + ORG1 pts + ORG3 vs A17: +0.0267, P_family 0.97, 4/5 (s0, no 200)",
+ "changes_vs_claim": [
+  "region 200 classic cache built (598 obj; bot5 run had OOM → 0, F1 fold=0 in A and C)",
+  "baseline A18 = compose без тегов на 18 участках (A17 + 200)",
+  "seeds 1,2: org/orget fold rebuilt"
+ ],
+ "seeds_note": "s0/s1/s2 дают побайтно идентичный geojson (md5 5238b32ced89): LightGBM без бэггинга, seed не влияет → сид-разброс 0, 3 сида = 1 замер",
+ "geo5": {
+  "A": {
+   "score2": 0.4226641354584628,
+   "f1": {
+    "object_poly": 0.2917317247946213,
+    "finds_points": 0.5535965461223044
+   },
+   "folds": {
+    "F1": 0.24232058555159855,
+    "F2": 0.49521060708905507,
+    "F3": 0.48764473160419913,
+    "F4": 0.21862232336584694,
+    "F5": 0.13651855004364719
+   }
+  },
+  "C_et_orgpts_orget_s0": {
+   "file": "Cetpts_orget_s0.geojson",
+   "d_f1": {
+    "finds_points": -0.012942347011728361,
+    "object_poly": 0.22499312795201376
+   },
+   "d_global": 0.02120507809402854,
+   "d_folds_global": {
+    "F1": -0.013754092482583264,
+    "F2": 0.0032666400014429,
+    "F3": 0.004939459385239886,
+    "F4": 0.031770303478039316,
+    "F5": 0.08048840040064578
+   },
+   "gate_proxy": {
+    "d_ge_0.009": true,
+    "p_family_ge_0.95": false,
+    "folds_pos": "4/5",
+    "folds_ge_4": true,
+    "methods_ge_-0.003": true,
+    "f1_not_below_A": false,
+    "accepted": false
+   },
+   "p_family": 0.8475,
+   "p_region": 0.9995
+  },
+  "C_et_orgpts_orget_s2": {
+   "file": "Cetpts_orget_s2.geojson",
+   "d_f1": {
+    "finds_points": -0.012942347011728361,
+    "object_poly": 0.22499312795201376
+   },
+   "d_global": 0.02120507809402854,
+   "d_folds_global": {
+    "F1": -0.013754092482583264,
+    "F2": 0.0032666400014429,
+    "F3": 0.004939459385239886,
+    "F4": 0.031770303478039316,
+    "F5": 0.08048840040064578
+   },
+   "gate_proxy": {
+    "d_ge_0.009": true,
+    "p_family_ge_0.95": false,
+    "folds_pos": "4/5",
+    "folds_ge_4": true,
+    "methods_ge_-0.003": true,
+    "f1_not_below_A": false,
+    "accepted": false
+   },
+   "p_family": 0.8475,
+   "p_region": 0.9995
+  },
+  "A_orget": {
+   "file": "A_orget.geojson",
+   "d_f1": {
+    "finds_points": 0.0,
+    "object_poly": 0.2060376236860742
+   },
+   "d_global": 0.020603762368607417,
+   "d_folds_global": {
+    "F1": 0.0,
+    "F2": 0.0,
+    "F3": 0.007354101296281457,
+    "F4": 0.016580188264036795,
+    "F5": 0.0797690977899668
+   },
+   "gate_proxy": {
+    "d_ge_0.009": true,
+    "p_family_ge_0.95": false,
+    "folds_pos": "3/5",
+    "folds_ge_4": false,
+    "methods_ge_-0.003": true,
+    "f1_not_below_A": true,
+    "accepted": false
+   },
+   "p_family": 0.7005,
+   "p_region": 0.9995
+  },
+  "C_et_orget": {
+   "file": "Cet_orget.geojson",
+   "d_f1": {
+    "finds_points": 0.0,
+    "object_poly": 0.22499312795201376
+   },
+   "d_global": 0.022499312795201388,
+   "d_folds_global": {
+    "F1": 0.0,
+    "F2": 0.0,
+    "F3": 0.007354101296281457,
+    "F4": 0.021823235702670526,
+    "F5": 0.08048840040064578
+   },
+   "gate_proxy": {
+    "d_ge_0.009": true,
+    "p_family_ge_0.95": false,
+    "folds_pos": "3/5",
+    "folds_ge_4": false,
+    "methods_ge_-0.003": true,
+    "f1_not_below_A": true,
+    "accepted": false
+   },
+   "p_family": 0.7005,
+   "p_region": 0.9995
+  }
+ },
+ "family_folds": {
+  "A": {
+   "score2": 0.3420701545395276,
+   "f1": {
+    "object_poly": 0.13054376295675083,
+    "finds_points": 0.5535965461223044
+   },
+   "folds": {
+    "Гнёздово": 0.21764407899870544,
+    "Семибратнее": 0.49521060708905507,
+    "Судьбищи": 0.24232058555159855
+   }
+  },
+  "C_et_orgpts_orget_s0": {
+   "d_f1": {
+    "finds_points": -0.012181757673680016,
+    "object_poly": -0.006486931408427307
+   },
+   "d_global": -0.0018668689082107393,
+   "d_folds_global": {
+    "Гнёздово": 0.00037000320985747237,
+    "Семибратнее": 0.0032666400014429,
+    "Судьбищи": -0.013754092482583264
+   },
+   "p_family": 0.4005
+  }
+ },
+ "verdict": "FAIL (claimed config): Δ +0.0212 ≥0.009, но P_family 0.85 <0.95 и finds F1 ниже A (−0.013, участок 200 F1 −0.0138 от ORG1 точек); family-фолды Δ −0.0019. ORG3 без ORG1-точек: A+ORG3 +0.0206, C-et+ORG3 +0.0225, F1 не ниже A, но 3/5 фолдов и P_family<0.95 (EtGr только в Гнёздово — структурно). Рекомендация: флаг org_etgr оставить выкл. до решения коорд./Елены по структурному гейту для EtGr; ORG1 точки — не включать.",
+ "pytest": {
+  "823bda8": "9 failed, 422 passed, 32 skipped, 2 collection errors (нет torch)",
+  "c5e5c7e (до изменения)": "9 failed, 416 passed — те же 9 тестов",
+  "new_tests": "tests/test_pix_org_et.py — все проходят (+6 passed)",
+  "related_to_change": false,
+  "failing": [
+   "test_bot7_candidate_v2::test_pix_models_shipped",
+   "::test_build_submission_collects_pix_models",
+   "test_bot7_v3_flags::test_train_only_modules_unreachable_and_not_packaged",
+   "::test_no_personal_paths_in_packaged_code",
+   "::test_flag_modules_not_packaged_when_off",
+   "test_coco_roundtrip::test_grid_cache_roundtrip_gives_one_circle_inside_each_object",
+   "test_gpu_safeguards::test_train_refuses_silent_cpu_fallback_when_require_gpu",
+   "::test_train_refuses_cuda_device_when_cuda_unavailable",
+   "test_open_hooks::test_shared_weights_are_packed_once"
+  ]
+ }
+}

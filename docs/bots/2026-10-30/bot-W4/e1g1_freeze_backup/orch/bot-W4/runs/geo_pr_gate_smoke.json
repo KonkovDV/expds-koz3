@@ -1,0 +1,110 @@
+{
+ "gt": "/workspace/koz3/w5data/gt_train_v2.geojson",
+ "c": "/tmp/c_smoke.geojson",
+ "ref": null,
+ "a": null,
+ "n_regions": 18,
+ "regions": [
+  "200_Судьбищи_2",
+  "201_Семибратнее_Городище_1",
+  "202_Семибратнее_Городище_2",
+  "203_Семибратнее_Городище_3",
+  "204_Семибратнее_Городище_4",
+  "205_Семибратнее_Городище_5",
+  "206_Семибратнее_Городище_6",
+  "207_Семибратнее_Городище_7",
+  "208_Гнёздово_Пойма",
+  "209_Гнёздово_Терраса_1",
+  "210_Гнёздово_Терраса_2",
+  "211_Гнёздово_Терраса_3",
+  "212_Гнёздово_Усадьба",
+  "213_Гнёздово_Лесная_1",
+  "214_Гнёздово_Лесная_2",
+  "215_Гнёздово_Селище_1",
+  "216_Гнёздово_Селище_2",
+  "217_Гнёздово_Селище_3"
+ ],
+ "C": {
+  "geo": {
+   "precision": 0.999999995,
+   "recall": 0.04385003287791053,
+   "tp": 200,
+   "fp": 0,
+   "fn": 4361
+  },
+  "methods": {
+   "maggr": {
+    "n_pred": 200,
+    "n_gt": 3726,
+    "final_score": 0.05437732756033146,
+    "classes": {
+     "finds_points": {
+      "f1": 0.10875465512066292,
+      "precision": 0.999999995,
+      "recall": 0.05750431280692803
+     },
+     "object_poly": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     }
+    },
+    "precision": 0.999999995,
+    "recall": 0.05367686525666214
+   },
+   "etgr": {
+    "n_pred": 0,
+    "n_gt": 658,
+    "final_score": 0.0,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     }
+    },
+    "precision": 0.0,
+    "recall": 0.0
+   },
+   "terfl": {
+    "n_pred": 0,
+    "n_gt": 177,
+    "final_score": 0.0,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     }
+    },
+    "precision": 0.0,
+    "recall": 0.0
+   }
+  },
+  "final_score": 0.043501862048265165
+ },
+ "REF": null,
+ "v2_lb_target": {
+  "precision": 0.769418,
+  "recall": 0.656489
+ },
+ "honest_vs_A": null,
+ "gate": {
+  "has_ref": false,
+  "c_ge_v2_p": true,
+  "c_ge_v2_r": false,
+  "PASS_vs_ref": false,
+  "PASS_elena_ready": false,
+  "note": "no --ref: not Elena-ready (need v2-ref geojson)"
+ }
+}

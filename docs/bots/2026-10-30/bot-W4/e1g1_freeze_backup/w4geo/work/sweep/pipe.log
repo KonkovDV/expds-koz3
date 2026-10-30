@@ -1,0 +1,41 @@
+15:47:06 [n40] fit
+15:51:20 [n40] dump
+15:51:59 [n40] decode
+15:57:51 [n40r6] fit
+15:59:13 [n40] compose
+16:01:04 [n40r6] dump
+16:01:13 [n40] eval rc=0
+16:01:41 [n40r6] decode
+16:06:11 [n40r6] compose
+16:08:17 [n40r6] eval rc=0
+16:17:01 [n40r8] sample rc=0 neg=40/150000 pos_r=0.8
+16:31:26 [n40r8] fit
+16:34:52 [n40r8] dump
+16:35:30 [n40r8] decode
+16:45:51 [n40r10] sample rc=0 neg=40/150000 pos_r=1.0
+16:57:27 [n40r10] fit
+16:57:27 [n40r10] fit
+17:00:43 [n40r10] dump
+17:00:43 [n40r10] dump
+17:01:19 [n40r10] decode
+17:01:19 [n40r10] decode
+tee: sweep/pipe.log: No such file or directory
+17:01:24 [n40r10] compose
+tee: sweep/pipe.log: No such file or directory
+17:03:29 [n40r10] eval rc=0
+18:11:30 [gw3d] fit_w done gw=3 drop=Терраса_3_MagGr_(серый|цвет)\.tif$
+18:11:30 [gw3d] fit
+18:11:48 [gw1d] fit_w done gw=1 drop=Терраса_3_MagGr_(серый|цвет)\.tif$
+18:11:48 [gw1d] fit
+18:13:27 [up8] compose
+18:14:07 [up8] eval rc=0
+18:15:28 [gw3d] dump
+18:15:52 [gw1d] dump
+18:16:06 [gw3d] decode
+18:16:35 [gw1d] decode
+19:00:36 [aug] fit
+19:07:01 [aug] dump
+19:07:50 [aug] decode
+22:12:20 [n40r8L] fit
+22:24:03 [n40r8L] dump
+22:24:42 [n40r8L] decode

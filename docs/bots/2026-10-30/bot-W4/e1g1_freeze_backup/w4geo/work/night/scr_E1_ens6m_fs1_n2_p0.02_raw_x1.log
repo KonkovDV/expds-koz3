@@ -1,0 +1,17 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_raw", "n_kept": 3517, "tp": 2146, "fp": 1371, "finds_P": 0.7579, "finds_R": 0.617, "finds_F1": 0.68024, "mag_P": 0.7543, "mag_R": 0.5953}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.25_X0.6_D1.75", "n_kept": 3833, "tp": 2274, "fp": 1559, "finds_P": 0.7447, "finds_R": 0.6538, "finds_F1": 0.69632, "mag_P": 0.7418, "mag_R": 0.6296}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.25_X0.6_D2.0", "n_kept": 3819, "tp": 2267, "fp": 1552, "finds_P": 0.745, "finds_R": 0.6518, "finds_F1": 0.69529, "mag_P": 0.7421, "mag_R": 0.6278}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.25_X0.7_D1.75", "n_kept": 3782, "tp": 2258, "fp": 1524, "finds_P": 0.7477, "finds_R": 0.6492, "finds_F1": 0.69498, "mag_P": 0.7446, "mag_R": 0.6253}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.25_X0.7_D2.0", "n_kept": 3781, "tp": 2254, "fp": 1527, "finds_P": 0.747, "finds_R": 0.6481, "finds_F1": 0.69402, "mag_P": 0.744, "mag_R": 0.6243}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.25_X1.0_D1.75", "n_kept": 3797, "tp": 2255, "fp": 1542, "finds_P": 0.7452, "finds_R": 0.6484, "finds_F1": 0.69342, "mag_P": 0.7423, "mag_R": 0.6245}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.5_X0.6_D1.75", "n_kept": 3717, "tp": 2233, "fp": 1484, "finds_P": 0.7506, "finds_R": 0.642, "finds_F1": 0.69208, "mag_P": 0.7474, "mag_R": 0.6186}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.5_X0.6_D2.0", "n_kept": 3741, "tp": 2242, "fp": 1499, "finds_P": 0.7495, "finds_R": 0.6446, "finds_F1": 0.6931, "mag_P": 0.7463, "mag_R": 0.621}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.5_X0.7_D1.75", "n_kept": 3705, "tp": 2232, "fp": 1473, "finds_P": 0.7519, "finds_R": 0.6417, "finds_F1": 0.69247, "mag_P": 0.7487, "mag_R": 0.6184}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.5_X0.7_D2.0", "n_kept": 3699, "tp": 2226, "fp": 1473, "finds_P": 0.7514, "finds_R": 0.64, "finds_F1": 0.69125, "mag_P": 0.7482, "mag_R": 0.6167}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A0.5_X1.0_D1.75", "n_kept": 3728, "tp": 2234, "fp": 1494, "finds_P": 0.7494, "finds_R": 0.6423, "finds_F1": 0.69175, "mag_P": 0.7463, "mag_R": 0.6189}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A1.0_X0.6_D1.75", "n_kept": 3515, "tp": 2146, "fp": 1369, "finds_P": 0.7582, "finds_R": 0.617, "finds_F1": 0.68035, "mag_P": 0.7546, "mag_R": 0.5953}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A1.0_X0.6_D2.0", "n_kept": 3502, "tp": 2140, "fp": 1362, "finds_P": 0.7586, "finds_R": 0.6153, "finds_F1": 0.67947, "mag_P": 0.7549, "mag_R": 0.5937}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A1.0_X0.7_D1.75", "n_kept": 3509, "tp": 2149, "fp": 1360, "finds_P": 0.7596, "finds_R": 0.6179, "finds_F1": 0.68147, "mag_P": 0.756, "mag_R": 0.5961}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A1.0_X0.7_D2.0", "n_kept": 3506, "tp": 2146, "fp": 1360, "finds_P": 0.7594, "finds_R": 0.617, "finds_F1": 0.68084, "mag_P": 0.7557, "mag_R": 0.5953}
+{"tag": "E1_ens6m_fs1_n2_p0.02_raw_x1_A1.0_X1.0_D1.75", "n_kept": 3517, "tp": 2146, "fp": 1371, "finds_P": 0.7579, "finds_R": 0.617, "finds_F1": 0.68024, "mag_P": 0.7543, "mag_R": 0.5953}
