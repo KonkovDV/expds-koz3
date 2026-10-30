@@ -457,7 +457,9 @@ radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 # Выключить: enabled = false (одна строка; без модели код возвращает базу).
 # Модель: scripts/rerank_arch_train.py; оба файла — в models/ (build_submission берёт их по этим ключам).
 [rerank_arch]
-enabled = true
+# orch: выключено по умолчанию — models/rerank_arch_lgbm.txt не в git (MERGE_2026-10-29.md), чистая сборка падала.
+# Включать только в сборке, где файлы модели положены рядом (apply() без файлов → без реранка).
+enabled = false
 model = "models/rerank_arch_lgbm.txt"
 meta = "models/rerank_arch_lgbm.json"
 
