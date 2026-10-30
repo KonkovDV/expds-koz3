@@ -29,7 +29,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from expds import candidates, post, writer
+from expds import candidates, li_half, post, writer
 from expds.catalog import read_utm_json, scan_root
 from expds.lidar import DemPrefetch, build_dem, dem_params, hillshade_set
 from expds.naming import site_family
@@ -77,7 +77,7 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
 
 
 def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None,
-                   geo_maps: str = "gray") -> list[dict]:
+                   geo_maps: str = "gray", half_cfg: dict | None = None) -> list[dict]:
     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region.
 
     geo_maps="all" — карты геофизики все, и серые, и цветные; находки в одном месте
@@ -92,6 +92,15 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
                  else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs))
             if d.crs is not None:
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
+                if half_cfg is not None and li_half.dump_dir() is not None:
+                    # EXPDS_LI_HALF_DUMP: второй проход 1 м только в выгрузку, --out не меняется.
+                    # DEM здесь без мозаики: у крупных LAS он огрублён (0,2–0,3 м); на шаге 1 м
+                    # это лишь другое усреднение блоков, потому skip_coarse тут не действует.
+                    try:
+                        li_half.half_pass(seg, d, reg.name, las.name, cand_p, li_half.params(half_cfg),
+                                          li_half.dump_dir(), {"oof": True})
+                    except Exception:
+                        log.exception("%s/%s: li_half пропущен", reg.name, las.name)
         return feats
     files = reg.rasters.get(markup, [])
     if markup in ("maggr", "etgr", "terfl"):
@@ -124,7 +133,7 @@ def predict_with_weights(args, predict_mts: list[str]) -> None:
             continue
         try:
             for mt in predict_mts:
-                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps)
+                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps, half_cfg=cfg)
             n_reg += 1
         except Exception:
             log.exception("%s: предсказание пропущено", reg.name)
@@ -370,7 +379,7 @@ def main() -> None:
                 try:
                     got = []
                     for mt in predict_mts:
-                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps)
+                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps, half_cfg=cfg)
                 except Exception:
                     log.exception("%s: предсказание пропущено", reg.name)
                     continue
