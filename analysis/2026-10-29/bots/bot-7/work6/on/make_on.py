@@ -34,6 +34,11 @@ head = "models/gor_gate/gor_v3_head.npz"
 [thresholds_by_markup.sp_or_gated]   # bot-5 gor_v3_taus.json (sweep_groups на всём трейне)
 gorodishcha = 0.992648
 ''', cfg); assert n == 1
+# C / R: включаем sp_dfine. R добавляет drop_groups; C — без drop_groups (v2 SpOr рядом).
+if MODE == "R":
+    _DROP = '\ndrop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]\n'
+else:
+    _DROP = '\n# bot-2: вариант C — без drop_groups (v2 SpOr + D-FINE рядом)\n'
 cfg, n = (cfg, 1) if MODE == "gate" else re.subn(r"(?m)^\[sp_dfine\]\nenabled = false\n", '''[sp_dfine]
 enabled = true
 weights = ["models/MNAME"]   # модель сдачи — dfine_f0 (final только после переноса порогов и приёмки)

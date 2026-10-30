@@ -32,6 +32,7 @@ def test_default_flags_off():
     assert "sp_dfine" not in cfg.get("thresholds_by_markup", {})
     st = sp_dfine.settings(cfg)
     assert st["drop_groups"] == [] and st["convert"] == "circle" and st["ensemble"] == "max"
+    assert st["drop_min_det"] == 1
 
 
 def test_cluster_circles_variant_c():
@@ -222,6 +223,89 @@ def test_pipeline_phase_drop_only_complete(monkeypatch):
     kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
     assert ("a", None) not in kept and ("b", None) in kept      # b прерван — старые объекты остаются
     assert kept.count(("a", "sp_dfine")) == 1 and kept.count(("b", "sp_dfine")) == 1
+
+
+
+
+def test_pipeline_phase_drop_skips_regions_without_dfine(monkeypatch):
+    """bot-2 safety valve: complete + 0 sp_dfine → v2 SpOr на участке сохраняются."""
+    from expds import pipeline
+
+    class St:
+        def __init__(self, feats):
+            self.feats = list(feats)
+        def add(self, f):
+            self.feats += f
+        def snapshot(self):
+            return list(self.feats)
+        def replace(self, f):
+            self.feats = list(f)
+
+    class G:
+        soft_ceiling = None
+        def ok(self, s=0):
+            return True
+        def elapsed(self):
+            return 0.0
+
+    def fake(reg, cfg, guard, cache, root, crs_for=None, soft_ok=None):
+        cache["models"] = ["m"]
+        if reg.name == "empty":
+            return [], True
+        f = {"markup_type": "sp_or", "class_name": "kurgany_tselye", "region_name": reg.name,
+             "threshold_group": "sp_dfine", "confidence": 0.9}
+        return [f], True
+
+    monkeypatch.setattr(sp_dfine, "region_feats", fake)
+    old = [
+        {"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "empty"},
+        {"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "hit"},
+    ]
+    st = St(old)
+    regs = [
+        SimpleNamespace(name="empty", rasters={"sp_or": ["x"]}),
+        SimpleNamespace(name="hit", rasters={"sp_or": ["y"]}),
+    ]
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 1}}
+    assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 1
+    kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
+    assert ("empty", None) in kept, kept  # v2 на empty сохранён
+    assert ("hit", None) not in kept, kept  # v2 на hit снят
+    assert ("hit", "sp_dfine") in kept
+    assert ("empty", "sp_dfine") not in kept
+
+
+def test_pipeline_phase_drop_min_det_zero_allows_empty(monkeypatch):
+    """drop_min_det=0 — старое поведение R даже при 0 детекций (opt-out от багфикса)."""
+    from expds import pipeline
+
+    class St:
+        def __init__(self, feats):
+            self.feats = list(feats)
+        def add(self, f):
+            self.feats += f
+        def snapshot(self):
+            return list(self.feats)
+        def replace(self, f):
+            self.feats = list(f)
+
+    class G:
+        soft_ceiling = None
+        def ok(self, s=0):
+            return True
+        def elapsed(self):
+            return 0.0
+
+    def fake(reg, cfg, guard, cache, root, crs_for=None, soft_ok=None):
+        cache["models"] = ["m"]
+        return [], True
+
+    monkeypatch.setattr(sp_dfine, "region_feats", fake)
+    st = St([{"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "a"}])
+    regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]})]
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 0}}
+    assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 0
+    assert st.feats == []
 
 
 def test_run_flag_off_never_touches_sp_dfine(monkeypatch):

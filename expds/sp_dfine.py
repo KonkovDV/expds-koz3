@@ -11,6 +11,15 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 * без ``[thresholds_by_markup.sp_dfine]`` для всех классов модуль ничего не выдаёт (``require_thresholds``):
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
+* ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
+* ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
+  ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
+* ``EXPDS_STRICT=1`` (bot-2) — при ``enabled=true`` и сбое импорта/загрузки D-FINE — громкий отказ
+  (ERROR + WARNING-файл + raise), а не тихий fallback «как v2»; по умолчанию ВЫКЛ. (сдача не падает,
+  но WARNING пишется всегда). Вендор ``inference/lib/vendor`` — manylinux/cp312 (площадка/Kaggle/docker);
+  на Windows-host без docker import падает (``regex``/``tokenizers`` .so) → нужен docker ``pantum/n7q``
+  или env transformers==5.21.0;
 * ансамбль фолдов: ``ensemble = "max"`` (кластер C берёт лучший из всех моделей, как NMS) или ``"mean"``
   (среднее по моделям, отсутствующая модель = 0, как score-averaging в WBF). Ни один не измерен честно —
   у фолдовых моделей нет общего OOF; по умолчанию одна модель.
@@ -18,6 +27,9 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 torch / transformers импортируются лениво, только при enabled = true.
 """
 from __future__ import annotations
+
+import os
+import json
 
 import logging
 import math
@@ -51,6 +63,11 @@ DEFAULTS = {
     "merge_m": 4.0,
     "ensemble": "max",
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
+    # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
+    "drop_min_det": 1,
+    # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
+    # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
+    "agreement_m": 0.0,
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",
@@ -232,7 +249,61 @@ def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
     return [f for f in feats if not (f.get("region_name") in regions and grp(f) in groups and grp(f) != GROUP)]
 
 
+def _feat_xy(f: dict) -> tuple[float, float] | None:
+    g = f.get("geom")
+    if g is None:
+        return None
+    try:
+        c = g.centroid
+        return float(c.x), float(c.y)
+    except Exception:
+        return None
+
+
+def filter_agreement(feats: list[dict], anchors: list[dict], agreement_m: float) -> list[dict]:
+    """Оставить D-FINE, чей центр ≤ ``agreement_m`` м (EPSG:3857 ground) от якоря sp_or.
+
+    Якорь — объект с ``markup_type=sp_or`` и ``threshold_group != sp_dfine`` (U-Net / прочие).
+    ``agreement_m <= 0`` → без фильтра (OFF). Пустые якоря → все D-FINE отбрасываются при >0.
+    """
+    m = float(agreement_m or 0.0)
+    if m <= 0:
+        return feats
+    pts: list[tuple[float, float]] = []
+    for a in anchors or ():
+        if a.get("markup_type") != MARKUP:
+            continue
+        if a.get("threshold_group") == GROUP:
+            continue
+        xy = _feat_xy(a)
+        if xy is not None:
+            pts.append(xy)
+    if not pts:
+        return []
+    kept = []
+    for f in feats:
+        xy = _feat_xy(f)
+        if xy is None:
+            continue
+        x, y = xy
+        # ground metres ≈ Euclidean * ground_scale(y) in WebMercator
+        scale = ground_scale(y)
+        if any(math.hypot(x - ax, y - ay) * scale <= m for ax, ay in pts):
+            kept.append(f)
+    return kept
+
+
 # ── растр ────────────────────────────────────────────────────────────────────────────────────────────────
+def _crs_is_geographic(crs: str) -> bool:
+    """True, если CRS географический (градусы). WarpedVRT с res_m=0.5° уничтожил бы метраж."""
+    try:
+        from rasterio.crs import CRS
+        return bool(CRS.from_user_input(crs).is_geographic)
+    except Exception:
+        s = (crs or "").upper()
+        return "4326" in s or s in ("OGC:CRS84", "CRS84", "WGS84")
+
+
 def utm_for(path: Path, fallback_crs: str | None) -> str:
     """Метрическая CRS сцены: UTM.json участка, если она проецированная; иначе зона UTM по центру растра.
     bot-6 crsfix (находка bot-9): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
@@ -263,6 +334,9 @@ class Scene:
 
         self.src = rasterio.open(path)
         self.crs = crs
+        if _crs_is_geographic(crs):
+            self.src.close()
+            raise ValueError(f"sp_dfine.Scene: CRS {crs!r} географический — нужен проекционный UTM (res_m в метрах)")
         tr, w, h = calculate_default_transform(self.src.crs, crs, self.src.width, self.src.height,
                                                *self.src.bounds, resolution=res_m)
         try:
@@ -590,6 +664,10 @@ def import_dfine(root: Path) -> tuple:
         except Exception as exc:  # noqa: BLE001 — причина пишется в лог/FAIL
             info["errors"].append(f"{src}: {type(exc).__name__}: {str(exc)[:300]}")
             _purge(("transformers",))
+    hint = vendor_platform_hint(v)
+    if hint:
+        info["errors"].append(f"hint: {hint}")
+    info["platform"] = __import__("sys").platform
     raise ImportError(f"{UNAVAILABLE}: D-FINE недоступен — " + " | ".join(info["errors"]))
 
 
@@ -628,6 +706,139 @@ def load_models(st: dict, root: Path, device) -> list:
             raise RuntimeError(f"D-FINE {p}: {len(bad)} тензоров на meta ({', '.join(bad[:3])})")
         models.append(m.eval().to(device))
     return models
+
+
+
+def dump_root() -> Path | None:
+    """Каталог дампа из ``EXPDS_DFINE_DUMP`` (пусто / не задан → ``None``, фича ВЫКЛ.)."""
+    raw = (os.environ.get("EXPDS_DFINE_DUMP") or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def count_would_pass_thr(feats: list[dict], cfg: dict) -> int:
+    """Сколько объектов sp_dfine прошли бы ``post.apply_thresholds`` с текущим ``[thresholds_by_markup.sp_dfine]``.
+
+    Нужен dump-диагностике A≡B: если raw>0, а would_pass_thr=0 — порог/группа срезает всё до finish.
+    """
+    from . import post
+
+    by = cfg.get("thresholds_by_markup") or {}
+    tau = post.threshold_fn(cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15), by)
+    return sum(1 for f in feats if f.get("confidence", 1.0) >= tau(f))
+
+
+def append_stage(out_dir: Path, row: dict) -> Path:
+    """Дописывает одну запись в ``stages.jsonl`` (одна строка = один участок / фаза)."""
+    path = out_dir / "stages.jsonl"
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False))
+        fh.write("\n")
+    return path
+
+
+def write_stages_summary(out_dir: Path, rows: list[dict], **extra) -> Path:
+    """Итоговый ``stages.json``: сумма счётчиков по участкам + extra (n_models, thresholds_ready…)."""
+    keys = ("n_raw_boxes", "n_ellipses", "n_features", "n_would_pass_thr", "n_paths", "n_paths_done")
+    totals = {k: sum(int(r.get(k, 0) or 0) for r in rows) for k in keys}
+    payload = {"regions": rows, "totals": totals, **extra}
+    path = out_dir / "stages.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def write_boxes_dump(out_dir: Path, *, region: str, source: str, crs: str, transform,
+                     model_i: int, B, L, Cc, ellipses: list[dict]) -> Path:
+    """Пишет JSON: пиксельные xyxy + преобразованные центры/bbox в EPSG:3857 (+ crs сцены).
+
+    Нужен PC-прогону для проверки CRS-гипотезы (pixel → scene CRS → 3857 vs GT 3857).
+    """
+    from pyproj import Transformer
+
+    a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
+    to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
+    rows = []
+    for i, ((x0, y0, x1, y1), s, c) in enumerate(zip(B, L, Cc)):
+        cx, cy = (float(x0) + float(x1)) / 2, (float(y0) + float(y1)) / 2
+        # углы bbox в CRS сцены → 3857
+        corners_src = [
+            (a * float(x0) + b * float(y0) + c0, d * float(x0) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y0) + c0, d * float(x1) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y1) + c0, d * float(x1) + e * float(y1) + f0),
+            (a * float(x0) + b * float(y1) + c0, d * float(x0) + e * float(y1) + f0),
+        ]
+        corners_3857 = [to3857(x, y) for x, y in corners_src]
+        cx_src, cy_src = a * cx + b * cy + c0, d * cx + e * cy + f0
+        cx_3857, cy_3857 = to3857(cx_src, cy_src)
+        ell = ellipses[i] if i < len(ellipses) else None
+        eb = list(ell["geom"].bounds) if ell is not None else None
+        rows.append({
+            "i": i,
+            "class_name": CLASSES[int(c)] if int(c) < len(CLASSES) else str(int(c)),
+            "score": float(s),
+            "xyxy_px": [float(x0), float(y0), float(x1), float(y1)],
+            "center_px": [cx, cy],
+            "center_scene_crs": [cx_src, cy_src],
+            "center_3857": [cx_3857, cy_3857],
+            "bbox_corners_3857": [[float(x), float(y)] for x, y in corners_3857],
+            "ellipse_bounds_3857": eb,
+        })
+    payload = {
+        "region": region,
+        "source": source,
+        "scene_crs": crs,
+        "target_crs": "EPSG:3857",
+        "model_i": model_i,
+        "n": len(rows),
+        "affine_a_b_c_d_e_f": [a, b, c0, d, e, f0],
+        "boxes": rows,
+    }
+    safe_src = source.replace("/", "_").replace("\\", "_")
+    path = out_dir / f"{region}__{safe_src}__m{model_i}_boxes.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def write_gt_dump(out_dir: Path, reg) -> Path | None:
+    """GT участка (SpOr и пр.) в EPSG:3857 через ``expds.gt.read_annotation``; нет аннотаций → None."""
+    anns = list(getattr(reg, "annotations", None) or [])
+    if not anns:
+        return None
+    # importlib — чтобы AST-граф инференса не тянул train-only gt.py (test_train_only_modules…).
+    import importlib
+    from shapely.geometry import mapping
+    read_annotation = importlib.import_module(f"{__package__}.gt").read_annotation
+
+    feats = []
+    report: list[dict] = []
+    for path, cls, mt in anns:
+        for it in read_annotation(Path(path), cls, mt, reg, report=report):
+            g = it["geom"]
+            feats.append({
+                "type": "Feature",
+                "properties": {
+                    "class_name": it["class_name"],
+                    "markup_type": it["markup_type"],
+                    "region_name": it["region_name"],
+                    "source": it.get("source"),
+                    "src_crs": it.get("src_crs"),
+                },
+                "geometry": mapping(g),
+            })
+    payload = {
+        "type": "FeatureCollection",
+        "crs": {"type": "name", "properties": {"name": "EPSG:3857"}},
+        "region": getattr(reg, "name", None),
+        "n": len(feats),
+        "files": report,
+        "features": feats,
+    }
+    path = out_dir / f"{getattr(reg, 'name', 'region')}__gt_3857.geojson"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
 
 
 def detect_scene(models: list, scene, st: dict, device, keep_going=lambda: True) -> tuple[list, int, int]:
@@ -722,19 +933,49 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
     """Объекты D-FINE участка и флаг «все растры SpOr пройдены полностью» (нужен для drop_groups).
 
     cache — общий словарь прогона (модели грузятся один раз). Ошибка или нехватка времени → что успели.
+    При ``EXPDS_DFINE_DUMP`` пишет stages.jsonl: raw_boxes → ellipses → features → would_pass_thr.
     """
     st = settings(cfg)
     paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
+    stage = {
+        "region": getattr(reg, "name", None),
+        "n_paths": len(paths),
+        "n_paths_done": 0,
+        "n_raw_boxes": 0,
+        "n_ellipses": 0,
+        "n_features": 0,
+        "n_would_pass_thr": 0,
+        "n_models": None,
+        "thresholds_ready": None,
+        "skip_reason": None,
+    }
     if not paths:
+        stage["skip_reason"] = "no_sp_or_rasters"
+        _emit_stage(stage)
         return [], False
     if "models" not in cache:
         cache["models"], cache["device"] = [], None
         ready, missing = thresholds_ready(cfg)
+        cache["thresholds_ready"] = ready
+        cache["thresholds_missing"] = missing
         if st["require_thresholds"] and not ready:
-            log.error("%s: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается, выдача как v2",
-                      UNAVAILABLE, ", ".join(missing))
+            msg = f"нет порогов [thresholds_by_markup.sp_dfine] для {', '.join(missing)}"
+            log.error("%s: %s — D-FINE не запускается, выдача как v2", UNAVAILABLE, msg)
+            stage["skip_reason"] = "thresholds_missing:" + ",".join(missing)
+            stage["import_error"] = msg
+            cache["load_error"] = msg
+            write_unavailable_warning(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         elif not st["weights"]:
-            log.error("%s: weights пуст — D-FINE не запускается, выдача как v2", UNAVAILABLE)
+            msg = "weights пуст — D-FINE не запускается"
+            log.error("%s: %s, выдача как v2", UNAVAILABLE, msg)
+            stage["skip_reason"] = "weights_empty"
+            stage["import_error"] = msg
+            cache["load_error"] = msg
+            write_unavailable_warning(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         else:
             try:
                 dev = _device(st)
@@ -749,16 +990,23 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         if st["strict"] and ((not ready and st["require_thresholds"]) or not st["weights"]):
             raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
     models = cache["models"]
+    stage["n_models"] = len(models)
+    stage["thresholds_ready"] = cache.get("thresholds_ready")
     if not models:
+        if stage["skip_reason"] is None:
+            stage["skip_reason"] = "no_models"
+        _emit_stage(stage)
         return [], False
     dets: list[dict] = []
     complete = True
     for path in paths:
         if guard is not None and not guard.ok(60):
             complete = False
+            stage["skip_reason"] = (stage["skip_reason"] or "") + ";guard_time"
             break
         if soft_ok is not None and not soft_ok(f"D-FINE {Path(path).name}", float(st["soft_need_s"])):
             complete = False
+            stage["skip_reason"] = (stage["skip_reason"] or "") + ";soft_ceiling"
             break
         sc = None
         try:
@@ -768,14 +1016,60 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             t0 = time.monotonic()
             res, done, total = detect_scene(models, sc, st, cache["device"], ok)
             complete &= done >= total
+            dump = dump_root()
+            n_raw = 0
             for mi, (B, L, Cc) in enumerate(res):
-                dets += boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                n_raw += int(len(L))
+                ell = boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                if dump is not None and len(L):
+                    try:
+                        write_boxes_dump(dump, region=reg.name, source=Path(path).name, crs=crs,
+                                         transform=sc.T, model_i=mi, B=B, L=L, Cc=Cc, ellipses=ell)
+                    except Exception:
+                        log.exception("sp_dfine: dump боксов не записан (%s m%d)", Path(path).name, mi)
+                dets += ell
+            stage["n_raw_boxes"] += n_raw
+            stage["n_paths_done"] += 1
             log.info("sp_dfine: %s %dx%d px, окон %d/%d, боксов %d, %.1f с", Path(path).name, sc.W, sc.H, done,
-                     total, sum(len(r[1]) for r in res), time.monotonic() - t0)
+                     total, n_raw, time.monotonic() - t0)
         except Exception:
             complete = False
             log.exception("sp_dfine: %s пропущен", Path(path).name)
+            stage["skip_reason"] = (stage["skip_reason"] or "") + f";path_err:{Path(path).name}"
         finally:
             if sc is not None:
                 sc.close()
-    return as_features(dets, st, len(models)), complete
+    # n_ellipses should be total dets, not wrongly accumulated mid-loop
+    stage["n_ellipses"] = len(dets)
+    feats = as_features(dets, st, len(models))
+    stage["n_features"] = len(feats)
+    stage["n_would_pass_thr"] = count_would_pass_thr(feats, cfg) if feats else 0
+    dump = dump_root()
+    if dump is not None:
+        try:
+            gp = write_gt_dump(dump, reg)
+            if gp is not None:
+                log.info("sp_dfine: GT dump %s", gp)
+        except Exception:
+            log.exception("sp_dfine: GT dump не записан (%s)", getattr(reg, "name", "?"))
+        try:
+            append_stage(dump, stage)
+            log.info("sp_dfine stages %s: raw=%d ell=%d feat=%d pass_thr=%d skip=%s",
+                     stage["region"], stage["n_raw_boxes"], stage["n_ellipses"], stage["n_features"],
+                     stage["n_would_pass_thr"], stage["skip_reason"])
+        except Exception:
+            log.exception("sp_dfine: stages dump не записан (%s)", getattr(reg, "name", "?"))
+    return feats, complete
+
+
+def _emit_stage(stage: dict) -> None:
+    """Пишет stage-строку, если dump включён (ранний выход region_feats)."""
+    dump = dump_root()
+    if dump is None:
+        return
+    try:
+        append_stage(dump, stage)
+        log.info("sp_dfine stages %s: skip=%s models=%s", stage.get("region"), stage.get("skip_reason"),
+                 stage.get("n_models"))
+    except Exception:
+        log.exception("sp_dfine: stages dump не записан (%s)", stage.get("region"))
