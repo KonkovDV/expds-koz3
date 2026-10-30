@@ -37,6 +37,7 @@ DEFAULTS: dict[str, Any] = {
 
 
 def settings(cfg: dict | None) -> dict:
+    """Сливает [ae_recall_relax] с DEFAULTS (ключи TOML главнее)."""
     out = copy.deepcopy(DEFAULTS)
     block = (cfg or {}).get("ae_recall_relax") or {}
     if not isinstance(block, dict):
@@ -59,6 +60,10 @@ def enabled(cfg: dict | None) -> bool:
 
 
 def apply(cfg: dict) -> dict:
+    """Возвращает cfg; при enabled=true глубоко обновляет thresholds_by_markup и fusion.
+
+    Не мутирует входной словарь (копия верхнего уровня + вложенных таблиц порогов).
+    """
     st = settings(cfg)
     if not st.get("enabled"):
         return cfg
