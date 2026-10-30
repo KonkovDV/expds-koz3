@@ -525,6 +525,27 @@ enabled = false
 [aeor_dfine]
 enabled = false
 
+# bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
+# до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
+# порогов из вложенного OOF (bot-6/AEOR_DETECT.md). Ключи и умолчания — expds/dfine_aeor.py DEFAULTS
+# (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
+#   enabled = true
+#   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
+#     # = чекпойнты bot-9 koz3_shared/bot-9/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
+#     # 5 классов в порядке sp_dfine.CLASSES), в репозиторий — ln -s (полные пути: bot-6/AEOR_DETECT.md; личные
+#     # абсолютные пути в конфиге архива запрещены тестом test_no_personal_paths_in_packaged_code,
+#     # build_submission их не пакует)
+#   thresholds_file = "models/dfine_aeor/thresholds_oof.json"   # {"dfine_ae": {класс: порог}, "dfine_or": {...}}; ae_dfine/or_dfine тоже принимаются
+#   # scales = [1.0, 1.5]   # второй масштаб — только после замера времени на 4090
+# Рецепт входа (bot-9): RGB/255 без нормализации, flip-TTA, NMS IoU 0,5, fp16 только autocast на CUDA (.half() не вызывается).
+[dfine_aeor]
+enabled = false
+
+# bot-6: городища из D-FINE Or выключены порогом > 1, пока bot-10 не замерит их вместе с gor_dense bot-5.
+# Ключи TOML главнее thresholds_file. Объектов dfine_or нет при [dfine_aeor] enabled=false.
+[thresholds_by_markup.dfine_or]
+gorodishcha = 1.01
+
 # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
 # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
 # ВЫКЛ. Ставить ТОЛЬКО без варианта R D-FINE (R выбрасывает sp_or — шлюзу нечего гейтить; bot-10 §1). Включение:

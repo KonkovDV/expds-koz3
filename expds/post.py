@@ -96,16 +96,25 @@ def _repaired(feat: dict) -> dict | None:
     return feat
 
 
-def merge_within_markup(feats: list[dict]) -> list[dict]:
+#: bot-6: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
+ISOLATED_GROUPS = ("dfine_ae", "dfine_or")
+
+
+def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict]:
     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
 
     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
+    bot-6: у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
+    с dfine_ae (не с прочими ae). У остальных четвёртый элемент ключа None — их группы как в v3.
     """
+    iso = set(isolate or ())
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for raw in feats:
         feat = _repaired(raw)
         if feat is not None:
-            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"])].append(feat)
+            tg = feat.get("threshold_group")
+            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"],
+                    tg if tg in iso else None)].append(feat)
     out = []
     for key, items in groups.items():
         out.extend(items if key[1] == "etgr" else merge_across_sources(items))

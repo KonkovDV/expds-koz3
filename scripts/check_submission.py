@@ -204,13 +204,15 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
     # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
-    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k in ("gor_gate.backbone", "gor_dense.backbone")}
+    hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k in ("gor_gate.backbone", "gor_dense.backbone")
+               or k.startswith("dfine_aeor.weights")}   # bot-6: веса D-FINE Ae/Or
     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
                and not (k.startswith("li_cnx.") and not cnx_on(cfg))   # bot-8 [li_cnx] выкл.
                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
+               and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
                and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
@@ -1271,6 +1273,130 @@ def check_dfine_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
         shutil.rmtree(home, ignore_errors=True)
 
 
+#: bot-6 [dfine_aeor]: опорные участки смоука D-FINE Ae/Or — самые маленькие растры своей модальности в трейне
+#: с разметкой этой модальности (bot-6/work/aeor_rss/scene_info.log; разметка — 06_*_разметка/*.geojson).
+#: Эталонного n_det нет, пока bot-9 не отдал веса: проверка требует n_det > 0, а без весов — FAIL «нужны веса»
+#: (не PASS). ref_n_det вписать после первого прогона с весами.
+DFINE_AEOR_KNOWN = {
+    "ae": {"region": "181_Гнёздово_Лесная_3", "raster": "_Ae_", "gt": "Ae курганы: 75 целых + 20 повреждённых",
+           "scene_0_5m": [173, 728], "ref_n_det": None},
+    "or": {"region": "185_Изборск", "raster": "_Or_", "gt": "Or: 2 городища + 3 фортификации",
+           "scene_0_5m": [1015, 655], "ref_n_det": None},
+}
+DFINE_AEOR_ROOT_DEFAULT = "/workspace/data/train-expds-3"
+
+DFINE_AEOR_PROBE = r"""
+import json, sys
+from pathlib import Path
+root, mk, tif = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
+sys.path.insert(0, str(root))
+out = {}
+try:
+    import torch
+    torch.set_num_threads(2)
+    import tomllib
+    from expds import dfine_aeor as A, sp_dfine as S
+    cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
+    st = A.settings(cfg)
+    st["batch"] = dict(st["batch"], **{mk: 1})
+    st["device"] = "cpu"
+    dev = torch.device("cpu")
+    models, labels = A._load(st, mk, root, {"device": dev})
+    B, L, C, T0, done, total = A.detect_image(models, tif, S.utm_for(tif, None), st, mk, "no_flip", dev)
+    out = {"ok": True, "n_det": int(len(L)), "max": round(float(max(L)) if len(L) else 0.0, 4),
+           "windows": [int(done), int(total)], "models": len(models), "min_score": float(st["min_score"])}
+except Exception as exc:
+    out = {"ok": False, "err": f"{type(exc).__name__}: {str(exc)[:1500]}"}
+print("DFINE_AEOR_JSON=" + json.dumps(out, ensure_ascii=False))
+"""
+
+
+def dfine_aeor_raster(root: Path, mk: str) -> Path | None:
+    spec = DFINE_AEOR_KNOWN[mk]
+    reg = Path(root) / spec["region"]
+    tifs = sorted(p for p in reg.rglob("*") if p.suffix.lower() in (".tif", ".tiff") and spec["raster"] in p.name) \
+        if reg.is_dir() else []
+    return tifs[0] if tifs else None
+
+
+def dfine_aeor_missing_weights(names: list[str], cfg: dict, mk: str) -> list[str]:
+    """Каталоги весов модальности, которых нет в архиве (нужны config.json и model.safetensors)."""
+    w = ((cfg.get("dfine_aeor") or {}).get("weights") or {}).get(mk) or []
+    w = [w] if isinstance(w, str) else list(w)
+    if not w:
+        return [f"[dfine_aeor] weights.{mk} не задан"]
+    have = set(names)
+    return [d for d in w if not all(f"{str(d).rstrip('/')}/{f}" in have for f in ("config.json", "model.safetensors"))]
+
+
+def dfine_aeor_verdict(mk: str, out: dict) -> tuple[str, str]:
+    spec = DFINE_AEOR_KNOWN[mk]
+    where = f"{mk} {spec['region']} ({spec['gt']})"
+    if not out.get("ok"):
+        return "FAIL", f"смоук dfine_aeor {where}: веса не загрузились/не отработали: {out.get('err')}"
+    ref = f", эталон {spec['ref_n_det']}" if spec.get("ref_n_det") is not None else ", эталона ещё нет (после весов bot-9)"
+    msg = (f"смоук dfine_aeor {where}: n_det={out['n_det']} (score ≥ {out.get('min_score')}, без flip), max "
+           f"{out.get('max')}, окон {out.get('windows')}{ref}")
+    return ("FAIL", msg + " — веса не дают детекций на опорном участке") if out["n_det"] == 0 else ("PASS", msg)
+
+
+def check_dfine_aeor_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
+    """[dfine_aeor] enabled: смоук весов на опорном участке каждой модальности (DFINE_AEOR_KNOWN), n_det > 0.
+    Нет весов в архиве — FAIL «нужны веса» (проверка не может пройти без них). Флаг выкл. — ничего."""
+    dc = cfg.get("dfine_aeor") or {}
+    if not dc.get("enabled"):
+        return
+    if not args.weights:
+        report("WARN", "dfine", "--no-weights: смоук весов dfine_aeor на опорных участках пропущен")
+        return
+    names = z.namelist()
+    root = Path(getattr(args, "dfine_aeor_root", None) or DFINE_AEOR_ROOT_DEFAULT)
+    for mk in [m for m in (dc.get("markups") or ["ae", "or"]) if m in DFINE_AEOR_KNOWN]:
+        spec = DFINE_AEOR_KNOWN[mk]
+        miss = dfine_aeor_missing_weights(names, cfg, mk)
+        if miss:
+            report("FAIL", "dfine", f"смоук dfine_aeor {mk} ({spec['region']}): нужны веса — в архиве нет {miss} "
+                                    f"(config.json + model.safetensors); без весов эталонная проверка не пройдена")
+            continue
+        tif = dfine_aeor_raster(root, mk)
+        if tif is None:
+            report("FAIL", "dfine", f"смоук dfine_aeor {mk}: нет опорного участка {root / spec['region']} "
+                                    f"(растр *{spec['raster']}*.tif; --dfine-aeor-root)")
+            continue
+        tmp = Path(tempfile.mkdtemp(prefix="b6aeor_", dir=args.workdir))
+        home = Path(tempfile.mkdtemp(prefix="b6aeorhome_", dir=args.workdir))
+        try:
+            wd = (dc.get("weights") or {}).get(mk) or []
+            wdirs = [str(w).rstrip("/") + "/" for w in ([wd] if isinstance(wd, str) else wd)]
+            for n in names:
+                if (n.startswith("inference/lib/vendor/") or (n.startswith("expds/") and n.endswith(".py"))
+                        or n == "configs/default.toml" or any(n.startswith(w) for w in wdirs)):
+                    z.extract(n, tmp)
+            cmd = sandbox_cmd([args.python, "-s", "-c", DFINE_AEOR_PROBE, str(tmp), mk, str(tif)], args.cpus,
+                              not args.allow_net)
+            try:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout,
+                                   env=child_env(home, args.threads), cwd=str(tmp))
+            except subprocess.TimeoutExpired:
+                report("FAIL", "dfine", f"смоук dfine_aeor {mk} не уложился в {args.timeout} с")
+                continue
+            line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_AEOR_JSON=")), None)
+            out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
+            report(*dfine_aeor_verdict(mk, out))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+            shutil.rmtree(home, ignore_errors=True)
+
+
+def dfine_aeor_ndet_verdict(log: str) -> list[tuple[str, str]]:
+    """Строки «dfine_aeor n_det=N region=R»: N = 0 на опорном участке DFINE_AEOR_KNOWN — FAIL."""
+    import re
+    refs = {v["region"]: k for k, v in DFINE_AEOR_KNOWN.items()}
+    return [("FAIL", f"dfine_aeor n_det=0 на опорном участке {m.group(2)} ({refs[m.group(2)]}) — веса не дают детекций")
+            for m in re.finditer(r"dfine_aeor n_det=(\d+) region=(\S+?)(?:\s|$)", log)
+            if m.group(2) in refs and int(m.group(1)) == 0]
+
+
 def dfine_ndet_verdict(log: str) -> list[tuple[str, str]]:
     """Строки «sp_dfine n_det=N region=R» смоука: N = 0 на опорном участке (DFINE_KNOWN) — FAIL; итог 0 — WARN."""
     import re
@@ -1293,9 +1419,11 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
     dense = bool((cfg.get("gor_dense") or {}).get("enabled"))   # bot-5: gor_dense = бэкбон/tif_feats gor_gate + import_dfine
-    if not (dfine or gate or dense):
+    aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
+    if not (dfine or gate or dense or aeor):
         return
-    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("gor_dense", dense)) if on)
+    what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("gor_dense", dense),
+                                    ("dfine_aeor", aeor)) if on)
     names = z.namelist()
     vend = "inference/lib/vendor/"
     meta = [n for n in names if n.startswith(vend + "transformers-") and n.endswith(".dist-info/METADATA")]
@@ -1305,7 +1433,8 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
                                 f"классы D-FINE зависели бы от образа")
     elif not any(f"transformers-{pin}.dist-info" in n for n in meta):
         report("FAIL", "dfine", f"{what}: версия вендора transformers не {pin}: {meta}")
-    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate or dense), ("expds/gor_dense.py", dense))
+    mods = [m for m in (("expds/sp_dfine.py", True), ("expds/gor_gate.py", gate or dense), ("expds/gor_dense.py", dense),
+                        ("expds/dfine_aeor.py", aeor))
             if m[1] and m[0] not in names]
     if mods:
         report("FAIL", "dfine", f"{what} включён, а модуля нет в архиве: {[m[0] for m in mods]}")
@@ -1568,10 +1697,16 @@ def smoke_cnx(log: str, cnx_on: bool, n_las: int) -> None:
 def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
     """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
     bad = [ln for ln in log.splitlines()
-           if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln or "GOR_DENSE_UNAVAILABLE" in ln]
+           if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln or "GOR_DENSE_UNAVAILABLE" in ln
+           or "DFINE_AEOR_UNAVAILABLE" in ln]   # bot-6: D-FINE Ae/Or
     if bad:
         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
                                 + " | ".join(b[-300:] for b in bad[:3]))
+    na = [ln.split("dfine_aeor ", 1)[1][:160] for ln in log.splitlines() if "dfine_aeor n_det=" in ln]
+    if na:   # bot-6: строки фазы D-FINE Ae/Or
+        report("INFO", "dfine", " ; ".join(na[-6:]))
+        for status, msg in dfine_aeor_ndet_verdict(log):
+            report(status, "dfine", msg)
     nd = [ln.split("sp_dfine ", 1)[1][:160] for ln in log.splitlines() if "sp_dfine n_det=" in ln]
     if nd:
         report("INFO", "dfine", " ; ".join(nd[-6:]))
@@ -1673,6 +1808,7 @@ def main() -> int:
     ap.add_argument("zip", type=Path, help="путь к submission.zip")
     ap.add_argument("--no-smoke", dest="smoke", action="store_false", help="без прогона main.py")
     ap.add_argument("--dfine-region", help=f"опорный участок пробы весов D-FINE (по умолчанию {DFINE_REGION_DEFAULT})")
+    ap.add_argument("--dfine-aeor-root", help=f"трейн с опорными участками dfine_aeor (по умолчанию {DFINE_AEOR_ROOT_DEFAULT})")
     ap.add_argument("--no-weights", dest="weights", action="store_false", help="не открывать .pt (быстрее)")
     ap.add_argument("--python", default=sys.executable, help="интерпретатор с пакетами образа (по умолчанию текущий)")
     ap.add_argument("--input", help="своя папка входа вместо синтетики (маленький регион!)")
@@ -1725,6 +1861,7 @@ def main() -> int:
     args.cnx_on = cnx_on(cfg)
     check_dfine(z, cfg, args)
     check_dfine_weights(z, cfg or {}, args)
+    check_dfine_aeor_weights(z, cfg or {}, args)   # bot-6: смоук весов D-FINE Ae/Or (только при enabled)
     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
         smoke(z, args)
     elif not args.smoke:
