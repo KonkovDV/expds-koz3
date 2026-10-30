@@ -467,6 +467,19 @@ def cpu_kurgans(d, region: str, source: str, cfg: dict, root: Path, cand_p) -> l
     kurgan_model = cfg.get("candidates", {}).get("lgbm_model")
     found = candidates.detect(d, cand_p)
     scores = candidates.score(found["features"], root / kurgan_model if kurgan_model else None)
+    if (cfg.get("candidates") or {}).get("dome"):
+        # Запасной детектор: форма насыпи до порогов. Сданная сеть li этот множитель не видит.
+        factor = candidates.dome_multiplier(d, found)
+        scores = scores * factor if scores.ndim == 1 else scores * factor[:, None]
+    if (cfg.get("candidates") or {}).get("slope_gate"):
+        from .slope_gate import gentle_mask
+
+        keep = gentle_mask(d, found["x"], found["y"],
+                           float((cfg.get("candidates") or {}).get("slope_max_deg", 12.0)),
+                           float(found["res"]))
+        found = {**found, "x": found["x"][keep], "y": found["y"][keep],
+                 "features": found["features"][keep]}
+        scores = scores[keep]
     return [dict(f, threshold_group="li_cpu")
             for f in candidates.to_features(found, scores, d.crs, region, cand_p, source=source)]
 

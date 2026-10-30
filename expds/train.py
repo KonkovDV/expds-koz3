@@ -357,7 +357,26 @@ class GpuTiles:
             yield self.get(order[i:i + batch], augment=shuffle)
 
 
-def dice_loss(logits, target, eps: float = 1.0):
+def absent_class_weight(target, valid):
+    """Вес пикселей по классам. valid — 1, если у образца есть источник этого класса.
+
+    Идея: участок без геофизики не должен учить голову находок, что находок нет нигде.
+    valid формы (N, K) или (K,). Там, где 0, вес канала обнуляется. Без valid обучение
+    не меняется: функция сама по себе в цикл не включена.
+    """
+    import torch
+
+    if valid.ndim == 1:
+        valid = valid.view(1, -1)
+    if valid.shape[-1] != target.shape[1]:
+        raise ValueError(f"классов в valid {valid.shape[-1]}, в разметке {target.shape[1]}")
+    view = [1] * target.ndim
+    view[0] = valid.shape[0] if valid.shape[0] == target.shape[0] else 1
+    view[1] = target.shape[1]
+    return valid.to(dtype=target.dtype, device=target.device).view(view)
+
+
+def dice_loss(logits, target, eps: float = 1.0, weight=None):
     """Мягкий Dice. В среднее входят только классы, у которых в батче есть пиксели.
 
     Пустой класс при нулевом предсказании даёт Dice 1 и разбавляет промах по
@@ -366,6 +385,9 @@ def dice_loss(logits, target, eps: float = 1.0):
     """
     dims = tuple(d for d in range(target.ndim) if d != 1)
     p = logits.sigmoid()
+    if weight is not None:
+        p = p * weight
+        target = target * weight
     inter = (p * target).sum(dim=dims)
     union = p.sum(dim=dims) + target.sum(dim=dims)
     present = target.sum(dim=dims) > 0
