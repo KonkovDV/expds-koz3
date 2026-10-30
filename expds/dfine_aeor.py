@@ -58,6 +58,8 @@ DEFAULTS = {
     "fuse": "wbf",                       # wbf | nms — только внутри одного растра
     "fuse_iou": 0.55,
     "nms_iou": 0.5,
+    # "aeor" = last tile pinned to edge (legacy infer); "train" = OOF/sp_dfine grid (overhang OK)
+    "windows_mode": "aeor",
     "fp16": True,
     "min_score": 0.05,                   # пол генерации (ниже порогов OOF)
     "max_det": 100,
