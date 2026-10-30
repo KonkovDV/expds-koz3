@@ -50,7 +50,7 @@
 | `elenakonkova/koz3-cnx-li-prep` | рельеф `cnx_relief/*.npy` (5 каналов) + `.json` | 1,6 ГБ | вход всех c3-sc/r50c5 ядер и CPU-инференса |
 | `aaaa0000004/koz3-w2-gaudit-las` | LAS 015/021/186/190 + Li-разметка + UTM | 10 ГБ | аудит земли, DEM fill (только аккаунт aaaa0000004) |
 | S3 `train-expds-3` | все LAS и разметка Li | — | первоисточник (`w2_tools/s3get.py`, ключи — koz3-s3-cred) |
-| `elenakonkova/koz3-w2-demfill` | создан 30.10 (приватный), P-W2-10 rel/maps/out | ≈177 МБ (56 файлов) | см. п. 8 |
+| `elenakonkova/koz3-w2-demfill` | создан 30.10 (приватный), P-W2-10 rel/maps/out | ≈177 МБ (55 файлов) | см. п. 8 |
 
 **Скачать:** `$PK elenakonkova datasets download -d elenakonkova/<slug> -p $K/w2/restore/<slug> --unzip` (для gaudit — `$PK aaaa0000004 …`).
 **В ядро:** `kernel-metadata.json` → `"dataset_sources": ["elenakonkova/koz3-w2-weights", "elenakonkova/koz3-cnx-li-prep"]`; пути `/kaggle/input/<slug>/…` (на новых образах `/kaggle/input/datasets/<owner>/<slug>/…` — надёжно искать `glob('/kaggle/input/**/имя', recursive=True)`).
@@ -129,7 +129,7 @@ P-W2-1 c5 — закрыт; P-W2-2 seed-ансамбль — FAIL; P-W2-3 seed1 
 | Рельеф `w2/relief/cnx_relief` (119 .npy/.json, 1,6 ГБ) | уже был: **elenakonkova/koz3-cnx-li-prep** (119/119 совпали по размеру) | download; пересборка — ядро dmitrijkv/koz3-cnx-li-prep (S3 → рельеф) |
 | LAS/Li-карты/разметка `w2/las` (54 файла, 1,9 ГБ; 7 участков) | S3 бакет `train-expds-3` (endpoint `https://s3.ru-7.storage.selcloud.ru`) — 54/54 совпали по пути и размеру со снимком листинга `$K/s3_keys.tsv` (29.10) | boto3 как в ядрах (ключи — приватный датасет elenakonkova/koz3-s3-cred, не печатать) |
 | `w2/gaudit/ds` LAS 015/021/186/190 + Li-разметка (10 ГБ) | S3 (те же LAS по размеру) + **aaaa0000004/koz3-w2-gaudit-las** (16 файлов, ready) | download с aaaa0000004 или S3 |
-| `w2/demfill/{rel,maps,out}` — P-W2-10 (рельеф C/T 4 участков, карты 2 арма × 3 сида, merged/gate/liscore/result json) | **elenakonkova/koz3-w2-demfill** — 56 файлов, ≈177 МБ (rel 100M, maps 67M, out 10M); `rel/{C,T}/`, `maps/{C,T}/s{0,1,2}/`, `out/` | download; пересборка: `w2/demfill/build_relief.py <участок> <delaunay\|tin_lowveg> rel/<C\|T>` → `run_inf.sh` (веса из koz3-w2-weights) → `run_gate.sh C <counts_s012.pkl>`, `run_gate.sh T <counts_C.pkl>`, `liscore.py` |
+| `w2/demfill/{rel,maps,out}` — P-W2-10 (рельеф C/T 4 участков, карты 2 арма × 3 сида, merged/gate/liscore/result json) | **elenakonkova/koz3-w2-demfill** — 55 файлов, ≈177 МБ (rel 100M, maps 67M, out 10M); `rel/{C,T}/`, `maps/{C,T}/s{0,1,2}/`, `out/` | download; пересборка: `w2/demfill/build_relief.py <участок> <delaunay\|tin_lowveg> rel/<C\|T>` → `run_inf.sh` (веса из koz3-w2-weights) → `run_gate.sh C <counts_s012.pkl>`, `run_gate.sh T <counts_C.pkl>`, `liscore.py` |
 | `w2/kernels` (скрипты ядер, 9 МБ) | git, эта ветка `w2_kernels/` | — |
 
 **Не выгружено (и почему):**
