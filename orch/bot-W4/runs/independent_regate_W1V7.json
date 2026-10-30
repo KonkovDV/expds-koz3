@@ -1,0 +1,196 @@
+{
+ "what": "Independent re-gate W1 V7 (ae flipwbf tau0.7 + or noflip tau0.6, gor/arch off on ae, gor off on or)",
+ "by": "bot5-W4",
+ "when_msk": "2026-10-30 08:30",
+ "prereg_ref": "/workspace/koz3/w1/d3/runs/ae_final_prereg_wsa1.json (W1 claim: delta +0.0033, P 0.935)",
+ "method": "W1 d3_gate.py rerun with explicit V7 spec (not W1's prereg selection), honest-10 family folds, 60 clusters, base frozen, tau_mode fixed, paired family bootstrap seed 0; engines table and clusters (independent rebuild from stack, not W2 table.pkl); sanity A-vs-A=0, +/- synthetic controls OK; extra: boot 10000 and base=joint sensitivity",
+ "inputs_sha256": {
+  "/workspace/koz3/wt/w1/materials/compute_metrics.py": "299792ccc5b86873a1cb0554eac06a145f5e09496088ee7f734b41b9e4c70081",
+  "/workspace/koz3/w5data/stack_arch.geojson": "b412e29934dd292bcc343627690cd246fd9048948a85e8a00181c86417f8e253",
+  "/workspace/koz3/w5data/gt_train_v2.geojson": "d4bc1a3b01350c9b3785155dc4d7c13403fdfe7a098664bcb259f96bc168ff86",
+  "/workspace/koz3/out/w1-dfine-ae-final/oof_dfine_ae_flipwbf.geojson": "37068be6e911afa40a4cddc777ef1ac1af2f1afd03eab4843d652bfecc50ff4c",
+  "/workspace/koz3/w1/out/koz3-w1-dfine-or-final/oof_dfine_or_noflip.geojson": "f74f66e881d758dd380c6fffe68aae7141bf188487050a50c5e79016fe465532",
+  "/workspace/koz3/orch/bot-W1/work/d3_gate.py": "cebfc521002cab3f3ed402437d7edb52bcdcce9051707e6b315d94bac04c9f75"
+ },
+ "metric_note": "compute_metrics.py ran without config.py (built-in metric defaults), same as W1's run",
+ "n_extra": 244,
+ "scores_frozen_boot1000": {
+  "all": {
+   "A": 0.3146153226828423,
+   "B": 0.31791330167782256,
+   "delta": 0.003297978994980244,
+   "P_B_gt_A": 0.935,
+   "p5": -0.00018147227215180856,
+   "p95": 0.006367835708567975
+  },
+  "new34": {
+   "A": 0.2964508527066795,
+   "B": 0.2968947803544235,
+   "delta": 0.0004439276477440357,
+   "P_B_gt_A": 0.558,
+   "p5": -0.0010333828420846457,
+   "p95": 0.002734226950475213
+  },
+  "nolidar": {
+   "A": 0.14427407342564424,
+   "B": 0.15300277546772204,
+   "delta": 0.00872870204207779,
+   "P_B_gt_A": 0.874,
+   "p5": -0.0010445334410427172,
+   "p95": 0.027151711197537613
+  }
+ },
+ "engine_agreement_table_vs_clusters": true,
+ "boot10000_frozen_P": {
+  "all": 0.9341,
+  "new34": 0.5962,
+  "nolidar": 0.857
+ },
+ "joint_base_sensitivity": {
+  "all": {
+   "delta": 0.0025851022570428372,
+   "P": 0.8478
+  },
+  "new34": {
+   "delta": 0.0004439276477440357,
+   "P": 0.5962
+  },
+  "nolidar": {
+   "delta": 0.008013713994018568,
+   "P": 0.8179
+  }
+ },
+ "floor": {
+  "ok": true,
+  "per_class": {
+   "kurgany_povrezhdennye": {
+    "f1_A": 0.3143334197423369,
+    "f1_B": 0.32240343827526313,
+    "d": 0.008070018532926215,
+    "tol": -0.002,
+    "tp": [
+     932.0,
+     971.0
+    ],
+    "fp": [
+     2756.0,
+     2865.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "f1_A": 0.4830104821010559,
+    "f1_B": 0.4812958317071812,
+    "d": -0.0017146503938746949,
+    "tol": -0.002,
+    "tp": [
+     693.0,
+     698.0
+    ],
+    "fp": [
+     1199.0,
+     1251.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "gorodishcha": {
+    "f1_A": 0.27932915651893264,
+    "f1_B": 0.27932915651893264,
+    "d": 0.0,
+    "tol": -0.002,
+    "tp": [
+     25.0,
+     25.0
+    ],
+    "fp": [
+     72.0,
+     72.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "arkhitektury": {
+    "f1_A": 0.05824061944147095,
+    "f1_B": 0.07077575805430904,
+    "d": 0.012535138612838087,
+    "tol": -0.005,
+    "tp": [
+     25.0,
+     31.0
+    ],
+    "fp": [
+     853.0,
+     876.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "object_poly": {
+    "f1_A": 0.13054376295675083,
+    "f1_B": 0.13054376295675083,
+    "d": 0.0,
+    "tol": -0.005,
+    "tp": [
+     78.0,
+     78.0
+    ],
+    "fp": [
+     68.0,
+     68.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "f1_A": 0.15151468020075198,
+    "f1_B": 0.15084247325262126,
+    "d": -0.0006722069481307213,
+    "tol": -0.005,
+    "tp": [
+     85.0,
+     85.0
+    ],
+    "fp": [
+     682.0,
+     692.0
+    ],
+    "excluded": false,
+    "ok": true
+   },
+   "finds_points": {
+    "f1_A": 0.5535965461223044,
+    "f1_B": 0.5535965461223044,
+    "d": 0.0,
+    "tol": -0.005,
+    "tp": [
+     1641.0,
+     1641.0
+    ],
+    "fp": [
+     1619.0,
+     1619.0
+    ],
+    "excluded": false,
+    "ok": true
+   }
+  }
+ },
+ "gate": {
+  "delta_ge_0.003": true,
+  "bonferroni": {
+   "family_alpha": 0.1,
+   "m": 7,
+   "P_required": 0.9857142857142858,
+   "P_raw": 0.935,
+   "p_adj": 0.4549999999999996,
+   "pass": false
+  },
+  "uncorrected_P_ge_0.9": true,
+  "new34_not_down": true,
+  "nolidar_not_down": true,
+  "floor_ok": true
+ },
+ "verdict": "FAIL (Bonferroni): delta +0.0033 >= 0.003 and no regression, but P 0.935 < 0.9857 (p_adj 0.455). Fragile: base=joint gives delta +0.0026, P 0.848."
+}
