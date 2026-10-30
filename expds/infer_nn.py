@@ -98,6 +98,8 @@ class Segmenter:
         self.model.to(self.device).eval()
         self.amp = inference_amp(self.device)
         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
+        # bot-8: мультимасштаб. [1.0] / отсутствие — OFF, predict байт-идентичен старому пути.
+        self.ms_scales: list[float] = [1.0]
 
     def _auto_batch(self) -> int:
         """Батч окон по свободной памяти.
@@ -140,8 +142,51 @@ class Segmenter:
             outs.append(p.flip(-1) if k & 1 else p)
         return outs[0] if len(outs) == 1 else torch.stack(outs).mean(0)
 
+    @staticmethod
+    def _ms_active(scales: list[float] | None) -> bool:
+        """True, если мультимасштаб реально меняет путь (не один масштаб 1.0)."""
+        if not scales:
+            return False
+        return not (len(scales) == 1 and abs(float(scales[0]) - 1.0) < 1e-12)
+
+    @staticmethod
+    def _resize_chw(arr: np.ndarray, height: int, width: int) -> np.ndarray:
+        """C×H×W → C×height×width (bilinear). Для uint8 — округление после интерполяции."""
+        import torch
+        import torch.nn.functional as F
+
+        was_uint8 = arr.dtype == np.uint8
+        t = torch.from_numpy(arr.astype(np.float32)).unsqueeze(0)  # 1×C×H×W
+        out = F.interpolate(t, size=(height, width), mode="bilinear", align_corners=False)
+        out = out.squeeze(0).numpy()
+        if was_uint8:
+            return np.clip(np.rint(out), 0, 255).astype(np.uint8)
+        return out.astype(np.float32)
+
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
-        """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32."""
+        """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32.
+
+        bot-8: при ms_scales = [1.0] (по умолчанию) вызывается ровно `_predict_at_scale`
+        — байт-идентично поведению до мультимасштаба.
+        """
+        scales = [float(s) for s in (getattr(self, "ms_scales", None) or [1.0])]
+        if not self._ms_active(scales):
+            return self._predict_at_scale(img, overlap, batch)
+        _c, h, w = img.shape
+        acc = None
+        for s in scales:
+            if abs(s - 1.0) < 1e-12:
+                part = self._predict_at_scale(img, overlap, batch)
+            else:
+                nh, nw = max(1, int(round(h * s))), max(1, int(round(w * s)))
+                scaled = self._resize_chw(img, nh, nw)
+                part = self._predict_at_scale(scaled, overlap, batch)
+                part = self._resize_chw(part, h, w)
+            acc = part if acc is None else acc + part
+        return acc / np.float32(len(scales))
+
+    def _predict_at_scale(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
+        """Один масштаб: скользящее окно → вероятности K×H×W float32."""
         import torch
 
         c, h, w = img.shape
@@ -366,6 +411,16 @@ class Ensemble:
     def tta(self, value: int) -> None:
         for m in self.members:
             m.tta = value
+
+    @property
+    def ms_scales(self) -> list[float]:
+        return list(getattr(self.members[0], "ms_scales", [1.0]))
+
+    @ms_scales.setter
+    def ms_scales(self, value: list[float]) -> None:
+        scales = [float(s) for s in (value or [1.0])]
+        for m in self.members:
+            m.ms_scales = scales
 
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
         acc = self.members[0].predict(img, overlap, batch)
