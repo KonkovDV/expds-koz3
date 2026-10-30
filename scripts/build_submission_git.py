@@ -67,6 +67,9 @@ def model_refs(cfg: dict) -> list[str]:
         out += [f"{md}/poly.txt", f"{md}/finds.txt", f"{md}/meta.json"]
         if pix.get("org_etgr"):   # W4 GEO-ORG3
             out += [f"{md}/org/org_etgr_map.txt", f"{md}/org/org_etgr_prof.txt", f"{md}/org/org_etgr_meta.json"]
+    sd = cfg.get("sp_dfine") or {}
+    if sd.get("enabled"):   # W4 v3: D-FINE SpOr — каталоги HF (config.json + model.safetensors), как build_submission.py
+        out += [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")]
     seen, uniq = set(), []
     for p in out:
         if p not in seen:
@@ -85,6 +88,8 @@ def main() -> int:
     ap.add_argument("--weight", action="append", default=[], metavar="ARCHIVE_PATH=LOCAL_FILE",
                     help="подменить/добавить файл весов (можно несколько раз)")
     ap.add_argument("--so", type=Path, help="свой expds_core.abi3.so вместо закоммиченного")
+    ap.add_argument("--vendor", type=Path, help="каталог распакованных колёс (transformers 5.21.0 …) → inference/lib/vendor/; "
+                    "обязателен при [sp_dfine]/[gor_gate] enabled")
     ap.add_argument("--out-dir", type=Path, default=Path("dist"))
     ap.add_argument("--check", action="store_true", help="после сборки запустить check_submission.py")
     ap.add_argument("--check-args", default="", help="доп. аргументы check_submission.py, одной строкой")
@@ -131,6 +136,14 @@ def main() -> int:
     except tomllib.TOMLDecodeError as exc:
         sys.exit(f"конфиг не TOML: {exc}")
     files["configs/default.toml"] = cfg_text.encode("utf-8")
+    need_vendor = any((cfg.get(sec) or {}).get("enabled") for sec in ("sp_dfine", "gor_gate"))
+    if need_vendor and not (args.vendor and args.vendor.is_dir()):
+        sys.exit("[sp_dfine]/[gor_gate] enabled — нужен --vendor <каталог распакованных колёс>")
+    if args.vendor and need_vendor:
+        vroot = args.vendor.resolve()
+        for q in sorted(vroot.rglob("*")):
+            if q.is_file() and "__pycache__" not in q.parts and q.suffix != ".pyc":
+                files["inference/lib/vendor/" + q.relative_to(vroot).as_posix()] = q.read_bytes()
     meta = json.loads(files["metadata.json"])
     if not meta.get("image") or "<" in str(meta.get("image")) or not meta.get("entry_point"):
         sys.exit(f"metadata.json не заполнен: {meta}")
@@ -188,6 +201,7 @@ def main() -> int:
                 "config_sha256": cfg_sha, "config_source": str(args.config) if args.config else f"{sha[:7]}:configs/default.toml",
                 "only_classes": args.only_classes, "weight_overrides": {k: str(v) for k, v in overrides.items()},
                 "so_override": str(args.so) if args.so else None,
+                "vendor": str(args.vendor) if args.vendor and need_vendor else None,
                 "files": {p: hashlib.sha256(b).hexdigest() for p, b in sorted(files.items())},
                 "built": time.strftime("%Y-%m-%d %H:%M:%S %Z")}
     out.with_suffix(".manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
