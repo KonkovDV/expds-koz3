@@ -46,7 +46,10 @@ def test_pix_thresholds_present(cfg):
 @requires_submission_files
 def test_pix_models_shipped(cfg):
     """Real weight SHA check — skip on clean clones (poly/finds.txt not in git)."""
-    md = ROOT / cfg["geophys"]["pixgbm"]["model_dir"]
+    md_rel = cfg["geophys"]["pixgbm"].get("model_dir")
+    if not md_rel:
+        pytest.skip("default.toml не задаёт model_dir: каталог старых весов в архив не пишется")
+    md = ROOT / md_rel
     if not all((md / name).is_file() for name in SHA):
         pytest.skip("ветка -nomodels: весов legacy PIXGBM нет (W4 DOC-1: в архив они и не идут)")
     for name, h in SHA.items():
