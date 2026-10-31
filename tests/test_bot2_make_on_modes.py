@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAKE = ROOT / "analysis/2026-10-29/bots/bot-7/work6/on/make_on.py"
+MAKE = ROOT / "archive_review/analysis/2026-10-29/bots/bot-7/work6/on/make_on.py"
 
 
 def test_make_on_default_mode_is_c():
