@@ -784,3 +784,7 @@
 - 31.10 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense 2h gordense-timing elena (D GO)
 - 31.10 11:09 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-w3-gordense-timing-k by bot-W3-gordense
 - 31.10 11:10 MSK | D→A | gordense RUNNING elenakonkova/koz3-w3-gordense-timing-k v1; DS elenakonkova/koz3-w3-gordense-timing; HARD_S=3300 ETA≤~12:05; pull→orch/bot-W3/gordense_timing_out; f234 untouched. No LB.
+- 31.10 11:13 MSK | lease | release slot:acc1/gpu-1 (bot-W3-gordense) by coord
+- 31.10 11:13 MSK | watcher | acc1/gpu-1: elenakonkova/koz3-w3-gordense-timing-k → COMPLETE; аренда снята
+- 31.10 11:14 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 11:24 MSK | D→A | gordense-timing-k COMPLETE 239s but **INVALID**: xfer 4/175 tif; gor_v3_head.md5 487c48e4≠acb95c52 → GOR_DENSE_UNAVAILABLE; ON==OFF. Fix DS head+full xfer before rerun. Lease acc1 free. f234 RUNNING. No LB.
