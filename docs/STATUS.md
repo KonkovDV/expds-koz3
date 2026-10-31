@@ -1,5 +1,9 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+31.10 09:10 MSK | аудит | действующая база площадки, не перезаписывать без замера и «да» | 0.41238 | docs/LB_LOG.md
+31.10 09:10 MSK | аудит | посылка v3a_min базой не стала | 0.37838 | не загружать снова
+31.10 09:10 MSK | аудит | журнал отказов не стирать: это список закрытых шагов. Следующий замер — лидар r50c5; стоп, если повреждённые курганы не растут. Спутник (полнота 0.255) этими ядрами не закрыт | — | bots/orch-protocol e8aa6c8
+31.10 09:10 MSK | аудит | dome и slope_gate | false | configs/default.toml
 29.10 08:47 MSK | W4 | лучший официальный результат: v2 eb268d6 | 0.41238 | docs/LB_LOG.md
 29.10 22:15 MSK | W4 | ветка bots/w4-gate от bots/bot7-candidate-v3fix-nomodels 0037c0e (v3 + CRS-фикс 008_Герите) | — | bots/w4-gate
 29.10 22:15 MSK | W4 | v3 за флагами: в configs/default.toml sp_dfine=false и [post.frame_prior] закомментирован (=выкл); включённая сборка — configs/v3_on.toml (= bot-7 work8/default_v3on.toml) через build_submission_git.py --config | — | configs/v3_on.toml
