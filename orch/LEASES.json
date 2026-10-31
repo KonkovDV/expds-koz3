@@ -5,13 +5,14 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": null,
-   "kernel": null,
-   "purpose": "gordense-timing S3 path(b) valid rerun ACK-b",
+   "holder": "coord",
+   "kernel": "elenakonkova/koz3-sp-large-f0",
+   "purpose": "A-exec sp_large fold0 only (PLAN_SP_LARGE); kernel elenakonkova/koz3-sp-large-f0 (cache build on box first)",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
    "last": "снято coord 31.10 11:53 MSK",
-   "state": "свободен"
+   "since": "31.10 16:18 MSK",
+   "until": "01.11 02:18 MSK"
   },
   {
    "slot": "acc1/gpu-2",
@@ -287,6 +288,25 @@
    "note": "D/W3: kurgan seeds; CPU pool keys pending",
    "host": "grok-bot-vm-288567805",
    "pid": 53563
+  },
+  {
+   "resource": "slot:acc1/gpu-1",
+   "owner": "coord",
+   "since": 1793452732.467785,
+   "expires": 1793488732.467785,
+   "note": "A-exec sp_large fold0 only (PLAN_SP_LARGE); kernel elenakonkova/koz3-sp-large-f0 (cache build on box first)",
+   "host": "grok-bot-vm-288567805",
+   "pid": 438005,
+   "kernel": "elenakonkova/koz3-sp-large-f0"
+  },
+  {
+   "resource": "dataset:elenakonkova/koz3-sp-large-f0-data",
+   "owner": "coord",
+   "since": 1793453070.156906,
+   "expires": 1793539470.156906,
+   "note": "A-exec sp_large f0 data (code+cache+fold0 raw, no creds)",
+   "host": "grok-bot-vm-288567805",
+   "pid": 443080
   }
  ]
 }

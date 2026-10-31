@@ -825,3 +825,30 @@
 - 31.10 15:02 MSK | Elena | r50c5 cut CLOSED not-for-submit; base=archive 0.41238; no LB; early-stop≠submit; gate REJECT confirmed; gordense timing-only no flag; no old-QUEUE GPU fill; S3 rotate still pending.
 - 31.10 15:03 MSK | B+D ACK CLOSED stand-by; no LB; wait A GO.
 - 31.10 15:08 MSK | Elena | plan→11.11: protect 0.41238 (not chase 0.61); r50c5 CLOSED; STATUS line + PLAN_TO_1111; no old-QUEUE GPU; sat only flagged+OOF+triad; S3 rotate pending.
+- 31.10 15:12 MSK | A | PLAN_TO_1111 saved; STATUS REJECT line → bots/status-r50c5-reject (+PR/merge if ok); quota routine updated (no old-QUEUE GPU); B/D notified. S3 rotate still pending Elena.
+- 31.10 15:14 MSK | A | Elena: keep working. Started sat flagged+OOF inventory (no GPU); plan triad gate or CLOSE. S3 rotate still waits «да».
+- 31.10 15:14 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 15:17 MSK | A | sat inventory: CLOSE GPU sat (sp_dfine unrepro / thr_relax no OOF / ORSP Δ<0.003). Optional FR1h CPU re-gate vs 0.31462 started. No LB.
+- 31.10 15:24 MSK | A | FR1h CPU re-gate PASS vs 0.31462: Δ+0.00409 P0.999 damaged+0.0107 accept=true. Not in v3a_min/eb268d6. No enable/LB. Caveats: thr re-sweep + geo check before any zip. out/fr1h-gate/
+- 31.10 15:25 MSK | Elena | «делай как лучше» → FR1h thr re-sweep + pack + geo vs archive; no LB until «да».
+- 31.10 15:30 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 15:36 MSK | A(routine) | No change since 12:45: no new kernels on elena/dmitrijkv; GPUs idle per plan; leases clean. No LB; 0.41238 held.
+- 31.10 15:52 MSK | A | FR1h pack: archive eb268d6 + FR1h (kurgans) + re-swept sp thr → out/fr1h-pack/submission_fr1h_on_eb268d6.zip; geo black-box byte-identical to REF_v2; triad PASS +0.00409 P0.999 dmg+0.0107. GO-candidate pending Elena «да». No LB.
+- 31.10 15:44 MSK | A | FR1h pack READY: out/fr1h-pack/submission_fr1h_on_eb268d6.zip (geo byte-id to archive; triad +0.00409 P0.999; kurgans-only FR1h). No LB. Wait Elena «да».
+- 31.10 15:46 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 15:46 MSK | Elena | FR1h: bot NO LB submit; she may non-final only; show diffs; gate files on box; never mark final; 0.41238 base.
+- 31.10 15:56 MSK | A | FR1h pack on GH release fr1h-pack-20261031 (non-final; no bot LB). https://github.com/KonkovDV/expds-koz3/releases/tag/fr1h-pack-20261031
+- 31.10 16:05 MSK | A(routine) | No change: no new kernels on elena/dmitrijkv since 08:37 UTC; leases clean; GPUs idle per plan. No LB; 0.41238 held; FR1h pack awaits Elena (non-final, her upload only).
+- 31.10 16:07 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 16:11 MSK | Elena | plan for other AI: one GPU sp_large (R18 centers, large/damaged weight); fold0 stop = hits@5–10k damaged↑ + F1 damaged≥ baseline; no LB; no rewrite sp_or; geo=archive 0.41238. Saved orch/PLAN_SP_LARGE_ONE_GPU_20261031.md
+- 31.10 16:12 MSK | A | PLAN_SP_LARGE written; STICKY updated; quota routine + B/D FYI; no GPU start until executor of this plan takes fold0 (A coordinates leases).
+- 31.10 16:13 MSK | A | PLAN_SP_LARGE on main via PR #15 → https://github.com/KonkovDV/expds-koz3/blob/main/docs/plans/PLAN_SP_LARGE_ONE_GPU_20261031.md ; sticky+routine+B/D FYI. No GPU start yet.
+- 31.10 16:14 MSK | Elena | «Работай по плану» → A executes PLAN_SP_LARGE fold0 only (1 GPU elena); folds 1–4 hold; no LB.
+- 31.10 16:15 MSK | B+D ACK hands-off; A owns sp_large fold0 on elena; no competing kernels/leases. No LB.
+- 31.10 16:18 MSK | lease | acquire slot:acc1/gpu-1 → coord до 01.11 02:18 MSK A-exec sp_large fold0 only (PLAN_SP_LARGE); kernel elenakonkova/koz3-sp-large-f0 (cache build on box first)
+- 31.10 16:18 MSK | A-exec | sp_large f0: lease slot:acc1/gpu-1 (coord, A-exec). Baseline cache spor_r1_t128_s25 NOT on box/S3 (owner PC F:) → rebuild SAME recipe (res1 tile128 shrink0.25 sp_or kurgany) on box from S3 raw sat; private dataset, no creds. Fold0 only, acc2 untouched, no LB.
+- 31.10 16:24 MSK | lease | acquire dataset:elenakonkova/koz3-sp-large-f0-data → coord до 01.11 16:24 MSK A-exec sp_large f0 data (code+cache+fold0 raw, no creds)
+- 31.10 16:25 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 16:27 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-sp-large-f0 by coord
+- 31.10 16:28 MSK | A | sp_large f0: dataset ready; kernel elenakonkova/koz3-sp-large-f0 pushed v1 → QUEUED; lease acc1 bound. Watch routine every 5m. No LB.
+- 31.10 16:30 MSK | A-exec | sp_large f0 PUSHED: kernel elenakonkova/koz3-sp-large-f0 v1 (QUEUED), data elenakonkova/koz3-sp-large-f0-data (code+cache spor_r1_t128_s25 rebuilt same recipe on GT v2 + fold0 raw; no creds/S3). Weight: focal peak ×4 damaged / ×2 intact if GT ≥1000 m². Fold0=family Курганы (34 regions). Deadline 4h; control (w=1) after main only if ≥1.2h left. Branch bots/a-sp-large-f0. default.toml untouched. No LB.
