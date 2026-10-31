@@ -1,5 +1,6 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+31.10 23:25 MSK | промт | одна GPU: доучить spor_focal_r18 потерей «на участке верный пик выше громких ложных»; стоп, если медиана ложных сверху не упала с ~18 до ≤2 | — | docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md
 31.10 23:00 MSK | обход | код и журналы: нового ядра нет; 0.41238 уже содержит архивную геофизику и rerank; вне посылки только FR1h и диски 5 см, оба около +0.004 | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md §12
 31.10 22:52 MSK | пилот | peak-rerank STOP все 4 гейта: 25 поднятых, P 0.20, медиана промаха 851 м, train AUC 0.973; GPU не занимать | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md §11
 31.10 22:20 MSK | honest-10 | near_kept FAIL: Δ−0.00188 P0.245 damaged−0.0033 new34−0.00107; 678 кругов ≈42 TP / 636 FP; секцию не включать | 0.3127 | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md §10
