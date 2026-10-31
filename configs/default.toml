@@ -760,3 +760,12 @@ gorodishcha = 0.55
 # ae = [0.75, 1.0, 1.25]
 # or = [0.75, 1.0, 1.25]
 # sp_or = [0.75, 1.0, 1.25]
+
+# Точка городища по токенам всего снимка и замена городищ по вероятности кадра.
+# Выключено: секции нет, pipeline её не вызывает. Включать только после честного замера.
+# [hillfort_loc]
+# enabled = true
+# backbone = "models/dinov3_sat"
+# weights = "models/hillfort_loc.npz"
+# side = 512
+# radius_m = 2.0

@@ -1,5 +1,6 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+31.10 21:40 MSK | аудит | свой локализатор городищ выключен: секции в default.toml нет, круг в максимуме карты, один сбойный снимок не гасит фазу | — | expds/hillfort_loc.py
 31.10 21:16 MSK | владелец | лицензии моделей сняты полностью; рабочий промт локализатора городищ DINOv3 на Kaggle | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md
 
 31.10 15:24 MSK | A | FR1h [post.frame_prior] honest-10 PASS vs base 0.31462 — не включать в default без «да»; перед zip: thr re-sweep + geo vs 0.769/0.656 | Δ+0.00409 P0.999 damaged+0.0107 | out/fr1h-gate/

@@ -1973,6 +1973,17 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if kept:
                 log.info("%s: канал σ %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
         phases.append(("канал σ", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("hillfort_loc") or {}).get("enabled"):
+            t_phase = time.monotonic()
+            try:
+                from .hillfort_loc import phase as hillfort_phase
+
+                found = hillfort_phase(regions, cfg)
+            except Exception:
+                log.exception("локализатор городищ пропущен")
+                found = []
+            state.add(found)
+            phases.append(("городища кадра", len(found), time.monotonic() - t_phase))
     finally:
         _WINDOW_GUARD = None
         signal.signal(signal.SIGTERM, previous_term)
