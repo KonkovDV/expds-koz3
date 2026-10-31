@@ -802,3 +802,26 @@
 - 31.10 11:53 MSK | lease | release slot:acc1/gpu-1 (bot-W3-gordense) by coord
 - 31.10 11:53 MSK | watcher | acc1/gpu-1: elenakonkova/koz3-w3-gordense-timing-k → COMPLETE; аренда снята
 - 31.10 11:58 MSK | D→A | gordense-timing-k v2 COMPLETE VALID TIMING-only: S3 175/132, ON 467.6s OFF 278.7s Δ+188.9 (gor_dense 180.9s), head 487c48e4, targets <900/960/1800 met; lease already free; elena GPU idle. f234 untouched. No LB/quality claim.
+- 31.10 12:04 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 12:06 MSK | A(routine) | f234 RUNNING (lease 8.8h left). gordense-timing-k COMPLETE (D 11:58). elena acc1 GPU idle since 11:53; QUEUE has no ready non-interfering work → not filled; asking Elena. No LB.
+- 31.10 12:27 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 12:34 MSK | lease | release slot:acc2/gpu-1 (bot-W2-lidar) by coord
+- 31.10 12:34 MSK | watcher | acc2/gpu-1: dmitrijkv/koz3-w2-cnx-r50c5-f234 → COMPLETE; аренда снята
+- 31.10 12:40 MSK | A(routine) | f234 COMPLETE 12:34 (out/r50c5-f234). Full gate run_gate.sh had died in prep (missing gt_train_v2 in W5_DATA) → fixed (symlink), relaunched varb + varb_kur. No LB.
+- 31.10 12:38 MSK | B→A | f234 COMPLETE ~12:34 (t≈3.6h). Li f2/f3/f4 0.233/0.256/0.224; damaged 0.086/0.160/0.066 (weaker vs f01). Gate honest-10 → out/r50c5-gate RUNNING. Lease free. No LB.
+- 31.10 12:40 MSK | B→A | r50c5 honest-10 FAIL (base 0.31462): varb 0.3095 Δ−0.0051 P0.33; varb_kur 0.3155 Δ+0.0009 P0.56; tselye floor −0.020. Not submit. No LB. GPUs free.
+- 31.10 12:45 MSK | A(routine) | r50c5 FULL GATE (5 folds, honest-10 vs base 0.31462): varb (all Li classes) 0.30949 d=-0.0051 p_gt0=0.33 REJECT; varb_kur (kurgan only) 0.31549 d=+0.0009 boot p5 -0.0122 p95 +0.0121 p_gt0=0.56 REJECT. damaged dF1 +0.016, tselye -0.020, gor -0.038. Out out/r50c5-gate. Both GPUs idle; no ready work. No LB; 0.41238 held.
+- 31.10 12:45 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 13:05 MSK | A(routine) | No change since 12:45: f234+gate done (REJECT), no kernels running on elena/dmitrijkv, both GPUs idle, no ready work; already reported. No LB; 0.41238 held.
+- 31.10 13:08 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 13:40 MSK | A(routine) | No change: no new kernels on elena/dmitrijkv since gordense/f234; both GPUs idle, no ready work (already reported 12:45). Released expired branch:bots/w4-gate. No LB; 0.41238 held.
+- 31.10 13:38 MSK | lease | release branch:bots/w4-gate (bot-W4-gate) by bot-W4-gate
+- 31.10 13:43 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 14:01 MSK | A(routine) | No change since 12:45: no new kernels on elena/dmitrijkv; both GPUs idle, no ready work (already reported). No LB; 0.41238 held.
+- 31.10 14:38 MSK | A(routine) | No change since 12:45: no new kernels on elena/dmitrijkv; both GPUs idle, no ready work (already reported). No LB; 0.41238 held.
+- 31.10 14:58 MSK | A | Full cut report written → out/R50C5_CUT_FINAL_REPORT_20261031.md (for Elena AI). No LB.
+- 31.10 14:59 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 15:01 MSK | A(routine) | No change since 12:45: no new kernels on elena/dmitrijkv; both GPUs idle, no ready work (already reported); leases clean. No LB; 0.41238 held.
+- 31.10 15:02 MSK | Elena | r50c5 cut CLOSED not-for-submit; base=archive 0.41238; no LB; early-stop≠submit; gate REJECT confirmed; gordense timing-only no flag; no old-QUEUE GPU fill; S3 rotate still pending.
+- 31.10 15:03 MSK | B+D ACK CLOSED stand-by; no LB; wait A GO.
+- 31.10 15:08 MSK | Elena | plan→11.11: protect 0.41238 (not chase 0.61); r50c5 CLOSED; STATUS line + PLAN_TO_1111; no old-QUEUE GPU; sat only flagged+OOF+triad; S3 rotate pending.

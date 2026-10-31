@@ -37,13 +37,12 @@
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "reserved_for": "bot-W1-aeor",
-   "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "kernel": null,
    "purpose": "r50c5-f234 path(b) fill idle GPU Elena GO",
-   "last": "снято bot-W2-lidar 31.10 08:26 MSK",
-   "since": "31.10 08:52 MSK",
-   "until": "31.10 20:52 MSK"
+   "last": "снято coord 31.10 12:34 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc2/gpu-2",
@@ -236,15 +235,6 @@
    "pid": 68901
   },
   {
-   "resource": "branch:bots/w4-gate",
-   "owner": "bot-W4-gate",
-   "since": 1793302266.198332,
-   "expires": 1793442784.779121,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 68906
-  },
-  {
    "resource": "branch:bots/w0-rust-speed",
    "owner": "coord",
    "since": 1793302266.229032,
@@ -297,16 +287,6 @@
    "note": "D/W3: kurgan seeds; CPU pool keys pending",
    "host": "grok-bot-vm-288567805",
    "pid": 53563
-  },
-  {
-   "resource": "slot:acc2/gpu-1",
-   "owner": "bot-W2-lidar",
-   "since": 1793425973.221806,
-   "expires": 1793469173.221806,
-   "note": "r50c5-f234 path(b) fill idle GPU Elena GO",
-   "host": "grok-bot-vm-288567805",
-   "pid": 301514,
-   "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234"
   }
  ]
 }
