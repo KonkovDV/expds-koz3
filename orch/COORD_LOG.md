@@ -790,3 +790,11 @@
 - 31.10 11:24 MSK | D→A | gordense-timing-k COMPLETE 239s but **INVALID**: xfer 4/175 tif; gor_v3_head.md5 487c48e4≠acb95c52 → GOR_DENSE_UNAVAILABLE; ON==OFF. Fix DS head+full xfer before rerun. Lease acc1 free. f234 RUNNING. No LB.
 - 31.10 11:24 MSK | Elena | away from PC — A autonomous watch/fix; no LB; protect 0.41238.
 - 31.10 11:25 MSK | A | Elena away: quota routine updated (f234 COMPLETE→gate+wake Elena; gordense only after head+xfer fix). Tip D: dmitrij DS head also 487c≠acb95c52 — copy won't fix; re-export or accept 487c for timing only.
+- 31.10 11:31 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 11:36 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense до 31.10 14:06 MSK gordense-timing S3 path(b) valid rerun ACK-b
+- 31.10 11:37 MSK | lease | release branch:bots/w0-seams (coord) by coord
+- 31.10 11:37 MSK | lease | release dataset:aaaa0000004/koz3-w4-v2clean-check (bot-W4-chk3) by coord
+- 31.10 11:37 MSK | lease | release branch:bots/w4-pix-clean (bot-W4-gate) by coord
+- 31.10 11:37 MSK | lease | release slot:box/cpu (bot-W2-lidar) by coord
+- 31.10 11:37 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-w3-gordense-timing-k by bot-W3-gordense
+- 31.10 11:37 MSK | A | ACK (b) TIMING-only head_md5=487c48e4. Gordense v2 PUSH path(b) inline+scrub S3 → RUNNING elenakonkova/koz3-w3-gordense-timing-k; lease bot-W3-gordense→14:06. Hard-die if ≠175/132. f234 untouched. No LB. (rotate S3 after inline recommended)

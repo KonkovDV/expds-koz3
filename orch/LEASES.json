@@ -5,13 +5,14 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": null,
-   "kernel": null,
-   "purpose": "gordense-timing elena after f01 PASS; D push",
+   "holder": "bot-W3-gordense",
+   "kernel": "elenakonkova/koz3-w3-gordense-timing-k",
+   "purpose": "gordense-timing S3 path(b) valid rerun ACK-b",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
    "last": "снято coord 31.10 11:13 MSK",
-   "state": "свободен"
+   "since": "31.10 11:36 MSK",
+   "until": "31.10 14:06 MSK"
   },
   {
    "slot": "acc1/gpu-2",
@@ -78,13 +79,12 @@
   },
   {
    "slot": "box/cpu",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "rule": "не больше 3 тяжёлых процессов и 8 ГБ RAM на бота; nice -n 10",
    "kernel": null,
    "purpose": "B: P-W2-11 hmcp prep + r50c5 verify + CI2-3 FU done",
-   "last": "снято bot-W5-rerank 30.10 13:24 MSK",
-   "since": "30.10 13:26 MSK",
-   "until": "30.10 19:35 MSK"
+   "last": "снято coord 31.10 11:37 MSK",
+   "state": "свободен"
   },
   {
    "slot": "usertest1234/cpu",
@@ -273,24 +273,6 @@
    "pid": 44006
   },
   {
-   "resource": "branch:bots/w0-seams",
-   "owner": "coord",
-   "since": 1793305820.647262,
-   "expires": 1793392220.647262,
-   "note": "W0 seams audit executor",
-   "host": "grok-bot-vm-361051398",
-   "pid": 50330
-  },
-  {
-   "resource": "dataset:aaaa0000004/koz3-w4-v2clean-check",
-   "owner": "bot-W4-chk3",
-   "since": 1793341221.994118,
-   "expires": 1793384421.994118,
-   "note": "W4 check_submission нового архива 545ef32a (DOC-1 guard)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 461488
-  },
-  {
    "resource": "branch:bots/w2-lidar",
    "owner": "bot-W2-lidar",
    "since": 1793347520.734878,
@@ -318,24 +300,6 @@
    "pid": 53563
   },
   {
-   "resource": "branch:bots/w4-pix-clean",
-   "owner": "bot-W4-gate",
-   "since": 1793356228.560974,
-   "expires": 1793388757.313459,
-   "note": "C: PREP_V3A v2clean+ORG3+M_rp for Elena",
-   "host": "grok-bot-vm-288567805",
-   "pid": 95761
-  },
-  {
-   "resource": "slot:box/cpu",
-   "owner": "bot-W2-lidar",
-   "since": 1793355972.451778,
-   "expires": 1793378147.090959,
-   "note": "B: P-W2-11 hmcp prep + r50c5 verify + CI2-3 FU done",
-   "host": "grok-bot-vm-288567805",
-   "pid": 102945
-  },
-  {
    "resource": "slot:acc2/gpu-1",
    "owner": "bot-W2-lidar",
    "since": 1793425973.221806,
@@ -344,6 +308,16 @@
    "host": "grok-bot-vm-288567805",
    "pid": 301514,
    "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234"
+  },
+  {
+   "resource": "slot:acc1/gpu-1",
+   "owner": "bot-W3-gordense",
+   "since": 1793435784.627481,
+   "expires": 1793444784.627481,
+   "note": "gordense-timing S3 path(b) valid rerun ACK-b",
+   "host": "grok-bot-vm-288567805",
+   "pid": 365427,
+   "kernel": "elenakonkova/koz3-w3-gordense-timing-k"
   }
  ]
 }
