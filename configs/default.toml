@@ -453,8 +453,9 @@ kurgan_twins_only = true
 # (после порогов, порогов не трогает). Замер: oof_transform.py gormask → scoreboard.py --honest 10.
 # kurgans_outside_hillforts = true
 # Множитель соседства курганов (могильники): conf × (0,5 + 0,5·clip(n/3, 0, 2)), n — соседи в 200 м.
-# До порогов: включать ТОЛЬКО вместе с порогами групп li/li_coarse/li_mosaic, подобранными после
-# oof_transform.py neigh (иначе пороги сдачи разойдутся с замером).
+# У соперника это v14, публично +0,0003 при полноте лидара +0,039. До 0,49 их подняла предыдущая
+# посылка (несколько спутниковых голов), не этот множитель. До порогов: включать ТОЛЬКО вместе
+# с порогами групп li/li_coarse/li_mosaic, подобранными после oof_transform.py neigh.
 # [post.kurgan_neighbour_prior]
 # groups = ["li", "li_coarse", "li_mosaic"]
 # radius_m = 200.0

@@ -189,6 +189,46 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, wei
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
+def within_site_rank_hinge(logits, target, max_false: int = 8, margin: float = 1.0):
+    """Штраф, если на том же кадре ложный пик громче центра эталона.
+
+    Публичный скачок соперника 0.440 → 0.489 пришёлся на несколько спутниковых голов,
+    а не на восемь ракурсов лидара (строка лидара осталась 0.60/0.64) и не на соседский
+    приор (следом +0.0003). У нашей карты верный пик уже внутри кургана, но примерно
+    36-й по громкости. Член сравнивает логит центра с не более чем max_false локальными
+    максимумами фона того же кадра и того же класса: max(0, margin + ложный − верный).
+    Фон — достоверные пиксели с целью ≤ 0.5, чтобы плечо гауссианы не считалось ложным
+    пиком. Коэффициент задаёт вызывающий код; 0 этот член не вызывает.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    logits = logits.float()
+    valid = target >= 0
+    tgt = target.clamp(min=0)
+    pos = _center_positives(tgt) & valid
+    pooled = F.max_pool2d(logits, 3, stride=1, padding=1)
+    # Плато — не пик: иначе ровный фон даёт максимум в каждой клетке и разбавляет штраф.
+    equal = (logits == pooled).to(logits.dtype)
+    alone = F.avg_pool2d(equal, 3, stride=1, padding=1) * 9 <= 1.01
+    false_peak = (logits >= pooled) & alone & valid & ~pos & (tgt <= 0.5)
+    terms = []
+    keep = max(int(max_false), 1)
+    n, k = logits.shape[:2]
+    for i in range(n):
+        for c in range(k):
+            true = logits[i, c][pos[i, c]]
+            false = logits[i, c][false_peak[i, c]]
+            if true.numel() == 0 or false.numel() == 0:
+                continue
+            top = false if false.numel() <= keep else torch.topk(false, keep).values
+            gap = margin + top.unsqueeze(0) - true.unsqueeze(1)
+            terms.append(gap.clamp(min=0).mean())
+    if not terms:
+        return logits.sum() * 0
+    return torch.stack(terms).mean()
+
+
 def center_loss(logits, target, weight=None):
     """BCE с весом на пике плюс Dice только по классам, которые есть в батче.
 

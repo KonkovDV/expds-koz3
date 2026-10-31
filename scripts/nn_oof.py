@@ -183,6 +183,8 @@ def main() -> None:
     ap.add_argument("--center-min-dist", type=float, default=12.0,
                     help="минимальное расстояние между центрами, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
+    ap.add_argument("--within-site-rank", type=float, default=0.0,
+                    help="коэффициент шарнира порядка пиков на кадре; 0 — выключено")
     ap.add_argument("--center-unbiased", action="store_true",
                     help="гауссиана центра между клетками, без шипа в 1 (отдельный опыт, не рецепт сдачи)")
     ap.add_argument("--center-edge-ignore", action="store_true",
@@ -361,7 +363,8 @@ def main() -> None:
                             photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
                             flips_mode=args.flips, device=args.device,
                             large_kurgan_weight=args.large_kurgan_weight,
-                            large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2)
+                            large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2,
+                            within_site_rank=args.within_site_rank)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

@@ -143,3 +143,36 @@ def test_center_loss_penalises_a_missed_peak():
     hit = missed.clone()
     hit[0, 0, 3, 3] = 8.0
     assert float(center_loss(missed, target)) > float(center_loss(hit, target))
+
+
+def test_within_site_rank_uses_only_the_eight_loudest_false_peaks():
+    from expds.centers import within_site_rank_hinge
+
+    logits = torch.full((1, 1, 16, 16), -5.0)
+    target = torch.zeros(1, 1, 16, 16)
+    logits[0, 0, 14, 14] = 0.0
+    target[0, 0, 14, 14] = 1.0
+    # Пики через две клетки: окно 3×3 не видит соседа, иначе тихий перестаёт быть максимумом.
+    for value, row, col in (
+        (9, 1, 1), (8, 1, 4), (7, 1, 7), (6, 1, 10), (5, 1, 13),
+        (4, 6, 1), (3, 6, 4), (2, 6, 7), (1, 10, 1),
+    ):
+        logits[0, 0, row, col] = float(value)
+    hinge = float(within_site_rank_hinge(logits, target))
+    assert hinge == pytest.approx(6.5)
+    logits[0, 0, 14, 14] = 20.0
+    assert float(within_site_rank_hinge(logits, target)) == 0.0
+
+
+def test_within_site_rank_ignores_the_gaussian_shoulder_and_an_empty_map():
+    from expds.centers import within_site_rank_hinge
+
+    logits = torch.full((1, 1, 16, 16), -5.0)
+    target = torch.zeros(1, 1, 16, 16)
+    logits[0, 0, 4, 4] = 0.0
+    target[0, 0, 4, 4] = 1.0
+    logits[0, 0, 4, 5] = 50.0
+    target[0, 0, 4, 5] = 0.9
+    logits[0, 0, 12, 12] = 1.0
+    assert float(within_site_rank_hinge(logits, target)) == pytest.approx(2.0)
+    assert float(within_site_rank_hinge(torch.zeros(1, 1, 8, 8), torch.zeros(1, 1, 8, 8))) == 0.0

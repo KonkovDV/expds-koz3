@@ -446,7 +446,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           large_kurgan_weight: float = 1.0, large_damaged_weight: float = 1.0, large_area_m2: float = 1000.0,
           require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
           select_min_epoch: int = 1, center_match_m: float = 0.0,
-          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False) -> dict:
+          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False,
+          within_site_rank: float = 0.0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -463,6 +464,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         raise ValueError("вес крупных насыпей (sp_large) входит в потерю карты центров: нужен target=centers")
     if large_on and small_object_weight != 1.0:
         raise ValueError("sp_large: вес крупных и вес мелких насыпей одновременно не поддерживаются")
+    if within_site_rank < 0:
+        raise ValueError("within_site_rank: коэффициент не может быть отрицательным")
+    if within_site_rank > 0 and (target != "centers" or center_loss_name != "focal"):
+        raise ValueError("порядок пиков на кадре добавляется только к фокальной потере карты центров")
     no_pre = small_object_weight != 1.0 or large_on
     import segmentation_models_pytorch as smp
     import torch
@@ -651,7 +656,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 gaussians_from_binary,
                 heatmap_counts,
                 small_component_weights,
+                within_site_rank_hinge,
             )
+            if within_site_rank > 0:
+                log.info("порядок пиков на кадре: коэффициент %.3f, не больше 8 ложных, запас 1",
+                         within_site_rank)
 
             def prepare(y):
                 src = y[:, :k]
@@ -683,6 +692,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     y = prepare(y)
                 loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
                         else center_loss(logits, y, weight=wmap))
+                if within_site_rank > 0:
+                    loss = loss + within_site_rank * within_site_rank_hinge(logits, y)
                 return loss, y
     else:
         def batch_loss(logits, y, precomputed: bool = False):
@@ -879,6 +890,8 @@ def _cli() -> None:
                     help="пороги пика для F1 на проверке; отбор эпохи по лучшему")
     ap.add_argument("--center-pre-flip", action="store_true",
                     help="цель центров считать один раз и отражать на GPU (ускорение эпохи)")
+    ap.add_argument("--within-site-rank", type=float, default=0.0,
+                    help="коэффициент шарнира «центр эталона выше ложных пиков кадра»; 0 — выключено, пилот — 1")
     ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
     if args.dry_run:
@@ -899,7 +912,7 @@ def _cli() -> None:
                 large_area_m2=args.large_area_m2,
                 min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
                 center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
-                center_pre_flip=args.center_pre_flip)
+                center_pre_flip=args.center_pre_flip, within_site_rank=args.within_site_rank)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 
