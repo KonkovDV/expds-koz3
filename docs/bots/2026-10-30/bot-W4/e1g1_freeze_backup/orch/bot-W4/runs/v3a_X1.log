@@ -1,0 +1,7 @@
+base 0.3146153226828423 comp 0.35997711966639545 site modality counts {'or': 4, 'ae': 9, 'sp_or': 121, 'geo': 18, 'li': 58}
+X1 copies 351600
+X1=0.5 {"d": -0.01144, "d_new34": -0.01852, "d_optical": -4e-05, "d_comp": -0.01734, "d_closed": -0.00707, "accept": false} P 0.0085 Ppub 0.01 Pcl 0.012 {'geo': 0.0, 'li': -0.02532, 'sp_or': -0.00011, 'ae': 0.0, 'or': 0.0}
+X1 copies 109425
+X1=0.9 {"d": -0.01094, "d_new34": -0.01826, "d_optical": -4e-05, "d_comp": -0.01692, "d_closed": -0.007, "accept": false} P 0.0105 Ppub 0.01 Pcl 0.012 {'geo': 0.0, 'li': -0.02515, 'sp_or': -0.00011, 'ae': 0.0, 'or': 0.0}
+X1_nested {"d": -0.01095, "d_new34": -0.01828, "d_optical": -4e-05, "d_comp": -0.01693, "d_closed": -0.007, "accept": false} P 0.0105 Ppub 0.01 Pcl 0.012 {'geo': 0.0, 'li': -0.02515, 'sp_or': -0.00011, 'ae': 0.0, 'or': 0.0}
+done

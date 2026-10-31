@@ -1,0 +1,166 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+{"tag": "r8r6r10aug_A0.25_X0.6_D1.75", "n_kept": 5500, "tp": 2700, "fp": 2800, "finds_P": 0.6585, "finds_R": 0.7763, "finds_F1": 0.71259, "mag_P": 0.6586, "mag_R": 0.744}
+{"tag": "r8r6r10aug_A0.25_X0.6_D2.0", "n_kept": 4998, "tp": 2602, "fp": 2396, "finds_P": 0.6847, "finds_R": 0.7481, "finds_F1": 0.71503, "mag_P": 0.6841, "mag_R": 0.7177}
+{"tag": "r8r6r10aug_A0.25_X0.7_D1.75", "n_kept": 5577, "tp": 2706, "fp": 2871, "finds_P": 0.6534, "finds_R": 0.778, "finds_F1": 0.71028, "mag_P": 0.6536, "mag_R": 0.7456}
+{"tag": "r8r6r10aug_A0.25_X0.7_D2.0", "n_kept": 5385, "tp": 2676, "fp": 2709, "finds_P": 0.6639, "finds_R": 0.7694, "finds_F1": 0.71279, "mag_P": 0.6638, "mag_R": 0.7375}
+{"tag": "r8r6r10aug_A0.25_X0.8_D1.75", "n_kept": 5748, "tp": 2730, "fp": 3018, "finds_P": 0.644, "finds_R": 0.7849, "finds_F1": 0.70753, "mag_P": 0.6444, "mag_R": 0.752}
+{"tag": "r8r6r10aug_A0.25_X0.8_D2.0", "n_kept": 5308, "tp": 2653, "fp": 2655, "finds_P": 0.6665, "finds_R": 0.7628, "finds_F1": 0.7114, "mag_P": 0.6663, "mag_R": 0.7313}
+{"tag": "r8r6r10aug_A0.25_X1.0_D1.75", "n_kept": 5962, "tp": 2748, "fp": 3214, "finds_P": 0.631, "finds_R": 0.7901, "finds_F1": 0.70165, "mag_P": 0.6317, "mag_R": 0.7568}
+{"tag": "r8r6r10aug_A0.5_X0.6_D1.75", "n_kept": 5378, "tp": 2672, "fp": 2706, "finds_P": 0.6639, "finds_R": 0.7683, "finds_F1": 0.71225, "mag_P": 0.6638, "mag_R": 0.7364}
+{"tag": "r8r6r10aug_A0.5_X0.6_D2.0", "n_kept": 4915, "tp": 2572, "fp": 2343, "finds_P": 0.6871, "finds_R": 0.7395, "finds_F1": 0.71232, "mag_P": 0.6863, "mag_R": 0.7096}
+{"tag": "r8r6r10aug_A0.5_X0.7_D1.75", "n_kept": 5477, "tp": 2694, "fp": 2783, "finds_P": 0.6594, "finds_R": 0.7746, "finds_F1": 0.71237, "mag_P": 0.6594, "mag_R": 0.7424}
+{"tag": "r8r6r10aug_A0.5_X0.7_D2.0", "n_kept": 5271, "tp": 2654, "fp": 2617, "finds_P": 0.6698, "finds_R": 0.7631, "finds_F1": 0.71339, "mag_P": 0.6695, "mag_R": 0.7316}
+{"tag": "r8r6r10aug_A0.5_X0.8_D1.75", "n_kept": 5589, "tp": 2703, "fp": 2886, "finds_P": 0.652, "finds_R": 0.7772, "finds_F1": 0.70908, "mag_P": 0.6522, "mag_R": 0.7448}
+{"tag": "r8r6r10aug_A0.5_X0.8_D2.0", "n_kept": 5164, "tp": 2629, "fp": 2535, "finds_P": 0.6747, "finds_R": 0.7559, "finds_F1": 0.713, "mag_P": 0.6743, "mag_R": 0.7249}
+{"tag": "r8r6r10aug_A0.5_X1.0_D1.75", "n_kept": 5819, "tp": 2720, "fp": 3099, "finds_P": 0.6371, "finds_R": 0.7821, "finds_F1": 0.70216, "mag_P": 0.6377, "mag_R": 0.7493}
+{"tag": "r8r6r10aug_A0.75_X0.6_D1.75", "n_kept": 5233, "tp": 2638, "fp": 2595, "finds_P": 0.6703, "finds_R": 0.7585, "finds_F1": 0.71167, "mag_P": 0.67, "mag_R": 0.7273}
+{"tag": "r8r6r10aug_A0.75_X0.6_D2.0", "n_kept": 4786, "tp": 2545, "fp": 2241, "finds_P": 0.6943, "finds_R": 0.7317, "finds_F1": 0.71254, "mag_P": 0.6933, "mag_R": 0.7024}
+{"tag": "r8r6r10aug_A0.75_X0.7_D1.75", "n_kept": 5300, "tp": 2655, "fp": 2645, "finds_P": 0.6675, "finds_R": 0.7634, "finds_F1": 0.71223, "mag_P": 0.6673, "mag_R": 0.7319}
+{"tag": "r8r6r10aug_A0.75_X0.7_D2.0", "n_kept": 5131, "tp": 2627, "fp": 2504, "finds_P": 0.6772, "finds_R": 0.7553, "finds_F1": 0.71415, "mag_P": 0.6768, "mag_R": 0.7244}
+{"tag": "r8r6r10aug_A0.75_X0.8_D1.75", "n_kept": 5394, "tp": 2659, "fp": 2735, "finds_P": 0.6604, "finds_R": 0.7645, "finds_F1": 0.70864, "mag_P": 0.6604, "mag_R": 0.733}
+{"tag": "r8r6r10aug_A0.75_X0.8_D2.0", "n_kept": 4992, "tp": 2595, "fp": 2397, "finds_P": 0.6841, "finds_R": 0.7461, "finds_F1": 0.71375, "mag_P": 0.6834, "mag_R": 0.7158}
+{"tag": "r8r6r10aug_A0.75_X1.0_D1.75", "n_kept": 5605, "tp": 2678, "fp": 2927, "finds_P": 0.6466, "finds_R": 0.77, "finds_F1": 0.70293, "mag_P": 0.647, "mag_R": 0.7381}
+{"tag": "r8r6r10aug_A1.0_X0.6_D1.75", "n_kept": 5180, "tp": 2618, "fp": 2562, "finds_P": 0.6715, "finds_R": 0.7527, "finds_F1": 0.70977, "mag_P": 0.6712, "mag_R": 0.722}
+{"tag": "r8r6r10aug_A1.0_X0.6_D2.0", "n_kept": 4620, "tp": 2508, "fp": 2112, "finds_P": 0.7037, "finds_R": 0.7211, "finds_F1": 0.7123, "mag_P": 0.7024, "mag_R": 0.6924}
+{"tag": "r8r6r10aug_A1.0_X0.7_D1.75", "n_kept": 5199, "tp": 2628, "fp": 2571, "finds_P": 0.6715, "finds_R": 0.7556, "finds_F1": 0.71109, "mag_P": 0.6712, "mag_R": 0.7246}
+{"tag": "r8r6r10aug_A1.0_X0.7_D2.0", "n_kept": 5027, "tp": 2610, "fp": 2417, "finds_P": 0.6835, "finds_R": 0.7504, "finds_F1": 0.71541, "mag_P": 0.6829, "mag_R": 0.7198}
+{"tag": "r8r6r10aug_A1.0_X0.8_D1.75", "n_kept": 5284, "tp": 2635, "fp": 2649, "finds_P": 0.6655, "finds_R": 0.7576, "finds_F1": 0.70857, "mag_P": 0.6654, "mag_R": 0.7265}
+{"tag": "r8r6r10aug_A1.0_X0.8_D2.0", "n_kept": 4918, "tp": 2583, "fp": 2335, "finds_P": 0.6887, "finds_R": 0.7427, "finds_F1": 0.71467, "mag_P": 0.6879, "mag_R": 0.7126}
+{"tag": "r8r6r10aug_A1.0_X1.0_D1.75", "n_kept": 5501, "tp": 2661, "fp": 2840, "finds_P": 0.652, "finds_R": 0.7651, "finds_F1": 0.70406, "mag_P": 0.6523, "mag_R": 0.7335}
+{"tag": "all8_A0.25_X0.6_D1.75", "n_kept": 5410, "tp": 2687, "fp": 2723, "finds_P": 0.6637, "finds_R": 0.7726, "finds_F1": 0.71401, "mag_P": 0.6636, "mag_R": 0.7405}
+{"tag": "all8_A0.25_X0.6_D2.0", "n_kept": 5227, "tp": 2647, "fp": 2580, "finds_P": 0.6723, "finds_R": 0.7611, "finds_F1": 0.71396, "mag_P": 0.672, "mag_R": 0.7297}
+{"tag": "all8_A0.25_X0.7_D1.75", "n_kept": 4717, "tp": 2549, "fp": 2168, "finds_P": 0.7016, "finds_R": 0.7329, "finds_F1": 0.71692, "mag_P": 0.7004, "mag_R": 0.7034}
+{"tag": "all8_A0.25_X0.7_D2.0", "n_kept": 4482, "tp": 2480, "fp": 2002, "finds_P": 0.7124, "finds_R": 0.7131, "finds_F1": 0.71275, "mag_P": 0.7109, "mag_R": 0.6849}
+{"tag": "all8_A0.25_X0.8_D1.75", "n_kept": 4662, "tp": 2524, "fp": 2138, "finds_P": 0.7025, "finds_R": 0.7257, "finds_F1": 0.7139, "mag_P": 0.7012, "mag_R": 0.6967}
+{"tag": "all8_A0.25_X0.8_D2.0", "n_kept": 4620, "tp": 2515, "fp": 2105, "finds_P": 0.705, "finds_R": 0.7231, "finds_F1": 0.71393, "mag_P": 0.7037, "mag_R": 0.6943}
+{"tag": "all8_A0.25_X1.0_D1.75", "n_kept": 5783, "tp": 2725, "fp": 3058, "finds_P": 0.6406, "finds_R": 0.7835, "finds_F1": 0.70486, "mag_P": 0.6411, "mag_R": 0.7507}
+{"tag": "all8_A0.5_X0.6_D1.75", "n_kept": 5159, "tp": 2640, "fp": 2519, "finds_P": 0.677, "finds_R": 0.7591, "finds_F1": 0.71569, "mag_P": 0.6766, "mag_R": 0.7279}
+{"tag": "all8_A0.5_X0.6_D2.0", "n_kept": 4956, "tp": 2584, "fp": 2372, "finds_P": 0.6854, "finds_R": 0.743, "finds_F1": 0.71302, "mag_P": 0.6847, "mag_R": 0.7128}
+{"tag": "all8_A0.5_X0.7_D1.75", "n_kept": 4516, "tp": 2499, "fp": 2017, "finds_P": 0.7125, "finds_R": 0.7185, "finds_F1": 0.71548, "mag_P": 0.7109, "mag_R": 0.69}
+{"tag": "all8_A0.5_X0.7_D2.0", "n_kept": 4335, "tp": 2441, "fp": 1894, "finds_P": 0.7205, "finds_R": 0.7018, "finds_F1": 0.71104, "mag_P": 0.7186, "mag_R": 0.6744}
+{"tag": "all8_A0.5_X0.8_D1.75", "n_kept": 4494, "tp": 2490, "fp": 2004, "finds_P": 0.7131, "finds_R": 0.7159, "finds_F1": 0.71449, "mag_P": 0.7115, "mag_R": 0.6876}
+{"tag": "all8_A0.5_X0.8_D2.0", "n_kept": 4420, "tp": 2468, "fp": 1952, "finds_P": 0.7166, "finds_R": 0.7096, "finds_F1": 0.71309, "mag_P": 0.7149, "mag_R": 0.6817}
+{"tag": "all8_A0.5_X1.0_D1.75", "n_kept": 5522, "tp": 2684, "fp": 2838, "finds_P": 0.6542, "finds_R": 0.7717, "finds_F1": 0.70809, "mag_P": 0.6543, "mag_R": 0.7397}
+{"tag": "all8_A0.75_X0.6_D1.75", "n_kept": 4972, "tp": 2599, "fp": 2373, "finds_P": 0.6866, "finds_R": 0.7473, "finds_F1": 0.71563, "mag_P": 0.6858, "mag_R": 0.7169}
+{"tag": "all8_A0.75_X0.6_D2.0", "n_kept": 4793, "tp": 2557, "fp": 2236, "finds_P": 0.6958, "finds_R": 0.7352, "finds_F1": 0.71494, "mag_P": 0.6948, "mag_R": 0.7056}
+{"tag": "all8_A0.75_X0.7_D1.75", "n_kept": 4262, "tp": 2426, "fp": 1836, "finds_P": 0.7255, "finds_R": 0.6975, "finds_F1": 0.71123, "mag_P": 0.7234, "mag_R": 0.6704}
+{"tag": "all8_A0.75_X0.7_D2.0", "n_kept": 4066, "tp": 2361, "fp": 1705, "finds_P": 0.7347, "finds_R": 0.6788, "finds_F1": 0.70567, "mag_P": 0.7323, "mag_R": 0.653}
+{"tag": "all8_A0.75_X0.8_D1.75", "n_kept": 4238, "tp": 2404, "fp": 1834, "finds_P": 0.7239, "finds_R": 0.6912, "finds_F1": 0.70716, "mag_P": 0.7219, "mag_R": 0.6645}
+{"tag": "all8_A0.75_X0.8_D2.0", "n_kept": 4152, "tp": 2385, "fp": 1767, "finds_P": 0.7297, "finds_R": 0.6857, "finds_F1": 0.70703, "mag_P": 0.7275, "mag_R": 0.6594}
+{"tag": "all8_A0.75_X1.0_D1.75", "n_kept": 5271, "tp": 2628, "fp": 2643, "finds_P": 0.6654, "finds_R": 0.7556, "finds_F1": 0.70764, "mag_P": 0.6653, "mag_R": 0.7246}
+{"tag": "all8_A1.0_X0.6_D1.75", "n_kept": 4841, "tp": 2579, "fp": 2262, "finds_P": 0.6951, "finds_R": 0.7415, "finds_F1": 0.71758, "mag_P": 0.6942, "mag_R": 0.7115}
+{"tag": "all8_A1.0_X0.6_D2.0", "n_kept": 4637, "tp": 2522, "fp": 2115, "finds_P": 0.7046, "finds_R": 0.7251, "finds_F1": 0.7147, "mag_P": 0.7033, "mag_R": 0.6962}
+{"tag": "all8_A1.0_X0.7_D1.75", "n_kept": 4847, "tp": 2573, "fp": 2274, "finds_P": 0.6935, "finds_R": 0.7398, "finds_F1": 0.71592, "mag_P": 0.6926, "mag_R": 0.7099}
+{"tag": "all8_A1.0_X0.7_D2.0", "n_kept": 3889, "tp": 2268, "fp": 1621, "finds_P": 0.7367, "finds_R": 0.6521, "finds_F1": 0.69183, "mag_P": 0.7341, "mag_R": 0.628}
+{"tag": "all8_A1.0_X0.8_D1.75", "n_kept": 4034, "tp": 2307, "fp": 1727, "finds_P": 0.7276, "finds_R": 0.6633, "finds_F1": 0.69399, "mag_P": 0.7254, "mag_R": 0.6385}
+{"tag": "all8_A1.0_X0.8_D2.0", "n_kept": 3943, "tp": 2286, "fp": 1657, "finds_P": 0.734, "finds_R": 0.6573, "finds_F1": 0.69352, "mag_P": 0.7315, "mag_R": 0.6329}
+{"tag": "all8_A1.0_X1.0_D1.75", "n_kept": 5155, "tp": 2601, "fp": 2554, "finds_P": 0.6707, "finds_R": 0.7478, "finds_F1": 0.70718, "mag_P": 0.6704, "mag_R": 0.7174}
+{"tag": "r8aug_A0.25_X0.6_D1.75", "n_kept": 4893, "tp": 2568, "fp": 2325, "finds_P": 0.6884, "finds_R": 0.7384, "finds_F1": 0.71249, "mag_P": 0.6876, "mag_R": 0.7085}
+{"tag": "r8aug_A0.25_X0.6_D2.0", "n_kept": 5029, "tp": 2605, "fp": 2424, "finds_P": 0.6825, "finds_R": 0.749, "finds_F1": 0.71419, "mag_P": 0.6819, "mag_R": 0.7185}
+{"tag": "r8aug_A0.25_X0.7_D1.75", "n_kept": 4903, "tp": 2570, "fp": 2333, "finds_P": 0.6878, "finds_R": 0.7389, "finds_F1": 0.71245, "mag_P": 0.687, "mag_R": 0.7091}
+{"tag": "r8aug_A0.25_X0.7_D2.0", "n_kept": 4786, "tp": 2547, "fp": 2239, "finds_P": 0.6947, "finds_R": 0.7323, "finds_F1": 0.713, "mag_P": 0.6937, "mag_R": 0.7029}
+{"tag": "r8aug_A0.25_X0.8_D1.75", "n_kept": 4995, "tp": 2572, "fp": 2423, "finds_P": 0.6798, "finds_R": 0.7395, "finds_F1": 0.70839, "mag_P": 0.6793, "mag_R": 0.7096}
+{"tag": "r8aug_A0.25_X0.8_D2.0", "n_kept": 4894, "tp": 2554, "fp": 2340, "finds_P": 0.6858, "finds_R": 0.7343, "finds_F1": 0.70925, "mag_P": 0.6851, "mag_R": 0.7048}
+{"tag": "r8aug_A0.25_X1.0_D1.75", "n_kept": 5132, "tp": 2582, "fp": 2550, "finds_P": 0.6694, "finds_R": 0.7424, "finds_F1": 0.70402, "mag_P": 0.6692, "mag_R": 0.7123}
+{"tag": "r8aug_A0.5_X0.6_D1.75", "n_kept": 4720, "tp": 2518, "fp": 2202, "finds_P": 0.6958, "finds_R": 0.724, "finds_F1": 0.7096, "mag_P": 0.6947, "mag_R": 0.6951}
+{"tag": "r8aug_A0.5_X0.6_D2.0", "n_kept": 4839, "tp": 2561, "fp": 2278, "finds_P": 0.6922, "finds_R": 0.7363, "finds_F1": 0.71357, "mag_P": 0.6913, "mag_R": 0.7067}
+{"tag": "r8aug_A0.5_X0.7_D1.75", "n_kept": 4803, "tp": 2535, "fp": 2268, "finds_P": 0.6909, "finds_R": 0.7289, "finds_F1": 0.70939, "mag_P": 0.69, "mag_R": 0.6997}
+{"tag": "r8aug_A0.5_X0.7_D2.0", "n_kept": 4686, "tp": 2508, "fp": 2178, "finds_P": 0.6972, "finds_R": 0.7211, "finds_F1": 0.70898, "mag_P": 0.6962, "mag_R": 0.6924}
+{"tag": "r8aug_A0.5_X0.8_D1.75", "n_kept": 4828, "tp": 2535, "fp": 2293, "finds_P": 0.6886, "finds_R": 0.7289, "finds_F1": 0.70815, "mag_P": 0.6878, "mag_R": 0.6997}
+{"tag": "r8aug_A0.5_X0.8_D2.0", "n_kept": 4729, "tp": 2517, "fp": 2212, "finds_P": 0.6947, "finds_R": 0.7237, "finds_F1": 0.70891, "mag_P": 0.6937, "mag_R": 0.6948}
+{"tag": "r8aug_A0.5_X1.0_D1.75", "n_kept": 4957, "tp": 2541, "fp": 2416, "finds_P": 0.6778, "finds_R": 0.7306, "finds_F1": 0.7032, "mag_P": 0.6773, "mag_R": 0.7013}
+{"tag": "r8aug_A0.75_X0.6_D1.75", "n_kept": 4540, "tp": 2453, "fp": 2087, "finds_P": 0.7016, "finds_R": 0.7053, "finds_F1": 0.70342, "mag_P": 0.7003, "mag_R": 0.6777}
+{"tag": "r8aug_A0.75_X0.6_D2.0", "n_kept": 4684, "tp": 2507, "fp": 2177, "finds_P": 0.6973, "finds_R": 0.7208, "finds_F1": 0.70884, "mag_P": 0.6962, "mag_R": 0.6922}
+{"tag": "r8aug_A0.75_X0.7_D1.75", "n_kept": 4589, "tp": 2468, "fp": 2121, "finds_P": 0.6994, "finds_R": 0.7096, "finds_F1": 0.70449, "mag_P": 0.6983, "mag_R": 0.6817}
+{"tag": "r8aug_A0.75_X0.7_D2.0", "n_kept": 4509, "tp": 2451, "fp": 2058, "finds_P": 0.7043, "finds_R": 0.7047, "finds_F1": 0.70451, "mag_P": 0.703, "mag_R": 0.6771}
+{"tag": "r8aug_A0.75_X0.8_D1.75", "n_kept": 4592, "tp": 2464, "fp": 2128, "finds_P": 0.6984, "finds_R": 0.7085, "finds_F1": 0.7034, "mag_P": 0.6973, "mag_R": 0.6806}
+{"tag": "r8aug_A0.75_X0.8_D2.0", "n_kept": 4475, "tp": 2445, "fp": 2030, "finds_P": 0.7066, "finds_R": 0.703, "finds_F1": 0.70481, "mag_P": 0.7052, "mag_R": 0.6755}
+{"tag": "r8aug_A0.75_X1.0_D1.75", "n_kept": 4759, "tp": 2478, "fp": 2281, "finds_P": 0.6848, "finds_R": 0.7125, "finds_F1": 0.69837, "mag_P": 0.6841, "mag_R": 0.6844}
+{"tag": "r8aug_A1.0_X0.6_D1.75", "n_kept": 4400, "tp": 2405, "fp": 1995, "finds_P": 0.7068, "finds_R": 0.6915, "finds_F1": 0.69908, "mag_P": 0.7054, "mag_R": 0.6648}
+{"tag": "r8aug_A1.0_X0.6_D2.0", "n_kept": 4556, "tp": 2459, "fp": 2097, "finds_P": 0.7011, "finds_R": 0.707, "finds_F1": 0.70403, "mag_P": 0.6998, "mag_R": 0.6793}
+{"tag": "r8aug_A1.0_X0.7_D1.75", "n_kept": 4452, "tp": 2423, "fp": 2029, "finds_P": 0.7049, "finds_R": 0.6967, "finds_F1": 0.70074, "mag_P": 0.7035, "mag_R": 0.6696}
+{"tag": "r8aug_A1.0_X0.7_D2.0", "n_kept": 4346, "tp": 2403, "fp": 1943, "finds_P": 0.7121, "finds_R": 0.6909, "finds_F1": 0.70135, "mag_P": 0.7105, "mag_R": 0.6643}
+{"tag": "r8aug_A1.0_X0.8_D1.75", "n_kept": 4506, "tp": 2437, "fp": 2069, "finds_P": 0.702, "finds_R": 0.7007, "finds_F1": 0.70135, "mag_P": 0.7007, "mag_R": 0.6734}
+{"tag": "r8aug_A1.0_X0.8_D2.0", "n_kept": 4415, "tp": 2419, "fp": 1996, "finds_P": 0.7079, "finds_R": 0.6955, "finds_F1": 0.70167, "mag_P": 0.7065, "mag_R": 0.6685}
+{"tag": "r8aug_A1.0_X1.0_D1.75", "n_kept": 4611, "tp": 2436, "fp": 2175, "finds_P": 0.6914, "finds_R": 0.7004, "finds_F1": 0.69585, "mag_P": 0.6904, "mag_R": 0.6731}
+{"tag": "r8r6r10aug_gw_A0.25_X0.6_D1.75", "n_kept": 4902, "tp": 2605, "fp": 2297, "finds_P": 0.694, "finds_R": 0.749, "finds_F1": 0.72046, "mag_P": 0.6931, "mag_R": 0.7185}
+{"tag": "r8r6r10aug_gw_A0.25_X0.6_D2.0", "n_kept": 4663, "tp": 2538, "fp": 2125, "finds_P": 0.7049, "finds_R": 0.7297, "finds_F1": 0.7171, "mag_P": 0.7036, "mag_R": 0.7005}
+{"tag": "r8r6r10aug_gw_A0.25_X0.7_D1.75", "n_kept": 4976, "tp": 2620, "fp": 2356, "finds_P": 0.6898, "finds_R": 0.7533, "finds_F1": 0.72018, "mag_P": 0.689, "mag_R": 0.7225}
+{"tag": "r8r6r10aug_gw_A0.25_X0.7_D2.0", "n_kept": 4751, "tp": 2572, "fp": 2179, "finds_P": 0.7024, "finds_R": 0.7395, "finds_F1": 0.7205, "mag_P": 0.7012, "mag_R": 0.7096}
+{"tag": "r8r6r10aug_gw_A0.25_X0.8_D1.75", "n_kept": 5019, "tp": 2622, "fp": 2397, "finds_P": 0.6863, "finds_R": 0.7539, "finds_F1": 0.7185, "mag_P": 0.6856, "mag_R": 0.723}
+{"tag": "r8r6r10aug_gw_A0.25_X0.8_D2.0", "n_kept": 4003, "tp": 2320, "fp": 1683, "finds_P": 0.7338, "finds_R": 0.6671, "finds_F1": 0.69885, "mag_P": 0.7314, "mag_R": 0.642}
+{"tag": "r8r6r10aug_gw_A0.25_X1.0_D1.75", "n_kept": 5241, "tp": 2646, "fp": 2595, "finds_P": 0.671, "finds_R": 0.7608, "finds_F1": 0.71306, "mag_P": 0.6707, "mag_R": 0.7295}
+{"tag": "r8r6r10aug_gw_A0.5_X0.6_D1.75", "n_kept": 4728, "tp": 2557, "fp": 2171, "finds_P": 0.702, "finds_R": 0.7352, "finds_F1": 0.71821, "mag_P": 0.7008, "mag_R": 0.7056}
+{"tag": "r8r6r10aug_gw_A0.5_X0.6_D2.0", "n_kept": 4506, "tp": 2488, "fp": 2018, "finds_P": 0.7115, "finds_R": 0.7154, "finds_F1": 0.71341, "mag_P": 0.7099, "mag_R": 0.6871}
+{"tag": "r8r6r10aug_gw_A0.5_X0.7_D1.75", "n_kept": 4760, "tp": 2565, "fp": 2195, "finds_P": 0.7003, "finds_R": 0.7375, "finds_F1": 0.71844, "mag_P": 0.6992, "mag_R": 0.7077}
+{"tag": "r8r6r10aug_gw_A0.5_X0.7_D2.0", "n_kept": 4541, "tp": 2505, "fp": 2036, "finds_P": 0.711, "finds_R": 0.7202, "finds_F1": 0.71561, "mag_P": 0.7095, "mag_R": 0.6916}
+{"tag": "r8r6r10aug_gw_A0.5_X0.8_D1.75", "n_kept": 4884, "tp": 2586, "fp": 2298, "finds_P": 0.6924, "finds_R": 0.7435, "finds_F1": 0.71704, "mag_P": 0.6915, "mag_R": 0.7134}
+{"tag": "r8r6r10aug_gw_A0.5_X0.8_D2.0", "n_kept": 3779, "tp": 2233, "fp": 1546, "finds_P": 0.7428, "finds_R": 0.642, "finds_F1": 0.68877, "mag_P": 0.74, "mag_R": 0.6186}
+{"tag": "r8r6r10aug_gw_A0.5_X1.0_D1.75", "n_kept": 4985, "tp": 2593, "fp": 2392, "finds_P": 0.6843, "finds_R": 0.7455, "finds_F1": 0.71364, "mag_P": 0.6837, "mag_R": 0.7152}
+{"tag": "r8r6r10aug_gw_A0.75_X0.6_D1.75", "n_kept": 4589, "tp": 2511, "fp": 2078, "finds_P": 0.7073, "finds_R": 0.722, "finds_F1": 0.71457, "mag_P": 0.7059, "mag_R": 0.6932}
+{"tag": "r8r6r10aug_gw_A0.75_X0.6_D2.0", "n_kept": 4330, "tp": 2417, "fp": 1913, "finds_P": 0.7165, "finds_R": 0.6949, "finds_F1": 0.70554, "mag_P": 0.7147, "mag_R": 0.668}
+{"tag": "r8r6r10aug_gw_A0.75_X0.7_D1.75", "n_kept": 4513, "tp": 2507, "fp": 2006, "finds_P": 0.7142, "finds_R": 0.7208, "finds_F1": 0.71752, "mag_P": 0.7126, "mag_R": 0.6922}
+{"tag": "r8r6r10aug_gw_A0.75_X0.7_D2.0", "n_kept": 4337, "tp": 2447, "fp": 1890, "finds_P": 0.7214, "finds_R": 0.7036, "finds_F1": 0.71237, "mag_P": 0.7195, "mag_R": 0.6761}
+{"tag": "r8r6r10aug_gw_A0.75_X0.8_D1.75", "n_kept": 4654, "tp": 2520, "fp": 2134, "finds_P": 0.7025, "finds_R": 0.7246, "finds_F1": 0.71338, "mag_P": 0.7013, "mag_R": 0.6957}
+{"tag": "r8r6r10aug_gw_A0.75_X0.8_D2.0", "n_kept": 3533, "tp": 2110, "fp": 1423, "finds_P": 0.7478, "finds_R": 0.6067, "finds_F1": 0.66989, "mag_P": 0.7446, "mag_R": 0.5856}
+{"tag": "r8r6r10aug_gw_A0.75_X1.0_D1.75", "n_kept": 4757, "tp": 2542, "fp": 2215, "finds_P": 0.6965, "finds_R": 0.7309, "finds_F1": 0.71329, "mag_P": 0.6955, "mag_R": 0.7016}
+{"tag": "r8r6r10aug_gw_A1.0_X0.6_D1.75", "n_kept": 4374, "tp": 2441, "fp": 1933, "finds_P": 0.7164, "finds_R": 0.7018, "finds_F1": 0.70903, "mag_P": 0.7146, "mag_R": 0.6744}
+{"tag": "r8r6r10aug_gw_A1.0_X0.6_D2.0", "n_kept": 4139, "tp": 2356, "fp": 1783, "finds_P": 0.7255, "finds_R": 0.6774, "finds_F1": 0.70062, "mag_P": 0.7234, "mag_R": 0.6516}
+{"tag": "r8r6r10aug_gw_A1.0_X0.7_D1.75", "n_kept": 4353, "tp": 2444, "fp": 1909, "finds_P": 0.7191, "finds_R": 0.7027, "finds_F1": 0.71083, "mag_P": 0.7173, "mag_R": 0.6753}
+{"tag": "r8r6r10aug_gw_A1.0_X0.7_D2.0", "n_kept": 4175, "tp": 2392, "fp": 1783, "finds_P": 0.7285, "finds_R": 0.6878, "finds_F1": 0.70754, "mag_P": 0.7263, "mag_R": 0.6613}
+{"tag": "r8r6r10aug_gw_A1.0_X0.8_D1.75", "n_kept": 4447, "tp": 2453, "fp": 1994, "finds_P": 0.711, "finds_R": 0.7053, "finds_F1": 0.70814, "mag_P": 0.7095, "mag_R": 0.6777}
+{"tag": "r8r6r10aug_gw_A1.0_X0.8_D2.0", "n_kept": 4173, "tp": 2383, "fp": 1790, "finds_P": 0.727, "finds_R": 0.6852, "finds_F1": 0.70545, "mag_P": 0.7248, "mag_R": 0.6589}
+{"tag": "r8r6r10aug_gw_A1.0_X1.0_D1.75", "n_kept": 4595, "tp": 2476, "fp": 2119, "finds_P": 0.7003, "finds_R": 0.7119, "finds_F1": 0.70607, "mag_P": 0.6991, "mag_R": 0.6838}
+{"tag": "r8aug_gw3_A0.25_X0.6_D1.75", "n_kept": 3914, "tp": 2278, "fp": 1636, "finds_P": 0.7358, "finds_R": 0.655, "finds_F1": 0.69303, "mag_P": 0.7332, "mag_R": 0.6307}
+{"tag": "r8aug_gw3_A0.25_X0.6_D2.0", "n_kept": 4073, "tp": 2324, "fp": 1749, "finds_P": 0.7266, "finds_R": 0.6682, "finds_F1": 0.69617, "mag_P": 0.7244, "mag_R": 0.643}
+{"tag": "r8aug_gw3_A0.25_X0.7_D1.75", "n_kept": 4336, "tp": 2419, "fp": 1917, "finds_P": 0.7162, "finds_R": 0.6955, "finds_F1": 0.70571, "mag_P": 0.7145, "mag_R": 0.6685}
+{"tag": "r8aug_gw3_A0.25_X0.7_D2.0", "n_kept": 4137, "tp": 2353, "fp": 1784, "finds_P": 0.7251, "finds_R": 0.6765, "finds_F1": 0.69999, "mag_P": 0.723, "mag_R": 0.6508}
+{"tag": "r8aug_gw3_A0.25_X0.8_D1.75", "n_kept": 4243, "tp": 2395, "fp": 1848, "finds_P": 0.7216, "finds_R": 0.6886, "finds_F1": 0.70472, "mag_P": 0.7197, "mag_R": 0.6621}
+{"tag": "r8aug_gw3_A0.25_X0.8_D2.0", "n_kept": 4196, "tp": 2378, "fp": 1818, "finds_P": 0.7235, "finds_R": 0.6837, "finds_F1": 0.70303, "mag_P": 0.7214, "mag_R": 0.6575}
+{"tag": "r8aug_gw3_A0.25_X1.0_D1.75", "n_kept": 4116, "tp": 2327, "fp": 1789, "finds_P": 0.7223, "finds_R": 0.6691, "finds_F1": 0.69468, "mag_P": 0.7203, "mag_R": 0.6439}
+{"tag": "r8aug_gw3_A0.5_X0.6_D1.75", "n_kept": 4040, "tp": 2317, "fp": 1723, "finds_P": 0.729, "finds_R": 0.6662, "finds_F1": 0.69616, "mag_P": 0.7267, "mag_R": 0.6412}
+{"tag": "r8aug_gw3_A0.5_X0.6_D2.0", "n_kept": 3919, "tp": 2263, "fp": 1656, "finds_P": 0.7321, "finds_R": 0.6507, "finds_F1": 0.68899, "mag_P": 0.7297, "mag_R": 0.6267}
+{"tag": "r8aug_gw3_A0.5_X0.7_D1.75", "n_kept": 4126, "tp": 2356, "fp": 1770, "finds_P": 0.7269, "finds_R": 0.6774, "finds_F1": 0.70129, "mag_P": 0.7248, "mag_R": 0.6516}
+{"tag": "r8aug_gw3_A0.5_X0.7_D2.0", "n_kept": 3939, "tp": 2282, "fp": 1657, "finds_P": 0.7336, "finds_R": 0.6561, "finds_F1": 0.69272, "mag_P": 0.7312, "mag_R": 0.6318}
+{"tag": "r8aug_gw3_A0.5_X0.8_D1.75", "n_kept": 4075, "tp": 2334, "fp": 1741, "finds_P": 0.7284, "finds_R": 0.6711, "finds_F1": 0.69854, "mag_P": 0.7261, "mag_R": 0.6457}
+{"tag": "r8aug_gw3_A0.5_X0.8_D2.0", "n_kept": 4031, "tp": 2316, "fp": 1715, "finds_P": 0.7298, "finds_R": 0.6659, "finds_F1": 0.69638, "mag_P": 0.7275, "mag_R": 0.6409}
+{"tag": "r8aug_gw3_A0.5_X1.0_D1.75", "n_kept": 3871, "tp": 2217, "fp": 1654, "finds_P": 0.7283, "finds_R": 0.6374, "finds_F1": 0.67985, "mag_P": 0.726, "mag_R": 0.6143}
+{"tag": "r8aug_gw3_A0.75_X0.6_D1.75", "n_kept": 3842, "tp": 2225, "fp": 1617, "finds_P": 0.7335, "finds_R": 0.6397, "finds_F1": 0.68341, "mag_P": 0.7309, "mag_R": 0.6165}
+{"tag": "r8aug_gw3_A0.75_X0.6_D2.0", "n_kept": 3726, "tp": 2171, "fp": 1555, "finds_P": 0.7363, "finds_R": 0.6242, "finds_F1": 0.67564, "mag_P": 0.7336, "mag_R": 0.602}
+{"tag": "r8aug_gw3_A0.75_X0.7_D1.75", "n_kept": 3926, "tp": 2265, "fp": 1661, "finds_P": 0.7317, "finds_R": 0.6512, "finds_F1": 0.68913, "mag_P": 0.7293, "mag_R": 0.6272}
+{"tag": "r8aug_gw3_A0.75_X0.7_D2.0", "n_kept": 3745, "tp": 2195, "fp": 1550, "finds_P": 0.7391, "finds_R": 0.6311, "finds_F1": 0.68083, "mag_P": 0.7363, "mag_R": 0.6084}
+{"tag": "r8aug_gw3_A0.75_X0.8_D1.75", "n_kept": 3860, "tp": 2238, "fp": 1622, "finds_P": 0.734, "finds_R": 0.6435, "finds_F1": 0.68577, "mag_P": 0.7315, "mag_R": 0.62}
+{"tag": "r8aug_gw3_A0.75_X0.8_D2.0", "n_kept": 3825, "tp": 2219, "fp": 1606, "finds_P": 0.7343, "finds_R": 0.638, "finds_F1": 0.68277, "mag_P": 0.7317, "mag_R": 0.6149}
+{"tag": "r8aug_gw3_A0.75_X1.0_D1.75", "n_kept": 3589, "tp": 2084, "fp": 1505, "finds_P": 0.7347, "finds_R": 0.5992, "finds_F1": 0.66007, "mag_P": 0.732, "mag_R": 0.5786}
+{"tag": "r8aug_gw3_A1.0_X0.6_D1.75", "n_kept": 3634, "tp": 2105, "fp": 1529, "finds_P": 0.7336, "finds_R": 0.6052, "finds_F1": 0.66325, "mag_P": 0.7309, "mag_R": 0.5843}
+{"tag": "r8aug_gw3_A1.0_X0.6_D2.0", "n_kept": 3556, "tp": 2055, "fp": 1501, "finds_P": 0.7325, "finds_R": 0.5909, "finds_F1": 0.65409, "mag_P": 0.7298, "mag_R": 0.5709}
+{"tag": "r8aug_gw3_A1.0_X0.7_D1.75", "n_kept": 3696, "tp": 2154, "fp": 1542, "finds_P": 0.7364, "finds_R": 0.6193, "finds_F1": 0.67281, "mag_P": 0.7337, "mag_R": 0.5974}
+{"tag": "r8aug_gw3_A1.0_X0.7_D2.0", "n_kept": 3580, "tp": 2087, "fp": 1493, "finds_P": 0.7365, "finds_R": 0.6001, "finds_F1": 0.66133, "mag_P": 0.7337, "mag_R": 0.5794}
+{"tag": "r8aug_gw3_A1.0_X0.8_D1.75", "n_kept": 3610, "tp": 2117, "fp": 1493, "finds_P": 0.7393, "finds_R": 0.6087, "finds_F1": 0.66767, "mag_P": 0.7364, "mag_R": 0.5875}
+{"tag": "r8aug_gw3_A1.0_X0.8_D2.0", "n_kept": 3556, "tp": 2095, "fp": 1461, "finds_P": 0.7415, "finds_R": 0.6024, "finds_F1": 0.66471, "mag_P": 0.7385, "mag_R": 0.5816}
+{"tag": "r8aug_gw3_A1.0_X1.0_D1.75", "n_kept": 3371, "tp": 1954, "fp": 1417, "finds_P": 0.7339, "finds_R": 0.5618, "finds_F1": 0.63643, "mag_P": 0.731, "mag_R": 0.5437}
+OK {'tag': 'all8_A0.25_X0.6_D2.0', 'n_kept': 5227, 'tp': 2647, 'fp': 2580, 'finds_P': 0.6723, 'finds_R': 0.7611, 'finds_F1': 0.71396, 'mag_P': 0.672, 'mag_R': 0.7297}
+OK {'tag': 'r8r6r10aug_gw_A0.25_X1.0_D1.75', 'n_kept': 5241, 'tp': 2646, 'fp': 2595, 'finds_P': 0.671, 'finds_R': 0.7608, 'finds_F1': 0.71306, 'mag_P': 0.6707, 'mag_R': 0.7295}
+OK {'tag': 'all8_A0.5_X0.6_D1.75', 'n_kept': 5159, 'tp': 2640, 'fp': 2519, 'finds_P': 0.677, 'finds_R': 0.7591, 'finds_F1': 0.71569, 'mag_P': 0.6766, 'mag_R': 0.7279}
+OK {'tag': 'r8r6r10aug_A0.5_X0.8_D2.0', 'n_kept': 5164, 'tp': 2629, 'fp': 2535, 'finds_P': 0.6747, 'finds_R': 0.7559, 'finds_F1': 0.713, 'mag_P': 0.6743, 'mag_R': 0.7249}
+OK {'tag': 'r8r6r10aug_A1.0_X0.7_D1.75', 'n_kept': 5199, 'tp': 2628, 'fp': 2571, 'finds_P': 0.6715, 'finds_R': 0.7556, 'finds_F1': 0.71109, 'mag_P': 0.6712, 'mag_R': 0.7246}
+OK {'tag': 'r8r6r10aug_A0.75_X0.7_D2.0', 'n_kept': 5131, 'tp': 2627, 'fp': 2504, 'finds_P': 0.6772, 'finds_R': 0.7553, 'finds_F1': 0.71415, 'mag_P': 0.6768, 'mag_R': 0.7244}
+OK {'tag': 'r8r6r10aug_gw_A0.25_X0.8_D1.75', 'n_kept': 5019, 'tp': 2622, 'fp': 2397, 'finds_P': 0.6863, 'finds_R': 0.7539, 'finds_F1': 0.7185, 'mag_P': 0.6856, 'mag_R': 0.723}
+OK {'tag': 'r8r6r10aug_gw_A0.25_X0.7_D1.75', 'n_kept': 4976, 'tp': 2620, 'fp': 2356, 'finds_P': 0.6898, 'finds_R': 0.7533, 'finds_F1': 0.72018, 'mag_P': 0.689, 'mag_R': 0.7225}
+OK {'tag': 'r8r6r10aug_A1.0_X0.6_D1.75', 'n_kept': 5180, 'tp': 2618, 'fp': 2562, 'finds_P': 0.6715, 'finds_R': 0.7527, 'finds_F1': 0.70977, 'mag_P': 0.6712, 'mag_R': 0.722}
+OK {'tag': 'r8r6r10aug_A1.0_X0.7_D2.0', 'n_kept': 5027, 'tp': 2610, 'fp': 2417, 'finds_P': 0.6835, 'finds_R': 0.7504, 'finds_F1': 0.71541, 'mag_P': 0.6829, 'mag_R': 0.7198}
+OK {'tag': 'r8aug_A0.25_X0.6_D2.0', 'n_kept': 5029, 'tp': 2605, 'fp': 2424, 'finds_P': 0.6825, 'finds_R': 0.749, 'finds_F1': 0.71419, 'mag_P': 0.6819, 'mag_R': 0.7185}
+OK {'tag': 'r8r6r10aug_gw_A0.25_X0.6_D1.75', 'n_kept': 4902, 'tp': 2605, 'fp': 2297, 'finds_P': 0.694, 'finds_R': 0.749, 'finds_F1': 0.72046, 'mag_P': 0.6931, 'mag_R': 0.7185}
+OK {'tag': 'r8r6r10aug_A0.25_X0.6_D2.0', 'n_kept': 4998, 'tp': 2602, 'fp': 2396, 'finds_P': 0.6847, 'finds_R': 0.7481, 'finds_F1': 0.71503, 'mag_P': 0.6841, 'mag_R': 0.7177}
+OK {'tag': 'all8_A0.75_X0.6_D1.75', 'n_kept': 4972, 'tp': 2599, 'fp': 2373, 'finds_P': 0.6866, 'finds_R': 0.7473, 'finds_F1': 0.71563, 'mag_P': 0.6858, 'mag_R': 0.7169}
+OK {'tag': 'r8r6r10aug_A0.75_X0.8_D2.0', 'n_kept': 4992, 'tp': 2595, 'fp': 2397, 'finds_P': 0.6841, 'finds_R': 0.7461, 'finds_F1': 0.71375, 'mag_P': 0.6834, 'mag_R': 0.7158}
+F1 {'tag': 'r8r6r10aug_gw_A0.25_X0.7_D2.0', 'n_kept': 4751, 'tp': 2572, 'fp': 2179, 'finds_P': 0.7024, 'finds_R': 0.7395, 'finds_F1': 0.7205, 'mag_P': 0.7012, 'mag_R': 0.7096}
+F1 {'tag': 'r8r6r10aug_gw_A0.25_X0.6_D1.75', 'n_kept': 4902, 'tp': 2605, 'fp': 2297, 'finds_P': 0.694, 'finds_R': 0.749, 'finds_F1': 0.72046, 'mag_P': 0.6931, 'mag_R': 0.7185}
+F1 {'tag': 'r8r6r10aug_gw_A0.25_X0.7_D1.75', 'n_kept': 4976, 'tp': 2620, 'fp': 2356, 'finds_P': 0.6898, 'finds_R': 0.7533, 'finds_F1': 0.72018, 'mag_P': 0.689, 'mag_R': 0.7225}
+F1 {'tag': 'r8r6r10aug_gw_A0.25_X0.8_D1.75', 'n_kept': 5019, 'tp': 2622, 'fp': 2397, 'finds_P': 0.6863, 'finds_R': 0.7539, 'finds_F1': 0.7185, 'mag_P': 0.6856, 'mag_R': 0.723}
+F1 {'tag': 'r8r6r10aug_gw_A0.5_X0.7_D1.75', 'n_kept': 4760, 'tp': 2565, 'fp': 2195, 'finds_P': 0.7003, 'finds_R': 0.7375, 'finds_F1': 0.71844, 'mag_P': 0.6992, 'mag_R': 0.7077}
+F1 {'tag': 'r8r6r10aug_gw_A0.5_X0.6_D1.75', 'n_kept': 4728, 'tp': 2557, 'fp': 2171, 'finds_P': 0.702, 'finds_R': 0.7352, 'finds_F1': 0.71821, 'mag_P': 0.7008, 'mag_R': 0.7056}
+F1 {'tag': 'all8_A1.0_X0.6_D1.75', 'n_kept': 4841, 'tp': 2579, 'fp': 2262, 'finds_P': 0.6951, 'finds_R': 0.7415, 'finds_F1': 0.71758, 'mag_P': 0.6942, 'mag_R': 0.7115}
+F1 {'tag': 'r8r6r10aug_gw_A0.75_X0.7_D1.75', 'n_kept': 4513, 'tp': 2507, 'fp': 2006, 'finds_P': 0.7142, 'finds_R': 0.7208, 'finds_F1': 0.71752, 'mag_P': 0.7126, 'mag_R': 0.6922}
+F1 {'tag': 'r8r6r10aug_gw_A0.25_X0.6_D2.0', 'n_kept': 4663, 'tp': 2538, 'fp': 2125, 'finds_P': 0.7049, 'finds_R': 0.7297, 'finds_F1': 0.7171, 'mag_P': 0.7036, 'mag_R': 0.7005}
+F1 {'tag': 'r8r6r10aug_gw_A0.5_X0.8_D1.75', 'n_kept': 4884, 'tp': 2586, 'fp': 2298, 'finds_P': 0.6924, 'finds_R': 0.7435, 'finds_F1': 0.71704, 'mag_P': 0.6915, 'mag_R': 0.7134}

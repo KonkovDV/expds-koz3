@@ -1,0 +1,35 @@
+21:39:20 [ens6] mkens
+21:40:04 [ens6] decode
+21:40:26 [ens6] chain ens6_fs1_n0.75_p0.01_raw_x1 rc=0
+21:40:47 [ens6] chain ens6_fs1_n1_p0.01_raw_x1 rc=0
+21:45:25 gate_eval R done
+21:55:09 gate_eval D done
+22:02:40 [ens6m] mkens
+22:11:05 [ens6m] decode
+22:11:29 [ens6m] chain ens6m_fs1_n0.5_p0.02_raw_x1 rc=0
+22:11:42 [ens6m] chain ens6m_fs1_n0.75_p0.02_raw_x1 rc=0
+22:11:53 [ens6m] chain ens6m_fs1_n1_p0.02_raw_x1 rc=0
+22:12:01 [ens6m] chain ens6m_fs1_n1.5_p0.02_raw_x1 rc=0
+22:12:08 [ens6m] chain ens6m_fs1_n2_p0.02_raw_x1 rc=0
+22:12:20 [ens6m] chain ens6m_fs2_n0.5_p0.02_raw_x1 rc=0
+22:12:31 [ens6m] chain ens6m_fs2_n0.75_p0.02_raw_x1 rc=0
+22:12:41 [ens6m] chain ens6m_fs2_n1_p0.02_raw_x1 rc=0
+22:12:49 [ens6m] chain ens6m_fs2_n1.5_p0.02_raw_x1 rc=0
+22:12:55 [ens6m] chain ens6m_fs2_n2_p0.02_raw_x1 rc=0
+22:13:05 [ens6m] chain ens6m_fs3_n0.5_p0.02_raw_x1 rc=0
+22:13:14 [ens6m] chain ens6m_fs3_n0.75_p0.02_raw_x1 rc=0
+22:13:23 [ens6m] chain ens6m_fs3_n1_p0.02_raw_x1 rc=0
+22:13:30 [ens6m] chain ens6m_fs3_n1.5_p0.02_raw_x1 rc=0
+22:13:37 [ens6m] chain ens6m_fs3_n2_p0.02_raw_x1 rc=0
+22:13:48 [ens6m] chain ens6m_fs1_n1_p0.005_raw_x1 rc=0
+22:13:59 [ens6m] chain ens6m_fs2_n1_p0.005_raw_x1 rc=0
+22:17:18 scr ens6m done
+22:21:41 [ins] full fit present
+22:23:18 scr ens6m done2
+22:25:38 [ins] dump
+22:26:12 [ins] decode
+22:26:27 [ins] chain ins_fs1_n0.75_p0.01_raw_x1 rc=0
+22:26:35 [ins] chain ins_fs1_n1_p0.01_raw_x1 rc=0
+22:29:42 gate_eval INS done
+22:29:42 [ins] gate INS done
+22:38:42 gate_eval G done

@@ -1,0 +1,131 @@
+{
+ "lever": "L3m",
+ "base": 0.3146153226828423,
+ "base_comp": 0.35997711966639545,
+ "base_by_site_modality": {
+  "geo": 0.3307989154683743,
+  "li": 0.39235395137949214,
+  "sp_or": 0.10329834455768028,
+  "ae": 0.007758590391021577,
+  "or": 0.04282618971460377
+ },
+ "variants": {
+  "L3m=nl": {
+   "score": 0.3226193387828575,
+   "d": 0.008004016100015166,
+   "boot": {
+    "mean": 0.0021896582259692036,
+    "p5": -0.04197753408603028,
+    "p50": 0.00653415703667537,
+    "p95": 0.013399930382103372,
+    "p_gt0": 0.804,
+    "families": 103
+   },
+   "d_new34": -0.05448795122455072,
+   "d_optical": 0.014050544612091653,
+   "d_comp": 0.007352695143710231,
+   "d_by_site_modality": {
+    "geo": 0.00594,
+    "li": 0.00149,
+    "sp_or": 0.01955,
+    "ae": -0.00446,
+    "or": 0.02335
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.00057,
+    "kurgany_tselye": 0.00505,
+    "gorodishcha": 0.01901,
+    "arkhitektury": 0.0331,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.00966,
+    "finds_points": 0.01486
+   },
+   "floors_ok": false,
+   "param": "nl",
+   "sec": 6,
+   "ref_only": false,
+   "accept": false
+  },
+  "L3m=nl+aeonly": {
+   "score": 0.32221418372187416,
+   "d": 0.007598861039031846,
+   "boot": {
+    "mean": 0.0019087020789559524,
+    "p5": -0.04213531291917746,
+    "p50": 0.006217388988749101,
+    "p95": 0.013082993759479356,
+    "p_gt0": 0.7995,
+    "families": 103
+   },
+   "d_new34": -0.05448795122455072,
+   "d_optical": 0.014375069780382554,
+   "d_comp": 0.007178681887005212,
+   "d_by_site_modality": {
+    "geo": 0.00594,
+    "li": 0.00149,
+    "sp_or": 0.02058,
+    "ae": -0.004,
+    "or": 0.02335
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.00057,
+    "kurgany_tselye": 0.00505,
+    "gorodishcha": 0.01901,
+    "arkhitektury": 0.0331,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.01776,
+    "finds_points": 0.01486
+   },
+   "floors_ok": false,
+   "param": "nl+aeonly",
+   "sec": 7,
+   "ref_only": false,
+   "accept": false
+  },
+  "L3m_nested": {
+   "score": 0.3226264317171294,
+   "d": 0.00801110903428709,
+   "boot": {
+    "mean": 0.0021964140021330644,
+    "p5": -0.04196912256378021,
+    "p50": 0.006538059854011902,
+    "p95": 0.013403597580630075,
+    "p_gt0": 0.804,
+    "families": 103
+   },
+   "d_new34": -0.05448795122455072,
+   "d_optical": 0.01405919826289756,
+   "d_comp": 0.007357254010472825,
+   "d_by_site_modality": {
+    "geo": 0.00594,
+    "li": 0.00149,
+    "sp_or": 0.01955,
+    "ae": -0.00444,
+    "or": 0.02335
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": -0.00057,
+    "kurgany_tselye": 0.00505,
+    "gorodishcha": 0.01901,
+    "arkhitektury": 0.0331,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.00952,
+    "finds_points": 0.01486
+   },
+   "floors_ok": false,
+   "picks": [
+    "nl",
+    "nl",
+    "nl",
+    "nl",
+    "nl",
+    "nl",
+    "nl",
+    "nl+aeonly",
+    "nl",
+    "nl"
+   ],
+   "accept": false
+  }
+ }
+}

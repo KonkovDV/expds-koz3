@@ -1,0 +1,15 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+===== GEO P/R GATE (geo5 pool, official modality) =====
+regions: 18
+  C*         precision 0.676392   recall 0.691296
+  C*.maggr   precision 0.713486   recall 0.718465
+  C*.etgr    precision 0.538937   recall 0.662614
+  C*.terfl   precision 0.071856   recall 0.033898
+  REF        precision 0.664439   recall 0.784696
+  REF.maggr  precision 0.670509   recall 0.858561
+  REF.etgr   precision 0.571429   recall 0.516717
+  REF.terfl  precision 0.000000   recall 0.000000
+  v2_LB      precision 0.769418   recall 0.656489
+  honest Δ vs A (geo classes→global): +0.042262  surrogate≥0.012=True
+gate {"has_ref": true, "c_ge_v2_p": false, "c_ge_v2_r": true, "c_ge_ref_p": true, "c_ge_ref_r": false, "methods_ge_ref_minus_0.003": false, "method_deltas_r": {"maggr": -0.14009661831988818, "etgr": 0.145896656313227, "terfl": 0.03389830489322992}, "PASS_vs_ref": false, "PASS_elena_ready": false, "surrogate_honest_ge_0.012": true}

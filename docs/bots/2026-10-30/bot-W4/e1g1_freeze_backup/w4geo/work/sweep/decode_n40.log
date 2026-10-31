@@ -1,0 +1,14 @@
+decode 200_Судьбищи_2: 2 rasters 20s
+decode 201_Семибратнее_Городище_1: 1 rasters 0s
+decode 202_Семибратнее_Городище_2: 1 rasters 4s
+decode 203_Семибратнее_Городище_3: 1 rasters 3s
+decode 204_Семибратнее_Городище_4: 1 rasters 1s
+decode 205_Семибратнее_Городище_5: 1 rasters 2s
+decode 206_Семибратнее_Городище_6: 1 rasters 1s
+decode 207_Семибратнее_Городище_7: 1 rasters 1s
+decode 208_Гнёздово_Пойма: 2 rasters 0s
+decode 209_Гнёздово_Терраса_1: 2 rasters 0s
+decode 210_Гнёздово_Терраса_2: 2 rasters 1s
+decode 211_Гнёздово_Терраса_3: 3 rasters 1s
+decode 212_Гнёздово_Усадьба: 1 rasters 1s
+tags 4

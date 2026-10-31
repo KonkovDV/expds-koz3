@@ -1,0 +1,131 @@
+{
+ "lever": "L3a",
+ "base": 0.3146153226828423,
+ "base_comp": 0.35997711966639545,
+ "base_by_site_modality": {
+  "geo": 0.3307989154683743,
+  "li": 0.39235395137949214,
+  "sp_or": 0.10329834455768028,
+  "ae": 0.007758590391021577,
+  "or": 0.04282618971460377
+ },
+ "variants": {
+  "L3a=5k": {
+   "score": 0.31129019422789395,
+   "d": -0.0033251284549483673,
+   "boot": {
+    "mean": -0.003441186626032664,
+    "p5": -0.00742747811257925,
+    "p50": -0.003186532124589525,
+    "p95": -0.0002590073777485441,
+    "p_gt0": 0.0175,
+    "families": 103
+   },
+   "d_new34": -0.009527396870095628,
+   "d_optical": 0.00030638847830652405,
+   "d_comp": -0.00503004325051204,
+   "d_by_site_modality": {
+    "geo": 0.0,
+    "li": -0.00772,
+    "sp_or": 0.0,
+    "ae": 0.00044,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": -0.02306,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.00268,
+    "finds_points": 0.0
+   },
+   "floors_ok": false,
+   "param": "5k",
+   "sec": 6,
+   "ref_only": false,
+   "accept": false
+  },
+  "L3a=1k5k10k": {
+   "score": 0.31183528321521675,
+   "d": -0.0027800394676255613,
+   "boot": {
+    "mean": -0.00269987425129948,
+    "p5": -0.00868817233587527,
+    "p50": -0.0025491576317948073,
+    "p95": 0.0028892045969569555,
+    "p_gt0": 0.207,
+    "families": 103
+   },
+   "d_new34": -0.014458433142341243,
+   "d_optical": 0.007152876868066621,
+   "d_comp": -0.006479994440183434,
+   "d_by_site_modality": {
+    "geo": 0.0044,
+    "li": -0.01285,
+    "sp_or": 0.00962,
+    "ae": -0.00021,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": -0.01414,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.01319,
+    "finds_points": 0.0
+   },
+   "floors_ok": false,
+   "param": "1k5k10k",
+   "sec": 6,
+   "ref_only": false,
+   "accept": false
+  },
+  "L3a_nested": {
+   "score": 0.31108076922056754,
+   "d": -0.00353455346227477,
+   "boot": {
+    "mean": -0.0036596303086307673,
+    "p5": -0.007702124448855244,
+    "p50": -0.0033863177229338792,
+    "p95": -0.0004643928436463581,
+    "p_gt0": 0.0135,
+    "families": 103
+   },
+   "d_new34": -0.010060226459808197,
+   "d_optical": 0.00030638847830652405,
+   "d_comp": -0.005312713949234438,
+   "d_by_site_modality": {
+    "geo": 0.0,
+    "li": -0.00817,
+    "sp_or": 0.0,
+    "ae": 0.00044,
+    "or": 0.0
+   },
+   "per_class_dF1": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": -0.02448,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.00275,
+    "finds_points": 0.0
+   },
+   "floors_ok": false,
+   "picks": [
+    "5k",
+    "5k",
+    "1k5k10k",
+    "5k",
+    "5k",
+    "5k",
+    "5k",
+    "5k",
+    "5k",
+    "5k"
+   ],
+   "accept": false
+  }
+ }
+}

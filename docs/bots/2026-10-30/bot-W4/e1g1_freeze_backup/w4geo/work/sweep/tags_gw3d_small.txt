@@ -1,0 +1,4 @@
+gw3d_fs1_n0.75_p0.01_raw_x1
+gw3d_fs1_n0.75_p0.01_max_x1
+gw3d_fs1_n1_p0.01_raw_x1
+gw3d_fs1_n1_p0.01_max_x1

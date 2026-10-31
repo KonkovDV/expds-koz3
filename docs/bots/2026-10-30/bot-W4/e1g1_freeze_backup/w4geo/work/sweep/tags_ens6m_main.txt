@@ -1,0 +1,17 @@
+ens6m_fs1_n0.5_p0.02_raw_x1
+ens6m_fs1_n0.75_p0.02_raw_x1
+ens6m_fs1_n1_p0.02_raw_x1
+ens6m_fs1_n1.5_p0.02_raw_x1
+ens6m_fs1_n2_p0.02_raw_x1
+ens6m_fs2_n0.5_p0.02_raw_x1
+ens6m_fs2_n0.75_p0.02_raw_x1
+ens6m_fs2_n1_p0.02_raw_x1
+ens6m_fs2_n1.5_p0.02_raw_x1
+ens6m_fs2_n2_p0.02_raw_x1
+ens6m_fs3_n0.5_p0.02_raw_x1
+ens6m_fs3_n0.75_p0.02_raw_x1
+ens6m_fs3_n1_p0.02_raw_x1
+ens6m_fs3_n1.5_p0.02_raw_x1
+ens6m_fs3_n2_p0.02_raw_x1
+ens6m_fs1_n1_p0.005_raw_x1
+ens6m_fs2_n1_p0.005_raw_x1
