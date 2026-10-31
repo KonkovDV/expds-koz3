@@ -789,3 +789,4 @@
 - 31.10 11:14 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
 - 31.10 11:24 MSK | D→A | gordense-timing-k COMPLETE 239s but **INVALID**: xfer 4/175 tif; gor_v3_head.md5 487c48e4≠acb95c52 → GOR_DENSE_UNAVAILABLE; ON==OFF. Fix DS head+full xfer before rerun. Lease acc1 free. f234 RUNNING. No LB.
 - 31.10 11:24 MSK | Elena | away from PC — A autonomous watch/fix; no LB; protect 0.41238.
+- 31.10 11:25 MSK | A | Elena away: quota routine updated (f234 COMPLETE→gate+wake Elena; gordense only after head+xfer fix). Tip D: dmitrij DS head also 487c≠acb95c52 — copy won't fix; re-export or accept 487c for timing only.
