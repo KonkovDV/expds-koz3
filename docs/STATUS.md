@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+31.10 21:16 MSK | владелец | лицензии моделей сняты полностью; рабочий промт локализатора городищ DINOv3 на Kaggle | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md
+
 31.10 15:24 MSK | A | FR1h [post.frame_prior] honest-10 PASS vs base 0.31462 — не включать в default без «да»; перед zip: thr re-sweep + geo vs 0.769/0.656 | Δ+0.00409 P0.999 damaged+0.0107 | out/fr1h-gate/
 31.10 15:08 MSK | W2/A | r50c5 lidar cut honest-10 REJECT — не кандидат, на LB не класть | varb Δ−0.00513 P0.33; varb_kur Δ+0.00088 P0.56; base 0.31462; early-stop f01 PASS mean Li 0.4395 ≠ submit | out/r50c5-gate
 31.10 09:10 MSK | аудит | действующая база площадки, не перезаписывать без замера и «да» | 0.41238 | docs/LB_LOG.md
