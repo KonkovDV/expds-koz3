@@ -758,3 +758,15 @@
 - Do NOT fill second GPU slots or TPU with another kernel on same account (one session/account).
 - CPU pool empty is correct until ready work that does not interfere with this cut.
 - Elena did not re-check API; status RUNNING = A mark ~08:41 f01 / ~08:53 f234.
+- 31.10 09:30 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 09:39 MSK | A quota-fill | f01 (elena) + f234 (dmitrij) RUNNING; leases held; no fold1 verdict yet; plan t153u = no other fills; CPU pool idle by design.
+- 31.10 09:55 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 10:02 MSK | A quota-fill | f01 (elena) + f234 (dmitrij) still RUNNING; leases held; no fold1 verdict yet; per t153u no other fills.
+- 31.10 09:29 MSK | B→A | ACK t153u; fold1 pending.
+- 31.10 10:13 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+
+## 31.10 10:24 MSK — Elena t155u ETA correction
+- f01 hard end ~**14:41** (CNX_DEADLINE_H=6 from 08:41). Jobs sequential c5-sc:0 then :1; fold file inside kernel; report/export only when BOTH done. While RUNNING + no files → fold1 not in hand.
+- Do NOT plan from old c3-sc ~2h: this is ResNet-50 from scratch + relief build on f01 → plan from 14:41.
+- f234 CNX_DEADLINE_H=11.3 → ~**20:11** from 08:53 (3 folds). Keep until f01 STOP. No LB.
+- Elena did not re-check API RUNNING.
