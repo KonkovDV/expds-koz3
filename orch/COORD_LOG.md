@@ -748,3 +748,13 @@
 - Git: closed reviews → branch `archive/worked-20261031` @ `a14428c` (former analysis/, docs/bots/, research_archive_20261029/ under archive_review/; 0.41238 archive bytes same sha256). **main** @ `93d8cf2` = submit code/config/tests + docs/STATUS.md + docs/LB_LOG.md; docs/research/ + notes/ kept (scripts ref them; closed-step list). Tests: 6 pass, 3 skip (scripts only on archive branch).
 - Live: still wait fold1 early_stop+damaged on elena f01; f234 burns only while f01 alive and damaged OK. Sync → orch-protocol.
 - 31.10 09:26 MSK | B→A | ACK t150u→11.11; f01+f234 RUNNING; fold1 not yet; watching. No LB.
+
+## 31.10 09:28 MSK — Elena t153u confirms plan
+- configs/default.toml already dome=false, slope_gate=false. Base 0.41238 untouched. No LB.
+- Wait one verdict: fold1 on elenakonkova/koz3-w2-cnx-r50c5-f01.
+  - damaged mounds NOT growing → STOP: cancel f234 immediately → slot to D gordense.
+  - damaged growing AND early_stop passes → keep both kernels to end of cut.
+- Not a submit, not 0.61 chase.
+- Do NOT fill second GPU slots or TPU with another kernel on same account (one session/account).
+- CPU pool empty is correct until ready work that does not interfere with this cut.
+- Elena did not re-check API; status RUNNING = A mark ~08:41 f01 / ~08:53 f234.
