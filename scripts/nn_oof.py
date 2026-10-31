@@ -185,6 +185,9 @@ def main() -> None:
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
     ap.add_argument("--within-site-rank", type=float, default=0.0,
                     help="коэффициент шарнира порядка пиков на кадре; 0 — выключено")
+    ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--init-weights", default=None,
+                    help="чекпойнт для доучивания той же сети; без него старт с ImageNet")
     ap.add_argument("--center-unbiased", action="store_true",
                     help="гауссиана центра между клетками, без шипа в 1 (отдельный опыт, не рецепт сдачи)")
     ap.add_argument("--center-edge-ignore", action="store_true",
@@ -355,7 +358,7 @@ def main() -> None:
                     meta["classes"] = want
                     meta_path.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
-                            batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
+                            batch=args.batch, lr=args.lr, val_families=[val], workers=0, copy_paste=args.copy_paste,
                             seed=s if s else None, target=args.target,
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
@@ -364,7 +367,7 @@ def main() -> None:
                             flips_mode=args.flips, device=args.device,
                             large_kurgan_weight=args.large_kurgan_weight,
                             large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2,
-                            within_site_rank=args.within_site_rank)
+                            within_site_rank=args.within_site_rank, init_weights=args.init_weights)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
