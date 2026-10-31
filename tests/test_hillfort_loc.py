@@ -4,9 +4,11 @@ from shapely.geometry import Point
 
 from rasterio.transform import Affine
 
+import math
+
 from expds.hillfort_loc import (
-    apply_scene_gate, average_maps, grid_shape, locate, phase, pooled_tokens,
-    scene_probability, smooth_peak,
+    apply_scene_gate, average_maps, circle_at, grid_shape, locate, phase, pooled_tokens,
+    scene_probability, smooth_peak, to_uint8,
 )
 
 
@@ -110,6 +112,23 @@ def test_the_circle_sits_on_the_peak_cell():
     feat = locate(tokens, [head], 2, 2, Affine(2, 0, 0, 0, -2, 0), "a", crs="EPSG:3857")
     assert feat["threshold_group"] == "sp_dino_gor"
     assert feat["geom"].centroid.distance(Point(48.0, -48.0)) < 0.05
+
+
+def test_empty_pixels_do_not_set_the_stretch():
+    raw = np.array([0.0, 0.0, 1000.0, 4000.0], np.float32)
+    valid = np.array([False, False, True, True])
+    out = to_uint8(raw, valid)
+    assert int(out[2]) < 40
+    assert int(out[3]) > 200
+
+
+def test_two_metres_are_on_the_ground_not_in_mercator():
+    lat = math.radians(55.0)
+    y = 6378137.0 * math.log(math.tan(math.pi / 4 + lat / 2))
+    disk = circle_at(4_200_000.0, y, 2.0)
+    centre = disk.centroid
+    radius = max(math.hypot(px - centre.x, py - centre.y) for px, py in disk.exterior.coords)
+    assert abs(radius - 2.0 / math.cos(lat)) / (2.0 / math.cos(lat)) < 0.02
 
 
 def test_missing_scene_head_is_not_a_number():

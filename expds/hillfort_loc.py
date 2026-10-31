@@ -75,6 +75,11 @@ def pooled_tokens(model, image: np.ndarray, mean: np.ndarray, std: np.ndarray):
     registers = int(getattr(getattr(model, "config", None), "num_register_tokens", 0) or 0)
     tokens = hidden[:, 1 + registers :].detach().float().cpu().numpy()
     gh, gw = image.shape[0] // PATCH, image.shape[1] // PATCH
+    if tokens.shape[1] != gh * gw:
+        raise ValueError(
+            f"hillfort_loc: токенов {tokens.shape[1]}, клеток кадра {gh * gw}. "
+            "Число регистров в config не совпало с выходом сети, карта была бы сдвинута."
+        )
     width = tokens.shape[-1]
     straight = tokens[0].reshape(gh, gw, width)
     mirror = tokens[1].reshape(gh, gw, width)[:, ::-1]
@@ -171,6 +176,23 @@ def load_pack(path: str):
     return heads, scene, mean, std
 
 
+def to_uint8(raw: np.ndarray, valid: np.ndarray | None = None) -> np.ndarray:
+    """Яркость в 0…255. Процентили только по измеренным пикселям, пустые в растяжку не входят."""
+    raw = np.asarray(raw, np.float32)
+    sample = raw[valid] if valid is not None else raw.reshape(-1)
+    sample = sample[np.isfinite(sample)]
+    if sample.size == 0:
+        return np.zeros(raw.shape, np.uint8)
+    if float(sample.max()) <= 1.5:
+        scaled = raw * 255.0
+    elif float(sample.max()) > 255.0:
+        lo, hi = np.percentile(sample, (1, 99))
+        scaled = (raw - lo) / max(float(hi - lo), 1e-6) * 255.0
+    else:
+        scaled = raw
+    return np.clip(scaled, 0, 255).astype(np.uint8)
+
+
 def read_rgb(path, side: int):
     """Кадр длинной стороной около side. Возвращает uint8 HWC, аффин этой сетки и CRS."""
     import rasterio
@@ -186,14 +208,14 @@ def read_rgb(path, side: int):
         # Долгая сторона сжата: один пиксель сетки покрывает (ширина_снимка / ширина_сетки) пикселей файла.
         transform = ds.transform * Affine.scale(ds.width / width, ds.height / height)
         crs = ds.crs.to_string() if ds.crs is not None else None
-    if raw.shape[0] == 1:
-        raw = np.repeat(raw, 3, axis=0)
-    if float(raw.max()) <= 1.5:
-        raw = raw * 255.0
-    elif float(raw.max()) > 255.0:
-        lo, hi = np.percentile(raw, (1, 99))
-        raw = (raw - lo) / max(float(hi - lo), 1e-6) * 255.0
-    image = np.clip(raw, 0, 255).astype(np.uint8).transpose(1, 2, 0)
+        nodata = ds.nodata
+    valid = np.isfinite(raw)
+    if nodata is not None:
+        valid &= raw != float(nodata)
+    image = to_uint8(raw, valid)
+    if image.shape[0] == 1:
+        image = np.repeat(image, 3, axis=0)
+    image = image.transpose(1, 2, 0)
     return image, transform, crs
 
 
