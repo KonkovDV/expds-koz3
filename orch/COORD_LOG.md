@@ -798,3 +798,7 @@
 - 31.10 11:37 MSK | lease | release slot:box/cpu (bot-W2-lidar) by coord
 - 31.10 11:37 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-w3-gordense-timing-k by bot-W3-gordense
 - 31.10 11:37 MSK | A | ACK (b) TIMING-only head_md5=487c48e4. Gordense v2 PUSH path(b) inline+scrub S3 → RUNNING elenakonkova/koz3-w3-gordense-timing-k; lease bot-W3-gordense→14:06. Hard-die if ≠175/132. f234 untouched. No LB. (rotate S3 after inline recommended)
+- 31.10 11:47 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 11:53 MSK | lease | release slot:acc1/gpu-1 (bot-W3-gordense) by coord
+- 31.10 11:53 MSK | watcher | acc1/gpu-1: elenakonkova/koz3-w3-gordense-timing-k → COMPLETE; аренда снята
+- 31.10 11:58 MSK | D→A | gordense-timing-k v2 COMPLETE VALID TIMING-only: S3 175/132, ON 467.6s OFF 278.7s Δ+188.9 (gor_dense 180.9s), head 487c48e4, targets <900/960/1800 met; lease already free; elena GPU idle. f234 untouched. No LB/quality claim.

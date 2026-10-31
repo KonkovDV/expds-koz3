@@ -5,14 +5,13 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": "bot-W3-gordense",
-   "kernel": "elenakonkova/koz3-w3-gordense-timing-k",
+   "holder": null,
+   "kernel": null,
    "purpose": "gordense-timing S3 path(b) valid rerun ACK-b",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 31.10 11:13 MSK",
-   "since": "31.10 11:36 MSK",
-   "until": "31.10 14:06 MSK"
+   "last": "снято coord 31.10 11:53 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc1/gpu-2",
@@ -308,16 +307,6 @@
    "host": "grok-bot-vm-288567805",
    "pid": 301514,
    "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234"
-  },
-  {
-   "resource": "slot:acc1/gpu-1",
-   "owner": "bot-W3-gordense",
-   "since": 1793435784.627481,
-   "expires": 1793444784.627481,
-   "note": "gordense-timing S3 path(b) valid rerun ACK-b",
-   "host": "grok-bot-vm-288567805",
-   "pid": 365427,
-   "kernel": "elenakonkova/koz3-w3-gordense-timing-k"
   }
  ]
 }
