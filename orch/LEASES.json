@@ -5,13 +5,14 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": null,
+   "holder": "bot-W3-gordense",
    "kernel": null,
-   "purpose": "r50c5-f01 path(b) inline+scrub fold1",
+   "purpose": "gordense-timing elena after f01 PASS; D push",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
    "last": "снято bot-W2-lidar 31.10 11:03 MSK",
-   "state": "свободен"
+   "since": "31.10 11:04 MSK",
+   "until": "31.10 13:04 MSK"
   },
   {
    "slot": "acc1/gpu-2",
@@ -344,6 +345,15 @@
    "host": "grok-bot-vm-288567805",
    "pid": 301514,
    "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234"
+  },
+  {
+   "resource": "slot:acc1/gpu-1",
+   "owner": "bot-W3-gordense",
+   "since": 1793433868.456,
+   "expires": 1793441068.456,
+   "note": "gordense-timing elena after f01 PASS; D push",
+   "host": "grok-bot-vm-288567805",
+   "pid": 349234
   }
  ]
 }

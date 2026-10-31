@@ -780,3 +780,5 @@
 - Damaged: f0 0.502 / f1 0.792 (growing vs B's c3-sc s2 refs). Tselye f0 0.295 / f1 0.081. kurgan_mean_f0_f1 0.399.
 - Rule keep: f234 still RUNNING dmitrijkv (~20:11). Not cancelled. Next full gate after f234 COMPLETE.
 - Lease: slot:acc1/gpu-1 released (elena free). GO D gordense-timing on elena (adapt from dmitrijkv kernel); do not touch f234. No LB.
+- 31.10 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense до 31.10 13:04 MSK gordense-timing elena after f01 PASS; D push
+- 31.10 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense 2h gordense-timing elena (D GO)
