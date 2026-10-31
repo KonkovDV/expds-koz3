@@ -106,6 +106,37 @@ def small_component_weights(mask, weight: float, max_frac: float = 0.002, grow_p
     return torch.from_numpy(out).to(mask.device)
 
 
+def large_component_weights(mask, class_weights, min_px: float, grow_px: int = 2):
+    """Вес потери N×K×H×W для КРУПНЫХ насыпей (sp_large, 31.10): противоположность small_component_weights.
+
+    class_weights — множитель по каналу класса (1.0 — канал не трогать). Компонента маски класса,
+    площадь которой не меньше min_px пикселей (порог в м² эталона, пересчитанный вызывающим кодом
+    через шаг и сжатие кэша), получает свой вес с запасом grow_px. Все веса 1 — None (потеря как раньше).
+    """
+    import torch
+    from scipy import ndimage
+
+    cw = [float(w) for w in class_weights]
+    if all(w == 1.0 for w in cw):
+        return None
+    binary = mask.detach().cpu().numpy() > 0.5
+    n, k, h, w = binary.shape
+    out = np.ones((n, k, h, w), np.float32)
+    for i in range(n):
+        for c in range(k):
+            if c >= len(cw) or cw[c] == 1.0 or not binary[i, c].any():
+                continue
+            labels, nlab = ndimage.label(binary[i, c])
+            sizes = ndimage.sum_labels(np.ones_like(labels), labels, index=np.arange(1, nlab + 1))
+            big = np.flatnonzero(sizes >= float(min_px)) + 1
+            if big.size:
+                zone = np.isin(labels, big)
+                if grow_px > 0:
+                    zone = ndimage.binary_dilation(zone, iterations=int(grow_px))
+                out[i, c][zone] = cw[c]
+    return torch.from_numpy(out).to(mask.device)
+
+
 def init_focal_bias(model, prior: float = 0.01) -> None:
     """Стартовая вероятность пика около prior, а не 0,5.
 

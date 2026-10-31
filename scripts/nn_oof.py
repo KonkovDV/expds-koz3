@@ -191,6 +191,11 @@ def main() -> None:
                     help="читать бит «не учить» кэша (--ignore-other-layers): объекты других слоёв — не фон")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="префикс классов кэша: биты маски идут в этом порядке")
+    ap.add_argument("--large-kurgan-weight", type=float, default=1.0,
+                    help="sp_large: вес пика кургана от --large-area-m2; 1 — выключено")
+    ap.add_argument("--large-damaged-weight", type=float, default=1.0,
+                    help="sp_large: вес пика повреждённого кургана от --large-area-m2; 1 — выключено")
+    ap.add_argument("--large-area-m2", type=float, default=1000.0)
     ap.add_argument("--repeat-regions", default=None,
                     help="файл участков, чьи тайлы повторяются в обучении (семья проверки — нет)")
     ap.add_argument("--repeat", type=int, default=1, help="сколько раз такой тайл входит в эпоху")
@@ -354,7 +359,9 @@ def main() -> None:
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
                             center_spike=not args.center_unbiased, center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                             photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
-                            flips_mode=args.flips, device=args.device)
+                            flips_mode=args.flips, device=args.device,
+                            large_kurgan_weight=args.large_kurgan_weight,
+                            large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)

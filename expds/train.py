@@ -443,6 +443,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           channel_dropout: float = 0.0, paste_blend: float = 0.0,
           paste_scale: tuple[float, float] = (1.0, 1.0), elastic: float = 0.0,
           small_object_weight: float = 1.0, device: str | None = None,
+          large_kurgan_weight: float = 1.0, large_damaged_weight: float = 1.0, large_area_m2: float = 1000.0,
           require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
           select_min_epoch: int = 1, center_match_m: float = 0.0,
           center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False) -> dict:
@@ -457,6 +458,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     """
     if small_object_weight != 1.0 and target != "centers":
         raise ValueError("вес мелких насыпей входит в потерю карты центров: нужен target=centers")
+    large_on = large_kurgan_weight != 1.0 or large_damaged_weight != 1.0
+    if large_on and target != "centers":
+        raise ValueError("вес крупных насыпей (sp_large) входит в потерю карты центров: нужен target=centers")
+    if large_on and small_object_weight != 1.0:
+        raise ValueError("sp_large: вес крупных и вес мелких насыпей одновременно не поддерживаются")
+    no_pre = small_object_weight != 1.0 or large_on
     import segmentation_models_pytorch as smp
     import torch
     from torch.utils.data import DataLoader
@@ -579,7 +586,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.warning("copy-paste выключен: тайлы не в видеопамяти")
         ch = ()
     pre_target = None
-    if center and small_object_weight == 1.0 and scale_aug <= 0:
+    if center and not no_pre and scale_aug <= 0:
         from .centers import gaussians_from_binary as _gfb
 
         def _pre_target(ym):
@@ -601,7 +608,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         paste_scale=paste_scale, elastic=elastic,
                         precompute_target=pre_target)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits,
-                        precompute_target=_pre_target if (center and small_object_weight == 1.0) else None)
+                        precompute_target=_pre_target if (center and not no_pre) else None)
         n_steps = len(g_tr) // batch
 
         def train_batches():
@@ -654,8 +661,24 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     t = torch.where((y[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
                 return t
 
+            if large_on:
+                from .centers import large_component_weights
+                _res = float(meta.get("res") or 1.0)
+                _shr = float(meta.get("shrink") or 0.0)
+                _min_px = float(large_area_m2) * (1.0 - _shr) ** 2 / (_res * _res)
+                _cls = list(meta["classes"])[:k]
+                _cw = [large_damaged_weight if c == "kurgany_povrezhdennye" else
+                       large_kurgan_weight if c.startswith("kurgany") else 1.0 for c in _cls]
+                log.info("sp_large: вес крупных насыпей %s, порог %.0f м² эталона = %.1f пикс маски (шаг %.2f, сжатие %.2f)",
+                         dict(zip(_cls, _cw)), large_area_m2, _min_px, _res, _shr)
+
             def batch_loss(logits, y, precomputed: bool = False):
-                wmap = None if precomputed else small_component_weights(y[:, :k], small_object_weight)
+                if precomputed:
+                    wmap = None
+                elif large_on:
+                    wmap = large_component_weights(y[:, :k], _cw, _min_px)
+                else:
+                    wmap = small_component_weights(y[:, :k], small_object_weight)
                 if not precomputed:
                     y = prepare(y)
                 loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
@@ -842,6 +865,11 @@ def _cli() -> None:
                     help="завершить работу с ошибкой, если GPU недоступен (защита от тихого отката на CPU в облаке)")
     ap.add_argument("--small-object-weight", type=float, default=1.0,
                     help="вес потери насыпи мельче 0,2 %% кадра (карта центров); 1 — без него")
+    ap.add_argument("--large-kurgan-weight", type=float, default=1.0,
+                    help="sp_large: вес пика кургана от --large-area-m2 (целые и прочие курганы); 1 — выключено")
+    ap.add_argument("--large-damaged-weight", type=float, default=1.0,
+                    help="sp_large: вес пика повреждённого кургана от --large-area-m2; 1 — выключено")
+    ap.add_argument("--large-area-m2", type=float, default=1000.0, help="sp_large: порог площади эталона, м²")
     ap.add_argument("--min-gpus", type=int, default=0, help="минимум видимых GPU при --require-gpu")
     ap.add_argument("--ema-warmup", action="store_true", help="EMA с разгоном decay=min(ema,(1+t)/(10+t))")
     ap.add_argument("--select-min-epoch", type=int, default=1, help="чекпойнт не раньше этой эпохи")
@@ -867,6 +895,8 @@ def _cli() -> None:
                 center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                 channel_dropout=args.channel_dropout, paste_blend=args.paste_blend,
                 elastic=args.elastic, small_object_weight=args.small_object_weight, device=args.device, require_gpu=args.require_gpu,
+                large_kurgan_weight=args.large_kurgan_weight, large_damaged_weight=args.large_damaged_weight,
+                large_area_m2=args.large_area_m2,
                 min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
                 center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
                 center_pre_flip=args.center_pre_flip)
