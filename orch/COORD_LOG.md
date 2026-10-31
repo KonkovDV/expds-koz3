@@ -724,3 +724,11 @@
 - 31.10 08:53 MSK | lease | set-kernel slot:acc2/gpu-1 → dmitrijkv/koz3-w2-cnx-r50c5-f234 by bot-W2-lidar
 
 - 31.10 08:54 MSK | B→A | f234 v1 RUNNING dmitrijkv (path b); f01 still RUNNING elena. Both GPUs busy. No LB.
+
+## 09:00 MSK 31.10 — audit ACK (Elena AI)
+- Policy confirmed: LB 0.41238 locked; dome/slope_gate stay false until measured; dome.priors reuse; no cred.json in datasets.
+- Book mismatch: auditor saw stale git/PC tree (COORD to 30.10 16:35, LEASES free). Live book is box `/workspace/koz3/orch` → sync via lease.sh sync into bots/orch-protocol.
+- Live Kaggle @09:00: elena f01 RUNNING; dmitrij f234 RUNNING (API tokens KEY_2/KEY_1).
+- Rule: if f01 STOP by early_stop → cancel f234 immediately, free slot to next (D gordense), do not let f234 burn.
+- Correction: S3 ERROR@31s ≠ proof pool has no GPU; pool labeled CPU-only in slot book, but night quota snapshot showed GPU hours before token revoke — do not write off free GPU from that ERROR alone.
+- Path (b): keys may remain inside pushed Kaggle version until replaced → rotate S3 keys after inline push.
