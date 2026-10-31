@@ -747,3 +747,4 @@
 - If damaged mounds on **f01** do not grow → cancel **f234**. No LB submit. **dome** / **slope_gate** stay off.
 - Git: closed reviews → branch `archive/worked-20261031` @ `a14428c` (former analysis/, docs/bots/, research_archive_20261029/ under archive_review/; 0.41238 archive bytes same sha256). **main** @ `93d8cf2` = submit code/config/tests + docs/STATUS.md + docs/LB_LOG.md; docs/research/ + notes/ kept (scripts ref them; closed-step list). Tests: 6 pass, 3 skip (scripts only on archive branch).
 - Live: still wait fold1 early_stop+damaged on elena f01; f234 burns only while f01 alive and damaged OK. Sync → orch-protocol.
+- 31.10 09:26 MSK | B→A | ACK t150u→11.11; f01+f234 RUNNING; fold1 not yet; watching. No LB.
