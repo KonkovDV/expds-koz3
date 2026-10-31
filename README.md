@@ -6,10 +6,10 @@
 
 ## Состояние на 29.10
 
-Обновлено ~12:45 МСК. **Единая точка входа — [`docs/STATUS_2026-10-29.md`](docs/STATUS_2026-10-29.md)**: LB, P/R по типам, правила, сборки v2/v3/v4, принятое и отклонённое, разбор крупных объектов, план до 11.11, риски, ветки. Отчёты ботов за 29.10 — [`docs/bots/2026-10-29/`](docs/bots/2026-10-29/README.md). Поправки — [`CHANGELOG.md`](CHANGELOG.md).
+Действующая сводка — [`docs/STATUS.md`](docs/STATUS.md): база площадки 0,41238. Срез 29.10 — [`docs/STATUS_2026-10-29.md`](docs/STATUS_2026-10-29.md). Отчёты ботов перенесены в [`archive_review/docs_bots/`](archive_review/docs_bots/), код разборов — в [`archive_review/analysis/`](archive_review/analysis/). Ничего из этого не удалено. Поправки — [`CHANGELOG.md`](CHANGELOG.md).
 
 - **~12:45:**
-  - **v3 `36af6b7`** — zip `9ec25962…`, ждёт сквозного прогона на ПК (`docs/bots/2026-10-29/bot-7/work6/pc/pc_e2e_v3.ps1`). Ветка: `bots/bot7-candidate-v3-nomodels` @ `dd58b4c`.
+  - **v3 `36af6b7`** — zip `9ec25962…`, ждёт сквозного прогона на ПК (`archive_review/docs_bots/2026-10-29/bot-7/work6/pc/pc_e2e_v3.ps1`). Ветка: `bots/bot7-candidate-v3-nomodels` @ `dd58b4c`.
   - **План v4:** v3 + патчи бота 3 `e3c4f41` (3857) и `e0ec0ff` (dedupe) + локализатор городищ бота 5 (+0,01286 на сидах 5–9, 5/5; только пакетом, совместимость с R решает бот 10) + D-FINE Ae/Or всех классов.
   - **D-FINE Ae/Or:** обучаются Kaggle-ядра `koz3-dfine-ae`/`-or`. Фаза инференса за выключенным флагом `[dfine_aeor]` — `bots/bot6-aeor-detect-nomodels` @ `aba432d`, 29 тестов; при выключенном флаге выход идентичен v3.
   - **Принято:** ORGATE +0,0019 поверх R (только пакетом), FR1h +0,0041.
@@ -28,7 +28,7 @@
 - **Аудит 29.10:** 0,61 не подтверждается, реалистично 0,42–0,48 (≈0,50). Главный рычаг — калибровка по участкам и ConvNeXt-лидар (0,713 против 0,476 при калибровке по участку). Функции аудита выключены по умолчанию до honest-10. Веса метрики: архитектура 10, фортификации 5.
 - Предобученные веса: можно COCO, ImageNet(-21k/22k), DINOv2, Objects365, ADAF; нельзя ultralytics/YOLO, DINOv3, SAM3, SegFormer `mit_*`, некоммерческие. Данные КОЗ №2 «Сканирование» (`ackrome/satelite-scan`) **запрещены** и удалены.
 - Kaggle-очередь: c3-f4 → dfine-spor-final → c3in-f01 → ae_o2c → c3in-f23.
-- Выгрузка 29.10 — [`docs/bots/2026-10-29/README.md`](docs/bots/2026-10-29/README.md) (там же список веток `bots/*`).
+- Выгрузка 29.10 — [`archive_review/docs_bots/2026-10-29/README.md`](archive_review/docs_bots/2026-10-29/README.md) (там же список веток `bots/*`).
 
 ## Выход
 
@@ -164,11 +164,11 @@ python -m expds.metric sweep --pred work/oof.geojson --gt work/gt_train.geojson 
 | `docs/EXPERIMENTS.md` | все замеры: Δ, P, LOFO, статус, ссылка на отчёт |
 | `docs/REASONING_AND_DISCOVERY_LOG_2026-10-28.md` | журнал рассуждений и находок |
 | `docs/research/2026-10-28/` | аудит, OSINT, SOTA, общие правила, ускорение |
-| `docs/bots/2026-10-28/` | отчёты ботов 2–10 и результаты замеров |
+| `archive_review/docs_bots/2026-10-28/` | отчёты ботов 2–10 и результаты замеров |
 | `analysis/2026-10-28/bots/` | скрипты анализа ботов |
 | `kaggle/2026-10-28/` | исходники Kaggle-ядер и логи прогонов |
 | `patches/2026-10-28/` | патчи ботов |
-| `docs/bots/2026-10-29/`, `analysis/2026-10-29/`, `kaggle/2026-10-29/`, `patches/2026-10-29/`, `docs/research/2026-10-29/` | выгрузка 29.10 (дельта к 28.10) |
+| `archive_review/docs_bots/2026-10-29/`, `archive_review/analysis/2026-10-29/`, `kaggle/2026-10-29/`, `patches/2026-10-29/`, `docs/research/2026-10-29/` | выгрузка 29.10 (дельта к 28.10) |
 | ветки `bots/*` | код ботов, не слитый в main |
 
 ## Ограничения
