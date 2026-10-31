@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""KOZ3 within-site rank pilot (docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md @ 5fd33ce, Elena t211u 31.10).
-Finetune the SAME map models/spor_focal_r18.pt (ResNet-18 U-Net centres, kurgany_povrezhdennye/tselye, sp_or):
-loss = expds.centers.focal_center_loss + expds.centers.site_rank_loss (coeff 1, margin 1; GT centres vs <=8 loudest
-false peaks per train site, re-mined every round). Pilot family held out of tiles and pairs; used only for the stop.
+"""KOZ3 within-site rank pilot (PROMPT_WITHIN_SITE_RANK_20261031 @ f127db8, Elena t212u): one nn_oof run, fold 0.
+scripts/nn_oof.py --init-weights spor_focal_r18.pt --within-site-rank 1 --target centers --center-loss focal --epochs 4
+--batch 32 --lr 1e-4 --center-sigma 0 --center-radius 4 --center-min-dist 12 --fold-indices 0 (family Курганы out of train), no --ema.
 Stop metrics: scripts/wsr_peaks.py (old/new map, pilot family) + scripts/wsr_eval.py. One GPU, no credentials, no LB."""
 import os, sys, subprocess, time, json, tarfile, shutil, importlib, importlib.metadata
 from pathlib import Path
 T0 = time.time()
-DEADLINE_H = float(os.environ.get("WSR_DEADLINE_H", "5.5"))
+DEADLINE_H = float(os.environ.get("WSR_DEADLINE_H", "7.6"))   # cap 8h (Elena t212u)
 PILOT = os.environ.get("WSR_PILOT", "Курганы")
-ROUNDS = int(os.environ.get("WSR_ROUNDS", "6")); STEPS = int(os.environ.get("WSR_STEPS", "200"))
 OUT = Path("/kaggle/working"); W = Path("/tmp/wsr"); W.mkdir(parents=True, exist_ok=True)
 def log(*a): print(f"[{time.time()-T0:7.0f}s]", *a, flush=True)
 def status(s): (OUT / "STATUS.txt").write_text(s + "\n"); log("STATUS", s)
@@ -49,6 +47,11 @@ if ct:
     CACHE = W / "cache_spor_r1_t128_s25"
 else:
     CACHE = next(p.parent for p in INP.rglob("meta.json") if (p.parent / "index.csv").exists() and "spor" in str(p.parent))
+rt = find("root_fold0.tar"); TROOT = W / "troot"; TROOT.mkdir(exist_ok=True)
+if rt:
+    with tarfile.open(rt) as tf: tf.extractall(TROOT)
+else:
+    shutil.copytree(find("root_fold0", True), TROOT, dirs_exist_ok=True, symlinks=True)
 # raw SpOr rasters (koz3-dino-gor-raw raw/<region>/...) -> /tmp/wsr/root with UTM.json
 RAW = max((p for p in INP.rglob("raw") if p.is_dir()), key=lambda p: sum(1 for q in p.iterdir() if q.is_dir() and any("SpOr" in x.name for x in q.iterdir())))
 ROOT = W / "root"; ROOT.mkdir(exist_ok=True)
@@ -61,7 +64,7 @@ for reg in RAW.iterdir():
             q = d / f.relative_to(reg); q.parent.mkdir(parents=True, exist_ok=True)
             if not q.exists(): os.symlink(f, q)
     if reg.name in utm: (d / "UTM.json").write_text(json.dumps(utm[reg.name], ensure_ascii=False), encoding="utf-8")
-log("inputs", INIT, GT, CACHE, RAW, len(list(ROOT.iterdir())), "regions")
+log("inputs", INIT, GT, CACHE, RAW, len(list(TROOT.iterdir())), "train-root regions,", len(list(ROOT.iterdir())), "regions")
 sys.path.insert(0, str(W))
 import logging; logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s", stream=sys.stdout)
 env = {**os.environ, "PYTHONUNBUFFERED": "1", "PYTHONPATH": str(W)}
@@ -69,24 +72,33 @@ def run(cmd, logf, budget):
     with open(logf, "w") as fh:
         try: return subprocess.run(cmd, cwd=W, env=env, stdout=fh, stderr=subprocess.STDOUT, timeout=budget).returncode
         except subprocess.TimeoutExpired: return "timeout"
-# 1) old map on pilot family (reference for the stop; also the 598-like set)
+# 1) old map on pilot family (reference for the stop)
 rc = run([sys.executable, "-X", "utf8", "scripts/wsr_peaks.py", "--root", str(ROOT), "--weights", str(INIT),
           "--out", str(OUT / "pilot_old.geojson"), "--families", PILOT], OUT / "peaks_old.log", 3600)
 log("old pilot peaks rc", rc)
 if rc != 0: status(f"FAILED old peaks rc={rc}"); raise SystemExit(1)
-# 2) finetune (pilot family out)
-from expds.site_rank import finetune
-budget_s = DEADLINE_H * 3600 - (time.time() - T0) - 1800   # 30 min reserve for pilot peaks + eval
-log("finetune budget s", round(budget_s))
-try:
-    res = finetune(str(INIT), str(CACHE), str(ROOT), str(GT), str(OUT / "spor_focal_r18_wsr.pt"), [PILOT],
-                   rounds=ROUNDS, steps_per_round=STEPS, deadline_s=budget_s, report_path=str(OUT / "train_history.json"))
-except Exception as e:
-    import traceback; traceback.print_exc(); status(f"FAILED finetune {type(e).__name__}: {e}"); raise SystemExit(1)
-log("finetune", json.dumps({k: v for k, v in res.items() if k != "history"}))
+# 2) ONE nn_oof run, exact recipe of PROMPT_WITHIN_SITE_RANK_20261031 @ f127db8 (fold 0 = family Курганы)
+work = W / "work"
+cmd = [sys.executable, "-X", "utf8", "scripts/nn_oof.py", "--markup", "sp_or", "--root", str(TROOT), "--cache", str(CACHE),
+       "--work", str(work), "--out", str(OUT / "fold0_oof.geojson"), "--folds", "5", "--fold-indices", "0",
+       "--classes", "kurgany_povrezhdennye", "kurgany_tselye", "--target", "centers", "--center-loss", "focal",
+       "--within-site-rank", "1", "--init-weights", str(INIT), "--epochs", "4", "--batch", "32", "--lr", "1e-4",
+       "--center-sigma", "0", "--center-radius", "4", "--center-min-dist", "12", "--device", "cuda:0",
+       "--config", str(W / "configs" / "default.toml")]
+log("run", " ".join(cmd[3:]))
+budget = DEADLINE_H * 3600 - (time.time() - T0) - 1800
+rc = run(cmd, OUT / "nn_oof.log", budget)
+log("nn_oof rc", rc)
+for f in ("fold0/fold_report.json", "fold0/done.json", "fold0/sp_or.pt"):
+    p = work / f
+    if p.exists(): shutil.copy(p, OUT / Path(f).name)
+txt = (OUT / "nn_oof.log").read_text(errors="replace")
+INIT_LOGGED = "старт с" in txt; log("init-weights logged", INIT_LOGGED)
+NEW = OUT / "sp_or.pt"
+if rc != 0 or not NEW.exists(): status(f"FAILED nn_oof rc={rc}"); raise SystemExit(1)
 torch.cuda.empty_cache()
-# 3) new map on pilot family, 4) stop metrics
-rc = run([sys.executable, "-X", "utf8", "scripts/wsr_peaks.py", "--root", str(ROOT), "--weights", str(OUT / "spor_focal_r18_wsr.pt"),
+# 3) new map on pilot family, 4) stop metrics (same procedure as the 598 / median-18)
+rc = run([sys.executable, "-X", "utf8", "scripts/wsr_peaks.py", "--root", str(ROOT), "--weights", str(NEW),
           "--out", str(OUT / "pilot_new.geojson"), "--families", PILOT], OUT / "peaks_new.log", 3600)
 log("new pilot peaks rc", rc)
 if rc != 0: status(f"FAILED new peaks rc={rc}"); raise SystemExit(1)
@@ -99,7 +111,7 @@ ev = json.loads((OUT / "pilot_eval.json").read_text(encoding="utf-8"))
 cmp_ = ev["compare"]; d0 = ev["f1_ref"]["kurgany_povrezhdennye"]["f1_at_sub_thr"]; d1 = ev["f1_new"]["kurgany_povrezhdennye"]["f1_at_sub_thr"]
 gate_median = cmp_["median_fp_louder_became"] is not None and cmp_["median_fp_louder_became"] <= 2
 gate_f1 = d1 >= d0
-report = {"prompt": "PROMPT_WITHIN_SITE_RANK_20261031 @ 5fd33ce", "pilot_family": PILOT, "wall_s": round(time.time() - T0),
+report = {"prompt": "PROMPT_WITHIN_SITE_RANK_20261031 @ f127db8", "pilot_family": PILOT, "wall_s": round(time.time() - T0),
           "median_fp_louder_was": cmp_["median_fp_louder_was"], "median_fp_louder_became": cmp_["median_fp_louder_became"],
           "median_fp_louder_became_with_inpoly_peak": cmp_["median_fp_louder_became_with_inpoly_peak"],
           "damaged_f1_old": d0, "damaged_f1_new": d1, "gate_median_le_2": gate_median, "gate_damaged_f1_not_worse": gate_f1,
@@ -109,7 +121,7 @@ report = {"prompt": "PROMPT_WITHIN_SITE_RANK_20261031 @ 5fd33ce", "pilot_family"
                      "gap_to_site_max_became": cmp_["median_gap_to_site_max_became"], "rank_was": cmp_["median_rank_was"],
                      "rank_became": cmp_["median_rank_became"]},
           "f1_ref": ev["f1_ref"], "f1_new": ev["f1_new"], "ref_summary": ev["ref"], "new_summary": ev.get("new"),
-          "train": {k: v for k, v in res.items()}}
+          "train_cmd": " ".join(cmd[3:]), "init_weights_logged": INIT_LOGGED}
 (OUT / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
 print(json.dumps(report, ensure_ascii=False, indent=1))
 status(f"DONE {report['verdict']} {time.time()-T0:.0f}s")
