@@ -732,3 +732,11 @@
 - Rule: if f01 STOP by early_stop → cancel f234 immediately, free slot to next (D gordense), do not let f234 burn.
 - Correction: S3 ERROR@31s ≠ proof pool has no GPU; pool labeled CPU-only in slot book, but night quota snapshot showed GPU hours before token revoke — do not write off free GPU from that ERROR alone.
 - Path (b): keys may remain inside pushed Kaggle version until replaced → rotate S3 keys after inline push.
+- 31.10 09:06 MSK | A routine quota&idle | GPU оба заняты: elena r50c5-f01 RUNNING (с 08:41), dmitrijkv r50c5-f234 RUNNING (с 08:53), аренды совпадают. TPU acc1/acc2 свободны, ready TPU/CPU dispatch нет (W2-tpu hold). Box load 0.2, mem avail ~6G (slot:box/cpu у B). Ждём fold1 early_stop → правило f01 STOP ⇒ cancel f234. Не будим. No LB.
+
+## 09:08 MSK 31.10 — Elena goal reframed
+- Not 0.61 today. Protect archive **0.41238**; r50c5 = lidar check only (success = measured lidar gain, not LB).
+- Gap ~0.20 to 0.61; honest lever ceiling ~0.46–0.48; oracle rerank >0.61 never reached by trained rerank.
+- Holes: lidar P/R~0.52/0.50; sat R **0.255** (biggest vs 0.64); aero R0.013; ortho R0.140; 5–10k m² R0; geophys in archive strong — do not break again.
+- dome/slope_gate/asa/hillshade OFF in submit. Measure gate: Δ≥0.003, P(better)≥0.9, no damaged drop — then talk sat separately.
+- Checklist night «one kernel» stale; truth = COORD 08:41–08:54 (elena f01 + dmitrij f234).
