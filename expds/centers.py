@@ -189,6 +189,23 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, wei
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
+def site_rank_loss(gt_logits, gt_cls, fp_logits, fp_cls, margin: float = 1.0):
+    """Порядок пиков на участке (PROMPT_WITHIN_SITE_RANK_20261031): max(0, margin + logit_ложного − logit_верного).
+
+    gt_logits / gt_cls — логиты карты в центрах эталонов одного участка и их класс; fp_logits / fp_cls — логиты
+    самых громких пиков того же участка, которые не попадают ни в один эталон своего класса (не больше 8).
+    Пары «каждый верный против каждого ложного» только внутри класса; среднее по парам. Нет пар — ноль.
+    Добавляется к focal_center_loss с коэффициентом 1; по умолчанию нигде не включена (expds.site_rank).
+    """
+    import torch
+
+    same = gt_cls.view(-1, 1) == fp_cls.view(1, -1)
+    if gt_logits.numel() == 0 or fp_logits.numel() == 0 or not bool(same.any()):
+        return gt_logits.sum() * 0.0 + fp_logits.sum() * 0.0
+    hinge = torch.relu(margin + fp_logits.float().view(1, -1) - gt_logits.float().view(-1, 1))
+    return hinge[same].mean()
+
+
 def center_loss(logits, target, weight=None):
     """BCE с весом на пике плюс Dice только по классам, которые есть в батче.
 
