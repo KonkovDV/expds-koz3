@@ -446,7 +446,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           large_kurgan_weight: float = 1.0, large_damaged_weight: float = 1.0, large_area_m2: float = 1000.0,
           require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
           select_min_epoch: int = 1, center_match_m: float = 0.0,
-          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False) -> dict:
+          center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False,
+          within_site_rank: float = 0.0, init_weights: str | None = None) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -463,6 +464,12 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         raise ValueError("вес крупных насыпей (sp_large) входит в потерю карты центров: нужен target=centers")
     if large_on and small_object_weight != 1.0:
         raise ValueError("sp_large: вес крупных и вес мелких насыпей одновременно не поддерживаются")
+    if within_site_rank < 0:
+        raise ValueError("within_site_rank: коэффициент не может быть отрицательным")
+    if within_site_rank > 0 and (target != "centers" or center_loss_name != "focal"):
+        raise ValueError("порядок пиков на кадре добавляется только к фокальной потере карты центров")
+    if init_weights and not Path(init_weights).is_file():
+        raise FileNotFoundError(init_weights)
     no_pre = small_object_weight != 1.0 or large_on
     import segmentation_models_pytorch as smp
     import torch
@@ -533,16 +540,27 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.warning("%s: FP16 отключён (на GTX 16xx он даёт NaN), обучение в FP32", torch.cuda.get_device_name(dev))
     # channels_last ускоряет только тензорные ядра в FP16; в FP32 на GTX 1650 он в 4,4 раза медленнее
     fmt = torch.channels_last if use_amp else torch.contiguous_format
+    enc_w = None if init_weights or not pretrained else "imagenet"
     if arch == "Unet":
-        model = smp.Unet(encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+        model = smp.Unet(encoder_name=encoder, encoder_weights=enc_w,
                          in_channels=c, classes=k).to(dev).to(memory_format=fmt)
     else:
-        model = smp.create_model(arch, encoder_name=encoder, encoder_weights="imagenet" if pretrained else None,
+        model = smp.create_model(arch, encoder_name=encoder, encoder_weights=enc_w,
                                  in_channels=c, classes=k).to(dev).to(memory_format=fmt)
     ema_model = None
     from torch.optim.swa_utils import AveragedModel, get_ema_multi_avg_fn
-    if center and center_loss_name == "focal":
+    if init_weights:
+        ck = torch.load(init_weights, map_location="cpu", weights_only=False)
+        if not isinstance(ck, dict) or "state_dict" not in ck:
+            raise ValueError(f"{init_weights}: нужен чекпойнт со state_dict")
+        got = list(ck.get("classes") or [])
+        if got != list(meta["classes"]):
+            raise ValueError(f"{init_weights}: классы {got} не совпали с кэшем {list(meta['classes'])}")
+        model.load_state_dict(ck["state_dict"])
+        log.info("старт с %s, смещение головы не сбрасывается", init_weights)
+    elif center and center_loss_name == "focal":
         # bot-9: смещение головы ставится до копии в EMA, чтобы копия стартовала с тем же prior 0,01.
+        # При --init-weights его нет: иначе затирается голова сданной карты.
         from .centers import init_focal_bias
         init_focal_bias(model)
     if must_gpu:
@@ -651,7 +669,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                 gaussians_from_binary,
                 heatmap_counts,
                 small_component_weights,
+                within_site_rank_hinge,
             )
+            if within_site_rank > 0:
+                log.info("порядок пиков на кадре: коэффициент %.3f, не больше 8 ложных, запас 1",
+                         within_site_rank)
 
             def prepare(y):
                 src = y[:, :k]
@@ -683,6 +705,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     y = prepare(y)
                 loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
                         else center_loss(logits, y, weight=wmap))
+                if within_site_rank > 0:
+                    loss = loss + within_site_rank * within_site_rank_hinge(logits, y)
                 return loss, y
     else:
         def batch_loss(logits, y, precomputed: bool = False):
@@ -879,6 +903,10 @@ def _cli() -> None:
                     help="пороги пика для F1 на проверке; отбор эпохи по лучшему")
     ap.add_argument("--center-pre-flip", action="store_true",
                     help="цель центров считать один раз и отражать на GPU (ускорение эпохи)")
+    ap.add_argument("--within-site-rank", type=float, default=0.0,
+                    help="коэффициент шарнира «центр эталона выше ложных пиков кадра»; 0 — выключено, пилот — 1")
+    ap.add_argument("--init-weights", default=None,
+                    help="чекпойнт для доучивания; без него голова фокальной карты сбрасывается на prior 0,01")
     ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
     if args.dry_run:
@@ -899,7 +927,8 @@ def _cli() -> None:
                 large_area_m2=args.large_area_m2,
                 min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
                 center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
-                center_pre_flip=args.center_pre_flip)
+                center_pre_flip=args.center_pre_flip, within_site_rank=args.within_site_rank,
+                init_weights=args.init_weights)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

@@ -189,21 +189,44 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, wei
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
-def site_rank_loss(gt_logits, gt_cls, fp_logits, fp_cls, margin: float = 1.0):
-    """Порядок пиков на участке (PROMPT_WITHIN_SITE_RANK_20261031): max(0, margin + logit_ложного − logit_верного).
+def within_site_rank_hinge(logits, target, max_false: int = 8, margin: float = 1.0):
+    """Штраф, если на том же кадре ложный пик громче центра эталона.
 
-    gt_logits / gt_cls — логиты карты в центрах эталонов одного участка и их класс; fp_logits / fp_cls — логиты
-    самых громких пиков того же участка, которые не попадают ни в один эталон своего класса (не больше 8).
-    Пары «каждый верный против каждого ложного» только внутри класса; среднее по парам. Нет пар — ноль.
-    Добавляется к focal_center_loss с коэффициентом 1; по умолчанию нигде не включена (expds.site_rank).
+    Публичный скачок соперника 0.440 → 0.489 пришёлся на несколько спутниковых голов,
+    а не на восемь ракурсов лидара (строка лидара осталась 0.60/0.64) и не на соседский
+    приор (следом +0.0003). У нашей карты верный пик уже внутри кургана, но примерно
+    36-й по громкости. Член сравнивает логит центра с не более чем max_false локальными
+    максимумами фона того же кадра и того же класса: max(0, margin + ложный − верный).
+    Фон — достоверные пиксели с целью ≤ 0.5, чтобы плечо гауссианы не считалось ложным
+    пиком. Коэффициент задаёт вызывающий код; 0 этот член не вызывает.
     """
     import torch
+    import torch.nn.functional as F
 
-    same = gt_cls.view(-1, 1) == fp_cls.view(1, -1)
-    if gt_logits.numel() == 0 or fp_logits.numel() == 0 or not bool(same.any()):
-        return gt_logits.sum() * 0.0 + fp_logits.sum() * 0.0
-    hinge = torch.relu(margin + fp_logits.float().view(1, -1) - gt_logits.float().view(-1, 1))
-    return hinge[same].mean()
+    logits = logits.float()
+    valid = target >= 0
+    tgt = target.clamp(min=0)
+    pos = _center_positives(tgt) & valid
+    pooled = F.max_pool2d(logits, 3, stride=1, padding=1)
+    # Плато — не пик: иначе ровный фон даёт максимум в каждой клетке и разбавляет штраф.
+    equal = (logits == pooled).to(logits.dtype)
+    alone = F.avg_pool2d(equal, 3, stride=1, padding=1) * 9 <= 1.01
+    false_peak = (logits >= pooled) & alone & valid & ~pos & (tgt <= 0.5)
+    terms = []
+    keep = max(int(max_false), 1)
+    n, k = logits.shape[:2]
+    for i in range(n):
+        for c in range(k):
+            true = logits[i, c][pos[i, c]]
+            false = logits[i, c][false_peak[i, c]]
+            if true.numel() == 0 or false.numel() == 0:
+                continue
+            top = false if false.numel() <= keep else torch.topk(false, keep).values
+            gap = margin + top.unsqueeze(0) - true.unsqueeze(1)
+            terms.append(gap.clamp(min=0).mean())
+    if not terms:
+        return logits.sum() * 0
+    return torch.stack(terms).mean()
 
 
 def center_loss(logits, target, weight=None):

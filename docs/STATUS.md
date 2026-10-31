@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+31.10 23:55 MSK | ночь | один GPU: доучить spor_focal_r18 с --init-weights и --within-site-rank 1, 4 эпохи, lr 1e-4; без флага старт с ImageNet запрещён | — | docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md
+31.10 23:50 MSK | код | шарнир порядка пиков на кадре, флаг --within-site-rank по умолчанию 0; их скачок до 0.49 — спутниковые головы, не восемь ракурсов и не соседский приор (+0.0003) | — | expds/centers.py within_site_rank_hinge
 31.10 23:25 MSK | промт | одна GPU: доучить spor_focal_r18 потерей «на участке верный пик выше громких ложных»; стоп, если медиана ложных сверху не упала с ~18 до ≤2 | — | docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md
 31.10 23:00 MSK | обход | код и журналы: нового ядра нет; 0.41238 уже содержит архивную геофизику и rerank; вне посылки только FR1h и диски 5 см, оба около +0.004 | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md §12
 31.10 22:52 MSK | пилот | peak-rerank STOP все 4 гейта: 25 поднятых, P 0.20, медиана промаха 851 м, train AUC 0.973; GPU не занимать | — | docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md §11
