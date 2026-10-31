@@ -1,6 +1,0 @@
-import sys; f=sys.argv[1]; s=open(f).read()
-s=s.replace("for scope in ('global','site'):","SCOPES=os.environ.get('SCOPES','global,site').split(','); UNS=os.environ.get('UNSEEN','drop,keep').split(',')\nVARS_ENV=os.environ.get('VARS')\nfor scope in SCOPES:")
-s=s.replace("        for unseen in ('drop','keep'):","        if VARS_ENV and vn not in VARS_ENV.split(','): continue\n        for unseen in UNS:")
-s=s.replace("_D{int(D_MAX)}.json'","_D{int(D_MAX)}_{\"-\".join(SCOPES)}_{VARS_ENV}.json'")
-s=s.replace("        cv={c:(curve(","        cv=None\n        cv={c:(curve(")
-open(f,'w').write(s)

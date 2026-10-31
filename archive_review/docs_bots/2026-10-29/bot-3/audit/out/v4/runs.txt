@@ -1,5 +1,0 @@
-base_v3 exit=0 peak_rss_kB=1625632
-v4_default exit=0 peak_rss_kB=1587236
-v4_gm_cfg exit=0 peak_rss_kB=1704000
-v4_gm_env exit=0 peak_rss_kB=1636716
-ALLDONE

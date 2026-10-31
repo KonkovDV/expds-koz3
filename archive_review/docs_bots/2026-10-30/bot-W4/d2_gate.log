@@ -1,9 +1,0 @@
-config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
-15:53:29 кэш стека meta_5606f42d02724784.json: кластеров 60
-15:53:29 кривые A из кэша curvesA_5606f42d02724784.pkl
-15:53:31 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1240 МБ
-15:53:37 C etgr rows 1578 -> merged across layers 180
-15:53:39 C vs A: Δall -0.000649 P 0.0 new34 +0.000000 nolidar -0.000651; kurgany_povrezhdennye +0.0000 kurgany_tselye +0.0000 gorodishcha +0.0000 arkhitektury +0.0000 object_poly -0.0065 fortifikatsii +0.0000 finds_points +0.0000
-15:53:40 Ciso vs Cmerged: Δall -0.000162 P 0.0 new34 +0.000000 nolidar -0.000163; kurgany_povrezhdennye +0.0000 kurgany_tselye +0.0000 gorodishcha +0.0000 arkhitektury +0.0000 object_poly -0.0016 fortifikatsii +0.0000 finds_points +0.0000
-15:53:40 Cmerged vs A: Δall -0.000486 P 0.0 new34 +0.000000 nolidar -0.000488; kurgany_povrezhdennye +0.0000 kurgany_tselye +0.0000 gorodishcha +0.0000 arkhitektury +0.0000 object_poly -0.0049 fortifikatsii +0.0000 finds_points +0.0000
-15:53:40 {"D2_1_accept": {"delta_ge_0.009": false, "P_ge_0.95": false, "slices_ge_-0.003": true, "finds_poly_not_below_A": false, "PASS": false}, "D2_2_parity_proxy": {"delta_C_A": -0.0006486931408427044, "ref_old_line": 0.012, "abs_gap": 0.012648693140842705, "ok": false, "direct": "BLOCKED: v2 geophysics output (legacy PIXGBM) not available in clean room"}}

@@ -1,169 +1,0 @@
-== fetch ==
-ref=origin/bots/bot2-e2e-v3-prep resolved=origin/bots/bot2-e2e-v3-prep sha=c3d912c
-== worktree ==
-Preparing worktree (detached HEAD c3d912c)
-Updating files:  25% (126/499)Updating files:  25% (128/499)Updating files:  25% (129/499)Updating files:  26% (130/499)Updating files:  26% (131/499)Updating files:  26% (132/499)Updating files:  26% (133/499)Updating files:  26% (134/499)Updating files:  27% (135/499)Updating files:  27% (138/499)Updating files:  27% (139/499)Updating files:  28% (140/499)Updating files:  28% (141/499)Updating files:  28% (142/499)Updating files:  28% (143/499)Updating files:  29% (145/499)Updating files:  30% (150/499)Updating files:  31% (155/499)Updating files:  32% (160/499)Updating files:  33% (165/499)Updating files:  34% (170/499)Updating files:  35% (175/499)Updating files:  36% (180/499)Updating files:  37% (185/499)Updating files:  38% (190/499)Updating files:  39% (195/499)Updating files:  40% (200/499)Updating files:  41% (205/499)Updating files:  42% (210/499)Updating files:  43% (215/499)Updating files:  44% (220/499)Updating files:  45% (225/499)Updating files:  46% (230/499)Updating files:  47% (235/499)Updating files:  48% (240/499)Updating files:  49% (245/499)Updating files:  50% (250/499)Updating files:  51% (255/499)Updating files:  52% (260/499)Updating files:  53% (265/499)Updating files:  54% (270/499)Updating files:  55% (275/499)Updating files:  56% (280/499)Updating files:  57% (285/499)Updating files:  58% (290/499)Updating files:  59% (295/499)Updating files:  60% (300/499)Updating files:  61% (305/499)Updating files:  62% (310/499)Updating files:  63% (315/499)Updating files:  64% (320/499)Updating files:  65% (325/499)Updating files:  66% (330/499)Updating files:  67% (335/499)Updating files:  68% (340/499)Updating files:  69% (345/499)Updating files:  70% (350/499)Updating files:  71% (355/499)Updating files:  72% (360/499)Updating files:  73% (365/499)Updating files:  74% (370/499)Updating files:  75% (375/499)Updating files:  76% (380/499)Updating files:  77% (385/499)Updating files:  78% (390/499)Updating files:  79% (395/499)Updating files:  80% (400/499)Updating files:  81% (405/499)Updating files:  82% (410/499)Updating files:  83% (415/499)Updating files:  84% (420/499)Updating files:  85% (425/499)Updating files:  86% (430/499)Updating files:  87% (435/499)Updating files:  88% (440/499)Updating files:  89% (445/499)Updating files:  90% (450/499)Updating files:  91% (455/499)Updating files:  92% (460/499)Updating files:  93% (465/499)Updating files:  94% (470/499)Updating files:  95% (475/499)Updating files:  96% (480/499)Updating files:  97% (485/499)Updating files:  98% (490/499)Updating files:  99% (495/499)Updating files: 100% (499/499)Updating files: 100% (499/499), done.
-HEAD is now at c3d912c docs(bot2): pin A3 localization report tip to f9ad045
-## HEAD (no branch)
-== build rust (optional, best-effort) ==
-💥 maturin failed
-  Caused by: Failed to run rustc to get the host target
-  Caused by: error from command -- stderr:
-
-error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
-help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
-
-
-stderr:
-
-
-WARN: expds_core build failed; tests will use NumPy fallbacks
-== smoke import ==
-Can't list 'centerhead'
-import ok
-== pytest (existing dirs only, low RAM) ==
-test paths: tests
-
-### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
-### PATH: tests
-...................................................................ss... [ 14%]
-.ssssssssss...s.............................................s..s........ [ 28%]
-........................................................................ [ 42%]
-........................................................................ [ 57%]
-....................................................................ssss [ 71%]
-s................s...................................................... [ 85%]
-.......................................................ss............... [100%]
-=============================== warnings summary ===============================
-tests/test_oracle_ceiling.py: 16 warnings
-  /workspace/koz3-wt/origin-bots-bot2-e2e-v3-prep/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
-    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
-
-tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
-  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
-    dataset = writer(
-
-tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
-tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
-tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
-tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
-  /workspace/koz3-wt/origin-bots-bot2-e2e-v3-prep/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
-    x, y = transform * (width / 2.0, height / 2.0)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
-SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
-SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
-SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
-SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_train_data.py:61: нет CUDA
-SKIPPED [1] tests/test_train_data.py:79: нет CUDA
-481 passed, 23 skipped, 21 warnings in 72.65s (0:01:12)
-### EXIT 0
-=== META exit=0 elapsed=74.6s peak_rss_mb=1847.9 paths=['tests'] ===
-
-REPORT: /home/box/shared/koz3/box/results/origin-bots-bot2-e2e-v3-prep_c3d912c.md
-LOG:    /home/box/shared/koz3/box/results/origin-bots-bot2-e2e-v3-prep_c3d912c.log
-passed=481 failed=0 errors=0 skipped=23 peak_rss_mb=1847.9 elapsed_s=74.6 exit=0 paths=tests
-== fetch ==
-ref=origin/bots/bot5-candidate-v4 resolved=origin/bots/bot5-candidate-v4 sha=2b745df
-== worktree ==
-Preparing worktree (detached HEAD 2b745df)
-Updating files:  24% (130/523)Updating files:  25% (131/523)Updating files:  25% (134/523)Updating files:  26% (136/523)Updating files:  26% (139/523)Updating files:  27% (142/523)Updating files:  27% (146/523)Updating files:  28% (147/523)Updating files:  28% (148/523)Updating files:  28% (150/523)Updating files:  29% (152/523)Updating files:  30% (157/523)Updating files:  31% (163/523)Updating files:  32% (168/523)Updating files:  33% (173/523)Updating files:  34% (178/523)Updating files:  35% (184/523)Updating files:  36% (189/523)Updating files:  37% (194/523)Updating files:  38% (199/523)Updating files:  39% (204/523)Updating files:  40% (210/523)Updating files:  41% (215/523)Updating files:  42% (220/523)Updating files:  43% (225/523)Updating files:  44% (231/523)Updating files:  45% (236/523)Updating files:  46% (241/523)Updating files:  47% (246/523)Updating files:  48% (252/523)Updating files:  49% (257/523)Updating files:  50% (262/523)Updating files:  51% (267/523)Updating files:  52% (272/523)Updating files:  53% (278/523)Updating files:  54% (283/523)Updating files:  55% (288/523)Updating files:  56% (293/523)Updating files:  57% (299/523)Updating files:  58% (304/523)Updating files:  59% (309/523)Updating files:  60% (314/523)Updating files:  61% (320/523)Updating files:  62% (325/523)Updating files:  63% (330/523)Updating files:  64% (335/523)Updating files:  65% (340/523)Updating files:  66% (346/523)Updating files:  67% (351/523)Updating files:  68% (356/523)Updating files:  69% (361/523)Updating files:  70% (367/523)Updating files:  71% (372/523)Updating files:  72% (377/523)Updating files:  73% (382/523)Updating files:  74% (388/523)Updating files:  75% (393/523)Updating files:  76% (398/523)Updating files:  77% (403/523)Updating files:  78% (408/523)Updating files:  79% (414/523)Updating files:  80% (419/523)Updating files:  81% (424/523)Updating files:  82% (429/523)Updating files:  83% (435/523)Updating files:  84% (440/523)Updating files:  85% (445/523)Updating files:  86% (450/523)Updating files:  87% (456/523)Updating files:  88% (461/523)Updating files:  89% (466/523)Updating files:  90% (471/523)Updating files:  91% (476/523)Updating files:  92% (482/523)Updating files:  93% (487/523)Updating files:  94% (492/523)Updating files:  95% (497/523)Updating files:  96% (503/523)Updating files:  97% (508/523)Updating files:  98% (513/523)Updating files:  99% (518/523)Updating files: 100% (523/523)Updating files: 100% (523/523), done.
-HEAD is now at 2b745df v4: port A3 loud UNAVAILABLE + EXPDS_STRICT + vendor hint from 829ea7d
-## HEAD (no branch)
-== build rust (optional, best-effort) ==
-💥 maturin failed
-  Caused by: Failed to run rustc to get the host target
-  Caused by: error from command -- stderr:
-
-error: rustup could not choose a version of rustc to run, because one wasn't specified explicitly, and no default is configured.
-help: run 'rustup default stable' to download the latest stable release of Rust and set it as your default toolchain.
-
-
-stderr:
-
-
-WARN: expds_core build failed; tests will use NumPy fallbacks
-== smoke import ==
-Can't list 'centerhead'
-import ok
-== pytest (existing dirs only, low RAM) ==
-test paths: tests
-
-### CMD: /workspace/koz3-venv/bin/python -m pytest -q -rfEs -p no:cacheprovider -p koz3_box_env tests
-### PATH: tests
-..............................................sss.....s...........ssssss [ 12%]
-..ss.s..........ss....s...sssssssss...s................................. [ 24%]
-.................s..s................................................... [ 36%]
-........................................................................ [ 49%]
-...............s........................................................ [ 61%]
-........................................................................ [ 73%]
-sssss................s.................................................. [ 86%]
-...........................................................ss........... [ 98%]
-.........                                                                [100%]
-=============================== warnings summary ===============================
-tests/test_bot7_geographic_utm_json.py::test_geographic_utm_json_becomes_center_zone
-  /workspace/koz3-wt/origin-bots-bot5-candidate-v4/tests/test_bot7_geographic_utm_json.py:52: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
-    cx, cy = sc.T * (sc.W / 2, sc.H / 2)
-
-tests/test_oracle_ceiling.py: 16 warnings
-  /workspace/koz3-wt/origin-bots-bot5-candidate-v4/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
-    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
-
-tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
-  /workspace/koz3-venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
-    dataset = writer(
-
-tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
-tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
-tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
-tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
-  /workspace/koz3-wt/origin-bots-bot5-candidate-v4/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
-    x, y = transform * (width / 2.0, height / 2.0)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-SKIPPED [1] tests/test_bot5_gor_dense.py:220: нет артефактов бокса bot-5 (work/gd/root, analysis/gor_dense)
-SKIPPED [2] tests/test_bot5_gor_dense.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_bot5_gor_dense.py:335: нет трейна 008_Герите на машине
-SKIPPED [6] tests/test_bot6_orgate.py:29: нет опорного входа смоука ORGATE (вне git, п. 13.11 ТР)
-SKIPPED [2] tests/test_bot6_orgate.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_bot6_orgate.py:189: нет опорного входа смоука ORGATE (вне git)
-SKIPPED [3] tests/test_bot7_candidate_v2.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:58: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:66: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:72: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:78: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:86: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:102: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:108: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:127: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_depmeta.py:135: нет вендора transformers: /workspace/koz3_shared/bot-7/work6/vendor_test/lib
-SKIPPED [1] tests/test_bot7_dfine_import.py:96: нет распакованного вендора transformers 5.21.0
-SKIPPED [2] tests/test_bot7_v3_flags.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_dfine_aeor.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [3] tests/test_metric_exact.py:62: нет EXPDS_METRIC
-SKIPPED [1] tests/test_metric_exact.py:80: нет EXPDS_METRIC
-SKIPPED [1] tests/test_metric_exact.py:110: нет EXPDS_METRIC
-SKIPPED [1] tests/test_open_hooks.py: box env: submission files not in git: models/pixgbm/all/poly.txt, models/pixgbm/all/finds.txt
-SKIPPED [1] tests/test_train_data.py:61: нет CUDA
-SKIPPED [1] tests/test_train_data.py:79: нет CUDA
-548 passed, 37 skipped, 22 warnings in 68.63s (0:01:08)
-### EXIT 0
-=== META exit=0 elapsed=70.8s peak_rss_mb=1868.9 paths=['tests'] ===
-
-REPORT: /home/box/shared/koz3/box/results/origin-bots-bot5-candidate-v4_2b745df.md
-LOG:    /home/box/shared/koz3/box/results/origin-bots-bot5-candidate-v4_2b745df.log
-passed=548 failed=0 errors=0 skipped=37 peak_rss_mb=1868.9 elapsed_s=70.8 exit=0 paths=tests

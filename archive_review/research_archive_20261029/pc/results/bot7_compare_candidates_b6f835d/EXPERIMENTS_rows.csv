@@ -1,6 +1,0 @@
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:v2,mock_e2e_gate,0.312509,0.336983,0.242915,0.095556,0.000000,PASS,rule=PASS; liae_kurgany=32; layer_ALL=0.238269
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:v3,mock_e2e_gate,0.287985,0.340909,0.000000,0.095556,-0.024524,FAIL,rule=FAIL fail=sp_or; liae_kurgany=32; layer_ALL=0.193959
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:hotfix_B,mock_e2e_gate,0.312873,0.336983,0.245064,0.095556,0.000364,PASS,rule=PASS; liae_kurgany=32; layer_ALL=0.238595
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:v4_off,mock_e2e_gate,0.312873,0.336983,0.245064,0.095556,0.000364,PASS,rule=PASS; liae_kurgany=32; layer_ALL=0.238595
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:bot4_off,mock_e2e_gate,0.312873,0.336983,0.245064,0.095556,0.000364,PASS,rule=PASS; liae_kurgany=32; layer_ALL=0.238595
-2026-10-29 18:22,bot7,bots/bot7-compare-candidates,b6f835d,compare_candidates:bot4_on,mock_e2e_gate,0.296584,0.321598,0.245064,0.095556,-0.015925,FAIL,rule=FAIL fail=li; liae_kurgany=32; layer_ALL=0.229485

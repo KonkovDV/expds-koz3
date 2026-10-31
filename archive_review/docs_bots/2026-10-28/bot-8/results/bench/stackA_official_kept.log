@@ -1,6 +1,0 @@
-config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
-{"n_kept": 11975, "n_gt": 10979, "official_final_score": 0.36736301320310966, "fast_final_score": 0.36736301320310966, "cluster_run_base_all": 0.36736301320310966, "delta_fast_vs_official": 0.0, "delta_cluster_vs_official": 0.0, "all_counts_equal": true, "t_fast_s": 10.16, "t_official_s": 277.12, "peak_rss_mb": 1272}
-
-real	6m52.636s
-user	4m40.608s
-sys	0m5.206s

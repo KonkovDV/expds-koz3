@@ -1,9 +1,0 @@
-owner=pc-job-runner
-status=DONE
-sha_zip=eb268d6e4adfbed32670cabeef15a709649b8246
-job=C:\Sloi\pc_jobs\bot2_v2_base_docker_eb268d6
-device=gpu-docker
-image=pantum/n7q:20261024
-ENV=docker:pantum/n7q:20261024
-heartbeat=2026-10-29T18:45:30+03:00
-note=DONE SCORED ALL=0.312509 exact kit match; salvaged exit=-1; results pc/results/bot2_v2_base_docker_eb268d6/

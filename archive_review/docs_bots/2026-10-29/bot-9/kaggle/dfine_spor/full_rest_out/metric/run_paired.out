@@ -1,7 +1,0 @@
-assemble rc=0
-p 2f rc=0 04:15:23
-p 5f rc=0 04:32:12
-p RvsC rc=0 04:38:14
-p 3f rc=0 04:44:14
-sp rc=0 04:45:05
-done

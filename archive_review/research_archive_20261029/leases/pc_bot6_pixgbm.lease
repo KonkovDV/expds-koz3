@@ -1,9 +1,0 @@
-owner=pc-job-runner
-sha=d173a75
-branch=bots/bot6-pixgbm-cleanroom
-job=C:\\Sloi\\pc_jobs\\bot6_pixgbm
-wt=C:\\Sloi\\wt_bot6_d173a75
-threads=12
-note=NOT b40ffd4; Windows-safe d173a75; parallel with GPU+bot7<=6
-status=RUNNING
-heartbeat=2026-10-29T16:51:58

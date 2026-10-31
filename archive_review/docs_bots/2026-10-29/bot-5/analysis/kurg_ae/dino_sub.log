@@ -1,6 +1,0 @@
-subset 4345 pos 511 regions 14 folds [1, 3, 4, 5, 6, 7, 9]
-Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 12733.02it/s]
-emb from cache
-dino done 0s
-{"n": 4345, "n_pos": 511, "dino_ridge": {"pooled": 0.7640153452424338, "within_mean": 0.6722266943016334, "n": 4345}, "dino_lgbm": {"pooled": 0.572800067783668, "within_mean": 0.6529841470141968, "n": 4345}, "hand_lgbm_same_subset": {"pooled": 0.640065149905011, "within_mean": 0.6986021409044951, "n": 4345}, "c7g_oof_p": {"pooled": 0.44833996367857065, "within_mean": 0.7171355906580913, "n": 4345}, "note": "Только замер. DINOv2-S предобученный, в сдачу не идёт без письма организаторов. Фолды = honest-10 fold кандидата bot-7."}
-watchdog max RSS MB 866 exit 0

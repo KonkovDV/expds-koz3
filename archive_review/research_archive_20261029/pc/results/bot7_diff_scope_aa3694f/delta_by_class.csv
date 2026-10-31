@@ -1,8 +1,0 @@
-class,tp_g,fp_g,fn_g,tp_l,fp_l,fn_l,d_tp,d_fp,d_fn
-arkhitektury,0,0,407,0,0,407,0,0,0
-finds_points,1819,1913,1659,1819,1913,1659,0,0,0
-fortifikatsii,8,1146,688,8,1146,688,0,0,0
-gorodishcha,46,4508,72,39,4515,79,-7,7,7
-kurgany_povrezhdennye,1846,309615,1774,1629,309832,1991,-217,217,217
-kurgany_tselye,1011,285630,566,950,285691,627,-61,61,61
-object_poly,261,607,822,229,639,854,-32,32,32

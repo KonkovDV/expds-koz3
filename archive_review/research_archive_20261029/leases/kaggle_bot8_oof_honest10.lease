@@ -1,9 +1,0 @@
-who: bot-1-executor
-what: koz3-bot8-oof-honest10 (GPU-5)
-branch: bots/bot8-oof-kaggle
-sha: a6f8992abfdbf300a40f624509ab9f2cd630d394
-start_msk: 2026-10-29 16:22
-expected_end_msk: after 2026-10-31 03:00
-heartbeat_msk: 2026-10-29 16:36
-status: QUEUED-AFTER-RESET
-note: 8-12 GPU-h does not fit before refresh (reserve>=0.5 + c3sc + ae-ft); staged future-safe vendor at /workspace/kaggle/push/koz3-bot8-oof-honest10; push after 31.10 03:00 MSK

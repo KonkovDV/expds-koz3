@@ -1,8 +1,0 @@
-seed0 arch [TP,FP]: LAS / не-LAS; R, G (bot-6), G_noLAS (bot-10 work12)
-LAS R [0, 430] G [0, 0] G_noLAS [0, 835]
-noLAS R [56, 1078] G [59, 776] G_noLAS [59, 776]
-не-LAS побитно равны G==G_noLAS: True
-033_Елизаветинское R [0, 412, 0] G [0, 0, 0] G_noLAS [0, 829, 0] LAS
-041_Миловидово R [0, 3, 0] G [0, 0, 0] G_noLAS [0, 4, 0] LAS
-192_КЧР R [0, 1, 0] G [0, 0, 0] G_noLAS [0, 1, 0] LAS
-040_Примаки_1.3км R [0, 14, 0] G [0, 0, 0] G_noLAS [0, 1, 0] LAS

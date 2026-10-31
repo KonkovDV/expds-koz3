@@ -1,9 +1,0 @@
-owner=pc-job-runner
-status=FAILED
-sha=475bafad60504cd6058366f522fd9cd178a93b6a
-job=C:\Sloi\pc_jobs\bot3_aerial_pytest_475baf
-device=cpu
-threads=2
-pytest=44_passed_1_failed
-heartbeat=2026-10-29T18:22:11+03:00
-note=WinError 1314 symlink privilege on test_package_flag_on_ships (env, not code); 44 passed

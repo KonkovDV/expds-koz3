@@ -1,4 +1,0 @@
-bot9 Scene: target EPSG:4326 projected=False → 1x1
-bot9 Scene: target EPSG:32638 projected=True → 2070x1883
-bot6 pipeline crs_for=read_utm_json → EPSG:4326 Scene 1 x 1 ovr 8
-bot6 utm_for(None) → EPSG:32638 Scene 2070 x 1883 ovr 3

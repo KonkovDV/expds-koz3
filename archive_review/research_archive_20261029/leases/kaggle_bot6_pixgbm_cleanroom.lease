@@ -1,9 +1,0 @@
-who: bot-1-executor
-what: koz3-bot6-pixgbm-cleanroom (CPU fallback; TPU ghost)
-branch: bots/bot6-pixgbm-cleanroom
-sha: b40ffd4b11c7f0fdbf6994ca4896dac36a1edb44
-start_msk: 2026-10-29 16:18
-expected_end_msk: n/a
-heartbeat_msk: 2026-10-29 16:40
-status: BLOCKED-DATA
-note: v6 COMPLETE hollow — rebuild labels OK, 0 geo200-217 rasters in xfer manifests; need blob maps for 200-217. geo_pixgbm sha 35e4331b. pull /workspace/kaggle/pulls/koz3-bot6-pixgbm-cleanroom

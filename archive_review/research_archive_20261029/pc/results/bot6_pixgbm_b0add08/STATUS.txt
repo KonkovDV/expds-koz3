@@ -1,4 +1,0 @@
-DONE_CHECK_VERDICT FAIL
-sha=b0add08 thr=2 --match-reference
-JobDir=C:\Sloi\pc_jobs\bot6_pixgbm_b0add08
-verdict=FAIL sha_mismatch; metric_fallback max|dp| poly~0.446 finds~0.566

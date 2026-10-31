@@ -1,2 +1,0 @@
-FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
-1 failed, 312 passed, 4 skipped, 21 warnings in 104.90s (0:01:44)

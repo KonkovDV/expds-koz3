@@ -1,5 +1,0 @@
-exit=0
-elapsed_s=99.3
-peak_rss_bytes=2322784256
-peak_rss_mb=2215.2
-paths=["tests", "centerhead/tests"]

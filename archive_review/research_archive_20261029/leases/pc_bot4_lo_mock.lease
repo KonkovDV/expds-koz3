@@ -1,8 +1,0 @@
-owner=pc-job-runner
-status=RUNNING
-sha=337a27c
-branch=bots/bot4-large-objects
-job=C:\\Sloi\\pc_jobs\\bot4_lo_mock_337a27c
-wt=C:\\Sloi\\wt_bot4_lo_337a27c
-heartbeat=2026-10-29T16:38:01.340746
-plan=mock e2e large_objects OFF then ON; score vs v2 and offvs on; honest-10

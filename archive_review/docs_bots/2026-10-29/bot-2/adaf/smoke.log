@@ -1,4 +1,0 @@
-peak_rss_mb 1781 rc 0
-elapsed_s 52
-maps_adaf_smoke_005_Боровичи_2.npz fold 3 hm peaks 38 kurgan dets 40 mask max 85 OK
-report {'kurgany_tselye': {'n_gt': 0, 'AP': 0.0, 'recall@0.05': None, 'recall@0.3': None}, 'kurgany_povrezhdennye': {'n_gt': 8, 'AP': 0.6354166666666667, 'recall@0.05': 0.75, 'recall@0.3': 0.625}, 'fortifikatsii': {'n_gt': 18, 'AP': 0.0029239766081871343, 'recall@0.05': 0.05555555555555555, 'recall@0.3': 0.0}}

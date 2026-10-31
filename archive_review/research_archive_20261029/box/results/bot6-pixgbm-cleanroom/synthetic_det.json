@@ -1,7 +1,0 @@
-{
-  "lightgbm": "4.7.0",
-  "threads1_identical": true,
-  "threads8_identical": true,
-  "threads1_vs_8_identical": false,
-  "model1_sha256": "06ba5a851a0a4921"
-}

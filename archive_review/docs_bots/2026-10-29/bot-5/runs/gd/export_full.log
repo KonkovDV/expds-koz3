@@ -1,6 +1,0 @@
-[1s] tokens 227182 dim 768 files 175 regions 132 tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0]
-[1s] frame prior: pos tokens dist to frame centre m q50/q90 [212.5, 487.5] edge share of neg 0.71
-[1s] token labels {0: 219182, -1: 5760, 1: 2240} regions with pos tokens 49
-{"variant": "all", "dout": "/workspace/koz3_shared/bot-5/analysis/gor_dense", "train": "all", "n_train_tokens": 227182, "n_regions": 132, "hn_log": {"fits": 1, "hard_neg": 200, "neg": 20000}, "centre_s": 250.0, "inner_oof_top1_hits": {"150.0": 25, "250.0": 28, "400.0": 26, "700.0": 25, "inf": 20}, "n_spr_train": 49, "max_abs_diff_headp_vs_probe": 0.0, "out": "work/gd/heads/gor_dense_head.npz", "md5": "e35570e10d17edac32bea8d26fa0f5f4", "bytes": 204984}
-
-WATCH rc 0 elapsed_s 9.6 peak_rss_mb 1077

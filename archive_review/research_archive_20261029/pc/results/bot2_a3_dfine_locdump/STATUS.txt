@@ -1,3 +1,0 @@
-DONE 2026-10-29T18:35:45+03:00
-JobDir=C:\Sloi\pc_jobs\bot2_a3_dfine_locdump
-note=A3 sp_or/dfine preds vs GT: median_same=2.02m; 23/57 within 2m — localization not the main gap vs B F1

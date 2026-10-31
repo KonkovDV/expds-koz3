@@ -1,2 +1,0 @@
-work4/queue3.sh: line 4: 233943 Killed                  nice -n 10 /workspace/rerank/venv/bin/python work4/xcheck_bot8.py Гнёздово Боровичи Курганы Иссык+Каджы Миловидово+Осечки+Примаки Вышегжа Семибратнее Судьбищи > work4/xcheck_bot8.log 2>&1
-done

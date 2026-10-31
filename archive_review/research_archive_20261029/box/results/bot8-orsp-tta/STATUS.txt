@@ -1,7 +1,0 @@
-RUNNING 2026-10-29 16:08:41 MSK
-worktree=/workspace/koz3-wt/bot8-orsp-tta
-branch=bots/bot8-orsp-tta
-sha=993c2cca90574e2f0ef89aabc45de68bd70f22d5
-started=2026-10-29 16:08:41 MSK
-finished=2026-10-29 16:08:43 MSK
-DONE 2026-10-29 16:08:43 MSK

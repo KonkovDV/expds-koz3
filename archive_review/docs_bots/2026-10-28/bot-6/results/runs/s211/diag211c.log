@@ -1,9 +1,0 @@
-/workspace/koz3_shared/bot-6/work/s211/diag211c.py:24: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
-  Bl = stf(t, B); a = ds.read(1).astype(float)
-/workspace/koz3_shared/bot-6/work/s211/diag211c.py:24: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
-  Bl = stf(t, B); a = ds.read(1).astype(float)
-/workspace/koz3_shared/bot-6/work/s211/diag211c.py:24: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
-  Bl = stf(t, B); a = ds.read(1).astype(float)
-01_Гнёздово_Терраса_3_MagGr_серый.tif: внутри границы 239690 px; band1 p5/p50/p95 [  0. 109. 255.] доля 255 0.069 доля 0 0.109 уник 15; в точках эталона (409): доля 255 0.015, p5/p50/p95 [ 36. 109. 219.]; вне границы доля 255 0.952
-02_Гнёздово_Терраса_3_MagGr_цвет.tif: внутри границы 240067 px; band1 p5/p50/p95 [ 31. 226. 255.] доля 255 0.430 доля 0 0.000 уник 12; в точках эталона (409): доля 255 0.496, p5/p50/p95 [101. 240. 255.]; вне границы доля 255 0.958
-03_Гнёздово_Терраса_3_MagGr_цвет_2.tif: внутри границы 3350188 px; band1 p5/p50/p95 [122. 239. 255.] доля 255 0.391 доля 0 0.001 уник 252; в точках эталона (409): доля 255 0.443, p5/p50/p95 [173. 239. 255.]; вне границы доля 255 0.981

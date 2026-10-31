@@ -1,19 +1,0 @@
-Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 21607.19it/s]
-[      3s] модель 2 31.09 M
-[      3s] [infer] 037_Никола_Ленивец 01_Никола_Ленивец_Ae_немецкая.tif: 9633x5903 px, окон 240
-[    146s] [infer] 037_Никола_Ленивец: готово 240 окон за 143 с; {'noflip_m100': 16732, 'flipwbf_m100': 23939, 'noflip_m300': 48218, 'flipwbf_m300': 74125}
-[    153s] сохранено 037_Никола_Ленивец {'noflip_m100': 4620, 'noflip_m300': 4746, 'flipwbf_m100': 3784, 'flipwbf_m300': 3996}
-Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  51%|█████     | 606/1197 [00:00<00:00, 6058.98it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 10507.55it/s]
-[    153s] модель 1 31.09 M
-/workspace/koz3/w1/v8/ae_rerun.py:39: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
-As an alternative, you can create a new view using np.reshape (with copy=False if needed).
-  ov = self.src.read(1, out_shape=(min(1024, self.src.height), min(1024, self.src.width)))
-[    154s] [infer] 065_Шниткино 01_Шниткино_Ae_немецкая.tif: 5959x3725 px, окон 104
-[    217s] [infer] 065_Шниткино: готово 104 окон за 63 с; {'noflip_m100': 7013, 'flipwbf_m100': 9977, 'noflip_m300': 19660, 'flipwbf_m300': 29274}
-[    219s] сохранено 065_Шниткино {'noflip_m100': 1334, 'noflip_m300': 1459, 'flipwbf_m100': 968, 'flipwbf_m300': 1086}
-Loading weights:   0%|          | 0/1197 [00:00<?, ?it/s]Loading weights:  54%|█████▍    | 647/1197 [00:00<00:00, 6469.13it/s]Loading weights: 100%|██████████| 1197/1197 [00:00<00:00, 7001.15it/s]
-[    220s] модель 4 31.09 M
-[    220s] [infer] 019_Селяне 01_Селяне_Ae_немецкая.tif: 10345x10959 px, окон 506
-[    553s] [infer] 019_Селяне: готово 506 окон за 334 с; {'noflip_m100': 30519, 'flipwbf_m100': 46010, 'noflip_m300': 78764, 'flipwbf_m300': 120014}
-[    562s] сохранено 019_Селяне {'noflip_m100': 5288, 'noflip_m300': 7455, 'flipwbf_m100': 4305, 'flipwbf_m300': 6231}
-[    562s] [infer] 029_Вышегжа_3 01_Вышегжа_3_Ae_немецкая.tif: 26708x28156 px, окон 3304

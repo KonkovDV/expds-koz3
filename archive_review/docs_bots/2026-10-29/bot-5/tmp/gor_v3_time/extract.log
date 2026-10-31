@@ -1,5 +1,0 @@
-Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 14468.93it/s]
-[0s] 1/2 046_Тыва_1 gsd 0.56 patches 2 rss 575MB
-[1s] 2/2 046_Тыва_1 gsd 0.56 patches 4 rss 579MB
-done 4 patches 1s
-watchdog max RSS MB 579 exit 0

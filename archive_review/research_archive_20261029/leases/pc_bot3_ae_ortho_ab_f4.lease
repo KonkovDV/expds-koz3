@@ -1,9 +1,0 @@
-who: bot-3
-what: Fix A+B Docker mock+honest-10 dfine_aeor+ae_recall_relax ON vs OFF (f4pack 249b86fb)
-branch: bots/bot3-ae-ortho-recall
-sha: 1e7073afd29a503e2811fe5a9a9e0e52cb92643e
-start_msk: 2026-10-29 20:35
-expected_end_msk: 2026-10-29 22:30
-heartbeat_msk: 2026-10-29 20:37
-status: WEIGHTS_STAGING
-note: pantum/n7q:20261024; JobDir C:/Sloi/pc_jobs/bot3_ae_ortho_ab_f4; weights dfine_ae_ft_f4

@@ -1,7 +1,0 @@
-owner=pc-job-runner
-status=BLOCKED
-sha=50f6f27
-branch=bots/bot5-candidate-v4
-job=C:\\Sloi\\pc_jobs\\bot5_v4_gordense_50f6f27
-heartbeat=2026-10-29T16:36:57.216616
-reason=Kaggle 403 on dmitrijkv/koz3-b5-gordense-timing; heads missing; dinov2 staged on PC

@@ -1,9 +1,0 @@
-post.filter_finds_points : <нет> -> True
-post.micro_circles.radius_m.kurgany_povrezhdennye : <нет> -> 0.5
-post.micro_circles.radius_m.kurgany_tselye : <нет> -> 0.5
-post.multipole_object_poly : <нет> -> True
-rerank_arch.enabled : <нет> -> True
-rerank_arch.meta : <нет> -> models/rerank_arch_lgbm.json
-rerank_arch.model : <нет> -> models/rerank_arch_lgbm.txt
-time.window_deadline : <нет> -> True
-time.window_reserve_s : <нет> -> 30

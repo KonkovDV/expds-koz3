@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/workspace/koz3_shared/bot-6/work/aeor_identity/check_identity.py", line 39, in <module>
-    h0, _ = run(BASE, base_cfg, "v3_base")
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/koz3_shared/bot-6/work/aeor_identity/check_identity.py", line 32, in run
-    assert r.returncode == 0, (tag, r.stderr[-2000:])
-           ^^^^^^^^^^^^^^^^^
-AssertionError: ('v3_base', 'memory allocation of 60000000 bytes failed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n')

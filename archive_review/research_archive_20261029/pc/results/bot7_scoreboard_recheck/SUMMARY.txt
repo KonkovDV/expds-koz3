@@ -1,5 +1,0 @@
-global_honest_base=0.2971175350474262
-layer_honest_base=0.2764973691037102
-delta_layer_minus_global=-0.0206201659437160
-note=reproduces prior bot7 gate (ae4c816 / aa3694f)
-JobDir=C:\Sloi\pc_jobs\bot7_scoreboard_recheck

@@ -1,5 +1,0 @@
-C_keep rw=-0.014932 unw=-0.086396 P=0.267 lofo=-0.009161 seeds+=0/5 heavy=[0.013048, -0.024767, -0.012975] ok=False
-orspv1_keep rw=+0.010345 unw=+0.002523 P=1.000 lofo=+0.010997 seeds+=5/5 heavy=[0.005497, 0.004848, 0.0] ok=True
-orspR_keep rw=+0.018432 unw=+0.005531 P=1.000 lofo=+0.017737 seeds+=5/5 heavy=[0.013353, 0.005079, 0.0] ok=True
-orspN_keep rw=+0.010345 unw=+0.002523 P=1.000 lofo=+0.010997 seeds+=5/5 heavy=[0.005497, 0.004848, 0.0] ok=True
-N 210 n_big 20 w_big 5.95 w_small 0.4789

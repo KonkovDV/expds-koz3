@@ -8,7 +8,7 @@
   Скопированный код не установлен, но правило владельца исключает код, производный от EN.
 * **Текущая LB-сборка (v2 `eb268d6`, LB 0,41238) включает модуль на этапе сборки**: файл кладётся в
   `expds/geo_pixgbm.py` рабочей копии перед `scripts/build_submission.py`; `[geophys.pixgbm] enabled = true`.
-  Эталон байт-в-байт: `archive_review/analysis/2026-10-29/bots/bot-4/runs/review/v2eb268d6/expds/geo_pixgbm.py`,
+  Эталон байт-в-байт на ветке `archive/worked-20261031`: `archive_review/analysis/2026-10-29/bots/bot-4/runs/review/v2eb268d6/expds/geo_pixgbm.py`,
   **sha256 `35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b`**, 849 строк.
 * Без модуля `pipeline.py` пишет предупреждение и уходит в классику геофизики (сборка ≠ v2 LB);
   `scripts/check_submission.py` даёт FAIL, если pix включён, а модуля в архиве нет.

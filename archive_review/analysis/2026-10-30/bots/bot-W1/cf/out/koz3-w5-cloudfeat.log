@@ -1,8 +1,0 @@
-[{"stream_name":"stdout","time":883.990401056,"data":"[    883s] S3 UNREACHABLE (internet off?) EndpointConnectionError\n"}
-,{"stream_name":"stderr","time":886.733940414,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":886.733973897,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":887.172640428,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":887.172671781,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":889.234437961,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
-,{"stream_name":"stderr","time":890.515038378,"data":"[NbConvertApp] Writing 342884 bytes to __results__.html\n"}
-]

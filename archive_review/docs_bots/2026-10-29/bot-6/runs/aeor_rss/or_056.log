@@ -1,3 +1,0 @@
-2026-10-29 12:40:30,322 dfine_aeor: or 01_Фалхан_Or_ортофото.tif уровень full, окон 12/12, боксов 1944 → кругов 370, 88.0 с
-RSS_JSON={"tif": "/workspace/data/train-expds-3/056_Фалхан/05_Фалхан_Or_ортофото/01_Фалхан_Or_ортофото.tif", "bytes": 461291996, "n_feats": 370, "model_calls": 6, "s": 88.2}
-MAXRSS_KB=791660 elapsed_s=89.5 user_s=62.8 sys_s=11.5 rc=0

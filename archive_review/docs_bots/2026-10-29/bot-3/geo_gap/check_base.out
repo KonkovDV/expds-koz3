@@ -1,3 +1,0 @@
-finds_points repro {'tp': 1641.0, 'fp': 1619.0, 'n_gt': 3478.0} base {'tp': 1641.0, 'fp': 1619.0, 'n_gt': 3478.0} same True
-object_poly repro {'tp': 78.0, 'fp': 68.0, 'n_gt': 1083.0} base {'tp': 78.0, 'fp': 68.0, 'n_gt': 1083.0} same True
-scores [0.3146153226828423, 0.2964508527066795, 0.14427407342564424] base [0.3146153226828423, 0.2964508527066795, 0.14427407342564424] {'folds': 10, 'unseen_dropped': 722, 'unseen_kept': 0}

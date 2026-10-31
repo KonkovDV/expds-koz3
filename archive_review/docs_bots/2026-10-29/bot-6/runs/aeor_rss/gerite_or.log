@@ -1,3 +1,0 @@
-2026-10-29 12:36:22,281 dfine_aeor: or 01_Герите_Or_ортофото.tif уровень full, окон 9/9, боксов 1452 → кругов 282, 3.0 с
-RSS_JSON={"tif": "/workspace/data/train-expds-3/008_Герите/05_Герите_Or_ортофото/01_Герите_Or_ортофото.tif", "bytes": 5478863788, "n_feats": 282, "model_calls": 6, "s": 3.2}
-MAXRSS_KB=605308 elapsed_s=4.9 user_s=3.4 sys_s=0.4 rc=0

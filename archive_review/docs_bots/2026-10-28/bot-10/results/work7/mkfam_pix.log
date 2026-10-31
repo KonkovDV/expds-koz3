@@ -1,9 +1,0 @@
-Sf Судьбищи {'rm_find': 598, 'add': 3377, 'src_fam': 1}
-S Судьбищи {'rm_find': 598, 'add': 3928, 'src_fam': 1}
-SfR3 Судьбищи {'rm_find': 598, 'add': 3377, 'src_fam': 1}
-Sf Семибратнее {'rm_find': 2256, 'add': 12340, 'src_fam': 1}
-S Семибратнее {'rm_find': 2256, 'rm_obje': 66, 'add': 19616, 'src_fam': 1}
-SfR3 Семибратнее {'rm_find': 2256, 'add': 12340, 'src_fam_R3': 1}
-Sf Гнёздово {'rm_find': 878, 'add': 1169, 'src_fam': 1}
-S Гнёздово {'rm_find': 878, 'rm_obje': 802, 'add': 2563, 'src_fam': 1}
-SfR3 Гнёздово {'rm_find': 878, 'add': 1169, 'src_fam_R3': 1}

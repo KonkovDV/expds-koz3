@@ -1,7 +1,0 @@
-owner=pc-job-runner
-status=FAILED
-job=C:\Sloi\pc_jobs\bot4_toml_check
-device=cpu
-threads=2
-heartbeat=2026-10-29T18:22:44+03:00
-note=full-suite pytest exit=1 (filler; not gate)

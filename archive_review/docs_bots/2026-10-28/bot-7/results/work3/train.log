@@ -1,1 +1,0 @@
-rows 7793 pos 79 taus {np.str_('or'): 0.001373, np.str_('sp_arch'): 0.019047} base {np.str_('or'): 0.065565, np.str_('sp_arch'): 0.286725}

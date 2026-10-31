@@ -1,9 +1,0 @@
-who: bot-3
-what: pytest flags-off + optional honest-10 aerial (QUEUE pc [bot-3])
-branch: bots/bot3-aerial-recall
-sha: 475bafad60504cd6058366f522fd9cd178a93b6a
-start_msk: 2026-10-29 16:06
-expected_end_msk: 2026-10-29 17:00
-heartbeat_msk: 2026-10-29 16:06
-status: QUEUED
-note: lease file for coordinator; job not started until «1» picks QUEUE entry

@@ -1,23 +1,0 @@
-/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
-  warnings.warn(
-/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
-  warnings.warn(
-/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/pydantic/main.py:280: PretrainWeightsCompatibilityWarning: RFDETRBaseConfig was instantiated with pretrain_weights=None. The model will be initialised from scratch, which typically produces lower accuracy than fine-tuning from the published checkpoint ('rf-detr-base.pth').
-  validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-Loading weights:   0%|          | 0/223 [00:00<?, ?it/s]Loading weights:  68%|██████▊   | 152/223 [00:00<00:00, 1510.07it/s]Loading weights: 100%|██████████| 223/223 [00:00<00:00, 2172.87it/s]
-[2026-10-29 07:22:44] [INFO] rf-detr - File /workspace/koz3_shared/bot-5/tmp/rfhome/rf-detr-base-o365.pth already exists with correct MD5 hash.
-[2026-10-29 07:22:45] [WARNING] rf-detr - Checkpoint has 365 classes but model is configured for 5. The detection head will be re-initialized to 5 classes.
-coco: {'weights': '/workspace/koz3_shared/bot-5/tmp/rfhome/rf-detr-base-o365.pth', 'md5': 'd93f4921ccbb0f0a2e4364bed290892b', 'tensors': 488, 'changed': 486, 'head_out': 6}
-model rfdetr-b res 280 params 31.9M device cpu build 4.7s rss 679MB
-it 1/10 loss 19.9678 lr×0.500 1.70s/it rss 1324MB
-it 2/10 loss 15.2789 lr×1.000 1.82s/it rss 1613MB
-it 3/10 loss 14.8754 lr×1.000 1.71s/it rss 1629MB
-it 4/10 loss 12.2406 lr×1.000 1.63s/it rss 1636MB
-it 5/10 loss 13.1850 lr×1.000 1.62s/it rss 1636MB
-it 6/10 loss 12.3344 lr×1.000 1.57s/it rss 1643MB
-it 7/10 loss 11.3689 lr×0.909 1.55s/it rss 1643MB
-it 8/10 loss 10.3219 lr×0.672 1.54s/it rss 1654MB
-it 9/10 loss 10.1024 lr×0.378 1.63s/it rss 1654MB
-it 10/10 loss 10.7107 lr×0.141 1.70s/it rss 1657MB
-{"build_s": 4.7498979568481445, "coco": {"weights": "/workspace/koz3_shared/bot-5/tmp/rfhome/rf-detr-base-o365.pth", "md5": "d93f4921ccbb0f0a2e4364bed290892b", "tensors": 488, "changed": 486, "head_out": 6}, "params_M": 31.8687, "cp_bank": 0, "train_s": 17.016122341156006, "s_per_iter": 1.7016122341156006, "loss_first": 19.9677734375, "loss_last": 10.710685729980469, "bs": 1, "accum": 1, "iters": 10, "pred_s": 1.9090576171875, "pred_images": 4, "pred_boxes": 400, "peak_rss_MB": 1657.171875, "total_s": 26.809467315673828, "model": "rfdetr-b", "size": 280, "loss": "mal", "device": "cpu", "smoke": true, "torch": "2.15.0+cpu"}
-exit 0 watchdog_max_rss_MB 1627

@@ -1,3 +1,0 @@
-[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
-[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
-maxrss_MB 608

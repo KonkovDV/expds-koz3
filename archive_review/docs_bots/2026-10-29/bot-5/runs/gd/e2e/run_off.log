@@ -1,9 +1,0 @@
-WATCH rc 0 elapsed_s 6.6 peak_rss_mb 1124
-WATCH rc 0 elapsed_s 6.1 peak_rss_mb 1228
-WATCH rc 0 elapsed_s 8.1 peak_rss_mb 1105
-WATCH rc 0 elapsed_s 7.6 peak_rss_mb 1072
-WATCH rc 0 elapsed_s 21.7 peak_rss_mb 1451
-WATCH rc 0 elapsed_s 20.7 peak_rss_mb 1417
-WATCH rc 0 elapsed_s 62.2 peak_rss_mb 1477
-WATCH rc 0 elapsed_s 65.1 peak_rss_mb 1502
-ALLDONE

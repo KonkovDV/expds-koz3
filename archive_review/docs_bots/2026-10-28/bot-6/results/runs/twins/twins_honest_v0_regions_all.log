@@ -1,5 +1,0 @@
-groups povr [(np.str_('li_dev'), 324981), (np.str_('li_mosaic'), 241539), (np.str_('li'), 37601), (np.str_('sp_focal'), 31941), (np.str_('sp_focal2'), 13226), (np.str_('ae'), 379), (np.str_('li_ae'), 1)] 
-groups tsel [(np.str_('li_dev'), 326333), (np.str_('li_mosaic'), 241539), (np.str_('li'), 37601), (np.str_('sp_focal'), 6665), (np.str_('sp_focal2'), 4757), (np.str_('ae'), 812), (np.str_('li_ae'), 24)]
-ae povr 379 dropped by dedup 379 ae_twin 84 sp_focal_twin 4209
-A 0.314453 0.297418 0.144111 lofo 0.314905 rand [0.314333, 0.287589, 0.317017, 0.311057, 0.315207] povr {'f1': 0.3143, 'tp': 932.0, 'fp': 2756.0, 'fn': 2688.0, 'n_gt': 3620.0} {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0} 155 s
-D 0.315579 0.297596 0.144111 lofo 0.316028 rand [0.315417, 0.288705, 0.318133, 0.312179, 0.316329] povr {'f1': 0.3181, 'tp': 918.0, 'fp': 2468.0, 'fn': 2702.0, 'n_gt': 3620.0} {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0} 146 s

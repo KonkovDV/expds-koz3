@@ -3,8 +3,12 @@ import ast
 import re
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 MAKE = ROOT / "archive_review/analysis/2026-10-29/bots/bot-7/work6/on/make_on.py"
+if not MAKE.is_file():
+    pytestmark = pytest.mark.skip(reason="скрипт на ветке archive/worked-20261031")
 
 
 def test_make_on_default_mode_is_c():

@@ -1,7 +1,0 @@
-﻿bot6 PIXGBM d173a75 — DONE (Europe/Moscow)
-wall_sec=120.1 train_wall=103.0 threads=12 lightgbm=4.7.0
-geo_pixgbm.sha256=35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b
-poly.txt sha256=c857571cac089ddc387f05d47f2011a197bbb88bda4b5cc2c0321f233d173e62 (ref d1fe3efa… MISMATCH)
-finds.txt sha256=f936da7941620e13adb447ee5ce35fa16c401836eb5b30fb66a6d9039ca42679 (ref 5fa8c09d… MISMATCH)
-metric_fallback: feature_name equal, num_trees=300/300, max|Δp| poly=0.4696 finds=0.6404 (tol 1e-4) → FAIL
-Unicode fix: patched wt_bot6_d173a75/scripts/pixgbm.py save via ASCII tempfile (LightGBM C API rejects Cyrillic paths)

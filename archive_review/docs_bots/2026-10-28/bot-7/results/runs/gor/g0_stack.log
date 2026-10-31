@@ -1,8 +1,0 @@
-nonlidar GT 73
-gor-cand official match any conf: 15
-25 gor cand centroid<R 5 any nonli<R 52 any<R 52
-50 gor cand centroid<R 10 any nonli<R 68 any<R 68
-100 gor cand centroid<R 16 any nonli<R 72 any<R 72
-200 gor cand centroid<R 29 any nonli<R 73 any<R 73
-no scene covering GT: 0
-scene kinds Counter({('SpOr',): 54, ('Ae', 'SpOr'): 11, ('Ae',): 5, ('Ae', 'Or', 'SpOr'): 3})

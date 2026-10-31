@@ -1,8 +1,0 @@
-k10 {'A_drop': 0.314615, 'H_drop': 0.315098, 'd_H_drop': 0.000482}
-lofo {'A_drop': 0.315067, 'H_drop': 0.315143, 'd_H_drop': 7.6e-05}
-seed0 {'A_drop': 0.314698, 'H_drop': 0.315108, 'd_H_drop': 0.00041}
-seed1 {'A_drop': 0.306042, 'H_drop': 0.305876, 'd_H_drop': -0.000166}
-seed2 {'A_drop': 0.318393, 'H_drop': 0.318536, 'd_H_drop': 0.000144}
-seed3 {'A_drop': 0.309721, 'H_drop': 0.309448, 'd_H_drop': -0.000273}
-seed4 {'A_drop': 0.29063, 'H_drop': 0.29026, 'd_H_drop': -0.00037}
-H_drop d10=+0.000482 P=0.733 CI=[-0.00098;+0.00155] lofo=+0.000076 seeds+=2/5 heavy={'kurgany_povrezhdennye': 0.00052, 'kurgany_tselye': -3e-05, 'gorodishcha': 0.0} sl={'new34': 0.0004, 'no_lidar': 0.0, 'lidar59': 0.00053, 'eruntuna': -0.01261} wo3=-0.000379 fams=89 отклонить

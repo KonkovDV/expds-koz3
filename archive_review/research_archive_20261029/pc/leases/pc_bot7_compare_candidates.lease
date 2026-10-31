@@ -1,7 +1,0 @@
-STATUS=QUEUED
-SHA=69a9a85c07c0f346a6021825381761a2c24986f1
-JOBDIR=F:\Sloi_pc_jobs\bot7_compare_candidates_69a9a85
-WT=F:\Sloi_wt\wt_bot7_compare_candidates
-THREADS=4
-NOTE=requeue after compare_candidates_v2docker FAILED missing --out; fix @69a9a85 --out optional + env column; command in pc/QUEUE.md
-QUEUED=2026-10-29T19:46:00+03:00

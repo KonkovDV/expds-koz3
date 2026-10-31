@@ -1,7 +1,0 @@
-pytest: watchdog max RSS MB 1026 exit 1
-build: watchdog max RSS MB 72 exit 0
-eb268d6 synth done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 29, 22.2 с
-eb268d6 210 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 29, 57.7 с
-eb268d6 214 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 29, 32.9 с
-eb268d6 217 done: == ИТОГ: PASS — FAIL 0, WARN 0, проверок 29, 145.2 с
-ALLDONE

@@ -1,1 +1,0 @@
-{"smp": "0.5.0", "timm": "1.0.30", "torch": "2.11.0+cpu", "res": {"c3": {"keys_eq": true, "hm": 0.0, "wh": 0.0, "off": 0.0, "mask": 0.0}, "c5": {"keys_eq": true, "hm": 0.0, "wh": 0.0, "off": 0.0, "mask": 0.0}}}

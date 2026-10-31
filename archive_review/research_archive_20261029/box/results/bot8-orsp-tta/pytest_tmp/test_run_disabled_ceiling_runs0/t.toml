@@ -1,8 +1,0 @@
-[time]
-watchdog = false
-[models]
-li_dev = {path = "x.pt"}
-sp_focal2 = {path = "y.pt"}
-[verify]
-enabled = true
-weights = "none.pt"
