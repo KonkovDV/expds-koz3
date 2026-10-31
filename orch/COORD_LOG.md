@@ -852,3 +852,11 @@
 - 31.10 16:27 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-sp-large-f0 by coord
 - 31.10 16:28 MSK | A | sp_large f0: dataset ready; kernel elenakonkova/koz3-sp-large-f0 pushed v1 → QUEUED; lease acc1 bound. Watch routine every 5m. No LB.
 - 31.10 16:30 MSK | A-exec | sp_large f0 PUSHED: kernel elenakonkova/koz3-sp-large-f0 v1 (QUEUED), data elenakonkova/koz3-sp-large-f0-data (code+cache spor_r1_t128_s25 rebuilt same recipe on GT v2 + fold0 raw; no creds/S3). Weight: focal peak ×4 damaged / ×2 intact if GT ≥1000 m². Fold0=family Курганы (34 regions). Deadline 4h; control (w=1) after main only if ≥1.2h left. Branch bots/a-sp-large-f0. default.toml untouched. No LB.
+- 31.10 16:34 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
+- 31.10 16:34 MSK | lease | acquire slot:acc2/gpu-1 → coord до 01.11 02:34 MSK A sp_large f0 Elena switch to dmitrijkv (t182u)
+- 31.10 16:34 MSK | lease | acquire dataset:dmitrijkv/koz3-sp-large-f0-data → coord до 01.11 16:34 MSK A sp_large f0 data on dmitrijkv
+- 31.10 16:36 MSK | lease | set-kernel slot:acc2/gpu-1 → dmitrijkv/koz3-sp-large-f0 by coord
+- 31.10 16:36 MSK | Elena t182u | switch sp_large f0 → dmitrijkv; elena QUEUED delete 403; ds dmitrijkv/koz3-sp-large-f0-data; lease acc2. No LB.
+- 31.10 16:36 MSK | A | dmitrijkv/koz3-sp-large-f0 RUNNING (v2 push after first QUEUED/RUNNING). Watching.
+- 31.10 16:36 MSK | lease | set-kernel slot:acc2/gpu-1 → dmitrijkv/koz3-sp-large-f0 by coord
+- 31.10 16:36 MSK | A-exec | sp_large f0 SWITCH acc1→acc2 (Elena t182u): elenakonkova/koz3-sp-large-f0 deleted while QUEUED (never ran); dmitrijkv/koz3-sp-large-f0 v1 pushed 16:37, RUNNING; data dmitrijkv/koz3-sp-large-f0-data (same tars, no creds). fold0 only, no LB.
