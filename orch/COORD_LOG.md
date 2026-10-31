@@ -740,3 +740,10 @@
 - Holes: lidar P/R~0.52/0.50; sat R **0.255** (biggest vs 0.64); aero R0.013; ortho R0.140; 5–10k m² R0; geophys in archive strong — do not break again.
 - dome/slope_gate/asa/hillshade OFF in submit. Measure gate: Δ≥0.003, P(better)≥0.9, no damaged drop — then talk sat separately.
 - Checklist night «one kernel» stale; truth = COORD 08:41–08:54 (elena f01 + dmitrij f234).
+- 31.10 09:08 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+
+## 31.10 09:25 MSK 31.10 — Elena vector to 11.11 (t150u)
+- Until **11.11**: hold archive LB **0.41238**; wait honest lidar cut only. Do **not** chase 0.61 in one push (~0.20 gap; live kernels cover lidar only; sat completeness **0.255** untouched).
+- If damaged mounds on **f01** do not grow → cancel **f234**. No LB submit. **dome** / **slope_gate** stay off.
+- Git: closed reviews → branch `archive/worked-20261031` @ `a14428c` (former analysis/, docs/bots/, research_archive_20261029/ under archive_review/; 0.41238 archive bytes same sha256). **main** @ `93d8cf2` = submit code/config/tests + docs/STATUS.md + docs/LB_LOG.md; docs/research/ + notes/ kept (scripts ref them; closed-step list). Tests: 6 pass, 3 skip (scripts only on archive branch).
+- Live: still wait fold1 early_stop+damaged on elena f01; f234 burns only while f01 alive and damaged OK. Sync → orch-protocol.
