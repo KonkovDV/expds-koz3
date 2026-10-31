@@ -989,3 +989,6 @@ Sleeping. A watches carefully overnight (routine every 10m + executor). Wake onl
 - 01.11 00:04 MSK | quota&idle | elenakonkova/koz3-wsr-f0 RUNNING under lease slot:acc1/gpu-1 (valid till 07:31/09:00); no other koz3 kernel RUNNING on elenakonkova/dmitrijkv; all other slots free, no stale slot leases; no fill. No change.
 - 01.11 00:07 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
 - 01.11 00:07 MSK | coord A exec | WSR pilot v3 COMPLETE (385 s, 23:59→00:06): STOP. Pilot Курганы (fold0, 270 quiet): median FP louder than best-in-GT 9→16 (13 with in-poly peak only); damaged F1@0.3645 0.6636→0.5561. Kernel done, lease slot:acc1/gpu-1 released, no 2nd GPU, default.toml/LB 0.41238 untouched, no zip. Out: out/wsr/k3.
+
+## 01.11 00:06 MSK within-site rank STOP
+elenakonkova/koz3-wsr-f0 v3 COMPLETE 385s. Pilot Курганы: median FP louder 9→16 (need ≤2); damaged F1 0.6636→0.5561. Lease released. default.toml/0.41238 untouched. out/wsr/k3/report.json. Watch routine deleted.
