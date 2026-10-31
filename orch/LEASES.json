@@ -5,14 +5,13 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": "bot-W2-lidar",
-   "kernel": "elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "holder": null,
+   "kernel": null,
    "purpose": "r50c5-f01 path(b) inline+scrub fold1",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 31.10 08:29 MSK",
-   "since": "31.10 08:41 MSK",
-   "until": "31.10 20:41 MSK"
+   "last": "снято bot-W2-lidar 31.10 11:03 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc1/gpu-2",
@@ -335,16 +334,6 @@
    "note": "B: P-W2-11 hmcp prep + r50c5 verify + CI2-3 FU done",
    "host": "grok-bot-vm-288567805",
    "pid": 102945
-  },
-  {
-   "resource": "slot:acc1/gpu-1",
-   "owner": "bot-W2-lidar",
-   "since": 1793425297.267065,
-   "expires": 1793468497.267065,
-   "note": "r50c5-f01 path(b) inline+scrub fold1",
-   "host": "grok-bot-vm-288567805",
-   "pid": 295320,
-   "kernel": "elenakonkova/koz3-w2-cnx-r50c5-f01"
   },
   {
    "resource": "slot:acc2/gpu-1",

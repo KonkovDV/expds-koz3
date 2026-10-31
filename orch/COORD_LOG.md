@@ -770,3 +770,13 @@
 - Do NOT plan from old c3-sc ~2h: this is ResNet-50 from scratch + relief build on f01 → plan from 14:41.
 - f234 CNX_DEADLINE_H=11.3 → ~**20:11** from 08:53 (3 folds). Keep until f01 STOP. No LB.
 - Elena did not re-check API RUNNING.
+- 31.10 10:34 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 10:57 MSK | check_conflicts | ERROR=3 WARN=5: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 11:03 MSK | lease | release slot:acc1/gpu-1 (bot-W2-lidar) by bot-W2-lidar
+
+## 31.10 11:03 MSK — f01 COMPLETE / early_stop PASS (verified)
+- B: elenakonkova/koz3-w2-cnx-r50c5-f01 COMPLETE (ahead of 14:41). Out `/workspace/koz3/out/r50c5-f01`.
+- early_stop_verdict.json: **PASS** (rule1/rule2 fail false). mean_f0_f1 Li-only **0.4395** (thr 0.3492). f0=0.3713 f1=0.5078.
+- Damaged: f0 0.502 / f1 0.792 (growing vs B's c3-sc s2 refs). Tselye f0 0.295 / f1 0.081. kurgan_mean_f0_f1 0.399.
+- Rule keep: f234 still RUNNING dmitrijkv (~20:11). Not cancelled. Next full gate after f234 COMPLETE.
+- Lease: slot:acc1/gpu-1 released (elena free). GO D gordense-timing on elena (adapt from dmitrijkv kernel); do not touch f234. No LB.
