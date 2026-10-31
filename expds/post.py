@@ -240,6 +240,52 @@ def finalize_ref(feats: list[dict], min_area: float = 0.01) -> list[dict]:
     return out
 
 
+def _pair_ground_m(a, b) -> float:
+    """Расстояние на земле между точками EPSG:3857."""
+    return float(a.distance(b)) * _ground_scale((a.y + b.y) / 2.0)
+
+
+def rescue_near_kept(feats: list[dict], thresholds: dict[str, float], by_markup: dict | None,
+                      spec: dict | None = None, default: float = 0.15) -> list[dict]:
+    """Поднимает уверенность кургана до порога, если он в кольце вокруг уже принятого.
+
+    Пик внутри эталона часто ниже порога, а дальнее поле ещё ниже. Кольцо вокруг
+    круга, который порог уже пропускает, забирает соседей по могильнику и не
+    берёт одиночные круги в поле. На срезе спутника 31.10 (не полный балл):
+    пол 0.20, кольцо 12…80 м на земле, F1 повреждённых 0.533→0.582, целых
+    0.546→0.609. В default.toml секции нет.
+    """
+    spec = spec or {}
+    groups = set(spec.get("groups") or ("sp_or", "sp_focal", "sp_focal2"))
+    classes = set(spec.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye"))
+    floor = float(spec.get("floor", 0.20))
+    min_m = float(spec.get("min_m", 12.0))
+    max_m = float(spec.get("max_m", 80.0))
+    tau = threshold_fn(thresholds, default, by_markup)
+    buckets: dict[tuple, list[int]] = defaultdict(list)
+    centres: list = []
+    for i, feat in enumerate(feats):
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        geom = feat.get("geom")
+        centre = None if geom is None or geom.is_empty else geom.centroid
+        centres.append(None if centre is None or centre.is_empty else centre)
+        if centre is not None and not centre.is_empty and group in groups and feat.get("class_name") in classes:
+            buckets[(feat.get("region_name"), group, feat["class_name"])].append(i)
+    out = list(feats)
+    for idx in buckets.values():
+        limit = tau(feats[idx[0]])
+        anchors = [centres[i] for i in idx if centres[i] is not None and float(feats[i].get("confidence") or 0) >= limit]
+        if not anchors:
+            continue
+        for i in idx:
+            conf = float(feats[i].get("confidence") or 0)
+            if conf < floor or conf >= limit or centres[i] is None:
+                continue
+            if any(min_m < _pair_ground_m(centres[i], anchor) <= max_m for anchor in anchors):
+                out[i] = dict(feats[i], confidence=limit)
+    return out
+
+
 def apply_thresholds(feats: list[dict], thresholds: dict[str, float], default: float = 0.15,
                      by_markup: dict[str, dict[str, float]] | None = None) -> list[dict]:
     """Оставляет объекты с уверенностью не ниже порога своего класса.

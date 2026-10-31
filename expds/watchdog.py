@@ -146,6 +146,9 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     from . import large_objects as _lo
     if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if post_cfg.get("near_kept"):
+        out = post.rescue_near_kept(out, cfg.get("thresholds", {}), by_markup, _spec(post_cfg["near_kept"]),
+                                    cfg.get("default_threshold", 0.15))
     if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
@@ -263,6 +266,12 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
     _by = post.sat_thr_relax_by_markup(cfg)
     if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if pc.get("near_kept"):
+        try:
+            out = post.rescue_near_kept(out, cfg.get("thresholds", {}), _by, _spec(pc["near_kept"]),
+                                        cfg.get("default_threshold", 0.15))
+        except Exception:
+            log.exception("near_kept в запасной цепочке упал, шаг пропущен")
     if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    _by, _lo.spec(cfg))
