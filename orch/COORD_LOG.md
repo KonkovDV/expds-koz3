@@ -782,3 +782,5 @@
 - Lease: slot:acc1/gpu-1 released (elena free). GO D gordense-timing on elena (adapt from dmitrijkv kernel); do not touch f234. No LB.
 - 31.10 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense до 31.10 13:04 MSK gordense-timing elena after f01 PASS; D push
 - 31.10 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W3-gordense 2h gordense-timing elena (D GO)
+- 31.10 11:09 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-w3-gordense-timing-k by bot-W3-gordense
+- 31.10 11:10 MSK | D→A | gordense RUNNING elenakonkova/koz3-w3-gordense-timing-k v1; DS elenakonkova/koz3-w3-gordense-timing; HARD_S=3300 ETA≤~12:05; pull→orch/bot-W3/gordense_timing_out; f234 untouched. No LB.
