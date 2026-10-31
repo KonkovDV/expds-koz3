@@ -860,3 +860,132 @@
 - 31.10 16:36 MSK | A | dmitrijkv/koz3-sp-large-f0 RUNNING (v2 push after first QUEUED/RUNNING). Watching.
 - 31.10 16:36 MSK | lease | set-kernel slot:acc2/gpu-1 → dmitrijkv/koz3-sp-large-f0 by coord
 - 31.10 16:36 MSK | A-exec | sp_large f0 SWITCH acc1→acc2 (Elena t182u): elenakonkova/koz3-sp-large-f0 deleted while QUEUED (never ran); dmitrijkv/koz3-sp-large-f0 v1 pushed 16:37, RUNNING; data dmitrijkv/koz3-sp-large-f0-data (same tars, no creds). fold0 only, no LB.
+- 31.10 16:39 MSK | A-quota | dmitrijkv/koz3-sp-large-f0 v1/v2 ERROR at start: Kaggle auto-extracted dataset tars (code/ cache/ root_fold0/ dirs, no code.tar) → StopIteration. Patched input discovery (tar or dirs, same contents) in kernel_dmitrijkv + wt copy; pushed v3 → RUNNING. Same recipe/weights, fold0 only, no LB. Leases OK (acc2 bound; acc1 free).
+- 31.10 16:39 MSK | lease | set-kernel slot:acc2/gpu-1 → dmitrijkv/koz3-sp-large-f0 by coord
+- 31.10 16:39 MSK | A | sp_large ERROR = kernel looked for code.tar but dataset is extracted (code/cache/root_fold0). Fixed kernel; re-pushed dmitrijkv. No LB.
+- 31.10 16:41 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+
+- 31.10 16:43 MSK | coord | Elena t184u: watch every 5m + cancel 2nd sp_large if appears. Now only dmitrijkv/koz3-sp-large-f0 QUEUED; elena slug gone. Routine koz-3-sp-large-fold0-watch updated (dedupe).
+- 31.10 16:53 MSK | lease | acquire slot:acc1/tpu → coord до 31.10 17:53 MSK TPU smoke t188u
+- 31.10 16:53 MSK | lease | acquire slot:acc2/tpu → coord до 31.10 17:53 MSK TPU smoke t188u
+- 31.10 16:58 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 17:12 MSK | lease | release slot:acc2/gpu-1 (coord) by coord
+31.10 17:12 sp_large f0 COMPLETE dmitrijkv v5; STOP: F1 dmg 0.3537 < base 0.3677 (control 0.3918); >1k dmg hits 42 vs 28; slot acc2/gpu-1 released
+- 31.10 17:13 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 17:25 MSK | sp_large-f0 | разбор STOP → out/sp_large-f0/ANALYSIS_STOP.md: +13 TP крупных, но FP 428 vs 263 (control), conf сдвинута вниз (эпоха 19), 158_Курганы_29 = 129 FP; control>baseline = шум прогона ~0.02. GPU/TPU/LB не трогали.
+
+- 31.10 17:19 MSK | Elena t191u: STOP OK; no soft GPU yet. CPU FP158 first. Next GPU only if one FP type + gate F1≥control & hits1-5k↑. LB/0.41238 hold.
+- 31.10 17:23 MSK | sp_large-f0 FP158 (CPU) → out/sp_large-f0/ANALYSIS_FP158.md: 129 FP = рассеянный фоновый шум (121 кластер/30 м, не край, не у GT, покров ~как фон, все круги 49 м²); 158 = 10,4 км² при 7 GT, плотность FP 12,4/км² не выброс. Один тип мусора не найден → мягкий вес не стартуем (NO GPU). LB/0.41238 не трогали.
+- 31.10 17:29 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 17:34 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 19:43, не устарели), sp_large/f234/gordense COMPLETE уже доложены. LB не трогали.
+- 31.10 17:55 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 18:01 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 19:43), прочие koz3 ядра COMPLETE; новых пусков нет. LB не трогали.
+- 31.10 18:11 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 18:27 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 18:39 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 21:33, не устарели), новых koz3 пусков нет. LB не трогали.
+- 31.10 18:43 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+
+- 31.10 18:54 MSK | coord | TPU smoke still QUEUED both (~2h since 16:53); long executor interrupted twice → routine koz-3-tpu-smoke-watch @every 5m until 21:00 then release if still queued. No GPU/LB.
+- 31.10 18:59 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 19:08 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 21:33, ведёт koz-3-tpu-smoke-watch), новых koz3 пусков нет. LB не трогали.
+- 31.10 19:20 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 19:36 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 19:38 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 21:33, ведёт koz-3-tpu-smoke-watch). Замечено: dmitrijkv/koz3-w5-dino-vitb-tpu lastRunTime 19:16 MSK, статус COMPLETE (TPU, не GPU; без аренды) — не против плана, отслеживаю. LB не трогали.
+- 31.10 19:55 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 20:06 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), TPU smoke оба QUEUED (аренды до 21:33, ведёт koz-3-tpu-smoke-watch), новых koz3 пусков нет. LB не трогали.
+- 31.10 20:14 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 20:34 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 20:40 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), новых koz3 пусков нет; TPU smoke ведёт koz-3-tpu-smoke-watch. LB не трогали.
+- 31.10 20:50 MSK | check_conflicts | ERROR=3 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]
+- 31.10 21:04 MSK | lease | release slot:acc1/tpu (coord) by coord
+- 31.10 21:04 MSK | lease | release slot:acc2/tpu (coord) by coord
+- 31.10 21:04 MSK | tpu-smoke-watch | обе TPU smoke (elenakonkova/koz3-acc2-tpu-smoke, dmitrijkv/koz3-tpu-smoke) всё ещё QUEUED ~4ч после 16:53 → платформа TPU не стартовала; аренды slot:acc1/tpu и slot:acc2/tpu сняты; ядра не отменяли; routine удалена. GPU/LB не трогали.
+- 31.10 21:11 MSK | quota-idle-fill | без изменений: GPU пусто (по плану), новых koz3 пусков нет; аренды чистые. LB не трогали.
+- 31.10 21:11 MSK | check_conflicts | ERROR=5 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+
+## 31.10 21:22 MSK Elena t194u DINOv3 hillfort
+- LB base 0.41238 unchanged; no submit.
+- fb32b34 + docs/plans/PROMPT_DINOV3_HILLFORT_KAGGLE_20261031.md → other AI (Kaggle-signed machine).
+- sp_dino_gor: frozen DINOv3, 512, circle 2m; pilot STOP if hits ≤ map@0.994; default.toml only after honest Δ≥0.003 P≥0.9 + geo 0.769/0.656.
+- A: no kernel push from DESKTOP-08e3443c (no Kaggle login).
+- 31.10 21:28 MSK | check_conflicts | ERROR=5 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+
+## 31.10 21:40 MSK Elena t195u — A owns DINOv3 prompt
+- Cloud agent: implement dino_gor_f0 + PR from fb32b34.
+- A: kaggle kernels push after code ready; lease via lease.sh; one GPU/account.
+- 31.10 21:48 MSK | check_conflicts | ERROR=5 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 31.10 21:52 MSK | lease | acquire slot:acc1/gpu-1 → coord до 01.11 05:52 MSK A sp_dino_gor pilot fold0 (Elena t195u/t197u), no LB
+- 31.10 21:52 MSK | lease | acquire dataset:elenakonkova/koz3-dino-gor-data → coord до 01.11 21:52 MSK A dino_gor scenes 1m UTM, no creds
+- 31.10 21:54 MSK | A dino_gor | elenakonkova/koz3-dino-gor-f0 v1 RUNNING (slot:acc1/gpu-1 coord). Frozen DINOv3 ViT-L/16 sat493m (timm rev ce148bd), win 512 @1 m UTM, stride 256; pilot = fold 0 (family Кисловодская котловина, 15 regions, 24 GT gor; folds via candidates.family_folds weighted by GT gor). Baseline spor_gor_oof@0.994085 on pilot = 0 hits → PASS iff cand ≥3 hits & P≥0.30. Data: dataset elenakonkova/koz3-dino-gor-data (175 SpOr scenes, no creds). Code: wt/dino-gor branch bots/a-dino-gor (local commit). Eval: kaggle/2026-10-31/dino_gor_f0/eval_pilot.py. default.toml untouched, no LB.
+- 31.10 21:59 MSK | lease | acquire dataset:elenakonkova/koz3-dino-gor-raw → coord до 01.11 21:59 MSK A dino_gor v2 raw SpOr + code (hillfort_loc), no creds
+- 31.10 22:02 MSK | quota-watch | elenakonkova/koz3-dino-gor-f0 v1 COMPLETE (268s). Official box eval (eval_pilot.py, metric defaults — config.py missing): pilot 15 regions/24 GT gor; baseline spor_gor@0.994085 0 hits; cand top1 hits 3, P 0.333, R 0.125, F1 0.182 → PASS (borderline: exactly ≥3 & ≥0.30). Output out/dino-gor/v1_kernel/. slot:acc1/gpu-1 lease kept (v2 ds2 upload in progress). No LB, default.toml untouched.
+- 31.10 22:01 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
+- 31.10 22:01 MSK | lease | release dataset:elenakonkova/koz3-dino-gor-raw (coord) by coord
+- 31.10 22:01 MSK | lease | acquire dataset:dmitrijkv/koz3-dino-gor-raw → coord до 01.11 22:01 MSK A dino_gor folds raw SpOr + code (hillfort_loc), no creds
+- 31.10 22:04 MSK | check_conflicts | ERROR=5 WARN=1: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 31.10 22:04 MSK | lease | release dataset:dmitrijkv/koz3-dino-gor-raw (coord) by coord
+- 31.10 22:05 MSK | lease | acquire dataset:elenakonkova/koz3-dino-gor-raw → coord до 01.11 22:05 MSK A dino_gor folds raw SpOr+code, no creds
+- 31.10 22:09 MSK | lease | acquire slot:acc1/gpu-1 → coord до 01.11 10:09 MSK A dino_gor OOF5 folds0-4 frozen DINOv3, no LB
+- 31.10 22:10 MSK | lease | release dataset:elenakonkova/koz3-dino-gor-data (coord) by coord
+- 31.10 22:10 MSK | A | dino_gor OOF5 (folds 0-4, hillfort_loc/load_pack heads, frozen timm ViT-L/16 DINOv3 sat493m, side 512, sp_or, group sp_dino_gor) pushed elenakonkova/koz3-dino-gor-oof5 v1 → RUNNING. dmitrijkv CreateDataset 403 (x2) → data on elenakonkova/koz3-dino-gor-raw. Lease slot:acc1/gpu-1 coord. v1 ds lease released. No LB, default.toml untouched.
+- 31.10 22:13 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
+- 31.10 22:13 MSK | lease | release dataset:elenakonkova/koz3-dino-gor-raw (coord) by coord
+
+## 31.10 22:13 MSK Elena t200u dino-gor STOP
+- No folds 1–4. Cancelled RUNNING elenakonkova/koz3-dino-gor-oof5 via stub push; released slot:acc1/gpu-1 + dataset koz3-dino-gor-raw.
+- Reason: empty-baseline floor PASS; head memorized; not honest-10 material. LB/default.toml untouched.
+- 31.10 22:14 MSK | A | Elena t200u STOP dino_gor folds 1-4: pilot numeric PASS only because baseline empty (0 hits at 0.994085); in-sample AUC 0.999 overfit; prompt commit 4168d80. elenakonkova/koz3-dino-gor-oof5 v1 (RUNNING ~6 min) superseded by CPU cancel-stub v2 → COMPLETE. Released slot:acc1/gpu-1, dataset:elenakonkova/koz3-dino-gor-raw (+ earlier dmitrijkv raw, elenakonkova dino-gor-data). Pilot koz3-dino-gor-f0 COMPLETE untouched. default.toml untouched, no LB (0.41238 protected).
+
+## 31.10 22:14 MSK Elena t201u ring-lift d635a6b
+- Ground-metre ring; gates 12m/80m/0.20/same-site; thr >=. Slice↑ damaged/intact; OFF until honest-10. No LB. Lidar weights not in commit. dino-gor still STOP.
+
+## 31.10 22:15 MSK Elena t202u
+- CPU honest-10 rescue_near_kept; no GPU fill; dino-gor STOP; optional 1-GPU peak-head only if ring fails.
+
+## 31.10 22:19 MSK ring honest-10 (rescue_near_kept d635a6b) — FAIL
+- CPU only, 17 s: reused base-A table.pkl (official-match pairs), ring changes only conf → no stack rewrite/prep. Script out/ring-honest/ring_gate.py, worktree wt/ring-honest @ d635a6b. Base repro 0.314615 exact.
+- nested (per-fold taus from train families, ring with those taus — the honest one): 0.312734, Δ −0.00188, P(>0) 0.245, damaged dF1 −0.0033 (TP 932→974, FP 2756→3339), intact −0.0044, new34 −0.00107, no-lidar +0.0045 → FAIL.
+- cfg (default.toml taus + re-sweep, FR1h-style): Δ 0.0000 (110 rescued sit below re-swept tau) → FAIL.
+- JSON: out/ring-honest/gate_nested.json, gate_cfg.json. default.toml [post.near_kept] stays OFF. No GPU, no LB, 0.41238. 1-GPU peak-head NOT started — waiting Elena.
+- 31.10 22:20 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+
+## 31.10 22:21 MSK Elena t205u peak re-rank
+- One GPU pilot per e5ae1df §10; ring stays OFF.
+- 31.10 22:25 MSK | lease | acquire dataset:elenakonkova/koz3-peak-rerank-peaks → coord до 01.11 22:25 MSK peak-rerank pilot peaks (sp_focal OOF), no creds
+- 31.10 22:29 MSK | lease | acquire slot:acc1/gpu-1 → coord до 01.11 04:29 MSK peak-rerank pilot §10 e5ae1df ONE GPU, no LB
+- 31.10 22:30 MSK | A peak-rerank | elenakonkova/koz3-peak-rerank-f0 v1 RUNNING (slot:acc1/gpu-1 coord, ONE GPU). §10 e5ae1df: frozen DINOv3 ViT-L/16 sat493m at OOF peaks of submitted sp_focal (sp_or thr 0.3645/0.3725) + sp_focal2 (0.5016/0.6455), 128 m crop @1 m -> 256 px; linear head (PCA128 + map scalars, LR). Label = peak centre inside same-class GT. Pilot family Курганы (most below-thr positives: 294) held out of head + threshold (family-grouped inner CV, gain TP-0.5FP). Output only lifted below-thr peaks. Data: koz3-dino-gor-data + new koz3-peak-rerank-peaks (no creds). Code: wt/peak-rerank bots/a-peak-rerank (local). Stop: lifted>=30, P>=0.25, median miss<30 m, not (trainAUC>0.95 & P<0.25). near_kept OFF, hillfort STOP, default.toml untouched, no LB (0.41238).
+- 31.10 22:35 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 31.10 22:50 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
+- 31.10 22:50 MSK | lease | release dataset:elenakonkova/koz3-peak-rerank-peaks (coord) by coord
+- 31.10 22:50 MSK | A peak-rerank | elenakonkova/koz3-peak-rerank-f0 v1 COMPLETE 1196 s (T4, ViT-L/16 sat493m fit, crop 128 m→256 px). Pilot Курганы: 12665 below-thr peaks (294 inside GT, base 0.023). Lift thr 0.9972 (inner CV: 44 lifts, P 0.45, AUC 0.81). Pilot: lifted **25** (<30), hits 5, **P 0.20** (<0.25), median miss **851 m** (all lifted 151 m) (>30), train AUC in-sample **0.973** & P<0.25 → memorization. Pilot AUC 0.71. Top-30/60/100 P 0.17/0.17/0.20. **STOP** all 4 gates. No fine-tune, no 2nd GPU, no folds, default.toml untouched, no LB (0.41238). Released slot:acc1/gpu-1 + dataset lease. Output out/peak-rerank/v1_kernel/.
+- 31.10 22:51 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+
+## 31.10 22:57 MSK Elena t210u code audit 3a990a9
+- No kernels; hold 0.41238; wait new hypothesis.
+- 31.10 23:03 MSK | quota&idle | 0 RUNNING on elenakonkova/dmitrijkv (only dmitrijkv/koz3-tpu-smoke still QUEUED, no lease); all GPU/TPU slots free, no stale slot leases; GPUs stay empty per Elena t210u. No change.
+- 31.10 23:07 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+
+## 31.10 ~23:24 MSK Elena t211u
+GO within-site rank `5fd33ce` `docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md`. One GPU; finetune `models/spor_focal_r18.pt`; focal + within-site rank (GT > ≤8 loud FPs); pilot held out; 6h. STOP: median FP louder than in-GT not ≤2 OR damaged F1 worse. No 2nd GPU / no default.toml / hold 0.41238. Coord A executing.
+- 31.10 23:27 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 31.10 23:31 MSK | lease | acquire slot:acc1/gpu-1 → coord до 01.11 07:31 MSK within-site rank pilot 5fd33ce ONE GPU no LB
+- 31.10 23:31 MSK | coord A | lease slot:acc1/gpu-1 → elenakonkova/koz3-wsr-f0 (within-site rank pilot 5fd33ce, ONE GPU, no LB); branch bots/a-within-site-rank
+- 31.10 23:40 MSK | quota&idle | 0 RUNNING on elenakonkova/dmitrijkv; slot:acc1/gpu-1 leased 23:31 for within-site rank pilot (elenakonkova/koz3-wsr-f0 not pushed yet — fresh lease, not stale, kept). Other slots free; no fill. dmitrijkv/koz3-tpu-smoke old QUEUED no lease. No change to report.
+- 31.10 23:45 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 31.10 23:49 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-wsr-f0 by coord
+
+## 31.10 ~23:57 MSK Elena t212u
+Night prompt tip `f127db8`. Exact nn_oof: `--init-weights models/spor_focal_r18.pt` (no flag = ImageNet reset → do not start); `--within-site-rank 1 --target centers --center-loss focal`; `--epochs 4 --batch 32 --lr 1e-4`; `--center-sigma 0 --center-radius 4 --center-min-dist 12`; one fold for quiet-true pilot family; cap 8h; account ≠ aaaa0000004. STOP same. Lease stays acc1/gpu-1 `elenakonkova/koz3-wsr-f0`.
+
+## 31.10 ~23:58 MSK Elena t213u
+Careful + no idle. v1 (custom rounds) cancelled by stub v2 COMPLETE; rebuilding v3 from f127db8 nn_oof exact flags on same lease acc1/gpu-1. Watch routine koz-3-wsr-f0-watch every 10m. No 2nd GPU. 0.41238 untouched.
+
+## 31.10 ~23:59 MSK Elena t214u
+Sleeping. A watches carefully overnight (routine every 10m + executor). Wake only RUNNING/COMPLETE/STOP/idle-under-lease. Hold 0.41238.
+- 31.10 23:59 MSK | lease | set-kernel slot:acc1/gpu-1 → elenakonkova/koz3-wsr-f0 by coord
+- 01.11 00:00 MSK | coord A exec | Elena t212u: v1 (own finetune) cancelled by noop v2; v3 pushed 23:59 = exact f127db8 recipe via nn_oof (fold0 Курганы, --init-weights spor_focal_r18, wsr 1, 4 ep, lr 1e-4, cap 8h) on elenakonkova/koz3-wsr-f0, lease slot:acc1/gpu-1; branch bots/a-within-site-rank d25ca53. No LB, no default.toml.
+- 01.11 00:02 MSK | check_conflicts | ERROR=6 WARN=2: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; worktree вне /workspace/koz3/wt: /workspace/koz3/expds-koz3 [bots/w2-lidar]; worktree вне /workspace/koz3/wt: /workspace/koz3/orch/bot-W1/e2e_v7/tree [(detached)]; ветка (detached) в двух worktree: /workspace/koz3/orch/bot-W1/e2e_v7/tree и /workspace/koz3/wt/ring-honest; ядро elenakonkova/koz3-acc2-tpu-smoke QUEUED без аренды; ядро dmitrijkv/koz3-tpu-smoke QUEUED без аренды
+- 01.11 00:03 MSK | wsr-f0 watch | elenakonkova/koz3-wsr-f0 v3 (f127db8 nn_oof, pushed 23:59) RUNNING; lease slot:acc1/gpu-1 held; no other koz3 GPU RUNNING. Quiet.
+- 01.11 00:04 MSK | quota&idle | elenakonkova/koz3-wsr-f0 RUNNING under lease slot:acc1/gpu-1 (valid till 07:31/09:00); no other koz3 kernel RUNNING on elenakonkova/dmitrijkv; all other slots free, no stale slot leases; no fill. No change.
+- 01.11 00:07 MSK | lease | release slot:acc1/gpu-1 (coord) by coord
+- 01.11 00:07 MSK | coord A exec | WSR pilot v3 COMPLETE (385 s, 23:59→00:06): STOP. Pilot Курганы (fold0, 270 quiet): median FP louder than best-in-GT 9→16 (13 with in-poly peak only); damaged F1@0.3645 0.6636→0.5561. Kernel done, lease slot:acc1/gpu-1 released, no 2nd GPU, default.toml/LB 0.41238 untouched, no zip. Out: out/wsr/k3.

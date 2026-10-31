@@ -7,10 +7,10 @@
    "account": "elenakonkova",
    "holder": null,
    "kernel": null,
-   "purpose": "A-exec sp_large fold0 only (PLAN_SP_LARGE); kernel elenakonkova/koz3-sp-large-f0 (cache build on box first)",
+   "purpose": "within-site rank pilot 5fd33ce ONE GPU no LB",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
-   "last": "снято coord 31.10 16:34 MSK",
+   "last": "снято coord 01.11 00:07 MSK",
    "state": "свободен"
   },
   {
@@ -29,21 +29,20 @@
    "account": "elenakonkova",
    "holder": null,
    "kernel": null,
-   "purpose": "w5-dino-vitb-tpu: DINOv2-B emb для W5 (план W2-a1g1/P-D4), TPU вместо пост-ресет GPU",
+   "purpose": "TPU smoke t188u",
    "prev": "elenakonkova/koz3-w5-dino-vitb-tpu",
-   "last": "снято coord 31.10 03:07 MSK",
+   "last": "снято coord 31.10 21:04 MSK",
    "state": "свободен"
   },
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": "coord",
+   "holder": null,
    "reserved_for": "bot-W1-aeor",
-   "kernel": "dmitrijkv/koz3-sp-large-f0",
+   "kernel": null,
    "purpose": "A sp_large f0 Elena switch to dmitrijkv (t182u)",
-   "last": "снято coord 31.10 12:34 MSK",
-   "since": "31.10 16:34 MSK",
-   "until": "01.11 02:34 MSK"
+   "last": "снято coord 31.10 17:12 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc2/gpu-2",
@@ -60,8 +59,8 @@
    "account": "dmitrijkv",
    "holder": null,
    "kernel": null,
-   "purpose": "vitb TPU hedge",
-   "last": "снято coord 31.10 03:07 MSK",
+   "purpose": "TPU smoke t188u",
+   "last": "снято coord 31.10 21:04 MSK",
    "prev": "dmitrijkv/koz3-w5-dino-vitb-tpu",
    "state": "свободен"
   },
@@ -297,16 +296,6 @@
    "note": "A-exec sp_large f0 data (code+cache+fold0 raw, no creds)",
    "host": "grok-bot-vm-288567805",
    "pid": 443080
-  },
-  {
-   "resource": "slot:acc2/gpu-1",
-   "owner": "coord",
-   "since": 1793453696.162603,
-   "expires": 1793489696.162603,
-   "note": "A sp_large f0 Elena switch to dmitrijkv (t182u)",
-   "host": "grok-bot-vm-288567805",
-   "pid": 448481,
-   "kernel": "dmitrijkv/koz3-sp-large-f0"
   },
   {
    "resource": "dataset:dmitrijkv/koz3-sp-large-f0-data",
