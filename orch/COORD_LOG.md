@@ -579,3 +579,30 @@
 - 01.11 21:37 MSK | check_conflicts | ERROR=2 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-lidar-aug-f0 RUNNING без аренды
 - 01.11 21:43 MSK coord(handoff-takeover): kernels: large-gate FAIL (Δ−0.00012 vs A), ae-dfine-gate FAIL (flag_dead smoke), lidar-aug f2 FAIL (0.343 vs ref 0.401), lidar-aug f0 v5 RUNNING. h2h PREREG 879453b: v3_on 0.3338 > v2+sat2 0.3236; v3_on+sat2 +0.0019 P0.941 FAIL. Final = v3_on. bots/handoff-2026-11-01 3b2ad52.
 - 01.11 21:43 MSK | lease | release branch:bots/handoff-2026-11-01 (coord) by coord
+- 01.11 21:52 MSK | coord | проверка: все GPU-ядра завершены (large-gate/lidar-aug-f0/sat2-check COMPLETE, ae-dfine-gate ×2 ERROR — у W1); GPU acc1/acc2 свободны, ждут решений ботов; box load 2.1/8 (q1 W1, q3); QUEUE: только устаревшие пункты 29.10; финал v3_on зафиксирован; вывод lidar-aug-f0 → out/lidar-aug-f0_v5; check_conflicts ERROR=1 (грязный клон); Елене — ничего.
+- 01.11 21:54 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 21:56 MSK | lease | acquire slot:box/q2 → bot-W2-lidar до 01.11 22:56 MSK lidar-aug f3/f4 Li-only eval vs c3-sc (CPU)
+- 01.11 21:57 MSK | bot-W2-lidar | lidar-aug ЗАКРЫТА: Li-only F1@0.3 (compute_metrics, GT фолда) c7-sc aug vs c3-sc s2 тех же участков — f2 0.343/0.401, f3 0.313/0.361, f4 0.308/0.319 (s3 0.337); mean 0.321 vs 0.360 (Δ−0.039). OOF проверены (f3 18 / f4 21 участков, фолды по region_fold, GT идентичен). Новых GPU-запусков нет. bots/w2-lidar 5912dc2 w2_notes/lidar_aug/
+- 01.11 21:57 MSK | lease | release slot:box/q2 (bot-W2-lidar) by bot-W2-lidar
+- 01.11 21:58 MSK | lease | acquire dataset:elenakonkova/koz3-w2-weights → bot-W2-lidar до 01.11 23:58 MSK P-W2-11: новая версия koz3-w2-weights с настоящим s1f4
+- 01.11 21:59 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-v3onfix → bot-W4-v3fix до 02.11 00:59 MSK 
+- 01.11 21:59 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v3onfix → bot-W4-v3fix до 02.11 00:59 MSK 
+- 01.11 22:02 MSK | lease | release dataset:elenakonkova/koz3-w2-weights (bot-W2-lidar) by bot-W2-lidar
+- 01.11 22:03 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v3onchk → bot-W4-v3fix до 02.11 01:03 MSK 
+- 01.11 22:03 MSK | lease | release kernel:aaaa0000004/koz3-w4-v3onfix (bot-W4-v3fix) by bot-W4-v3fix
+- 01.11 22:03 MSK | lease | release branch:bots/w1-cfdeploy (bot-W1-aeor) by bot-W1-aeor
+- 01.11 22:03 MSK | lease | release slot:box/q1 (bot-W1-aeor) by bot-W1-aeor
+- 01.11 22:05 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 01.11 23:05 MSK P-W2-9 PREREG amend + r50c5 status
+- 01.11 22:06 MSK | lease | acquire slot:box/q1 → coord до 02.11 01:06 MSK C1 G1/G2 prod-ctx gates
+- 01.11 22:06 MSK | lease | acquire branch:bots/c1-gates-1101 → coord до 02.11 02:06 MSK C1 gates PREREG+results
+- 01.11 22:07 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 01.11 22:06 MSK | coord | проверка: GPU acc1/acc2 без запущенных ядер (последние завершены ~21:33), ждут решений ботов; W4 v3onchk на aaaa0000004 (CPU); box load 2.0/8 (q1 освобождён W1); QUEUE: ready-пункты устаревшие (29.10); Елене — ничего.
+- 01.11 22:10 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 02.11 01:10 MSK W1 v3on gate-vs-prod replay
+- 01.11 22:10 MSK | lease | acquire branch:bots/w1-cfdeploy → bot-W1-aeor до 02.11 01:10 MSK W1 v3on prod audit
+- 01.11 22:11 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 02.11 01:11 MSK W2 r50c5 prod-ctx gate PREREG+results
+- 01.11 22:11 MSK | lease | acquire slot:box/q3 → bot-W2-lidar до 02.11 01:11 MSK W2 li_r50c5 gate on V3P (CPU, ~3GB)
+- 01.11 22:11 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 22:13 MSK | bot-W2-lidar | r50c5 reopened by coord, early-stop PASS (f0 0.3713 / f1 0.5078, mean 0.4395 > 0.3492; kurgans f0 0.3989); PREREG P-W2-9 amendment 2 (prod-context gate li_r50c5 on V3P, Δ≥0.003, P≥0.95, class floors ≥−0.005) = bots/w2-lidar 29e6aed (on top of d927599); OOF 5/5 validated; gate running on slot:box/q3
+- 01.11 22:13 MSK | coord-C1 | security: deleted dmitrijkv+elenakonkova/koz3-s3-cred (no RUNNING deps, verified 403/absent); other datasets incl. koz3-handoff clean; koz3 clones/worktrees → clean URL + env GITHUB_TOKEN helper; S3 keys = organizer-issued, not rotatable by us. Gates bots/c1-gates-1101 d2ce07a (PREREG 1eb216d, v3_on prod ctx, V3P-PC 0.345852): G1 sat2-kp Δ+0.00188 P0.9425 FAIL; G2 li nms8 non-kurgan Δ−0.00285 P0.0045 new34 −0.006 FAIL. v3_on unchanged.
+- 01.11 22:13 MSK | lease | release slot:box/q1 (coord) by coord
+- 01.11 22:13 MSK | lease | release branch:bots/c1-gates-1101 (coord) by coord

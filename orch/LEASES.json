@@ -123,12 +123,11 @@
   },
   {
    "slot": "box/q1",
-   "holder": "bot-W1-aeor",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W4-v4 01.11 21:24 MSK",
-   "purpose": "W1 J2-nocnx decomposition + one variant",
-   "since": "01.11 21:27 MSK",
-   "until": "02.11 01:27 MSK"
+   "last": "снято coord 01.11 22:13 MSK",
+   "purpose": "C1 G1/G2 prod-ctx gates",
+   "state": "свободен"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -148,20 +147,21 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W1-aeor",
    "kernel": null,
-   "last": "снято bot-W1-aeor 01.11 20:57 MSK",
-   "purpose": "cloudfeat parity (W4 handoff), nice10 thr4",
-   "state": "свободен"
+   "last": "снято bot-W2-lidar 01.11 21:57 MSK",
+   "purpose": "W1 v3on gate-vs-prod replay",
+   "since": "01.11 22:10 MSK",
+   "until": "02.11 01:10 MSK"
   },
   {
    "slot": "box/q3",
-   "holder": "bot-W4-j2",
+   "holder": "bot-W2-lidar",
    "kernel": null,
    "last": "снято coord 30.10 16:21 MSK",
-   "purpose": "W4 independent regate W1 J2",
-   "since": "30.10 16:34 MSK",
-   "until": "30.10 20:34 MSK"
+   "purpose": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
+   "since": "01.11 22:11 MSK",
+   "until": "02.11 01:11 MSK"
   }
  ],
  "kernel_prefix": {
@@ -347,31 +347,58 @@
    "pid": 658530
   },
   {
-   "resource": "slot:box/q3",
-   "owner": "bot-W4-j2",
-   "since": 1793367277.245731,
-   "expires": 1793381677.245731,
-   "note": "W4 independent regate W1 J2",
+   "resource": "dataset:aaaa0000004/koz3-w4-v3onfix",
+   "owner": "bot-W4-v3fix",
+   "since": 1793559597.30018,
+   "expires": 1793570397.30018,
+   "note": "",
    "host": "grok-bot-vm-361051398",
-   "pid": 680122
+   "pid": 783546
   },
   {
-   "resource": "slot:box/q1",
-   "owner": "bot-W1-aeor",
-   "since": 1793557627.786358,
-   "expires": 1793572027.786358,
-   "note": "W1 J2-nocnx decomposition + one variant",
+   "resource": "kernel:aaaa0000004/koz3-w4-v3onchk",
+   "owner": "bot-W4-v3fix",
+   "since": 1793559783.452495,
+   "expires": 1793570583.452495,
+   "note": "",
    "host": "grok-bot-vm-361051398",
-   "pid": 757276
+   "pid": 787307
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W1-aeor",
+   "since": 1793560202.853896,
+   "expires": 1793571002.853896,
+   "note": "W1 v3on gate-vs-prod replay",
+   "host": "grok-bot-vm-361051398",
+   "pid": 797609
   },
   {
    "resource": "branch:bots/w1-cfdeploy",
    "owner": "bot-W1-aeor",
-   "since": 1793557627.821839,
-   "expires": 1793579227.821839,
-   "note": "J2nc variant",
+   "since": 1793560202.889219,
+   "expires": 1793571002.889219,
+   "note": "W1 v3on prod audit",
    "host": "grok-bot-vm-361051398",
-   "pid": 757281
+   "pid": 797615
+  },
+  {
+   "resource": "branch:bots/w2-lidar",
+   "owner": "bot-W2-lidar",
+   "since": 1793560293.316339,
+   "expires": 1793571093.316339,
+   "note": "W2 r50c5 prod-ctx gate PREREG+results",
+   "host": "grok-bot-vm-361051398",
+   "pid": 799756
+  },
+  {
+   "resource": "slot:box/q3",
+   "owner": "bot-W2-lidar",
+   "since": 1793560293.346469,
+   "expires": 1793571093.346469,
+   "note": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 799761
   }
  ]
 }
