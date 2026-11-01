@@ -525,3 +525,11 @@
 - Report: reports/v2_fr1h_candidate_2026-11-01.md (RU) + orch/reports_v2_fr1h_candidate_2026-11-01.md. Ready for Elena decision; NO LB submit; NO main push
 - Leases released. TPU: no non-duplicate ready job; lidar-aug f0/f2 untouched RUNNING
 - 01.11 01.11 19:38 MSK | lease | release kernel+slot fr1h×3 by bot-W4-gate
+
+## 01.11 20:22 MSK — coord hourly pass
+- acc1 elenakonkova: w4-li-post-full RUNNING, w1-sat2-gate RUNNING (full). w4-li-post-gate COMPLETE, но output пустой при pull — W4, проверь (li-post-full, видимо, заменяет).
+- acc2 dmitrijkv: w1-lidar-aug-f2, w3-gordense-timing2, bot6-pixgbm-cr-gate (перезапущен) RUNNING (full).
+- bot7-geo-gate и bot7-sat-recall COMPLETE, но INVALID: все рычаги mode=prior_only, stack=null, score/delta/p_gt0=null ("Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1"). Гейт не выполнен → W7: подключить stack/scoreboard и перезапустить; не считать pass/fail.
+- fr1h кандидат: zip 500.8 MiB > 100 MB лимита compliance из протокола — проверить требование до сабмита.
+- CPU-акки свободны: готовых offline CPU-пакетов в очереди нет.
+- Квота Grok Bot: 28.9% осталось (52% в 19:37) — экономия близко.
