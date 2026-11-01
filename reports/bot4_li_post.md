@@ -39,6 +39,20 @@ gorodishcha/fortifikatsii остаются 0.15.
 
 Per-class Δ от thr_nested (kurgany): povr F1 0.269→0.413; tselye 0.343→0.540.
 
+### Kaggle COMPLETE (`elenakonkova/koz3-w4-li-post-gate`)
+
+Выход: `/workspace/kaggle_out/lipost/li_post_honest.json` (2026-11-01).
+Числа **совпали** с dry-run (Li-layer only, не full-stack):
+
+| вариант | F1 | ΔF1 |
+|---|---|---|
+| OFF (τ=0.15) | **0.2803** | — |
+| thr_nested | **0.3983** | **+0.1180** |
+| thr_nms8 | **0.3998** | **+0.1195** |
+| nms12 alone | 0.2847 | +0.0044 |
+
+Full-stack honest-10 vs B′=0.315800 — пакет `/workspace/kaggle/push/li-post-full/` (см. ниже / COORD).
+
 ### Выбранные рычаги (1–2, дешёвые, без retrain)
 
 1. **`class_tau`** — абсолютные полы conf по классу для `li*`-группы после `apply_thresholds`.
@@ -52,7 +66,7 @@ Per-class Δ от thr_nested (kurgany): povr F1 0.269→0.413; tselye 0.343→0.
 Li ≈ 33 % LB, публичный P/R≈0.50. OOF c3-sc после τ=0.15 даёт F1_li≈0.28 → 0.40
 (+0.12 layer). Перенос на полный стек/LB сильно меньше (уже есть thr/dedupe_m у li_cnx,
 слой в стеке A слабее аддитивно historically FAIL): **+0.003…+0.015** к LB
-(**labelled estimate**; честный full-stack gate ещё не гонялся).
+(**labelled estimate**; full-stack → `li-post-full` Kaggle package, box lacks stack_arch/bprime_counts/fam0 jsonl).
 
 ### Kaggle package
 
@@ -63,6 +77,17 @@ Dry-run box: exit 0, STATUS=DONE, 17.4 s → `dryrun/li_post_honest.json`.
 
 ```bash
 orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/li-post-gate
+```
+
+### Full-stack package (vs B′ 0.315800)
+
+`/workspace/kaggle/push/li-post-full/` slug `elenakonkova/koz3-w4-li-post-full`.
+CPU, **internet off**. Datasets: `elenakonkova/koz3-w2-gate` + `elenakonkova/koz3-w2-oof`.
+Variants: baseline stack | thr_nested | thr_nms8 (floors from nested LOFO; flags ON only in kernel).
+На боксе `stack_arch` / `base_counts.pkl` / `bprime_counts.pkl` / fam0 jsonl **нет** (fam0 только `_counts.json`); w2-gate download 403 → full gate только на Kaggle.
+
+```bash
+orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/li-post-full
 ```
 
 ### Код
