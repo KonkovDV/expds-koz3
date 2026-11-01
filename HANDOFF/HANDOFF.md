@@ -23,3 +23,7 @@ Reports index: [snapshot/2026-11-01/INDEX.md](../snapshot/2026-11-01/INDEX.md) �
 - Dmitrij's "да" for FR1h / combo submission (Elena submits)
 - Rotate S3 keys after lidar folds finish
 - Retry koz3-w3-geo5-feat-base mirror to CPU accounts
+
+## Update 01.11 ~21:45 MSK (takeover bot) — see reports/h2h_20261101/RESULTS.md
+- large-gate FAIL (fixc_nested Δ−0.00012 vs A); ae-dfine-gate FAIL (flag_dead smoke); lidar-aug f2 fold FAIL (0.343 vs ref 0.401, early-stop); lidar-aug f0 v5 (folds 3,4) still RUNNING.
+- Same-engine h2h: v3_on 0.3338 > v2+sat2 0.3236 (Δ−0.0102); v3_on+sat2 +0.0019 P0.941 FAIL. Final = v3_on; FR1h dropped.
