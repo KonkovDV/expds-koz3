@@ -1,69 +1,52 @@
 # pixgbm-cr — Kaggle CPU e2e geo F1 gate (bot-6)
 
-Private CPU kernel. **Do not push from bot-6** — coord «1» creates datasets then pushes.
+Private CPU kernel on **dmitrijkv**. Branch `bots/bot6-pixgbm-cleanroom`.
 
 ## Goal
 
-REF (v2 `eb268d6` **output**) vs CAND (`submission_pixgbm_clean_e1g1_p4_lleaves.zip`)
-on regions **200–217**: `|dF1| ≤ 0.01` on ALL + maggr/etgr/terfl via
-`helpers/bot6_r3_gate.py`.
+REF = **v2 eb268d6** (via `fr1h.zip.bin` with **FR1h forced OFF**) vs
+CAND = `submission_pixgbm_clean_e1g1_p4_lleaves.zip` on regions **200–217**:
+`|dF1| ≤ 0.01` on ALL + maggr/etgr/terfl (`helpers/bot6_r3_gate.py`).
+
+## FR1h flag
+
+| | |
+|---|---|
+| Name | TOML `[post.frame_prior]` → `cfg["post"]["frame_prior"]` |
+| Env var | none |
+| Default in `fr1h.zip.bin` | **ON** (section present) |
+| Force OFF | delete `[post.frame_prior]` + restore archive SpOr kurgan taus (`0.3645`/`0.3725`, `0.501645`/`0.645505`) |
+| v2 equality | `expds/geo_pixgbm.py` sha `35e4331b…` and `models/pixgbm/all` match eb268d6; with FR1h OFF the SpOr overlay is inactive (geo path was already byte-identical to v2 even with FR1h ON per FR1H_PACK) |
 
 ## Kernel
 
 | Field | Value |
 |---|---|
 | id | `dmitrijkv/koz3-bot6-pixgbm-cr-gate` |
-| owner | **dmitrijkv** |
-| enable_internet | **true** (S3 + optional pip) |
+| enable_internet | **true** |
 | enable_gpu | **false** |
 | code_file | `pixgbm_cr_gate.py` |
-| default `GATE_MODE` | `auto` (REF output + CAND zip) |
 
-## Geo data (S3)
-
-Raw MagGr/EtGr/TerFl rasters + GT labels for 200–217 are pulled inside the kernel
-from bucket `train-expds-3` (`https://s3.ru-7.storage.selcloud.ru`, region `ru-7`).
-Cached under `/kaggle/working/train-expds-3` with skip-if-exists + size check.
-
-Credentials: Kaggle Secrets `KOZ3_S3_ACCESS_KEY_ID` / `KOZ3_S3_SECRET_ACCESS_KEY`,
-fallback dataset `dmitrijkv/koz3-s3-cred` (`cred.json`). **Never log keys.**
-
-S3 API is an inline block in `rebuild_w4_geo_tree.py` marked
-`BEGIN/END koz3_s3` — swap later with `bots/bot7-geo-gate` `kaggle/common/koz3_s3.py`.
-
-`koz3-w4-geo-s000/s001` are **not** wired (do not exist).
+Flow: S3-fetch geo 200–217 → copy/verify `fr1h.zip.bin` SHA256 → unzip →
+FR1h OFF + r3 overrides → per-region REF infer (geo_pixgbm) → CAND zip same way
+(pix_clean) → GT/score → r3 gate. Checkpoints under `pixgbm_cr/ckpt_{ref,cand}/`.
 
 ## dataset_sources
 
 ```
 dmitrijkv/koz3-s3-cred
-dmitrijkv/koz3-pixgbm-cr-ref      # create: v2 result.geojson ONLY
-dmitrijkv/koz3-pixgbm-cr-cand     # create: clean zip already staged
-dmitrijkv/koz3-pixgbm-cr-wheels   # create: zstandard wheels
+dmitrijkv/koz3-fr1h-chk-20261101   # REF (exists)
+dmitrijkv/koz3-pixgbm-cr-cand      # «1» creates
+dmitrijkv/koz3-pixgbm-cr-wheels    # «1» creates
 ```
 
-## Datasets «1» must create
+`ds/pixgbm-cr-ref/` is **unused** (superseded by fr1h-chk). Do not create `koz3-pixgbm-cr-ref`.
 
-1. `dmitrijkv/koz3-pixgbm-cr-wheels` ← `ds/pixgbm-cr-wheels/`
-2. `dmitrijkv/koz3-pixgbm-cr-cand` ← `ds/pixgbm-cr-cand/` (zip present)
-3. `dmitrijkv/koz3-pixgbm-cr-ref` ← `ds/pixgbm-cr-ref/` **after** dropping v2 `result.geojson` for 200–217
-4. Confirm `dmitrijkv/koz3-s3-cred` exists and is attachable (or Secrets set on the kernel)
+## Runtime (Kaggle CPU ~4 vCPU, 12h / ~20GB)
 
-## REF contents
-
-**Empty of v2 output on this box.** No `result.geojson` covering 200–217 was found
-(bot2_v2 docker mock = `101_*`). Staging folder holds README + drop marker only.
-EN `geo_pixgbm.py` / models were removed and must not be re-added.
-
-## CAND
-
-`submission_pixgbm_clean_e1g1_p4_lleaves.zip` sha256
-`ed51cae4a2083830588f272613d4b97e108af439fa5c3f555fa135a56c902590` — verified.
-
-## Offline deps
-
-Prefer `koz3-pixgbm-cr-wheels` (`zstandard`). Network `pip install boto3` allowed
-if wheels miss it. Inference stack expected on Kaggle CPU image.
+Estimate **1–3 h** for 18 regions × 2 runs (prior FR1h geo black-box ≈ 267 s on 6-cpu
+image for one pass; pix_clean ens6 slower). Per-region resume keeps worst case ≪ 12 h.
+Working disk: ~0.5 GB zip + ~0.6 GB unpack ×2 + ~1–2 GB geo cache ≪ 20 GB.
 
 ## Local check
 
@@ -71,12 +54,8 @@ if wheels miss it. Inference stack expected on Kaggle CPU image.
 python pixgbm_cr_gate.py --syntax
 ```
 
-## Push (coord «1» only)
+## Datasets «1» must create before kernel push
 
-```bash
-kaggle datasets create -p ds/pixgbm-cr-wheels --dir-mode zip
-kaggle datasets create -p ds/pixgbm-cr-cand   --dir-mode zip
-# after REF geojson dropped:
-kaggle datasets create -p ds/pixgbm-cr-ref    --dir-mode zip
-kaggle kernels push -p .
-```
+1. `dmitrijkv/koz3-pixgbm-cr-cand` ← `ds/pixgbm-cr-cand/` (zip on push path)
+2. `dmitrijkv/koz3-pixgbm-cr-wheels` ← `ds/pixgbm-cr-wheels/`
+3. Confirm Secrets `KOZ3_S3_*` or attachable `koz3-s3-cred`

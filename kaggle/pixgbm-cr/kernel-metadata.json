@@ -10,7 +10,7 @@
   "enable_internet": true,
   "dataset_sources": [
     "dmitrijkv/koz3-s3-cred",
-    "dmitrijkv/koz3-pixgbm-cr-ref",
+    "dmitrijkv/koz3-fr1h-chk-20261101",
     "dmitrijkv/koz3-pixgbm-cr-cand",
     "dmitrijkv/koz3-pixgbm-cr-wheels"
   ],
