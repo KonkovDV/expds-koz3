@@ -27,6 +27,7 @@
 29.10 22:15 MSK | W4 | перезамер v3 одним пакетом на коробке невозможен: нет table.pkl / OOF-стека A (F:/expds3/work на ПК, ПК офлайн) | — | orch/bot-W4/STATUS.md
 29.10 22:15 MSK | W4 | v3 e2e на ПК (pc_e2e_v3.ps1) и замер времени 4090 — не сделаны | — | docs/STATUS_2026-10-29.md
 
+01.11 19:47 MSK | bot7 | geo-gate S3+helper `11a47d2a` + пакет dmitrijkv/koz3-bot7-geo-gate READY (не пушен); suite 1016p/2 prefails; PR #26 draft | bots/bot7-geo-gate
 ## 29.10 22:55 MSK — W4: воспроизведение v2 (eb268d6, LB 0.41238) из main — ветка bots/w4-repro-v2 56cdf39
 
 * Причина разрыва ≈−0.012: в main нет 4 release-артефактов v2 — `expds/geo_pixgbm.py`, `models/pixgbm/all/{poly,finds}.txt`,

@@ -70,4 +70,4 @@
 - **Мелочь в пакет:** TOfix (после починки и решения по правилам), geo_convex_hull, A2+R3, fort 0,5 м.
 - Шум площадки: SD Δ ≈ 0,005. Финальный пакет мерится целиком: crop × курганы не аддитивны.
 
-| 28 | **bot7-geo-gate** L1 extremum_snap_m + L2 finds_nms_m + L3 geo_convex_hull (все OFF) | prior Σ~0.003–0.005 | — | suite 1001p/2 prefails | ⏳ пакет `/workspace/kaggle/push/geo-gate/` | [bot7_geo_gate](../../../../../../home/box/shared/koz3/reports/bot7_geo_gate.md) tip f25a0b1b |
+| 28 | **bot7-geo-gate** L1/L2/L3 OFF + S3 via `kaggle/common/koz3_s3.py` (CPU, internet) | prior Σ~0.003–0.005 | — | suite 1016p/65s/2 prefails dfine (0 new) | ✅ пакет `/workspace/kaggle/push/geo-gate/` slug `dmitrijkv/koz3-bot7-geo-gate`; helper tip `11a47d2a` | [bot7_geo_gate](../../../../../../home/box/shared/koz3/reports/bot7_geo_gate.md) |
