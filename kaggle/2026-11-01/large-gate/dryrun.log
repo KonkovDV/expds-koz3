@@ -1,5 +1,5 @@
 [      0s] large-gate start boot 2000 tau_large 0.2 min_area 5000.0
-[      0s] Plan (b): NO fam0. S3 index 2132 objs = raw train only (0 fam0 hits). stack_arch is post-thr — cannot rebuild fam0 (~1.39M pre-thr). Inject D-FINE ae OOF slim (698 Fix-C-pass: area≥5k ∩ conf≥0.20, all conf≪1.01) into w5base stack → prep → gate_v6c vs B′. Variants: baseline / area_tau / fixc_nested.
-[      0s] HERE local package /workspace/kaggle/push/large-gate
-[      0s] HERE /workspace/kaggle/push/large-gate
-[      0s] MISSING_INPUT w5base/stack_arch.geojson not found (need elenakonkova/koz3-w2-gate or LARGE_GATE_W5BASE). fam0 jsonl absent in S3/xfer; this kernel injects ae D-FINE OOF slim into post-thr stack (Fix C path), not fam0 rebuild.
+[      0s] Plan (b): NO fam0. Sidecars from koz3-w4-large-gate-code dataset. Inject D-FINE ae OOF slim (698 Fix-C-pass) into w5base stack → prep → gate_v6c vs B′.
+[      0s] HERE kaggle input /tmp/lg_clean_dry/input/koz3-w4-large-gate-code
+[      0s] HERE /tmp/lg_clean_dry/input/koz3-w4-large-gate-code
+[      0s] MISSING_INPUT w5base/stack_arch.geojson not found (need elenakonkova/koz3-w2-gate or LARGE_GATE_W5BASE).

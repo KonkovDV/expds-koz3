@@ -166,3 +166,10 @@ Docker mock+honest-10: оба плеча `[dfine_aeor] ae ON`; ON += Fix C only.
 ## Следующий пункт BACKLOG
 
 Дождаться Fix C mock+honest Δ; при PASS — кандидат в стек с Fix A (не полный LO). OOF post-tuning tau_relax — SUPERSEDED Fix C.
+
+### large-gate shrink (01.11.2026 20:25 Europe/Moscow)
+
+Kernel **17 335 B** (no embed). Sidecars → dataset `elenakonkova/koz3-w4-large-gate-code`
+(`/workspace/kaggle/push/large-gate-ds`, ~3.2 MB). Dry-run clean folder: `DONE MISSING_INPUT`.
+Push order: datasets create/version **then** kernels push. Bot does not push Kaggle.
+

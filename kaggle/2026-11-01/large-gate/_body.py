@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 """koz3-w4-large-gate — full-stack honest-10 for [large_objects] vs B′.
 
-CPU, internet-off. Dataset: elenakonkova/koz3-w2-gate (w5base stack_arch + GT + counts).
-Sidecars (vendor/w5_rerank/scripts/data) embedded as gzip+base64 (Kaggle script
-kernels upload only this code_file). Embedded data/ae_dfine_gor_oof_slim.jsonl.gz
-= D-FINE ae OOF gorodishcha (area≥5k OR conf≥0.15) for Fix C / area_tau inject;
-NOT fam0 (fam0 missing in S3 + xfer; rebuilding from post-thr stack_arch invalid).
+CPU, internet-off.
+Datasets:
+  - elenakonkova/koz3-w2-gate (w5base stack_arch + GT + counts)
+  - elenakonkova/koz3-w4-large-gate-code (vendor/w5_rerank/scripts/data OOF slim)
+
+Sidecars live in the code dataset (kernel .py kept <1 MB — OOF alone is ~2.4 MB).
+Plan (b): NO fam0; inject D-FINE ae OOF slim into stack_arch → prep → gate_v6c.
 
 Contract
   goal: do large-object flags (off / area_tau / fixc_nested) move honest-10 vs B′=0.315800?
-  hypothesis: Fix C (dfine_ae_gor τ_large≈0.20 for box≥5k м²) can revive large ae
-              gorodishcha killed by production τ=1.01; expect modest Δ, may fail gate.
   criterion: Δ≥+0.003 vs B′, p_gt0≥0.9, no layer (li/ae/sp_or) drop >0.01, damaged ok
   P means: paired bootstrap p_gt0 — NOT precision
-  thr: τ_large=0.20 from default.toml (fold-proxy median was 0.10 — keep 0.20; nested
-       LOFO on fam0 unavailable). area_tau uses tau_relax/floor from large_objects.spec.
-  flags: [large_objects] OFF in repo; this kernel applies levers via stack inject.
+  thr: τ_large=0.20 from default.toml
   budget: CPU ~20–60 min; branch bots/bot4-large-objects; no LB submit
 """
 from __future__ import annotations
 
-import base64, gzip, io, json, os, shutil, subprocess, sys, time, hashlib, glob, tarfile
+import json, os, shutil, subprocess, sys, time, hashlib, glob
 from pathlib import Path
 
 T0 = time.time()
@@ -32,15 +30,8 @@ A_SCORE = 0.314615
 PASS_D = 0.003
 PASS_P = 0.9
 LAYER_DROP_MAX = 0.01
-# Fix C nested deploy τ (default.toml dfine_ae_gor_tau_large); fold-proxy median 0.10
-# was crude without GT match — keep config 0.20 for fixc_nested.
 TAU_LARGE = float(os.environ.get("LARGE_GATE_TAU_LARGE", "0.20"))
 MIN_AREA = float(os.environ.get("LARGE_GATE_MIN_AREA", "5000"))
-
-# --- embedded sidecar blob; filled by build_embed.py ---
-BUNDLE_GZ_B64 = r"""
-<<<BUILD_EMBED>>>
-"""
 
 
 def log(*a):
@@ -58,47 +49,49 @@ def sha256(p: Path) -> str:
     return h.hexdigest()
 
 
-def extract_bundle(dest: Path) -> None:
-    dest.mkdir(parents=True, exist_ok=True)
-    blob = BUNDLE_GZ_B64.strip()
-    if blob.startswith("<<<") or not blob:
-        raise RuntimeError("BUNDLE_GZ_B64 not embedded — run build_embed.py")
-    raw = gzip.decompress(base64.b64decode(blob))
-    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as tf:
-        try:
-            tf.extractall(dest, filter="data")
-        except (TypeError, ValueError):
-            tf.extractall(dest)
+def _has_code(root: Path) -> bool:
+    return (root / "w5_rerank" / "gate_v6c.py").is_file() and (
+        root / "scripts" / "stack_apply_large_objects.py"
+    ).is_file()
 
 
 def resolve_here() -> Path:
+    """Code root: env → local package → /kaggle/input/.../koz3-w4-large-gate-code."""
+    env = os.environ.get("LARGE_GATE_CODE")
+    if env and _has_code(Path(env)):
+        log("HERE LARGE_GATE_CODE", env)
+        return Path(env)
     script_dir = Path(__file__).resolve().parent
-    local_marker = script_dir / "vendor" / "materials" / "compute_metrics.py"
-    if local_marker.is_file():
+    if _has_code(script_dir):
         log("HERE local package", script_dir)
         return script_dir
-    dest = Path(os.environ.get("LARGE_GATE_BUNDLE", "/kaggle/working/_lg_bundle"))
-    marker = dest / "vendor" / "materials" / "compute_metrics.py"
-    if not marker.is_file():
-        log("extract embedded sidecars →", dest)
-        extract_bundle(dest)
-    else:
-        log("HERE cached bundle", dest)
-    need = [
-        "vendor/materials/compute_metrics.py",
-        "vendor/expds/large_objects.py",
-        "vendor/expds/metric.py",
-        "vendor/notes/las_boxes_59.json",
-        "w5_rerank/prep.py",
-        "w5_rerank/gate_v6c.py",
-        "scripts/stack_apply_large_objects.py",
-        "data/ae_dfine_gor_oof_slim.jsonl.gz",
-        "data/family_clusters.json",
-    ]
-    miss = [p for p in need if not (dest / p).is_file()]
-    if miss:
-        raise FileNotFoundError(f"sidecar missing after extract: {miss}")
-    return dest
+    roots = [Path(os.environ.get("KAGGLE_INPUT", "/kaggle/input")), Path("/kaggle/input")]
+    cands: list[Path] = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for pat in (
+            "koz3-w4-large-gate-code",
+            "datasets/elenakonkova/koz3-w4-large-gate-code",
+            "**/koz3-w4-large-gate-code",
+        ):
+            cands += [Path(x) for x in glob.glob(str(root / pat), recursive=True)]
+    seen = set()
+    for p in cands:
+        try:
+            rp = p.resolve()
+        except Exception:
+            continue
+        if rp in seen:
+            continue
+        seen.add(rp)
+        if _has_code(p):
+            log("HERE kaggle input", p)
+            return p
+    raise FileNotFoundError(
+        "large-gate code root not found — attach elenakonkova/koz3-w4-large-gate-code "
+        "or set LARGE_GATE_CODE to a dir with w5_rerank/ + scripts/ + data/"
+    )
 
 
 def find_w5base() -> Path:
@@ -131,8 +124,7 @@ def find_w5base() -> Path:
             return p
     raise FileNotFoundError(
         "w5base/stack_arch.geojson not found (need elenakonkova/koz3-w2-gate "
-        "or LARGE_GATE_W5BASE). fam0 jsonl absent in S3/xfer; this kernel injects "
-        "ae D-FINE OOF slim into post-thr stack (Fix C path), not fam0 rebuild."
+        "or LARGE_GATE_W5BASE)."
     )
 
 
@@ -165,10 +157,11 @@ def setup_vendor_root(work: Path, here: Path) -> Path:
     src_metric = here / "vendor" / "materials" / "compute_metrics.py"
     shutil.copy(src_metric, root / "materials" / "compute_metrics.py")
     (root / "materials" / "__init__.py").write_text("")
-    for f in (here / "vendor" / "notes").iterdir():
-        if f.is_file():
-            shutil.copy(f, root / "notes" / f.name)
-    # family_clusters for prep if needed
+    notes = here / "vendor" / "notes"
+    if notes.is_dir():
+        for f in notes.iterdir():
+            if f.is_file():
+                shutil.copy(f, root / "notes" / f.name)
     fc = here / "data" / "family_clusters.json"
     if fc.is_file():
         shutil.copy(fc, root / "notes" / "family_clusters.json")
@@ -291,16 +284,30 @@ def main():
     (OUT / "STATUS.txt").write_text("RUNNING\n")
     log("large-gate start boot", BOOT, "tau_large", TAU_LARGE, "min_area", MIN_AREA)
     log(
-        "Plan (b): NO fam0. S3 index 2132 objs = raw train only (0 fam0 hits). "
-        "stack_arch is post-thr — cannot rebuild fam0 (~1.39M pre-thr). "
-        "Inject D-FINE ae OOF slim (698 Fix-C-pass: area≥5k ∩ conf≥0.20, all conf≪1.01) "
-        "into w5base stack → prep → gate_v6c vs B′. Variants: baseline / area_tau / fixc_nested."
+        "Plan (b): NO fam0. Sidecars from koz3-w4-large-gate-code dataset. "
+        "Inject D-FINE ae OOF slim (698 Fix-C-pass) into w5base stack → prep → gate_v6c vs B′."
     )
-    here = resolve_here()
+    try:
+        here = resolve_here()
+    except FileNotFoundError as e:
+        log("MISSING_INPUT", e)
+        summary = {
+            "status": "MISSING_INPUT",
+            "error": str(e),
+            "Bprime": BPRIME_SCORE,
+            "plan": "b_no_fam0_inject_ae_oof",
+            "note": "Attach elenakonkova/koz3-w4-large-gate-code (+ koz3-w2-gate).",
+        }
+        (OUT / "summary.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False))
+        with open(OUT / "STATUS.txt", "a", encoding="utf-8") as f:
+            f.write("DONE MISSING_INPUT\n")
+        return
+
     log("HERE", here)
     ae_oof = here / "data" / "ae_dfine_gor_oof_slim.jsonl.gz"
     if not ae_oof.is_file():
         log("WARN missing ae OOF slim", ae_oof)
+
     try:
         w5 = find_w5base()
     except FileNotFoundError as e:
@@ -312,9 +319,10 @@ def main():
             "plan": "b_no_fam0_inject_ae_oof",
             "note": (
                 "Attach elenakonkova/koz3-w2-gate (w5base). fam0 not in S3/xfer; "
-                "ae OOF slim embedded for Fix C. Box often lacks stack_arch/counts."
+                "ae OOF slim in koz3-w4-large-gate-code."
             ),
-            "ae_oof_embedded": ae_oof.is_file(),
+            "ae_oof": ae_oof.is_file(),
+            "code_root": str(here),
             "tau_large": TAU_LARGE,
         }
         (OUT / "summary.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False))
@@ -336,7 +344,6 @@ def main():
     if base_name != "Bprime":
         log("WARN no bprime_counts.pkl — gating vs A; also report score−B′ abs", BPRIME_SCORE)
 
-    # mode tags: baseline=off, area_tau, fixc(=fixc_nested deploy τ)
     variants = [
         ("baseline", "baseline"),
         ("area_tau", "area_tau"),
@@ -403,16 +410,14 @@ def main():
         "protocol": "ae OOF inject → prep → gate_v6c honest-10; NO fam0",
         "plan": "b_no_fam0_inject_ae_oof",
         "why_not_a": (
-            "fam0 (~1.39M/103 fam pre-thr jsonl) absent in S3 (0 hits) and xfer; "
-            "stack_arch is post-threshold — split_stack_by_family cannot revive "
-            "preds dropped by τ=1.01 on ae gorodishcha."
+            "fam0 absent in S3/xfer; stack_arch post-thr cannot revive τ=1.01 drops."
         ),
         "Bprime_how": (
-            "B′=0.315800 = documented Ae-ON / flags-off honest-10 baseline. "
-            "Pair vs bprime_counts if present else vs A + score−0.315800 abs."
+            "B′=0.315800 documented Ae-ON flags-off. Pair vs bprime_counts else A + abs."
         ),
         "inputs": {
             "w5base": str(w5),
+            "code_root": str(here),
             "stack": "stack_arch.geojson",
             "gt": "gt_train_v2.geojson",
             "vs": str(vs),
@@ -420,16 +425,10 @@ def main():
             "ae_oof": str(ae_oof),
             "tau_large": TAU_LARGE,
             "min_area_m2": MIN_AREA,
-            "oof_note": (
-                "slim from oof_dfine_ae.geojson: gorodishcha area≥5k OR conf≥0.15; "
-                "698 Fix-C-pass (area≥5k ∩ conf≥0.20); all conf < 1.01 so gate can fire."
-            ),
         },
         "risk": (
-            "Inject into post-thr stack may double-count if stack already has ae_dfine "
-            "gor (apply drops existing); box_area_m2 is geom_3857_scaled proxy; "
-            "τ_large=0.20 not fam0-nested LOFO; area_tau with base gor τ=1.01 still harsh "
-            "unless Fix C path; 320 m window not reimplemented here (stack-level inject only)."
+            "τ_large=0.20 not fam0-nested LOFO; box_area_m2 proxy; area_tau inert at τ=1.01; "
+            "320 m window not in inject."
         ),
         "Bprime_score": BPRIME_SCORE,
         "boot": BOOT,

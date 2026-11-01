@@ -10,7 +10,8 @@
   "enable_internet": false,
   "keywords": ["cpu", "honest-10", "large-objects", "fixc"],
   "dataset_sources": [
-    "elenakonkova/koz3-w2-gate"
+    "elenakonkova/koz3-w2-gate",
+    "elenakonkova/koz3-w4-large-gate-code"
   ],
   "kernel_sources": [],
   "competition_sources": [],
