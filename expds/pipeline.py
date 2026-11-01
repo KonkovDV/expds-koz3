@@ -1573,9 +1573,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     if not (cache.get("models") or []) and cache.get("load_error"):
         log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
     # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
-    # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются (регрессия mock: R −46 при 0 TP).
+    # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются.
+    # drop_cover_m > 0 (по умолчанию 12): снимать старый объект только если D-FINE того же класса,
+    # прошедший порог sp_dfine, лежит не дальше N м. Иначе слепой R обнуляет sp_or: на mock 482 сырых
+    # бокса сняли 46 попаданий v2, а 13 боксов выше порога были в 50–1500 м от эталона (F1 sp_or → 0).
     if st["drop_groups"] and full:
         min_det = int(st.get("drop_min_det", 1))
+        cover_m = float(st.get("drop_cover_m", 12.0) or 0.0)
         snap = state.snapshot()
         full_ok = [
             r for r in full
@@ -1589,9 +1593,22 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
                 len(skipped), min_det, ", ".join(skipped[:12]) + ("…" if len(skipped) > 12 else ""))
         if full_ok:
             before = len(snap)
-            state.replace(sp_dfine.drop_groups(snap, st["drop_groups"], full_ok))
-            log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full_ok),
-                     before - len(state.snapshot()))
+            if cover_m > 0:
+                survivors = [
+                    f for f in snap
+                    if f.get("threshold_group") == sp_dfine.GROUP and f.get("region_name") in full_ok
+                    and sp_dfine.passes_group_threshold(f, cfg)
+                ]
+                state.replace(sp_dfine.drop_groups_covered(
+                    snap, st["drop_groups"], full_ok, cover_m, survivors))
+                log.info(
+                    "sp_dfine: drop_groups %s на %d участках, покрытие ≤%.1f м, выживших D-FINE %d: −%d объектов",
+                    list(st["drop_groups"]), len(full_ok), cover_m, len(survivors),
+                    before - len(state.snapshot()))
+            else:
+                state.replace(sp_dfine.drop_groups(snap, st["drop_groups"], full_ok))
+                log.info("sp_dfine: drop_groups %s на %d участках (слепой R, drop_cover_m=0): −%d объектов",
+                         list(st["drop_groups"]), len(full_ok), before - len(state.snapshot()))
     return n
 
 

@@ -571,7 +571,9 @@ enabled = false
 #   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
 #   drop_groups = []               # v4-safe: добавить D-FINE БЕЗ снятия U-Net; НЕ вариант R, пока soft_tp≈0
 #   drop_min_det = 1   # bot-2 багфикс (ВКЛ.): R только на участках с ≥N объектов sp_dfine; иначе оставляем v2
-#   # drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R — регрессия mock sp_or→0
+#   drop_cover_m = 12  # ВКЛ. по умолчанию: старый объект снимается, только если D-FINE того же класса
+#                      # прошёл порог sp_dfine и центр ≤ 12 м на земле. 0 — слепой R (mock: sp_or F1 → 0).
+#   # drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R; покрытие drop_cover_m обязательно
 #   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: OOF фолдовых моделей под f0) и [thresholds_by_markup.or] arkhitektury = 0.483891
 # Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
 # Заготовка: bot-7/work6/on/FINAL_VARIANT.md.

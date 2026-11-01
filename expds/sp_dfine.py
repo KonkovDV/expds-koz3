@@ -12,6 +12,10 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
 * ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``drop_cover_m`` (bot-2, регрессия mock 29.10) — старый объект группы R снимается, только если
+  D-FINE того же класса, прошедший ``[thresholds_by_markup.sp_dfine]``, лежит не дальше N м на земле
+  (по умолчанию 12). Иначе v2 остаётся: на mock 482 сырых бокса снимали 46 попаданий, а 13 боксов
+  выше порога были в 50–1500 м от эталона. ``0`` — слепой R (снять всю группу);
 * ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
 * ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
   ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
@@ -65,6 +69,10 @@ DEFAULTS = {
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
     # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
     "drop_min_det": 1,
+    # bot-2: слепой R на mock обнулил sp_or (482 сырых → drop −46, после порога 13 FP в 50–1500 м от GT).
+    # Снимать старый объект, только если выживший D-FINE того же класса ближе drop_cover_m метров на земле.
+    # 0 — прежний слепой R (вся группа на участке).
+    "drop_cover_m": 12.0,
     # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
     # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
     "agreement_m": 0.0,
@@ -228,31 +236,88 @@ def as_features(dets: list[dict], st: dict, n_models: int) -> list[dict]:
     return cluster_circles(dets, float(st["radius_m"]), float(st["merge_m"]), str(st["ensemble"]), n_models)
 
 
+def feature_group(f: dict) -> str | None:
+    """Группа порога, как у scoreboard bot-10.
+
+    Явный threshold_group, иначе для markup sp_or по классу: курганы → sp_focal,
+    архитектура → sp_arch, городища и прочее → sp_or.
+    """
+    g = f.get("threshold_group")
+    if g:
+        return g
+    if f.get("markup_type") != MARKUP:
+        return f.get("markup_type")
+    cls = f.get("class_name")
+    if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
+        return "sp_focal"
+    if cls == "arkhitektury":
+        return "sp_arch"
+    return "sp_or"
+
+
 def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
     """Вариант R: убрать объекты групп ``groups`` (кроме sp_dfine) на участках ``regions``.
 
-    Группа — как у scoreboard bot-10: threshold_group, иначе для markup sp_or по классу:
-    курганы → sp_focal, архитектура → sp_arch, городища и прочее → sp_or. Участки без D-FINE не трогаются.
+    Участки без D-FINE не трогаются. Слепой режим: любой объект группы снимается,
+    даже если D-FINE его не заменил. Для сдачи используйте ``drop_groups_covered``.
     """
     groups = set(groups or ())
     regions = set(regions or ())
     if not groups or not regions:
         return feats
+    return [f for f in feats
+            if not (f.get("region_name") in regions and feature_group(f) in groups and feature_group(f) != GROUP)]
 
-    def grp(f: dict) -> str | None:
-        g = f.get("threshold_group")
-        if g:
-            return g
-        if f.get("markup_type") != MARKUP:
-            return f.get("markup_type")
-        cls = f.get("class_name")
-        if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
-            return "sp_focal"
-        if cls == "arkhitektury":
-            return "sp_arch"
-        return "sp_or"
 
-    return [f for f in feats if not (f.get("region_name") in regions and grp(f) in groups and grp(f) != GROUP)]
+def passes_group_threshold(f: dict, cfg: dict) -> bool:
+    """Объект проходит порог своей группы. Нет порога класса — не отсекаем (порог ещё не задан)."""
+    group = f.get("threshold_group") or f.get("markup_type")
+    own = ((cfg.get("thresholds_by_markup") or {}).get(group) or {})
+    cls = f.get("class_name")
+    if cls not in own:
+        return True
+    try:
+        return float(f.get("confidence", 0.0)) >= float(own[cls])
+    except (TypeError, ValueError):
+        return False
+
+
+def _ground_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Метры на земле между точками EPSG:3857 (единицы × cos φ)."""
+    scale = ground_scale((a[1] + b[1]) / 2.0)
+    return math.hypot(a[0] - b[0], a[1] - b[1]) * scale
+
+
+def drop_groups_covered(feats: list[dict], groups, regions, cover_m: float, survivors: list[dict]) -> list[dict]:
+    """Снять старый объект группы R, только если его закрывает выживший D-FINE.
+
+    ``survivors`` — объекты ``sp_dfine``, уже прошедшие порог группы. Закрытие: тот же участок,
+    тот же класс, центр не дальше ``cover_m`` метров на земле. Чужой класс, бокс ниже порога
+    и бокс без геометрии старый объект не снимают. Сами объекты D-FINE остаются.
+    """
+    groups = set(groups or ())
+    regions = set(regions or ())
+    cover_m = float(cover_m)
+    if not groups or not regions or cover_m <= 0:
+        return list(feats)
+    buckets: dict[tuple, list[tuple[float, float]]] = {}
+    for det in survivors or ():
+        if det.get("threshold_group") != GROUP or det.get("region_name") not in regions:
+            continue
+        xy = _feat_xy(det)
+        if xy is None:
+            continue
+        buckets.setdefault((det.get("region_name"), det.get("class_name")), []).append(xy)
+    out = []
+    for feat in feats:
+        grp = feature_group(feat)
+        if feat.get("region_name") in regions and grp in groups and grp != GROUP:
+            xy = _feat_xy(feat)
+            pts = buckets.get((feat.get("region_name"), feat.get("class_name")), ())
+            if xy is not None and any(_ground_dist(xy, p) <= cover_m for p in pts):
+                continue
+        out.append(feat)
+    return out
 
 
 def _feat_xy(f: dict) -> tuple[float, float] | None:

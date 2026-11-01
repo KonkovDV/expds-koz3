@@ -32,7 +32,7 @@ def test_default_flags_off():
     assert "sp_dfine" not in cfg.get("thresholds_by_markup", {})
     st = sp_dfine.settings(cfg)
     assert st["drop_groups"] == [] and st["convert"] == "circle" and st["ensemble"] == "max"
-    assert st["drop_min_det"] == 1
+    assert st["drop_min_det"] == 1 and st["drop_cover_m"] == 12.0
 
 
 def test_cluster_circles_variant_c():
@@ -218,7 +218,7 @@ def test_pipeline_phase_drop_only_complete(monkeypatch):
     st = St(old)
     regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]}), SimpleNamespace(name="b", rasters={"sp_or": ["y"]}),
             SimpleNamespace(name="c", rasters={})]
-    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"]}}
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_cover_m": 0}}
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 2
     kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
     assert ("a", None) not in kept and ("b", None) in kept      # b прерван — старые объекты остаются
@@ -266,7 +266,7 @@ def test_pipeline_phase_drop_skips_regions_without_dfine(monkeypatch):
         SimpleNamespace(name="empty", rasters={"sp_or": ["x"]}),
         SimpleNamespace(name="hit", rasters={"sp_or": ["y"]}),
     ]
-    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 1}}
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 1, "drop_cover_m": 0}}
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 1
     kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
     assert ("empty", None) in kept, kept  # v2 на empty сохранён
@@ -303,7 +303,7 @@ def test_pipeline_phase_drop_min_det_zero_allows_empty(monkeypatch):
     monkeypatch.setattr(sp_dfine, "region_feats", fake)
     st = St([{"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "a"}])
     regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]})]
-    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 0}}
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 0, "drop_cover_m": 0}}
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 0
     assert st.feats == []
 
