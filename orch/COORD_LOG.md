@@ -993,10 +993,38 @@ Sleeping. A watches carefully overnight (routine every 10m + executor). Wake onl
 ## 01.11 00:06 MSK within-site rank STOP
 elenakonkova/koz3-wsr-f0 v3 COMPLETE 385s. Pilot Курганы: median FP louder 9→16 (need ≤2); damaged F1 0.6636→0.5561. Lease released. default.toml/0.41238 untouched. out/wsr/k3/report.json. Watch routine deleted.
 - 01.11 18:47 MSK | A | HANDOFF_NOW_20261101.md for bot transfer (+ Kaggle live snapshot). elena lidar f3–4 RUNNING; dkv f2 RUNNING; Drive packs ready. Hold 0.41238.
+- 01.11 19:07 MSK | lease | acquire slot:box/q2 → bot-W1-sat до 02.11 01:07 MSK sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax scale sweep; kaggle package if box insufficient
+- 01.11 19:07 MSK | lease | acquire branch:bots/w1-sat2-gate → bot-W1-sat до 02.11 01:07 MSK sat2 gate + thr sweep branch
+- 01.11 19:07 MSK | lease | acquire branch:bots/bot7-lb-breakdown → coord до 02.11 03:07 MSK bot7: lb-breakdown offline scorer + ΔLB map; executor on wt bot7-lb-breakdown
+- 01.11 19:07 MSK | lease | acquire slot:box/cpu → coord до 01.11 23:07 MSK bot7 suite + analytic ΔLB; no GPU
+- 01.11 19:11 MSK | lease | acquire branch:bots/w1-ae2or → bot-W1-aeor до 02.11 19:11 MSK Ae→Or transfer FT (code also on bots/bot3-ae2or per bot3 task); package /workspace/kaggle/push/ae2or
+- 01.11 19:11 MSK | lease | acquire kernel:dmitrijkv/koz3-w1-ae2or-ft → bot-W1-aeor до 03.11 19:11 MSK ready-to-push ae2or; DO NOT push — bot1 GO; dry-run CPU OK
+- 01.11 19:11 MSK | lease | acquire dataset:dmitrijkv/koz3-w1-ae-ft-f4pack → bot-W1-aeor до 03.11 19:11 MSK upload from out/dfine-ae-ft-f4pack sha249b86fb if missing
+- 01.11 19:12 MSK | bot3-ae2or | package ready /workspace/kaggle/push/ae2or; leases branch/kernel/dataset bot-W1-aeor; QUEUE S-ae2or hold; sha aa9abbbe; DO NOT push
+- 01.11 19:14 MSK | lease | acquire slot:acc1/cpu → bot-W4-gate до 02.11 07:14 MSK CPU honest-10 large_objects_honest off/area_tau/fixc_nested; tip 33791bc; no LB
+- 01.11 19:20 MSK | bot7 | lb-breakdown DONE: branch bots/bot7-lb-breakdown @ 91f472d7; DRAFT PR #25 → main; soft_ceiling PASS (1e-3 on main/42b4bf8/5e43510); reconcile: type/size ↛ final_score (type-wmean F1 0.567 ≠ 0.41238); ΔLB_hat=s_LB·ΔF1_type + ∂S/∂F1_c=w_c/W; suite 1011p/64s/0f; gate flag: scoreboard --honest 10 --lb-breakdown OUT; PC mock+honest10 requested; lease branch+box/cpu release next
+- 01.11 19:19 MSK | lease | release branch:bots/bot7-lb-breakdown (coord) by coord
+- 01.11 19:19 MSK | lease | release slot:box/cpu (coord) by coord
+- 01.11 19:21 MSK | lease | release branch:bots/bot7-lb-breakdown + slot:box/cpu (coord) by bot7 executor; PR#25 draft @ 91f472d7
+- 01.11 19:21 MSK | lease | acquire kernel:usertest1234/koz3-w4-fr1h-check → bot-W4-gate до 01.11 23:21 MSK FR1h check_submission
+- 01.11 19:21 MSK | lease | acquire kernel:aaaadg4gg4g4g/koz3-w4-fr1h-gate → bot-W4-gate до 01.11 23:21 MSK FR1h thr+honest Bprime
+- 01.11 19:21 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-fr1h-geo → bot-W4-gate до 01.11 23:21 MSK FR1h geo+static
+- 01.11 19:21 MSK | lease | acquire slot:usertest1234/cpu → bot-W4-gate до 01.11 23:21 MSK FR1h check
+- 01.11 19:21 MSK | lease | acquire slot:aaaadg4gg4g4g/cpu → bot-W4-gate до 01.11 23:21 MSK FR1h gate
+- 01.11 19:21 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-gate до 01.11 23:21 MSK FR1h geo
+- 01.11 19:21 MSK | lease | acquire branch:bots/bot7-geo-gate → coord до 02.11 07:21 MSK bot7 geo-gate levers + offline package
+- 01.11 19:21 MSK | lease | acquire slot:box/cpu → coord до 02.11 01:21 MSK bot7 geo error analysis + levers; light CPU
+- 01.11 19:22 MSK | lease | release slot:box/q2 (bot-W1-sat) by bot-W1-sat
+- 01.11 19:22 MSK | lease | release branch:bots/w1-sat2-gate (bot-W1-sat) by bot-W1-sat
+- 01.11 19:22 MSK | lease | acquire branch:bots/w1-sat2-gate → bot-W1-sat до 02.11 03:22 MSK PACKAGE READY /workspace/kaggle/push/sat2-gate → elenakonkova/koz3-w1-sat2-gate; bot1 push; tip f2b4d0d; OOF d28feee1; manifest d6323ebb
+- 01.11 19:22 MSK | bot-W1-sat | sat2-gate PACKAGE READY path=/workspace/kaggle/push/sat2-gate slug=elenakonkova/koz3-w1-sat2-gate dataset=elenakonkova/koz3-w2-gate OOF sha d28feee1… (2622) script a5768699… manifest d6323ebb… branch tip f2b4d0d; box insufficient (no w5base/KEY_1) — bot1 push CPU; criterion P=p_gt0≥0.9; expected ΔLB +0.003..+0.006 if pass_full; hold 0.41238; slot:box/q2 released; branch:bots/w1-sat2-gate held. 10–50m FN deferred.
+- 01.11 19:23 MSK | lease | release slot:acc1/cpu (bot-W4-gate) by bot-W4-gate
 
-## 01.11 19:21 MSK — bot-W4-gate FR1h CPU push (3 accounts)
-- Leases: kernel+slot usertest1234/koz3-w4-fr1h-check, aaaadg4gg4g4g/koz3-w4-fr1h-gate, aaaa0000004/koz3-w4-fr1h-geo → bot-W4-gate до 01.11 23:21
-- Datasets: dmitrijkv/koz3-fr1h-chk-20261101 (+wheels) READER granted
-- Tasks: (check) check_submission+smoke; (gate) thr verify + honest vs A/B′/v2; (geo) P/R floors + static
-- Dry-run box PASS; tip inject v2 artifacts local; NO LB submit; NO main push
-- Poll 10–15m ≤~3h → reports/v2_fr1h_candidate_2026-11-01.md
+## 01.11 19:23 MSK process audit (executor deep) — no CPU push
+- Report: `/home/box/shared/koz3/reports/process_audit_2026-11-01.md` (RU).
+- **Push:** none. pixgbm-cr blocked (no REF/CAND attach; internet=true; geo DS not on CPU-pool). tta-gate hold until Ae gate (GPU/S3; dry OK `/tmp/tta-gate-dry`; slug metadata=`dmitrijkv/koz3-tta-gate`, PR#23 title still wrong). large-gate blocked (no fam0). sat2-gate needs internet/pip — not for CPU-no-net.
+- **CPU lanes:** at 19:21 bot-W4-gate leased usertest1234/aaaadg4gg4g4g/aaaa0000004 for FR1h — do not collide.
+- **bot4:** `elenakonkova/koz3-w2-oof` (92 files: s0/s1/s2/lihm/merged/seedmerge) — **no fam0 / no family_clusters.json**.
+- **CANCEL** `aaaadg4gg4g4g/koz3-li-tin-59-t128-dual-t4`: started with gpus=0 on CPU-only account → CANCEL_ACKNOWLEDGED. ERROR `aaaa0000004/koz3-w2-cnx-r50c5-f01`: require-gpu got CPU.
+- Top fixes: sync LEASES↔kaggle status + purge expired; attach REF/CAND for pixgbm-cr; publish fam0 dataset; extend lease OWNERS for bot-8; fix PR#23 slug text; GPU-preflight on CPU accounts; S3 rotate after lidar; stop report/cloud-agent token burn.
+- Live GPU untouched: elena/koz3-lidar-aug-f0 RUNNING; dkv/koz3-w1-lidar-aug-f2 RUNNING; ae-dfine-gate package not touched.

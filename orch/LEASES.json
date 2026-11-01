@@ -141,21 +141,19 @@
   },
   {
    "slot": "acc1/cpu",
-   "holder": "bot-W4-gate",
-   "kernel": "elenakonkova/koz3-w4-large-gate",
+   "holder": null,
+   "kernel": null,
    "purpose": "CPU honest-10 large_objects_honest off/area_tau/fixc_nested; tip 33791bc; no LB",
-   "last": "снято bot-W3-kurgan 31.10 00:57 MSK",
-   "since": "01.11 19:14 MSK",
-   "until": "02.11 07:14 MSK"
+   "last": "снято bot-W4-gate 01.11 19:23 MSK",
+   "state": "свободен"
   },
   {
    "slot": "box/q2",
-   "holder": "bot-W1-sat",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W1-aeor 30.10 17:48 MSK",
+   "last": "снято bot-W1-sat 01.11 19:22 MSK",
    "purpose": "sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax scale sweep; kaggle package if box insufficient",
-   "since": "01.11 19:07 MSK",
-   "until": "02.11 01:07 MSK"
+   "state": "свободен"
   },
   {
    "slot": "acc2/cpu-2",
@@ -313,24 +311,6 @@
    "pid": 448487
   },
   {
-   "resource": "slot:box/q2",
-   "owner": "bot-W1-sat",
-   "since": 1793549245.239727,
-   "expires": 1793570845.239727,
-   "note": "sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax scale sweep; kaggle package if box insufficient",
-   "host": "grok-bot-vm-360949998",
-   "pid": 262078
-  },
-  {
-   "resource": "branch:bots/w1-sat2-gate",
-   "owner": "bot-W1-sat",
-   "since": 1793549245.283635,
-   "expires": 1793570845.283635,
-   "note": "sat2 gate + thr sweep branch",
-   "host": "grok-bot-vm-360949998",
-   "pid": 262083
-  },
-  {
    "resource": "branch:bots/w1-ae2or",
    "owner": "bot-W1-aeor",
    "since": 1793549485.597735,
@@ -356,16 +336,6 @@
    "note": "upload from out/dfine-ae-ft-f4pack sha249b86fb if missing",
    "host": "grok-bot-vm-360949998",
    "pid": 270933
-  },
-  {
-   "resource": "slot:acc1/cpu",
-   "owner": "bot-W4-gate",
-   "since": 1793549650.328979,
-   "expires": 1793592850.328979,
-   "note": "CPU honest-10 large_objects_honest off/area_tau/fixc_nested; tip 33791bc; no LB",
-   "host": "grok-bot-vm-360949998",
-   "pid": 276939,
-   "kernel": "elenakonkova/koz3-w4-large-gate"
   },
   {
    "resource": "kernel:usertest1234/koz3-w4-fr1h-check",
@@ -444,6 +414,15 @@
    "note": "bot7 geo error analysis + levers; light CPU",
    "host": "grok-bot-vm-360949998",
    "pid": 288318
+  },
+  {
+   "resource": "branch:bots/w1-sat2-gate",
+   "owner": "bot-W1-sat",
+   "since": 1793550177.791998,
+   "expires": 1793578977.791998,
+   "note": "PACKAGE READY /workspace/kaggle/push/sat2-gate → elenakonkova/koz3-w1-sat2-gate; bot1 push; tip f2b4d0d; OOF d28feee1; manifest d6323ebb",
+   "host": "grok-bot-vm-360949998",
+   "pid": 290299
   }
  ]
 }
