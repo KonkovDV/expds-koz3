@@ -1,6 +1,6 @@
-# configs/v4_on.toml — v4 = v3_on + RR1s-cf (W1, J2 без M_rp) за флагом w5_cloudfeat (W4, bots/w4-v3on).
-# Сгенерирован docs/bots/2026-11-01/bot-W4/v4/make_v4_on.py: α и пороги li-групп — PREREG docs/PREREG_w4_v4_cloudfeat.md
-# (α = мода вложенного выбора J2 = 0.6; пороги li-групп — один sweep по всем фолдам в шкале S, нет порога → 1.01 выкл.).
+# configs/v4_on.toml — v4 = v3_on + RR1s-cf nocnx (W1 expds.w5cf_infer, без cnx_* и M_rp) за флагом w5_cloudfeat (W4, bots/w4-v3on).
+# Сгенерирован docs/bots/2026-11-01/bot-W4/v4/make_v4_on.py: α и пороги li-групп — PREREG docs/PREREG_w4_v4_cloudfeat_nocnx.md
+# (α = мода вложенного выбора V4N = 0.6; пороги li-групп — один sweep по всем фолдам в шкале S, нет порога → 1.01 выкл.).
 # Нужен модуль инференса признаков облака W1 (expds/w5cf_infer.py) и models/w5cf/ref.npz, иначе прогон
 # остановится в начале с W5CloudFeatMissing.
 # configs/v3_on.toml — сборка v3 «всё включено» (W4, bots/w4-gate) поверх v2-clean (DOC-1 чистый).
@@ -70,12 +70,12 @@ finds_points = 0.0
 # Пороги модели li в режиме rescore, подобраны на предсказаниях вне обучения.
 [thresholds_by_markup.li]
 # W4 v4: шкала S (RR1s-cf, α=0.6); значения v3_on заменены
-kurgany_povrezhdennye = 0.978592
-kurgany_tselye = 0.996910
-gorodishcha = 0.990546
+kurgany_povrezhdennye = 0.978905
+kurgany_tselye = 0.996446
+gorodishcha = 0.990219
 arkhitektury = 1.01
 object_poly = 1.01
-fortifikatsii = 0.973382
+fortifikatsii = 0.975933
 finds_points = 1.01
 # Сетка DEM 0,1 м. Общий порог с крупной сеткой резал мелкие насыпи: вне обучения
 # по всем участкам балл 0,205 → 0,216, на 49 участках с LAS 0,310 → 0,330.
@@ -91,10 +91,10 @@ finds_points = 1.01
 # W4 v4: шкала S (RR1s-cf, α=0.6); значения v3_on заменены
 kurgany_povrezhdennye = 1.01
 kurgany_tselye = 1.01
-gorodishcha = 0.984850
+gorodishcha = 0.980763
 arkhitektury = 1.01
 object_poly = 1.01
-fortifikatsii = 0.934303
+fortifikatsii = 0.974460
 finds_points = 1.01
 # 0,986425 — вместе с маской li_mask (было 0,983620: 39 объектов, 16 попаданий).
 # 0,999260 — вместе с маской фортификаций аэрофото (было 0,226255: 427 объектов, 7 попаданий).
@@ -102,8 +102,8 @@ finds_points = 1.01
 # Курганы с мозаики 0,1→0,5 м. Городища этой группы не получают.
 [thresholds_by_markup.li_mosaic]
 # W4 v4: шкала S (RR1s-cf, α=0.6); значения v3_on заменены
-kurgany_povrezhdennye = 0.997143
-kurgany_tselye = 0.994966
+kurgany_povrezhdennye = 0.997238
+kurgany_tselye = 0.995411
 gorodishcha = 1.01
 arkhitektury = 1.01
 object_poly = 1.01
@@ -142,7 +142,7 @@ kurgany_tselye = 1.01
 gorodishcha = 1.01
 arkhitektury = 1.01
 object_poly = 1.01
-fortifikatsii = 0.659254
+fortifikatsii = 0.883519
 finds_points = 1.01
 
 [thresholds_by_markup.sp_or]
@@ -171,8 +171,8 @@ kurgany_tselye = 0.645505
 
 [thresholds_by_markup.li_dev]
 # W4 v4: шкала S (RR1s-cf, α=0.6); значения v3_on заменены
-kurgany_povrezhdennye = 0.996585
-kurgany_tselye = 0.999526
+kurgany_povrezhdennye = 0.997208
+kurgany_tselye = 0.999681
 gorodishcha = 1.01
 arkhitektury = 1.01
 object_poly = 1.01
@@ -285,7 +285,7 @@ relief_radius_l_m = 0
 # W4 v4: шкала S (RR1s-cf, α=0.6); значения v3_on заменены
 kurgany_povrezhdennye = 1.01
 kurgany_tselye = 1.01
-gorodishcha = 0.890150
+gorodishcha = 0.890041
 arkhitektury = 1.01
 object_poly = 1.01
 fortifikatsii = 1.01
@@ -555,4 +555,8 @@ enabled = false
 alpha = 0.6
 module = "expds.w5cf_infer"
 ref = "models/w5cf/ref.npz"
+infer_dir = "models/w5cf_infer"
+cf_deadline_s = 1300
+cf_mb_per_s = 60
+threads = 4
 groups = ["li", "li_dev", "li_mosaic", "li_coarse", "li_fort", "li_mask", "gor_phys"]
