@@ -21,6 +21,23 @@ def _load():
     return mod
 
 
+def test_smoke_cli_two_runs_identical_sha256():
+    r = subprocess.run([sys.executable, str(SCRIPT), "--smoke"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert "SMOKE_IDENTICAL" in r.stdout
+    lines = [ln for ln in r.stdout.splitlines() if ln.startswith("smoke sha256")]
+    assert len(lines) == 2
+    assert lines[0].split()[-1] == lines[1].split()[-1]
+
+
+def test_roc_auc_perfect_and_ties():
+    mod = _load()
+    y = np.array([0, 0, 1, 1], np.float32)
+    assert mod.roc_auc(y, np.array([0.1, 0.2, 0.8, 0.9])) == 1.0
+    assert abs(mod.roc_auc(y, np.array([0.5, 0.5, 0.5, 0.5])) - 0.5) < 1e-9
+    assert np.isnan(mod.roc_auc(np.ones(3), np.array([0.2, 0.3, 0.4])))
+
+
 def test_enable_retrain_defaults_off():
     r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
     assert r.returncode == 2

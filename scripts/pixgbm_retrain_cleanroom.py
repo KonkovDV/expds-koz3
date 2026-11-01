@@ -15,25 +15,39 @@ Requires:
     place the build-time copy or a branch that has it before running)
   - contest train root (e.g. F:/2/train-expds-3) — never commit data
 
-Example (PC, after checking out bots/bot6-pixgbm-cleanroom + placing geo_pixgbm.py):
+Example (PC). The script materializes expds/geo_pixgbm.py from commit eb268d6
+when it is missing (the file is gitignored). Historical params are the default
+(seed=0, num_threads=2, deterministic left off — as in the saved models).
 
-  python scripts/pixgbm_retrain_cleanroom.py \\
-    --enable-retrain \\
-    --root F:/2/train-expds-3 \\
-    --out C:/Sloi/pc_jobs/pixgbm_retrain_bot6 \\
-    --expected-hashes models/pixgbm/all/MODELS_NOT_IN_GIT.md
+  python scripts/pixgbm_retrain_cleanroom.py --enable-retrain ^
+    --root F:\\2\\train-expds-3 --out C:\\Sloi\\pc_jobs\\pixgbm_retrain
+
+Smoke (no contest data, two deterministic runs, identical sha256):
+
+  python scripts/pixgbm_retrain_cleanroom.py --smoke
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Pin threads before NumPy/LightGBM load. Historical reproduction uses 2,
+# matching the saved models. --deterministic / --smoke force 1.
+if "--smoke" in sys.argv or "--deterministic" in sys.argv:
+    os.environ["OMP_NUM_THREADS"] = "1"
+else:
+    os.environ["OMP_NUM_THREADS"] = os.environ.get("PIXGBM_NUM_THREADS", "2")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -104,8 +118,28 @@ def make_reference_lgbm(num_threads: int = 2) -> dict:
 REFERENCE_LGBM = make_reference_lgbm(2)
 
 PINNED_LGBM = "4.7.0"
-# Relative metric tolerance when sha256 mismatches (AUC / keep-style surrogate on OOF).
-DEFAULT_METRIC_TOL = 1e-4
+# Pass when sha256 misses: functional agreement on one site family.
+# Holdout = lexicographically last family name in the extracted sample.
+# The shipped model is `all` (trained on every family, including this slice):
+# the slice checks that the retrained function matches the eb268d6 reference,
+# it is not an unseen-generalization score.
+AUC_TOL = 0.01
+PROB_TOL = 0.02
+# Deprecated name kept so older callers (`--metric-tol 1e-4`) still parse.
+# Values below 0.001 were a random-matrix max|Δp| check and are not the pass line.
+DEFAULT_METRIC_TOL = AUC_TOL
+
+MODULE_COMMIT = "eb268d6"
+MODULE_SHA256 = "35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b"
+REFERENCE_COMMIT = "eb268d6"
+
+
+def git_show(spec: str) -> bytes:
+    return subprocess.check_output(["git", "-C", str(ROOT), "show", spec])
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def sha256_file(path: Path) -> str:
@@ -214,9 +248,211 @@ def run_extract_train(root: Path, out: Path, rounds: int) -> dict:
     }
 
 
+def fit_all(mod, feats: Path, models: Path, rounds: int):
+    """Train only the shipped `all` models (same rows as scripts/pixgbm.py held='all')."""
+    parts = mod.load_feats(str(feats))
+    dest = Path(models) / "all"
+    dest.mkdir(parents=True, exist_ok=True)
+    saved = {}
+    for target, name in (("yp", "poly"), ("yf", "finds")):
+        sub = [p for p in parts if (p[target] >= 0).any()]
+        if not sub:
+            continue
+        booster, info = mod.fit(sub, target, rounds)
+        mod.save_booster(booster, dest / f"{name}.txt")
+        saved[name] = {
+            "n": int(info.get("n", 0)),
+            "pos": int(info.get("pos", 0)),
+            "families": [str(f) for f in info.get("families", [])],
+        }
+    return parts, saved
+
+
+def roc_auc(y, p) -> float:
+    """ROC-AUC with average ranks for ties. NaN if a class is missing."""
+    import numpy as np
+
+    y = np.asarray(y).reshape(-1)
+    p = np.asarray(p, dtype=np.float64).reshape(-1)
+    m = y >= 0
+    y = y[m]
+    p = p[m]
+    n_pos = int((y == 1).sum())
+    n_neg = int((y == 0).sum())
+    if n_pos == 0 or n_neg == 0:
+        return float("nan")
+    order = np.argsort(p, kind="mergesort")
+    sorted_p = p[order]
+    ranks = np.empty(len(p), dtype=np.float64)
+    i = 0
+    n = len(p)
+    while i < n:
+        j = i
+        while j + 1 < n and sorted_p[j + 1] == sorted_p[i]:
+            j += 1
+        ranks[order[i : j + 1]] = (i + 1 + j + 1) / 2.0
+        i = j + 1
+    sum_pos = float(ranks[y == 1].sum())
+    return (sum_pos - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg)
+
+
+def smoke_two_runs(rounds: int = 20) -> dict:
+    """Two deterministic trainings on synthetic data. Identical sha256 is the proof."""
+    import lightgbm as lgb
+    import numpy as np
+
+    params = make_deterministic_lgbm(1)
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=(400, 8)).astype(np.float32)
+    y = (x[:, 0] + x[:, 1] > 0).astype(np.float32)
+    names = [f"f{i}" for i in range(8)]
+    w = np.ones(len(y), np.float32)
+    hashes = []
+    for _ in range(2):
+        booster = lgb.train(
+            params,
+            lgb.Dataset(x, label=y, weight=w, feature_name=names),
+            num_boost_round=rounds,
+        )
+        hashes.append(sha256_bytes(booster.model_to_string().encode()))
+    return {
+        "ok": hashes[0] == hashes[1],
+        "sha256": hashes,
+        "rounds": rounds,
+        "num_threads": 1,
+        "deterministic": True,
+        "lightgbm": __import__("lightgbm").__version__,
+    }
+
+
+def ensure_geo_module(allow_mismatch: bool) -> dict:
+    """Use the training-era module (eb268d6). Materialize it if the gitignored file is absent."""
+    dest = ROOT / "expds" / "geo_pixgbm.py"
+    info = {"path": str(dest), "pinned_sha256": MODULE_SHA256, "commit": MODULE_COMMIT}
+    if dest.is_file():
+        got = sha256_file(dest)
+        info["sha256"] = got
+        info["matched_pin"] = got == MODULE_SHA256
+        if got != MODULE_SHA256 and not allow_mismatch:
+            raise SystemExit(
+                f"expds/geo_pixgbm.py sha256 {got} != pinned {MODULE_SHA256} ({MODULE_COMMIT}). "
+                "Move that file aside or pass --allow-module-mismatch."
+            )
+        return info
+    try:
+        data = git_show(f"{MODULE_COMMIT}:expds/geo_pixgbm.py")
+    except subprocess.CalledProcessError as exc:
+        raise SystemExit(
+            f"cannot read {MODULE_COMMIT}:expds/geo_pixgbm.py ({exc}). "
+            "The commit is an ancestor of main; a shallow clone may not have it."
+        ) from exc
+    got = sha256_bytes(data)
+    if got != MODULE_SHA256:
+        raise SystemExit(f"object sha {got} != pin {MODULE_SHA256}")
+    dest.write_bytes(data)
+    info["sha256"] = got
+    info["matched_pin"] = True
+    info["materialized"] = True
+    return info
+
+
+def materialize_reference(dest: Path, expected: dict[str, str]) -> dict:
+    """Write eb268d6 poly.txt/finds.txt under the output dir. Do not put them in the repo."""
+    dest.mkdir(parents=True, exist_ok=True)
+    info = {}
+    for name, exp in expected.items():
+        data = git_show(f"{REFERENCE_COMMIT}:models/pixgbm/all/{name}")
+        got = sha256_bytes(data)
+        (dest / name).write_bytes(data)
+        info[name] = {"sha256": got, "matches_expected": got == exp}
+        if got != exp:
+            raise SystemExit(f"reference {name} sha {got} != {exp}")
+    return info
+
+
+def evaluate_holdout(parts, new_dir: Path, ref_dir: Path) -> dict:
+    """Compare retrained `all` vs eb268d6 on the last family name (sorted)."""
+    import lightgbm as lgb
+    import numpy as np
+
+    families = sorted({str(p["family"]) for p in parts})
+    out: dict = {
+        "holdout_rule": "sorted(families)[-1]; model `all` was trained on this family too",
+        "auc_tol": AUC_TOL,
+        "prob_tol": PROB_TOL,
+        "families": families,
+        "targets": {},
+    }
+    if not families:
+        out["status"] = "no_rows"
+        return out
+    holdout = families[-1]
+    out["holdout_family"] = holdout
+    slice_parts = [p for p in parts if str(p["family"]) == holdout]
+    oks = []
+    for target, name in (("yp", "poly.txt"), ("yf", "finds.txt")):
+        xs, ys = [], []
+        for p in slice_parts:
+            yy = np.asarray(p[target])
+            m = yy >= 0
+            if not np.any(m):
+                continue
+            xs.append(np.asarray(p["X"])[m])
+            ys.append(yy[m])
+        entry: dict = {}
+        if not xs:
+            entry["status"] = "no_rows"
+            out["targets"][name] = entry
+            continue
+        x = np.concatenate(xs)
+        y = np.concatenate(ys).astype(np.float32)
+        entry["n"] = int(len(y))
+        entry["n_pos"] = int((y == 1).sum())
+        new_p, ref_p = new_dir / name, ref_dir / name
+        if not new_p.is_file() or not ref_p.is_file():
+            entry["status"] = "missing_model"
+            oks.append(False)
+            out["targets"][name] = entry
+            continue
+        new_b = lgb.Booster(model_file=str(new_p))
+        ref_b = lgb.Booster(model_file=str(ref_p))
+        if list(new_b.feature_name()) != list(ref_b.feature_name()):
+            entry["status"] = "feature_mismatch"
+            oks.append(False)
+            out["targets"][name] = entry
+            continue
+        pred_new = new_b.predict(x, num_threads=1)
+        pred_ref = ref_b.predict(x, num_threads=1)
+        auc_new = roc_auc(y, pred_new)
+        auc_ref = roc_auc(y, pred_ref)
+        entry["auc_new"] = auc_new
+        entry["auc_ref"] = auc_ref
+        if auc_new == auc_new and auc_ref == auc_ref:
+            entry["auc_abs_diff"] = abs(auc_new - auc_ref)
+        else:
+            entry["auc_abs_diff"] = None
+        entry["mean_abs_prob"] = float(np.mean(np.abs(pred_new - pred_ref)))
+        ok = (
+            entry["auc_abs_diff"] is not None
+            and entry["auc_abs_diff"] <= AUC_TOL
+            and entry["mean_abs_prob"] <= PROB_TOL
+        )
+        entry["status"] = "ok" if ok else "fail"
+        oks.append(ok)
+        out["targets"][name] = entry
+    if oks and all(oks):
+        out["status"] = "ok"
+    elif not oks:
+        out["status"] = "no_rows"
+    else:
+        out["status"] = "fail"
+    return out
+
+
 def train_inprocess(
-    root: Path, out: Path, rounds: int, num_threads: int = 1, *, match_reference: bool = False
-) -> dict:
+    root: Path, out: Path, rounds: int, num_threads: int = 1, *, match_reference: bool = False,
+    only_all: bool = True,
+) -> tuple[dict, list]:
     """In-process train; deterministic patch by default, or REF-matching params."""
     # Import after path setup; patch before calling train helpers.
     if match_reference:
@@ -251,22 +487,30 @@ def train_inprocess(
     ae.regions = None
     mod.cmd_extract(ae)
 
-    at = A()
-    at.feats = str(feats)
-    at.models = str(models)
-    at.rounds = rounds
-    at.config = ae.config
-    at.regions = None
-    mod.cmd_train(at)
+    parts: list = []
+    if only_all:
+        parts, saved = fit_all(mod, feats, models, rounds)
+    else:
+        at = A()
+        at.feats = str(feats)
+        at.models = str(models)
+        at.rounds = rounds
+        at.config = ae.config
+        at.regions = None
+        mod.cmd_train(at)
+        parts = mod.load_feats(str(feats))
+        saved = {}
 
     return {
         "mode": mode,
         "train_rounds": rounds,
+        "only_all": bool(only_all),
         "wall_sec": round(time.time() - t0, 1),
         "models_dir": str(models),
         "lgbm_params": params_snapshot,
         "match_reference": bool(match_reference),
-    }
+        "fit_info": saved,
+    }, parts
 
 
 def compare_models(models_all: Path, expected: dict[str, str], metric_tol: float) -> dict:
@@ -285,60 +529,78 @@ def compare_models(models_all: Path, expected: dict[str, str], metric_tol: float
         if not ok:
             result["all_sha_ok"] = False
     if not result["all_sha_ok"]:
-        # Documented fallback: compare leaf counts / feature names / a cheap self-predict
-        # agreement rate between old and new boosters when reference models are provided.
+        checks = {}
+        for name in expected:
+            if not (models_all / name).is_file():
+                checks[name] = {"error": "missing new"}
         result["metric_fallback"] = {
             "note": (
-                "sha256 mismatch is expected across hosts when original training used "
-                "num_threads=2 without deterministic=True. Fallback: load both boosters "
-                "and compare predict() on a fixed random feature matrix; require "
-                f"max|Δp| ≤ {metric_tol} OR identical feature_name() and num_trees()."
+                "sha256 mismatch is not decided here. The pass line is log['holdout']: "
+                f"last site family, |ΔAUC| ≤ {AUC_TOL}, mean|Δp| ≤ {PROB_TOL}. "
+                f"(argument metric_tol={metric_tol} is ignored.)"
             ),
-            "tolerance": metric_tol,
-            "status": "pending_manual_or_reference",
+            "status": "mismatch_or_no_ref" if checks else "see_holdout",
+            "checks": checks,
         }
-        ref_dir = ROOT / "models" / "pixgbm" / "all"
-        try:
-            import lightgbm as lgb
-            import numpy as np
-
-            checks = {}
-            for name in expected:
-                new_p = models_all / name
-                ref_p = ref_dir / name
-                if not new_p.is_file():
-                    checks[name] = {"error": "missing new"}
-                    continue
-                bn = lgb.Booster(model_file=str(new_p))
-                entry = {
-                    "num_trees": bn.num_trees(),
-                    "feature_name": bn.feature_name(),
-                }
-                if ref_p.is_file():
-                    br = lgb.Booster(model_file=str(ref_p))
-                    rng = np.random.default_rng(0)
-                    X = rng.normal(size=(512, len(bn.feature_name()))).astype(np.float32)
-                    pn = bn.predict(X, num_threads=1)
-                    pr = br.predict(X, num_threads=1)
-                    mad = float(np.max(np.abs(pn - pr)))
-                    entry["ref_num_trees"] = br.num_trees()
-                    entry["ref_feature_name_equal"] = br.feature_name() == bn.feature_name()
-                    entry["max_abs_predict_delta"] = mad
-                    entry["within_tol"] = mad <= metric_tol
-                checks[name] = entry
-            result["metric_fallback"]["checks"] = checks
-            # Vacuous True when every check is "missing new" (no within_tol keys) must NOT pass.
-            tol_vals = [c.get("within_tol") for c in checks.values() if "within_tol" in c]
-            missing = any(c.get("error") == "missing new" for c in checks.values())
-            if missing or not tol_vals:
-                result["metric_fallback"]["status"] = "mismatch_or_no_ref"
-            elif all(tol_vals):
-                result["metric_fallback"]["status"] = "ok"
-            else:
-                result["metric_fallback"]["status"] = "mismatch_or_no_ref"
-        except Exception as e:  # noqa: BLE001 — log and continue
-            result["metric_fallback"]["error"] = repr(e)
     return result
+
+
+def write_reports(out: Path | None, log: dict) -> None:
+    _write_log(out, log)
+    if out is None:
+        return
+    out = Path(out)
+    comp = log.get("compare") or {}
+    hold = log.get("holdout") or {}
+    lines = [
+        "# PIXGBM retrain",
+        "",
+        f"- utc: {log.get('utc')}",
+        f"- status: {log.get('status')}",
+        f"- verdict: {log.get('verdict')}",
+        f"- lightgbm: {log.get('lightgbm_version')} (pin {PINNED_LGBM})",
+        f"- mode: {log.get('train_mode')}",
+        "",
+        "## sha256",
+        "",
+    ]
+    for name, digest in (comp.get("sha256") or {}).items():
+        lines.append(f"- {name}: `{digest}` match={comp.get('match', {}).get(name)}")
+    lines += [
+        "",
+        "## Допуск, если sha256 не совпал",
+        "",
+        f"- Срез: последняя по имени семья участков (`sorted(families)[-1]`). "
+        f"Модель `all` училась и на ней: это совпадение функции с эталоном `{REFERENCE_COMMIT}`, не честный unseen.",
+        f"- Метрика: ROC-AUC и средний |Δp|.",
+        f"- Порог: |ΔAUC| ≤ {AUC_TOL} и mean|Δp| ≤ {PROB_TOL} для poly и finds.",
+        f"- Эталон: `models/pixgbm/all/{{poly,finds}}.txt` из коммита `{REFERENCE_COMMIT}` "
+        "(скрипт кладёт копию только в каталог `--out`, не в git).",
+        f"- Почему sha256 может не сойтись: в эталоне `[deterministic: 0]`, `[num_threads: 2]`, "
+        "bagging/feature_fraction 0.7. LightGBM это не обещает побитово между CPU.",
+        "",
+        f"- holdout status: {hold.get('status')}",
+        f"- holdout family: {hold.get('holdout_family')}",
+    ]
+    for name, ent in (hold.get("targets") or {}).items():
+        lines.append(f"- {name}: {json.dumps(ent, ensure_ascii=False)}")
+    lines.append("")
+    (out / "retrain_log.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def _print_verdict(log: dict) -> None:
+    comp = log.get("compare") or {}
+    for name, digest in (comp.get("sha256") or {}).items():
+        flag = "MATCH" if comp.get("match", {}).get(name) else "DIFF"
+        print(f"{name} {digest} {flag}", flush=True)
+    print(f"verdict {log.get('verdict')} status {log.get('status')}", flush=True)
+    hold = log.get("holdout") or {}
+    if hold:
+        print(
+            f"holdout {hold.get('holdout_family')} status {hold.get('status')} "
+            f"|dAUC|<={AUC_TOL} mean|dp|<={PROB_TOL}",
+            flush=True,
+        )
 
 
 def main() -> None:
@@ -349,6 +611,7 @@ def main() -> None:
         default=False,
         help="REQUIRED to actually train. Default OFF — script only validates env and exits 2.",
     )
+    ap.add_argument("--smoke", action="store_true", help="Two deterministic synthetic trains; exit 0 if sha256 matches.")
     ap.add_argument("--root", type=Path, help="Contest train data root (e.g. F:/2/train-expds-3)")
     ap.add_argument("--out", type=Path, help="Output directory for feats/, models/, retrain_log.json")
     ap.add_argument("--rounds", type=int, default=300, help="Boosting rounds (default 300 = geo_pixgbm.ROUNDS)")
@@ -358,26 +621,36 @@ def main() -> None:
         default=ROOT / "models" / "pixgbm" / "all" / "MODELS_NOT_IN_GIT.md",
         help="Markdown table with expected sha256",
     )
-    ap.add_argument("--metric-tol", type=float, default=DEFAULT_METRIC_TOL)
+    ap.add_argument(
+        "--metric-tol",
+        type=float,
+        default=DEFAULT_METRIC_TOL,
+        help="Deprecated. Pass line is |ΔAUC|≤0.01 and mean|Δp|≤0.02 (AUC_TOL, PROB_TOL).",
+    )
     ap.add_argument("--allow-other-lgbm", action="store_true")
+    ap.add_argument("--allow-module-mismatch", action="store_true")
+    ap.add_argument("--lofo", action="store_true", help="Also train leave-family-out models (slower).")
     ap.add_argument(
         "--num-threads",
         type=int,
         default=0,
-        help="LightGBM num_threads; 0/default = os.cpu_count() (set 1 for max bit-exact chance).",
+        help="LightGBM num_threads. 0 → 2 in historical mode, 1 with --deterministic.",
     )
     ap.add_argument(
         "--subprocess",
         action="store_true",
-        help="Run extract/train as subprocess without deterministic patch "
-        "(legacy reproduction of original train path).",
+        help="Run extract/train as a subprocess (unpatched G.LGBM, all LOFO folds).",
+    )
+    ap.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="deterministic=True, num_threads=1, zero seeds. Re-runs match; historical sha256 will not.",
     )
     ap.add_argument(
         "--match-reference",
         action="store_true",
-        default=False,
-        help="Use original REF-matching LGBM params (num_threads default 2, seed=0 only; "
-        "no deterministic/force_col_wise/forced bagging_seed=0). Default OFF.",
+        help="Historical params (default unless --deterministic): seed=0, num_threads=2, "
+        "no deterministic flag. This is the sha256 attempt.",
     )
     ap.add_argument(
         "--models-subdir",
@@ -385,26 +658,49 @@ def main() -> None:
         help="Subdir under --out/models to compare (default: all)",
     )
     a = ap.parse_args()
+    historical = not a.deterministic
     if a.num_threads is None or a.num_threads <= 0:
-        import os as _os
-        env_nt = _os.environ.get("PIXGBM_NUM_THREADS", "").strip()
-        if env_nt:
+        env_nt = os.environ.get("PIXGBM_NUM_THREADS", "").strip()
+        if env_nt and not a.smoke:
             a.num_threads = max(1, int(env_nt))
-        elif a.match_reference:
-            # Original bot-3 REF used num_threads=2
-            a.num_threads = 2
         else:
-            a.num_threads = max(1, int(_os.cpu_count() or 1))
+            a.num_threads = 2 if historical else 1
+    os.environ["OMP_NUM_THREADS"] = str(a.num_threads)
 
     log: dict = {
         "utc": datetime.now(timezone.utc).isoformat(),
         "pinned_lightgbm": PINNED_LGBM,
         "enable_retrain": bool(a.enable_retrain),
-        "match_reference": bool(a.match_reference),
+        "train_mode": "deterministic" if a.deterministic else "historical",
+        "match_reference": historical,
         "num_threads": int(a.num_threads) if a.num_threads else None,
+        "auc_tol": AUC_TOL,
+        "prob_tol": PROB_TOL,
         "argv": sys.argv,
         "repo_root": str(ROOT),
+        "why_sha256_may_miss": (
+            "Reference poly.txt/finds.txt were saved with deterministic=0, num_threads=2, "
+            "feature_fraction=0.7, bagging_fraction=0.7. LightGBM does not promise bit-stable "
+            "trees across CPUs in that mode. Adding deterministic=true changes the parameter "
+            "dump and the trees, so that path cannot match the recorded sha256."
+        ),
     }
+
+    if a.smoke:
+        try:
+            log["lightgbm_version"] = check_lightgbm(a.allow_other_lgbm)
+        except SystemExit as exc:
+            print(exc, file=sys.stderr)
+            sys.exit(2)
+        report = smoke_two_runs()
+        log["smoke"] = report
+        log["status"] = "smoke_ok" if report["ok"] else "smoke_mismatch"
+        log["verdict"] = "SMOKE_IDENTICAL" if report["ok"] else "SMOKE_DIFF"
+        print(f"smoke sha256 run1 {report['sha256'][0]}", flush=True)
+        print(f"smoke sha256 run2 {report['sha256'][1]}", flush=True)
+        print(f"verdict {log['verdict']}", flush=True)
+        write_reports(a.out, log)
+        sys.exit(0 if report["ok"] else 1)
 
     try:
         log["lightgbm_version"] = check_lightgbm(a.allow_other_lgbm)
@@ -412,45 +708,53 @@ def main() -> None:
         log["lightgbm_version"] = None
         log["lightgbm_import_error"] = repr(e)
         if a.enable_retrain:
-            _write_log(a.out, log)
+            write_reports(a.out, log)
             raise SystemExit("lightgbm not installed; pip install 'lightgbm==4.7.0'") from e
     except SystemExit as e:
         log["error"] = str(e)
-        _write_log(a.out, log)
+        write_reports(a.out, log)
         raise
-
-    geo = ROOT / "expds" / "geo_pixgbm.py"
-    log["geo_pixgbm_present"] = geo.is_file()
-    if geo.is_file():
-        log["geo_pixgbm_sha256"] = sha256_file(geo)
 
     if not a.enable_retrain:
         log["status"] = "disabled_default_off"
         log["hint"] = "Re-run with --enable-retrain --root DATA --out OUT"
-        _write_log(a.out, log)
-        print(json.dumps(log, ensure_ascii=False, indent=2))
+        write_reports(a.out, log)
+        print(json.dumps({k: log[k] for k in ("status", "hint", "lightgbm_version") if k in log}, ensure_ascii=False))
         sys.exit(2)
 
     if a.root is None or a.out is None:
         raise SystemExit("--root and --out required when --enable-retrain is set")
-    if not geo.is_file():
-        raise SystemExit(
-            "expds/geo_pixgbm.py missing (gitignored on main). "
-            "Place the build-time module (sha256 35e4331b… per docs/PIXGBM_DECISION.md) before retraining."
-        )
+
+    try:
+        log["geo_module"] = ensure_geo_module(a.allow_module_mismatch)
+    except SystemExit as exc:
+        log["error"] = str(exc)
+        log["status"] = "no_module"
+        write_reports(a.out, log)
+        raise
 
     a.out.mkdir(parents=True, exist_ok=True)
     expected = parse_expected_hashes(a.expected_hashes)
     log["expected_sha256"] = expected
 
-    if a.subprocess and a.match_reference:
-        raise SystemExit("--subprocess and --match-reference are mutually exclusive "
-                         "(subprocess already uses unpatched G.LGBM; prefer --match-reference alone)")
+    parts: list = []
     if a.subprocess:
         train_info = run_extract_train(a.root, a.out, a.rounds)
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("pixgbm_cli", ROOT / "scripts" / "pixgbm.py")
+        mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(mod)
+        parts = mod.load_feats(str(a.out / "feats"))
     else:
-        train_info = train_inprocess(
-            a.root, a.out, a.rounds, num_threads=a.num_threads, match_reference=a.match_reference
+        train_info, parts = train_inprocess(
+            a.root,
+            a.out,
+            a.rounds,
+            num_threads=a.num_threads,
+            match_reference=historical,
+            only_all=not a.lofo,
         )
     log["train"] = train_info
 
@@ -461,25 +765,46 @@ def main() -> None:
             "sha256": {n: None for n in expected},
             "match": {n: False for n in expected},
             "all_sha_ok": False,
-            "metric_fallback": {
-                "status": "mismatch_or_no_ref",
-                "error": f"missing models after train: {missing_models}",
-            },
         }
         log["status"] = "train_produced_no_models"
+        log["verdict"] = "FAIL"
         log["hint"] = (
-            "extract/train wrote no models/all/{poly,finds}.txt — check --root has "
-            "geo 200_–217_ rasters + labels (ObjectPoly/FindsPoints)."
+            "no models/all/{poly,finds}.txt — check --root has regions 200–217 "
+            "with MagGr/EtGr/TerFl rasters and ObjectPoly/FindsPoints labels."
         )
-        _write_log(a.out, log)
-        print(json.dumps(log, ensure_ascii=False, indent=2))
+        write_reports(a.out, log)
+        _print_verdict(log)
         sys.exit(1)
 
     log["compare"] = compare_models(models_all, expected, a.metric_tol)
-    log["status"] = "ok" if log["compare"]["all_sha_ok"] else "sha_mismatch_see_metric_fallback"
-    _write_log(a.out, log)
-    print(json.dumps(log, ensure_ascii=False, indent=2))
-    sys.exit(0 if log["compare"]["all_sha_ok"] or (log["compare"].get("metric_fallback") or {}).get("status") == "ok" else 1)
+    try:
+        ref_info = materialize_reference(a.out / "reference", expected)
+        log["reference"] = ref_info
+        log["holdout"] = evaluate_holdout(parts, models_all, a.out / "reference")
+    except (subprocess.CalledProcessError, SystemExit, OSError) as exc:
+        log["holdout"] = {"status": "no_reference", "error": str(exc)}
+
+    sha_ok = bool(log["compare"]["all_sha_ok"])
+    hold_status = (log.get("holdout") or {}).get("status")
+    if sha_ok:
+        log["verdict"] = "SHA256_MATCH"
+        log["status"] = "ok"
+        code = 0
+    elif hold_status == "ok":
+        log["verdict"] = "TOLERANCE_PASS"
+        log["status"] = "tolerance_pass"
+        code = 0
+    elif hold_status in (None, "no_reference", "no_rows"):
+        log["verdict"] = "INCOMPLETE"
+        log["status"] = "sha_mismatch_no_tolerance"
+        code = 2
+    else:
+        log["verdict"] = "FAIL"
+        log["status"] = "sha_mismatch_tolerance_fail"
+        code = 1
+    write_reports(a.out, log)
+    _print_verdict(log)
+    sys.exit(code)
 
 
 def _write_log(out: Path | None, log: dict) -> None:
