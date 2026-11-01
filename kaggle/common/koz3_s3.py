@@ -23,8 +23,6 @@ Credentials (never logged / never in exception text)
 Deps: boto3 + stdlib only. Bucket ``train-expds-3``, endpoint
 ``https://s3.ru-7.storage.selcloud.ru``, region ``ru-7``.
 """
-from __future__ import annotations
-
 import configparser
 import glob
 import json
@@ -32,7 +30,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 BUCKET = "train-expds-3"
 ENDPOINT = os.environ.get("KOZ3_S3_ENDPOINT", "https://s3.ru-7.storage.selcloud.ru")
@@ -52,7 +50,7 @@ class S3TransferError(RuntimeError):
     """Download / list failure with credentials stripped from the message."""
 
 
-def _scrub(text: str, *secrets: str | None) -> str:
+def _scrub(text: str, *secrets: Optional[str]) -> str:
     out = str(text)
     for s in secrets:
         if s and len(s) >= 4:
@@ -68,13 +66,13 @@ def _scrub(text: str, *secrets: str | None) -> str:
     return out
 
 
-def _wrap(exc: BaseException, *secrets: str | None) -> S3TransferError:
+def _wrap(exc: BaseException, *secrets: Optional[str]) -> S3TransferError:
     return S3TransferError(
         f"{type(exc).__name__}: {_scrub(str(exc), *secrets)}"
     )
 
 
-def _parse_json_cred(path: Path) -> tuple[str, str] | None:
+def _parse_json_cred(path: Path) -> Optional[Tuple[str, str]]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
@@ -98,7 +96,7 @@ def _parse_json_cred(path: Path) -> tuple[str, str] | None:
     return None
 
 
-def _parse_env_cred(path: Path) -> tuple[str, str] | None:
+def _parse_env_cred(path: Path) -> Optional[Tuple[str, str]]:
     kid = sec = None
     try:
         for raw in path.read_text(encoding="utf-8").splitlines():
@@ -125,7 +123,7 @@ def _parse_env_cred(path: Path) -> tuple[str, str] | None:
     return None
 
 
-def _parse_ini_cred(path: Path) -> tuple[str, str] | None:
+def _parse_ini_cred(path: Path) -> Optional[Tuple[str, str]]:
     cp = configparser.ConfigParser()
     try:
         cp.read(path)
@@ -145,7 +143,7 @@ def _parse_ini_cred(path: Path) -> tuple[str, str] | None:
     return None
 
 
-def _cred_from_inputs(root_glob: str | None = None) -> tuple[str, str] | None:
+def _cred_from_inputs(root_glob: Optional[str] = None) -> Optional[Tuple[str, str]]:
     """Scan private dataset files under /kaggle/input (json / env / ini)."""
     if root_glob is None:
         root_glob = _INPUT_GLOB
@@ -178,7 +176,7 @@ def _cred_from_inputs(root_glob: str | None = None) -> tuple[str, str] | None:
     return None
 
 
-def _load_credentials() -> tuple[str, str]:
+def _load_credentials() -> Tuple[str, str]:
     kid = sec = None
     try:
         from kaggle_secrets import UserSecretsClient  # type: ignore
@@ -225,15 +223,15 @@ def s3_client() -> Any:
         raise _wrap(e, kid, sec) from None
 
 
-def list_keys(prefix: str, *, client: Any | None = None) -> list[tuple[str, int]]:
+def list_keys(prefix: str, *, client: Optional[Any] = None) -> List[Tuple[str, int]]:
     """Paginated ``list_objects_v2`` → ``[(key, size), ...]`` under ``prefix``."""
     cli = client or s3_client()
     kid = sec = None  # scrub unknowns from boto msgs
-    out: list[tuple[str, int]] = []
+    out: List[Tuple[str, int]] = []
     token = None
     try:
         while True:
-            kw: dict[str, Any] = {"Bucket": BUCKET, "Prefix": prefix}
+            kw: Dict[str, Any] = {"Bucket": BUCKET, "Prefix": prefix}
             if token:
                 kw["ContinuationToken"] = token
             resp = cli.list_objects_v2(**kw)
@@ -251,10 +249,10 @@ def list_keys(prefix: str, *, client: Any | None = None) -> list[tuple[str, int]
 
 def download(
     key: str,
-    dst: str | Path,
+    dst: Union[str, Path],
     *,
-    client: Any | None = None,
-    expected_size: int | None = None,
+    client: Optional[Any] = None,
+    expected_size: Optional[int] = None,
     retries: int = 5,
 ) -> Path:
     """Download ``key`` → ``dst`` (file path). Skip if size already matches."""
@@ -277,7 +275,7 @@ def download(
 
     dst_p.parent.mkdir(parents=True, exist_ok=True)
     tmp = dst_p.with_name(dst_p.name + ".part")
-    last_err: BaseException | None = None
+    last_err: Optional[BaseException] = None
     for attempt in range(retries):
         try:
             cli.download_file(
@@ -303,11 +301,11 @@ def download(
 
 def download_prefix(
     prefix: str,
-    dst: str | Path,
+    dst: Union[str, Path],
     *,
-    client: Any | None = None,
-    keys: Iterable[tuple[str, int]] | None = None,
-) -> list[Path]:
+    client: Optional[Any] = None,
+    keys: Optional[Iterable[Tuple[str, int]]] = None,
+) -> List[Path]:
     """Download every object under ``prefix`` into ``dst``, preserving relative keys.
 
     If ``keys`` is given (from ``list_keys``), use it; else list first.
@@ -318,7 +316,7 @@ def download_prefix(
     root.mkdir(parents=True, exist_ok=True)
     items = list(keys) if keys is not None else list_keys(prefix, client=cli)
     pref = prefix if prefix.endswith("/") else prefix
-    out: list[Path] = []
+    out: List[Path] = []
     for key, size in items:
         if key.endswith("/"):
             continue
