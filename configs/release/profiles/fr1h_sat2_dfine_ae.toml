@@ -1,3 +1,4 @@
+# REQUIRES assemble_release --ckpt PATH --sha HEX (pin after ae-dfine-gate).
 # Combo profile named in the release-tool brief: FR1h + sat2 + D-FINE Ae.
 name = "fr1h_sat2_dfine_ae"
 description = "FR1h + sat2 REPLACE + D-FINE Ae"

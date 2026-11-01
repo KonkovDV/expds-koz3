@@ -1,3 +1,4 @@
+# REQUIRES assemble_release --ckpt PATH --sha HEX (pin after ae-dfine-gate).
 # Release profile: D-FINE Ae (dfine_aeor) ON; FR1h/sat2 OFF.
 # Requires HF weight dirs under models/ (never commit weights — symlink locally).
 name = "dfine_ae"

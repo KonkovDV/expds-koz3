@@ -7,9 +7,11 @@ Each `profiles/<name>.toml` declares which ACCEPTED features are ON.
 |---------|------|------|-----------|
 | `off` | OFF | OFF | OFF |
 | `fr1h` | ON | OFF | OFF |
-| `sat2` | OFF | ON | OFF |
-| `dfine_ae` | OFF | OFF | ON |
-| `fr1h_sat2_dfine_ae` | ON | ON | ON |
+| `sat2` | OFF | ON (pack-alongside-kit; no main logic) | OFF |
+| `dfine_ae` | OFF | OFF | ON — **requires** `--ckpt` + `--sha` |
+| `fr1h_sat2_dfine_ae` | ON | ON | ON — **requires** `--ckpt` + `--sha` + sat2 pack |
 
 CLI: `python scripts/assemble_release.py --profile <name>`
 See `docs/RELEASE_BUILD.md`.
+
+Historical PIXGBM LB packs: Drive/Elena only (not produced by this tool).
