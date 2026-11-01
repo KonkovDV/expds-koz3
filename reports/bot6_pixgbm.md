@@ -246,3 +246,19 @@ Ready (not pushed): `/workspace/kaggle/push/pixgbm-cr/`
 - Attach private REF (v2 zip) + CAND (clean-pack zip or `models/pix_clean`) to the kernel before push.
 - Confirm whether «1» wants this gate vs orch Drive P4 pack as the authoritative tip≈v2 answer.
 - Kaggle API keys `KAGGLE_KEY_1`/`KEY_2` unset on this box session (only short `KAGGLE_API_TOKEN`); bot-6 did not push.
+
+## 2026-11-01 — «1» review fix: REF/CAND datasets + internet=false (Europe/Moscow)
+
+Package `/workspace/kaggle/push/pixgbm-cr/` updated; **still not pushed**.
+
+- `enable_internet=false`, `enable_gpu=false`
+- kernel id: `dmitrijkv/koz3-bot6-pixgbm-cr-gate`
+- dataset_sources now include REF/CAND/wheels:
+  `dmitrijkv/koz3-pixgbm-cr-ref`, `…-cand`, `…-wheels` (+ w4-geo-s000/s001, xfer-s000, gt-train-v2)
+- Upload-ready `ds/` folders staged on box (weights + `geo_pixgbm.py` **not** in git)
+- Existing `elenakonkova/koz3-e2e-baseline-v2` noted but 403 from dmitrijkv token → tip REF staged locally
+- CAND clean-pack **not** on box — «1» must drop Drive zip into `ds/pixgbm-cr-cand/` before create
+- Vendored: zstandard 0.25.0 cp310/311/312 manylinux2014_x86_64 only; no network pip
+- `python pixgbm_cr_gate.py --syntax` → DRY_RUN_OK
+- w4-geo-s000/s001 still 403 for this token — «1» must confirm ACL/existence
+

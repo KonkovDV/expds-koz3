@@ -1,22 +1,25 @@
 {
   "purpose": "e2e geo F1 equivalence gate on KOZ-3 train regions 200-217",
   "gate": "|dF1| <= 0.01 on ALL and maggr/etgr/terfl (bot6_r3_gate.py)",
-  "ref": "v2 eb268d6 lineage: vendored geo_pixgbm sha256 35e4331b… + models/pixgbm/all (poly d1fe3efa… finds 5fa8c09d…)",
-  "candidate_preferred": "main tip with [geophys.pixgbm] enabled=true impl=clean + models/pix_clean (true clean-room per PIXGBM_DECISION)",
-  "candidate_alt_9b411c4": "EN-lineage retrain via scripts/pixgbm_retrain_cleanroom.py — reproduction, NOT clean-room; reuse only for SIGTERM repro / retrain tooling",
+  "ref": "v2 eb268d6 lineage: geo_pixgbm sha256 35e4331b… + models/pixgbm/all (poly d1fe3efa… finds 5fa8c09d…)",
+  "candidate_preferred": "impl=clean + models/pix_clean or submission_pixgbm_clean_e1g1_p4_*.zip",
+  "candidate_alt_9b411c4": "EN-lineage retrain — reproduction, NOT clean-room",
   "branch": "bots/bot6-pixgbm-cleanroom",
-  "commit_tooling": "9b411c4aa6964b5e554c44cbf2c6500395c0d09c",
-  "data": {
-    "geo_rasters": ["dmitrijkv/koz3-w4-geo-s000", "dmitrijkv/koz3-w4-geo-s001"],
-    "labels_utm": ["dmitrijkv/koz3-xfer-s000"],
-    "gt_overlay": ["dmitrijkv/koz3-gt-train-v2"],
-    "note": "xfer s001–s009 are hollow for geo 200-217; do NOT expect MagGr/EtGr/TerFl there"
-  },
-  "attach_at_push": {
-    "ref_zip_or_models": "REQUIRED: v2 submission zip OR models/pixgbm/all + geo_pixgbm.py build-time copy",
-    "cand_zip_or_models": "REQUIRED: tip clean pack zip OR models/pix_clean + tip code with impl=clean",
-    "optional_code_snapshot": "expds-koz3 worktree tarball @ tip or bot6 branch"
-  },
-  "do_not_push": true,
-  "owner_push": "coord «1» / Elena"
+  "kernel_id": "dmitrijkv/koz3-bot6-pixgbm-cr-gate",
+  "enable_internet": false,
+  "enable_gpu": false,
+  "dataset_sources": [
+    "dmitrijkv/koz3-w4-geo-s000",
+    "dmitrijkv/koz3-w4-geo-s001",
+    "dmitrijkv/koz3-xfer-s000",
+    "dmitrijkv/koz3-gt-train-v2",
+    "dmitrijkv/koz3-pixgbm-cr-ref",
+    "dmitrijkv/koz3-pixgbm-cr-cand",
+    "dmitrijkv/koz3-pixgbm-cr-wheels"
+  ],
+  "existing_ref_elsewhere": "elenakonkova/koz3-e2e-baseline-v2 (403 from dmitrijkv; tip REF staged in ds/pixgbm-cr-ref)",
+  "vendored_wheels": ["zstandard-0.25.0 cp310/cp311/cp312 manylinux2014_x86_64"],
+  "not_vendored_on_kaggle_cpu": ["numpy", "scipy", "lightgbm", "rasterio", "shapely"],
+  "do_not_push_from_bot6": true,
+  "owner_push": "coord «1»"
 }

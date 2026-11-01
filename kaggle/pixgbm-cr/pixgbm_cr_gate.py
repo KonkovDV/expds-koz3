@@ -107,16 +107,164 @@ def ensure_helpers() -> Path:
 
 
 def find_zip(inputs: dict[str, Path], *needles: str) -> Path | None:
+    """Glob /kaggle/input mounts for a submission zip whose mount or name matches needles."""
     for n in needles:
         for k, p in inputs.items():
             if n not in k:
                 continue
-            for z in list(p.glob("*.zip")) + list(p.rglob("*.zip")):
-                return z
-    # env override
-    for envk in ("REF_ZIP", "CAND_ZIP", "REF_PATH", "CAND_PATH"):
-        pass
+            hits = sorted(list(p.glob("*.zip")) + [z for z in p.rglob("*.zip") if z not in p.glob("*.zip")])
+            if hits:
+                return hits[0]
+    # Also search any mount for filename needles
+    for n in needles:
+        for p in inputs.values():
+            for z in p.rglob("*.zip"):
+                if n.replace("-", "").replace("_", "") in z.name.lower().replace("-", "").replace("_", ""):
+                    return z
     return None
+
+
+def find_file(inputs: dict[str, Path], name: str) -> Path | None:
+    for p in inputs.values():
+        for hit in p.rglob(name):
+            if hit.is_file():
+                return hit
+    return None
+
+
+def resolve_ref_cand(inputs: dict[str, Path], mode: str) -> dict:
+    """Locate REF and CAND artifacts. Returns dict with keys present/missing + paths."""
+    out: dict = {"mode": mode, "ref": None, "cand": None, "ref_kind": None, "cand_kind": None, "errors": []}
+
+    if os.environ.get("REF_ZIP") and Path(os.environ["REF_ZIP"]).is_file():
+        out["ref"] = Path(os.environ["REF_ZIP"]); out["ref_kind"] = "zip"
+    if os.environ.get("CAND_ZIP") and Path(os.environ["CAND_ZIP"]).is_file():
+        out["cand"] = Path(os.environ["CAND_ZIP"]); out["cand_kind"] = "zip"
+
+    if out["ref"] is None:
+        z = find_zip(
+            inputs,
+            "pixgbm-cr-ref", "pixgbm_cr_ref", "e2e-baseline-v2", "baseline-v2",
+            "ref-v2", "bot7cand_v2", "eb268d6",
+        )
+        if z is not None:
+            out["ref"] = z; out["ref_kind"] = "zip"
+        else:
+            # tip-mode: mount with geo_pixgbm.py + models/pixgbm/all
+            ref_ds = find_named(inputs, "pixgbm-cr-ref", "pixgbm_cr_ref", "baseline-v2", "pixgbm-ref")
+            g = find_file(inputs, "geo_pixgbm.py") if ref_ds is None else (
+                next(iter((ref_ds.rglob("geo_pixgbm.py"))), None)
+            )
+            poly = None
+            if ref_ds is not None:
+                polys = list(ref_ds.rglob("poly.txt"))
+                poly = polys[0] if polys else None
+            if g is not None and (poly is not None or ref_ds is not None):
+                out["ref"] = ref_ds or g.parent
+                out["ref_kind"] = "tip"
+            elif g is not None:
+                out["ref"] = g.parent
+                out["ref_kind"] = "tip"
+
+    if out["cand"] is None:
+        z = find_zip(
+            inputs,
+            "pixgbm-cr-cand", "pixgbm_cr_cand", "geo-clean", "pix-clean",
+            "pixgbm-cand", "cand-clean", "clean-pack", "pixgbm_clean",
+        )
+        if z is not None:
+            out["cand"] = z; out["cand_kind"] = "zip"
+        else:
+            cand_ds = find_named(inputs, "pixgbm-cr-cand", "pixgbm_cr_cand", "pix-clean", "pix_clean", "models-pix-clean")
+            if cand_ds is not None:
+                # need at least one model file
+                models = list(cand_ds.rglob("poly.txt")) + list(cand_ds.rglob("finds.txt"))
+                if models:
+                    out["cand"] = cand_ds; out["cand_kind"] = "tip"
+
+    if out["ref"] is None:
+        out["errors"].append(
+            "INVALID: REF missing — attach dmitrijkv/koz3-pixgbm-cr-ref "
+            "(geo_pixgbm.py + models/pixgbm/all) or a v2 submission zip "
+            "(elenakonkova/koz3-e2e-baseline-v2 / submission_bot7cand_v2_eb268d6.zip)"
+        )
+    if out["cand"] is None:
+        out["errors"].append(
+            "INVALID: CAND missing — attach dmitrijkv/koz3-pixgbm-cr-cand "
+            "(submission_pixgbm_clean_*.zip or models_pix_clean/)"
+        )
+    return out
+
+
+def ensure_offline_wheels() -> list[str]:
+    """Install vendored wheels with --no-index if present. Never hits the network."""
+    installed: list[str] = []
+    root = Path("/kaggle/input")
+    if not root.is_dir():
+        return installed
+    wheel_dirs = [d for d in root.rglob("wheels") if d.is_dir()]
+    if not wheel_dirs:
+        return installed
+    # Only install zstandard if import fails (needed for xfer tar.zst without zstd CLI)
+    try:
+        import zstandard  # noqa: F401
+        return installed
+    except ImportError:
+        pass
+    import subprocess as _sp
+    cmd = [sys.executable, "-m", "pip", "install", "--no-index", "--no-deps"]
+    for d in wheel_dirs:
+        cmd.extend(["--find-links", str(d)])
+    cmd.append("zstandard")
+    r = _sp.run(cmd, capture_output=True, text=True)
+    if r.returncode == 0:
+        installed.append("zstandard")
+    else:
+        log("WARN offline wheel install failed", r.stderr[:500] if r.stderr else r.stdout[:500])
+    return installed
+
+
+def dry_run_syntax() -> int:
+    """Local/Kaggle syntax check: compile + import helpers; no /kaggle/input required."""
+    import py_compile
+    here = Path(__file__).resolve().parent
+    files = [
+        here / "pixgbm_cr_gate.py",
+        here / "rebuild_w4_geo_tree.py",
+        here / "scripts" / "rebuild_train_tree.py",
+        here / "helpers" / "bot6_r3_gate.py",
+        here / "helpers" / "bot6_r3_build_gt.py",
+        here / "helpers" / "bot6_r3_select_copy.py",
+    ]
+    for f in files:
+        if not f.is_file():
+            print(f"MISSING {f}")
+            return 2
+        py_compile.compile(str(f), doraise=True)
+        print(f"OK compile {f.name}")
+    # helpers import
+    ensure_helpers()
+    load_rebuild()
+    print("OK helpers+rebuild load")
+    # optional runtime deps (Kaggle CPU image)
+    missing = []
+    for mod in ("numpy", "scipy", "lightgbm", "rasterio", "shapely"):
+        try:
+            __import__(mod)
+            print(f"OK import {mod}")
+        except ImportError:
+            missing.append(mod)
+            print(f"MISSING import {mod} (needed at inference time; expect on Kaggle CPU)")
+    meta = here / "kernel-metadata.json"
+    if meta.is_file():
+        m = json.loads(meta.read_text(encoding="utf-8"))
+        assert m.get("enable_internet") is False, "enable_internet must be false"
+        assert m.get("enable_gpu") is False, "enable_gpu must be false"
+        print("OK kernel-metadata internet/gpu flags")
+        print("dataset_sources:", m.get("dataset_sources"))
+    print("DRY_RUN_OK missing_optional=", missing)
+    return 0
+
 
 
 def unpack_zip(z: Path, dest: Path) -> Path:
@@ -304,6 +452,11 @@ def build_gt(helpers: Path, repo: Path, tree: Path, gt_out: Path) -> int:
 
 
 def main() -> int:
+    if os.environ.get("PIXGBM_CR_DRY_RUN", "").strip() in ("1", "true", "yes") or (
+        len(sys.argv) > 1 and sys.argv[1] in ("--syntax", "--dry-run", "syntax", "dry-run")
+    ):
+        return dry_run_syntax()
+
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "notes").mkdir(parents=True, exist_ok=True)
     (OUT / "out_ref").mkdir(parents=True, exist_ok=True)
@@ -312,8 +465,9 @@ def main() -> int:
     try:
         helpers = ensure_helpers()
         inputs = find_inputs()
-        mode = os.environ.get("GATE_MODE", "zip").strip().lower()
-        log("mode", mode, "inputs", sorted(inputs))
+        wheeled = ensure_offline_wheels()
+        mode = os.environ.get("GATE_MODE", "tip").strip().lower()  # tip default: REF/CAND tip packs
+        log("mode", mode, "inputs", sorted(inputs), "wheels", wheeled)
 
         # Rebuild geo tree
         write_status("RUNNING", phase="rebuild")
@@ -354,47 +508,72 @@ def main() -> int:
                 write_status("FAILED", reason="score_mode_missing_geojson")
                 return 4
         else:
-            # Locate zips / code
-            ref_zip = Path(os.environ["REF_ZIP"]) if os.environ.get("REF_ZIP") else find_zip(inputs, "e2e-baseline-v2", "baseline-v2", "ref-v2", "pixgbm-ref")
-            cand_zip = Path(os.environ["CAND_ZIP"]) if os.environ.get("CAND_ZIP") else find_zip(inputs, "geo-clean", "pix-clean", "pixgbm-cand", "cand-clean", "clean-pack")
-
-            if mode == "zip" and (ref_zip is None or cand_zip is None):
+            # Locate REF / CAND via mount-name globs (robust to /kaggle/input slug variants)
+            resolved = resolve_ref_cand(inputs, mode)
+            meta["resolved"] = {
+                "ref": str(resolved["ref"]),
+                "cand": str(resolved["cand"]),
+                "ref_kind": resolved["ref_kind"],
+                "cand_kind": resolved["cand_kind"],
+            }
+            if resolved["errors"]:
+                for e in resolved["errors"]:
+                    log(e)
                 write_status(
                     "FAILED",
-                    reason="missing_ref_or_cand_zip",
-                    ref_zip=str(ref_zip),
-                    cand_zip=str(cand_zip),
-                    hint="Attach v2 baseline zip + clean-pack zip, or set GATE_MODE=tip with models",
+                    reason="INVALID_missing_ref_or_cand",
+                    errors=resolved["errors"],
+                    inputs=sorted(inputs),
                 )
                 return 3
 
+            # Auto-select mode if tip artifacts and no zips
+            if mode == "zip" and (resolved["ref_kind"] != "zip" or resolved["cand_kind"] != "zip"):
+                if resolved["ref_kind"] == "tip" or resolved["cand_kind"] == "tip":
+                    log("auto-switch GATE_MODE zip→tip (REF/CAND are tip packs, not submission zips)")
+                    mode = "tip"
+                    meta["mode"] = mode
+
             pairs = []
             if mode == "zip":
-                ref_repo = unpack_zip(ref_zip, OUT / "unpack_ref")
-                cand_repo = unpack_zip(cand_zip, OUT / "unpack_cand")
+                if resolved["ref_kind"] != "zip" or resolved["cand_kind"] != "zip":
+                    write_status(
+                        "FAILED",
+                        reason="INVALID_zip_mode_needs_zips",
+                        ref_kind=resolved["ref_kind"],
+                        cand_kind=resolved["cand_kind"],
+                        hint="Drop submission_*.zip into REF/CAND datasets or set GATE_MODE=tip",
+                    )
+                    return 3
+                ref_repo = unpack_zip(resolved["ref"], OUT / "unpack_ref")
+                cand_repo = unpack_zip(resolved["cand"], OUT / "unpack_cand")
                 pairs = [("ref", ref_repo, ref_gj), ("cand", cand_repo, cand_gj)]
             else:
                 # tip mode: one code tree, swap models + impl
-                code = find_named(inputs, "expds-koz3", "koz3-code", "bot6-pixgbm")
+                code = find_named(inputs, "expds-koz3", "koz3-code", "bot6-pixgbm", "code-snap")
                 if code is None:
-                    # maybe kernel already has repo next door
                     here = Path(__file__).resolve().parent
                     for cand in (here.parent.parent, Path("/kaggle/working/expds-koz3")):
                         if (cand / "inference" / "main.py").is_file():
                             code = cand
                             break
                 if code is None or not (Path(code) / "inference" / "main.py").is_file():
-                    # deep search
                     hit = None
                     for p in Path("/kaggle/input").rglob("inference/main.py") if Path("/kaggle/input").is_dir() else []:
                         hit = p.parent.parent
                         break
                     code = hit
+                # zip can also serve as code snapshot
+                if code is None and resolved["ref_kind"] == "zip":
+                    code = unpack_zip(resolved["ref"], OUT / "unpack_code_from_ref")
                 if code is None:
-                    write_status("FAILED", reason="no_code_snapshot")
+                    write_status(
+                        "FAILED",
+                        reason="INVALID_no_code_snapshot",
+                        hint="Attach a tip code tarball/dataset with inference/main.py, or use GATE_MODE=zip with full submission zips",
+                    )
                     return 3
                 code = Path(code)
-                # work on copies
                 ref_repo = OUT / "work_ref"
                 cand_repo = OUT / "work_cand"
                 if ref_repo.exists():
@@ -408,19 +587,35 @@ def main() -> int:
                 meta["geo_pix_sha_ref"] = gsha
                 if gsha != GEO_PIX_SHA:
                     log("WARN geo_pixgbm sha", gsha, "expected", GEO_PIX_SHA)
-
-                # models
-                ref_models = find_named(inputs, "pixgbm-ref", "pixgbm-all", "models-pixgbm", "baseline-v2")
-                cand_models = find_named(inputs, "pix-clean", "pix_clean", "models-pix-clean", "clean-models")
-                if ref_models is None or cand_models is None:
-                    write_status("FAILED", reason="tip_mode_missing_models", ref=str(ref_models), cand=str(cand_models))
+                if gsha is None:
+                    write_status("FAILED", reason="INVALID_ref_geo_pixgbm_missing")
                     return 3
-                rh = install_models(ref_repo, ref_models, "models/pixgbm/all")
-                ch = install_models(cand_repo, cand_models, "models/pix_clean")
+
+                ref_models = find_named(inputs, "pixgbm-cr-ref", "pixgbm-ref", "pixgbm-all", "models-pixgbm", "baseline-v2")
+                cand_models = find_named(inputs, "pixgbm-cr-cand", "pix-clean", "pix_clean", "models-pix-clean", "models_pix_clean", "clean-models")
+                if ref_models is None:
+                    ref_models = resolved["ref"] if resolved["ref_kind"] == "tip" else None
+                if cand_models is None:
+                    cand_models = resolved["cand"] if resolved["cand_kind"] == "tip" else None
+                if ref_models is None or cand_models is None:
+                    write_status(
+                        "FAILED",
+                        reason="INVALID_tip_mode_missing_models",
+                        ref=str(ref_models),
+                        cand=str(cand_models),
+                    )
+                    return 3
+                rh = install_models(ref_repo, Path(ref_models), "models/pixgbm/all")
+                ch = install_models(cand_repo, Path(cand_models), "models/pix_clean")
                 meta["ref_model_sha"] = rh
                 meta["cand_model_sha"] = ch
+                if not rh.get("poly.txt") or not rh.get("finds.txt"):
+                    write_status("FAILED", reason="INVALID_ref_models_incomplete", sha=rh)
+                    return 3
+                if not ch.get("poly.txt") or not ch.get("finds.txt"):
+                    write_status("FAILED", reason="INVALID_cand_models_incomplete", sha=ch)
+                    return 3
                 patch_toml(ref_repo, enabled=True, impl="legacy")
-                # cand may not need geo_pixgbm
                 patch_toml(cand_repo, enabled=True, impl="clean")
                 pairs = [("ref", ref_repo, ref_gj), ("cand", cand_repo, cand_gj)]
 
