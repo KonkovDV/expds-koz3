@@ -1319,6 +1319,54 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
     return n
 
 
+
+def _sp_det2_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+    """sat2 CenterNet on SpOr; REPLACE drop of sp_* kurgans on fully-scanned regions. Default OFF."""
+    from . import sp_det2
+
+    st = sp_det2.settings(cfg)
+    cache: dict = {}
+    n = 0
+    full: list[str] = []
+    for reg in regions:
+        if not reg.rasters.get("sp_or"):
+            continue
+        if not guard.ok(60):
+            log.warning("sp_det2: времени не осталось")
+            break
+        if not _soft_ok(guard, "sp_det2", f"sat2 {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found, complete = sp_det2.region_feats(
+                reg, cfg, guard, cache, root,
+                crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
+                soft_ok=lambda what, need: _soft_ok(guard, "sp_det2", what, need))
+        except sp_det2.SpDet2Unavailable:
+            raise
+        except Exception:
+            log.exception("%s: sp_det2 пропущен", reg.name)
+            found, complete = [], False
+        state.add(found)
+        n += len(found)
+        if complete:
+            full.append(reg.name)
+        if found:
+            log.info("%s: sp_det2 %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        if not cache.get("models"):
+            break
+    note = getattr(state, "note", None)
+    info = note.setdefault("sp_det2", {"enabled": True}) if isinstance(note, dict) else {}
+    info.update({"models": len(cache.get("models") or []), "raw": n, "regions_full": len(full)})
+    log.info("sp_det2: ИТОГ моделей %d, детекций %d, участков полностью %d",
+             info["models"], n, len(full))
+    if st.get("drop_prefixes") and full:
+        before = len(state.snapshot())
+        state.replace(sp_det2.drop_kurgan_sp(state.snapshot(), st["drop_prefixes"], full))
+        log.info("sp_det2: REPLACE drop_prefixes %s на %d участках: −%d объектов",
+                 list(st["drop_prefixes"]), len(full), before - len(state.snapshot()))
+    return n
+
+
 def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[dict]:
     """[raster_fix] zero_nodata: убирает объекты, чья внутренняя точка в поле нулей окна (zmask H×W)."""
     import math
@@ -1408,6 +1456,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
         state.note["sp_dfine"] = _spd.preflight(cfg, root)
         log.info("sp_dfine: preflight ok, transformers %s", state.note["sp_dfine"]["transformers"])
+    if (cfg.get("sp_det2") or {}).get("enabled"):
+        from . import sp_det2 as _sp2
+        state.note["sp_det2"] = _sp2.preflight(cfg, root)
+        log.info("sp_det2: preflight ok, weights %s", state.note["sp_det2"]["weights"])
     if cfg.get("time", {}).get("watchdog", True):
         margin = cfg.get("time", {}).get("guard_margin_s", 180)
         arm_platform(state, margin_s=float(margin))
@@ -1508,6 +1560,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             t_phase = time.monotonic()
             n_phase = _sp_dfine_phase(regions, cfg, guard, state, root)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_det2") or {}).get("enabled"):
+            # sat2 CenterNet REPLACE; default OFF — candidate profile enables
+            t_phase = time.monotonic()
+            n_phase = _sp_det2_phase(regions, cfg, guard, state, root)
+            phases.append(("sp_det2", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_gate") or {}).get("enabled"):
             try:
                 from . import gor_gate

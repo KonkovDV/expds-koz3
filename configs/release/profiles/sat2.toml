@@ -1,0 +1,14 @@
+# Release profile: sat2 / sp_det2 CenterNet REPLACE ON (inference + optional OOF pack).
+# Default.toml keeps [sp_det2] OFF; this profile enables it via apply_release_profile.
+# Provide OOF pack via --sat2-pack (pack-alongside-kit; optional).
+name = "sat2"
+description = "sat2 REPLACE: sp_det2 CenterNet inference ON + optional OOF pack"
+
+[features]
+fr1h = false
+sat2 = true
+dfine_ae = false
+
+[artifacts]
+# Override on CLI: --sat2-pack PATH
+# sat2_replace_pack = "out/sat2-f14/replace-pack/sat2_det2_oof_replace_pack.zip"

@@ -1,0 +1,17 @@
+{
+  "id": "dmitrijkv/koz3-w1-sat2-check",
+  "title": "koz3-w1-sat2-check",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [
+    "dmitrijkv/koz3-sat2-chk-20261101",
+    "dmitrijkv/koz3-fr1h-wheels"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

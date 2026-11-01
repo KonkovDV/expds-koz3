@@ -505,3 +505,17 @@ enabled = false
 # fast_channels = true  # fix_channels без repeat + concatenate
 # gdal_threads = true   # GDAL_NUM_THREADS=ALL_CPUS, если не задан
 # slot_accum = true     # CUDA: накопление окон «слотами» (не входит в enabled — только явно)
+
+# sat2 / sp_det2: CenterNet ConvNeXt-T on SpOr (REPLACE sp_* kurgans). DEFAULT OFF.
+# Candidate pack enables via release profile sat2 / apply_release_profile.
+# [sp_det2]
+# enabled = false
+# weights = [
+#   "models/sp_det2/sp_det2_cnxt_f0.pt",
+#   "models/sp_det2/sp_det2_cnxt_f1.pt",
+#   "models/sp_det2/sp_det2_cnxt_f2.pt",
+#   "models/sp_det2/sp_det2_cnxt_f3.pt",
+#   "models/sp_det2/sp_det2_cnxt_f4.pt",
+# ]
+# drop_prefixes = ["sp_"]
+# + [thresholds_by_markup.sp_det2] kurgany_povrezhdennye / kurgany_tselye (= archive sp_or kurgan thr)
