@@ -343,15 +343,6 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 849471
-  },
-  {
-   "resource": "branch:bots/orch-protocol",
-   "owner": "coord",
-   "since": 1793565778.239584,
-   "expires": 1793569378.239584,
-   "note": "FINAL_CANDIDATES v3_on b447649",
-   "host": "grok-bot-vm-361051398",
-   "pid": 850836
   }
  ]
 }

@@ -632,3 +632,4 @@
 - 01.11 23:42 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
 01.11 23:50 MSK | coord | ФИНАЛ обновлён: «смелый» = v3_on b447649 sha 1406c01a…ef41d (722697913 B, Kaggle parity v5 PASS 4/4, вывод = ebc8e4ba побайтно) → Drive KOZ3-final/v3_on_b447649_1406c01a; ebc8e4ba заменён; «надёжный» v2clean 545ef32a (parity после b447649 не перепроверялась). FINAL_CANDIDATES/STATE/HANDOFF обновлены.
 - 01.11 23:42 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 00:42 MSK FINAL_CANDIDATES v3_on b447649
+- 01.11 23:43 MSK | lease | release branch:bots/orch-protocol (coord) by coord
