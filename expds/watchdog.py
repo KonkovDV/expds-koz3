@@ -149,7 +149,11 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("near_kept"):
         out = post.rescue_near_kept(out, cfg.get("thresholds", {}), by_markup, _spec(post_cfg["near_kept"]),
                                     cfg.get("default_threshold", 0.15))
-    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+    from . import sat_recall as _sr
+    if _sr.any_enabled(cfg):
+        # bot-7 sat recall: band-verify / agree-accept / cross-nms (all default OFF)
+        out = _sr.apply_thresholds(out, cfg, by_markup)
+    elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
     else:
@@ -272,7 +276,10 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
                                         cfg.get("default_threshold", 0.15))
         except Exception:
             log.exception("near_kept в запасной цепочке упал, шаг пропущен")
-    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+    from . import sat_recall as _sr
+    if _sr.any_enabled(cfg):
+        out = _sr.apply_thresholds(out, cfg, _by)
+    elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    _by, _lo.spec(cfg))
     else:
