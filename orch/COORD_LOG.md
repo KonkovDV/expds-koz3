@@ -633,3 +633,13 @@
 01.11 23:50 MSK | coord | ФИНАЛ обновлён: «смелый» = v3_on b447649 sha 1406c01a…ef41d (722697913 B, Kaggle parity v5 PASS 4/4, вывод = ebc8e4ba побайтно) → Drive KOZ3-final/v3_on_b447649_1406c01a; ebc8e4ba заменён; «надёжный» v2clean 545ef32a (parity после b447649 не перепроверялась). FINAL_CANDIDATES/STATE/HANDOFF обновлены.
 - 01.11 23:42 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 00:42 MSK FINAL_CANDIDATES v3_on b447649
 - 01.11 23:43 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 01.11 23:46 MSK | coord | проверка: aaaa0000004 v2cleanchk2 RUNNING (W4, parity «надёжного» v2clean после b447649); TPU-smoke acc1/acc2 (23:33/23:41) COMPLETE; остальные слоты GPU/TPU/CPU свободны, box load 0.3/8; QUEUE без ready-пунктов с ожидаемым приростом; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 00:00 MSK | coord | проверка: aaaa0000004 v2cleanchk2 COMPLETE (у W4, лиз W4 до 03:41), на 5 аккаунтах нет RUNNING/QUEUED, box load низкая; QUEUE без ready-пунктов с ожидаемым приростом; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 00:03 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 00:15 MSK | coord | проверка: без изменений с 00:00 — на 5 аккаунтах новых ядер нет (последнее aaaa0000004 v2cleanchk2 23:42 MSK завершено), box load 0.4/8, в QUEUE нет ready-пунктов; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 00:25 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 00:36 MSK | coord | проверка: без изменений с 00:15 — на 5 аккаунтах новых ядер нет (последнее aaaa0000004 v2cleanchk2 23:42 MSK), box load 0.5/8, в QUEUE нет ready-пунктов с ожидаемым приростом; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 00:47 MSK | coord | проверка: без изменений с 00:36 — на 5 аккаунтах новых ядер нет (последнее aaaa0000004 v2cleanchk2 23:42 MSK), box load 0.4/8, в QUEUE нет ready-пунктов; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 01:02 MSK | coord | проверка: без изменений с 00:47 — на 5 аккаунтах новых ядер нет (последнее aaaa0000004 v2cleanchk2 23:42 MSK), box load 0.7/8, в QUEUE нет ready-пунктов с ожидаемым приростом; финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 01:06 MSK | lease | release kernel:aaaa0000004/koz3-w4-v2cleanchk2 (bot-W4-v2cpar) by bot-W4-v2cpar
+- 02.11 01:07 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт

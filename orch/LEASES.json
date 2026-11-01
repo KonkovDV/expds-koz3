@@ -334,15 +334,6 @@
    "note": "py313 wheels",
    "host": "grok-bot-vm-361051398",
    "pid": 658530
-  },
-  {
-   "resource": "kernel:aaaa0000004/koz3-w4-v2cleanchk2",
-   "owner": "bot-W4-v2cpar",
-   "since": 1793565703.020059,
-   "expires": 1793580103.020059,
-   "note": "",
-   "host": "grok-bot-vm-361051398",
-   "pid": 849471
   }
  ]
 }
