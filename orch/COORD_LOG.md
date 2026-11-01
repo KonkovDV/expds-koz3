@@ -606,3 +606,4 @@
 - 01.11 22:13 MSK | coord-C1 | security: deleted dmitrijkv+elenakonkova/koz3-s3-cred (no RUNNING deps, verified 403/absent); other datasets incl. koz3-handoff clean; koz3 clones/worktrees → clean URL + env GITHUB_TOKEN helper; S3 keys = organizer-issued, not rotatable by us. Gates bots/c1-gates-1101 d2ce07a (PREREG 1eb216d, v3_on prod ctx, V3P-PC 0.345852): G1 sat2-kp Δ+0.00188 P0.9425 FAIL; G2 li nms8 non-kurgan Δ−0.00285 P0.0045 new34 −0.006 FAIL. v3_on unchanged.
 - 01.11 22:13 MSK | lease | release slot:box/q1 (coord) by coord
 - 01.11 22:13 MSK | lease | release branch:bots/c1-gates-1101 (coord) by coord
+2026-11-01 22:13:56 coord: S3 cred.json moved out of dataset staging cpuk/cf_acc1/ds to ~/.secrets/koz3_s3_cred.json (600); never stage creds in dataset dirs
