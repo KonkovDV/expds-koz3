@@ -402,6 +402,12 @@ enabled = false
 # markups = ["ae"]
 # weights = { ae = ["models/dfine_ae"] }
 # thresholds_file = "models/dfine_aeor/thresholds_oof.json"
+# bot-3 ae2or transfer (Ae FT → Or): keep OFF until honest-10 Δ>0.
+# After koz3-w1-ae2or-ft COMPLETE, candidate:
+# markups = ["or"]
+# weights = { or = ["models/dfine_or"] }
+# thresholds_file = "models/dfine_aeor/thresholds_or_oof.json"
+# tile = { or = 640 }; overlap = { or = 160 }; budget_s = 240  # raise if needed; total infer ≤20 min
 
 # bot-6: gorodishcha from D-FINE Or disabled by threshold >1 until measured with gor_dense.
 [thresholds_by_markup.dfine_or]
