@@ -1,6 +1,6 @@
 {
-  "id": "dmitrijkv/koz3-ae-dfine-gate",
-  "title": "koz3-ae-dfine-gate",
+  "id": "dmitrijkv/koz3-tta-gate",
+  "title": "koz3-tta-gate",
   "code_file": "koz3-tta-gate.py",
   "language": "python",
   "kernel_type": "script",
@@ -9,7 +9,8 @@
   "enable_tpu": false,
   "enable_internet": true,
   "dataset_sources": [
-    "dmitrijkv/koz3-s3-cred"
+    "dmitrijkv/koz3-s3-cred",
+    "dmitrijkv/koz3-w1-ae-ft-f4pack"
   ],
   "competition_sources": [],
   "kernel_sources": [

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """KOZ3 bot-8 · TTA/MS gate on D-FINE Ae + satellite U-Net (honest-10).
 
-Slug: dmitrijkv/koz3-ae-dfine-gate
+Slug: dmitrijkv/koz3-tta-gate
 Resource: NvidiaTeslaT4, internet, dataset dmitrijkv/koz3-s3-cred,
           kernel_sources dmitrijkv/koz3-dfine-ae (same as koz3-dfine-ae-ft).
 
