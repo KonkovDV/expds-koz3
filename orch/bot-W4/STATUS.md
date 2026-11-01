@@ -46,3 +46,42 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 - DOC-1 hard guard: bots/w4-pix-clean 70d335a — scripts/check_archive_clean.py (EN names + scripts/en_denylist.sha256 (35 sha, sha256sum-only) + bytes grep geo_pixgbm|EhimenNathan|pixgbm/ (i) + configs/*.toml must not reference w4pix/models/pixgbm/geo_pixgbm/kurgan-pix/hillshade-parity runs); legacy import moved to expds/pix_legacy.py (excluded from archives). tests/test_doc1_guard.py 20 passed incl. e2e negative (planted geo_pixgbm.py → rc≠0, no zip).
 - Rebuilt v2clean from 70d335a (same config + 6 weights): guard PASS, sha256 545ef32a70b4994f4d694828ae5eb28f27c9161d7f19a96f5a9d3833b87e093f (changed from 15d59e9f: only configs/default.toml comment + expds/pipeline.py rename; same 58 files). Old 15d59e9f fails the new guard (2 pattern hits). check_submission of 545ef32a queued: watcher w4-v2clean-check4 (lease bot-W4-chk3 dataset+kernel aaaa0000004, until 21:20 MSK).
 - Ported to bots/w4-gate ab9fd82 (20 passed). v3 probe build (configs/v3_on.toml) fails the guard as intended: legacy PIXGBM enabled + model_dir models/pixgbm/all + geo_pixgbm in pipeline.py → v3/v4 need a pix_clean port before any archive. Not ported to bots/w4-doc1-v4 (different build script; its default.toml model_dir would trip it).
+
+## 30.10 15:33 MSK — check4 PASS, new iteration
+- check_submission archive 545ef32a (v2clean 70d335a, DOC-1 guard): PASS — FAIL 0, WARN 2, sha_ok=True, wall 48 s (out_v2clean_check4). Lease bot-W4-chk3 released (kernel lease already freed by watcher).
+- Lease slot:box/q2 → bot-W4-v3 until 23:32 MSK; branch:bots/w4-gate renewed until 31.10 01:32 MSK.
+
+## 2026-10-30 iteration (bot5-W4)
+- check4 545ef32a: PASS (FAIL 0, WARN 2, sha_ok). Lease bot-W4-chk3 released.
+- v3_on: build b505656 → koz3_v3on_b505656_6d4764f8_w6dfd2e07.zip (680.5 MiB, sha ebc8e4ba…), DOC-1 guard PASS (no geo_pixgbm, no models/pixgbm). Flags off: v2clean zip sha 545ef32a… byte-identical.
+- v3 gate (honest-10, boot 2000, vs v2clean B0 0.313967): V3P Δ +0.0198 P 0.976 new34 +0.0084 nolidar +0.0751 → PASS; V3F (optimistic) Δ +0.0328 P 0.9985.
+- D2 (PREREG becf0c1): D2-1 C vs A Δ −0.00065 P 0.0 (object_poly F1 −0.0065) → FAIL; D2-2 direct parity BLOCKED (no v2 legacy geophys output in clean room), proxy |Δ−0.012|=0.0126 → FAIL; D2-3 G4: v2 post.merge_within_markup isolates etgr (static, same in w4-gate); dynamic: isolated is better than merged by +0.00016 (1578→180 rows).
+- Kaggle check_submission on v3: NOT run (needs separate W4 lease).
+
+## 30.10 16:20 MSK — origin/bots/w4-gate six "W4 C" commits: NOT OURS → not merged
+b03a4fd (13:24, author "W4 gate bot <w4-gate@koz3.local>": v3a levers PREREG/#12 comp-gate/M_rp PASS +0.00437 P 0.989/levers FAIL/parity PARTIAL, 15 files incl. scripts/v3a_levers.py),
+f901f89 (13:32 check4 PASS + PREP_V3A), 194fe48 (13:37 v3a_min check_submission PASS), 66c62b4 (14:28 "LB drop ack — v3a_min NOT next LB; wait PIXGBM recover"),
+c568499 (14:34 STATUS gate prep + pix_geo_pr_gate), 105ac1b (14:35 align with A) — last five author "bot-W4-gate <bot-w4@koz3.local>".
+Identity ≠ bot5-w4, not made in this session, commit messages/COORD_LOG reference PIXGBM non-cleanroom research → in doubt ⇒ no merge.
+bots/w4-v3on stays separate (push target for W4 bot5). Contents of these commits were not opened (cleanroom).
+# P-W4-compgate + v3_on+M_rp — result (30.10.2026 16:21 MSK), PREREG docs/PREREG_w4_compgate.md (c16be2f, before measurement)
+R  rebuild A on box (fresh split+cache): 60/60 cluster blobs equal cached, honest 0.3146153227 → PASS.
+Sanity: C0 Σ_mod counts == unweighted (0 mismatched cells, all variants); C1 |w≡1 − honest| ≤ 1.1e-16; M0 extras-without-disk == A and == V3P (0.0).
+Weights (target/OOF GT share): PUB geo 1.19 li 1.49 sp_or 0.89 ae 0.13 or 1.03; CLO geo 0.48 li 0.90 sp_or 1.37 ae 1.01 or 11.9 (noisy).
+| comparison | UNW Δ (P) | new34 | nolidar | PUB Δ (P) | CLO Δ (P) | comp-OK |
+|---|---|---|---|---|---|---|
+| V3P vs B0 | +0.019820 (0.976) | +0.008405 | +0.075076 | +0.014806 (0.942) | +0.019615 (0.976) | yes |
+| MRP vs A | +0.004670 (0.9925) | +0.002431 | +0.008924 | +0.002353 (0.933) | +0.005075 (0.999) | yes |
+| V3P+MRP vs V3P (gate) | +0.002758 (0.9985) | +0.003660 | +0.002369 | +0.001078 (0.998) | +0.002604 (0.998) | yes |
+| V3P+MRP vs B0 | +0.022578 (0.9855) | +0.012064 | +0.077446 | +0.015884 (0.948) | +0.022219 (0.986) | yes |
+V3P+MRP gate: Δ<0.003 → FAIL by prereg (P, floors, slices, composition all OK); per prereg: M_rp partly overlaps v3_on (+0.00467 on A → +0.00276 on top of v3_on).
+MRP on A reproduces W3 +0.004670 exactly. Disclosures: TP attributed to predicted modality; group etgr_org (C19 extras) mapped to geo via the etgr prefix rule (not named in PREREG list).
+
+## 01.11 20:20 MSK — J2 regate PASS, v3onchk PASS (env-pin), Kaggle ownership
+- J2 (PREREG 7b5882e, before measurement; rerun with /workspace/koz3/w4venv/bin/python, scipy 1.18.1 — the 30.10 crash was w1/venv without scipy): sanity K=0 mismatches, N reproduces compgate V3P_MRP (|d| 8e-12). J2W4 0.346143 vs V3P 0.333787: Δall +0.012356 P 0.9975 (p5 +0.0041), new34 +0.016405 (P 0.84), nolidar +0.002845 (P 0.9805); floors all ≥0 (kurg_povr +0.031, fort +0.042, object_poly +0.003, finds 0) → PASS (Δ≥0.003, P≥0.9857). α picks nested on v3 [0.6,0.3,0.6,1.0,0.6,0.6,0.3,0.6,0.6,0.6] vs W1-from-A [0.6,0.3,0.6,0.6,0.6,0.3,1.0,1.0,0.6,0.6]. W1's claim +0.0156 shrinks to +0.0124. Secondary vs V3P+M_rp: Δ +0.009598 P 0.9865. → runs/independent_regate_W1J2.json
+- v3onchk ERROR 30.10 16:07: run.py v1 used a hard path /kaggle/input/koz3-w4-wheels/laspy… (no recursive glob) → IndexError before the check. v2 (16:33, fixed glob, never logged) COMPLETE but FAIL: no D-FINE reference region 103 (check_submission DFINE_KNOWN, /workspace/data/train-expds-3 absent on Kaggle) + run A vendor regex cp312 cannot load on Kaggle py3.13.
+  Fix: own kernel dmitrijkv/koz3-w4-ref103 (S3 via koz3-s3-cred, keys not printed) → SpOr 103 + UTM.json (sha 93e9bd90…) → dataset aaaa0000004/koz3-w4-dfine-ref103; run.py v3 rebuilds region dir and passes --dfine-region.
+  v3 result (out_v3on_check3, sha ebc8e4ba OK): B (env transformers 5.21.0 cp313 offline wheels) PASS — FAIL 0, WARN 4, 97.7 s; D-FINE probe 14 queries ≥0.3 on 12 windows (f0 ref 14), max 0.7037 (ref 0.704); smoke sp_dfine n_det 16. A (archive vendor) FAIL 3 = all py3.13-vs-cp312 regex vendor (platform pantum/n7q is py3.12) — environment, not archive.
+- elenakonkova/koz3-w4-li-post-gate (COMPLETE 01.11 19:37 MSK): NOT ours — bot-4 li_post line (bots/bot4-li-post b61e3f6 "li_post Kaggle COMPLETE numbers", EXPERIMENTS.csv "via koz3-w4-li-post-gate"); no W4 lease/script. Not pulled. Their recorded result: Li-only honest-LOFO off 0.2803, thr_nested +0.118, thr_nms8 +0.1195.
+- elenakonkova/koz3-s3-index (ERROR, 01.11 19:39 MSK): no W4 lease, script or log on box, not W4 prefix → not ours; content not opened, not fixed.
+- Leases: box/q1, dmitrijkv/cpu + kernel ref103, aaaa0000004/cpu + kernel v3onchk + dataset ref103 all released.

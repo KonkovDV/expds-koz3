@@ -91,3 +91,20 @@
 - Archive diff old 15d59e9f vs new 545ef32a: only via `diff` of unzipped configs/default.toml + expds/pipeline.py (both shipped, clean files).
 - rg -l (filenames only) for EN patterns over w4geo scripts/kaggle/orch-bot-W4 before commit.
 - NOT opened: expds/geo_pixgbm.py (any branch), pix_legacy target, models/pixgbm/*, analysis/**, bot3 branches, EN repo.
+
+## 2026-10-30 iteration
+Read: bot-9 requirements-dfine.txt; scripts/build_submission.py; w4-gate expds/sp_dfine.py, pipeline.py, post.py; orch/bot-W1/work/d3_gate.py; QUEUE.json; MASTER_PLAN (grep); spec bbebfe3; 56cdf39:docs/REPRO_V2.md; eb268d6 greps of expds/post.py, geophys, pipeline, watchdog (banned files excluded); PyPI wheel URLs (transformers 5.21.0, tokenizers 0.23.3, regex 2026.9.29, typer 0.27.3, rich 15.0.0, markdown-it-py 4.2.0, mdurl 0.1.2, pygments 2.21.0, shellingham 1.5.4, annotated-doc 0.0.5); Kaggle output pull koz3-dfine-spor-full-rest (via pool, dmitrijkv).
+INCIDENT (incidental exposure): `git grep -n psutil 22a32c3 -- expds` printed expds/geo_pixgbm.py lines 741–747 (psutil thread-limit lines). Not used for any code. From now on always exclude banned paths with :(exclude) pathspecs.
+
+## 30.10.2026 15:56–16:20 MSK (iteration: v3 Kaggle check / w4-gate commits / compgate)
+- orch/QUEUE.json (P-W4-compgate), docs MASTER_PLAN (M_rp line), REVIEW_SOTA (§2.1 public composition, #12, D-FINE fallback warning).
+- orch/bot-W3/prereg/C5B_JOINT_PREREG.md, orch/bot-W3/code/make_joint.py (M_rp clean definition, disk()).
+- orch/bot-W1/work/d3_gate.py (honest/Stack/TableEngine/merge), wt/w1/expds/metric.py (ClassCurve, score_counts, paired_bootstrap_counts, threshold_group).
+- orch/bot-W4/work/v3_gate.py / v3_gate_lib.py (own code).
+- PyPI wheel downloads (pypi.org / files.pythonhosted.org): transformers 5.21.0 stack for cp313 (list in w4geo/kaggle/SHA256SUMS_wheels_v3.txt).
+- origin/bots/w4-gate 6 foreign commits: ONLY `git log` metadata (author, time, message) + `--stat`/name counts. Contents NOT opened.
+- NOT read: analysis/** (M_rp source c4e18a9 on bots/w5-rerank — banned, not opened), all banned paths from the brief.
+
+## 01.11.2026 19:54– MSK (bot5-W4)
+Read: orch/bot-W4/STATUS.md, work/j2_regate.py/log, docs/PREREG_w4_regate_W1J2.md (ours); w4geo/kaggle/{koz3-w4-v3onchk, out_v3on_check, ds-v3on-check/check_submission.py §DFINE (lines 740–860, 1116–1215)}; orch/pool_kaggle.sh, orch/lease.sh, COORD_LOG greps; w0/noground/full_cls.py (S3 access pattern grep, secrets masked); s3_keys.tsv (103 rows); wt/w5 kaggle/2026-10-28/dfine_spor/full_rest kernel-metadata + script S3 grep (secrets masked); origin/bots/bot4-li-post log + b61e3f6 stat + EXPERIMENTS.csv grep (bot4, not banned). URL: HEAD https://s3.ru-7.storage.selcloud.ru/train-expds-3/<103 SpOr> (403).
+Kaggle: kernels status/output aaaa0000004/koz3-w4-v3onchk (v2), dmitrijkv/koz3-w4-ref103 (own); metadata only (no content) for elenakonkova/koz3-w4-li-post-gate and koz3-s3-index.
