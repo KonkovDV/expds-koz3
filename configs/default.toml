@@ -780,3 +780,18 @@ gorodishcha = 0.55
 # weights = "models/hillfort_loc.npz"
 # side = 512
 # radius_m = 2.0
+
+# bot-4: Li FN/FP post levers (class_tau floors + self-NMS). Default OFF.
+# Honest s0 cnx OOF (base τ=0.15): class_tau nested ΔF1_li≈+0.118; self_nms@8 ≈+0.003.
+# Не трогает закрытые рычаги (r50c5/WSR/ring/peak-rerank/sp_large). Не геофизика.
+[li_post]
+enabled = false
+class_tau = false
+self_nms = false
+self_nms_m = 8.0
+
+# Абсолютные полы поверх post.apply_thresholds только для li*-группы.
+# Nested-fit median на s0 leave-one-fold (grid ≥0.15). fort/gorod не поднимаем.
+[li_post.class_tau_floor]
+kurgany_povrezhdennye = 0.30
+kurgany_tselye = 0.30

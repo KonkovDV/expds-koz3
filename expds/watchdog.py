@@ -155,6 +155,9 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     by_markup)
+    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    from . import li_post as _lip
+    out = _lip.apply(out, cfg)
     out = out + reranked
     # bot-4: protect_merge — крупный не сливается с мелким.
     if _lo.flag(cfg, "protect_merge"):
@@ -278,6 +281,12 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     _by)
+    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    from . import li_post as _lip
+    try:
+        out = _lip.apply(out, cfg)
+    except Exception:
+        log.exception("li_post в запасной цепочке упал, шаг пропущен")
     out = out + reranked
     if _lo.flag(cfg, "protect_merge"):
         try:
