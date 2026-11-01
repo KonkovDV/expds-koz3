@@ -336,22 +336,22 @@
    "pid": 658530
   },
   {
-   "resource": "dataset:aaaa0000004/koz3-w4-v3onfix",
-   "owner": "bot-W4-v3fix",
-   "since": 1793559597.30018,
-   "expires": 1793570397.30018,
+   "resource": "kernel:aaaa0000004/koz3-w4-v2cleanchk2",
+   "owner": "bot-W4-v2cpar",
+   "since": 1793565703.020059,
+   "expires": 1793580103.020059,
    "note": "",
    "host": "grok-bot-vm-361051398",
-   "pid": 783546
+   "pid": 849471
   },
   {
-   "resource": "kernel:aaaa0000004/koz3-w4-v3onchk",
-   "owner": "bot-W4-v3fix",
-   "since": 1793559783.452495,
-   "expires": 1793570583.452495,
-   "note": "",
+   "resource": "branch:bots/orch-protocol",
+   "owner": "coord",
+   "since": 1793565778.239584,
+   "expires": 1793569378.239584,
+   "note": "FINAL_CANDIDATES v3_on b447649",
    "host": "grok-bot-vm-361051398",
-   "pid": 787307
+   "pid": 850836
   }
  ]
 }

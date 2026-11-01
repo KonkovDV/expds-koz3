@@ -622,3 +622,13 @@
 - 01.11 22:45 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
 - 01.11 23:00 MSK | coord | проверка: без изменений с 22:45 — GPU acc1/acc2 свободны (последние ядра ~21:33 MSK), box без тяжёлых задач, QUEUE без ready-пунктов с ожидаемым приростом, финал v3_on не меняется. Елене — ничего.
 2026-11-01 23:01:21 coord: new Kaggle tokens from Elena for all 5 accounts stored in ~/.secrets/kpool/<user> (600); pool json nodes updated; usertest1234 + aaaadg4gg4g4g alive again
+- 01.11 23:02 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 23:17 MSK | coord | проверка: без изменений с 23:00 — на всех 5 аккаунтах нет RUNNING/QUEUED ядер (последнее aaaa0000004 v3onchk завершено), box load 0.9/8, ready-пункты QUEUE (P-D2/P-W3-seeds-fix/P-W2-hillshade/P-W4-compgate) устаревшие/у владельцев, без ожидаемого прироста; финал v3_on не меняется. Елене — ничего.
+- 01.11 23:19 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 23:30 MSK | coord | проверка: без изменений с 23:17 — на 5 аккаунтах новых ядер нет (последнее aaaa0000004 v3onchk 22:30 MSK завершено), box load 0.4/8, QUEUE без ready-пунктов с ожидаемым приростом; финал v3_on не меняется. Елене — ничего.
+- 01.11 23:39 MSK | lease | release dataset:aaaa0000004/koz3-w4-v3onfix (bot-W4-v3fix) by bot-W4-v3fix
+- 01.11 23:39 MSK | lease | release kernel:aaaa0000004/koz3-w4-v3onchk (bot-W4-v3fix) by bot-W4-v3fix
+- 01.11 23:41 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v2cleanchk2 → bot-W4-v2cpar до 02.11 03:41 MSK 
+- 01.11 23:42 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+01.11 23:50 MSK | coord | ФИНАЛ обновлён: «смелый» = v3_on b447649 sha 1406c01a…ef41d (722697913 B, Kaggle parity v5 PASS 4/4, вывод = ebc8e4ba побайтно) → Drive KOZ3-final/v3_on_b447649_1406c01a; ebc8e4ba заменён; «надёжный» v2clean 545ef32a (parity после b447649 не перепроверялась). FINAL_CANDIDATES/STATE/HANDOFF обновлены.
+- 01.11 23:42 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 00:42 MSK FINAL_CANDIDATES v3_on b447649
