@@ -518,18 +518,35 @@
 - 01.11 19:28 MSK | lease | release slot:acc2/gpu-2 (coord) by coord
 - 01.11 19:28 MSK | lease | acquire slot:acc2/gpu-2 → coord до 01.11 23:28 MSK coord: w3-gordense-timing под новым slug (старый slug → 409 Conflict)
 - 01.11 19:35 MSK | coord | проверка: acc1 2 GPU RUNNING (w1-sat2-gate, lidar-aug-f0); acc2 gpu lidar-aug-f2 RUNNING; slug koz3-w3-gordense-timing стабильно 409 (watcher 31.10, 01.11) → запушен как dmitrijkv/koz3-w3-gordense-timing2 на acc2/gpu-2; aaaa0000004 fr1h-geo COMPLETE (у W4); box load 0.0/8; токены usertest1234/aaaadg4gg4g4g мертвы
-
-## 01.11 19:38 MSK — bot-W4-gate FR1h CPU COMPLETE
-- Kernels COMPLETE: usertest1234/koz3-w4-fr1h-check (check_submission PASS RC=0 wall~63s), aaaadg4gg4g4g/koz3-w4-fr1h-gate (thr_ok, vsA PASS +0.00409 P0.999, vsB′ PASS_SOFT +0.002905), aaaa0000004/koz3-w4-fr1h-geo (geo PASS byte-id v2, static PASS)
-- Zip sha fe8d60b903247476… @ /workspace/koz3/out/fr1h-pack/for_elena/submission_fr1h_on_eb268d6.zip (500.8 MiB, PIXGBM+rerank+FR1h)
-- Report: reports/v2_fr1h_candidate_2026-11-01.md (RU) + orch/reports_v2_fr1h_candidate_2026-11-01.md. Ready for Elena decision; NO LB submit; NO main push
-- Leases released. TPU: no non-duplicate ready job; lidar-aug f0/f2 untouched RUNNING
-- 01.11 01.11 19:38 MSK | lease | release kernel+slot fr1h×3 by bot-W4-gate
-
-## 01.11 20:22 MSK — coord hourly pass
-- acc1 elenakonkova: w4-li-post-full RUNNING, w1-sat2-gate RUNNING (full). w4-li-post-gate COMPLETE, но output пустой при pull — W4, проверь (li-post-full, видимо, заменяет).
-- acc2 dmitrijkv: w1-lidar-aug-f2, w3-gordense-timing2, bot6-pixgbm-cr-gate (перезапущен) RUNNING (full).
-- bot7-geo-gate и bot7-sat-recall COMPLETE, но INVALID: все рычаги mode=prior_only, stack=null, score/delta/p_gt0=null ("Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1"). Гейт не выполнен → W7: подключить stack/scoreboard и перезапустить; не считать pass/fail.
-- fr1h кандидат: zip 500.8 MiB > 100 MB лимита compliance из протокола — проверить требование до сабмита.
-- CPU-акки свободны: готовых offline CPU-пакетов в очереди нет.
-- Квота Grok Bot: 28.9% осталось (52% в 19:37) — экономия близко.
+- 01.11 19:55 MSK | coord | проверка: acc1 w1-sat2-gate ERROR за 0 с (нет /kaggle/src/vendor/materials/compute_metrics.py — упаковка W1; лог out/w1-sat2-gate) → acc1/gpu-2 свободен, готовых GPU-задач в QUEUE нет; acc1 s3-index ERROR, w4-li-post-gate COMPLETE; lidar-aug-f0 (acc1), w1-lidar-aug-f2 и gordense-timing2 (acc2) RUNNING; box load 0.3/8
+- 01.11 19:54 MSK | lease | acquire slot:box/q1 → bot-W4-j2 до 02.11 01:54 MSK W4 J2 regate + v3onchk
+- 01.11 19:56 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v3onchk → bot-W4-chk5 до 02.11 01:56 MSK v3onchk ERROR triage + rerun
+- 01.11 19:56 MSK | check_conflicts | ERROR=4 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-lidar-aug-f0 RUNNING без аренды; ядро dmitrijkv/koz3-bot7-geo-gate RUNNING без аренды; ядро dmitrijkv/koz3-w1-lidar-aug-f2 RUNNING без аренды
+- 01.11 19:58 MSK | lease | acquire slot:dmitrijkv/cpu → bot-W4-ref до 01.11 21:58 MSK fetch SpOr ref region 103 for v3onchk dfine probe
+- 01.11 19:58 MSK | lease | acquire kernel:dmitrijkv/koz3-w4-ref103 → bot-W4-ref до 01.11 21:58 MSK 
+- 01.11 20:00 MSK | coord | проверка: без изменений с 19:55 — acc1 lidar-aug-f0, acc2 w1-lidar-aug-f2/gordense-timing2/ref103(W4) RUNNING; acc1/gpu-2 и обе TPU свободны, готовых GPU/TPU-задач нет; box load 0.7/8, box/q1 у W4 (J2 regate); готовые box-пункты (P-W4-compgate, w0s-*) — у владельцев, раннеров для автозапуска нет
+- 01.11 20:00 MSK | lease | release kernel:dmitrijkv/koz3-w4-ref103 (bot-W4-ref) by bot-W4-ref
+- 01.11 20:00 MSK | lease | release slot:dmitrijkv/cpu (bot-W4-ref) by bot-W4-ref
+- 01.11 20:00 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-dfine-ref103 → bot-W4-chk5 до 02.11 02:00 MSK ref region 103 SpOr for v3onchk
+- 01.11 20:01 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk5 до 02.11 00:01 MSK v3onchk rerun v3 (ref103 dfine region)
+- 01.11 20:02 MSK | lease | release slot:box/q1 (bot-W4-j2) by bot-W4-j2
+- 01.11 20:02 MSK | lease | acquire dataset:elenakonkova/koz3-w1-sat2-src → bot-W1-aeor до 02.11 20:02 MSK sat2-gate src (vendor/data/w5_rerank/scripts)
+- 01.11 20:06 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk5) by coord
+- 01.11 20:06 MSK | lease | release kernel:aaaa0000004/koz3-w4-v3onchk (bot-W4-chk5) by coord
+- 01.11 20:06 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v3onchk → COMPLETE; аренда снята
+- 01.11 20:06 MSK | lease | acquire slot:acc1/gpu-1 → bot-W1-aeor до 02.11 02:06 MSK w1-sat2-gate-v2
+- 01.11 20:06 MSK | lease | acquire kernel:elenakonkova/koz3-w1-sat2-gate → bot-W1-aeor до 02.11 02:06 MSK 
+- 01.11 20:07 MSK | lease | release slot:acc1/gpu-1 (bot-W1-aeor) by bot-W1-aeor
+- 01.11 20:07 MSK | lease | release kernel:elenakonkova/koz3-w1-sat2-gate (bot-W1-aeor) by bot-W1-aeor
+- 01.11 20:07 MSK | watcher | acc1/gpu-1: push elenakonkova/koz3-w1-sat2-gate не удался: Kernel push error: Maximum batch GPU session count of 2 reached.
+- 01.11 20:07 MSK | lease | acquire slot:acc1/gpu-2 → bot-W1-aeor до 02.11 02:07 MSK w1-sat2-gate-v2
+- 01.11 20:07 MSK | lease | acquire kernel:elenakonkova/koz3-w1-sat2-gate → bot-W1-aeor до 02.11 02:07 MSK 
+- 01.11 20:07 MSK | lease | release slot:acc1/gpu-2 (bot-W1-aeor) by bot-W1-aeor
+- 01.11 20:07 MSK | lease | release kernel:elenakonkova/koz3-w1-sat2-gate (bot-W1-aeor) by bot-W1-aeor
+- 01.11 20:07 MSK | watcher | acc1/gpu-2: push elenakonkova/koz3-w1-sat2-gate не удался: Kernel push error: Maximum batch GPU session count of 2 reached.
+- 01.11 20:10 MSK | lease | acquire slot:acc1/cpu → bot-W1-aeor до 02.11 00:10 MSK sat2-gate v2 (CPU; acc1 GPU 2/2 заняты)
+- 01.11 20:10 MSK | lease | acquire kernel:elenakonkova/koz3-w1-sat2-gate → bot-W1-aeor до 02.11 00:10 MSK 
+- 01.11 20:13 MSK | check_conflicts | ERROR=5 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w4-li-post-full RUNNING без аренды; ядро elenakonkova/koz3-lidar-aug-f0 RUNNING без аренды; ядро dmitrijkv/koz3-bot6-pixgbm-cr-gate RUNNING без аренды; ядро dmitrijkv/koz3-w1-lidar-aug-f2 RUNNING без аренды
+- 01.11 20:19 MSK | coord | проверка: box load 0.2/8, box/q3 в аренде; acc1 GPU 2/2 заняты (sat2-gate ушёл на acc1/cpu), acc2 GPU-2 в аренде; готовых автозапускаемых пунктов нет (P-* ready — у владельцев, без раннеров); изменений, требующих Елены, нет
+- 01.11 20:19 MSK | lease | release dataset:aaaa0000004/koz3-w4-dfine-ref103 (bot-W4-chk5) by bot-W4-chk5
+- 01.11 20:22 coord: J2 independent regate PASS (W4): V3P+RR1s-cf Δ+0.0124 P0.9975. Final = v3_on + RR1s-cf (no M_rp: +0.0028<0.003). W4 builds v4 bundle; W1 cloudfeat inference module. v3onchk PASS (ebc8e4ba). Unknown 'W4 gate bot' commits on origin/bots/w4-gate — not merged, asked Elena.
