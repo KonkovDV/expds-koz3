@@ -1,5 +1,55 @@
 # bot-4: крупные объекты (>5k м²)
 
+## Results (2026-11-01) — honest-10
+
+Флаги в `configs/default.toml` **выключены** (`enabled = false` и все sub-flags `false`). При выключенном мастере `finish` идёт в `post.apply_thresholds` / `post.merge_within_markup`, как без этого модуля. gor_dense не копировался: он остаётся отдельным флагом `[gor_dense]`.
+
+Честный прогон **не выполнен**. На этой машине нет OOF jsonl, эталона и кривых (`/workspace/koz3_shared`, `/workspace/rerank` отсутствуют; в git их нет). GPU и Kaggle нет, модели не учились. Подставленных P/R нет.
+
+| | precision | recall | score (взвеш. F1) | ΔP | ΔR | Δscore |
+|---|---|---|---|---|---|---|
+| flag OFF | не измерено | не измерено | не измерено | — | — | — |
+| area_tau ON | не измерено | не измерено | не измерено | не измерено | не измерено | не измерено |
+| fixc_nested ON | не измерено | не измерено | не измерено | не измерено | не измерено | не измерено |
+
+Полная таблица корзин площади и `recovered_gt_gt5k` появляется в `work/large_objects_honest.json` после команды ниже. До этого восстановление 113 / 82 / 6 / 3 **не посчитано**.
+
+Корзины LB (проверено по `docs/background/LB_SCORING_v2_eb268d6_0.41238.log` и `materials/compute_metrics.py`: границы 100, 500, 1000, 5000, 10000 — это верх интервала, не накопленная полнота):
+
+| корзина GT | recall на LB v2 |
+|---|---|
+| (5000, 10000] м² (в логе «≤ 10000») | **0.000000** |
+| > 10000 м² | **0.294118** |
+
+Разложение 204 = 113 below_τ + 82 no_cand + 6 shape + 3 consumed взято из отчёта bot-2 и README. Построчный `gt_rows.csv` в этот клон не входит, заново по строкам не пересчитано. Сложение опубликованных корзин OOF (5–10k: 13/112 найдено → 99 пропусков; >10k: 20/125 → 105) даёт 204 и с этой суммой сходится.
+
+**Лучший конфиг по honest-10 не выбран** — выбора без замера нет. Что уже известно и не является honest-10:
+
+- mock e2e полного ON: Δ **−0.01629** (coarse hillfort, +3 FP li/gorodishcha). Не включать.
+- ablation mock: `area_tau` / `protect_merge` / `shape_cores` Δ 0 (на том mock крупные ae-объекты не стреляют); `fort_to_gor` и `coarse_hillfort` ≈ **−0.006**.
+- τ_large = 0.20 для Fix C снят с **всей** таблицы OOF Ae (не nested). В honest-скрипте эта константа заново не выбирается: на каждом фолде τ_large берётся из сетки 0.10 / 0.20 / 0.30 только по train.
+
+Пока команда ниже не дала Δscore > 0 без провала слоя, сдача остаётся с флагом OFF.
+
+### Команда (CPU, без GPU, без обучения)
+
+```bash
+python3 scripts/large_objects_honest.py \
+  --fam /workspace/koz3_shared/bot-10/work11/fam0 \
+  --gt /workspace/rerank/gt_train_v2.geojson \
+  --clusters /workspace/koz3_shared/bot-10/work/family_clusters.json \
+  --metric materials/compute_metrics.py \
+  --out work/large_objects_honest.json
+```
+
+- Ветка: `bots/bot4-large-objects` (этот коммит; `git rev-parse HEAD` печатает скрипт, если входов нет).
+- Время: 30–90 мин, одно ядро (кривые по семьям, три варианта).
+- Успех: код 0; в JSON есть `off`, `area_tau`, `fixc_nested` с `score` / `precision` / `recall` / `delta_*` / `size_recall` / `recovered_gt_gt5k`; `off.score` близок к честной базе того стека, из которого собран fam (для стека A — 0.314615 ± 0.002).
+- На этой машине та же команда выходит с кодом **2** (`honest-10 не посчитан`).
+- На LB не сдавать.
+
+Fix C по кругам r=4 без `box_area_m2` в jsonl не видит бокс (площадь круга ~50 м²). Ключ `box_area_m2` в свойствах скрипт подхватывает. Иначе нужен OOF D-FINE Ae, а не повторный инференс.
+
 ## Контракт
 - **Цель:** поднять recall городищ/фортификаций площадью >5 000 м² (LB: R 5–10k = 0, R >10k = 0,294; OOF misses: 113 below_τ, 82 no_cand, 6 shape, 3 consumed) без регрессии мелких слоёв.
 - **Гипотеза:** area-aware ослабление калиброванных τ + защита крупного при склейке + ядра только у крупных gor + fort→gor + грубый hillfort закроют below_τ / no_cand / consumed, не повторяя отвергнутый bot-2 F1 (отдельные группы под sweep) и F2 (ядра глобально).
