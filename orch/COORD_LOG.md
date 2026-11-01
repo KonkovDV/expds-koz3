@@ -992,3 +992,4 @@ Sleeping. A watches carefully overnight (routine every 10m + executor). Wake onl
 
 ## 01.11 00:06 MSK within-site rank STOP
 elenakonkova/koz3-wsr-f0 v3 COMPLETE 385s. Pilot Курганы: median FP louder 9→16 (need ≤2); damaged F1 0.6636→0.5561. Lease released. default.toml/0.41238 untouched. out/wsr/k3/report.json. Watch routine deleted.
+- 01.11 18:47 MSK | A | HANDOFF_NOW_20261101.md for bot transfer (+ Kaggle live snapshot). elena lidar f3–4 RUNNING; dkv f2 RUNNING; Drive packs ready. Hold 0.41238.
