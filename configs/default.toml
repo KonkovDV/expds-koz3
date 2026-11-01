@@ -639,6 +639,8 @@ enabled = false
 # fast_channels = true  # fix_channels без repeat + concatenate
 # gdal_threads = true   # GDAL_NUM_THREADS=ALL_CPUS, если не задан
 # slot_accum = true     # CUDA: накопление окон «слотами» (не входит в enabled — только явно)
+# dem_disk_cache = true # дисковый кэш DEM между прогонами (или EXPDS_DEM_DISK_CACHE=/path)
+# rust_match = true     # Rust-префильтр пар honest-10/гейтов (EXPDS_RUST_MATCH=1)
 # bot-5 (ветка bot5-gor-dense-v3): PFnoD бота 10 (bot-10/REPORT14_gor_dense.md, work14/pkg_gor2.json; PACKAGE-ONLY
 # +0,015406, P 1,000) — точки городищ плотного локализатора DINOv2-S на SpOr (expds/gor_dense.py) после sp_dfine/drop_groups,
 # группа порога gor_dense; conf = 0,5·(p участка головы gor_v3 + пик); гейт sp_or НЕ ставить (при R ему нечего гейтить).

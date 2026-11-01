@@ -23,6 +23,12 @@ test_meta_init.py, test_predict_slots.py), но на реальных данны
 
 Не взято из ветки (см. docs/BRANCHES_ARCHIVE.md): las_grid_fast + rust/expds_fast (написаны под lidar_a —
 линия EN), cpu_threads (нет потребителя в main), колесо .whl (бинарь в git).
+
+Дополнительно (01.11.2026, bots/bot1-speedup-1101), вне UMBRELLA — только явно:
+  dem_disk_cache — дисковый кэш DEM (expds/demcache.py); выставляет
+                   EXPDS_DEM_DISK_CACHE на каталог по умолчанию, если ещё не задан.
+                   Либо задать EXPDS_DEM_DISK_CACHE=/path без флага (тоже включает кэш).
+  rust_match     — префильтр пар гейтов через Rust (EXPDS_RUST_MATCH=1); hit побайтно тот же.
 """
 from __future__ import annotations
 
@@ -33,7 +39,7 @@ log = logging.getLogger(__name__)
 
 UMBRELLA = ("meta_init", "no_pad_copy", "read_ahead", "batch_circles", "fast_writer", "fast_channels",
             "gdal_threads")
-FLAGS = UMBRELLA + ("slot_accum",)
+FLAGS = UMBRELLA + ("slot_accum", "dem_disk_cache", "rust_match")
 
 _cfg: dict = {}
 
@@ -61,6 +67,11 @@ def configure(section: dict | None) -> list[str]:
         _cfg[k] = b
     if on("gdal_threads"):
         os.environ.setdefault("GDAL_NUM_THREADS", "ALL_CPUS")
+    if on("dem_disk_cache"):
+        from . import demcache
+        os.environ.setdefault("EXPDS_DEM_DISK_CACHE", str(demcache.default_dir()))
+    if on("rust_match"):
+        os.environ.setdefault("EXPDS_RUST_MATCH", "1")
     return active()
 
 
