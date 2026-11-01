@@ -1,0 +1,14 @@
+{
+ "status": "DONE",
+ "ts": "2026-11-01T19:10:28+0300",
+ "mode": "smoke",
+ "mod": "Or",
+ "iters": 2,
+ "deadline_h": 4.0,
+ "final_iters": 0,
+ "phase": "dryrun",
+ "final_ok": true,
+ "calib_ok": true,
+ "n_det": 10,
+ "total_sec": 0
+}

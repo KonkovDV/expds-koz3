@@ -1,0 +1,102 @@
+{
+ "goal": "sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax sweep",
+ "base_name": "A",
+ "base_score_ref": 0.314615,
+ "Bprime_score": 0.3158,
+ "boot": 50,
+ "P_means": "paired bootstrap p_gt0 = P(score_cand > score_base); NOT precision",
+ "soft_PASS_ref": {
+  "score": 0.320516,
+  "d_Bprime": 0.00472,
+  "p": 0.838
+ },
+ "oof_sha256": "afaf8dcaec1fee892db96f164a7843461b194b58949be2a3a8e94c37847f921e",
+ "oof_n": 2622,
+ "results": [
+  {
+   "tag": "replace_all",
+   "scale": null,
+   "score": 0.0,
+   "base": 0.0,
+   "d": 0.0,
+   "d_new34": 0.0,
+   "d_optical": 0.0,
+   "boot": {
+    "p_gt0": 0.0,
+    "p5": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "per_class": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "pass_full": false,
+   "pass_soft": false,
+   "accept": false,
+   "delta_vs_bprime_abs": -0.3158
+  },
+  {
+   "tag": "scale_1p0",
+   "scale": 1.0,
+   "score": 0.0,
+   "base": 0.0,
+   "d": 0.0,
+   "d_new34": 0.0,
+   "d_optical": 0.0,
+   "boot": {
+    "p_gt0": 0.0,
+    "p5": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "per_class": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "pass_full": false,
+   "pass_soft": false,
+   "accept": false,
+   "delta_vs_bprime_abs": -0.3158
+  }
+ ],
+ "best": {
+  "tag": "replace_all",
+  "scale": null,
+  "score": 0.0,
+  "d": 0.0,
+  "boot": {
+   "p_gt0": 0.0,
+   "p5": 0.0,
+   "p50": 0.0,
+   "p95": 0.0,
+   "mean": 0.0
+  },
+  "pass_full": false,
+  "pass_soft": false,
+  "delta_vs_bprime_abs": -0.3158,
+  "per_class": {
+   "kurgany_povrezhdennye": 0.0,
+   "kurgany_tselye": 0.0,
+   "gorodishcha": 0.0,
+   "arkhitektury": 0.0,
+   "object_poly": 0.0,
+   "fortifikatsii": 0.0,
+   "finds_points": 0.0
+  }
+ },
+ "expected_delta_LB": "+0.003..+0.006 if pass_full; else 0 (hold 0.41238)",
+ "runtime_s": 1.3192248344421387
+}

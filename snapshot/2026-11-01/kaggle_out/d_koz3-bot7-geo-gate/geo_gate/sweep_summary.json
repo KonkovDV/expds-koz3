@@ -1,0 +1,112 @@
+{
+  "mode": "FULL",
+  "bprime": 0.3158,
+  "gate": {
+    "delta_min": 0.003,
+    "p_gt0_min": 0.9,
+    "damaged_not_worse": true
+  },
+  "s3": {
+    "state": "DONE",
+    "prefixes": [
+      "200_",
+      "201_",
+      "202_",
+      "203_",
+      "204_",
+      "205_",
+      "206_",
+      "207_",
+      "208_",
+      "209_",
+      "210_",
+      "211_",
+      "212_",
+      "213_",
+      "214_",
+      "215_",
+      "216_",
+      "217_"
+    ],
+    "listed": 406,
+    "wanted": 321,
+    "downloaded": 321,
+    "skipped_exists": 0,
+    "errors": []
+  },
+  "stack": null,
+  "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+  "runs": {
+    "L1_extremum_snap": {
+      "state": "DONE",
+      "lever": "L1_extremum_snap",
+      "flags": {
+        "geophys.maggr.finds_points.extremum_snap_m": 3.0
+      },
+      "mode": "prior_only",
+      "bprime": 0.3158,
+      "stack": null,
+      "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+      "score": null,
+      "delta": null,
+      "p_gt0": null,
+      "pass_full": null,
+      "note": "Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1 for classic re-infer; L3 post-only when stack attached.",
+      "expected_delta_lb": 0.0017
+    },
+    "L2_finds_nms": {
+      "state": "DONE",
+      "lever": "L2_finds_nms",
+      "flags": {
+        "geophys.maggr.finds_points.finds_nms_m": 1.5
+      },
+      "mode": "prior_only",
+      "bprime": 0.3158,
+      "stack": null,
+      "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+      "score": null,
+      "delta": null,
+      "p_gt0": null,
+      "pass_full": null,
+      "note": "Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1 for classic re-infer; L3 post-only when stack attached.",
+      "expected_delta_lb": 0.001
+    },
+    "L3_geo_convex_hull": {
+      "state": "DONE",
+      "lever": "L3_geo_convex_hull",
+      "flags": {
+        "post.geo_convex_hull": true
+      },
+      "mode": "prior_only",
+      "bprime": 0.3158,
+      "stack": null,
+      "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+      "score": null,
+      "delta": null,
+      "p_gt0": null,
+      "pass_full": null,
+      "note": "Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1 for classic re-infer; L3 post-only when stack attached.",
+      "expected_delta_lb": 0.0017
+    },
+    "ALL": {
+      "state": "DONE",
+      "lever": "ALL",
+      "flags": {
+        "geophys.maggr.finds_points.extremum_snap_m": 3.0,
+        "geophys.maggr.finds_points.finds_nms_m": 1.5,
+        "post.geo_convex_hull": true
+      },
+      "mode": "prior_only",
+      "bprime": 0.3158,
+      "stack": null,
+      "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+      "score": null,
+      "delta": null,
+      "p_gt0": null,
+      "pass_full": null,
+      "note": "Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1 for classic re-infer; L3 post-only when stack attached.",
+      "expected_delta_lb": 0.0035
+    }
+  },
+  "cache": "/kaggle/working/train-expds-3"
+}

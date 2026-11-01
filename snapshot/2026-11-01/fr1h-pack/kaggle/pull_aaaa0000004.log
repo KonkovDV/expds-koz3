@@ -1,0 +1,9 @@
+Downloading STATUS to /workspace/koz3/out/fr1h-pack/kaggle/geo
+  0%|          | 0.00/40.0 [00:00<?, ?B/s]100%|██████████| 40.0/40.0 [00:00<00:00, 175kB/s]
+
+Output file downloaded to /workspace/koz3/out/fr1h-pack/kaggle/geo/STATUS
+Downloading result.json to /workspace/koz3/out/fr1h-pack/kaggle/geo
+  0%|          | 0.00/908 [00:00<?, ?B/s]100%|██████████| 908/908 [00:00<00:00, 4.73MB/s]
+
+Output file downloaded to /workspace/koz3/out/fr1h-pack/kaggle/geo/result.json
+Kernel log downloaded to /workspace/koz3/out/fr1h-pack/kaggle/geo/koz3-w4-fr1h-geo.log 

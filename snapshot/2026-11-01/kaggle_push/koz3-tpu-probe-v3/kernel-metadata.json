@@ -1,0 +1,16 @@
+{
+  "id": "dmitrijkv/koz3-tpu-probe-v3",
+  "title": "koz3-tpu-probe-v3",
+  "code_file": "koz3-tpu-probe-v3.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": true,
+  "enable_internet": true,
+  "machine_shape": "TpuV5E8",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

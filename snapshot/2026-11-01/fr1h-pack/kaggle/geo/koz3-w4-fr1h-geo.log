@@ -1,0 +1,45 @@
+[{"stream_name":"stdout","time":10.18366129,"data":"{\n"}
+,{"stream_name":"stdout","time":10.183713542,"data":"  \"sha_ok\": true,\n"}
+,{"stream_name":"stdout","time":10.18372026,"data":"  \"sha\": \"fe8d60b9032474760f02d4bcfa08fb43269ae3ffb872efa932d2f1d7692944b4\",\n"}
+,{"stream_name":"stdout","time":10.183725000999999,"data":"  \"archive_mb\": 500.83,\n"}
+,{"stream_name":"stdout","time":10.183728947,"data":"  \"n_files\": 50,\n"}
+,{"stream_name":"stdout","time":10.183732854,"data":"  \"n_pt\": 10,\n"}
+,{"stream_name":"stdout","time":10.183736726,"data":"  \"frame_prior\": {\n"}
+,{"stream_name":"stdout","time":10.18374091,"data":"    \"groups\": [\n"}
+,{"stream_name":"stdout","time":10.183744742,"data":"      \"sp_or\",\n"}
+,{"stream_name":"stdout","time":10.183748824,"data":"      \"sp_focal\",\n"}
+,{"stream_name":"stdout","time":10.183752662,"data":"      \"sp_focal2\"\n"}
+,{"stream_name":"stdout","time":10.183757188,"data":"    ],\n"}
+,{"stream_name":"stdout","time":10.183760787,"data":"    \"classes\": [\n"}
+,{"stream_name":"stdout","time":10.183764562,"data":"      \"kurgany_povrezhdennye\",\n"}
+,{"stream_name":"stdout","time":10.183768624,"data":"      \"kurgany_tselye\"\n"}
+,{"stream_name":"stdout","time":10.183772438,"data":"    ],\n"}
+,{"stream_name":"stdout","time":10.183776015,"data":"    \"d0\": 0.5,\n"}
+,{"stream_name":"stdout","time":10.183779947,"data":"    \"edge\": 0.5\n"}
+,{"stream_name":"stdout","time":10.183783667,"data":"  },\n"}
+,{"stream_name":"stdout","time":10.1837877,"data":"  \"pixgbm_injected\": true,\n"}
+,{"stream_name":"stdout","time":10.183791663,"data":"  \"rerank_injected\": true,\n"}
+,{"stream_name":"stdout","time":10.183795679,"data":"  \"geo_gate\": {\n"}
+,{"stream_name":"stdout","time":10.183799533,"data":"    \"floors_P_R\": [\n"}
+,{"stream_name":"stdout","time":10.18380324,"data":"      0.769,\n"}
+,{"stream_name":"stdout","time":10.1838069,"data":"      0.656\n"}
+,{"stream_name":"stdout","time":10.183810467,"data":"    ],\n"}
+,{"stream_name":"stdout","time":10.183814182,"data":"    \"blackbox_byte_identical_to_v2_ref\": true,\n"}
+,{"stream_name":"stdout","time":10.183818473,"data":"    \"ref_sha_prefix\": \"9dcb6e71\",\n"}
+,{"stream_name":"stdout","time":10.183822493,"data":"    \"verdict\": \"PASS\",\n"}
+,{"stream_name":"stdout","time":10.183827103,"data":"    \"note\": \"31.10 CPU black-box on pantum/n7q 18 geo regions: FR1H_geo byte-identical to REF_v2; LB geo .769/.656 preserved. Re-run needs geo rasters+image; not re-executed this wave.\"\n"}
+,{"stream_name":"stdout","time":10.183832983,"data":"  },\n"}
+,{"stream_name":"stdout","time":10.183836475,"data":"  \"compliance_static\": {\n"}
+,{"stream_name":"stdout","time":10.183840127,"data":"    \"archive_under_2gib\": true,\n"}
+,{"stream_name":"stdout","time":10.183844492,"data":"    \"has_main\": true,\n"}
+,{"stream_name":"stdout","time":10.183848122,"data":"    \"has_metadata\": true,\n"}
+,{"stream_name":"stdout","time":10.183851983,"data":"    \"verdict\": \"PASS\"\n"}
+,{"stream_name":"stdout","time":10.183855513,"data":"  }\n"}
+,{"stream_name":"stdout","time":10.183859198,"data":"}\n"}
+,{"stream_name":"stderr","time":13.292351936,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":13.292393384,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":13.836106161,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":13.836159969,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":16.153316495,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":17.650036988,"data":"[NbConvertApp] Writing 283840 bytes to __results__.html\n"}
+]

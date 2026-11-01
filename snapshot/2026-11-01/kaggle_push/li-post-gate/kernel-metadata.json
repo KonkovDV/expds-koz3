@@ -1,0 +1,18 @@
+{
+  "id": "elenakonkova/koz3-w4-li-post-gate",
+  "title": "koz3-w4-li-post-gate",
+  "code_file": "koz3-w4-li-post-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": ["cpu", "honest-10", "li-post", "lidar"],
+  "dataset_sources": [
+    "elenakonkova/koz3-w2-oof"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,6 @@
+DONE
+ts=2026-11-01T16:17:02Z
+elapsed_s=0.7
+step=honest
+fam_src=smoke
+off_score=0.9999991666670278
