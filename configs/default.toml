@@ -663,6 +663,13 @@ enabled = false
 [gor_dense]
 enabled = false
 
+# bot-3 (bots/bot3-aerial-recall): целые копии мозаики в группу ae и дедуп D-FINE между кадрами.
+# Оба выключены: выход как без секции. mosaic_intact не двигает порог маски фортификаций.
+# cross_tif_dedup_m = 0 — не режет. Слияние видов D-FINE как в OOF — отдельный [dfine_ae_tile].
+[ae_recall]
+mosaic_intact = false
+cross_tif_dedup_m = 0
+
 # bot-3 (aerial recall): ослабление порогов ae / li_ae / fusion. По умолчанию ВЫКЛ.
 # LB ae R≈0,013: ae_fort τ≈0,998; li_ae τ≈0,993/1,000001; povr_min=0,99; нет ae-курганной сети.
 # Включение: enabled = true (и при необходимости свои пороги ниже). Честная приёмка —

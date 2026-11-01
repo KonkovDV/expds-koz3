@@ -93,6 +93,8 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
     if room <= 0 or not dfeats:
         return []
     out = post.only_known_classes(dfeats)
+    from .ae_recall import cross_tif_dedup, dedup_m
+    out = cross_tif_dedup(out, dedup_m(cfg))
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = post.finalize(post.merge_within_markup(out))
@@ -133,6 +135,8 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    from .ae_recall import cross_tif_dedup, dedup_m
+    out = cross_tif_dedup(out, dedup_m(cfg))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = post.sat_thr_relax_by_markup(cfg)   # bot-2 [sat_thr_relax], без флага — таблица как есть
     if sf:
@@ -272,6 +276,12 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
                                         cfg.get("default_threshold", 0.15))
         except Exception:
             log.exception("near_kept в запасной цепочке упал, шаг пропущен")
+    from .ae_recall import cross_tif_dedup, dedup_m
+    if dedup_m(cfg) > 0:
+        try:
+            out = cross_tif_dedup(out, dedup_m(cfg))
+        except Exception:
+            log.exception("ae_recall cross_tif_dedup в запасной цепочке упал, шаг пропущен")
     if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    _by, _lo.spec(cfg))
