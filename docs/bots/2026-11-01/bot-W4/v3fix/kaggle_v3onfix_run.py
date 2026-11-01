@@ -2,7 +2,7 @@
 # в окружениях Kaggle: C (по умолчанию, regex 2025.11.3), A (regex 2025.11.3 предзагружен .pth), B (regex удалён),
 # NEG (D-FINE сломан нарочно), REF (старый ebc8e4ba в «рабочем» окружении: стек transformers 5.21 в env).
 import glob, hashlib, json, os, shutil, site, subprocess, sys, time, zipfile
-NEW_SHA = "e40b2e8be8b51ed601f0a54b7a4a3f7cc0744fda46e4d80eafade13ea77def1e"
+NEW_SHA = "1406c01a9aaafc996862a14f12cde14f6bf05b313ad0bbce14428df1d10ef41d"
 OLD_SHA = "ebc8e4ba4c583403fd87485e6c394fc98eb1aee24fbb09d4a7d25cbe3e2d9401"
 T = "/kaggle/temp"; os.makedirs(T, exist_ok=True)
 out = open("/kaggle/working/check_submission.log", "w")
