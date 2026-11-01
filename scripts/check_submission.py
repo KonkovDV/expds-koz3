@@ -1113,6 +1113,23 @@ def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
             report("WARN", "dfine", "[sp_dfine] включён, а строк «sp_dfine n_det=» в логе нет (во входе нет SpOr?)")
 
 
+def degraded_lines(log: str, out_dir: Path) -> None:
+    """W4 01.11: ветка v3 не загрузилась → V3_DEGRADED в логе и/или файл V3_DEGRADED.json рядом с ответом — FAIL."""
+    bad = [ln for ln in log.splitlines() if "V3_DEGRADED" in ln]
+    mk = out_dir / "V3_DEGRADED.json"
+    if mk.is_file():
+        try:
+            why = "; ".join(f"{r.get('component')}: {r.get('reason', '')[:200]}"
+                            for r in json.loads(mk.read_text(encoding="utf-8")).get("reasons", [])[:3])
+        except Exception as exc:  # noqa: BLE001
+            why = f"маркер не читается: {exc}"
+        report("FAIL", "v3", f"маркер {mk.name} рядом с ответом (выдача = v2): {why}")
+    if bad:
+        report("FAIL", "v3", f"{len(bad)} строк V3_DEGRADED в логе: " + " | ".join(b[-300:] for b in bad[:3]))
+    if not bad and not mk.is_file():
+        report("PASS", "v3", "маркера V3_DEGRADED нет (ветки v3 загружены или выключены)")
+
+
 def smoke(z: zipfile.ZipFile, args) -> None:
     work = Path(tempfile.mkdtemp(prefix="b8smoke_", dir=args.workdir))
     code, home, out_dir = work / "code", work / "home", work / "out"
@@ -1168,6 +1185,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
         if "фазы:" in ln or "общее время" in ln or "записано" in ln or "ускоритель" in ln:
             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
     dfine_lines(z, log)
+    degraded_lines(log, out_dir)
     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
         "упала", "запасной детектор", "MemoryError"))]

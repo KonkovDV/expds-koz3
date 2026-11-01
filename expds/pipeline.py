@@ -1155,6 +1155,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
                 soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
+            from . import degraded
+            degraded.mark("sp_dfine", f"{reg.name}: исключение в D-FINE участка (см. лог)")
             found, complete = [], False
         state.add(found)
         n += len(found)
@@ -1187,6 +1189,8 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
     cfg = load_config(cfg_path)
+    from . import degraded
+    degraded.set_output(output_path)    # W4: маркер V3_DEGRADED.json рядом с ответом (старый удаляется)
     if cfg.get("w5_cloudfeat"):
         from . import w5_cloudfeat      # W4 v4: нет модуля W1 / референса — понятная ошибка до начала работы
 

@@ -496,6 +496,20 @@ def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
     return gone
 
 
+def _abi_tag() -> str:
+    import sys
+    return f"cpython-{sys.version_info.major}{sys.version_info.minor}"
+
+
+def _vendor_abi_ok(v: Path) -> bool:
+    """W4 01.11: в вендоре regex с _regex под текущий python (вендор несёт cp311–cp314: колёса regex 2026.9.29)."""
+    import importlib.machinery
+    d = Path(v) / "regex"
+    if not d.is_dir():
+        return True     # regex не вендорится — берётся из окружения
+    return any((d / f"_regex{suf}").is_file() for suf in importlib.machinery.EXTENSION_SUFFIXES)
+
+
 def import_dfine(root: Path) -> tuple:
     """Классы D-FINE строго закреплённой версии. Порядок:
     1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
@@ -514,8 +528,12 @@ def import_dfine(root: Path) -> tuple:
     if tr is not None and not (v.is_dir() and Path(getattr(tr, "__file__", "") or "/").resolve().is_relative_to(v.resolve())):
         info["purged_preloaded"] = getattr(tr, "__version__", "?")
         _purge(("transformers",))
-    if v.is_dir():   # и чужие tokenizers/regex, загруженные до нас, — иначе вендорный transformers возьмёт их
-        _purge(("tokenizers", "regex"), keep_under=v)
+    if v.is_dir():   # все чужие пакеты вендора (regex/_regex, tokenizers, …), загруженные до нас, — иначе вендорный
+        _purge(_VENDOR_PKGS + ("_regex",), keep_under=v)   # transformers возьмёт их (W4 01.11: regex 2025.11.3 окружения)
+        abi = _vendor_abi_ok(v)
+        info["vendor_regex_abi"] = abi
+        if not abi:
+            log.warning("sp_dfine: в вендоре нет _regex для %s — вендор не загрузится, пробуем окружение", _abi_tag())
     _metadata_shim()   # до импорта transformers: dependency_versions_check читает версии из метаданных
     attempts = (["vendor"] if v.is_dir() else []) + ["env"]
     for src in attempts:
@@ -525,7 +543,7 @@ def import_dfine(root: Path) -> tuple:
             if v.is_dir():
                 while str(v) in sys.path:
                     sys.path.remove(str(v))
-                _purge(_VENDOR_PKGS)
+                _purge(_VENDOR_PKGS + ("_regex",))
             import os
             os.environ.setdefault("HF_HUB_OFFLINE", "1")
             os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -669,6 +687,11 @@ def _device(st: dict):
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _degraded(reason: str) -> None:
+    from . import degraded
+    degraded.mark("sp_dfine", f"{UNAVAILABLE}: {reason}")
+
+
 def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, soft_ok=None) -> tuple[list[dict], bool]:
     """Объекты D-FINE участка и флаг «все растры SpOr пройдены полностью» (нужен для drop_groups).
 
@@ -684,8 +707,10 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
         if st["require_thresholds"] and not ready:
             log.error("%s: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается, выдача как v2",
                       UNAVAILABLE, ", ".join(missing))
+            _degraded(f"нет порогов sp_dfine для {', '.join(missing)}")
         elif not st["weights"]:
             log.error("%s: weights пуст — D-FINE не запускается, выдача как v2", UNAVAILABLE)
+            _degraded("weights пуст")
         else:
             try:
                 dev = _device(st)
@@ -695,6 +720,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             except Exception as exc:  # noqa: BLE001 — громко, но не роняем сдачу: выдача как v2
                 log.exception("%s: модели не загрузились (%s: %s) — D-FINE пропущен, выдача как v2",
                               UNAVAILABLE, type(exc).__name__, str(exc)[:500])
+                _degraded(f"модели не загрузились: {type(exc).__name__}: {str(exc)[:500]}")
     models = cache["models"]
     if not models:
         return [], False

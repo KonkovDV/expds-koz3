@@ -179,6 +179,8 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
+            from . import degraded
+            degraded.mark("frame_prior", "frame_prior в запасной цепочке упал")
     if cfg.get("w5_cloudfeat"):
         try:
             from . import w5_cloudfeat
