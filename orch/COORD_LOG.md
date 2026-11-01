@@ -607,3 +607,14 @@
 - 01.11 22:13 MSK | lease | release slot:box/q1 (coord) by coord
 - 01.11 22:13 MSK | lease | release branch:bots/c1-gates-1101 (coord) by coord
 2026-11-01 22:13:56 coord: S3 cred.json moved out of dataset staging cpuk/cf_acc1/ds to ~/.secrets/koz3_s3_cred.json (600); never stage creds in dataset dirs
+- 01.11 22:16 MSK | coord | проверка: GPU acc1/acc2 без новых ядер с ~21:33 (ждут решений ботов), W4 v3onchk на aaaa0000004 (CPU), box load 1.3/8 (q2 W1 replay, q3 W2 r50c5 gate); QUEUE без актуальных ready-пунктов; Елене — ничего.
+- 01.11 22:15 MSK | bot-W2-lidar | li_r50c5 gate on V3P (prod ctx, v3_on output_floors) = FAIL: V3P 0.3337867 reproduced, V3P_ctx 0.345852, B 0.348243, Δ +0.002391, P 0.6565, ΔF1 tselye −0.0077 gor −0.0151 fort −0.0052, new34 −0.0132; ref: B vs V3P without ctx +0.0145 P 0.99. Archive fit not done (PASS-only). bots/w2-lidar bdd7e81 (w2_gate/r50c5_v3p/README.md). Leases released.
+- 01.11 22:15 MSK | lease | release slot:box/q3 (bot-W2-lidar) by bot-W2-lidar
+- 01.11 22:15 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 01.11 22:19 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 01.11 22:19 MSK | lease | release branch:bots/w1-cfdeploy (bot-W1-aeor) by bot-W1-aeor
+- 01.11 22:28 MSK | check_conflicts | ERROR=1 WARN=21: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 22:30 MSK | lease | acquire branch:bots/orch-protocol → coord до 01.11 23:30 MSK FINAL_CANDIDATES + HANDOFF/STATE update
+- 01.11 22:31 MSK | coord | проверка: все GPU acc1/acc2 свободны (боты ещё не выставили новых гейтов; W2 r50c5 prod-ctx FAIL, C1 G1/G2 FAIL), aaaa0000004 v3onchk COMPLETE (у W4), box load 1.8/8, q1–q3 свободны; QUEUE без ready-пунктов с ожидаемым приростом, финал v3_on не меняется; токены usertest1234/aaaadg4gg4g4g мертвы (известно). Елене — ничего.
+- 01.11 22:30 MSK | coord | FINAL_CANDIDATES.md (a89c3a4): v3_on ebc8e4ba… «смелый», v2clean 545ef32a… «надёжный»; архивы частями по 95 MiB + SHA256SUMS/README в приватной Drive-папке KOZ3-final (1GzW2XGWIMVybFV2pP3WLryeIIhQeN8NB), размеры частей сверены, временные части с бокса удалены; HANDOFF/STATE обновлены; закрытые линии 01.11 и риск regex там же.
+- 01.11 22:30 MSK | lease | release branch:bots/orch-protocol (coord) by coord

@@ -147,21 +147,19 @@
   },
   {
    "slot": "box/q2",
-   "holder": "bot-W1-aeor",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W2-lidar 01.11 21:57 MSK",
+   "last": "снято bot-W1-aeor 01.11 22:19 MSK",
    "purpose": "W1 v3on gate-vs-prod replay",
-   "since": "01.11 22:10 MSK",
-   "until": "02.11 01:10 MSK"
+   "state": "свободен"
   },
   {
    "slot": "box/q3",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "kernel": null,
-   "last": "снято coord 30.10 16:21 MSK",
+   "last": "снято bot-W2-lidar 01.11 22:15 MSK",
    "purpose": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
-   "since": "01.11 22:11 MSK",
-   "until": "02.11 01:11 MSK"
+   "state": "свободен"
   }
  ],
  "kernel_prefix": {
@@ -225,15 +223,6 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 20866
-  },
-  {
-   "resource": "branch:bots/orch-protocol",
-   "owner": "coord",
-   "since": 1793302266.263569,
-   "expires": 1794521270.345725,
-   "note": "georeview push",
-   "host": "grok-bot-vm-361051398",
-   "pid": 44006
   },
   {
    "resource": "branch:bots/w0-seams",
@@ -363,42 +352,6 @@
    "note": "",
    "host": "grok-bot-vm-361051398",
    "pid": 787307
-  },
-  {
-   "resource": "slot:box/q2",
-   "owner": "bot-W1-aeor",
-   "since": 1793560202.853896,
-   "expires": 1793571002.853896,
-   "note": "W1 v3on gate-vs-prod replay",
-   "host": "grok-bot-vm-361051398",
-   "pid": 797609
-  },
-  {
-   "resource": "branch:bots/w1-cfdeploy",
-   "owner": "bot-W1-aeor",
-   "since": 1793560202.889219,
-   "expires": 1793571002.889219,
-   "note": "W1 v3on prod audit",
-   "host": "grok-bot-vm-361051398",
-   "pid": 797615
-  },
-  {
-   "resource": "branch:bots/w2-lidar",
-   "owner": "bot-W2-lidar",
-   "since": 1793560293.316339,
-   "expires": 1793571093.316339,
-   "note": "W2 r50c5 prod-ctx gate PREREG+results",
-   "host": "grok-bot-vm-361051398",
-   "pid": 799756
-  },
-  {
-   "resource": "slot:box/q3",
-   "owner": "bot-W2-lidar",
-   "since": 1793560293.346469,
-   "expires": 1793571093.346469,
-   "note": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 799761
   }
  ]
 }
