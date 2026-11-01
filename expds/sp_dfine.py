@@ -287,6 +287,14 @@ TRANSFORMERS_PIN = "5.21.0"
 #: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
 UNAVAILABLE = "SP_DFINE_UNAVAILABLE"
 #: пакеты вендора: при сбое импорта из вендора их полу-импортированные модули вычищаются из sys.modules
+#: W4 01.11: huggingface_hub 2.2.0 (= requirements.lock образа) + httpx2/httpcore2/h11/anyio/idna/truststore/
+#: typing_extensions (чистый python) — только если huggingface_hub окружения не подходит transformers 5.21.0
+#: (нужно >=1.31,<3; в Kaggle 1.29 → «cannot import name 'httpx' from huggingface_hub.utils»). На площадке (2.2.0)
+#: не используется. Подкаталог вендора, чтобы builder/check_submission брали его вместе с вендором.
+VENDOR_HF = VENDOR + "/_hf"
+HF_RANGE = ((1, 31), (3, 0))
+#: выгружаются при переключении на VENDOR_HF (остальные зависимости — общие с окружением, если уже загружены)
+_HF_PKGS = ("huggingface_hub", "httpx2", "httpcore2", "truststore")
 _VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdown_it", "mdurl", "pygments",
                 "shellingham", "annotated_doc")
 
@@ -510,6 +518,30 @@ def _vendor_abi_ok(v: Path) -> bool:
     return any((d / f"_regex{suf}").is_file() for suf in importlib.machinery.EXTENSION_SUFFIXES)
 
 
+def _env_hf_ok() -> tuple:
+    """(подходит ли huggingface_hub окружения transformers 5.21.0, его версия) — по метаданным, без импорта."""
+    import importlib.metadata as md
+    import re
+    try:
+        ver = md.version("huggingface_hub")
+    except Exception:  # noqa: BLE001 — нет пакета
+        return False, None
+    m = re.match(r"(\d+)\.(\d+)", str(ver or ""))
+    if not m:
+        return False, ver
+    t = (int(m.group(1)), int(m.group(2)))
+    return HF_RANGE[0] <= t < HF_RANGE[1], ver
+
+
+def _hf_path(root: Path, on: bool) -> None:
+    import sys
+    h = str(Path(root) / VENDOR_HF)
+    while h in sys.path:
+        sys.path.remove(h)
+    if on:
+        sys.path.insert(1 if sys.path and sys.path[0] == str(Path(root) / VENDOR) else 0, h)
+
+
 def import_dfine(root: Path) -> tuple:
     """Классы D-FINE строго закреплённой версии. Порядок:
     1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
@@ -534,16 +566,32 @@ def import_dfine(root: Path) -> tuple:
         info["vendor_regex_abi"] = abi
         if not abi:
             log.warning("sp_dfine: в вендоре нет _regex для %s — вендор не загрузится, пробуем окружение", _abi_tag())
+    h = Path(root) / VENDOR_HF
+    use_hf = False
+    if v.is_dir():
+        _hf_path(root, False)   # версия окружения — без нашего _hf в sys.path
+        ok, hver = _env_hf_ok()
+        use_hf = (not ok) and h.is_dir()
+        info["hf"] = f"vendor_hf (окружение: {hver})" if use_hf else f"env {hver}"
+        if use_hf:
+            log.warning("sp_dfine: huggingface_hub окружения %s не подходит transformers %s (нужно >=1.31,<3) — "
+                        "берём %s", hver, TRANSFORMERS_PIN, VENDOR_HF)
     _metadata_shim()   # до импорта transformers: dependency_versions_check читает версии из метаданных
     attempts = (["vendor"] if v.is_dir() else []) + ["env"]
     for src in attempts:
         if src == "vendor":
             _vendor_path(root)
+            if use_hf:
+                _hf_path(root, True)
+                _purge(_HF_PKGS, keep_under=h)
         else:
             if v.is_dir():
                 while str(v) in sys.path:
                     sys.path.remove(str(v))
                 _purge(_VENDOR_PKGS + ("_regex",))
+                if use_hf:
+                    _hf_path(root, False)
+                    _purge(_HF_PKGS)
             import os
             os.environ.setdefault("HF_HUB_OFFLINE", "1")
             os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")

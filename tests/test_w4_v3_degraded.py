@@ -40,3 +40,27 @@ def test_vendor_abi_check(tmp_path):
     assert not sp_dfine._vendor_abi_ok(tmp_path)
     (tmp_path / "regex" / ("_regex" + importlib.machinery.EXTENSION_SUFFIXES[0])).write_bytes(b"")
     assert sp_dfine._vendor_abi_ok(tmp_path)
+
+
+def test_env_hf_range(monkeypatch):
+    import importlib.metadata as md
+    from expds import sp_dfine
+    for ver, ok in (("1.29.0", False), ("1.31.0", True), ("2.2.0", True), ("3.0.0", False)):
+        monkeypatch.setattr(md, "version", lambda name, _v=ver: _v)
+        assert sp_dfine._env_hf_ok() == (ok, ver)
+
+    def missing(name):
+        raise md.PackageNotFoundError(name)
+    monkeypatch.setattr(md, "version", missing)
+    assert sp_dfine._env_hf_ok() == (False, None)
+
+
+def test_hf_path_order(tmp_path, monkeypatch):
+    import sys
+    from expds import sp_dfine
+    v = str(tmp_path / sp_dfine.VENDOR)
+    monkeypatch.setattr(sys, "path", [v, "/site"])
+    sp_dfine._hf_path(tmp_path, True)
+    assert sys.path == [v, str(tmp_path / sp_dfine.VENDOR_HF), "/site"]
+    sp_dfine._hf_path(tmp_path, False)
+    assert sys.path == [v, "/site"]
