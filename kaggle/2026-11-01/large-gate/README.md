@@ -1,45 +1,29 @@
-# koz3-w4-large-gate (CPU honest-10 · large_objects)
+# koz3-w4-large-gate (CPU honest-10 · large_objects vs B′)
 
-Обертка над `scripts/large_objects_honest.py` (tip **33791bcc**, PR #18).
-Варианты: `off` / `area_tau` / `fixc_nested`. **Не сдавать на LB.**
+Plan **(b)**: без fam0. S3/xfer fam0 нет; `stack_arch` post-thr — rebuild fam0
+из него невалиден для thr-рычагов. Вместо этого: инъекция D-FINE ae OOF
+gorodishcha (slim, embedded) в `w5base/stack_arch` → prep → gate_v6c vs B′=0.315800.
 
-## Lease
-- `slot:acc1/cpu` → **bot-W4-gate** до **02.11 07:14 Europe/Moscow**
-- kernel: `elenakonkova/koz3-w4-large-gate`
+Варианты: `baseline` (off) / `area_tau` / `fixc_nested` (τ_large=0.20 из default.toml).
+**Не сдавать на LB.**
 
-## Что в xfer-s000..s009
-| Shard | Содержимое |
-|---|---|
-| s000 | `small_files.tar.zst` — разметка регионов (geojson), UTM.json |
-| s001–s009 | крупные блобы растров (`f####` → относительный путь в train tree) |
-| + `koz3-gt-train-v2` | сводный `gt_train_v2.geojson` |
+## Почему не (a)
+- fam0 ≈1.39M objs / 103 fam pre-thr jsonl — 0 hits в S3 index (2132 objs = raw train).
+- `split_stack_by_family.py` + `family_clusters` по post-thr stack не вернёт preds,
+  убитые τ=1.01 на ae gorodishcha.
 
-**fam0 OOF jsonl в xfer нет** (протокол данных). Ядро:
-1. (опц.) `rebuild_train_tree.py` → `/kaggle/working/train-expds-3`
-2. GT из `koz3-gt-train-v2` (fallback — консолидация labels из дерева)
-3. fam0 — из прикреплённого `*fam0*`/`*fam*` датасета, либо `split_stack_by_family` от `stack*.geojson`, либо `LARGE_GATE_SMOKE=1` (синтетика, не stack A)
-4. `family_clusters.py` → clusters
-5. `large_objects_honest.py` → JSON
+## Fix C effect check
+Embedded `data/ae_dfine_gor_oof_slim.jsonl.gz`: 4520 gor (area≥5k OR conf≥0.15);
+**698** Fix-C-pass (area≥5k ∩ conf≥0.20); conf range ≈0.05–0.44 — **все ≪ 1.01**.
 
-## Успех
-exit 0 + `large_gate/large_objects_honest.json` с ключами `off`, `area_tau`, `fixc_nested`
-(score, precision, recall, delta_*, size_recall, recovered_gt_gt5k).
-Полный stack A: `off.score ≈ 0.314615 ± 0.002`; wall **30–90 мин** / 1 ядро.
-SMOKE: секунды, score ≠ 0.314615.
+## Датасеты
+- `elenakonkova/koz3-w2-gate` (w5base: stack_arch, gt_train_v2, base/bprime_counts)
+- internet **off** (S3 не нужен; OOF slim в бандле)
 
-## Push (делает coord, этот пакет не пушим сами)
+## Push (человек / orch; бот не пушит)
 ```bash
-orch/lease.sh who slot:acc1/cpu   # bot-W4-gate
 orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/large-gate
 ```
 
-Для полного замера приложите датасет fam0 (stack A OOF jsonl) в `dataset_sources`
-(например `elenakonkova/koz3-stack-a-fam0`) — без него ядро уйдёт в SMOKE, если
-не выставить явно иное.
-
-## Dry-run на боксе
-```bash
-LARGE_GATE_SMOKE=1 KAGGLE_INPUT=/tmp/lg_empty \
-  /workspace/koz3-venv-dry/bin/python koz3-w4-large-gate.py
-```
-Лог: `dryrun/dryrun.log`.
+## Контракт
+Δ≥+0.003 vs B′, p_gt0≥0.9, layer drop ≤0.01; CPU ~20–60 min; branch `bots/bot4-large-objects`.

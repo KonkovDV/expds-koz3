@@ -48,31 +48,30 @@ python3 scripts/large_objects_honest.py \
 - На этой машине та же команда выходит с кодом **2** (`honest-10 не посчитан`).
 - На LB не сдавать.
 
-### Kaggle CPU package `large-gate` (01.11.2026 Europe/Moscow)
+### Kaggle CPU package `large-gate` (01.11.2026 Europe/Moscow) — plan (b)
 
 Пакет: `/workspace/kaggle/push/large-gate/` (slug **`elenakonkova/koz3-w4-large-gate`**).
-Ядро оборачивает **`scripts/large_objects_honest.py`** tip **`33791bcc`** (PR #18).
-`enable_gpu/tpu=false`, internet off. **Не пушить без coord** (lease ниже).
+Ядро: li-post-full style **prep→gate_v6c** vs B′=0.315800; варианты `baseline`/`area_tau`/`fixc_nested`.
+`enable_gpu/tpu=false`, **internet off**. **Не сдавать на LB. Бот не пушит.**
 
-**Lease:** `slot:acc1/cpu` → **bot-W4-gate** до **02.11 07:14 Europe/Moscow**; kernel `elenakonkova/koz3-w4-large-gate`.
+**Решение (a) vs (b):** выбран **(b)** — без fam0.
+- S3 index (dmitrijkv): 2132 objs / 750 prefixes / **0 fam0 hits**; только raw train (La/Li/Ae/Or/разметка).
+- fam0 (~1.39M/103 fam pre-thr jsonl) нет в S3 и xfer.
+- (a) `split_stack_by_family` по `stack_arch` **невалиден** для thr-рычагов: post-thr stack не вернёт preds, убитые τ=1.01.
+- (b) дешевле и валиден: инъекция D-FINE ae OOF slim в w5base stack (как li-post-full).
 
-**Входы (dataset_sources):** `dmitrijkv/koz3-xfer-s000`…`s009` + `dmitrijkv/koz3-gt-train-v2`.
-Содержимое xfer: s000 = labels/UTM в `small_files.tar.zst`; s001–s009 = растровые блобы.
-**fam0 OOF jsonl в xfer нет** — ядро берёт прикреплённый `*fam0*`/`stack*.geojson` или `LARGE_GATE_SMOKE=1`.
+**Fix C effect check:** slim OOF 4520 gor (area≥5k∨conf≥0.15); **698** Fix-C-pass (area≥5k∩conf≥0.20); conf≈0.05–0.44 — **все ≪1.01**. Smoke apply: fixc n_add=698; area_tau n_add=0 (base gor τ=1.01−relax0.15=0.86 > max conf — area_tau alone не стреляет на ae gor).
 
-**Dry-run на боксе:** exit **0**, STATUS=DONE, JSON с `off`/`area_tau`/`fixc_nested` (smoke; score≠0.314615). Лог `dryrun/dryrun.log`.
+**Датасет:** только `elenakonkova/koz3-w2-gate` (w5base). OOF slim + family_clusters + vendor/w5_rerank/scripts **embedded** (~3.5 MB code_file).
 
-**Push (coord):**
+**Dry-run на боксе:** exit 0, STATUS=`DONE MISSING_INPUT` (нет stack_arch на боксе; ae_oof_embedded=true). Лог `kaggle/2026-11-01/large-gate/dryrun.log`.
+
+**Push (coord / человек):**
 ```bash
 orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/large-gate
 ```
 
-**Ожидаемый вклад в LB (обоснование OOF, не замер):** Fix C / `fixc_nested` целится в Ae-городища below_τ.
-На OOF Ae @τ=0.05 было 43/52, @0.30 — 21/52 крупных; τ_large≈0.20 — компромисс.
-Если nested honest даст Δscore ≈ +0.001…+0.004 к базе стека A (0.314615) без провала слоя >0.01,
-грубый перенос на LB hold 0.41238: **+0.001…+0.005** (порядок; **не verified** — honest ещё не на fam0 stack A).
-Полный LO / coarse / fort_to_gor на mock вредны — в пакет не входят.
-
+**Риски:** τ_large=0.20 не fam0-nested LOFO (fold-proxy median был 0.10 — оставлен config 0.20); box_area_m2 = geom_3857_scaled proxy; area_tau бесполезен при base τ=1.01; 320 m window не в inject; double-count если stack уже имел ae_dfine gor (apply дропает существующие).
 
 Fix C по кругам r=4 без `box_area_m2` в jsonl не видит бокс (площадь круга ~50 м²). Ключ `box_area_m2` в свойствах скрипт подхватывает. Иначе нужен OOF D-FINE Ae, а не повторный инференс.
 
