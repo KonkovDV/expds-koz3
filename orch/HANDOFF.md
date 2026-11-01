@@ -1,4 +1,5 @@
 # HANDOFF KOZ3 — как продолжить работу только по GitHub (обновлено 30.10.2026 09:55 MSK, coord/бот 1)
+> **ФИНАЛ 01.11 22:35 MSK:** «смелый» v3_on (sha ebc8e4ba…, Δ+0.0198 P0.976, прод Δ+0.0194), «надёжный» v2clean (sha 545ef32a…). Все sha, ссылки на Drive (KOZ3-final), закрытые линии и риск regex — в [`FINAL_CANDIDATES.md`](FINAL_CANDIDATES.md). План: фикс regex (бот 5) → сабмит v3_on Еленой → при LB < 0.4124 откат на v2clean.
 > **АКТУАЛЬНО 01.11 18:47:** см. [`HANDOFF_NOW_20261101.md`](HANDOFF_NOW_20261101.md) (живой Kaggle + Drive + next steps).
 
 > Правило: HANDOFF.md обновляется после КАЖДОГО значимого шага (гейт PASS/FAIL, новый прогон, смена железа, решение Елены).
