@@ -1,7 +1,8 @@
 # bot-8 · TTA/MS gate package (`koz3-ae-dfine-gate`)
 
 **Когда (Europe/Moscow):** 2026-11-01 ~19:15 MSK  
-**Ветка пакета:** `bots/bot8-tta-gate` @ tip (based on `f3aafa42` = tip `bots/bot8-orsp-tta`)  
+**Ветка пакета:** `bots/bot8-tta-gate` @ **`f47ea449`** (based on `f3aafa42` = tip `bots/bot8-orsp-tta`)
+**Draft PR:** https://github.com/KonkovDV/expds-koz3/pull/23 (base `bots/bot8-orsp-tta`)  
 **Пуш-пакет:** `/workspace/kaggle/push/tta-gate/`  
 **Slug:** `dmitrijkv/koz3-ae-dfine-gate`  
 **Не пушим / не гоняем Kaggle.** Bot 1. LB-submit запрещён (правило P).
@@ -63,7 +64,7 @@ orch/lease.sh acquire branch:bots/bot8-tta-gate bot-8 …
 
 - `/workspace/kaggle/push/tta-gate/{koz3-tta-gate.py,kernel-metadata.json,README.md}`
 - wt: `kaggle/2026-11-01/tta-gate/` + this report
-- Draft PR from `bots/bot8-tta-gate` (package only; no Kaggle push)
+- Draft PR #23 from `bots/bot8-tta-gate` (package only; no Kaggle push)
 
 ## RU (6–10 строк)
 
@@ -74,4 +75,4 @@ orch/lease.sh acquire branch:bots/bot8-tta-gate bot-8 …
 5. Пакет лежит в `/workspace/kaggle/push/tta-gate/`; **Kaggle не пушили**.  
 6. DRY-RUN на CPU (`nice -n 10`) прошёл: STATUS DONE + resume; синтетические скоры.  
 7. Аренда `bot-8` отклонена (OWNERS); `box/cpu` до 23:07 MSK у coord.  
-8. Ждём Ae-gate + bot1 GO на honest-10; LB не сабмитим.
+8. Draft PR #23; ждём Ae-gate + bot1 GO на honest-10; LB не сабмитим.
