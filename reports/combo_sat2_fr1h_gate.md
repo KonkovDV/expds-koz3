@@ -17,3 +17,8 @@ A=0.314615  B′=0.315800  boot=4000
 - default.toml in repo keeps `[sp_det2]` commented OFF; profile `sat2` enables via apply_release_profile
 - Kaggle check: `dmitrijkv/koz3-w1-sat2-check` (dataset `dmitrijkv/koz3-sat2-chk-20261101`)
 - Drive: folder `17N5Cu1bZJ38iYu3W_nCN3zOk6R3l5riX` parts `.00`–`.11` + SHA256SUMS + README
+
+## Smoke (Kaggle CPU, pantum/n7q check_submission)
+- kernel: dmitrijkv/koz3-w1-sat2-check v2 — **PASS** FAIL0 WARN1, wall 81s
+- main.py 22.3s, peak RSS 1875 MiB; phases include **sp_det2: сырых 5, 8 с**; written 227
+- sha_ok=True
