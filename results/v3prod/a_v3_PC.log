@@ -1,0 +1,11 @@
+[v3 PC] fold 0: in 20016 → out 499 (thr-only 499) 3s
+[v3 PC] fold 1: in 5445 → out 4593 (thr-only 4660) 4s
+[v3 PC] fold 2: in 11581 → out 273 (thr-only 273) 4s
+[v3 PC] fold 3: in 4687 → out 453 (thr-only 453) 5s
+[v3 PC] fold 4: in 8115 → out 2627 (thr-only 2603) 5s
+[v3 PC] fold 5: in 6637 → out 417 (thr-only 399) 6s
+[v3 PC] fold 6: in 14260 → out 707 (thr-only 707) 6s
+[v3 PC] fold 7: in 9455 → out 1923 (thr-only 1915) 7s
+[v3 PC] fold 8: in 12818 → out 462 (thr-only 461) 7s
+[v3 PC] fold 9: in 5193 → out 1087 (thr-only 1087) 8s
+done 13041 9s

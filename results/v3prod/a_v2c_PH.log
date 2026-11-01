@@ -1,0 +1,11 @@
+[v2c PH] fold 0: in 162 → out 170 (thr-only 162) 2s
+[v2c PH] fold 1: in 4662 → out 2433 (thr-only 2756) 3s
+[v2c PH] fold 2: in 605 → out 373 (thr-only 350) 3s
+[v2c PH] fold 3: in 352 → out 344 (thr-only 344) 4s
+[v2c PH] fold 4: in 3670 → out 2224 (thr-only 2723) 4s
+[v2c PH] fold 5: in 533 → out 434 (thr-only 398) 5s
+[v2c PH] fold 6: in 914 → out 801 (thr-only 781) 5s
+[v2c PH] fold 7: in 1788 → out 1549 (thr-only 1529) 6s
+[v2c PH] fold 8: in 797 → out 575 (thr-only 560) 6s
+[v2c PH] fold 9: in 1486 → out 1126 (thr-only 1120) 7s
+done 10029 8s
