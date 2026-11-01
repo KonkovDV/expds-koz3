@@ -68,6 +68,20 @@ Li ≈ 33 % LB, публичный P/R≈0.50. OOF c3-sc после τ=0.15 д
 слой в стеке A слабее аддитивно historically FAIL): **+0.003…+0.015** к LB
 (**labelled estimate**; full-stack → `li-post-full` Kaggle package, box lacks stack_arch/bprime_counts/fam0 jsonl).
 
+
+### Kaggle COMPLETE — full-stack `elenakonkova/koz3-w4-li-post-full` (01.11.2026 Europe/Moscow)
+
+Выход: `/workspace/kaggle_out/li-post-full/li_post_full/summary.json` (gated vs **A**=0.314615, no bprime_counts; Δ vs B′=0.315800 abs).
+
+| variant | ALL | Δ vs B′ | li | ae | sp_or | Δlayer vs baseline | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| baseline | **0.31605** | +0.00025 | 0.21669 | 0.10195 | 0.06286 | — | reproduces ~B′ (ok); not a lever |
+| thr_nested | 0.31051 | **−0.00529** | 0.21328 | 0.10195 | 0.06286 | li −0.0034 | **FAIL** (ALL Δ<0; layer_drop_ok) |
+| thr_nms8 | 0.31070 | **−0.00510** | 0.21035 | 0.10202 | 0.06286 | li −0.0063 | **FAIL** (ALL Δ<0; layer_drop_ok) |
+
+Acceptance ALL Δ>0 ∧ layer drop ≤0.01: **оба thr FAIL**. Li-only +0.12 не переносится на стек (prod thr уже в stack). Флаги остаются OFF.
+
+
 ### Kaggle package
 
 `/workspace/kaggle/push/li-post-gate/` (slug `elenakonkova/koz3-w4-li-post-gate`).

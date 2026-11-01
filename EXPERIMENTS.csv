@@ -8,3 +8,6 @@ date,bot,branch,lever,protocol,data,P,R,F1,delta_F1,notes
 2026-11-01,bot4,bots/bot4-li-post,li_post class_tau nested,honest-LOFO-s0-cnx Kaggle COMPLETE,elenakonkova/koz3-w2-oof,0.3477,0.4661,0.3983,+0.1180,thr_nested; floors povr/tselye~0.30
 2026-11-01,bot4,bots/bot4-li-post,li_post self_nms@12,honest-LOFO-s0-cnx Kaggle COMPLETE,elenakonkova/koz3-w2-oof,0.1867,0.5993,0.2847,+0.0044,nms12 alone
 2026-11-01,bot4,bots/bot4-li-post,li_post class_tau+nms8,honest-LOFO-s0-cnx Kaggle COMPLETE,elenakonkova/koz3-w2-oof,0.3505,0.4653,0.3998,+0.1195,thr_nms8 best combo; matches dry-run
+2026-11-01,bot4,bots/bot4-li-post,li_post_full baseline,kaggle_honest10_w5base,koz3-w2-gate,,,0.31605,+0.00025,vs B′0.3158; ~repro; gated vs A
+2026-11-01,bot4,bots/bot4-li-post,li_post_full thr_nested,kaggle_honest10_w5base,koz3-w2-gate,,,0.31051,-0.00529,FAIL ALLΔ<0; li0.213 ae0.102 sp0.063
+2026-11-01,bot4,bots/bot4-li-post,li_post_full thr_nms8,kaggle_honest10_w5base,koz3-w2-gate,,,0.31070,-0.00510,FAIL ALLΔ<0; li0.210 ae0.102 sp0.063
