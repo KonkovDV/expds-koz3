@@ -380,6 +380,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--experiments-file", default=None, help="дописать строки в этот CSV")
     ap.add_argument("--branch", default="", help="для EXPERIMENTS строки")
     ap.add_argument("--sha", default="", help="для EXPERIMENTS строки")
+    ap.add_argument("--lb-breakdown", action="store_true",
+                    help="дополнительно: scoring.log/.json/.csv по каждому кандидату "
+                         "(F1Calculator.auxiliary, как LB); stdout compare.md не меняется")
+    ap.add_argument("--lb-log", default=None,
+                    help="с --lb-breakdown: эталонный scoring.log площадки для side_by_side.md")
     args = ap.parse_args(argv)
 
     workers = max(1, min(int(args.workers), 4))
@@ -461,6 +466,32 @@ def main(argv: list[str] | None = None) -> int:
             f"Δ={_fmt(r['delta_vs_v2'].get('ALL', float('nan')))} "
             f"rule={r['rule']} liae={r['liae_kurgany_cross_tp']}"
         )
+
+    if args.lb_breakdown:
+        import importlib.util
+        bd_path = Path(__file__).resolve().parent / "lb_breakdown.py"
+        spec = importlib.util.spec_from_file_location("lb_breakdown", bd_path)
+        bd = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(bd)
+        from expds.metric import score as _official_score
+        lb_dir = out / "lb_breakdown"
+        lb_dir.mkdir(parents=True, exist_ok=True)
+        sources = {}
+        if args.lb_log:
+            sources["LB"] = bd.parse_lb_log(
+                Path(args.lb_log).read_text(encoding="utf-8", errors="replace"))
+        for r in results:
+            pred = _load_fc(Path(r["geojson"]))
+            res_full = _official_score(pred, gt, metric_path)
+            stem = f"scoring_{r['name']}"
+            paths = bd.write_outputs(res_full, lb_dir, stem=stem, archive=r["name"])
+            sources[r["name"]] = bd.extract_breakdown(res_full)
+            print(f"lb-breakdown: {paths['log']}", flush=True)
+        if len(sources) > 1:
+            table = bd.side_by_side(sources)
+            tp = lb_dir / "side_by_side.md"
+            tp.write_text(table + "\n", encoding="utf-8")
+            print(f"wrote {tp}", flush=True)
     return 0
 
 
