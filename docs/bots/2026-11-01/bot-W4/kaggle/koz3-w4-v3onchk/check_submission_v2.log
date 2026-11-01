@@ -1,0 +1,125 @@
+sha256 ebc8e4ba4c583403fd87485e6c394fc98eb1aee24fbb09d4a7d25cbe3e2d9401 OK size_MiB 680.5
+python 3.13.15 nproc 4 disk_free_GiB 1048.1
+pip 0  
+A dep torch 2.11.0+cpu
+A dep transformers 5.16.1
+A dep tokenizers 0.23.1
+A dep regex 2025.11.3
+A dep huggingface_hub 1.29.0
+A dep safetensors 0.8.0
+A dep tqdm 4.67.3
+A dep laspy 2.7.0
+A dep segmentation_models_pytorch 0.5.0
+A dep rasterio 1.5.1
+A dep pyproj 3.7.2
+A dep shapely 2.1.2
+A dep lightgbm 4.6.0
+A dep timm 1.0.29
+A dep numpy 2.1.3
+===== RUN A =====
+== check_submission: /kaggle/temp/koz3_v3on_b505656.zip (2026-10-30 13:34:14 UTC)
+[PASS] zip       3506 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/donut/image_processing_pil_donut.py', 'inference/lib/vendor/transformers/models/phimoe/modeling_phimoe.py', 'inference/lib/vendor/transformers/models/granite_speech5/processing_granite_speech5.py', 'inference/lib/vendor/transformers/models/layoutxlm/tokenization_layoutxlm.py', 'inference/lib/vendor/pygments/lexers/felix.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 680.5 МиБ (713557985 Б), распакованный 738.2 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (16.9 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[FAIL] dfine     sp_dfine включён, а классы D-FINE не импортируются в /usr/bin/python3: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b7dfine_omvkzhwf/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)
+[FAIL] dfine     нет опорного участка для пробы весов D-FINE (/workspace/data/train-expds-3/103_Гнёздово_Ольшанская); нужен один из ['103_Гнёздово_Ольшанская'] (--dfine-region)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 15.3 с, пик RSS 1136 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 0, 3 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 13.3 с
+[FAIL] dfine     2 строк недоступности D-FINE/шлюза в логе (выдача = v2): d module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b8smoke_viosq7wu/code/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)) — D-FINE пропущен, выдача как v2 | '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b8smoke_viosq7wu/code/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)
+[INFO] dfine     n_det=0 region=region_0001 complete=False, прошло 13 с ; n_det=0 total, участков полностью 0, моделей 0
+[WARN] dfine     sp_dfine n_det=0 total (вход без опорного участка — проверить пробой весов)
+[WARN] smoke     1 тревожных строк лога: Traceback (most recent call last):
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+== ИТОГ: FAIL — FAIL 3, WARN 5, проверок 36, 45.1 с
+
+STDERR: 
+A RC 1 wall_s 45.3
+pip 0  ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+bigframes 2.48.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+gradio 6.26.0 requires huggingface-hub<2.0,>=1.16.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio 6.26.0 requires pillow<13.0,>=8.0, but you have pillow 13.0.0 which is incompatible.
+datasets 4.8.5 requires huggingface-hub<2.0,>=0.25.0, but you have huggingface-hub 2.4.0 which is incompatible.
+bigframes 2.48.0 requires rich<14,>=12.4.4, but you have rich 15.0.0 which is incompatible.
+diffusers 0.40.0 requires huggingface-hub<2.0,>=1.23.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio-client 2.6.1 requires huggingface-hub<2.0,>=0.19.3, but you have huggingface-hub 2.4.0 which is incompatible.
+
+B dep torch 2.11.0+cpu
+B dep transformers 5.16.1
+B dep tokenizers 0.23.1
+B dep regex 2025.11.3
+B dep huggingface_hub 1.29.0
+B dep safetensors 0.8.0
+B dep tqdm 4.67.3
+B dep laspy 2.7.0
+B dep segmentation_models_pytorch 0.5.0
+B dep rasterio 1.5.1
+B dep pyproj 3.7.2
+B dep shapely 2.1.2
+B dep lightgbm 4.6.0
+B dep timm 1.0.29
+B dep numpy 2.1.3
+===== RUN B =====
+== check_submission: /kaggle/temp/koz3_v3on_b505656.zip (2026-10-30 13:35:16 UTC)
+[PASS] zip       3506 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/squeezebert/configuration_squeezebert.py', 'inference/lib/vendor/transformers/integrations/eager_paged.py', 'inference/lib/vendor/transformers/models/musicflamingo/modular_musicflamingo.py', 'inference/lib/vendor/transformers/models/mobilevitv2/__init__.py', 'inference/lib/vendor/transformers/models/higgs_audio_v2_tokenizer/configuration_higgs_audio_v2_tokenizer.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 680.5 МиБ (713557985 Б), распакованный 738.2 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (14.9 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[WARN] dfine     transformers 5.21.0 взят из окружения, не из вендора (вендор: ["vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_B/b7dfine_d1x06lod/inference/lib/vendor/regex/__init__.py)"])
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник env; SP_DFINE_DEPMETA: ['filelock', 'huggingface-hub', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[FAIL] dfine     нет опорного участка для пробы весов D-FINE (/workspace/data/train-expds-3/103_Гнёздово_Ольшанская); нужен один из ['103_Гнёздово_Ольшанская'] (--dfine-region)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 19.8 с, пик RSS 1369 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 8 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 17.7 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 17 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+== ИТОГ: FAIL — FAIL 1, WARN 4, проверок 34, 62.2 с
+
+STDERR: 
+B RC 1 wall_s 62.3
+{"sha_ok": true, "python": "3.13.15", "A_vendor": {"rc": 1, "wall_s": 45, "itog": "== ИТОГ: FAIL — FAIL 3, WARN 5, проверок 36, 45.1 с"}, "B_env_pin": {"rc": 1, "wall_s": 62, "itog": "== ИТОГ: FAIL — FAIL 1, WARN 4, проверок 34, 62.2 с"}}

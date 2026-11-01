@@ -1,0 +1,1 @@
+{"id": "dmitrijkv/koz3-w4-ref103", "title": "koz3-w4-ref103", "code_file": "run.py", "language": "python", "kernel_type": "script", "is_private": true, "enable_gpu": false, "enable_tpu": false, "enable_internet": true, "dataset_sources": ["dmitrijkv/koz3-s3-cred"], "competition_sources": [], "kernel_sources": []}

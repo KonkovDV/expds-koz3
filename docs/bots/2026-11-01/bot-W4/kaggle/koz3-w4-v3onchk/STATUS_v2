@@ -1,0 +1,1 @@
+{"sha_ok": true, "python": "3.13.15", "A_vendor": {"rc": 1, "wall_s": 45, "itog": "== ИТОГ: FAIL — FAIL 3, WARN 5, проверок 36, 45.1 с"}, "B_env_pin": {"rc": 1, "wall_s": 62, "itog": "== ИТОГ: FAIL — FAIL 1, WARN 4, проверок 34, 62.2 с"}}
