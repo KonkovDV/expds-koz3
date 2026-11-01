@@ -1,6 +1,6 @@
 # sat2 candidate compliance: check_submission full smoke on Kaggle CPU (no internet)
 import glob, hashlib, json, os, shutil, subprocess, sys, time, zipfile, tomllib
-SHA = "573eb87251fc967eb4dffd5d610d23b0aa1226dfa92520c8635be8da0bae88e9"
+SHA = "d85e9b2f3c63090583f11a2ba03fa2a1427f47b6a1838a3a8cd959ad5fe5b73b"
 src = glob.glob("/kaggle/input/**/sat2.zip.bin", recursive=True)[0]
 chk = glob.glob("/kaggle/input/**/check_submission.py", recursive=True)[0]
 os.makedirs("/kaggle/temp", exist_ok=True)

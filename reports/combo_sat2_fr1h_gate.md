@@ -9,7 +9,11 @@ A=0.314615  B′=0.315800  boot=4000
 
 **Chosen: sat2_only** (sat2+FR1h < sat2 alone). FR1h dropped from pack.
 
-Artifacts: `/workspace/koz3/out/combo/gate/COMBO_GATE.json`, `w6c_gate_sat2.json`, `w6c_gate_sat2_fr1h.json`.
-
-Submission: `submission_sat2_on_eb268d6.zip` sha256 `573eb87251fc967eb4dffd5d610d23b0aa1226dfa92520c8635be8da0bae88e9` (~1069 MiB).
-sp_det2 ON in candidate config; default.toml keeps feature OFF (commented). Release profile `sat2` enables via `apply_release_profile.py`.
+## Submission
+- path: `/workspace/koz3/out/combo/submission_sat2_on_eb268d6.zip`
+- sha256: `d85e9b2f3c63090583f11a2ba03fa2a1427f47b6a1838a3a8cd959ad5fe5b73b` (~1069 MiB)
+- base: FR1h-on-eb268d6 tree stripped of `[post.frame_prior]` + archive thr restored
+- + `expds/sp_det2.py`, patched `pipeline.py` hooks (FR1h-base, no lidar_cnx import), `centerhead/`, 5× weights, `[sp_det2] enabled=true`
+- default.toml in repo keeps `[sp_det2]` commented OFF; profile `sat2` enables via apply_release_profile
+- Kaggle check: `dmitrijkv/koz3-w1-sat2-check` (dataset `dmitrijkv/koz3-sat2-chk-20261101`)
+- Drive: folder `17N5Cu1bZJ38iYu3W_nCN3zOk6R3l5riX` parts `.00`–`.11` + SHA256SUMS + README
