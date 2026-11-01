@@ -1,3 +1,1 @@
-bots/bot7-sat-recall @ 3adc7f461c227f66f2b13a143142507ab9940d3a
-DRAFT PR #27
-koz3_s3 helper synced from bots/bot7-geo-gate @ 03df09c110be38338b73f37f65dfe722ff100378 blob 00350a048fdee5e336410d4f897317f4ed2f6dec
+6a935885e047ff85190c97466b5828b7989eff7d
