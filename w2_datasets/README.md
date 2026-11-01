@@ -3,7 +3,7 @@
 | Датасет | Файлов на Kaggle (вкл. DATASETS.md) | Размер (несжато) |
 |---|---|---|
 | koz3-w2-oof | 93 | 0,99 ГБ |
-| koz3-w2-weights | 25 | 1,47 ГБ |
+| koz3-w2-weights | 25 (v3 от 01.11: исправлен s1f4, см. DATASETS.md «История версий») | 1,47 ГБ |
 | koz3-w2-maps | 296 | 2,11 ГБ |
 | koz3-w2-gate | 55 | 6,39 ГБ (загружалось 5,43 ГБ с .gz; Kaggle распаковал `stack_arch.geojson`, `gt_train_v2.geojson`) |
 | koz3-w2-demfill | 56 | 0,18 ГБ |

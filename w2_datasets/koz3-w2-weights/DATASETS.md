@@ -5,11 +5,25 @@
 | Путь | Что | Ядро-источник |
 |---|---|---|
 | `s0/koz3-cnx-li-c3sc-f01/weights_cnx_c3-sc_f{0,1}.pt`, `s0/…-f23/…f{2,3}.pt`, `s0/…-f4-v2/…f4.pt` | сид 0, 5 фолдов | dmitrijkv/koz3-cnx-li-c3sc-* |
-| `s1/koz3-cnx-li-c3sc-{s1f01,s1f23,s1f4}/weights_*.pt` | сид 1. **ВНИМАНИЕ (P-W2-11):** файл `s1f4/weights_cnx_c3-sc_f4.pt` в v2 — это веса **s2f4** (md5 f34ff787…); настоящие s1f4 — `kaggle kernels output elenakonkova/koz3-w2-cnx-c3sc-s2f4/1` (md5 efbff0f3…) | dmitrijkv / elenakonkova |
+| `s1/koz3-cnx-li-c3sc-{s1f01,s1f23,s1f4}/weights_*.pt` | сид 1 (с v3 файл `s1f4` исправлен — см. «История версий») | dmitrijkv / elenakonkova |
 | `s2/koz3-w2-cnx-c3sc-{s2f01,s2f23,s2f4}/weights_*.pt` | сид 2 (+ `ckpt_*.pt` f2–f4 — чекпойнты с оптимизатором, для дообучения; `*.log`) | dmitrijkv / elenakonkova |
 | `lihm/koz3-w2-lihm-c3sc-f01234/ckpt_cnx_c3-sc_f{0..4}.pt` | heatmap-голова (P-W2-7, FAIL); только ckpt, в метаданных нет описания новой головы | elenakonkova/koz3-w2-lihm-c3sc-f01234 |
 
 Формат `.pt` (torch, `weights_only=True`): `{'state_dict', 'in_channels': 3, 'train': {'fold': K, ...}}`. Архитектура: `cnx_head.get_head('centerhead', cfg).build(3, 'tu-convnext_tiny', None)`, cfg — `report_cnx_full.json['cfg']` из koz3-w2-oof. Вход — рельеф (koz3-cnx-li-prep), каналы uint8, нормировка `(x-128)/127`.
+
+## История версий
+| Версия | Дата (MSK) | Что изменилось |
+|---|---|---|
+| v3 | 01.11.2026 | P-W2-11: заменён `s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt` на настоящие веса s1f4 (output `elenakonkova/koz3-w2-cnx-c3sc-s2f4/1`, т.е. версия 1 ядра; версия 2 этого ядра — уже s2f4). Было (v2, ошибочно = s2f4): md5 `f34ff78761f25af2e4a211384cfd0c01`. Стало: md5 `efbff0f38cea7ee96f2ada3d8bbb575d`, sha256 `d0012327d3f83fa1688c89a27537a972966acc5a28ad2cb7e8079be940e8f862`, 64 170 657 байт. Путь и имя файла не менялись. Остальные 23 файла не менялись. v2 на Kaggle сохранена. |
+| v2 | 30.10.2026 | Первая полная выгрузка (24 файла, 1,47 ГБ). Ошибка: `s1f4` = копия `s2f4` (см. P-W2-11, HANDOFF п. 10). |
+
+### Манифест: контрольные суммы файлов fold 4 (v3)
+| Файл | md5 | sha256 |
+|---|---|---|
+| `s1/koz3-cnx-li-c3sc-s1f4/weights_cnx_c3-sc_f4.pt` | `efbff0f38cea7ee96f2ada3d8bbb575d` | `d0012327d3f83fa1688c89a27537a972966acc5a28ad2cb7e8079be940e8f862` |
+| `s2/koz3-w2-cnx-c3sc-s2f4/weights_cnx_c3-sc_f4.pt` | `f34ff78761f25af2e4a211384cfd0c01` | — |
+| `s0/koz3-cnx-li-c3sc-f4-v2/weights_cnx_c3-sc_f4.pt` | `5619be69c70ace13a01f820f3682b2eb` | — |
+Проверка: `md5sum s1/*/weights_cnx_c3-sc_f4.pt s2/*/weights_cnx_c3-sc_f4.pt` — суммы должны различаться.
 
 ## Инференс без обучения (CPU, бокс)
 ```
