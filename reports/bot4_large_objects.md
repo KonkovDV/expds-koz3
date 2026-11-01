@@ -48,6 +48,32 @@ python3 scripts/large_objects_honest.py \
 - На этой машине та же команда выходит с кодом **2** (`honest-10 не посчитан`).
 - На LB не сдавать.
 
+### Kaggle CPU package `large-gate` (01.11.2026 Europe/Moscow)
+
+Пакет: `/workspace/kaggle/push/large-gate/` (slug **`elenakonkova/koz3-w4-large-gate`**).
+Ядро оборачивает **`scripts/large_objects_honest.py`** tip **`33791bcc`** (PR #18).
+`enable_gpu/tpu=false`, internet off. **Не пушить без coord** (lease ниже).
+
+**Lease:** `slot:acc1/cpu` → **bot-W4-gate** до **02.11 07:14 Europe/Moscow**; kernel `elenakonkova/koz3-w4-large-gate`.
+
+**Входы (dataset_sources):** `dmitrijkv/koz3-xfer-s000`…`s009` + `dmitrijkv/koz3-gt-train-v2`.
+Содержимое xfer: s000 = labels/UTM в `small_files.tar.zst`; s001–s009 = растровые блобы.
+**fam0 OOF jsonl в xfer нет** — ядро берёт прикреплённый `*fam0*`/`stack*.geojson` или `LARGE_GATE_SMOKE=1`.
+
+**Dry-run на боксе:** exit **0**, STATUS=DONE, JSON с `off`/`area_tau`/`fixc_nested` (smoke; score≠0.314615). Лог `dryrun/dryrun.log`.
+
+**Push (coord):**
+```bash
+orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/large-gate
+```
+
+**Ожидаемый вклад в LB (обоснование OOF, не замер):** Fix C / `fixc_nested` целится в Ae-городища below_τ.
+На OOF Ae @τ=0.05 было 43/52, @0.30 — 21/52 крупных; τ_large≈0.20 — компромисс.
+Если nested honest даст Δscore ≈ +0.001…+0.004 к базе стека A (0.314615) без провала слоя >0.01,
+грубый перенос на LB hold 0.41238: **+0.001…+0.005** (порядок; **не verified** — honest ещё не на fam0 stack A).
+Полный LO / coarse / fort_to_gor на mock вредны — в пакет не входят.
+
+
 Fix C по кругам r=4 без `box_area_m2` в jsonl не видит бокс (площадь круга ~50 м²). Ключ `box_area_m2` в свойствах скрипт подхватывает. Иначе нужен OOF D-FINE Ae, а не повторный инференс.
 
 ## Контракт
