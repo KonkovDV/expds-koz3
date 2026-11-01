@@ -64,7 +64,7 @@ def w5cf_npz_ok(path: str, data: bytes) -> bool:
     import numpy as np
     z = np.load(io.BytesIO(data), allow_pickle=False)
     bad = {"x", "y", "lon", "lat", "geometry", "label", "hit", "gt", "region", "reg"}
-    return all(z[k].ndim <= 1 and k.split("__")[0].lower() not in bad for k in z.files)
+    return all(z[k].ndim == 1 and z[k].dtype.kind in "biuf" and k.split("__")[0].lower() not in bad for k in z.files)
 
 
 def model_refs(cfg: dict) -> list[str]:

@@ -33,8 +33,7 @@ def ref(tmp_path):
     rb_pool = np.sort(np.linspace(0.1, 0.9, 9))
     r_pool = np.sort(np.linspace(0.0, 0.8, 9))
     p = tmp_path / "ref.npz"
-    np.savez(p, alpha=0.6, classes=np.array(["kurgany_tselye"]),
-             conf_li__kurgany_tselye=conf_li, rb_pool__kurgany_tselye=rb_pool, r_pool__kurgany_tselye=r_pool)
+    np.savez(p, conf_li__kurgany_tselye=conf_li, rb_pool__kurgany_tselye=rb_pool, r_pool__kurgany_tselye=r_pool)
     return p
 
 
@@ -158,3 +157,19 @@ def test_weights_manifest_mismatch_raises(tmp_path, monkeypatch):
     (tmp_path / "m" / "a.txt").write_bytes(b"y")
     with pytest.raises(W.W5CloudFeatMissing):
         W._verify_manifest()
+
+
+def test_npz_numeric_1d_only():
+    """Условие бота 1: в архив — только числовые 1-D массивы (строки/0-D/объекты — отказ сборщика)."""
+    import io
+    import sys as _s
+    _s.path.insert(0, str(ROOT / "scripts"))
+    from build_submission_git import w5cf_npz_ok
+
+    def b(**kw):
+        f = io.BytesIO(); np.savez(f, **kw); return f.getvalue()
+    assert w5cf_npz_ok("r.npz", b(conf_li__a=np.arange(3.0), off=np.arange(3)))
+    assert not w5cf_npz_ok("r.npz", b(keys=np.array(["li|0"])))
+    assert not w5cf_npz_ok("r.npz", b(alpha=np.float64(0.6)))
+    assert not w5cf_npz_ok("r.npz", b(v=np.zeros((2, 2))))
+    assert not w5cf_npz_ok("r.npz", b(x=np.arange(3.0)))

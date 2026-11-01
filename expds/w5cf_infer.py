@@ -58,7 +58,8 @@ def load_artifacts(cfg: dict | None = None) -> dict:
     z = np.load(d / "gq_ref.npz", allow_pickle=False)
     off, val, cnt = z["off"], z["val"], z["cnt"]
     gq = {}
-    for i, k in enumerate(z["keys"].tolist()):
+    keys = meta["gq_keys"] if "gq_keys" in meta else z["keys"].tolist()   # числовой npz: ключи — в meta.json
+    for i, k in enumerate(keys):
         v, c = val[off[i]:off[i + 1]], cnt[off[i]:off[i + 1]]
         gq[k] = (v, np.concatenate([[0], np.cumsum(c)]))
     art = dict(meta=meta, models=models, gq=gq, names=list(meta["names"]), CL=list(meta["CL"]),

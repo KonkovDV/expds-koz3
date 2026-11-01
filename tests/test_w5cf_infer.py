@@ -24,9 +24,10 @@ def _art(tmp_path):
     m = lgb.train(dict(objective="binary", verbose=-1, num_threads=1, min_data_in_leaf=5), lgb.Dataset(X, y), 5)
     m.save_model(str(tmp_path / "fam0.txt"))
     meta = dict(variant="test", names=NAMES, CL=CL, grp_codes=["li", "or"], mk_codes=["li", "or"],
-                pool_thr={"li|0": 0.5, "li|1": None, "or|0": None}, models={"0": {"file": "fam0.txt"}})
+                pool_thr={"li|0": 0.5, "li|1": None, "or|0": None}, models={"0": {"file": "fam0.txt"}},
+                gq_keys=["li|0", "li|1"])
     (tmp_path / "meta.json").write_text(json.dumps(meta))
-    np.savez(tmp_path / "gq_ref.npz", keys=np.array(["li|0", "li|1"]), off=np.array([0, 3, 5]),
+    np.savez(tmp_path / "gq_ref.npz", off=np.array([0, 3, 5]),
              val=np.array([0.1, 0.5, 0.9, 0.2, 0.8]), cnt=np.array([1, 2, 1, 1, 1]))
     return {"w5cf": {"infer_dir": str(tmp_path)}}
 

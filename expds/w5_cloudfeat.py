@@ -70,8 +70,8 @@ def _ref(cfg: dict) -> dict:
         if not p.is_file():
             raise W5CloudFeatMissing(f"w5_cloudfeat=true, но нет референса шкалы {p}")
         z = np.load(p, allow_pickle=False)
-        ref = {}
-        for c in z["classes"].tolist():
+        ref = {}   # только числовые 1-D массивы (условие бота 1): классы — из имён ключей "<поле>__<класс>"
+        for c in sorted({k.split("__", 1)[1] for k in z.files if "__" in k}):
             ref[c] = {k: z[f"{k}__{c}"] for k in ("conf_li", "rb_pool", "r_pool")}
         _CACHE[("ref", str(p))] = ref
     return _CACHE[("ref", str(p))]
