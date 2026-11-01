@@ -497,3 +497,4 @@
 - 30.10 16:32 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
 - 30.10 16:35 MSK | coord | проверка: box load 1.6/8 — q1 W3 gap.py; q2/q3 свободны, W1 (joint gate) и W4 (compgate) циклят box-слоты короткими прогонами; Kaggle без изменений с 16:22 (kurgan RUNNING, dino-vitb-tpu QUEUED acc1+acc2, aaaa0000004 v3onchk ERROR у W4); GPU до Сб 03:00 исчерпаны; токены usertest1234/aaaadg4gg4g4g мертвы. Замечание: kurgan-сиды (CI2-7 CLOSED, KS FAIL) прироста не дают — новые сиды не перезапускать.
 - 30.10 16:35 coord: W1 J2 (RR1s-cf+M_rp over v3_on) Δ+0.0156 P0.9845 borderline Bonferroni → W4 independent regate (α reselected on v3, P≥0.9857); W1 builds cloudfeat inference module (flag w5_cloudfeat). M_rp over v3_on only +0.0008.
+- 01.11 20:13 MSK | bot7 | sat-recall: prior_only stubs → REAL prep→gate_v6c scoreboard (same B′); package /workspace/kaggle/push/sat-recall. Audit: pushed 20:01 kernel was EMPTY.

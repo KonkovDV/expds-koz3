@@ -1,0 +1,20 @@
+[      0s] HERE local package /workspace/kaggle/push/sat-recall
+[      0s] w5base /workspace/kaggle/push/sat-recall/dryrun/kaggle/input/koz3-w2-gate/w5base
+[      0s] B′=0.315800 Ae-ON flags-off honest-10
+[      0s] vs A /workspace/kaggle/push/sat-recall/dryrun/kaggle/input/koz3-w2-gate/w5base/base_counts.pkl
+[      0s] gate baseline boot 50
+[      0s] baseline 0.0
+[      0s] DRYRUN: skip B′ check
+[      0s] apply L1_sat_band_verify {'n_in': 5, 'n_out': 5, 'cfg': {'default_threshold': 0.15, 'sat_band_verify': {'enabled': True, 'scale': 0.9, 'verify_floor': 0.4, 'no_verify_policy': 'admit'}, 'sat_agree_accept': {'enabled': False, 'radius_m': 16.0, 'scale': 0.85}, 'sat_cross_nms': {'enabled': False, 'nms_m': 4.0}}}
+[      1s] gate L1_sat_band_verify boot 50
+[      1s] L1_sat_band_verify score 0.0 Δ 0.0 P 0.0
+[      1s] apply L2_sat_agree_accept {'n_in': 5, 'n_out': 5, 'cfg': {'default_threshold': 0.15, 'sat_band_verify': {'enabled': False, 'scale': 0.9, 'verify_floor': 0.4, 'no_verify_policy': 'admit'}, 'sat_agree_accept': {'enabled': True, 'radius_m': 16.0, 'scale': 0.85}, 'sat_cross_nms': {'enabled': False, 'nms_m': 4.0}}}
+[      1s] gate L2_sat_agree_accept boot 50
+[      2s] L2_sat_agree_accept score 0.0 Δ 0.0 P 0.0
+[      2s] apply L3_sat_cross_nms {'n_in': 5, 'n_out': 4, 'cfg': {'default_threshold': 0.15, 'sat_band_verify': {'enabled': False, 'scale': 0.9, 'verify_floor': 0.4, 'no_verify_policy': 'admit'}, 'sat_agree_accept': {'enabled': False, 'radius_m': 16.0, 'scale': 0.85}, 'sat_cross_nms': {'enabled': True, 'nms_m': 4.0}}}
+[      2s] gate L3_sat_cross_nms boot 50
+[      2s] L3_sat_cross_nms score 0.0 Δ 0.0 P 0.0
+[      2s] apply ALL {'n_in': 5, 'n_out': 4, 'cfg': {'default_threshold': 0.15, 'sat_band_verify': {'enabled': True, 'scale': 0.9, 'verify_floor': 0.4, 'no_verify_policy': 'admit'}, 'sat_agree_accept': {'enabled': True, 'radius_m': 16.0, 'scale': 0.85}, 'sat_cross_nms': {'enabled': True, 'nms_m': 4.0}}}
+[      3s] gate ALL boot 50
+[      3s] ALL score 0.0 Δ 0.0 P 0.0
+[      3s] DONE {'ALL_pass': False, 'ALL_delta': 0.0, 'ALL_p_gt0': 0.0, 'baseline_score': 0.0, 'criterion': 'Δ≥0.003, p_gt0≥0.9, damaged not worse'}
