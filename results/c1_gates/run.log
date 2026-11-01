@@ -1,0 +1,10 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+22:10:49 кэш стека meta_5606f42d02724784.json: кластеров 60
+22:10:49 кривые A из кэша curvesA_5606f42d02724784.pkl
+22:10:51 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1261 МБ
+22:11:14 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+22:11:15 rows {'kurgany_povrezhdennye': {'stack_v3p': 604501, 'stack_pc': 2629, 'g2_suppressed': 0, 'g2_li_pc': 0}, 'kurgany_tselye': {'stack_v3p': 606309, 'stack_pc': 1746, 'g2_suppressed': 0, 'g2_li_pc': 0}, 'gorodishcha': {'stack_v3p': 3670, 'stack_pc': 68, 'g2_suppressed': 2, 'g2_li_pc': 68}, 'arkhitektury': {'stack_v3p': 783, 'stack_pc': 0, 'g2_suppressed': 0, 'g2_li_pc': 0}, 'object_poly': {'stack_v3p': 465, 'stack_pc': 465, 'g2_suppressed': 0, 'g2_li_pc': 0}, 'fortifikatsii': {'stack_v3p': 62516, 'stack_pc': 38742, 'g2_suppressed': 1, 'g2_li_pc': 148}, 'finds_points': {'stack_v3p': 3732, 'stack_pc': 3732, 'g2_suppressed': 0, 'g2_li_pc': 0}}
+22:11:25 scores {'V3P_full': {'all': 0.3337867244410518, 'new34': 0.30485542934402954, 'nolidar': 0.21869922450609333}, 'V3P_pc': {'all': 0.3458516903564684, 'new34': 0.33797675586676257, 'nolidar': 0.22096700543745385}, 'G1': {'all': 0.34773232506962115, 'new34': 0.33711908201352186, 'nolidar': 0.22617466678778128}, 'G2': {'all': 0.3430058462260996, 'new34': 0.33197100658580375, 'nolidar': 0.22074686598698712}}
+22:11:25 G1 0.001881 0.9425 {'delta>=0.003': False, 'P>=0.975': False, 'new34>=-0.005': True, 'damaged>=-0.005': True, 'fort>=-0.005': True, 'PASS': False, 'engine_class_floors_ok(report)': True}
+22:11:25 G2 -0.002846 0.0045 {'delta>=0.003': False, 'P>=0.975': False, 'new34>=-0.005': False, 'damaged>=-0.005': True, 'fort>=-0.005': True, 'PASS': False, 'engine_class_floors_ok(report)': False}
+22:11:25 done 37 s
