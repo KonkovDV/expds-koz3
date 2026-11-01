@@ -1,14 +1,14 @@
-# STATE KOZ3 — актуально на 01.11.2026 22:35 MSK (coord)
+# STATE KOZ3 — актуально на 01.11.2026 23:50 MSK (coord)
 ## ФИНАЛ (см. FINAL_CANDIDATES.md)
-- «смелый» = **v3_on** `koz3_v3on_b505656…` sha **ebc8e4ba…** — honest-10 0.333787 (Δ+0.0198 P0.976 vs v2clean), прод-путь Δ+0.0194 P0.964, check_submission PASS. На LB ещё не был.
-- «надёжный» = **v2clean** sha **545ef32a…** — 0.313967, check PASS.
+- «смелый» = **v3_on b447649** `koz3_v3on_b447649_6d4764f8_w6dfd2e07.zip` sha **1406c01a…ef41d** (722 697 913 B) — honest-10 0.333787 (Δ+0.0198 P0.976 vs v2clean), прод Δ+0.0194 P0.964; Kaggle parity v5 PASS во всех 4 средах, вывод побайтно = ebc8e4ba. Drive KOZ3-final/v3_on_b447649_1406c01a. Заменяет ebc8e4ba (молча откатывался на v2). На LB ещё не был.
+- «надёжный» = **v2clean** sha **545ef32a…** — 0.313967, check PASS (parity после b447649 не перепроверялась).
 - Копии: Drive KOZ3-final (приватная), Kaggle aaaa0000004/koz3-w4-dfine-ref103.
 ## РИСК
-- regex==2025.11.3 → D-FINE не импортируется → v3_on молча = v2. Бот 5 чинит (новый архив, новый sha).
+- regex/huggingface_hub → D-FINE не импортировался → ebc8e4ba молча = v2. ЗАКРЫТО в b447649 (Kaggle v5 PASS).
 ## ЗАКРЫТО 01.11
 J2/RR1s-cf (прод +0.0032 P0.793), CTXc (−0.0046), v4_on, lidar-aug (−0.039), r50c5 на V3P (+0.0024 P0.66), G1 sat2-kp (+0.0019 P0.94), G2 li nms8 (−0.003), large-gate, ae-dfine, v2+sat2 vs v3_on (−0.010), M_rp на V3P (+0.00276).
 ## NEXT
-1) бот 5: фикс regex → check_submission → новый sha в FINAL_CANDIDATES.md + Drive; 2) Елена сабмитит v3_on (фикс); 3) если LB < 0.4124 → v2clean; 4) новые рычаги только с PREREG, гейт до 08.11.
+1) ✅ фикс b447649 (1406c01a) проверен и выложен в Drive; 2) Елена сабмитит v3_on b447649; 3) если LB < 0.4124 → v2clean; 4) новые рычаги только с PREREG, гейт до 08.11.
 
 ---
 # STATE KOZ3 — актуально на 30.10.2026 09:55 MSK (coord)
