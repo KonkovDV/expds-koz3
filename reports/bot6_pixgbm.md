@@ -262,3 +262,17 @@ Package `/workspace/kaggle/push/pixgbm-cr/` updated; **still not pushed**.
 - `python pixgbm_cr_gate.py --syntax` → DRY_RUN_OK
 - w4-geo-s000/s001 still 403 for this token — «1» must confirm ACL/existence
 
+
+## 2026-11-01 21:20 — Kaggle 200–217 equivalence gate (REF v2 eb268d6+FR1h-off vs CAND P4 clean e1g1)
+
+Scored on box from Kaggle outputs (e2e_score + compute_metrics, GT 4561 features).
+
+| markup | GT | F1 ref | F1 cand | Δ |
+|---|---|---|---|---|
+| ALL | 4561 | 0.637 | 0.685 | +0.048 |
+| etgr | 658 | 0.543 | 0.684 | +0.142 |
+| maggr | 3726 | 0.603 | 0.586 | −0.017 |
+| terfl | 177 | 0.000 | 0.000 | 0 |
+
+Verdict: **FAIL equivalence** (|ΔF1| > 0.01). Not a drop-in for v2. maggr is worse on 200–203 and 207–211 (−0.02…−0.34, 201 −0.337); etgr/Гнёздово 212–217 better.
+Gate exit flagged INVALID for cand only because the clean impl does not print the v2 step/phase log lines (log-parser artifact); the cand run produced all 18 regions.
