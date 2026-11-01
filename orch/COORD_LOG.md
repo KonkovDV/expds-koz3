@@ -993,3 +993,10 @@ Sleeping. A watches carefully overnight (routine every 10m + executor). Wake onl
 ## 01.11 00:06 MSK within-site rank STOP
 elenakonkova/koz3-wsr-f0 v3 COMPLETE 385s. Pilot Курганы: median FP louder 9→16 (need ≤2); damaged F1 0.6636→0.5561. Lease released. default.toml/0.41238 untouched. out/wsr/k3/report.json. Watch routine deleted.
 - 01.11 18:47 MSK | A | HANDOFF_NOW_20261101.md for bot transfer (+ Kaggle live snapshot). elena lidar f3–4 RUNNING; dkv f2 RUNNING; Drive packs ready. Hold 0.41238.
+
+## 01.11 19:21 MSK — bot-W4-gate FR1h CPU push (3 accounts)
+- Leases: kernel+slot usertest1234/koz3-w4-fr1h-check, aaaadg4gg4g4g/koz3-w4-fr1h-gate, aaaa0000004/koz3-w4-fr1h-geo → bot-W4-gate до 01.11 23:21
+- Datasets: dmitrijkv/koz3-fr1h-chk-20261101 (+wheels) READER granted
+- Tasks: (check) check_submission+smoke; (gate) thr verify + honest vs A/B′/v2; (geo) P/R floors + static
+- Dry-run box PASS; tip inject v2 artifacts local; NO LB submit; NO main push
+- Poll 10–15m ≤~3h → reports/v2_fr1h_candidate_2026-11-01.md
