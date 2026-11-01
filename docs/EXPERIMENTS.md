@@ -69,3 +69,7 @@
 - **Сильнейший новый кандидат:** PIXGBM S, +0,011 при P 0,95. Нужно перемерить в пакете с #1–#4 на ПК.
 - **Мелочь в пакет:** TOfix (после починки и решения по правилам), geo_convex_hull, A2+R3, fort 0,5 м.
 - Шум площадки: SD Δ ≈ 0,005. Финальный пакет мерится целиком: crop × курганы не аддитивны.
+
+
+### 01.11.2026 — bot-W1-sat: sat2 REPLACE gate package
+See [`research/2026-11-01/EXPERIMENTS_sat2_gate.md`](research/2026-11-01/EXPERIMENTS_sat2_gate.md) + `bots/w1-sat2-gate/REPORT_sat2_gate_20261101.md`. Soft-PASS +0.00472 P0.838 → full P≥0.9 pending Kaggle CPU push by bot1.
