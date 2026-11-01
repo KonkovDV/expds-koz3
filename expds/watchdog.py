@@ -90,6 +90,11 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4 (RR1s-cf): до порогов; пороги li-групп в v4_on.toml — в шкале S (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        out = w5_cloudfeat.apply(out, cfg)
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = cfg.get("thresholds_by_markup", {})
     if sf:
@@ -174,6 +179,13 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
+    if cfg.get("w5_cloudfeat"):
+        try:
+            from . import w5_cloudfeat
+
+            out = w5_cloudfeat.apply(out, cfg)
+        except Exception:
+            log.exception("w5_cloudfeat в запасной цепочке упал, li — без переоценки")
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = out + reranked

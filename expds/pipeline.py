@@ -967,6 +967,11 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     own = cfg.get("thresholds_by_markup", {}).get(markup, {})
     default = cfg.get("default_threshold", 0.15)
     floors = {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4: пороги li-групп заданы в шкале RR1s-cf; ранний пол — в шкале conf (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        floors = {c: w5_cloudfeat.li_floor(cfg, markup, c, v) for c, v in floors.items()}
     # [post] kurgan_neighbour_prior поднимает уверенность до floor + slope·cap раз до порогов: курган
     # группы приора ниже порога должен дожить до finish, иначе множитель только понижает.
     prior = ((cfg.get("post") or {}).get("kurgan_neighbour_prior"))
@@ -1182,6 +1187,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     root = Path(root or Path(__file__).resolve().parents[1])
     cfg_path = Path(config_path or root / "configs" / "default.toml")
     cfg = load_config(cfg_path)
+    if cfg.get("w5_cloudfeat"):
+        from . import w5_cloudfeat      # W4 v4: нет модуля W1 / референса — понятная ошибка до начала работы
+
+        w5_cloudfeat.preflight(cfg)
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime
@@ -1297,6 +1306,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             except Exception:
                 log.exception("%s: лидар пропущен", reg.name)
                 found = []
+            if cfg.get("w5_cloudfeat"):
+                from . import w5_cloudfeat      # W4 v4: признаки облака, пока LAS участка под рукой
+
+                found = w5_cloudfeat.region_features(reg, found, cfg)
             state.add(found)
             n_phase += len(found)
             log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(found),
