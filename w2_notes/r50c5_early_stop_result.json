@@ -1,0 +1,19 @@
+{
+ "r50c5": {
+  "0": {
+   "final": 0.37131932262756856,
+   "kurgany_povrezhdennye": 0.5023859170780812,
+   "kurgany_tselye": 0.29531436059557103
+  },
+  "1": {
+   "final": 0.5077674939201935,
+   "kurgany_povrezhdennye": 0.7920787058317701,
+   "kurgany_tselye": 0.08130067605282863
+  }
+ },
+ "mean_f0_f1": 0.43954340827388105,
+ "kurgan_mean_f1_f0": 0.39885013883682613,
+ "rule1_fail": false,
+ "rule2_fail": false,
+ "verdict": "PASS"
+}
