@@ -280,10 +280,16 @@ def _cached_segmenters(seg_cache: dict, cfg: dict, markup: str, root: Path) -> l
         raw_ms = cfg.get("ms", {}).get(markup, [1.0])
         if isinstance(raw_ms, (int, float)):
             raw_ms = [float(raw_ms)]
+        tta = int(cfg.get("tta", {}).get(markup, 1))
+        scales = [float(s) for s in raw_ms]
+        # bot-8: [orsp_tta] по умолчанию выкл. Чужие markup (ae, or) не меняются.
+        from . import orsp_tta
+
+        tta, scales = orsp_tta.apply_unet(cfg, markup, tta, scales)
         seg_cache[markup] = _segmenters(
             cfg.get("models", {}), markup, root,
-            tta=int(cfg.get("tta", {}).get(markup, 1)),
-            ms_scales=[float(s) for s in raw_ms],
+            tta=tta,
+            ms_scales=scales,
         )
     return seg_cache[markup]
 

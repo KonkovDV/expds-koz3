@@ -576,6 +576,26 @@ enabled = false
 # Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
 # Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
 
+# bot-8: TTA и мультимасштаб. По умолчанию ВЫКЛ. — выход как без секции.
+# U-Net только markup из unet_markups (спутник sp_or и окно sp_focal2). ae и or не трогает.
+# unet_tta: 0 = не менять ([tta] или 1); 2|4|8 — отражения Segmenter._forward, маски усредняются.
+#   4 = исходный, отражение по ширине, по высоте и оба; 8 добавляет поворот на 90° (транспонирование).
+# unet_scales: зум кадра, как [ms]. 1.25 — крупнее пиксели модели. [1.0] = выкл. Карты вероятностей усредняются.
+# D-FINE: dfine_views off|d4|d8 и dfine_gsd — множители res_m. Слияние боксов одного растра — WBF
+# (координаты по уверенности, уверенность = сумма / число видов; одиночный вид делится — меньше ложных).
+# NMS оставлен ключом dfine_fuse = "nms". Между снимками не сливать.
+# D-FINE здесь НЕ ОЦЕНЕНО: mock v3on_0876090 дал sp_or F1 0. Не включать dfine_*, пока
+# ветка bots/bot2-e2e-v3-prep не закроет CRS/порог. Замер спутника dfine_views не включает.
+[orsp_tta]
+enabled = false
+unet_tta = 0
+unet_scales = [1.0]
+unet_markups = ["sp_or", "sp_focal2"]
+dfine_views = "off"
+dfine_gsd = [1.0]
+dfine_fuse = "wbf"
+dfine_fuse_iou = 0.55
+
 # bot-1 (кандидат v4, 29.10): D-FINE всех классов на Ae/Or (группы порога ae_dfine / or_dfine),
 # круги варианта C, слияние TTA (flip × масштабы) и моделей — WBF внутри ОДНОГО снимка. ВЫКЛ.:
 # нет весов Ae+Or (Kaggle-ядро kaggle/aeor_dfine — не запущено), нет порогов из OOF, нет приёмки honest-10 ботом 10

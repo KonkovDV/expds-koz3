@@ -181,6 +181,7 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
 
     small_x = 0
     non_poly = 0
+    max_vertices = 0
     by_class: dict[str, int] = {}
     try:
         from shapely.geometry import shape
@@ -195,7 +196,8 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
         elif cls in CLASSES:
             by_class[cls] = by_class.get(cls, 0) + 1
         crs = props.get("crs")
-        if crs is not None and str(crs).upper().replace(" ", "") not in ("EPSG:3857", "3857"):
+        crs_norm = str(crs).upper().replace(" ", "") if crs is not None else ""
+        if crs_norm not in ("EPSG:3857", "3857"):
             errors.append(f"#{i}: properties.crs {crs!r}, нужен EPSG:3857")
         geom = (f or {}).get("geometry") or {}
         gtype = geom.get("type")
@@ -206,6 +208,7 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
         if shape is None:
             # без shapely — считаем вершины по кольцам
             n = sum(len(ring) for ring in (geom.get("coordinates") or []))
+            max_vertices = max(max_vertices, n)
             if n > MAX_VERTICES:
                 errors.append(f"#{i}: вершин {n} > {MAX_VERTICES}")
             continue
@@ -215,6 +218,7 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
             errors.append(f"#{i}: геометрия не читается ({exc})")
             continue
         n = len(g.exterior.coords) + sum(len(r.coords) for r in g.interiors)
+        max_vertices = max(max_vertices, n)
         if n > MAX_VERTICES:
             errors.append(f"#{i}: вершин {n} > {MAX_VERTICES}")
         x = g.centroid.x
@@ -243,6 +247,15 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
         warnings.append(f"замечаний валидатора геометрии {len(remarks)} (≤ {TR_MAX_REMARKS})")
     warnings.extend(remarks[:20])
 
+    crs_ok = small_x == 0 and not any("crs" in e.lower() for e in errors)
+    checks = {
+        "size": size_bytes <= MAX_FILE_BYTES,
+        "features": len(feats) <= MAX_FEATURES,
+        "vertices": max_vertices <= MAX_VERTICES,
+        "remarks": len(remarks) <= TR_MAX_REMARKS,
+        "crs": crs_ok,
+        "polygon": non_poly == 0,
+    }
     return {
         "ok": not errors,
         "errors": errors[:50],
@@ -251,11 +264,34 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
             "features": len(feats),
             "by_class": by_class,
             "tr_remarks": len(remarks),
+            "max_vertices": max_vertices,
             "size_mb": round(size_mb_si, 3),
             "polygon_only": non_poly == 0,
-            "epsg_3857_ok": small_x == 0 and not any("CRS" in e or "crs" in e for e in errors),
+            "epsg_3857_ok": crs_ok,
+            "checks": checks,
         },
     }
+
+
+def format_report(rep: dict) -> str:
+    """Шесть пунктов ТР отдельными строками. Итог PASS, только если все пункты PASS."""
+    s = rep["summary"]
+    ch = s["checks"]
+    rows = [
+        ("size", ch["size"], f"{s['size_mb']} МБ ≤ {MAX_FILE_MB:g}"),
+        ("features", ch["features"], f"{s['features']} ≤ {MAX_FEATURES}"),
+        ("vertices", ch["vertices"], f"макс. {s['max_vertices']} ≤ {MAX_VERTICES}"),
+        ("remarks", ch["remarks"], f"{s['tr_remarks']} ≤ {TR_MAX_REMARKS}"),
+        ("crs", ch["crs"], "EPSG:3857"),
+        ("polygon", ch["polygon"], "только Polygon"),
+    ]
+    lines = [f"[{'PASS' if ok else 'FAIL'}] {name:10} {detail}" for name, ok, detail in rows]
+    lines.append("ИТОГ " + ("PASS" if rep["ok"] and all(ch.values()) else "FAIL"))
+    for e in rep["errors"]:
+        lines.append(f"  ERROR: {e}")
+    for w in rep["warnings"][:10]:
+        lines.append(f"  WARN: {w}")
+    return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -280,16 +316,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps(rep, ensure_ascii=False, indent=2))
     else:
-        s = rep["summary"]
-        print(
-            f"{'PASS' if rep['ok'] else 'FAIL'} features={s['features']} "
-            f"size_mb={s['size_mb']} remarks={s['tr_remarks']} "
-            f"polygon_only={s['polygon_only']} epsg_3857_ok={s['epsg_3857_ok']}"
-        )
-        for e in rep["errors"]:
-            print(f"  ERROR: {e}")
-        for w in rep["warnings"][:10]:
-            print(f"  WARN: {w}")
+        print(format_report(rep))
     return 0 if rep["ok"] else 1
 
 
