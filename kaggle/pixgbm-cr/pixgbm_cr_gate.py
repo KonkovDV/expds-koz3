@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """Kaggle CPU: PIXGBM e2e geo F1 gate on regions 200–217 (bot-6 / pixgbm-cr).
 
-Compares REF (v2 eb268d6 lineage) vs CANDIDATE and applies helpers/bot6_r3_gate.py
-(|dF1| <= 0.01 on ALL + maggr/etgr/terfl; INVALID on empty steps / no full / …).
+Compares REF (v2 eb268d6 *output* result.geojson) vs CANDIDATE (clean zip) and
+applies helpers/bot6_r3_gate.py (|dF1| <= 0.01 on ALL + maggr/etgr/terfl;
+INVALID on empty steps / no full / …).
 
 Modes (env GATE_MODE):
-  zip   — unpack two submission zips (REF_ZIP / CAND_ZIP or attached *ref* / *cand* datasets)
-          and run inference/main.py twice on the rebuilt geo tree.
-  tip   — use attached code snapshot; REF = impl legacy + vendored geo_pixgbm + models/pixgbm/all;
-          CAND = impl=clean + models/pix_clean (true clean-room). Requires models attached.
-  score — skip inference; score already-produced out_ref/result.geojson + out_cand/result.geojson
-          (or paths in env) against built GT.
+  auto  — default. REF=result.geojson + CAND=submission zip → run CAND only, score.
+  zip   — unpack two submission zips and run inference twice (legacy).
+  tip   — tip packs (NOT used for REF anymore; REF is v2 output only).
+  score — skip inference; score pre-dropped out_ref/ + out_cand/ result.geojson.
 
-Never submits to LB. enable_gpu=false. «1» pushes this package.
+Geo tree: MagGr/EtGr/TerFl + GT for 200–217 pulled from S3 (train-expds-3 /
+selcloud ru-7) inside rebuild_w4_geo_tree.py. Credentials: Kaggle Secrets
+SECRET_ID/SECRET_KEY with fallback dataset dmitrijkv/koz3-s3-cred. Never log keys.
 
-Conflict note (see notes/SPEC.json + reports/bot6_pixgbm.md):
-  9b411c4 tooling is EN-lineage retrain reproduction, NOT PIXGBM_DECISION clean-room.
-  Preferred candidate for «1» tip≈v2 goal is impl=clean on main tip.
+enable_gpu=false, enable_internet=TRUE (S3 + optional pip). Prefer offline wheels.
+Never submits to LB. «1» pushes this package. Do NOT ship EN geo_pixgbm.py.
 """
 from __future__ import annotations
 
@@ -142,29 +142,31 @@ def resolve_ref_cand(inputs: dict[str, Path], mode: str) -> dict:
         out["cand"] = Path(os.environ["CAND_ZIP"]); out["cand_kind"] = "zip"
 
     if out["ref"] is None:
-        z = find_zip(
-            inputs,
-            "pixgbm-cr-ref", "pixgbm_cr_ref", "e2e-baseline-v2", "baseline-v2",
-            "ref-v2", "bot7cand_v2", "eb268d6",
-        )
-        if z is not None:
-            out["ref"] = z; out["ref_kind"] = "zip"
+        # Preferred: v2 ready OUTPUT only (result.geojson) — no EN code/models.
+        ref_ds = find_named(inputs, "pixgbm-cr-ref", "pixgbm_cr_ref", "baseline-v2", "pixgbm-ref")
+        gj = None
+        if ref_ds is not None:
+            cands = sorted(ref_ds.rglob("result.geojson"))
+            # Prefer geo/result.geojson or out_ref/result.geojson if present
+            prefer = [c for c in cands if "out_ref" in c.as_posix() or c.parent.name == "geo"]
+            gj = (prefer or cands)[0] if (prefer or cands) else None
+        if gj is None:
+            gj = find_file(inputs, "result.geojson")
+            # Avoid picking CAND outputs by mistake when searching broadly
+            if gj is not None and any(x in gj.as_posix().lower() for x in ("cand", "pix_clean", "clean")):
+                gj = None
+        if gj is not None:
+            out["ref"] = gj
+            out["ref_kind"] = "output"
         else:
-            # tip-mode: mount with geo_pixgbm.py + models/pixgbm/all
-            ref_ds = find_named(inputs, "pixgbm-cr-ref", "pixgbm_cr_ref", "baseline-v2", "pixgbm-ref")
-            g = find_file(inputs, "geo_pixgbm.py") if ref_ds is None else (
-                next(iter((ref_ds.rglob("geo_pixgbm.py"))), None)
+            z = find_zip(
+                inputs,
+                "pixgbm-cr-ref", "pixgbm_cr_ref", "e2e-baseline-v2", "baseline-v2",
+                "ref-v2", "bot7cand_v2", "eb268d6",
             )
-            poly = None
-            if ref_ds is not None:
-                polys = list(ref_ds.rglob("poly.txt"))
-                poly = polys[0] if polys else None
-            if g is not None and (poly is not None or ref_ds is not None):
-                out["ref"] = ref_ds or g.parent
-                out["ref_kind"] = "tip"
-            elif g is not None:
-                out["ref"] = g.parent
-                out["ref_kind"] = "tip"
+            if z is not None:
+                out["ref"] = z
+                out["ref_kind"] = "zip"
 
     if out["cand"] is None:
         z = find_zip(
@@ -184,9 +186,9 @@ def resolve_ref_cand(inputs: dict[str, Path], mode: str) -> dict:
 
     if out["ref"] is None:
         out["errors"].append(
-            "INVALID: REF missing — attach dmitrijkv/koz3-pixgbm-cr-ref "
-            "(geo_pixgbm.py + models/pixgbm/all) or a v2 submission zip "
-            "(elenakonkova/koz3-e2e-baseline-v2 / submission_bot7cand_v2_eb268d6.zip)"
+            "INVALID: REF missing — attach dmitrijkv/koz3-pixgbm-cr-ref with "
+            "v2 ready OUTPUT only (result.geojson for regions 200–217). "
+            "Do NOT attach EN geo_pixgbm.py / models."
         )
     if out["cand"] is None:
         out["errors"].append(
@@ -197,30 +199,50 @@ def resolve_ref_cand(inputs: dict[str, Path], mode: str) -> dict:
 
 
 def ensure_offline_wheels() -> list[str]:
-    """Install vendored wheels with --no-index if present. Never hits the network."""
+    """Prefer vendored wheels; network pip allowed as fallback (enable_internet=true)."""
     installed: list[str] = []
     root = Path("/kaggle/input")
-    if not root.is_dir():
-        return installed
-    wheel_dirs = [d for d in root.rglob("wheels") if d.is_dir()]
-    if not wheel_dirs:
-        return installed
-    # Only install zstandard if import fails (needed for xfer tar.zst without zstd CLI)
-    try:
-        import zstandard  # noqa: F401
-        return installed
-    except ImportError:
-        pass
-    import subprocess as _sp
-    cmd = [sys.executable, "-m", "pip", "install", "--no-index", "--no-deps"]
-    for d in wheel_dirs:
-        cmd.extend(["--find-links", str(d)])
-    cmd.append("zstandard")
-    r = _sp.run(cmd, capture_output=True, text=True)
-    if r.returncode == 0:
-        installed.append("zstandard")
-    else:
-        log("WARN offline wheel install failed", r.stderr[:500] if r.stderr else r.stdout[:500])
+    wheel_dirs = [d for d in root.rglob("wheels") if d.is_dir()] if root.is_dir() else []
+
+    def _need(mod: str) -> bool:
+        try:
+            __import__(mod)
+            return False
+        except ImportError:
+            return True
+
+    def _pip(pkgs: list[str], *, offline: bool) -> bool:
+        import subprocess as _sp
+        cmd = [sys.executable, "-m", "pip", "install", "-q"]
+        if offline:
+            if not wheel_dirs:
+                return False
+            cmd += ["--no-index", "--no-deps"]
+            for d in wheel_dirs:
+                cmd.extend(["--find-links", str(d)])
+        cmd += pkgs
+        r = _sp.run(cmd, capture_output=True, text=True)
+        if r.returncode != 0:
+            log("WARN pip", pkgs, "offline=" + str(offline),
+                (r.stderr or r.stdout or "")[:400])
+            return False
+        return True
+
+    # zstandard (optional; only if a leftover xfer path needs it)
+    if _need("zstandard"):
+        if _pip(["zstandard"], offline=True):
+            installed.append("zstandard")
+        elif _pip(["zstandard"], offline=False):
+            installed.append("zstandard(net)")
+
+    # boto3 required for S3 geo fetch
+    if _need("boto3"):
+        if _pip(["boto3"], offline=True):
+            installed.append("boto3")
+        elif _pip(["boto3"], offline=False):
+            installed.append("boto3(net)")
+        else:
+            log("WARN boto3 not installed — S3 rebuild will fail")
     return installed
 
 
@@ -258,10 +280,13 @@ def dry_run_syntax() -> int:
     meta = here / "kernel-metadata.json"
     if meta.is_file():
         m = json.loads(meta.read_text(encoding="utf-8"))
-        assert m.get("enable_internet") is False, "enable_internet must be false"
+        assert m.get("enable_internet") is True, "enable_internet must be true (S3)"
         assert m.get("enable_gpu") is False, "enable_gpu must be false"
+        srcs = m.get("dataset_sources") or []
+        assert "dmitrijkv/koz3-s3-cred" in srcs, "koz3-s3-cred must be in dataset_sources"
+        assert not any("w4-geo" in s for s in srcs), "w4-geo datasets must not be wired"
         print("OK kernel-metadata internet/gpu flags")
-        print("dataset_sources:", m.get("dataset_sources"))
+        print("dataset_sources:", srcs)
     print("DRY_RUN_OK missing_optional=", missing)
     return 0
 
@@ -466,7 +491,7 @@ def main() -> int:
         helpers = ensure_helpers()
         inputs = find_inputs()
         wheeled = ensure_offline_wheels()
-        mode = os.environ.get("GATE_MODE", "tip").strip().lower()  # tip default: REF/CAND tip packs
+        mode = os.environ.get("GATE_MODE", "auto").strip().lower()
         log("mode", mode, "inputs", sorted(inputs), "wheels", wheeled)
 
         # Rebuild geo tree
@@ -511,8 +536,8 @@ def main() -> int:
             # Locate REF / CAND via mount-name globs (robust to /kaggle/input slug variants)
             resolved = resolve_ref_cand(inputs, mode)
             meta["resolved"] = {
-                "ref": str(resolved["ref"]),
-                "cand": str(resolved["cand"]),
+                "ref": str(resolved["ref"]) if resolved["ref"] else None,
+                "cand": str(resolved["cand"]) if resolved["cand"] else None,
                 "ref_kind": resolved["ref_kind"],
                 "cand_kind": resolved["cand_kind"],
             }
@@ -527,22 +552,50 @@ def main() -> int:
                 )
                 return 3
 
-            # Auto-select mode if tip artifacts and no zips
-            if mode == "zip" and (resolved["ref_kind"] != "zip" or resolved["cand_kind"] != "zip"):
-                if resolved["ref_kind"] == "tip" or resolved["cand_kind"] == "tip":
-                    log("auto-switch GATE_MODE zip→tip (REF/CAND are tip packs, not submission zips)")
-                    mode = "tip"
-                    meta["mode"] = mode
+            # auto: REF output + CAND zip → hybrid (only CAND runs inference)
+            if mode == "auto":
+                if resolved["ref_kind"] == "output" and resolved["cand_kind"] == "zip":
+                    mode = "hybrid"
+                elif resolved["ref_kind"] == "zip" and resolved["cand_kind"] == "zip":
+                    mode = "zip"
+                elif resolved["ref_kind"] == "output" and resolved["cand_kind"] == "tip":
+                    mode = "hybrid"
+                else:
+                    write_status(
+                        "FAILED",
+                        reason="INVALID_auto_cannot_resolve",
+                        ref_kind=resolved["ref_kind"],
+                        cand_kind=resolved["cand_kind"],
+                        hint="Need REF result.geojson + CAND submission zip (preferred)",
+                    )
+                    return 3
+                meta["mode"] = mode
+                log("auto resolved GATE_MODE →", mode)
 
             pairs = []
-            if mode == "zip":
+            if mode == "hybrid":
+                # Copy REF output; run CAND zip (or tip models via unpack) only.
+                shutil.copy2(resolved["ref"], ref_gj)
+                (OUT / "out_ref" / "main.log").write_text(
+                    f"REF=v2_output_only\nsrc={resolved['ref']}\n", encoding="utf-8"
+                )
+                meta["docker_ec"]["ref"] = 0
+                meta["t_start_epoch"]["ref"] = int(time.time())
+                if resolved["cand_kind"] == "zip":
+                    cand_repo = unpack_zip(resolved["cand"], OUT / "unpack_cand")
+                else:
+                    write_status("FAILED", reason="INVALID_hybrid_needs_cand_zip",
+                                 cand_kind=resolved["cand_kind"])
+                    return 3
+                pairs = [("cand", cand_repo, cand_gj)]
+            elif mode == "zip":
                 if resolved["ref_kind"] != "zip" or resolved["cand_kind"] != "zip":
                     write_status(
                         "FAILED",
                         reason="INVALID_zip_mode_needs_zips",
                         ref_kind=resolved["ref_kind"],
                         cand_kind=resolved["cand_kind"],
-                        hint="Drop submission_*.zip into REF/CAND datasets or set GATE_MODE=tip",
+                        hint="Drop two submission_*.zip or use GATE_MODE=auto with REF output",
                     )
                     return 3
                 ref_repo = unpack_zip(resolved["ref"], OUT / "unpack_ref")
@@ -588,7 +641,12 @@ def main() -> int:
                 if gsha != GEO_PIX_SHA:
                     log("WARN geo_pixgbm sha", gsha, "expected", GEO_PIX_SHA)
                 if gsha is None:
-                    write_status("FAILED", reason="INVALID_ref_geo_pixgbm_missing")
+                    write_status(
+                        "FAILED",
+                        reason="INVALID_tip_mode_refuses_en",
+                        hint="REF is v2 output only; use GATE_MODE=auto|score with result.geojson. "
+                             "Do not re-introduce EN geo_pixgbm.py.",
+                    )
                     return 3
 
                 ref_models = find_named(inputs, "pixgbm-cr-ref", "pixgbm-ref", "pixgbm-all", "models-pixgbm", "baseline-v2")
