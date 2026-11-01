@@ -77,48 +77,52 @@
   },
   {
    "slot": "box/cpu",
-   "holder": null,
+   "holder": "coord",
    "rule": "не больше 3 тяжёлых процессов и 8 ГБ RAM на бота; nice -n 10",
    "kernel": null,
-   "purpose": "B: P-W2-11 hmcp prep + r50c5 verify + CI2-3 FU done",
-   "last": "снято coord 31.10 11:37 MSK",
-   "state": "свободен"
+   "purpose": "bot7 geo error analysis + levers; light CPU",
+   "last": "снято coord 01.11 19:19 MSK",
+   "since": "01.11 19:21 MSK",
+   "until": "02.11 01:21 MSK"
   },
   {
    "slot": "usertest1234/cpu",
    "account": "usertest1234",
-   "holder": null,
+   "holder": "bot-W4-gate",
    "reserved_for": "bot-W1-aeor",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh usertest1234",
-   "kernel": null,
-   "purpose": "geo5 OOF multi-seed (v2 RUNNING; re-lease after stale ERROR release)",
+   "kernel": "usertest1234/koz3-w4-fr1h-check",
+   "purpose": "FR1h check",
    "last": "снято bot-W3-kurgan 31.10 00:57 MSK",
-   "state": "свободен"
+   "since": "01.11 19:21 MSK",
+   "until": "01.11 23:21 MSK"
   },
   {
    "slot": "aaaa0000004/cpu",
    "account": "aaaa0000004",
-   "holder": null,
+   "holder": "bot-W4-gate",
    "reserved_for": "bot-W3-bigobj",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaa0000004",
-   "kernel": null,
-   "purpose": "geo5 OOF n40r8 (63lv/400r maggr finds) s1-2; MagGr E1_G1 frozen; no LB",
+   "kernel": "aaaa0000004/koz3-w4-fr1h-geo",
+   "purpose": "FR1h geo",
    "last": "снято bot-W3-kurgan 31.10 00:57 MSK",
-   "state": "свободен"
+   "since": "01.11 19:21 MSK",
+   "until": "01.11 23:21 MSK"
   },
   {
    "slot": "aaaadg4gg4g4g/cpu",
    "account": "aaaadg4gg4g4g",
-   "holder": null,
+   "holder": "bot-W4-gate",
    "reserved_for": "bot-W4-gate",
    "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
    "auth": "orch/pool_kaggle.sh aaaadg4gg4g4g",
-   "kernel": null,
-   "purpose": "geo5 OOF multi-seed (v2 RUNNING; re-lease after stale ERROR release)",
+   "kernel": "aaaadg4gg4g4g/koz3-w4-fr1h-gate",
+   "purpose": "FR1h gate",
    "last": "снято bot-W3-kurgan 31.10 00:57 MSK",
-   "state": "свободен"
+   "since": "01.11 19:21 MSK",
+   "until": "01.11 23:21 MSK"
   },
   {
    "slot": "box/q1",
@@ -137,19 +141,21 @@
   },
   {
    "slot": "acc1/cpu",
-   "holder": null,
-   "kernel": null,
-   "purpose": "geo5 OOF L s5-6; MagGr E1_G1 frozen; no LB",
+   "holder": "bot-W4-gate",
+   "kernel": "elenakonkova/koz3-w4-large-gate",
+   "purpose": "CPU honest-10 large_objects_honest off/area_tau/fixc_nested; tip 33791bc; no LB",
    "last": "снято bot-W3-kurgan 31.10 00:57 MSK",
-   "state": "свободен"
+   "since": "01.11 19:14 MSK",
+   "until": "02.11 07:14 MSK"
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W1-sat",
    "kernel": null,
    "last": "снято bot-W1-aeor 30.10 17:48 MSK",
-   "purpose": "D: e2e Ae V7 + d3_gate on box (pull DONE; table.pkl ready)",
-   "state": "свободен"
+   "purpose": "sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax scale sweep; kaggle package if box insufficient",
+   "since": "01.11 19:07 MSK",
+   "until": "02.11 01:07 MSK"
   },
   {
    "slot": "acc2/cpu-2",
@@ -305,6 +311,139 @@
    "note": "A sp_large f0 data on dmitrijkv",
    "host": "grok-bot-vm-288567805",
    "pid": 448487
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W1-sat",
+   "since": 1793549245.239727,
+   "expires": 1793570845.239727,
+   "note": "sat2 REPLACE honest-10 P>=0.9 + sat_thr_relax scale sweep; kaggle package if box insufficient",
+   "host": "grok-bot-vm-360949998",
+   "pid": 262078
+  },
+  {
+   "resource": "branch:bots/w1-sat2-gate",
+   "owner": "bot-W1-sat",
+   "since": 1793549245.283635,
+   "expires": 1793570845.283635,
+   "note": "sat2 gate + thr sweep branch",
+   "host": "grok-bot-vm-360949998",
+   "pid": 262083
+  },
+  {
+   "resource": "branch:bots/w1-ae2or",
+   "owner": "bot-W1-aeor",
+   "since": 1793549485.597735,
+   "expires": 1793635885.597735,
+   "note": "Ae→Or transfer FT (code also on bots/bot3-ae2or per bot3 task); package /workspace/kaggle/push/ae2or",
+   "host": "grok-bot-vm-360949998",
+   "pid": 270923
+  },
+  {
+   "resource": "kernel:dmitrijkv/koz3-w1-ae2or-ft",
+   "owner": "bot-W1-aeor",
+   "since": 1793549485.640598,
+   "expires": 1793722285.640598,
+   "note": "ready-to-push ae2or; DO NOT push — bot1 GO; dry-run CPU OK",
+   "host": "grok-bot-vm-360949998",
+   "pid": 270928
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w1-ae-ft-f4pack",
+   "owner": "bot-W1-aeor",
+   "since": 1793549485.679579,
+   "expires": 1793722285.679579,
+   "note": "upload from out/dfine-ae-ft-f4pack sha249b86fb if missing",
+   "host": "grok-bot-vm-360949998",
+   "pid": 270933
+  },
+  {
+   "resource": "slot:acc1/cpu",
+   "owner": "bot-W4-gate",
+   "since": 1793549650.328979,
+   "expires": 1793592850.328979,
+   "note": "CPU honest-10 large_objects_honest off/area_tau/fixc_nested; tip 33791bc; no LB",
+   "host": "grok-bot-vm-360949998",
+   "pid": 276939,
+   "kernel": "elenakonkova/koz3-w4-large-gate"
+  },
+  {
+   "resource": "kernel:usertest1234/koz3-w4-fr1h-check",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.416831,
+   "expires": 1793564480.416831,
+   "note": "FR1h check_submission",
+   "host": "grok-bot-vm-360949998",
+   "pid": 287982,
+   "kernel": "usertest1234/koz3-w4-fr1h-check"
+  },
+  {
+   "resource": "kernel:aaaadg4gg4g4g/koz3-w4-fr1h-gate",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.453551,
+   "expires": 1793564480.453551,
+   "note": "FR1h thr+honest Bprime",
+   "host": "grok-bot-vm-360949998",
+   "pid": 287987,
+   "kernel": "aaaadg4gg4g4g/koz3-w4-fr1h-gate"
+  },
+  {
+   "resource": "kernel:aaaa0000004/koz3-w4-fr1h-geo",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.499694,
+   "expires": 1793564480.499694,
+   "note": "FR1h geo+static",
+   "host": "grok-bot-vm-360949998",
+   "pid": 287992,
+   "kernel": "aaaa0000004/koz3-w4-fr1h-geo"
+  },
+  {
+   "resource": "slot:usertest1234/cpu",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.536841,
+   "expires": 1793564480.536841,
+   "note": "FR1h check",
+   "host": "grok-bot-vm-360949998",
+   "pid": 287997,
+   "kernel": "usertest1234/koz3-w4-fr1h-check"
+  },
+  {
+   "resource": "slot:aaaadg4gg4g4g/cpu",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.570777,
+   "expires": 1793564480.570777,
+   "note": "FR1h gate",
+   "host": "grok-bot-vm-360949998",
+   "pid": 288002,
+   "kernel": "aaaadg4gg4g4g/koz3-w4-fr1h-gate"
+  },
+  {
+   "resource": "slot:aaaa0000004/cpu",
+   "owner": "bot-W4-gate",
+   "since": 1793550080.614031,
+   "expires": 1793564480.614031,
+   "note": "FR1h geo",
+   "host": "grok-bot-vm-360949998",
+   "pid": 288007,
+   "kernel": "aaaa0000004/koz3-w4-fr1h-geo"
+  },
+  {
+   "resource": "branch:bots/bot7-geo-gate",
+   "owner": "coord",
+   "since": 1793550094.000507,
+   "expires": 1793593294.000507,
+   "note": "bot7 geo-gate levers + offline package",
+   "host": "grok-bot-vm-360949998",
+   "pid": 288318
+  },
+  {
+   "resource": "slot:box/cpu",
+   "owner": "coord",
+   "since": 1793550094.030965,
+   "expires": 1793571694.030965,
+   "note": "bot7 geo error analysis + levers; light CPU",
+   "host": "grok-bot-vm-360949998",
+   "pid": 288318
   }
  ]
 }
