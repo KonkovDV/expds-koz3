@@ -333,6 +333,10 @@ point_circle_m = 0.3
 #   [geophys.maggr.finds_points] peak_density_min = <пиков на 1000 м²> — на карте с редкими пиками
 #     отсечка опускается до peak_k_min (0,5). 0 — как в сдаче. Оценка:
 #     scripts/geo_silent_maps.py notes/geo_probe_train.json --density 5,10,20.
+#   [geophys.maggr.finds_points] extremum_snap_m = 3.0 — сдвиг пика к argmax |detection| в окне
+#     (FN finds с кандидатом в 2–5 м; bot7-geo-gate). 0 — выкл (сдача).
+#   [geophys.maggr.finds_points] finds_nms_m = 1.5 — NMS по силе после пиков/сдвига
+#     (дубликаты finds; bot7-geo-gate). 0 — выкл (сдача).
 #   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
 #     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
 #     layer_copy_decay — множитель уверенности копий. Табло 27.10 не приняло.
@@ -524,6 +528,7 @@ meta = "models/orgate_g.json"
 
 # [post]
 # Выпуклая оболочка object_poly etgr/terfl (bot-6 GEO.md: LOSO +0,0017, P 0,998; на приёмке П1–П5 у bot-10).
+# geo_convex_hull = false           # bot7-geo-gate lever L3; true или { markups = ["etgr", "terfl"] }
 # geo_convex_hull = true            # или { markups = ["etgr", "terfl"] }
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
