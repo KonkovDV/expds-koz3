@@ -140,3 +140,21 @@ def test_v4_on_config_if_present():
     for g, d in v3["thresholds_by_markup"].items():
         if g not in W.LI_GROUPS:
             assert v4["thresholds_by_markup"][g] == d, g
+
+
+def test_weights_manifest_mismatch_raises(tmp_path, monkeypatch):
+    import hashlib
+    import json
+
+    import pytest
+
+    from expds import w5_cloudfeat as W
+    (tmp_path / "m").mkdir()
+    (tmp_path / "m" / "a.txt").write_bytes(b"x")
+    good = {"w5cf": {"m/a.txt": {"sha256": hashlib.sha256(b"x").hexdigest(), "bytes": 1}}}
+    (tmp_path / "WEIGHTS_MANIFEST.json").write_text(json.dumps(good))
+    monkeypatch.setattr(W, "_ROOT", tmp_path)
+    W._verify_manifest()
+    (tmp_path / "m" / "a.txt").write_bytes(b"y")
+    with pytest.raises(W.W5CloudFeatMissing):
+        W._verify_manifest()

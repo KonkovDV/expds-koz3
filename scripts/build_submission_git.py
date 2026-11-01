@@ -196,6 +196,11 @@ def main() -> int:
         for r in w5npz:
             if not w5cf_npz_ok(r, files[r]):
                 sys.exit(f"w5cf: {r} — не таблица 1-D (запрещено как данные)")
+        # sha256 артефактов ранжировщика в архиве: проверяются w5_cloudfeat.preflight до начала работы
+        w5 = sorted({*refs, *(f"{d}/{v['file']}" for v in json.loads(files[mrel])["models"].values())})
+        files["WEIGHTS_MANIFEST.json"] = json.dumps(
+            {"w5cf": {r: {"sha256": hashlib.sha256(files[r]).hexdigest(), "bytes": len(files[r])} for r in w5}},
+            ensure_ascii=False, indent=1, sort_keys=True).encode("utf-8")
     if missing:
         sys.exit(f"веса из конфига не найдены ни в коммите, ни в --weight: {missing}")
     unused = sorted(set(overrides) - set(files))

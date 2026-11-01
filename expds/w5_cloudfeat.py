@@ -77,10 +77,24 @@ def _ref(cfg: dict) -> dict:
     return _CACHE[("ref", str(p))]
 
 
+def _verify_manifest() -> None:
+    """Архив: WEIGHTS_MANIFEST.json (пишет сборщик) — sha256 ref.npz и моделей ранжировщика; расхождение — ошибка."""
+    import hashlib
+    import json
+    p = _ROOT / "WEIGHTS_MANIFEST.json"
+    if not p.is_file():
+        return
+    for rel, v in json.loads(p.read_text(encoding="utf-8")).get("w5cf", {}).items():
+        f = _ROOT / rel
+        if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest() != v["sha256"]:
+            raise W5CloudFeatMissing(f"w5cf: {rel} не совпадает с WEIGHTS_MANIFEST.json")
+
+
 def preflight(cfg: dict) -> None:
     """В начале прогона: при включённом флаге модуль и референс обязаны быть, иначе понятная ошибка."""
     if not enabled(cfg):
         return
+    _verify_manifest()
     _plugin(cfg)
     _ref(cfg)
     log.info("w5_cloudfeat: модуль %s, α=%.2f, группы %s", spec(cfg)["module"], spec(cfg)["alpha"],
