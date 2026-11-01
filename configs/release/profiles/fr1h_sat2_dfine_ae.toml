@@ -1,0 +1,16 @@
+# Combo profile named in the release-tool brief: FR1h + sat2 + D-FINE Ae.
+name = "fr1h_sat2_dfine_ae"
+description = "FR1h + sat2 REPLACE + D-FINE Ae"
+
+[features]
+fr1h = true
+sat2 = true
+dfine_ae = true
+
+[dfine_aeor]
+enabled = true
+weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
+thresholds_file = "models/dfine_aeor/thresholds_oof.json"
+
+[artifacts]
+# sat2_replace_pack = "..."

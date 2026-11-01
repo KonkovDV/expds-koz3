@@ -1,0 +1,14 @@
+# Release profile: D-FINE Ae (dfine_aeor) ON; FR1h/sat2 OFF.
+# Requires HF weight dirs under models/ (never commit weights — symlink locally).
+name = "dfine_ae"
+description = "D-FINE Ae/Or detector ON ([dfine_aeor] enabled)"
+
+[features]
+fr1h = false
+sat2 = false
+dfine_ae = true
+
+[dfine_aeor]
+enabled = true
+weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
+thresholds_file = "models/dfine_aeor/thresholds_oof.json"

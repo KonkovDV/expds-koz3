@@ -126,6 +126,16 @@ python scripts/build_submission.py
 
 Архив — `dist/submission.zip`, не больше 2 ГБ. В него попадают пути из `configs/default.toml` и LightGBM. Официальный файл метрики в архив не кладётся.
 
+### Release candidate (one command)
+
+Профиль + inject v2 + сборка + compliance:
+
+```bash
+python scripts/assemble_release.py --profile off
+```
+
+Профили: `off` / `fr1h` / `sat2` / `dfine_ae` / `fr1h_sat2_dfine_ae`. Подробности — `docs/RELEASE_BUILD.md`.
+
 ## Обучение
 
 Семья — первое слово названия участка. Проверка — участок этой семьи, которого не было в обучении.

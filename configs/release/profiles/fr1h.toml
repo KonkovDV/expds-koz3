@@ -1,0 +1,8 @@
+# Release profile: FR1h ON (post.frame_prior), sat2/D-FINE Ae OFF.
+name = "fr1h"
+description = "FR1h frame prior ON (bot-10 ACCEPTED +0.0041)"
+
+[features]
+fr1h = true
+sat2 = false
+dfine_ae = false
