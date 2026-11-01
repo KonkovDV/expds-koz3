@@ -1,7 +1,7 @@
 # STATE KOZ3 — актуально на 01.11.2026 23:50 MSK (coord)
 ## ФИНАЛ (см. FINAL_CANDIDATES.md)
 - «смелый» = **v3_on b447649** `koz3_v3on_b447649_6d4764f8_w6dfd2e07.zip` sha **1406c01a…ef41d** (722 697 913 B) — honest-10 0.333787 (Δ+0.0198 P0.976 vs v2clean), прод Δ+0.0194 P0.964; Kaggle parity v5 PASS во всех 4 средах, вывод побайтно = ebc8e4ba. Drive KOZ3-final/v3_on_b447649_1406c01a. Заменяет ebc8e4ba (молча откатывался на v2). На LB ещё не был.
-- «надёжный» = **v2clean** sha **545ef32a…** — 0.313967, check PASS (parity после b447649 не перепроверялась).
+- «надёжный» = **v2clean** sha **545ef32a…** — 0.313967, check PASS (Kaggle parity v5 PASS 5/5 сред, PREREG 8844d49, W4 9e711f6).
 - Копии: Drive KOZ3-final (приватная), Kaggle aaaa0000004/koz3-w4-dfine-ref103.
 ## РИСК
 - regex/huggingface_hub → D-FINE не импортировался → ebc8e4ba молча = v2. ЗАКРЫТО в b447649 (Kaggle v5 PASS).

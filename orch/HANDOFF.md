@@ -1,5 +1,5 @@
 # HANDOFF KOZ3 — как продолжить работу только по GitHub (обновлено 30.10.2026 09:55 MSK, coord/бот 1)
-> **ФИНАЛ 01.11 23:50 MSK:** «смелый» = **v3_on b447649** (sha 1406c01a…ef41d, 722 697 913 B, Kaggle parity v5 PASS 4/4 среды, вывод побайтно = ebc8e4ba; Drive KOZ3-final/v3_on_b447649_1406c01a), заменяет ebc8e4ba; «надёжный» = v2clean 545ef32a (parity после b447649 не перепроверялась). План: Елена сабмитит v3_on b447649 → при LB < 0.4124 откат на v2clean.
+> **ФИНАЛ 01.11 23:50 MSK:** «смелый» = **v3_on b447649** (sha 1406c01a…ef41d, 722 697 913 B, Kaggle parity v5 PASS 4/4 среды, вывод побайтно = ebc8e4ba; Drive KOZ3-final/v3_on_b447649_1406c01a), заменяет ebc8e4ba; «надёжный» = v2clean 545ef32a (Kaggle parity v5 PASS 5/5 сред, PREREG 8844d49, W4 9e711f6). План: Елена сабмитит v3_on b447649 → при LB < 0.4124 откат на v2clean.
 > *(прежняя запись)* **ФИНАЛ 01.11 22:35 MSK:** «смелый» v3_on (sha ebc8e4ba…, Δ+0.0198 P0.976, прод Δ+0.0194), «надёжный» v2clean (sha 545ef32a…). Все sha, ссылки на Drive (KOZ3-final), закрытые линии и риск regex — в [`FINAL_CANDIDATES.md`](FINAL_CANDIDATES.md). План: фикс regex (бот 5) → сабмит v3_on Еленой → при LB < 0.4124 откат на v2clean.
 > **АКТУАЛЬНО 01.11 18:47:** см. [`HANDOFF_NOW_20261101.md`](HANDOFF_NOW_20261101.md) (живой Kaggle + Drive + next steps).
 
