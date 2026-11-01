@@ -618,3 +618,7 @@
 - 01.11 22:31 MSK | coord | проверка: все GPU acc1/acc2 свободны (боты ещё не выставили новых гейтов; W2 r50c5 prod-ctx FAIL, C1 G1/G2 FAIL), aaaa0000004 v3onchk COMPLETE (у W4), box load 1.8/8, q1–q3 свободны; QUEUE без ready-пунктов с ожидаемым приростом, финал v3_on не меняется; токены usertest1234/aaaadg4gg4g4g мертвы (известно). Елене — ничего.
 - 01.11 22:30 MSK | coord | FINAL_CANDIDATES.md (a89c3a4): v3_on ebc8e4ba… «смелый», v2clean 545ef32a… «надёжный»; архивы частями по 95 MiB + SHA256SUMS/README в приватной Drive-папке KOZ3-final (1GzW2XGWIMVybFV2pP3WLryeIIhQeN8NB), размеры частей сверены, временные части с бокса удалены; HANDOFF/STATE обновлены; закрытые линии 01.11 и риск regex там же.
 - 01.11 22:30 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 01.11 22:45 MSK | coord | проверка: без изменений с 22:31 — GPU acc1/acc2 свободны (последние ядра ~21:33 MSK завершены), box load 0.5/8, QUEUE без ready-пунктов с ожидаемым приростом, финал v3_on не меняется. Елене — ничего.
+- 01.11 22:45 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 01.11 23:00 MSK | coord | проверка: без изменений с 22:45 — GPU acc1/acc2 свободны (последние ядра ~21:33 MSK), box без тяжёлых задач, QUEUE без ready-пунктов с ожидаемым приростом, финал v3_on не меняется. Елене — ничего.
+2026-11-01 23:01:21 coord: new Kaggle tokens from Elena for all 5 accounts stored in ~/.secrets/kpool/<user> (600); pool json nodes updated; usertest1234 + aaaadg4gg4g4g alive again
