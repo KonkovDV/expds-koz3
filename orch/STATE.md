@@ -1,4 +1,8 @@
 # STATE KOZ3 — актуально на 02.11.2026 14:40 MSK (coord, передача №3, финальная)
+<!-- W4 NOW -->
+> **W4 NOW 02.11.2026 18:40 MSK (deep freeze):** **v4 C1F-all PRIMARY** (f0def982…, honest-10 0.361641 Δ+0.0162 P1.0, v4chk PASS). ВСЕ add-on рычаги 02.11 **FAIL CLOSED** vs v4: GORLOC, KMASK(no-gate), COMP_FL, C1FP→v5, satdet-frcnn, dfine2-a, dfine2 full ENS8 (Δ+0.00525 P0.95, но new34− kt− arkh−). W4/все боты **STANDBY**; GPU-рычаги исчерпаны; квота ~20%. **Hold LB 0.41238** — сабмит v4 только Елена. Пакет передачи: `orch/HANDOFF_NOW_20261102.md` + box `/workspace/koz3/out/handoff-20261102/` + Drive KOZ3-handoff-20261102. Ждут «да»: LB v4, S3 rotate, disk UNSURE, новый PREREG.
+> _(prev 15:42: v4chk PASS; v4 primary; STANDBY for satdet/dfine2 → теперь закрыты FAIL.)_
+
 ## ФИНАЛ (без изменений)
 - «смелый» = **v3_on b447649** sha 1406c01a…ef41d (основной); «надёжный» = v2clean 545ef32a… (запасной). *(УСТАРЕЛО: v4 собран 15:05 — koz3_v4c1f_07795d2 sha f0def982…, см. FINAL_CANDIDATES §0.)*
 ## C1F / FP1 — PASS у W4 (607edef)

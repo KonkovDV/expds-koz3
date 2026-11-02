@@ -1,3 +1,5 @@
+> **02.11.2026 18:40 MSK — DEEP FREEZE. Читать первым: `orch/HANDOFF_NOW_20261102.md`** (v4 primary f0def982…, все add-on рычаги 02.11 FAIL, STANDBY, Hold LB — сабмит только Елена).
+
 # HANDOFF KOZ3 — АКТУАЛЬНО 02.11.2026 15:05 MSK (W4 agent 5)
 
 **v4 СОБРАН:** `koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` sha256 `f0def982…7202cef`. Drive [v4c1f_f0def982](https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia). Kaggle DS `aaaa0000004/koz3-w4-v4c1f`. A уведомил Елену сабмитить; боты LB не пушат. Порядок: v4 → rollback v3_on (1406c01a…) → v2clean (545ef32a…).

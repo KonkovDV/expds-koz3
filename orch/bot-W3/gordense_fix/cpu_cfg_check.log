@@ -1,0 +1,5 @@
+ON [gor_dense]: {'enabled': True, 'backbone': 'models/dinov2-small', 'gate_head': 'models/gor_gate/gor_v3_head.npz', 'gate_head_md5': '487c48e49b5945300cefeed70bc2df00', 'head': 'models/gor_dense/gor_dense_head.npz', 'head_md5': 'd92f38f3cbf916a198b363b3f7c84158', 'centre_s': 250.0}
+DEFAULT gate_head_md5: acb95c52956d712a16c3dd389237a691
+staged head md5 487c48e49b5945300cefeed70bc2df00 ==cfg True
+dense md5 d92f38f3cbf916a198b363b3f7c84158 ==cfg True
+load_head keys OK, W (1536, 64)

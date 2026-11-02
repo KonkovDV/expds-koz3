@@ -170,12 +170,11 @@
   },
   {
    "slot": "aaaa0000004/cpu-2",
-   "holder": "bot-W4-exec",
-   "kernel": "aaaa0000004/koz3-w4-v4chk",
-   "last": "снято bot-W4-gate 30.10 13:37 MSK",
-   "since": "02.11 15:03 MSK",
-   "until": "02.11 21:03 MSK",
-   "purpose": "v4chk RUNNING"
+   "holder": null,
+   "kernel": null,
+   "last": "снято coord 02.11 15:35 MSK",
+   "purpose": "v4chk RUNNING",
+   "state": "свободен"
   },
   {
    "slot": "usertest1234/cpu-2",
@@ -379,15 +378,6 @@
    "pid": 861397
   },
   {
-   "resource": "branch:bots/w4-v3on",
-   "owner": "bot-W4-exec",
-   "since": 1793620440.086566,
-   "expires": 1793642040.086566,
-   "note": "v4 C1F config commit + build (executor)",
-   "host": "grok-bot-vm-288567805",
-   "pid": 1100665
-  },
-  {
    "resource": "dataset:aaaa0000004/koz3-w4-v4c1f",
    "owner": "bot-W4-exec",
    "since": 1793620777.220246,
@@ -395,25 +385,6 @@
    "note": "v4 parity data (private)",
    "host": "grok-bot-vm-288567805",
    "pid": 1107299
-  },
-  {
-   "resource": "kernel:aaaa0000004/koz3-w4-v4chk",
-   "owner": "bot-W4-exec",
-   "since": 1793620777.29242,
-   "expires": 1793663977.29242,
-   "note": "v4 parity C/A/B/D/REF/NEG",
-   "host": "grok-bot-vm-288567805",
-   "pid": 1107305
-  },
-  {
-   "resource": "slot:aaaa0000004/cpu-2",
-   "owner": "bot-W4-exec",
-   "since": 1793621026.493097,
-   "expires": 1793642626.493097,
-   "note": "v4chk RUNNING",
-   "host": "grok-bot-vm-288567805",
-   "pid": 1112605,
-   "kernel": "aaaa0000004/koz3-w4-v4chk"
   }
  ]
 }

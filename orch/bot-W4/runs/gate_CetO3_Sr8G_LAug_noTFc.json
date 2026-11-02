@@ -1,0 +1,192 @@
+{
+ "gt": "/workspace/koz3/w5data/gt_train_v2.geojson",
+ "c": "cstar/C_CetO3_Sr8G_LAug_noTFc.geojson",
+ "ref": "/workspace/koz3/w4geo/ref/out/REF_v2.geojson",
+ "a": "A18.geojson",
+ "n_regions": 18,
+ "regions": [
+  "200_Судьбищи_2",
+  "201_Семибратнее_Городище_1",
+  "202_Семибратнее_Городище_2",
+  "203_Семибратнее_Городище_3",
+  "204_Семибратнее_Городище_4",
+  "205_Семибратнее_Городище_5",
+  "206_Семибратнее_Городище_6",
+  "207_Семибратнее_Городище_7",
+  "208_Гнёздово_Пойма",
+  "209_Гнёздово_Терраса_1",
+  "210_Гнёздово_Терраса_2",
+  "211_Гнёздово_Терраса_3",
+  "212_Гнёздово_Усадьба",
+  "213_Гнёздово_Лесная_1",
+  "214_Гнёздово_Лесная_2",
+  "215_Гнёздово_Селище_1",
+  "216_Гнёздово_Селище_2",
+  "217_Гнёздово_Селище_3"
+ ],
+ "C": {
+  "geo": {
+   "precision": 0.29267910328478763,
+   "recall": 0.8186801138305897,
+   "tp": 3734,
+   "fp": 18048,
+   "fn": 827
+  },
+  "methods": {
+   "maggr": {
+    "n_pred": 20204,
+    "n_gt": 3726,
+    "final_score": 0.41059790134642016,
+    "classes": {
+     "finds_points": {
+      "f1": 0.4178348846153605,
+      "precision": 0.2715325950905655,
+      "recall": 0.9059804482731512
+     },
+     "object_poly": {
+      "f1": 0.40336091807748,
+      "precision": 0.6605504526555005,
+      "recall": 0.29032257947450574
+     }
+    },
+    "precision": 0.27515260167540423,
+    "recall": 0.8650026836111104
+   },
+   "etgr": {
+    "n_pred": 1578,
+    "n_gt": 658,
+    "final_score": 0.5629448913799368,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.5629448913799368,
+      "precision": 0.4619883036432862,
+      "recall": 0.7203647405465582
+     }
+    },
+    "precision": 0.4619883036432862,
+    "recall": 0.7203647405465582
+   },
+   "terfl": {
+    "n_pred": 0,
+    "n_gt": 177,
+    "final_score": 0.0,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     }
+    },
+    "precision": 0.0,
+    "recall": 0.0
+   }
+  },
+  "final_score": 0.37567388352547115
+ },
+ "REF": {
+  "geo": {
+   "precision": 0.6644388748418381,
+   "recall": 0.784696338350209,
+   "tp": 3579,
+   "fp": 3615,
+   "fn": 982
+  },
+  "methods": {
+   "maggr": {
+    "n_pred": 6343,
+    "n_gt": 3726,
+    "final_score": 0.603097950687091,
+    "classes": {
+     "finds_points": {
+      "f1": 0.7688499422673608,
+      "precision": 0.6743278402700936,
+      "recall": 0.8941920641477309
+     },
+     "object_poly": {
+      "f1": 0.4373459591068211,
+      "precision": 0.5597484241525257,
+      "recall": 0.35887096629487514
+     }
+    },
+    "precision": 0.6705093270445379,
+    "recall": 0.858561459780311
+   },
+   "etgr": {
+    "n_pred": 850,
+    "n_gt": 658,
+    "final_score": 0.5426970263359762,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.5426970263359762,
+      "precision": 0.5714285704681873,
+      "recall": 0.5167173244426788
+     }
+    },
+    "precision": 0.5714285704681873,
+    "recall": 0.5167173244426788
+   },
+   "terfl": {
+    "n_pred": 1,
+    "n_gt": 177,
+    "final_score": 0.0,
+    "classes": {
+     "finds_points": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     },
+     "object_poly": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+     }
+    },
+    "precision": 0.0,
+    "recall": 0.0
+   }
+  }
+ },
+ "v2_lb_target": {
+  "precision": 0.769418,
+  "recall": 0.656489
+ },
+ "honest_vs_A": {
+  "d_global": 0.03632303829563097,
+  "d_f1": {
+   "finds_points": 0.14376004758655658,
+   "object_poly": 0.21947033536975324
+  },
+  "surrogate_ge_0.012": true
+ },
+ "gate": {
+  "has_ref": true,
+  "c_ge_v2_p": false,
+  "c_ge_v2_r": true,
+  "c_ge_ref_p": false,
+  "c_ge_ref_r": true,
+  "methods_ge_ref_minus_0.003": true,
+  "method_deltas_r": {
+   "maggr": 0.006441223830799481,
+   "etgr": 0.20364741610387938,
+   "terfl": 0.0
+  },
+  "PASS_vs_ref": false,
+  "PASS_elena_ready": false,
+  "surrogate_honest_ge_0.012": true
+ }
+}

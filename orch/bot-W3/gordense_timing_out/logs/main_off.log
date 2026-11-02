@@ -1,0 +1,37 @@
+2026-10-31 08:12:28,792 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+expds: мягкий потолок выключен: EXPDS_SOFT_CEILING_S='0' (нужно > 0)
+2026-10-31 08:12:28,792 WARNING expds.pipeline: мягкий потолок выключен: EXPDS_SOFT_CEILING_S='0' (нужно > 0)
+2026-10-31 08:12:28,792 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=4
+2026-10-31 08:12:28,934 INFO expds.pipeline: устройство: Tesla T4
+2026-10-31 08:12:28,938 INFO expds.catalog: найдено регионов: 4 в /tmp/data
+2026-10-31 08:12:28,939 INFO expds.pipeline: к разбору: регионов 4, LAS 0, растров 4 (sp_or 4), пропущено файлов 0
+2026-10-31 08:12:28,944 INFO expds.pipeline: среда: {'python': '3.13.15', 'platform': 'Linux-6.18.55+-x86_64-with-glibc2.39', 'cpu': 4, 'mem_gb': {'MemTotal': 31.3, 'MemAvailable': 29.6}, 'cgroup_mem_max': '32212254720', 'uid': 0, 'output_writable': True, 'torch': '2.11.0+cu128', 'cuda_available': True, 'gpu': 'Tesla T4', 'gpu_mem_gb': 14.6, 'accel': 'rust 0.1.0 avx2=true/true threads=4'}
+2026-10-31 08:12:29,006 INFO expds.health: опись входа: {'regions': 4, 'rasters_by_modality': {'sp_or': 4}, 'las_files': 0, 'las_region_crs': {}, 'raster_read': {'ok': 4}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-10-31 08:12:31,588 INFO expds.geo_pixgbm: pixgbm 015_Демидовка: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-31 08:12:31,614 INFO expds.geo_pixgbm: pixgbm 026_Золотаревка: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-31 08:12:31,639 INFO expds.geo_pixgbm: pixgbm 031_Новотитаровская: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-31 08:12:31,664 INFO expds.geo_pixgbm: pixgbm 033_Елизаветинское: backend=lightgbm потоков=2 ступени {}; фаза 0.0 с (cpu родителя 0.0 с), уровень full
+2026-10-31 08:12:31,667 INFO expds.pipeline: лидар оставит оптике 0 с (0.01 ГБ снимков)
+2026-10-31 08:12:31,667 INFO expds.pipeline: 015_Демидовка: лидар +0, 0.0 с, прошло 5 с
+2026-10-31 08:12:31,668 INFO expds.pipeline: 026_Золотаревка: лидар +0, 0.0 с, прошло 5 с
+2026-10-31 08:12:31,668 INFO expds.pipeline: 031_Новотитаровская: лидар +0, 0.0 с, прошло 5 с
+2026-10-31 08:12:31,668 INFO expds.pipeline: 033_Елизаветинское: лидар +0, 0.0 с, прошло 5 с
+2026-10-31 08:12:36,360 INFO expds.pipeline: 031_Новотитаровская: оптика +2, прошло 10 с
+2026-10-31 08:12:38,385 INFO expds.pipeline: 033_Елизаветинское: оптика +2, прошло 12 с
+2026-10-31 08:12:38,612 INFO expds.tiles: 031_Новотитаровская: источник 01_Новотитаровская_SpOr_спутник.tif
+2026-10-31 08:12:38,688 INFO expds.crop_model: проверка кропа: смешано 1 кругов
+2026-10-31 08:12:38,739 INFO expds.rerank_arch: реранк архитектуры: 2 кандидатов, в пуле 2, оставлено 2
+2026-10-31 08:12:38,745 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-10-31 08:12:38,746 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-10-31 08:12:38,746 INFO expds.watchdog: устройство: Tesla T4; torch 2.11.0+cu128; cuda 12.8; ускоритель rust 0.1.0 avx2=true/true threads=4
+2026-10-31 08:12:38,746 INFO expds.watchdog: конфиг SHA256 915113a33f944f81bf3b2dee4d4eabb09954b39ec1a3b2b43cd6f9217260780e; бюджет 3000 с; запас 120 с
+2026-10-31 08:12:38,746 INFO expds.watchdog: вход: регионов 4, из них с LAS 0; файлов LAS 0; растров sp_or 4; пропущено файлов 0
+2026-10-31 08:12:38,746 INFO expds.watchdog: фазы: геофизика: сырых 0, 3 с, лидар: сырых 0, 0 с, оптика: сырых 4, 7 с, канал σ: сырых 0, 0 с
+2026-10-31 08:12:38,746 INFO expds.watchdog: до порога 4, по слоям: sp_or 4
+2026-10-31 08:12:38,746 INFO expds.watchdog: до порога по классам: arkhitektury 2, kurgany_povrezhdennye 2
+2026-10-31 08:12:38,746 INFO expds.watchdog: записано 4, файл 3760 байт
+2026-10-31 08:12:38,746 INFO expds.watchdog: после порога по классам: arkhitektury 2, kurgany_povrezhdennye 2
+2026-10-31 08:12:38,746 INFO expds.watchdog: после порога по слоям: sp_or 4
+2026-10-31 08:12:38,746 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-10-31 08:12:38,746 INFO main: готово: {"regions": 4, "raw": 4, "phases": {"геофизика": {"raw": 0, "seconds": 2.7}, "лидар": {"raw": 0, "seconds": 0.0}, "оптика": {"raw": 4, "seconds": 6.7}, "канал σ": {"raw": 0, "seconds": 0.0}}, "written": 4, "seconds": 10.0, "partial_files": []}
+2026-10-31 08:12:38,747 INFO main: общее время 12.2 с

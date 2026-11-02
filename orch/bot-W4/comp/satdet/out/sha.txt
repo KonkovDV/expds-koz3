@@ -1,0 +1,5 @@
+9e4d2ae038fc8d43cf1312b14cc036c170c3145c83b4b588e7464d03a51c5830  /workspace/koz3/orch/bot-W4/comp/satdet/out/out_D1.geojson
+093070bc253f65cdc45ca5db6ea9c05daafada27a2d621fbee4dda1410c4f9fb  /workspace/koz3/orch/bot-W4/comp/satdet/out/out_D2.geojson
+051edc7a5f293550a4e3cb99b2592b954d7917d01eef1117519310012c5a4b78  /workspace/koz3/orch/bot-W4/comp/satdet/out/out_P1.geojson
+786f8c5dfb03fdad94a2e02e9375eb90fa87a74c11dca880a1a518eb25ba8de8  /workspace/koz3/orch/bot-W4/comp/satdet/out/out_P2.geojson
+2db04431fe6898662ec7299e5d937266e7046bc7b7b6770a0575c94cf56ac7b7  /workspace/koz3/orch/bot-W4/comp/satdet/out/out_base.geojson

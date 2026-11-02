@@ -1,0 +1,42 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+16:27:40 кэш стека meta_ebd32b882032ca67.json: кластеров 60
+16:27:41 кривые A из кэша curvesA_ebd32b882032ca67.pkl
+16:27:42 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1240 МБ
+16:28:03 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+[     24s] c19 1578 dfx 85069 dfx drel None 11772
+[     26s] det OOF: 11751 ellipses, 129 regions -> 9297 circles {'gorodishcha': 728, 'kurgany_povrezhdennye': 6419, 'kurgany_tselye': 1319, 'arkhitektury': 719, 'fortifikatsii': 112}
+[     30s] ID fold 0: d0,s (0.25,0.75) train 0.427462 τ_det2 None
+[     30s] ID fold 1: d0,s (0.25,0.75) train 0.407705 τ_det2 None
+[     31s] ID fold 2: d0,s (0.0,0.75) train 0.437480 τ_det2 None
+[     31s] ID fold 3: d0,s (0.25,0.75) train 0.425736 τ_det2 None
+[     31s] ID fold 4: d0,s (0.0,0.75) train 0.409314 τ_det2 None
+[     31s] ID fold 5: d0,s (0.25,0.75) train 0.422632 τ_det2 None
+[     31s] ID fold 6: d0,s (0.25,0.75) train 0.436387 τ_det2 None
+[     31s] ID fold 7: d0,s (0.25,0.75) train 0.415730 τ_det2 None
+[     31s] ID fold 8: d0,s (0.25,0.75) train 0.427137 τ_det2 None
+[     31s] ID fold 9: d0,s (0.0,0.75) train 0.419175 τ_det2 None
+[     31s] ID gate-side nested 0.348952 (C1 gate_nested 0.348952, Δ +0.000000)
+[     31s] ID reproduces C1 taus + gate_nested: True
+[     37s] C1D1f fold 0: d0,s (0.25,0.75) train 0.426900 τ_det2 {'arkhitektury': 0.800365, 'fortifikatsii': 0.992911, 'gorodishcha': 0.91732, 'kurgany_povrezhdennye': 0.95001, 'kurgany_tselye': 0.999741}
+[     37s] C1D1f fold 1: d0,s (0.25,0.75) train 0.398606 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.99655}
+[     38s] C1D1f fold 2: d0,s (0.0,0.75) train 0.429354 τ_det2 {'arkhitektury': 0.981705, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.75738, 'kurgany_tselye': 0.99655}
+[     38s] C1D1f fold 3: d0,s (0.25,0.75) train 0.423757 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.999635}
+[     39s] C1D1f fold 4: d0,s (0.0,0.75) train 0.401453 τ_det2 {'arkhitektury': 0.67921, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.99655}
+[     39s] C1D1f fold 5: d0,s (0.25,0.75) train 0.417371 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.990001, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.99655}
+[     39s] C1D1f fold 6: d0,s (0.25,0.75) train 0.432244 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.91732, 'kurgany_povrezhdennye': 0.89192, 'kurgany_tselye': 0.981975}
+[     39s] C1D1f fold 7: d0,s (0.25,0.75) train 0.408928 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.98131, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.99655}
+[     40s] C1D1f fold 8: d0,s (0.25,0.75) train 0.423285 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905, 'kurgany_povrezhdennye': 0.81885, 'kurgany_tselye': 0.99655}
+[     40s] C1D1f fold 9: d0,s (0.0,0.75) train 0.406588 τ_det2 {'arkhitektury': 0.67921, 'fortifikatsii': 0.992911, 'gorodishcha': 0.986595, 'kurgany_povrezhdennye': 0.89477, 'kurgany_tselye': 0.99655}
+[     40s] C1D1f gate-side nested 0.337706 (C1 gate_nested 0.348952, Δ -0.011246)
+[     45s] C1D2f fold 0: d0,s (0.25,0.75) train 0.429152 τ_det2 {'arkhitektury': 0.800365, 'fortifikatsii': 0.992911, 'gorodishcha': 0.91732}
+[     45s] C1D2f fold 1: d0,s (0.25,0.75) train 0.407908 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 2: d0,s (0.0,0.75) train 0.436728 τ_det2 {'arkhitektury': 0.981705, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 3: d0,s (0.25,0.75) train 0.430908 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 4: d0,s (0.0,0.75) train 0.409481 τ_det2 {'arkhitektury': 0.67921, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 5: d0,s (0.25,0.75) train 0.423880 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.990001, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 6: d0,s (0.25,0.75) train 0.438336 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.91732}
+[     46s] C1D2f fold 7: d0,s (0.25,0.75) train 0.417807 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.98131}
+[     46s] C1D2f fold 8: d0,s (0.25,0.75) train 0.428663 τ_det2 {'arkhitektury': 0.801335, 'fortifikatsii': 0.992911, 'gorodishcha': 0.981905}
+[     46s] C1D2f fold 9: d0,s (0.0,0.75) train 0.415276 τ_det2 {'arkhitektury': 0.67921, 'fortifikatsii': 0.992911, 'gorodishcha': 0.986595}
+[     46s] C1D2f gate-side nested 0.345965 (C1 gate_nested 0.348952, Δ -0.002987)
+[     47s] done

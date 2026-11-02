@@ -1,0 +1,44 @@
+{
+ "_for": "A @ ~02:55 MSK 31.10 — paste into QUEUE.json dispatch or enqueue.py; do not set ready before 03:05",
+ "supersedes": "w2-r50c5 (single stale hold)",
+ "prepared_msk": "30.10.2026 13:37",
+ "prepared_by": "bot-W2-lidar",
+ "items": [
+  {
+   "id": "w2-r50c5-f01",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 10,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "pull_to": "w2/oof/r50c5/f01",
+   "kernel": "elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "ready_after": "31.10.2026 03:05",
+   "note": "P-W2-9 f0+f1; B push after A lease+GO; early_stop gates f234"
+  },
+  {
+   "id": "w2-r50c5-f234",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12,
+   "status": "hold",
+   "after": [
+    "w2-r50c5-f01"
+   ],
+   "kernel_dir": "w2/kernels/dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "pull_to": "w2/oof/r50c5/f234",
+   "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "note": "P-W2-9 f2–f4; HOLD until early_stop PASS + A lease; never self-push"
+  }
+ ],
+ "elena_night_31_10": {
+  "one_gpu_account": "aaaa0000004",
+  "kernel": "aaaa0000004/koz3-w2-cnx-r50c5-f01",
+  "kernel_dir": "w2/kernels/aaaa0000004/koz3-w2-cnx-r50c5-f01",
+  "dataset_sources": [],
+  "note": "s3-cred deleted; Secrets only; push after A slot+cred clean; stop if damaged kurgans flat; no LB; f234 hold"
+ }
+}

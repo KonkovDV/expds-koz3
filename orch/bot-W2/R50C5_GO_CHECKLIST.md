@@ -34,3 +34,18 @@
 - aaaa0000004/koz3-w2-cnx-r50c5-f01 ERROR `--require-gpu`. **Do not re-push aaaa.**
 - A releases aaaa gpu-1. Wait Elena: rerun f01 on **dmitrijkv** or **elena** (+ `_s3_local.env` + Auto-review click) OR stop night.
 - f234 untouched. Prep: elena f01 + dmitrijkv f234 have materialize+sibling load ready; push only after Elena+A GO.
+
+
+## 31.10 09:08 supersede
+Elena via A: NOT chasing 0.61 today. Protect archive **0.41238** + honest r50c5 lidar check (gain on measure, not LB).
+COORD 08:41–08:54: dual GPU OK (elena f01 + dmitrij f234). Ignore older ONE-GPU/aaaa notes above for today.
+On f01 early_stop/STOP → cancel f234 + release acc2 + ping A (D gordense).
+
+## Elena 31.10 09:24 — вектор до 11.11
+- Hold 0.41238; lidar cut only; no LB; dome/slope_gate OFF.
+- Damaged on f01 not growing → cancel f234.
+- main 93d8cf2; archive/worked-20261031 a14428c.
+
+## Elena 31.10 10:24 — ETA
+- f01 hard end ~14:41 (DEADLINE_H=6). Fold1 only after BOTH jobs; ignore c3-sc 2h.
+- f234 ~20:11 (DEADLINE_H=11.3). Keep until f01 STOP.

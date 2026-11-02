@@ -1,0 +1,7 @@
+base 0.3146153226828423 comp 0.35997711966639545 site modality counts {'geo': 18, 'li': 58, 'sp_or': 121, 'ae': 9, 'or': 4}
+G1 gorodishcha emb rows 4272 pos 144 scored 4272
+G1 fortifikatsii emb rows 10254 pos 285 scored 10254
+G1=1.0 {"d": -0.02173, "d_new34": -0.05211, "d_optical": -0.00435, "d_comp": -0.03038, "d_closed": -0.01403, "accept": false} P 0.0 Ppub 0.001 Pcl 0.0 {'geo': 0.00621, 'li': -0.04971, 'sp_or': -5e-05, 'ae': -0.00677, 'or': 0.0}
+G1=0.5 {"d": -0.02001, "d_new34": -0.05096, "d_optical": -0.00435, "d_comp": -0.02853, "d_closed": -0.01285, "accept": false} P 0.0 Ppub 0.002 Pcl 0.001 {'geo': 0.00621, 'li': -0.04747, 'sp_or': -5e-05, 'ae': -0.00677, 'or': 0.0}
+G1=2.0 {"d": -0.02151, "d_new34": -0.05732, "d_optical": -0.00435, "d_comp": -0.03121, "d_closed": -0.0138, "accept": false} P 0.0 Ppub 0.0 Pcl 0.001 {'geo': 0.00147, 'li': -0.05152, 'sp_or': -5e-05, 'ae': -0.00677, 'or': 0.0}
+done

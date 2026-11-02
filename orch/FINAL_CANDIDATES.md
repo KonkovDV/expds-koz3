@@ -1,11 +1,24 @@
-# FINAL CANDIDATES KOZ3 — обновлено 02.11.2026 15:05 MSK (W4 agent 5)
+# FINAL CANDIDATES KOZ3 — обновлено 02.11.2026 18:40 MSK (deep freeze; v4 primary)
 
 > Финалы: **v4 C1F-all** (новый основной) · «смелый» v3_on b447649 (1406c01a…) · «надёжный» v2clean (545ef32a…). На LB сабмитит **только Елена**.
 
 ## 0. Кандидат v4 — СОБРАН (Елена уведомлена A; боты LB не пушат)
 | Роль | Состав | Гейт | Статус |
 |---|---|---|---|
-| **v4 (основной кандидат)** | v3_on + scene_drel **98cdf56** + **C1F-all** (`configs/v4_c1f.toml` @ bots/w4-v3on **07795d2**) | W4 607edef: C1F-all PASS Δ+0.0162 P1.0 new34 +0.0007; GA +0.0134; FP1 +0.0086 (не в сборке) | **Архив готов.** `koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` sha256 **`f0def9822cf185aee0829b72c36e4def94c17d03044d16adefc59c9547202cef`**, 722 705 579 B (690 MiB), 3904 файла, DOC-1 name-scan clean, `[post.w1_c1f] enabled=true`. Drive: [v4c1f_f0def982](https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia) (8×part + SHA256SUMS). Kaggle private DS: `aaaa0000004/koz3-w4-v4c1f` **ready**. Parity kernel `aaaa0000004/koz3-w4-v4chk` **RUNNING**. Повтор гейта на боксе 02.11 15:08 (песочница /workspace/koz3/v4build/gate, D-FINE OOF скачан из dmitrijkv/koz3-dfine-spor-full{,-rest}, C19 пересобран из кэша OOF — sha 44492d2a совпал): **C1 Δ+0.016202 P1.0 PASS, base 0.345439 → 0.361641; c1fx_gate.json побайтно = 607edef**. DOC-1 `check_archive_clean`: OK. Состав vs v3_on: +expds/sat_recall.py, +expds/finds_cand.py (не подключён), изменены config/pipeline.py/watchdog.py; веса, vendor, .so — побайтно как v3_on. Порядок сабмита: **v4 → если LB хуже v3_on → v3_on → v2clean**. |
+| **v4 (основной кандидат)** | v3_on + scene_drel **98cdf56** + **C1F-all** (`configs/v4_c1f.toml` @ bots/w4-v3on **07795d2**) | W4 607edef: C1F-all PASS Δ+0.0162 P1.0 new34 +0.0007; GA +0.0134; FP1 +0.0086 (не в сборке) | **Архив готов.** `koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` sha256 **`f0def9822cf185aee0829b72c36e4def94c17d03044d16adefc59c9547202cef`**, 722 705 579 B (690 MiB), 3904 файла, DOC-1 name-scan clean, `[post.w1_c1f] enabled=true`. Drive: [v4c1f_f0def982](https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia) (8×part + SHA256SUMS). Kaggle private DS: `aaaa0000004/koz3-w4-v4c1f` **ready**. Parity kernel `aaaa0000004/koz3-w4-v4chk` **PASS** (02.11 ~15:35 MSK): D/C/A/B byte-identical smoke `2fea6d16…` ref103 `2bd9a361…`; REF_v3on differs by C1F; NEG fail-as-designed; outs `/workspace/koz3/out/v4chk/`. Повтор гейта на боксе 02.11 15:08 (песочница /workspace/koz3/v4build/gate, D-FINE OOF скачан из dmitrijkv/koz3-dfine-spor-full{,-rest}, C19 пересобран из кэша OOF — sha 44492d2a совпал): **C1 Δ+0.016202 P1.0 PASS, base 0.345439 → 0.361641; c1fx_gate.json побайтно = 607edef**. DOC-1 `check_archive_clean`: OK. Состав vs v3_on: +expds/sat_recall.py, +expds/finds_cand.py (не подключён), изменены config/pipeline.py/watchdog.py; веса, vendor, .so — побайтно как v3_on. Порядок сабмита: **v4 → если LB хуже v3_on → v3_on → v2clean**. |
+
+### 0.1 Закрыто 02.11 поверх v4 (все FAIL, v4 остаётся; обновлено 18:40 MSK)
+| Рычаг | vs v4 (0.361641) | Почему FAIL | Файл |
+|---|---|---|---|
+| GORLOC L1/L2 | Δ+0.0013/+0.0018 P0.60/0.65 | P, new34 (L2), LOFO Kislovodsk | orch/bot-W4/runs/regate_COMP_GORLOC_KMASK_CLOSE.md |
+| KMASK | oracle Δ+0.00065 | < 0.002 → no-gate | там же |
+| COMP_FL | Δ+0.00012 P0.53 | nolidar −0.0028, kp −0.0027 | orch/bot-W4/runs/regate_COMP_FL_notes.md |
+| C1F+FP1 → v5 | Δ−0.00276 P0.037 | хуже v4 | orch/bot-W4/runs/gate_C1FP_v5.md |
+| satdet-frcnn | C1D1f Δ−0.0019; C1D2f Δ+0.0014 P0.58 | gor −0.026; vs v3_on P1/P2 new34 −0.0027 | orch/bot-W4/runs/gate_satdet_frcnn.md |
+| dfine2-a (18/132) | Δ+0.00041 P0.56 | arkh −0.0078 | orch/bot-W4/runs/gate_dfine2a_vs_v4.md |
+| dfine2 full ENS8 | Δ+0.00525 P0.9545 | new34 −0.00116, kt −0.0030, arkh −0.0221 | orch/bot-W4/runs/gate_dfine2_full_vs_v4.md |
+
+Handoff: **orch/HANDOFF_NOW_20261102.md**. Hold LB — сабмит только Елена (v4 → v3_on → v2clean).
 
 ## (ниже — версия 01.11.2026 23:50 MSK; таблица §1 без изменений по v3_on/v2clean)
 

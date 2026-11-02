@@ -1,0 +1,4 @@
+3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc  /workspace/koz3/orch/bot-W4/comp/dfine2full/out/out_ID.geojson
+3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc  /workspace/koz3/orch/bot-W4/comp/dfine2full/out/out_C1.geojson
+2a4d7aec978dbc7029f5b363b609de21a3f39a16a92fe9c9da8999abfa0600b7  /workspace/koz3/orch/bot-W4/comp/dfine2full/out/out_E8C1.geojson
+4b222de9d67e971a887aece0576ff470366e8b494d36ea5df52b9947430dabf4  /workspace/koz3/orch/bot-W4/comp/dfine2full/out/out_E8C1f.geojson
