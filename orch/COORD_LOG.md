@@ -737,3 +737,4 @@
 - 02.11 09:54 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
 - 02.11 09:55 MSK | lease | release slot:box/q1 (bot-W1-satrec) by bot-W1-satrec
 - 02.11 09:55 MSK | lease | release branch:bots/w1-satrec2 (bot-W1-satrec) by bot-W1-satrec
+- 02.11 12:12 MSK | coord | проход: новых завершений нет; RUNNING только elenakonkova/koz3-w1-satdet-frcnn; dmitrijkv GPU и CPU-аккаунты простаивают — готовых dry-run пакетов с ожидаемым приростом нет (ae-dfine-gate в ERROR, ждёт фикса владельцем W1); box load 0.35/8. Квота 44.7% использовано.
