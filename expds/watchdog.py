@@ -130,6 +130,13 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("kurgan_neighbour_prior"):
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("sat_fusion") or post_cfg.get("sat_center_prior"):
+        # W1-SATREC (docs/PREREG_W1_SATREC.md), off by default: equal-weight sat fusion, then scene-centre prior, before thresholds.
+        from . import sat_recall
+        if post_cfg.get("sat_fusion"):
+            out = sat_recall.sat_equal_fusion(out, _spec(post_cfg["sat_fusion"]))
+        if post_cfg.get("sat_center_prior"):
+            out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
@@ -257,6 +264,15 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
         except Exception:
             log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_fusion") or pc.get("sat_center_prior"):
+        try:
+            from . import sat_recall
+            if pc.get("sat_fusion"):
+                out = sat_recall.sat_equal_fusion(out, _spec(pc["sat_fusion"]))
+            if pc.get("sat_center_prior"):
+                out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
+        except Exception:
+            log.exception("sat_fusion/sat_center_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
