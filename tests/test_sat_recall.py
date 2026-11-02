@@ -158,3 +158,17 @@ def test_center_prior_then_frame_prior():
     assert abs(out[0]["confidence"] - 0.8 * 0.25 * 0.5) < 1e-9    # C1F edge 1 − 0.75, then FP1 edge 0.5
     assert abs(out[1]["confidence"] - 0.8 * 0.25) < 1e-9          # gorodishcha: not an FP1 class
     assert out[2]["confidence"] == 0.8                            # other group untouched
+
+
+def test_sat_frame_gate_t2_cls():
+    from shapely.geometry import Point
+    from expds import post
+    big = (0.0, 0.0, 2000.0, 2000.0)
+    feats = [dict(geom=Point(1900, 1000), class_name=c, confidence=0.6, markup_type="sp_or", threshold_group="sp_dfine")
+             for c in ("kurgany_tselye", "kurgany_povrezhdennye", "gorodishcha")]
+    post.annotate_scene_drel(feats, {"sp_or": [big]})
+    SR.annotate_scene_mpix(feats, {"sp_or": [big]})
+    out = SR.sat_frame_gate(feats, {"min_scene_mpix": 1, "x": 0.5, "t2_cls": {"kurgany_tselye": 0.7, "gorodishcha": 0.5}})
+    assert [f["class_name"] for f in out] == ["kurgany_povrezhdennye", "gorodishcha"]   # kt < 0.7 dropped; kp no t2 → kept
+    out = SR.sat_frame_gate(feats, {"min_scene_mpix": 1, "x": 0.5, "t2": 0.65, "t2_cls": {"gorodishcha": 0.5}})
+    assert [f["class_name"] for f in out] == ["gorodishcha"]

@@ -177,7 +177,9 @@ SFG_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhit
 
 
 def sat_frame_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
-    """W1-SATQ Q2, off unless [post].sat_frame_gate {groups=[sp_dfine], classes, min_scene_mpix=4, x, t2}.
+    """W1-SATQ Q2, off unless [post].sat_frame_gate {groups=[sp_dfine], classes, min_scene_mpix=4, x, t2 | t2_cls}.
+    t2_cls (COMP-FL, docs/bots/2026-11-02/coord-A/PREREG_COMP_FL.md) overrides t2 per class; a class absent from t2_cls
+    falls back to t2, and without t2 it is left untouched.
     Removes a feature of the groups/classes with scene_mpix >= min_scene_mpix, scene_drel > x and confidence < t2.
     Features without scene_drel / scene_mpix are kept."""
     from . import post
@@ -185,12 +187,17 @@ def sat_frame_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
     spec = dict(spec or {})
     groups = set(spec.get("groups") or ["sp_dfine"])
     classes = set(spec.get("classes") or SFG_CLASSES)
-    a = float(spec.get("min_scene_mpix", 4.0)); x = float(spec["x"]); t2 = float(spec["t2"])
+    a = float(spec.get("min_scene_mpix", 4.0)); x = float(spec["x"])
+    t2_cls = {k: float(v) for k, v in (spec.get("t2_cls") or {}).items()}   # COMP-FL: per-class t2 (EN-relative form)
+    t2 = float(spec["t2"]) if "t2" in spec else None
+    if t2 is None and not t2_cls:
+        raise ValueError("[post].sat_frame_gate needs t2 or t2_cls")
     out = []
     for f in feats:
         d, mp = f.get("scene_drel"), f.get("scene_mpix")
-        if (post._group_of(f) in groups and f.get("class_name") in classes and d is not None and mp is not None
-                and float(mp) >= a and float(d) > x and float(f.get("confidence", 0.0)) < t2):
+        tc = t2_cls.get(f.get("class_name"), t2)
+        if (tc is not None and post._group_of(f) in groups and f.get("class_name") in classes and d is not None and mp is not None
+                and float(mp) >= a and float(d) > x and float(f.get("confidence", 0.0)) < tc):
             continue
         out.append(f)
     return out
