@@ -193,6 +193,8 @@ def _inputs():
             if p.name.lower().endswith((".tif", ".tiff")) and "__" in p.name and "SpOr" in p.name: files.setdefault(p.name, p)
             elif p.name == "gt_train_v2.geojson": gts.append(p)
             elif p.name.startswith("manifest_") and p.suffix == ".json": man.update(json.load(open(p, encoding="utf-8")))
+    lost = sorted(set(man) - set(files))
+    if lost: raise SystemExit(f"файлы из manifest не найдены: {len(lost)} (напр. {lost[:3]}); датасеты {DATASETS_HINT}")
     tifs = {}  # путь → (участок, исходное имя файла)
     for n, p in files.items():
         tifs[str(p)] = (man[n]["region"], man[n]["file"]) if n in man else tuple(n.split("__", 1))
