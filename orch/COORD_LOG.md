@@ -685,3 +685,20 @@
 - 02.11 08:17 MSK | coord | проверка: без изменений с 08:01 — acc1/acc2 новых ядер нет (последние 01.11 ~23:33 MSK), box load 0.3/8, в QUEUE ready-пункты прежние (без ожидаемого прироста); финал v3_on b447649 не меняется. Елене — ничего.
 - 02.11 08:20 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
 - 02.11 08:20 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 09:20 MSK COMPETITORS_2026-11-02
+- 02.11 08:20 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 02.11 08:33 MSK | coord | проверка: без изменений с 08:17 — acc1/acc2 новых ядер нет (последние 01.11 ~23:33 MSK), box load 1.2/8, в QUEUE ready-пункты прежние (без ожидаемого прироста); финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 08:46 MSK | coord | проверка: без изменений с 08:33 — acc1/acc2 новых ядер нет (последние 01.11 ~23:33 MSK), box load 0.4/8, лизы свободны, в QUEUE ready-пункты прежние (без ожидаемого прироста); финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 08:46 MSK | lease | acquire branch:bots/w1-satrec → bot-W1-satrec до 04.11 08:46 MSK W1 SAT-RECALL + scene-centre prior gates (wt/w1sr)
+- 02.11 08:46 MSK | lease | acquire slot:box/q1 → bot-W1-satrec до 02.11 20:46 MSK W1 satrec CPU gate (nice10, 4 thr)
+- 02.11 08:48 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 09:48 MSK KURGAN-DUAL prereg
+- 02.11 08:48 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 08:49 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 11:49 MSK W3 KURGAN-DUAL gate nice10 thr4
+- 02.11 08:59 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 09:01 MSK | coord | проверка: acc1/acc2 новых ядер нет (последние 01.11 ~23:33 MSK), box: W1 satrec (q1) + W3 KURGAN-DUAL (q2) по лизам, s1_prep идёт, load 1.2/8; в QUEUE ready-пункты прежние (без ожидаемого прироста); финал v3_on b447649 не меняется. Елене — ничего.
+- 02.11 09:02 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:02 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:02 MSK KDUAL result
+- 02.11 09:02 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:03 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 11:03 MSK W3 oracle-gap breakdown nice10 thr4
+- 02.11 09:03 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:03 MSK KDUAL-dmg prereg
+- 02.11 09:03 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+2026-11-02 09:13:09 coord: per Elena 02.11 deleted 13 PUBLIC datasets on dmitrijkv (koz3-xfer-s000..s009, koz3-gt-train-v2, koz3-fr1h-wheels, koz3-fr1h-chk-20261101); verified invisible from another account. NOTE: Kaggle cannot turn public->private; always create datasets with isPrivate:true.

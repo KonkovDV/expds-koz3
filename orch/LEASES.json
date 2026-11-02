@@ -123,11 +123,12 @@
   },
   {
    "slot": "box/q1",
-   "holder": null,
+   "holder": "bot-W1-satrec",
    "kernel": null,
    "last": "снято coord 01.11 22:13 MSK",
-   "purpose": "C1 G1/G2 prod-ctx gates",
-   "state": "свободен"
+   "purpose": "W1 satrec CPU gate (nice10, 4 thr)",
+   "since": "02.11 08:46 MSK",
+   "until": "02.11 20:46 MSK"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -147,11 +148,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W3-bigobj",
    "kernel": null,
-   "last": "снято bot-W1-aeor 01.11 22:19 MSK",
-   "purpose": "W1 v3on gate-vs-prod replay",
-   "state": "свободен"
+   "last": "снято bot-W3-bigobj 02.11 09:02 MSK",
+   "purpose": "W3 oracle-gap breakdown nice10 thr4",
+   "since": "02.11 09:03 MSK",
+   "until": "02.11 11:03 MSK"
   },
   {
    "slot": "box/q3",
@@ -336,13 +338,31 @@
    "pid": 658530
   },
   {
-   "resource": "branch:bots/orch-protocol",
-   "owner": "coord",
-   "since": 1793596849.096707,
-   "expires": 1793600449.096707,
-   "note": "COMPETITORS_2026-11-02",
+   "resource": "branch:bots/w1-satrec",
+   "owner": "bot-W1-satrec",
+   "since": 1793598371.571252,
+   "expires": 1793771171.571252,
+   "note": "W1 SAT-RECALL + scene-centre prior gates (wt/w1sr)",
    "host": "grok-bot-vm-361051398",
-   "pid": 951841
+   "pid": 963148
+  },
+  {
+   "resource": "slot:box/q1",
+   "owner": "bot-W1-satrec",
+   "since": 1793598371.601795,
+   "expires": 1793641571.601795,
+   "note": "W1 satrec CPU gate (nice10, 4 thr)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 963153
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W3-bigobj",
+   "since": 1793599420.41267,
+   "expires": 1793606620.41267,
+   "note": "W3 oracle-gap breakdown nice10 thr4",
+   "host": "grok-bot-vm-361051398",
+   "pid": 975077
   }
  ]
 }
