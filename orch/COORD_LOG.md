@@ -702,3 +702,4 @@
 - 02.11 09:03 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:03 MSK KDUAL-dmg prereg
 - 02.11 09:03 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
 2026-11-02 09:13:09 coord: per Elena 02.11 deleted 13 PUBLIC datasets on dmitrijkv (koz3-xfer-s000..s009, koz3-gt-train-v2, koz3-fr1h-wheels, koz3-fr1h-chk-20261101); verified invisible from another account. NOTE: Kaggle cannot turn public->private; always create datasets with isPrivate:true.
+- 02.11 09:20 MSK | coord | плановый проход: на 5 акках ничего не запущено, новых завершений нет; box q1/q2 заняты W1/W3; квота 89.1% (строгая экономия, новых запусков без GO нет). Внимание: dmitrijkv/koz3-gt-train-v2 удалён — ядра elenakonkova, читающие его, перед запуском перевести на приватную копию.
