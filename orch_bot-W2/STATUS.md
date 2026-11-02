@@ -36,3 +36,16 @@
 01.11 22:06 MSK | bot-W2 (бот 3) | P-W2-9 r50c5: оба ядра уже отработали 31.10 (COMPLETE, не мной), повторно НЕ запускаю; выход → w2/oof/r50c5/; ранний стоп PASS (f0/f1 0,4395 > 0,3492; курганы f0 0,3989 > 0,2369); PREREG поправка: гейт только через V3P 0,333787, до 08.11 | 0,4395 | orch/bot-W2/PREREG_W2_cnx.md, w2_notes/r50c5_early_stop_result.json, w2_notes/r50c5_w1_cnx_feature.md
 02.11 11:15 MSK | bot-W2 (бот 3) | P-W2-12 мягкий бленд карт ConvNeXt (PREREG d338318 до замера), прод-контекст V3P_ctx 0,345852 (v3_on b447649), honest-10, boot 2000, P≥0,95 (Бонферрони ×2): (a) blend3 s0+s1+s2 Δ −0,0035 P 0,23 new34 −0,0042 nolidar 0 полы tselye −0,015/gor −0,008/fort −0,007 → FAIL; (b) blend4 +r50c5 Δ −0,0003 P 0,48 new34 −0,0153 nolidar +0,00004 tselye −0,016 → FAIL. flip-TTA уже D8 в картах, старый s012avg уже был блендом карт (n 82996 воспроизведено). Бленд vs одиночный s2 +0,007/+0,011, но в контексте не нужен. Линия закрыта; ядер не запускал, GPU не трогал | Δ −0,0035 / −0,0003 | w2_gate/blend_v3p/README.md
 02.11 13:51 MSK | bot-W2 (бот 3) | P-W2-13 D-FINE-2 (2-й sp_or D-FINE: DN выкл, посайтовая балансировка, qaug2, seed 200; слияние с sp_dfine 8 м mean): PREREG 1c0ddc0 (+попр. 1 34f97d3) до push; квота dmitrijkv до запуска 11,01 ч исп./18,99 ч ост.; аренды slot:acc2/gpu-1, acc2/gpu-2 + kernel; push v1 13:49 → оба RUNNING; dispatch w2-dfine2-a/b (running, pull_to w2/oof/dfine2/…); ETA a ~15:45, b ~16:55 MSK (капы 17:50/18:50) | ранний стоп после a: FAIL если S(B)<S(A)−0,02 или S(M)≤S(C) (S(A) 0,249916, S(C) 0,251746) | w2_notes/dfine2/README.md
+
+## WIND-DOWN 02.11 14:27 MSK (квота бота кончилась; watch-routine удалена)
+**D-FINE-2 (P-W2-13, коммиты 1c0ddc0/34f97d3/a614dfa)** — оставлен работать на Kaggle:
+- dmitrijkv/koz3-w2-dfine2-a (фолды 0,3) — запущен 02.11 13:49 MSK, на 14:27 RUNNING, ETA ~15:45, hard stop 17:50 MSK.
+- dmitrijkv/koz3-w2-dfine2-b (фолды 4,2,1) — запущен 02.11 13:49 MSK, на 14:27 RUNNING, ETA ~16:55, hard stop 18:50 MSK.
+- Leases slot:acc2/gpu-1 и slot:acc2/gpu-2 СНЯТЫ при сворачивании, но кернелы на этих слотах ЕЩЁ РАБОТАЮТ — не занимать до их завершения.
+- Веса НЕ сохраняются: при PASS нужен отдельный прогон с сохранением весов для архива.
+
+**СЛЕДУЮЩИЙ ШАГ (вручную):**
+1. Когда a = COMPLETE: скачать output и выполнить early-stop команду из w2_notes/dfine2/README.md. FAIL, если S(B) < 0.249916−0.02 или S(M) ≤ 0.251746; при FAIL отменить b через веб-интерфейс Kaggle.
+2. Когда b = COMPLETE: `gate_dfine2_ctx.py 2000`; решающее сравнение B_ens8_mean_ctx_vs_V3P_ctx. PASS: Δ≥+0.003, P≥0.95, new34≥0, nolidar≥0, падение классов ≤0.002 kp/kt/gor, ≤0.005 arkh/fort.
+
+**Закрыто сегодня:** P-W2-11 (аудит s1f4 — FAIL, стек A чистый); lidar-aug закрыт (0.321 vs 0.360 c3-sc); li_r50c5 на V3P — FAIL (Δ+0.0024, P 0.66); P-W2-12 мягкий бленд сидов — FAIL; koz3-w2-weights v3 (корректный s1f4) выпущен, v2 сохранена.
