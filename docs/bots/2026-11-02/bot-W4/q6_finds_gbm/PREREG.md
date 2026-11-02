@@ -41,3 +41,11 @@ scoring = s3_score protocol. PASS iff all: Δall ≥ +0.003; paired bootstrap (s
 (Bonferroni m = 2: 1 − 0.1/2); per-class floors kp/kt/gor −0.002, others −0.005; Δnew34 ≥ 0; Δnolidar ≥ 0.
 The variant that passes with the larger Δall is the candidate; if none passes → FAIL. No LB submissions; flags default off;
 production hook only if PASS (separate commit).
+
+## Amendment A1 — 02.11 MSK, before any variant score was seen
+Sanity check "UNI τ=∞ == 0.3337867" failed (0.3294007): the gate's `curves_from` fixes TP flags with one greedy
+pass over all predictions, so fgbm candidates that are later thresholded out still take GT from classic finds.
+Fix (gate only, nothing else changes): for `finds_points` the greedy matching (same rule) is recomputed exactly
+after thresholds for every τ evaluated in the frozen REP/UNI nested choice. The unfrozen REPu/UNIu (secondary,
+report-only) keep the approximate D.honest curves. The decision is made on production replays scored by
+compute_metrics (exact by construction); criteria unchanged.
