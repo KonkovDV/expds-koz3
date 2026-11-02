@@ -1,4 +1,4 @@
-# W1 FRZ C1F vs W4 C1F re-gate: cause of the discrepancy (02.11, 14:30 MSK)
+# W1 FRZ C1F vs W4 C1F re-gate: cause of the discrepancy (02.11, 14:19 MSK)
 
 W1 FRZ (5cc5ed7): C1F prod replay Δ +0.0159, new34 0, kt +0.0003, PASS.
 W4 re-gate (bots/w4-v3on 5d0dd4c, PREREG e6b5a31): C1 prod replay Δ +0.0122, new34 −0.0008, kt −0.0033, FAIL.
