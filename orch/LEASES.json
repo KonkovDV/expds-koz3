@@ -5,13 +5,14 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": null,
+   "holder": "bot-W1-satrec",
    "kernel": null,
-   "purpose": "w1-sat2-gate-v2",
+   "purpose": "W1 SATDET: quota check, then detector training",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
    "last": "снято bot-W1-aeor 01.11 20:07 MSK",
-   "state": "свободен"
+   "since": "02.11 11:04 MSK",
+   "until": "02.11 18:16 MSK"
   },
   {
    "slot": "acc1/gpu-2",
@@ -149,8 +150,8 @@
    "slot": "box/q2",
    "holder": null,
    "kernel": null,
-   "last": "снято bot-W3-bigobj 02.11 09:54 MSK",
-   "purpose": "W3 SUBDROP gate nice10 thr4",
+   "last": "снято bot-W2 02.11 11:16 MSK",
+   "purpose": "P-W2-12 seed blend CPU decode+gate",
    "state": "свободен"
   },
   {
@@ -334,6 +335,42 @@
    "note": "py313 wheels",
    "host": "grok-bot-vm-361051398",
    "pid": 658530
+  },
+  {
+   "resource": "slot:acc1/gpu-1",
+   "owner": "bot-W1-satrec",
+   "since": 1793606697.98666,
+   "expires": 1793632590.423057,
+   "note": "W1 SATDET: quota check, then detector training",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1025388
+  },
+  {
+   "resource": "branch:bots/w1-satdet",
+   "owner": "bot-W1-satrec",
+   "since": 1793606909.118829,
+   "expires": 1793779709.118829,
+   "note": "W1 SATDET",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1028285
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w1-satdet-frcnn",
+   "owner": "bot-W1-satrec",
+   "since": 1793606909.191528,
+   "expires": 1793642909.191528,
+   "note": "W1 SATDET detector",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1028290
+  },
+  {
+   "resource": "branch:bots/orch-protocol",
+   "owner": "coord",
+   "since": 1793614661.431343,
+   "expires": 1793618261.431343,
+   "note": "COMPETITOR_GAPS commit",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1074100
   }
  ]
 }

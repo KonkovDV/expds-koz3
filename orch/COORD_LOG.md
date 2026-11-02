@@ -737,4 +737,36 @@
 - 02.11 09:54 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
 - 02.11 09:55 MSK | lease | release slot:box/q1 (bot-W1-satrec) by bot-W1-satrec
 - 02.11 09:55 MSK | lease | release branch:bots/w1-satrec2 (bot-W1-satrec) by bot-W1-satrec
-- 02.11 12:12 MSK | coord | проход: новых завершений нет; RUNNING только elenakonkova/koz3-w1-satdet-frcnn; dmitrijkv GPU и CPU-аккаунты простаивают — готовых dry-run пакетов с ожидаемым приростом нет (ae-dfine-gate в ERROR, ждёт фикса владельцем W1); box load 0.35/8. Квота 44.7% использовано.
+- 02.11 10:01 MSK | coord | проверка: box load 0.45/8, q1/q2 освобождены W1/W3 в 09:54–09:55 (ждём их следующих гейтов), GPU-слоты свободны с 01.11, ready-пункты QUEUE устаревшие (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 10:05 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 10:21 MSK | coord | проверка: box load 0.49/8, лизов на слотах нет, ready-пунктов в QUEUE нет; состояние как в 10:01, финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 10:25 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 10:28 MSK | coord | проверка: box load 0.32/8, состояние как в 10:21; финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 10:43 MSK | coord | проверка: box load 0.35/8, лизов на слотах нет, ready-пункты QUEUE прежние (без ожидаемого прироста); состояние как в 10:28, финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 10:47 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 11:04 MSK | coord | проверка: box load 0.44/8, состояние как в 10:43 (STATUS W1/W3 без изменений с 09:55, 4 ready-пункта QUEUE прежние без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 11:04 MSK | lease | acquire slot:acc1/gpu-1 → bot-W1-satrec до 02.11 13:04 MSK W1 SATDET: quota check, then detector training
+- 02.11 11:06 MSK | lease | acquire slot:box/q2 → bot-W2 до 02.11 15:06 MSK P-W2-12 seed blend CPU decode+gate
+- 02.11 11:08 MSK | check_conflicts | ERROR=1 WARN=23: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 11:08 MSK | lease | acquire branch:bots/w1-satdet → bot-W1-satrec до 04.11 11:08 MSK W1 SATDET
+- 02.11 11:08 MSK | lease | acquire kernel:elenakonkova/koz3-w1-satdet-frcnn → bot-W1-satrec до 02.11 21:08 MSK W1 SATDET detector
+- 02.11 11:08 MSK | lease | acquire dataset:elenakonkova/koz3-w1-satdet-src → bot-W1-satrec до 02.11 21:08 MSK W1 SATDET code/fold map (private)
+- 02.11 11:08 MSK | lease | release dataset:elenakonkova/koz3-w1-satdet-src (bot-W1-satrec) by bot-W1-satrec
+- 02.11 11:12 MSK | coord | проверка: box load 0.67/8, W1 запустил SATDET detector (elenakonkova GPU, лиз до 21:08); прочие ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 11:16 MSK | lease | acquire branch:bots/w2-lidar → bot-W2 до 02.11 12:16 MSK P-W2-12 result push
+- 02.11 11:16 MSK | lease | release branch:bots/w2-lidar (bot-W2) by bot-W2
+- 02.11 11:16 MSK | lease | release slot:box/q2 (bot-W2) by bot-W2
+- 02.11 11:24 MSK | check_conflicts | ERROR=1 WARN=23: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 11:35 MSK | coord | проверка: box load 0.78/8, W1 SATDET бежит (elenakonkova GPU, лиз до 21:08), W2 P-W2-12 завершён 11:16 (q2 свободен); dmitrijkv без новых ядер; 4 ready-пункта QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 11:40 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 11:44 MSK | coord | проверка: box load 2.63/8 (кратковременно), W1 SATDET бежит (elenakonkova GPU, лиз до 21:08); dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 11:59 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 12:05 MSK | coord | проверка: box load 0.30/8, W1 SATDET бежит (elenakonkova GPU, лиз до 21:08); dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 12:18 MSK | coord | проверка: box load 0.32/8, W1 SATDET RUNNING (elenakonkova GPU, лиз до 21:08); dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 12:35 MSK | coord | проверка: box load 0.22/8, W1 SATDET RUNNING (elenakonkova GPU, лиз до 21:08); dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 12:42 MSK | coord | проверка: box load 0.12/8, W1 SATDET (elenakonkova GPU, лиз до 21:08) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 12:48 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 13:01 MSK | coord | проверка: box load 0.23/8, W1 SATDET (elenakonkova GPU, лиз до 21:08) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 13:05 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 13:12 MSK | coord | проверка: box load 0.88/8, W1 SATDET (elenakonkova GPU, лиз до 21:08) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 13:17 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 14:17 MSK COMPETITOR_GAPS commit
