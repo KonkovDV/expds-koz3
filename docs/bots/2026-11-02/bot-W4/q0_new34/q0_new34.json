@@ -1,0 +1,1571 @@
+{
+ "scenes": {
+  "015_Демидовка#s0": {
+   "mpix": 3.3262331139976795,
+   "w_m": 1095.9652072991819,
+   "h_m": 758.7451435147768
+  },
+  "026_Золотаревка#s0": {
+   "mpix": 2.514476929031118,
+   "w_m": 950.3020898882544,
+   "h_m": 661.4941069230928
+  },
+  "031_Новотитаровская#s0": {
+   "mpix": 0.97761604577822,
+   "w_m": 645.6258071117828,
+   "h_m": 378.5536587174237
+  },
+  "033_Елизаветинское#s0": {
+   "mpix": 2.023999961786068,
+   "w_m": 989.0994340965669,
+   "h_m": 511.57646340045886
+  },
+  "034_Усть_река#s0": {
+   "mpix": 1.390099215189772,
+   "w_m": 625.7613312721035,
+   "h_m": 555.3631815039826
+  },
+  "035_Шумгора#s0": {
+   "mpix": 5.040552965717351,
+   "w_m": 1405.2936575150231,
+   "h_m": 896.7081255156568
+  },
+  "035_Шумгора#s1": {
+   "mpix": 8.357305038798744,
+   "w_m": 1912.753071339959,
+   "h_m": 1092.3136347317588
+  },
+  "040_Примаки_1.3км#s0": {
+   "mpix": 5.686674422770864,
+   "w_m": 1553.3014803753094,
+   "h_m": 915.2560682226425
+  },
+  "192_КЧР#s0": {
+   "mpix": 1.1945039574210006,
+   "w_m": 687.2138155207798,
+   "h_m": 434.5459631496893
+  }
+ },
+ "runs": {
+  "SATREC/R1": {
+   "decomp_sat_vs_nonsat": {
+    "d_new34_sp_only(nonsat_frozen)": -0.0023165539029734172,
+    "d_new34_nonsat_side_effect": 0.0
+   },
+   "base_new34": 0.3144173812112219,
+   "var_new34": 0.3121008273082485,
+   "d_new34": -0.0023165539029734172,
+   "class": {
+    "kurgany_povrezhdennye": {
+     "dF1": -0.004938769684537714,
+     "contrib": -0.0016462565615125713,
+     "dTP": -2.0,
+     "dFP": -5.0,
+     "n_gt": 219.0,
+     "base": {
+      "tp": 64.0,
+      "fp": 692.0,
+      "fn": 155.0
+     }
+    },
+    "kurgany_tselye": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 119.0,
+     "base": {
+      "tp": 41.0,
+      "fp": 174.0,
+      "fn": 78.0
+     }
+    },
+    "gorodishcha": {
+     "dF1": -0.004021784048765298,
+     "contrib": -0.0006702973414608829,
+     "dTP": 0.0,
+     "dFP": 1.0,
+     "n_gt": 36.0,
+     "base": {
+      "tp": 24.0,
+      "fp": 34.0,
+      "fn": 12.0
+     }
+    },
+    "object_poly": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 5.0,
+     "base": {
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 5.0
+     }
+    },
+    "fortifikatsii": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 306.0,
+     "base": {
+      "tp": 60.0,
+      "fp": 153.0,
+      "fn": 246.0
+     }
+    },
+    "finds_points": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 216.0,
+     "base": {
+      "tp": 142.0,
+      "fp": 456.0,
+      "fn": 74.0
+     }
+    }
+   },
+   "bins": {
+    "nosat": {
+     "n_scenes": 28,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "2-4": {
+     "n_scenes": 3,
+     "n_changed": 3,
+     "swap_in": 5.396377690569665e-05,
+     "leave_out": 5.294896964158635e-05,
+     "contrib": 5.34563732736415e-05
+    },
+    "<1": {
+     "n_scenes": 1,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "1-2": {
+     "n_scenes": 2,
+     "n_changed": 2,
+     "swap_in": 0.00010801348349470663,
+     "leave_out": 0.00010581328854780692,
+     "contrib": 0.00010691338602125677
+    },
+    ">=8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": -0.0015705650115645509,
+     "leave_out": -0.0015766669048013493,
+     "contrib": -0.00157361595818295
+    },
+    "4-8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": -0.0009002676701035939,
+     "leave_out": -0.0009063695633404478,
+     "contrib": -0.0009033186167220209
+    }
+   },
+   "scenes": {
+    "035_Шумгора#s1": {
+     "swap_in": -0.0015705650115645509,
+     "leave_out": -0.0015766669048013493,
+     "contrib": -0.00157361595818295,
+     "bin": ">=8",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        2
+       ]
+      },
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": 1,
+       "n_gt": 2,
+       "base_tp_fp": [
+        2,
+        1
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": -1,
+       "dFP": -1,
+       "n_gt": 8,
+       "base_tp_fp": [
+        2,
+        2
+       ]
+      }
+     }
+    },
+    "040_Примаки_1.3км#s0": {
+     "swap_in": -0.0009002676701035939,
+     "leave_out": -0.0009063695633404478,
+     "contrib": -0.0009033186167220209,
+     "bin": "4-8",
+     "changes": {
+      "kurgany_povrezhdennye": {
+       "dTP": -1,
+       "dFP": -1,
+       "n_gt": 6,
+       "base_tp_fp": [
+        1,
+        3
+       ]
+      }
+     }
+    },
+    "015_Демидовка#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -3,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "026_Золотаревка#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        1
+       ]
+      }
+     }
+    },
+    "034_Усть_река#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "1-2",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "033_Елизаветинское#s0": {
+     "swap_in": 5.396377690569665e-05,
+     "leave_out": 5.294896964158635e-05,
+     "contrib": 5.34563732736415e-05,
+     "bin": "2-4",
+     "changes": {
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        4
+       ]
+      }
+     }
+    },
+    "192_КЧР#s0": {
+     "swap_in": 0.00010801348349470663,
+     "leave_out": 0.00010581328854780692,
+     "contrib": 0.00010691338602125677,
+     "bin": "1-2",
+     "changes": {
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 14,
+       "base_tp_fp": [
+        5,
+        7
+       ]
+      }
+     }
+    }
+   }
+  },
+  "SATREC/C1": {
+   "decomp_sat_vs_nonsat": {
+    "d_new34_sp_only(nonsat_frozen)": 0.0007469453548674121,
+    "d_new34_nonsat_side_effect": -0.001843303193255097
+   },
+   "base_new34": 0.3144173812112219,
+   "var_new34": 0.31332102337283424,
+   "d_new34": -0.0010963578383876849,
+   "class": {
+    "kurgany_povrezhdennye": {
+     "dF1": 0.002687952245409353,
+     "contrib": 0.0008959840818031176,
+     "dTP": 1.0,
+     "dFP": 1.0,
+     "n_gt": 219.0,
+     "base": {
+      "tp": 64.0,
+      "fp": 692.0,
+      "fn": 155.0
+     }
+    },
+    "kurgany_tselye": {
+     "dF1": 0.0033945170746497166,
+     "contrib": 0.000754337127699937,
+     "dTP": 0.0,
+     "dFP": -5.0,
+     "n_gt": 119.0,
+     "base": {
+      "tp": 41.0,
+      "fp": 174.0,
+      "fn": 78.0
+     }
+    },
+    "gorodishcha": {
+     "dF1": -0.016480074287344326,
+     "contrib": -0.002746679047890721,
+     "dTP": -2.0,
+     "dFP": -5.0,
+     "n_gt": 36.0,
+     "base": {
+      "tp": 24.0,
+      "fp": 34.0,
+      "fn": 12.0
+     }
+    },
+    "object_poly": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 5.0,
+     "base": {
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 5.0
+     }
+    },
+    "fortifikatsii": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 306.0,
+     "base": {
+      "tp": 60.0,
+      "fp": 153.0,
+      "fn": 246.0
+     }
+    },
+    "finds_points": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 216.0,
+     "base": {
+      "tp": 142.0,
+      "fp": 456.0,
+      "fn": 74.0
+     }
+    }
+   },
+   "bins": {
+    "nosat": {
+     "n_scenes": 28,
+     "n_changed": 4,
+     "swap_in": 7.394317353304203e-06,
+     "leave_out": -9.22504038349814e-05,
+     "contrib": -4.24280432408386e-05
+    },
+    "2-4": {
+     "n_scenes": 3,
+     "n_changed": 2,
+     "swap_in": -0.0022428367131076543,
+     "leave_out": -0.002345344711643882,
+     "contrib": -0.002294090712375768
+    },
+    "<1": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": -1.1734449582023743e-05,
+     "leave_out": -1.1800329559330525e-05,
+     "contrib": -1.1767389570677134e-05
+    },
+    "1-2": {
+     "n_scenes": 2,
+     "n_changed": 2,
+     "swap_in": 0.0014437622659818072,
+     "leave_out": 0.0014467140852375548,
+     "contrib": 0.001445238175609681
+    },
+    ">=8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": 0.0007076870216015108,
+     "leave_out": 0.0006975827564996151,
+     "contrib": 0.0007026348890505629
+    },
+    "4-8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": -0.0009002676701035939,
+     "leave_out": -0.0008917309937290785,
+     "contrib": -0.0008959993319163362
+    }
+   },
+   "scenes": {
+    "033_Елизаветинское#s0": {
+     "swap_in": -0.002910897506753718,
+     "leave_out": -0.0030501310663255676,
+     "contrib": -0.002980514286539643,
+     "bin": "2-4",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": 0,
+       "n_gt": 6,
+       "base_tp_fp": [
+        2,
+        0
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        4
+       ]
+      }
+     }
+    },
+    "106_Верхмарево#nosat": {
+     "swap_in": -0.0009878268127599399,
+     "leave_out": -0.0010727971286377813,
+     "contrib": -0.0010303119706988606,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": -3,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        3
+       ]
+      }
+     }
+    },
+    "040_Примаки_1.3км#s0": {
+     "swap_in": -0.0009002676701035939,
+     "leave_out": -0.0008917309937290785,
+     "contrib": -0.0008959993319163362,
+     "bin": "4-8",
+     "changes": {
+      "kurgany_povrezhdennye": {
+       "dTP": -1,
+       "dFP": -1,
+       "n_gt": 6,
+       "base_tp_fp": [
+        1,
+        3
+       ]
+      }
+     }
+    },
+    "031_Новотитаровская#s0": {
+     "swap_in": -1.1734449582023743e-05,
+     "leave_out": -1.1800329559330525e-05,
+     "contrib": -1.1767389570677134e-05,
+     "bin": "<1",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        4
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": 3,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        9
+       ]
+      }
+     }
+    },
+    "034_Усть_река#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "1-2",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "005_Боровичи_2#nosat": {
+     "swap_in": 0.00014964334735978468,
+     "leave_out": 0.00015209899808688032,
+     "contrib": 0.0001508711727233325,
+     "bin": "nosat",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 11,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "066_Московиты#nosat": {
+     "swap_in": 0.00014964334735978468,
+     "leave_out": 0.00015209899808688032,
+     "contrib": 0.0001508711727233325,
+     "bin": "nosat",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        6
+       ]
+      }
+     }
+    },
+    "026_Золотаревка#s0": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        1
+       ]
+      },
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 2,
+       "base_tp_fp": [
+        2,
+        1
+       ]
+      }
+     }
+    },
+    "027_Вышегжа_1#nosat": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 1,
+       "base_tp_fp": [
+        1,
+        2
+       ]
+      }
+     }
+    },
+    "035_Шумгора#s1": {
+     "swap_in": 0.0007076870216015108,
+     "leave_out": 0.0006975827564996151,
+     "contrib": 0.0007026348890505629,
+     "bin": ">=8",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": 2,
+       "n_gt": 3,
+       "base_tp_fp": [
+        2,
+        29
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 1,
+       "dFP": -1,
+       "n_gt": 8,
+       "base_tp_fp": [
+        2,
+        2
+       ]
+      }
+     }
+    },
+    "192_КЧР#s0": {
+     "swap_in": 0.0014437622659818072,
+     "leave_out": 0.0014467140852375548,
+     "contrib": 0.001445238175609681,
+     "bin": "1-2",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -4,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        13
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 1,
+       "dFP": 2,
+       "n_gt": 14,
+       "base_tp_fp": [
+        5,
+        7
+       ]
+      }
+     }
+    }
+   }
+  },
+  "SATREC2/A1": {
+   "decomp_sat_vs_nonsat": {
+    "d_new34_sp_only(nonsat_frozen)": 0.00010801348349459561,
+    "d_new34_nonsat_side_effect": -0.0018396195646770974
+   },
+   "base_new34": 0.3144173812112219,
+   "var_new34": 0.3126857751300394,
+   "d_new34": -0.0017316060811825018,
+   "class": {
+    "kurgany_povrezhdennye": {
+     "dF1": 0.00032404045048395336,
+     "contrib": 0.00010801348349465112,
+     "dTP": 0.0,
+     "dFP": -2.0,
+     "n_gt": 219.0,
+     "base": {
+      "tp": 64.0,
+      "fp": 692.0,
+      "fn": 155.0
+     }
+    },
+    "kurgany_tselye": {
+     "dF1": 0.0040817676744613896,
+     "contrib": 0.0009070594832136422,
+     "dTP": 0.0,
+     "dFP": -6.0,
+     "n_gt": 119.0,
+     "base": {
+      "tp": 41.0,
+      "fp": 174.0,
+      "fn": 78.0
+     }
+    },
+    "gorodishcha": {
+     "dF1": -0.016480074287344326,
+     "contrib": -0.002746679047890721,
+     "dTP": -2.0,
+     "dFP": -5.0,
+     "n_gt": 36.0,
+     "base": {
+      "tp": 24.0,
+      "fp": 34.0,
+      "fn": 12.0
+     }
+    },
+    "object_poly": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 5.0,
+     "base": {
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 5.0
+     }
+    },
+    "fortifikatsii": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 306.0,
+     "base": {
+      "tp": 60.0,
+      "fp": 153.0,
+      "fn": 246.0
+     }
+    },
+    "finds_points": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 216.0,
+     "base": {
+      "tp": 142.0,
+      "fp": 456.0,
+      "fn": 74.0
+     }
+    }
+   },
+   "bins": {
+    "nosat": {
+     "n_scenes": 28,
+     "n_changed": 4,
+     "swap_in": 7.394317353304203e-06,
+     "leave_out": -9.100749768792271e-05,
+     "contrib": -4.1806590167309254e-05
+    },
+    "2-4": {
+     "n_scenes": 3,
+     "n_changed": 3,
+     "swap_in": -0.0022428367131076543,
+     "leave_out": -0.0023461648798906443,
+     "contrib": -0.0022945007964991493
+    },
+    "<1": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": 4.197276421952223e-05,
+     "leave_out": 4.436433099114234e-05,
+     "contrib": 4.3168547605332286e-05
+    },
+    "1-2": {
+     "n_scenes": 2,
+     "n_changed": 2,
+     "swap_in": 0.0007004590757203055,
+     "leave_out": 0.0007032802941716043,
+     "contrib": 0.0007018696849459549
+    },
+    ">=8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": 0.0007076870216015108,
+     "leave_out": 0.0007009509787271884,
+     "contrib": 0.0007043190001643496
+    },
+    "4-8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": -0.000846892709744862,
+     "leave_out": -0.0008425169882017025,
+     "contrib": -0.0008447048489732822
+    }
+   },
+   "scenes": {
+    "033_Елизаветинское#s0": {
+     "swap_in": -0.002910897506753718,
+     "leave_out": -0.00305095123457233,
+     "contrib": -0.002980924370663024,
+     "bin": "2-4",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": 0,
+       "n_gt": 6,
+       "base_tp_fp": [
+        2,
+        0
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        4
+       ]
+      }
+     }
+    },
+    "106_Верхмарево#nosat": {
+     "swap_in": -0.0009878268127599399,
+     "leave_out": -0.0010727971286378368,
+     "contrib": -0.0010303119706988884,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": -3,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        3
+       ]
+      }
+     }
+    },
+    "040_Примаки_1.3км#s0": {
+     "swap_in": -0.000846892709744862,
+     "leave_out": -0.0008425169882017025,
+     "contrib": -0.0008447048489732822,
+     "bin": "4-8",
+     "changes": {
+      "kurgany_povrezhdennye": {
+       "dTP": -1,
+       "dFP": -2,
+       "n_gt": 6,
+       "base_tp_fp": [
+        1,
+        3
+       ]
+      }
+     }
+    },
+    "015_Демидовка#s0": {
+     "swap_in": 0.0,
+     "leave_out": -5.551115123125783e-17,
+     "contrib": -2.7755575615628914e-17,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -3,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "034_Усть_река#s0": {
+     "swap_in": 0.0,
+     "leave_out": -5.551115123125783e-17,
+     "contrib": -2.7755575615628914e-17,
+     "bin": "1-2",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "031_Новотитаровская#s0": {
+     "swap_in": 4.197276421952223e-05,
+     "leave_out": 4.436433099114234e-05,
+     "contrib": 4.3168547605332286e-05,
+     "bin": "<1",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        4
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": 2,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        9
+       ]
+      }
+     }
+    },
+    "005_Боровичи_2#nosat": {
+     "swap_in": 0.00014964334735978468,
+     "leave_out": 0.00015272235551366808,
+     "contrib": 0.00015118285143672638,
+     "bin": "nosat",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 11,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "066_Московиты#nosat": {
+     "swap_in": 0.00014964334735978468,
+     "leave_out": 0.00015272235551366808,
+     "contrib": 0.00015118285143672638,
+     "bin": "nosat",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        6
+       ]
+      }
+     }
+    },
+    "026_Золотаревка#s0": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.000692804233022648,
+     "contrib": 0.0006859318185952479,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        1
+       ]
+      },
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 2,
+       "base_tp_fp": [
+        2,
+        1
+       ]
+      }
+     }
+    },
+    "027_Вышегжа_1#nosat": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.000692804233022648,
+     "contrib": 0.0006859318185952479,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 1,
+       "base_tp_fp": [
+        1,
+        2
+       ]
+      }
+     }
+    },
+    "192_КЧР#s0": {
+     "swap_in": 0.0007004590757203055,
+     "leave_out": 0.0007032802941716043,
+     "contrib": 0.0007018696849459549,
+     "bin": "1-2",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": -5,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        13
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 0,
+       "dFP": 1,
+       "n_gt": 14,
+       "base_tp_fp": [
+        5,
+        7
+       ]
+      }
+     }
+    },
+    "035_Шумгора#s1": {
+     "swap_in": 0.0007076870216015108,
+     "leave_out": 0.0007009509787271884,
+     "contrib": 0.0007043190001643496,
+     "bin": ">=8",
+     "changes": {
+      "kurgany_tselye": {
+       "dTP": 0,
+       "dFP": 2,
+       "n_gt": 3,
+       "base_tp_fp": [
+        2,
+        29
+       ]
+      },
+      "kurgany_povrezhdennye": {
+       "dTP": 1,
+       "dFP": -1,
+       "n_gt": 8,
+       "base_tp_fp": [
+        2,
+        2
+       ]
+      }
+     }
+    }
+   }
+  },
+  "SATDET2/P1": {
+   "decomp_sat_vs_nonsat": {
+    "d_new34_sp_only(nonsat_frozen)": 0.0,
+    "d_new34_nonsat_side_effect": -0.0027466790478907765
+   },
+   "base_new34": 0.3144173812112219,
+   "var_new34": 0.31167070216333115,
+   "d_new34": -0.0027466790478907765,
+   "class": {
+    "kurgany_povrezhdennye": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 219.0,
+     "base": {
+      "tp": 64.0,
+      "fp": 692.0,
+      "fn": 155.0
+     }
+    },
+    "kurgany_tselye": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 119.0,
+     "base": {
+      "tp": 41.0,
+      "fp": 174.0,
+      "fn": 78.0
+     }
+    },
+    "gorodishcha": {
+     "dF1": -0.016480074287344326,
+     "contrib": -0.002746679047890721,
+     "dTP": -2.0,
+     "dFP": -5.0,
+     "n_gt": 36.0,
+     "base": {
+      "tp": 24.0,
+      "fp": 34.0,
+      "fn": 12.0
+     }
+    },
+    "object_poly": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 5.0,
+     "base": {
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 5.0
+     }
+    },
+    "fortifikatsii": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 306.0,
+     "base": {
+      "tp": 60.0,
+      "fp": 153.0,
+      "fn": 246.0
+     }
+    },
+    "finds_points": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 216.0,
+     "base": {
+      "tp": 142.0,
+      "fp": 456.0,
+      "fn": 74.0
+     }
+    }
+   },
+   "bins": {
+    "nosat": {
+     "n_scenes": 28,
+     "n_changed": 2,
+     "swap_in": -0.00029250068450548117,
+     "leave_out": -0.0003958288512884156,
+     "contrib": -0.0003441647678969484
+    },
+    "2-4": {
+     "n_scenes": 3,
+     "n_changed": 3,
+     "swap_in": -0.002350850196602361,
+     "leave_out": -0.0024541783633852954,
+     "contrib": -0.002402514279993828
+    },
+    "<1": {
+     "n_scenes": 1,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "1-2": {
+     "n_scenes": 2,
+     "n_changed": 1,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    ">=8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "4-8": {
+     "n_scenes": 1,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    }
+   },
+   "scenes": {
+    "033_Елизаветинское#s0": {
+     "swap_in": -0.0030189109902484246,
+     "leave_out": -0.0031589647180670366,
+     "contrib": -0.0030889378541577306,
+     "bin": "2-4",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": 0,
+       "n_gt": 6,
+       "base_tp_fp": [
+        2,
+        0
+       ]
+      }
+     }
+    },
+    "106_Верхмарево#nosat": {
+     "swap_in": -0.0009878268127599399,
+     "leave_out": -0.0010727971286377813,
+     "contrib": -0.0010303119706988606,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": -3,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        3
+       ]
+      }
+     }
+    },
+    "015_Демидовка#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -3,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "034_Усть_река#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "1-2",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "035_Шумгора#s1": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": ">=8",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        2
+       ]
+      }
+     }
+    },
+    "026_Золотаревка#s0": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        1
+       ]
+      },
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 2,
+       "base_tp_fp": [
+        2,
+        1
+       ]
+      }
+     }
+    },
+    "027_Вышегжа_1#nosat": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 1,
+       "base_tp_fp": [
+        1,
+        2
+       ]
+      }
+     }
+    }
+   }
+  },
+  "SATDET2/P2": {
+   "decomp_sat_vs_nonsat": {
+    "d_new34_sp_only(nonsat_frozen)": 0.0,
+    "d_new34_nonsat_side_effect": -0.0027466790478907765
+   },
+   "base_new34": 0.3144173812112219,
+   "var_new34": 0.31167070216333115,
+   "d_new34": -0.0027466790478907765,
+   "class": {
+    "kurgany_povrezhdennye": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 219.0,
+     "base": {
+      "tp": 64.0,
+      "fp": 692.0,
+      "fn": 155.0
+     }
+    },
+    "kurgany_tselye": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 119.0,
+     "base": {
+      "tp": 41.0,
+      "fp": 174.0,
+      "fn": 78.0
+     }
+    },
+    "gorodishcha": {
+     "dF1": -0.016480074287344326,
+     "contrib": -0.002746679047890721,
+     "dTP": -2.0,
+     "dFP": -5.0,
+     "n_gt": 36.0,
+     "base": {
+      "tp": 24.0,
+      "fp": 34.0,
+      "fn": 12.0
+     }
+    },
+    "object_poly": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 5.0,
+     "base": {
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 5.0
+     }
+    },
+    "fortifikatsii": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 306.0,
+     "base": {
+      "tp": 60.0,
+      "fp": 153.0,
+      "fn": 246.0
+     }
+    },
+    "finds_points": {
+     "dF1": 0.0,
+     "contrib": 0.0,
+     "dTP": 0.0,
+     "dFP": 0.0,
+     "n_gt": 216.0,
+     "base": {
+      "tp": 142.0,
+      "fp": 456.0,
+      "fn": 74.0
+     }
+    }
+   },
+   "bins": {
+    "nosat": {
+     "n_scenes": 28,
+     "n_changed": 2,
+     "swap_in": -0.00029250068450548117,
+     "leave_out": -0.0003958288512884156,
+     "contrib": -0.0003441647678969484
+    },
+    "2-4": {
+     "n_scenes": 3,
+     "n_changed": 3,
+     "swap_in": -0.002350850196602361,
+     "leave_out": -0.0024541783633852954,
+     "contrib": -0.002402514279993828
+    },
+    "<1": {
+     "n_scenes": 1,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "1-2": {
+     "n_scenes": 2,
+     "n_changed": 1,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    ">=8": {
+     "n_scenes": 1,
+     "n_changed": 1,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    },
+    "4-8": {
+     "n_scenes": 1,
+     "n_changed": 0,
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0
+    }
+   },
+   "scenes": {
+    "033_Елизаветинское#s0": {
+     "swap_in": -0.0030189109902484246,
+     "leave_out": -0.0031589647180670366,
+     "contrib": -0.0030889378541577306,
+     "bin": "2-4",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": 0,
+       "n_gt": 6,
+       "base_tp_fp": [
+        2,
+        0
+       ]
+      }
+     }
+    },
+    "106_Верхмарево#nosat": {
+     "swap_in": -0.0009878268127599399,
+     "leave_out": -0.0010727971286377813,
+     "contrib": -0.0010303119706988606,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": -1,
+       "dFP": -3,
+       "n_gt": 4,
+       "base_tp_fp": [
+        3,
+        3
+       ]
+      }
+     }
+    },
+    "015_Демидовка#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -3,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "034_Усть_река#s0": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": "1-2",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        3
+       ]
+      }
+     }
+    },
+    "035_Шумгора#s1": {
+     "swap_in": 0.0,
+     "leave_out": 0.0,
+     "contrib": 0.0,
+     "bin": ">=8",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -2,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        2
+       ]
+      }
+     }
+    },
+    "026_Золотаревка#s0": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "2-4",
+     "changes": {
+      "arkhitektury": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 0,
+       "base_tp_fp": [
+        0,
+        1
+       ]
+      },
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 2,
+       "base_tp_fp": [
+        2,
+        1
+       ]
+      }
+     }
+    },
+    "027_Вышегжа_1#nosat": {
+     "swap_in": 0.0006790594041678477,
+     "leave_out": 0.0006928042330227036,
+     "contrib": 0.0006859318185952756,
+     "bin": "nosat",
+     "changes": {
+      "gorodishcha": {
+       "dTP": 0,
+       "dFP": -1,
+       "n_gt": 1,
+       "base_tp_fp": [
+        1,
+        2
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "n_utm_like_relocated": 1895
+}
