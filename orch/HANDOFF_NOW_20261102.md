@@ -83,4 +83,4 @@ c) Снос UNSURE диска / S3 rotate — гигиена.
 d) Снять STANDBY / beat-EN — только при росте квоты.
 
 ## 8. Ключевые пути box
-`/workspace/koz3/w4geo/dist/` (v4 zip) · `/workspace/koz3/v4build/{gate,res,in}` (живые входы гейта) · `/workspace/koz3/orch/bot-W4/{runs,comp}` · `/workspace/koz3/out/v4chk/` · `/workspace/koz3/out/audit-next/` · `/workspace/koz3/out/handoff-20261102/` (этот пакет) · `/workspace/koz3/repo` (main read-only).
+`/workspace/koz3/w4geo/dist/` (v4 zip) · `/workspace/koz3/v4build/{gate,res,in}` (живые входы гейта) · `/workspace/koz3/orch/bot-W4/{runs,comp}` · `/workspace/koz3/out/v4chk/` · `/workspace/koz3/out/audit-next/` · `/workspace/koz3/out/handoff-20261102/` (этот пакет; tar.gz + HANDOFF + TRANSFER + MANIFEST на Drive https://drive.google.com/drive/folders/1IzWEzCFzJ86UKX9KYSDS1fFuOwLQFj3N) · `/workspace/koz3/repo` (main read-only).
