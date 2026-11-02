@@ -1,3 +1,5 @@
+> **SUPERSEDED (02.11.2026 MSK)** — the sp_dfine τ refit here used plain F1 with τ = score instead of the metric/prod rule (FP 0.5, midpoint cuts); with no prior it changes 50/50 base τ. Re-run under docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG_AMEND1.md. This FAIL is not a result.
+
 # W4 independent re-gate of W1 C1F — RESULT: FAIL (02.11 14:12 MSK)
 
 PREREG e6b5a31 (committed before measuring). Base = v3_on b447649. Code = b447649 + W4 port (98cdf56 + v4_on mirror commit):
