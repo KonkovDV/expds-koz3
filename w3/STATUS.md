@@ -32,3 +32,4 @@
 02.11 09:02 MSK | W3 | KURGAN-DUAL (PREREG 6e1d33d) vs V3P 0.333787 honest-10: Δ +0.003084 P 0.8685 (<0.9), new34 −0.006054, nolidar 0, повр +0.01309, целые −0.00422 (пол −0.002), форт 0 → FAIL; τ_dual по фолдам [.01,.03,.01,.01,.01,.01,.2,.01,.01,.01]; 603273 li-пар. Флаг kurgan_dual=false. Oracle-gap 30.10: только дамп кандидатов (gap_cands.pkl), gap_breakdown не построен — не завершён | +0.003084 | runs/gate_KDUAL.json
 02.11 09:22 MSK | W3 | oracle-gap class×mod (a/b/c/d), top: gor|opt wrong-cls +.042 (upper bound), PO|li thr +.038, arkh|opt nocand +.037 | oracle_hit .690 vs .322 | runs/gap_breakdown.md
 02.11 09:22 MSK | W3 | KDUAL-dmg gate FAIL (Δ<.003, new34<0) | Δ +0.002342 P .968 new34 -0.00074 PO +.0078 TS 0 | runs/gate_KDUAL_DMG.json
+02.11 09:30 MSK | W3 | LI-KURG-TAU gate FAIL all 4 (Bonf P>=.975): A Δ+.00437 P.81 intact-.0102; B1 -.0601; B2 -.0547; C +.00148 P.58 intact-.0267 | best A +0.004371 | runs/gate_LIKT.json
