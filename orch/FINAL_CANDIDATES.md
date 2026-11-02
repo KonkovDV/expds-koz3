@@ -1,4 +1,14 @@
-# FINAL CANDIDATES KOZ3 — 01.11.2026 23:50 MSK (coord)
+# FINAL CANDIDATES KOZ3 — обновлено 02.11.2026 14:05 MSK (coord)
+
+> Финал не меняется: «смелый» v3_on b447649 (1406c01a…), «надёжный» v2clean (545ef32a…) — таблица ниже.
+
+## 0. Кандидат v4 — В ОЖИДАНИИ (не сабмитить)
+| Роль | Состав | Гейт | Статус |
+|---|---|---|---|
+| **v4 (кандидат)** | v3_on b447649 + C1F (`[post.w1_c1f]`, d0 0.25, s 0.75; bots/w1-satq af6b827) + фикс scene_drel для sp_dfine (W4); возможно + FP1 (frame_prior → sp_dfine) | C1F: Δ+0.0159 P1.000, new34 0, nolidar +0.0285 (PREREG 1532475 → 5cc5ed7). FP1: Δ+0.00858 P0.999 (e574579). Совместно не гейтились | **ждёт** независимого перегейта W4 (PREREG e6b5a31) → сборка → check_submission → Kaggle parity. Архива и sha ещё нет |
+| запасной вариант приора | P2F (gor+arkh) | Δ+0.0149 P1.000 | только если C1F не пройдёт у W4 |
+
+## (ниже — версия 01.11.2026 23:50 MSK)
 
 > Архивы в git НЕ лежат. Копии: Google Drive, приватная папка **KOZ3-final** (не расшарена):
 > https://drive.google.com/drive/folders/1GzW2XGWIMVybFV2pP3WLryeIIhQeN8NB

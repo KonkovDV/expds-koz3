@@ -1,3 +1,30 @@
+# STATE KOZ3 — актуально на 02.11.2026 14:05 MSK (coord)
+## ФИНАЛ (без изменений, см. FINAL_CANDIDATES.md)
+- «смелый» = **v3_on b447649** sha 1406c01a…ef41d; «надёжный» = v2clean 545ef32a…. Оба Kaggle parity PASS. Елена: v3_on → при LB < 0.4124 v2clean. Лучший LB 0.41238.
+## КАНДИДАТ v4 (ждёт перегейта W4)
+- **C1F PASS** (W1, bots/w1-satq PREREG 1532475 → 5cc5ed7): Δ+0.0159 P1.000, new34 0, nolidar +0.0285, классы ≥0. Конфиг af6b827 (docs/W1_C1F_HANDOFF.md, d0 0.25, s 0.75, флаги off). P2F Δ+0.0149 PASS (запас). A1F FAIL (kt).
+- **FP1 PASS** (W1-SATQ e574579): починка frame_prior → sp_dfine, Δ+0.00858 P0.999, new34 +0.0009. С C1F совместно не гейтился.
+- W4 перегейт C1F: PREREG e6b5a31 (bots/w4-v3on), slot box/c1f до 19:57; найден баг порта (sp_dfine без scene_drel → приор no-op), чинится под флагом. При PASS → архив v4 + Kaggle parity.
+- Урок: при гейте замораживать пороги чужих групп на базе (W4 Q0 7c33027).
+## ЗАКРЫТО 02.11 (FAIL, флаги off)
+- Утро: W1 SATREC R1–R3/C1/C2 (06ef4ec); W3 KDUAL (dae47a7), KDUAL-damaged (b2a5a4d), LI-KURG-TAU (0b35b80).
+- День: W1 SATREC2 (3dcd07e); W1 SATQ Q1a/b/c, FP2, Q2 (e574579); W1 SATDET P1/P2 (843d807); W2 P-W2-12 бленд сидов (3dbe4ce); W3 KURG-SUBCLS (30c12b3), SUBDROP (3c92fd7), Q3/Q4/Q5 (f7e5545); W4 Q6 GBM находок (3b7a097).
+## RUNNING
+- Бот 2 W1 SATDET Faster R-CNN, GPU elenakonkova, ETA ~17:25 → гейт D1/D2.
+- Бот 3 W2 P-W2-13 второй D-FINE, GPU dmitrijkv (acc2/gpu-1 до 17:48, gpu-2 до 18:48), PREREG 1c0ddc0.
+- Бот 4 W3 перегейт KDUAL/LI-KURG-TAU с заморозкой (box/q2 до 15:54).
+- Бот 5 W4 перегейт C1F → v4.
+## АНАЛИЗ
+- COMPETITOR_GAPS_2026-11-02.md (d2fe1de), oracle gap (W3 runs/gap_breakdown.md), Q0 new34 (W4 7c33027).
+## БЕЗОПАСНОСТЬ / ОТКРЫТО У ЕЛЕНЫ
+- KOZ3-pixgbm на Drive открыта по ссылке; 31 git-конфиг вне KOZ3 с токеном; S3-ключ в 5 приватных кернелах; декларация ИИ; общий клон /workspace/koz3/repo (81 файл); рутина 15 мин → 1 ч?
+- Датасеты Kaggle только `"isPrivate": true` + проверка с другого аккаунта.
+## КОПИИ
+- Утро: backup_2026-11-02 (Drive / GH bots/backup-2026-11-02 / Kaggle koz3-handoff-20261102). День: backup_2026-11-02b (BACKUP_2026-11-02b.md).
+## NEXT
+1) W4 перегейт C1F → (C1F+FP1 совместно) → v4 архив + parity → Елене; 2) гейты SATDET и D-FINE-2; 3) перегейт почти-PASS линий с заморозкой; 4) 08–11.11 сборка, декларация.
+
+---
 # STATE KOZ3 — актуально на 02.11.2026 09:45 MSK (coord)
 ## ФИНАЛ (см. FINAL_CANDIDATES.md)
 - «смелый» = **v3_on b447649** sha **1406c01a…ef41d** (722 697 913 B), honest-10 0.333787; Kaggle parity v5 PASS 4/4.
