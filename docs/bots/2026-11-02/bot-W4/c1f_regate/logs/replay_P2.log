@@ -1,0 +1,11 @@
+[P2] fold 0: in 20016 → out 283 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 3s
+[P2] fold 1: in 5438 → out 2422 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 4s
+[P2] fold 2: in 11581 → out 156 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.25, 'arkhitektury': 1.0}} 5s
+[P2] fold 3: in 4686 → out 364 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.25}} 6s
+[P2] fold 4: in 8532 → out 2136 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 7s
+[P2] fold 5: in 6641 → out 300 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 8s
+[P2] fold 6: in 14531 → out 807 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 10s
+[P2] fold 7: in 8611 → out 1382 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 11s
+[P2] fold 8: in 12824 → out 285 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.25}} 12s
+[P2] fold 9: in 5221 → out 1100 chosen {'d0': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}} 13s
+done 9235 {'L1_in': 85069, 'L2_thr': 979, 'L3_thr+rerank': 979, 'L3_merge': 979, 'L3b_multipole': 979, 'L3c_finds': 979, 'L3d_twins': 979, 'L3e_micro': 979, 'L3f_finalize': 979, 'L4_final': 979} 15s
