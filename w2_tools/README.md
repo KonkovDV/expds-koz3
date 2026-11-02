@@ -4,6 +4,7 @@
 | `collect_cnx.sh` | скачать output ядер c3-sc (read-only) | `collect_cnx.sh <acc> <slug> <dir>` |
 | `merge_cnx.py` | склеить фолды в один OOF с проверками | → `oof/merged/oof_cnx_*.geojson` |
 | `seed_merge_cnx.py` | усреднить сиды | → `*_s012avg.geojson` |
+| `blend_maps_cnx.py` | P-W2-12: бленд карт N моделей (hm/mask/wh/off среднее, valid AND, проверка fold/H/W) + один декод | `blend_maps_cnx.py --report <report_cnx_full.json> --member s0=GLOB ... --out x.geojson --group li_cnxblend` |
 | `stack_add_cnx.py` | A + OOF как группа li_cnx | `stack_add_cnx.py stack_arch.geojson oof.geojson out.geojson cnx_s2` |
 | `stack_replace_li.py` | заменить li-группы на OOF | `… <group> [--classes kurgany_…]` |
 | `gate_detail.py` | разбор гейта по классам | `gate_detail.py base_counts.pkl counts_X.pkl out.json` |
