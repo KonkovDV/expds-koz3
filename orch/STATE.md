@@ -1,3 +1,25 @@
+# STATE KOZ3 — актуально на 02.11.2026 09:45 MSK (coord)
+## ФИНАЛ (см. FINAL_CANDIDATES.md)
+- «смелый» = **v3_on b447649** sha **1406c01a…ef41d** (722 697 913 B), honest-10 0.333787; Kaggle parity v5 PASS 4/4.
+- «надёжный» = **v2clean 545ef32a…** (568 488 239 B), honest-10 0.313967; Kaggle parity v5 PASS 5/5 (PREREG 8844d49, W4 9e711f6).
+- Оба parity-проверены. Сабмитит Елена: v3_on → при LB < 0.4124 откат на v2clean. Лучший LB пока 0.4124.
+- Копии: Drive KOZ3-final (приватная) + backup_2026-11-02; GitHub bots/backup-2026-11-02 @78ffd05; Kaggle приватный `<acc>/koz3-handoff-20261102`.
+## ЗАКРЫТО 02.11 (FAIL, флаги off)
+- W1 SATREC R1/R2/R3/C1/C2: лучший C1 Δ+0.0142 P0.9995 (режет только new34 −0.0011); R1 Δ+0.0100 P0.997 (new34 −0.0023). bots/w1-satrec 06ef4ec, docs/RESULTS_W1_SATREC.md.
+- W3 KDUAL Δ+0.0031 P0.87 (6e1d33d/dae47a7); KDUAL-damaged Δ+0.0023 P0.968 (5a804b9/b2a5a4d); LI-KURG-TAU 4×FAIL, лучший A Δ+0.0044 P0.81 (c96a0d6/0b35b80).
+## RUNNING
+- W1 SATREC2 (бот 2, bots/w1-satrec2, slot box/q1 до 02.11 21:23): C1+/R1+ сила приора по классам + защита new34.
+- W3 KURG-SUBCLS (бот 4, bots/w3-kurgan-seeds, slot box/q2): LightGBM damaged/intact по геоморфометрии.
+## АНАЛИЗ
+- Oracle gap (W3, runs/gap_breakdown.md): база 0.3220, оракул 0.690; нет кандидата +0.173, ниже порога +0.173, не тот класс +0.095, геометрия +0.042, 1:1 +0.016.
+- Конкуренты: COMPETITORS_2026-11-02.md (EN 0.502; наш LB 0.412).
+## БЕЗОПАСНОСТЬ
+- 13 публичных датасетов dmitrijkv удалены 02.11. KOZ3-pixgbm на Drive открыта по ссылке — закрывает Елена вручную. S3-ключ захардкожен в 5 приватных кернелах. 31 git-конфиг вне KOZ3 с GitHub-токеном — ждём Елену.
+- Kaggle-токены только в ~/.secrets/kpool (не в git). Датасеты — только `"isPrivate": true`.
+## NEXT
+1) Елена сабмитит v3_on; 2) итоги SATREC2 / KURG-SUBCLS → гейт до 08.11; 3) 08–11.11 сборка, check_submission, декларация ИИ.
+
+---
 # STATE KOZ3 — актуально на 01.11.2026 23:50 MSK (coord)
 ## ФИНАЛ (см. FINAL_CANDIDATES.md)
 - «смелый» = **v3_on b447649** `koz3_v3on_b447649_6d4764f8_w6dfd2e07.zip` sha **1406c01a…ef41d** (722 697 913 B) — honest-10 0.333787 (Δ+0.0198 P0.976 vs v2clean), прод Δ+0.0194 P0.964; Kaggle parity v5 PASS во всех 4 средах, вывод побайтно = ebc8e4ba. Drive KOZ3-final/v3_on_b447649_1406c01a. Заменяет ebc8e4ba (молча откатывался на v2). На LB ещё не был.
