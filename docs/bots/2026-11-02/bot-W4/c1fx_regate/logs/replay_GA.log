@@ -1,0 +1,21 @@
+[GA] fold 0 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.50106}}
+[GA] fold 0: in 20016 → out 347 chosen {'d0': 0.25, 's': 0.75, 'train': 0.42718655136} 3s
+[GA] fold 1 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.56171}}
+[GA] fold 1: in 5438 → out 2433 chosen {'d0': 0.25, 's': 0.75, 'train': 0.404488543981} 3s
+[GA] fold 2 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.0, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.324719, 'gorodishcha': 0.562675}}
+[GA] fold 2: in 11581 → out 243 chosen {'d0': 0.0, 's': 0.75, 'train': 0.434877973127} 4s
+[GA] fold 3 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.284558, 'gorodishcha': 0.56171}}
+[GA] fold 3: in 4686 → out 441 chosen {'d0': 0.25, 's': 0.75, 'train': 0.423537259552} 5s
+[GA] fold 4 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.0, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.236432, 'gorodishcha': 0.473934}}
+[GA] fold 4: in 8532 → out 2167 chosen {'d0': 0.0, 's': 0.75, 'train': 0.406886927484} 5s
+[GA] fold 5 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.56171}}
+[GA] fold 5: in 6641 → out 416 chosen {'d0': 0.25, 's': 0.75, 'train': 0.420055552595} 6s
+[GA] fold 6 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.50106}}
+[GA] fold 6: in 14531 → out 851 chosen {'d0': 0.25, 's': 0.75, 'train': 0.435312705984} 7s
+[GA] fold 7 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.50106}}
+[GA] fold 7: in 8611 → out 1422 chosen {'d0': 0.25, 's': 0.75, 'train': 0.412235361941} 8s
+[GA] fold 8 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.50106}}
+[GA] fold 8: in 12824 → out 438 chosen {'d0': 0.25, 's': 0.75, 'train': 0.426032138985} 9s
+[GA] fold 9 flag {'enabled': True, 'groups': ['sp_dfine'], 'center': {'d0': 0.25, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.75}}, 'thresholds_sp_dfine': {'arkhitektury': 0.281948, 'gorodishcha': 0.56171}}
+[GA] fold 9: in 5221 → out 1107 chosen {'d0': 0.25, 's': 0.75, 'train': 0.416488905343} 9s
+done 9865 {'L1_in': 85069, 'L2_thr': 1609, 'L3_thr+rerank': 1609, 'L3_merge': 1609, 'L3b_multipole': 1609, 'L3c_finds': 1609, 'L3d_twins': 1609, 'L3e_micro': 1609, 'L3f_finalize': 1609, 'L4_final': 1609} 11s
