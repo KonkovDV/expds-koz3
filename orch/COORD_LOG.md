@@ -770,3 +770,45 @@
 - 02.11 13:05 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
 - 02.11 13:12 MSK | coord | проверка: box load 0.88/8, W1 SATDET (elenakonkova GPU, лиз до 21:08) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
 - 02.11 13:17 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 14:17 MSK COMPETITOR_GAPS commit
+- 02.11 13:17 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 02.11 13:20 MSK | lease | acquire slot:box/q1 → bot-W1-satq до 02.11 17:20 MSK W1 SATQ Q1/FP CPU gate (nice10, 4 thr)
+- 02.11 13:20 MSK | lease | acquire branch:bots/w1-satq → bot-W1-satq до 02.11 19:20 MSK W1 SATQ
+- 02.11 13:22 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 13:23 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 14:23 MSK Q3-5 PREREG
+- 02.11 13:23 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 13:24 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 17:24 MSK W3 Q3-5 gates nice10 thr4
+- 02.11 13:29 MSK | lease | acquire slot:box/q6 → bot-W4-q6 до 02.11 19:29 MSK W4 Q6 finds GBM CPU gate nice19 thr4
+- 02.11 13:32 MSK | coord | проверка: box load 1.49/8, box q1/q2/q6 заняты W1/W3/W4 CPU-гейтами (с 13:20–13:29); W1 SATDET (elenakonkova GPU, лиз до 21:08) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 13:32 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 14:32 MSK Q3 PREREG amend
+- 02.11 13:32 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 13:33 MSK | lease | release slot:box/q1 (bot-W1-satq) by bot-W1-satq
+- 02.11 13:38 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 13:44 MSK | coord | проверка: box load 1.12/8, q2/q6 заняты W3/W4 CPU-гейтами, W1 освободил q1; W1 SATDET (elenakonkova GPU) бежит; dmitrijkv без новых ядер; ready-пункты QUEUE прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 13:48 MSK | lease | acquire slot:acc2/gpu-1 → bot-W2-lidar до 02.11 17:48 MSK P-W2-13 D-FINE-2 a (folds 0,3)
+- 02.11 13:48 MSK | lease | acquire slot:acc2/gpu-2 → bot-W2-lidar до 02.11 18:48 MSK P-W2-13 D-FINE-2 b (folds 4,2,1)
+- 02.11 13:53 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 13:53 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 14:53 MSK Q3-5 results
+- 02.11 13:53 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 13:54 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 13:54 MSK | lease | release slot:box/q6 (bot-W4-q6) by bot-W4-q6
+- 02.11 13:54 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 15:54 MSK W3 audit LIKT/KDUAL nice10 thr4
+- 02.11 13:57 MSK | lease | acquire slot:box/c1f → bot-W4-c1f до 02.11 19:57 MSK W4 C1F re-gate replays (box CPU)
+- 02.11 14:00 MSK | lease | release branch:bots/w1-satq (bot-W1-satq) by bot-W1-satq
+- 02.11 14:00 MSK | lease | acquire branch:bots/backup-2026-11-02b → coord до 02.11 17:00 MSK handoff 02.11b
+- 02.11 14:00 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 17:00 MSK handoff 02.11b docs
+- 02.11 14:01 MSK | lease | acquire branch:bots/w1-satq → bot-W1-satq до 02.11 20:01 MSK W1 COMBO C1F+FP1 gate
+- 02.11 14:01 MSK | lease | acquire slot:box/w1combo → bot-W1-satq до 02.11 20:01 MSK W1 COMBO replays nice10 thr4
+- 02.11 14:04 MSK | lease | acquire dataset:dmitrijkv/koz3-handoff-20261102b → coord до 02.11 16:04 MSK handoff b create
+- 02.11 14:04 MSK | lease | acquire dataset:elenakonkova/koz3-handoff-20261102b → coord до 02.11 16:04 MSK handoff b create
+- 02.11 14:04 MSK | lease | acquire dataset:usertest1234/koz3-handoff-20261102b → coord до 02.11 16:04 MSK handoff b create
+- 02.11 14:04 MSK | lease | acquire dataset:aaaa0000004/koz3-handoff-20261102b → coord до 02.11 16:04 MSK handoff b create
+- 02.11 14:04 MSK | lease | acquire dataset:aaaadg4gg4g4g/koz3-handoff-20261102b → coord до 02.11 16:04 MSK handoff b create
+- 02.11 14:06 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 15:06 MSK W3 prereg likt-frozen
+- 02.11 14:07 MSK | coord | проверка: box load 2.98/8, watcher жив; идёт handoff b (лизы датасетов coord до 16:04); ready-пункты QUEUE прежние (без ожидаемого прироста); check_conflicts ERROR=1 (81 изм. в общем клоне, прежнее). Елене — ничего.
+- 02.11 14:07 MSK | lease | release dataset:dmitrijkv/koz3-handoff-20261102b (coord) by coord
+- 02.11 14:07 MSK | lease | release dataset:elenakonkova/koz3-handoff-20261102b (coord) by coord
+- 02.11 14:07 MSK | lease | release dataset:usertest1234/koz3-handoff-20261102b (coord) by coord
+- 02.11 14:07 MSK | lease | release dataset:aaaa0000004/koz3-handoff-20261102b (coord) by coord
+- 02.11 14:07 MSK | lease | release dataset:aaaadg4gg4g4g/koz3-handoff-20261102b (coord) by coord
+- 02.11 14:08 MSK | coord | передача №2: HANDOFF/STATE/FINAL_CANDIDATES + новый PROMPT (5c2861b), BACKUP_2026-11-02b (729dd56); архив koz3_handoff_20261102b.zip sha fe5482f8…; Drive KOZ3-final/backup_2026-11-02b (только владелец); GH bots/backup-2026-11-02b 376f3f5; Kaggle <acc>/koz3-handoff-20261102b ×5 приватные (403 извне).
+- 02.11 14:08 MSK | lease | release branch:bots/backup-2026-11-02b (coord) by coord

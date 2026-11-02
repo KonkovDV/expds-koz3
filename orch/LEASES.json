@@ -37,22 +37,24 @@
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": null,
+   "holder": "bot-W2-lidar",
    "reserved_for": "bot-W1-aeor",
-   "kernel": null,
-   "purpose": "w3-gordense-timing",
+   "kernel": "dmitrijkv/koz3-w2-dfine2-a",
+   "purpose": "P-W2-13 D-FINE-2 a (folds 0,3)",
    "last": "снято bot-W3-bigobj 01.11 19:20 MSK",
-   "state": "свободен"
+   "since": "02.11 13:48 MSK",
+   "until": "02.11 17:48 MSK"
   },
   {
    "slot": "acc2/gpu-2",
    "account": "dmitrijkv",
-   "holder": null,
+   "holder": "bot-W2-lidar",
    "reserved_for": "bot-W1-aeor / W3 kurgan_orch",
-   "kernel": null,
-   "purpose": "coord: w3-gordense-timing под новым slug (старый slug → 409 Conflict)",
+   "kernel": "dmitrijkv/koz3-w2-dfine2-b",
+   "purpose": "P-W2-13 D-FINE-2 b (folds 4,2,1)",
    "last": "снято coord 01.11 20:24 MSK",
-   "state": "свободен"
+   "since": "02.11 13:48 MSK",
+   "until": "02.11 18:48 MSK"
   },
   {
    "slot": "acc2/tpu",
@@ -126,8 +128,8 @@
    "slot": "box/q1",
    "holder": null,
    "kernel": null,
-   "last": "снято bot-W1-satrec 02.11 09:55 MSK",
-   "purpose": "W1 SATREC2 CPU gate (nice10, 4 thr)",
+   "last": "снято bot-W1-satq 02.11 13:33 MSK",
+   "purpose": "W1 SATQ Q1/FP CPU gate (nice10, 4 thr)",
    "state": "свободен"
   },
   {
@@ -148,11 +150,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W3-bigobj",
    "kernel": null,
-   "last": "снято bot-W2 02.11 11:16 MSK",
-   "purpose": "P-W2-12 seed blend CPU decode+gate",
-   "state": "свободен"
+   "last": "снято bot-W3-bigobj 02.11 13:53 MSK",
+   "purpose": "W3 audit LIKT/KDUAL nice10 thr4",
+   "since": "02.11 13:54 MSK",
+   "until": "02.11 15:54 MSK"
   },
   {
    "slot": "box/q3",
@@ -161,6 +164,27 @@
    "last": "снято bot-W2-lidar 01.11 22:15 MSK",
    "purpose": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
    "state": "свободен"
+  },
+  {
+   "slot": "box/q6",
+   "holder": null,
+   "kernel": null,
+   "state": "свободен",
+   "last": "снято bot-W4-q6 02.11 13:54 MSK"
+  },
+  {
+   "slot": "box/c1f",
+   "holder": "bot-W4-c1f",
+   "kernel": null,
+   "since": "02.11 13:57 MSK",
+   "until": "02.11 19:57 MSK"
+  },
+  {
+   "slot": "box/w1combo",
+   "holder": "bot-W1-satq",
+   "kernel": null,
+   "since": "02.11 14:01 MSK",
+   "until": "02.11 20:01 MSK"
   }
  ],
  "kernel_prefix": {
@@ -364,13 +388,78 @@
    "pid": 1028290
   },
   {
+   "resource": "slot:acc2/gpu-1",
+   "owner": "bot-W2-lidar",
+   "since": 1793616533.040099,
+   "expires": 1793630933.040099,
+   "note": "P-W2-13 D-FINE-2 a (folds 0,3)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1105195,
+   "kernel": "dmitrijkv/koz3-w2-dfine2-a"
+  },
+  {
+   "resource": "slot:acc2/gpu-2",
+   "owner": "bot-W2-lidar",
+   "since": 1793616533.072635,
+   "expires": 1793634533.072635,
+   "note": "P-W2-13 D-FINE-2 b (folds 4,2,1)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1105201,
+   "kernel": "dmitrijkv/koz3-w2-dfine2-b"
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W3-bigobj",
+   "since": 1793616888.326706,
+   "expires": 1793624088.326706,
+   "note": "W3 audit LIKT/KDUAL nice10 thr4",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1108991
+  },
+  {
+   "resource": "slot:box/c1f",
+   "owner": "bot-W4-c1f",
+   "since": 1793617074.17089,
+   "expires": 1793638674.17089,
+   "note": "W4 C1F re-gate replays (box CPU)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1111108
+  },
+  {
    "resource": "branch:bots/orch-protocol",
    "owner": "coord",
-   "since": 1793614661.431343,
-   "expires": 1793618261.431343,
-   "note": "COMPETITOR_GAPS commit",
+   "since": 1793617259.238904,
+   "expires": 1793628059.238904,
+   "note": "handoff 02.11b docs",
    "host": "grok-bot-vm-361051398",
-   "pid": 1074100
+   "pid": 1114980
+  },
+  {
+   "resource": "branch:bots/w1-satq",
+   "owner": "bot-W1-satq",
+   "since": 1793617278.448668,
+   "expires": 1793638878.448668,
+   "note": "W1 COMBO C1F+FP1 gate",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1115381
+  },
+  {
+   "resource": "slot:box/w1combo",
+   "owner": "bot-W1-satq",
+   "since": 1793617278.477705,
+   "expires": 1793638878.477705,
+   "note": "W1 COMBO replays nice10 thr4",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1115386
+  },
+  {
+   "resource": "branch:bots/w3-kurgan-seeds",
+   "owner": "bot-W3-bigobj",
+   "since": 1793617602.904512,
+   "expires": 1793621202.904512,
+   "note": "W3 prereg likt-frozen",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1121643
   }
  ]
 }
