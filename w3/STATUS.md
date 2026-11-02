@@ -35,3 +35,6 @@
 02.11 09:30 MSK | W3 | LI-KURG-TAU gate FAIL all 4 (Bonf P>=.975): A Δ+.00437 P.81 intact-.0102; B1 -.0601; B2 -.0547; C +.00148 P.58 intact-.0267 | best A +0.004371 | runs/gate_LIKT.json
 02.11 09:43 MSK | W3 | KURG-SUBCLS gate FAIL: m=off in 10/10 folds (each m 0.007-0.024 below off on train) | AUC OOF 0.689 (1135 lab), Δ 0 | runs/gate_SUBCLS.json
 02.11 09:54 MSK | W3 | KURG-SUBDROP (drop the disagreeing twin copy, margin nested): FAIL, m=off in 10/10 folds (every margin lowers train), so KURG-SUBCLS is CLOSED | Δ +0.0000 P 0 new34 0 intact 0 | runs/gate_SUBDROP.json
+02.11 13:53 MSK | W3 | Q3 GOR-SWAP (DINOv2 p_scene replace mode, small single-tif scenes, centre snap, nested): FAIL on P and new34; gor +0.0206, noKislovodsk Δ +0.0018 | Δ +0.00308 P .787 new34 −0.00763 nolidar +0.0108 | runs/gate_Q3.json
+02.11 13:53 MSK | W3 | Q4 LI→SP_OR twins (li_sp_twin, α nested=1.0): FAIL | Δ +0.00060 P .764 new34 −0.00075 kp +0.0021 kt −0.0002 | runs/gate_Q4.json
+02.11 13:53 MSK | W3 | Q5 satellite kurgan hedge (h nested=0.2): FAIL, kt floor broken | Δ −0.00034 P .433 kt −0.00631 kp +0.0031 nolidar −0.0044 new34 +0.0009 | runs/gate_Q5.json
