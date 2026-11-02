@@ -3,21 +3,23 @@
 ## АКТУАЛЬНО 02.11.2026 14:40 MSK (передача №3, ФИНАЛЬНАЯ: у coord ~8% квоты; боты свёрнуты, leases сняты)
 **Финалы прежние:** «смелый» v3_on **b447649** (sha `1406c01a…ef41d`) основной, «надёжный» v2clean (`545ef32a…`) запасной. Оба Kaggle parity PASS. Сабмитит только Елена: v3_on → при LB < 0.4124 откат на v2clean. **v4 НЕ собран.**
 
-**C1F (центр-приор sp_dfine) — спорно, ПЕРВЫЙ ШАГ следующего бота:**
+**C1F (центр-приор sp_dfine) — PASS у W4 после исправления правила порогов:**
 - W1 FRZ (bots/w1-satq 5cc5ed7): PASS Δ+0.0159 P1.000. W4 независимый перегейт (bots/w4-v3on PREREG e6b5a31 → **5d0dd4c**): FAIL — Δ+0.0122, new34 −0.0008, kurgany_tselye −0.0033 (пол −0.002).
 - Причина расхождения (W1, bots/w1-satq **3929737**, `docs/W1_FRZ_DISCREPANCY.md`): c1f_prep.sweep у W4 подбирал пороги sp_dfine по обычному F1 (FP=1, порог = сам скор), а прод и метрика — FP=0.5 и порог посередине между скорами (metric._f1/_group_cuts). Без приора правило прода воспроизводит 50/50 базовых порогов, правило W4 меняет все 50. С правилом прода Δ+0.0149/+0.0152, new34 ≥0, kt ≥0.
-- W4 уже **подтвердил санити** (bots/w4-v3on **c60e50f8**, `docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG_AMEND1.md`, ident_check.json: старое правило меняет 50/50, прод-правило 0/50) и закоммитил поправку к PREREG ДО замера: варианты C1 (все классы), GA (gor/arkh), FP1 по отдельности, GAFP снят. **Сам замер НЕ выполнен** (боты остановлены). Промежуточные цифры в AMEND1 (GA +0.0134, FP1 +0.0086 при промежуточном правиле) — не результаты.
+- W4 уже **подтвердил санити** (bots/w4-v3on **c60e50f8**, `docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG_AMEND1.md`, ident_check.json: старое правило меняет 50/50, прод-правило 0/50) и закоммитил поправку к PREREG ДО замера: варианты C1 (все классы), GA (gor/arkh), FP1 по отдельности, GAFP снят. Замер выполнен — см. РЕЗУЛЬТАТ ниже. Промежуточные цифры в AMEND1 (GA +0.0134, FP1 +0.0086 при промежуточном правиле) — не результаты.
+- **РЕЗУЛЬТАТ W4 (bots/w4-v3on 607edef, рецепт в orch/bot-W4/STATUS_W4.md), правило метрики, санити 0/50:** **C1F-all PASS Δ+0.0162 P1.0 new34 +0.0007 (лучший)**; C1F-gor/arkh PASS Δ+0.0134 new34 0; FP1 PASS Δ+0.0086. Расхождение W1/W4 независимо подтверждено.
+- **ПЕРВЫЙ ШАГ:** собрать v4 = v3_on b447649 + фикс 98cdf56 + флаг C1F-all → check_submission → Kaggle parity 4+ сред → sha256 → FINAL_CANDIDATES.md → копии GH/Drive (KOZ3-final) + приватный Kaggle → Елене «v4 готов», сабмитит она.
 - **Баг:** в b447649/af6b827 scene_drel считается до признаков D-FINE → флаг C1F в архиве no-op. Фикс **98cdf56** (bots/w4-v3on, под флагом, 474 теста pass); флаги off в v3_on и v4_on.
 - **FP1** (frame_prior перепривязан к D-FINE): W1 PASS Δ+0.0086 P0.999 (e574579), независимо не подтверждён.
-- **Комбинация C1F+FP1 не аддитивна** (W1 предварительно, PREREG 5691184: kt −0.0035) — не делать.
+- **Комбинация C1F+FP1 не аддитивна** (W1 предварительно, PREREG 5691184: kt −0.0035) — в v4 не включать; гейтировать только отдельным PREREG.
 
 **FAIL (после 14:00, флаги off):** Q6 GBM находок (3b7a097; гейт не моделирует прод-постпроцессинг maggr и фильтр finds — при повторе нужен новый PREREG); LI-KURG-TAU с заморозкой (e6089c2, d4c550f; все FAIL); Q1 arkh (P 0.974–0.984 < 0.99), FP2 (new34 −0.0007), Q2 ≥4 Мпикс (new34 −0.0013) — e574579. KDUAL не перегейчивали: перевыбора чужих порогов там не было.
 
 **Урок (обязателен):** при гейте (1) замораживать пороги чужих групп на базе (taus_V3P[fold]); (2) подбирать затронутые пороги РОВНО правилом метрики (FP=0.5, порог посередине между скорами, first argmax, round 6); (3) санити до замера — без приёма воспроизвести все базовые пороги (0 изменений) и базу 0.345439 / 0.333787.
 
 **В работе на Kaggle (без присмотра):**
-- W1 SATDET Faster R-CNN на GPU elenakonkova, ETA ~17:25 MSK 02.11 → скачать OOF и гейтировать D1/D2 (bots/w1-satdet 7cbf4e4, tools/satq/run_det.sh). Детали: `orch/bot-W1/STATUS_W1.md`.
-- W2 P-W2-13 второй D-FINE (sp_or) на GPU dmitrijkv (PREREG 1c0ddc0 + 34f97d3, bots/w2-lidar a614dfa): ручной ранний стоп и гейт `gate_dfine2_ctx.py 2000` — шаги в хвосте `orch/bot-W2/STATUS_W2.md` (w2_notes/dfine2/README.md).
+- W1 SATDET Faster R-CNN: кернел elenakonkova/koz3-w1-satdet-frcnn v2, ETA ~17:25 MSK 02.11 → гейт через tools/satdet/run_det.sh (bots/w1-satdet); STATUS_W1 a0c10733. Детали: `orch/bot-W1/STATUS_W1.md`.
+- W2 P-W2-13 второй D-FINE (sp_or), кернелы a/b RUNNING на dmitrijkv (STATUS_W2 5b5e3251) (PREREG 1c0ddc0 + 34f97d3, bots/w2-lidar a614dfa): ручной ранний стоп и гейт `gate_dfine2_ctx.py 2000` — шаги в хвосте `orch/bot-W2/STATUS_W2.md` (w2_notes/dfine2/README.md).
 - Статусы ботов на 14:12–14:27: `orch/bot-W1..W4/STATUS_W1..W4.md` (копии с бокса; W4 также в bots/w4-v3on orch/bot-W4/STATUS.md).
 
 **Рутина «KOZ3 ночной контроль» ПРИОСТАНОВЛЕНА 02.11 14:27 MSK.** Боты сворачиваются, leases снимаются.
@@ -169,7 +171,7 @@
 2. ФИНАЛЫ: «смелый» v3_on b447649 (koz3_v3on_b447649_6d4764f8_w6dfd2e07.zip, sha256 1406c01a…ef41d, 722 697 913 B),
    «надёжный» v2clean (koz3_v2clean_70d335a_c028f4eb_wb042594f.zip, sha256 545ef32a…). Оба Kaggle parity PASS.
    Елена: сначала v3_on; LB < 0.4124 → v2clean. ebc8e4ba НЕ сабмитить. Проверь в OFFICIAL_SCORES.md, сабмитила ли она.
-   v4 НЕ собран; кандидат — лучший одиночный PASS из п.5.1.
+   v4 НЕ собран; кандидат v4 = v3_on + 98cdf56 + C1F-all (PASS у W4, п.5.1).
 
 3. АРТЕФАКТЫ: Drive KOZ3-final (v3_on_b447649_1406c01a, v2clean_545ef32a, backup_2026-11-02, backup_2026-11-02b, reports);
    GitHub bots/backup-2026-11-02 и bots/backup-2026-11-02b; приватные Kaggle-датасеты <acc>/koz3-handoff-20261102 и
@@ -186,15 +188,13 @@
    Санити до замера (в PREREG): без приёма 0 изменений базовых порогов и база 0.345439/0.333787.
 
 5. СЛЕДУЮЩИЕ ШАГИ ПО ПРИОРИТЕТУ:
-   5.1 ПЕРВЫЙ ШАГ — довести v4. C1F спорно: W1 PASS Δ+0.0159, W4 FAIL (5d0dd4c) из-за неверного правила порогов
-       (W1 3929737, docs/W1_FRZ_DISCREPANCY.md). W4 уже закоммитил PREREG_AMEND1 (bots/w4-v3on c60e50f8, санити 0/50 подтверждена).
-       Выполнить замер по AMEND1 (docs/bots/2026-11-02/bot-W4/c1fx_regate/scripts/run_all.sh): C1 (все классы), GA (gor/arkh),
-       FP1 — каждый ОТДЕЛЬНО, правило метрики. Комбинацию C1F+FP1 НЕ делать (не аддитивна, kt −0.0035).
-       На лучшем одиночном PASS: v4 = v3_on b447649 + фикс scene_drel 98cdf56 + флаг варианта, параметры на всех данных
-       тем же правилом; сборка, check_submission, Kaggle parity в 4+ средах, sha256 → FINAL_CANDIDATES.md, копии на GH/Drive
-       (KOZ3-final) и приватный Kaggle-датасет. Потом Елене: «v4 готов к сабмиту». Нет PASS → финал v3_on/v2clean.
-   5.2 Дождаться и гейтировать GPU-линии: W1 SATDET Faster R-CNN (elenakonkova, ETA ~17:25 02.11) → D1/D2;
-       W2 P-W2-13 второй D-FINE (dmitrijkv) → ранний стоп по orch/bot-W2/STATUS_W2.md → гейт поверх v4/v3_on.
+   5.1 ПЕРВЫЙ ШАГ — собрать v4. W4 (bots/w4-v3on 607edef, правило метрики, санити 0/50): C1F-all PASS Δ+0.0162 P1.0
+       new34 +0.0007 (лучший); C1F-gor/arkh PASS Δ+0.0134; FP1 PASS Δ+0.0086. v4 = v3_on b447649 + фикс scene_drel 98cdf56
+       + флаг C1F-all (параметры на всех данных по рецепту в orch/bot-W4/STATUS_W4.md). check_submission, Kaggle parity в 4+
+       средах, sha256 → FINAL_CANDIDATES.md, копии GH + Drive KOZ3-final + приватный Kaggle-датасет. Затем Елене: «v4 готов
+       к сабмиту» (сабмитит она; при LB хуже 0.41238 — откат на v3_on/v2clean). C1F+FP1 — только отдельный гейт/PREREG.
+   5.2 Дождаться и гейтировать GPU-линии: W1 SATDET elenakonkova/koz3-w1-satdet-frcnn v2 (ETA ~17:25 02.11) → tools/satdet/run_det.sh;
+       W2 P-W2-13 второй D-FINE (dmitrijkv, a/b RUNNING) → ранний стоп по orch/bot-W2/STATUS_W2.md → гейт поверх v4/v3_on.
    5.3 Перегейт «почти PASS» с заморозкой УЖЕ сделан: LI-KURG-TAU FAIL (e6089c2, d4c550f), KDUAL не нужен (перевыбора не было).
        Остаётся по желанию: Q3 gor-swap (+0.0031) с правилом метрики.
    5.4 Остальное из COMPETITOR_GAPS (только clean-room): fold-ансамбль D-FINE на инференсе (+0.003…0.010, гейтом не меряется —
