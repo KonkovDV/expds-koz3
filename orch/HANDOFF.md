@@ -1,3 +1,10 @@
+# HANDOFF KOZ3 — АКТУАЛЬНО 02.11.2026 15:05 MSK (W4 agent 5)
+
+**v4 СОБРАН:** `koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` sha256 `f0def982…7202cef`. Drive [v4c1f_f0def982](https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia). Kaggle DS `aaaa0000004/koz3-w4-v4c1f`. A уведомил Елену сабмитить; боты LB не пушат. Порядок: v4 → rollback v3_on (1406c01a…) → v2clean (545ef32a…).
+
+**W4 сейчас:** независимый перегейт COMP_GORLOC + opt COMP_FL (честный-10 на v4). Hold LB.
+
+---
 # HANDOFF KOZ3 — как продолжить работу только по GitHub (обновлено 02.11.2026 14:40 MSK, coord/бот 1, передача №3)
 
 ## АКТУАЛЬНО 02.11.2026 14:40 MSK (передача №3, ФИНАЛЬНАЯ: у coord ~8% квоты; боты свёрнуты, leases сняты)

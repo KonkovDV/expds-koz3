@@ -1,13 +1,13 @@
-# FINAL CANDIDATES KOZ3 — обновлено 02.11.2026 14:40 MSK (coord)
+# FINAL CANDIDATES KOZ3 — обновлено 02.11.2026 15:05 MSK (W4 agent 5)
 
-> Финал не меняется: «смелый» v3_on b447649 (1406c01a…), «надёжный» v2clean (545ef32a…) — таблица ниже.
+> Финалы: **v4 C1F-all** (новый основной) · «смелый» v3_on b447649 (1406c01a…) · «надёжный» v2clean (545ef32a…). На LB сабмитит **только Елена**.
 
-## 0. Кандидат v4 — НЕ СОБРАН (не сабмитить)
+## 0. Кандидат v4 — СОБРАН (Елена уведомлена A; боты LB не пушат)
 | Роль | Состав | Гейт | Статус |
 |---|---|---|---|
-| **v4 (кандидат)** | v3_on b447649 + фикс scene_drel **98cdf56** + флаг **C1F-all** | C1F: W1 PASS Δ+0.0159 (5cc5ed7) ; W4 5d0dd4c (FAIL) отменён AMEND1 c60e50f8 (правило порогов, W1 3929737). FP1: W1 PASS Δ+0.0086 (e574579), W4 подтвердил. C1F+FP1 не аддитивна — не собирать | **W4 607edef (правило метрики, санити 0/50): C1F-all PASS Δ+0.0162 P1.0 new34 +0.0007; GA PASS +0.0134; FP1 PASS +0.0086.** Далее: сборка → check_submission → parity 4+ сред → sha256. Архива нет |
+| **v4 (основной кандидат)** | v3_on + scene_drel **98cdf56** + **C1F-all** (`configs/v4_c1f.toml` @ bots/w4-v3on **07795d2**) | W4 607edef: C1F-all PASS Δ+0.0162 P1.0 new34 +0.0007; GA +0.0134; FP1 +0.0086 (не в сборке) | **Архив готов.** `koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` sha256 **`f0def9822cf185aee0829b72c36e4def94c17d03044d16adefc59c9547202cef`**, 722 705 579 B (690 MiB), 3904 файла, DOC-1 name-scan clean, `[post.w1_c1f] enabled=true`. Drive: [v4c1f_f0def982](https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia) (8×part + SHA256SUMS). Kaggle private DS: `aaaa0000004/koz3-w4-v4c1f` **ready**. Parity kernel `aaaa0000004/koz3-w4-v4chk` **RUNNING**. Порядок сабмита: **v4 → если LB хуже v3_on → v3_on → v2clean**. |
 
-## (ниже — версия 01.11.2026 23:50 MSK)
+## (ниже — версия 01.11.2026 23:50 MSK; таблица §1 без изменений по v3_on/v2clean)
 
 > Архивы в git НЕ лежат. Копии: Google Drive, приватная папка **KOZ3-final** (не расшарена):
 > https://drive.google.com/drive/folders/1GzW2XGWIMVybFV2pP3WLryeIIhQeN8NB
