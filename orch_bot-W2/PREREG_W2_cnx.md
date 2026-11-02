@@ -259,3 +259,36 @@
 - **Результат P-W2-12 (02.11 11:12 MSK): FAIL оба.** (a) blend3 B 0,342352 Δ −0,0035 P 0,2295, new34 −0,0042, nolidar 0, полы tselye −0,0152/gor −0,0079/fort −0,0074;
   (b) blend4 B 0,345546 Δ −0,0003 P 0,4765, new34 −0,0153, nolidar +0,00004, tselye −0,0157. Справ.: vs одиночный s2 +0,0075 (P 0,9965) / +0,0107 (P 0,988).
   Линия закрыта, GPU не запускались. w2_gate/blend_v3p/README.md.
+
+## P-W2-13  D-FINE-2: второй спутниковый (sp_or) D-FINE как член ансамбля, слияние с существующим sp_dfine в радиусе 8 м, гейт в ПРОД-КОНТЕКСТЕ v3_on b447649 (зарегистрировано 02.11 ~13:45 MSK, ДО запуска ядер и измерений; задача бота 1 от 02.11, п. 2 orch/COMPETITOR_GAPS_2026-11-02.md (d2fe1de), зелёный свет Елены; аренды slot:acc2/gpu-1, slot:acc2/gpu-2)
+- Модель/данные: тот же пайплайн bot-9 (`kaggle/2026-10-29/dfine_spor/full/koz3-dfine-spor-full.py`), ядра собираются `w2_kernels/koz3-w2-dfine2/make_dfine2.py`
+  только ассерт-заменами: HF ustc-community/dfine-large-coco @aa8f8211, transformers 5.21.0, тайл 640 / перекрытие 160 / 0,5 м, тренер bot5, 6000 ит,
+  bs 8, 2×T4 (поток на фолд). Новое поведение — флагами (дефолты в исходнике = поведение bot-9; в ядрах D-FINE-2 заданы через *_DEFAULT):
+  **DN выкл** (DFINE_NUM_DN=0), **посайтовая балансировка** (DFINE_SAMPLING=site: веса объектов = классовые веса bot-9, нормированные внутри участка,
+  масса участка ∝ n_r^0,5 (DFINE_SITE_POW); фон — так же), **качественные аугментации** (DFINE_QAUG2=1, только фотометрия после JPEG-шага bot-9:
+  дымка p0,2, снижение контраста p0,2, насыщенность/цветовой сдвиг p0,3, unsharp p0,2, JPEG q30–85 на родном разрешении p0,25; геометрия/рамки не меняются),
+  **другой сид** (DFINE_SEED_BASE=200: make_model seed 200+k, батчи 2000+k; у bot-9 100+k / 1000+k), группа OOF `sp_dfine2`.
+- Фолды: те же, что у bot-9 (FOLDS ядра bot-9 без изменений; 132 участка с SpOr+GT: f0 2, f1 22, f2 49, f3 16, f4 43). Ядро a = `dmitrijkv/koz3-w2-dfine2-a`
+  (фолды 0,3), ядро b = `dmitrijkv/koz3-w2-dfine2-b` (фолды 4,2,1). OOF = по одной модели на фолд, предсказания только на участках своего фолда
+  (`oof_dfine_f{k}.geojson`, EPSG:3857, эллипсы как у bot-9).
+- Данные без ключей: растры SpOr — приватные датасеты dmitrijkv/koz3-w2-dfine2-raw-{a,b} (копия elenakonkova/koz3-dino-gor-raw; Kaggle режет не-ASCII в именах →
+  `<NNN>__<kk>_SpOr.tif` + manifest_{a,b}.json с исходными участком/именем), GT gt_train_v2 sp_or (1606 объектов, 132 участка — = S3 GT bot-9). S3 не используется.
+  Отличие от bot-9: target CRS = UTM-зона центра растра (UTM.json участков в датасете нет); на метрику не влияет (выход в EPSG:3857).
+- Ранняя остановка (после ядра a, пока b ещё идёт; `w2_tools/early_stop_dfine2.py`): на участках f0+f3 (18 участков, 249 GT; f0 один слишком мал — 2 участка)
+  S(X) = средневзвешенный CLASS_WEIGHTS по классам с GT max_t F1 (compute_metrics, сетка t 0,05..0,95 шаг 0,025) для кругов:
+  A = sp_dfine bot-9 (cluster_circles 4/4), B = D-FINE-2 (4/4), M = A+B (4 м, слияние 8 м, mean, 2 модели), C = A+копия A по тому же правилу (контроль:
+  само слияние 8 м даёт +0,0018). **FAIL, если S(B) < S(A) − 0,02 или S(M) ≤ S(C)** → отмена ядра b, аренды освободить, линия закрыта.
+  Иначе ждать b и гейт. До измерения: S(A) = 0,249916, S(C) = 0,251746; самотест (B = копия A) даёт FAIL по R2 — правило работает как задумано.
+- Как OOF входит в стек и гейт (`w2_gate/dfine2_v3p/gate_dfine2_ctx.py`, движок W4 v3_gate_lib / d3_gate TableEngine, как P-W2-9 попр. 2 и P-W2-12):
+  A = V3P_ctx (V3P = base3 + c19 + sp_dfine; строки стека и экстра, прошедшие output_floors(cfg v3_on)[группа][класс], конфиг `configs/default.toml` из
+  w4geo/dist/koz3_v3on_b505656_6d4764f8_w6dfd2e07.zip = b447649; li_floor/prior/calibration как в архиве). B = A, где sp_dfine заменён на ENS8:
+  по участку SPD.cluster_circles(ref (model 0) + D-FINE-2 (model 1), радиус 4 м, слияние 8 м, ensemble mean, n_models 2) → P.finalize(P.merge_within_markup),
+  threshold_group `sp_dfine_ens` (раздела в архиве нет → пол = thresholds[класс]/default_threshold, как у li_r50c5). S0: V3P = 0,3337867244 (±1e-6);
+  S1: тот же код кругов только на ref (4 м, max, 1 модель, sp_dfine) = V3P (±1e-6); иначе стоп. OOF D-FINE-2 обязан покрывать все 132 участка, фолды = ref.
+- Пороги только nested: honest-10 по семействам (unseen = drop). Bootstrap 2000 по site_family, seed 0.
+- **PASS (решающий вариант ENS8 mean vs V3P_ctx): Δ ≥ +0,003 И P(B>A) ≥ 0,95 И Δ new34 ≥ 0 И Δ nolidar ≥ 0 И полы по классам ΔF1 ≥ −0,002 для
+  kurgany_povr/kurgany_tselye/gorodishcha, ≥ −0,005 для arkhitektury/fortifikatsii** (классы с n_GT < 5 исключены, как в r50c5).
+  Справочно (решения не меняют): ENS8 vs V3P без контекста; ens8 max; ens4 mean; ENS8 mean с группой sp_dfine (полы архива sp_dfine).
+- Решение без подглядывания: FAIL → линия второго D-FINE закрыта, новых GPU-прогонов в её рамках нет. PASS → бот 1/W4: вписывание в архив (2-я модель
+  D-FINE-L ~ +120 МБ весов, CPU-время инференса ×2 на sp_or, лимит 2048 МБ распакованным, без сети) и полы группы sp_dfine_ens в конфиг.
+- Бюджет: ~5 GPU-ч dmitrijkv (a ≈ 1,9 ч, b ≈ 3,1 ч по 2×T4) из 8–12 разрешённых; квота до запуска: 11,01 ч использовано, 18,99 ч осталось из 30 (refresh 07.11 03:00 MSK).
