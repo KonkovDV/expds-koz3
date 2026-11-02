@@ -148,11 +148,12 @@
   },
   {
    "slot": "box/q2",
-   "holder": null,
+   "holder": "bot-W3-bigobj",
    "kernel": null,
    "last": "снято bot-W3-bigobj 02.11 09:30 MSK",
-   "purpose": "W3 LI-KURG-TAU gate nice10 thr4",
-   "state": "свободен"
+   "purpose": "W3 KURG-SUBCLS gate nice10 thr4",
+   "since": "02.11 09:35 MSK",
+   "until": "02.11 11:35 MSK"
   },
   {
    "slot": "box/q3",
@@ -353,6 +354,15 @@
    "note": "W1 SATREC2 (wt/w1sr)",
    "host": "grok-bot-vm-361051398",
    "pid": 986162
+  },
+  {
+   "resource": "slot:box/q2",
+   "owner": "bot-W3-bigobj",
+   "since": 1793601307.128925,
+   "expires": 1793608507.128925,
+   "note": "W3 KURG-SUBCLS gate nice10 thr4",
+   "host": "grok-bot-vm-361051398",
+   "pid": 998452
   }
  ]
 }

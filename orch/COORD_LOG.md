@@ -722,3 +722,5 @@
 - 02.11 09:34 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:34 MSK SUBCLS prereg
 - 02.11 09:34 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
 - 02.11 09:34 MSK | lease | release branch:bots/backup-2026-11-02 (coord) by coord
+- 02.11 09:35 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 11:35 MSK W3 KURG-SUBCLS gate nice10 thr4
+- 02.11 09:37 MSK | coord | проверка: GPU-аккаунты без новых ядер, box load 1.8/8 (q1 W1 SATREC2, q2 W3 KURG-SUBCLS), очередь без новых ready-элементов. Елене — ничего.
