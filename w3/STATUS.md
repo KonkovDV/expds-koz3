@@ -34,3 +34,4 @@
 02.11 09:22 MSK | W3 | KDUAL-dmg gate FAIL (Δ<.003, new34<0) | Δ +0.002342 P .968 new34 -0.00074 PO +.0078 TS 0 | runs/gate_KDUAL_DMG.json
 02.11 09:30 MSK | W3 | LI-KURG-TAU gate FAIL all 4 (Bonf P>=.975): A Δ+.00437 P.81 intact-.0102; B1 -.0601; B2 -.0547; C +.00148 P.58 intact-.0267 | best A +0.004371 | runs/gate_LIKT.json
 02.11 09:43 MSK | W3 | KURG-SUBCLS gate FAIL: m=off in 10/10 folds (each m 0.007-0.024 below off on train) | AUC OOF 0.689 (1135 lab), Δ 0 | runs/gate_SUBCLS.json
+02.11 09:54 MSK | W3 | KURG-SUBDROP (drop the disagreeing twin copy, margin nested): FAIL, m=off in 10/10 folds (every margin lowers train), so KURG-SUBCLS is CLOSED | Δ +0.0000 P 0 new34 0 intact 0 | runs/gate_SUBDROP.json
