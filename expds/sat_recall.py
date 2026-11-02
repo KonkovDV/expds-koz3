@@ -105,13 +105,15 @@ def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
       s_by_class   {class_name: s} overrides s per class (e.g. kurgany_tselye own strength)
       only_without_lidar  apply only in regions whose input has no markup "li" feature
       nl_group     relabel threshold_group of the prior groups to this name in lidar-free regions (own thresholds)
+    W1-COMBO (docs/PREREG_W1_COMBO.md) adds:
+      frame_prior  {classes, d0, edge}: after the prior, post.frame_prior on the same groups (∪ nl_group) — FP1 on sp_dfine
     Feature without scene_drel keeps its confidence.
     """
     from . import post
 
     spec = dict(spec or {})
     spec.setdefault("groups", ["sp_dfine"])
-    if not any(k in spec for k in ("s", "s_by_class", "only_without_lidar", "nl_group")):
+    if not any(k in spec for k in ("s", "s_by_class", "only_without_lidar", "nl_group", "frame_prior")):
         return post.frame_prior(feats, spec)
     groups = set(spec["groups"])
     d0 = min(max(float(spec.get("d0", 0.0)), 0.0), 0.999)
@@ -135,6 +137,9 @@ def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
             m = max(0.0, 1.0 - s * min((float(d) - d0) / (1.0 - d0), 1.0))
             f2["confidence"] = float(f.get("confidence", 0.0)) * m
         out.append(f2)
+    fp = spec.get("frame_prior")
+    if fp:
+        out = post.frame_prior(out, {**dict(fp), "groups": sorted(groups | ({nl_group} if nl_group else set()))})
     return out
 
 
@@ -223,6 +228,10 @@ def resolve_final_flag(cfg: dict) -> dict:
         raise ValueError(f"[post.{name}] needs s_by_class and thresholds_sp_dfine")
     pc["sat_center_prior"] = {"groups": list(fl.get("groups") or ["sp_dfine"]), "d0": float(fl.get("d0", 0.0)), "s": 0.0,
                               "s_by_class": {str(k): float(v) for k, v in fl["s_by_class"].items()}}
+    if fl.get("frame_prior"):   # optional FP1 after the centre prior (W1-COMBO; no flag ships it — COMBO FAILED)
+        fp = dict(fl["frame_prior"])
+        pc["sat_center_prior"]["frame_prior"] = {"classes": [str(c) for c in fp.get("classes") or []],
+                                                 "d0": float(fp.get("d0", 0.5)), "edge": float(fp.get("edge", 0.5))}
     pc[name] = {**fl, "enabled": False, "resolved": True}   # idempotent: a resolved cfg is not resolved again
     by = dict(cfg.get("thresholds_by_markup") or {})
     by["sp_dfine"] = {**dict(by.get("sp_dfine") or {}), **thr}
