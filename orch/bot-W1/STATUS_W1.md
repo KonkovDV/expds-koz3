@@ -80,7 +80,7 @@ Details in docs/RESULTS_W1_FRZ.md. Next: SATQ (Q1/FP plus Q2 with ≥4 Mpix, fre
 - FRZ/C1F: PASS on the W1 gate (Δ +0.0159, P 1.0, new34 0, kt +0.0003). Config af6b827 + docs/W1_C1F_HANDOFF.md.
   **The flag is a no-op in the real pipeline** (scene_drel computed before D-FINE). It needs W4's fix 98cdf56 (not integrated into w1-satq).
 - W4 re-gate of C1F (5d0dd4c) FAILED, but the cause is W4's plain-F1 τ rule (docs/W1_FRZ_DISCREPANCY.md, 2×2 attribution).
-  **The W4 re-check with the metric τ rule is pending.** W4 also owns the FP1, gor/arkh-only and C1F+FP1 re-gates.
+  **DONE: W4 re-check with the metric τ rule = PASS (bots/w4-v3on 607edef, C1 Δ+0.016202).** W4 also owns the FP1, gor/arkh-only and C1F+FP1 re-gates.
 - SATQ (e574579): **FP1 PASS** (Δ +0.008581, P 0.999, new34 +0.0009, nolidar +0.0190); Q1a/b/c, FP2 and Q2 FAIL. No FP1 production flag yet.
 - COMBO C1F+FP1 (PREREG 5691184): ran 14:07, before the stop. FAIL on the kt floor (−0.00347). Non-binding.
 - Previously uncommitted items are now committed on bots/w1-satq: the sat_recall.sat_center_prior `frame_prior` sub-spec + test,
