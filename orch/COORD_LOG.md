@@ -812,3 +812,23 @@
 - 02.11 14:07 MSK | lease | release dataset:aaaadg4gg4g4g/koz3-handoff-20261102b (coord) by coord
 - 02.11 14:08 MSK | coord | передача №2: HANDOFF/STATE/FINAL_CANDIDATES + новый PROMPT (5c2861b), BACKUP_2026-11-02b (729dd56); архив koz3_handoff_20261102b.zip sha fe5482f8…; Drive KOZ3-final/backup_2026-11-02b (только владелец); GH bots/backup-2026-11-02b 376f3f5; Kaggle <acc>/koz3-handoff-20261102b ×5 приватные (403 извне).
 - 02.11 14:08 MSK | lease | release branch:bots/backup-2026-11-02b (coord) by coord
+- 02.11 14:08 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 02.11 14:10 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 14:10 MSK | lease | release slot:box/c1f (bot-W4-c1f) by bot-W4-c1f
+- 02.11 14:12 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 14:12 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 14:13 MSK | lease | acquire slot:box/c1fx → bot-W4-c1fx до 02.11 20:13 MSK W4 C1F-gor/arkh + FP1 re-gate, nice19
+- 02.11 14:20 MSK | coord | проверка: box load 2.3/8 (W1 w1combo, W4 c1fx), Kaggle слоты под лизами (acc1 gpu-1, acc2 gpu-1/2, CPU usertest/acc2/aaaadg, aaaa0000004 kurgan-seeds), watcher жив; W4: C1F регейт FAIL (new34/kt), идёт C1F-gor/arkh+FP1. Елене — ничего.
+- 02.11 14:19 MSK | lease | release branch:bots/w1-satq (bot-W1-satq) by bot-W1-satq
+- 02.11 14:19 MSK | lease | release slot:box/w1combo (bot-W1-satq) by bot-W1-satq
+- 02.11 14:26 MSK | check_conflicts | ERROR=1 WARN=24: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 14:27 MSK W2: wound down (квота); D-FINE-2 a/b оставлены RUNNING на dmitrijkv; leases сняты; следующий шаг в STATUS_W2.
+- 02.11 14:27 MSK | lease | release slot:acc2/gpu-1 (bot-W2-lidar) by bot-W2-lidar
+- 02.11 14:27 MSK | lease | release slot:acc2/gpu-2 (bot-W2-lidar) by bot-W2-lidar
+- 02.11 14:27 MSK | lease | acquire branch:bots/w1-satq → bot-W1-satq до 02.11 15:27 MSK wrap-up push
+- 02.11 14:27 MSK | lease | release branch:bots/w1-satq (bot-W1-satq) by bot-W1-satq
+- 02.11 14:27 MSK | lease | release kernel:elenakonkova/koz3-w1-satdet-frcnn (bot-W1-satrec) by bot-W1-satrec
+- 02.11 14:27 MSK | lease | release slot:acc1/gpu-1 (bot-W1-satrec) by bot-W1-satrec
+- 02.11 14:27 MSK | lease | release branch:bots/w1-satdet (bot-W1-satrec) by bot-W1-satrec
+- 02.11 14:28 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 15:28 MSK handoff #3
+- 02.11 14:28 MSK | lease | release branch:bots/orch-protocol (coord) by coord

@@ -5,14 +5,13 @@
   {
    "slot": "acc1/gpu-1",
    "account": "elenakonkova",
-   "holder": "bot-W1-satrec",
+   "holder": null,
    "kernel": null,
    "purpose": "W1 SATDET: quota check, then detector training",
    "pushed_by": "coord gpu_watcher",
    "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
-   "last": "снято bot-W1-aeor 01.11 20:07 MSK",
-   "since": "02.11 11:04 MSK",
-   "until": "02.11 18:16 MSK"
+   "last": "снято bot-W1-satrec 02.11 14:27 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc1/gpu-2",
@@ -37,24 +36,22 @@
   {
    "slot": "acc2/gpu-1",
    "account": "dmitrijkv",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "reserved_for": "bot-W1-aeor",
-   "kernel": "dmitrijkv/koz3-w2-dfine2-a",
+   "kernel": null,
    "purpose": "P-W2-13 D-FINE-2 a (folds 0,3)",
-   "last": "снято bot-W3-bigobj 01.11 19:20 MSK",
-   "since": "02.11 13:48 MSK",
-   "until": "02.11 17:48 MSK"
+   "last": "снято bot-W2-lidar 02.11 14:27 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc2/gpu-2",
    "account": "dmitrijkv",
-   "holder": "bot-W2-lidar",
+   "holder": null,
    "reserved_for": "bot-W1-aeor / W3 kurgan_orch",
-   "kernel": "dmitrijkv/koz3-w2-dfine2-b",
+   "kernel": null,
    "purpose": "P-W2-13 D-FINE-2 b (folds 4,2,1)",
-   "last": "снято coord 01.11 20:24 MSK",
-   "since": "02.11 13:48 MSK",
-   "until": "02.11 18:48 MSK"
+   "last": "снято bot-W2-lidar 02.11 14:27 MSK",
+   "state": "свободен"
   },
   {
    "slot": "acc2/tpu",
@@ -150,12 +147,11 @@
   },
   {
    "slot": "box/q2",
-   "holder": "bot-W3-bigobj",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W3-bigobj 02.11 13:53 MSK",
+   "last": "снято bot-W3-bigobj 02.11 14:12 MSK",
    "purpose": "W3 audit LIKT/KDUAL nice10 thr4",
-   "since": "02.11 13:54 MSK",
-   "until": "02.11 15:54 MSK"
+   "state": "свободен"
   },
   {
    "slot": "box/q3",
@@ -174,17 +170,24 @@
   },
   {
    "slot": "box/c1f",
-   "holder": "bot-W4-c1f",
+   "holder": null,
    "kernel": null,
-   "since": "02.11 13:57 MSK",
-   "until": "02.11 19:57 MSK"
+   "state": "свободен",
+   "last": "снято bot-W4-c1f 02.11 14:10 MSK"
   },
   {
    "slot": "box/w1combo",
-   "holder": "bot-W1-satq",
+   "holder": null,
    "kernel": null,
-   "since": "02.11 14:01 MSK",
-   "until": "02.11 20:01 MSK"
+   "state": "свободен",
+   "last": "снято bot-W1-satq 02.11 14:19 MSK"
+  },
+  {
+   "slot": "box/c1fx",
+   "holder": "bot-W4-c1fx",
+   "kernel": null,
+   "since": "02.11 14:13 MSK",
+   "until": "02.11 20:13 MSK"
   }
  ],
  "kernel_prefix": {
@@ -361,105 +364,13 @@
    "pid": 658530
   },
   {
-   "resource": "slot:acc1/gpu-1",
-   "owner": "bot-W1-satrec",
-   "since": 1793606697.98666,
-   "expires": 1793632590.423057,
-   "note": "W1 SATDET: quota check, then detector training",
+   "resource": "slot:box/c1fx",
+   "owner": "bot-W4-c1fx",
+   "since": 1793617991.964607,
+   "expires": 1793639591.964607,
+   "note": "W4 C1F-gor/arkh + FP1 re-gate, nice19",
    "host": "grok-bot-vm-361051398",
-   "pid": 1025388
-  },
-  {
-   "resource": "branch:bots/w1-satdet",
-   "owner": "bot-W1-satrec",
-   "since": 1793606909.118829,
-   "expires": 1793779709.118829,
-   "note": "W1 SATDET",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1028285
-  },
-  {
-   "resource": "kernel:elenakonkova/koz3-w1-satdet-frcnn",
-   "owner": "bot-W1-satrec",
-   "since": 1793606909.191528,
-   "expires": 1793642909.191528,
-   "note": "W1 SATDET detector",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1028290
-  },
-  {
-   "resource": "slot:acc2/gpu-1",
-   "owner": "bot-W2-lidar",
-   "since": 1793616533.040099,
-   "expires": 1793630933.040099,
-   "note": "P-W2-13 D-FINE-2 a (folds 0,3)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1105195,
-   "kernel": "dmitrijkv/koz3-w2-dfine2-a"
-  },
-  {
-   "resource": "slot:acc2/gpu-2",
-   "owner": "bot-W2-lidar",
-   "since": 1793616533.072635,
-   "expires": 1793634533.072635,
-   "note": "P-W2-13 D-FINE-2 b (folds 4,2,1)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1105201,
-   "kernel": "dmitrijkv/koz3-w2-dfine2-b"
-  },
-  {
-   "resource": "slot:box/q2",
-   "owner": "bot-W3-bigobj",
-   "since": 1793616888.326706,
-   "expires": 1793624088.326706,
-   "note": "W3 audit LIKT/KDUAL nice10 thr4",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1108991
-  },
-  {
-   "resource": "slot:box/c1f",
-   "owner": "bot-W4-c1f",
-   "since": 1793617074.17089,
-   "expires": 1793638674.17089,
-   "note": "W4 C1F re-gate replays (box CPU)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1111108
-  },
-  {
-   "resource": "branch:bots/orch-protocol",
-   "owner": "coord",
-   "since": 1793617259.238904,
-   "expires": 1793628059.238904,
-   "note": "handoff 02.11b docs",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1114980
-  },
-  {
-   "resource": "branch:bots/w1-satq",
-   "owner": "bot-W1-satq",
-   "since": 1793617278.448668,
-   "expires": 1793638878.448668,
-   "note": "W1 COMBO C1F+FP1 gate",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1115381
-  },
-  {
-   "resource": "slot:box/w1combo",
-   "owner": "bot-W1-satq",
-   "since": 1793617278.477705,
-   "expires": 1793638878.477705,
-   "note": "W1 COMBO replays nice10 thr4",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1115386
-  },
-  {
-   "resource": "branch:bots/w3-kurgan-seeds",
-   "owner": "bot-W3-bigobj",
-   "since": 1793617602.904512,
-   "expires": 1793621202.904512,
-   "note": "W3 prereg likt-frozen",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1121643
+   "pid": 1127591
   }
  ]
 }
