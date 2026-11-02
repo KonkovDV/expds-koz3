@@ -832,3 +832,6 @@
 - 02.11 14:27 MSK | lease | release branch:bots/w1-satdet (bot-W1-satrec) by bot-W1-satrec
 - 02.11 14:28 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 15:28 MSK handoff #3
 - 02.11 14:28 MSK | lease | release branch:bots/orch-protocol (coord) by coord
+- 02.11 14:28 MSK | lease | release slot:box/c1fx (bot-W4-c1fx) by bot-W4-c1fx
+- 02.11 14:29 MSK | lease | acquire branch:bots/orch-protocol → coord до 02.11 15:29 MSK handoff #3b
+- 02.11 14:29 MSK | lease | release branch:bots/orch-protocol (coord) by coord

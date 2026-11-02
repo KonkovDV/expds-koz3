@@ -184,10 +184,10 @@
   },
   {
    "slot": "box/c1fx",
-   "holder": "bot-W4-c1fx",
+   "holder": null,
    "kernel": null,
-   "since": "02.11 14:13 MSK",
-   "until": "02.11 20:13 MSK"
+   "state": "свободен",
+   "last": "снято bot-W4-c1fx 02.11 14:28 MSK"
   }
  ],
  "kernel_prefix": {
@@ -362,15 +362,6 @@
    "note": "py313 wheels",
    "host": "grok-bot-vm-361051398",
    "pid": 658530
-  },
-  {
-   "resource": "slot:box/c1fx",
-   "owner": "bot-W4-c1fx",
-   "since": 1793617991.964607,
-   "expires": 1793639591.964607,
-   "note": "W4 C1F-gor/arkh + FP1 re-gate, nice19",
-   "host": "grok-bot-vm-361051398",
-   "pid": 1127591
   }
  ]
 }
