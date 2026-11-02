@@ -30,3 +30,8 @@ on all regions with the full-data C1F rule (tools/satq/full_prep.py); non-sp_dfi
 (in-sample production replay) written to the handoff docs/W1_FP1_HANDOFF.md.
 
 Outputs: /workspace/koz3/w1/satq/combo/ (new dir; nothing earlier overwritten).
+
+## Note (02.11 14:30 MSK): stopped / superseded
+Bot 1 stopped this stream at 14:12 MSK, and W4 now owns the FP1 and C1F+FP1 re-gates. The COMBO run had already
+finished at 14:07 MSK, before the stop. So it was **not** cancelled before measurement. The result is recorded as
+non-binding in docs/W1_FRZ_DISCREPANCY.md: FAIL, kt −0.00347 against the −0.002 floor. No further measurement was made.
