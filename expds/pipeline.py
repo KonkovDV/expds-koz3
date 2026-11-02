@@ -851,7 +851,9 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
-    if (cfg.get("post") or {}).get("frame_prior"):
+    pcf = cfg.get("post") or {}
+    if pcf.get("frame_prior") or pcf.get("sat_center_prior") or any(
+            isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f")):
         feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
 

@@ -9,6 +9,9 @@ sat_equal_fusion — equal-weight fusion of the satellite detectors into one gro
   Geometries must be EPSG:3857 (ground metres = units × cos φ, one cos φ per region).
 sat_center_prior — post.frame_prior form on the satellite group (scene_drel; d0 width of the untouched centre,
   edge = 1 − strength at the scene edge). Applied before thresholds.
+W1-FRZ production flags (docs/W1_C1F_HANDOFF.md) — [post.w1_c1f] (main) / [post.w1_p2f] (comparison), enabled = false
+  by default. resolve_final_flag(cfg) turns an enabled flag into [post].sat_center_prior + its own
+  [thresholds_by_markup.sp_dfine] values (non-sp_dfine thresholds untouched); flag off → cfg returned as is.
 """
 from __future__ import annotations
 
@@ -130,4 +133,44 @@ def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
             m = max(0.0, 1.0 - s * min((float(d) - d0) / (1.0 - d0), 1.0))
             f2["confidence"] = float(f.get("confidence", 0.0)) * m
         out.append(f2)
+    return out
+
+
+FINAL_FLAGS = ("w1_c1f", "w1_p2f")
+
+
+def final_flag_on(cfg: dict) -> str | None:
+    """Name of the enabled W1-FRZ production flag ([post.w1_c1f] / [post.w1_p2f]) or None. Both on → ValueError."""
+    pc = (cfg or {}).get("post") or {}
+    on = [k for k in FINAL_FLAGS if isinstance(pc.get(k), dict) and pc[k].get("enabled")]
+    if len(on) > 1:
+        raise ValueError(f"[post] {' and '.join(on)}: only one W1 sat-centre flag may be enabled")
+    return on[0] if on else None
+
+
+def resolve_final_flag(cfg: dict) -> dict:
+    """cfg with the enabled W1-FRZ flag applied (shallow copies; the input is not modified); no flag → cfg itself.
+
+    [post.<flag>]: enabled, groups (["sp_dfine"]), d0, s_by_class {class: s}, thresholds_sp_dfine {class: τ}.
+    Sets [post].sat_center_prior = {groups, d0, s = 0, s_by_class} and replaces the listed classes of
+    [thresholds_by_markup.sp_dfine]. A separate [post].sat_center_prior together with the flag → ValueError.
+    The returned cfg carries the flag as enabled = false, resolved = true, so resolving it again is a no-op.
+    """
+    name = final_flag_on(cfg)
+    if name is None:
+        return cfg
+    pc = dict(cfg.get("post") or {})
+    if pc.get("sat_center_prior"):
+        raise ValueError(f"[post.{name}] and [post].sat_center_prior are mutually exclusive")
+    fl = pc[name]
+    thr = {str(k): float(v) for k, v in (fl.get("thresholds_sp_dfine") or {}).items()}
+    if not thr or not fl.get("s_by_class"):
+        raise ValueError(f"[post.{name}] needs s_by_class and thresholds_sp_dfine")
+    pc["sat_center_prior"] = {"groups": list(fl.get("groups") or ["sp_dfine"]), "d0": float(fl.get("d0", 0.0)), "s": 0.0,
+                              "s_by_class": {str(k): float(v) for k, v in fl["s_by_class"].items()}}
+    pc[name] = {**fl, "enabled": False, "resolved": True}   # idempotent: a resolved cfg is not resolved again
+    by = dict(cfg.get("thresholds_by_markup") or {})
+    by["sp_dfine"] = {**dict(by.get("sp_dfine") or {}), **thr}
+    out = dict(cfg)
+    out["post"], out["thresholds_by_markup"] = pc, by
     return out

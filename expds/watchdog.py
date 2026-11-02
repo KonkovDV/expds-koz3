@@ -103,6 +103,9 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+        from . import sat_recall      # W1-FRZ flags (off by default): prior spec + own sp_dfine thresholds
+        cfg = sat_recall.resolve_final_flag(cfg)
     split = _aeor_split(feats, cfg)
     if split is not None:
         out = _finish_v3(split[0], cfg)
@@ -215,6 +218,12 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
+    try:
+        if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+            from . import sat_recall
+            cfg = sat_recall.resolve_final_flag(cfg)
+    except Exception:
+        log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
     try:
         return finish(feats, cfg)
     except Exception:
