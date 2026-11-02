@@ -1,0 +1,528 @@
+{
+ "base": {
+  "score": {
+   "all": 0.3454387942318272,
+   "new34": 0.3144173812112219,
+   "nolidar": 0.22119708190020718
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.34970977770306944,
+   "kurgany_tselye": 0.496867980392209,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.17207747317855862,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14867209298921014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9869
+ },
+ "Q1a": {
+  "score": {
+   "all": 0.350134059544542,
+   "new34": 0.3144173812112219,
+   "nolidar": 0.22588108839484253
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.34970977770306944,
+   "kurgany_tselye": 0.496867980392209,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.21903012630570654,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14867209298921014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9743,
+  "delta": {
+   "all": {
+    "d": 0.0046952653127148025,
+    "P": 0.9735,
+    "p5": 0.0005799086300191242,
+    "p95": 0.0077172684510791135
+   },
+   "new34": {
+    "d": 0.0,
+    "P": 0.0,
+    "p5": 0.0,
+    "p95": 0.0
+   },
+   "nolidar": {
+    "d": 0.004684006494635351,
+    "P": 0.978,
+    "p5": 0.0006569047364391415,
+    "p95": 0.008115505883005839
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.046952653127147914,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": false,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": true,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.99,
+  "PASS": false
+ },
+ "Q1b": {
+  "score": {
+   "all": 0.35029249079306224,
+   "new34": 0.3144173812112219,
+   "nolidar": 0.2260447857900637
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.34970977770306944,
+   "kurgany_tselye": 0.496867980392209,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.22061443879090906,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14867209298921014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9735,
+  "delta": {
+   "all": {
+    "d": 0.004853696561235021,
+    "P": 0.9745,
+    "p5": 0.0006310780125193011,
+    "p95": 0.008019434900168635
+   },
+   "new34": {
+    "d": 0.0,
+    "P": 0.0,
+    "p5": 0.0,
+    "p95": 0.0
+   },
+   "nolidar": {
+    "d": 0.0048477038898565306,
+    "P": 0.9785,
+    "p5": 0.0006819762927756129,
+    "p95": 0.008446279051413909
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.048536965612350436,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": false,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": true,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.99,
+  "PASS": false
+ },
+ "Q1c": {
+  "score": {
+   "all": 0.34980534261527524,
+   "new34": 0.3144173812112219,
+   "nolidar": 0.22567493718403464
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.34970977770306944,
+   "kurgany_tselye": 0.496867980392209,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.21574295701303872,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14867209298921014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9988,
+  "delta": {
+   "all": {
+    "d": 0.004366548383448021,
+    "P": 0.9835,
+    "p5": 0.0004484694462836142,
+    "p95": 0.005879625810635794
+   },
+   "new34": {
+    "d": 0.0,
+    "P": 0.0,
+    "p5": 0.0,
+    "p95": 0.0
+   },
+   "nolidar": {
+    "d": 0.004477855283827464,
+    "P": 0.992,
+    "p5": 0.0005220383176571239,
+    "p95": 0.006214307383104428
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.0436654838344801,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": false,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": true,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.99,
+  "PASS": false
+ },
+ "FP1": {
+  "score": {
+   "all": 0.3540195167859251,
+   "new34": 0.315313365293025,
+   "nolidar": 0.2401846052022651
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.3611903646801888,
+   "kurgany_tselye": 0.49886887296648746,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.21947403031567725,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14860633763709896,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 10138,
+  "delta": {
+   "all": {
+    "d": 0.008580722554097864,
+    "P": 0.999,
+    "p5": 0.0024935169022468314,
+    "p95": 0.014277000046477238
+   },
+   "new34": {
+    "d": 0.0008959840818030806,
+    "P": 0.7515,
+    "p5": -0.0016444851015601863,
+    "p95": 0.0040299114897656635
+   },
+   "nolidar": {
+    "d": 0.018987523302057913,
+    "P": 0.999,
+    "p5": 0.008094275023906654,
+    "p95": 0.02506158350752854
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.011480586977119345,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": 0.00200089257427849,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.04739655713711863,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": -6.575535211117423e-05,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": true,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": true,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.9833333333333333,
+  "PASS": true
+ },
+ "FP2": {
+  "score": {
+   "all": 0.3507076788111228,
+   "new34": 0.31372013184883685,
+   "nolidar": 0.23186821939648122
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.3592949553512294,
+   "kurgany_tselye": 0.4956607328860382,
+   "gorodishcha": 0.30917825078842665,
+   "arkhitektury": 0.1982604552598415,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14900174454828014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9829,
+  "delta": {
+   "all": {
+    "d": 0.005268884579295585,
+    "P": 1.0,
+    "p5": 0.0022778988132297227,
+    "p95": 0.009430558978869184
+   },
+   "new34": {
+    "d": -0.0006972493623850773,
+    "P": 0.269,
+    "p5": -0.0029339715131572685,
+    "p95": 0.00042834479757217735
+   },
+   "nolidar": {
+    "d": 0.010671137496274047,
+    "P": 0.9745,
+    "p5": 0.0016255087196135765,
+    "p95": 0.017910051173606327
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.00958517764815997,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": -0.0012072475061707943,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.0,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.02618298208128289,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": 0.0003296515590699989,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": true,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": false,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.9833333333333333,
+  "PASS": false
+ },
+ "Q2": {
+  "score": {
+   "all": 0.35415416520881743,
+   "new34": 0.3130931566149908,
+   "nolidar": 0.2307576722553078
+  },
+  "cls": {
+   "kurgany_povrezhdennye": 0.351737074715266,
+   "kurgany_tselye": 0.4955562217682006,
+   "gorodishcha": 0.3259254363915195,
+   "arkhitektury": 0.23065203075524832,
+   "object_poly": 0.1397235900148439,
+   "fortifikatsii": 0.14867209298921014,
+   "finds_points": 0.561618162553999
+  },
+  "n_out": 9837,
+  "delta": {
+   "all": {
+    "d": 0.008715370976990211,
+    "P": 0.9955,
+    "p5": 0.0028996566586867558,
+    "p95": 0.0141131851191815
+   },
+   "new34": {
+    "d": -0.001324224596231105,
+    "P": 0.1535,
+    "p5": -0.005198393648417935,
+    "p95": 0.0010017065694257557
+   },
+   "nolidar": {
+    "d": 0.009560590355100623,
+    "P": 0.939,
+    "p5": -0.0005158261388167564,
+    "p95": 0.026301735160153453
+   }
+  },
+  "p4": {
+   "kurgany_povrezhdennye": {
+    "d": 0.0020272970121965606,
+    "floor": -0.002,
+    "ok": true
+   },
+   "kurgany_tselye": {
+    "d": -0.0013117586240083967,
+    "floor": -0.002,
+    "ok": true
+   },
+   "gorodishcha": {
+    "d": 0.01674718560309285,
+    "floor": -0.002,
+    "ok": true
+   },
+   "arkhitektury": {
+    "d": 0.058574557576689695,
+    "floor": -0.005,
+    "ok": true
+   },
+   "object_poly": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "fortifikatsii": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   },
+   "finds_points": {
+    "d": 0.0,
+    "floor": -0.005,
+    "ok": true
+   }
+  },
+  "checks": {
+   "d_all>=0.003": true,
+   "P>=thr": true,
+   "P>=0.9(raw)": true,
+   "P4": true,
+   "new34>=0": false,
+   "nolidar>=0": true
+  },
+  "P_thr": 0.9833333333333333,
+  "PASS": false
+ },
+ "_sanity": {
+  "base_all": 0.3454387942318272,
+  "PH_v3": 0.345439,
+  "ok": true
+ }
+}
