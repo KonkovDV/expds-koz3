@@ -721,7 +721,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
-    if (cfg.get("post") or {}).get("frame_prior"):
+    if (cfg.get("post") or {}).get("frame_prior") or _w1_prior_on(cfg):
         feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
 
@@ -762,6 +762,13 @@ def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: d
         log.warning("порядок оптики не восстановлен: состояние изменилось во время прохода")
         return
     state.replace(snap[:n_before] + [f for r in regions for f in by_reg.get(r.name, [])])
+
+
+def _w1_prior_on(cfg: dict) -> bool:
+    """W1-FRZ: [post].sat_center_prior или включённый [post.w1_c1f]/[post.w1_p2f] — нужен scene_drel."""
+    pcf = cfg.get("post") or {}
+    return bool(pcf.get("sat_center_prior")) or any(
+        isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f"))
 
 
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
@@ -1158,6 +1165,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
             from . import degraded
             degraded.mark("sp_dfine", f"{reg.name}: исключение в D-FINE участка (см. лог)")
             found, complete = [], False
+        if found and _w1_prior_on(cfg):
+            # W4 (C1F re-gate PREREG e6b5a31): D-FINE идёт после optical_feats — без этого у sp_dfine нет scene_drel
+            # и приор центра сцены не действует. Рамки — те же map_footprint снимков sp_or.
+            try:
+                found = _with_scene_drel(reg, cfg, found)
+            except Exception:
+                log.exception("%s: scene_drel для sp_dfine не посчитан, приор без него", reg.name)
         state.add(found)
         n += len(found)
         if complete:

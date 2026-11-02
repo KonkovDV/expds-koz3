@@ -72,8 +72,18 @@ def _tau(cfg: dict):
                              cfg.get("thresholds_by_markup", {}))
 
 
+def _w1_flag(cfg: dict) -> dict:
+    """W1-FRZ [post.w1_c1f]/[post.w1_p2f] (по умолчанию выкл.): флаг → [post].sat_center_prior + свои пороги sp_dfine."""
+    pc = cfg.get("post") or {}
+    if pc.get("w1_c1f") or pc.get("w1_p2f"):
+        from . import sat_recall
+        return sat_recall.resolve_final_flag(cfg)
+    return cfg
+
+
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run."""
+    cfg = _w1_flag(cfg)
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
     if (cfg.get("rerank_arch") or {}).get("enabled"):
@@ -87,6 +97,10 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     if post_cfg.get("kurgan_neighbour_prior"):
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("sat_center_prior"):
+        # W1-FRZ (C1F/P2F через _w1_flag): приор центра сцены на sp_dfine до порогов, до frame_prior.
+        from . import sat_recall
+        out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
@@ -147,6 +161,10 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
     try:
+        cfg = _w1_flag(cfg)
+    except Exception:
+        log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
+    try:
         return finish(feats, cfg)
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
@@ -174,6 +192,12 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
         except Exception:
             log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_center_prior"):
+        try:
+            from . import sat_recall
+            out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
+        except Exception:
+            log.exception("sat_center_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
