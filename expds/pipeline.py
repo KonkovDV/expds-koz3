@@ -852,7 +852,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
     pcf = cfg.get("post") or {}
-    if pcf.get("frame_prior") or pcf.get("sat_center_prior") or any(
+    if pcf.get("frame_prior") or pcf.get("sat_center_prior") or pcf.get("sat_frame_gate") or any(
             isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f")):
         feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
@@ -910,7 +910,11 @@ def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
                 fp = None
             if fp is not None:
                 boxes.setdefault(mt, []).append(fp)
-    return post.annotate_scene_drel(feats, boxes)
+    feats = post.annotate_scene_drel(feats, boxes)
+    if (cfg.get("post") or {}).get("sat_frame_gate"):   # W1-SATQ Q2: area of the scene that gives scene_drel
+        from . import sat_recall
+        feats = sat_recall.annotate_scene_mpix(feats, boxes)
+    return feats
 
 
 #: Модальности геофизики, для которых [models] может назвать сеть. Группа порога — «<модальность>_nn».

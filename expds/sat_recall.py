@@ -9,6 +9,8 @@ sat_equal_fusion — equal-weight fusion of the satellite detectors into one gro
   Geometries must be EPSG:3857 (ground metres = units × cos φ, one cos φ per region).
 sat_center_prior — post.frame_prior form on the satellite group (scene_drel; d0 width of the untouched centre,
   edge = 1 − strength at the scene edge). Applied before thresholds.
+sat_frame_gate — W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md §C): on scenes >= min_scene_mpix (scene_mpix of the covering
+  scene box that gives scene_drel), drop satellite detections with scene_drel > x and confidence < t2. Before thresholds.
 W1-FRZ production flags (docs/W1_C1F_HANDOFF.md) — [post.w1_c1f] (main) / [post.w1_p2f] (comparison), enabled = false
   by default. resolve_final_flag(cfg) turns an enabled flag into [post].sat_center_prior + its own
   [thresholds_by_markup.sp_dfine] values (non-sp_dfine thresholds untouched); flag off → cfg returned as is.
@@ -133,6 +135,59 @@ def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
             m = max(0.0, 1.0 - s * min((float(d) - d0) / (1.0 - d0), 1.0))
             f2["confidence"] = float(f.get("confidence", 0.0)) * m
         out.append(f2)
+    return out
+
+
+def box_mpix(box) -> float:
+    """Mpix at 0.5 m of an EPSG:3857 scene box: (W·cos φ / 0.5)·(H·cos φ / 0.5)/1e6, φ = latitude of the box centre."""
+    import math
+    x0, y0, x1, y1 = box.bounds if hasattr(box, "bounds") else box
+    c = math.cos(math.atan(math.sinh(((y0 + y1) / 2.0) / 6378137.0)))
+    return (x1 - x0) * c / 0.5 * (y1 - y0) * c / 0.5 / 1e6
+
+
+def annotate_scene_mpix(feats: list[dict], boxes_by_markup: dict[str, list]) -> list[dict]:
+    """Field scene_mpix = box_mpix of the covering scene box with the smallest scene_drel (first on ties), per markup type.
+    Same box choice as post.scene_drel; a feature outside all scenes gets no field."""
+    for f in feats:
+        boxes = boxes_by_markup.get(f.get("markup_type") or "")
+        if not boxes or f.get("geom") is None or f["geom"].is_empty:
+            continue
+        pt = f["geom"].representative_point()
+        best, bm = None, None
+        for b in boxes:
+            x0, y0, x1, y1 = b.bounds if hasattr(b, "bounds") else b
+            hw, hh = (x1 - x0) / 2.0, (y1 - y0) / 2.0
+            if hw <= 0 or hh <= 0 or not (x0 <= pt.x <= x1 and y0 <= pt.y <= y1):
+                continue
+            d = max(abs(pt.x - (x0 + hw)) / hw, abs(pt.y - (y0 + hh)) / hh)
+            if best is None or d < best:
+                best, bm = d, box_mpix((x0, y0, x1, y1))
+        if bm is not None:
+            f["scene_mpix"] = float(bm)
+    return feats
+
+
+SFG_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury")
+
+
+def sat_frame_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """W1-SATQ Q2, off unless [post].sat_frame_gate {groups=[sp_dfine], classes, min_scene_mpix=4, x, t2}.
+    Removes a feature of the groups/classes with scene_mpix >= min_scene_mpix, scene_drel > x and confidence < t2.
+    Features without scene_drel / scene_mpix are kept."""
+    from . import post
+
+    spec = dict(spec or {})
+    groups = set(spec.get("groups") or ["sp_dfine"])
+    classes = set(spec.get("classes") or SFG_CLASSES)
+    a = float(spec.get("min_scene_mpix", 4.0)); x = float(spec["x"]); t2 = float(spec["t2"])
+    out = []
+    for f in feats:
+        d, mp = f.get("scene_drel"), f.get("scene_mpix")
+        if (post._group_of(f) in groups and f.get("class_name") in classes and d is not None and mp is not None
+                and float(mp) >= a and float(d) > x and float(f.get("confidence", 0.0)) < t2):
+            continue
+        out.append(f)
     return out
 
 

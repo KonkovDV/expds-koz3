@@ -128,3 +128,21 @@ def test_watchdog_finish_uses_flag(monkeypatch):
     watchdog.safe_finish([], cfg)
     assert seen["cfg"]["post"]["sat_center_prior"]["d0"] == 0.25
     assert seen["cfg"]["thresholds_by_markup"]["sp_dfine"] == cfg["post"]["w1_c1f"]["thresholds_sp_dfine"]
+
+
+def test_sat_frame_gate_and_scene_mpix():
+    from shapely.geometry import Point
+    big = (0.0, 0.0, 2000.0, 2000.0)      # 16 Mpix at the equator; small box 0.04 Mpix
+    small = (5000.0, 0.0, 5100.0, 100.0)
+    feats = [dict(geom=Point(1900, 1000), class_name="kurgany_tselye", confidence=0.5, markup_type="sp_or", threshold_group="sp_dfine"),
+             dict(geom=Point(1000, 1000), class_name="kurgany_tselye", confidence=0.5, markup_type="sp_or", threshold_group="sp_dfine"),
+             dict(geom=Point(1900, 1000), class_name="kurgany_tselye", confidence=0.9, markup_type="sp_or", threshold_group="sp_dfine"),
+             dict(geom=Point(1900, 1000), class_name="fortifikatsii", confidence=0.5, markup_type="sp_or", threshold_group="sp_dfine"),
+             dict(geom=Point(5095, 50), class_name="kurgany_tselye", confidence=0.5, markup_type="sp_or", threshold_group="sp_dfine"),
+             dict(geom=Point(9000, 9000), class_name="kurgany_tselye", confidence=0.5, markup_type="sp_or", threshold_group="sp_dfine")]
+    from expds import post
+    post.annotate_scene_drel(feats, {"sp_or": [big, small]})
+    SR.annotate_scene_mpix(feats, {"sp_or": [big, small]})
+    assert abs(feats[0]["scene_mpix"] - 16.0) < 1e-6 and feats[4]["scene_mpix"] < 0.1 and "scene_mpix" not in feats[5]
+    out = SR.sat_frame_gate(feats, {"groups": ["sp_dfine"], "min_scene_mpix": 4, "x": 0.5, "t2": 0.7})
+    assert [id(f) for f in out] == [id(f) for f in feats[1:]]   # only the edge, low-score kt on the big scene goes
