@@ -702,4 +702,23 @@
 - 02.11 09:03 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:03 MSK KDUAL-dmg prereg
 - 02.11 09:03 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
 2026-11-02 09:13:09 coord: per Elena 02.11 deleted 13 PUBLIC datasets on dmitrijkv (koz3-xfer-s000..s009, koz3-gt-train-v2, koz3-fr1h-wheels, koz3-fr1h-chk-20261101); verified invisible from another account. NOTE: Kaggle cannot turn public->private; always create datasets with isPrivate:true.
-- 02.11 09:20 MSK | coord | плановый проход: на 5 акках ничего не запущено, новых завершений нет; box q1/q2 заняты W1/W3; квота 89.1% (строгая экономия, новых запусков без GO нет). Внимание: dmitrijkv/koz3-gt-train-v2 удалён — ядра elenakonkova, читающие его, перед запуском перевести на приватную копию.
+- 02.11 09:16 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 09:20 MSK | coord | проверка: на 5 аккаунтах новых ядер нет (последние 01.11 вечер), box load 0.25/8, лизы q1 (W1 satrec) и q2 (W3 oracle-gap) держат боты; KDUAL FAIL (Δ+0.0031 P0.87), флаг off; финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 09:20 MSK | lease | release slot:box/q1 (bot-W1-satrec) by bot-W1-satrec
+- 02.11 09:20 MSK | lease | release branch:bots/w1-satrec (bot-W1-satrec) by bot-W1-satrec
+- 02.11 09:22 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:22 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:22 MSK gap+kdual-dmg
+- 02.11 09:22 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:23 MSK | lease | acquire slot:box/q1 → bot-W1-satrec до 02.11 21:23 MSK W1 SATREC2 CPU gate (nice10, 4 thr)
+- 02.11 09:23 MSK | lease | acquire branch:bots/w1-satrec2 → bot-W1-satrec до 04.11 09:23 MSK W1 SATREC2 (wt/w1sr)
+- 02.11 09:25 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:25 MSK LI-KURG-TAU prereg
+- 02.11 09:25 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:26 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 11:26 MSK W3 LI-KURG-TAU gate nice10 thr4
+- 02.11 09:30 MSK | lease | acquire branch:bots/backup-2026-11-02 → coord до 02.11 15:30 MSK backup 02.11 GH+GD
+- 02.11 09:30 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:30 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:30 MSK LIKT results
+- 02.11 09:30 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:32 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 09:34 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:34 MSK SUBCLS prereg
+- 02.11 09:34 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:34 MSK | lease | release branch:bots/backup-2026-11-02 (coord) by coord
