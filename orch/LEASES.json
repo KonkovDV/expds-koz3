@@ -123,12 +123,11 @@
   },
   {
    "slot": "box/q1",
-   "holder": "bot-W1-satrec",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W1-satrec 02.11 09:20 MSK",
+   "last": "снято bot-W1-satrec 02.11 09:55 MSK",
    "purpose": "W1 SATREC2 CPU gate (nice10, 4 thr)",
-   "since": "02.11 09:23 MSK",
-   "until": "02.11 21:23 MSK"
+   "state": "свободен"
   },
   {
    "slot": "dmitrijkv/cpu",
@@ -148,12 +147,11 @@
   },
   {
    "slot": "box/q2",
-   "holder": "bot-W3-bigobj",
+   "holder": null,
    "kernel": null,
-   "last": "снято bot-W3-bigobj 02.11 09:30 MSK",
-   "purpose": "W3 KURG-SUBCLS gate nice10 thr4",
-   "since": "02.11 09:35 MSK",
-   "until": "02.11 11:35 MSK"
+   "last": "снято bot-W3-bigobj 02.11 09:54 MSK",
+   "purpose": "W3 SUBDROP gate nice10 thr4",
+   "state": "свободен"
   },
   {
    "slot": "box/q3",
@@ -336,33 +334,6 @@
    "note": "py313 wheels",
    "host": "grok-bot-vm-361051398",
    "pid": 658530
-  },
-  {
-   "resource": "slot:box/q1",
-   "owner": "bot-W1-satrec",
-   "since": 1793600638.890802,
-   "expires": 1793643838.890802,
-   "note": "W1 SATREC2 CPU gate (nice10, 4 thr)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 986157
-  },
-  {
-   "resource": "branch:bots/w1-satrec2",
-   "owner": "bot-W1-satrec",
-   "since": 1793600638.948361,
-   "expires": 1793773438.948361,
-   "note": "W1 SATREC2 (wt/w1sr)",
-   "host": "grok-bot-vm-361051398",
-   "pid": 986162
-  },
-  {
-   "resource": "slot:box/q2",
-   "owner": "bot-W3-bigobj",
-   "since": 1793601307.128925,
-   "expires": 1793608507.128925,
-   "note": "W3 KURG-SUBCLS gate nice10 thr4",
-   "host": "grok-bot-vm-361051398",
-   "pid": 998452
   }
  ]
 }

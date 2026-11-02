@@ -724,3 +724,16 @@
 - 02.11 09:34 MSK | lease | release branch:bots/backup-2026-11-02 (coord) by coord
 - 02.11 09:35 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 11:35 MSK W3 KURG-SUBCLS gate nice10 thr4
 - 02.11 09:37 MSK | coord | проверка: GPU-аккаунты без новых ядер, box load 1.8/8 (q1 W1 SATREC2, q2 W3 KURG-SUBCLS), очередь без новых ready-элементов. Елене — ничего.
+- 02.11 09:43 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:43 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:43 MSK SUBCLS results
+- 02.11 09:43 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:44 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:44 MSK SUBDROP prereg
+- 02.11 09:44 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:44 MSK | lease | acquire slot:box/q2 → bot-W3-bigobj до 02.11 10:44 MSK W3 SUBDROP gate nice10 thr4
+- 02.11 09:48 MSK | check_conflicts | ERROR=1 WARN=22: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 02.11 09:52 MSK | coord | проверка: на 5 аккаунтах новых ядер нет (последние 01.11 вечер), box load 1.0/8 (q1 W1 SATREC2, q2 W3 SUBDROP по лизам), в QUEUE ready-пункты прежние (без ожидаемого прироста); финал v3_on b447649 без изменений. Елене — ничего.
+- 02.11 09:54 MSK | lease | release slot:box/q2 (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:54 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 02.11 10:54 MSK SUBDROP result
+- 02.11 09:54 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 02.11 09:55 MSK | lease | release slot:box/q1 (bot-W1-satrec) by bot-W1-satrec
+- 02.11 09:55 MSK | lease | release branch:bots/w1-satrec2 (bot-W1-satrec) by bot-W1-satrec
