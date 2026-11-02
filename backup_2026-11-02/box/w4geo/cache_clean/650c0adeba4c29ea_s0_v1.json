@@ -1,0 +1,1 @@
+{"raster": "02_Гнёздово_Лесная_1_EtGr_профиль_02.tif", "region": "213_Гнёздово_Лесная_1", "mt": "etgr", "file": "650c0adeba4c29ea_s0_v1.npz", "shape": [336, 261], "step": 0.04740894579024664, "classes": {"object_poly": {"gt_files": ["Гнёздово_Лесная_1_EtGr_профиль_02_ObjectPoly.geojson"], "n_gt": 3, "pos": 3979, "neg": 11937}}, "secs": 0.3}

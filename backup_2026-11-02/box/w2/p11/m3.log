@@ -1,0 +1,18 @@
+== 14:17:53 m3_s1 f0 179_Гнёздово_Лесная_1
+wrote /workspace/koz3/w2/p11/maps/m3_s1/maps_cnx_179_Гнёздово_Лесная_1.npz 2 tiles 4 s
+ALLDONE m3_s1 14:17:59
+== 14:17:59 m3_s1 f1 036_Тимерево
+wrote /workspace/koz3/w2/p11/maps/m3_s1/maps_cnx_036_Тимерево.npz 4 tiles 10 s
+ALLDONE m3_s1 14:18:12
+== 14:18:12 m3_s1 f2 030_Эсбю
+wrote /workspace/koz3/w2/p11/maps/m3_s1/maps_cnx_030_Эсбю.npz 6 tiles 15 s
+ALLDONE m3_s1 14:18:30
+== 14:18:30 m3_s1 f3 005_Боровичи_2
+wrote /workspace/koz3/w2/p11/maps/m3_s1/maps_cnx_005_Боровичи_2.npz 4 tiles 9 s
+ALLDONE m3_s1 14:18:42
+== 14:18:42 m3_s0 f4 038_Копанское
+wrote /workspace/koz3/w2/p11/maps/m3_s0/maps_cnx_038_Копанское.npz 2 tiles 4 s
+ALLDONE m3_s0 14:18:50
+== 14:18:50 m3_s2 f4 038_Копанское
+wrote /workspace/koz3/w2/p11/maps/m3_s2/maps_cnx_038_Копанское.npz 2 tiles 4 s
+ALLDONE m3_s2 14:18:56

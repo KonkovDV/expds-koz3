@@ -1,0 +1,70 @@
+{
+ "f1": {
+  "epochs_done": 40,
+  "train_tiles": 2415,
+  "test_tiles": 328,
+  "test_regions": 4,
+  "enc": "tu-convnext_tiny",
+  "last_loss": {
+   "epoch": 39,
+   "loss_center": 0.10751,
+   "loss_hm": 0.02202,
+   "loss_wh": 0.08691,
+   "loss_off": 0.0768,
+   "sec": 56.1
+  },
+  "n_notta": 175,
+  "sec": 2406
+ },
+ "f2": {
+  "epochs_done": 40,
+  "train_tiles": 2212,
+  "test_tiles": 2019,
+  "test_regions": 74,
+  "enc": "tu-convnext_tiny",
+  "last_loss": {
+   "epoch": 39,
+   "loss_center": 0.10992,
+   "loss_hm": 0.02241,
+   "loss_wh": 0.08608,
+   "loss_off": 0.0789,
+   "sec": 55.9
+  },
+  "n_notta": 1086,
+  "sec": 2333
+ },
+ "f3": {
+  "epochs_done": 40,
+  "train_tiles": 2262,
+  "test_tiles": 717,
+  "test_regions": 10,
+  "enc": "tu-convnext_tiny",
+  "last_loss": {
+   "epoch": 39,
+   "loss_center": 0.10729,
+   "loss_hm": 0.02313,
+   "loss_wh": 0.08096,
+   "loss_off": 0.07606,
+   "sec": 55.9
+  },
+  "n_notta": 206,
+  "sec": 2307
+ },
+ "f4": {
+  "epochs_done": 40,
+  "train_tiles": 1735,
+  "test_tiles": 989,
+  "test_regions": 10,
+  "enc": "tu-convnext_tiny",
+  "last_loss": {
+   "epoch": 39,
+   "loss_center": 0.08528,
+   "loss_hm": 0.01182,
+   "loss_wh": 0.07503,
+   "loss_off": 0.06596,
+   "sec": 56.0
+  },
+  "n_notta": 286,
+  "sec": 2284
+ }
+}

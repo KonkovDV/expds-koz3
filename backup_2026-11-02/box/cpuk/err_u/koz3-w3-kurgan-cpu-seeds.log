@@ -1,0 +1,134 @@
+[{"stream_name":"stdout","time":1.421591158,"data":"coord CPU variant: /kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data /kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data [('r18_imnet_s11', 11), ('r34_imnet_s12', 12)]\n"}
+,{"stream_name":"stdout","time":9.252881356,"data":"{\"npz\": \"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/kurgan_subclass_crops.npz\", \"N\": 9322, \"shape\": [9322, 3, 64, 64], \"labeled\": 4704, \"povr_share\": 0.5821, \"kinds\": {\"cand\": 6109, \"gt\": 3213}, \"regions\": 56}\n"}
+,{"stream_name":"stdout","time":21.370515554,"data":"smp: preinstalled | imagenet в кэше: {\"resnet18\": {\"weights\": \"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7\", \"bytes\": 46805552}, \"resnet34\": {\"weights\": \"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13\", \"bytes\": 87275112}}\n"}
+,{"stream_name":"stderr","time":117.705717268,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":117.70591683,"data":"Retrying in 1s [Retry 1/5].\n"}
+,{"stream_name":"stderr","time":150.753254732,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":150.753440642,"data":"Retrying in 2s [Retry 2/5].\n"}
+,{"stream_name":"stderr","time":184.800911229,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":184.801045005,"data":"Retrying in 4s [Retry 3/5].\n"}
+,{"stream_name":"stderr","time":220.84847233,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":220.848626228,"data":"Retrying in 8s [Retry 4/5].\n"}
+,{"stream_name":"stderr","time":260.895225541,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":260.895326082,"data":"Retrying in 8s [Retry 5/5].\n"}
+,{"stream_name":"stderr","time":300.94274134,"data":"'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/smp-hub/resnet18.imagenet/resolve/3f2325ff978283d47aa6a1d6878ca20565622683/config.json\n"}
+,{"stream_name":"stderr","time":300.948703549,"data":"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/smp_pkg/segmentation_models_pytorch/encoders/__init__.py:136: UserWarning: Error loading resnet18 `imagenet` weights from Hugging Face Hub, trying loading from original url...\n"}
+,{"stream_name":"stderr","time":300.948736114,"data":"  warnings.warn(message, UserWarning)\n"}
+,{"stream_name":"stdout","time":300.949224274,"data":"Downloading: \"https://download.pytorch.org/models/resnet18-5c106cde.pth\" to /root/.cache/torch/hub/checkpoints/resnet18-5c106cde.pth\n"}
+,{"stream_name":"stderr","time":333.006765243,"data":"httpcore.ConnectError: [Errno -3] Temporary failure in name resolution\n"}
+,{"stream_name":"stderr","time":333.006811289,"data":"\n"}
+,{"stream_name":"stderr","time":333.006819377,"data":"The above exception was the direct cause of the following exception:\n"}
+,{"stream_name":"stderr","time":333.006837715,"data":"\n"}
+,{"stream_name":"stderr","time":333.006982668,"data":"httpx.ConnectError: [Errno -3] Temporary failure in name resolution\n"}
+,{"stream_name":"stderr","time":333.007010195,"data":"\n"}
+,{"stream_name":"stderr","time":333.007015592,"data":"The above exception was the direct cause of the following exception:\n"}
+,{"stream_name":"stderr","time":333.007020535,"data":"\n"}
+,{"stream_name":"stderr","time":333.007105386,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":333.008331015,"data":"  File \"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/smp_pkg/segmentation_models_pytorch/encoders/__init__.py\", line 126, in get_encoder\n"}
+,{"stream_name":"stderr","time":333.008352899,"data":"    hf_hub_download(repo_id, filename=\"config.json\", revision=revision)\n"}
+,{"stream_name":"stderr","time":333.008358863,"data":"    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.008364023,"data":"  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/utils/_validators.py\", line 88, in _inner_fn\n"}
+,{"stream_name":"stderr","time":333.008369375,"data":"    return fn(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":333.008393516,"data":"  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 1027, in hf_hub_download\n"}
+,{"stream_name":"stderr","time":333.008399515,"data":"    return _hf_hub_download_to_cache_dir(\n"}
+,{"stream_name":"stderr","time":333.008404311,"data":"        # Destination\n"}
+,{"stream_name":"stderr","time":333.008408799,"data":"    ...\u003c15 lines\u003e...\n"}
+,{"stream_name":"stderr","time":333.008413855,"data":"        dry_run=dry_run,\n"}
+,{"stream_name":"stderr","time":333.008418763,"data":"    )\n"}
+,{"stream_name":"stderr","time":333.008423055,"data":"  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 1174, in _hf_hub_download_to_cache_dir\n"}
+,{"stream_name":"stderr","time":333.008428283,"data":"    _raise_on_head_call_error(head_call_error, force_download, local_files_only)\n"}
+,{"stream_name":"stderr","time":333.008433543,"data":"    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.008449236,"data":"  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 1916, in _raise_on_head_call_error\n"}
+,{"stream_name":"stderr","time":333.008454891,"data":"    raise LocalEntryNotFoundError(\n"}
+,{"stream_name":"stderr","time":333.008459769,"data":"    ...\u003c3 lines\u003e...\n"}
+,{"stream_name":"stderr","time":333.008464323,"data":"    ) from head_call_error\n"}
+,{"stream_name":"stderr","time":333.008551389,"data":"huggingface_hub.errors.LocalEntryNotFoundError: An error happened while trying to locate the file on the Hub and we cannot find the requested files in the local cache. Please check your connection and try again or make sure your Internet connection is on.\n"}
+,{"stream_name":"stderr","time":333.008634406,"data":"\n"}
+,{"stream_name":"stderr","time":333.008640898,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":333.008645813,"data":"\n"}
+,{"stream_name":"stderr","time":333.0086503,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":333.010196101,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 1318, in do_open\n"}
+,{"stream_name":"stderr","time":333.010215411,"data":"    h.request(req.get_method(), req.selector, req.data, headers,\n"}
+,{"stream_name":"stderr","time":333.010221443,"data":"    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.01023924,"data":"              encode_chunked=req.has_header('Transfer-encoding'))\n"}
+,{"stream_name":"stderr","time":333.010244377,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.010249083,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1386, in request\n"}
+,{"stream_name":"stderr","time":333.010253757,"data":"    self._send_request(method, url, body, headers, encode_chunked)\n"}
+,{"stream_name":"stderr","time":333.010258484,"data":"    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.010279558,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1432, in _send_request\n"}
+,{"stream_name":"stderr","time":333.010285089,"data":"    self.endheaders(body, encode_chunked=encode_chunked)\n"}
+,{"stream_name":"stderr","time":333.010289481,"data":"    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.01029366,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1381, in endheaders\n"}
+,{"stream_name":"stderr","time":333.010298414,"data":"    self._send_output(message_body, encode_chunked=encode_chunked)\n"}
+,{"stream_name":"stderr","time":333.010302993,"data":"    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.01030776,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1141, in _send_output\n"}
+,{"stream_name":"stderr","time":333.010312556,"data":"    self.send(msg)\n"}
+,{"stream_name":"stderr","time":333.010317113,"data":"    ~~~~~~~~~^^^^^\n"}
+,{"stream_name":"stderr","time":333.010365621,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1085, in send\n"}
+,{"stream_name":"stderr","time":333.010372106,"data":"    self.connect()\n"}
+,{"stream_name":"stderr","time":333.010376441,"data":"    ~~~~~~~~~~~~^^\n"}
+,{"stream_name":"stderr","time":333.010381518,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1520, in connect\n"}
+,{"stream_name":"stderr","time":333.010386151,"data":"    super().connect()\n"}
+,{"stream_name":"stderr","time":333.010390676,"data":"    ~~~~~~~~~~~~~~~^^\n"}
+,{"stream_name":"stderr","time":333.010452853,"data":"  File \"/usr/lib/python3.13/http/client.py\", line 1051, in connect\n"}
+,{"stream_name":"stderr","time":333.010458443,"data":"    self.sock = self._create_connection(\n"}
+,{"stream_name":"stderr","time":333.010463233,"data":"                ~~~~~~~~~~~~~~~~~~~~~~~^\n"}
+,{"stream_name":"stderr","time":333.010467991,"data":"        (self.host,self.port), self.timeout, self.source_address)\n"}
+,{"stream_name":"stderr","time":333.010472965,"data":"        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.010585518,"data":"  File \"/usr/lib/python3.13/socket.py\", line 844, in create_connection\n"}
+,{"stream_name":"stderr","time":333.010598463,"data":"    for res in getaddrinfo(host, port, 0, SOCK_STREAM):\n"}
+,{"stream_name":"stderr","time":333.010603373,"data":"               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.01060815,"data":"  File \"/usr/lib/python3.13/socket.py\", line 983, in getaddrinfo\n"}
+,{"stream_name":"stderr","time":333.010613586,"data":"    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):\n"}
+,{"stream_name":"stderr","time":333.01061888,"data":"               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.01068307,"data":"socket.gaierror: [Errno -3] Temporary failure in name resolution\n"}
+,{"stream_name":"stderr","time":333.01071578,"data":"\n"}
+,{"stream_name":"stderr","time":333.010722773,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":333.010727861,"data":"\n"}
+,{"stream_name":"stderr","time":333.010759769,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":333.012108555,"data":"  File \"/kaggle/src/script.py\", line 304, in make_model\n"}
+,{"stream_name":"stderr","time":333.012124908,"data":"    enc = smp.encoders.get_encoder(encoder, in_channels=3, depth=5, weights=weights)\n"}
+,{"stream_name":"stderr","time":333.012130417,"data":"  File \"/kaggle/input/datasets/usertest1234/koz3-w3-kurgan-cpu-data/smp_pkg/segmentation_models_pytorch/encoders/__init__.py\", line 138, in get_encoder\n"}
+,{"stream_name":"stderr","time":333.012136156,"data":"    state_dict = load_url(url, map_location=\"cpu\")\n"}
+,{"stream_name":"stderr","time":333.012182557,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/hub.py\", line 894, in load_state_dict_from_url\n"}
+,{"stream_name":"stderr","time":333.012193029,"data":"    download_url_to_file(url, cached_file, hash_prefix, progress=progress)\n"}
+,{"stream_name":"stderr","time":333.012198017,"data":"    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.012208504,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/hub.py\", line 749, in download_url_to_file\n"}
+,{"stream_name":"stderr","time":333.012238877,"data":"    with urlopen(req) as u:\n"}
+,{"stream_name":"stderr","time":333.01224511,"data":"         ~~~~~~~^^^^^\n"}
+,{"stream_name":"stderr","time":333.012251406,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 189, in urlopen\n"}
+,{"stream_name":"stderr","time":333.012256475,"data":"    return opener.open(url, data, timeout)\n"}
+,{"stream_name":"stderr","time":333.012261238,"data":"           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.012329962,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 489, in open\n"}
+,{"stream_name":"stderr","time":333.012336312,"data":"    response = self._open(req, data)\n"}
+,{"stream_name":"stderr","time":333.01235089,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 506, in _open\n"}
+,{"stream_name":"stderr","time":333.012356091,"data":"    result = self._call_chain(self.handle_open, protocol, protocol +\n"}
+,{"stream_name":"stderr","time":333.01236097,"data":"                              '_open', req)\n"}
+,{"stream_name":"stderr","time":333.01240453,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 466, in _call_chain\n"}
+,{"stream_name":"stderr","time":333.012412392,"data":"    result = func(*args)\n"}
+,{"stream_name":"stderr","time":333.012453487,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 1366, in https_open\n"}
+,{"stream_name":"stderr","time":333.012459446,"data":"    return self.do_open(http.client.HTTPSConnection, req,\n"}
+,{"stream_name":"stderr","time":333.012464103,"data":"           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.012468244,"data":"                        context=self._context)\n"}
+,{"stream_name":"stderr","time":333.012472468,"data":"                        ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":333.012514962,"data":"  File \"/usr/lib/python3.13/urllib/request.py\", line 1321, in do_open\n"}
+,{"stream_name":"stderr","time":333.012523986,"data":"    raise URLError(err)\n"}
+,{"stream_name":"stderr","time":333.012541589,"data":"urllib.error.URLError: \u003curlopen error [Errno -3] Temporary failure in name resolution\u003e\n"}
+,{"stream_name":"stderr","time":333.012665254,"data":"\n"}
+,{"stream_name":"stderr","time":333.01267244,"data":"The above exception was the direct cause of the following exception:\n"}
+,{"stream_name":"stderr","time":333.012677498,"data":"\n"}
+,{"stream_name":"stderr","time":333.01268183,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":333.013167807,"data":"  File \"/kaggle/src/script.py\", line 319, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":333.013180217,"data":"    make_model(_enc)  # падает здесь, до обучения, если весов нет\n"}
+,{"stream_name":"stderr","time":333.01318651,"data":"    ~~~~~~~~~~^^^^^^\n"}
+,{"stream_name":"stderr","time":333.013201805,"data":"  File \"/kaggle/src/script.py\", line 306, in make_model\n"}
+,{"stream_name":"stderr","time":333.013206885,"data":"    raise RuntimeError(f\"не загрузились веса {encoder}/{weights}: {e!r}. Проверьте бандл hf_hub_cache \"\n"}
+,{"stream_name":"stderr","time":333.013212835,"data":"                       \"или задайте CFG['pretrained']=false осознанно.\") from e\n"}
+,{"stream_name":"stderr","time":333.013278916,"data":"RuntimeError: не загрузились веса resnet18/imagenet: URLError(gaierror(-3, 'Temporary failure in name resolution')). Проверьте бандл hf_hub_cache или задайте CFG['pretrained']=false осознанно.\n"}
+,{"stream_name":"stderr","time":336.701952104,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":336.702003382,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":336.994506565,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":336.994533272,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":337.907251763,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":339.258093698,"data":"[NbConvertApp] Writing 444283 bytes to __results__.html\n"}
+]

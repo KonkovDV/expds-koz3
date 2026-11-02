@@ -1,0 +1,202 @@
+zip_sha_ok True chk_old /kaggle/input/datasets/aaaa0000004/koz3-w4-v2clean-check/check_submission.py 5f508e643fb5 chk_new /kaggle/input/koz3-w4-v3onfix/check_submission.py 72375ae74d4a python 3.13.15
+pip ['install', '-q', '--no-index'] 0 
+REF_check4 env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py | huggingface_hub 1.29.0 /usr/local/lib/python3.13/dist-packages/huggingface_hub/__init__.py |  
+===== CHECK REF_check4 =====
+== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-11-01 20:43:09 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (41.1 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 21.8 с, пик RSS 1138 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 4 с, лидар: сырых 30, 10 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 19.5 с
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_REF_check4/b8smoke_dnvu4pbc
+== ИТОГ: PASS — FAIL 0, WARN 2, проверок 30, 67.9 с
+
+STDERR: 
+REF_check4 {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 30, 67.9 с", "wall_s": 68, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла", "[INFO] smoke     записано 80, файл 58184 байт", "[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}"], "v3_lines": [], "smoke_files": {"result.geojson": ["56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", 58184]}, "ref103": {"rc": 0, "wall_s": 73, "files": {"result.geojson": ["b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", 2639]}, "warn": []}}
+C_default env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py | huggingface_hub 1.29.0 /usr/local/lib/python3.13/dist-packages/huggingface_hub/__init__.py |  
+===== CHECK C_default =====
+== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-11-01 20:45:34 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (17.1 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 13.3 с, пик RSS 1138 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 5 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 11.1 с
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_C_default/b8smoke_yazwqdqk
+== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.0 с
+
+STDERR: 
+C_default {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.0 с", "wall_s": 34, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла", "[INFO] smoke     записано 80, файл 58184 байт", "[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}"], "v3_lines": ["[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": ["56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", 58184]}, "ref103": {"rc": 0, "wall_s": 64, "files": {"result.geojson": ["b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", 2639]}, "warn": []}}
+A_regex2025_preloaded env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py | huggingface_hub 1.29.0 /usr/local/lib/python3.13/dist-packages/huggingface_hub/__init__.py |  
+===== CHECK A_regex2025_preloaded =====
+== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-11-01 20:47:18 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (18.2 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 13.3 с, пик RSS 1139 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 5 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 11.1 с
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_A_regex2025_preloaded/b8smoke_ckxk6yfv
+== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 35.2 с
+
+STDERR: 
+A_regex2025_preloaded {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 35.2 с", "wall_s": 35, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла", "[INFO] smoke     записано 80, файл 58184 байт", "[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}"], "v3_lines": ["[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": ["56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", 58184]}, "ref103": {"rc": 0, "wall_s": 64, "files": {"result.geojson": ["b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", 2639]}, "warn": []}}
+pip ['uninstall', '-y', 'regex'] 0 
+B_no_regex env: regex FAIL ModuleNotFoundError("No module named 'regex'") | transformers FAIL ModuleNotFoundError("No module named 'regex'") | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py | huggingface_hub 1.29.0 /usr/local/lib/python3.13/dist-packages/huggingface_hub/__init__.py |  
+===== CHECK B_no_regex =====
+== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-11-01 20:48:59 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (17.4 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 13.5 с, пик RSS 1138 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 3 с, лидар: сырых 30, 5 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 11.3 с
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_B_no_regex/b8smoke_0yv9_cz8
+== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.6 с
+
+STDERR: 
+B_no_regex {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.6 с", "wall_s": 35, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла", "[INFO] smoke     записано 80, файл 58184 байт", "[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}"], "v3_lines": ["[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": ["56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", 58184]}, "ref103": {"rc": 0, "wall_s": 65, "files": {"result.geojson": ["b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", 2639]}, "warn": []}}
+pip ['install', '-q', '--no-index'] 0 is behaviour is the source of the following dependency conflicts.
+bigframes 2.48.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+gradio 6.26.0 requires huggingface-hub<2.0,>=1.16.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio 6.26.0 requires pillow<13.0,>=8.0, but you have pillow 13.0.0 which is incompatible.
+datasets 4.8.5 requires huggingface-hub<2.0,>=0.25.0, but you have huggingface-hub 2.4.0 which is incompatible.
+bigframes 2.48.0 requires rich<14,>=12.4.4, but you have rich 15.0.0 which is incompatible.
+diffusers 0.40.0 requires huggingface-hub<2.0,>=1.23.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio-client 2.6.1 requires huggingface-hub<2.0,>=0.19.3, but you have huggingface-hub 2.4.0 which is incompatible.
+
+D_new_env521 env: regex 2026.9.29 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.21.0 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.3 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py | huggingface_hub 2.4.0 /usr/local/lib/python3.13/dist-packages/huggingface_hub/__init__.py |  
+===== CHECK D_new_env521 =====
+== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-11-01 20:51:02 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (17.6 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 13.0 с, пик RSS 1124 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 10.9 с
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_D_new_env521/b8smoke_h_lowxb3
+== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.2 с
+
+STDERR: 
+D_new_env521 {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.2 с", "wall_s": 34, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла", "[INFO] smoke     записано 80, файл 58184 байт", "[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}"], "v3_lines": ["[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": ["56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", 58184]}, "ref103": {"rc": 0, "wall_s": 65, "files": {"result.geojson": ["b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", 2639]}, "warn": []}}
+SUMMARY {"REF_check4": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 30, 67.9 с", "marker": false, "smoke_sha": "56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", "smoke_eq_ref": true, "smoke_bytes": 58184, "ref103_sha": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", "ref103_eq_ref": true, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла"]}, "C_default": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.0 с", "marker": false, "smoke_sha": "56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", "smoke_eq_ref": true, "smoke_bytes": 58184, "ref103_sha": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", "ref103_eq_ref": true, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла"]}, "A_regex2025_preloaded": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 35.2 с", "marker": false, "smoke_sha": "56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", "smoke_eq_ref": true, "smoke_bytes": 58184, "ref103_sha": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", "ref103_eq_ref": true, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла"]}, "B_no_regex": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.6 с", "marker": false, "smoke_sha": "56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", "smoke_eq_ref": true, "smoke_bytes": 58184, "ref103_sha": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", "ref103_eq_ref": true, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла"]}, "D_new_env521": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 2, проверок 31, 34.2 с", "marker": false, "smoke_sha": "56be33ffb726d01bc09258ecbff3de9141a385b3816265b42e9420723982ca33", "smoke_eq_ref": true, "smoke_bytes": 58184, "ref103_sha": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5", "ref103_eq_ref": true, "fmt": ["[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла"]}}

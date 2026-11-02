@@ -1,0 +1,128 @@
+{
+ "las": "192_КЧР/01_КЧР_La_точки/01_КЧР_La_точки.las",
+ "bytes": 210956731,
+ "n_li": 4,
+ "cls": {
+  "fmt": 3,
+  "n": 6204603,
+  "classes": {
+   "2": 6204603
+  },
+  "frac_ground": 1.0
+ },
+ "li_res": 0.2,
+ "rc": 0,
+ "stderr_tail": "INFO DEM a.las: 2327x2321 @ 0.2 м, точек 6204603, пустот 1724748, rust 0.1.0 avx2=true/true threads=4\n",
+ "check": {
+  "seconds": 5.3,
+  "report": {
+   "g": {
+    "status": "ok",
+    "file": "03_КЧР_Li_g.tif",
+    "pixels": 5400967,
+    "equal_pct": 5.493,
+    "within1_pct": 15.29,
+    "mae": 8.7945,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.394
+   },
+   "i": {
+    "status": "ok",
+    "file": "04_КЧР_Li_i.tif",
+    "pixels": 5400967,
+    "equal_pct": 5.171,
+    "within1_pct": 14.802,
+    "mae": 8.921,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.392
+   },
+   "c": {
+    "status": "нет файла Li"
+   },
+   "ch": {
+    "status": "нет файла Li"
+   }
+  }
+ },
+ "fit": {
+  "li_res": 0.2,
+  "dem_res": 0.2,
+  "shape": [
+   2321,
+   2327
+  ],
+  "build_s": 4.3,
+  "used_all": false,
+  "g_grad": {
+   "az": 320,
+   "alt": 41,
+   "z": 1,
+   "a": 214.93,
+   "b": 37.9,
+   "mae": 8.099,
+   "r": 0.9583
+  },
+  "i_grad": {
+   "az": 320,
+   "alt": 41,
+   "z": 1,
+   "a": -216.34,
+   "b": 215.87,
+   "mae": 8.18,
+   "r": -0.9582
+  },
+  "g_horn": {
+   "az": 315,
+   "alt": 41,
+   "z": 1.2,
+   "a": 199.4,
+   "b": 48.81,
+   "mae": 6.491,
+   "r": 0.9726
+  },
+  "i_horn": {
+   "az": 315,
+   "alt": 41,
+   "z": 1.2,
+   "a": -200.7,
+   "b": 204.89,
+   "mae": 6.571,
+   "r": -0.9724
+  },
+  "ours_default_g_mae": 6.449,
+  "ours_default_i_mae_255minus": 6.679,
+  "g_horn_smooth1px": {
+   "mae": 5.698,
+   "a": 202.0,
+   "b": 47.1
+  },
+  "g_horn_smooth2px": {
+   "mae": 6.864,
+   "a": 195.6,
+   "b": 51.3
+  },
+  "g_horn_smooth3px": {
+   "mae": 8.017,
+   "a": 189.7,
+   "b": 55.1
+  },
+  "g_plus_i_med": 253.0,
+  "li_nodata255_frac": 0.003,
+  "our_valid_frac": 0.999
+ },
+ "wall_s": 68.0
+}

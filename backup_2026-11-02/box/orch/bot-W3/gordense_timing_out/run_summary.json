@@ -1,0 +1,28 @@
+{
+ "kernel": "dmitrijkv/koz3-w3-gordense-timing",
+ "commit": "86a60c5",
+ "targets": {
+  "working_target_s": 960,
+  "bot10_criterion_s": 900,
+  "platform_limit_s": 1800
+ },
+ "steps": {
+  "pip": {
+   "pkgs": [
+    "transformers==5.21.0",
+    "rasterio==1.5.2",
+    "pyproj==3.8.0",
+    "shapely==2.2.0",
+    "boto3==1.40.61",
+    "laspy[lazrs]",
+    "segmentation-models-pytorch"
+   ],
+   "s": 21.3
+  }
+ },
+ "started_utc": "2026-11-01T16:28:29Z",
+ "gpu": "GPU 0: Tesla T4 (UUID: GPU-1bf8d930-1edd-f043-3415-6b51dd1325ca)\nGPU 1: Tesla T4 (UUID: GPU-9eafe085-9c59-47b0-d953-c565f15682aa)",
+ "versions": "{\"torch\": \"2.11.0+cu128\", \"cuda\": \"12.8\", \"transformers\": \"5.21.0\", \"rasterio\": \"1.5.2\", \"numpy\": \"2.1.3\"}",
+ "fatal": "hard timeout",
+ "elapsed_s": 3300.0
+}

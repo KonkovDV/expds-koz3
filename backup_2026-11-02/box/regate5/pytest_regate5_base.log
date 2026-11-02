@@ -1,0 +1,486 @@
+..ss......................FF.....sssssssss...s.......................... [ 15%]
+..............sss.....FF.F.............................................. [ 31%]
+..........ss...................F..sss......s............................ [ 47%]
+.........................FF..............s.....................s........ [ 63%]
+.......................................F..........................s.s... [ 79%]
+.....s...................................ss.s........................... [ 95%]
+......................                                                   [100%]
+==================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_audit_fixes.py __________________
+ImportError while importing test module '/workspace/koz3/regate5_base/tests/test_audit_fixes.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_audit_fixes.py:6: in <module>
+    import torch
+E   ModuleNotFoundError: No module named 'torch'
+______________________ ERROR collecting tests/test_tta.py ______________________
+ImportError while importing test module '/workspace/koz3/regate5_base/tests/test_tta.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_tta.py:3: in <module>
+    import torch
+E   ModuleNotFoundError: No module named 'torch'
+=================================== FAILURES ===================================
+___________________________ test_pix_models_shipped ____________________________
+
+cfg = {'default_threshold': 0.15, 'time': {'budget_s': 1500, 'reserve_s': 120, 'watchdog': True, 'guard_margin_s': 180, ...}, 'crs': {'policy': 'vote'}, 'infer': {'amp': False, 'tf32': False, 'deterministic': True}, ...}
+
+    def test_pix_models_shipped(cfg):
+        md = ROOT / cfg["geophys"]["pixgbm"]["model_dir"]
+        for name, h in SHA.items():
+>           assert hashlib.sha256((md / name).read_bytes()).hexdigest() == h
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_bot7_candidate_v2.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.13/pathlib/_abc.py:625: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/koz3/regate5_base/models/pixgbm/all/poly.txt')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/workspace/koz3/regate5_base/models/pixgbm/all/poly.txt'
+
+/usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError
+__________________ test_build_submission_collects_pix_models ___________________
+
+    def test_build_submission_collects_pix_models():
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("bs", ROOT / "scripts" / "build_submission.py")
+        bs = importlib.util.module_from_spec(spec); spec.loader.exec_module(bs)
+>       rel = {str(p.relative_to(ROOT)) for p in bs.collect()}
+                                                 ^^^^^^^^^^^^
+
+tests/test_bot7_candidate_v2.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def collect() -> list[Path]:
+        files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
+        files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+        cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+        # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+        # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+        off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+        files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                        if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+        files += sorted((ROOT / "configs").glob("*.toml"))
+        from expds.pipeline import model_files, model_specs
+    
+        models = cfg.get("models", {})
+        paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+        verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
+        seen = set()
+        rr = cfg.get("rerank_arch") or {}
+        rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+        pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+        # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+        pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+            if pix.get("enabled") else []
+        sd = cfg.get("sp_dfine") or {}
+        # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+        dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+            if sd.get("enabled") else []
+        gg = cfg.get("gor_gate") or {}
+        # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+        if gg.get("enabled"):
+            bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+            dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+        if sd.get("enabled") or gg.get("enabled"):
+            vend = ROOT / "inference" / "lib" / "vendor"
+            if not vend.is_dir():
+                sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+        for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
+            if not rel or rel in seen:
+                continue
+            seen.add(rel)
+            p = ROOT / rel
+            if not p.exists():
+>               sys.exit(f"модель из конфига не найдена: {rel}")
+E               SystemExit: модель из конфига не найдена: models/pixgbm/all/poly.txt
+
+scripts/build_submission.py:81: SystemExit
+_____________ test_train_only_modules_unreachable_and_not_packaged _____________
+
+    def test_train_only_modules_unreachable_and_not_packaged():
+        """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
+        import ast
+        import importlib.util
+    
+        mods = {p.stem: p for p in (ROOT / "expds").glob("*.py")}
+    
+        def deps(p):
+            out = set()
+            for n in ast.walk(ast.parse(p.read_text(encoding="utf-8"))):
+                if isinstance(n, ast.ImportFrom):
+                    m = n.module or ""
+                    if n.level >= 1 and not m:
+                        out |= {a.name for a in n.names}
+                    elif m.startswith("expds."):
+                        out.add(m.split(".")[1])
+                    elif n.level >= 1:
+                        out.add(m.split(".")[0])
+                    elif m == "expds":
+                        out |= {a.name for a in n.names}
+                elif isinstance(n, ast.Import):
+                    out |= {a.name.split(".")[1] for a in n.names if a.name.startswith("expds.")}
+            return {d for d in out if d in mods}
+    
+        seen, todo = set(), deps(ROOT / "inference" / "main.py") | {"__init__"}
+        while todo:
+            m = todo.pop()
+            if m not in seen:
+                seen.add(m)
+                todo |= deps(mods[m]) - seen
+        assert {"gt", "blobs", "coarse", "det_boxes"}.isdisjoint(seen)
+        assert {"pipeline", "sp_dfine", "gor_gate"} <= seen
+        spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        assert mod.TRAIN_ONLY == {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
+>       names = {p.name for p in mod.collect() if p.parent == ROOT / "expds"}
+                                 ^^^^^^^^^^^^^
+
+tests/test_bot7_v3_flags.py:312: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def collect() -> list[Path]:
+        files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
+        files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+        cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+        # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+        # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+        off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+        files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                        if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+        files += sorted((ROOT / "configs").glob("*.toml"))
+        from expds.pipeline import model_files, model_specs
+    
+        models = cfg.get("models", {})
+        paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+        verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
+        seen = set()
+        rr = cfg.get("rerank_arch") or {}
+        rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+        pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+        # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+        pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+            if pix.get("enabled") else []
+        sd = cfg.get("sp_dfine") or {}
+        # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+        dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+            if sd.get("enabled") else []
+        gg = cfg.get("gor_gate") or {}
+        # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+        if gg.get("enabled"):
+            bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+            dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+        if sd.get("enabled") or gg.get("enabled"):
+            vend = ROOT / "inference" / "lib" / "vendor"
+            if not vend.is_dir():
+                sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+        for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
+            if not rel or rel in seen:
+                continue
+            seen.add(rel)
+            p = ROOT / rel
+            if not p.exists():
+>               sys.exit(f"модель из конфига не найдена: {rel}")
+E               SystemExit: модель из конфига не найдена: models/pixgbm/all/poly.txt
+
+scripts/build_submission.py:81: SystemExit
+___________________ test_no_personal_paths_in_packaged_code ____________________
+
+    def test_no_personal_paths_in_packaged_code():
+        import re
+    
+        pat = re.compile(r"[A-Z]:/|/workspace/|/home/|/Users/")
+        bad = [f"{p.name}:{i}" for p in list((ROOT / "expds").glob("*.py")) + [ROOT / "configs" / "default.toml"]
+               for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1) if pat.search(line)]
+>       assert not bad, bad
+E       AssertionError: ['pix_org.py:3']
+E       assert not ['pix_org.py:3']
+
+tests/test_bot7_v3_flags.py:322: AssertionError
+___________________ test_flag_modules_not_packaged_when_off ____________________
+
+    def test_flag_modules_not_packaged_when_off():
+        """v3: при выключенных [sp_dfine]/[gor_gate] их модули не идут в архив (граф импортов без transformers),
+        pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""
+        import importlib.util
+        import tomllib
+    
+        cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+        assert not cfg["sp_dfine"]["enabled"] and not cfg["gor_gate"]["enabled"]
+        spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")
+        bs = importlib.util.module_from_spec(spec); spec.loader.exec_module(bs)
+>       rel = {p.relative_to(ROOT).as_posix() for p in bs.collect()}
+                                                       ^^^^^^^^^^^^
+
+tests/test_bot7_v3_flags.py:345: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def collect() -> list[Path]:
+        files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
+        files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+        cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+        # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+        # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+        off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+        files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                        if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+        files += sorted((ROOT / "configs").glob("*.toml"))
+        from expds.pipeline import model_files, model_specs
+    
+        models = cfg.get("models", {})
+        paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+        verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
+        seen = set()
+        rr = cfg.get("rerank_arch") or {}
+        rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+        pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+        # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+        pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+            if pix.get("enabled") else []
+        sd = cfg.get("sp_dfine") or {}
+        # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+        dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+            if sd.get("enabled") else []
+        gg = cfg.get("gor_gate") or {}
+        # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+        if gg.get("enabled"):
+            bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+            dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+        if sd.get("enabled") or gg.get("enabled"):
+            vend = ROOT / "inference" / "lib" / "vendor"
+            if not vend.is_dir():
+                sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+        for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
+            if not rel or rel in seen:
+                continue
+            seen.add(rel)
+            p = ROOT / rel
+            if not p.exists():
+>               sys.exit(f"модель из конфига не найдена: {rel}")
+E               SystemExit: модель из конфига не найдена: models/pixgbm/all/poly.txt
+
+scripts/build_submission.py:81: SystemExit
+________ test_grid_cache_roundtrip_gives_one_circle_inside_each_object _________
+
+val_dir = PosixPath('/tmp/pytest-of-box/pytest-19/test_grid_cache_roundtrip_give0/input')
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-19/test_grid_cache_roundtrip_give0')
+
+    def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_path):
+        from expds.crs import WEB_MERCATOR, to_crs
+        from expds.tiles import build_cache
+    
+        objs = [box(X0 + 6, Y0 + 6, X0 + 12, Y0 + 12), box(X0 + 22, Y0 + 26, X0 + 30, Y0 + 32)]
+        gt = tmp_path / "gt.geojson"
+        gt.write_text(json.dumps({"type": "FeatureCollection", "features": [
+            {"type": "Feature", "geometry": to_crs(o, UTM, WEB_MERCATOR).__geo_interface__,
+             "properties": {"class_name": "object_poly", "markup_type": "maggr", "region_name": "region_0002"}}
+            for o in objs]}), encoding="utf-8")
+        cache = tmp_path / "grid"
+        build_cache(str(val_dir), str(gt), "maggr", str(cache), res=0.25, tile=64, grid_overlap=0.5, seed=0)
+        out = tmp_path / "coco"
+>       summary = load("coco_from_cache").export(cache, out, layout="rfdetr", images=True, all_valid=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_coco_roundtrip.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/coco_from_cache.py:166: in export
+    write_images(cache, part, folder, channels)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cache = PosixPath('/tmp/pytest-of-box/pytest-19/test_grid_cache_roundtrip_give0/grid')
+rows = []
+folder = PosixPath('/tmp/pytest-of-box/pytest-19/test_grid_cache_roundtrip_give0/coco/train')
+channels = [0, 1, 2]
+
+    def write_images(cache: Path, rows: list[dict], folder: Path, channels: list[int]) -> int:
+>       import cv2
+E       ModuleNotFoundError: No module named 'cv2'
+
+scripts/coco_from_cache.py:96: ModuleNotFoundError
+___________ test_train_refuses_silent_cpu_fallback_when_require_gpu ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-19/test_train_refuses_silent_cpu_0')
+
+    def test_train_refuses_silent_cpu_fallback_when_require_gpu(tmp_path: Path) -> None:
+        cache = _make_tiny_cache(tmp_path)
+        out_pt = tmp_path / "out.pt"
+>       with patch("torch.cuda.is_available", return_value=False):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_gpu_safeguards.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.13/unittest/mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.13/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'torch', import_ = <function _gcd_import at 0x7f370c9f84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'torch'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________ test_train_refuses_cuda_device_when_cuda_unavailable _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-box/pytest-19/test_train_refuses_cuda_device0')
+
+    def test_train_refuses_cuda_device_when_cuda_unavailable(tmp_path: Path) -> None:
+        cache = _make_tiny_cache(tmp_path)
+        out_pt = tmp_path / "out.pt"
+>       with patch("torch.cuda.is_available", return_value=False):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_gpu_safeguards.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.13/unittest/mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.13/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'torch', import_ = <function _gcd_import at 0x7f370c9f84a0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'torch'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+_____________________ test_shared_weights_are_packed_once ______________________
+
+    def test_shared_weights_are_packed_once():
+>       files = _submission().collect()
+                ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_open_hooks.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def collect() -> list[Path]:
+        files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
+        files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
+        cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+        # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+        # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
+        off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+        if (cfg.get("gor_gate") or {}).get("enabled"):
+            off.discard("sp_dfine.py")   # gor_gate берёт закреплённый импорт transformers из sp_dfine.import_dfine
+        files += sorted(p for p in (ROOT / "expds").rglob("*.py")
+                        if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+        files += sorted((ROOT / "configs").glob("*.toml"))
+        from expds.pipeline import model_files, model_specs
+    
+        models = cfg.get("models", {})
+        paths = [f for mt in models for p, _ in model_specs(models, mt) for f in model_files(p)]
+        verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
+        seen = set()
+        rr = cfg.get("rerank_arch") or {}
+        rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+        pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+        # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
+        pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
+            if pix.get("enabled") else []
+        sd = cfg.get("sp_dfine") or {}
+        # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+        dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
+            if sd.get("enabled") else []
+        gg = cfg.get("gor_gate") or {}
+        # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+        if gg.get("enabled"):
+            bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
+            dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
+        if sd.get("enabled") or gg.get("enabled"):
+            vend = ROOT / "inference" / "lib" / "vendor"
+            if not vend.is_dir():
+                sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
+        for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
+            if not rel or rel in seen:
+                continue
+            seen.add(rel)
+            p = ROOT / rel
+            if not p.exists():
+>               sys.exit(f"модель из конфига не найдена: {rel}")
+E               SystemExit: модель из конфига не найдена: models/pixgbm/all/poly.txt
+
+scripts/build_submission.py:81: SystemExit
+=============================== warnings summary ===============================
+tests/test_bot7_geographic_utm_json.py::test_geographic_utm_json_becomes_center_zone
+  /workspace/koz3/regate5_base/tests/test_bot7_geographic_utm_json.py:52: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    cx, cy = sc.T * (sc.W / 2, sc.H / 2)
+
+tests/test_oracle_ceiling.py: 16 warnings
+  /workspace/koz3/regate5_base/materials/compute_metrics.py:471: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+    return _shapely_transform(_get_transformer_3857_to_utm(epsg).transform, geom)
+
+tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
+  /workspace/koz3/w4venv/lib/python3.13/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+    dataset = writer(
+
+tests/test_register.py::test_image_label_shift_finds_labels_off_the_photo
+tests/test_register.py::test_image_label_shift_quiet_when_labels_sit_on_blobs
+tests/test_register.py::test_li_to_ae_register_moves_copies_onto_the_photo
+tests/test_register.py::test_li_to_ae_register_leaves_aligned_photo_alone
+  /workspace/koz3/regate5_base/expds/raster.py:133: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    x, y = transform * (width / 2.0, height / 2.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_bot7_candidate_v2.py::test_pix_models_shipped - FileNotFoun...
+FAILED tests/test_bot7_candidate_v2.py::test_build_submission_collects_pix_models
+FAILED tests/test_bot7_v3_flags.py::test_train_only_modules_unreachable_and_not_packaged
+FAILED tests/test_bot7_v3_flags.py::test_no_personal_paths_in_packaged_code
+FAILED tests/test_bot7_v3_flags.py::test_flag_modules_not_packaged_when_off
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+FAILED tests/test_gpu_safeguards.py::test_train_refuses_silent_cpu_fallback_when_require_gpu
+FAILED tests/test_gpu_safeguards.py::test_train_refuses_cuda_device_when_cuda_unavailable
+FAILED tests/test_open_hooks.py::test_shared_weights_are_packed_once - System...
+9 failed, 416 passed, 32 skipped, 22 warnings, 2 errors in 34.09s
+exit 1

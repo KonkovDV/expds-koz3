@@ -1,0 +1,54 @@
+[{"stream_name":"stdout","time":14.622084102,"data":"  torch 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":20.744433632,"data":"  torchvision 0.26.0+cu128\n"}
+,{"stream_name":"stdout","time":20.744494301,"data":"  rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":20.74450153,"data":"  pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":20.744505161,"data":"  shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":20.744508455,"data":"  boto3 1.41.5\n"}
+,{"stream_name":"stdout","time":20.744511884,"data":"  sklearn 1.6.1\n"}
+,{"stream_name":"stdout","time":20.744520797,"data":"  cv2 4.14.0\n"}
+,{"stream_name":"stdout","time":21.057024442,"data":"[      0s] GPU: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":21.224057162,"data":"[      0s] Kaggle Secrets недоступны: ConnectionError — пробую переменные окружения\n"}
+,{"stream_name":"stdout","time":21.793671411,"data":"[      1s] ключи S3 из приватного датасета\n"}
+,{"stream_name":"stdout","time":24.263032552,"data":"[      4s] S3 OK\n"}
+,{"stream_name":"stdout","time":24.541602015,"data":"[      4s] строк 55085 Counter({('c', 'kurgan', 0): 51369, ('c', 'kurgan', 1): 1640, ('g', 'kurgan', 1): 1170, ('c', 'gor', 0): 828, ('g', 'gor', 1): 60, ('c', 'gor', 1): 18})\n"}
+,{"stream_name":"stdout","time":27.016224804,"data":"[      6s] кропы: участков 1/121, есть 624/55085\n"}
+,{"stream_name":"stdout","time":33.461633545,"data":"[     13s] кропы: участков 21/121, есть 13467/55085\n"}
+,{"stream_name":"stdout","time":37.165026987,"data":"[     16s] кропы: участков 41/121, есть 19206/55085\n"}
+,{"stream_name":"stdout","time":58.392689397,"data":"[     38s] кропы: участков 61/121, есть 35015/55085\n"}
+,{"stream_name":"stdout","time":64.103870534,"data":"[     43s] кропы: участков 81/121, есть 43701/55085\n"}
+,{"stream_name":"stdout","time":67.203724481,"data":"[     46s] кропы: участков 101/121, есть 47440/55085\n"}
+,{"stream_name":"stdout","time":71.780885665,"data":"[     51s] кропы: участков 121/121, есть 55085/55085\n"}
+,{"stream_name":"stdout","time":71.788644936,"data":"[     51s] кропы готовы 55085 из 55085 без растра: 0\n"}
+,{"stream_name":"stdout","time":72.185003904,"data":"Downloading: \"https://download.pytorch.org/models/resnet18-f37072fd.pth\" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth\n"}
+,{"stream_name":"stdout","time":72.213755194,"data":"Downloading: \"https://download.pytorch.org/models/resnet18-f37072fd.pth\" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth\n"}
+,{"stream_name":"stderr","time":72.262434358,"data":"\r  0%|          | 0.00/44.7M [00:00\u003c?, ?B/s]\n"}
+,{"stream_name":"stderr","time":72.362954135,"data":"\r  0%|          | 0.00/44.7M [00:00\u003c?, ?B/s]\u001b[A\r 26%|██▌       | 11.5M/44.7M [00:00\u003c00:00, 120MB/s]\n"}
+,{"stream_name":"stderr","time":72.463745626,"data":"\r 30%|██▉       | 13.2M/44.7M [00:00\u003c00:00, 138MB/s]\u001b[A\r 68%|██████▊   | 30.5M/44.7M [00:00\u003c00:00, 166MB/s]\n"}
+,{"stream_name":"stderr","time":72.503066739,"data":"\r 73%|███████▎  | 32.6M/44.7M [00:00\u003c00:00, 176MB/s]\u001b[A\r100%|██████████| 44.7M/44.7M [00:00\u003c00:00, 173MB/s]\n"}
+,{"stream_name":"stderr","time":72.533992934,"data":"\r100%|██████████| 44.7M/44.7M [00:00\u003c00:00, 173MB/s]\n"}
+,{"stream_name":"stderr","time":74.927001421,"data":"/kaggle/src/script.py:230: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate\n"}
+,{"stream_name":"stderr","time":74.927074406,"data":"  opt.zero_grad(set_to_none=True); scaler.scale(l).backward(); scaler.step(opt); scaler.update(); sch.step()\n"}
+,{"stream_name":"stdout","time":257.862340913,"data":"[    237s] job {\"head\": \"kurgan\", \"fold\": 1, \"init\": \"imagenet\", \"val_family\": \"Кабардино\", \"n_train\": 40940, \"pos_train\": 2000, \"n_val\": 3534, \"n_test\": 9475, \"pos_test\": 407, \"best_val_auc\": 0.7531219204303703, \"test_auc\": 0.728354100983126, \"test_auc_stack_conf\": 0.7582663717974701, \"sec\": 186}\n"}
+,{"stream_name":"stderr","time":258.099660559,"data":"/kaggle/src/script.py:230: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate\n"}
+,{"stream_name":"stderr","time":258.099696333,"data":"  opt.zero_grad(set_to_none=True); scaler.scale(l).backward(); scaler.step(opt); scaler.update(); sch.step()\n"}
+,{"stream_name":"stdout","time":287.987629617,"data":"[    267s] job {\"head\": \"kurgan\", \"fold\": 0, \"init\": \"imagenet\", \"val_family\": \"Тыва\", \"n_train\": 52990, \"pos_train\": 2541, \"n_val\": 816, \"n_test\": 283, \"pos_test\": 3, \"best_val_auc\": 0.8245649857954546, \"test_auc\": 0.32738095238095233, \"test_auc_stack_conf\": 0.9017857142857142, \"sec\": 216}\n"}
+,{"stream_name":"stdout","time":418.234198344,"data":"[    397s] job {\"head\": \"kurgan\", \"fold\": 2, \"init\": \"imagenet\", \"val_family\": \"Курменту\", \"n_train\": 35550, \"pos_train\": 1217, \"n_val\": 1543, \"n_test\": 16353, \"pos_test\": 735, \"best_val_auc\": 0.8508772919605077, \"test_auc\": 0.5854922760498744, \"test_auc_stack_conf\": 0.7274465273367638, \"sec\": 160}\n"}
+,{"stream_name":"stdout","time":481.007261901,"data":"[    460s] job {\"head\": \"kurgan\", \"fold\": 3, \"init\": \"imagenet\", \"val_family\": \"Тыва\", \"n_train\": 44118, \"pos_train\": 2340, \"n_val\": 816, \"n_test\": 9093, \"pos_test\": 142, \"best_val_auc\": 0.8479225852272728, \"test_auc\": 0.8449445415651096, \"test_auc_stack_conf\": 0.7064577724418234, \"sec\": 193}\n"}
+,{"stream_name":"stderr","time":481.289274307,"data":"/kaggle/src/script.py:230: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate\n"}
+,{"stream_name":"stderr","time":481.289311816,"data":"  opt.zero_grad(set_to_none=True); scaler.scale(l).backward(); scaler.step(opt); scaler.update(); sch.step()\n"}
+,{"stream_name":"stdout","time":490.006998137,"data":"[    469s] job {\"head\": \"gor\", \"fold\": 0, \"init\": \"imagenet\", \"val_family\": \"Белая\", \"n_train\": 842, \"pos_train\": 73, \"n_val\": 30, \"n_test\": 31, \"pos_test\": 0, \"best_val_auc\": 1.0, \"test_auc\": null, \"test_auc_stack_conf\": null, \"sec\": 9}\n"}
+,{"stream_name":"stderr","time":490.216578036,"data":"/kaggle/src/script.py:230: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate\n"}
+,{"stream_name":"stderr","time":490.216641034,"data":"  opt.zero_grad(set_to_none=True); scaler.scale(l).backward(); scaler.step(opt); scaler.update(); sch.step()\n"}
+,{"stream_name":"stdout","time":497.867542859,"data":"[    477s] job {\"head\": \"gor\", \"fold\": 1, \"init\": \"imagenet\", \"val_family\": \"Белая\", \"n_train\": 754, \"pos_train\": 62, \"n_val\": 30, \"n_test\": 110, \"pos_test\": 2, \"best_val_auc\": 1.0, \"test_auc\": 0.5787037037037037, \"test_auc_stack_conf\": 0.6990740740740741, \"sec\": 8}\n"}
+,{"stream_name":"stdout","time":505.407265384,"data":"[    485s] job {\"head\": \"gor\", \"fold\": 2, \"init\": \"imagenet\", \"val_family\": \"Белая\", \"n_train\": 679, \"pos_train\": 67, \"n_val\": 30, \"n_test\": 190, \"pos_test\": 2, \"best_val_auc\": 0.9642857142857143, \"test_auc\": 0.901595744680851, \"test_auc_stack_conf\": 0.6196808510638298, \"sec\": 8}\n"}
+,{"stream_name":"stdout","time":512.040591562,"data":"[    491s] job {\"head\": \"gor\", \"fold\": 3, \"init\": \"imagenet\", \"val_family\": \"Архангельское\", \"n_train\": 526, \"pos_train\": 59, \"n_val\": 3, \"n_test\": 368, \"pos_test\": 9, \"best_val_auc\": 1.0, \"test_auc\": 0.5892912411018261, \"test_auc_stack_conf\": 0.5177963478799134, \"sec\": 7}\n"}
+,{"stream_name":"stdout","time":520.101992459,"data":"[    499s] job {\"head\": \"gor\", \"fold\": 4, \"init\": \"imagenet\", \"val_family\": \"Костомаровское\", \"n_train\": 715, \"pos_train\": 34, \"n_val\": 7, \"n_test\": 147, \"pos_test\": 5, \"best_val_auc\": 1.0, \"test_auc\": 0.8915492957746479, \"test_auc_stack_conf\": 0.8014084507042254, \"sec\": 8}\n"}
+,{"stream_name":"stdout","time":574.678519281,"data":"[    554s] job {\"head\": \"kurgan\", \"fold\": 4, \"init\": \"imagenet\", \"val_family\": \"Тыва\", \"n_train\": 35264, \"pos_train\": 1987, \"n_val\": 816, \"n_test\": 17805, \"pos_test\": 353, \"best_val_auc\": 0.9087180397727272, \"test_auc\": 0.5728793797183241, \"test_auc_stack_conf\": 0.7076455436814469, \"sec\": 156}\n"}
+,{"stream_name":"stdout","time":575.279944574,"data":"[    555s] ГОТОВО {\"kurgan\": {\"n\": 53009, \"pos\": 1640, \"auc\": 0.5858672949282784, \"auc_stack_conf\": 0.7249806932528825}, \"gor\": {\"n\": 846, \"pos\": 18, \"auc\": 0.6984702093397746, \"auc_stack_conf\": 0.6188942565754161}}\n"}
+,{"stream_name":"stderr","time":582.752354302,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":582.752397736,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":583.040366621,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":583.040391146,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":583.839160117,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":584.945907815,"data":"[NbConvertApp] Writing 1359983 bytes to __results__.html\n"}
+]

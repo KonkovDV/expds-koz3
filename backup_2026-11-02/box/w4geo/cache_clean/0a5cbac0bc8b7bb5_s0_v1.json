@@ -1,0 +1,1 @@
+{"raster": "02_Гнёздово_Усадьба_EtGr_профиль_15.tif", "region": "212_Гнёздово_Усадьба", "mt": "etgr", "file": "0a5cbac0bc8b7bb5_s0_v1.npz", "shape": [75, 371], "step": 0.059495651235019126, "classes": {"object_poly": {"gt_files": ["Гнёздово_Усадьба_EtGr_профиль_15_ObjectPoly.geojson"], "n_gt": 8, "pos": 6839, "neg": 10645}}, "secs": 0.2}

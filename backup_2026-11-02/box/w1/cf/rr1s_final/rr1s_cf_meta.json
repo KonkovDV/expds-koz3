@@ -1,0 +1,164 @@
+{
+ "names": [
+  "conf",
+  "logit",
+  "cls",
+  "grp",
+  "mk",
+  "area",
+  "compact",
+  "bw",
+  "aspect",
+  "nv",
+  "has_twin",
+  "twin_conf",
+  "twin_diff",
+  "has_las",
+  "rg_n",
+  "rg_rank",
+  "rg_pct",
+  "rg_max",
+  "conf_rel",
+  "rg_mean",
+  "gq",
+  "nb_same10",
+  "nb_same30",
+  "nb_same100",
+  "nb_strong30",
+  "nb_strong100",
+  "og_max5",
+  "og_n5",
+  "nn_dist",
+  "nb_otherfam50",
+  "d_nhigher_g",
+  "d_maxq_other_g",
+  "d_localmax",
+  "d_maxq_othersub",
+  "d_n8",
+  "cnx_s0",
+  "cnx_s1",
+  "cnx_mean",
+  "cnx_agree",
+  "cnx_samecls",
+  "cf_gd_in",
+  "cf_gd_ctx",
+  "cf_pd_in",
+  "cf_nf_in",
+  "cf_nf_ctx",
+  "cf_zs_in",
+  "cf_zs_ctx",
+  "cf_hole_in",
+  "cf_hole_ctx",
+  "cf_gd_ratio"
+ ],
+ "categorical": [
+  "cls",
+  "grp",
+  "mk"
+ ],
+ "rounds": 300,
+ "params": {
+  "objective": "binary",
+  "learning_rate": 0.05,
+  "num_leaves": 31,
+  "min_data_in_leaf": 100,
+  "feature_fraction": 0.8,
+  "bagging_fraction": 0.8,
+  "bagging_freq": 1,
+  "lambda_l2": 1.0,
+  "verbose": -1,
+  "num_threads": 4,
+  "seed": 0
+ },
+ "monotone": [
+  "conf",
+  "logit"
+ ],
+ "CL": [
+  "kurgany_povrezhdennye",
+  "kurgany_tselye",
+  "gorodishcha",
+  "arkhitektury",
+  "object_poly",
+  "fortifikatsii",
+  "finds_points"
+ ],
+ "grp_codes": [
+  "ae",
+  "ae_fort",
+  "etgr",
+  "gor_phys",
+  "li",
+  "li_ae",
+  "li_coarse",
+  "li_dev",
+  "li_fort",
+  "li_mask",
+  "li_mosaic",
+  "maggr",
+  "or",
+  "sp_arch",
+  "sp_focal",
+  "sp_focal2",
+  "sp_or",
+  "terfl"
+ ],
+ "mk_codes": [
+  "ae",
+  "etgr",
+  "li",
+  "maggr",
+  "or",
+  "sp_or",
+  "terfl"
+ ],
+ "family_of_cls": {
+  "kurgany_povrezhdennye": 0,
+  "kurgany_tselye": 0,
+  "gorodishcha": 2,
+  "arkhitektury": 3,
+  "object_poly": 4,
+  "fortifikatsii": 5,
+  "finds_points": 6
+ },
+ "models": {
+  "0": {
+   "file": "rr1s_cf_fam0.txt",
+   "rows": 195183,
+   "pos": 2757,
+   "sha256": "2f3ea00e2ac3f4496a31fc1a1660ca0746f63ed13bf0baa872d0341869b4eea4"
+  },
+  "2": {
+   "file": "rr1s_cf_fam2.txt",
+   "rows": 4676,
+   "pos": 51,
+   "sha256": "f76417e08ec7aea63fc6ae3195362d0df4e5fd8e106980a94fb6c777ad5a73a4"
+  },
+  "3": {
+   "file": "rr1s_cf_fam3.txt",
+   "rows": 7793,
+   "pos": 79,
+   "sha256": "b2412558ef8ff2a33697ae034ce71e3b2c916dcefd662c32bbbc9af7d26ad5c4"
+  },
+  "4": {
+   "file": "rr1s_cf_fam4.txt",
+   "rows": 868,
+   "pos": 261,
+   "sha256": "46aa900ca02fd7a965d053fdfb761bbf14f8ffabd88776dbdffdb22821a94ce2"
+  },
+  "5": {
+   "file": "rr1s_cf_fam5.txt",
+   "rows": 10677,
+   "pos": 203,
+   "sha256": "8065a8dcee808255e8ebc4bef9b48ae6b2b86bf6983ee3f7cb4ab155ceadcf25"
+  },
+  "6": {
+   "file": "rr1s_cf_fam6.txt",
+   "rows": 3732,
+   "pos": 1819,
+   "sha256": "bd5199d09c92db52636d11e3be8515da75fffcc13e051d07268e21e7e7c34b2c"
+  }
+ },
+ "fallback_conf": [],
+ "note": "score = model.predict(X[pool rows of family]); rows outside pool/без модели → conf. RR1s-бленд: внутри li-слоя на класс ранги."
+}

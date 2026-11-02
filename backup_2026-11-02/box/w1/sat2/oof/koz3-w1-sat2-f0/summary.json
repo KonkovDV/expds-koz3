@@ -1,0 +1,16 @@
+{
+ "epochs_done": 40,
+ "train_tiles": 1780,
+ "test_tiles": 1330,
+ "enc": "tu-convnext_tiny",
+ "last_loss": {
+  "epoch": 39,
+  "loss_center": 0.0866,
+  "loss_hm": 0.02159,
+  "loss_wh": 0.05832,
+  "loss_off": 0.05918,
+  "sec": 58.6
+ },
+ "n_notta": 869,
+ "n_d8": 812
+}

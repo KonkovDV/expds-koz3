@@ -1,0 +1,69 @@
+[{"stream_name":"stdout","time":6.647552805,"data":"[      5s] s3 ok\n"}
+,{"stream_name":"stdout","time":7.612335445,"data":"[      6s] 59 sites 192806 cands\n"}
+,{"stream_name":"stdout","time":10.847576896,"data":"[     10s] {'site': '191_Осечки_1.3км', 'cands': 66, 'pts': 130242, 'roi_cells': 44669, 'sec': 0.2}\n"}
+,{"stream_name":"stdout","time":12.196344942,"data":"[     11s] {'site': '039_Примаки_0.7км', 'cands': 145, 'pts': 131822, 'roi_cells': 76662, 'sec': 0.1}\n"}
+,{"stream_name":"stdout","time":13.73024473,"data":"[     13s] {'site': '041_Миловидово', 'cands': 516, 'pts': 176745, 'roi_cells': 13406, 'sec': 0.4}\n"}
+,{"stream_name":"stdout","time":15.329412177,"data":"[     14s] {'site': '010_Эсбю_укрепление', 'cands': 1013, 'pts': 228338, 'roi_cells': 461340, 'sec': 0.8}\n"}
+,{"stream_name":"stdout","time":16.168632226,"data":"[     15s] {'site': '016_Хога', 'cands': 407, 'pts': 268836, 'roi_cells': 197828, 'sec': 0.3}\n"}
+,{"stream_name":"stdout","time":17.629493475,"data":"[     16s] {'site': '030_Эсбю', 'cands': 1144, 'pts': 282665, 'roi_cells': 321811, 'sec': 0.5}\n"}
+,{"stream_name":"stdout","time":18.519970145,"data":"[     17s] {'site': '044_Новотитаровская_1.8км', 'cands': 48, 'pts': 262114, 'roi_cells': 10843, 'sec': 0.1}\n"}
+,{"stream_name":"stdout","time":20.269512251,"data":"[     19s] {'site': '181_Гнёздово_Лесная_3', 'cands': 874, 'pts': 398884, 'roi_cells': 113885, 'sec': 0.4}\n"}
+,{"stream_name":"stdout","time":22.064946991,"data":"[     21s] {'site': '018_Курган_Хога', 'cands': 1477, 'pts': 458251, 'roi_cells': 477096, 'sec': 0.8}\n"}
+,{"stream_name":"stdout","time":23.102425028,"data":"[     22s] {'site': '013_Нора_Виннон', 'cands': 701, 'pts': 532036, 'roi_cells': 234096, 'sec': 0.4}\n"}
+,{"stream_name":"stdout","time":24.700233731,"data":"[     23s] {'site': '180_Гнёздово_Лесная_2', 'cands': 1090, 'pts': 559595, 'roi_cells': 146667, 'sec': 0.5}\n"}
+,{"stream_name":"stdout","time":29.06530343,"data":"[     28s] {'site': '009_Хальвасборген', 'cands': 4396, 'pts': 818123, 'roi_cells': 1535104, 'sec': 3.2}\n"}
+,{"stream_name":"stdout","time":29.2279549,"data":"[     28s] {'site': '045_Новотитаровская_2.8км', 'cands': 89, 'pts': 784958, 'roi_cells': 26003, 'sec': 0.2}\n"}
+,{"stream_name":"stdout","time":31.66205922,"data":"[     30s] {'site': '179_Гнёздово_Лесная_1', 'cands': 728, 'pts': 1214070, 'roi_cells': 129256, 'sec': 0.5}\n"}
+,{"stream_name":"stdout","time":35.227850889,"data":"[     34s] {'site': '189_Макеево', 'cands': 1818, 'pts': 1670004, 'roi_cells': 734271, 'sec': 1.5}\n"}
+,{"stream_name":"stdout","time":36.559766285,"data":"[     35s] {'site': '182_Красносельская_1.7км', 'cands': 87, 'pts': 1699904, 'roi_cells': 49949, 'sec': 0.3}\n"}
+,{"stream_name":"stdout","time":47.37654031,"data":"[     46s] {'site': '061_Граборг', 'cands': 9319, 'pts': 1977965, 'roi_cells': 4187715, 'sec': 8.6}\n"}
+,{"stream_name":"stdout","time":48.187114575,"data":"[     47s] {'site': '040_Примаки_1.3км', 'cands': 852, 'pts': 2057628, 'roi_cells': 406045, 'sec': 0.8}\n"}
+,{"stream_name":"stdout","time":54.237119191,"data":"[     53s] {'site': '036_Тимерево', 'cands': 1545, 'pts': 2311007, 'roi_cells': 229685, 'sec': 1.0}\n"}
+,{"stream_name":"stdout","time":56.989773305,"data":"[     56s] {'site': '005_Боровичи_2', 'cands': 1224, 'pts': 2733371, 'roi_cells': 148610, 'sec': 1.4}\n"}
+,{"stream_name":"stdout","time":60.671737472,"data":"[     59s] {'site': '006_Осечки_1.1км', 'cands': 3306, 'pts': 3289274, 'roi_cells': 964480, 'sec': 2.7}\n"}
+,{"stream_name":"stdout","time":65.7604255,"data":"[     65s] {'site': '011_Эрентуна', 'cands': 5542, 'pts': 3874816, 'roi_cells': 2641923, 'sec': 5.1}\n"}
+,{"stream_name":"stdout","time":66.427213926,"data":"[     65s] {'site': '038_Копанское', 'cands': 114, 'pts': 3498670, 'roi_cells': 48018, 'sec': 0.7}\n"}
+,{"stream_name":"stdout","time":76.982631765,"data":"[     76s] {'site': '025_Вышенское', 'cands': 5166, 'pts': 3614940, 'roi_cells': 2625449, 'sec': 5.3}\n"}
+,{"stream_name":"stdout","time":77.783655431,"data":"[     77s] {'site': '032_Красносельская_0.5км', 'cands': 331, 'pts': 3660936, 'roi_cells': 162392, 'sec': 0.8}\n"}
+,{"stream_name":"stdout","time":81.736566233,"data":"[     81s] {'site': '188_Руна', 'cands': 482, 'pts': 4164554, 'roi_cells': 197256, 'sec': 0.9}\n"}
+,{"stream_name":"stdout","time":87.029779749,"data":"[     86s] {'site': '027_Вышегжа_1', 'cands': 2371, 'pts': 4500403, 'roi_cells': 1150774, 'sec': 2.9}\n"}
+,{"stream_name":"stdout","time":109.514718874,"data":"[    108s] {'site': '102_Гнёздово_Заольшанская', 'cands': 26500, 'pts': 4843307, 'roi_cells': 6004449, 'sec': 22.5}\n"}
+,{"stream_name":"stdout","time":111.315832665,"data":"[    110s] {'site': '192_КЧР', 'cands': 548, 'pts': 6204603, 'roi_cells': 344963, 'sec': 1.8}\n"}
+,{"stream_name":"stdout","time":119.036347324,"data":"[    118s] {'site': '034_Усть_река', 'cands': 351, 'pts': 6538396, 'roi_cells': 231240, 'sec': 1.9}\n"}
+,{"stream_name":"stdout","time":124.819048857,"data":"[    124s] {'site': '003_Лубно', 'cands': 1563, 'pts': 6881438, 'roi_cells': 758405, 'sec': 2.7}\n"}
+,{"stream_name":"stdout","time":131.703757109,"data":"[    130s] {'site': '001_Гнёздово_Нивленское', 'cands': 3883, 'pts': 7402349, 'roi_cells': 914005, 'sec': 4.3}\n"}
+,{"stream_name":"stdout","time":135.704609643,"data":"[    134s] {'site': '022_Лихуша', 'cands': 1525, 'pts': 8915672, 'roi_cells': 721478, 'sec': 3.5}\n"}
+,{"stream_name":"stdout","time":174.050206707,"data":"[    173s] {'site': '101_Гнёздово_Днепровская', 'cands': 42177, 'pts': 10093840, 'roi_cells': 8843434, 'sec': 37.5}\n"}
+,{"stream_name":"stdout","time":176.310373624,"data":"[    175s] {'site': '023_Бервенец', 'cands': 361, 'pts': 10127976, 'roi_cells': 239849, 'sec': 2.2}\n"}
+,{"stream_name":"stdout","time":184.679132596,"data":"[    183s] {'site': '019_Селяне', 'cands': 784, 'pts': 11180594, 'roi_cells': 316581, 'sec': 3.5}\n"}
+,{"stream_name":"stdout","time":190.110244545,"data":"[    189s] {'site': '104_Шетнево', 'cands': 2553, 'pts': 11274663, 'roi_cells': 1225955, 'sec': 5.4}\n"}
+,{"stream_name":"stdout","time":193.30958439,"data":"[    192s] {'site': '017_Юшково', 'cands': 630, 'pts': 11803811, 'roi_cells': 302786, 'sec': 3.2}\n"}
+,{"stream_name":"stdout","time":205.293015756,"data":"[    204s] {'site': '035_Шумгора', 'cands': 5411, 'pts': 12626325, 'roi_cells': 2993230, 'sec': 8.6}\n"}
+,{"stream_name":"stdout","time":207.88914621,"data":"[    207s] {'site': '031_Новотитаровская', 'cands': 243, 'pts': 12703351, 'roi_cells': 268770, 'sec': 2.6}\n"}
+,{"stream_name":"stdout","time":217.151953073,"data":"[    216s] {'site': '200_Судьбищи_2', 'cands': 2458, 'pts': 13179395, 'roi_cells': 1281393, 'sec': 5.9}\n"}
+,{"stream_name":"stdout","time":227.531021501,"data":"[    226s] {'site': '105_Вщиж', 'cands': 5345, 'pts': 16153052, 'roi_cells': 2282388, 'sec': 10.0}\n"}
+,{"stream_name":"stdout","time":233.273287951,"data":"[    232s] {'site': '066_Московиты', 'cands': 1023, 'pts': 17585071, 'roi_cells': 278177, 'sec': 5.7}\n"}
+,{"stream_name":"stdout","time":240.038237899,"data":"[    239s] {'site': '068_Стеклянуха_1', 'cands': 1674, 'pts': 18787612, 'roi_cells': 840225, 'sec': 5.4}\n"}
+,{"stream_name":"stdout","time":248.57247728,"data":"[    247s] {'site': '002_Тешилово', 'cands': 2409, 'pts': 23084223, 'roi_cells': 1293885, 'sec': 8.1}\n"}
+,{"stream_name":"stdout","time":255.7403851,"data":"[    255s] {'site': '069_Стеклянуха_2', 'cands': 1498, 'pts': 24318736, 'roi_cells': 734495, 'sec': 7.1}\n"}
+,{"stream_name":"stdout","time":272.4293062,"data":"[    271s] {'site': '026_Золотаревка', 'cands': 7782, 'pts': 26435701, 'roi_cells': 4254716, 'sec': 15.0}\n"}
+,{"stream_name":"stdout","time":281.367473204,"data":"[    280s] {'site': '021_Новенькое', 'cands': 1025, 'pts': 27320344, 'roi_cells': 538443, 'sec': 8.9}\n"}
+,{"stream_name":"stdout","time":295.542466105,"data":"[    294s] {'site': '015_Демидовка', 'cands': 3262, 'pts': 33650122, 'roi_cells': 1789560, 'sec': 12.0}\n"}
+,{"stream_name":"stdout","time":308.746244895,"data":"[    308s] {'site': '033_Елизаветинское', 'cands': 3790, 'pts': 34185465, 'roi_cells': 1631276, 'sec': 13.1}\n"}
+,{"stream_name":"stdout","time":322.491053534,"data":"[    321s] {'site': '106_Верхмарево', 'cands': 3720, 'pts': 38759349, 'roi_cells': 1580439, 'sec': 13.7}\n"}
+,{"stream_name":"stdout","time":327.933443548,"data":"[    327s] {'site': '024_Стрекаловка', 'cands': 1, 'pts': 51200061, 'roi_cells': 1517, 'sec': 5.4}\n"}
+,{"stream_name":"stdout","time":346.156419557,"data":"[    345s] {'site': '037_Никола_Ленивец', 'cands': 103, 'pts': 63707166, 'roi_cells': 166585, 'sec': 11.1}\n"}
+,{"stream_name":"stdout","time":385.947718874,"data":"[    385s] {'site': '004_Боровичи_1', 'cands': 11575, 'pts': 64574413, 'roi_cells': 5150714, 'sec': 34.5}\n"}
+,{"stream_name":"stdout","time":400.313242448,"data":"[    399s] {'site': '007_Армиево', 'cands': 5, 'pts': 74541648, 'roi_cells': 7585, 'sec': 14.0}\n"}
+,{"stream_name":"stdout","time":421.93692797,"data":"[    421s] {'site': '186_Семибратнее_1', 'cands': 612, 'pts': 76870020, 'roi_cells': 124766, 'sec': 14.5}\n"}
+,{"stream_name":"stdout","time":440.09659685,"data":"[    439s] {'site': '187_Судьбищи_1', 'cands': 5, 'pts': 99968436, 'roi_cells': 7585, 'sec': 11.8}\n"}
+,{"stream_name":"stdout","time":505.965169372,"data":"[    505s] {'site': '028_Вышегжа_2', 'cands': 9305, 'pts': 122953043, 'roi_cells': 5482098, 'sec': 51.1}\n"}
+,{"stream_name":"stdout","time":560.695127884,"data":"[    559s] {'site': '190_Муравлево', 'cands': 5834, 'pts': 177756311, 'roi_cells': 2982586, 'sec': 54.5}\n"}
+,{"stream_name":"stdout","time":561.980006704,"data":"[    561s] DONE rows 192806 sites ok 59 failed []\n"}
+,{"stream_name":"stderr","time":564.978549683,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":564.978597187,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":565.393616375,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":565.393653813,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":567.646960474,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":569.054178111,"data":"[NbConvertApp] Writing 342884 bytes to __results__.html\n"}
+]

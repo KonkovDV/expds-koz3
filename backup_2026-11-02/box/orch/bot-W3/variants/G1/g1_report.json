@@ -1,0 +1,17 @@
+{
+ "N": 15353,
+ "pos": 461,
+ "ring_cov": 0.3131635510975054,
+ "auc_gor_conf": 0.6945,
+ "auc_gor_s_knn": 0.709,
+ "auc_gor_G1A": 0.714,
+ "auc_gor_G1B": 0.7047,
+ "auc_gor_G1C": 0.7143,
+ "auc_gor_ring_contrast": 0.4981,
+ "auc_for_conf": 0.7127,
+ "auc_for_s_knn": 0.7118,
+ "auc_for_G1A": 0.7303,
+ "auc_for_G1B": 0.7257,
+ "auc_for_G1C": 0.6644,
+ "auc_for_ring_contrast": 0.5024
+}

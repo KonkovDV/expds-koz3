@@ -1,0 +1,22 @@
+Starting upload for file lihm.zip
+  0%|          | 0.00/18.2M [00:00<?, ?B/s]100%|██████████| 18.2M/18.2M [00:00<00:00, 41.6MB/s]
+Upload successful: lihm.zip (18MB)
+Starting upload for file DATASETS.md
+  0%|          | 0.00/6.38k [00:00<?, ?B/s]100%|██████████| 6.38k/6.38k [00:00<00:00, 18.2kB/s]
+Upload successful: DATASETS.md (6KB)
+Starting upload for file s1.zip
+  0%|          | 0.00/18.6M [00:00<?, ?B/s]100%|██████████| 18.6M/18.6M [00:00<00:00, 42.4MB/s]
+Upload successful: s1.zip (19MB)
+Starting upload for file seedmerge.zip
+  0%|          | 0.00/16.7M [00:00<?, ?B/s]100%|██████████| 16.7M/16.7M [00:00<00:00, 37.1MB/s]
+Upload successful: seedmerge.zip (17MB)
+Starting upload for file s0.zip
+  0%|          | 0.00/19.0M [00:00<?, ?B/s]100%|██████████| 19.0M/19.0M [00:00<00:00, 29.6MB/s]
+Upload successful: s0.zip (19MB)
+Starting upload for file merged.zip
+  0%|          | 0.00/42.8M [00:00<?, ?B/s] 61%|██████    | 26.2M/42.8M [00:00<00:00, 274MB/s]100%|██████████| 42.8M/42.8M [00:00<00:00, 75.0MB/s]
+Upload successful: merged.zip (43MB)
+Starting upload for file s2.zip
+  0%|          | 0.00/21.0M [00:00<?, ?B/s] 56%|█████▋    | 11.8M/21.0M [00:00<00:00, 112MB/s]100%|██████████| 21.0M/21.0M [00:00<00:00, 31.8MB/s]
+Upload successful: s2.zip (21MB)
+Dataset version is being created. Please check progress at https://www.kaggle.com/datasets/elenakonkova/koz3-w2-oof

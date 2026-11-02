@@ -1,0 +1,53 @@
+== check 22:51:41
+fast curves 2.5825252532958984
+insample 0.3653857229263046
+honest [0.3146153226828423, 0.2964508527066795, 0.14427407342564424] {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0}
+== an1 22:51:46
+ae         povr n=    379 twin=1.000 conf-twin mean=-0.001 absmax=0.009 okP=322 okT=151
+ae         tsel n=    812 twin=0.467 conf-twin mean=+0.001 absmax=0.009 okP=588 okT=352
+li         povr n=  37601 twin=1.000 conf-twin mean=+0.024 absmax=1.000 okP=1720 okT=778
+li         tsel n=  37601 twin=1.000 conf-twin mean=-0.024 absmax=1.000 okP=1720 okT=778
+li_ae      povr n=      1 twin=1.000 conf-twin mean=-0.007 absmax=0.007 okP=1 okT=0
+li_ae      tsel n=     24 twin=0.042 conf-twin mean=+0.007 absmax=0.007 okP=3 okT=1
+li_dev     povr n= 324981 twin=0.997 conf-twin mean=+0.010 absmax=0.999 okP=1133 okT=321
+li_dev     tsel n= 326333 twin=0.993 conf-twin mean=-0.010 absmax=0.999 okP=1311 okT=231
+li_mosaic  povr n= 241539 twin=1.000 conf-twin mean=+0.011 absmax=1.000 okP=350 okT=314
+li_mosaic  tsel n= 241539 twin=1.000 conf-twin mean=-0.011 absmax=1.000 okP=350 okT=314
+sp_focal   povr n=  31941 twin=0.017 conf-twin mean=+0.071 absmax=0.829 okP=814 okT=171
+sp_focal   tsel n=   6665 twin=0.081 conf-twin mean=-0.071 absmax=0.829 okP=250 okT=92
+sp_focal2  povr n=  13226 twin=0.038 conf-twin mean=+0.036 absmax=0.768 okP=273 okT=79
+sp_focal2  tsel n=   4757 twin=0.105 conf-twin mean=-0.036 absmax=0.768 okP=167 okT=60
+== feats 22:51:54
+(1386709, 30) ['conf', 'logit', 'cls', 'grp', 'mk', 'area', 'compact', 'bw', 'aspect', 'nv', 'has_twin', 'twin_conf', 'twin_diff', 'has_las', 'rg_n', 'rg_rank', 'rg_pct', 'rg_max', 'conf_rel', 'rg_mean', 'gq', 'nb_same10', 'nb_same30', 'nb_same100', 'nb_strong30', 'nb_strong100', 'og_max5', 'og_n5', 'nn_dist', 'nb_otherfam50']
+== feats2 22:52:41
+pool 222929 own in pool 7355 / 9709 first in pool 5170 / 5748
+ae0 379 379 322 322 71
+ae1 812 812 352 352 291
+ae_fort5 60987 9148 529 238 245
+etgr4 403 403 230 230 145
+gor_phys2 122 122 24 24 6
+li0 37601 5640 1720 1325 999
+li1 37601 5640 778 670 360
+li2 664 664 4 4 1
+li5 379 379 4 4 0
+li_ae0 1 1 1 1 0
+li_ae1 24 24 1 1 1
+li_coarse2 2591 2591 84 84 15
+li_coarse5 775 775 21 21 5
+li_dev0 324981 48747 1133 569 342
+li_dev1 326333 48949 231 154 105
+li_fort5 375 375 30 30 22
+li_mask2 293 293 23 23 15
+li_mosaic0 241539 36230 350 201 95
+li_mosaic1 241539 36230 314 285 185
+maggr4 146 146 109 109 78
+maggr6 3732 3732 1855 1855 1819
+or3 783 783 23 23 20
+sp_arch3 46735 7010 205 90 89
+sp_focal0 31941 4791 814 369 492
+sp_focal1 6665 1000 92 52 64
+sp_focal20 13226 1983 273 132 194
+sp_focal21 4757 4757 60 60 37
+sp_or2 1006 1006 19 19 14
+terfl4 319 319 108 108 38
+CHAINDONE

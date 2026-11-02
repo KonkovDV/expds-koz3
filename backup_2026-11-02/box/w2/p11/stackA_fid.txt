@@ -1,0 +1,11 @@
+ALL ('li', '') 1214793
+ALL ('sp_or', '') 104330
+ALL ('ae', '') 62203
+ALL ('maggr', '') 3878
+ALL ('or', '') 783
+ALL ('etgr', '') 403
+ALL ('terfl', '') 319
+190 ('li', '', 'fortifikatsii') 12
+190 ('li', '', 'gorodishcha') 6
+190 ('li', '', 'kurgany_povrezhdennye') 17204
+190 ('li', '', 'kurgany_tselye') 17204

@@ -1,0 +1,14 @@
+fastgeom.enabled True threads 4
+FASTGEOM=0 build_curves s: ['9.10', '6.69']
+FASTGEOM=1 build_curves s: ['4.36', '4.27']
+kurgany_povrezhdennye 44268 543 EQUAL
+kurgany_tselye 97782 130 EQUAL
+gorodishcha 398 1 EQUAL
+arkhitektury 5 0 EQUAL
+object_poly 0 0 EQUAL
+fortifikatsii 30585 274 EQUAL
+finds_points 0 0 EQUAL
+_collect pred FASTGEOM=0 5.79s
+_collect pred FASTGEOM=1 3.95s
+WKB_IDENTICAL True
+CURVES_IDENTICAL True

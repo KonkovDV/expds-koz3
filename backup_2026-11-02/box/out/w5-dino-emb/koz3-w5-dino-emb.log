@@ -1,0 +1,131 @@
+[{"stream_name":"stdout","time":11.845305278,"data":"[      3s] 222929 cands from /kaggle/input/datasets/elenakonkova/koz3-w5-cands/cands.csv.zst\n"}
+,{"stream_name":"stdout","time":12.734602487,"data":"Downloading: \"https://github.com/facebookresearch/dinov2/zipball/main\" to /root/.cache/torch/hub/main.zip\n"}
+,{"stream_name":"stderr","time":13.403869459,"data":"/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/swiglu_ffn.py:51: UserWarning: xFormers is not available (SwiGLU)\n"}
+,{"stream_name":"stderr","time":13.403898334,"data":"  warnings.warn(\"xFormers is not available (SwiGLU)\")\n"}
+,{"stream_name":"stderr","time":13.409446546,"data":"/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/attention.py:33: UserWarning: xFormers is not available (Attention)\n"}
+,{"stream_name":"stderr","time":13.409472834,"data":"  warnings.warn(\"xFormers is not available (Attention)\")\n"}
+,{"stream_name":"stderr","time":13.410547605,"data":"/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/block.py:40: UserWarning: xFormers is not available (Block)\n"}
+,{"stream_name":"stderr","time":13.410573356,"data":"  warnings.warn(\"xFormers is not available (Block)\")\n"}
+,{"stream_name":"stdout","time":13.992589055,"data":"Downloading: \"https://dl.fbaipublicfiles.com/dinov2/dinov2_vits14/dinov2_vits14_pretrain.pth\" to /root/.cache/torch/hub/checkpoints/dinov2_vits14_pretrain.pth\n"}
+,{"stream_name":"stderr","time":14.436071455,"data":"\r  0%|          | 0.00/84.2M [00:00\u003c?, ?B/s]\r 15%|█▍        | 12.2M/84.2M [00:00\u003c00:00, 124MB/s]\r 63%|██████▎   | 53.0M/84.2M [00:00\u003c00:00, 300MB/s]\r100%|██████████| 84.2M/84.2M [00:00\u003c00:00, 301MB/s]\n"}
+,{"stream_name":"stdout","time":14.582595618,"data":"[      6s] device cpu dinov2_vits14 384\n"}
+,{"stream_name":"stdout","time":17.969976254,"data":"[      9s] s3 regions 210\n"}
+,{"stream_name":"stdout","time":18.185243787,"data":"[      9s] relief regions 59\n"}
+,{"stream_name":"stdout","time":4879.287858759,"data":"[   4870s] 101_Гнёздово_Днепровская li 41952 ok 41952 / 222929\n"}
+,{"stream_name":"stdout","time":7952.918983029,"data":"[   7944s] 102_Гнёздово_Заольшанская li 26485 ok 68437 / 222929\n"}
+,{"stream_name":"stdout","time":9337.688013412,"data":"[   9329s] 004_Боровичи_1 li 11575 ok 80012 / 222929\n"}
+,{"stream_name":"stdout","time":10457.163019724,"data":"[  10448s] 061_Граборг li 9319 ok 89331 / 222929\n"}
+,{"stream_name":"stdout","time":11558.289974207,"data":"[  11549s] 028_Вышегжа_2 li 9305 ok 98636 / 222929\n"}
+,{"stream_name":"stdout","time":12510.409375151,"data":"[  12501s] 026_Золотаревка li 7778 ok 106414 / 222929\n"}
+,{"stream_name":"stdout","time":13222.820275329,"data":"[  13214s] 190_Муравлево li 5834 ok 112248 / 222929\n"}
+,{"stream_name":"stdout","time":13911.371273276,"data":"[  13902s] 011_Эрентуна li 5542 ok 117790 / 222929\n"}
+,{"stream_name":"stdout","time":14540.010669273,"data":"[  14531s] 105_Вщиж li 5247 ok 123037 / 222929\n"}
+,{"stream_name":"stdout","time":15169.959449653,"data":"[  15161s] 035_Шумгора li 5167 ok 128204 / 222929\n"}
+,{"stream_name":"stdout","time":15782.001727579,"data":"[  15773s] 025_Вышенское li 5166 ok 133370 / 222929\n"}
+,{"stream_name":"stdout","time":16302.712866408,"data":"[  16294s] 009_Хальвасборген li 4396 ok 137766 / 222929\n"}
+,{"stream_name":"stdout","time":16757.537029043,"data":"[  16748s] 001_Гнёздово_Нивленское li 3876 ok 141642 / 222929\n"}
+,{"stream_name":"stdout","time":17205.30554405,"data":"[  17196s] 106_Верхмарево li 3685 ok 145327 / 222929\n"}
+,{"stream_name":"stdout","time":17601.27028649,"data":"[  17592s] 006_Осечки_1.1км li 3306 ok 148633 / 222929\n"}
+,{"stream_name":"stdout","time":17986.752912133,"data":"[  17978s] 015_Демидовка li 3150 ok 151783 / 222929\n"}
+,{"stream_name":"stdout","time":18320.857351107,"data":"[  18312s] 033_Елизаветинское li 2802 ok 154585 / 222929\n"}
+,{"stream_name":"stdout","time":18630.237604777,"data":"[  18621s] 104_Шетнево li 2553 ok 157138 / 222929\n"}
+,{"stream_name":"stdout","time":18928.877393937,"data":"[  18920s] 002_Тешилово li 2409 ok 159547 / 222929\n"}
+,{"stream_name":"stdout","time":19215.10553594,"data":"[  19206s] 027_Вышегжа_1 li 2371 ok 161918 / 222929\n"}
+,{"stream_name":"stdout","time":20240.988902066,"data":"[  20232s] 158_Курганы_29 sp_or 1944 ok 163862 / 222929\n"}
+,{"stream_name":"stdout","time":20473.358852936,"data":"[  20464s] 200_Судьбищи_2 li 1860 ok 165722 / 222929\n"}
+,{"stream_name":"stdout","time":20694.923979354,"data":"[  20686s] 189_Макеево li 1817 ok 167539 / 222929\n"}
+,{"stream_name":"stdout","time":21194.765350486,"data":"[  21186s] 020_Романово ae 1749 ok 169288 / 222929\n"}
+,{"stream_name":"stdout","time":21396.529637647,"data":"[  21387s] 068_Стеклянуха_1 li 1674 ok 170962 / 222929\n"}
+,{"stream_name":"stdout","time":23715.771196203,"data":"[  23707s] 183_Сарское sp_or 1604 ok 171591 / 222929\n"}
+,{"stream_name":"stdout","time":23874.771838451,"data":"[  23866s] 003_Лубно li 1563 ok 173154 / 222929\n"}
+,{"stream_name":"stdout","time":24036.448552544,"data":"[  24027s] 022_Лихуша li 1525 ok 174679 / 222929\n"}
+,{"stream_name":"stdout","time":24192.617016487,"data":"[  24184s] 069_Стеклянуха_2 li 1498 ok 176177 / 222929\n"}
+,{"stream_name":"stdout","time":24341.955385079,"data":"[  24333s] 018_Курган_Хога li 1477 ok 177654 / 222929\n"}
+,{"stream_name":"stdout","time":24550.380139927,"data":"[  24541s] 074_Солдатское sp_or 1316 ok 178846 / 222929\n"}
+,{"stream_name":"stdout","time":24615.059525068,"data":"[  24606s] 049_Калмыкия_2 sp_or 1229 ok 179109 / 222929\n"}
+,{"stream_name":"stdout","time":24655.936714002,"data":"[  24647s] 057_Кабардино_Балкария sp_or 1148 ok 179192 / 222929\n"}
+,{"stream_name":"stdout","time":24792.109092693,"data":"[  24783s] 030_Эсбю li 1144 ok 180336 / 222929\n"}
+,{"stream_name":"stdout","time":24926.448390196,"data":"[  24917s] 036_Тимерево li 1143 ok 181479 / 222929\n"}
+,{"stream_name":"stdout","time":25057.216890007,"data":"[  25048s] 021_Новенькое li 1025 ok 182504 / 222929\n"}
+,{"stream_name":"stdout","time":25232.749023162,"data":"[  25224s] 043_Гочево sp_or 1018 ok 183522 / 222929\n"}
+,{"stream_name":"stdout","time":25353.54680681,"data":"[  25344s] 010_Эсбю_укрепление li 1013 ok 184535 / 222929\n"}
+,{"stream_name":"stdout","time":25988.895593058,"data":"[  25980s] 067_Чудово ae 983 ok 185518 / 222929\n"}
+,{"stream_name":"stdout","time":26087.72362124,"data":"[  26079s] 075_Мостище sp_or 873 ok 186153 / 222929\n"}
+,{"stream_name":"stdout","time":26540.886522544,"data":"[  26532s] 005_Боровичи_2 ae 865 ok 187018 / 222929\n"}
+,{"stream_name":"stdout","time":26919.376606805,"data":"[  26910s] 163_Курганы_34 sp_or 819 ok 187837 / 222929\n"}
+,{"stream_name":"stdout","time":27806.088545071,"data":"[  27797s] 184_Шурскол ae 817 ok 188654 / 222929\n"}
+,{"stream_name":"stdout","time":27907.964069478,"data":"[  27899s] 040_Примаки_1.3км li 803 ok 189457 / 222929\n"}
+,{"stream_name":"stdout","time":28219.884789514,"data":"[  28211s] 012_Сож ae 799 ok 190256 / 222929\n"}
+,{"stream_name":"stdout","time":28721.482490904,"data":"[  28712s] 059_Шишкино ae 775 ok 191031 / 222929\n"}
+,{"stream_name":"stdout","time":28808.134896016,"data":"[  28799s] 013_Нора_Виннон li 701 ok 191732 / 222929\n"}
+,{"stream_name":"stdout","time":28888.239142515,"data":"[  28879s] 180_Гнёздово_Лесная_2 li 684 ok 192416 / 222929\n"}
+,{"stream_name":"stdout","time":28966.411919723,"data":"[  28957s] 181_Гнёздово_Лесная_3 li 676 ok 193092 / 222929\n"}
+,{"stream_name":"stdout","time":29048.462890292,"data":"[  29039s] 019_Селяне li 646 ok 193738 / 222929\n"}
+,{"stream_name":"stdout","time":29129.501880916,"data":"[  29120s] 066_Московиты li 646 ok 194384 / 222929\n"}
+,{"stream_name":"stdout","time":29202.680228708,"data":"[  29194s] 179_Гнёздово_Лесная_1 li 626 ok 195010 / 222929\n"}
+,{"stream_name":"stdout","time":29310.873615131,"data":"[  29302s] 070_Архангельское sp_or 620 ok 195630 / 222929\n"}
+,{"stream_name":"stdout","time":32637.673564919,"data":"[  32629s] 200_Судьбищи_2 maggr 598 ok 196228 / 222929\n"}
+,{"stream_name":"stdout","time":32729.336284145,"data":"[  32720s] 203_Семибратнее_Городище_3 maggr 585 ok 196813 / 222929\n"}
+,{"stream_name":"stdout","time":32801.417479406,"data":"[  32792s] 017_Юшково li 563 ok 197376 / 222929\n"}
+,{"stream_name":"stdout","time":33281.607056302,"data":"[  33273s] 186_Семибратнее_1 ae 556 ok 197932 / 222929\n"}
+,{"stream_name":"stdout","time":33569.004714529,"data":"[  33560s] 110_Саратов ae 551 ok 198483 / 222929\n"}
+,{"stream_name":"stdout","time":34226.968209862,"data":"[  34218s] 033_Елизаветинское or 540 ok 199023 / 222929\n"}
+,{"stream_name":"stdout","time":34293.571879275,"data":"[  34284s] 192_КЧР li 538 ok 199561 / 222929\n"}
+,{"stream_name":"stdout","time":34427.497184654,"data":"[  34418s] 202_Семибратнее_Городище_2 maggr 522 ok 200083 / 222929\n"}
+,{"stream_name":"stdout","time":34491.46849138,"data":"[  34482s] 188_Руна li 482 ok 200565 / 222929\n"}
+,{"stream_name":"stdout","time":35695.843103506,"data":"[  35687s] 212_Гнёздово_Усадьба maggr 481 ok 201046 / 222929\n"}
+,{"stream_name":"stdout","time":35766.690848754,"data":"[  35758s] 033_Елизаветинское sp_or 448 ok 201494 / 222929\n"}
+,{"stream_name":"stdout","time":35818.11331931,"data":"[  35809s] 016_Хога li 407 ok 201901 / 222929\n"}
+,{"stream_name":"stdout","time":35879.973956011,"data":"[  35871s] 180_Гнёздово_Лесная_2 ae 406 ok 202307 / 222929\n"}
+,{"stream_name":"stdout","time":36056.004617607,"data":"[  36047s] 029_Вышегжа_3 ae 404 ok 202711 / 222929\n"}
+,{"stream_name":"stdout","time":36526.059627269,"data":"[  36517s] 036_Тимерево ae 402 ok 203113 / 222929\n"}
+,{"stream_name":"stdout","time":36589.203625667,"data":"[  36580s] 205_Семибратнее_Городище_5 maggr 402 ok 203515 / 222929\n"}
+,{"stream_name":"stdout","time":36616.586483626,"data":"[  36608s] 055_Курменту sp_or 399 ok 203600 / 222929\n"}
+,{"stream_name":"stdout","time":37290.180392692,"data":"[  37281s] 066_Московиты ae 377 ok 203975 / 222929\n"}
+,{"stream_name":"stdout","time":37359.209561466,"data":"[  37350s] 077_Русская_Тростянка sp_or 376 ok 204351 / 222929\n"}
+,{"stream_name":"stdout","time":37411.482162481,"data":"[  37402s] 023_Бервенец li 361 ok 204712 / 222929\n"}
+,{"stream_name":"stdout","time":37460.469673495,"data":"[  37451s] 005_Боровичи_2 li 359 ok 205071 / 222929\n"}
+,{"stream_name":"stdout","time":37503.581325416,"data":"[  37495s] 032_Красносельская_0.5км li 331 ok 205402 / 222929\n"}
+,{"stream_name":"stdout","time":37554.952801796,"data":"[  37546s] 210_Гнёздово_Терраса_2 maggr 323 ok 205725 / 222929\n"}
+,{"stream_name":"stdout","time":37602.137101205,"data":"[  37593s] 034_Усть_река li 322 ok 206047 / 222929\n"}
+,{"stream_name":"stdout","time":37661.229660566,"data":"[  37652s] 071_Сторожевое sp_or 321 ok 206368 / 222929\n"}
+,{"stream_name":"stdout","time":37712.400917414,"data":"[  37703s] 204_Семибратнее_Городище_4 maggr 319 ok 206687 / 222929\n"}
+,{"stream_name":"stdout","time":38644.949273951,"data":"[  38636s] 041_Миловидово ae 319 ok 207006 / 222929\n"}
+,{"stream_name":"stdout","time":38824.507677533,"data":"[  38815s] 073_Тоссор sp_or 284 ok 207290 / 222929\n"}
+,{"stream_name":"stdout","time":38933.07349848,"data":"[  38924s] 058_Перынь ae 274 ok 207564 / 222929\n"}
+,{"stream_name":"stdout","time":38965.502096524,"data":"[  38956s] 047_Тыва_2 sp_or 268 ok 207738 / 222929\n"}
+,{"stream_name":"stdout","time":39007.538542293,"data":"[  38998s] 207_Семибратнее_Городище_7 maggr 252 ok 207990 / 222929\n"}
+,{"stream_name":"stdout","time":39034.969668234,"data":"[  39026s] 035_Шумгора sp_or 244 ok 208149 / 222929\n"}
+,{"stream_name":"stdout","time":39072.659956197,"data":"[  39064s] 031_Новотитаровская li 236 ok 208385 / 222929\n"}
+,{"stream_name":"stdout","time":39112.734495866,"data":"[  39104s] 087_Кароол_Дюбе sp_or 231 ok 208616 / 222929\n"}
+,{"stream_name":"stdout","time":39161.04828297,"data":"[  39152s] 072_Белая_Гора sp_or 229 ok 208845 / 222929\n"}
+,{"stream_name":"stdout","time":39198.163191931,"data":"[  39189s] 048_Калмыкия_1 sp_or 226 ok 208991 / 222929\n"}
+,{"stream_name":"stdout","time":39235.840818142,"data":"[  39227s] 206_Семибратнее_Городище_6 maggr 226 ok 209217 / 222929\n"}
+,{"stream_name":"stdout","time":39276.483451506,"data":"[  39267s] 078_Верхняя_Покровка sp_or 218 ok 209435 / 222929\n"}
+,{"stream_name":"stdout","time":39474.824892036,"data":"[  39466s] 101_Гнёздово_Днепровская sp_or 214 ok 209649 / 222929\n"}
+,{"stream_name":"stdout","time":39516.488903795,"data":"[  39507s] 085_Каджы_Саз sp_or 211 ok 209860 / 222929\n"}
+,{"stream_name":"stdout","time":39550.667595533,"data":"[  39542s] 181_Гнёздово_Лесная_3 ae 198 ok 210058 / 222929\n"}
+,{"stream_name":"stdout","time":39742.474400914,"data":"[  39733s] 103_Гнёздово_Ольшанская sp_or 185 ok 210243 / 222929\n"}
+,{"stream_name":"stdout","time":39776.390570323,"data":"[  39767s] 164_Кисловодская_котловина_1 sp_or 174 ok 210417 / 222929\n"}
+,{"stream_name":"stdout","time":39808.261465683,"data":"[  39799s] 051_Воронеж_2 sp_or 169 ok 210586 / 222929\n"}
+,{"stream_name":"stdout","time":39830.138934142,"data":"[  39821s] 041_Миловидово sp_or 167 ok 210637 / 222929\n"}
+,{"stream_name":"stdout","time":40402.82424362,"data":"[  40394s] 183_Сарское ae 164 ok 210801 / 222929\n"}
+,{"stream_name":"stdout","time":40433.334381458,"data":"[  40424s] 108_Скупая_Полудань sp_or 163 ok 210964 / 222929\n"}
+,{"stream_name":"stdout","time":40459.476305146,"data":"[  40450s] 133_Курганы_4 sp_or 156 ok 211120 / 222929\n"}
+,{"stream_name":"stdout","time":40488.177284619,"data":"[  40479s] 167_Кисловодская_котловина_4 sp_or 155 ok 211275 / 222929\n"}
+,{"stream_name":"stdout","time":40513.235414701,"data":"[  40504s] 215_Гнёздово_Селище_1 etgr 153 ok 211428 / 222929\n"}
+,{"stream_name":"stdout","time":40531.676579848,"data":"[  40523s] 039_Примаки_0.7км li 145 ok 211573 / 222929\n"}
+,{"stream_name":"stdout","time":40631.266843457,"data":"[  40622s] 156_Курганы_27 sp_or 144 ok 211717 / 222929\n"}
+,{"stream_name":"stdout","time":40651.0944023,"data":"[  40642s] 185_Изборск sp_or 142 ok 211796 / 222929\n"}
+,{"stream_name":"stdout","time":40673.875477564,"data":"[  40665s] 209_Гнёздово_Терраса_1 maggr 140 ok 211936 / 222929\n"}
+,{"stream_name":"stdout","time":40682.86674163,"data":"[  40674s] 042_Тору_Айгыр sp_or 139 ok 211963 / 222929\n"}
+,{"stream_name":"stdout","time":40774.79090476,"data":"[  40766s] 019_Селяне ae 138 ok 212101 / 222929\n"}
+,{"stream_name":"stdout","time":40774.79097368,"data":"[  40766s] deadline\n"}
+,{"stream_name":"stdout","time":40774.957641002,"data":"[  40766s] DONE 212101 / 222929\n"}
+,{"stream_name":"stderr","time":40780.274630368,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":40780.274674878,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":40780.8651037,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":40780.865137476,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":40782.396095046,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":40784.071380034,"data":"[NbConvertApp] Writing 329378 bytes to __results__.html\n"}
+]

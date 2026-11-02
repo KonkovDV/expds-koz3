@@ -1,0 +1,600 @@
+[{"stream_name":"stdout","time":14.346800258,"data":"pip install: ['transformers==5.21.0']\n"}
+,{"stream_name":"stderr","time":28.025507149,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":28.025534674,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":33.978869863,"data":"  torch 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":39.800593774,"data":"  torchvision 0.26.0+cu128\n"}
+,{"stream_name":"stdout","time":39.801286618,"data":"  huggingface_hub 1.33.0\n"}
+,{"stream_name":"stdout","time":39.808500602,"data":"  safetensors 0.8.0\n"}
+,{"stream_name":"stdout","time":42.716968737,"data":"  transformers 5.21.0\n"}
+,{"stream_name":"stdout","time":42.716999907,"data":"  rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":42.717004351,"data":"  pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":42.717012791,"data":"  shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":42.717015409,"data":"  boto3 1.41.5\n"}
+,{"stream_name":"stdout","time":42.717017694,"data":"  cv2 4.14.0\n"}
+,{"stream_name":"stdout","time":42.717019942,"data":"  scipy 1.16.3\n"}
+,{"stream_name":"stdout","time":44.945617957,"data":"[      0s] CFG {\"mode\": \"full\", \"res\": 0.5, \"tile\": 640, \"overlap\": 160, \"max_windows\": 0, \"bs\": 8, \"iters\": 4000, \"lr\": 0.0001, \"bb_mult\": 0.1, \"wd\": 0.0001, \"pct\": 0.05, \"clip\": 0.1, \"num_dn\": -1, \"obj_frac\": 0.6, \"cls_cap\": 4.0, \"shift\": 0.3333333333333333, \"qaug\": 0.5, \"workers\": 2, \"max_obj_chips_region\": 400, \"min_score\": 0.05, \"nms_iou\": 0.5, \"max_det\": 100, \"smoke_train_regions\": 8, \"smoke_test_regions\": 1, \"deadline_h\": 11.3, \"folds\": \"final,4,3,2,0,1\", \"regions\": \"\", \"trainer\": \"bot5\", \"aug\": \"ours\"}\n"}
+,{"stream_name":"stdout","time":45.242512336,"data":"[      0s] GPU: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":45.330473328,"data":"[      0s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет\n"}
+,{"stream_name":"stdout","time":45.707504791,"data":"[      1s] ключи S3 из приватного датасета\n"}
+,{"stream_name":"stdout","time":46.80190581,"data":"[      2s] S3 OK\n"}
+,{"stream_name":"stderr","time":47.042123635,"data":"\rFetching 3 files:   0%|          | 0/3 [00:00\u003c?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":47.044237252,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":50.118481702,"data":"\rFetching 3 files:  67%|██████▋   | 2/3 [00:00\u003c00:00, 16.28it/s]\rFetching 3 files: 100%|██████████| 3/3 [00:03\u003c00:00,  1.04s/it]\n"}
+,{"stream_name":"stdout","time":50.118523982,"data":"[      5s] веса HF OK ustc-community/dfine-large-obj2coco-e25 c89de471 (Apache-2.0)\n"}
+,{"stream_name":"stderr","time":50.133671054,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":50.133705199,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":51.311912441,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  24%|██▍       | 292/1197 [00:00\u003c00:00, 2909.49it/s]\rLoading weights:  49%|████▊     | 583/1197 [00:00\u003c00:00, 2694.36it/s]\rLoading weights:  71%|███████▏  | 854/1197 [00:00\u003c00:00, 2562.41it/s]\rLoading weights:  98%|█████████▊| 1179/1197 [00:00\u003c00:00, 2814.17it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2771.72it/s]\n"}
+,{"stream_name":"stderr","time":51.418579962,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":51.418612335,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":51.418634207,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":51.418638557,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":51.418643081,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":51.418647762,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":51.418651733,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":51.418656501,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":51.418660733,"data":"\n"}
+,{"stream_name":"stderr","time":51.418664703,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":51.418677075,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":51.418680927,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":51.418685254,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":51.418695826,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":51.418699137,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":51.418702559,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":51.418705272,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":51.418707897,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":51.418718547,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":51.418721423,"data":"\n"}
+,{"stream_name":"stderr","time":51.418723809,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":51.418726248,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":52.082048518,"data":"[      7s] модель OK (CPU): {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256], \"logits\": [1, 300, 5]} 2 с\n"}
+,{"stream_name":"stdout","time":52.082378345,"data":"[      7s] фолды OK: 189 участков, 96 семей\n"}
+,{"stream_name":"stdout","time":55.670212373,"data":"[     11s] участков со SpOr в фолдах: 32; вне фолдов (пропуск): 0\n"}
+,{"stream_name":"stdout","time":55.721821766,"data":"[     11s] тренер: bot5 | аугментации: ours | бот 5: встроенная копия sha256 e6e388b013d2fb55\n"}
+,{"stream_name":"stdout","time":60.116681764,"data":"[     15s] покрытие GT: {\"region\": \"037_Никола_Ленивец\", \"tif\": \"01_Никола_Ленивец_Ae_немецкая.tif\", \"W\": 9633, \"H\": 5903, \"gt_total\": 1, \"gt_in_raster\": 1, \"gt_covered_by_chip\": 1, \"chips\": 3}\n"}
+,{"stream_name":"stdout","time":60.422636407,"data":"[     15s] покрытие GT: {\"region\": \"015_Демидовка\", \"tif\": \"01_Демидовка_Ae_немецкая.tif\", \"W\": 1471, \"H\": 1442, \"gt_total\": 1, \"gt_in_raster\": 1, \"gt_covered_by_chip\": 1, \"chips\": 3}\n"}
+,{"stream_name":"stdout","time":62.398165898,"data":"[     17s] покрытие GT: {\"region\": \"001_Гнёздово_Нивленское\", \"tif\": \"01_Гнёздово_Нивленское_Ae_немецкая.tif\", \"W\": 675, \"H\": 441, \"gt_total\": 7, \"gt_in_raster\": 7, \"gt_covered_by_chip\": 7, \"chips\": 11}\n"}
+,{"stream_name":"stdout","time":83.791907684,"data":"[     39s] покрытие GT: {\"region\": \"020_Романово\", \"tif\": \"01_Романово_Ae_немецкая.tif\", \"W\": 12401, \"H\": 7152, \"gt_total\": 20, \"gt_in_raster\": 20, \"gt_covered_by_chip\": 20, \"chips\": 33}\n"}
+,{"stream_name":"stdout","time":84.468773409,"data":"[     40s] покрытие GT: {\"region\": \"058_Перынь\", \"tif\": \"01_Перынь_Ae_немецкая.tif\", \"W\": 16656, \"H\": 16569, \"gt_total\": 13, \"gt_in_raster\": 13, \"gt_covered_by_chip\": 10, \"chips\": 21}\n"}
+,{"stream_name":"stdout","time":120.890285711,"data":"[     76s] покрытие GT: {\"region\": \"012_Сож\", \"tif\": \"01_Сож_Ae_немецкая.tif\", \"W\": 38843, \"H\": 36635, \"gt_total\": 49, \"gt_in_raster\": 49, \"gt_covered_by_chip\": 48, \"chips\": 81}\n"}
+,{"stream_name":"stdout","time":140.024359735,"data":"[     95s] покрытие GT: {\"region\": \"041_Миловидово\", \"tif\": \"01_Миловидово_Ae_немецкая.tif\", \"W\": 11908, \"H\": 12394, \"gt_total\": 10, \"gt_in_raster\": 10, \"gt_covered_by_chip\": 8, \"chips\": 15}\n"}
+,{"stream_name":"stdout","time":140.141177163,"data":"[     95s] чипы: 041_Миловидово отброшено {'bg_nodata': 1}\n"}
+,{"stream_name":"stdout","time":151.387669166,"data":"[    106s] покрытие GT: {\"region\": \"060_Сельцо\", \"tif\": \"01_Сельцо_Ae_немецкая.tif\", \"W\": 21403, \"H\": 23603, \"gt_total\": 57, \"gt_in_raster\": 57, \"gt_covered_by_chip\": 57, \"chips\": 95}\n"}
+,{"stream_name":"stdout","time":185.35083292,"data":"[    140s] покрытие GT: {\"region\": \"019_Селяне\", \"tif\": \"01_Селяне_Ae_немецкая.tif\", \"W\": 10345, \"H\": 10959, \"gt_total\": 80, \"gt_in_raster\": 80, \"gt_covered_by_chip\": 80, \"chips\": 133}\n"}
+,{"stream_name":"stdout","time":231.933254235,"data":"[    187s] покрытие GT: {\"region\": \"067_Чудово\", \"tif\": \"01_Чудово_Ae_немецкая.tif\", \"W\": 9487, \"H\": 8461, \"gt_total\": 48, \"gt_in_raster\": 48, \"gt_covered_by_chip\": 46, \"chips\": 80}\n"}
+,{"stream_name":"stdout","time":232.606098529,"data":"[    188s] покрытие GT: {\"region\": \"059_Шишкино\", \"tif\": \"01_Шишкино_Ae_немецкая.tif\", \"W\": 6568, \"H\": 6546, \"gt_total\": 67, \"gt_in_raster\": 67, \"gt_covered_by_chip\": 67, \"chips\": 111}\n"}
+,{"stream_name":"stdout","time":239.862580261,"data":"[    195s] покрытие GT: {\"region\": \"066_Московиты\", \"tif\": \"01_Московиты_Ae_немецкая.tif\", \"W\": 8194, \"H\": 7932, \"gt_total\": 61, \"gt_in_raster\": 61, \"gt_covered_by_chip\": 60, \"chips\": 101}\n"}
+,{"stream_name":"stdout","time":265.993299292,"data":"[    221s] покрытие GT: {\"region\": \"043_Гочево\", \"tif\": \"01_Гочево_Ae_немецкая.tif\", \"W\": 6712, \"H\": 6750, \"gt_total\": 110, \"gt_in_raster\": 110, \"gt_covered_by_chip\": 109, \"chips\": 183}\n"}
+,{"stream_name":"stdout","time":272.224438417,"data":"[    227s] покрытие GT: {\"region\": \"106_Верхмарево\", \"tif\": \"01_Верхмарево_Ae_немецкая.tif\", \"W\": 7671, \"H\": 5946, \"gt_total\": 2, \"gt_in_raster\": 2, \"gt_covered_by_chip\": 2, \"chips\": 4}\n"}
+,{"stream_name":"stdout","time":277.392800311,"data":"[    232s] покрытие GT: {\"region\": \"066_Московиты\", \"tif\": \"02_Московиты_Ae_немецкая.tif\", \"W\": 6731, \"H\": 6734, \"gt_total\": 61, \"gt_in_raster\": 16, \"gt_covered_by_chip\": 14, \"chips\": 26}\n"}
+,{"stream_name":"stdout","time":278.82031676,"data":"[    234s] покрытие GT: {\"region\": \"036_Тимерево\", \"tif\": \"01_Тимерево_Ae_немецкая.tif\", \"W\": 882, \"H\": 905, \"gt_total\": 498, \"gt_in_raster\": 498, \"gt_covered_by_chip\": 498, \"chips\": 666}\n"}
+,{"stream_name":"stdout","time":286.845113406,"data":"[    242s] покрытие GT: {\"region\": \"105_Вщиж\", \"tif\": \"01_Вщиж_Ae_немецкая.tif\", \"W\": 11577, \"H\": 6909, \"gt_total\": 46, \"gt_in_raster\": 46, \"gt_covered_by_chip\": 46, \"chips\": 70}\n"}
+,{"stream_name":"stdout","time":286.878254045,"data":"[    242s] чипы: 105_Вщиж отброшено {'bg_nodata': 6}\n"}
+,{"stream_name":"stdout","time":288.395630963,"data":"[    243s] покрытие GT: {\"region\": \"110_Саратов\", \"tif\": \"01_Саратов_Ae_немецкая.tif\", \"W\": 29135, \"H\": 27950, \"gt_total\": 10, \"gt_in_raster\": 10, \"gt_covered_by_chip\": 10, \"chips\": 14}\n"}
+,{"stream_name":"stdout","time":288.398618015,"data":"[    243s] чипы: 110_Саратов отброшено {'bg_nodata': 2}\n"}
+,{"stream_name":"stdout","time":296.276447901,"data":"[    251s] покрытие GT: {\"region\": \"179_Гнёздово_Лесная_1\", \"tif\": \"01_Гнёздово_Лесная_1_Ae_немецкая.tif\", \"W\": 306, \"H\": 699, \"gt_total\": 30, \"gt_in_raster\": 30, \"gt_covered_by_chip\": 30, \"chips\": 29}\n"}
+,{"stream_name":"stdout","time":296.278091882,"data":"[    251s] чипы: 179_Гнёздово_Лесная_1 отброшено {'obj_nodata': 1, 'bg_nodata': 20}\n"}
+,{"stream_name":"stdout","time":318.266036008,"data":"[    273s] покрытие GT: {\"region\": \"184_Шурскол\", \"tif\": \"01_Шурскол_Ae_немецкая.tif\", \"W\": 9487, \"H\": 9444, \"gt_total\": 8, \"gt_in_raster\": 8, \"gt_covered_by_chip\": 8, \"chips\": 13}\n"}
+,{"stream_name":"stdout","time":324.372814392,"data":"[    279s] покрытие GT: {\"region\": \"183_Сарское\", \"tif\": \"01_Сарское_Ae_немецкая.tif\", \"W\": 9585, \"H\": 9250, \"gt_total\": 17, \"gt_in_raster\": 17, \"gt_covered_by_chip\": 16, \"chips\": 28}\n"}
+,{"stream_name":"stdout","time":328.835174033,"data":"[    284s] покрытие GT: {\"region\": \"102_Гнёздово_Заольшанская\", \"tif\": \"01_Гнёздово_Заольшанская_Ae_немецкая.tif\", \"W\": 1349, \"H\": 881, \"gt_total\": 68, \"gt_in_raster\": 67, \"gt_covered_by_chip\": 67, \"chips\": 111}\n"}
+,{"stream_name":"stdout","time":335.865120287,"data":"[    291s] покрытие GT: {\"region\": \"181_Гнёздово_Лесная_3\", \"tif\": \"01_Гнёздово_Лесная_3_Ae_немецкая.tif\", \"W\": 173, \"H\": 728, \"gt_total\": 95, \"gt_in_raster\": 95, \"gt_covered_by_chip\": 95, \"chips\": 95}\n"}
+,{"stream_name":"stdout","time":335.865639139,"data":"[    291s] чипы: 181_Гнёздово_Лесная_3 отброшено {'bg_nodata': 63}\n"}
+,{"stream_name":"stdout","time":346.889133948,"data":"[    302s] покрытие GT: {\"region\": \"189_Макеево\", \"tif\": \"01_Макеево_Ae_немецкая.tif\", \"W\": 2844, \"H\": 2530, \"gt_total\": 14, \"gt_in_raster\": 14, \"gt_covered_by_chip\": 14, \"chips\": 23}\n"}
+,{"stream_name":"stdout","time":360.438221001,"data":"[    315s] покрытие GT: {\"region\": \"005_Боровичи_2\", \"tif\": \"01_Боровичи_2_Ae_немецкая.tif\", \"W\": 8898, \"H\": 9208, \"gt_total\": 163, \"gt_in_raster\": 163, \"gt_covered_by_chip\": 159, \"chips\": 271}\n"}
+,{"stream_name":"stdout","time":369.211039645,"data":"[    324s] покрытие GT: {\"region\": \"186_Семибратнее_1\", \"tif\": \"01_Семибратнее_1_Ae_немецкая.tif\", \"W\": 8175, \"H\": 7447, \"gt_total\": 28, \"gt_in_raster\": 28, \"gt_covered_by_chip\": 28, \"chips\": 46}\n"}
+,{"stream_name":"stdout","time":370.013688764,"data":"[    325s] покрытие GT: {\"region\": \"101_Гнёздово_Днепровская\", \"tif\": \"01_Гнёздово_Днепровская_Ae_немецкая.tif\", \"W\": 2696, \"H\": 1760, \"gt_total\": 108, \"gt_in_raster\": 108, \"gt_covered_by_chip\": 107, \"chips\": 155}\n"}
+,{"stream_name":"stdout","time":371.820102463,"data":"[    327s] покрытие GT: {\"region\": \"180_Гнёздово_Лесная_2\", \"tif\": \"01_Гнёздово_Лесная_2_Ae_немецкая.tif\", \"W\": 301, \"H\": 720, \"gt_total\": 164, \"gt_in_raster\": 164, \"gt_covered_by_chip\": 164, \"chips\": 164}\n"}
+,{"stream_name":"stdout","time":371.821073393,"data":"[    327s] чипы: 180_Гнёздово_Лесная_2 отброшено {'bg_nodata': 109}\n"}
+,{"stream_name":"stdout","time":406.380846118,"data":"[    361s] покрытие GT: {\"region\": \"185_Изборск\", \"tif\": \"01_Изборск_Ae_немецкая.tif\", \"W\": 9232, \"H\": 8773, \"gt_total\": 75, \"gt_in_raster\": 75, \"gt_covered_by_chip\": 74, \"chips\": 125}\n"}
+,{"stream_name":"stdout","time":414.77139053,"data":"[    370s] покрытие GT: {\"region\": \"103_Гнёздово_Ольшанская\", \"tif\": \"01_Гнёздово_Ольшанская_Ae_немецкая.tif\", \"W\": 2435, \"H\": 1461, \"gt_total\": 144, \"gt_in_raster\": 142, \"gt_covered_by_chip\": 142, \"chips\": 204}\n"}
+,{"stream_name":"stdout","time":418.297279555,"data":"[    373s] покрытие GT: {\"region\": \"103_Гнёздово_Ольшанская\", \"tif\": \"02_Гнёздово_Ольшанская_Ae_немецкая.tif\", \"W\": 1349, \"H\": 881, \"gt_total\": 144, \"gt_in_raster\": 2, \"gt_covered_by_chip\": 2, \"chips\": 4}\n"}
+,{"stream_name":"stdout","time":429.865820092,"data":"[    385s] покрытие GT: {\"region\": \"101_Гнёздово_Днепровская\", \"tif\": \"02_Гнёздово_Днепровская_Ae_немецкая.tif\", \"W\": 2696, \"H\": 1760, \"gt_total\": 108, \"gt_in_raster\": 108, \"gt_covered_by_chip\": 108, \"chips\": 180}\n"}
+,{"stream_name":"stdout","time":429.867371804,"data":"[    385s] чипы: 101_Гнёздово_Днепровская отброшено {'obj_nodata': 25}\n"}
+,{"stream_name":"stdout","time":476.859449987,"data":"[    432s] покрытие GT: {\"region\": \"103_Гнёздово_Ольшанская\", \"tif\": \"03_Гнёздово_Ольшанская_Ae_немецкая.tif\", \"W\": 3429, \"H\": 2057, \"gt_total\": 144, \"gt_in_raster\": 144, \"gt_covered_by_chip\": 144, \"chips\": 213}\n"}
+,{"stream_name":"stdout","time":476.861020607,"data":"[    432s] чипы: 103_Гнёздово_Ольшанская отброшено {'obj_nodata': 1, 'bg_nodata': 58}\n"}
+,{"stream_name":"stdout","time":476.914105651,"data":"[    432s] чипов: 3311 (объектных 2136), участков 29, 421 с; классы: {'kurgany_tselye': 570, 'fortifikatsii': 409, 'kurgany_povrezhdennye': 1136, 'gorodishcha': 20, 'arkhitektury': 1}\n"}
+,{"stream_name":"stderr","time":477.148787766,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":477.148831721,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":477.955389581,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  27%|██▋       | 318/1197 [00:00\u003c00:00, 3179.51it/s]\rLoading weights:  53%|█████▎    | 636/1197 [00:00\u003c00:00, 2766.67it/s]\rLoading weights:  77%|███████▋  | 917/1197 [00:00\u003c00:00, 2763.68it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2814.92it/s]\n"}
+,{"stream_name":"stderr","time":477.99956661,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":477.99960318,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":477.999610078,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":477.999616305,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":477.999622324,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":477.999628225,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":477.999633938,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":477.999639742,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":477.999646049,"data":"\n"}
+,{"stream_name":"stderr","time":477.999651273,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":477.999656468,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":477.999676625,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":477.999681694,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":477.999686319,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":477.999690959,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":477.999696654,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":477.999701392,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":477.999705993,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":477.999710393,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":477.999714879,"data":"\n"}
+,{"stream_name":"stderr","time":477.999718785,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":477.999722647,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":478.032812497,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":478.032835393,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":478.91588563,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  23%|██▎       | 276/1197 [00:00\u003c00:00, 2728.08it/s]\rLoading weights:  46%|████▌     | 549/1197 [00:00\u003c00:00, 2546.82it/s]\rLoading weights:  67%|██████▋   | 805/1197 [00:00\u003c00:00, 2487.37it/s]\rLoading weights:  89%|████████▊ | 1061/1197 [00:00\u003c00:00, 2503.57it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2523.54it/s]\n"}
+,{"stream_name":"stderr","time":478.972978551,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":478.973009844,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":478.973013476,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":478.973016217,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":478.973018796,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":478.9730319,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":478.973034726,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":478.973037236,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":478.973039825,"data":"\n"}
+,{"stream_name":"stderr","time":478.973042085,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":478.973044417,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":478.973047138,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":478.973049835,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":478.973052326,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":478.973054896,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":478.973058272,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":478.973060919,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":478.973063804,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":478.97306631,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":478.973068884,"data":"\n"}
+,{"stream_name":"stderr","time":478.973071104,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":478.973073381,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":479.266758985,"data":"[    434s] [gpu1 f4] train чипов 2918, test участков 7, бюджет обучения 3.23 ч\n"}
+,{"stream_name":"stdout","time":479.384897116,"data":"[    434s] [gpu0 final] train чипов 3311, test участков 0, бюджет обучения 3.23 ч\n"}
+,{"stream_name":"stdout","time":648.163186327,"data":"[    603s] [gpu0 final] [bot5] {'it': 100, 'loss': 93.5304, 's_it': 1.5662}\n"}
+,{"stream_name":"stdout","time":650.000055093,"data":"[    605s] [gpu1 f4] [bot5] {'it': 100, 'loss': 59.4247, 's_it': 1.5183}\n"}
+,{"stream_name":"stdout","time":782.294054089,"data":"[    737s] [gpu1 f4] [bot5] {'it': 200, 'loss': 36.7699, 's_it': 1.2205}\n"}
+,{"stream_name":"stdout","time":803.751718872,"data":"[    759s] [gpu0 final] [bot5] {'it': 200, 'loss': 59.5891, 's_it': 1.3166}\n"}
+,{"stream_name":"stdout","time":907.263559662,"data":"[    862s] [gpu1 f4] [bot5] {'it': 300, 'loss': 31.5997, 's_it': 1.2025}\n"}
+,{"stream_name":"stdout","time":920.843447407,"data":"[    876s] [gpu0 final] [bot5] {'it': 300, 'loss': 32.1518, 's_it': 1.1323}\n"}
+,{"stream_name":"stdout","time":1031.84509731,"data":"[    987s] [gpu1 f4] [bot5] {'it': 400, 'loss': 30.1698, 's_it': 1.1758}\n"}
+,{"stream_name":"stdout","time":1041.261154916,"data":"[    996s] [gpu0 final] [bot5] {'it': 400, 'loss': 30.1954, 's_it': 1.1696}\n"}
+,{"stream_name":"stdout","time":1156.504206759,"data":"[   1112s] [gpu1 f4] [bot5] {'it': 500, 'loss': 30.231, 's_it': 1.2228}\n"}
+,{"stream_name":"stdout","time":1156.584438598,"data":"[   1112s] [gpu0 final] [bot5] {'it': 500, 'loss': 30.2777, 's_it': 1.1129}\n"}
+,{"stream_name":"stdout","time":1274.327421555,"data":"[   1229s] [gpu0 final] [bot5] {'it': 600, 'loss': 30.0089, 's_it': 1.1136}\n"}
+,{"stream_name":"stdout","time":1280.664528143,"data":"[   1236s] [gpu1 f4] [bot5] {'it': 600, 'loss': 29.052, 's_it': 1.199}\n"}
+,{"stream_name":"stdout","time":1390.749291473,"data":"[   1346s] [gpu0 final] [bot5] {'it': 700, 'loss': 29.5218, 's_it': 1.1128}\n"}
+,{"stream_name":"stdout","time":1407.766890633,"data":"[   1363s] [gpu1 f4] [bot5] {'it': 700, 'loss': 28.8807, 's_it': 1.2476}\n"}
+,{"stream_name":"stdout","time":1505.218274563,"data":"[   1460s] [gpu0 final] [bot5] {'it': 800, 'loss': 29.2592, 's_it': 1.1305}\n"}
+,{"stream_name":"stdout","time":1531.016406861,"data":"[   1486s] [gpu1 f4] [bot5] {'it': 800, 'loss': 28.9809, 's_it': 1.2219}\n"}
+,{"stream_name":"stdout","time":1621.050454372,"data":"[   1576s] [gpu0 final] [bot5] {'it': 900, 'loss': 29.283, 's_it': 1.1613}\n"}
+,{"stream_name":"stdout","time":1655.254793052,"data":"[   1610s] [gpu1 f4] [bot5] {'it': 900, 'loss': 28.5538, 's_it': 1.2012}\n"}
+,{"stream_name":"stdout","time":1736.163003098,"data":"[   1691s] [gpu0 final] [bot5] {'it': 1000, 'loss': 29.1209, 's_it': 1.1304}\n"}
+,{"stream_name":"stdout","time":1777.818858535,"data":"[   1733s] [gpu1 f4] [bot5] {'it': 1000, 'loss': 28.6249, 's_it': 1.178}\n"}
+,{"stream_name":"stdout","time":1848.119431595,"data":"[   1803s] [gpu0 final] [bot5] {'it': 1100, 'loss': 28.7738, 's_it': 1.058}\n"}
+,{"stream_name":"stdout","time":1903.359794852,"data":"[   1858s] [gpu1 f4] [bot5] {'it': 1100, 'loss': 28.0919, 's_it': 1.1936}\n"}
+,{"stream_name":"stdout","time":1963.295643525,"data":"[   1918s] [gpu0 final] [bot5] {'it': 1200, 'loss': 28.3387, 's_it': 1.1126}\n"}
+,{"stream_name":"stdout","time":2025.351249621,"data":"[   1980s] [gpu1 f4] [bot5] {'it': 1200, 'loss': 28.1154, 's_it': 1.1816}\n"}
+,{"stream_name":"stdout","time":2079.979802376,"data":"[   2035s] [gpu0 final] [bot5] {'it': 1300, 'loss': 28.1668, 's_it': 1.1491}\n"}
+,{"stream_name":"stdout","time":2146.248472373,"data":"[   2101s] [gpu1 f4] [bot5] {'it': 1300, 'loss': 28.3795, 's_it': 1.1818}\n"}
+,{"stream_name":"stdout","time":2195.52790486,"data":"[   2151s] [gpu0 final] [bot5] {'it': 1400, 'loss': 28.4947, 's_it': 1.0966}\n"}
+,{"stream_name":"stdout","time":2268.031056667,"data":"[   2223s] [gpu1 f4] [bot5] {'it': 1400, 'loss': 28.1356, 's_it': 1.2214}\n"}
+,{"stream_name":"stdout","time":2311.087771795,"data":"[   2266s] [gpu0 final] [bot5] {'it': 1500, 'loss': 27.9981, 's_it': 1.1329}\n"}
+,{"stream_name":"stdout","time":2388.180189878,"data":"[   2343s] [gpu1 f4] [bot5] {'it': 1500, 'loss': 27.9363, 's_it': 1.1727}\n"}
+,{"stream_name":"stdout","time":2426.46933439,"data":"[   2382s] [gpu0 final] [bot5] {'it': 1600, 'loss': 27.65, 's_it': 1.163}\n"}
+,{"stream_name":"stdout","time":2510.28269793,"data":"[   2465s] [gpu1 f4] [bot5] {'it': 1600, 'loss': 27.6519, 's_it': 1.1922}\n"}
+,{"stream_name":"stdout","time":2541.68208239,"data":"[   2497s] [gpu0 final] [bot5] {'it': 1700, 'loss': 27.986, 's_it': 1.0904}\n"}
+,{"stream_name":"stdout","time":2632.518118463,"data":"[   2588s] [gpu1 f4] [bot5] {'it': 1700, 'loss': 28.0348, 's_it': 1.1668}\n"}
+,{"stream_name":"stdout","time":2656.751317066,"data":"[   2612s] [gpu0 final] [bot5] {'it': 1800, 'loss': 27.8217, 's_it': 1.1022}\n"}
+,{"stream_name":"stdout","time":2755.747213245,"data":"[   2711s] [gpu1 f4] [bot5] {'it': 1800, 'loss': 27.5144, 's_it': 1.1762}\n"}
+,{"stream_name":"stdout","time":2773.064147468,"data":"[   2728s] [gpu0 final] [bot5] {'it': 1900, 'loss': 27.8845, 's_it': 1.2167}\n"}
+,{"stream_name":"stdout","time":2878.718615517,"data":"[   2834s] [gpu1 f4] [bot5] {'it': 1900, 'loss': 27.4231, 's_it': 1.1908}\n"}
+,{"stream_name":"stdout","time":2890.062406925,"data":"[   2845s] [gpu0 final] [bot5] {'it': 2000, 'loss': 27.5734, 's_it': 1.1402}\n"}
+,{"stream_name":"stdout","time":3003.697933641,"data":"[   2959s] [gpu1 f4] [bot5] {'it': 2000, 'loss': 27.2718, 's_it': 1.2155}\n"}
+,{"stream_name":"stdout","time":3004.715770299,"data":"[   2960s] [gpu0 final] [bot5] {'it': 2100, 'loss': 27.805, 's_it': 1.1138}\n"}
+,{"stream_name":"stdout","time":3121.43919955,"data":"[   3076s] [gpu0 final] [bot5] {'it': 2200, 'loss': 27.739, 's_it': 1.1378}\n"}
+,{"stream_name":"stdout","time":3127.614797617,"data":"[   3083s] [gpu1 f4] [bot5] {'it': 2100, 'loss': 27.4688, 's_it': 1.178}\n"}
+,{"stream_name":"stdout","time":3235.834430216,"data":"[   3191s] [gpu0 final] [bot5] {'it': 2300, 'loss': 27.7331, 's_it': 1.0904}\n"}
+,{"stream_name":"stdout","time":3248.001761508,"data":"[   3203s] [gpu1 f4] [bot5] {'it': 2200, 'loss': 27.6551, 's_it': 1.1786}\n"}
+,{"stream_name":"stdout","time":3352.287614322,"data":"[   3307s] [gpu0 final] [bot5] {'it': 2400, 'loss': 27.6484, 's_it': 1.133}\n"}
+,{"stream_name":"stdout","time":3369.93454219,"data":"[   3325s] [gpu1 f4] [bot5] {'it': 2300, 'loss': 27.3602, 's_it': 1.1598}\n"}
+,{"stream_name":"stdout","time":3466.925424725,"data":"[   3422s] [gpu0 final] [bot5] {'it': 2500, 'loss': 27.491, 's_it': 1.1061}\n"}
+,{"stream_name":"stdout","time":3490.810300781,"data":"[   3446s] [gpu1 f4] [bot5] {'it': 2400, 'loss': 27.3836, 's_it': 1.1632}\n"}
+,{"stream_name":"stdout","time":3583.338414007,"data":"[   3538s] [gpu0 final] [bot5] {'it': 2600, 'loss': 27.5018, 's_it': 1.1038}\n"}
+,{"stream_name":"stdout","time":3615.414790889,"data":"[   3570s] [gpu1 f4] [bot5] {'it': 2500, 'loss': 27.0435, 's_it': 1.2054}\n"}
+,{"stream_name":"stdout","time":3701.367653394,"data":"[   3656s] [gpu0 final] [bot5] {'it': 2700, 'loss': 27.2832, 's_it': 1.1164}\n"}
+,{"stream_name":"stdout","time":3738.291936175,"data":"[   3693s] [gpu1 f4] [bot5] {'it': 2600, 'loss': 27.5394, 's_it': 1.2108}\n"}
+,{"stream_name":"stdout","time":3816.032139119,"data":"[   3771s] [gpu0 final] [bot5] {'it': 2800, 'loss': 27.7041, 's_it': 1.1306}\n"}
+,{"stream_name":"stdout","time":3860.908168455,"data":"[   3816s] [gpu1 f4] [bot5] {'it': 2700, 'loss': 27.1885, 's_it': 1.1712}\n"}
+,{"stream_name":"stdout","time":3933.35175269,"data":"[   3888s] [gpu0 final] [bot5] {'it': 2900, 'loss': 27.0389, 's_it': 1.1119}\n"}
+,{"stream_name":"stdout","time":3984.83521737,"data":"[   3940s] [gpu1 f4] [bot5] {'it': 2800, 'loss': 26.9763, 's_it': 1.2304}\n"}
+,{"stream_name":"stdout","time":4049.064034856,"data":"[   4004s] [gpu0 final] [bot5] {'it': 3000, 'loss': 27.2762, 's_it': 1.1183}\n"}
+,{"stream_name":"stdout","time":4103.925778564,"data":"[   4059s] [gpu1 f4] [bot5] {'it': 2900, 'loss': 27.4386, 's_it': 1.1491}\n"}
+,{"stream_name":"stdout","time":4165.11587947,"data":"[   4120s] [gpu0 final] [bot5] {'it': 3100, 'loss': 27.0267, 's_it': 1.1131}\n"}
+,{"stream_name":"stdout","time":4226.253898496,"data":"[   4181s] [gpu1 f4] [bot5] {'it': 3000, 'loss': 27.0858, 's_it': 1.1776}\n"}
+,{"stream_name":"stdout","time":4281.784456864,"data":"[   4237s] [gpu0 final] [bot5] {'it': 3200, 'loss': 27.1866, 's_it': 1.144}\n"}
+,{"stream_name":"stdout","time":4348.018315925,"data":"[   4303s] [gpu1 f4] [bot5] {'it': 3100, 'loss': 27.2466, 's_it': 1.1495}\n"}
+,{"stream_name":"stdout","time":4396.264087587,"data":"[   4351s] [gpu0 final] [bot5] {'it': 3300, 'loss': 27.4258, 's_it': 1.1498}\n"}
+,{"stream_name":"stdout","time":4469.869448312,"data":"[   4425s] [gpu1 f4] [bot5] {'it': 3200, 'loss': 27.0206, 's_it': 1.2025}\n"}
+,{"stream_name":"stdout","time":4514.314647478,"data":"[   4469s] [gpu0 final] [bot5] {'it': 3400, 'loss': 26.8049, 's_it': 1.139}\n"}
+,{"stream_name":"stdout","time":4590.55363185,"data":"[   4546s] [gpu1 f4] [bot5] {'it': 3300, 'loss': 27.4364, 's_it': 1.2075}\n"}
+,{"stream_name":"stdout","time":4629.666008541,"data":"[   4585s] [gpu0 final] [bot5] {'it': 3500, 'loss': 27.3999, 's_it': 1.125}\n"}
+,{"stream_name":"stdout","time":4709.533802499,"data":"[   4665s] [gpu1 f4] [bot5] {'it': 3400, 'loss': 27.2376, 's_it': 1.1679}\n"}
+,{"stream_name":"stdout","time":4748.258666206,"data":"[   4703s] [gpu0 final] [bot5] {'it': 3600, 'loss': 27.1158, 's_it': 1.1678}\n"}
+,{"stream_name":"stdout","time":4835.096118533,"data":"[   4790s] [gpu1 f4] [bot5] {'it': 3500, 'loss': 26.9604, 's_it': 1.2312}\n"}
+,{"stream_name":"stdout","time":4863.224520337,"data":"[   4818s] [gpu0 final] [bot5] {'it': 3700, 'loss': 27.3612, 's_it': 1.1233}\n"}
+,{"stream_name":"stdout","time":4957.666014717,"data":"[   4913s] [gpu1 f4] [bot5] {'it': 3600, 'loss': 26.9881, 's_it': 1.1963}\n"}
+,{"stream_name":"stdout","time":4977.232537914,"data":"[   4932s] [gpu0 final] [bot5] {'it': 3800, 'loss': 27.5089, 's_it': 1.105}\n"}
+,{"stream_name":"stdout","time":5077.182404596,"data":"[   5032s] [gpu1 f4] [bot5] {'it': 3700, 'loss': 26.9846, 's_it': 1.1456}\n"}
+,{"stream_name":"stdout","time":5091.871056027,"data":"[   5047s] [gpu0 final] [bot5] {'it': 3900, 'loss': 27.5417, 's_it': 1.0989}\n"}
+,{"stream_name":"stdout","time":5202.323112897,"data":"[   5157s] [gpu1 f4] [bot5] {'it': 3800, 'loss': 26.7953, 's_it': 1.2097}\n"}
+,{"stream_name":"stdout","time":5209.790450677,"data":"[   5165s] [gpu0 final] [bot5] {'it': 4000, 'loss': 26.9482, 's_it': 1.1574}\n"}
+,{"stream_name":"stderr","time":5210.491069976,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.03it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.03it/s]\n"}
+,{"stream_name":"stdout","time":5210.492184661,"data":"[   5166s] [gpu0 final] веса сохранены: /kaggle/working/dfine_ae ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":5210.493740566,"data":"[   5166s] [gpu0 final] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 1.1342639923095703, \"sec\": 4730, \"loss_first\": 85.2934799194336, \"loss_last\": 24.729951858520508, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 3311, \"dir\": \"/kaggle/working/dfine_ae\", \"peak_vram_gb\": 11.02}\n"}
+,{"stream_name":"stderr","time":5211.52122323,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":5211.521280529,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":5212.538398372,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  23%|██▎       | 278/1197 [00:00\u003c00:00, 2777.79it/s]\rLoading weights:  46%|████▋     | 556/1197 [00:00\u003c00:00, 2608.07it/s]\rLoading weights:  68%|██████▊   | 818/1197 [00:00\u003c00:00, 2562.38it/s]\rLoading weights:  90%|████████▉ | 1075/1197 [00:00\u003c00:00, 2557.90it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2587.35it/s]\n"}
+,{"stream_name":"stderr","time":5212.605216112,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":5212.605250557,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":5212.605255739,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":5212.605260035,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":5212.605264412,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":5212.605268571,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":5212.605272504,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":5212.605276353,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":5212.605280335,"data":"\n"}
+,{"stream_name":"stderr","time":5212.605283729,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":5212.605287144,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":5212.605291134,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":5212.605295221,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":5212.605299131,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":5212.605303155,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":5212.605308187,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":5212.605312293,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":5212.605316098,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":5212.60533396,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":5212.605338317,"data":"\n"}
+,{"stream_name":"stderr","time":5212.60534167,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":5212.605345184,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":5212.722147707,"data":"[   5168s] [gpu0 f3] train чипов 2483, test участков 11, бюджет обучения 4.35 ч\n"}
+,{"stream_name":"stdout","time":5324.943948372,"data":"[   5280s] [gpu1 f4] [bot5] {'it': 3900, 'loss': 26.6921, 's_it': 1.1578}\n"}
+,{"stream_name":"stdout","time":5385.366283698,"data":"[   5340s] [gpu0 f3] [bot5] {'it': 100, 'loss': 62.4098, 's_it': 1.6763}\n"}
+,{"stream_name":"stdout","time":5446.372626232,"data":"[   5401s] [gpu1 f4] [bot5] {'it': 4000, 'loss': 26.7414, 's_it': 1.1764}\n"}
+,{"stream_name":"stderr","time":5446.988603028,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.73it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.73it/s]\n"}
+,{"stream_name":"stdout","time":5446.991073092,"data":"[   5402s] [gpu1 f4] веса сохранены: /kaggle/working/dfine_f4 ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":5447.020134575,"data":"[   5402s] [infer] 012_Сож 01_Сож_Ae_немецкая.tif: 38843x36635 px, окон 6156\n"}
+,{"stream_name":"stdout","time":5539.129923398,"data":"[   5494s] [gpu0 f3] [bot5] {'it': 200, 'loss': 46.6481, 's_it': 1.3183}\n"}
+,{"stream_name":"stdout","time":5631.522797984,"data":"[   5587s] [infer] 012_Сож: 1600/6156 окон, 185 с\n"}
+,{"stream_name":"stdout","time":5656.184078635,"data":"[   5611s] [gpu0 f3] [bot5] {'it': 300, 'loss': 31.5775, 's_it': 1.1029}\n"}
+,{"stream_name":"stdout","time":5771.78456289,"data":"[   5727s] [gpu0 f3] [bot5] {'it': 400, 'loss': 30.6243, 's_it': 1.1526}\n"}
+,{"stream_name":"stdout","time":5813.217911465,"data":"[   5768s] [infer] 012_Сож: 3200/6156 окон, 366 с\n"}
+,{"stream_name":"stdout","time":5892.943273889,"data":"[   5848s] [gpu0 f3] [bot5] {'it': 500, 'loss': 29.3746, 's_it': 1.1583}\n"}
+,{"stream_name":"stdout","time":5995.780133571,"data":"[   5951s] [infer] 012_Сож: 4800/6156 окон, 549 с\n"}
+,{"stream_name":"stdout","time":6014.118122761,"data":"[   5969s] [gpu0 f3] [bot5] {'it': 600, 'loss': 28.8432, 's_it': 1.1509}\n"}
+,{"stream_name":"stdout","time":6129.640983725,"data":"[   6085s] [gpu0 f3] [bot5] {'it': 700, 'loss': 29.6044, 's_it': 1.1164}\n"}
+,{"stream_name":"stdout","time":6244.629681308,"data":"[   6200s] [gpu0 f3] [bot5] {'it': 800, 'loss': 29.6122, 's_it': 1.1663}\n"}
+,{"stream_name":"stdout","time":6360.867234083,"data":"[   6316s] [gpu0 f3] [bot5] {'it': 900, 'loss': 28.9359, 's_it': 1.1621}\n"}
+,{"stream_name":"stdout","time":6476.95439546,"data":"[   6432s] [gpu0 f3] [bot5] {'it': 1000, 'loss': 28.4449, 's_it': 1.1137}\n"}
+,{"stream_name":"stdout","time":6592.908179309,"data":"[   6548s] [gpu0 f3] [bot5] {'it': 1100, 'loss': 28.3534, 's_it': 1.1196}\n"}
+,{"stream_name":"stdout","time":6708.160119991,"data":"[   6663s] [gpu0 f3] [bot5] {'it': 1200, 'loss': 28.2037, 's_it': 1.0884}\n"}
+,{"stream_name":"stdout","time":6825.424754975,"data":"[   6780s] [gpu0 f3] [bot5] {'it': 1300, 'loss': 27.9213, 's_it': 1.1068}\n"}
+,{"stream_name":"stdout","time":6944.238503553,"data":"[   6899s] [gpu0 f3] [bot5] {'it': 1400, 'loss': 27.6157, 's_it': 1.1527}\n"}
+,{"stream_name":"stdout","time":7062.680005146,"data":"[   7018s] [gpu0 f3] [bot5] {'it': 1500, 'loss': 27.7063, 's_it': 1.1755}\n"}
+,{"stream_name":"stdout","time":7183.251917523,"data":"[   7138s] [gpu0 f3] [bot5] {'it': 1600, 'loss': 27.5317, 's_it': 1.1612}\n"}
+,{"stream_name":"stdout","time":7299.891744898,"data":"[   7255s] [gpu0 f3] [bot5] {'it': 1700, 'loss': 27.6695, 's_it': 1.104}\n"}
+,{"stream_name":"stdout","time":7417.2184068,"data":"[   7372s] [gpu0 f3] [bot5] {'it': 1800, 'loss': 27.506, 's_it': 1.092}\n"}
+,{"stream_name":"stdout","time":7534.951293843,"data":"[   7490s] [gpu0 f3] [bot5] {'it': 1900, 'loss': 27.4029, 's_it': 1.1554}\n"}
+,{"stream_name":"stdout","time":7653.721484365,"data":"[   7609s] [gpu0 f3] [bot5] {'it': 2000, 'loss': 27.4348, 's_it': 1.1182}\n"}
+,{"stream_name":"stdout","time":7771.039783787,"data":"[   7726s] [gpu0 f3] [bot5] {'it': 2100, 'loss': 27.0944, 's_it': 1.1397}\n"}
+,{"stream_name":"stdout","time":7838.347071858,"data":"[   7793s] [infer] 012_Сож: готово 6156 окон за 2391 с; {'noflip': 300296, 'flipnms': 490056, 'flipwbf': 492015}\n"}
+,{"stream_name":"stdout","time":7936.216116651,"data":"[   7891s] [infer] 017_Юшково 01_Юшково_Ae_немецкая.tif: 11763x2893 px, окон 150\n"}
+,{"stream_name":"stdout","time":7963.064412018,"data":"[   7918s] [infer] 017_Юшково: готово 150 окон за 27 с; {'noflip': 6906, 'flipnms': 10156, 'flipwbf': 10287}\n"}
+,{"stream_name":"stdout","time":7964.772127104,"data":"[   7920s] [infer] 019_Селяне 01_Селяне_Ae_немецкая.tif: 10345x10959 px, окон 506\n"}
+,{"stream_name":"stdout","time":7993.893775909,"data":"[   7949s] [gpu0 f3] [bot5] {'it': 2200, 'loss': 27.2487, 's_it': 1.1585}\n"}
+,{"stream_name":"stdout","time":8047.197478279,"data":"[   8002s] [infer] 019_Селяне: готово 506 окон за 82 с; {'noflip': 30112, 'flipnms': 44698, 'flipwbf': 45026}\n"}
+,{"stream_name":"stdout","time":8062.399450775,"data":"[   8017s] [infer] 020_Романово 01_Романово_Ae_немецкая.tif: 12401x7152 px, окон 390\n"}
+,{"stream_name":"stdout","time":8122.500802643,"data":"[   8078s] [infer] 020_Романово: готово 390 окон за 60 с; {'noflip': 28039, 'flipnms': 42531, 'flipwbf': 43013}\n"}
+,{"stream_name":"stdout","time":8131.665511094,"data":"[   8087s] [infer] 029_Вышегжа_3 01_Вышегжа_3_Ae_немецкая.tif: 26708x28156 px, окон 3304\n"}
+,{"stream_name":"stdout","time":8131.788175942,"data":"[   8087s] [gpu0 f3] [bot5] {'it': 2300, 'loss': 27.236, 's_it': 1.0932}\n"}
+,{"stream_name":"stdout","time":8248.150863148,"data":"[   8203s] [gpu0 f3] [bot5] {'it': 2400, 'loss': 27.0693, 's_it': 1.0943}\n"}
+,{"stream_name":"stdout","time":8313.175630605,"data":"[   8268s] [infer] 029_Вышегжа_3: 1600/3304 окон, 182 с\n"}
+,{"stream_name":"stdout","time":8365.046588036,"data":"[   8320s] [gpu0 f3] [bot5] {'it': 2500, 'loss': 27.4158, 's_it': 1.1136}\n"}
+,{"stream_name":"stdout","time":8481.744341558,"data":"[   8437s] [gpu0 f3] [bot5] {'it': 2600, 'loss': 27.2588, 's_it': 1.1467}\n"}
+,{"stream_name":"stdout","time":8491.442993152,"data":"[   8446s] [infer] 029_Вышегжа_3: 3200/3304 окон, 360 с\n"}
+,{"stream_name":"stdout","time":8598.458015916,"data":"[   8554s] [gpu0 f3] [bot5] {'it': 2700, 'loss': 27.3136, 's_it': 1.1379}\n"}
+,{"stream_name":"stdout","time":8714.576101945,"data":"[   8670s] [gpu0 f3] [bot5] {'it': 2800, 'loss': 27.4376, 's_it': 1.1293}\n"}
+,{"stream_name":"stdout","time":8831.567245793,"data":"[   8787s] [gpu0 f3] [bot5] {'it': 2900, 'loss': 27.0536, 's_it': 1.1199}\n"}
+,{"stream_name":"stdout","time":8944.940555456,"data":"[   8900s] [gpu0 f3] [bot5] {'it': 3000, 'loss': 27.5292, 's_it': 1.0984}\n"}
+,{"stream_name":"stdout","time":9062.782760435,"data":"[   9018s] [gpu0 f3] [bot5] {'it': 3100, 'loss': 27.1325, 's_it': 1.1394}\n"}
+,{"stream_name":"stdout","time":9177.281696502,"data":"[   9132s] [gpu0 f3] [bot5] {'it': 3200, 'loss': 27.1567, 's_it': 1.0779}\n"}
+,{"stream_name":"stdout","time":9293.646149191,"data":"[   9249s] [gpu0 f3] [bot5] {'it': 3300, 'loss': 27.1325, 's_it': 1.1039}\n"}
+,{"stream_name":"stdout","time":9333.036991397,"data":"[   9288s] [infer] 029_Вышегжа_3: готово 3304 окон за 1201 с; {'noflip': 235504, 'flipnms': 366944, 'flipwbf': 372215}\n"}
+,{"stream_name":"stdout","time":9383.313527112,"data":"[   9338s] [infer] 058_Перынь 01_Перынь_Ae_немецкая.tif: 16656x16569 px, окон 1225\n"}
+,{"stream_name":"stdout","time":9476.196263457,"data":"[   9431s] [gpu0 f3] [bot5] {'it': 3400, 'loss': 26.8202, 's_it': 1.1481}\n"}
+,{"stream_name":"stdout","time":9594.342691647,"data":"[   9549s] [infer] 058_Перынь: готово 1225 окон за 211 с; {'noflip': 78339, 'flipnms': 117916, 'flipwbf': 119512}\n"}
+,{"stream_name":"stdout","time":9614.926953128,"data":"[   9570s] [infer] 185_Изборск 01_Изборск_Ae_немецкая.tif: 9232x8773 px, окон 342\n"}
+,{"stream_name":"stdout","time":9615.88971025,"data":"[   9571s] [gpu0 f3] [bot5] {'it': 3500, 'loss': 27.1285, 's_it': 1.1136}\n"}
+,{"stream_name":"stdout","time":9678.035116811,"data":"[   9633s] [infer] 185_Изборск: готово 342 окон за 63 с; {'noflip': 16867, 'flipnms': 25938, 'flipwbf': 26013}\n"}
+,{"stream_name":"stdout","time":9723.055937991,"data":"[   9678s] [gpu1 f4] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 1.1955156326293945, \"sec\": 4967, \"loss_first\": 76.35375213623047, \"loss_last\": 28.850648880004883, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2918, \"test_regions\": [\"012_Сож\", \"017_Юшково\", \"019_Селяне\", \"020_Романово\", \"029_Вышегжа_3\", \"058_Перынь\", \"185_Изборск\"], \"n_det\": {\"noflip\": 69213, \"flipnms\": 96333, \"flipwbf\": 59277}, \"infer_sec\": 4275, \"peak_vram_gb\": 11.35}\n"}
+,{"stream_name":"stderr","time":9723.985923394,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":9723.985969435,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":9724.928215101,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  23%|██▎       | 281/1197 [00:00\u003c00:00, 2808.87it/s]\rLoading weights:  47%|████▋     | 562/1197 [00:00\u003c00:00, 2531.22it/s]\rLoading weights:  68%|██████▊   | 817/1197 [00:00\u003c00:00, 2401.19it/s]\rLoading weights:  88%|████████▊ | 1059/1197 [00:00\u003c00:00, 2407.36it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2466.91it/s]\n"}
+,{"stream_name":"stderr","time":9725.001095887,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":9725.001128661,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":9725.001134759,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":9725.001155044,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":9725.001159355,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":9725.001163321,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":9725.001167377,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":9725.001171417,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":9725.001175273,"data":"\n"}
+,{"stream_name":"stderr","time":9725.001178653,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":9725.001182068,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":9725.001185948,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":9725.001190301,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":9725.001193963,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":9725.00119784,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":9725.001202922,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":9725.001206893,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":9725.001210915,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":9725.001214866,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":9725.001218721,"data":"\n"}
+,{"stream_name":"stderr","time":9725.001222146,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":9725.001225412,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":9725.167515635,"data":"[   9680s] [gpu1 f2] train чипов 3164, test участков 4, бюджет обучения 3.72 ч\n"}
+,{"stream_name":"stdout","time":9782.664269002,"data":"[   9738s] [gpu0 f3] [bot5] {'it': 3600, 'loss': 26.9977, 's_it': 1.2484}\n"}
+,{"stream_name":"stdout","time":9896.419471857,"data":"[   9851s] [gpu1 f2] [bot5] {'it': 100, 'loss': 73.5001, 's_it': 1.7375}\n"}
+,{"stream_name":"stdout","time":9903.257754261,"data":"[   9858s] [gpu0 f3] [bot5] {'it': 3700, 'loss': 27.1008, 's_it': 1.1789}\n"}
+,{"stream_name":"stdout","time":10024.986592077,"data":"[   9980s] [gpu0 f3] [bot5] {'it': 3800, 'loss': 26.8467, 's_it': 1.2051}\n"}
+,{"stream_name":"stdout","time":10054.100526034,"data":"[  10009s] [gpu1 f2] [bot5] {'it': 200, 'loss': 55.0291, 's_it': 1.4659}\n"}
+,{"stream_name":"stdout","time":10148.153357308,"data":"[  10103s] [gpu0 f3] [bot5] {'it': 3900, 'loss': 27.1807, 's_it': 1.203}\n"}
+,{"stream_name":"stdout","time":10193.514019693,"data":"[  10149s] [gpu1 f2] [bot5] {'it': 300, 'loss': 39.1917, 's_it': 1.2276}\n"}
+,{"stream_name":"stdout","time":10276.78318013,"data":"[  10232s] [gpu0 f3] [bot5] {'it': 4000, 'loss': 26.8693, 's_it': 1.2828}\n"}
+,{"stream_name":"stderr","time":10277.567824596,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  2.76it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  2.76it/s]\n"}
+,{"stream_name":"stdout","time":10277.568893967,"data":"[  10233s] [gpu0 f3] веса сохранены: /kaggle/working/dfine_f3 ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":10277.594156688,"data":"[  10233s] [infer] 005_Боровичи_2 01_Боровичи_2_Ae_немецкая.tif: 8898x9208 px, окон 361\n"}
+,{"stream_name":"stdout","time":10312.875315317,"data":"[  10268s] [gpu1 f2] [bot5] {'it': 400, 'loss': 32.8872, 's_it': 1.1128}\n"}
+,{"stream_name":"stdout","time":10345.962920062,"data":"[  10301s] [infer] 005_Боровичи_2: готово 361 окон за 68 с; {'noflip': 14956, 'flipnms': 23670, 'flipwbf': 23923}\n"}
+,{"stream_name":"stdout","time":10356.509361044,"data":"[  10312s] [infer] 041_Миловидово 01_Миловидово_Ae_немецкая.tif: 11908x12394 px, окон 650\n"}
+,{"stream_name":"stdout","time":10436.447594832,"data":"[  10392s] [gpu1 f2] [bot5] {'it': 500, 'loss': 31.4781, 's_it': 1.0783}\n"}
+,{"stream_name":"stdout","time":10490.797583052,"data":"[  10446s] [infer] 041_Миловидово: готово 650 окон за 134 с; {'noflip': 28016, 'flipnms': 45377, 'flipwbf': 46093}\n"}
+,{"stream_name":"stdout","time":10496.13843916,"data":"[  10451s] [infer] 043_Гочево 01_Гочево_Ae_немецкая.tif: 6712x6750 px, окон 196\n"}
+,{"stream_name":"stdout","time":10530.049155034,"data":"[  10485s] [infer] 043_Гочево: готово 196 окон за 34 с; {'noflip': 13104, 'flipnms': 19951, 'flipwbf': 20290}\n"}
+,{"stream_name":"stdout","time":10540.332339126,"data":"[  10495s] [infer] 060_Сельцо 01_Сельцо_Ae_немецкая.tif: 21403x23603 px, окон 2205\n"}
+,{"stream_name":"stdout","time":10566.486345343,"data":"[  10522s] [gpu1 f2] [bot5] {'it': 600, 'loss': 30.7234, 's_it': 1.1121}\n"}
+,{"stream_name":"stdout","time":10680.117196674,"data":"[  10635s] [gpu1 f2] [bot5] {'it': 700, 'loss': 30.1191, 's_it': 1.114}\n"}
+,{"stream_name":"stdout","time":10717.051164795,"data":"[  10672s] [infer] 060_Сельцо: 1600/2205 окон, 177 с\n"}
+,{"stream_name":"stdout","time":10797.307905771,"data":"[  10752s] [gpu1 f2] [bot5] {'it': 800, 'loss': 29.5251, 's_it': 1.1125}\n"}
+,{"stream_name":"stdout","time":10912.331780511,"data":"[  10867s] [gpu1 f2] [bot5] {'it': 900, 'loss': 29.6874, 's_it': 1.0766}\n"}
+,{"stream_name":"stdout","time":10998.483700271,"data":"[  10954s] [infer] 060_Сельцо: готово 2205 окон за 458 с; {'noflip': 134855, 'flipnms': 225176, 'flipwbf': 228424}\n"}
+,{"stream_name":"stdout","time":11016.802049909,"data":"[  10972s] [infer] 067_Чудово 01_Чудово_Ae_немецкая.tif: 9487x8461 px, окон 360\n"}
+,{"stream_name":"stdout","time":11052.880904959,"data":"[  11008s] [gpu1 f2] [bot5] {'it': 1000, 'loss': 29.8059, 's_it': 1.1066}\n"}
+,{"stream_name":"stdout","time":11075.365037972,"data":"[  11030s] [infer] 067_Чудово: готово 360 окон за 59 с; {'noflip': 16326, 'flipnms': 24005, 'flipwbf': 24236}\n"}
+,{"stream_name":"stdout","time":11087.599240334,"data":"[  11043s] [infer] 105_Вщиж 01_Вщиж_Ae_немецкая.tif: 11577x6909 px, окон 360\n"}
+,{"stream_name":"stdout","time":11126.473607046,"data":"[  11082s] [infer] 105_Вщиж: готово 360 окон за 39 с; {'noflip': 16214, 'flipnms': 24479, 'flipwbf': 24833}\n"}
+,{"stream_name":"stdout","time":11133.311148079,"data":"[  11088s] [infer] 106_Верхмарево 01_Верхмарево_Ae_немецкая.tif: 7671x5946 px, окон 208\n"}
+,{"stream_name":"stdout","time":11160.651333332,"data":"[  11116s] [infer] 106_Верхмарево: готово 208 окон за 27 с; {'noflip': 15205, 'flipnms': 22684, 'flipwbf': 22914}\n"}
+,{"stream_name":"stdout","time":11169.324526723,"data":"[  11124s] [infer] 183_Сарское 01_Сарское_Ae_немецкая.tif: 9585x9250 px, окон 380\n"}
+,{"stream_name":"stdout","time":11193.128510131,"data":"[  11148s] [gpu1 f2] [bot5] {'it': 1100, 'loss': 29.3293, 's_it': 1.1222}\n"}
+,{"stream_name":"stdout","time":11236.617502002,"data":"[  11192s] [infer] 183_Сарское: готово 380 окон за 67 с; {'noflip': 26744, 'flipnms': 42486, 'flipwbf': 43209}\n"}
+,{"stream_name":"stdout","time":11249.385326426,"data":"[  11204s] [infer] 184_Шурскол 01_Шурскол_Ae_немецкая.tif: 9487x9444 px, окон 400\n"}
+,{"stream_name":"stdout","time":11314.294118848,"data":"[  11269s] [infer] 184_Шурскол: готово 400 окон за 65 с; {'noflip': 23650, 'flipnms': 35399, 'flipwbf': 35884}\n"}
+,{"stream_name":"stdout","time":11326.185661338,"data":"[  11281s] [infer] 186_Семибратнее_1 01_Семибратнее_1_Ae_немецкая.tif: 8175x7447 px, окон 272\n"}
+,{"stream_name":"stdout","time":11334.147010096,"data":"[  11289s] [gpu1 f2] [bot5] {'it': 1200, 'loss': 28.6873, 's_it': 1.1364}\n"}
+,{"stream_name":"stdout","time":11370.897682563,"data":"[  11326s] [infer] 186_Семибратнее_1: готово 272 окон за 45 с; {'noflip': 14471, 'flipnms': 22694, 'flipwbf': 22963}\n"}
+,{"stream_name":"stdout","time":11375.296547646,"data":"[  11330s] [infer] 189_Макеево 01_Макеево_Ae_немецкая.tif: 2844x2530 px, окон 30\n"}
+,{"stream_name":"stdout","time":11379.269479473,"data":"[  11334s] [infer] 189_Макеево: готово 30 окон за 4 с; {'noflip': 2090, 'flipnms': 3117, 'flipwbf': 3189}\n"}
+,{"stream_name":"stdout","time":11399.728138106,"data":"[  11355s] [gpu0 f3] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 1.1491460800170898, \"sec\": 5064, \"loss_first\": 63.040740966796875, \"loss_last\": 25.395021438598633, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2483, \"test_regions\": [\"005_Боровичи_2\", \"041_Миловидово\", \"043_Гочево\", \"060_Сельцо\", \"067_Чудово\", \"105_Вщиж\", \"106_Верхмарево\", \"183_Сарское\", \"184_Шурскол\", \"186_Семибратнее_1\", \"189_Макеево\"], \"n_det\": {\"noflip\": 34989, \"flipnms\": 54156, \"flipwbf\": 26155}, \"infer_sec\": 1122, \"peak_vram_gb\": 11.69}\n"}
+,{"stream_name":"stderr","time":11400.673129391,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":11400.673203627,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":11401.908608018,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  24%|██▍       | 291/1197 [00:00\u003c00:00, 2906.41it/s]\rLoading weights:  49%|████▊     | 582/1197 [00:00\u003c00:00, 2466.36it/s]\rLoading weights:  70%|██████▉   | 833/1197 [00:00\u003c00:00, 2434.44it/s]\rLoading weights:  90%|█████████ | 1079/1197 [00:00\u003c00:00, 2418.05it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2468.38it/s]\n"}
+,{"stream_name":"stderr","time":11401.97025348,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":11401.970291675,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":11401.970295911,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":11401.970298748,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":11401.970301308,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":11401.970303825,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":11401.970306318,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":11401.970308855,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":11401.970311354,"data":"\n"}
+,{"stream_name":"stderr","time":11401.970313603,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":11401.970315884,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":11401.970318531,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":11401.970321201,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":11401.970323694,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":11401.970326181,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":11401.97032986,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":11401.97033243,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":11401.970347178,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":11401.970350073,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":11401.970352759,"data":"\n"}
+,{"stream_name":"stderr","time":11401.970354942,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":11401.97035724,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":11402.094769124,"data":"[  11357s] [gpu0 f0] train чипов 2145, test участков 7, бюджет обучения 7.31 ч\n"}
+,{"stream_name":"stdout","time":11478.400891078,"data":"[  11433s] [gpu1 f2] [bot5] {'it': 1300, 'loss': 28.5047, 's_it': 1.1169}\n"}
+,{"stream_name":"stdout","time":11595.395577963,"data":"[  11550s] [gpu1 f2] [bot5] {'it': 1400, 'loss': 28.4129, 's_it': 1.1382}\n"}
+,{"stream_name":"stdout","time":11607.482084231,"data":"[  11563s] [gpu0 f0] [bot5] {'it': 100, 'loss': 90.5145, 's_it': 1.9212}\n"}
+,{"stream_name":"stdout","time":11711.151687395,"data":"[  11666s] [gpu1 f2] [bot5] {'it': 1500, 'loss': 28.4108, 's_it': 1.123}\n"}
+,{"stream_name":"stdout","time":11803.163552437,"data":"[  11758s] [gpu0 f0] [bot5] {'it': 200, 'loss': 63.6621, 's_it': 1.9038}\n"}
+,{"stream_name":"stdout","time":11828.831649366,"data":"[  11784s] [gpu1 f2] [bot5] {'it': 1600, 'loss': 28.2936, 's_it': 1.1504}\n"}
+,{"stream_name":"stdout","time":11942.001322393,"data":"[  11897s] [gpu0 f0] [bot5] {'it': 300, 'loss': 39.1981, 's_it': 1.1976}\n"}
+,{"stream_name":"stdout","time":11945.02147448,"data":"[  11900s] [gpu1 f2] [bot5] {'it': 1700, 'loss': 28.9012, 's_it': 1.1468}\n"}
+,{"stream_name":"stdout","time":12063.28931719,"data":"[  12018s] [gpu1 f2] [bot5] {'it': 1800, 'loss': 28.0717, 's_it': 1.1603}\n"}
+,{"stream_name":"stdout","time":12069.430801241,"data":"[  12024s] [gpu0 f0] [bot5] {'it': 400, 'loss': 29.2736, 's_it': 1.1792}\n"}
+,{"stream_name":"stdout","time":12182.015347572,"data":"[  12137s] [gpu1 f2] [bot5] {'it': 1900, 'loss': 28.2803, 's_it': 1.1384}\n"}
+,{"stream_name":"stdout","time":12194.171886825,"data":"[  12149s] [gpu0 f0] [bot5] {'it': 500, 'loss': 30.3417, 's_it': 1.199}\n"}
+,{"stream_name":"stdout","time":12305.301528377,"data":"[  12260s] [gpu1 f2] [bot5] {'it': 2000, 'loss': 27.9635, 's_it': 1.183}\n"}
+,{"stream_name":"stdout","time":12318.147468363,"data":"[  12273s] [gpu0 f0] [bot5] {'it': 600, 'loss': 28.8463, 's_it': 1.1899}\n"}
+,{"stream_name":"stdout","time":12428.168660958,"data":"[  12383s] [gpu1 f2] [bot5] {'it': 2100, 'loss': 28.0351, 's_it': 1.2037}\n"}
+,{"stream_name":"stdout","time":12442.401051253,"data":"[  12397s] [gpu0 f0] [bot5] {'it': 700, 'loss': 29.2862, 's_it': 1.2214}\n"}
+,{"stream_name":"stdout","time":12549.086649191,"data":"[  12504s] [gpu1 f2] [bot5] {'it': 2200, 'loss': 28.0175, 's_it': 1.1718}\n"}
+,{"stream_name":"stdout","time":12570.147521109,"data":"[  12525s] [gpu0 f0] [bot5] {'it': 800, 'loss': 27.7666, 's_it': 1.2556}\n"}
+,{"stream_name":"stdout","time":12670.641130399,"data":"[  12626s] [gpu1 f2] [bot5] {'it': 2300, 'loss': 27.998, 's_it': 1.1857}\n"}
+,{"stream_name":"stdout","time":12696.696509966,"data":"[  12652s] [gpu0 f0] [bot5] {'it': 900, 'loss': 28.3283, 's_it': 1.1961}\n"}
+,{"stream_name":"stdout","time":12790.287451225,"data":"[  12745s] [gpu1 f2] [bot5] {'it': 2400, 'loss': 27.8712, 's_it': 1.19}\n"}
+,{"stream_name":"stdout","time":12823.66245646,"data":"[  12779s] [gpu0 f0] [bot5] {'it': 1000, 'loss': 27.9202, 's_it': 1.2038}\n"}
+,{"stream_name":"stdout","time":12912.029472626,"data":"[  12867s] [gpu1 f2] [bot5] {'it': 2500, 'loss': 27.9392, 's_it': 1.2039}\n"}
+,{"stream_name":"stdout","time":12946.554787582,"data":"[  12902s] [gpu0 f0] [bot5] {'it': 1100, 'loss': 28.1531, 's_it': 1.1485}\n"}
+,{"stream_name":"stdout","time":13033.919705488,"data":"[  12989s] [gpu1 f2] [bot5] {'it': 2600, 'loss': 27.7831, 's_it': 1.1812}\n"}
+,{"stream_name":"stdout","time":13070.447757738,"data":"[  13026s] [gpu0 f0] [bot5] {'it': 1200, 'loss': 28.375, 's_it': 1.2319}\n"}
+,{"stream_name":"stdout","time":13157.955801606,"data":"[  13113s] [gpu1 f2] [bot5] {'it': 2700, 'loss': 27.5566, 's_it': 1.2144}\n"}
+,{"stream_name":"stdout","time":13192.068982337,"data":"[  13147s] [gpu0 f0] [bot5] {'it': 1300, 'loss': 27.7506, 's_it': 1.1643}\n"}
+,{"stream_name":"stdout","time":13280.882181674,"data":"[  13236s] [gpu1 f2] [bot5] {'it': 2800, 'loss': 27.4779, 's_it': 1.1692}\n"}
+,{"stream_name":"stdout","time":13317.843551261,"data":"[  13273s] [gpu0 f0] [bot5] {'it': 1400, 'loss': 27.7851, 's_it': 1.2154}\n"}
+,{"stream_name":"stdout","time":13400.915482638,"data":"[  13356s] [gpu1 f2] [bot5] {'it': 2900, 'loss': 27.8809, 's_it': 1.2022}\n"}
+,{"stream_name":"stdout","time":13442.877827436,"data":"[  13398s] [gpu0 f0] [bot5] {'it': 1500, 'loss': 27.5678, 's_it': 1.1759}\n"}
+,{"stream_name":"stdout","time":13523.097610606,"data":"[  13478s] [gpu1 f2] [bot5] {'it': 3000, 'loss': 27.5157, 's_it': 1.1692}\n"}
+,{"stream_name":"stdout","time":13569.754814981,"data":"[  13525s] [gpu0 f0] [bot5] {'it': 1600, 'loss': 27.4678, 's_it': 1.2124}\n"}
+,{"stream_name":"stdout","time":13643.710104432,"data":"[  13599s] [gpu1 f2] [bot5] {'it': 3100, 'loss': 27.9476, 's_it': 1.1608}\n"}
+,{"stream_name":"stdout","time":13693.39690098,"data":"[  13648s] [gpu0 f0] [bot5] {'it': 1700, 'loss': 27.2156, 's_it': 1.1771}\n"}
+,{"stream_name":"stdout","time":13764.656726499,"data":"[  13720s] [gpu1 f2] [bot5] {'it': 3200, 'loss': 27.5271, 's_it': 1.2023}\n"}
+,{"stream_name":"stdout","time":13821.437168033,"data":"[  13776s] [gpu0 f0] [bot5] {'it': 1800, 'loss': 26.7614, 's_it': 1.2373}\n"}
+,{"stream_name":"stdout","time":13886.154604612,"data":"[  13841s] [gpu1 f2] [bot5] {'it': 3300, 'loss': 28.2596, 's_it': 1.1849}\n"}
+,{"stream_name":"stdout","time":13945.499003406,"data":"[  13901s] [gpu0 f0] [bot5] {'it': 1900, 'loss': 26.9057, 's_it': 1.1707}\n"}
+,{"stream_name":"stdout","time":14005.487962717,"data":"[  13961s] [gpu1 f2] [bot5] {'it': 3400, 'loss': 27.5569, 's_it': 1.1645}\n"}
+,{"stream_name":"stdout","time":14068.580232156,"data":"[  14024s] [gpu0 f0] [bot5] {'it': 2000, 'loss': 27.2737, 's_it': 1.1785}\n"}
+,{"stream_name":"stdout","time":14124.91803192,"data":"[  14080s] [gpu1 f2] [bot5] {'it': 3500, 'loss': 28.1827, 's_it': 1.2093}\n"}
+,{"stream_name":"stdout","time":14196.235986897,"data":"[  14151s] [gpu0 f0] [bot5] {'it': 2100, 'loss': 26.426, 's_it': 1.2209}\n"}
+,{"stream_name":"stdout","time":14244.980727053,"data":"[  14200s] [gpu1 f2] [bot5] {'it': 3600, 'loss': 27.8849, 's_it': 1.1914}\n"}
+,{"stream_name":"stdout","time":14320.454769712,"data":"[  14276s] [gpu0 f0] [bot5] {'it': 2200, 'loss': 26.6237, 's_it': 1.2095}\n"}
+,{"stream_name":"stdout","time":14367.959283807,"data":"[  14323s] [gpu1 f2] [bot5] {'it': 3700, 'loss': 27.4703, 's_it': 1.217}\n"}
+,{"stream_name":"stdout","time":14441.333219502,"data":"[  14396s] [gpu0 f0] [bot5] {'it': 2300, 'loss': 27.0925, 's_it': 1.1668}\n"}
+,{"stream_name":"stdout","time":14489.969695528,"data":"[  14445s] [gpu1 f2] [bot5] {'it': 3800, 'loss': 27.6857, 's_it': 1.1877}\n"}
+,{"stream_name":"stdout","time":14566.017534844,"data":"[  14521s] [gpu0 f0] [bot5] {'it': 2400, 'loss': 26.5044, 's_it': 1.1893}\n"}
+,{"stream_name":"stdout","time":14612.37063919,"data":"[  14567s] [gpu1 f2] [bot5] {'it': 3900, 'loss': 27.8062, 's_it': 1.1567}\n"}
+,{"stream_name":"stdout","time":14691.562983166,"data":"[  14647s] [gpu0 f0] [bot5] {'it': 2500, 'loss': 26.5174, 's_it': 1.1841}\n"}
+,{"stream_name":"stdout","time":14734.773194479,"data":"[  14690s] [gpu1 f2] [bot5] {'it': 4000, 'loss': 27.64, 's_it': 1.1669}\n"}
+,{"stream_name":"stderr","time":14735.579417486,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.34it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  3.33it/s]\n"}
+,{"stream_name":"stdout","time":14735.580911437,"data":"[  14691s] [gpu1 f2] веса сохранены: /kaggle/working/dfine_f2 ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":14735.595894897,"data":"[  14691s] [infer] 015_Демидовка 01_Демидовка_Ae_немецкая.tif: 1471x1442 px, окон 9\n"}
+,{"stream_name":"stdout","time":14737.018054528,"data":"[  14692s] [infer] 015_Демидовка: готово 9 окон за 1 с; {'noflip': 581, 'flipnms': 940, 'flipwbf': 942}\n"}
+,{"stream_name":"stdout","time":14737.229452474,"data":"[  14692s] [infer] 037_Никола_Ленивец 01_Никола_Ленивец_Ae_немецкая.tif: 9633x5903 px, окон 240\n"}
+,{"stream_name":"stdout","time":14768.699563029,"data":"[  14724s] [infer] 037_Никола_Ленивец: готово 240 окон за 31 с; {'noflip': 16687, 'flipnms': 23712, 'flipwbf': 23883}\n"}
+,{"stream_name":"stdout","time":14781.332202653,"data":"[  14736s] [infer] 066_Московиты 01_Московиты_Ae_немецкая.tif: 8194x7932 px, окон 289\n"}
+,{"stream_name":"stdout","time":14824.579188894,"data":"[  14780s] [gpu0 f0] [bot5] {'it': 2600, 'loss': 26.2654, 's_it': 1.1834}\n"}
+,{"stream_name":"stdout","time":14829.933736014,"data":"[  14785s] [infer] 066_Московиты: готово 289 окон за 49 с; {'noflip': 18274, 'flipnms': 27642, 'flipwbf': 28009}\n"}
+,{"stream_name":"stdout","time":14838.697612412,"data":"[  14794s] [infer] 066_Московиты 02_Московиты_Ae_немецкая.tif: 6731x6734 px, окон 196\n"}
+,{"stream_name":"stdout","time":14873.680480552,"data":"[  14829s] [infer] 066_Московиты: готово 196 окон за 35 с; {'noflip': 12732, 'flipnms': 20108, 'flipwbf': 20380}\n"}
+,{"stream_name":"stdout","time":14878.347708413,"data":"[  14833s] [infer] 110_Саратов 01_Саратов_Ae_немецкая.tif: 29135x27950 px, окон 3538\n"}
+,{"stream_name":"stdout","time":14953.215610916,"data":"[  14908s] [gpu0 f0] [bot5] {'it': 2700, 'loss': 26.6439, 's_it': 1.1128}\n"}
+,{"stream_name":"stdout","time":15022.506163396,"data":"[  14978s] [infer] 110_Саратов: 1600/3538 окон, 144 с\n"}
+,{"stream_name":"stdout","time":15071.803528148,"data":"[  15027s] [gpu0 f0] [bot5] {'it': 2800, 'loss': 25.6661, 's_it': 1.1622}\n"}
+,{"stream_name":"stdout","time":15168.282069327,"data":"[  15123s] [infer] 110_Саратов: 3200/3538 окон, 290 с\n"}
+,{"stream_name":"stdout","time":15190.152345531,"data":"[  15145s] [gpu0 f0] [bot5] {'it': 2900, 'loss': 26.1114, 's_it': 1.1239}\n"}
+,{"stream_name":"stdout","time":15310.536959231,"data":"[  15266s] [gpu0 f0] [bot5] {'it': 3000, 'loss': 25.9932, 's_it': 1.1189}\n"}
+,{"stream_name":"stdout","time":15429.778675431,"data":"[  15385s] [gpu0 f0] [bot5] {'it': 3100, 'loss': 25.7245, 's_it': 1.1248}\n"}
+,{"stream_name":"stdout","time":15535.884283601,"data":"[  15491s] [infer] 110_Саратов: готово 3538 окон за 658 с; {'noflip': 153271, 'flipnms': 230273, 'flipwbf': 232847}\n"}
+,{"stream_name":"stdout","time":15644.143761757,"data":"[  15599s] [gpu1 f2] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 1.1697747707366943, \"sec\": 5010, \"loss_first\": 71.97550964355469, \"loss_last\": 30.055253982543945, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 3164, \"test_regions\": [\"015_Демидовка\", \"037_Никола_Ленивец\", \"066_Московиты\", \"110_Саратов\"], \"n_det\": {\"noflip\": 41466, \"flipnms\": 54709, \"flipwbf\": 35308}, \"infer_sec\": 908, \"peak_vram_gb\": 11.35}\n"}
+,{"stream_name":"stderr","time":15644.827491948,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":15644.827522301,"data":"[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.\n"}
+,{"stream_name":"stderr","time":15645.902657673,"data":"\rLoading weights:   0%|          | 0/1197 [00:00\u003c?, ?it/s]\rLoading weights:  24%|██▍       | 290/1197 [00:00\u003c00:00, 2879.02it/s]\rLoading weights:  48%|████▊     | 578/1197 [00:00\u003c00:00, 2664.24it/s]\rLoading weights:  71%|███████   | 846/1197 [00:00\u003c00:00, 2628.08it/s]\rLoading weights:  93%|█████████▎| 1110/1197 [00:00\u003c00:00, 2631.49it/s]\rLoading weights: 100%|██████████| 1197/1197 [00:00\u003c00:00, 2653.41it/s]\n"}
+,{"stream_name":"stderr","time":15645.953922537,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":15645.953984843,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":15645.95399179,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":15645.953997276,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":15645.954002392,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":15645.954007604,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":15645.954012554,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":15645.954017504,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":15645.954022769,"data":"\n"}
+,{"stream_name":"stderr","time":15645.954027068,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":15645.954031302,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stderr","time":15645.954036491,"data":"[transformers] \u001b[1mDFineForObjectDetection LOAD REPORT\u001b[0m from: /root/.cache/huggingface/hub/models--ustc-community--dfine-large-obj2coco-e25/snapshots/c89de47153e338c07cddc81fc21a776b97cbf75e\n"}
+,{"stream_name":"stderr","time":15645.95404162,"data":"Key                                                 | Status   |                                                                                        \n"}
+,{"stream_name":"stderr","time":15645.954062585,"data":"----------------------------------------------------+----------+----------------------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":15645.954068126,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":15645.954074776,"data":"model.decoder.class_embed.{0, 1, 2, 3, 4, 5}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":15645.954079649,"data":"model.enc_score_head.bias                           | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          \n"}
+,{"stream_name":"stderr","time":15645.954084536,"data":"model.enc_score_head.weight                         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])\n"}
+,{"stream_name":"stderr","time":15645.95408958,"data":"model.denoising_class_embed.weight                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])\n"}
+,{"stream_name":"stderr","time":15645.95410682,"data":"\n"}
+,{"stream_name":"stderr","time":15645.954110768,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":15645.954114636,"data":"- MISMATCH:\tckpt weights were loaded, but they did not match the original empty weight shapes.\n"}
+,{"stream_name":"stdout","time":15646.064067357,"data":"[  15601s] [gpu1 f1] train чипов 2534, test участков 3, бюджет обучения 6.13 ч\n"}
+,{"stream_name":"stdout","time":15650.268699771,"data":"[  15605s] [gpu0 f0] [bot5] {'it': 3200, 'loss': 26.0149, 's_it': 1.1895}\n"}
+,{"stream_name":"stdout","time":15745.456003164,"data":"[  15701s] [gpu1 f1] [bot5] {'it': 100, 'loss': 100.1507, 's_it': 0.9251}\n"}
+,{"stream_name":"stdout","time":15778.672012737,"data":"[  15734s] [gpu0 f0] [bot5] {'it': 3300, 'loss': 26.5328, 's_it': 1.2315}\n"}
+,{"stream_name":"stdout","time":15842.016709839,"data":"[  15797s] [gpu1 f1] [bot5] {'it': 200, 'loss': 79.2775, 's_it': 0.9334}\n"}
+,{"stream_name":"stdout","time":15909.134739526,"data":"[  15864s] [gpu0 f0] [bot5] {'it': 3400, 'loss': 26.0117, 's_it': 1.2842}\n"}
+,{"stream_name":"stdout","time":15939.58418599,"data":"[  15895s] [gpu1 f1] [bot5] {'it': 300, 'loss': 69.6169, 's_it': 0.9363}\n"}
+,{"stream_name":"stdout","time":16037.806330955,"data":"[  15993s] [gpu0 f0] [bot5] {'it': 3500, 'loss': 25.9704, 's_it': 1.2745}\n"}
+,{"stream_name":"stdout","time":16038.747572226,"data":"[  15994s] [gpu1 f1] [bot5] {'it': 400, 'loss': 63.7561, 's_it': 0.9607}\n"}
+,{"stream_name":"stdout","time":16138.134315348,"data":"[  16093s] [gpu1 f1] [bot5] {'it': 500, 'loss': 53.6935, 's_it': 0.9578}\n"}
+,{"stream_name":"stdout","time":16164.555333489,"data":"[  16120s] [gpu0 f0] [bot5] {'it': 3600, 'loss': 26.2454, 's_it': 1.2523}\n"}
+,{"stream_name":"stdout","time":16235.087961202,"data":"[  16190s] [gpu1 f1] [bot5] {'it': 600, 'loss': 38.5614, 's_it': 0.9348}\n"}
+,{"stream_name":"stdout","time":16293.470716586,"data":"[  16249s] [gpu0 f0] [bot5] {'it': 3700, 'loss': 25.9651, 's_it': 1.2516}\n"}
+,{"stream_name":"stdout","time":16330.5353946,"data":"[  16286s] [gpu1 f1] [bot5] {'it': 700, 'loss': 35.0408, 's_it': 0.9207}\n"}
+,{"stream_name":"stdout","time":16423.496783299,"data":"[  16379s] [gpu0 f0] [bot5] {'it': 3800, 'loss': 26.4367, 's_it': 1.2926}\n"}
+,{"stream_name":"stdout","time":16425.888289799,"data":"[  16381s] [gpu1 f1] [bot5] {'it': 800, 'loss': 33.9569, 's_it': 0.9244}\n"}
+,{"stream_name":"stdout","time":16521.311999371,"data":"[  16476s] [gpu1 f1] [bot5] {'it': 900, 'loss': 33.2773, 's_it': 0.9111}\n"}
+,{"stream_name":"stdout","time":16553.039518839,"data":"[  16508s] [gpu0 f0] [bot5] {'it': 3900, 'loss': 26.1766, 's_it': 1.2435}\n"}
+,{"stream_name":"stdout","time":16617.469170726,"data":"[  16573s] [gpu1 f1] [bot5] {'it': 1000, 'loss': 32.0253, 's_it': 0.931}\n"}
+,{"stream_name":"stdout","time":16677.51186858,"data":"[  16633s] [gpu0 f0] [bot5] {'it': 4000, 'loss': 26.912, 's_it': 1.2033}\n"}
+,{"stream_name":"stderr","time":16679.402367779,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:01\u003c00:00,  1.30s/it]\rWriting model shards: 100%|██████████| 1/1 [00:01\u003c00:00,  1.30s/it]\n"}
+,{"stream_name":"stdout","time":16679.403831429,"data":"[  16634s] [gpu0 f0] веса сохранены: /kaggle/working/dfine_f0 ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":16679.414317815,"data":"[  16634s] [infer] 001_Гнёздово_Нивленское 01_Гнёздово_Нивленское_Ae_немецкая.tif: 675x441 px, окон 2\n"}
+,{"stream_name":"stdout","time":16679.80148328,"data":"[  16635s] [infer] 001_Гнёздово_Нивленское: готово 2 окон за 0 с; {'noflip': 124, 'flipnms': 178, 'flipwbf': 179}\n"}
+,{"stream_name":"stdout","time":16679.842324392,"data":"[  16635s] [infer] 101_Гнёздово_Днепровская 01_Гнёздово_Днепровская_Ae_немецкая.tif: 2696x1760 px, окон 24\n"}
+,{"stream_name":"stdout","time":16683.940587862,"data":"[  16639s] [infer] 101_Гнёздово_Днепровская: готово 24 окон за 4 с; {'noflip': 904, 'flipnms': 1323, 'flipwbf': 1328}\n"}
+,{"stream_name":"stdout","time":16684.683725705,"data":"[  16640s] [infer] 101_Гнёздово_Днепровская 02_Гнёздово_Днепровская_Ae_немецкая.tif: 2696x1760 px, окон 24\n"}
+,{"stream_name":"stdout","time":16688.90841628,"data":"[  16644s] [infer] 101_Гнёздово_Днепровская: готово 24 окон за 4 с; {'noflip': 1292, 'flipnms': 1915, 'flipwbf': 1935}\n"}
+,{"stream_name":"stdout","time":16689.771731375,"data":"[  16645s] [infer] 102_Гнёздово_Заольшанская 01_Гнёздово_Заольшанская_Ae_немецкая.tif: 1349x881 px, окон 6\n"}
+,{"stream_name":"stdout","time":16691.228254225,"data":"[  16646s] [infer] 102_Гнёздово_Заольшанская: готово 6 окон за 1 с; {'noflip': 340, 'flipnms': 442, 'flipwbf': 442}\n"}
+,{"stream_name":"stdout","time":16691.451728574,"data":"[  16647s] [infer] 103_Гнёздово_Ольшанская 01_Гнёздово_Ольшанская_Ae_немецкая.tif: 2435x1461 px, окон 15\n"}
+,{"stream_name":"stdout","time":16693.458083684,"data":"[  16649s] [infer] 103_Гнёздово_Ольшанская: готово 15 окон за 2 с; {'noflip': 570, 'flipnms': 760, 'flipwbf': 763}\n"}
+,{"stream_name":"stdout","time":16694.150397884,"data":"[  16649s] [infer] 103_Гнёздово_Ольшанская 02_Гнёздово_Ольшанская_Ae_немецкая.tif: 1349x881 px, окон 6\n"}
+,{"stream_name":"stdout","time":16695.228969225,"data":"[  16650s] [infer] 103_Гнёздово_Ольшанская: готово 6 окон за 1 с; {'noflip': 343, 'flipnms': 458, 'flipwbf': 462}\n"}
+,{"stream_name":"stdout","time":16695.510892707,"data":"[  16651s] [infer] 103_Гнёздово_Ольшанская 03_Гнёздово_Ольшанская_Ae_немецкая.tif: 3429x2057 px, окон 28\n"}
+,{"stream_name":"stdout","time":16698.786376008,"data":"[  16654s] [infer] 103_Гнёздово_Ольшанская: готово 28 окон за 3 с; {'noflip': 1238, 'flipnms': 1893, 'flipwbf': 1919}\n"}
+,{"stream_name":"stdout","time":16699.331185679,"data":"[  16654s] [infer] 179_Гнёздово_Лесная_1 01_Гнёздово_Лесная_1_Ae_немецкая.tif: 306x699 px, окон 2\n"}
+,{"stream_name":"stdout","time":16699.679558452,"data":"[  16655s] [infer] 179_Гнёздово_Лесная_1: готово 2 окон за 0 с; {'noflip': 120, 'flipnms': 145, 'flipwbf': 145}\n"}
+,{"stream_name":"stdout","time":16699.94246501,"data":"[  16655s] [infer] 180_Гнёздово_Лесная_2 01_Гнёздово_Лесная_2_Ae_немецкая.tif: 301x720 px, окон 2\n"}
+,{"stream_name":"stdout","time":16700.171072933,"data":"[  16655s] [infer] 180_Гнёздово_Лесная_2: готово 2 окон за 0 с; {'noflip': 116, 'flipnms': 139, 'flipwbf': 141}\n"}
+,{"stream_name":"stdout","time":16700.463806008,"data":"[  16656s] [infer] 181_Гнёздово_Лесная_3 01_Гнёздово_Лесная_3_Ae_немецкая.tif: 173x728 px, окон 2\n"}
+,{"stream_name":"stdout","time":16700.760923225,"data":"[  16656s] [infer] 181_Гнёздово_Лесная_3: готово 2 окон за 0 с; {'noflip': 118, 'flipnms': 145, 'flipwbf': 144}\n"}
+,{"stream_name":"stdout","time":16702.05672119,"data":"[  16657s] [gpu0 f0] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 1.2110018730163574, \"sec\": 5275, \"loss_first\": 99.21883392333984, \"loss_last\": 28.520435333251953, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2145, \"test_regions\": [\"001_Гнёздово_Нивленское\", \"101_Гнёздово_Днепровская\", \"102_Гнёздово_Заольшанская\", \"103_Гнёздово_Ольшанская\", \"179_Гнёздово_Лесная_1\", \"180_Гнёздово_Лесная_2\", \"181_Гнёздово_Лесная_3\"], \"n_det\": {\"noflip\": 1438, \"flipnms\": 1961, \"flipwbf\": 1345}, \"infer_sec\": 23, \"peak_vram_gb\": 12.47}\n"}
+,{"stream_name":"stdout","time":16715.826784716,"data":"[  16671s] [gpu1 f1] [bot5] {'it': 1100, 'loss': 32.0976, 's_it': 0.8804}\n"}
+,{"stream_name":"stdout","time":16796.67469464,"data":"[  16752s] [gpu1 f1] [bot5] {'it': 1200, 'loss': 31.9848, 's_it': 0.7701}\n"}
+,{"stream_name":"stdout","time":16877.665131082,"data":"[  16833s] [gpu1 f1] [bot5] {'it': 1300, 'loss': 31.7252, 's_it': 0.7822}\n"}
+,{"stream_name":"stdout","time":16958.640283508,"data":"[  16914s] [gpu1 f1] [bot5] {'it': 1400, 'loss': 31.849, 's_it': 0.7758}\n"}
+,{"stream_name":"stdout","time":17040.37325831,"data":"[  16995s] [gpu1 f1] [bot5] {'it': 1500, 'loss': 31.2502, 's_it': 0.7925}\n"}
+,{"stream_name":"stdout","time":17120.898753467,"data":"[  17076s] [gpu1 f1] [bot5] {'it': 1600, 'loss': 31.125, 's_it': 0.7879}\n"}
+,{"stream_name":"stdout","time":17201.748301379,"data":"[  17157s] [gpu1 f1] [bot5] {'it': 1700, 'loss': 30.9528, 's_it': 0.7815}\n"}
+,{"stream_name":"stdout","time":17282.306819956,"data":"[  17237s] [gpu1 f1] [bot5] {'it': 1800, 'loss': 30.8183, 's_it': 0.7805}\n"}
+,{"stream_name":"stdout","time":17363.344656866,"data":"[  17318s] [gpu1 f1] [bot5] {'it': 1900, 'loss': 30.6898, 's_it': 0.7825}\n"}
+,{"stream_name":"stdout","time":17443.844494422,"data":"[  17399s] [gpu1 f1] [bot5] {'it': 2000, 'loss': 30.7662, 's_it': 0.7789}\n"}
+,{"stream_name":"stdout","time":17524.049597497,"data":"[  17479s] [gpu1 f1] [bot5] {'it': 2100, 'loss': 30.6766, 's_it': 0.7685}\n"}
+,{"stream_name":"stdout","time":17604.689155889,"data":"[  17560s] [gpu1 f1] [bot5] {'it': 2200, 'loss': 30.187, 's_it': 0.7753}\n"}
+,{"stream_name":"stdout","time":17685.650135788,"data":"[  17641s] [gpu1 f1] [bot5] {'it': 2300, 'loss': 30.3073, 's_it': 0.7807}\n"}
+,{"stream_name":"stdout","time":17766.557821085,"data":"[  17722s] [gpu1 f1] [bot5] {'it': 2400, 'loss': 30.1368, 's_it': 0.7761}\n"}
+,{"stream_name":"stdout","time":17847.361890553,"data":"[  17802s] [gpu1 f1] [bot5] {'it': 2500, 'loss': 30.284, 's_it': 0.7887}\n"}
+,{"stream_name":"stdout","time":17928.011167436,"data":"[  17883s] [gpu1 f1] [bot5] {'it': 2600, 'loss': 30.3384, 's_it': 0.7773}\n"}
+,{"stream_name":"stdout","time":18009.070225062,"data":"[  17964s] [gpu1 f1] [bot5] {'it': 2700, 'loss': 29.866, 's_it': 0.7698}\n"}
+,{"stream_name":"stdout","time":18089.116575805,"data":"[  18044s] [gpu1 f1] [bot5] {'it': 2800, 'loss': 30.4683, 's_it': 0.775}\n"}
+,{"stream_name":"stdout","time":18169.773599407,"data":"[  18125s] [gpu1 f1] [bot5] {'it': 2900, 'loss': 30.1023, 's_it': 0.7806}\n"}
+,{"stream_name":"stdout","time":18250.6118886,"data":"[  18206s] [gpu1 f1] [bot5] {'it': 3000, 'loss': 29.9626, 's_it': 0.7924}\n"}
+,{"stream_name":"stdout","time":18331.17308096,"data":"[  18286s] [gpu1 f1] [bot5] {'it': 3100, 'loss': 29.7731, 's_it': 0.7777}\n"}
+,{"stream_name":"stdout","time":18411.844479777,"data":"[  18367s] [gpu1 f1] [bot5] {'it': 3200, 'loss': 30.2028, 's_it': 0.7682}\n"}
+,{"stream_name":"stdout","time":18492.523225526,"data":"[  18448s] [gpu1 f1] [bot5] {'it': 3300, 'loss': 30.1828, 's_it': 0.7734}\n"}
+,{"stream_name":"stdout","time":18573.396295394,"data":"[  18528s] [gpu1 f1] [bot5] {'it': 3400, 'loss': 29.9009, 's_it': 0.7903}\n"}
+,{"stream_name":"stdout","time":18654.399314875,"data":"[  18609s] [gpu1 f1] [bot5] {'it': 3500, 'loss': 29.643, 's_it': 0.7718}\n"}
+,{"stream_name":"stdout","time":18735.232850175,"data":"[  18690s] [gpu1 f1] [bot5] {'it': 3600, 'loss': 30.3886, 's_it': 0.7727}\n"}
+,{"stream_name":"stdout","time":18816.463555739,"data":"[  18772s] [gpu1 f1] [bot5] {'it': 3700, 'loss': 29.9738, 's_it': 0.7816}\n"}
+,{"stream_name":"stdout","time":18898.020274974,"data":"[  18853s] [gpu1 f1] [bot5] {'it': 3800, 'loss': 29.5955, 's_it': 0.7901}\n"}
+,{"stream_name":"stdout","time":18979.06729294,"data":"[  18934s] [gpu1 f1] [bot5] {'it': 3900, 'loss': 29.914, 's_it': 0.786}\n"}
+,{"stream_name":"stdout","time":19059.955379062,"data":"[  19015s] [gpu1 f1] [bot5] {'it': 4000, 'loss': 29.5714, 's_it': 0.7787}\n"}
+,{"stream_name":"stderr","time":19060.621080216,"data":"\rWriting model shards:   0%|          | 0/1 [00:00\u003c?, ?it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  4.86it/s]\rWriting model shards: 100%|██████████| 1/1 [00:00\u003c00:00,  4.86it/s]\n"}
+,{"stream_name":"stdout","time":19060.622574205,"data":"[  19016s] [gpu1 f1] веса сохранены: /kaggle/working/dfine_f1 ['config.json', 'model.safetensors']\n"}
+,{"stream_name":"stdout","time":19060.661490375,"data":"[  19016s] [infer] 036_Тимерево 01_Тимерево_Ae_немецкая.tif: 882x905 px, окон 4\n"}
+,{"stream_name":"stdout","time":19062.132031965,"data":"[  19017s] [infer] 036_Тимерево: готово 4 окон за 1 с; {'noflip': 159, 'flipnms': 203, 'flipwbf': 204}\n"}
+,{"stream_name":"stdout","time":19062.870501734,"data":"[  19018s] [infer] 059_Шишкино 01_Шишкино_Ae_немецкая.tif: 6568x6546 px, окон 196\n"}
+,{"stream_name":"stdout","time":19094.287131975,"data":"[  19049s] [infer] 059_Шишкино: готово 196 окон за 31 с; {'noflip': 10166, 'flipnms': 15252, 'flipwbf': 15458}\n"}
+,{"stream_name":"stdout","time":19100.935172043,"data":"[  19056s] [infer] 065_Шниткино 01_Шниткино_Ae_немецкая.tif: 5959x3725 px, окон 104\n"}
+,{"stream_name":"stdout","time":19114.746435055,"data":"[  19070s] [infer] 065_Шниткино: готово 104 окон за 14 с; {'noflip': 7011, 'flipnms': 9896, 'flipwbf': 10013}\n"}
+,{"stream_name":"stdout","time":19118.684164416,"data":"[  19074s] [gpu1 f1] готово {\"trainer\": \"bot5\", \"iters\": 4000, \"planned\": 4000, \"s_it_median\": 0.7969026565551758, \"sec\": 3414, \"loss_first\": 83.48594665527344, \"loss_last\": 31.539169311523438, \"model_check\": {\"params_M\": 31.09, \"num_labels\": 5, \"heads\": [6, 5, 256]}, \"n_train_chips\": 2534, \"test_regions\": [\"036_Тимерево\", \"059_Шишкино\", \"065_Шниткино\"], \"n_det\": {\"noflip\": 3003, \"flipnms\": 4180, \"flipwbf\": 2339}, \"infer_sec\": 58, \"peak_vram_gb\": 11.35}\n"}
+,{"stream_name":"stdout","time":19149.204704279,"data":"[  19104s] OOF noflip 150109\n"}
+,{"stream_name":"stdout","time":19193.864596191,"data":"[  19149s] OOF flipnms 211339\n"}
+,{"stream_name":"stdout","time":19220.149201051,"data":"[  19175s] OOF flipwbf 124424\n"}
+,{"stream_name":"stdout","time":19220.684027662,"data":"[  19176s] ПРОГНОЗ full: с/ит 1.109 → 8000 ит × 5 фолдов / 2 GPU ≈ 3.7 ч (+инференс)\n"}
+,{"stream_name":"stdout","time":19220.688604834,"data":"[  19176s] ГОТОВО; ошибки задач: [] | веса final: /kaggle/working/dfine_ae\n"}
+,{"stream_name":"stderr","time":19227.121873459,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":19227.121916284,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":19227.360753766,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":19227.360796675,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":19228.104455349,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":19229.281925791,"data":"[NbConvertApp] Writing 624017 bytes to __results__.html\n"}
+]

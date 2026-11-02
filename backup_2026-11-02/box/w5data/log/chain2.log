@@ -1,0 +1,14 @@
+V0 base honest 0.3146153226828423
+V5_rerank {"score": 0.2874804438846203, "d": -0.027134878798222017, "d_new34": -0.006321329866886827, "d_optical": -0.05374328309118531, "accept": false} 0.0485
+done /workspace/koz3/w5data/work/w5_rerank.json
+V0 base honest 0.3146153226828423
+V5_rerank {"score": 0.30342998277906147, "d": -0.011185339903780844, "d_new34": 0.022436805000056514, "d_optical": -0.03823881094741488, "accept": false} 0.314
+done /workspace/koz3/w5data/work/w5_rerank_cnx.json
+honest [0.3146153226828423, 0.2964508527066795, 0.14427407342564424] {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0}
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+fortifikatsii fortifikatsii 799
+finds_points finds_points 2191
+done
+honest [0.304322249113335, 0.28109111513898566, 0.14427407342564424] {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0}
+{"score": 0.304322249113335, "base": 0.3146153226828423, "d": -0.010293073569507316, "d_new34": -0.01535973756769382, "d_optical": 0.0, "boot": {"mean": -0.010336081668510608, "p5": -0.018983537815431488, "p50": -0.009920928026547482, "p95": -0.0028367950714176925, "p_gt0": 0.0075, "families": 103}, "per_class": {"kurgany_povrezhdennye": -0.006050526369962728, "kurgany_tselye": -0.012001668481882388, "gorodishcha": -0.039329642717957636, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": -0.0035627110889681346, "finds_points": 0.0}, "info": {"folds": 10, "unseen_dropped": 723, "unseen_kept": 0}, "accept": false}
+CHAIN2DONE

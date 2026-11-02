@@ -1,0 +1,1 @@
+{"raster": "01_Гнёздово_Селище_3_TerFl.tif", "region": "217_Гнёздово_Селище_3", "mt": "terfl", "file": "386fc419ee97bc9b_s0_v1.npz", "shape": [475, 187], "step": 0.2984380229226543, "classes": {"object_poly": {"gt_files": ["Гнёздово_Селище_3_TerFl_ObjectPoly.geojson"], "n_gt": 46, "pos": 8000, "neg": 24000}}, "secs": 0.3}

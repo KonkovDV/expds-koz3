@@ -1,0 +1,71 @@
+ЛОКАЛЬНЫЙ СУХОЙ ПРОГОН: CPU, 1 батч, без предобучения — результаты не значимы
+{"npz": "/workspace/koz3/ds/kcrops/kurgan_subclass_crops.npz", "N": 9322, "shape": [9322, 3, 64, 64], "labeled": 4704, "povr_share": 0.5821, "kinds": {"cand": 6109, "gt": 3213}, "regions": 56}
+smp: preinstalled | imagenet в кэше: {"resnet18": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7", "bytes": 46805552}, "resnet34": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13", "bytes": 87275112}}
+модели строятся: ['resnet18', 'resnet34'] pretrained True
+фолдов 10, семей 42; ни одна семья не делится между фолдами
+{"model": "r18_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.6112284820031298, "sec": 338.3, "device": "cpu"}
+{"model": "r34_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.6029411764705882, "sec": 893.8, "device": "cpu"}
+{"model": "r18_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.8875786163522013, "sec": 959.4, "device": "cpu"}
+{"model": "r18_imnet", "fold": 2, "train": 4568, "test": 900, "test_labeled": 136, "auc": 0.6874312128549417, "sec": 522.5, "device": "cpu"}
+{"model": "r34_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.8577044025157232, "sec": 1002.5, "device": "cpu"}
+{"model": "r18_imnet", "fold": 3, "train": 4499, "test": 1016, "test_labeled": 205, "auc": 0.7526705908000872, "sec": 623.1, "device": "cpu"}
+{"model": "r34_imnet", "fold": 2, "train": 4568, "test": 900, "test_labeled": 136, "auc": 0.6284393572529166, "sec": 958.7, "device": "cpu"}
+{"model": "r18_imnet", "fold": 4, "train": 4549, "test": 584, "test_labeled": 155, "auc": 0.7914035087719298, "sec": 492.8, "device": "cpu"}
+{"model": "r18_imnet", "fold": 5, "train": 4567, "test": 290, "test_labeled": 137, "auc": 0.9015837104072398, "sec": 530.4, "device": "cpu"}
+{"model": "r34_imnet", "fold": 3, "train": 4499, "test": 1016, "test_labeled": 205, "auc": 0.724765642031829, "sec": 928.4, "device": "cpu"}
+{"model": "r18_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.8235294117647058, "sec": 602.0, "device": "cpu"}
+{"model": "r18_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7619516374098859, "sec": 447.7, "device": "cpu"}
+{"model": "r34_imnet", "fold": 4, "train": 4549, "test": 584, "test_labeled": 155, "auc": 0.8343859649122807, "sec": 954.7, "device": "cpu"}
+{"model": "r18_imnet", "fold": 8, "train": 4076, "test": 882, "test_labeled": 628, "auc": 0.6295688721627156, "sec": 479.8, "device": "cpu"}
+{"model": "r18_imnet", "fold": 9, "train": 4607, "test": 544, "test_labeled": 97, "auc": 0.6719066937119675, "sec": 870.4, "device": "cpu"}
+r18_imnet: все фолды за 5867 с
+{"model": "r34_imnet", "fold": 5, "train": 4567, "test": 290, "test_labeled": 137, "auc": 0.8843891402714932, "sec": 1156.2, "device": "cpu"}
+{"model": "r34_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.5882352941176471, "sec": 732.1, "device": "cpu"}
+{"model": "r34_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7551789351178353, "sec": 276.6, "device": "cpu"}
+{"model": "r34_imnet", "fold": 8, "train": 4076, "test": 882, "test_labeled": 628, "auc": 0.628024917709372, "sec": 554.2, "device": "cpu"}
+{"model": "r34_imnet", "fold": 9, "train": 4607, "test": 544, "test_labeled": 97, "auc": 0.6582150101419878, "sec": 350.6, "device": "cpu"}
+r34_imnet: все фолды за 7808 с
+OOF готово за 7808 с
+{
+ "summary": {
+  "r18_imnet": {
+   "auc_oof_all": 0.7126050640285883,
+   "auc_oof_cand": 0.6838637868864523,
+   "auc_family_macro": 0.7571039003015471,
+   "families_with_both_classes": 18
+  },
+  "r34_imnet": {
+   "auc_oof_all": 0.6780311868603365,
+   "auc_oof_cand": 0.6774578703363014,
+   "auc_family_macro": 0.7452568266436673,
+   "families_with_both_classes": 18
+  },
+  "ensemble": {
+   "auc_oof_all": 0.70255770672655,
+   "auc_oof_cand": 0.6873463831039811,
+   "auc_family_macro": 0.7655736522781622,
+   "families_with_both_classes": 18
+  }
+ },
+ "bootstrap_ens": {
+  "p5": 0.6511251845817749,
+  "p50": 0.6976166882217295,
+  "p95": 0.774553004739544,
+  "P_auc_ge_0.9": 0.0,
+  "n": 1000
+ },
+ "decision": {
+  "thr": 0.4,
+  "why_thr": "0.4 = 20/(30+20): ошибка на povr дороже: веса классов метрики (povr 30, tselye 20; materials/compute_metrics.py:84–85) — порог Байеса при откалиброванной BCE без весов; задан заранее, не подбирается по OOF",
+  "acc_all_labeled": 0.654124149659864,
+  "cand_labeled": 1491,
+  "cand_wrong_subclass_now": 587,
+  "fixed_by_clf": 234,
+  "broken_by_clf": 290
+ },
+ "AUC>=0.9": false
+}
+→ /kaggle/working/kurgan_subclass_oof.csv, kurgan_subclass_report.json, kurgan_subclass_auc_by_family.csv
+r18_imnet: финальная модель 481 с
+r34_imnet: финальная модель 632 с
+ГОТОВО за 8455 с

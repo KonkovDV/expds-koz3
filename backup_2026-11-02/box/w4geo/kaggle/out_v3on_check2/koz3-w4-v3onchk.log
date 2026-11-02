@@ -1,0 +1,132 @@
+[{"stream_name":"stdout","time":8.9328305,"data":"sha256 ebc8e4ba4c583403fd87485e6c394fc98eb1aee24fbb09d4a7d25cbe3e2d9401 OK size_MiB 680.5\n"}
+,{"stream_name":"stdout","time":8.932884683,"data":"python 3.13.15 nproc 4 disk_free_GiB 1048.1\n"}
+,{"stream_name":"stdout","time":11.284247906,"data":"pip 0  \n"}
+,{"stream_name":"stdout","time":16.830324238,"data":"A dep torch 2.11.0+cpu\n"}
+,{"stream_name":"stdout","time":35.10137877,"data":"A dep transformers 5.16.1\n"}
+,{"stream_name":"stdout","time":35.179909633,"data":"A dep tokenizers 0.23.1\n"}
+,{"stream_name":"stdout","time":35.179934893,"data":"A dep regex 2025.11.3\n"}
+,{"stream_name":"stdout","time":35.179939509,"data":"A dep huggingface_hub 1.29.0\n"}
+,{"stream_name":"stdout","time":35.196652367,"data":"A dep safetensors 0.8.0\n"}
+,{"stream_name":"stdout","time":35.196679158,"data":"A dep tqdm 4.67.3\n"}
+,{"stream_name":"stdout","time":35.835482608,"data":"A dep laspy 2.7.0\n"}
+,{"stream_name":"stdout","time":47.711348585,"data":"A dep segmentation_models_pytorch 0.5.0\n"}
+,{"stream_name":"stdout","time":48.919956552,"data":"A dep rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":48.919988166,"data":"A dep pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":49.056956224,"data":"A dep shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":56.754326005,"data":"A dep lightgbm 4.6.0\n"}
+,{"stream_name":"stdout","time":56.754354735,"data":"A dep timm 1.0.29\n"}
+,{"stream_name":"stdout","time":56.754373396,"data":"A dep numpy 2.1.3\n"}
+,{"stream_name":"stdout","time":102.087773008,"data":"===== RUN A =====\n"}
+,{"stream_name":"stdout","time":102.087953079,"data":"== check_submission: /kaggle/temp/koz3_v3on_b505656.zip (2026-10-30 13:34:14 UTC)\n"}
+,{"stream_name":"stdout","time":102.087974082,"data":"[PASS] zip       3506 файлов, CRC ок, пути безопасны\n"}
+,{"stream_name":"stdout","time":102.087981768,"data":"[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте\n"}
+,{"stream_name":"stdout","time":102.087987132,"data":"[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so\n"}
+,{"stream_name":"stdout","time":102.087993241,"data":"[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/donut/image_processing_pil_donut.py', 'inference/lib/vendor/transformers/models/phimoe/modeling_phimoe.py', 'inference/lib/vendor/transformers/models/granite_speech5/processing_granite_speech5.py', 'inference/lib/vendor/transformers/models/layoutxlm/tokenization_layoutxlm.py', 'inference/lib/vendor/pygments/lexers/felix.py']\n"}
+,{"stream_name":"stdout","time":102.088000456,"data":"[PASS] forbidden нет данных выборок и секретов\n"}
+,{"stream_name":"stdout","time":102.088005116,"data":"[PASS] size      архив 680.5 МиБ (713557985 Б), распакованный 738.2 МиБ, лимит 2048 МиБ\n"}
+,{"stream_name":"stdout","time":102.088012113,"data":"[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ\n"}
+,{"stream_name":"stdout","time":102.088016831,"data":"[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'\n"}
+,{"stream_name":"stdout","time":102.088021243,"data":"[PASS] config    все 16 путей к весам из default.toml есть в архиве\n"}
+,{"stream_name":"stdout","time":102.088026012,"data":"[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']\n"}
+,{"stream_name":"stdout","time":102.088031881,"data":"[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']\n"}
+,{"stream_name":"stdout","time":102.088049796,"data":"[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён\n"}
+,{"stream_name":"stdout","time":102.088054626,"data":"[INFO] config    порог \u003e 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']\n"}
+,{"stream_name":"stdout","time":102.088062327,"data":"[PASS] config    пороги в [0,1], имена классов из 7 допустимых\n"}
+,{"stream_name":"stdout","time":102.088066746,"data":"[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов\n"}
+,{"stream_name":"stdout","time":102.088071588,"data":"[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']\n"}
+,{"stream_name":"stdout","time":102.088076359,"data":"[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389\n"}
+,{"stream_name":"stdout","time":102.088080654,"data":"[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (16.9 с)\n"}
+,{"stream_name":"stdout","time":102.08808504,"data":"[PASS] weights   14 файлов весов открываются кодом архива на CPU\n"}
+,{"stream_name":"stdout","time":102.088091461,"data":"[FAIL] dfine     sp_dfine включён, а классы D-FINE не импортируются в /usr/bin/python3: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b7dfine_omvkzhwf/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)\n"}
+,{"stream_name":"stdout","time":102.088097861,"data":"[FAIL] dfine     нет опорного участка для пробы весов D-FINE (/workspace/data/train-expds-3/103_Гнёздово_Ольшанская); нужен один из ['103_Гнёздово_Ольшанская'] (--dfine-region)\n"}
+,{"stream_name":"stdout","time":102.08810284,"data":"[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)\n"}
+,{"stream_name":"stdout","time":102.08810718,"data":"[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически\n"}
+,{"stream_name":"stdout","time":102.088111061,"data":"[PASS] smoke     main.py завершился за 15.3 с, пик RSS 1136 МиБ, CPU 0,1\n"}
+,{"stream_name":"stdout","time":102.088114798,"data":"[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":102.088119166,"data":"[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла\n"}
+,{"stream_name":"stdout","time":102.088123744,"data":"[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":102.088127633,"data":"[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 0, 3 с, канал σ: сырых 24, 0 с\n"}
+,{"stream_name":"stdout","time":102.088137783,"data":"[INFO] smoke     записано 80, файл 58184 байт\n"}
+,{"stream_name":"stdout","time":102.088142071,"data":"[INFO] smoke     общее время 13.3 с\n"}
+,{"stream_name":"stdout","time":102.088146012,"data":"[FAIL] dfine     2 строк недоступности D-FINE/шлюза в логе (выдача = v2): d module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b8smoke_viosq7wu/code/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)) — D-FINE пропущен, выдача как v2 | '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_A/b8smoke_viosq7wu/code/inference/lib/vendor/regex/__init__.py) | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)\n"}
+,{"stream_name":"stdout","time":102.088152195,"data":"[INFO] dfine     n_det=0 region=region_0001 complete=False, прошло 13 с ; n_det=0 total, участков полностью 0, моделей 0\n"}
+,{"stream_name":"stdout","time":102.088156148,"data":"[WARN] dfine     sp_dfine n_det=0 total (вход без опорного участка — проверить пробой весов)\n"}
+,{"stream_name":"stdout","time":102.088160932,"data":"[WARN] smoke     1 тревожных строк лога: Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":102.088164531,"data":"[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}\n"}
+,{"stream_name":"stdout","time":102.088168645,"data":"[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода\n"}
+,{"stream_name":"stdout","time":102.088173943,"data":"== ИТОГ: FAIL — FAIL 3, WARN 5, проверок 36, 45.1 с\n"}
+,{"stream_name":"stdout","time":102.088178534,"data":"\n"}
+,{"stream_name":"stdout","time":102.088182797,"data":"STDERR: \n"}
+,{"stream_name":"stdout","time":102.088186956,"data":"A RC 1 wall_s 45.3\n"}
+,{"stream_name":"stdout","time":119.330822696,"data":"pip 0  ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stdout","time":119.33085468,"data":"bigframes 2.48.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stdout","time":119.330860934,"data":"gradio 6.26.0 requires huggingface-hub\u003c2.0,\u003e=1.16.0, but you have huggingface-hub 2.4.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.330866071,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.33087035,"data":"datasets 4.8.5 requires huggingface-hub\u003c2.0,\u003e=0.25.0, but you have huggingface-hub 2.4.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.330874851,"data":"bigframes 2.48.0 requires rich\u003c14,\u003e=12.4.4, but you have rich 15.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.330878977,"data":"diffusers 0.40.0 requires huggingface-hub\u003c2.0,\u003e=1.23.0, but you have huggingface-hub 2.4.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.330883253,"data":"gradio-client 2.6.1 requires huggingface-hub\u003c2.0,\u003e=0.19.3, but you have huggingface-hub 2.4.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":119.330906728,"data":"\n"}
+,{"stream_name":"stdout","time":119.330911113,"data":"B dep torch 2.11.0+cpu\n"}
+,{"stream_name":"stdout","time":119.330928847,"data":"B dep transformers 5.16.1\n"}
+,{"stream_name":"stdout","time":119.330933473,"data":"B dep tokenizers 0.23.1\n"}
+,{"stream_name":"stdout","time":119.331016785,"data":"B dep regex 2025.11.3\n"}
+,{"stream_name":"stdout","time":119.331052504,"data":"B dep huggingface_hub 1.29.0\n"}
+,{"stream_name":"stdout","time":119.331129058,"data":"B dep safetensors 0.8.0\n"}
+,{"stream_name":"stdout","time":119.331222639,"data":"B dep tqdm 4.67.3\n"}
+,{"stream_name":"stdout","time":119.331232313,"data":"B dep laspy 2.7.0\n"}
+,{"stream_name":"stdout","time":119.331291717,"data":"B dep segmentation_models_pytorch 0.5.0\n"}
+,{"stream_name":"stdout","time":119.331345058,"data":"B dep rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":119.331385593,"data":"B dep pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":119.331468173,"data":"B dep shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":119.331513194,"data":"B dep lightgbm 4.6.0\n"}
+,{"stream_name":"stdout","time":119.331565865,"data":"B dep timm 1.0.29\n"}
+,{"stream_name":"stdout","time":119.33165314,"data":"B dep numpy 2.1.3\n"}
+,{"stream_name":"stdout","time":181.655539626,"data":"===== RUN B =====\n"}
+,{"stream_name":"stdout","time":181.655632726,"data":"== check_submission: /kaggle/temp/koz3_v3on_b505656.zip (2026-10-30 13:35:16 UTC)\n"}
+,{"stream_name":"stdout","time":181.655641658,"data":"[PASS] zip       3506 файлов, CRC ок, пути безопасны\n"}
+,{"stream_name":"stdout","time":181.655647894,"data":"[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте\n"}
+,{"stream_name":"stdout","time":181.655652917,"data":"[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so\n"}
+,{"stream_name":"stdout","time":181.655658735,"data":"[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/squeezebert/configuration_squeezebert.py', 'inference/lib/vendor/transformers/integrations/eager_paged.py', 'inference/lib/vendor/transformers/models/musicflamingo/modular_musicflamingo.py', 'inference/lib/vendor/transformers/models/mobilevitv2/__init__.py', 'inference/lib/vendor/transformers/models/higgs_audio_v2_tokenizer/configuration_higgs_audio_v2_tokenizer.py']\n"}
+,{"stream_name":"stdout","time":181.655668845,"data":"[PASS] forbidden нет данных выборок и секретов\n"}
+,{"stream_name":"stdout","time":181.655673561,"data":"[PASS] size      архив 680.5 МиБ (713557985 Б), распакованный 738.2 МиБ, лимит 2048 МиБ\n"}
+,{"stream_name":"stdout","time":181.655679036,"data":"[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ\n"}
+,{"stream_name":"stdout","time":181.655684877,"data":"[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'\n"}
+,{"stream_name":"stdout","time":181.655689718,"data":"[PASS] config    все 16 путей к весам из default.toml есть в архиве\n"}
+,{"stream_name":"stdout","time":181.655694688,"data":"[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']\n"}
+,{"stream_name":"stdout","time":181.655700207,"data":"[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']\n"}
+,{"stream_name":"stdout","time":181.655729446,"data":"[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён\n"}
+,{"stream_name":"stdout","time":181.655734623,"data":"[INFO] config    порог \u003e 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']\n"}
+,{"stream_name":"stdout","time":181.655739696,"data":"[PASS] config    пороги в [0,1], имена классов из 7 допустимых\n"}
+,{"stream_name":"stdout","time":181.655743508,"data":"[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов\n"}
+,{"stream_name":"stdout","time":181.655748006,"data":"[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']\n"}
+,{"stream_name":"stdout","time":181.655752285,"data":"[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389\n"}
+,{"stream_name":"stdout","time":181.655756225,"data":"[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (14.9 с)\n"}
+,{"stream_name":"stdout","time":181.655760559,"data":"[PASS] weights   14 файлов весов открываются кодом архива на CPU\n"}
+,{"stream_name":"stdout","time":181.655764691,"data":"[WARN] dfine     transformers 5.21.0 взят из окружения, не из вендора (вендор: [\"vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_B/b7dfine_d1x06lod/inference/lib/vendor/regex/__init__.py)\"])\n"}
+,{"stream_name":"stdout","time":181.655769593,"data":"[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник env; SP_DFINE_DEPMETA: ['filelock', 'huggingface-hub', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])\n"}
+,{"stream_name":"stdout","time":181.655775314,"data":"[FAIL] dfine     нет опорного участка для пробы весов D-FINE (/workspace/data/train-expds-3/103_Гнёздово_Ольшанская); нужен один из ['103_Гнёздово_Ольшанская'] (--dfine-region)\n"}
+,{"stream_name":"stdout","time":181.655780479,"data":"[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)\n"}
+,{"stream_name":"stdout","time":181.655785935,"data":"[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически\n"}
+,{"stream_name":"stdout","time":181.6557911,"data":"[PASS] smoke     main.py завершился за 19.8 с, пик RSS 1369 МиБ, CPU 0,1\n"}
+,{"stream_name":"stdout","time":181.655795229,"data":"[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":181.655799458,"data":"[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла\n"}
+,{"stream_name":"stdout","time":181.655804101,"data":"[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":181.655813523,"data":"[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 8 с, канал σ: сырых 27, 0 с\n"}
+,{"stream_name":"stdout","time":181.655818836,"data":"[INFO] smoke     записано 75, файл 53447 байт\n"}
+,{"stream_name":"stdout","time":181.655822775,"data":"[INFO] smoke     общее время 17.7 с\n"}
+,{"stream_name":"stdout","time":181.655827029,"data":"[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 17 с ; n_det=16 total, участков полностью 1, моделей 1\n"}
+,{"stream_name":"stdout","time":181.655831502,"data":"[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}\n"}
+,{"stream_name":"stdout","time":181.655835878,"data":"[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода\n"}
+,{"stream_name":"stdout","time":181.655840594,"data":"== ИТОГ: FAIL — FAIL 1, WARN 4, проверок 34, 62.2 с\n"}
+,{"stream_name":"stdout","time":181.655844623,"data":"\n"}
+,{"stream_name":"stdout","time":181.655848125,"data":"STDERR: \n"}
+,{"stream_name":"stdout","time":181.655852164,"data":"B RC 1 wall_s 62.3\n"}
+,{"stream_name":"stdout","time":181.655971505,"data":"{\"sha_ok\": true, \"python\": \"3.13.15\", \"A_vendor\": {\"rc\": 1, \"wall_s\": 45, \"itog\": \"== ИТОГ: FAIL — FAIL 3, WARN 5, проверок 36, 45.1 с\"}, \"B_env_pin\": {\"rc\": 1, \"wall_s\": 62, \"itog\": \"== ИТОГ: FAIL — FAIL 1, WARN 4, проверок 34, 62.2 с\"}}\n"}
+,{"stream_name":"stderr","time":185.735939517,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":185.735976064,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":186.045999697,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":186.046027986,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":186.933986725,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":188.229115504,"data":"[NbConvertApp] Writing 291873 bytes to __results__.html\n"}
+]

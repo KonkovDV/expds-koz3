@@ -1,0 +1,46 @@
+load+shape 12.14 173938
+{"finish": 40.65, "write": 4.53, "n_out": 20000}
+         16820698 function calls (16703087 primitive calls) in 40.648 seconds
+
+   Ordered by: cumulative time
+   List reduced from 4288 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   40.651   40.651 /workspace/koz3/wt/w0/expds/watchdog.py:104(finish)
+        1    0.141    0.141   40.651   40.651 /workspace/koz3/wt/w0/expds/watchdog.py:114(_finish_v3)
+        1    0.120    0.120   18.051   18.051 /workspace/koz3/wt/w0/expds/rerank_arch.py:184(apply)
+   1071/4    0.009    0.000   14.923    3.731 <frozen importlib._bootstrap>:1349(_find_and_load)
+   1028/4    0.008    0.000   14.923    3.731 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+   1002/4    0.004    0.000   14.920    3.730 <frozen importlib._bootstrap>:911(_load_unlocked)
+    850/4    0.003    0.000   14.920    3.730 <frozen importlib._bootstrap_external>:1020(exec_module)
+   2423/8    0.003    0.000   14.914    1.864 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+   1091/4    0.081    0.000   14.877    3.719 {built-in method builtins.exec}
+        1    0.322    0.322   14.491   14.491 /workspace/koz3/wt/w0/expds/rerank_arch.py:153(table)
+        1    0.000    0.000   11.582   11.582 /workspace/koz3/venv/lib/python3.13/site-packages/pyproj/__init__.py:1(<module>)
+        1    0.077    0.077   11.452   11.452 /workspace/koz3/wt/w0/expds/post.py:222(apply_thresholds)
+        1    0.038    0.038   11.438   11.438 /workspace/koz3/venv/lib/python3.13/site-packages/pyproj/network.py:17(set_ca_bundle_path)
+        1    0.000    0.000   11.397   11.397 /workspace/koz3/venv/lib/python3.13/site-packages/certifi/core.py:21(where)
+        2    0.000    0.000   11.379    5.690 /usr/lib/python3.13/functools.py:930(wrapper)
+        2    0.000    0.000   11.379    5.690 /usr/lib/python3.13/functools.py:844(dispatch)
+        1    0.000    0.000   11.378   11.378 /usr/lib/python3.13/functools.py:800(_find_impl)
+        1   11.377   11.377   11.378   11.378 /usr/lib/python3.13/functools.py:758(_compose_mro)
+   173938    7.352    0.000   11.295    0.000 /workspace/koz3/wt/w0/expds/post.py:239(tau)
+  4613493    5.333    0.000    5.333    0.000 {method 'get' of 'dict' objects}
+        1    0.648    0.648    4.867    4.867 /workspace/koz3/wt/w0/expds/post.py:306(micro_circles)
+150280/75144    0.191    0.000    4.699    0.000 /workspace/koz3/venv/lib/python3.13/site-packages/shapely/decorators.py:182(wrapper)
+        1    0.000    0.000    3.294    3.294 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/__init__.py:1(<module>)
+        1    0.001    0.001    3.253    3.253 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/basic.py:1(<module>)
+    75136    0.291    0.000    3.098    0.000 /workspace/koz3/venv/lib/python3.13/site-packages/shapely/geometry/base.py:473(buffer)
+   283/33    0.001    0.000    3.044    0.092 {built-in method builtins.__import__}
+        1    0.000    0.000    2.701    2.701 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/compat.py:1(<module>)
+        1    0.139    0.139    2.590    2.590 /workspace/koz3/wt/w0/expds/post.py:122(merge_within_markup)
+        1    0.000    0.000    2.527    2.527 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/__init__.py:1(<module>)
+        1    0.000    0.000    2.522    2.522 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/base.py:1(<module>)
+        1    0.000    0.000    2.510    2.510 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/__init__.py:1(<module>)
+        1    0.000    0.000    2.477    2.477 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/_chunking.py:1(<module>)
+        1    0.000    0.000    2.477    2.477 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/_param_validation.py:1(<module>)
+        1    0.000    0.000    2.476    2.476 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/validation.py:1(<module>)
+    75136    1.886    0.000    2.434    0.000 /workspace/koz3/venv/lib/python3.13/site-packages/shapely/constructive.py:136(buffer)
+
+
+

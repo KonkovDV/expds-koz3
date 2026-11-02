@@ -1,0 +1,12 @@
+FAILED tests/test_bot7_candidate_v2.py::test_pix_models_shipped - FileNotFoun...
+FAILED tests/test_bot7_candidate_v2.py::test_build_submission_collects_pix_models
+FAILED tests/test_bot7_v3_flags.py::test_train_only_modules_unreachable_and_not_packaged
+FAILED tests/test_bot7_v3_flags.py::test_no_personal_paths_in_packaged_code
+FAILED tests/test_bot7_v3_flags.py::test_flag_modules_not_packaged_when_off
+FAILED tests/test_coco_roundtrip.py::test_grid_cache_roundtrip_gives_one_circle_inside_each_object
+FAILED tests/test_gpu_safeguards.py::test_train_refuses_silent_cpu_fallback_when_require_gpu
+FAILED tests/test_gpu_safeguards.py::test_train_refuses_cuda_device_when_cuda_unavailable
+FAILED tests/test_open_hooks.py::test_shared_weights_are_packed_once - System...
+ERROR tests/test_audit_fixes.py
+ERROR tests/test_tta.py
+9 failed, 422 passed, 32 skipped, 2 errors in 22.45s

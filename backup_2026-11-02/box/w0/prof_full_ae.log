@@ -1,0 +1,12 @@
+load 5.777104139328003 173038
+build_curves 11.217930555343628
+sweep_groups 0.04869437217712402
+honest_counts 0.7926535606384277
+Traceback (most recent call last):
+  File "/workspace/koz3/w0/prof_full.py", line 11, in <module>
+    t=T(); s=metric.score_counts(hc); print('score',s if not isinstance(s,tuple) else s[0],T()-t,flush=True)
+             ~~~~~~~~~~~~~~~~~~~^^^^
+  File "/workspace/koz3/repo/expds/metric.py", line 606, in score_counts
+    for cls, by_region in counts.items():
+                          ^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'

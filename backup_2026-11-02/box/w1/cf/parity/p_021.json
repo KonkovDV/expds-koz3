@@ -1,0 +1,27 @@
+{
+ "site": "021",
+ "cands": 1025,
+ "nan_pattern_equal": true,
+ "nan_mismatch": 0,
+ "finite_vals": 10245,
+ "max_abs": 0.0,
+ "max_rel": 0.0,
+ "exact_frac": 1.0,
+ "per_feature_max_abs": {
+  "cf_gd_in": 0.0,
+  "cf_gd_ctx": 0.0,
+  "cf_pd_in": 0.0,
+  "cf_nf_in": 0.0,
+  "cf_nf_ctx": 0.0,
+  "cf_zs_in": 0.0,
+  "cf_zs_ctx": 0.0,
+  "cf_hole_in": 0.0,
+  "cf_hole_ctx": 0.0,
+  "cf_gd_ratio": 0.0
+ },
+ "sec": 7.0,
+ "maxrss_mb": 659,
+ "las_points": 27320344,
+ "las_roi_cells": 538443,
+ "las_cands": 1025
+}

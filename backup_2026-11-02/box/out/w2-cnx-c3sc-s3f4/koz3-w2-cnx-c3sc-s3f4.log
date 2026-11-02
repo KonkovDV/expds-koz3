@@ -1,0 +1,246 @@
+[{"stream_name":"stdout","time":9.707081068,"data":"[      9s] nvidia-smi: GPU 0: Tesla T4 (UUID: GPU-6bf5043b-9202-8de7-859c-86da8838625b) | GPU 1: Tesla T4 (UUID: GPU-cfa24a16-fcd4-1d9a-2483-6bae82e3cfb6)\n"}
+,{"stream_name":"stdout","time":21.220818249,"data":"pip install: ['segmentation-models-pytorch==0.6.0', 'laspy==2.7.0'] []\n"}
+,{"stream_name":"stdout","time":24.844032364,"data":"pip install: ['rvt-py==2.2.1'] ['--no-deps']\n"}
+,{"stream_name":"stdout","time":25.884837546,"data":"  torch 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":25.885516223,"data":"  torchvision 0.26.0+cu128\n"}
+,{"stream_name":"stdout","time":25.889278208,"data":"  numpy 2.1.3\n"}
+,{"stream_name":"stdout","time":26.072872227,"data":"  timm 1.0.29\n"}
+,{"stream_name":"stdout","time":26.112551113,"data":"  segmentation_models_pytorch 0.6.0\n"}
+,{"stream_name":"stdout","time":26.113216233,"data":"  rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":26.113975233,"data":"  pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":26.114708944,"data":"  shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":26.11530647,"data":"  boto3 1.41.5\n"}
+,{"stream_name":"stdout","time":26.118705953,"data":"  scipy 1.16.3\n"}
+,{"stream_name":"stdout","time":26.135082765,"data":"  laspy 2.7.0\n"}
+,{"stream_name":"stdout","time":27.020645088,"data":"  rvt.vis 2.2.1\n"}
+,{"stream_name":"stdout","time":27.086055644,"data":"[     26s] вендор OK: 0.1.0 avx2=true/true threads=4 rvt 2.2.1 relief_ext 21194f67903a\n"}
+,{"stream_name":"stdout","time":27.094506158,"data":"[     26s] CFG {\"mode\": \"full\", \"res\": 0.5, \"crop\": 512, \"bs\": 8, \"iters\": 12000, \"lr\": 0.0003, \"wd\": 0.0001, \"warmup\": 500, \"ema\": 0.999, \"workers\": 0, \"amp\": true, \"obj_frac\": 0.6, \"cls_w\": [2.0, 1.0, 1.0, 2.0, 1.0], \"sigma_k\": 0.15, \"sigma_min_px\": 1.0, \"default_diam_m\": 8.0, \"p_height\": 0.5, \"height\": [0.5, 2.2], \"p_scale\": 0.5, \"scale\": [0.7, 1.45], \"p_noise\": 0.5, \"noise_m\": [0.02, 0.05], \"p_paste\": 0.5, \"paste_max\": 3, \"paste_bank\": 1500, \"infer_stride\": 384, \"tta\": 8, \"infer_bs\": 8, \"peak_k\": 11, \"min_score\": 0.05, \"mask_thr\": 0.5, \"gor_min_px\": 600, \"fort_min_px\": 30, \"arch_min_px\": 30, \"max_det\": 20000, \"circle_r_m\": 0.5, \"deadline_h\": 3.0, \"min_iter_frac\": 0.25, \"infer_reserve_h\": 0.6, \"jobs\": \"c3-sc:4\", \"regions\": \"\", \"build_relief\": 1, \"seed\": 3, \"log_every\": 100, \"budget_warm_it\": 100, \"budget_it\": 150}\n"}
+,{"stream_name":"stderr","time":28.803463809,"data":"/kaggle/src/script.py:154: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n"}
+,{"stream_name":"stderr","time":28.803516578,"data":"Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)\n"}
+,{"stream_name":"stderr","time":28.803523028,"data":"  l, parts = HEAD.loss(o, tb, torch.ones(2, 64, 64)); l.backward(); assert math.isfinite(float(l)), parts\n"}
+,{"stream_name":"stdout","time":28.816837011,"data":"[     28s] голова: centerhead {\"head\": \"centerhead\", \"stride\": 4, \"out_shapes\": {\"hm\": [2, 2, 16, 16], \"wh\": [2, 1, 16, 16], \"off\": [2, 2, 16, 16], \"mask\": [2, 3, 64, 64]}, \"loss_parts\": {\"loss_hm\": 2.029761791229248, \"loss_wh\": 0.20311079919338226, \"loss_off\": 0.2774248719215393}}\n"}
+,{"stream_name":"stdout","time":29.398007806,"data":"[     29s] GPU: ['Tesla T4', 'Tesla T4']\n"}
+,{"stream_name":"stdout","time":29.51981596,"data":"[     29s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет\n"}
+,{"stream_name":"stdout","time":30.199387092,"data":"[     29s] ключи S3 из приватного датасета\n"}
+,{"stream_name":"stdout","time":32.015699549,"data":"[     31s] S3 OK\n"}
+,{"stream_name":"stdout","time":32.016134103,"data":"[     31s] фолды OK: 59 участков, 44 семей; кластеры k5 не пересекают фолды\n"}
+,{"stream_name":"stdout","time":33.732065095,"data":"[     33s] S3-инвентарь: 59 участков, LAS 39.78 ГБ, файлов разметки Li 103\n"}
+,{"stream_name":"stdout","time":50.208127317,"data":"[     49s] relief собран здесь: 001_Гнёздово_Нивленское [5, 1031, 1550] 16.4 с\n"}
+,{"stream_name":"stdout","time":77.130766872,"data":"[     76s] relief собран здесь: 002_Тешилово [5, 1258, 2352] 26.9 с\n"}
+,{"stream_name":"stdout","time":93.590152434,"data":"[     93s] relief собран здесь: 003_Лубно [5, 1747, 1012] 16.4 с\n"}
+,{"stream_name":"stdout","time":196.045167549,"data":"[    195s] relief собран здесь: 004_Боровичи_1 [5, 4918, 3140] 102.4 с\n"}
+,{"stream_name":"stdout","time":203.593075338,"data":"[    203s] relief собран здесь: 005_Боровичи_2 [5, 731, 848] 7.5 с\n"}
+,{"stream_name":"stdout","time":214.144952643,"data":"[    213s] relief собран здесь: 006_Осечки_1.1км [5, 1598, 1612] 10.5 с\n"}
+,{"stream_name":"stdout","time":342.748358641,"data":"[    342s] relief собран здесь: 007_Армиево [5, 5191, 4618] 128.5 с\n"}
+,{"stream_name":"stdout","time":353.98376375,"data":"[    353s] relief собран здесь: 009_Хальвасборген [5, 1484, 2044] 11.2 с\n"}
+,{"stream_name":"stdout","time":360.038454636,"data":"[    359s] relief собран здесь: 010_Эсбю_укрепление [5, 887, 1303] 6.1 с\n"}
+,{"stream_name":"stdout","time":391.810791067,"data":"[    391s] relief собран здесь: 011_Эрентуна [5, 2128, 3343] 31.8 с\n"}
+,{"stream_name":"stdout","time":397.629861591,"data":"[    397s] relief собран здесь: 013_Нора_Виннон [5, 828, 910] 5.8 с\n"}
+,{"stream_name":"stdout","time":441.705483351,"data":"[    441s] relief собран здесь: 015_Демидовка [5, 2589, 2452] 44.0 с\n"}
+,{"stream_name":"stdout","time":446.572157628,"data":"[    446s] relief собран здесь: 016_Хога [5, 704, 981] 4.9 с\n"}
+,{"stream_name":"stdout","time":465.024926501,"data":"[    464s] relief собран здесь: 017_Юшково [5, 1006, 981] 18.4 с\n"}
+,{"stream_name":"stdout","time":471.831453213,"data":"[    471s] relief собран здесь: 018_Курган_Хога [5, 1173, 1033] 6.8 с\n"}
+,{"stream_name":"stdout","time":492.003667191,"data":"[    491s] relief собран здесь: 019_Селяне [5, 1355, 1307] 20.2 с\n"}
+,{"stream_name":"stdout","time":524.55804484,"data":"[    524s] relief собран здесь: 021_Новенькое [5, 1255, 1694] 32.5 с\n"}
+,{"stream_name":"stdout","time":541.909097145,"data":"[    541s] relief собран здесь: 022_Лихуша [5, 2029, 1662] 17.3 с\n"}
+,{"stream_name":"stdout","time":560.942384081,"data":"[    560s] relief собран здесь: 023_Бервенец [5, 1537, 1168] 19.0 с\n"}
+,{"stream_name":"stdout","time":638.78698522,"data":"[    638s] relief собран здесь: 024_Стрекаловка [5, 3101, 3789] 77.8 с\n"}
+,{"stream_name":"stdout","time":671.124066724,"data":"[    670s] relief собран здесь: 025_Вышенское [5, 2259, 3475] 32.3 с\n"}
+,{"stream_name":"stdout","time":752.133127904,"data":"[    751s] relief собран здесь: 026_Золотаревка [5, 4214, 4023] 81.0 с\n"}
+,{"stream_name":"stdout","time":766.324018687,"data":"[    765s] relief собран здесь: 027_Вышегжа_1 [5, 1524, 1871] 14.2 с\n"}
+,{"stream_name":"stdout","time":922.59511707,"data":"[    922s] relief собран здесь: 028_Вышегжа_2 [5, 4372, 5754] 156.1 с\n"}
+,{"stream_name":"stdout","time":927.636145102,"data":"[    927s] relief собран здесь: 030_Эсбю [5, 716, 1056] 5.0 с\n"}
+,{"stream_name":"stdout","time":945.233177517,"data":"[    944s] relief собран здесь: 031_Новотитаровская [5, 1303, 1259] 17.6 с\n"}
+,{"stream_name":"stdout","time":953.74163249,"data":"[    953s] relief собран здесь: 032_Красносельская_0.5км [5, 602, 721] 8.5 с\n"}
+,{"stream_name":"stdout","time":990.611432959,"data":"[    990s] relief собран здесь: 033_Елизаветинское [5, 1368, 2422] 36.8 с\n"}
+,{"stream_name":"stdout","time":1007.27629874,"data":"[   1006s] relief собран здесь: 034_Усть_река [5, 1328, 1482] 16.7 с\n"}
+,{"stream_name":"stdout","time":1059.110483179,"data":"[   1058s] relief собран здесь: 035_Шумгора [5, 2795, 3745] 51.8 с\n"}
+,{"stream_name":"stdout","time":1066.649459477,"data":"[   1066s] relief собран здесь: 036_Тимерево [5, 836, 745] 7.5 с\n"}
+,{"stream_name":"stdout","time":1232.156439312,"data":"[   1231s] relief собран здесь: 037_Никола_Ленивец [5, 5643, 8028] 165.4 с\n"}
+,{"stream_name":"stdout","time":1238.961455037,"data":"[   1238s] relief собран здесь: 038_Копанское [5, 317, 683] 6.8 с\n"}
+,{"stream_name":"stdout","time":1240.561052271,"data":"[   1240s] relief собран здесь: 039_Примаки_0.7км [5, 424, 546] 1.6 с\n"}
+,{"stream_name":"stdout","time":1248.59730297,"data":"[   1248s] relief собран здесь: 040_Примаки_1.3км [5, 1124, 1041] 8.0 с\n"}
+,{"stream_name":"stdout","time":1251.472417351,"data":"[   1251s] relief собран здесь: 041_Миловидово [5, 240, 249] 2.9 с\n"}
+,{"stream_name":"stdout","time":1253.76919589,"data":"[   1253s] relief собран здесь: 044_Новотитаровская_1.8км [5, 203, 145] 2.3 с\n"}
+,{"stream_name":"stdout","time":1257.464037315,"data":"[   1257s] relief собран здесь: 045_Новотитаровская_2.8км [5, 320, 424] 3.7 с\n"}
+,{"stream_name":"stdout","time":1282.730837157,"data":"[   1282s] relief собран здесь: 061_Граборг [5, 2290, 3201] 25.2 с\n"}
+,{"stream_name":"stdout","time":1308.462978492,"data":"[   1308s] relief собран здесь: 066_Московиты [5, 1228, 1361] 25.7 с\n"}
+,{"stream_name":"stdout","time":1336.487380244,"data":"[   1336s] relief собран здесь: 068_Стеклянуха_1 [5, 1608, 2153] 28.0 с\n"}
+,{"stream_name":"stdout","time":1362.437322349,"data":"[   1362s] relief собран здесь: 069_Стеклянуха_2 [5, 1582, 1625] 25.9 с\n"}
+,{"stream_name":"stdout","time":1449.203284393,"data":"[   1448s] relief собран здесь: 101_Гнёздово_Днепровская [5, 3711, 5474] 86.7 с\n"}
+,{"stream_name":"stdout","time":1499.141748095,"data":"[   1498s] relief собран здесь: 102_Гнёздово_Заольшанская [5, 2949, 3867] 49.9 с\n"}
+,{"stream_name":"stdout","time":1521.55836863,"data":"[   1521s] relief собран здесь: 104_Шетнево [5, 1729, 2073] 22.4 с\n"}
+,{"stream_name":"stdout","time":1562.535363134,"data":"[   1562s] relief собран здесь: 105_Вщиж [5, 2245, 3450] 40.9 с\n"}
+,{"stream_name":"stdout","time":1606.857702852,"data":"[   1606s] relief собран здесь: 106_Верхмарево [5, 2107, 2354] 44.3 с\n"}
+,{"stream_name":"stdout","time":1611.295617731,"data":"[   1610s] relief собран здесь: 179_Гнёздово_Лесная_1 [5, 621, 244] 4.4 с\n"}
+,{"stream_name":"stdout","time":1613.068276976,"data":"[   1612s] relief собран здесь: 180_Гнёздово_Лесная_2 [5, 621, 249] 1.8 с\n"}
+,{"stream_name":"stdout","time":1614.63535527,"data":"[   1614s] relief собран здесь: 181_Гнёздово_Лесная_3 [5, 621, 189] 1.6 с\n"}
+,{"stream_name":"stdout","time":1618.951126519,"data":"[   1618s] relief собран здесь: 182_Красносельская_1.7км [5, 519, 386] 4.3 с\n"}
+,{"stream_name":"stdout","time":1666.217083037,"data":"[   1665s] relief собран здесь: 186_Семибратнее_1 [5, 1542, 1708] 47.2 с\n"}
+,{"stream_name":"stdout","time":1858.552395326,"data":"[   1858s] relief собран здесь: 187_Судьбищи_1 [5, 6283, 7730] 192.2 с\n"}
+,{"stream_name":"stdout","time":1869.122935134,"data":"[   1868s] relief собран здесь: 188_Руна [5, 1044, 967] 10.6 с\n"}
+,{"stream_name":"stdout","time":1882.102943496,"data":"[   1881s] relief собран здесь: 189_Макеево [5, 2710, 1122] 13.0 с\n"}
+,{"stream_name":"stdout","time":1986.534734101,"data":"[   1986s] relief собран здесь: 190_Муравлево [5, 2468, 2564] 104.2 с\n"}
+,{"stream_name":"stdout","time":1989.633757275,"data":"[   1989s] relief собран здесь: 191_Осечки_1.3км [5, 355, 464] 3.1 с\n"}
+,{"stream_name":"stdout","time":2002.54238132,"data":"[   2002s] relief собран здесь: 192_КЧР [5, 928, 930] 12.9 с\n"}
+,{"stream_name":"stdout","time":2036.912083387,"data":"[   2036s] relief собран здесь: 200_Судьбищи_2 [5, 2114, 2699] 34.3 с\n"}
+,{"stream_name":"stdout","time":2050.370809616,"data":"[   2049s] разметка: {'kurgany_tselye': 782, 'kurgany_povrezhdennye': 1371, 'gorodishcha': 30, 'fortifikatsii': 264, 'arkhitektury': 1}\n"}
+,{"stream_name":"stdout","time":2050.386179717,"data":"[   2049s] полосы: [['c3-sc:4'], []]\n"}
+,{"stream_name":"stdout","time":2051.578208482,"data":"[   2051s] [cuda:0 c3-sc_f4] train: 38 участков, объектов 2005, банк copy-paste 1369; test ['003_Лубно', '007_Армиево', '009_Хальвасборген', '011_Эрентуна', '016_Хога', '017_Юшково', '018_Курган_Хога', '019_Селяне', '024_Стрекаловка', '027_Вышегжа_1', '028_Вышегжа_2', '032_Красносельская_0.5км', '035_Шумгора', '038_Копанское', '061_Граборг', '068_Стеклянуха_1', '069_Стеклянуха_2', '182_Красносельская_1.7км', '187_Судьбищи_1', '190_Муравлево', '200_Судьбищи_2']\n"}
+,{"stream_name":"stdout","time":2066.235000475,"data":"[   2065s] [cuda:0 c3-sc_f4] ит 1/12000 loss 3.7407 (head 2.5471 {'loss_hm': 2.2322347164154053, 'loss_wh': 0.7054929137229919, 'loss_off': 0.2443425953388214} mask 1.1936)\n"}
+,{"stream_name":"stdout","time":2066.778429103,"data":"[   2066s] [cuda:0 c3-sc_f4] ит 2/12000 loss 3.6107 (head 2.4099 {'loss_hm': 2.097611904144287, 'loss_wh': 0.6759279370307922, 'loss_off': 0.24468813836574554} mask 1.2009)\n"}
+,{"stream_name":"stdout","time":2110.885543817,"data":"[   2110s] [cuda:0 c3-sc_f4] ит 100/12000 loss 3.2239 (head 2.1112 {'loss_hm': 1.8467015027999878, 'loss_wh': 0.23729367554187775, 'loss_off': 0.24081742763519287} mask 1.1127)\n"}
+,{"stream_name":"stdout","time":2133.555763159,"data":"[   2133s] [cuda:0 c3-sc_f4] с/ит: медиана ит. 101–150 0.453, среднее 1–150 0.547\n"}
+,{"stream_name":"stdout","time":2133.556057024,"data":"[   2133s] [cuda:0 c3-sc_f4] бюджет OK: 0.453 с/ит, прогноз обучения 1.51 ч\n"}
+,{"stream_name":"stdout","time":2156.683846995,"data":"[   2156s] [cuda:0 c3-sc_f4] ит 200/12000 loss 2.5945 (head 1.5313 {'loss_hm': 1.2758259773254395, 'loss_wh': 0.2938453257083893, 'loss_off': 0.22613407671451569} mask 1.0631)\n"}
+,{"stream_name":"stdout","time":2201.421325561,"data":"[   2201s] [cuda:0 c3-sc_f4] ит 300/12000 loss 2.7402 (head 1.6903 {'loss_hm': 1.4430569410324097, 'loss_wh': 0.2661178708076477, 'loss_off': 0.22067861258983612} mask 1.0498)\n"}
+,{"stream_name":"stdout","time":2246.415343904,"data":"[   2246s] [cuda:0 c3-sc_f4] ит 400/12000 loss 2.3795 (head 1.3485 {'loss_hm': 1.120958924293518, 'loss_wh': 0.25609326362609863, 'loss_off': 0.20192000269889832} mask 1.0310)\n"}
+,{"stream_name":"stdout","time":2291.029066066,"data":"[   2290s] [cuda:0 c3-sc_f4] ит 500/12000 loss 2.5914 (head 1.5586 {'loss_hm': 1.3483953475952148, 'loss_wh': 0.25473088026046753, 'loss_off': 0.1847434788942337} mask 1.0328)\n"}
+,{"stream_name":"stdout","time":2335.922773248,"data":"[   2335s] [cuda:0 c3-sc_f4] ит 600/12000 loss 2.1783 (head 1.1845 {'loss_hm': 0.9928626418113708, 'loss_wh': 0.19964183866977692, 'loss_off': 0.17168952524662018} mask 0.9938)\n"}
+,{"stream_name":"stdout","time":2380.676230473,"data":"[   2380s] [cuda:0 c3-sc_f4] ит 700/12000 loss 2.2680 (head 1.2537 {'loss_hm': 1.07021164894104, 'loss_wh': 0.22266356647014618, 'loss_off': 0.16125760972499847} mask 1.0143)\n"}
+,{"stream_name":"stdout","time":2425.343958232,"data":"[   2424s] [cuda:0 c3-sc_f4] ит 800/12000 loss 2.7036 (head 1.6826 {'loss_hm': 1.4684410095214844, 'loss_wh': 0.20507796108722687, 'loss_off': 0.19369758665561676} mask 1.0209)\n"}
+,{"stream_name":"stdout","time":2470.059078097,"data":"[   2469s] [cuda:0 c3-sc_f4] ит 900/12000 loss 2.3319 (head 1.3040 {'loss_hm': 1.1012190580368042, 'loss_wh': 0.24103929102420807, 'loss_off': 0.17864671349525452} mask 1.0279)\n"}
+,{"stream_name":"stdout","time":2514.773305453,"data":"[   2514s] [cuda:0 c3-sc_f4] ит 1000/12000 loss 2.2707 (head 1.3791 {'loss_hm': 1.1593886613845825, 'loss_wh': 0.2558504045009613, 'loss_off': 0.19413688778877258} mask 0.8916)\n"}
+,{"stream_name":"stdout","time":2559.516495422,"data":"[   2559s] [cuda:0 c3-sc_f4] ит 1100/12000 loss 2.3996 (head 1.4295 {'loss_hm': 1.2066998481750488, 'loss_wh': 0.29533129930496216, 'loss_off': 0.1932694911956787} mask 0.9701)\n"}
+,{"stream_name":"stdout","time":2604.308791374,"data":"[   2603s] [cuda:0 c3-sc_f4] ит 1200/12000 loss 2.4115 (head 1.4424 {'loss_hm': 1.2066932916641235, 'loss_wh': 0.2602126896381378, 'loss_off': 0.20964449644088745} mask 0.9691)\n"}
+,{"stream_name":"stdout","time":2648.757828886,"data":"[   2648s] [cuda:0 c3-sc_f4] ит 1300/12000 loss 16.3005 (head 15.3377 {'loss_hm': 15.109298706054688, 'loss_wh': 0.1763148307800293, 'loss_off': 0.21078331768512726} mask 0.9627)\n"}
+,{"stream_name":"stdout","time":2693.348925686,"data":"[   2692s] [cuda:0 c3-sc_f4] ит 1400/12000 loss 3.5208 (head 2.5285 {'loss_hm': 2.3043882846832275, 'loss_wh': 0.27683886885643005, 'loss_off': 0.19638599455356598} mask 0.9923)\n"}
+,{"stream_name":"stdout","time":2738.013707487,"data":"[   2737s] [cuda:0 c3-sc_f4] ит 1500/12000 loss 2.2963 (head 1.3453 {'loss_hm': 1.1566780805587769, 'loss_wh': 0.16923001408576965, 'loss_off': 0.17174555361270905} mask 0.9509)\n"}
+,{"stream_name":"stdout","time":2782.349968709,"data":"[   2781s] [cuda:0 c3-sc_f4] ит 1600/12000 loss 2.1749 (head 1.1611 {'loss_hm': 0.9712944626808167, 'loss_wh': 0.20420266687870026, 'loss_off': 0.16938669979572296} mask 1.0138)\n"}
+,{"stream_name":"stdout","time":2826.627633017,"data":"[   2826s] [cuda:0 c3-sc_f4] ит 1700/12000 loss 2.1683 (head 1.1515 {'loss_hm': 0.9602698683738708, 'loss_wh': 0.1955176293849945, 'loss_off': 0.17164018750190735} mask 1.0169)\n"}
+,{"stream_name":"stdout","time":2871.179519591,"data":"[   2870s] [cuda:0 c3-sc_f4] ит 1800/12000 loss 1.9755 (head 1.0882 {'loss_hm': 0.9212017059326172, 'loss_wh': 0.1620035171508789, 'loss_off': 0.15077713131904602} mask 0.8873)\n"}
+,{"stream_name":"stdout","time":2915.871384999,"data":"[   2915s] [cuda:0 c3-sc_f4] ит 1900/12000 loss 2.2428 (head 1.2851 {'loss_hm': 1.0584522485733032, 'loss_wh': 0.24462847411632538, 'loss_off': 0.20222005248069763} mask 0.9577)\n"}
+,{"stream_name":"stdout","time":2960.431397593,"data":"[   2960s] [cuda:0 c3-sc_f4] ит 2000/12000 loss 2.7321 (head 1.7291 {'loss_hm': 1.5029757022857666, 'loss_wh': 0.30657657980918884, 'loss_off': 0.1955069750547409} mask 1.0030)\n"}
+,{"stream_name":"stdout","time":3004.708110924,"data":"[   3004s] [cuda:0 c3-sc_f4] ит 2100/12000 loss 2.1446 (head 1.2506 {'loss_hm': 1.0523821115493774, 'loss_wh': 0.23638734221458435, 'loss_off': 0.1745515614748001} mask 0.8940)\n"}
+,{"stream_name":"stdout","time":3049.137069,"data":"[   3048s] [cuda:0 c3-sc_f4] ит 2200/12000 loss 2.3732 (head 1.4400 {'loss_hm': 1.2454363107681274, 'loss_wh': 0.20878416299819946, 'loss_off': 0.1736714243888855} mask 0.9332)\n"}
+,{"stream_name":"stdout","time":3093.749444838,"data":"[   3093s] [cuda:0 c3-sc_f4] ит 2300/12000 loss 2.2736 (head 1.3141 {'loss_hm': 1.0836279392242432, 'loss_wh': 0.2552528977394104, 'loss_off': 0.20497088134288788} mask 0.9594)\n"}
+,{"stream_name":"stdout","time":3138.429383982,"data":"[   3138s] [cuda:0 c3-sc_f4] ит 2400/12000 loss 2.0404 (head 1.0250 {'loss_hm': 0.8507408499717712, 'loss_wh': 0.19810856878757477, 'loss_off': 0.15449436008930206} mask 1.0153)\n"}
+,{"stream_name":"stdout","time":3182.743079875,"data":"[   3182s] [cuda:0 c3-sc_f4] ит 2500/12000 loss 1.9828 (head 1.0066 {'loss_hm': 0.8320767283439636, 'loss_wh': 0.21258191764354706, 'loss_off': 0.1532607078552246} mask 0.9762)\n"}
+,{"stream_name":"stdout","time":3227.099368046,"data":"[   3226s] [cuda:0 c3-sc_f4] ит 2600/12000 loss 2.0793 (head 1.0728 {'loss_hm': 0.8719465732574463, 'loss_wh': 0.22121183574199677, 'loss_off': 0.17875263094902039} mask 1.0065)\n"}
+,{"stream_name":"stdout","time":3271.4154586,"data":"[   3271s] [cuda:0 c3-sc_f4] ит 2700/12000 loss 2.6975 (head 1.7416 {'loss_hm': 1.5494320392608643, 'loss_wh': 0.17329461872577667, 'loss_off': 0.1748572289943695} mask 0.9559)\n"}
+,{"stream_name":"stdout","time":3316.003879728,"data":"[   3315s] [cuda:0 c3-sc_f4] ит 2800/12000 loss 2.0406 (head 1.4722 {'loss_hm': 1.2574188709259033, 'loss_wh': 0.2355346977710724, 'loss_off': 0.19118452072143555} mask 0.5684)\n"}
+,{"stream_name":"stdout","time":3360.316951517,"data":"[   3359s] [cuda:0 c3-sc_f4] ит 2900/12000 loss 1.9038 (head 1.3151 {'loss_hm': 1.1053519248962402, 'loss_wh': 0.19747306406497955, 'loss_off': 0.19000244140625} mask 0.5887)\n"}
+,{"stream_name":"stdout","time":3404.640681367,"data":"[   3404s] [cuda:0 c3-sc_f4] ит 3000/12000 loss 1.8995 (head 1.2186 {'loss_hm': 1.0152391195297241, 'loss_wh': 0.26103079319000244, 'loss_off': 0.1772322803735733} mask 0.6809)\n"}
+,{"stream_name":"stdout","time":3449.002817749,"data":"[   3448s] [cuda:0 c3-sc_f4] ит 3100/12000 loss 1.6126 (head 0.9358 {'loss_hm': 0.762799084186554, 'loss_wh': 0.18275439739227295, 'loss_off': 0.15470905601978302} mask 0.6768)\n"}
+,{"stream_name":"stdout","time":3494.228619175,"data":"[   3493s] [cuda:0 c3-sc_f4] ит 3200/12000 loss 1.7825 (head 1.0945 {'loss_hm': 0.9030488729476929, 'loss_wh': 0.2203056812286377, 'loss_off': 0.16938799619674683} mask 0.6881)\n"}
+,{"stream_name":"stdout","time":3539.663680361,"data":"[   3539s] [cuda:0 c3-sc_f4] ит 3300/12000 loss 1.7322 (head 1.1982 {'loss_hm': 0.9927765130996704, 'loss_wh': 0.1991996467113495, 'loss_off': 0.18551650643348694} mask 0.5340)\n"}
+,{"stream_name":"stdout","time":3584.814351208,"data":"[   3584s] [cuda:0 c3-sc_f4] ит 3400/12000 loss 1.9507 (head 1.3267 {'loss_hm': 1.1150765419006348, 'loss_wh': 0.23597843945026398, 'loss_off': 0.18801848590373993} mask 0.6240)\n"}
+,{"stream_name":"stdout","time":3630.338040478,"data":"[   3629s] [cuda:0 c3-sc_f4] ит 3500/12000 loss 1.7808 (head 1.0978 {'loss_hm': 0.9084686636924744, 'loss_wh': 0.19577676057815552, 'loss_off': 0.169742614030838} mask 0.6830)\n"}
+,{"stream_name":"stdout","time":3675.914657691,"data":"[   3675s] [cuda:0 c3-sc_f4] ит 3600/12000 loss 2.1186 (head 1.5229 {'loss_hm': 1.3060702085494995, 'loss_wh': 0.21830764412879944, 'loss_off': 0.19501642882823944} mask 0.5957)\n"}
+,{"stream_name":"stdout","time":3721.753102967,"data":"[   3721s] [cuda:0 c3-sc_f4] ит 3700/12000 loss 2.0640 (head 1.4119 {'loss_hm': 1.1998398303985596, 'loss_wh': 0.24857811629772186, 'loss_off': 0.187238872051239} mask 0.6520)\n"}
+,{"stream_name":"stdout","time":3767.503921899,"data":"[   3767s] [cuda:0 c3-sc_f4] ит 3800/12000 loss 1.7869 (head 1.1075 {'loss_hm': 0.9027394652366638, 'loss_wh': 0.2003656029701233, 'loss_off': 0.18471191823482513} mask 0.6794)\n"}
+,{"stream_name":"stdout","time":3812.559675244,"data":"[   3812s] [cuda:0 c3-sc_f4] ит 3900/12000 loss 1.9233 (head 1.2472 {'loss_hm': 1.0375645160675049, 'loss_wh': 0.27090683579444885, 'loss_off': 0.18249617516994476} mask 0.6761)\n"}
+,{"stream_name":"stdout","time":3857.894205935,"data":"[   3857s] [cuda:0 c3-sc_f4] ит 4000/12000 loss 1.8316 (head 1.2938 {'loss_hm': 1.0976396799087524, 'loss_wh': 0.20829559862613678, 'loss_off': 0.17533156275749207} mask 0.5378)\n"}
+,{"stream_name":"stdout","time":3903.161477189,"data":"[   3902s] [cuda:0 c3-sc_f4] ит 4100/12000 loss 1.6614 (head 0.9935 {'loss_hm': 0.8043137192726135, 'loss_wh': 0.19568757712841034, 'loss_off': 0.16965675354003906} mask 0.6678)\n"}
+,{"stream_name":"stdout","time":3948.074640411,"data":"[   3947s] [cuda:0 c3-sc_f4] ит 4200/12000 loss 1.7314 (head 1.1024 {'loss_hm': 0.8915613293647766, 'loss_wh': 0.21458633244037628, 'loss_off': 0.18936531245708466} mask 0.6290)\n"}
+,{"stream_name":"stdout","time":3993.033533478,"data":"[   3992s] [cuda:0 c3-sc_f4] ит 4300/12000 loss 2.5572 (head 1.9328 {'loss_hm': 1.6799812316894531, 'loss_wh': 0.3178546726703644, 'loss_off': 0.22098729014396667} mask 0.6244)\n"}
+,{"stream_name":"stdout","time":4037.871633747,"data":"[   4037s] [cuda:0 c3-sc_f4] ит 4400/12000 loss 1.5193 (head 1.0241 {'loss_hm': 0.8330748677253723, 'loss_wh': 0.17404112219810486, 'loss_off': 0.17366033792495728} mask 0.4951)\n"}
+,{"stream_name":"stdout","time":4082.791810882,"data":"[   4082s] [cuda:0 c3-sc_f4] ит 4500/12000 loss 1.7181 (head 1.0998 {'loss_hm': 0.9272810816764832, 'loss_wh': 0.14559867978096008, 'loss_off': 0.15798191726207733} mask 0.6183)\n"}
+,{"stream_name":"stdout","time":4127.773711807,"data":"[   4127s] [cuda:0 c3-sc_f4] ит 4600/12000 loss 1.4583 (head 0.9143 {'loss_hm': 0.7303164005279541, 'loss_wh': 0.1780211627483368, 'loss_off': 0.16622552275657654} mask 0.5440)\n"}
+,{"stream_name":"stdout","time":4172.83349125,"data":"[   4172s] [cuda:0 c3-sc_f4] ит 4700/12000 loss 1.4319 (head 0.9432 {'loss_hm': 0.776423990726471, 'loss_wh': 0.21799246966838837, 'loss_off': 0.14497575163841248} mask 0.4887)\n"}
+,{"stream_name":"stdout","time":4217.519806158,"data":"[   4217s] [cuda:0 c3-sc_f4] ит 4800/12000 loss 1.5345 (head 0.8864 {'loss_hm': 0.7191299200057983, 'loss_wh': 0.15528710186481476, 'loss_off': 0.15177381038665771} mask 0.6480)\n"}
+,{"stream_name":"stdout","time":4262.087767275,"data":"[   4261s] [cuda:0 c3-sc_f4] ит 4900/12000 loss 1.5563 (head 1.0136 {'loss_hm': 0.8246303200721741, 'loss_wh': 0.20404711365699768, 'loss_off': 0.16860157251358032} mask 0.5427)\n"}
+,{"stream_name":"stdout","time":4307.025426439,"data":"[   4306s] [cuda:0 c3-sc_f4] ит 5000/12000 loss 2.1394 (head 1.5834 {'loss_hm': 1.383010745048523, 'loss_wh': 0.14520874619483948, 'loss_off': 0.18590158224105835} mask 0.5559)\n"}
+,{"stream_name":"stdout","time":4351.832472495,"data":"[   4351s] [cuda:0 c3-sc_f4] ит 5100/12000 loss 1.6552 (head 1.0884 {'loss_hm': 0.9053056240081787, 'loss_wh': 0.19129379093647003, 'loss_off': 0.1639835089445114} mask 0.5668)\n"}
+,{"stream_name":"stdout","time":4397.157463645,"data":"[   4396s] [cuda:0 c3-sc_f4] ит 5200/12000 loss 1.6672 (head 0.9943 {'loss_hm': 0.8128846287727356, 'loss_wh': 0.17687012255191803, 'loss_off': 0.1637561321258545} mask 0.6729)\n"}
+,{"stream_name":"stdout","time":4442.466660098,"data":"[   4442s] [cuda:0 c3-sc_f4] ит 5300/12000 loss 1.5708 (head 0.9091 {'loss_hm': 0.7385795712471008, 'loss_wh': 0.15343232452869415, 'loss_off': 0.1551552712917328} mask 0.6617)\n"}
+,{"stream_name":"stdout","time":4487.520305403,"data":"[   4487s] [cuda:0 c3-sc_f4] ит 5400/12000 loss 1.7036 (head 1.1773 {'loss_hm': 0.984717845916748, 'loss_wh': 0.18205493688583374, 'loss_off': 0.1743338406085968} mask 0.5263)\n"}
+,{"stream_name":"stdout","time":4532.70982007,"data":"[   4532s] [cuda:0 c3-sc_f4] ит 5500/12000 loss 1.7388 (head 1.0594 {'loss_hm': 0.8566457629203796, 'loss_wh': 0.18027274310588837, 'loss_off': 0.18469081819057465} mask 0.6794)\n"}
+,{"stream_name":"stdout","time":4577.812742014,"data":"[   4577s] [cuda:0 c3-sc_f4] ит 5600/12000 loss 1.5873 (head 0.8989 {'loss_hm': 0.7241330146789551, 'loss_wh': 0.18515752255916595, 'loss_off': 0.1562400609254837} mask 0.6884)\n"}
+,{"stream_name":"stdout","time":4622.669937656,"data":"[   4622s] [cuda:0 c3-sc_f4] ит 5700/12000 loss 1.5618 (head 1.0182 {'loss_hm': 0.853091835975647, 'loss_wh': 0.13875272870063782, 'loss_off': 0.1512233316898346} mask 0.5436)\n"}
+,{"stream_name":"stdout","time":4667.371314609,"data":"[   4666s] [cuda:0 c3-sc_f4] ит 5800/12000 loss 1.8561 (head 1.2047 {'loss_hm': 1.021645426750183, 'loss_wh': 0.12546634674072266, 'loss_off': 0.17052112519741058} mask 0.6513)\n"}
+,{"stream_name":"stdout","time":4712.661382963,"data":"[   4712s] [cuda:0 c3-sc_f4] ит 5900/12000 loss 1.5199 (head 0.9554 {'loss_hm': 0.7817305326461792, 'loss_wh': 0.13284188508987427, 'loss_off': 0.16035868227481842} mask 0.5645)\n"}
+,{"stream_name":"stdout","time":4757.825800854,"data":"[   4757s] [cuda:0 c3-sc_f4] ит 6000/12000 loss 1.6485 (head 0.9940 {'loss_hm': 0.8144210577011108, 'loss_wh': 0.13847066462039948, 'loss_off': 0.1657065898180008} mask 0.6545)\n"}
+,{"stream_name":"stdout","time":4802.897782912,"data":"[   4802s] [cuda:0 c3-sc_f4] ит 6100/12000 loss 1.4576 (head 0.8676 {'loss_hm': 0.6872546672821045, 'loss_wh': 0.1974450647830963, 'loss_off': 0.1606411337852478} mask 0.5900)\n"}
+,{"stream_name":"stdout","time":4847.837716952,"data":"[   4847s] [cuda:0 c3-sc_f4] ит 6200/12000 loss 1.6297 (head 0.9415 {'loss_hm': 0.7255173921585083, 'loss_wh': 0.22035644948482513, 'loss_off': 0.1939457356929779} mask 0.6882)\n"}
+,{"stream_name":"stdout","time":4892.894952617,"data":"[   4892s] [cuda:0 c3-sc_f4] ит 6300/12000 loss 1.3890 (head 0.7996 {'loss_hm': 0.6337496042251587, 'loss_wh': 0.15945227444171906, 'loss_off': 0.14988364279270172} mask 0.5894)\n"}
+,{"stream_name":"stdout","time":4937.997602737,"data":"[   4937s] [cuda:0 c3-sc_f4] ит 6400/12000 loss 1.4728 (head 0.9994 {'loss_hm': 0.7889008522033691, 'loss_wh': 0.23209252953529358, 'loss_off': 0.18724380433559418} mask 0.4734)\n"}
+,{"stream_name":"stdout","time":4982.558929644,"data":"[   4982s] [cuda:0 c3-sc_f4] ит 6500/12000 loss 1.6053 (head 0.9256 {'loss_hm': 0.7156891822814941, 'loss_wh': 0.1999833732843399, 'loss_off': 0.18990083038806915} mask 0.6797)\n"}
+,{"stream_name":"stdout","time":5027.235155376,"data":"[   5026s] [cuda:0 c3-sc_f4] ит 6600/12000 loss 1.4782 (head 0.9210 {'loss_hm': 0.721409261226654, 'loss_wh': 0.1738184094429016, 'loss_off': 0.18225231766700745} mask 0.5572)\n"}
+,{"stream_name":"stdout","time":5071.674468114,"data":"[   5071s] [cuda:0 c3-sc_f4] ит 6700/12000 loss 1.6242 (head 0.9431 {'loss_hm': 0.765045166015625, 'loss_wh': 0.16321858763694763, 'loss_off': 0.16174724698066711} mask 0.6810)\n"}
+,{"stream_name":"stdout","time":5116.545052921,"data":"[   5116s] [cuda:0 c3-sc_f4] ит 6800/12000 loss 1.5467 (head 0.9188 {'loss_hm': 0.7564301490783691, 'loss_wh': 0.14914800226688385, 'loss_off': 0.14740553498268127} mask 0.6279)\n"}
+,{"stream_name":"stdout","time":5161.329853947,"data":"[   5160s] [cuda:0 c3-sc_f4] ит 6900/12000 loss 1.6557 (head 0.9670 {'loss_hm': 0.778180718421936, 'loss_wh': 0.1768055111169815, 'loss_off': 0.17113946378231049} mask 0.6887)\n"}
+,{"stream_name":"stdout","time":5205.716731936,"data":"[   5205s] [cuda:0 c3-sc_f4] ит 7000/12000 loss 1.3241 (head 0.8048 {'loss_hm': 0.6296366453170776, 'loss_wh': 0.13918866217136383, 'loss_off': 0.16119776666164398} mask 0.5193)\n"}
+,{"stream_name":"stdout","time":5249.850140921,"data":"[   5249s] [cuda:0 c3-sc_f4] ит 7100/12000 loss 1.5999 (head 1.0987 {'loss_hm': 0.8901901245117188, 'loss_wh': 0.22755442559719086, 'loss_off': 0.18579646944999695} mask 0.5012)\n"}
+,{"stream_name":"stdout","time":5294.292414388,"data":"[   5293s] [cuda:0 c3-sc_f4] ит 7200/12000 loss 1.5224 (head 0.8378 {'loss_hm': 0.6549603343009949, 'loss_wh': 0.1610298454761505, 'loss_off': 0.16673396527767181} mask 0.6846)\n"}
+,{"stream_name":"stdout","time":5338.423182949,"data":"[   5338s] [cuda:0 c3-sc_f4] ит 7300/12000 loss 1.5756 (head 0.8999 {'loss_hm': 0.7095702290534973, 'loss_wh': 0.1742963343858719, 'loss_off': 0.17285412549972534} mask 0.6757)\n"}
+,{"stream_name":"stdout","time":5382.375183458,"data":"[   5381s] [cuda:0 c3-sc_f4] ит 7400/12000 loss 1.3882 (head 0.8149 {'loss_hm': 0.6598261594772339, 'loss_wh': 0.16092681884765625, 'loss_off': 0.13896070420742035} mask 0.5733)\n"}
+,{"stream_name":"stdout","time":5426.224734746,"data":"[   5425s] [cuda:0 c3-sc_f4] ит 7500/12000 loss 1.3211 (head 0.7614 {'loss_hm': 0.6001153588294983, 'loss_wh': 0.183833047747612, 'loss_off': 0.14286138117313385} mask 0.5597)\n"}
+,{"stream_name":"stdout","time":5470.506409193,"data":"[   5470s] [cuda:0 c3-sc_f4] ит 7600/12000 loss 1.3892 (head 0.8939 {'loss_hm': 0.7230264544487, 'loss_wh': 0.1620432585477829, 'loss_off': 0.15469303727149963} mask 0.4952)\n"}
+,{"stream_name":"stdout","time":5514.852632047,"data":"[   5514s] [cuda:0 c3-sc_f4] ит 7700/12000 loss 1.4889 (head 0.9678 {'loss_hm': 0.7624828219413757, 'loss_wh': 0.19447916746139526, 'loss_off': 0.18585577607154846} mask 0.5211)\n"}
+,{"stream_name":"stdout","time":5559.255823581,"data":"[   5558s] [cuda:0 c3-sc_f4] ит 7800/12000 loss 1.3478 (head 0.8717 {'loss_hm': 0.6906499862670898, 'loss_wh': 0.140218585729599, 'loss_off': 0.16700370609760284} mask 0.4761)\n"}
+,{"stream_name":"stdout","time":5603.719026954,"data":"[   5603s] [cuda:0 c3-sc_f4] ит 7900/12000 loss 1.3778 (head 0.8784 {'loss_hm': 0.7107911705970764, 'loss_wh': 0.13986489176750183, 'loss_off': 0.15359196066856384} mask 0.4995)\n"}
+,{"stream_name":"stdout","time":5648.148863589,"data":"[   5647s] [cuda:0 c3-sc_f4] ит 8000/12000 loss 1.6013 (head 0.9322 {'loss_hm': 0.7360158562660217, 'loss_wh': 0.16522759199142456, 'loss_off': 0.1796744167804718} mask 0.6691)\n"}
+,{"stream_name":"stdout","time":5692.508070424,"data":"[   5692s] [cuda:0 c3-sc_f4] ит 8100/12000 loss 1.3707 (head 0.8291 {'loss_hm': 0.6436871290206909, 'loss_wh': 0.16718651354312897, 'loss_off': 0.16868829727172852} mask 0.5416)\n"}
+,{"stream_name":"stdout","time":5737.343386843,"data":"[   5736s] [cuda:0 c3-sc_f4] ит 8200/12000 loss 1.3840 (head 0.7392 {'loss_hm': 0.5575578212738037, 'loss_wh': 0.16439320147037506, 'loss_off': 0.16516290605068207} mask 0.6449)\n"}
+,{"stream_name":"stdout","time":5781.486672785,"data":"[   5781s] [cuda:0 c3-sc_f4] ит 8300/12000 loss 1.2709 (head 0.7657 {'loss_hm': 0.586810290813446, 'loss_wh': 0.16340434551239014, 'loss_off': 0.16258910298347473} mask 0.5051)\n"}
+,{"stream_name":"stdout","time":5826.410761297,"data":"[   5826s] [cuda:0 c3-sc_f4] ит 8400/12000 loss 1.5447 (head 0.8707 {'loss_hm': 0.6812142133712769, 'loss_wh': 0.1738782674074173, 'loss_off': 0.17214162647724152} mask 0.6740)\n"}
+,{"stream_name":"stdout","time":5871.94638897,"data":"[   5871s] [cuda:0 c3-sc_f4] ит 8500/12000 loss 1.3256 (head 0.7157 {'loss_hm': 0.5566468834877014, 'loss_wh': 0.15369366109371185, 'loss_off': 0.14369218051433563} mask 0.6098)\n"}
+,{"stream_name":"stdout","time":5916.649169347,"data":"[   5916s] [cuda:0 c3-sc_f4] ит 8600/12000 loss 1.2153 (head 0.7777 {'loss_hm': 0.5912600159645081, 'loss_wh': 0.17118340730667114, 'loss_off': 0.1693224459886551} mask 0.4376)\n"}
+,{"stream_name":"stdout","time":5960.849171533,"data":"[   5960s] [cuda:0 c3-sc_f4] ит 8700/12000 loss 1.7067 (head 1.0167 {'loss_hm': 0.836778461933136, 'loss_wh': 0.16828937828540802, 'loss_off': 0.1630929857492447} mask 0.6900)\n"}
+,{"stream_name":"stdout","time":6005.197407631,"data":"[   6004s] [cuda:0 c3-sc_f4] ит 8800/12000 loss 1.2853 (head 0.8299 {'loss_hm': 0.6504484415054321, 'loss_wh': 0.14502690732479095, 'loss_off': 0.1649121791124344} mask 0.4554)\n"}
+,{"stream_name":"stdout","time":6049.922391946,"data":"[   6049s] [cuda:0 c3-sc_f4] ит 8900/12000 loss 1.3062 (head 0.8346 {'loss_hm': 0.6375113129615784, 'loss_wh': 0.1778380125761032, 'loss_off': 0.17931054532527924} mask 0.4716)\n"}
+,{"stream_name":"stdout","time":6094.473571412,"data":"[   6094s] [cuda:0 c3-sc_f4] ит 9000/12000 loss 1.3054 (head 0.8307 {'loss_hm': 0.6436161994934082, 'loss_wh': 0.15043555200099945, 'loss_off': 0.1720304638147354} mask 0.4747)\n"}
+,{"stream_name":"stdout","time":6139.035837766,"data":"[   6138s] [cuda:0 c3-sc_f4] ит 9100/12000 loss 1.4198 (head 0.8495 {'loss_hm': 0.6571632623672485, 'loss_wh': 0.17937920987606049, 'loss_off': 0.17440515756607056} mask 0.5702)\n"}
+,{"stream_name":"stdout","time":6183.520026685,"data":"[   6183s] [cuda:0 c3-sc_f4] ит 9200/12000 loss 1.4720 (head 0.8845 {'loss_hm': 0.7096555233001709, 'loss_wh': 0.15097776055335999, 'loss_off': 0.15977001190185547} mask 0.5874)\n"}
+,{"stream_name":"stdout","time":6227.735335571,"data":"[   6227s] [cuda:0 c3-sc_f4] ит 9300/12000 loss 1.3364 (head 0.8378 {'loss_hm': 0.6453595161437988, 'loss_wh': 0.1754382997751236, 'loss_off': 0.1749277561903} mask 0.4986)\n"}
+,{"stream_name":"stdout","time":6271.894907008,"data":"[   6271s] [cuda:0 c3-sc_f4] ит 9400/12000 loss 1.4530 (head 0.7753 {'loss_hm': 0.5953686833381653, 'loss_wh': 0.16615715622901917, 'loss_off': 0.1633453667163849} mask 0.6777)\n"}
+,{"stream_name":"stdout","time":6316.262996266,"data":"[   6315s] [cuda:0 c3-sc_f4] ит 9500/12000 loss 1.2600 (head 0.7109 {'loss_hm': 0.5546466708183289, 'loss_wh': 0.13768601417541504, 'loss_off': 0.14251865446567535} mask 0.5490)\n"}
+,{"stream_name":"stdout","time":6360.830507961,"data":"[   6360s] [cuda:0 c3-sc_f4] ит 9600/12000 loss 1.4131 (head 0.7442 {'loss_hm': 0.5633662343025208, 'loss_wh': 0.16605108976364136, 'loss_off': 0.16418606042861938} mask 0.6689)\n"}
+,{"stream_name":"stdout","time":6405.524029259,"data":"[   6405s] [cuda:0 c3-sc_f4] ит 9700/12000 loss 1.5544 (head 0.9066 {'loss_hm': 0.7113136649131775, 'loss_wh': 0.1822061389684677, 'loss_off': 0.17707671225070953} mask 0.6478)\n"}
+,{"stream_name":"stdout","time":6450.070817506,"data":"[   6449s] [cuda:0 c3-sc_f4] ит 9800/12000 loss 1.3477 (head 0.8313 {'loss_hm': 0.6344196796417236, 'loss_wh': 0.19406750798225403, 'loss_off': 0.17749005556106567} mask 0.5164)\n"}
+,{"stream_name":"stdout","time":6494.512522552,"data":"[   6494s] [cuda:0 c3-sc_f4] ит 9900/12000 loss 1.4106 (head 0.9633 {'loss_hm': 0.7888933420181274, 'loss_wh': 0.13778884708881378, 'loss_off': 0.16059567034244537} mask 0.4474)\n"}
+,{"stream_name":"stdout","time":6539.4956239,"data":"[   6539s] [cuda:0 c3-sc_f4] ит 10000/12000 loss 1.4143 (head 0.7856 {'loss_hm': 0.6014307141304016, 'loss_wh': 0.1557118445634842, 'loss_off': 0.16860857605934143} mask 0.6287)\n"}
+,{"stream_name":"stdout","time":6584.280177748,"data":"[   6583s] [cuda:0 c3-sc_f4] ит 10100/12000 loss 1.4107 (head 0.7402 {'loss_hm': 0.5367913842201233, 'loss_wh': 0.17554278671741486, 'loss_off': 0.18582943081855774} mask 0.6705)\n"}
+,{"stream_name":"stdout","time":6628.771636276,"data":"[   6628s] [cuda:0 c3-sc_f4] ит 10200/12000 loss 1.4258 (head 0.9071 {'loss_hm': 0.728081464767456, 'loss_wh': 0.14284953474998474, 'loss_off': 0.16472186148166656} mask 0.5187)\n"}
+,{"stream_name":"stdout","time":6673.333971359,"data":"[   6672s] [cuda:0 c3-sc_f4] ит 10300/12000 loss 1.3268 (head 0.8984 {'loss_hm': 0.6987106204032898, 'loss_wh': 0.1922926902770996, 'loss_off': 0.18044783174991608} mask 0.4284)\n"}
+,{"stream_name":"stdout","time":6717.685279767,"data":"[   6717s] [cuda:0 c3-sc_f4] ит 10400/12000 loss 1.3397 (head 0.6481 {'loss_hm': 0.48187705874443054, 'loss_wh': 0.171243816614151, 'loss_off': 0.14906565845012665} mask 0.6917)\n"}
+,{"stream_name":"stdout","time":6762.168164125,"data":"[   6761s] [cuda:0 c3-sc_f4] ит 10500/12000 loss 1.5178 (head 0.8461 {'loss_hm': 0.649173378944397, 'loss_wh': 0.17714732885360718, 'loss_off': 0.17916549742221832} mask 0.6717)\n"}
+,{"stream_name":"stdout","time":6806.703718567,"data":"[   6806s] [cuda:0 c3-sc_f4] ит 10600/12000 loss 2.1946 (head 1.6678 {'loss_hm': 1.4580248594284058, 'loss_wh': 0.21181340515613556, 'loss_off': 0.18856213986873627} mask 0.5269)\n"}
+,{"stream_name":"stdout","time":6851.225755842,"data":"[   6850s] [cuda:0 c3-sc_f4] ит 10700/12000 loss 1.3893 (head 0.7019 {'loss_hm': 0.5270472168922424, 'loss_wh': 0.1651647388935089, 'loss_off': 0.1583097279071808} mask 0.6875)\n"}
+,{"stream_name":"stdout","time":6895.595432845,"data":"[   6895s] [cuda:0 c3-sc_f4] ит 10800/12000 loss 1.3898 (head 0.9024 {'loss_hm': 0.7390566468238831, 'loss_wh': 0.14105993509292603, 'loss_off': 0.14925861358642578} mask 0.4874)\n"}
+,{"stream_name":"stdout","time":6940.03035067,"data":"[   6939s] [cuda:0 c3-sc_f4] ит 10900/12000 loss 1.3441 (head 0.7385 {'loss_hm': 0.5524442195892334, 'loss_wh': 0.16747929155826569, 'loss_off': 0.16928425431251526} mask 0.6056)\n"}
+,{"stream_name":"stdout","time":6984.275458493,"data":"[   6983s] [cuda:0 c3-sc_f4] ит 11000/12000 loss 1.4806 (head 0.9224 {'loss_hm': 0.7488515973091125, 'loss_wh': 0.12910492718219757, 'loss_off': 0.16067086160182953} mask 0.5582)\n"}
+,{"stream_name":"stdout","time":7028.886732822,"data":"[   7028s] [cuda:0 c3-sc_f4] ит 11100/12000 loss 1.3977 (head 0.7915 {'loss_hm': 0.6279636025428772, 'loss_wh': 0.14872780442237854, 'loss_off': 0.1486763060092926} mask 0.6061)\n"}
+,{"stream_name":"stdout","time":7073.356241394,"data":"[   7072s] [cuda:0 c3-sc_f4] ит 11200/12000 loss 1.3928 (head 0.7969 {'loss_hm': 0.6234123706817627, 'loss_wh': 0.14049330353736877, 'loss_off': 0.15946532785892487} mask 0.5958)\n"}
+,{"stream_name":"stdout","time":7117.76659382,"data":"[   7117s] [cuda:0 c3-sc_f4] ит 11300/12000 loss 1.2373 (head 0.6905 {'loss_hm': 0.5192278027534485, 'loss_wh': 0.14136473834514618, 'loss_off': 0.15712733566761017} mask 0.5468)\n"}
+,{"stream_name":"stdout","time":7162.416136906,"data":"[   7162s] [cuda:0 c3-sc_f4] ит 11400/12000 loss 1.0433 (head 0.7853 {'loss_hm': 0.6040331721305847, 'loss_wh': 0.16668705642223358, 'loss_off': 0.16456161439418793} mask 0.2580)\n"}
+,{"stream_name":"stdout","time":7206.725919177,"data":"[   7206s] [cuda:0 c3-sc_f4] ит 11500/12000 loss 1.1619 (head 0.8085 {'loss_hm': 0.6247169971466064, 'loss_wh': 0.17885474860668182, 'loss_off': 0.16586847603321075} mask 0.3534)\n"}
+,{"stream_name":"stdout","time":7251.062366321,"data":"[   7250s] [cuda:0 c3-sc_f4] ит 11600/12000 loss 1.1958 (head 0.6451 {'loss_hm': 0.4881647527217865, 'loss_wh': 0.13558253645896912, 'loss_off': 0.14337095618247986} mask 0.5507)\n"}
+,{"stream_name":"stdout","time":7295.368027603,"data":"[   7294s] [cuda:0 c3-sc_f4] ит 11700/12000 loss 1.5303 (head 0.9726 {'loss_hm': 0.7882254719734192, 'loss_wh': 0.1884291023015976, 'loss_off': 0.16553246974945068} mask 0.5577)\n"}
+,{"stream_name":"stdout","time":7339.57673111,"data":"[   7339s] [cuda:0 c3-sc_f4] ит 11800/12000 loss 1.1222 (head 0.6190 {'loss_hm': 0.458840012550354, 'loss_wh': 0.13463926315307617, 'loss_off': 0.14664846658706665} mask 0.5032)\n"}
+,{"stream_name":"stdout","time":7383.799414378,"data":"[   7383s] [cuda:0 c3-sc_f4] ит 11900/12000 loss 1.4253 (head 0.7535 {'loss_hm': 0.5669212937355042, 'loss_wh': 0.17631082236766815, 'loss_off': 0.16897866129875183} mask 0.6718)\n"}
+,{"stream_name":"stdout","time":7427.743800023,"data":"[   7427s] [cuda:0 c3-sc_f4] ит 12000/12000 loss 1.3036 (head 0.8603 {'loss_hm': 0.6880842447280884, 'loss_wh': 0.1966228038072586, 'loss_off': 0.15251171588897705} mask 0.4434)\n"}
+,{"stream_name":"stdout","time":7427.878909541,"data":"[   7427s] [cuda:0 c3-sc_f4] память/загрузчик (обучение): {\"max_memory_allocated_mb\": 4168.9, \"max_memory_reserved_mb\": 4478.0, \"data_wait_s\": 1673.7, \"data_wait_share\": 0.3113, \"data_wait_share_after_warm\": 0.3119}\n"}
+,{"stream_name":"stdout","time":7432.663229626,"data":"[   7432s] [cuda:0 c3-sc_f4] инференс 003_Лубно: 1461 детекций, карты 1.3 МБ\n"}
+,{"stream_name":"stdout","time":7453.56900886,"data":"[   7453s] [cuda:0 c3-sc_f4] инференс 007_Армиево: 4354 детекций, карты 11.1 МБ\n"}
+,{"stream_name":"stdout","time":7457.507916308,"data":"[   7457s] [cuda:0 c3-sc_f4] инференс 009_Хальвасборген: 2713 детекций, карты 2.3 МБ\n"}
+,{"stream_name":"stdout","time":7468.023233758,"data":"[   7467s] [cuda:0 c3-sc_f4] инференс 011_Эрентуна: 3263 детекций, карты 5.2 МБ\n"}
+,{"stream_name":"stdout","time":7469.105952238,"data":"[   7468s] [cuda:0 c3-sc_f4] инференс 016_Хога: 658 детекций, карты 0.5 МБ\n"}
+,{"stream_name":"stdout","time":7472.696943644,"data":"[   7472s] [cuda:0 c3-sc_f4] инференс 017_Юшково: 829 детекций, карты 0.7 МБ\n"}
+,{"stream_name":"stdout","time":7474.29398324,"data":"[   7473s] [cuda:0 c3-sc_f4] инференс 018_Курган_Хога: 1077 детекций, карты 0.9 МБ\n"}
+,{"stream_name":"stdout","time":7476.468538537,"data":"[   7476s] [cuda:0 c3-sc_f4] инференс 019_Селяне: 486 детекций, карты 1.1 МБ\n"}
+,{"stream_name":"stdout","time":7485.401068649,"data":"[   7485s] [cuda:0 c3-sc_f4] инференс 024_Стрекаловка: 1301 детекций, карты 5.3 МБ\n"}
+,{"stream_name":"stdout","time":7488.502756055,"data":"[   7488s] [cuda:0 c3-sc_f4] инференс 027_Вышегжа_1: 747 детекций, карты 2.2 МБ\n"}
+,{"stream_name":"stdout","time":7510.283578139,"data":"[   7509s] [cuda:0 c3-sc_f4] инференс 028_Вышегжа_2: 3862 детекций, карты 13.3 МБ\n"}
+,{"stream_name":"stdout","time":7510.919102403,"data":"[   7510s] [cuda:0 c3-sc_f4] инференс 032_Красносельская_0.5км: 94 детекций, карты 0.3 МБ\n"}
+,{"stream_name":"stdout","time":7523.057782504,"data":"[   7522s] [cuda:0 c3-sc_f4] инференс 035_Шумгора: 11204 детекций, карты 5.3 МБ\n"}
+,{"stream_name":"stdout","time":7525.422965391,"data":"[   7525s] [cuda:0 c3-sc_f4] инференс 038_Копанское: 107 детекций, карты 0.1 МБ\n"}
+,{"stream_name":"stdout","time":7533.404638727,"data":"[   7533s] [cuda:0 c3-sc_f4] инференс 061_Граборг: 4410 детекций, карты 5.2 МБ\n"}
+,{"stream_name":"stdout","time":7537.223616828,"data":"[   7536s] [cuda:0 c3-sc_f4] инференс 068_Стеклянуха_1: 1232 детекций, карты 2.5 МБ\n"}
+,{"stream_name":"stdout","time":7539.905196736,"data":"[   7539s] [cuda:0 c3-sc_f4] инференс 069_Стеклянуха_2: 1400 детекций, карты 1.6 МБ\n"}
+,{"stream_name":"stdout","time":7540.183867802,"data":"[   7539s] [cuda:0 c3-sc_f4] инференс 182_Красносельская_1.7км: 0 детекций, карты 0.1 МБ\n"}
+,{"stream_name":"stdout","time":7577.460437058,"data":"[   7577s] [cuda:0 c3-sc_f4] инференс 187_Судьбищи_1: 3389 детекций, карты 24.1 МБ\n"}
+,{"stream_name":"stdout","time":7585.005326259,"data":"[   7584s] [cuda:0 c3-sc_f4] инференс 190_Муравлево: 1502 детекций, карты 4.2 МБ\n"}
+,{"stream_name":"stdout","time":7590.80071736,"data":"[   7590s] [cuda:0 c3-sc_f4] инференс 200_Судьбищи_2: 497 детекций, карты 3.4 МБ\n"}
+,{"stream_name":"stdout","time":8048.521346182,"data":"[   8048s] [cuda:0 c3-sc_f4] готово: {\"iters_effective\": 12000, \"s_per_it\": 0.4529, \"t_train_s\": 5376.3, \"t_infer_s\": 162.7, \"n_det\": 44586} score(Li-only, compute_metrics) 0.13179112339123195\n"}
+,{"stream_name":"stdout","time":8048.521881224,"data":"[   8048s] [cuda:0 c3-sc_f4] score(Li-only) при пороге 0.3: 0.3368749032140926 | лучший порог по классам: {\"kurgany_povrezhdennye\": [0.35, 0.2961], \"kurgany_tselye\": [0.35, 0.5619], \"gorodishcha\": [0.75, 0.64], \"fortifikatsii\": [0.85, 0.2192]} | итог при лучших: 0.38521539296025387  \n"}
+,{"stream_name":"stdout","time":8048.523154894,"data":"[   8048s] [cuda:0 c3-sc_f4] VRAM: {\"train\": {\"max_memory_allocated_mb\": 4168.9, \"max_memory_reserved_mb\": 4478.0}, \"total\": {\"max_memory_allocated_mb\": 4168.9, \"max_memory_reserved_mb\": 4478.0}} | ожидание данных: 0.3113 после прогрева 0.3119\n"}
+,{"stream_name":"stdout","time":8050.730872894,"data":"[   8050s] ИТОГ: все задания OK за 8049.8 с\n"}
+,{"stream_name":"stderr","time":8058.533154835,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":8058.533183053,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":8058.825265785,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":8058.825301898,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":8059.625689912,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":8060.986631502,"data":"[NbConvertApp] Writing 1520593 bytes to __results__.html\n"}
+]

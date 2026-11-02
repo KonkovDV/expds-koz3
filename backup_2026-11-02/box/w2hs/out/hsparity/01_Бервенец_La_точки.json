@@ -1,0 +1,128 @@
+{
+ "las": "023_Бервенец/01_Бервенец_La_точки/01_Бервенец_La_точки.las",
+ "bytes": 344351413,
+ "n_li": 4,
+ "cls": {
+  "fmt": 3,
+  "n": 10127976,
+  "classes": {
+   "2": 10127976
+  },
+  "frac_ground": 1.0
+ },
+ "li_res": 0.0999999999999482,
+ "rc": 0,
+ "stderr_tail": "INFO DEM a.las: 5844x7688 @ 0.1 м, точек 10127976, пустот 37757623, rust 0.1.0 avx2=true/true threads=4\n",
+ "check": {
+  "seconds": 14.7,
+  "report": {
+   "g": {
+    "status": "ok",
+    "file": "03_Бервенец_Li_g.tif",
+    "pixels": 44928672,
+    "equal_pct": 51.741,
+    "within1_pct": 61.316,
+    "mae": 2.7761,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.764
+   },
+   "i": {
+    "status": "ok",
+    "file": "04_Бервенец_Li_i.tif",
+    "pixels": 44928672,
+    "equal_pct": 51.386,
+    "within1_pct": 59.956,
+    "mae": 2.8926,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.766
+   },
+   "c": {
+    "status": "нет файла Li"
+   },
+   "ch": {
+    "status": "нет файла Li"
+   }
+  }
+ },
+ "fit": {
+  "li_res": 0.0999999999999482,
+  "dem_res": 0.0999999999999482,
+  "shape": [
+   7688,
+   5844
+  ],
+  "build_s": 10.9,
+  "used_all": false,
+  "g_grad": {
+   "az": 315,
+   "alt": 43,
+   "z": 0.85,
+   "a": 240.02,
+   "b": 15.84,
+   "mae": 4.397,
+   "r": 0.9287
+  },
+  "i_grad": {
+   "az": 315,
+   "alt": 43,
+   "z": 0.85,
+   "a": -240.13,
+   "b": 236.86,
+   "mae": 4.405,
+   "r": -0.9288
+  },
+  "g_horn": {
+   "az": 315,
+   "alt": 41,
+   "z": 1,
+   "a": 215.62,
+   "b": 38.09,
+   "mae": 3.551,
+   "r": 0.952
+  },
+  "i_horn": {
+   "az": 315,
+   "alt": 41,
+   "z": 1,
+   "a": -215.71,
+   "b": 214.61,
+   "mae": 3.557,
+   "r": -0.9521
+  },
+  "ours_default_g_mae": 3.769,
+  "ours_default_i_mae_255minus": 4.063,
+  "g_horn_smooth1px": {
+   "mae": 3.365,
+   "a": 240.4,
+   "b": 21.5
+  },
+  "g_horn_smooth2px": {
+   "mae": 5.156,
+   "a": 230.2,
+   "b": 28.0
+  },
+  "g_horn_smooth3px": {
+   "mae": 7.094,
+   "a": 203.6,
+   "b": 45.3
+  },
+  "g_plus_i_med": 253.0,
+  "li_nodata255_frac": 0.475,
+  "our_valid_frac": 0.525
+ },
+ "wall_s": 100.5
+}

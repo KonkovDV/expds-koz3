@@ -1,0 +1,10 @@
+записано 4600 объектов → /workspace/koz3/w4geo/eval/A18.geojson
+записано 5708 объектов → /workspace/koz3/w4geo/eval/C18et_orget_s0.geojson
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+{"d_global": 0.022499312795201388, "d_f1": {"finds_points": 0.0, "object_poly": 0.22499312795201376}, "d_etgr_subset_global": 0.025015881087372627, "d_non_etgr_subset_global": 0.0, "d_folds_global": {"F1": 0.0, "F2": 0.0, "F3": 0.007354101296281457, "F4": 0.021823235702670526, "F5": 0.08048840040064578}, "gate": {"a_non_etgr_identical": true, "b_d_ge_0.009": true, "b_p_region_etgr_ge_0.95": true, "c_f1_not_below_A": true, "PASS": true}}
+p_region_etgr 1.0 p_family 0.7005
+02281f62fb7b19fbf18f4338910b70492c42b2b7c76c7a2123960cbe6bbd6a4d  /workspace/koz3/w4geo/eval/A18.geojson
+a831d66f5d1e6990b44d8402eaf0534416cb8d90896b426c9ddc4b3ce06f8651  /workspace/koz3/w4geo/eval/C18et_orget_s0.geojson
+02281f62fb7b19fbf18f4338910b70492c42b2b7c76c7a2123960cbe6bbd6a4d  /workspace/koz3/regate5/eval/A18.geojson
+a831d66f5d1e6990b44d8402eaf0534416cb8d90896b426c9ddc4b3ce06f8651  /workspace/koz3/regate5/eval/Cet_orget.geojson
+DONE

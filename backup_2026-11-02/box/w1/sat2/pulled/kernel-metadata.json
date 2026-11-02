@@ -1,0 +1,21 @@
+{
+  "id": "elenakonkova/koz3-w1-sat2-gate",
+  "id_no": 142141425,
+  "title": "koz3-w1-sat2-gate",
+  "code_file": "koz3-w1-sat2-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [],
+  "dataset_sources": [
+    "elenakonkova/koz3-w2-gate"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "gcr.io/kaggle-images/python@sha256:17b2fc7f27c25c6c2fd4230ec8e66097ab2b89fc88e1e4d6f338b72e1ee0bc3e",
+  "machine_shape": "None"
+}

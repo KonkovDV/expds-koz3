@@ -1,0 +1,9 @@
+записано 5775 объектов → /workspace/koz3/w4geo/eval/C19etonly_orget_s0.geojson
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+{"d_global": 0.020603762368607417, "d_f1": {"finds_points": 0.0, "object_poly": 0.2060376236860742}, "d_etgr_subset_global": 0.022931200098318373, "d_non_etgr_subset_global": 0.0, "d_folds_global": {"F1": 0.0, "F2": 0.0, "F3": 0.007354101296281457, "F4": 0.016580188264036795, "F5": 0.0797690977899668}, "gate": {"a_non_etgr_identical": true, "b_d_ge_0.009": true, "b_p_region_etgr_ge_0.95": true, "c_f1_not_below_A": true, "PASS": true}}
+p_region_etgr 1.0 p_family 0.7005
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+{"d_global": 0.023190738280659363, "d_f1": {"finds_points": 0.0, "object_poly": 0.23190738280659373}, "d_etgr_subset_global": 0.025845772959708357, "d_non_etgr_subset_global": 0.0, "d_folds_global": {"F1": 0.0, "F2": 0.0, "F3": 0.008444424697751385, "F4": 0.024333338595968108, "F5": 0.07950358121767878}, "gate": {"a_non_etgr_identical": true, "b_d_ge_0.009": true, "b_p_region_etgr_ge_0.95": true, "c_f1_not_below_A": true, "PASS": true}}
+p_region_etgr 1.0 p_family 0.7005
+44492d2a5f7d08f4d10feab2bea958d72a624d8d0ac6a95762c21bed2c89d64c  /workspace/koz3/w4geo/eval/C19etonly_orget_s0.geojson
+DONE

@@ -1,0 +1,7 @@
+Starting upload for file ref103_SpOr.tif
+  0%|          | 0.00/58.7M [00:00<?, ?B/s] 47%|████▋     | 27.7M/58.7M [00:00<00:00, 276MB/s] 92%|█████████▏| 54.0M/58.7M [00:00<00:00, 216MB/s]100%|██████████| 58.7M/58.7M [00:01<00:00, 39.6MB/s]
+Upload successful: ref103_SpOr.tif (59MB)
+Starting upload for file ref103_UTM.json
+  0%|          | 0.00/58.0 [00:00<?, ?B/s]100%|██████████| 58.0/58.0 [00:00<00:00, 129B/s]
+Upload successful: ref103_UTM.json (58B)
+Your private Dataset is being created. Please check progress at https://www.kaggle.com/datasets/aaaa0000004/koz3-w4-dfine-ref103

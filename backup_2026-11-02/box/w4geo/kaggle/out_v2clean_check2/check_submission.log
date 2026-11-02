@@ -1,0 +1,58 @@
+sha256 15d59e9f7c120b56079f4cc7bc8cb83c14b698db9a57228e75e286dddd9842c9 OK
+python 3.13.15 nproc 4
+torch 2.11.0+cpu
+pip 1  read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/laspy/
+WARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/laspy/
+WARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/laspy/
+WARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/laspy/
+WARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/laspy/
+ERROR: Could not find a version that satisfies the requirement laspy==2.7.0 (from versions: none)
+ERROR: No matching distribution found for laspy==2.7.0
+
+dep laspy FAIL No module named 'laspy'
+dep segmentation_models_pytorch FAIL No module named 'segmentation_models_pytorch'
+dep rasterio 1.5.1
+dep pyproj 3.7.2
+dep shapely 2.1.2
+dep lightgbm 4.6.0
+dep timm 1.0.29
+dep scipy 1.16.3
+dep numpy 2.1.3
+== check_submission: /kaggle/temp/koz3_v2clean_26ad1ba.zip (2026-10-30 05:47:19 UTC)
+[PASS] zip       58 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 542.2 МиБ (568488168 Б), распакованный 549.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[FAIL] imports   не установлены в /usr/bin/python3: {'laspy': 'не найден', 'segmentation_models_pytorch': 'не найден'}
+[FAIL] weights   li: models/li_r18_hard2.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   li_mask: models/li_gor_mask_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   sp_or: models/spor_gor_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   sp_or: models/spor_focal_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   sp_or: models/surf_arch_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   li_fort: models/li_fort_mask_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   li_dev: models/li_dev_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   sp_focal2: models/spor_focal_wide_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   ae: models/ae_fort_mask_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   or: models/surf_arch_r18.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] weights   verify: models/sp_crop.pt не открывается: ModuleNotFoundError("No module named 'segmentation_models_pytorch'")
+[FAIL] smoke     синтетика не создана (нужны numpy/laspy/rasterio/pyproj): Traceback (most recent call last):
+  File "<string>", line 12, in <module>
+    import laspy, rasterio
+ModuleNotFoundError: No module named 'laspy'
+
+== ИТОГ: FAIL — FAIL 13, WARN 1, проверок 29, 22.8 с
+
+STDERR: 
+RC 1 wall_s 23.0

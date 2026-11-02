@@ -1,0 +1,64 @@
+{
+ "region": "186_Семибратнее_1",
+ "crs": "EPSG:32637",
+ "left": 379956.60000000003,
+ "top": 4999352.0,
+ "step": 0.5,
+ "shape": [
+  5,
+  1542,
+  1708
+ ],
+ "tags": [
+  "lrm_s",
+  "lrm_l",
+  "slope",
+  "svf_r",
+  "opp_r"
+ ],
+ "site_stats": {
+  "svf_r": [
+   0.7849064326286316,
+   0.941568911075592,
+   0.9859960305690765
+  ],
+  "opp_r": [
+   79.22723098754882,
+   87.66847229003906,
+   90.0779037475586
+  ]
+ },
+ "dem_res": 0.2,
+ "dem_fill": "delaunay",
+ "backend": "rust 0.1.0 avx2=true/true threads=4",
+ "rvt": "2.2.1",
+ "vendor": {
+  "centerhead/INTERFACE.md": "1ecb7e5837783d0a03a4aa8f7565b896dc3dbf9812204ce98a0af24834d40ce1",
+  "centerhead/__init__.py": "291b58109b1811c7223e426a7ef7d945663b2fe1510c4b0c6c72b7bd1fcbabc5",
+  "centerhead/config.py": "28ec01a91f2ad37358717f60f46436a8e563cf0aab1e53b5f5ee7635269ae7a8",
+  "centerhead/d8.py": "0aaedda8d8d3c9c67ceb3520431d5eb7b5623669549b83ee3d15bae202031b15",
+  "centerhead/decode.py": "0d00153492bec830e5499ce5506c599df7e0e4a338e3324fc221a049676c11da",
+  "centerhead/export.py": "c4c83b79b4afc986d6383dea1eb71007e3be51cf0b5bdde30003b4f05e892c47",
+  "centerhead/features.py": "6184b0ae0bb37071484c8602d008dda259aab9b7f346879540139f497118288d",
+  "centerhead/geo.py": "4892481960bf14f1901f6212360086c792163b2d52c8da1bd925333d8db9f473",
+  "centerhead/head.py": "319874df9c0ec98bc85a83586f91f4ae359ea0de5562f6407195eba0edfc7796",
+  "centerhead/losses.py": "7d8e35403942cb53b3f92905e3cd4fe82f7facd9fa0da193b965273988b79b20",
+  "centerhead/rerank.py": "49d645823d7875ad72129df2ba034b25bca3148d81e82896bf3858e66bd413be",
+  "centerhead/targets.py": "c4ae29232bbc0ad3b227d886b3ec6e4d37809063d4777cafe4294946bcbb006e",
+  "centerhead/tools/nn_cells.json": "cb9944c18734dc164898471fd40ff34bf9f8f15b5ca59da57cb5b497796a1dc4",
+  "centerhead/tools/nn_cells.py": "c3fcece09adc3292b0771cbab959d7d45eee973d22cb086340347bfc7f6f1f56",
+  "centerhead/tools/radius_sim.json": "7d36a27dbd3b4949b5263de2effab2689b55a94bd636e5e8a44293a9c55c7db8",
+  "centerhead/tools/radius_sim.py": "d07b18d1e24b2a9862639fc9e4844202b06ef7364264dde80fcbb96518d6b0d4",
+  "cnx_head.py": "12e28a6bf8ca88c4daedce9b84902ad558f47ee6de8cccb95cb4a70374507469",
+  "compute_metrics.py": "299792ccc5b86873a1cb0554eac06a145f5e09496088ee7f734b41b9e4c70081",
+  "expds/__init__.py": "9028e45c371137948876d6cb577dd832ffca0f6ce3445cbd83b73ce4fd728758",
+  "expds/accel.py": "fc2ec8b6d2a9b2fca4fe3cb0efccda6e0057026eecdaa00fd973cd6066866e4b",
+  "expds/candidates.py": "96b9fbe12d5858bd93ef2f03b793581a9ad3b01eee1c1757c9daa1cc886a2248",
+  "expds/crs.py": "d93b855cb66851ea2492a76ac66708ec6a0d3282c0ff98a8b80bd1cd71107618",
+  "expds/lidar.py": "2bd79edbd604424b261274cf045384abe81cc5874f2c0e54093981430b84f222",
+  "expds_core.abi3.so": "7d847b9207f952222b14f17903cfc020c882cb3f4818cdec1eecb5edfe156110",
+  "relief_ext.py": "21194f67903a3eb349fe357ec3c61ab55c65f56f00c6769760e26a6b0a3d00c3"
+ },
+ "valid_px": 2442982,
+ "t_s": 27.5
+}

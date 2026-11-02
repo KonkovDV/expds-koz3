@@ -1,0 +1,40 @@
+{
+ "w5cf": {
+  "models/w5cf/ref.npz": {
+   "bytes": 1558049,
+   "sha256": "443ac640981c866ce621bac504cb3e43097f12f44f93418ad5d0b40fe9e03f5f"
+  },
+  "models/w5cf_infer/fam0.txt": {
+   "bytes": 1055522,
+   "sha256": "23ee52204a0130474103920a0b2bc3c391b7bd27c1f4fadc0de27a14b25cd76d"
+  },
+  "models/w5cf_infer/fam2.txt": {
+   "bytes": 521198,
+   "sha256": "c66d1630eb0989fef851f4cad73da5365ff6afc65e3b92dbd5da50e73590982c"
+  },
+  "models/w5cf_infer/fam3.txt": {
+   "bytes": 561686,
+   "sha256": "f784df997b2d98632168864ffe0a6851847bf9695c6dabf1918b7b3f28d3a02a"
+  },
+  "models/w5cf_infer/fam4.txt": {
+   "bytes": 222087,
+   "sha256": "46aa900ca02fd7a965d053fdfb761bbf14f8ffabd88776dbdffdb22821a94ce2"
+  },
+  "models/w5cf_infer/fam5.txt": {
+   "bytes": 1007197,
+   "sha256": "4194da479089188d475041bfdc62f1efe384e1f550f09b6db6ee2986ec66e27c"
+  },
+  "models/w5cf_infer/fam6.txt": {
+   "bytes": 758870,
+   "sha256": "da93a1521d3ff330e18f814f088f34c865f13dc5b8414f65ef5f5f3fda0eb91f"
+  },
+  "models/w5cf_infer/gq_ref.npz": {
+   "bytes": 498757,
+   "sha256": "52caeb8be092e7260d12deeebc1074561ca96ad7d276e8c371d06ddfe072a490"
+  },
+  "models/w5cf_infer/meta.json": {
+   "bytes": 3532,
+   "sha256": "607e4d1911061e70a6c55650fcf7f367d6d05c6e614ec921839036ff4f026e32"
+  }
+ }
+}

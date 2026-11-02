@@ -1,0 +1,40 @@
+fold 0 1149s
+fold 1 854s
+fold 2 239s
+fold 3 274s
+fold 4 257s
+fold 5 266s
+fold 6 246s
+fold 7 177s
+fold 8 126s
+fold 9 145s
+base [0.3146153226828423, 0.2964508527066795, 0.14427407342564424] {'unseen_dropped': 723}
+model all classes: all 0.316265 new 0.293128 opt 0.103368 | boot mean -0.0005 [-0.0175;+0.0147] P 0.498
+   kurgan -0.0240 kurgan -0.0064 gorodi +0.0072 arkhit +0.0974 object +0.0016 fortif -0.0734 finds_ +0.0281
+model only kurgany_povrezhdennye: all 0.307423 new 0.302280 opt 0.113189 | boot mean -0.0076 [-0.0183;+0.0022] P 0.103
+   kurgan -0.0240 kurgan +0.0000 gorodi +0.0000 arkhit +0.0000 object +0.0000 fortif +0.0000 finds_ +0.0000
+model only kurgany_tselye: all 0.313330 new 0.294651 opt 0.126324 | boot mean -0.0016 [-0.0065;+0.0026] P 0.253
+   kurgan +0.0000 kurgan -0.0064 gorodi +0.0000 arkhit +0.0000 object +0.0000 fortif +0.0000 finds_ +0.0000
+model only gorodishcha: all 0.315701 new 0.296110 opt 0.144274 | boot mean +0.0012 [-0.0058;+0.0086] P 0.625
+   kurgan +0.0000 kurgan +0.0000 gorodi +0.0072 arkhit +0.0000 object +0.0000 fortif +0.0000 finds_ +0.0000
+model only arkhitektury: all 0.324359 new 0.296451 opt 0.151281 | boot mean +0.0085 [+0.0012;+0.0147] P 0.966
+   kurgan +0.0000 kurgan +0.0000 gorodi +0.0000 arkhit +0.0974 object +0.0000 fortif +0.0000 finds_ +0.0000
+model only object_poly: all 0.314777 new 0.296451 opt 0.144437 | boot mean +0.0001 [+0.0000;+0.0002] P 0.643
+   kurgan +0.0000 kurgan +0.0000 gorodi +0.0000 arkhit +0.0000 object +0.0016 fortif +0.0000 finds_ +0.0000
+model only fortifikatsii: all 0.310945 new 0.289440 opt 0.142180 | boot mean -0.0031 [-0.0057;-0.0002] P 0.042
+   kurgan +0.0000 kurgan +0.0000 gorodi +0.0000 arkhit +0.0000 object +0.0000 fortif -0.0734 finds_ +0.0000
+model only finds_points: all 0.317422 new 0.296451 opt 0.147328 | boot mean +0.0019 [+0.0000;+0.0034] P 0.869
+   kurgan +0.0000 kurgan +0.0000 gorodi +0.0000 arkhit +0.0000 object +0.0000 fortif +0.0000 finds_ +0.0281
+fold 0 ['kurgany_povrezhdennye', 'kurgany_tselye', 'gorodishcha', 'arkhitektury']
+fold 1 ['gorodishcha', 'arkhitektury']
+fold 2 ['kurgany_tselye', 'gorodishcha', 'arkhitektury']
+fold 3 ['kurgany_tselye', 'gorodishcha', 'arkhitektury']
+fold 4 ['gorodishcha', 'arkhitektury']
+fold 5 ['gorodishcha', 'arkhitektury']
+fold 6 ['gorodishcha', 'arkhitektury']
+fold 7 ['gorodishcha', 'arkhitektury']
+fold 8 ['kurgany_tselye', 'gorodishcha', 'arkhitektury']
+fold 9 ['gorodishcha', 'arkhitektury']
+select per class: all 0.319936 new 0.298059 opt 0.123087 | boot mean +0.0037 [-0.0098;+0.0161] P 0.685
+   kurgan -0.0146 kurgan -0.0056 gorodi +0.0072 arkhit +0.0974 object +0.0000 fortif +0.0000 finds_ +0.0000
+EXIT 0

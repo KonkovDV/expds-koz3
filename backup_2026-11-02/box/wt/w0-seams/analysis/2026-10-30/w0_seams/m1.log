@@ -1,0 +1,11 @@
+N 1386709
+kurgany_povrezhdennye kurgany_povrezhdennye {'n': 649668, 'cur': 4613, 'rp': 4651, 'cen': 4646, 'pl': 4646, 'rp_not_cur': 41, 'cur_not_rp': 3, 'cen_not_rp': 9, 'rp_not_cen': 14, 'pl_not_rp': 9, 'rp_not_pl': 14, 'n_gt_pt': 0, 'n_gt': 3620}
+kurgany_povrezhdennye kurgany_tselye {'n': 649668, 'cur': 1814, 'rp': 1826, 'cen': 1830, 'pl': 1830, 'rp_not_cur': 14, 'cur_not_rp': 2, 'cen_not_rp': 8, 'rp_not_cen': 4, 'pl_not_rp': 8, 'rp_not_pl': 4, 'n_gt_pt': 0, 'n_gt': 1577}
+kurgany_tselye kurgany_povrezhdennye {'n': 617731, 'cur': 4389, 'rp': 4426, 'cen': 4424, 'pl': 4424, 'rp_not_cur': 40, 'cur_not_rp': 3, 'cen_not_rp': 11, 'rp_not_cen': 13, 'pl_not_rp': 11, 'rp_not_pl': 13, 'n_gt_pt': 0, 'n_gt': 3620}
+kurgany_tselye kurgany_tselye {'n': 617731, 'cur': 1828, 'rp': 1841, 'cen': 1848, 'pl': 1848, 'rp_not_cur': 15, 'cur_not_rp': 2, 'cen_not_rp': 11, 'rp_not_cen': 4, 'pl_not_rp': 11, 'rp_not_pl': 4, 'n_gt_pt': 0, 'n_gt': 1577}
+gorodishcha gorodishcha {'n': 4676, 'cur': 154, 'rp': 156, 'cen': 157, 'pl': 161, 'rp_not_cur': 2, 'cur_not_rp': 0, 'cen_not_rp': 4, 'rp_not_cen': 3, 'pl_not_rp': 8, 'rp_not_pl': 3, 'n_gt_pt': 0, 'n_gt': 118}
+arkhitektury arkhitektury {'n': 47518, 'cur': 228, 'rp': 231, 'cen': 232, 'pl': 232, 'rp_not_cur': 3, 'cur_not_rp': 0, 'cen_not_rp': 1, 'rp_not_cen': 0, 'pl_not_rp': 1, 'rp_not_pl': 0, 'n_gt_pt': 0, 'n_gt': 407}
+object_poly object_poly {'n': 868, 'cur': 447, 'rp': 469, 'cen': 486, 'pl': 471, 'rp_not_cur': 24, 'cur_not_rp': 2, 'cen_not_rp': 25, 'rp_not_cen': 8, 'pl_not_rp': 36, 'rp_not_pl': 34, 'n_gt_pt': 0, 'n_gt': 1083}
+fortifikatsii fortifikatsii {'n': 62516, 'cur': 584, 'rp': 619, 'cen': 622, 'pl': 646, 'rp_not_cur': 36, 'cur_not_rp': 1, 'cen_not_rp': 26, 'rp_not_cen': 23, 'pl_not_rp': 54, 'rp_not_pl': 27, 'n_gt_pt': 0, 'n_gt': 696}
+finds_points finds_points {'n': 3732, 'cur': 1855, 'rp': 1855, 'cen': 1855, 'pl': 1855, 'rp_not_cur': 0, 'cur_not_rp': 0, 'cen_not_rp': 0, 'rp_not_cen': 0, 'pl_not_rp': 0, 'rp_not_pl': 0, 'n_gt_pt': 3478, 'n_gt': 3478}
+done

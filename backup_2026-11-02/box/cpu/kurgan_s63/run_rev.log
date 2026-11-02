@@ -1,0 +1,71 @@
+ЛОКАЛЬНЫЙ СУХОЙ ПРОГОН: CPU, 1 батч, без предобучения — результаты не значимы
+{"npz": "/workspace/koz3/ds/kcrops/kurgan_subclass_crops.npz", "N": 9322, "shape": [9322, 3, 64, 64], "labeled": 4704, "povr_share": 0.5821, "kinds": {"cand": 6109, "gt": 3213}, "regions": 56}
+smp: preinstalled | imagenet в кэше: {"resnet18": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7", "bytes": 46805552}, "resnet34": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13", "bytes": 87275112}}
+модели строятся: ['resnet18', 'resnet34'] pretrained True
+фолдов 10, семей 42; ни одна семья не делится между фолдами
+{"model": "r18_imnet", "fold": 9, "train": 4607, "test": 544, "test_labeled": 97, "auc": 0.5983772819472617, "sec": 1604.7, "device": "cpu"}
+{"model": "r34_imnet", "fold": 9, "train": 4607, "test": 544, "test_labeled": 97, "auc": 0.6313387423935092, "sec": 2350.5, "device": "cpu"}
+{"model": "r18_imnet", "fold": 8, "train": 4076, "test": 882, "test_labeled": 628, "auc": 0.6725315492081873, "sec": 846.4, "device": "cpu"}
+{"model": "r18_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7583890990204636, "sec": 1248.7, "device": "cpu"}
+{"model": "r34_imnet", "fold": 8, "train": 4076, "test": 882, "test_labeled": 628, "auc": 0.6627317271918256, "sec": 2314.0, "device": "cpu"}
+{"model": "r18_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.8823529411764706, "sec": 1807.1, "device": "cpu"}
+r18_imnet f5: из кэша r18_imnet_f5.npy
+r18_imnet f4: из кэша r18_imnet_f4.npy
+r18_imnet f3: из кэша r18_imnet_f3.npy
+r18_imnet f2: из кэша r18_imnet_f2.npy
+r18_imnet f1: из кэша r18_imnet_f1.npy
+r18_imnet f0: из кэша r18_imnet_f0.npy
+r18_imnet: все фолды за 5507 с
+{"model": "r34_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7525862347654608, "sec": 1417.1, "device": "cpu"}
+{"model": "r34_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.9411764705882353, "sec": 1041.4, "device": "cpu"}
+{"model": "r34_imnet", "fold": 5, "train": 4567, "test": 290, "test_labeled": 137, "auc": 0.9013574660633484, "sec": 1027.6, "device": "cpu"}
+r34_imnet f4: из кэша r34_imnet_f4.npy
+r34_imnet f3: из кэша r34_imnet_f3.npy
+r34_imnet f2: из кэша r34_imnet_f2.npy
+r34_imnet f1: из кэша r34_imnet_f1.npy
+r34_imnet f0: из кэша r34_imnet_f0.npy
+r34_imnet: все фолды за 8151 с
+OOF готово за 8151 с
+{
+ "summary": {
+  "r18_imnet": {
+   "auc_oof_all": 0.7413425048319607,
+   "auc_oof_cand": 0.7060048568695269,
+   "auc_family_macro": 0.7769317701124574,
+   "families_with_both_classes": 18
+  },
+  "r34_imnet": {
+   "auc_oof_all": 0.7326615093551664,
+   "auc_oof_cand": 0.7112591066303628,
+   "auc_family_macro": 0.7733836685635551,
+   "families_with_both_classes": 18
+  },
+  "ensemble": {
+   "auc_oof_all": 0.7447495851684628,
+   "auc_oof_cand": 0.7162318787254397,
+   "auc_family_macro": 0.7801090173854777,
+   "families_with_both_classes": 18
+  }
+ },
+ "bootstrap_ens": {
+  "p5": 0.693628623871961,
+  "p50": 0.7343765575311376,
+  "p95": 0.797942719022566,
+  "P_auc_ge_0.9": 0.0,
+  "n": 1000
+ },
+ "decision": {
+  "thr": 0.4,
+  "why_thr": "0.4 = 20/(30+20): ошибка на povr дороже: веса классов метрики (povr 30, tselye 20; materials/compute_metrics.py:84–85) — порог Байеса при откалиброванной BCE без весов; задан заранее, не подбирается по OOF",
+  "acc_all_labeled": 0.673469387755102,
+  "cand_labeled": 1491,
+  "cand_wrong_subclass_now": 587,
+  "fixed_by_clf": 250,
+  "broken_by_clf": 273
+ },
+ "AUC>=0.9": false
+}
+→ /kaggle/working/kurgan_subclass_oof.csv, kurgan_subclass_report.json, kurgan_subclass_auc_by_family.csv
+r18_imnet: финальная модель 1694 с
+r34_imnet: финальная модель 1911 с
+ГОТОВО за 10077 с

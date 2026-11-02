@@ -1,0 +1,68 @@
+﻿START 2026-10-29T17:58:58.3540701+03:00
+FREE_BEFORE_BYTES=14396108800
+OK	C:\Sloi\expds3c	C:\Sloi Trash\expds3c	13060271488	12.163GB	old local measure/bench tree; not in active leases; only stale v2prof ref
+OK	C:\Sloi\sim	C:\Sloi Trash\sim	1389397336	1.294GB	platform sim done (sim_done.flag); not in active queue/leases
+OK	C:\Sloi\work59	C:\Sloi Trash\work59	2828892825	2.635GB	old stack/acc experiment outputs; GT copies also on F:\expds3\work
+OK	C:\Sloi\expds-koz3_v0.2.0\expds-koz3\dist	C:\Sloi Trash\expds-koz3_v0.2.0\expds-koz3\dist	2929613492	2.728GB	old LB submission zip duplicates (~2.7GB)
+OK	C:\Sloi\expds-koz3_v0.2.0\expds-koz3\rust\expds_core\target	C:\Sloi Trash\expds-koz3_v0.2.0\expds-koz3\rust\expds_core\target	1272913635	1.185GB	Rust build cache; reproducible via cargo build
+OK	C:\Sloi\wt_bot2_hotfix	C:\Sloi Trash\wt_bot2_hotfix	860325792	0.801GB	duplicate worktree same SHA as wt_bot2_1ec2d7c; clean; job DONE
+OK	C:\Sloi\wt_b10	C:\Sloi Trash\wt_b10	7315902	0.007GB	orphan (no .git); models is junction to main; not in git worktree list
+OK	C:\Sloi\wt_geo	C:\Sloi Trash\wt_geo	5251719	0.005GB	orphan (no .git); models junction; not registered
+OK	C:\Sloi\wt_lidump	C:\Sloi Trash\wt_lidump	8024262	0.007GB	orphan (no .git); models junction; not registered
+OK	C:\Sloi\wt_lihalf_db332db	C:\Sloi Trash\wt_lihalf_db332db	6867144	0.006GB	orphan incomplete wt; not registered
+OK	C:\Sloi\wt_pix	C:\Sloi Trash\wt_pix	11088532	0.010GB	orphan; not registered
+OK	C:\Sloi\wt_s4	C:\Sloi Trash\wt_s4	7171956	0.007GB	orphan; not registered
+OK	C:\Sloi\wt_site	C:\Sloi Trash\wt_site	7173293	0.007GB	orphan; not registered
+OK	C:\Sloi\kur	C:\Sloi Trash\kur	368414725	0.343GB	ad-hoc kurgan artifacts; not referenced by runners/leases
+OK	C:\Sloi\rerank	C:\Sloi Trash\rerank	204617890	0.191GB	old rerank outputs; not in active queue
+OK	C:\Sloi\xfer	C:\Sloi Trash\xfer	82218551	0.077GB	temp transfer dir
+OK	C:\Sloi\xfer_venv	C:\Sloi Trash\xfer_venv	195906126	0.182GB	temp transfer venv
+OK	C:\Sloi\pkg	C:\Sloi Trash\pkg	8243	0.000GB	tiny leftover pkg dir
+OK	C:\Sloi\bench	C:\Sloi Trash\bench	51301	0.000GB	old bench leftovers
+OK	C:\Sloi\mram	C:\Sloi Trash\mram	3277	0.000GB	tiny leftover
+OK	C:\Sloi\_v10_unpack	C:\Sloi Trash\_v10_unpack	90442	0.000GB	old unpack leftover
+OK	C:\Sloi\geo	C:\Sloi Trash\geo	19432736	0.018GB	old geo scratch
+OK	C:\Sloi\geo211	C:\Sloi Trash\geo211	50839605	0.047GB	old geo211 scratch
+OK	C:\Sloi\pix	C:\Sloi Trash\pix	21837906	0.020GB	old pix scratch
+OK	C:\Sloi\venvs	C:\Sloi Trash\venvs	36465562	0.034GB	secondary kaggle venv; runners use main .venv
+OK	C:\Sloi\pc_measure_v2	C:\Sloi Trash\pc_measure_v2	4725754	0.004GB	old measure leftovers
+OK	C:\Sloi\TRASH	C:\Sloi Trash\TRASH_empty_placeholder	0	0.000GB	empty inner TRASH folder; consolidating into C:\Sloi Trash
+OK	C:\Sloi\Evaluation_logs_2026-10-27_20_54_47.317Z.zip	C:\Sloi Trash\Evaluation_logs_2026-10-27_20_54_47.317Z.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\Evaluation_logs_2026-10-29_07_53_18.240Z.zip	C:\Sloi Trash\Evaluation_logs_2026-10-29_07_53_18.240Z.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-25_5ac5e0a_v4.zip	C:\Sloi Trash\expds-koz3_2026-10-25_5ac5e0a_v4.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-25_eb78afb.zip	C:\Sloi Trash\expds-koz3_2026-10-25_eb78afb.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-25_eb78afb_v2.zip	C:\Sloi Trash\expds-koz3_2026-10-25_eb78afb_v2.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-26_23a5cb8_v5.zip	C:\Sloi Trash\expds-koz3_2026-10-26_23a5cb8_v5.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-26_23a5cb8_v6.zip	C:\Sloi Trash\expds-koz3_2026-10-26_23a5cb8_v6.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-26_23a5cb8_v7.zip	C:\Sloi Trash\expds-koz3_2026-10-26_23a5cb8_v7.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-27_8eab3a8_v8.zip	C:\Sloi Trash\expds-koz3_2026-10-27_8eab3a8_v8.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-27_8eab3a8_v9.zip	C:\Sloi Trash\expds-koz3_2026-10-27_8eab3a8_v9.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-27_a89ce4c_v10.zip	C:\Sloi Trash\expds-koz3_2026-10-27_a89ce4c_v10.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_2026-10-27_a89ce4c_v11.zip	C:\Sloi Trash\expds-koz3_2026-10-27_a89ce4c_v11.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_audit_2026-10-25.zip	C:\Sloi Trash\expds-koz3_audit_2026-10-25.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_audit_2026-10-251.zip	C:\Sloi Trash\expds-koz3_audit_2026-10-251.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_audit_2026-10-252.zip	C:\Sloi Trash\expds-koz3_audit_2026-10-252.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_audit_2026-10-255.zip	C:\Sloi Trash\expds-koz3_audit_2026-10-255.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_audit_2026-10-256.zip	C:\Sloi Trash\expds-koz3_audit_2026-10-256.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_claude-branch_955a234.bundle	C:\Sloi Trash\expds-koz3_claude-branch_955a234.bundle	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_handoff_full_2026-10-24.zip	C:\Sloi Trash\expds-koz3_handoff_full_2026-10-24.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_update_2026-10-23.zip	C:\Sloi Trash\expds-koz3_update_2026-10-23.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\expds-koz3_v0.2.0.zip	C:\Sloi Trash\expds-koz3_v0.2.0.zip	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\kaggle_pool_4x2_t4.json	C:\Sloi Trash\kaggle_pool_4x2_t4.json	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_improvement_plan_2026-10-21.md	C:\Sloi Trash\KOZ3_improvement_plan_2026-10-21.md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_ORGANIZER_MATERIALS_2026-10-21(1).md	C:\Sloi Trash\KOZ3_ORGANIZER_MATERIALS_2026-10-21(1).md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_ORGANIZER_MATERIALS_2026-10-21.md	C:\Sloi Trash\KOZ3_ORGANIZER_MATERIALS_2026-10-21.md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_OSINT_2026-10-19.md	C:\Sloi Trash\KOZ3_OSINT_2026-10-19.md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_OSINT_v2_2026-10-19.md	C:\Sloi Trash\KOZ3_OSINT_v2_2026-10-19.md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_plan_v2_2026-10-21.md	C:\Sloi Trash\KOZ3_plan_v2_2026-10-21.md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+OK	C:\Sloi\KOZ3_plan_v3_2026-10-21(1).md	C:\Sloi Trash\KOZ3_plan_v3_2026-10-21(1).md	0	0.000GB	old root archive/doc duplicate; not referenced by active runners
+PRUNE	git : Removing worktrees/wt_bot2_hotfix: gitdir file points to non-existent location
+At C:\Sloi\pc_jobs\_move_to_sloi_trash.ps1:132 char:15
++ ... $pruneOut = git -C 'C:\Sloi\expds-koz3_v0.2.0\expds-koz3' worktree pr ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Removing worktr...istent location:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+FREE_AFTER_BYTES=14395723776
+END 2026-10-29T17:59:00.2764267+03:00

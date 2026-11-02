@@ -1,0 +1,128 @@
+{
+ "las": "016_Хога/01_Хога_La_точки/01_Хога_La_точки.las",
+ "bytes": 8066831,
+ "n_li": 4,
+ "cls": {
+  "fmt": 6,
+  "n": 268836,
+  "classes": {
+   "2": 268836
+  },
+  "frac_ground": 1.0
+ },
+ "li_res": 0.1000000000000095,
+ "rc": 0,
+ "stderr_tail": "INFO DEM a.las: 4905x3522 @ 0.1 м, точек 268836, пустот 17009990, rust 0.1.0 avx2=true/true threads=4\n",
+ "check": {
+  "seconds": 2.7,
+  "report": {
+   "g": {
+    "status": "ok",
+    "file": "03_Хога_Li_g.tif",
+    "pixels": 17275410,
+    "equal_pct": 24.292,
+    "within1_pct": 40.228,
+    "mae": 4.6756,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.546
+   },
+   "i": {
+    "status": "ok",
+    "file": "04_Хога_Li_i.tif",
+    "pixels": 17275410,
+    "equal_pct": 22.717,
+    "within1_pct": 36.461,
+    "mae": 4.7881,
+    "shift_px": [
+     0.0,
+     0.0
+    ],
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "shift_peak": 0.546
+   },
+   "c": {
+    "status": "нет файла Li"
+   },
+   "ch": {
+    "status": "нет файла Li"
+   }
+  }
+ },
+ "fit": {
+  "li_res": 0.1000000000000095,
+  "dem_res": 0.1000000000000095,
+  "shape": [
+   3522,
+   4905
+  ],
+  "build_s": 1.2,
+  "used_all": false,
+  "g_grad": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": 232.65,
+   "b": 14.31,
+   "mae": 4.784,
+   "r": 0.9567
+  },
+  "i_grad": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": -232.45,
+   "b": 238.14,
+   "mae": 4.779,
+   "r": -0.9567
+  },
+  "g_horn": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": 235.52,
+   "b": 12.39,
+   "mae": 4.529,
+   "r": 0.9615
+  },
+  "i_horn": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": -235.31,
+   "b": 240.06,
+   "mae": 4.525,
+   "r": -0.9615
+  },
+  "ours_default_g_mae": 4.675,
+  "ours_default_i_mae_255minus": 4.97,
+  "g_horn_smooth1px": {
+   "mae": 3.756,
+   "a": 244.7,
+   "b": 6.1
+  },
+  "g_horn_smooth2px": {
+   "mae": 4.048,
+   "a": 236.0,
+   "b": 11.9
+  },
+  "g_horn_smooth3px": {
+   "mae": 5.336,
+   "a": 219.9,
+   "b": 22.6
+  },
+  "g_plus_i_med": 253.0,
+  "li_nodata255_frac": 0.16,
+  "our_valid_frac": 0.841
+ },
+ "wall_s": 66.5
+}

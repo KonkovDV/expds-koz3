@@ -1,0 +1,48 @@
+[{"stream_name":"stdout","time":8.436966611999999,"data":"sha256 15d59e9f7c120b56079f4cc7bc8cb83c14b698db9a57228e75e286dddd9842c9 OK\n"}
+,{"stream_name":"stdout","time":8.437012076,"data":"python 3.13.15 nproc 4\n"}
+,{"stream_name":"stdout","time":14.341335859,"data":"torch 2.11.0+cpu\n"}
+,{"stream_name":"stdout","time":50.619991418,"data":"== check_submission: /kaggle/temp/koz3_v2clean_26ad1ba.zip (2026-10-30 04:38:15 UTC)\n"}
+,{"stream_name":"stdout","time":50.620047618,"data":"[PASS] zip       58 файлов, CRC ок, пути безопасны\n"}
+,{"stream_name":"stdout","time":50.620057835,"data":"[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте\n"}
+,{"stream_name":"stdout","time":50.620063978,"data":"[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so\n"}
+,{"stream_name":"stdout","time":50.620070024,"data":"[PASS] forbidden нет данных выборок и секретов\n"}
+,{"stream_name":"stdout","time":50.620077708,"data":"[PASS] size      архив 542.2 МиБ (568488168 Б), распакованный 549.1 МиБ, лимит 2048 МиБ\n"}
+,{"stream_name":"stdout","time":50.620084246,"data":"[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ\n"}
+,{"stream_name":"stdout","time":50.62009038,"data":"[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'\n"}
+,{"stream_name":"stdout","time":50.620095975,"data":"[PASS] config    все 15 путей к весам из default.toml есть в архиве\n"}
+,{"stream_name":"stdout","time":50.620102125,"data":"[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']\n"}
+,{"stream_name":"stdout","time":50.620108843,"data":"[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']\n"}
+,{"stream_name":"stdout","time":50.62011767,"data":"[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён\n"}
+,{"stream_name":"stdout","time":50.620122291,"data":"[INFO] config    порог \u003e 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']\n"}
+,{"stream_name":"stdout","time":50.620127049,"data":"[PASS] config    пороги в [0,1], имена классов из 7 допустимых\n"}
+,{"stream_name":"stdout","time":50.62013113,"data":"[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов\n"}
+,{"stream_name":"stdout","time":50.620137121,"data":"[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']\n"}
+,{"stream_name":"stdout","time":50.620145313,"data":"[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389\n"}
+,{"stream_name":"stdout","time":50.620151628,"data":"[FAIL] imports   не установлены в /usr/bin/python3: {'laspy': 'не найден', 'segmentation_models_pytorch': 'не найден'}\n"}
+,{"stream_name":"stdout","time":50.62015813,"data":"[FAIL] weights   li: models/li_r18_hard2.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620303843,"data":"[FAIL] weights   li_mask: models/li_gor_mask_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.62031155,"data":"[FAIL] weights   sp_or: models/spor_gor_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.6203174,"data":"[FAIL] weights   sp_or: models/spor_focal_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620321822,"data":"[FAIL] weights   sp_or: models/surf_arch_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620325133,"data":"[FAIL] weights   li_fort: models/li_fort_mask_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620330288,"data":"[FAIL] weights   li_dev: models/li_dev_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620335165,"data":"[FAIL] weights   sp_focal2: models/spor_focal_wide_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620340296,"data":"[FAIL] weights   ae: models/ae_fort_mask_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.62034543,"data":"[FAIL] weights   or: models/surf_arch_r18.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620350583,"data":"[FAIL] weights   verify: models/sp_crop.pt не открывается: ModuleNotFoundError(\"No module named 'segmentation_models_pytorch'\")\n"}
+,{"stream_name":"stdout","time":50.620355529,"data":"[FAIL] smoke     синтетика не создана (нужны numpy/laspy/rasterio/pyproj): Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":50.620360872,"data":"  File \"\u003cstring\u003e\", line 12, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":50.620367195,"data":"    import laspy, rasterio\n"}
+,{"stream_name":"stdout","time":50.620371859,"data":"ModuleNotFoundError: No module named 'laspy'\n"}
+,{"stream_name":"stdout","time":50.620376491,"data":"\n"}
+,{"stream_name":"stdout","time":50.620380876,"data":"== ИТОГ: FAIL — FAIL 13, WARN 1, проверок 29, 35.9 с\n"}
+,{"stream_name":"stdout","time":50.620385893,"data":"\n"}
+,{"stream_name":"stdout","time":50.620390108,"data":"STDERR: \n"}
+,{"stream_name":"stdout","time":50.620394912,"data":"RC 1 wall_s 36.3\n"}
+,{"stream_name":"stderr","time":53.973785661,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":53.973826243,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":54.330682108,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":54.330718316,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":55.309093927,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":56.775096292,"data":"[NbConvertApp] Writing 281071 bytes to __results__.html\n"}
+]

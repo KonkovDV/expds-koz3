@@ -1,0 +1,4 @@
+keep-mask scale 0.95 sat 2622 dropped 2112
+honest [0.3264466327042828, 0.3000622177997871, 0.17335794836871954] {'folds': 10, 'unseen_dropped': 723, 'unseen_kept': 0}
+{"score": 0.3264466327042828, "base": 0.3146153226828423, "d": 0.0118313100214405, "d_new34": 0.0036113650931076102, "d_optical": 0.029083874943075294, "boot": {"mean": 0.012712604723518133, "p5": 0.004771131251572883, "p50": 0.011679932334811599, "p95": 0.024290189694336956, "p_gt0": 1.0, "families": 103}, "per_class": {"kurgany_povrezhdennye": 0.03428997180681087, "kurgany_tselye": 0.0077215923969861655, "gorodishcha": 0.0, "arkhitektury": 0.0, "object_poly": 0.0, "fortifikatsii": 0.0, "finds_points": 0.0}, "info": {"folds": 10, "unseen_dropped": 723, "unseen_kept": 0}, "accept": true, "scale": 0.95, "damaged_not_worse": true, "pass_full": true, "pass_soft": true}
+

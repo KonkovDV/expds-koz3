@@ -1,0 +1,275 @@
+new True old True chk /kaggle/input/koz3-w4-v3onfix/check_submission.py python 3.13.15
+pip ['install', '-q', '--no-index'] 0 
+C_default env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK C_default =====
+== check_submission: /kaggle/temp/v3on_new.zip (2026-11-01 19:31:48 UTC)
+[PASS] zip       3902 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/rich/_windows_renderer.py', 'inference/lib/vendor/_hf/httpx2/_transports/asgi.py', 'inference/lib/vendor/transformers/models/mimo_v2_flash/modular_mimo_v2_flash.py', 'inference/lib/vendor/transformers/models/qwen3_moe/modeling_qwen3_moe.py', 'inference/lib/vendor/transformers/models/phi/modeling_phi.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 689.2 МиБ (722697913 Б), распакованный 750.6 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 34 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   33 модулей и 12 сторонних пакетов импортируются без сети (33.6 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 29.6 с, пик RSS 1386 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 4 с, лидар: сырых 30, 10 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 9 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 27.3 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 27 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_C_default/b8smoke_qx5t_itn
+== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 135.4 с
+
+STDERR: 
+C_default {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 135.4 с", "wall_s": 136, "v3_lines": ["[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе", "[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])", "[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)", "[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 27 с ; n_det=16 total, участков полностью 1, моделей 1", "[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": "6b1da9bf8f59843d8ae592414e5236f161245dc9c6431eb1dcc19c47a62f4d36"}, "ref103": {"rc": 0, "wall_s": 157, "files": {"result.geojson": "dc99ce1d04c2057c5abc408dedb30d245620a03401bdb9a65b681b45b023cc31"}, "warn": [], "ndet": ["2026-11-01 19:36:40,962 INFO expds.pipeline: sp_dfine n_det=155 region=103_Гнёздово_Ольшанская complete=True, прошло 154 с", "2026-11-01 19:36:40,962 INFO expds.pipeline: sp_dfine n_det=155 total, участков полностью 1, моделей 1"]}}
+A_regex2025_preloaded env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK A_regex2025_preloaded =====
+== check_submission: /kaggle/temp/v3on_new.zip (2026-11-01 19:36:48 UTC)
+[PASS] zip       3902 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/unlimited_ocr/modular_unlimited_ocr.py', 'inference/lib/vendor/transformers/models/video_llava/configuration_video_llava.py', 'inference/lib/vendor/pygments/lexers/_csound_builtins.py', 'inference/lib/vendor/pygments/lexers/templates.py', 'inference/lib/vendor/transformers/models/nemotron3_5_asr/modular_nemotron3_5_asr.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 689.2 МиБ (722697913 Б), распакованный 750.6 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 34 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   33 модулей и 12 сторонних пакетов импортируются без сети (20.1 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 24.1 с, пик RSS 1349 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 5 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 9 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 21.9 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 21 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_A_regex2025_preloaded/b8smoke_txwnkm1_
+== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 103.4 с
+
+STDERR: 
+A_regex2025_preloaded {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 103.4 с", "wall_s": 104, "v3_lines": ["[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе", "[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])", "[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)", "[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 21 с ; n_det=16 total, участков полностью 1, моделей 1", "[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": "6b1da9bf8f59843d8ae592414e5236f161245dc9c6431eb1dcc19c47a62f4d36"}, "ref103": {"rc": 0, "wall_s": 141, "files": {"result.geojson": "dc99ce1d04c2057c5abc408dedb30d245620a03401bdb9a65b681b45b023cc31"}, "warn": [], "ndet": ["2026-11-01 19:40:52,721 INFO expds.pipeline: sp_dfine n_det=155 region=103_Гнёздово_Ольшанская complete=True, прошло 139 с", "2026-11-01 19:40:52,721 INFO expds.pipeline: sp_dfine n_det=155 total, участков полностью 1, моделей 1"]}}
+NEG_dfine_broken env: regex 2025.11.3 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.16.1 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK NEG_dfine_broken =====
+== check_submission: /kaggle/temp/v3on_neg.zip (2026-11-01 19:41:11 UTC)
+[PASS] zip       3902 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/timesfm2_5/modular_timesfm2_5.py', 'inference/lib/vendor/transformers/models/bigbird_pegasus/modeling_bigbird_pegasus.py', 'inference/lib/vendor/transformers/models/opt/modeling_opt.py', 'inference/lib/vendor/transformers/models/fnet/configuration_fnet.py', 'inference/lib/vendor/transformers/models/cohere_compass/configuration_cohere_compass.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 689.2 МиБ (722690420 Б), распакованный 750.6 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 34 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   33 модулей и 12 сторонних пакетов импортируются без сети (16.4 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[FAIL] dfine     sp_dfine включён, а классы D-FINE не импортируются в /usr/bin/python3: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)
+[FAIL] dfine     веса D-FINE из архива не загрузились/не отработали: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 15.5 с, пик RSS 1140 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 0, 3 с, канал σ: сырых 24, 0 с
+[INFO] smoke     записано 80, файл 58184 байт
+[INFO] smoke     общее время 13.6 с
+[FAIL] dfine     4 строк недоступности D-FINE/шлюза в логе (выдача = v2): и не загрузились (ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)) — D-FINE пропущен, выдача как v2 | ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) | рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!
+[INFO] dfine     n_det=0 region=region_0001 complete=False, прошло 13 с ; n_det=0 total, участков полностью 0, моделей 0
+[WARN] dfine     sp_dfine n_det=0 total (вход без опорного участка — проверить пробой весов)
+[FAIL] v3        маркер V3_DEGRADED.json рядом с ответом (выдача = v2): sp_dfine: SP_DFINE_UNAVAILABLE: модели не загрузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.1
+[FAIL] v3        2 строк V3_DEGRADED в логе: рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!! | рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!
+[WARN] smoke     1 тревожных строк лога: Traceback (most recent call last):
+[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}
+[WARN] smoke     рядом с ответом остались файлы: ['V3_DEGRADED.json']
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_NEG_dfine_broken/b8smoke_a18scyef
+== ИТОГ: FAIL — FAIL 5, WARN 6, проверок 40, 52.7 с
+
+STDERR: 
+NEG_dfine_broken {"rc": 1, "itog": "== ИТОГ: FAIL — FAIL 5, WARN 6, проверок 40, 52.7 с", "wall_s": 53, "v3_lines": ["[FAIL] dfine     sp_dfine включён, а классы D-FINE не импортируются в /usr/bin/python3: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)", "[FAIL] dfine     веса D-FINE из архива не загрузились/не отработали: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)", "[FAIL] dfine     4 строк недоступности D-FINE/шлюза в логе (выдача = v2): и не загрузились (ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)) — D-FINE пропущен, выдача как v2 | ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) | рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!", "[INFO] dfine     n_det=0 region=region_0001 complete=False, прошло 13 с ; n_det=0 total, участков полностью 0, моделей 0", "[WARN] dfine     sp_dfine n_det=0 total (вход без опорного участка — проверить пробой весов)", "[FAIL] v3        маркер V3_DEGRADED.json рядом с ответом (выдача = v2): sp_dfine: SP_DFINE_UNAVAILABLE: модели не загрузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.1", "[FAIL] v3        2 строк V3_DEGRADED в логе: рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!! | рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!"], "smoke_files": {"V3_DEGRADED.json": "c54bf45bb15737d2aaf46d41fa3ea198727161e96059e71927624bd1cd7e1abc", "result.geojson": "9ab7e18affbc700833b2c4cf25043496f9244c80266ae59eef928db2d1dd8633"}, "ref103": {"rc": 0, "wall_s": 61, "files": {"V3_DEGRADED.json": "e89385e644dab4361a4e90427441d1ca937299d971696ba72070ddde1985ca8a", "result.geojson": "b7774f143064bf07c0229f020566d0f9e5f2554213dc25e1205e62133ff54ef5"}, "warn": ["и не загрузились (ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)) — D-FINE пропущен, выдача как v2", "    raise ImportError(f\"{UNAVAILABLE}: D-FINE недоступен — \" + \" | \".join(info[\"errors\"]))", "ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)", "рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!", "рузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py) — ветка v3 не работает, выдача как v2 !!!"], "ndet": ["2026-11-01 19:43:04,920 INFO expds.pipeline: sp_dfine n_det=0 region=103_Гнёздово_Ольшанская complete=False, прошло 59 с", "2026-11-01 19:43:04,920 INFO expds.pipeline: sp_dfine n_det=0 total, участков полностью 0, моделей 0"], "marker": {"degraded": true, "reasons": [{"component": "sp_dfine", "reason": "SP_DFINE_UNAVAILABLE: модели не загрузились: ImportError: SP_DFINE_UNAVAILABLE: D-FINE недоступен — vendor: ImportError: W4 negative test: D-FINE broken on purpose | env: ImportError: transformers 5.16.1 != закреплённой 5.21.0 (/usr/local/lib/python3.13/dist-packages/transformers/__init__.py)", "t": "2026-11-01T19:43:04"}]}}}
+pip ['uninstall', '-y', 'regex'] 0 
+B_no_regex env: regex FAIL ModuleNotFoundError("No module named 'regex'") | transformers FAIL ModuleNotFoundError("No module named 'regex'") | tokenizers 0.23.1 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK B_no_regex =====
+== check_submission: /kaggle/temp/v3on_new.zip (2026-11-01 19:43:08 UTC)
+[PASS] zip       3902 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/bros/configuration_bros.py', 'inference/lib/vendor/transformers/models/audioflamingo3/modeling_audioflamingo3.py', 'inference/lib/vendor/transformers/models/lightglue/image_processing_pil_lightglue.py', 'inference/lib/vendor/pygments/styles/friendly_grayscale.py', 'inference/lib/vendor/transformers/models/decision_transformer/configuration_decision_transformer.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 689.2 МиБ (722697913 Б), распакованный 750.6 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 34 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   33 модулей и 12 сторонних пакетов импортируются без сети (16.3 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 21.1 с, пик RSS 1373 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 8 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 18.8 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 18 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_B_no_regex/b8smoke_r06z3p1e
+== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 94.6 с
+
+STDERR: 
+B_no_regex {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 94.6 с", "wall_s": 95, "v3_lines": ["[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе", "[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])", "[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)", "[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 18 с ; n_det=16 total, участков полностью 1, моделей 1", "[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": "6b1da9bf8f59843d8ae592414e5236f161245dc9c6431eb1dcc19c47a62f4d36"}, "ref103": {"rc": 0, "wall_s": 139, "files": {"result.geojson": "dc99ce1d04c2057c5abc408dedb30d245620a03401bdb9a65b681b45b023cc31"}, "warn": [], "ndet": ["2026-11-01 19:47:02,526 INFO expds.pipeline: sp_dfine n_det=155 region=103_Гнёздово_Ольшанская complete=True, прошло 137 с", "2026-11-01 19:47:02,527 INFO expds.pipeline: sp_dfine n_det=155 total, участков полностью 1, моделей 1"]}}
+pip ['install', '-q', '--no-index'] 0 is behaviour is the source of the following dependency conflicts.
+bigframes 2.48.0 requires google-cloud-bigquery-storage<3.0.0,>=2.30.0, which is not installed.
+gradio 6.26.0 requires huggingface-hub<2.0,>=1.16.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio 6.26.0 requires pillow<13.0,>=8.0, but you have pillow 13.0.0 which is incompatible.
+datasets 4.8.5 requires huggingface-hub<2.0,>=0.25.0, but you have huggingface-hub 2.4.0 which is incompatible.
+bigframes 2.48.0 requires rich<14,>=12.4.4, but you have rich 15.0.0 which is incompatible.
+diffusers 0.40.0 requires huggingface-hub<2.0,>=1.23.0, but you have huggingface-hub 2.4.0 which is incompatible.
+gradio-client 2.6.1 requires huggingface-hub<2.0,>=0.19.3, but you have huggingface-hub 2.4.0 which is incompatible.
+
+REF_old_ebc8e4ba_env521 env: regex 2026.9.29 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.21.0 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.3 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK REF_old_ebc8e4ba_env521 =====
+== check_submission: /kaggle/temp/v3on_old.zip (2026-11-01 19:47:31 UTC)
+[PASS] zip       3506 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/paligemma/configuration_paligemma.py', 'inference/lib/vendor/pygments/lexers/functional.py', 'inference/lib/vendor/transformers/models/csm/__init__.py', 'inference/lib/vendor/transformers/models/phimoe/configuration_phimoe.py', 'inference/lib/vendor/transformers/models/swin/__init__.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 680.5 МиБ (713557985 Б), распакованный 738.2 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (18.6 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[WARN] dfine     transformers 5.21.0 взят из окружения, не из вендора (вендор: ["vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_REF_old_ebc8e4ba_env521/b7dfine_r7a_zt57/inference/lib/vendor/regex/__init__.py)"])
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник env; SP_DFINE_DEPMETA: ['filelock', 'huggingface-hub', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 21.6 с, пик RSS 1371 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 8 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 19.3 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 19 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_REF_old_ebc8e4ba_env521/b8smoke_hzsmcyl3
+== ИТОГ: PASS — FAIL 0, WARN 4, проверок 36, 100.2 с
+
+STDERR: 
+REF_old_ebc8e4ba_env521 {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 4, проверок 36, 100.2 с", "wall_s": 100, "v3_lines": ["[WARN] dfine     transformers 5.21.0 взят из окружения, не из вендора (вендор: [\"vendor: ImportError: cannot import name '_regex' from partially initialized module 'regex' (most likely due to a circular import) (/kaggle/temp/wd_REF_old_ebc8e4ba_env521/b7dfine_r7a_zt57/inference/lib/vendor/regex/__init__.py)\"])", "[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник env; SP_DFINE_DEPMETA: ['filelock', 'huggingface-hub', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])", "[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)", "[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 19 с ; n_det=16 total, участков полностью 1, моделей 1", "[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": "6b1da9bf8f59843d8ae592414e5236f161245dc9c6431eb1dcc19c47a62f4d36"}, "ref103": {"rc": 0, "wall_s": 143, "files": {"result.geojson": "dc99ce1d04c2057c5abc408dedb30d245620a03401bdb9a65b681b45b023cc31"}, "warn": [], "ndet": ["2026-11-01 19:51:35,489 INFO expds.pipeline: sp_dfine n_det=155 region=103_Гнёздово_Ольшанская complete=True, прошло 140 с", "2026-11-01 19:51:35,489 INFO expds.pipeline: sp_dfine n_det=155 total, участков полностью 1, моделей 1"]}}
+D_new_env521 env: regex 2026.9.29 /usr/local/lib/python3.13/dist-packages/regex/__init__.py | transformers 5.21.0 /usr/local/lib/python3.13/dist-packages/transformers/__init__.py | tokenizers 0.23.3 /usr/local/lib/python3.13/dist-packages/tokenizers/__init__.py |  
+===== CHECK D_new_env521 =====
+== check_submission: /kaggle/temp/v3on_new.zip (2026-11-01 19:51:41 UTC)
+[PASS] zip       3902 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[WARN] layout    лишние .py в inference/: ['inference/lib/vendor/transformers/models/owlvit/__init__.py', 'inference/lib/vendor/transformers/models/aya_vision/modeling_aya_vision.py', 'inference/lib/vendor/transformers/models/pp_chart2table/modular_pp_chart2table.py', 'inference/lib/vendor/transformers/models/bailing_hybrid/modeling_bailing_hybrid.py', 'inference/lib/vendor/typer/cli.py']
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 689.2 МиБ (722697913 Б), распакованный 750.6 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/dfine_f0/model.safetensors 119 МиБ, models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 16 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']
+[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 34 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']
+[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[PASS] imports   33 модулей и 12 сторонних пакетов импортируются без сети (16.7 с)
+[PASS] weights   14 файлов весов открываются кодом архива на CPU
+[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе
+[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])
+[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)
+[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)
+[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически
+[PASS] smoke     main.py завершился за 20.8 с, пик RSS 1370 МиБ, CPU 0,1
+[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла
+[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2
+[INFO] smoke     фазы: геофизика: сырых 72, 2 с, лидар: сырых 30, 4 с, оптика: сырых 5, 1 с, sp_dfine: сырых 16, 8 с, канал σ: сырых 27, 0 с
+[INFO] smoke     записано 75, файл 53447 байт
+[INFO] smoke     общее время 18.4 с
+[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 18 с ; n_det=16 total, участков полностью 1, моделей 1
+[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)
+[PASS] format    FeatureCollection, 75 Polygon (≤20000), 0.051 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3}
+[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода
+[INFO] smoke     рабочая папка сохранена: /kaggle/temp/wd_D_new_env521/b8smoke_oot2lhwu
+== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 95.4 с
+
+STDERR: 
+D_new_env521 {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 95.4 с", "wall_s": 96, "v3_lines": ["[PASS] dfine     sp_dfine: DFineConfig/DFineForObjectDetection из вендора transformers 5.21.0 в чистом процессе", "[PASS] dfine     sp_dfine: импорт проходит и при пакетах образа без версии в метаданных (источник vendor; SP_DFINE_DEPMETA: ['filelock', 'numpy', 'packaging', 'pyyaml', 'safetensors', 'torch', 'torchvision', 'tqdm'])", "[PASS] dfine     103_Гнёздово_Ольшанская: models/dfine_f0 — запросов score ≥ 0.3 на 12 опорных окнах 14 (f0: 14), max 0.7037 (f0: 0.704)", "[INFO] dfine     n_det=16 region=region_0001 complete=True, прошло 18 с ; n_det=16 total, участков полностью 1, моделей 1", "[PASS] v3        маркера V3_DEGRADED нет (ветки v3 загружены или выключены)"], "smoke_files": {"result.geojson": "6b1da9bf8f59843d8ae592414e5236f161245dc9c6431eb1dcc19c47a62f4d36"}, "ref103": {"rc": 0, "wall_s": 140, "files": {"result.geojson": "dc99ce1d04c2057c5abc408dedb30d245620a03401bdb9a65b681b45b023cc31"}, "warn": [], "ndet": ["2026-11-01 19:55:37,845 INFO expds.pipeline: sp_dfine n_det=155 region=103_Гнёздово_Ольшанская complete=True, прошло 138 с", "2026-11-01 19:55:37,845 INFO expds.pipeline: sp_dfine n_det=155 total, участков полностью 1, моделей 1"]}}
+SUMMARY {"C_default": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 135.4 с", "marker": false, "smoke_eq_ref": true, "ref103_eq_ref": true}, "A_regex2025_preloaded": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 103.4 с", "marker": false, "smoke_eq_ref": true, "ref103_eq_ref": true}, "NEG_dfine_broken": {"rc": 1, "itog": "== ИТОГ: FAIL — FAIL 5, WARN 6, проверок 40, 52.7 с", "marker": true, "smoke_eq_ref": false, "ref103_eq_ref": false}, "B_no_regex": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 94.6 с", "marker": false, "smoke_eq_ref": true, "ref103_eq_ref": true}, "REF_old_ebc8e4ba_env521": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 4, проверок 36, 100.2 с", "marker": false, "smoke_eq_ref": true, "ref103_eq_ref": true}, "D_new_env521": {"rc": 0, "itog": "== ИТОГ: PASS — FAIL 0, WARN 3, проверок 36, 95.4 с", "marker": false, "smoke_eq_ref": true, "ref103_eq_ref": true}}

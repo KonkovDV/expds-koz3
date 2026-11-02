@@ -1,0 +1,9 @@
+[{"stream_name":"stdout","time":4.281416009,"data":"103_Гнёздово_Ольшанская/UTM.json {'size': 58, 'sha256': 'd462e8d29ac3630dffe928ec72765c93682d1f6fc956e6c9c071391b67dce9ae'}\n"}
+,{"stream_name":"stdout","time":7.709393306,"data":"103_Гнёздово_Ольшанская/04_Гнёздово_Ольшанская_SpOr_спутник/01_Гнёздово_Ольшанская_SpOr_спутник.tif {'size': 61591138, 'sha256': '93e9bd90f6b6315a3220f58c3759b70f13f286bad1e9acc0230eb12430b74179'}\n"}
+,{"stream_name":"stderr","time":10.554574818,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":10.554657249,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":11.019542697,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":11.019573553,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":12.923821358,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":14.236240794,"data":"[NbConvertApp] Writing 282684 bytes to __results__.html\n"}
+]

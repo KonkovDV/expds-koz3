@@ -1,0 +1,140 @@
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal
+  File "<string>", line 2
+    host = s3.ru-7.storage.selcloud.ru
+                  ^
+SyntaxError: invalid decimal literal

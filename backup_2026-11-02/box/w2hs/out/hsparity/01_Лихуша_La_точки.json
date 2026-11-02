@@ -1,0 +1,104 @@
+{
+ "las": "022_Лихуша/01_Лихуша_La_точки/01_Лихуша_La_точки.las",
+ "bytes": 303133077,
+ "n_li": 4,
+ "cls": {
+  "fmt": 3,
+  "n": 8915672,
+  "classes": {
+   "2": 8915672
+  },
+  "frac_ground": 1.0
+ },
+ "li_res": 0.1,
+ "rc": 0,
+ "stderr_tail": "INFO DEM a.las: 4157x5073 @ 0.2 м, точек 8915672, пустот 17269965, rust 0.1.0 avx2=true/true threads=4\n",
+ "check": {
+  "seconds": 7.3,
+  "report": {
+   "g": {
+    "status": "разный шаг",
+    "li_res": 0.1,
+    "our_res": 0.2
+   },
+   "i": {
+    "status": "разный шаг",
+    "li_res": 0.1,
+    "our_res": 0.2
+   },
+   "c": {
+    "status": "нет файла Li"
+   },
+   "ch": {
+    "status": "нет файла Li"
+   }
+  }
+ },
+ "fit": {
+  "li_res": 0.1,
+  "dem_res": 0.2,
+  "shape": [
+   5073,
+   4157
+  ],
+  "build_s": 5.7,
+  "used_all": false,
+  "g_grad": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": 216.13,
+   "b": 26.69,
+   "mae": 4.954,
+   "r": 0.9055
+  },
+  "i_grad": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": -216.1,
+   "b": 226.16,
+   "mae": 4.961,
+   "r": -0.9054
+  },
+  "g_horn": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": 230.93,
+   "b": 16.2,
+   "mae": 4.467,
+   "r": 0.9239
+  },
+  "i_horn": {
+   "az": 315,
+   "alt": 45,
+   "z": 1,
+   "a": -230.91,
+   "b": 236.66,
+   "mae": 4.472,
+   "r": -0.9238
+  },
+  "ours_default_g_mae": 4.614,
+  "ours_default_i_mae_255minus": 4.764,
+  "g_horn_smooth1px": {
+   "mae": 4.675,
+   "a": 259.5,
+   "b": -4.2
+  },
+  "g_horn_smooth2px": {
+   "mae": 6.462,
+   "a": 240.1,
+   "b": 9.2
+  },
+  "g_horn_smooth3px": {
+   "mae": 8.074,
+   "a": 206.7,
+   "b": 32.6
+  },
+  "g_plus_i_med": 253.0,
+  "li_nodata255_frac": 0.502,
+  "our_valid_frac": 0.499
+ },
+ "wall_s": 80.3
+}

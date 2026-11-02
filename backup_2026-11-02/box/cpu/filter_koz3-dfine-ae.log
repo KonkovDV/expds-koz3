@@ -1,0 +1,11 @@
+props {'class_name': 'fortifikatsii', 'confidence': 0.6813, 'region_name': '005_Боровичи_2', 'crs': 'EPSG:3857', 'markup_type': 'ae', 'original_crs': 'EPSG:32636', 'group': 'ae_dfine', 'threshold_group': 'ae_dfine', 'fold': 3, 'tif': '01_Боровичи_2_Ae_немецкая.tif', 'fid': 0}
+200000 18393
+400000 25899
+600000 84735
+800000 84735
+1000000 84735
+1200000 126538
+1400000 126538
+1600000 142874
+1800000 168937
+done 1920482 173038

@@ -1,0 +1,46 @@
+load+shape 15.26 173938
+{"finish": 23.4, "write": 3.03, "n_out": 20000}
+         10211909 function calls (10169435 primitive calls) in 23.397 seconds
+
+   Ordered by: cumulative time
+   List reduced from 4269 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   23.403   23.403 /workspace/koz3/wt/w0/expds/watchdog.py:104(finish)
+        1    0.151    0.151   23.403   23.403 /workspace/koz3/wt/w0/expds/watchdog.py:114(_finish_v3)
+        1    0.873    0.873   17.321   17.321 /workspace/koz3/wt/w0/expds/rerank_arch.py:184(apply)
+   1071/4    0.007    0.000   12.014    3.003 <frozen importlib._bootstrap>:1349(_find_and_load)
+   1028/4    0.005    0.000   12.013    3.003 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+   1002/4    0.004    0.000   12.009    3.002 <frozen importlib._bootstrap>:911(_load_unlocked)
+    850/4    0.004    0.000   12.009    3.002 <frozen importlib._bootstrap_external>:1020(exec_module)
+   2421/7    0.004    0.000   12.008    1.715 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+   1091/4    0.070    0.000   12.006    3.002 {built-in method builtins.exec}
+        1    0.000    0.000   11.837   11.837 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/__init__.py:1(<module>)
+        1    0.009    0.009   11.768   11.768 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/basic.py:1(<module>)
+     1002    0.002    0.000    7.379    0.007 <frozen importlib._bootstrap>:806(module_from_spec)
+        1    0.000    0.000    7.105    7.105 /workspace/koz3/venv/lib/python3.13/site-packages/narwhals/__init__.py:1(<module>)
+        1    0.000    0.000    7.005    7.005 /workspace/koz3/venv/lib/python3.13/site-packages/narwhals/dataframe.py:1(<module>)
+        1    0.000    0.000    6.993    6.993 /workspace/koz3/venv/lib/python3.13/site-packages/narwhals/series.py:1(<module>)
+     1002    0.004    0.000    6.985    0.007 <frozen importlib._bootstrap>:733(_init_module_attrs)
+     1700    6.874    0.004    6.983    0.004 <frozen importlib._bootstrap_external>:513(cache_from_source)
+     1834    0.001    0.000    6.979    0.004 <frozen importlib._bootstrap>:632(cached)
+      984    0.002    0.000    6.978    0.007 <frozen importlib._bootstrap_external>:642(_get_cached)
+   283/33    0.001    0.000    4.496    0.136 {built-in method builtins.__import__}
+        1    0.790    0.790    4.227    4.227 /workspace/koz3/wt/w0/expds/rerank_arch.py:153(table)
+        1    0.000    0.000    3.963    3.963 /workspace/koz3/venv/lib/python3.13/site-packages/lightgbm/compat.py:1(<module>)
+        1    0.000    0.000    3.838    3.838 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/__init__.py:1(<module>)
+        1    0.000    0.000    3.832    3.832 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/base.py:1(<module>)
+        1    0.000    0.000    3.821    3.821 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/__init__.py:1(<module>)
+        1    0.000    0.000    3.797    3.797 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/_chunking.py:1(<module>)
+        1    0.000    0.000    3.796    3.796 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/_param_validation.py:1(<module>)
+        1    0.000    0.000    3.795    3.795 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/validation.py:1(<module>)
+        1    0.000    0.000    3.529    3.529 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/_array_api.py:1(<module>)
+        1    0.000    0.000    2.832    2.832 /workspace/koz3/venv/lib/python3.13/site-packages/sklearn/utils/fixes.py:1(<module>)
+        1    0.000    0.000    2.756    2.756 /workspace/koz3/venv/lib/python3.13/site-packages/scipy/stats/__init__.py:1(<module>)
+        9    0.005    0.001    2.611    0.290 /workspace/koz3/venv/lib/python3.13/site-packages/shapely/decorators.py:182(wrapper)
+  870/453    0.007    0.000    2.458    0.005 <frozen importlib._bootstrap>:1390(_handle_fromlist)
+        1    0.001    0.001    1.947    1.947 /workspace/koz3/venv/lib/python3.13/site-packages/scipy/stats/_stats_py.py:1(<module>)
+        8    0.073    0.009    1.826    0.228 /workspace/koz3/venv/lib/python3.13/site-packages/shapely/coordinates.py:27(transform)
+
+
+

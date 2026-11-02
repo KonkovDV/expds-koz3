@@ -1,0 +1,55 @@
+[{"stream_name":"stdout","time":11.209421201,"data":"sha256 545ef32a70b4994f4d694828ae5eb28f27c9161d7f19a96f5a9d3833b87e093f OK\n"}
+,{"stream_name":"stdout","time":11.209490384,"data":"python 3.13.15 nproc 4\n"}
+,{"stream_name":"stdout","time":17.417986487,"data":"torch 2.11.0+cpu\n"}
+,{"stream_name":"stdout","time":17.426705171,"data":"wheels /kaggle/input/koz3-w4-wheels ['laspy-2.7.0-py3-none-any.whl', 'lazrs-0.8.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl', 'segmentation_models_pytorch-0.5.0-py3-none-any.whl']\n"}
+,{"stream_name":"stdout","time":19.571875505,"data":"pip 0  \n"}
+,{"stream_name":"stdout","time":20.225031561,"data":"dep laspy 2.7.0\n"}
+,{"stream_name":"stdout","time":33.375092697,"data":"dep segmentation_models_pytorch 0.5.0\n"}
+,{"stream_name":"stdout","time":34.658323,"data":"dep rasterio 1.5.1\n"}
+,{"stream_name":"stdout","time":34.658357557,"data":"dep pyproj 3.7.2\n"}
+,{"stream_name":"stdout","time":34.806511482,"data":"dep shapely 2.1.2\n"}
+,{"stream_name":"stdout","time":42.8096226,"data":"dep lightgbm 4.6.0\n"}
+,{"stream_name":"stdout","time":42.809720533,"data":"dep timm 1.0.29\n"}
+,{"stream_name":"stdout","time":42.809832803,"data":"dep scipy 1.16.3\n"}
+,{"stream_name":"stdout","time":42.80989654,"data":"dep numpy 2.1.3\n"}
+,{"stream_name":"stdout","time":91.254147777,"data":"== check_submission: /kaggle/temp/koz3_v2clean_70d335a.zip (2026-10-30 06:26:57 UTC)\n"}
+,{"stream_name":"stdout","time":91.25419231,"data":"[PASS] zip       58 файлов, CRC ок, пути безопасны\n"}
+,{"stream_name":"stdout","time":91.254201136,"data":"[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте\n"}
+,{"stream_name":"stdout","time":91.2542072,"data":"[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so\n"}
+,{"stream_name":"stdout","time":91.254213643,"data":"[PASS] forbidden нет данных выборок и секретов\n"}
+,{"stream_name":"stdout","time":91.254219713,"data":"[PASS] size      архив 542.2 МиБ (568488239 Б), распакованный 549.1 МиБ, лимит 2048 МиБ\n"}
+,{"stream_name":"stdout","time":91.254226736,"data":"[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ\n"}
+,{"stream_name":"stdout","time":91.254233606,"data":"[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'\n"}
+,{"stream_name":"stdout","time":91.254239504,"data":"[PASS] config    все 15 путей к весам из default.toml есть в архиве\n"}
+,{"stream_name":"stdout","time":91.254246009,"data":"[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pix_clean/poly.txt']\n"}
+,{"stream_name":"stdout","time":91.254254935,"data":"[WARN] config    в архиве веса, на которые нет ссылок в конфиге (лишний объём): ['models/pix_clean/finds.txt', 'models/pix_clean/meta.json', 'models/pix_clean/org/org_etgr_map.txt', 'models/pix_clean/org/org_etgr_meta.json', 'models/pix_clean/org/org_etgr_prof.txt']\n"}
+,{"stream_name":"stdout","time":91.254264051,"data":"[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён\n"}
+,{"stream_name":"stdout","time":91.254270752,"data":"[INFO] config    порог \u003e 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']\n"}
+,{"stream_name":"stdout","time":91.254278455,"data":"[PASS] config    пороги в [0,1], имена классов из 7 допустимых\n"}
+,{"stream_name":"stdout","time":91.254299168,"data":"[PASS] imports   в 32 модулях, достижимых из inference/main.py, нет сетевых импортов\n"}
+,{"stream_name":"stdout","time":91.254305408,"data":"[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'safetensors', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch', 'torchvision', 'transformers']\n"}
+,{"stream_name":"stdout","time":91.254313314,"data":"[PASS] so        expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389\n"}
+,{"stream_name":"stdout","time":91.25431903,"data":"[PASS] imports   31 модулей и 12 сторонних пакетов импортируются без сети (30.4 с)\n"}
+,{"stream_name":"stdout","time":91.254324595,"data":"[PASS] weights   14 файлов весов открываются кодом архива на CPU\n"}
+,{"stream_name":"stdout","time":91.254329996,"data":"[INFO] smoke     запуск: nice -n 10 taskset -c 0,1 /usr/bin/python3 inference/main.py ... (сеть НЕ изолирована, таймаут 1500 с, лимит RSS 2000 МиБ)\n"}
+,{"stream_name":"stdout","time":91.254335897,"data":"[WARN] smoke     unshare -rn недоступен — офлайн проверен только статически\n"}
+,{"stream_name":"stdout","time":91.254341363,"data":"[PASS] smoke     main.py завершился за 13.8 с, пик RSS 1139 МиБ, CPU 0,1\n"}
+,{"stream_name":"stdout","time":91.254346634,"data":"[INFO] smoke     ускоритель: rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":91.254351545,"data":"[INFO] smoke     определения: сырые — до порога, склейки и отсечения; записано — строки файла\n"}
+,{"stream_name":"stdout","time":91.254357366,"data":"[INFO] smoke     устройство: cpu; torch 2.11.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=2\n"}
+,{"stream_name":"stdout","time":91.25436299,"data":"[INFO] smoke     фазы: геофизика: сырых 72, 3 с, лидар: сырых 30, 5 с, оптика: сырых 5, 1 с, канал σ: сырых 24, 0 с\n"}
+,{"stream_name":"stdout","time":91.254367318,"data":"[INFO] smoke     записано 80, файл 58184 байт\n"}
+,{"stream_name":"stdout","time":91.254371816,"data":"[INFO] smoke     общее время 11.9 с\n"}
+,{"stream_name":"stdout","time":91.254377,"data":"[PASS] format    FeatureCollection, 80 Polygon (≤20000), 0.055 МБ, по классам {'finds_points': 72, 'kurgany_tselye': 3, 'kurgany_povrezhdennye': 3, 'arkhitektury': 2}\n"}
+,{"stream_name":"stdout","time":91.254382625,"data":"[PASS] smoke     HOME и кэши пусты: ничего не скачивалось и не кэшировалось вне вывода\n"}
+,{"stream_name":"stdout","time":91.254388268,"data":"== ИТОГ: PASS — FAIL 0, WARN 2, проверок 29, 48.3 с\n"}
+,{"stream_name":"stdout","time":91.254393087,"data":"\n"}
+,{"stream_name":"stdout","time":91.254397166,"data":"STDERR: \n"}
+,{"stream_name":"stdout","time":91.254401739,"data":"RC 0 wall_s 48.4\n"}
+,{"stream_name":"stderr","time":95.728103887,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":95.728144787,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":96.057377571,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":96.057408318,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":97.058592211,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":98.468586841,"data":"[NbConvertApp] Writing 285948 bytes to __results__.html\n"}
+]

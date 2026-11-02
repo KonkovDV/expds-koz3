@@ -1,0 +1,33 @@
+RUNNING
+[     10s] sat2-gate start boot 4000 scales [1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.6, 0.5]
+[     10s] src /kaggle/working/src
+[     15s] w5base /kaggle/input/datasets/elenakonkova/koz3-w2-gate/w5base
+[     16s] vs A /kaggle/input/datasets/elenakonkova/koz3-w2-gate/w5base/base_counts.pkl ref_score 0.314615
+[     16s] WARN no bprime_counts.pkl — gating vs A; also report score−B′ absolute 0.3158
+[     16s] oof feats 2622 sha 5713b19accd4bea2
+[     16s] replace_all …
+[    118s] prep replace_all (once)
+[    421s] prep done
+[    421s] gate replace_all boot 4000 scale None
+[    427s] replace_all score 0.32420228230836173 d 0.00958695962551942 p 0.89675 pass_full False pass_soft True
+[    427s] gate scale_1p0 boot 4000 scale 1.0
+[    433s] scale_1p0 score 0.3264466327042828 d 0.0118313100214405 p 1.0 damaged_dF1 0.03428997180681087 pass_full True
+[    433s] gate scale_0p95 boot 4000 scale 0.95
+[    440s] scale_0p95 score 0.3264466327042828 d 0.0118313100214405 p 1.0 damaged_dF1 0.03428997180681087 pass_full True
+[    440s] gate scale_0p9 boot 4000 scale 0.9
+[    446s] scale_0p9 score 0.326372875819941 d 0.011757553137098697 p 1.0 damaged_dF1 0.03404411552567144 pass_full True
+[    446s] gate scale_0p85 boot 4000 scale 0.85
+[    452s] scale_0p85 score 0.32638651550219644 d 0.011771192819354126 p 1.0 damaged_dF1 0.03408958113318944 pass_full True
+[    452s] gate scale_0p8 boot 4000 scale 0.8
+[    459s] scale_0p8 score 0.32254219526453654 d 0.007926872581694222 p 0.908 damaged_dF1 0.02127518034098974 pass_full True
+[    459s] gate scale_0p75 boot 4000 scale 0.75
+[    465s] scale_0p75 score 0.32254219526453654 d 0.007926872581694222 p 0.908 damaged_dF1 0.02127518034098974 pass_full True
+[    465s] gate scale_0p7 boot 4000 scale 0.7
+[    471s] scale_0p7 score 0.3224775918580798 d 0.007862269175237468 p 0.9075 damaged_dF1 0.021059835652800674 pass_full True
+[    471s] gate scale_0p6 boot 4000 scale 0.6
+[    478s] scale_0p6 score 0.322413940781109 d 0.0077986180982667075 p 0.906 damaged_dF1 0.020847665396231507 pass_full True
+[    478s] gate scale_0p5 boot 4000 scale 0.5
+[    484s] scale_0p5 score 0.32200431762176795 d 0.0073889949389256415 p 0.8985 damaged_dF1 0.02102326587831166 pass_full False
+[    484s] BEST scale_1p0 score 0.3264466327042828 d 0.0118313100214405 p 1.0 pass_full True
+[    484s] DONE
+DONE best=scale_1p0 pass_full=True

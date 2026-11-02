@@ -1,0 +1,2 @@
+{"boot": {"mean": -0.006784826670369565, "p5": -0.01674905131047227, "p50": -0.006618138080634467, "p95": 0.0020204722832166426, "p_gt0": 0.1055, "families": 103}, "gate": {"d_ok": false, "p_ok": false, "floors_ok": false, "new34_ok": true, "optical_ok": true, "PASS": false}}
+d -0.007040955540986937 new34 -0.0004493364559015611 opt 0.0 viol {'kurgany_povrezhdennye': -0.010061241481475192, 'kurgany_tselye': -0.013645155275989529, 'gorodishcha': -0.005645419565215137, 'fortifikatsii': -0.00893478213128504}

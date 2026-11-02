@@ -1,0 +1,25 @@
+ЛОКАЛЬНЫЙ СУХОЙ ПРОГОН: CPU, 1 батч, без предобучения — результаты не значимы
+{"npz": "/workspace/koz3/ds/kcrops/kurgan_subclass_crops.npz", "N": 9322, "shape": [9322, 3, 64, 64], "labeled": 4704, "povr_share": 0.5821, "kinds": {"cand": 6109, "gt": 3213}, "regions": 56}
+smp: preinstalled | imagenet в кэше: {"resnet18": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7", "bytes": 46805552}, "resnet34": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13", "bytes": 87275112}}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+модели строятся: ['resnet18', 'resnet34'] pretrained True
+фолдов 10, семей 42; ни одна семья не делится между фолдами
+{"model": "r18_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.6463856669428335, "sec": 219.8, "device": "cpu"}
+{"model": "r34_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.5938748504096474, "sec": 316.0, "device": "cpu"}
+{"model": "r18_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.8655660377358491, "sec": 212.8, "device": "cpu"}
+{"model": "r18_imnet", "fold": 2, "train": 4568, "test": 900, "test_labeled": 136, "auc": 0.7233105877173673, "sec": 227.3, "device": "cpu"}
+{"model": "r34_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.8742138364779874, "sec": 377.7, "device": "cpu"}
+{"model": "r18_imnet", "fold": 3, "train": 4499, "test": 1016, "test_labeled": 205, "auc": 0.762807935469806, "sec": 262.5, "device": "cpu"}
+{"model": "r34_imnet", "fold": 2, "train": 4568, "test": 900, "test_labeled": 136, "auc": 0.6669601584855822, "sec": 423.5, "device": "cpu"}
+{"model": "r18_imnet", "fold": 4, "train": 4549, "test": 584, "test_labeled": 155, "auc": 0.8089473684210526, "sec": 221.4, "device": "cpu"}
+{"model": "r18_imnet", "fold": 5, "train": 4567, "test": 290, "test_labeled": 137, "auc": 0.9052036199095023, "sec": 240.7, "device": "cpu"}
+{"model": "r34_imnet", "fold": 3, "train": 4499, "test": 1016, "test_labeled": 205, "auc": 0.7278177458033573, "sec": 471.9, "device": "cpu"}
+{"model": "r18_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.8823529411764706, "sec": 295.4, "device": "cpu"}
+{"model": "r18_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7440225648983286, "sec": 223.9, "device": "cpu"}
+{"model": "r34_imnet", "fold": 4, "train": 4549, "test": 584, "test_labeled": 155, "auc": 0.8208771929824561, "sec": 491.2, "device": "cpu"}
+{"model": "r18_imnet", "fold": 8, "train": 4076, "test": 882, "test_labeled": 628, "auc": 0.6787931422689697, "sec": 280.3, "device": "cpu"}
+{"model": "r18_imnet", "fold": 9, "train": 4607, "test": 544, "test_labeled": 97, "auc": 0.6333671399594321, "sec": 307.4, "device": "cpu"}
+r18_imnet: все фолды за 2491 с
+{"model": "r34_imnet", "fold": 5, "train": 4567, "test": 290, "test_labeled": 137, "auc": 0.8619909502262444, "sec": 482.4, "device": "cpu"}
+{"model": "r34_imnet", "fold": 6, "train": 4686, "test": 353, "test_labeled": 18, "auc": 0.8823529411764706, "sec": 371.8, "device": "cpu"}
+{"model": "r34_imnet", "fold": 7, "train": 3407, "test": 1943, "test_labeled": 1297, "auc": 0.7330924902207998, "sec": 317.9, "device": "cpu"}

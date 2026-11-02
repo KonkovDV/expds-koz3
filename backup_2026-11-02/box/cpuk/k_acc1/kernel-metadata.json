@@ -1,0 +1,17 @@
+{
+ "id": "elenakonkova/koz3-w3-kurgan-cpu-seeds",
+ "title": "koz3-w3-kurgan-cpu-seeds",
+ "code_file": "koz3-w3-kurgan-cpu-seeds.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": false,
+ "enable_tpu": false,
+ "enable_internet": false,
+ "dataset_sources": [
+  "elenakonkova/koz3-w3-kurgan-cpu-data"
+ ],
+ "competition_sources": [],
+ "kernel_sources": [],
+ "model_sources": []
+}

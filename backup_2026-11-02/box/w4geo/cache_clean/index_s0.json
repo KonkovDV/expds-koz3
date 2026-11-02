@@ -1,0 +1,2288 @@
+[
+ {
+  "raster": "01_Судьбищи_2_MagGr_серый.tif",
+  "region": "200_Судьбищи_2",
+  "mt": "maggr",
+  "file": "8666415256ffbb92_s0_v1.npz",
+  "shape": [
+   3011,
+   4694
+  ],
+  "step": 0.09855458031529615,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Судьбищи_2_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 216,
+    "pos": 10967,
+    "neg": 32901
+   },
+   "object_poly": {
+    "gt_files": [
+     "Судьбищи_2_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 49.0
+ },
+ {
+  "raster": "02_Судьбищи_2_MagGr_цвет.tif",
+  "region": "200_Судьбищи_2",
+  "mt": "maggr",
+  "file": "8a464a3d130caad8_s0_v1.npz",
+  "shape": [
+   3012,
+   4694
+  ],
+  "step": 0.0986329782701357,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Судьбищи_2_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 216,
+    "pos": 4973,
+    "neg": 14919
+   },
+   "object_poly": {
+    "gt_files": [
+     "Судьбищи_2_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 42.8
+ },
+ {
+  "raster": "01_Семибратнее_Городище_1_MagGr_серый.tif",
+  "region": "201_Семибратнее_Городище_1",
+  "mt": "maggr",
+  "file": "6e2f1886e65735cc_s0_v1.npz",
+  "shape": [
+   1100,
+   484
+  ],
+  "step": 0.10153707631594565,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_1_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 155,
+    "pos": 7404,
+    "neg": 22212
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_1_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "01_Семибратнее_Городище_2_MagGr_серый.tif",
+  "region": "202_Семибратнее_Городище_2",
+  "mt": "maggr",
+  "file": "f73fa8b0bd1cf919_s0_v1.npz",
+  "shape": [
+   3221,
+   1753
+  ],
+  "step": 0.10160466950846794,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_2_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 518,
+    "pos": 15000,
+    "neg": 45000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_2_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 29,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 25.6
+ },
+ {
+  "raster": "01_Семибратнее_Городище_3_MagGr_серый.tif",
+  "region": "203_Семибратнее_Городище_3",
+  "mt": "maggr",
+  "file": "79c721535597dc67_s0_v1.npz",
+  "shape": [
+   2323,
+   1489
+  ],
+  "step": 0.10164293555952222,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_3_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 438,
+    "pos": 15000,
+    "neg": 45000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_3_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 14.3
+ },
+ {
+  "raster": "01_Семибратнее_Городище_4_MagGr_серый.tif",
+  "region": "204_Семибратнее_Городище_4",
+  "mt": "maggr",
+  "file": "2671362bfc33fce1_s0_v1.npz",
+  "shape": [
+   1014,
+   1182
+  ],
+  "step": 0.10182680965804834,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_4_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 233,
+    "pos": 11051,
+    "neg": 33153
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_4_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 4.3
+ },
+ {
+  "raster": "01_Семибратнее_Городище_5_MagGr_серый.tif",
+  "region": "205_Семибратнее_Городище_5",
+  "mt": "maggr",
+  "file": "a4f69ad8e7473b5d_s0_v1.npz",
+  "shape": [
+   1361,
+   1200
+  ],
+  "step": 0.10167702261507548,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_5_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 454,
+    "pos": 15000,
+    "neg": 45000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_5_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 5.2
+ },
+ {
+  "raster": "01_Семибратнее_Городище_6_MagGr_серый.tif",
+  "region": "206_Семибратнее_Городище_6",
+  "mt": "maggr",
+  "file": "ffe11399829810b2_s0_v1.npz",
+  "shape": [
+   897,
+   888
+  ],
+  "step": 0.10210100688616741,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_6_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 145,
+    "pos": 6940,
+    "neg": 20820
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_6_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 11,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 2.7
+ },
+ {
+  "raster": "01_Семибратнее_Городище_уч7_MagGr_серый.tif",
+  "region": "207_Семибратнее_Городище_7",
+  "mt": "maggr",
+  "file": "48ccdeb83bd796c1_s0_v1.npz",
+  "shape": [
+   1884,
+   887
+  ],
+  "step": 0.10163340879124647,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Семибратнее_Городище_7_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 427,
+    "pos": 15000,
+    "neg": 45000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Семибратнее_Городище_7_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 40,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 6.9
+ },
+ {
+  "raster": "01_Гнёздово_Пойма_MagGr_серый.tif",
+  "region": "208_Гнёздово_Пойма",
+  "mt": "maggr",
+  "file": "036b818d3ab249e5_s0_v1.npz",
+  "shape": [
+   315,
+   398
+  ],
+  "step": 0.11557814070338328,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Пойма_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 486,
+    "neg": 3000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Пойма_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "02_Гнёздово_Пойма_MagGr_цвет.tif",
+  "region": "208_Гнёздово_Пойма",
+  "mt": "maggr",
+  "file": "4ab6b9e5479e3a5c_s0_v1.npz",
+  "shape": [
+   315,
+   398
+  ],
+  "step": 0.11557814070338328,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Пойма_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 486,
+    "neg": 3000
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Пойма_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "01_Гнёздово_Терраса_1_MagGr_серый.tif",
+  "region": "209_Гнёздово_Терраса_1",
+  "mt": "maggr",
+  "file": "e466ca963bd89e44_s0_v1.npz",
+  "shape": [
+   705,
+   937
+  ],
+  "step": 0.1833055024105372,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_1_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 233,
+    "pos": 3458,
+    "neg": 10374
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_1_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 32,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.6
+ },
+ {
+  "raster": "02_Гнёздово_Терраса_1_MagGr_цвет.tif",
+  "region": "209_Гнёздово_Терраса_1",
+  "mt": "maggr",
+  "file": "8cb7ee5353bee217_s0_v1.npz",
+  "shape": [
+   705,
+   937
+  ],
+  "step": 0.1833055024105372,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_1_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 233,
+    "pos": 3458,
+    "neg": 10374
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_1_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 32,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.6
+ },
+ {
+  "raster": "01_Гнёздово_Терраса_2_MagGr_серый.tif",
+  "region": "210_Гнёздово_Терраса_2",
+  "mt": "maggr",
+  "file": "0a2aab38ed0293fb_s0_v1.npz",
+  "shape": [
+   705,
+   937
+  ],
+  "step": 0.1833055024105372,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_2_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 159,
+    "pos": 2357,
+    "neg": 7071
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_2_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 30,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.7
+ },
+ {
+  "raster": "02_Гнёздово_Терраса_2_MagGr_цвет.tif",
+  "region": "210_Гнёздово_Терраса_2",
+  "mt": "maggr",
+  "file": "b810426fd232c8b9_s0_v1.npz",
+  "shape": [
+   705,
+   937
+  ],
+  "step": 0.1833055024105372,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_2_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 159,
+    "pos": 2357,
+    "neg": 7071
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_2_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 30,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.6
+ },
+ {
+  "raster": "01_Гнёздово_Терраса_3_MagGr_серый.tif",
+  "region": "211_Гнёздово_Терраса_3",
+  "mt": "maggr",
+  "file": "5e361a5252a03f6c_s0_v1.npz",
+  "shape": [
+   341,
+   1022
+  ],
+  "step": 0.08234349617863486,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 95,
+    "pos": 6904,
+    "neg": 20712
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.2
+ },
+ {
+  "raster": "02_Гнёздово_Терраса_3_MagGr_цвет.tif",
+  "region": "211_Гнёздово_Терраса_3",
+  "mt": "maggr",
+  "file": "207407ed9cb204e7_s0_v1.npz",
+  "shape": [
+   342,
+   1021
+  ],
+  "step": 0.08227793993848484,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_FindsPoints.geojson"
+    ],
+    "n_gt": 95,
+    "pos": 6983,
+    "neg": 20949
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.2
+ },
+ {
+  "raster": "03_Гнёздово_Терраса_3_MagGr_цвет_2.tif",
+  "region": "211_Гнёздово_Терраса_3",
+  "mt": "maggr",
+  "file": "d5c6a5d6555ad62e_s0_v1.npz",
+  "shape": [
+   285,
+   807
+  ],
+  "step": 0.11018019339452924,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_цвет_2_FindsPoints.geojson"
+    ],
+    "n_gt": 314,
+    "pos": 12764,
+    "neg": 38292
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Терраса_3_MagGr_цвет_2_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 6231,
+    "neg": 18693
+   }
+  },
+  "secs": 1.1
+ },
+ {
+  "raster": "01_Гнёздово_Усадьба_MagGr_цвет_2.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "maggr",
+  "file": "967ac3fba38b839b_s0_v1.npz",
+  "shape": [
+   1708,
+   1101
+  ],
+  "step": 0.1101308735961036,
+  "classes": {
+   "finds_points": {
+    "gt_files": [
+     "Гнёздово_Усадьба_MagGr_цвет_2_FindsPoints.geojson"
+    ],
+    "n_gt": 78,
+    "pos": 3200,
+    "neg": 9600
+   },
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_MagGr_цвет_2_ObjectPoly.geojson"
+    ],
+    "n_gt": 45,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 7.5
+ },
+ {
+  "raster": "01_Гнёздово_Усадьба_EtGr_профиль_14.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "a0a32f88fc31314f_s0_v1.npz",
+  "shape": [
+   97,
+   372
+  ],
+  "step": 0.05950420498518695,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_14_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 6685,
+    "neg": 17770
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "02_Гнёздово_Усадьба_EtGr_профиль_15.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "0a5cbac0bc8b7bb5_s0_v1.npz",
+  "shape": [
+   75,
+   371
+  ],
+  "step": 0.059495651235019126,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_15_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 6839,
+    "neg": 10645
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "03_Гнёздово_Усадьба_EtGr_профиль_16.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "804516c5ca5fff30_s0_v1.npz",
+  "shape": [
+   73,
+   371
+  ],
+  "step": 0.05941637745854182,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_16_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 6521,
+    "neg": 10678
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "04_Гнёздово_Усадьба_EtGr_профиль_17.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "01342af60401f0a6_s0_v1.npz",
+  "shape": [
+   65,
+   371
+  ],
+  "step": 0.05933272592956616,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_17_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 5679,
+    "neg": 8990
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "05_Гнёздово_Усадьба_EtGr_профиль_18.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "cc2a4bf72a1bfbfc_s0_v1.npz",
+  "shape": [
+   66,
+   371
+  ],
+  "step": 0.05933430185341769,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_18_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 5019,
+    "neg": 10782
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "06_Гнёздово_Усадьба_EtGr_профиль_19.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "42e0cff3158173a6_s0_v1.npz",
+  "shape": [
+   67,
+   371
+  ],
+  "step": 0.05933311990316782,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_19_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 7159,
+    "neg": 7570
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "07_Гнёздово_Усадьба_EtGr_профиль_20.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "a749b643ee58466f_s0_v1.npz",
+  "shape": [
+   69,
+   371
+  ],
+  "step": 0.0594234788348539,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_20_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 7025,
+    "neg": 8160
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "08_Гнёздово_Усадьба_EtGr_профиль_21.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "4866c28191310f51_s0_v1.npz",
+  "shape": [
+   66,
+   370
+  ],
+  "step": 0.059496966177139746,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_21_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 5236,
+    "neg": 9856
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "09_Гнёздово_Усадьба_EtGr_профиль_22.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "257df0585d328264_s0_v1.npz",
+  "shape": [
+   61,
+   372
+  ],
+  "step": 0.05941481933703875,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_22_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 5412,
+    "neg": 7333
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "10_Гнёздово_Усадьба_EtGr_профиль_23.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "96b5e8a4829654eb_s0_v1.npz",
+  "shape": [
+   59,
+   371
+  ],
+  "step": 0.05933292283518801,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_23_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 4387,
+    "neg": 8802
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "11_Гнёздово_Усадьба_EtGr_профиль_24.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "66383d02ce7e7594_s0_v1.npz",
+  "shape": [
+   963,
+   127
+  ],
+  "step": 0.05074268476212073,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_24_ObjectPoly.geojson"
+    ],
+    "n_gt": 15,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.4
+ },
+ {
+  "raster": "12_Гнёздово_Усадьба_EtGr_профиль_25.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "etgr",
+  "file": "3088e1498c962032_s0_v1.npz",
+  "shape": [
+   972,
+   185
+  ],
+  "step": 0.050518342872315346,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_EtGr_профиль_25_ObjectPoly.geojson"
+    ],
+    "n_gt": 9,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "01_Гнёздово_Усадьба_TerFl.tif",
+  "region": "212_Гнёздово_Усадьба",
+  "mt": "terfl",
+  "file": "4a81ac10369afe58_s0_v1.npz",
+  "shape": [
+   909,
+   536
+  ],
+  "step": 0.2984380229225742,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Усадьба_TerFl_ObjectPoly.geojson"
+    ],
+    "n_gt": 131,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.0
+ },
+ {
+  "raster": "01_Гнёздово_Лесная_1_EtGr_профиль_01.tif",
+  "region": "213_Гнёздово_Лесная_1",
+  "mt": "etgr",
+  "file": "34629b3cd73a9349_s0_v1.npz",
+  "shape": [
+   278,
+   356
+  ],
+  "step": 0.04900093787524631,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_1_EtGr_профиль_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 4885,
+    "neg": 6867
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "02_Гнёздово_Лесная_1_EtGr_профиль_02.tif",
+  "region": "213_Гнёздово_Лесная_1",
+  "mt": "etgr",
+  "file": "650c0adeba4c29ea_s0_v1.npz",
+  "shape": [
+   336,
+   261
+  ],
+  "step": 0.04740894579024664,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_1_EtGr_профиль_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 3979,
+    "neg": 11937
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "03_Гнёздово_Лесная_1_EtGr_профиль_03.tif",
+  "region": "213_Гнёздово_Лесная_1",
+  "mt": "etgr",
+  "file": "208ffb6b677fd60f_s0_v1.npz",
+  "shape": [
+   354,
+   461
+  ],
+  "step": 0.046763332456229156,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_1_EtGr_профиль_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "04_Гнёздово_Лесная_1_EtGr_профиль_04.tif",
+  "region": "213_Гнёздово_Лесная_1",
+  "mt": "etgr",
+  "file": "3f11b62b208c5412_s0_v1.npz",
+  "shape": [
+   369,
+   161
+  ],
+  "step": 0.048962365954502325,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_1_EtGr_профиль_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 8000,
+    "neg": 5417
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "01_Гнёздово_Лесная_2_EtGr_карта_01_0.2.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "923b429b59a724df_s0_v1.npz",
+  "shape": [
+   355,
+   405
+  ],
+  "step": 0.05287677480971932,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_01_0.2_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "01_Гнёздово_Лесная_2_EtGr_профиль_01.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "8b2253f393c990ad_s0_v1.npz",
+  "shape": [
+   155,
+   353
+  ],
+  "step": 0.053304789384672695,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 2582,
+    "neg": 7746
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "02_Гнёздово_Лесная_2_EtGr_карта_02_0.5.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "45a08e7610ca1381_s0_v1.npz",
+  "shape": [
+   348,
+   400
+  ],
+  "step": 0.05287512795398487,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_02_0.5_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 18667
+   }
+  },
+  "secs": 0.4
+ },
+ {
+  "raster": "02_Гнёздово_Лесная_2_EtGr_профиль_02.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "b68f84112aaf0092_s0_v1.npz",
+  "shape": [
+   131,
+   349
+  ],
+  "step": 0.05325870531242604,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 2108,
+    "neg": 6324
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "03_Гнёздово_Лесная_2_EtGr_карта_03_1.0.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "099647e28035529a_s0_v1.npz",
+  "shape": [
+   346,
+   400
+  ],
+  "step": 0.052875376444175184,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_03_1.0_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 16830
+   }
+  },
+  "secs": 0.4
+ },
+ {
+  "raster": "03_Гнёздово_Лесная_2_EtGr_профиль_03.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "51103a487fb36930_s0_v1.npz",
+  "shape": [
+   155,
+   354
+  ],
+  "step": 0.053197034502084344,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 6718,
+    "neg": 16187
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "04_Гнёздово_Лесная_2_EtGr_карта_04_1.4.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "c6a1ee6ff33416eb_s0_v1.npz",
+  "shape": [
+   344,
+   397
+  ],
+  "step": 0.052929079257222685,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_04_1.4_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 23662
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "04_Гнёздово_Лесная_2_EtGr_профиль_04.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "9a3fb62fb9c98eb1_s0_v1.npz",
+  "shape": [
+   149,
+   352
+  ],
+  "step": 0.05331293566639328,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 12,
+    "pos": 2937,
+    "neg": 8811
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "05_Гнёздово_Лесная_2_EtGr_карта_05_1.6.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "59a3036627d55775_s0_v1.npz",
+  "shape": [
+   346,
+   397
+  ],
+  "step": 0.052910320634708394,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_05_1.6_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "05_Гнёздово_Лесная_2_EtGr_профиль_05.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "e4a2b4de6c7b41ef_s0_v1.npz",
+  "shape": [
+   156,
+   354
+  ],
+  "step": 0.05328304124283317,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_05_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 2999,
+    "neg": 8997
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "06_Гнёздово_Лесная_2_EtGr_карта_06_2.0.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "93c8395d90d4c240_s0_v1.npz",
+  "shape": [
+   344,
+   396
+  ],
+  "step": 0.052891198669530556,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_карта_06_2.0_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "06_Гнёздово_Лесная_2_EtGr_профиль_06.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "8422b2c15598cc7e_s0_v1.npz",
+  "shape": [
+   133,
+   349
+  ],
+  "step": 0.05328005676494848,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_06_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 4525,
+    "neg": 10240
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "07_Гнёздово_Лесная_2_EtGr_профиль_07.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "12d1d31a6c2822bb_s0_v1.npz",
+  "shape": [
+   124,
+   347
+  ],
+  "step": 0.05319215526666137,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_07_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 4238,
+    "neg": 8383
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "08_Гнёздово_Лесная_2_EtGr_профиль_08.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "47499e333a909347_s0_v1.npz",
+  "shape": [
+   135,
+   349
+  ],
+  "step": 0.053171609593494415,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_08_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 3644,
+    "neg": 10932
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "09_Гнёздово_Лесная_2_EtGr_профиль_09.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "5c02b69db6eb5447_s0_v1.npz",
+  "shape": [
+   130,
+   347
+  ],
+  "step": 0.053311648764758635,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_09_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 3157,
+    "neg": 9471
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "10_Гнёздово_Лесная_2_EtGr_профиль_10.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "289144b3cb1f56e8_s0_v1.npz",
+  "shape": [
+   127,
+   347
+  ],
+  "step": 0.053295309652908344,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_10_ObjectPoly.geojson"
+    ],
+    "n_gt": 10,
+    "pos": 2530,
+    "neg": 7590
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "11_Гнёздово_Лесная_2_EtGr_профиль_11.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "b14311ef1e71f506_s0_v1.npz",
+  "shape": [
+   128,
+   348
+  ],
+  "step": 0.05309490858714938,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_11_ObjectPoly.geojson"
+    ],
+    "n_gt": 9,
+    "pos": 2927,
+    "neg": 8781
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "12_Гнёздово_Лесная_2_EtGr_профиль_12.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "d45024f4e53b071b_s0_v1.npz",
+  "shape": [
+   126,
+   346
+  ],
+  "step": 0.05308214289789194,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_12_ObjectPoly.geojson"
+    ],
+    "n_gt": 11,
+    "pos": 4169,
+    "neg": 7399
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "13_Гнёздово_Лесная_2_EtGr_профиль_13.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "d0ae44d9c67e0f84_s0_v1.npz",
+  "shape": [
+   127,
+   347
+  ],
+  "step": 0.05292566853502514,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_13_ObjectPoly.geojson"
+    ],
+    "n_gt": 11,
+    "pos": 1536,
+    "neg": 4608
+   }
+  },
+  "secs": 0.1
+ },
+ {
+  "raster": "14_Гнёздово_Лесная_2_EtGr_профиль_14.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "8e3c379a3d3e23d0_s0_v1.npz",
+  "shape": [
+   124,
+   346
+  ],
+  "step": 0.05295806585478109,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_14_ObjectPoly.geojson"
+    ],
+    "n_gt": 18,
+    "pos": 4777,
+    "neg": 6597
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "15_Гнёздово_Лесная_2_EtGr_профиль_15.tif",
+  "region": "214_Гнёздово_Лесная_2",
+  "mt": "etgr",
+  "file": "d8b524d45c34fee1_s0_v1.npz",
+  "shape": [
+   130,
+   345
+  ],
+  "step": 0.05319154581732302,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Лесная_2_EtGr_профиль_15_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 4021,
+    "neg": 9744
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "01_Гнёздово_Селище_1_EtGr_карта_01.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "e2f9692798ceeca1_s0_v1.npz",
+  "shape": [
+   813,
+   261
+  ],
+  "step": 0.06781152781671841,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_карта_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "01_Гнёздово_Селище_1_EtGr_профиль_01.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "4412160132d494fe_s0_v1.npz",
+  "shape": [
+   1058,
+   176
+  ],
+  "step": 0.05234655496297348,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.5
+ },
+ {
+  "raster": "02_Гнёздово_Селище_1_EtGr_карта_02.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "82d5acc549256070_s0_v1.npz",
+  "shape": [
+   819,
+   272
+  ],
+  "step": 0.06788801536947794,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_карта_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 11,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "02_Гнёздово_Селище_1_EtGr_профиль_02.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "43e08b9f320c5d5e_s0_v1.npz",
+  "shape": [
+   1057,
+   188
+  ],
+  "step": 0.05233655423201776,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "03_Гнёздово_Селище_1_EtGr_карта_03.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "2d155a3a9003cd3d_s0_v1.npz",
+  "shape": [
+   825,
+   271
+  ],
+  "step": 0.06789059935575661,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_карта_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "03_Гнёздово_Селище_1_EtGr_профиль_03.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "cae81090a8d52f4d_s0_v1.npz",
+  "shape": [
+   1058,
+   181
+  ],
+  "step": 0.051645837740252255,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "04_Гнёздово_Селище_1_EtGr_карта_04.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "42b4388e14498f71_s0_v1.npz",
+  "shape": [
+   814,
+   274
+  ],
+  "step": 0.06788911834164704,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_карта_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "04_Гнёздово_Селище_1_EtGr_профиль_04.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "43237111630e869b_s0_v1.npz",
+  "shape": [
+   1058,
+   170
+  ],
+  "step": 0.05227879843883131,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "05_Гнёздово_Селище_1_EtGr_карта_05.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "3aaf601f1395bf12_s0_v1.npz",
+  "shape": [
+   817,
+   261
+  ],
+  "step": 0.0678953876141981,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_карта_05_ObjectPoly.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "05_Гнёздово_Селище_1_EtGr_профиль_05.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "7d772d47763a3e18_s0_v1.npz",
+  "shape": [
+   1065,
+   196
+  ],
+  "step": 0.05195737188751536,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_05_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "06_Гнёздово_Селище_1_EtGr_профиль_06.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "11ff452c73c6f7d0_s0_v1.npz",
+  "shape": [
+   1225,
+   200
+  ],
+  "step": 0.04467201141802936,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_06_ObjectPoly.geojson"
+    ],
+    "n_gt": 10,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.8
+ },
+ {
+  "raster": "07_Гнёздово_Селище_1_EtGr_профиль_07.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "4db3b695d562443c_s0_v1.npz",
+  "shape": [
+   1052,
+   184
+  ],
+  "step": 0.05168946459452794,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_07_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "08_Гнёздово_Селище_1_EtGr_профиль_08.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "7e5c0f8fd92181f0_s0_v1.npz",
+  "shape": [
+   1031,
+   180
+  ],
+  "step": 0.05287714228943201,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_08_ObjectPoly.geojson"
+    ],
+    "n_gt": 7,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.6
+ },
+ {
+  "raster": "09_Гнёздово_Селище_1_EtGr_профиль_09.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "18e335e29a670464_s0_v1.npz",
+  "shape": [
+   488,
+   87
+  ],
+  "step": 0.05513545668534162,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_09_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 5081,
+    "neg": 15243
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "10_Гнёздово_Селище_1_EtGr_профиль_10.tif",
+  "region": "215_Гнёздово_Селище_1",
+  "mt": "etgr",
+  "file": "061a2535b56bf69f_s0_v1.npz",
+  "shape": [
+   282,
+   224
+  ],
+  "step": 0.05776526367072493,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_1_EtGr_профиль_10_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 3571,
+    "neg": 6726
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "01_Гнёздово_Селище_2_EtGr_карта_01_0.25.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "cc6c938f48f718ed_s0_v1.npz",
+  "shape": [
+   441,
+   717
+  ],
+  "step": 0.052197109690184484,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_01_0.25_ObjectPoly.geojson"
+    ],
+    "n_gt": 8,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.7
+ },
+ {
+  "raster": "01_Гнёздово_Селище_2_EtGr_профиль_01.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "0b89d9035e36cbfd_s0_v1.npz",
+  "shape": [
+   147,
+   731
+  ],
+  "step": 0.049446430061461245,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 1954,
+    "neg": 5862
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "02_Гнёздово_Селище_2_EtGr_карта_02_0.5.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "17006d0f9d28056f_s0_v1.npz",
+  "shape": [
+   447,
+   716
+  ],
+  "step": 0.052183764431444436,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_02_0.5_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.8
+ },
+ {
+  "raster": "02_Гнёздово_Селище_2_EtGr_профиль_02.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "7cc5677edcb0abee_s0_v1.npz",
+  "shape": [
+   134,
+   728
+  ],
+  "step": 0.04944427524313456,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 1611,
+    "neg": 4833
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "03_Гнёздово_Селище_2_EtGr_карта_03_0.75.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "498f63199cdb0782_s0_v1.npz",
+  "shape": [
+   454,
+   717
+  ],
+  "step": 0.05219492614644845,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_03_0.75_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.7
+ },
+ {
+  "raster": "03_Гнёздово_Селище_2_EtGr_профиль_03.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "337e8dbcc4c604ed_s0_v1.npz",
+  "shape": [
+   141,
+   732
+  ],
+  "step": 0.04945281202593589,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 2010,
+    "neg": 6030
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "04_Гнёздово_Селище_2_EtGr_карта_04_1.0.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "4fd06ebaf2469f3b_s0_v1.npz",
+  "shape": [
+   449,
+   718
+  ],
+  "step": 0.052198624627422266,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_04_1.0_ObjectPoly.geojson"
+    ],
+    "n_gt": 18,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.8
+ },
+ {
+  "raster": "04_Гнёздово_Селище_2_EtGr_профиль_04.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "ce0704328a8b6bff_s0_v1.npz",
+  "shape": [
+   139,
+   731
+  ],
+  "step": 0.04944449203662737,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 4,
+    "pos": 1821,
+    "neg": 5463
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "05_Гнёздово_Селище_2_EtGr_карта_05_1.25.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "4fe58e32b5337f4b_s0_v1.npz",
+  "shape": [
+   451,
+   717
+  ],
+  "step": 0.05221733948300655,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_05_1.25_ObjectPoly.geojson"
+    ],
+    "n_gt": 21,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.7
+ },
+ {
+  "raster": "05_Гнёздово_Селище_2_EtGr_профиль_05.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "18c900d0065df184_s0_v1.npz",
+  "shape": [
+   135,
+   732
+  ],
+  "step": 0.04944828287651545,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_05_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 1224,
+    "neg": 3672
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "06_Гнёздово_Селище_2_EtGr_карта_06_1.75.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "2623180791c8153c_s0_v1.npz",
+  "shape": [
+   453,
+   713
+  ],
+  "step": 0.05222750881577009,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_карта_06_1.75_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.7
+ },
+ {
+  "raster": "06_Гнёздово_Селище_2_EtGr_профиль_06.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "11359cfd0bcb1a80_s0_v1.npz",
+  "shape": [
+   137,
+   730
+  ],
+  "step": 0.0494479949640498,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_06_ObjectPoly.geojson"
+    ],
+    "n_gt": 3,
+    "pos": 1756,
+    "neg": 5268
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "07_Гнёздово_Селище_2_EtGr_профиль_07.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "c18c13020789f8ef_s0_v1.npz",
+  "shape": [
+   137,
+   729
+  ],
+  "step": 0.049379609793059,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_07_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 1419,
+    "neg": 4257
+   }
+  },
+  "secs": 0.2
+ },
+ {
+  "raster": "08_Гнёздово_Селище_2_EtGr_профиль_22.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "baf5a77343de9373_s0_v1.npz",
+  "shape": [
+   134,
+   725
+  ],
+  "step": 0.04951279298122969,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_22_ObjectPoly.geojson"
+    ],
+    "n_gt": 6,
+    "pos": 3418,
+    "neg": 10254
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "09_Гнёздово_Селище_2_EtGr_профиль_23.tif",
+  "region": "216_Гнёздово_Селище_2",
+  "mt": "etgr",
+  "file": "da915ea1734d7a42_s0_v1.npz",
+  "shape": [
+   137,
+   725
+  ],
+  "step": 0.049447673214444134,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_2_EtGr_профиль_23_ObjectPoly.geojson"
+    ],
+    "n_gt": 5,
+    "pos": 5736,
+    "neg": 17208
+   }
+  },
+  "secs": 0.3
+ },
+ {
+  "raster": "01_Гнёздово_Селище_3_EtGr_карта_01.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "072ccad8ad6052e1_s0_v1.npz",
+  "shape": [
+   1503,
+   575
+  ],
+  "step": 0.046650859795675285,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_01_ObjectPoly.geojson"
+    ],
+    "n_gt": 15,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.9
+ },
+ {
+  "raster": "02_Гнёздово_Селище_3_EtGr_карта_02.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "1c209c516b6df86a_s0_v1.npz",
+  "shape": [
+   1500,
+   573
+  ],
+  "step": 0.04665085979589763,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_02_ObjectPoly.geojson"
+    ],
+    "n_gt": 14,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "03_Гнёздово_Селище_3_EtGr_карта_03.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "7a7edabad7ca22c9_s0_v1.npz",
+  "shape": [
+   1508,
+   574
+  ],
+  "step": 0.04665085979549098,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_03_ObjectPoly.geojson"
+    ],
+    "n_gt": 20,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "04_Гнёздово_Селище_3_EtGr_карта_04.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "f9d30341d037be0e_s0_v1.npz",
+  "shape": [
+   1503,
+   583
+  ],
+  "step": 0.046650859795521006,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_04_ObjectPoly.geojson"
+    ],
+    "n_gt": 15,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "05_Гнёздово_Селище_3_EtGr_карта_05.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "6957abe985c53d25_s0_v1.npz",
+  "shape": [
+   1508,
+   573
+  ],
+  "step": 0.0466508597957749,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_05_ObjectPoly.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "06_Гнёздово_Селище_3_EtGr_карта_06.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "4b6f86370a62de87_s0_v1.npz",
+  "shape": [
+   1506,
+   572
+  ],
+  "step": 0.04665085979582808,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_06_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.8
+ },
+ {
+  "raster": "07_Гнёздово_Селище_3_EtGr_карта_07.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "612b2edf5d52c814_s0_v1.npz",
+  "shape": [
+   1509,
+   573
+  ],
+  "step": 0.04665085979590298,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_07_ObjectPoly.geojson"
+    ],
+    "n_gt": 21,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.9
+ },
+ {
+  "raster": "08_Гнёздово_Селище_3_EtGr_карта_08.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "a6aa2e234a4460cf_s0_v1.npz",
+  "shape": [
+   1503,
+   577
+  ],
+  "step": 0.0466508597956366,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_08_ObjectPoly.geojson"
+    ],
+    "n_gt": 17,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 1.9
+ },
+ {
+  "raster": "09_Гнёздово_Селище_3_EtGr_карта_09.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "etgr",
+  "file": "4512333a65f943a7_s0_v1.npz",
+  "shape": [
+   1508,
+   592
+  ],
+  "step": 0.046650859795672406,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_EtGr_карта_09_ObjectPoly.geojson"
+    ],
+    "n_gt": 13,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 2.0
+ },
+ {
+  "raster": "01_Гнёздово_Селище_3_TerFl.tif",
+  "region": "217_Гнёздово_Селище_3",
+  "mt": "terfl",
+  "file": "386fc419ee97bc9b_s0_v1.npz",
+  "shape": [
+   475,
+   187
+  ],
+  "step": 0.2984380229226543,
+  "classes": {
+   "object_poly": {
+    "gt_files": [
+     "Гнёздово_Селище_3_TerFl_ObjectPoly.geojson"
+    ],
+    "n_gt": 46,
+    "pos": 8000,
+    "neg": 24000
+   }
+  },
+  "secs": 0.3
+ }
+]

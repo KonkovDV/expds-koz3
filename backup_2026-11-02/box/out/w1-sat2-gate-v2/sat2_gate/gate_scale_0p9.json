@@ -1,0 +1,34 @@
+{
+ "score": 0.326372875819941,
+ "base": 0.3146153226828423,
+ "d": 0.011757553137098697,
+ "d_new34": 0.0035641289668005838,
+ "d_optical": 0.028978688575672873,
+ "boot": {
+  "mean": 0.012632272659056526,
+  "p5": 0.004705744942732298,
+  "p50": 0.011590905713430383,
+  "p95": 0.02417994760694405,
+  "p_gt0": 1.0,
+  "families": 103
+ },
+ "per_class": {
+  "kurgany_povrezhdennye": 0.03404411552567144,
+  "kurgany_tselye": 0.0077215923969861655,
+  "gorodishcha": 0.0,
+  "arkhitektury": 0.0,
+  "object_poly": 0.0,
+  "fortifikatsii": 0.0,
+  "finds_points": 0.0
+ },
+ "info": {
+  "folds": 10,
+  "unseen_dropped": 723,
+  "unseen_kept": 0
+ },
+ "accept": true,
+ "scale": 0.9,
+ "damaged_not_worse": true,
+ "pass_full": true,
+ "pass_soft": true
+}

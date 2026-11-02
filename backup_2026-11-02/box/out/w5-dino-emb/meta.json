@@ -1,0 +1,1 @@
+{"model": "dinov2_vits14", "n": 222929, "ok": 212101, "sec": 40766, "dev": "cpu", "final": true, "miss": {"212_Гнёздово_Усадьба|terfl": 241}}

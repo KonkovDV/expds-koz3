@@ -1,0 +1,35 @@
+2026-11-01 21:19:56,567 INFO expds.w5_cloudfeat: w5_cloudfeat: модуль expds.w5cf_infer, α=0.60, группы li,li_dev,li_mosaic,li_coarse,li_fort,li_mask,gor_phys
+2026-11-01 21:19:57,800 INFO expds.infer_nn: amp=False tf32=False deterministic=True
+2026-11-01 21:19:57,801 INFO expds.pipeline: мягкий потолок 1200 с от старта процесса (прошло 2 с); пороги: wide_window 120 с, sigma 60 с, verify 60 с
+2026-11-01 21:19:57,801 INFO expds.pipeline: ускоритель: rust 0.1.0 avx2=true/true threads=8
+2026-11-01 21:19:57,801 INFO expds.pipeline: устройство: cpu
+2026-11-01 21:19:57,801 INFO expds.watchdog: сторож сработает через 1618 с
+2026-11-01 21:19:57,883 INFO expds.catalog: найдено регионов: 1 в /workspace/koz3/w4geo/smoke190/in
+2026-11-01 21:19:57,883 INFO expds.pipeline: к разбору: регионов 1, LAS 1, растров 0 (нет), пропущено файлов 0
+2026-11-01 21:19:57,887 INFO expds.pipeline: среда: {'python': '3.13.5', 'platform': 'Linux-6.12.94+-x86_64-with-glibc2.41', 'cpu': 8, 'mem_gb': {'MemTotal': 15.6, 'MemAvailable': 11.3}, 'cgroup_mem_max': None, 'uid': 1000, 'output_writable': True, 'torch': '2.15.0+cpu', 'cuda_available': False, 'accel': 'rust 0.1.0 avx2=true/true threads=8'}
+2026-11-01 21:19:57,891 INFO expds.health: опись входа: {'regions': 1, 'rasters_by_modality': {}, 'las_files': 1, 'las_region_crs': {'EPSG:32636': 1}, 'raster_read': {}, 'models': {'li:li_r18_hard2.pt': 54.8, 'li_mask:li_gor_mask_r18.pt': 54.8, 'sp_or:spor_gor_r18.pt': 54.8, 'sp_or:spor_focal_r18.pt': 54.8, 'sp_or:surf_arch_r18.pt': 54.8, 'li_fort:li_fort_mask_r18.pt': 54.8, 'li_dev:li_dev_r18.pt': 54.8, 'sp_focal2:spor_focal_wide_r18.pt': 54.8, 'ae:ae_fort_mask_r18.pt': 54.8, 'or:surf_arch_r18.pt': 54.8, 'lgbm:kurgan_lgbm.txt': 3.9}}
+2026-11-01 21:20:07,281 INFO expds.lidar: DEM 01_Муравлево_La_точки.las: 6411x6172 @ 0.2 м, точек 75913608, пустот 11206590, rust 0.1.0 avx2=true/true threads=8
+2026-11-01 21:22:21,988 INFO expds.lidar: DEM 01_Муравлево_La_точки.las: 2566x2470 @ 0.5 м, точек 75913608, пустот 1100843, rust 0.1.0 avx2=true/true threads=8
+2026-11-01 21:22:22,085 INFO expds.hillfort: 01_Муравлево_La_точки.las: кандидатов городищ по рельефу 3
+2026-11-01 21:22:26,141 INFO expds.lidar: DEM 01_Муравлево_La_точки.las: 1284x1236 @ 1 м, точек 75913608, пустот 267457, rust 0.1.0 avx2=true/true threads=8
+2026-11-01 21:23:15,256 INFO expds.w5cf_infer: w5cf_infer: 190_Муравлево: cloud features 6205/34428 li objects, 46.1 s, {'points': 177756311, 'roi_cells': 3142903, 'cands': 6205}
+2026-11-01 21:23:15,257 INFO expds.pipeline: 190_Муравлево: лидар +34428, 196.9 с, прошло 199 с
+2026-11-01 21:23:15,266 INFO expds.pipeline: sp_dfine n_det=0 total, участков полностью 0, моделей 0
+2026-11-01 21:23:22,055 INFO expds.pipeline: 190_Муравлево: канал σ +33745, прошло 206 с
+2026-11-01 21:23:22,063 INFO expds.crop_model: проверка кропа: кандидатов нет
+2026-11-01 21:23:25,369 INFO expds.w5cf_infer: w5cf_infer: 68173 objects, pool scored 7120, cf rows 6205, 3.3 s
+2026-11-01 21:23:25,436 INFO expds.w5_cloudfeat: w5_cloudfeat: переоценено li-объектов 68173 (со score ранжировщика 7120)
+2026-11-01 21:23:25,483 INFO expds.watchdog: ===== ПРОТОКОЛ ПРОГОНА (конец) =====
+2026-11-01 21:23:25,483 INFO expds.watchdog: определения: сырые — до порога, склейки и отсечения; записано — строки файла
+2026-11-01 21:23:25,483 INFO expds.watchdog: устройство: cpu; torch 2.15.0+cpu; cuda нет; ускоритель rust 0.1.0 avx2=true/true threads=8
+2026-11-01 21:23:25,483 INFO expds.watchdog: конфиг SHA256 aafe99d4743b68ed8fcccccb5b9ae7cc0ee61e7270ad07141d93addbfa1ba647; бюджет 1500 с; запас 120 с
+2026-11-01 21:23:25,483 INFO expds.watchdog: вход: регионов 1, из них с LAS 1; файлов LAS 1; растров нет; пропущено файлов 0
+2026-11-01 21:23:25,483 INFO expds.watchdog: фазы: геофизика: сырых 0, 0 с, лидар: сырых 34428, 197 с, оптика: сырых 0, 0 с, sp_dfine: сырых 0, 0 с, канал σ: сырых 33745, 7 с
+2026-11-01 21:23:25,488 INFO expds.watchdog: до порога 68173, по слоям: li 68173
+2026-11-01 21:23:25,492 INFO expds.watchdog: до порога по классам: fortifikatsii 12, gorodishcha 8, kurgany_povrezhdennye 34155, kurgany_tselye 33998
+2026-11-01 21:23:25,493 INFO expds.watchdog: записано 155, файл 205968 байт
+2026-11-01 21:23:25,493 INFO expds.watchdog: после порога по классам: fortifikatsii 1, gorodishcha 4, kurgany_povrezhdennye 39, kurgany_tselye 111
+2026-11-01 21:23:25,493 INFO expds.watchdog: после порога по слоям: li 155
+2026-11-01 21:23:25,493 INFO expds.watchdog: ===== КОНЕЦ ПРОТОКОЛА =====
+2026-11-01 21:23:25,495 INFO main: готово: {"regions": 1, "raw": 68173, "phases": {"геофизика": {"raw": 0, "seconds": 0.5}, "лидар": {"raw": 34428, "seconds": 196.9}, "оптика": {"raw": 0, "seconds": 0.0}, "sp_dfine": {"raw": 0, "seconds": 0.0}, "канал σ": {"raw": 33745, "seconds": 6.8}}, "written": 155, "seconds": 207.7, "partial_files": []}
+2026-11-01 21:23:25,496 INFO main: общее время 209.4 с

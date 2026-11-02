@@ -1,0 +1,14 @@
+[0s] RUNNING
+[41s] f1 RUNNING
+[2443s] f1 TRAINED ep=40 (2401s)
+[2448s] f1 COMPLETE n_notta=175
+[2448s] f2 RUNNING
+[4748s] f2 TRAINED ep=40 (2299s)
+[4781s] f2 COMPLETE n_notta=1086
+[4781s] f3 RUNNING
+[7075s] f3 TRAINED ep=40 (2294s)
+[7088s] f3 COMPLETE n_notta=206
+[7088s] f4 RUNNING
+[9357s] f4 TRAINED ep=40 (2269s)
+[9373s] f4 COMPLETE n_notta=286
+[9373s] DONE 9373s ok=['f1', 'f2', 'f3', 'f4']

@@ -1,0 +1,11 @@
+ЛОКАЛЬНЫЙ СУХОЙ ПРОГОН: CPU, 1 батч, без предобучения — результаты не значимы
+{"npz": "/workspace/koz3/ds/kcrops/kurgan_subclass_crops.npz", "N": 9322, "shape": [9322, 3, 64, 64], "labeled": 4704, "povr_share": 0.5821, "kinds": {"cand": 6109, "gt": 3213}, "regions": 56}
+smp: preinstalled | imagenet в кэше: {"resnet18": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/d5/d5da100346311aff6748ca74f737a7e9178dae9e48b071f61a8ccf9fa3ad88d7", "bytes": 46805552}, "resnet34": {"weights": "/workspace/koz3/ds/bundle/hf_hub_cache/blobs/bc/bcb6928a067cda2ccbcf44c2c810cf759f69ff578332b4ac57ff2a6eb3984b13", "bytes": 87275112}}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+модели строятся: ['resnet18', 'resnet34'] pretrained True
+фолдов 10, семей 42; ни одна семья не делится между фолдами
+{"model": "r18_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.639888842861088, "sec": 1380.9, "device": "cpu"}
+{"model": "r34_imnet", "fold": 0, "train": 2803, "test": 2423, "test_labeled": 1901, "auc": 0.6195526097763049, "sec": 2121.3, "device": "cpu"}
+{"model": "r18_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.9056603773584906, "sec": 1068.6, "device": "cpu"}
+{"model": "r18_imnet", "fold": 2, "train": 4568, "test": 900, "test_labeled": 136, "auc": 0.6845696676205151, "sec": 845.7, "device": "cpu"}
+{"model": "r34_imnet", "fold": 1, "train": 4574, "test": 387, "test_labeled": 130, "auc": 0.8734276729559748, "sec": 1242.6, "device": "cpu"}

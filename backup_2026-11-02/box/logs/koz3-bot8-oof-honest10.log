@@ -1,0 +1,15 @@
+[{"stream_name":"stdout","time":3.506121812,"data":"[      3s] pip install ['segmentation-models-pytorch==0.3.4']\n"}
+,{"stream_name":"stdout","time":19.251286843,"data":"[     18s] repo /kaggle/input/koz3-bot8-snap\n"}
+,{"stream_name":"stdout","time":19.256479636999998,"data":"[     18s] models /kaggle/input/koz3-bot8-snap/models\n"}
+,{"stream_name":"stdout","time":19.256853304,"data":"[     18s] xfer shards attached — rebuild train-expds-3\n"}
+,{"stream_name":"stdout","time":19.263929248,"data":"[     18s] rebuild train tree via /kaggle/working/rebuild_train_tree.py PIXGBM_REBUILD_ALL= 1\n"}
+,{"stream_name":"stdout","time":20.434684684,"data":"[     19s] rebuild done regions≈ 210 geo200-217= 18 shards= ['s000:koz3-xfer-s000', 's001:koz3-xfer-s001', 's002:koz3-xfer-s002', 's003:koz3-xfer-s003', 's004:koz3-xfer-s004', 's005:koz3-xfer-s005', 's006:koz3-xfer-s006', 's007:koz3-xfer-s007', 's008:koz3-xfer-s008', 's009:koz3-xfer-s009']\n"}
+,{"stream_name":"stdout","time":20.43477362,"data":"[     19s] train /kaggle/working/train-expds-3\n"}
+,{"stream_name":"stdout","time":25.02323747,"data":"[     24s] staged_no_gpu — rebuild OK, regions≈ 210 ; wait for GPU slot\n"}
+,{"stream_name":"stderr","time":28.400022748,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":28.400079574,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":28.807995557,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":28.808061256,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":29.804522001,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":31.458557496,"data":"[NbConvertApp] Writing 389474 bytes to __results__.html\n"}
+]

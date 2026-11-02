@@ -1,0 +1,1 @@
+{"raster": "07_Гнёздово_Селище_2_EtGr_профиль_07.tif", "region": "216_Гнёздово_Селище_2", "mt": "etgr", "file": "c18c13020789f8ef_s0_v1.npz", "shape": [137, 729], "step": 0.049379609793059, "classes": {"object_poly": {"gt_files": ["Гнёздово_Селище_2_EtGr_профиль_07_ObjectPoly.geojson"], "n_gt": 5, "pos": 1419, "neg": 4257}}, "secs": 0.2}
