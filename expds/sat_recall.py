@@ -174,3 +174,44 @@ def resolve_final_flag(cfg: dict) -> dict:
     out = dict(cfg)
     out["post"], out["thresholds_by_markup"] = pc, by
     return out
+
+
+# ---------------- W4 [post.w4_sat] (PREREG docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG.md), default OFF ----------------
+W4_FLAG = "w4_sat"
+
+
+def w4_flag_on(cfg: dict) -> bool:
+    pc = (cfg or {}).get("post") or {}
+    return isinstance(pc.get(W4_FLAG), dict) and bool(pc[W4_FLAG].get("enabled"))
+
+
+def resolve_w4_flag(cfg: dict) -> dict:
+    """cfg with an enabled [post.w4_sat] applied (shallow copies); off → cfg itself.
+
+    [post.w4_sat]: enabled, groups (["sp_dfine"]), center {d0, s_by_class} → [post].sat_center_prior,
+    frame {classes, d0, edge} → [post].sat_frame_prior (post.frame_prior on the groups), thresholds_sp_dfine {class: τ}
+    replaces those classes of [thresholds_by_markup.sp_dfine]. Exclusive with the W1 flags / a separate sat_center_prior.
+    """
+    if not w4_flag_on(cfg):
+        return cfg
+    pc = dict(cfg.get("post") or {})
+    if final_flag_on(cfg) or pc.get("sat_center_prior") or pc.get("sat_frame_prior"):
+        raise ValueError("[post.w4_sat] is exclusive with w1_c1f / w1_p2f / sat_center_prior / sat_frame_prior")
+    fl = pc[W4_FLAG]
+    groups = list(fl.get("groups") or ["sp_dfine"])
+    thr = {str(k): float(v) for k, v in (fl.get("thresholds_sp_dfine") or {}).items()}
+    cen, fr = fl.get("center") or {}, fl.get("frame") or {}
+    if not thr or not (cen or fr):
+        raise ValueError("[post.w4_sat] needs thresholds_sp_dfine and center and/or frame")
+    if cen:
+        pc["sat_center_prior"] = {"groups": groups, "d0": float(cen.get("d0", 0.0)), "s": 0.0,
+                                  "s_by_class": {str(k): float(v) for k, v in cen["s_by_class"].items()}}
+    if fr:
+        pc["sat_frame_prior"] = {"groups": groups, "classes": [str(c) for c in fr["classes"]],
+                                 "d0": float(fr.get("d0", 0.5)), "edge": float(fr.get("edge", 0.5))}
+    pc[W4_FLAG] = {**fl, "enabled": False, "resolved": True}
+    by = dict(cfg.get("thresholds_by_markup") or {})
+    by["sp_dfine"] = {**dict(by.get("sp_dfine") or {}), **thr}
+    out = dict(cfg)
+    out["post"], out["thresholds_by_markup"] = pc, by
+    return out

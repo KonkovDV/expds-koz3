@@ -767,8 +767,8 @@ def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: d
 def _w1_prior_on(cfg: dict) -> bool:
     """W1-FRZ: [post].sat_center_prior или включённый [post.w1_c1f]/[post.w1_p2f] — нужен scene_drel."""
     pcf = cfg.get("post") or {}
-    return bool(pcf.get("sat_center_prior")) or any(
-        isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f"))
+    return bool(pcf.get("sat_center_prior") or pcf.get("sat_frame_prior")) or any(
+        isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f", "w4_sat"))
 
 
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:

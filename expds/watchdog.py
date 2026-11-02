@@ -75,9 +75,9 @@ def _tau(cfg: dict):
 def _w1_flag(cfg: dict) -> dict:
     """W1-FRZ [post.w1_c1f]/[post.w1_p2f] (по умолчанию выкл.): флаг → [post].sat_center_prior + свои пороги sp_dfine."""
     pc = cfg.get("post") or {}
-    if pc.get("w1_c1f") or pc.get("w1_p2f"):
+    if pc.get("w1_c1f") or pc.get("w1_p2f") or pc.get("w4_sat"):
         from . import sat_recall
-        return sat_recall.resolve_final_flag(cfg)
+        return sat_recall.resolve_w4_flag(sat_recall.resolve_final_flag(cfg))
     return cfg
 
 
@@ -101,6 +101,9 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
         # W1-FRZ (C1F/P2F через _w1_flag): приор центра сцены на sp_dfine до порогов, до frame_prior.
         from . import sat_recall
         out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
+    if post_cfg.get("sat_frame_prior"):
+        # W4 [post.w4_sat].frame: v3_on frame_prior form on sp_dfine, right after sat_center_prior.
+        out = post.frame_prior(out, _spec(post_cfg["sat_frame_prior"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
@@ -198,6 +201,11 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
             out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
         except Exception:
             log.exception("sat_center_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["sat_frame_prior"]))
+        except Exception:
+            log.exception("sat_frame_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
