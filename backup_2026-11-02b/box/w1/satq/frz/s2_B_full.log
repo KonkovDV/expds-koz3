@@ -1,0 +1,11 @@
+[B_full] fold 0: in 20016 → out 499 chosen None 4s
+[B_full] fold 1: in 5445 → out 3955 chosen None 5s
+[B_full] fold 2: in 11581 → out 273 chosen None 6s
+[B_full] fold 3: in 4687 → out 453 chosen None 6s
+[B_full] fold 4: in 8115 → out 2627 chosen None 7s
+[B_full] fold 5: in 6637 → out 417 chosen None 8s
+[B_full] fold 6: in 14260 → out 707 chosen None 9s
+[B_full] fold 7: in 9455 → out 1923 chosen None 10s
+[B_full] fold 8: in 12818 → out 462 chosen None 10s
+[B_full] fold 9: in 5193 → out 1087 chosen None 11s
+done 12403 {'L1_in': 85069, 'L2_thr': 1985, 'L3_thr+rerank': 1985, 'L3_merge': 1985, 'L3b_multipole': 1985, 'L3c_finds': 1985, 'L3d_twins': 1985, 'L3e_micro': 1985, 'L3f_finalize': 1985, 'L4_final': 1985} 13s

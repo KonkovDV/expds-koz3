@@ -1,0 +1,14 @@
+/workspace/koz3/w4/repo/expds/finds_cand.py:33: RuntimeWarning: Mean of empty slice
+  return np.nanmean(b, axis=(1, 3)).astype(np.float32)
+200_Судьбищи_2 01_Судьбищи_2_MagGr_серый.tif: res 0.066 cand 8690 kept 7349 pos(<=1m) 195 GT 216 GT-covered None 10s
+202_Семибратнее_Городище_2 01_Семибратнее_Городище_2_MagGr_серый.tif: res 0.102 cand 8251 kept 7469 pos(<=1m) 632 GT 518 GT-covered None 11s
+203_Семибратнее_Городище_3 01_Семибратнее_Городище_3_MagGr_серый.tif: res 0.102 cand 4735 kept 4193 pos(<=1m) 549 GT 438 GT-covered None 12s
+204_Семибратнее_Городище_4 01_Семибратнее_Городище_4_MagGr_серый.tif: res 0.102 cand 1367 kept 1103 pos(<=1m) 277 GT 233 GT-covered None 13s
+205_Семибратнее_Городище_5 01_Семибратнее_Городище_5_MagGr_серый.tif: res 0.102 cand 1924 kept 1284 pos(<=1m) 514 GT 454 GT-covered None 13s
+206_Семибратнее_Городище_6 01_Семибратнее_Городище_6_MagGr_серый.tif: res 0.102 cand 1542 kept 1314 pos(<=1m) 182 GT 145 GT-covered None 13s
+207_Семибратнее_Городище_7 01_Семибратнее_Городище_уч7_MagGr_серый.tif: res 0.102 cand 2257 kept 2084 pos(<=1m) 493 GT 427 GT-covered None 14s
+208_Гнёздово_Пойма 01_Гнёздово_Пойма_MagGr_серый.tif: res 0.058 cand 160 kept 154 pos(<=1m) 12 GT 13 GT-covered None 14s
+210_Гнёздово_Терраса_2 01_Гнёздово_Терраса_2_MagGr_серый.tif: res 0.183 cand 2237 kept 2067 pos(<=1m) 178 GT 159 GT-covered None 14s
+211_Гнёздово_Терраса_3 01_Гнёздово_Терраса_3_MagGr_серый.tif: res 0.082 cand 318 kept 17 pos(<=1m) 15 GT 409 GT-covered None 14s
+212_Гнёздово_Усадьба 01_Гнёздово_Усадьба_MagGr_цвет_2.tif: res 0.088 cand 1964 kept 1694 pos(<=1m) 71 GT 78 GT-covered None 15s
+done 15s

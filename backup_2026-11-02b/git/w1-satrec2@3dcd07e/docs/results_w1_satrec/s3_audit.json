@@ -1,0 +1,1822 @@
+{
+ "sat_gt": {
+  "total": 1606,
+  "fold": [
+   663,
+   84,
+   86,
+   116,
+   14,
+   44,
+   225,
+   59,
+   254,
+   61
+  ],
+  "cls": {
+   "kurgany_tselye": 207,
+   "kurgany_povrezhdennye": 1087,
+   "arkhitektury": 210,
+   "fortifikatsii": 37,
+   "gorodishcha": 65
+  }
+ },
+ "L0r_r18": {
+  "total": 787,
+  "fold": [
+   338,
+   6,
+   20,
+   45,
+   8,
+   32,
+   120,
+   45,
+   153,
+   20
+  ],
+  "cls": {
+   "kurgany_povrezhdennye": 597,
+   "kurgany_tselye": 87,
+   "arkhitektury": 89,
+   "gorodishcha": 14
+  }
+ },
+ "L0f_f2": {
+  "total": 316,
+  "fold": [
+   102,
+   2,
+   2,
+   4,
+   2,
+   6,
+   61,
+   33,
+   99,
+   5
+  ],
+  "cls": {
+   "kurgany_tselye": 58,
+   "kurgany_povrezhdennye": 258
+  }
+ },
+ "L0d_dfine_raw": {
+  "total": 1188,
+  "fold": [
+   501,
+   17,
+   58,
+   80,
+   13,
+   40,
+   179,
+   53,
+   206,
+   41
+  ],
+  "cls": {
+   "kurgany_povrezhdennye": 870,
+   "kurgany_tselye": 115,
+   "arkhitektury": 130,
+   "gorodishcha": 60,
+   "fortifikatsii": 13
+  }
+ },
+ "L0_union": {
+  "total": 1268,
+  "fold": [
+   531,
+   22,
+   63,
+   87,
+   13,
+   42,
+   182,
+   55,
+   231,
+   42
+  ],
+  "cls": {
+   "kurgany_tselye": 129,
+   "kurgany_povrezhdennye": 913,
+   "arkhitektury": 153,
+   "gorodishcha": 60,
+   "fortifikatsii": 13
+  }
+ },
+ "L0_r18+f2": {
+  "total": 879,
+  "fold": [
+   374,
+   7,
+   20,
+   46,
+   8,
+   34,
+   138,
+   49,
+   182,
+   21
+  ],
+  "cls": {
+   "kurgany_povrezhdennye": 673,
+   "kurgany_tselye": 103,
+   "arkhitektury": 89,
+   "gorodishcha": 14
+  }
+ },
+ "L1cf_r18f2_honest_tau": {
+  "total": 178,
+  "fold": [
+   58,
+   0,
+   1,
+   16,
+   1,
+   7,
+   37,
+   6,
+   46,
+   6
+  ],
+  "cls": {
+   "kurgany_povrezhdennye": 136,
+   "kurgany_tselye": 22,
+   "arkhitektury": 20
+  }
+ },
+ "base": {
+  "L1_in": {
+   "total": 1040,
+   "fold": [
+    451,
+    1,
+    47,
+    69,
+    10,
+    35,
+    168,
+    51,
+    178,
+    30
+   ],
+   "cls": {
+    "arkhitektury": 109,
+    "kurgany_tselye": 114,
+    "kurgany_povrezhdennye": 766,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 85069
+  },
+  "L2_thr": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3_thr+rerank": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3_merge": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3b_multipole": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3c_finds": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3d_twins": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3e_micro": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L3f_finalize": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L4_final": {
+   "total": 361,
+   "fold": [
+    166,
+    0,
+    6,
+    31,
+    0,
+    23,
+    49,
+    22,
+    51,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 263,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   },
+   "n_pred": 1613
+  },
+  "L5_matched_any": {
+   "total": 363,
+   "fold": [
+    166,
+    2,
+    6,
+    31,
+    0,
+    23,
+    48,
+    22,
+    51,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 262,
+    "arkhitektury": 53,
+    "gorodishcha": 9
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 355,
+   "fold": [
+    166,
+    0,
+    4,
+    31,
+    0,
+    22,
+    48,
+    21,
+    51,
+    12
+   ],
+   "cls": {
+    "kurgany_tselye": 39,
+    "kurgany_povrezhdennye": 257,
+    "arkhitektury": 53,
+    "gorodishcha": 6
+   }
+  },
+  "sat_pred": {
+   "n": 1613,
+   "tp": 360,
+   "precision": 0.2231866088034718,
+   "recall_L5s": 0.22104607721046077,
+   "recall_L5": 0.22602739726027396
+  },
+  "greedy_check": {
+   "tp_own": 3613,
+   "tp_official": 3613,
+   "ok": true
+  }
+ },
+ "R1": {
+  "L1_in": {
+   "total": 1040,
+   "fold": [
+    451,
+    1,
+    47,
+    69,
+    10,
+    35,
+    168,
+    51,
+    178,
+    30
+   ],
+   "cls": {
+    "arkhitektury": 109,
+    "kurgany_tselye": 114,
+    "kurgany_povrezhdennye": 766,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 85069
+  },
+  "L2_thr": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3_thr+rerank": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3_merge": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3b_multipole": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3c_finds": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3d_twins": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3e_micro": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L3f_finalize": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L4_final": {
+   "total": 371,
+   "fold": [
+    179,
+    0,
+    3,
+    30,
+    2,
+    20,
+    52,
+    22,
+    50,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 260,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   },
+   "n_pred": 1214
+  },
+  "L5_matched_any": {
+   "total": 376,
+   "fold": [
+    179,
+    2,
+    4,
+    30,
+    2,
+    20,
+    52,
+    23,
+    50,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 262,
+    "arkhitektury": 50,
+    "gorodishcha": 16
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 368,
+   "fold": [
+    179,
+    0,
+    2,
+    30,
+    2,
+    19,
+    52,
+    22,
+    50,
+    12
+   ],
+   "cls": {
+    "kurgany_tselye": 48,
+    "kurgany_povrezhdennye": 257,
+    "arkhitektury": 50,
+    "gorodishcha": 13
+   }
+  },
+  "sat_pred": {
+   "n": 1214,
+   "tp": 373,
+   "precision": 0.30724876441515653,
+   "recall_L5s": 0.22914072229140722,
+   "recall_L5": 0.23412204234122042
+  },
+  "greedy_check": {
+   "tp_own": 3626,
+   "tp_official": 3626,
+   "ok": true
+  }
+ },
+ "R2": {
+  "L1_in": {
+   "total": 1159,
+   "fold": [
+    496,
+    8,
+    53,
+    77,
+    10,
+    40,
+    175,
+    54,
+    215,
+    31
+   ],
+   "cls": {
+    "kurgany_povrezhdennye": 844,
+    "arkhitektury": 136,
+    "kurgany_tselye": 128,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 160917
+  },
+  "L2_thr": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3_thr+rerank": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3_merge": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3b_multipole": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3c_finds": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3d_twins": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3e_micro": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L3f_finalize": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L4_final": {
+   "total": 367,
+   "fold": [
+    164,
+    0,
+    4,
+    34,
+    1,
+    21,
+    61,
+    21,
+    47,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   },
+   "n_pred": 1674
+  },
+  "L5_matched_any": {
+   "total": 370,
+   "fold": [
+    164,
+    2,
+    4,
+    34,
+    0,
+    21,
+    61,
+    22,
+    47,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 285,
+    "arkhitektury": 52,
+    "gorodishcha": 7
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 362,
+   "fold": [
+    164,
+    0,
+    2,
+    34,
+    0,
+    20,
+    61,
+    21,
+    47,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 26,
+    "kurgany_povrezhdennye": 280,
+    "arkhitektury": 52,
+    "gorodishcha": 4
+   }
+  },
+  "sat_pred": {
+   "n": 1674,
+   "tp": 368,
+   "precision": 0.21983273596176822,
+   "recall_L5s": 0.22540473225404734,
+   "recall_L5": 0.23038605230386053
+  },
+  "greedy_check": {
+   "tp_own": 3620,
+   "tp_official": 3620,
+   "ok": true
+  }
+ },
+ "R3": {
+  "L1_in": {
+   "total": 1159,
+   "fold": [
+    496,
+    8,
+    53,
+    77,
+    10,
+    40,
+    175,
+    54,
+    215,
+    31
+   ],
+   "cls": {
+    "kurgany_povrezhdennye": 844,
+    "arkhitektury": 136,
+    "kurgany_tselye": 128,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 160917
+  },
+  "L2_thr": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3_thr+rerank": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3_merge": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3b_multipole": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3c_finds": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3d_twins": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3e_micro": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L3f_finalize": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L4_final": {
+   "total": 390,
+   "fold": [
+    163,
+    1,
+    6,
+    42,
+    3,
+    23,
+    53,
+    21,
+    64,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 16,
+    "fortifikatsii": 1
+   },
+   "n_pred": 1734
+  },
+  "L5_matched_any": {
+   "total": 391,
+   "fold": [
+    163,
+    3,
+    6,
+    42,
+    2,
+    22,
+    52,
+    22,
+    64,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 42,
+    "kurgany_povrezhdennye": 273,
+    "arkhitektury": 57,
+    "gorodishcha": 18,
+    "fortifikatsii": 1
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 383,
+   "fold": [
+    163,
+    1,
+    4,
+    42,
+    2,
+    21,
+    52,
+    21,
+    64,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 42,
+    "kurgany_povrezhdennye": 268,
+    "arkhitektury": 57,
+    "gorodishcha": 15,
+    "fortifikatsii": 1
+   }
+  },
+  "sat_pred": {
+   "n": 1734,
+   "tp": 389,
+   "precision": 0.2243367935409458,
+   "recall_L5s": 0.23848069738480698,
+   "recall_L5": 0.24346201743462018
+  },
+  "greedy_check": {
+   "tp_own": 3643,
+   "tp_official": 3643,
+   "ok": true
+  }
+ },
+ "C1": {
+  "L1_in": {
+   "total": 1040,
+   "fold": [
+    451,
+    1,
+    47,
+    69,
+    10,
+    35,
+    168,
+    51,
+    178,
+    30
+   ],
+   "cls": {
+    "arkhitektury": 109,
+    "kurgany_tselye": 114,
+    "kurgany_povrezhdennye": 766,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 85069
+  },
+  "L2_thr": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3_thr+rerank": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3_merge": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3b_multipole": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3c_finds": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3d_twins": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3e_micro": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L3f_finalize": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L4_final": {
+   "total": 436,
+   "fold": [
+    187,
+    0,
+    8,
+    46,
+    1,
+    22,
+    72,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 47,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 307,
+    "gorodishcha": 11
+   },
+   "n_pred": 1770
+  },
+  "L5_matched_any": {
+   "total": 437,
+   "fold": [
+    187,
+    2,
+    8,
+    46,
+    1,
+    22,
+    71,
+    25,
+    60,
+    15
+   ],
+   "cls": {
+    "kurgany_tselye": 46,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 306,
+    "gorodishcha": 14
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 429,
+   "fold": [
+    187,
+    0,
+    6,
+    46,
+    1,
+    21,
+    71,
+    24,
+    60,
+    13
+   ],
+   "cls": {
+    "kurgany_tselye": 46,
+    "arkhitektury": 71,
+    "kurgany_povrezhdennye": 301,
+    "gorodishcha": 11
+   }
+  },
+  "sat_pred": {
+   "n": 1770,
+   "tp": 434,
+   "precision": 0.24519774011299436,
+   "recall_L5s": 0.2671232876712329,
+   "recall_L5": 0.27210460772104605
+  },
+  "greedy_check": {
+   "tp_own": 3671,
+   "tp_official": 3671,
+   "ok": true
+  }
+ },
+ "C2": {
+  "L1_in": {
+   "total": 1159,
+   "fold": [
+    496,
+    8,
+    53,
+    77,
+    10,
+    40,
+    175,
+    54,
+    215,
+    31
+   ],
+   "cls": {
+    "kurgany_povrezhdennye": 844,
+    "arkhitektury": 136,
+    "kurgany_tselye": 128,
+    "gorodishcha": 49,
+    "fortifikatsii": 2
+   },
+   "n_pred": 160917
+  },
+  "L2_thr": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3_thr+rerank": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3_merge": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3b_multipole": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3c_finds": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3d_twins": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3e_micro": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L3f_finalize": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L4_final": {
+   "total": 461,
+   "fold": [
+    202,
+    0,
+    10,
+    45,
+    2,
+    23,
+    71,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 44,
+    "kurgany_povrezhdennye": 342,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   },
+   "n_pred": 1874
+  },
+  "L5_matched_any": {
+   "total": 460,
+   "fold": [
+    202,
+    2,
+    10,
+    45,
+    1,
+    22,
+    70,
+    25,
+    67,
+    16
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 339,
+    "arkhitektury": 70,
+    "gorodishcha": 8
+   }
+  },
+  "L5s_matched_by_sat": {
+   "total": 452,
+   "fold": [
+    202,
+    0,
+    8,
+    45,
+    1,
+    21,
+    70,
+    24,
+    67,
+    14
+   ],
+   "cls": {
+    "kurgany_tselye": 43,
+    "kurgany_povrezhdennye": 334,
+    "arkhitektury": 70,
+    "gorodishcha": 5
+   }
+  },
+  "sat_pred": {
+   "n": 1874,
+   "tp": 459,
+   "precision": 0.24493062966915688,
+   "recall_L5s": 0.28144458281444584,
+   "recall_L5": 0.286425902864259
+  },
+  "greedy_check": {
+   "tp_own": 3697,
+   "tp_official": 3697,
+   "ok": true
+  }
+ }
+}

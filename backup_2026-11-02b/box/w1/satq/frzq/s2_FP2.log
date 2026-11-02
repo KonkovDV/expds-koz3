@@ -1,0 +1,11 @@
+[FP2] fold 0: in 20016 → out 430 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.25, 'train': 0.347378044908} 3s
+[FP2] fold 1: in 5438 → out 2429 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.332980374101} 4s
+[FP2] fold 2: in 11581 → out 250 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.35456440198} 5s
+[FP2] fold 3: in 4686 → out 335 chosen {'kind': 'fp', 'd0': 0.75, 'edge': 0.75, 'train': 0.344664564932} 6s
+[FP2] fold 4: in 8532 → out 2153 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.329420440308} 6s
+[FP2] fold 5: in 6641 → out 415 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.340765874377} 7s
+[FP2] fold 6: in 14531 → out 906 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.356512709364} 9s
+[FP2] fold 7: in 8611 → out 1403 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.346868953191} 10s
+[FP2] fold 8: in 12824 → out 395 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.34711409891} 11s
+[FP2] fold 9: in 5221 → out 1113 chosen {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.340014482317} 12s
+done 9829 {'L1_in': 85069, 'L2_thr': 1573, 'L3_thr+rerank': 1573, 'L3_merge': 1573, 'L3b_multipole': 1573, 'L3c_finds': 1573, 'L3d_twins': 1573, 'L3e_micro': 1573, 'L3f_finalize': 1573, 'L4_final': 1573} 14s

@@ -1,0 +1,11 @@
+[Q2] fold 0: in 20016 → out 279 chosen {'kind': 'q2', 'x': 0.5, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.351289908468} 3s
+[Q2] fold 1: in 5438 → out 2426 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.334350324198} 4s
+[Q2] fold 2: in 11581 → out 226 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.357748655385} 6s
+[Q2] fold 3: in 4686 → out 483 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.347361529267} 7s
+[Q2] fold 4: in 8532 → out 2142 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.330132981252} 7s
+[Q2] fold 5: in 6641 → out 351 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.342913317214} 8s
+[Q2] fold 6: in 14531 → out 939 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.35588773046} 10s
+[Q2] fold 7: in 8611 → out 1430 chosen {'kind': 'q2', 'x': 0.6, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.343098146893} 11s
+[Q2] fold 8: in 12824 → out 439 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.350564659229} 12s
+[Q2] fold 9: in 5221 → out 1122 chosen {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.342034874487} 13s
+done 9837 {'L1_in': 85069, 'L2_thr': 1581, 'L3_thr+rerank': 1581, 'L3_merge': 1581, 'L3b_multipole': 1581, 'L3c_finds': 1581, 'L3d_twins': 1581, 'L3e_micro': 1581, 'L3f_finalize': 1581, 'L4_final': 1581} 15s

@@ -1,0 +1,92 @@
+{
+ "n_regions_map": 59,
+ "region_fold_eq_s2_kernels": true,
+ "blend3": {
+  "n": 82996,
+  "folds": {
+   "0": 9106,
+   "1": 1130,
+   "2": 20251,
+   "3": 17563,
+   "4": 34946
+  },
+  "classes": {
+   "fortifikatsii": 947,
+   "kurgany_tselye": 29630,
+   "kurgany_povrezhdennye": 52266,
+   "gorodishcha": 153
+  },
+  "groups": {
+   "li_cnxblend": 82996
+  },
+  "regions_with_pred": 58,
+  "map_regions_without_pred": [
+   "182_Красносельская_1.7км"
+  ],
+  "pred_regions_fold_mismatch": [],
+  "families_split": {},
+  "conf_min": 0.05,
+  "conf_max": 0.94893,
+  "sidecar_regions": 59,
+  "OK": true
+ },
+ "blend4": {
+  "n": 62845,
+  "folds": {
+   "0": 7403,
+   "1": 1017,
+   "2": 15466,
+   "3": 12605,
+   "4": 26354
+  },
+  "classes": {
+   "fortifikatsii": 693,
+   "kurgany_tselye": 22058,
+   "kurgany_povrezhdennye": 39978,
+   "gorodishcha": 116
+  },
+  "groups": {
+   "li_cnxblend": 62845
+  },
+  "regions_with_pred": 58,
+  "map_regions_without_pred": [
+   "182_Красносельская_1.7км"
+  ],
+  "pred_regions_fold_mismatch": [],
+  "families_split": {},
+  "conf_min": 0.05,
+  "conf_max": 0.94945,
+  "sidecar_regions": 59,
+  "OK": true
+ },
+ "check_s2": {
+  "n": 94959,
+  "folds": {
+   "0": 10299,
+   "1": 1157,
+   "2": 18476,
+   "3": 15326,
+   "4": 49701
+  },
+  "classes": {
+   "fortifikatsii": 961,
+   "kurgany_tselye": 31944,
+   "kurgany_povrezhdennye": 61900,
+   "gorodishcha": 154
+  },
+  "groups": {
+   "li_cnx": 94959
+  },
+  "regions_with_pred": 58,
+  "map_regions_without_pred": [
+   "182_Красносельская_1.7км"
+  ],
+  "pred_regions_fold_mismatch": [],
+  "families_split": {},
+  "conf_min": 0.05,
+  "conf_max": 0.96202,
+  "sidecar_regions": 59,
+  "OK": true
+ },
+ "OK": true
+}

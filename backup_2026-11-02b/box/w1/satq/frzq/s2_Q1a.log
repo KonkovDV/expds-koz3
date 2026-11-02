@@ -1,0 +1,11 @@
+[Q1a] fold 0: in 20016 → out 320 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.348587088147} 3s
+[Q1a] fold 1: in 5438 → out 2433 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.329695607455} 4s
+[Q1a] fold 2: in 11581 → out 250 chosen {'kind': 'q1', 'd0': 0.0, 's_arkh': 1.0, 'tau_arkh': None, 'train': 0.35258703988} 5s
+[Q1a] fold 3: in 4686 → out 394 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.344248315346} 6s
+[Q1a] fold 4: in 8532 → out 2167 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.32678199451} 7s
+[Q1a] fold 5: in 6641 → out 412 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.338950257211} 8s
+[Q1a] fold 6: in 14531 → out 824 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.357212113133} 9s
+[Q1a] fold 7: in 8611 → out 1413 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.342751138119} 10s
+[Q1a] fold 8: in 12824 → out 427 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.346049258967} 11s
+[Q1a] fold 9: in 5221 → out 1103 chosen {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.340000933286} 12s
+done 9743 {'L1_in': 85069, 'L2_thr': 1487, 'L3_thr+rerank': 1487, 'L3_merge': 1487, 'L3b_multipole': 1487, 'L3c_finds': 1487, 'L3d_twins': 1487, 'L3e_micro': 1487, 'L3f_finalize': 1487, 'L4_final': 1487} 14s

@@ -1,0 +1,376 @@
+{
+ "_rule": "Один слот = одна аренда. Перед kaggle push бот пишет аренду; без аренды push запрещён. Истёкшая (now > until + 1h) аренда снимается координатором после проверки kaggle kernels status.",
+ "quota_reset": "Сб 31.10 03:00 MSK (00:00 UTC)",
+ "slots": [
+  {
+   "slot": "acc1/gpu-1",
+   "account": "elenakonkova",
+   "holder": "bot-W1-satrec",
+   "kernel": null,
+   "purpose": "W1 SATDET: quota check, then detector training",
+   "pushed_by": "coord gpu_watcher",
+   "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f4 KernelWorkerStatus.COMPLETE",
+   "last": "снято bot-W1-aeor 01.11 20:07 MSK",
+   "since": "02.11 11:04 MSK",
+   "until": "02.11 18:16 MSK"
+  },
+  {
+   "slot": "acc1/gpu-2",
+   "account": "elenakonkova",
+   "holder": null,
+   "kernel": null,
+   "purpose": "w1-sat2-gate-v2",
+   "pushed_by": "coord gpu_watcher",
+   "prev": "elenakonkova/koz3-cnx-li-c3sc-s1f23 KernelWorkerStatus.COMPLETE",
+   "last": "снято bot-W1-aeor 01.11 20:07 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "acc1/tpu",
+   "account": "elenakonkova",
+   "holder": null,
+   "kernel": null,
+   "purpose": "QUEUED smoke; проверить нужность",
+   "state": "свободен",
+   "last": "снято coord 30.10 13:19 MSK"
+  },
+  {
+   "slot": "acc2/gpu-1",
+   "account": "dmitrijkv",
+   "holder": null,
+   "reserved_for": "bot-W1-aeor",
+   "kernel": null,
+   "purpose": "w3-gordense-timing",
+   "last": "снято bot-W3-bigobj 01.11 19:20 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "acc2/gpu-2",
+   "account": "dmitrijkv",
+   "holder": null,
+   "reserved_for": "bot-W1-aeor / W3 kurgan_orch",
+   "kernel": null,
+   "purpose": "coord: w3-gordense-timing под новым slug (старый slug → 409 Conflict)",
+   "last": "снято coord 01.11 20:24 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "acc2/tpu",
+   "account": "dmitrijkv",
+   "holder": null,
+   "kernel": null,
+   "purpose": "QUEUED, внутри CNX_MODE=smoke — кандидат на отмену (решение бота 1)",
+   "state": "свободен",
+   "last": "снято coord 30.10 13:19 MSK"
+  },
+  {
+   "slot": "acc2/cpu",
+   "account": "dmitrijkv",
+   "holder": "coord",
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds",
+   "purpose": "fallback W3 kurgan seeds 69,70",
+   "code": "w4pix/k",
+   "class": "NON-CLEANROOM (geo_pixgbm.py от публичного решения EhimenNathan, вариант B): только исследование/сравнение, НЕ для архива",
+   "last": "снято coord 30.10 10:06 MSK",
+   "since": "30.10 10:14 MSK",
+   "until": "30.10 18:18 MSK"
+  },
+  {
+   "slot": "box/cpu",
+   "holder": null,
+   "rule": "не больше 3 тяжёлых процессов и 8 ГБ RAM на бота; nice -n 10",
+   "kernel": null,
+   "purpose": "W3 KS gate + WS-G1",
+   "last": "снято bot-W3-bigobj 30.10 14:10 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "usertest1234/cpu",
+   "account": "usertest1234",
+   "holder": "coord",
+   "reserved_for": "bot-W1-aeor",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh usertest1234",
+   "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds",
+   "purpose": "fallback W3 kurgan seeds 13,14",
+   "last": "снято coord 30.10 07:55 MSK",
+   "since": "30.10 08:08 MSK",
+   "until": "30.10 15:13 MSK"
+  },
+  {
+   "slot": "aaaa0000004/cpu",
+   "account": "aaaa0000004",
+   "holder": null,
+   "reserved_for": "bot-W3-bigobj",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh aaaa0000004",
+   "kernel": null,
+   "purpose": "v3onchk rerun v3 (ref103 dfine region)",
+   "last": "снято coord 01.11 20:06 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "aaaadg4gg4g4g/cpu",
+   "account": "aaaadg4gg4g4g",
+   "holder": "coord",
+   "reserved_for": "bot-W4-gate",
+   "limits": "только CPU, без телефона: нет GPU/TPU, вероятно без интернета",
+   "auth": "orch/pool_kaggle.sh aaaadg4gg4g4g",
+   "kernel": "aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds",
+   "purpose": "fallback W3 kurgan seeds 77,78 (OOF для CI2-7)",
+   "last": "снято coord 30.10 09:20 MSK",
+   "since": "30.10 10:51 MSK",
+   "until": "30.10 17:51 MSK"
+  },
+  {
+   "slot": "box/q1",
+   "holder": null,
+   "kernel": null,
+   "last": "снято bot-W1-satrec 02.11 09:55 MSK",
+   "purpose": "W1 SATREC2 CPU gate (nice10, 4 thr)",
+   "state": "свободен"
+  },
+  {
+   "slot": "dmitrijkv/cpu",
+   "holder": null,
+   "kernel": null,
+   "last": "снято bot-W4-ref 01.11 20:00 MSK",
+   "purpose": "fetch SpOr ref region 103 for v3onchk dfine probe",
+   "state": "свободен"
+  },
+  {
+   "slot": "acc1/cpu",
+   "holder": null,
+   "kernel": null,
+   "purpose": "sat2-gate v2 (CPU; acc1 GPU 2/2 заняты)",
+   "last": "снято coord 01.11 20:24 MSK",
+   "state": "свободен"
+  },
+  {
+   "slot": "box/q2",
+   "holder": null,
+   "kernel": null,
+   "last": "снято bot-W2 02.11 11:16 MSK",
+   "purpose": "P-W2-12 seed blend CPU decode+gate",
+   "state": "свободен"
+  },
+  {
+   "slot": "box/q3",
+   "holder": null,
+   "kernel": null,
+   "last": "снято bot-W2-lidar 01.11 22:15 MSK",
+   "purpose": "W2 li_r50c5 gate on V3P (CPU, ~3GB)",
+   "state": "свободен"
+  }
+ ],
+ "kernel_prefix": {
+  "bot-W1-aeor": "koz3-w1-",
+  "bot-W2-lidar": "koz3-w2-",
+  "bot-W3-bigobj": "koz3-w3-",
+  "bot-W4-gate": "koz3-w4-"
+ },
+ "_tokens": "Токены acc3-5 читаются из local_ctx/ctx/kaggle_pool_4x2_t4.json в момент запуска (orch/pool_kaggle.sh); не печатать, не коммитить.",
+ "leases": [
+  {
+   "resource": "dataset:usertest1234/koz3-w3-kurgan-cpu-data",
+   "owner": "bot-W3-bigobj",
+   "since": 1793302265.967443,
+   "expires": 1793561465.967443,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 68871
+  },
+  {
+   "resource": "dataset:aaaa0000004/koz3-w3-kurgan-cpu-data",
+   "owner": "bot-W3-bigobj",
+   "since": 1793302266.062048,
+   "expires": 1793561466.062048,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 68886
+  },
+  {
+   "resource": "dataset:aaaadg4gg4g4g/koz3-w3-kurgan-cpu-data",
+   "owner": "bot-W3-bigobj",
+   "since": 1793302266.167574,
+   "expires": 1793561466.167574,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 68901
+  },
+  {
+   "resource": "branch:bots/w0-rust-speed",
+   "owner": "coord",
+   "since": 1793302266.229032,
+   "expires": 1794511866.229032,
+   "note": "бот 1 / w0 executor",
+   "host": "grok-bot-vm-361051398",
+   "pid": 68911
+  },
+  {
+   "resource": "branch:bots/w5-rerank",
+   "owner": "bot-W5-rerank",
+   "since": 1793302266.294999,
+   "expires": 1794511866.294999,
+   "note": "worktree wt/w5",
+   "host": "grok-bot-vm-361051398",
+   "pid": 68921
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-kurgan-cpu-data",
+   "owner": "bot-W3-bigobj",
+   "since": 1793304493.071603,
+   "expires": 1793347693.071603,
+   "note": "",
+   "host": "grok-bot-vm-361051398",
+   "pid": 20866
+  },
+  {
+   "resource": "branch:bots/w0-seams",
+   "owner": "coord",
+   "since": 1793305820.647262,
+   "expires": 1793392220.647262,
+   "note": "W0 seams audit executor",
+   "host": "grok-bot-vm-361051398",
+   "pid": 50330
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-gorheads-code",
+   "owner": "bot-W3-bigobj",
+   "since": 1793305927.978967,
+   "expires": 1793313127.978967,
+   "note": "gor heads code ds (19ccc9cf)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 52503
+  },
+  {
+   "resource": "dataset:dmitrijkv/koz3-w3-gordense-timing",
+   "owner": "bot-W3-bigobj",
+   "since": 1793310328.753734,
+   "expires": 1793317528.753734,
+   "note": "gor_dense timing ds: repo 86a60c5 + PC heads (v4 sha)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 117525
+  },
+  {
+   "resource": "branch:bots/w0-docs",
+   "owner": "coord",
+   "since": 1793310996.371025,
+   "expires": 1793332596.371025,
+   "note": "W0 docs executor: README_FINAL + ai_declaration",
+   "host": "grok-bot-vm-361051398",
+   "pid": 127340
+  },
+  {
+   "resource": "slot:usertest1234/cpu",
+   "owner": "coord",
+   "since": 1793336913.911841,
+   "expires": 1793362401.404109,
+   "note": "fallback W3 kurgan seeds 13,14",
+   "host": "grok-bot-vm-361051398",
+   "pid": 365599,
+   "kernel": "usertest1234/koz3-w3-kurgan-cpu-seeds"
+  },
+  {
+   "resource": "slot:acc2/cpu",
+   "owner": "coord",
+   "since": 1793344458.104156,
+   "expires": 1793373494.829304,
+   "note": "fallback W3 kurgan seeds 69,70",
+   "host": "grok-bot-vm-361051398",
+   "pid": 486026,
+   "kernel": "dmitrijkv/koz3-w3-kurgan-cpu-seeds"
+  },
+  {
+   "resource": "slot:aaaadg4gg4g4g/cpu",
+   "owner": "coord",
+   "since": 1793346661.668508,
+   "expires": 1793371861.668508,
+   "note": "fallback W3 kurgan seeds 77,78 (OOF для CI2-7)",
+   "host": "grok-bot-vm-361051398",
+   "pid": 504640,
+   "kernel": "aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds"
+  },
+  {
+   "resource": "dataset:elenakonkova/koz3-w3-kurgan-cpu-data",
+   "owner": "coord",
+   "since": 1793348603.4114,
+   "expires": 1793607803.4114,
+   "note": "копия kurgan-cpu-data для acc1",
+   "host": "grok-bot-vm-361051398",
+   "pid": 526564
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w3-kurgan-cpu-seeds",
+   "owner": "coord",
+   "since": 1793348603.442758,
+   "expires": 1793373803.442758,
+   "note": "seeds 79,80",
+   "host": "grok-bot-vm-361051398",
+   "pid": 526570
+  },
+  {
+   "resource": "branch:bots/w4-gate",
+   "owner": "bot-W4-gate",
+   "since": 1793302266.198332,
+   "expires": 1793399572.45425,
+   "note": "W4 v3_on pix_clean port",
+   "host": "grok-bot-vm-361051398",
+   "pid": 642615
+  },
+  {
+   "resource": "dataset:aaaa0000004/koz3-w4-v3on-check",
+   "owner": "bot-W4-chk4",
+   "since": 1793365064.684363,
+   "expires": 1793393864.684363,
+   "note": "v3on archive",
+   "host": "grok-bot-vm-361051398",
+   "pid": 658525
+  },
+  {
+   "resource": "dataset:aaaa0000004/koz3-w4-wheels-v3",
+   "owner": "bot-W4-chk4",
+   "since": 1793365064.71598,
+   "expires": 1793393864.71598,
+   "note": "py313 wheels",
+   "host": "grok-bot-vm-361051398",
+   "pid": 658530
+  },
+  {
+   "resource": "slot:acc1/gpu-1",
+   "owner": "bot-W1-satrec",
+   "since": 1793606697.98666,
+   "expires": 1793632590.423057,
+   "note": "W1 SATDET: quota check, then detector training",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1025388
+  },
+  {
+   "resource": "branch:bots/w1-satdet",
+   "owner": "bot-W1-satrec",
+   "since": 1793606909.118829,
+   "expires": 1793779709.118829,
+   "note": "W1 SATDET",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1028285
+  },
+  {
+   "resource": "kernel:elenakonkova/koz3-w1-satdet-frcnn",
+   "owner": "bot-W1-satrec",
+   "since": 1793606909.191528,
+   "expires": 1793642909.191528,
+   "note": "W1 SATDET detector",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1028290
+  },
+  {
+   "resource": "branch:bots/orch-protocol",
+   "owner": "coord",
+   "since": 1793614661.431343,
+   "expires": 1793618261.431343,
+   "note": "COMPETITOR_GAPS commit",
+   "host": "grok-bot-vm-361051398",
+   "pid": 1074100
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+[P2F] fold 0: in 20016 → out 331 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 0.75, 'arkhitektury': 0.5}, 'train': 0.356861504739} 3s
+[P2F] fold 1: in 5438 → out 2434 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.25}, 'train': 0.344948525357} 4s
+[P2F] fold 2: in 11581 → out 238 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.25, 'arkhitektury': 1.0}, 'train': 0.36822433335} 6s
+[P2F] fold 3: in 4686 → out 387 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.25}, 'train': 0.358550303094} 6s
+[P2F] fold 4: in 8532 → out 2164 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.25}, 'train': 0.340963805693} 8s
+[P2F] fold 5: in 6641 → out 408 chosen {'kind': 'pr', 'd0': 0.25, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.5}, 'train': 0.352588690233} 9s
+[P2F] fold 6: in 14531 → out 850 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 0.5}, 'train': 0.368454380867} 10s
+[P2F] fold 7: in 8611 → out 1419 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.0, 'arkhitektury': 1.25}, 'train': 0.347325155894} 11s
+[P2F] fold 8: in 12824 → out 419 chosen {'kind': 'pr', 'd0': 0.0, 's': 0.0, 's_by_class': {'gorodishcha': 1.0, 'arkhitektury': 1.25}, 'train': 0.35535092282} 13s
+[P2F] fold 9: in 5221 → out 1102 chosen {'kind': 'pr', 'd0': 0.25, 's': 0.0, 's_by_class': {'gorodishcha': 1.5, 'arkhitektury': 1.5}, 'train': 0.352179282887} 14s
+done 9752 {'L1_in': 85069, 'L2_thr': 1496, 'L3_thr+rerank': 1496, 'L3_merge': 1496, 'L3b_multipole': 1496, 'L3c_finds': 1496, 'L3d_twins': 1496, 'L3e_micro': 1496, 'L3f_finalize': 1496, 'L4_final': 1496} 16s

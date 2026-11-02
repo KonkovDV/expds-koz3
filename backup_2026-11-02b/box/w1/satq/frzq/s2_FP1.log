@@ -1,0 +1,11 @@
+[FP1] fold 0: in 20016 → out 504 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 3s
+[FP1] fold 1: in 5438 → out 2433 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 4s
+[FP1] fold 2: in 11581 → out 268 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 5s
+[FP1] fold 3: in 4686 → out 445 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 6s
+[FP1] fold 4: in 8532 → out 2166 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 7s
+[FP1] fold 5: in 6641 → out 423 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 7s
+[FP1] fold 6: in 14531 → out 927 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 9s
+[FP1] fold 7: in 8611 → out 1421 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 10s
+[FP1] fold 8: in 12824 → out 441 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 11s
+[FP1] fold 9: in 5221 → out 1110 chosen {'kind': 'fp', 'd0': 0.5, 'edge': 0.5} 12s
+done 10138 {'L1_in': 85069, 'L2_thr': 1882, 'L3_thr+rerank': 1882, 'L3_merge': 1882, 'L3b_multipole': 1882, 'L3c_finds': 1882, 'L3d_twins': 1882, 'L3e_micro': 1882, 'L3f_finalize': 1882, 'L4_final': 1882} 13s

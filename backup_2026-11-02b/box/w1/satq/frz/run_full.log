@@ -1,0 +1,2 @@
+[      8s] C1F_full delta {'all': 0.013957, 'new34': 0.001208, 'nolidar': 0.027749} P 1.0 PASS True
+[      8s] P2F_full delta {'all': 0.013695, 'new34': 0.0, 'nolidar': 0.017965} P 1.0 PASS True

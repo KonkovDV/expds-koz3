@@ -1,0 +1,8 @@
+members {'s2': 59} common regions 59 circle_r 0.5
+/workspace/koz3/wt/w2/w2_tools/blend_maps_cnx.py:52: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+  g = stf(to3857, Point(ux, uy).buffer(CIRCLE_R, quad_segs=4)); ring = [[round(a, 2), round(b, 2)] for a, b in g.exterior.coords]
+wrote check_s2.geojson 94959
+
+real	1m3.882s
+user	0m41.334s
+sys	0m21.241s

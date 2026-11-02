@@ -1,0 +1,471 @@
+"""Сторож времени платформы и контрольные записи результата.
+
+Контейнер снимают на 30-й минуте. Файл результата пишется один раз в конце
+и ещё раз сторожем за три минуты до снятия. Промежуточная запись в тот же
+путь опасна: площадка может счесть первый файл готовым ответом и остановить
+контейнер.
+"""
+from __future__ import annotations
+
+import logging
+import os
+import signal
+import threading
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from .constants import PLATFORM_LIMIT_S
+from . import post, writer
+
+log = logging.getLogger(__name__)
+
+
+def _fmt_counts(feats: list[dict], key: str) -> str:
+    """«li 12, sp_or 3» по полю объекта. Пустой список — «пусто»."""
+    counts: dict[str, int] = {}
+    for feat in feats:
+        name = feat.get(key) or "нет"
+        counts[name] = counts.get(name, 0) + 1
+    if not counts:
+        return "пусто"
+    return ", ".join(f"{name} {counts[name]}" for name in sorted(counts))
+
+#: Старт процесса. main.py выставляет его сразу, до тяжёлых импортов.
+PROCESS_START = time.monotonic()
+#: Запас на запись файла до снятия контейнера.
+GUARD_MARGIN_S = 180.0
+
+
+@dataclass
+class RunState:
+    """Накопленные объекты прогона. Пишет и основной поток, и сторож."""
+
+    output: Path
+    cfg: dict
+    feats: list[dict] = field(default_factory=list)
+    lock: threading.Lock = field(default_factory=threading.Lock)
+    note: dict = field(default_factory=dict)
+
+    def add(self, found: list[dict]) -> None:
+        if not found:
+            return
+        with self.lock:
+            self.feats.extend(found)
+
+    def snapshot(self) -> list[dict]:
+        with self.lock:
+            return list(self.feats)
+
+    def replace(self, feats: list[dict]) -> None:
+        with self.lock:
+            self.feats = list(feats)
+
+
+def _spec(value) -> dict | None:
+    """Ключ [post]: true — параметры по умолчанию, таблица — свои."""
+    return value if isinstance(value, dict) else None
+
+
+def _tau(cfg: dict):
+    return post.threshold_fn(cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                             cfg.get("thresholds_by_markup", {}))
+
+
+def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
+    """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
+
+    По умолчанию D-FINE Ae/Or идёт своей короткой цепочкой (пороги своей группы → склейка только внутри
+    группы → finalize → остаток лимита), и прежние объекты проходят цепочку v3 без изменений: реранк,
+    соседские приоры и twins не видят новых кандидатов. merge_union=true — межисточниковое объединение
+    в общей цепочке (по умолчанию выкл.; в v4 для этого dedupe_union bot-3 после порогов).
+    """
+    dc = cfg.get("dfine_aeor") or {}
+    iso = set(post.ISOLATED_GROUPS)
+    if not dc.get("enabled") or dc.get("merge_union") or not any(f.get("threshold_group") in iso for f in feats):
+        return None
+    return ([f for f in feats if f.get("threshold_group") not in iso],
+            [f for f in feats if f.get("threshold_group") in iso])
+
+
+def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
+    """Короткая цепочка D-FINE Ae/Or: свои пороги, склейка внутри группы, валидные полигоны, остаток лимита."""
+    if room <= 0 or not dfeats:
+        return []
+    out = post.only_known_classes(dfeats)
+    out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                cfg.get("thresholds_by_markup", {}))
+    out = post.finalize(post.merge_within_markup(out))
+    out = post.cap_features(out, room)
+    only = (cfg.get("post") or {}).get("only_classes")
+    return post.keep_classes(out, only) if only is not None else out
+
+
+def finish(feats: list[dict], cfg: dict) -> list[dict]:
+    """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+        from . import sat_recall      # W1-FRZ flags (off by default): prior spec + own sp_dfine thresholds
+        cfg = sat_recall.resolve_final_flag(cfg)
+    split = _aeor_split(feats, cfg)
+    if split is not None:
+        out = _finish_v3(split[0], cfg)
+        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
+    union = bool((cfg.get("dfine_aeor") or {}).get("merge_union"))
+    return _finish_v3(feats, cfg, isolate=() if union else post.ISOLATED_GROUPS)
+
+
+def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> list[dict]:
+    """Цепочка v3 (до bot-6 — тело finish)."""
+    out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    if (cfg.get("orgate") or {}).get("enabled"):
+        from . import orgate           # bot-6: гейт G ВМЕСТО R (то же место цепочки); сбой → маркер и R/база
+
+        out, reranked = orgate.apply_or_fallback(out, cfg)
+    elif (cfg.get("rerank_arch") or {}).get("enabled"):
+        from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
+
+        out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
+    post_cfg = cfg.get("post") or {}
+    if post_cfg.get("site_calibration"):
+        # Первым: соседство и пороги дальше работают в калиброванной шкале, как в замере oof_transform.py calib.
+        out = post.site_calibration(out, post_cfg["site_calibration"])
+    if post_cfg.get("kurgan_neighbour_prior"):
+        # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
+        out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("sat_fusion") or post_cfg.get("sat_center_prior") or post_cfg.get("sat_frame_gate"):
+        # W1-SATREC (docs/PREREG_W1_SATREC.md), off by default: equal-weight sat fusion, then scene-centre prior, before thresholds.
+        from . import sat_recall
+        if post_cfg.get("sat_fusion"):
+            out = sat_recall.sat_equal_fusion(out, _spec(post_cfg["sat_fusion"]))
+        if post_cfg.get("sat_center_prior"):
+            out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
+        if post_cfg.get("sat_frame_gate"):   # W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md), off by default
+            out = sat_recall.sat_frame_gate(out, _spec(post_cfg["sat_frame_gate"]))
+    if post_cfg.get("frame_prior"):
+        # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
+        out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    sf = (cfg.get("post") or {}).get("sp_score_fusion")
+    by_markup = post.sat_thr_relax_by_markup(cfg)   # bot-2 [sat_thr_relax], без флага — таблица как есть
+    if sf:
+        out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
+        by_markup = post.sp_fusion_thresholds(by_markup, sf)
+    if post_cfg.get("big_groups"):
+        bg = _spec(post_cfg["big_groups"])
+        out = post.big_area_groups(out, bg)
+        by_markup = post.big_group_thresholds(by_markup, bg)
+    # bot-4 large_objects: каждый механизм — отдельный sub-flag (см. large_objects.flag).
+    from . import large_objects as _lo
+    if _lo.flag(cfg, "fort_to_gor"):
+        out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if post_cfg.get("near_kept"):
+        out = post.rescue_near_kept(out, cfg.get("thresholds", {}), by_markup, _spec(post_cfg["near_kept"]),
+                                    cfg.get("default_threshold", 0.15))
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+        out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                   by_markup, _lo.spec(cfg))
+    else:
+        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                    by_markup)
+    out = out + reranked
+    # bot-4: protect_merge — крупный не сливается с мелким.
+    if _lo.flag(cfg, "protect_merge"):
+        out = _lo.merge_within_markup(out, isolate, _lo.spec(cfg))
+    else:
+        out = post.merge_within_markup(out, isolate)
+    if post_cfg.get("multipole_object_poly"):
+        out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
+    if post_cfg.get("filter_finds_points"):
+        out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
+    if post_cfg.get("geo_convex_hull"):
+        out = post.convex_hull_object_poly(out, post_cfg.get("geo_convex_hull"))
+    if post_cfg.get("kurgan_twins"):
+        out = post.kurgan_cross_modal_twins(out, post_cfg.get("kurgan_twins") if isinstance(post_cfg.get("kurgan_twins"), dict) else None)
+    elif post_cfg.get("kurgan_twins_only"):
+        # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
+        spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
+        spec["dedup_ae_vs_li_m"] = 0.0
+        out = post.kurgan_cross_modal_twins(out, spec)
+    if post_cfg.get("kurgans_outside_hillforts"):
+        # После twins (копии тоже проверяются), до micro_circles и core: нужна полная маска городища.
+        out = post.kurgans_outside_hillforts(out, _spec(post_cfg["kurgans_outside_hillforts"]))
+    if post_cfg.get("micro_circles"):
+        out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
+    if post_cfg.get("fill_holes"):
+        out = post.fill_holes(out, post_cfg["fill_holes"])
+    if post_cfg.get("core"):
+        out = post.shape_cores(out, post_cfg["core"])
+    # bot-4: ядра только у крупных городищ (sub-flag shape_cores).
+    if _lo.flag(cfg, "shape_cores"):
+        out = _lo.shape_cores_large(out, _lo.spec(cfg))
+    if post_cfg.get("split"):
+        out = post.split_large(out, post_cfg["split"])
+    if post_cfg.get("ellipse_classes") or post_cfg.get("fort_medial"):
+        from . import open_ideas
+        if post_cfg.get("ellipse_classes"):
+            names = set(post_cfg["ellipse_classes"])
+            out = [dict(f, geom=open_ideas.ellipse_of(f["geom"])) if f.get("class_name") in names else f
+                   for f in out]
+        if post_cfg.get("fort_medial"):
+            out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)),
+                                                 float(post_cfg.get("fort_medial_spacing_m", 25.0)))
+    out = post.finalize(out)
+    out = post.cap_features(out)
+    # Перепись одного класса. Без ключа список тот же, что у полной сдачи.
+    only = post_cfg.get("only_classes")
+    if only is not None:
+        out = post.keep_classes(out, only)
+    return out
+
+
+def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
+    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
+    try:
+        if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+            from . import sat_recall
+            cfg = sat_recall.resolve_final_flag(cfg)
+    except Exception:
+        log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
+    try:
+        return finish(feats, cfg)
+    except Exception:
+        log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
+    split = _aeor_split(feats, cfg)   # bot-6: D-FINE Ae/Or и в запасной цепочке отдельно
+    if split is None:
+        return _safe_v3(feats, cfg)
+    out = _safe_v3(split[0], cfg)
+    try:
+        return out + _aeor_finish(split[1], cfg, post.MAX_FEATURES - len(out))
+    except Exception:
+        log.exception("dfine_aeor в запасной цепочке упал, без него")
+        return out
+
+
+def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
+    """Запасная цепочка v3 (до bot-6 — хвост safe_finish)."""
+    out = post.only_known_classes(feats)
+    reranked: list[dict] = []
+    rr = cfg.get("rerank_arch") or {}
+    if (cfg.get("orgate") or {}).get("enabled"):
+        try:   # bot-6: гейт G вместо R и в запасной цепочке
+            from . import orgate
+
+            out, reranked = orgate.apply_or_fallback(out, cfg)
+        except Exception:
+            log.exception("orgate в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
+    elif rr.get("enabled"):
+        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
+        try:
+            from . import rerank_arch
+
+            out, reranked = rerank_arch.apply(out, rr)
+        except Exception:
+            log.exception("rerank_arch в запасной цепочке упал, архитектура — по базовым порогам")
+            reranked = []
+    pc = cfg.get("post") or {}
+    if pc.get("site_calibration"):
+        try:
+            out = post.site_calibration(out, pc["site_calibration"])
+        except Exception:
+            log.exception("site_calibration в запасной цепочке упал, шаг пропущен")
+    if pc.get("kurgan_neighbour_prior"):
+        # Пороги курганов подобраны после множителя: без него в запасной цепочке разошлись бы с замером.
+        try:
+            out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
+        except Exception:
+            log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_fusion") or pc.get("sat_center_prior") or pc.get("sat_frame_gate"):
+        try:
+            from . import sat_recall
+            if pc.get("sat_fusion"):
+                out = sat_recall.sat_equal_fusion(out, _spec(pc["sat_fusion"]))
+            if pc.get("sat_center_prior"):
+                out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
+            if pc.get("sat_frame_gate"):
+                out = sat_recall.sat_frame_gate(out, _spec(pc["sat_frame_gate"]))
+        except Exception:
+            log.exception("sat_fusion/sat_center_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["frame_prior"]))
+        except Exception:
+            log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
+    from . import large_objects as _lo
+    _by = post.sat_thr_relax_by_markup(cfg)
+    if _lo.flag(cfg, "fort_to_gor"):
+        out = _lo.fort_to_gor(out, _lo.spec(cfg))
+    if pc.get("near_kept"):
+        try:
+            out = post.rescue_near_kept(out, cfg.get("thresholds", {}), _by, _spec(pc["near_kept"]),
+                                        cfg.get("default_threshold", 0.15))
+        except Exception:
+            log.exception("near_kept в запасной цепочке упал, шаг пропущен")
+    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+        out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                   _by, _lo.spec(cfg))
+    else:
+        out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
+                                    _by)
+    out = out + reranked
+    # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
+    for key, fn in (("multipole_object_poly", post.multipole_object_poly),
+                    ("filter_finds_points", post.filter_finds_points_regimes)):
+        if pc.get(key):
+            try:
+                out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
+            except Exception:
+                log.exception("%s в запасной цепочке упал, шаг пропущен", key)
+    # bot-7: [post] kurgan_twins_only (bot-6, по умолчанию выкл.) — и в запасной цепочке, как в finish()
+    if not pc.get("kurgan_twins") and pc.get("kurgan_twins_only"):
+        try:
+            spec = dict(pc["kurgan_twins_only"]) if isinstance(pc["kurgan_twins_only"], dict) else {}
+            spec["dedup_ae_vs_li_m"] = 0.0
+            out = post.kurgan_cross_modal_twins(out, spec)
+        except Exception:
+            log.exception("kurgan_twins_only в запасной цепочке упал, шаг пропущен")
+    if pc.get("kurgans_outside_hillforts"):
+        try:
+            out = post.kurgans_outside_hillforts(out, _spec(pc["kurgans_outside_hillforts"]))
+        except Exception:
+            log.exception("kurgans_outside_hillforts в запасной цепочке упал, шаг пропущен")
+    mc = pc.get("micro_circles")
+    if mc:
+        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
+        try:
+            out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
+        except Exception:
+            log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
+    kept: list[dict] = []
+    for f in out:
+        try:
+            kept += post.finalize([f])
+        except Exception:
+            continue
+    kept = post.cap_features(kept)
+    only = (cfg.get("post") or {}).get("only_classes")
+    return post.keep_classes(kept, only) if only is not None else kept
+
+
+_write_lock = threading.Lock()
+
+
+def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: str) -> None:
+    """Одна запись протокола. Сырые объекты — до порога; записанные — строки файла.
+
+    Площадка показывает stdout. Блок самодостаточен: по нему видно, увидел ли
+    код LAS и снимки и отработал ли порог, без списка участков.
+    """
+    note = state.note
+    phases = note.get("phases") or {}
+    phase_text = ", ".join(
+        f"{name}: сырых {info.get('raw', 0)}, {info.get('seconds', 0):.0f} с"
+        for name, info in phases.items()) or "нет"
+    size = state.output.stat().st_size if state.output.is_file() else 0
+    log.info("===== ПРОТОКОЛ ПРОГОНА (%s) =====", reason)
+    log.info("определения: сырые — до порога, склейки и отсечения; записано — строки файла")
+    log.info("устройство: %s; torch %s; cuda %s; ускоритель %s",
+             note.get("device", "не задано"), note.get("torch", "нет"),
+             note.get("cuda", "нет"), note.get("backend", "не задано"))
+    log.info("конфиг SHA256 %s; бюджет %s с; запас %s с",
+             note.get("config_sha256", "нет"), note.get("budget_s", "нет"),
+             note.get("reserve_s", "нет"))
+    log.info("вход: регионов %s, из них с LAS %s; файлов LAS %s; растров %s; пропущено файлов %s",
+             note.get("regions", "нет"), note.get("regions_with_las", "нет"),
+             note.get("las_files", "нет"), note.get("rasters", "нет"),
+             note.get("skipped", "нет"))
+    log.info("фазы: %s", phase_text)
+    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
+        log.info("частично (дедлайн в цикле окон): %s", ", ".join(
+            f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
+    if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
+        log.info("мягкий потолок отключил: %s", ", ".join(
+            f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
+    spd = note.get("sp_dfine")
+    if spd:   # bot-10: сколько дал D-FINE — видно в протоколе сабмита (0 при enabled = подозрительно)
+        log.info("sp_dfine: transformers %s; моделей %s; сырых %s; записано %d",
+                 spd.get("transformers", "?"), spd.get("models", "?"), spd.get("raw", "?"),
+                 sum(1 for f in kept if f.get("threshold_group") == "sp_dfine"))
+    log.info("до порога %d, по слоям: %s", len(raw), _fmt_counts(raw, "markup_type"))
+    log.info("до порога по классам: %s", _fmt_counts(raw, "class_name"))
+    log.info("записано %d, файл %d байт", len(kept), size)
+    log.info("после порога по классам: %s", _fmt_counts(kept, "class_name"))
+    log.info("после порога по слоям: %s", _fmt_counts(kept, "markup_type"))
+    log.info("===== КОНЕЦ ПРОТОКОЛА =====")
+    for handler in logging.getLogger().handlers:
+        handler.flush()
+
+
+def checkpoint(state: RunState, reason: str) -> int:
+    """Атомарно записывает текущие объекты и печатает протокол. Возвращает, сколько их осталось после порогов."""
+    feats = state.snapshot()
+    with _write_lock:
+        kept = safe_finish(feats, state.cfg)
+        writer.write_geojson(kept, state.output)
+        _emit_protocol(state, feats, kept, reason)
+        return len(kept)
+
+
+def cleanup_tmp() -> None:
+    """Удаляет .expds_tmp, если main.py завёл туда кэши. Файл результата не трогает."""
+    import shutil
+
+    tmp = os.environ.get("EXPDS_TMP")
+    if tmp and Path(tmp).name == ".expds_tmp":
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def arm(state: RunState, delay_s: float, exit_fn=os._exit) -> threading.Thread:
+    """Через delay_s записывает результат и завершает процесс."""
+
+    def _fire() -> None:
+        time.sleep(max(0.0, delay_s))
+        log.warning("сторож времени: записываю результат и выхожу")
+        try:
+            checkpoint(state, "watchdog")
+        finally:
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+            cleanup_tmp()
+            exit_fn(0)
+
+    thread = threading.Thread(target=_fire, name="expds-watchdog", daemon=True)
+    thread.start()
+    return thread
+
+
+def arm_signal(state: RunState, exit_fn=os._exit):
+    """По SIGTERM записывает результат и выходит. Если запись уже идёт, не перебивает её."""
+
+    def _on_term(signum, _frame) -> None:
+        log.warning("сигнал %s: записываю результат", signum)
+        if not _write_lock.acquire(blocking=False):
+            return
+        try:
+            feats = state.snapshot()
+            kept = finish(feats, state.cfg)
+            writer.write_geojson(kept, state.output)
+            _emit_protocol(state, feats, kept, "signal")
+        finally:
+            _write_lock.release()
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+            cleanup_tmp()
+            exit_fn(0)
+
+    previous = signal.getsignal(signal.SIGTERM)
+    signal.signal(signal.SIGTERM, _on_term)
+    return previous
+
+
+def deadline_left(margin_s: float | None = None, clock=None) -> float:
+    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
+    margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
+    return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
+
+
+def arm_platform(state: RunState, exit_fn=os._exit, margin_s: float | None = None) -> threading.Thread:
+    """Дедлайн — 30 минут платформы минус запас, от старта процесса."""
+    left = deadline_left(margin_s)
+    log.info("сторож сработает через %.0f с", max(0.0, left))
+    return arm(state, left, exit_fn)

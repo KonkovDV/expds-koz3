@@ -1,0 +1,6 @@
+[     12s] Q1a delta {'all': 0.004695, 'new34': 0.0, 'nolidar': 0.004684} P 0.9735 PASS False
+[     12s] Q1b delta {'all': 0.004854, 'new34': 0.0, 'nolidar': 0.004848} P 0.9745 PASS False
+[     12s] Q1c delta {'all': 0.004367, 'new34': 0.0, 'nolidar': 0.004478} P 0.9835 PASS False
+[     12s] FP1 delta {'all': 0.008581, 'new34': 0.000896, 'nolidar': 0.018988} P 0.999 PASS True
+[     12s] FP2 delta {'all': 0.005269, 'new34': -0.000697, 'nolidar': 0.010671} P 1.0 PASS False
+[     12s] Q2 delta {'all': 0.008715, 'new34': -0.001324, 'nolidar': 0.009561} P 0.9955 PASS False

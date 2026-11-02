@@ -1,0 +1,1292 @@
+{
+ "_doc": "Очередь KOZ3 по слотам; правит только coord (бот 1) или под арендой branch:bots/orch-protocol. Время MSK.",
+ "generated": "29.10 22:45 MSK",
+ "deadline": "11.11.2026 (официально 14.11)",
+ "freeze": "10.11 23:59",
+ "quota_reset": [
+  "31.10 03:00 MSK",
+  "07.11 03:00 MSK"
+ ],
+ "queue": [
+  {
+   "id": "S0-g1",
+   "slot_window": "S0",
+   "start_msk": "29.10 22:23",
+   "end_msk": "30.10 04:30",
+   "owner": "W1",
+   "kernel_folder": "bot-W1/kernels/koz3-w1-dfine-ae-final",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [],
+   "review_item": 2,
+   "status": "running",
+   "note": "ae final+5 фолдов OOF"
+  },
+  {
+   "id": "S0-g2",
+   "slot_window": "S0",
+   "start_msk": "29.10 20:10",
+   "end_msk": "30.10 05:00",
+   "owner": "W2",
+   "kernel_folder": "w2/kernels/koz3-cnx-li-c3sc-s1f23 (legacy)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 3,
+   "prerequisites": [],
+   "review_item": 8,
+   "status": "running",
+   "note": "c3sc seed1 f2,f3 → merge s1 → W4"
+  },
+  {
+   "id": "S0-c4",
+   "slot_window": "S0",
+   "start_msk": "29.10 —",
+   "end_msk": "30.10 08:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-pixgbm-s3",
+   "account": "dmitrijkv",
+   "accelerator": "cpu",
+   "est_hours": 9,
+   "prerequisites": [],
+   "review_item": 1,
+   "status": "running",
+   "note": "NON-CLEANROOM, только исследование паритета PIXGBM"
+  },
+  {
+   "id": "S0-c3x",
+   "slot_window": "S0",
+   "start_msk": "—",
+   "end_msk": "30.10 06:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-kurgan-cpu-seeds",
+   "account": "usertest1234,aaaa0000004,aaaadg4gg4g4g",
+   "accelerator": "cpu",
+   "est_hours": 7,
+   "prerequisites": [],
+   "review_item": 9,
+   "status": "running",
+   "note": "сиды 11-32"
+  },
+  {
+   "id": "S0-tpu1",
+   "slot_window": "S0",
+   "start_msk": "QUEUED",
+   "end_msk": "—",
+   "owner": "W3",
+   "kernel_folder": "koz3-acc2-tpu-smoke (legacy)",
+   "account": "elenakonkova",
+   "accelerator": "tpu",
+   "est_hours": 0.5,
+   "prerequisites": [],
+   "review_item": null,
+   "status": "done",
+   "note": "смоук без цели → бот 1: отменить, если W3 не подтвердит до 23:30 | 30.10 13:19 COMPLETE (watcher), закрыто coord"
+  },
+  {
+   "id": "S0-tpu2",
+   "slot_window": "S0",
+   "start_msk": "QUEUED",
+   "end_msk": "—",
+   "owner": "W2",
+   "kernel_folder": "koz3-tpu-cnx-c3sc-train (legacy, внутри smoke c5)",
+   "account": "dmitrijkv",
+   "accelerator": "tpu",
+   "est_hours": 0.5,
+   "prerequisites": [],
+   "review_item": null,
+   "status": "done",
+   "note": "c5 закрыт решением бота 1 → отменить | 30.10 13:19 COMPLETE (watcher), закрыто coord"
+  },
+  {
+   "id": "S0-box1",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 06:00",
+   "owner": "W4",
+   "kernel_folder": "w4/repo: golden e2e main vs архив v2 (PIXGBM sha, n_raw по ступеням)",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 4,
+   "prerequisites": [
+    "архив v2 на box",
+    "table.pkl/OOF-стек A с ПК (ПК offline!)"
+   ],
+   "review_item": 1,
+   "status": "planned",
+   "note": "ПЕРВЫЙ на критическом пути; без него сабмитов нет"
+  },
+  {
+   "id": "S0-box2",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 03:00",
+   "owner": "W0",
+   "kernel_folder": "w0: профиль инференс-постпроцесса (тайлинг/полигонизация/dedup) + docker 30-мин тайминг",
+   "account": "box",
+   "accelerator": "cpu x2",
+   "est_hours": 3,
+   "prerequisites": [
+    "wt/w0"
+   ],
+   "review_item": "perf",
+   "status": "planned",
+   "note": "Rust-кандидаты для инференса"
+  },
+  {
+   "id": "S0-box3",
+   "slot_window": "S0",
+   "start_msk": "29.10 23:00",
+   "end_msk": "30.10 02:00",
+   "owner": "W4",
+   "kernel_folder": "item14 same-markup dedup + item12 gate с весами состава (CPU, OOF-only)",
+   "account": "box",
+   "accelerator": "cpu x1",
+   "est_hours": 1.5,
+   "prerequisites": [
+    "OOF стека A"
+   ],
+   "review_item": "12,14",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-g1",
+   "slot_window": "S1",
+   "start_msk": "30.10 04:30",
+   "end_msk": "30.10 09:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-dfine-ae-allclass-fix (f4pack 249b86fb + window-grid Fix A/B/C + fort τ0.995)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 3,
+   "prerequisites": [
+    "S0-g1 OOF"
+   ],
+   "review_item": 2,
+   "status": "planned",
+   "note": "калибровка 2–4 GPU-ч"
+  },
+  {
+   "id": "S1-g2",
+   "slot_window": "S1",
+   "start_msk": "30.10 05:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-dfine-or-final (gpu_watcher)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 7,
+   "prerequisites": [
+    "S0-g2 complete"
+   ],
+   "review_item": "2b",
+   "status": "queued",
+   "note": "sp/or ВНЕ архива до согласия gate↔docker; нужен только для разрешения противоречия"
+  },
+  {
+   "id": "S1-c1",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-breakeven (п.3: τ per class×type по F/(4−F) + min-k)",
+   "account": "usertest1234",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "OOF стека A на Kaggle dataset koz3-w4-oofA"
+   ],
+   "review_item": 3,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c2",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-xlayer (п.4: кросс-слойные копии Li→Ae/Sp, Sp↔Or)",
+   "account": "aaaa0000004",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "koz3-w4-oofA"
+   ],
+   "review_item": 4,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c3",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 12:00",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-lever-multihyp+objpoly (п.6, п.10: 2-й микрокруг, object_poly, MagGr 0.05, EtGr)",
+   "account": "aaaadg4gg4g4g",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "koz3-w4-oofA"
+   ],
+   "review_item": "6,10",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S1-c4",
+   "slot_window": "S1",
+   "start_msk": "30.10 08:00",
+   "end_msk": "30.10 14:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-center-snap (п.5: snap к пику DEM/LRM для курганов)",
+   "account": "dmitrijkv",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "S0-c4 освобождает acc2/cpu",
+    "OOF c3sc s0/s1"
+   ],
+   "review_item": 5,
+   "status": "planned",
+   "note": "finds-snap — W4 геофизика на box"
+  },
+  {
+   "id": "S1-box",
+   "slot_window": "S1",
+   "start_msk": "30.10 06:00",
+   "end_msk": "30.10 14:00",
+   "owner": "W4",
+   "kernel_folder": "gate: комбинирование рычагов 3/4/6/10/14 + honest-10 + 34 LAS/no-lidar + docker 30 мин",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 4,
+   "prerequisites": [
+    "S0-box1 PASS",
+    "S1-c1..c4"
+   ],
+   "review_item": "3-14",
+   "status": "planned",
+   "note": "кандидат v3a"
+  },
+  {
+   "id": "S2-g1",
+   "slot_window": "S2",
+   "start_msk": "30.10 12:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W5",
+   "kernel_folder": "koz3-w5-dino-embed-smoke (DINOv2-S кропы кандидатов, 1 фолд)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 2,
+   "prerequisites": [
+    "остаток квоты acc1",
+    "список кандидатов OOF A"
+   ],
+   "review_item": 7,
+   "status": "planned",
+   "note": "только если квота acc1 > 2 ч; иначе после 03:00 31.10"
+  },
+  {
+   "id": "S2-c",
+   "slot_window": "S2",
+   "start_msk": "30.10 14:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-gor-fixc (п.9 Fix C: Ae gor area_tau 0.20) + H1-3/K1-3 OOF-оценка",
+   "account": "usertest1234",
+   "accelerator": "cpu",
+   "est_hours": 3,
+   "prerequisites": [
+    "kurgan seeds готовы"
+   ],
+   "review_item": 9,
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "S2-c2",
+   "slot_window": "S2",
+   "start_msk": "30.10 14:00",
+   "end_msk": "31.10 03:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-cnx-c3sc-merge-s1 + center-snap gate-пакет",
+   "account": "aaaa0000004",
+   "accelerator": "cpu",
+   "est_hours": 2,
+   "prerequisites": [
+    "S0-g2"
+   ],
+   "review_item": "5,8",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "W2-a1g1",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "01.11 00:00",
+   "owner": "W5",
+   "kernel_folder": "koz3-w5-dino-embed (DINOv2-S/B 4 слоя, все кандидаты, 5 фолдов) → LGBM на CPU",
+   "account": "dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [
+    "S2-g1 smoke OK"
+   ],
+   "review_item": 7,
+   "status": "planned",
+   "note": "go/no-go D4 03.11"
+  },
+  {
+   "id": "W2-a1g2",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "02.11 12:00",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-lidar-heatmap (ConvNeXt-T U-Net, peaks, 5–8 каналов, 5 фолдов)",
+   "account": "dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 20,
+   "prerequisites": [
+    "PREREG W2 п.8"
+   ],
+   "review_item": 8,
+   "status": "planned",
+   "note": "go/no-go D5 04.11 по fold0"
+  },
+  {
+   "id": "W2-a0g1",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "31.10 12:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-sat-recall (п.11) + ae калибровка 2",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 4,
+   "prerequisites": [
+    "S1-g1"
+   ],
+   "review_item": "2,11",
+   "status": "planned",
+   "note": ""
+  },
+  {
+   "id": "W2-a0g2",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "02.11 00:00",
+   "owner": "W3",
+   "kernel_folder": "koz3-w3-bigobj-dino (п.9: DINOv2 патчи 2–4 м/пикс + маска, hard-neg)",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 8,
+   "prerequisites": [
+    "S2-c Fix C"
+   ],
+   "review_item": 9,
+   "status": "planned",
+   "note": "высокий риск; стоп при LOFO-дисперсии > эффекта"
+  },
+  {
+   "id": "W2-a0g3",
+   "slot_window": "31.10-06.11",
+   "start_msk": "01.11 00:00",
+   "end_msk": "03.11 00:00",
+   "owner": "W1",
+   "kernel_folder": "koz3-w1-copypaste-kurgan (п.13) — только если остаётся квота",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 6,
+   "prerequisites": [
+    "D3"
+   ],
+   "review_item": 13,
+   "status": "planned",
+   "note": "впритык"
+  },
+  {
+   "id": "W2-tpu",
+   "slot_window": "31.10-06.11",
+   "start_msk": "31.10 03:00",
+   "end_msk": "05.11",
+   "owner": "W2",
+   "kernel_folder": "koz3-w2-cnx-tpu (обучение CNX c3sc сид2 на TPU, если код TPU-готов)",
+   "account": "dmitrijkv,elenakonkova",
+   "accelerator": "tpu",
+   "est_hours": 20,
+   "prerequisites": [
+    "смоук пройден"
+   ],
+   "review_item": 8,
+   "status": "hold",
+   "note": "иначе TPU простаивает — допустимо | hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes"
+  },
+  {
+   "id": "W2-cpu",
+   "slot_window": "31.10-06.11",
+   "start_msk": "ежедневно",
+   "end_msk": "—",
+   "owner": "W4",
+   "kernel_folder": "koz3-w4-gate-* (ночные honest-10 пакеты, LGBM-реранкер на эмбеддингах)",
+   "account": "5 CPU-акков по аренде",
+   "accelerator": "cpu",
+   "est_hours": 40,
+   "prerequisites": [],
+   "review_item": "7,12",
+   "status": "planned",
+   "note": ">=1 CPU-ядро всегда занято gate-ом"
+  },
+  {
+   "id": "W3-g",
+   "slot_window": "07.11-10.11",
+   "start_msk": "07.11 03:00",
+   "end_msk": "09.11 12:00",
+   "owner": "W1/W2/W5",
+   "kernel_folder": "финальные переобучения на всём трейне победивших вариантов (final weights)",
+   "account": "elenakonkova,dmitrijkv",
+   "accelerator": "gpu(T4x2)",
+   "est_hours": 30,
+   "prerequisites": [
+    "D6 решение 07.11"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "только то, что прошло gate до 06.11"
+  },
+  {
+   "id": "W3-box",
+   "slot_window": "07.11-10.11",
+   "start_msk": "09.11 12:00",
+   "end_msk": "10.11 23:59",
+   "owner": "W4",
+   "kernel_folder": "сборка архивов A и B, docker e2e ≤30 мин, ≤2 ГБ, compliance, freeze",
+   "account": "box",
+   "accelerator": "cpu x3",
+   "est_hours": 12,
+   "prerequisites": [
+    "W3-g"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "code freeze 10.11"
+  },
+  {
+   "id": "FINAL",
+   "slot_window": "11.11",
+   "start_msk": "11.11 09:00",
+   "end_msk": "11.11 18:00",
+   "owner": "Elena",
+   "kernel_folder": "сдача A, затем B (финал: 2 успешные сдачи всего)",
+   "account": "—",
+   "accelerator": "—",
+   "est_hours": 0,
+   "prerequisites": [
+    "FREEZE"
+   ],
+   "review_item": "final",
+   "status": "planned",
+   "note": "буфер до 14.11 не используем по плану"
+  },
+  {
+   "id": "P-D2-cleanroom",
+   "owner": "W4",
+   "slot": "box/acc2-cpu",
+   "start_msk": "30.10 12:00",
+   "kernel_folder": "clean-room PIXGBM: приёмка Δ≥+0.009, паритет v2 ±0.002, проверить EtGr G4 в v2",
+   "prerequisites": [
+    "спека bbebfe3"
+   ],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-v3a-build",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "30.10 14:00",
+   "kernel_folder": "сборка v3a: break-even, MagGr 0.05/micro-circle, дедуп, object_poly>30м, EtGr>2м, контур съёмки",
+   "prerequisites": [
+    "P-D2-cleanroom"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W3-seeds-fix",
+   "owner": "W3",
+   "slot": "usertest1234/aaaa0000004/aaaadg4gg4g4g cpu",
+   "start_msk": "30.10 12:00",
+   "kernel_folder": "разобрать ERROR kurgan-cpu-seeds 22:44, фикс, перезапуск через dispatch",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W2-hillshade-parity",
+   "owner": "W2",
+   "slot": "box",
+   "start_msk": "30.10 18:00",
+   "kernel_folder": "паритет отмывки с бейзлайном (L12/CI2-8)",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск | 29.10 23:10 → CI2-8 dispatch dmitrijkv"
+  },
+  {
+   "id": "P-D3-ae",
+   "owner": "W1",
+   "slot": "acc1/gpu-1,gpu-2",
+   "start_msk": "31.10 03:00",
+   "kernel_folder": "e2e Ae/Or D-FINE all-class → в архив да/нет (P4 floors)",
+   "prerequisites": [
+    "S0 ae-final/or-final"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-compgate",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "31.10 18:00",
+   "kernel_folder": "gate по составу выборки (#12) + пересборка OOF-стека A на box (ПК офлайн)",
+   "prerequisites": [],
+   "status": "ready",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-replic-snap",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "31.10 23:59",
+   "kernel_folder": "репликация Li→Ae/SpOr/Or (#4), center snap (#5, от W2), NMS≤0.5 диаметра (L2)",
+   "prerequisites": [
+    "P-v3a-build"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W2-heatmap",
+   "owner": "W2",
+   "slot": "acc2/gpu-1,gpu-2 (+acc2/tpu)",
+   "start_msk": "31.10 03:00 → 04.11",
+   "kernel_folder": "lidar heatmap + copy-paste, 25–30 GPU-ч; D5 04.11 go/no-go: Δgate≥+0.01, runtime≤4 мин",
+   "prerequisites": [
+    "квота acc2 31.10 03:00",
+    "P-W2-hillshade-parity"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W3-bigobj",
+   "owner": "W3",
+   "slot": "acc1/gpu-1",
+   "start_msk": "31.10 → 04.11",
+   "kernel_folder": "gor/крупные без лидара + adaptive crop + признак «мыс» (L5), fort-цепочки (L6), ≤10 GPU-ч",
+   "prerequisites": [
+    "P-D3-ae (освобождение acc1)"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W4-multihyp",
+   "owner": "W4",
+   "slot": "box",
+   "start_msk": "01.11",
+   "kernel_folder": "мультигипотезы и хедж povr/tselye (#6, L4)",
+   "prerequisites": [
+    "P-W4-replic-snap"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W1-or-multiclass",
+   "owner": "W1",
+   "slot": "acc1/gpu-2",
+   "start_msk": "01–02.11",
+   "kernel_folder": "Or multiclass (L7) + жёсткие негативы стога (L10)",
+   "prerequisites": [
+    "P-D3-ae"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D4-rerank",
+   "owner": "W5",
+   "slot": "GPU/TPU по очереди",
+   "start_msk": "03.11",
+   "kernel_folder": "реранкер DINOv2+LGBM (#7, CI2-1): да/нет",
+   "prerequisites": [
+    "w5-dino-emb",
+    "P-W4-compgate"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-W1-sat",
+   "owner": "W1",
+   "slot": "acc1",
+   "start_msk": "03.11",
+   "kernel_folder": "спутник recall (#11), ≤2 GPU-ч",
+   "prerequisites": [
+    "P-D3-ae"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D5-heatmap",
+   "owner": "W2+W4",
+   "slot": "—",
+   "start_msk": "04.11",
+   "kernel_folder": "go/no-go heatmap и W3",
+   "prerequisites": [
+    "P-W2-heatmap",
+    "P-W3-bigobj"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-v4-integrate",
+   "owner": "W0",
+   "slot": "box",
+   "start_msk": "05–06.11",
+   "kernel_folder": "сборка v4 (реранкер+heatmap+gor), ≤22 мин, P1–P7",
+   "prerequisites": [
+    "P-D4-rerank",
+    "P-D5-heatmap"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D6-final-weights",
+   "owner": "все",
+   "slot": "acc1+acc2 GPU",
+   "start_msk": "07.11 03:00",
+   "kernel_folder": "дообучение на всех данных ≈20 GPU-ч, финальные пороги",
+   "prerequisites": [
+    "P-v4-integrate"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-docker-e2e",
+   "owner": "W0",
+   "slot": "box",
+   "start_msk": "08.11",
+   "kernel_folder": "docker-тест ×2 данных, 30 мин, 20000/3000/100 МБ, >50 замечаний, ai_declaration.md, README c CUDA",
+   "prerequisites": [
+    "P-D6-final-weights"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D7-AB",
+   "owner": "Elena+W0",
+   "slot": "—",
+   "start_msk": "09.11 12:00",
+   "kernel_folder": "выбор A/B",
+   "prerequisites": [
+    "P-docker-e2e"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "P-D8-freeze",
+   "owner": "W0",
+   "slot": "—",
+   "start_msk": "10.11 23:59",
+   "kernel_folder": "заморозка: SHA, архивы, лицензии, декларация",
+   "prerequisites": [
+    "P-D7-AB"
+   ],
+   "status": "planned",
+   "review_item": "MASTER_PLAN",
+   "note": "из orch/MASTER_PLAN.md 29.10; ready = можно начинать, не автозапуск"
+  },
+  {
+   "id": "CI2-1",
+   "owner": "W5",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w5-cloudfeat: признаки облака у кандидата (плотность земли, не-первые отражения, z_std, доля интерп. ячеек)",
+   "prerequisites": [],
+   "status": "done",
+   "review_item": "REVIEW_SOTA CI2-1",
+   "note": "bot1 29.10 23:10: proposed→ready; только идея (нет лицензии), свой код | coord 30.10 11:25: cloudfeat COMPLETE 59 сайтов, out/w5-cloudfeat"
+  },
+  {
+   "id": "CI2-3",
+   "owner": "W2/W3",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w2-ground-clip-audit: высота насыпи GT-курганов DEM класс 2 vs мягкий PMF/lowest",
+   "prerequisites": [],
+   "status": "done",
+   "review_item": "REVIEW_SOTA CI2-3",
+   "note": "bot1 29.10 23:10: proposed→ready | coord 30.10 11:25: COMPLETE (w2/notes/w2_ci23_ci28_watch.json)"
+  },
+  {
+   "id": "CI2-7",
+   "owner": "W4",
+   "accelerator": "cpu",
+   "account": "box/any-cpu",
+   "kernel_folder": "koz3-w4-seed-ckpt-joint-sweep: выбор сида/чекпойнта после свипа порогов+min_area на honest-10",
+   "prerequisites": [
+    "OOF-кэш (kurgan seeds 11-42)"
+   ],
+   "status": "CLOSED",
+   "review_item": "REVIEW_SOTA CI2-7",
+   "note": "KS FAIL 30.10 14:10 — no seed to pick"
+  },
+  {
+   "id": "CI2-8",
+   "owner": "W2",
+   "accelerator": "cpu",
+   "account": "dmitrijkv",
+   "kernel_folder": "koz3-w2-hillshade-parity-s3: отмывка из LAS (expds.lidar) vs Li_g/c/ch организаторов, corr/сдвиг по регионам",
+   "prerequisites": [],
+   "status": "done",
+   "review_item": "REVIEW_SOTA CI2-8 / P-W2-hillshade-parity",
+   "note": "bot1 29.10 23:10: proposed→dispatch на acc2/cpu | 23:15: acc2/cpu занят coord (kurgan 41,42) → dispatch w2-hsparity-ci2-8, автозапуск watcher-ом при освобождении acc2/cpu | coord 30.10 11:25: COMPLETE (w2/notes/w2_ci23_ci28_watch.json)"
+  },
+  {
+   "id": "DOC-1",
+   "owner": "W5",
+   "kernel_folder": "bot5 clean-room (wt/w5)",
+   "est_hours": 2,
+   "status": "planned",
+   "slot_window": "S1",
+   "start_msk": "30.10",
+   "end_msk": "01.11",
+   "note": "ORG-review: в кандидате v4 [geophys.pixgbm] enabled=true + expds/geo_pixgbm.py (по мотивам EhimenNathan) и models/pixgbm/all/* в пути архива. Перед любой сдачей: выключить pixgbm или заменить clean-room/GEO-ORG1; в main pixgbm enabled, но модуля нет → тихий откат на классику (pipeline.py:361) — сделать флаг false явно."
+  },
+  {
+   "id": "DOC-2",
+   "owner": "W0",
+   "kernel_folder": "bots/w0-docs",
+   "est_hours": 1,
+   "status": "planned",
+   "slot_window": "FREEZE",
+   "start_msk": "до FREEZE",
+   "end_msk": "FINAL",
+   "note": "При FREEZE: синхронизировать docs/README_FINAL.md (флаги, sha256 dfine_ae, GEO-ORG, micro_circles) с configs сдаваемой версии; заполнить версии Grok Bot/Claude Code, ФИО, email; по шаблону переименовать README_FINAL.md → docs/README.md."
+  },
+  {
+   "id": "DOC-3",
+   "owner": "coord",
+   "kernel_folder": "orch/SCHEDULE.md + QUEUE FINAL",
+   "est_hours": 0.5,
+   "status": "planned",
+   "slot_window": "S1",
+   "start_msk": "30.10",
+   "end_msk": "30.10",
+   "note": "Консультация №1: финал 17–19.11 (лимит на весь период; без загрузки авто-берутся 2 лучших публичных). Elena держит 11.11 как свой срок — подтвердить; SCHEDULE не менять без её решения."
+  },
+  {
+   "id": "DOC-4",
+   "owner": "W4",
+   "kernel_folder": "repo/expds/geophys.py:557-558",
+   "est_hours": 2,
+   "status": "planned",
+   "slot_window": "S2",
+   "start_msk": "31.10",
+   "end_msk": "02.11",
+   "note": "AREA_M2 (MagGr 5–3000, EtGr 0.05–150, TerFl 0.05–1000) vs консультация №1 (MagGr obj 1–30, struct 2–400; EtGr 0.3–12; TerFl obj 0.3–10, struct 1–50). При FP=0.5 широкие пределы допустимы; проверить на honest-10 только нижнюю границу MagGr obj (5 м² > 1). Низкий приоритет."
+  },
+  {
+   "id": "CI2-5",
+   "owner": "W3",
+   "accelerator": "gpu(T4x2)",
+   "account": "elenakonkova",
+   "kernel_folder": "koz3-w3-bigobj-adacrop: адаптивный кроп gor/fort масок",
+   "prerequisites": [
+    "w1-ae-final",
+    "w1-or-final"
+   ],
+   "status": "planned",
+   "review_item": "REVIEW_SOTA CI2-5",
+   "note": "bot1 29.10 23:10: в GPU-очередь W3 после текущих acc1 (ae/or-final)"
+  },
+  {
+   "id": "W2-c3sc-s3f4-run",
+   "owner": "W2",
+   "kernel_folder": "orch/coordk/s3f4",
+   "account": "elenakonkova",
+   "accelerator": "gpu(T4x2)",
+   "slot": "acc1/gpu-2",
+   "kernel": "elenakonkova/koz3-w2-cnx-c3sc-s3f4",
+   "status": "running",
+   "note": "запущен coord 30.10 03:35 (аренда до 07:35), НЕ трогать; результат используется только если вариант (b) P-W2-6 PASS, иначе в архив без использования. hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes"
+  }
+ ],
+ "cooldown": {
+  "acc2/gpu-1": "31.10.2026 03:00",
+  "acc2/gpu-2": "31.10.2026 03:00"
+ },
+ "dispatch": [
+  {
+   "id": "w1-ae-final",
+   "owner": "bot-W1-aeor",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel": "elenakonkova/koz3-w1-dfine-ae-final",
+   "slot": "acc1/gpu-1",
+   "status": "done",
+   "started": "29.10 22:23",
+   "finished": "30.10 03:47 COMPLETE"
+  },
+  {
+   "id": "w2-c3sc-s1f23",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel": "elenakonkova/koz3-cnx-li-c3sc-s1f23",
+   "slot": "acc1/gpu-2",
+   "status": "done",
+   "finished": "29.10 22:44 COMPLETE"
+  },
+  {
+   "id": "w4-pixgbm-s3",
+   "owner": "bot-W4-gate",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "kernel": "dmitrijkv/koz3-w4-pixgbm-s3",
+   "slot": "acc2/cpu",
+   "status": "done",
+   "pull_to": "w4pix/out2",
+   "note": "NON-CLEANROOM research (бывш. cpu_watcher)",
+   "finished": "29.10 22:44 COMPLETE"
+  },
+  {
+   "id": "w1-or-final",
+   "owner": "bot-W1-aeor",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel_dir": "orch/bot-W1/kernels/koz3-w1-dfine-or-final",
+   "ttl_h": 10.0,
+   "status": "done",
+   "after": [],
+   "note": "бывш. очередь gpu_watcher; sp/or вне архива до gate↔docker",
+   "kernel": "elenakonkova/koz3-w1-dfine-or-final",
+   "slot": "acc1/gpu-2",
+   "started": "29.10 22:38",
+   "finished": "30.10 00:41 COMPLETE"
+  },
+  {
+   "id": "w5-dino-emb",
+   "owner": "bot-W5-rerank",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "kernel_dir": "wt/w5/kaggle/koz3-w5-dino-emb",
+   "ttl_h": 4,
+   "status": "hold",
+   "note": "ждёт датасет elenakonkova/koz3-w5-cands (кандидаты из OOF A); TPU-вариант возможен (XLA-ветка в коде)"
+  },
+  {
+   "id": "coord-compliance-audit",
+   "owner": "coord",
+   "accel": "box",
+   "account": "box",
+   "cmd": "bash orch/tools/compliance_audit.sh origin/main origin/bots/w4-repro-v2",
+   "ttl_h": 1,
+   "status": "done",
+   "note": "read-only аудит EN/зависимостей/файлов ПКК; отчёты orch/logs/compliance_audit_*.md",
+   "slot": "box/q1",
+   "started": "29.10 23:07",
+   "pid": 19626,
+   "finished": "29.10 23:13 COMPLETE"
+  },
+  {
+   "id": "w2-hsparity-ci2-8",
+   "owner": "bot-W2-lidar",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w2hs/k",
+   "pull_to": "w2hs/out",
+   "note": "CI2-8 v2 all S3 LAS; manual push by bot-W2 per bot1 30.10 08:21 under lease",
+   "kernel": "dmitrijkv/koz3-w2-hillshade-parity-s3",
+   "slot": "acc2/cpu",
+   "started": "30.10 08:29",
+   "finished": "30.10 10:06 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w3-seeds-v5-usertest1234",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "usertest1234",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-usertest1234",
+   "pull_to": "orch/bot-W3/seeds_out/usertest1234",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-aaaa0000004",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-aaaa0000004",
+   "pull_to": "orch/bot-W3/seeds_out/aaaa0000004",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-aaaadg4gg4g4g",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "aaaadg4gg4g4g",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-aaaadg4gg4g4g",
+   "pull_to": "orch/bot-W3/seeds_out/aaaadg4gg4g4g",
+   "note": "kurgan seeds v5 offline fix"
+  },
+  {
+   "id": "w3-seeds-v5-dmitrijkv",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-kurgan-cpu-seeds-dmitrijkv",
+   "pull_to": "orch/bot-W3/seeds_out/dmitrijkv",
+   "note": "kurgan seeds 41,42 v5 offline fix (failover)"
+  },
+  {
+   "id": "w3-gorheads-cpu",
+   "owner": "bot-W3-bigobj",
+   "accel": "cpu",
+   "account": "dmitrijkv",
+   "ttl_h": 9.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-gorheads-cpu",
+   "pull_to": "orch/bot-W3/gorheads_out",
+   "note": "gor heads retrain CPU, internet on; ref sha256 in WEIGHTS_MANIFEST_v4 40fa5997"
+  },
+  {
+   "id": "w0s-resweep-micro-rp",
+   "owner": "W5",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "ready",
+   "after": [],
+   "note": "AUDIT_SEAMS #1/#5: OOF transform micro(anchor=rp, r0.05 gor/arch/obj/fort) -> re-sweep group thresholds -> scoreboard --honest 10; base bots/w0-seams@5171c35"
+  },
+  {
+   "id": "w0s-dem-noground",
+   "owner": "W3",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "running",
+   "after": [],
+   "note": "AUDIT_SEAMS #6: count LAS without class 2; if any, use min-per-cell+PMF ground filter instead of mean of all points (lidar.py:258)",
+   "slot": "box/q3",
+   "started": "30.10 15:52 MSK coord"
+  },
+  {
+   "id": "w0s-conf-ties",
+   "owner": "W4",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 10,
+   "status": "ready",
+   "after": [],
+   "note": "AUDIT_SEAMS #7: kurgan confidence ties 96-98% in stack; find quantisation source, add tie-breaker, gate honest-10"
+  },
+  {
+   "id": "w3-gordense-timing",
+   "owner": "bot-W3-bigobj",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 1.5,
+   "status": "failed",
+   "after": [],
+   "kernel_dir": "wt/w3/kernels/koz3-w3-gordense-timing",
+   "pull_to": "orch/bot-W3/gordense_timing_out",
+   "note": "gor_dense T4 timing (single GPU, 55 min hard cap); first free acc2 GPU slot",
+   "errors": [
+    "31.10 08:43 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel",
+    "31.10 08:43 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel",
+    "01.11 19:20 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel"
+   ],
+   "kernel": "dmitrijkv/koz3-w3-gordense-timing2",
+   "coord_note": "01.11 19:35 coord: старый slug даёт 409, запушен под slug koz3-w3-gordense-timing2; вывод тянуть оттуда",
+   "finished": "01.11 20:23 ERROR",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-r50c5",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "w2/kernels/koz3-w2-cnx-r50c5-f01",
+   "pull_to": "w2/oof/r50c5",
+   "note": "ЗАМЕНЁН на w2-r50c5-f01-acc1 + w2-r50c5-f234 (P-W2-9); НЕ снимать hold"
+  },
+  {
+   "id": "w4-v2clean-check",
+   "owner": "bot-W4-clean",
+   "accel": "cpu",
+   "account": "usertest1234",
+   "ttl_h": 3.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w4geo/kaggle/koz3-w4-v2clean-check",
+   "pull_to": "w4geo/kaggle/out_v2clean_check",
+   "note": "check_submission v2-clean 26ad1ba sha 15d59e9f (бот 1 разрешил)",
+   "errors": [
+    "30.10 07:21 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel",
+    "30.10 07:32 409 Client Error: Conflict for url: https://api.kaggle.com/v1/kernels.KernelsApiService/SaveKernel"
+   ],
+   "kernel": "usertest1234/koz3-w4-v2cleanchk-k",
+   "slot": "usertest1234/cpu",
+   "started": "30.10 07:37",
+   "finished": "30.10 07:55 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-c3sc-s3plus",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "(не создан) koz3-w2-cnx-c3sc-s3f01 / -s3f23 / s4* …",
+   "note": "hold by bot1 30.10: c3-sc additive FAIL; take only if variant (b) passes | заглушка-запрет: любые дальнейшие c3-sc сиды (s3f01, s3f23, s4+ …) не ставить и не пушить; снимает только бот 1"
+  },
+  {
+   "id": "w2-lihm-c3sc",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 10.0,
+   "status": "pushed",
+   "after": [],
+   "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-lihm-c3sc-f01234",
+   "pull_to": "w2/oof/lihm/koz3-w2-lihm-c3sc-f01234",
+   "note": "P-W2-7 li_hm; manual push by bot-W2 per bot1 30.10 03:59 under lease",
+   "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234",
+   "slot": "acc1/gpu-1",
+   "started": "30.10 04:04"
+  },
+  {
+   "id": "w4-v2clean-check2",
+   "owner": "bot-W4-chk2",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 3.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w4geo/kaggle/koz3-w4-v2cleanchk2",
+   "pull_to": "w4geo/kaggle/out_v2clean_check2",
+   "note": "check_submission v2-clean 15d59e9f + pip laspy/smp (lock versions)",
+   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 08:42",
+   "finished": "30.10 08:48 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-gaudit-ci2-3",
+   "owner": "bot-W2-lidar",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 12.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w2/gaudit/k",
+   "pull_to": "w2/gaudit/out",
+   "note": "CI2-3v2 ground-clip audit, P-W2-8; manual push by bot-W2 per bot1 30.10 08:21 under lease",
+   "kernel": "aaaa0000004/koz3-w2-ground-clip-audit",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 08:34",
+   "finished": "30.10 08:42 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w4-v2clean-check3",
+   "owner": "bot-W4-chk2",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 3.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w4geo/kaggle/koz3-w4-v2cleanchk2",
+   "pull_to": "w4geo/kaggle/out_v2clean_check3",
+   "note": "check_submission v2-clean 15d59e9f + offline wheels laspy/lazrs/smp (no internet on acc)",
+   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 08:58",
+   "finished": "30.10 09:04 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "CI2-1-cloudfeat",
+   "owner": "bot-W5-w1exec",
+   "accel": "cpu",
+   "account": "aaaadg4gg4g4g",
+   "ttl_h": 13.0,
+   "status": "failed",
+   "after": [],
+   "kernel_dir": "/workspace/koz3/w1/cf/kernel",
+   "pull_to": "/workspace/koz3/w1/cf/out",
+   "note": "CI2-1 cloud feats (own code); executor bot-W1-aeor по поручению бота 1; ~1-2ч",
+   "kernel": "aaaadg4gg4g4g/koz3-w5-cloudfeat",
+   "slot": "aaaadg4gg4g4g/cpu",
+   "started": "30.10 09:04",
+   "finished": "30.10 09:19 ERROR",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w4-v2clean-check4",
+   "owner": "bot-W4-chk3",
+   "accel": "cpu",
+   "account": "aaaa0000004",
+   "ttl_h": 10,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "/workspace/koz3/w4geo/kaggle/koz3-w4-v2cleanchk2",
+   "pull_to": "/workspace/koz3/w4geo/kaggle/out_v2clean_check4",
+   "note": "check_submission архива 545ef32a (DOC-1 guard, 70d335a), офлайн-колёса",
+   "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
+   "slot": "aaaa0000004/cpu",
+   "started": "30.10 09:25",
+   "finished": "30.10 09:30 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-r50c5-f01-acc1",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 7.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "pull_to": "w2/oof/r50c5/koz3-w2-cnx-r50c5-f01",
+   "note": "P-W2-9 f01 ran 31.10 (not by W2), COMPLETE, early-stop PASS 01.11; no relaunch"
+  },
+  {
+   "id": "w2-r50c5-f234",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "w2/kernels/dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "pull_to": "w2/oof/r50c5/koz3-w2-cnx-r50c5-f234",
+   "note": "P-W2-9 f234 ran 31.10 (not by W2), COMPLETE; gate on V3P pending (by 08.11); no relaunch"
+  },
+  {
+   "id": "w3-ci25-cpu",
+   "owner": "bot-W3-bigobj",
+   "accel": "box",
+   "account": "box",
+   "ttl_h": 2.0,
+   "status": "done",
+   "after": [],
+   "cmd": "bash /workspace/koz3/orch/bot-W3/runs/run_c5gate.sh > /workspace/koz3/orch/bot-W3/runs/gate_C5.log 2>&1",
+   "slot": "box/q1",
+   "started": "30.10 15:25",
+   "pid": 637086,
+   "finished": "30.10 15:31 COMPLETE"
+  },
+  {
+   "id": "w1-sat2-gate-v2",
+   "owner": "bot-W1-aeor",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 6.0,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "w1/sat2/kernel",
+   "pull_to": "out/w1-sat2-gate-v2",
+   "note": "sat2 REPLACE honest-10 + thr sweep; v1 ERROR (нет vendor) → src dataset koz3-w1-sat2-src; бот1 просил acc1/gpu-2",
+   "errors": [
+    "01.11 20:07 Kernel push error: Maximum batch GPU session count of 2 reached.",
+    "01.11 20:07 Kernel push error: Maximum batch GPU session count of 2 reached."
+   ],
+   "why": "acc1 GPU 2/2 занято; ядро CPU → прямой push в acc1/cpu (вне слотов watcher)"
+  },
+  {
+   "id": "w2-dfine2-a",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 4.0,
+   "status": "running",
+   "after": [],
+   "kernel_dir": "/workspace/koz3/wt/w2/w2_kernels/koz3-w2-dfine2/dmitrijkv/koz3-w2-dfine2-a",
+   "pull_to": "w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a",
+   "note": "P-W2-13 D-FINE-2 a; pushed by W2 13:49 MSK v1; on COMPLETE: see wt/w2 w2_notes/dfine2/README.md (early stop after a, gate after b)",
+   "kernel": "dmitrijkv/koz3-w2-dfine2-a",
+   "slot": "acc2/gpu-1",
+   "started": "02.11 13:49"
+  },
+  {
+   "id": "w2-dfine2-b",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 5.0,
+   "status": "running",
+   "after": [],
+   "kernel_dir": "/workspace/koz3/wt/w2/w2_kernels/koz3-w2-dfine2/dmitrijkv/koz3-w2-dfine2-b",
+   "pull_to": "w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b",
+   "note": "P-W2-13 D-FINE-2 b; pushed by W2 13:49 MSK v1; on COMPLETE: see wt/w2 w2_notes/dfine2/README.md (early stop after a, gate after b)",
+   "kernel": "dmitrijkv/koz3-w2-dfine2-b",
+   "slot": "acc2/gpu-2",
+   "started": "02.11 13:49"
+  }
+ ]
+}

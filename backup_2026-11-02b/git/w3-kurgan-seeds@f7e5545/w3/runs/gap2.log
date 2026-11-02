@@ -1,0 +1,103 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево 1s rss 1085MB
+Артпозиции+Барскоон+Булан+Герите+Городищ 18s rss 2513MB
+Архангельское 20s rss 2513MB
+Белая+Воронеж+Россошки 22s rss 2513MB
+Бервенец 24s rss 2513MB
+Боровичи 40s rss 2547MB
+Верхмарево 44s rss 2547MB
+Верхнее 45s rss 2547MB
+Верхний 47s rss 2547MB
+Верхняя 48s rss 2547MB
+Вщиж 52s rss 2547MB
+Вышегжа 69s rss 2910MB
+Вышенское 74s rss 2910MB
+Гнёздово 88s rss 2910MB
+Гочево 90s rss 2910MB
+Граборг 99s rss 2910MB
+Демидовка 103s rss 2910MB
+Золотаревка 115s rss 2910MB
+Изборск 117s rss 2910MB
+Каменка 119s rss 2910MB
+Костомаровское 120s rss 2910MB
+Ксизово 122s rss 2910MB
+Курган 124s rss 2910MB
+Лихуша 127s rss 2910MB
+Лубно 130s rss 2910MB
+Макеево 133s rss 2910MB
+Маяцкая 135s rss 2910MB
+Московиты 138s rss 2910MB
+Мостище 140s rss 2910MB
+Муравлево 144s rss 2910MB
+Никола 146s rss 2910MB
+Новенькое 149s rss 2910MB
+Нора 151s rss 2910MB
+Перынь 153s rss 2910MB
+Романово 156s rss 2910MB
+Руна 158s rss 2910MB
+Русская 160s rss 2910MB
+Саратов+Тыва 163s rss 2910MB
+Сарское 166s rss 2910MB
+Сельцо 168s rss 2910MB
+Селяне 171s rss 2910MB
+Скупая 172s rss 2910MB
+Сож 175s rss 2910MB
+Солдатское 178s rss 2910MB
+Сторожевое 180s rss 2910MB
+Стрекаловка 182s rss 2910MB
+Судьбищи 185s rss 2910MB
+Тешилово 188s rss 2910MB
+Тимерево 191s rss 2910MB
+Усть 193s rss 2910MB
+Хальвасборген+Эсбю 197s rss 2910MB
+Хога 200s rss 2910MB
+Чудово 202s rss 2910MB
+Шетнево 206s rss 2910MB
+Шишкино 208s rss 2910MB
+Шниткино 210s rss 2910MB
+Шумгора 216s rss 2910MB
+Шурскол 219s rss 2910MB
+Эрентуна 222s rss 2910MB
+Юшково 227s rss 2910MB
+dumped
+{
+"score": {
+"stack": 0.32198077392314384,
+"stack_34new": 0.2678593407219638,
+"stack_optical": 0.20283271467398353,
+"oracle_hit": 0.6901472578811514,
+"oracle_bip": 0.6908415071903966
+},
+"levers_global": {
+"a_fn_nocand": 0.172846,
+"c_fn_wrong_class": 0.094713,
+"fp_pure": 0.111075,
+"b1_fn_threshold": 0.172657,
+"b2_fn_assign_dedup": 0.015869,
+"c_dup_crossmod": 0.004611,
+"c_dup_samemod": 0.014434,
+"d_geometry": 0.041862
+},
+"levers_34new": {
+"a_fn_nocand": 0.012019,
+"c_fn_wrong_class": 0.007652,
+"fp_pure": 0.020508,
+"b1_fn_threshold": 0.020438,
+"b2_fn_assign_dedup": 0.001876,
+"c_dup_crossmod": 0.001612,
+"c_dup_samemod": 0.00052,
+"d_geometry": 0.002051
+},
+"levers_optical": {
+"a_fn_nocand": 0.135673,
+"c_fn_wrong_class": 0.07783,
+"fp_pure": 0.044993,
+"b1_fn_threshold": 0.082611,
+"b2_fn_assign_dedup": 0.008688,
+"c_dup_crossmod": 0.000356,
+"c_dup_samemod": 0.011697,
+"d_geometry": 0.011828
+}
+}
+{"arkhitektury": {"a_fn_nocand": 0.03746, "c_fn_wrong_class": 0.009404, "fp_pure": 0.006679, "b1_fn_threshold": 0.015078, "b2_fn_assign_dedup": 0.0, "c_dup_crossmod": 0.0, "c_dup_samemod": 5e-06, "d_geometry": 0.0}, "finds_points": {"a_fn_nocand": 0.02677, "c_fn_wrong_class": 0.002428, "fp_pure": 0.00401, "b1_fn_threshold": 0.02249, "b2_fn_assign_dedup": 0.005075, "c_dup_crossmod": 0.0, "c_dup_samemod": 6.9e-05, "d_geometry": 0.008266}, "fortifikatsii": {"a_fn_nocand": 0.008317, "c_fn_wrong_class": 0.009478, "fp_pure": 0.007214, "b1_fn_threshold": 0.008399, "b2_fn_assign_dedup": 0.000146, "c_dup_crossmod": 0.0, "c_dup_samemod": 4.6e-05, "d_geometry": 0.0}, "gorodishcha": {"a_fn_nocand": 0.002811, "c_fn_wrong_class": 0.0462, "fp_pure": 0.024785, "b1_fn_threshold": 0.020136, "b2_fn_assign_dedup": 0.00188, "c_dup_crossmod": 0.001466, "c_dup_samemod": 0.0, "d_geometry": 0.0}, "kurgany_povrezhdennye": {"a_fn_nocand": 0.046017, "c_fn_wrong_class": 0.009046, "fp_pure": 0.048628, "b1_fn_threshold": 0.05945, "b2_fn_assign_dedup": 0.004785, "c_dup_crossmod": 0.002058, "c_dup_samemod": 0.001534, "d_geometry": 0.02116}, "kurgany_tselye": {"a_fn_nocand": 0.035712, "c_fn_wrong_class": 0.009277, "fp_pure": 0.016127, "b1_fn_threshold": 0.045407, "b2_fn_assign_dedup": 0.000814, "c_dup_crossmod": 0.000912, "c_dup_samemod": 0.001168, "d_geometry": 0.01128}, "object_poly": {"a_fn_nocand": 0.015758, "c_fn_wrong_class": 0.00888, "fp_pure": 0.003632, "b1_fn_threshold": 0.001698, "b2_fn_assign_dedup": 0.003168, "c_dup_crossmod": 0.000176, "c_dup_samemod": 0.011612, "d_geometry": 0.001156}}
+GAP2_EXIT 0

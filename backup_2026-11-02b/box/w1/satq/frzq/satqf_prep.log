@@ -1,0 +1,64 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+13:49:08 кэш стека meta_5606f42d02724784.json: кластеров 60
+13:49:08 кривые A из кэша curvesA_5606f42d02724784.pkl
+13:49:10 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1242 МБ
+13:49:31 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+[     25s] c19 1578 dfx 85069 dfx drel None 11772
+[     30s] sanity gate base 0.3337867 vs V3P 0.3337867
+[     31s] D-FINE classes ['arkhitektury', 'fortifikatsii', 'gorodishcha', 'kurgany_povrezhdennye', 'kurgany_tselye']
+[     33s] identity frozen re-fit: sp_dfine τ mismatches vs base 0 [] gate 0.3337867 (base 0.3337867)
+[     37s] point 0.25 1.0 nested-free honest-frozen gate 0.346831
+[     39s] point 0.25 0.5 nested-free honest-frozen gate 0.350469
+[     39s] separability check OK
+[     42s] Q1 point 0.0 0.0 frozen gate 0.333787
+[     45s] Q1 point 0.0 0.25 frozen gate 0.335161
+[     48s] Q1 point 0.0 0.5 frozen gate 0.338522
+[     51s] Q1 point 0.0 0.75 frozen gate 0.337796
+[     54s] Q1 point 0.0 1.0 frozen gate 0.336186
+[     57s] Q1 point 0.0 1.25 frozen gate 0.337302
+[     60s] Q1 point 0.0 1.5 frozen gate 0.337276
+[     63s] Q1 point 0.25 0.25 frozen gate 0.337288
+[     66s] Q1 point 0.25 0.5 frozen gate 0.338533
+[     69s] Q1 point 0.25 0.75 frozen gate 0.338926
+[     72s] Q1 point 0.25 1.0 frozen gate 0.337181
+[     75s] Q1 point 0.25 1.25 frozen gate 0.337248
+[     78s] Q1 point 0.25 1.5 frozen gate 0.338064
+[     81s] Q1 point 0.5 0.25 frozen gate 0.334605
+[     84s] Q1 point 0.5 0.5 frozen gate 0.337556
+[     87s] Q1 point 0.5 0.75 frozen gate 0.337675
+[     90s] Q1 point 0.5 1.0 frozen gate 0.338454
+[     93s] Q1 point 0.5 1.25 frozen gate 0.337330
+[     96s] Q1 point 0.5 1.5 frozen gate 0.336723
+[     96s] Q1a chosen [{'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.348587088147}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.329695607455}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 1.0, 'tau_arkh': None, 'train': 0.35258703988}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.344248315346}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.32678199451}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.338950257211}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.357212113133}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.342751138119}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.346049258967}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': None, 'train': 0.340000933286}] nested gate 0.336905 Δ +0.003118 Δnew34 +0.0000 Δnolidar +0.0047
+[     96s] Q1b chosen [{'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.348177972276}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.329327727708}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 1.0, 'tau_arkh': 0.3, 'train': 0.352504091127}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.34381360024}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.326487541732}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.338444959043}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 1.0, 'tau_arkh': 0.3, 'train': 0.356816172631}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.342382757919}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.345658615128}, {'kind': 'q1', 'd0': 0.25, 's_arkh': 1.5, 'tau_arkh': 0.3, 'train': 0.339631734974}] nested gate 0.336990 Δ +0.003203 Δnew34 +0.0000 Δnolidar +0.0048
+[     96s] Q1c chosen [{'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.344896398777}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.325653084624}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.348489060652}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.337815566808}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.32322385788}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.334948471364}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.353911194902}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.338924333695}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.341559911284}, {'kind': 'q1', 'd0': 0.0, 's_arkh': 0.0, 'tau_arkh': 0.373, 'train': 0.335967775191}] nested gate 0.337496 Δ +0.003710 Δnew34 +0.0000 Δnolidar +0.0045
+[     98s] FP point 0.5 0.5 frozen gate 0.341501
+[     98s] FP1 chosen [{'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}, {'kind': 'fp', 'd0': 0.5, 'edge': 0.5}] nested gate 0.341501 Δ +0.007715 Δnew34 +0.0009 Δnolidar +0.0190
+[    100s] FP point 0.25 0.0 frozen gate 0.338630
+[    102s] FP point 0.25 0.25 frozen gate 0.342596
+[    104s] FP point 0.25 0.5 frozen gate 0.343005
+[    106s] FP point 0.25 0.75 frozen gate 0.337157
+[    109s] FP point 0.5 0.0 frozen gate 0.341338
+[    111s] FP point 0.5 0.25 frozen gate 0.342205
+[    113s] FP point 0.5 0.75 frozen gate 0.333687
+[    115s] FP point 0.75 0.0 frozen gate 0.337142
+[    117s] FP point 0.75 0.25 frozen gate 0.337017
+[    119s] FP point 0.75 0.5 frozen gate 0.334046
+[    121s] FP point 0.75 0.75 frozen gate 0.334140
+[    121s] FP point 0.75 1.0 frozen gate 0.333787
+[    121s] FP2 chosen [{'kind': 'fp', 'd0': 0.25, 'edge': 0.25, 'train': 0.347378044908}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.332980374101}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.35456440198}, {'kind': 'fp', 'd0': 0.75, 'edge': 0.75, 'train': 0.344664564932}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.329420440308}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.340765874377}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.356512709364}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.346868953191}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.34711409891}, {'kind': 'fp', 'd0': 0.25, 'edge': 0.5, 'train': 0.340014482317}] nested gate 0.338199 Δ +0.004413 Δnew34 -0.0007 Δnolidar +0.0107
+[    121s] Q2: sp_dfine feats on scenes >= 4 Mpix 47167 of 85069
+[    123s] Q2 point 0.4 0.35 frozen gate 0.333947
+[    125s] Q2 point 0.4 0.5 frozen gate 0.337311
+[    127s] Q2 point 0.4 0.7 frozen gate 0.341409
+[    129s] Q2 point 0.4 0.85 frozen gate 0.345702
+[    131s] Q2 point 0.5 0.35 frozen gate 0.333947
+[    133s] Q2 point 0.5 0.5 frozen gate 0.337957
+[    135s] Q2 point 0.5 0.7 frozen gate 0.340260
+[    137s] Q2 point 0.5 0.85 frozen gate 0.344936
+[    139s] Q2 point 0.6 0.35 frozen gate 0.333947
+[    141s] Q2 point 0.6 0.5 frozen gate 0.337794
+[    143s] Q2 point 0.6 0.7 frozen gate 0.337266
+[    145s] Q2 point 0.6 0.85 frozen gate 0.342157
+[    145s] Q2 chosen [{'kind': 'q2', 'x': 0.5, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.351289908468}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.334350324198}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.357748655385}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.347361529267}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.330132981252}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.342913317214}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.35588773046}, {'kind': 'q2', 'x': 0.6, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.343098146893}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.350564659229}, {'kind': 'q2', 'x': 0.4, 't2': 0.85, 'min_scene_mpix': 4.0, 'train': 0.342034874487}] nested gate 0.341425 Δ +0.007638 Δnew34 -0.0013 Δnolidar +0.0096
+[    146s] done
