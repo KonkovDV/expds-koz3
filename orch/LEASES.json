@@ -334,6 +334,15 @@
    "note": "py313 wheels",
    "host": "grok-bot-vm-361051398",
    "pid": 658530
+  },
+  {
+   "resource": "branch:bots/orch-protocol",
+   "owner": "coord",
+   "since": 1793596849.096707,
+   "expires": 1793600449.096707,
+   "note": "COMPETITORS_2026-11-02",
+   "host": "grok-bot-vm-361051398",
+   "pid": 951841
   }
  ]
 }
