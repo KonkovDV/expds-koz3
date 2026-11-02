@@ -12,6 +12,8 @@ t0 = time.time()
 def log(*a):
     print(f"[{time.time()-t0:7.0f}s]", *a, flush=True)
 
+DET = ARGV[ARGV.index("--det") + 1] if "--det" in (ARGV := sys.argv[1:]) else None
+sys.argv = sys.argv[:1]   # v3_gate_lib reads sys.argv
 _s = importlib.util.spec_from_file_location("v3g", "/workspace/koz3/orch/bot-W4/work/v3_gate_lib.py")
 G = importlib.util.module_from_spec(_s); _s.loader.exec_module(G)
 D = G.D; M = D.M
@@ -24,7 +26,6 @@ from pyproj import Transformer
 
 OUT = Path("/workspace/koz3/w1/satrec/out")
 OUT2 = Path("/workspace/koz3/w1/satdet/out"); OUT2.mkdir(parents=True, exist_ok=True)
-DET = sys.argv[sys.argv.index("--det") + 1] if "--det" in sys.argv else None
 T = json.load(open("/workspace/koz3/orch/bot-W1/work/v3prod/t_taus.json"))
 folds = [set(f) for f in T["folds"]]; every = set().union(*folds); dreg = set(T["dreg"])
 CL5 = D.CLASSES5
