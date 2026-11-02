@@ -3,7 +3,7 @@
 - «смелый» = **v3_on b447649** sha **1406c01a…ef41d** (722 697 913 B), honest-10 0.333787; Kaggle parity v5 PASS 4/4.
 - «надёжный» = **v2clean 545ef32a…** (568 488 239 B), honest-10 0.313967; Kaggle parity v5 PASS 5/5 (PREREG 8844d49, W4 9e711f6).
 - Оба parity-проверены. Сабмитит Елена: v3_on → при LB < 0.4124 откат на v2clean. Лучший LB пока 0.4124.
-- Копии: Drive KOZ3-final (приватная) + backup_2026-11-02; GitHub bots/backup-2026-11-02 @78ffd05; Kaggle приватный `<acc>/koz3-handoff-20261102`.
+- Копии: Drive KOZ3-final (приватная) + backup_2026-11-02; GitHub bots/backup-2026-11-02 @78ffd05; Kaggle приватный `<acc>/koz3-handoff-20261102` на dmitrijkv, elenakonkova, usertest1234, aaaa0000004, aaaadg4gg4g4g (проверено: 403 извне).
 ## ЗАКРЫТО 02.11 (FAIL, флаги off)
 - W1 SATREC R1/R2/R3/C1/C2: лучший C1 Δ+0.0142 P0.9995 (режет только new34 −0.0011); R1 Δ+0.0100 P0.997 (new34 −0.0023). bots/w1-satrec 06ef4ec, docs/RESULTS_W1_SATREC.md.
 - W3 KDUAL Δ+0.0031 P0.87 (6e1d33d/dae47a7); KDUAL-damaged Δ+0.0023 P0.968 (5a804b9/b2a5a4d); LI-KURG-TAU 4×FAIL, лучший A Δ+0.0044 P0.81 (c96a0d6/0b35b80).

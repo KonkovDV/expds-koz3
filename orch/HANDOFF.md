@@ -5,7 +5,7 @@
 - «смелый» = **v3_on b447649** `koz3_v3on_b447649_6d4764f8_w6dfd2e07.zip`, sha256 `1406c01a9aaafc996862a14f12cde14f6bf05b313ad0bbce14428df1d10ef41d`, 722 697 913 B. honest-10 0.333787 (Δ+0.0198 P0.976 vs v2clean). Kaggle parity v5 PASS 4/4 среды (D-FINE грузится, V3_DEGRADED нет), вывод побайтно = старому ebc8e4ba.
 - «надёжный» = **v2clean 545ef32a** `koz3_v2clean_70d335a_c028f4eb_wb042594f.zip`, sha256 `545ef32a70b4994f4d694828ae5eb28f27c9161d7f19a96f5a9d3833b87e093f`, 568 488 239 B. Kaggle parity v5 PASS 5/5 сред (PREREG 8844d49, W4 9e711f6), вывод = REF_check4.
 - Оба parity-проверены. **Сабмитит только Елена:** сначала v3_on; если LB < 0.4124 → финал v2clean. Старый ebc8e4ba НЕ сабмитить (молча откатывался на v2).
-- Где лежат: Drive KOZ3-final (приватная) — папки v3_on_b447649_1406c01a, v2clean_545ef32a, backup_2026-11-02; Kaggle приватный датасет `<acc>/koz3-handoff-20261102` (финальные zip + веса/результаты + orch-доки + SHA256SUMS; список аккаунтов — в COORD_LOG 02.11).
+- Где лежат: Drive KOZ3-final (приватная) — папки v3_on_b447649_1406c01a, v2clean_545ef32a, backup_2026-11-02; Kaggle приватный датасет `<acc>/koz3-handoff-20261102` (финальные zip + веса/результаты + orch-доки + SHA256SUMS; на всех 5: dmitrijkv, elenakonkova, usertest1234, aaaa0000004, aaaadg4gg4g4g — приватность проверена 02.11 ~09:55 MSK: чужой аккаунт 403, аноним 403; zip лежат как `.zip.bin`, т.к. Kaggle распаковывает .zip/.tar).
 
 **Гейты, закрытые 02.11 как FAIL (флаги off):**
 - W1 SATREC R1/R2/R3/C1/C2 — лучший C1 (приор «центр сцены») Δ+0.0142 P0.9995, режется только new34 −0.0011 (пол ≥0); R1 (единый τ) Δ+0.0100 P0.997, new34 −0.0023. Итог: `docs/RESULTS_W1_SATREC.md` (bots/w1-satrec 06ef4ec). 65% потерь спутника — пороги, не детектор.
