@@ -10,3 +10,8 @@ Flag gor_swap, default off. Base: V3P (v3_on b447649, honest-10 0.333787). One f
   - new34 ≥ 0, nolidar ≥ 0;
   - class floors kp/kt/gor −0.002, others −0.005.
 - Diagnostic only (not a criterion): Δ without the Kislovodsk family (LOFO cluster check).
+
+## Amendment 1 (02.11, before any Q3 measurement; Q3 had not produced an outcome)
+The sanity check failed: only 61% of sp_dfine rows fall inside the vignette-corner bbox, because the vignettes do not cover the whole tif and the tifs are not on the box.
+The scene extent is now bbox(vignette corners ∪ centroids of all D-FINE OOF circles in the region). The centre is the middle of that bbox, and half = min(w, h)/2. Mpx = w·h/gsd²/1e6.
+Assert: ≥ 99% of sp_dfine gor rows inside the extent. Nothing else changes.
