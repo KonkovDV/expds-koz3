@@ -93,8 +93,41 @@ def sat_equal_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
 
 
 def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Scene-centre prior on satellite group(s) (default sp_dfine), before thresholds. Off unless [post].sat_center_prior.
+
+    Legacy spec (d0, edge) → post.frame_prior unchanged (W1-SATREC). W1-SATREC2 (docs/PREREG_W1_SATREC2.md) adds:
+      s            strength, m = max(0, 1 − s·clip((d − d0)/(1 − d0), 0, 1)); s may exceed 1 (m hits 0 before the edge)
+      s_by_class   {class_name: s} overrides s per class (e.g. kurgany_tselye own strength)
+      only_without_lidar  apply only in regions whose input has no markup "li" feature
+      nl_group     relabel threshold_group of the prior groups to this name in lidar-free regions (own thresholds)
+    Feature without scene_drel keeps its confidence.
+    """
     from . import post
 
     spec = dict(spec or {})
     spec.setdefault("groups", ["sp_dfine"])
-    return post.frame_prior(feats, spec)
+    if not any(k in spec for k in ("s", "s_by_class", "only_without_lidar", "nl_group")):
+        return post.frame_prior(feats, spec)
+    groups = set(spec["groups"])
+    d0 = min(max(float(spec.get("d0", 0.0)), 0.0), 0.999)
+    s_def = max(float(spec.get("s", 0.0)), 0.0)
+    s_cls = {str(k): max(float(v), 0.0) for k, v in (spec.get("s_by_class") or {}).items()}
+    only_nl = bool(spec.get("only_without_lidar"))
+    nl_group = spec.get("nl_group") or None
+    lidar = {f.get("region_name") for f in feats if f.get("markup_type") == "li"}
+    out = []
+    for f in feats:
+        g = post._group_of(f)
+        if g not in groups or (only_nl and f.get("region_name") in lidar):
+            out.append(f)
+            continue
+        f2 = dict(f)
+        if nl_group and f.get("region_name") not in lidar:
+            f2["threshold_group"] = nl_group
+        d = f.get("scene_drel")
+        s = s_cls.get(f.get("class_name"), s_def)
+        if d is not None and s > 0 and float(d) > d0:
+            m = max(0.0, 1.0 - s * min((float(d) - d0) / (1.0 - d0), 1.0))
+            f2["confidence"] = float(f.get("confidence", 0.0)) * m
+        out.append(f2)
+    return out

@@ -23,3 +23,17 @@ def test_center_prior_only_sat_group():
     b = dict(_f(0, 0, "kurgany_tselye", 0.8, "sp_focal"), scene_drel=1.0)
     out = SR.sat_center_prior([a, b], {"d0": 0.5, "edge": 0.5})
     assert abs(out[0]["confidence"] - 0.4) < 1e-9 and out[1]["confidence"] == 0.8
+
+
+def test_center_prior_v2_per_class_strong_and_lidar_rule():
+    a = dict(_f(0, 0, "kurgany_tselye", 0.8, "sp_dfine"), scene_drel=0.75)
+    b = dict(_f(0, 0, "kurgany_povrezhdennye", 0.8, "sp_dfine"), scene_drel=0.75)
+    c = dict(_f(0, 0, "kurgany_tselye", 0.8, "sp_dfine", reg="r2"), scene_drel=1.0)
+    li = dict(_f(0, 0, "kurgany_tselye", 0.9, None, reg="r2"), markup_type="li")
+    out = SR.sat_center_prior([a, b, c, li], {"d0": 0.5, "s": 1.5, "s_by_class": {"kurgany_tselye": 0.5},
+                                              "only_without_lidar": True, "nl_group": "sp_dfine_nl"})
+    assert abs(out[0]["confidence"] - 0.8 * 0.75) < 1e-9 and out[0]["threshold_group"] == "sp_dfine_nl"
+    assert abs(out[1]["confidence"] - 0.8 * 0.25) < 1e-9
+    assert out[2] is c and out[3] is li
+    z = SR.sat_center_prior([dict(c, region_name="r3")], {"d0": 0.0, "s": 1.5})
+    assert z[0]["confidence"] == 0.0 and z[0]["threshold_group"] == "sp_dfine"
