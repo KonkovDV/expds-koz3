@@ -1145,7 +1145,16 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             sc = Scene(Path(path), crs, float(st["res_m"]))
             ok = (lambda: guard.window_ok()) if guard is not None and hasattr(guard, "window_ok") else (lambda: True)
             t0 = time.monotonic()
-            res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            # bot-8: [orsp_tta] выкл. или только U-Net — ровно штатный detect_scene (flip_tta).
+            # Виды/масштабы D-FINE не оценены (регрессия sp_or на v3on_0876090).
+            from . import orsp_tta
+
+            plan = orsp_tta.dfine_plan(cfg)
+            if plan is None:
+                res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            else:
+                res, done, total = orsp_tta.detect_dfine(
+                    models, sc, Path(path), crs, st, cache["device"], ok, plan)
             complete &= done >= total
             dump = dump_root()
             n_raw = 0
