@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+03.11 23:00 MSK | аудит | один main: 40 веток и PR #16–#30 сведены; исправлены SIGTERM без файла (A1/A2) и тест, писавший код EN в дерево (A3); выход по умолчанию побайтно прежний; на Kaggle не собраны OOF dfine2 (5 фолдов) и frcnn | 0.41238 (LB), v4 0.361641 (honest-10) | docs/AUDIT_2026-11-03.md
+
 31.10 23:55 MSK | ночь | один GPU: доучить spor_focal_r18 с --init-weights и --within-site-rank 1, 4 эпохи, lr 1e-4; без флага старт с ImageNet запрещён | — | docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md
 31.10 23:50 MSK | код | шарнир порядка пиков на кадре, флаг --within-site-rank по умолчанию 0; их скачок до 0.49 — спутниковые головы, не восемь ракурсов и не соседский приор (+0.0003) | — | expds/centers.py within_site_rank_hinge
 31.10 23:25 MSK | промт | одна GPU: доучить spor_focal_r18 потерей «на участке верный пик выше громких ложных»; стоп, если медиана ложных сверху не упала с ~18 до ≤2 | — | docs/plans/PROMPT_WITHIN_SITE_RANK_20261031.md
@@ -27,6 +29,7 @@
 29.10 22:15 MSK | W4 | перезамер v3 одним пакетом на коробке невозможен: нет table.pkl / OOF-стека A (F:/expds3/work на ПК, ПК офлайн) | — | orch/bot-W4/STATUS.md
 29.10 22:15 MSK | W4 | v3 e2e на ПК (pc_e2e_v3.ps1) и замер времени 4090 — не сделаны | — | docs/STATUS_2026-10-29.md
 
+01.11 19:47 MSK | bot7 | geo-gate S3+helper `11a47d2a` + пакет dmitrijkv/koz3-bot7-geo-gate READY (не пушен); suite 1016p/2 prefails; PR #26 draft | bots/bot7-geo-gate
 ## 29.10 22:55 MSK — W4: воспроизведение v2 (eb268d6, LB 0.41238) из main — ветка bots/w4-repro-v2 56cdf39
 
 * Причина разрыва ≈−0.012: в main нет 4 release-артефактов v2 — `expds/geo_pixgbm.py`, `models/pixgbm/all/{poly,finds}.txt`,

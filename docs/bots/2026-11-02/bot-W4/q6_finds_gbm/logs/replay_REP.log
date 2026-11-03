@@ -1,0 +1,11 @@
+[REP] fold 0: in 20016 → out 358 chosen 0.1 4s
+[REP] fold 1: in 10036 → out 2123 chosen 0.1 5s
+[REP] fold 2: in 11581 → out 256 chosen 0.1 5s
+[REP] fold 3: in 4686 → out 354 chosen 0.1 6s
+[REP] fold 4: in 24316 → out 11661 chosen 0.05 7s
+[REP] fold 5: in 6641 → out 415 chosen 0.1 8s
+[REP] fold 6: in 14531 → out 890 chosen 0.1 9s
+[REP] fold 7: in 8611 → out 1426 chosen 0.1 10s
+[REP] fold 8: in 12824 → out 462 chosen 0.1 11s
+[REP] fold 9: in 11635 → out 522 chosen 0.05 12s
+done 18467 {'L1_in': 85069, 'L2_thr': 1613, 'L3_thr+rerank': 1613, 'L3_merge': 1613, 'L3b_multipole': 1613, 'L3c_finds': 1613, 'L3d_twins': 1613, 'L3e_micro': 1613, 'L3f_finalize': 1613, 'L4_final': 1613} 15s

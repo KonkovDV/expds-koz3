@@ -1,0 +1,13 @@
+{
+  "name": "ae-dfine-gate-abc",
+  "commit": "7b1c272d147a50f7e2053ab518f6cda6cb774f69",
+  "base": "eb268d6",
+  "weights_sha16": "249b86fb9713cc1c",
+  "variants": ["OFF", "A+B", "A+B+C"],
+  "flags_abc": {
+    "dfine_aeor": {"enabled": true, "markups": ["ae"], "budget_s": 600.0},
+    "ae_recall_relax": {"enabled": true},
+    "dfine_ae_tile": {"enabled": true, "windows_mode": "train", "fuse": "nms", "budget_s": 600.0}
+  },
+  "notes": "Gate bot3 Ae Fix A+B+C on v2. WBF+flip halves scores vs OOF NMS; Fix C required. mosaic_intact skipped (not cheap). Branch tip bots/bot3-aerial-recall includes PR#3+#16 ancestry."
+}

@@ -1,0 +1,17 @@
+{
+ "what": "CI2-3 ground-clip followup on no-class2 sites (from w0s-dem-noground S3)",
+ "sites": [
+  "037_Никола_Ленивец",
+  "101_Гнёздово_Днепровская",
+  "102_Гнёздово_Заольшанская",
+  "187_Судьбищи_1"
+ ],
+ "facts": {
+  "class_hist": "CI2-8 + local probe: all four are 100% classification=8 (no veg 3/4/5)",
+  "pipeline": "lidar.py use_all=True (no class 2) → mean of all points; all points ARE class8",
+  "mean_vs_min_101_102": "Δmean≈0.03m, p99≈0.2m (out/w0s-dem-noground/mean_vs_min.json)",
+  "P-W2-8_rule": "(A)/(B) not met → CI2-3 closed; dem_ground_only flag not created"
+ },
+ "followup_verdict": "CLOSED. No crown-in-DEM issue on these four; min-per-cell optional guard only. No new PREREG/GPU.",
+ "computed_msk": "30.10.2026 13:35 MSK"
+}

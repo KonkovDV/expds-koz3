@@ -1,0 +1,10 @@
+[{"stream_name":"stdout","time":2.760489949,"data":"[      2s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет\n"}
+,{"stream_name":"stdout","time":2.761058234,"data":"[      2s] FAILED: нет ключей S3: Kaggle Secrets KOZ3_S3_ACCESS_KEY_ID/KOZ3_S3_SECRET_ACCESS_KEY или датасет dmitrijkv/koz3-s3-cred (cred.json)\n"}
+,{"stream_name":"stderr","time":2.7613339740000002,"data":"нет ключей S3: Kaggle Secrets KOZ3_S3_ACCESS_KEY_ID/KOZ3_S3_SECRET_ACCESS_KEY или датасет dmitrijkv/koz3-s3-cred (cred.json)\n"}
+,{"stream_name":"stderr","time":5.614392247,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5.614440063,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":6.072125751,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":6.072165833,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":7.9718639079999996,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":9.350910427,"data":"[NbConvertApp] Writing 315122 bytes to __results__.html\n"}
+]

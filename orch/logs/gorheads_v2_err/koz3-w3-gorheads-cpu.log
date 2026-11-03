@@ -1,0 +1,72 @@
+[{"stream_name":"stdout","time":1.211954859,"data":"[      0s] inputs: ['koz3-w3-gorheads-code', 'koz3-xfer-s000', 'koz3-xfer-s001', 'koz3-xfer-s002', 'koz3-xfer-s003', 'koz3-xfer-s004', 'koz3-xfer-s005', 'koz3-xfer-s006', 'koz3-xfer-s007', 'koz3-xfer-s008', 'koz3-xfer-s009']\n"}
+,{"stream_name":"stdout","time":1.377018074,"data":"[      0s] repo from unpacked gorheads_code/\n"}
+,{"stream_name":"stdout","time":24.549110978,"data":"[     23s] SpOr tifs=4 UTM.json=210\n"}
+,{"stream_name":"stdout","time":24.647506265,"data":"[2026-10-30 10:17:55] RUN /usr/bin/python3 /kaggle/working/repo/scripts/gor_patch/extract_feats.py\n"}
+,{"stream_name":"stderr","time":48.714658185,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":51.302739476,"data":"\rLoading weights:   0%|          | 0/223 [00:00\u003c?, ?it/s]\rLoading weights:  80%|████████  | 179/223 [00:00\u003c00:00, 1774.18it/s]\rLoading weights: 100%|██████████| 223/223 [00:00\u003c00:00, 1816.30it/s]\n"}
+,{"stream_name":"stdout","time":57.563225226,"data":"[6s] 1/4 015_Демидовка gsd 0.92 patches 15 rss 720MB\n"}
+,{"stream_name":"stdout","time":62.029638131,"data":"[11s] 2/4 026_Золотаревка gsd 0.79 patches 27 rss 738MB\n"}
+,{"stream_name":"stdout","time":63.181685327,"data":"[12s] 3/4 031_Новотитаровская gsd 0.47 patches 30 rss 738MB\n"}
+,{"stream_name":"stdout","time":66.33470166,"data":"[15s] 4/4 033_Елизаветинское gsd 0.50 patches 39 rss 751MB\n"}
+,{"stream_name":"stdout","time":66.338156876,"data":"done 39 patches 15s\n"}
+,{"stream_name":"stdout","time":67.763218693,"data":"[2026-10-30 10:18:38] RUN /usr/bin/python3 /kaggle/working/repo/scripts/gor_heads/fit_v3_head.py\n"}
+,{"stream_name":"stdout","time":68.306091908,"data":"{\"head\": \"/kaggle/working/gor_heads/heads/gor_v3_head.npz\", \"md5\": \"03024a584c6a2728018a32c0c8e4be82\", \"bytes\": 253836, \"n_train_patches\": 39, \"removed_by_cleaning\": 0, \"feat_dim\": 1536, \"label_counts\": {\"-1\": 12, \"1\": 11, \"0\": 16}, \"seed\": 0, \"expected_legacy_md5\": \"acb95c52956d712a16c3dd389237a691\", \"md5_matches_legacy\": false}\n"}
+,{"stream_name":"stdout","time":68.36707352,"data":"[2026-10-30 10:18:39] RUN /usr/bin/python3 /kaggle/working/repo/scripts/gor_dense/dense_feats.py\n"}
+,{"stream_name":"stderr","time":75.33930375,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":79.213824925,"data":"\rLoading weights:   0%|          | 0/223 [00:00\u003c?, ?it/s]\rLoading weights:  74%|███████▍  | 166/223 [00:00\u003c00:00, 1642.40it/s]\rLoading weights: 100%|██████████| 223/223 [00:00\u003c00:00, 1728.41it/s]\n"}
+,{"stream_name":"stdout","time":80.975419185,"data":"[2s] 1/4 015_Демидовка gsd 0.92 grid 27x39 tiles 3 rss 706MB\n"}
+,{"stream_name":"stdout","time":81.737686606,"data":"[3s] 2/4 026_Золотаревка gsd 0.79 grid 23x33 tiles 5 rss 719MB\n"}
+,{"stream_name":"stdout","time":82.220669487,"data":"[3s] 3/4 031_Новотитаровская gsd 0.47 grid 13x23 tiles 7 rss 719MB\n"}
+,{"stream_name":"stdout","time":82.958667135,"data":"[4s] 4/4 033_Елизаветинское gsd 0.50 grid 18x35 tiles 9 rss 734MB\n"}
+,{"stream_name":"stdout","time":82.965172241,"data":"done tokens 2741 tiles 9 4s\n"}
+,{"stream_name":"stdout","time":84.282525952,"data":"[2026-10-30 10:18:55] RUN /usr/bin/python3 /kaggle/working/repo/scripts/gor_dense/export_head.py\n"}
+,{"stream_name":"stdout","time":84.878274505,"data":"[0s] tokens 2741 dim 768 files 4 regions 4 facebook/dinov2-small [2.0, 4.0]\n"}
+,{"stream_name":"stdout","time":84.898095947,"data":"[0s] frame prior: pos tokens dist to frame centre m q50/q90 [103.2, 215.5] edge share of neg 0.465\n"}
+,{"stream_name":"stdout","time":84.898476174,"data":"[0s] token labels {0: 2578, -1: 92, 1: 71} regions with pos tokens 3\n"}
+,{"stream_name":"stdout","time":86.913680535,"data":"{\"variant\": \"all\", \"dout\": \"/kaggle/working/gor_heads/dense\", \"train\": \"all\", \"n_train_tokens\": 2741, \"n_regions\": 4, \"hn_log\": {\"fits\": 1, \"hard_neg\": 26, \"neg\": 2578}, \"centre_s\": 150.0, \"inner_oof_top1_hits\": {\"150.0\": 1, \"250.0\": 0, \"400.0\": 0, \"700.0\": 0, \"inf\": 0}, \"n_spr_train\": 3, \"max_abs_diff_headp_vs_probe\": 9.137261751668291e-07, \"out\": \"/kaggle/working/gor_heads/heads/gor_dense_head.npz\", \"md5\": \"42086421b6fcac6445fe7a0f4e7d4073\", \"bytes\": 204984}\n"}
+,{"stream_name":"stdout","time":87.019178642,"data":"[2026-10-30 10:18:58] RUN /usr/bin/python3 /kaggle/working/repo/scripts/gor_heads/validate_heads.py\n"}
+,{"stream_name":"stderr","time":87.239718693,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":87.2408383,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/validate_heads.py\", line 81, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":87.240897467,"data":"    main()\n"}
+,{"stream_name":"stderr","time":87.240904343,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":87.240908872,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/validate_heads.py\", line 73, in main\n"}
+,{"stream_name":"stderr","time":87.240914046,"data":"    \"gor_v3\": check_one(V3, 1536, LEGACY_V3_MD5, LEGACY_V3_BYTES, gate_head_p),\n"}
+,{"stream_name":"stderr","time":87.240919003,"data":"              ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":87.240923501,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/validate_heads.py\", line 46, in check_one\n"}
+,{"stream_name":"stderr","time":87.240928456,"data":"    assert a.shape == shape, (path, k, a.shape, shape)\n"}
+,{"stream_name":"stderr","time":87.240933239,"data":"           ^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":87.240999587,"data":"AssertionError: (PosixPath('/kaggle/working/gor_heads/heads/gor_v3_head.npz'), 'W', (1536, 39), (1536, 64))\n"}
+,{"stream_name":"stdout","time":87.271518648,"data":"[2026-10-30 10:18:58] FAILED RuntimeError('cmd failed rc=1: /usr/bin/python3 /kaggle/working/repo/scripts/gor_heads/validate_heads.py')\n"}
+,{"stream_name":"stderr","time":87.272568055,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":87.273380874,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/train_heads.py\", line 240, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":87.27339991,"data":"    sys.exit(main())\n"}
+,{"stream_name":"stderr","time":87.273405456,"data":"             ~~~~^^\n"}
+,{"stream_name":"stderr","time":87.273410311,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/train_heads.py\", line 208, in main\n"}
+,{"stream_name":"stderr","time":87.273415488,"data":"    run([sys.executable, str(HERE / \"validate_heads.py\")], env)\n"}
+,{"stream_name":"stderr","time":87.273420559,"data":"    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":87.273425178,"data":"  File \"/kaggle/working/repo/scripts/gor_heads/train_heads.py\", line 96, in run\n"}
+,{"stream_name":"stderr","time":87.27343093,"data":"    raise RuntimeError(f\"cmd failed rc={r.returncode}: {' '.join(cmd)}\")\n"}
+,{"stream_name":"stderr","time":87.273434378,"data":"RuntimeError: cmd failed rc=1: /usr/bin/python3 /kaggle/working/repo/scripts/gor_heads/validate_heads.py\n"}
+,{"stream_name":"stdout","time":87.290349295,"data":"[     86s] train_heads rc 1\n"}
+,{"stream_name":"stdout","time":87.293195721,"data":"[     86s] {\n"}
+,{"stream_name":"stdout","time":87.293228908,"data":" \"rc\": 1,\n"}
+,{"stream_name":"stdout","time":87.293235284,"data":" \"heads\": {\n"}
+,{"stream_name":"stdout","time":87.293239986,"data":"  \"gor_v3_head.npz\": {\n"}
+,{"stream_name":"stdout","time":87.293245461,"data":"   \"sha256\": \"dffa79d41d1aaaee7360e325234c87751db9595462c5740bfe6e26196cdf8e6c\",\n"}
+,{"stream_name":"stdout","time":87.293250916,"data":"   \"bytes\": 253836,\n"}
+,{"stream_name":"stdout","time":87.29325577,"data":"   \"matches_pc\": false\n"}
+,{"stream_name":"stdout","time":87.293260508,"data":"  },\n"}
+,{"stream_name":"stdout","time":87.293264976,"data":"  \"gor_dense_head.npz\": {\n"}
+,{"stream_name":"stdout","time":87.293270364,"data":"   \"sha256\": \"ba780f29a2c4e5cfb1178b117fadfa2b2aa65ae64803efcd86286163bd9d19d2\",\n"}
+,{"stream_name":"stdout","time":87.293275443,"data":"   \"bytes\": 204984,\n"}
+,{"stream_name":"stdout","time":87.293305076,"data":"   \"matches_pc\": false\n"}
+,{"stream_name":"stdout","time":87.293310276,"data":"  }\n"}
+,{"stream_name":"stdout","time":87.293314558,"data":" }\n"}
+,{"stream_name":"stdout","time":87.293319148,"data":"}\n"}
+,{"stream_name":"stderr","time":90.785074104,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":90.785108398,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":91.192639785,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":91.192673111,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":92.35394984,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":93.825168449,"data":"[NbConvertApp] Writing 292423 bytes to __results__.html\n"}
+]

@@ -1,0 +1,2 @@
+Place v2 eb268d6 result.geojson for regions 200-217 here, then refresh SHA256SUMS.
+Do NOT add geo_pixgbm.py or models/.

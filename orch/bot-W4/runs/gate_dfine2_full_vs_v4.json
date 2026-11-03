@@ -1,0 +1,316 @@
+{
+ "what": "W4 independent honest-10 gate: dfine2 FULL (a+b = D-FINE folds 0..4, 132/132 sp_or regions) ENS8 on v4 vs v4/out_C1",
+ "time_msk": "2026-11-02 ~16:59",
+ "verdict": "FAIL",
+ "decisive": "E8C1",
+ "fail_reasons": [
+  "new34 Δ -0.001165 < 0 (P 0.172)",
+  "class floor kt -0.00300 < -0.002",
+  "class floor arkh -0.02209 < -0.005"
+ ],
+ "kernels": [
+  "dmitrijkv/koz3-w2-dfine2-a COMPLETE (folds 0,3; 38189 dets, 18 regions)",
+  "dmitrijkv/koz3-w2-dfine2-b COMPLETE (folds 1,2,4; 204507 dets, 114 regions; log 'ГОТОВО 204507 детекций; ошибки фолдов: []')"
+ ],
+ "skipped_regions_no_fold": {
+  "a": [],
+  "b": []
+ },
+ "regions_covered": 132,
+ "dets_cl5": 242696,
+ "oof": [
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f0.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f3.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f1.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f2.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f4.geojson"
+ ],
+ "bar": "PREREG P-W2-13 / W4 C1FP: Δall>=+0.003, P>=0.95, new34>=0, nolidar>=0, class ΔF1 >= -0.002 kp/kt/gor, >= -0.005 arkh/fort; bootstrap 2000 site_family seed 0",
+ "baseline": {
+  "name": "v4 out_C1",
+  "sha256": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+  "all": 0.3616409998866962,
+  "new34": 0.31516432656608934,
+  "nolidar": 0.254254299411185
+ },
+ "sanity": {
+  "ID_out_sha256": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+  "ID_byte_identical_to_out_C1": true,
+  "ID_reproduces_C1_chosen_taus_gate_nested": true,
+  "identity_circles_exact": true,
+  "identity_circles_n": 85069,
+  "E8_circles_n": 107839
+ },
+ "variants": {
+  "E8C1": {
+   "score": {
+    "all": 0.36688919349743165,
+    "new34": 0.31399980540120154,
+    "nolidar": 0.2640379570174612
+   },
+   "delta": {
+    "all": {
+     "d": 0.005248193610735474,
+     "P": 0.9545,
+     "p5": 0.00012858215047682758,
+     "p95": 0.011806954190800155
+    },
+    "new34": {
+     "d": -0.0011645211648877996,
+     "P": 0.172,
+     "p5": -0.004560764646509471,
+     "p95": 0.00018252561321946688
+    },
+    "nolidar": {
+     "d": 0.009783657606276197,
+     "P": 0.9225,
+     "p5": -0.0019506628797601232,
+     "p95": 0.022584623939000535
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.005347486585687622,
+    "kurgany_tselye": -0.0029990709578169295,
+    "gorodishcha": 0.043085720233680014,
+    "arkhitektury": -0.022091803323267267,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.0001983175226542011,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": true,
+    "P>=bar": true,
+    "P>=0.98333(W1)": false,
+    "P>=0.985714(info)": false,
+    "P4": false,
+    "new34>=0": false,
+    "nolidar>=0": true
+   },
+   "PASS": false,
+   "desc": "decisive: sp_dfine on all 132 regions -> ENS8 mean (ref model0 + dfine2 a+b model1, 4m/8m merge, mean, n_models 2), group sp_dfine; full C1 recipe re-run nested ((d0,s) grid + sp_dfine τ, freeze rule)",
+   "out_sha256": "2a4d7aec978dbc7029f5b363b609de21a3f39a16a92fe9c9da8999abfa0600b7",
+   "gate_nested": 0.35437498902780534,
+   "chosen": [
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.43036908129707563
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.41303783508463404
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.44408812195262615
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.42768602553410867
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.41453563016654454
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.42726261034894863
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.43898251517891557
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4215549352484277
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.4304272787554578
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.4235202735387137
+    }
+   ],
+   "vs_base": {
+    "d_all": 0.021450399265604436,
+    "P": 1.0
+   }
+  },
+  "E8C1f": {
+   "score": {
+    "all": 0.36521140695977017,
+    "new34": 0.31399980540120154,
+    "nolidar": 0.26038740508486985
+   },
+   "delta": {
+    "all": {
+     "d": 0.003570407073073989,
+     "P": 0.8705,
+     "p5": -0.002000065783019181,
+     "p95": 0.010256851092578389
+    },
+    "new34": {
+     "d": -0.0011645211648877996,
+     "P": 0.172,
+     "p5": -0.004560764646509471,
+     "p95": 0.00018252561321946688
+    },
+    "nolidar": {
+     "d": 0.006133105673684858,
+     "P": 0.8225,
+     "p5": -0.005622578792926133,
+     "p95": 0.021661111331141018
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.0013380746315229675,
+    "kurgany_tselye": -0.001979523117414561,
+    "gorodishcha": 0.034839392751081555,
+    "arkhitektury": -0.016577113806794858,
+    "object_poly": 0.0,
+    "fortifikatsii": -6.616449765406429e-05,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": true,
+    "P>=bar": false,
+    "P>=0.98333(W1)": false,
+    "P>=0.985714(info)": false,
+    "P4": false,
+    "new34>=0": false,
+    "nolidar>=0": true
+   },
+   "PASS": false,
+   "desc": "report: same member, C1 per-fold (d0,s) frozen, only sp_dfine τ re-swept",
+   "out_sha256": "4b222de9d67e971a887aece0576ff470366e8b494d36ea5df52b9947430dabf4",
+   "gate_nested": 0.35282184969679004,
+   "chosen": [
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4297876852407122
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.41219185464511016
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.44408812195262615
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4271882625181431
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.41453563016654454
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4259273722574999
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4375313678745365
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.4215549352484277
+    },
+    {
+     "center": {
+      "d0": 0.25,
+      "s": 0.75
+     },
+     "train": 0.42906086948599786
+    },
+    {
+     "center": {
+      "d0": 0.0,
+      "s": 0.75
+     },
+     "train": 0.4235202735387137
+    }
+   ],
+   "vs_base": {
+    "d_all": 0.01977261272794295,
+    "P": 1.0
+   }
+  }
+ },
+ "gate_nested": {
+  "C1": 0.34895211358365935,
+  "E8C1": 0.35437498902780534,
+  "E8C1f": 0.35282184969679004
+ },
+ "code": [
+  "comp/dfine2full/dfine2full_prep.py",
+  "comp/dfine2full/dfine2full_replay.py",
+  "comp/dfine2full/dfine2full_score.py",
+  "comp/dfine2full/run.sh"
+ ],
+ "outputs": [
+  "comp/dfine2full/out/out_ID.geojson",
+  "comp/dfine2full/out/out_E8C1.geojson",
+  "comp/dfine2full/out/out_E8C1f.geojson",
+  "comp/dfine2full/out/dfine2full_gate_vs_C1.json",
+  "comp/dfine2full/out/dfine2full_gate_vs_base.json",
+  "comp/dfine2full/out/prep_summary.json"
+ ],
+ "notes": "No LB, no push, no production flags; CPU only (nice 19). v4 stays primary. early_stop all-folds not run (optional)."
+}

@@ -42,3 +42,8 @@ Gate rule for next Elena package: geo P/R ≥ v2 on comparable eval (**geo5 / mo
 3. Gate every recover candidate vs that bar before any Elena zip.
 4. Still need Elena/A to drop bot7cand_v2 zip (or geo-modality reference preds) if full-stack parity required.
 
+
+## Update 14:35
+- S3 pull DONE → `w4geo/train` (320/1.5G).
+- Harness: `wt/w4-pix/scripts/pix_geo_pr_gate.py` (bots/w4-pix-clean).
+- TerFl thr 0.58017 in v2_clean; maps still etgr-only.

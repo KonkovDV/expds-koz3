@@ -1,0 +1,103 @@
+/workspace/koz3/venv_sat2/lib/python3.13/site-packages/segmentation_models_pytorch/encoders/__init__.py:86: UserWarning: For 'tu-' (timm universal) encoders, `encoder_weights` should be set to True to download pretrained weights or None for random initialization. The pretrained variant is defined in the encoder name i.e 'tu-<model_name>.<pretrained_tag>'. Got encoder_weights='imagenet'.
+  warnings.warn(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/workspace/koz3/orch/bot-W1/sat2_smoke/smoke_sat2.py:49: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  losses.append({k: round(float(v), 5) for k, v in L.items()})
+{
+ "region": "130_Курганы_1",
+ "tif": "w5data/sat_raw/130_Курганы_1/04_Курганы_1_SpOr_спутник/01_Курганы_1_SpOr_спутник.tif",
+ "crs": "EPSG:32644",
+ "res_m": 0.8475,
+ "raster_hw": [
+  895,
+  1075
+ ],
+ "n_gt_kurgans": 33,
+ "grid_windows": 6,
+ "picked": [
+  [
+   0,
+   384
+  ],
+  [
+   380,
+   0
+  ],
+  [
+   0,
+   560
+  ],
+  [
+   380,
+   384
+  ]
+ ],
+ "gt_in_picked": [
+  20,
+  15,
+  15,
+  14
+ ],
+ "encoder": "tu-convnext_tiny",
+ "weights": "imagenet",
+ "params_M": 32.04,
+ "train_losses": [
+  {
+   "loss_center": 5.21744,
+   "loss_hm": 4.85728,
+   "loss_wh": 1.36031,
+   "loss_off": 0.22413
+  },
+  {
+   "loss_center": 4.86279,
+   "loss_hm": 4.50298,
+   "loss_wh": 1.35875,
+   "loss_off": 0.22393
+  },
+  {
+   "loss_center": 4.52591,
+   "loss_hm": 4.16641,
+   "loss_wh": 1.35693,
+   "loss_off": 0.2238
+  }
+ ],
+ "out_shapes": {
+  "hm": [
+   4,
+   2,
+   128,
+   128
+  ],
+  "wh": [
+   4,
+   1,
+   128,
+   128
+  ],
+  "off": [
+   4,
+   2,
+   128,
+   128
+  ],
+  "mask": [
+   4,
+   3,
+   512,
+   512
+  ]
+ },
+ "n_candidates": 3016,
+ "n_feats": 3016,
+ "feat0": {
+  "class_name": "kurgany_povrezhdennye",
+  "confidence": 0.18165451288223267,
+  "region_name": "130_Курганы_1",
+  "markup_type": "sp_or",
+  "original_crs": "EPSG:32644"
+ },
+ "hm_max": 0.18165451288223267,
+ "PASS": true,
+ "elapsed_s": 84.8
+}

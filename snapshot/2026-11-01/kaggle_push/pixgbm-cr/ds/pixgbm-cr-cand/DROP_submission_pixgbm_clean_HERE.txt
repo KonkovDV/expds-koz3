@@ -1,0 +1,1 @@
+Place submission_pixgbm_clean_e1g1_p4_lleaves.zip (or tip models under models_pix_clean/) here, then refresh SHA256SUMS and create the dataset. See README.md.

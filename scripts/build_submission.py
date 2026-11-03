@@ -33,7 +33,8 @@ LIMIT = 2 * 1024 ** 3
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
 EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate",
+                "sp_det2")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def _doc1_check(out: Path) -> None:
@@ -102,6 +103,11 @@ def collect() -> list[Path]:
         dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
         if ae.get("thresholds_file"):
             dfm.append(ae["thresholds_file"])
+    s2 = cfg.get("sp_det2") or {}
+    # sat2 CenterNet (bots/combo-sat2-fr1h): веса — только если [sp_det2] enabled
+    if s2.get("enabled"):
+        from expds.sp_det2 import settings as _sp2_settings
+        dfm += [str(w) for w in _sp2_settings(cfg)["weights"]]
     if sd.get("enabled") or gg.get("enabled") or gd.get("enabled") or ae.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():

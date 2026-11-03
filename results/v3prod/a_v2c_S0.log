@@ -1,0 +1,11 @@
+[v2c S0] fold 0: in 25617 → out 162 (thr-only 162) 2s
+[v2c S0] fold 1: in 129031 → out 2756 (thr-only 2756) 3s
+[v2c S0] fold 2: in 78919 → out 351 (thr-only 351) 4s
+[v2c S0] fold 3: in 24737 → out 344 (thr-only 344) 4s
+[v2c S0] fold 4: in 153668 → out 2725 (thr-only 2725) 5s
+[v2c S0] fold 5: in 185953 → out 398 (thr-only 398) 6s
+[v2c S0] fold 6: in 48073 → out 781 (thr-only 781) 7s
+[v2c S0] fold 7: in 390956 → out 1529 (thr-only 1529) 9s
+[v2c S0] fold 8: in 171358 → out 560 (thr-only 560) 10s
+[v2c S0] fold 9: in 179572 → out 1122 (thr-only 1122) 11s
+done 10728 13s

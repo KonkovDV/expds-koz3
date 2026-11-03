@@ -1,0 +1,38 @@
+{
+  "sha_ok": true,
+  "sha": "fe8d60b9032474760f02d4bcfa08fb43269ae3ffb872efa932d2f1d7692944b4",
+  "archive_mb": 500.83,
+  "n_files": 50,
+  "n_pt": 10,
+  "frame_prior": {
+    "groups": [
+      "sp_or",
+      "sp_focal",
+      "sp_focal2"
+    ],
+    "classes": [
+      "kurgany_povrezhdennye",
+      "kurgany_tselye"
+    ],
+    "d0": 0.5,
+    "edge": 0.5
+  },
+  "pixgbm_injected": true,
+  "rerank_injected": true,
+  "geo_gate": {
+    "floors_P_R": [
+      0.769,
+      0.656
+    ],
+    "blackbox_byte_identical_to_v2_ref": true,
+    "ref_sha_prefix": "9dcb6e71",
+    "verdict": "PASS",
+    "note": "31.10 CPU black-box on pantum/n7q 18 geo regions: FR1H_geo byte-identical to REF_v2; LB geo .769/.656 preserved. Re-run needs geo rasters+image; not re-executed this wave."
+  },
+  "compliance_static": {
+    "archive_under_2gib": true,
+    "has_main": true,
+    "has_metadata": true,
+    "verdict": "PASS"
+  }
+}

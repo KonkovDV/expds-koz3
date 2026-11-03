@@ -12,6 +12,10 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
 * ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``drop_cover_m`` (bot-2, регрессия mock 29.10) — старый объект группы R снимается, только если
+  D-FINE того же класса, прошедший ``[thresholds_by_markup.sp_dfine]``, лежит не дальше N м на земле
+  (по умолчанию 12). Иначе v2 остаётся: на mock 482 сырых бокса снимали 46 попаданий, а 13 боксов
+  выше порога были в 50–1500 м от эталона. ``0`` — слепой R (снять всю группу);
 * ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
 * ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
   ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
@@ -32,7 +36,6 @@ import json
 
 import logging
 import math
-import os
 import time
 from pathlib import Path
 
@@ -65,6 +68,10 @@ DEFAULTS = {
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
     # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
     "drop_min_det": 1,
+    # bot-2: слепой R на mock обнулил sp_or (482 сырых → drop −46, после порога 13 FP в 50–1500 м от GT).
+    # Снимать старый объект, только если выживший D-FINE того же класса ближе drop_cover_m метров на земле.
+    # 0 — прежний слепой R (вся группа на участке).
+    "drop_cover_m": 12.0,
     # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
     # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
     "agreement_m": 0.0,
@@ -228,31 +235,88 @@ def as_features(dets: list[dict], st: dict, n_models: int) -> list[dict]:
     return cluster_circles(dets, float(st["radius_m"]), float(st["merge_m"]), str(st["ensemble"]), n_models)
 
 
+def feature_group(f: dict) -> str | None:
+    """Группа порога, как у scoreboard bot-10.
+
+    Явный threshold_group, иначе для markup sp_or по классу: курганы → sp_focal,
+    архитектура → sp_arch, городища и прочее → sp_or.
+    """
+    g = f.get("threshold_group")
+    if g:
+        return g
+    if f.get("markup_type") != MARKUP:
+        return f.get("markup_type")
+    cls = f.get("class_name")
+    if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
+        return "sp_focal"
+    if cls == "arkhitektury":
+        return "sp_arch"
+    return "sp_or"
+
+
 def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
     """Вариант R: убрать объекты групп ``groups`` (кроме sp_dfine) на участках ``regions``.
 
-    Группа — как у scoreboard bot-10: threshold_group, иначе для markup sp_or по классу:
-    курганы → sp_focal, архитектура → sp_arch, городища и прочее → sp_or. Участки без D-FINE не трогаются.
+    Участки без D-FINE не трогаются. Слепой режим: любой объект группы снимается,
+    даже если D-FINE его не заменил. Для сдачи используйте ``drop_groups_covered``.
     """
     groups = set(groups or ())
     regions = set(regions or ())
     if not groups or not regions:
         return feats
+    return [f for f in feats
+            if not (f.get("region_name") in regions and feature_group(f) in groups and feature_group(f) != GROUP)]
 
-    def grp(f: dict) -> str | None:
-        g = f.get("threshold_group")
-        if g:
-            return g
-        if f.get("markup_type") != MARKUP:
-            return f.get("markup_type")
-        cls = f.get("class_name")
-        if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
-            return "sp_focal"
-        if cls == "arkhitektury":
-            return "sp_arch"
-        return "sp_or"
 
-    return [f for f in feats if not (f.get("region_name") in regions and grp(f) in groups and grp(f) != GROUP)]
+def passes_group_threshold(f: dict, cfg: dict) -> bool:
+    """Объект проходит порог своей группы. Нет порога класса — не отсекаем (порог ещё не задан)."""
+    group = f.get("threshold_group") or f.get("markup_type")
+    own = ((cfg.get("thresholds_by_markup") or {}).get(group) or {})
+    cls = f.get("class_name")
+    if cls not in own:
+        return True
+    try:
+        return float(f.get("confidence", 0.0)) >= float(own[cls])
+    except (TypeError, ValueError):
+        return False
+
+
+def _ground_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Метры на земле между точками EPSG:3857 (единицы × cos φ)."""
+    scale = ground_scale((a[1] + b[1]) / 2.0)
+    return math.hypot(a[0] - b[0], a[1] - b[1]) * scale
+
+
+def drop_groups_covered(feats: list[dict], groups, regions, cover_m: float, survivors: list[dict]) -> list[dict]:
+    """Снять старый объект группы R, только если его закрывает выживший D-FINE.
+
+    ``survivors`` — объекты ``sp_dfine``, уже прошедшие порог группы. Закрытие: тот же участок,
+    тот же класс, центр не дальше ``cover_m`` метров на земле. Чужой класс, бокс ниже порога
+    и бокс без геометрии старый объект не снимают. Сами объекты D-FINE остаются.
+    """
+    groups = set(groups or ())
+    regions = set(regions or ())
+    cover_m = float(cover_m)
+    if not groups or not regions or cover_m <= 0:
+        return list(feats)
+    buckets: dict[tuple, list[tuple[float, float]]] = {}
+    for det in survivors or ():
+        if det.get("threshold_group") != GROUP or det.get("region_name") not in regions:
+            continue
+        xy = _feat_xy(det)
+        if xy is None:
+            continue
+        buckets.setdefault((det.get("region_name"), det.get("class_name")), []).append(xy)
+    out = []
+    for feat in feats:
+        grp = feature_group(feat)
+        if feat.get("region_name") in regions and grp in groups and grp != GROUP:
+            xy = _feat_xy(feat)
+            pts = buckets.get((feat.get("region_name"), feat.get("class_name")), ())
+            if xy is not None and any(_ground_dist(xy, p) <= cover_m for p in pts):
+                continue
+        out.append(feat)
+    return out
 
 
 def _feat_xy(f: dict) -> tuple[float, float] | None:
@@ -416,6 +480,14 @@ TRANSFORMERS_PIN = "5.21.0"
 #: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
 UNAVAILABLE = "SP_DFINE_UNAVAILABLE"
 #: пакеты вендора: при сбое импорта из вендора их полу-импортированные модули вычищаются из sys.modules
+#: W4 01.11: huggingface_hub 2.2.0 (= requirements.lock образа) + httpx2/httpcore2/h11/anyio/idna/truststore/
+#: typing_extensions (чистый python) — только если huggingface_hub окружения не подходит transformers 5.21.0
+#: (нужно >=1.31,<3; в Kaggle 1.29 → «cannot import name 'httpx' from huggingface_hub.utils»). На площадке (2.2.0)
+#: не используется. Подкаталог вендора, чтобы builder/check_submission брали его вместе с вендором.
+VENDOR_HF = VENDOR + "/_hf"
+HF_RANGE = ((1, 31), (3, 0))
+#: выгружаются при переключении на VENDOR_HF (остальные зависимости — общие с окружением, если уже загружены)
+_HF_PKGS = ("huggingface_hub", "httpx2", "httpcore2", "truststore")
 _VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdown_it", "mdurl", "pygments",
                 "shellingham", "annotated_doc")
 
@@ -533,7 +605,7 @@ def _metadata_shim() -> None:
        «Unable to compare versions … found=None» или «distribution was not found» для пакета из _META_DEPS,
        модуль которого импортируется, — WARNING SP_DFINE_DEPMETA вместо исключения. Слишком старая версия
        (ImportError) и неимпортируемый модуль по-прежнему роняют импорт → SP_DFINE_UNAVAILABLE."""
-    import importlib.abc
+    import importlib.abc  # noqa: F401 — подмодуль importlib.abc нужен загрузчику вендора до import transformers
     import importlib.metadata as md
     import sys
     if not getattr(md.version, "_b7_shim", False):
@@ -678,6 +750,44 @@ def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
     return gone
 
 
+def _abi_tag() -> str:
+    import sys
+    return f"cpython-{sys.version_info.major}{sys.version_info.minor}"
+
+
+def _vendor_abi_ok(v: Path) -> bool:
+    """W4 01.11: в вендоре regex с _regex под текущий python (вендор несёт cp311–cp314: колёса regex 2026.9.29)."""
+    import importlib.machinery
+    d = Path(v) / "regex"
+    if not d.is_dir():
+        return True     # regex не вендорится — берётся из окружения
+    return any((d / f"_regex{suf}").is_file() for suf in importlib.machinery.EXTENSION_SUFFIXES)
+
+
+def _env_hf_ok() -> tuple:
+    """(подходит ли huggingface_hub окружения transformers 5.21.0, его версия) — по метаданным, без импорта."""
+    import importlib.metadata as md
+    import re
+    try:
+        ver = md.version("huggingface_hub")
+    except Exception:  # noqa: BLE001 — нет пакета
+        return False, None
+    m = re.match(r"(\d+)\.(\d+)", str(ver or ""))
+    if not m:
+        return False, ver
+    t = (int(m.group(1)), int(m.group(2)))
+    return HF_RANGE[0] <= t < HF_RANGE[1], ver
+
+
+def _hf_path(root: Path, on: bool) -> None:
+    import sys
+    h = str(Path(root) / VENDOR_HF)
+    while h in sys.path:
+        sys.path.remove(h)
+    if on:
+        sys.path.insert(1 if sys.path and sys.path[0] == str(Path(root) / VENDOR) else 0, h)
+
+
 def import_dfine(root: Path) -> tuple:
     """Классы D-FINE строго закреплённой версии. Порядок:
     1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
@@ -696,18 +806,38 @@ def import_dfine(root: Path) -> tuple:
     if tr is not None and not (v.is_dir() and Path(getattr(tr, "__file__", "") or "/").resolve().is_relative_to(v.resolve())):
         info["purged_preloaded"] = getattr(tr, "__version__", "?")
         _purge(("transformers",))
-    if v.is_dir():   # и чужие tokenizers/regex, загруженные до нас, — иначе вендорный transformers возьмёт их
-        _purge(("tokenizers", "regex"), keep_under=v)
+    if v.is_dir():   # все чужие пакеты вендора (regex/_regex, tokenizers, …), загруженные до нас, — иначе вендорный
+        _purge(_VENDOR_PKGS + ("_regex",), keep_under=v)   # transformers возьмёт их (W4 01.11: regex 2025.11.3 окружения)
+        abi = _vendor_abi_ok(v)
+        info["vendor_regex_abi"] = abi
+        if not abi:
+            log.warning("sp_dfine: в вендоре нет _regex для %s — вендор не загрузится, пробуем окружение", _abi_tag())
+    h = Path(root) / VENDOR_HF
+    use_hf = False
+    if v.is_dir():
+        _hf_path(root, False)   # версия окружения — без нашего _hf в sys.path
+        ok, hver = _env_hf_ok()
+        use_hf = (not ok) and h.is_dir()
+        info["hf"] = f"vendor_hf (окружение: {hver})" if use_hf else f"env {hver}"
+        if use_hf:
+            log.warning("sp_dfine: huggingface_hub окружения %s не подходит transformers %s (нужно >=1.31,<3) — "
+                        "берём %s", hver, TRANSFORMERS_PIN, VENDOR_HF)
     _metadata_shim()   # до импорта transformers: dependency_versions_check читает версии из метаданных
     attempts = (["vendor"] if v.is_dir() else []) + ["env"]
     for src in attempts:
         if src == "vendor":
             _vendor_path(root)
+            if use_hf:
+                _hf_path(root, True)
+                _purge(_HF_PKGS, keep_under=h)
         else:
             if v.is_dir():
                 while str(v) in sys.path:
                     sys.path.remove(str(v))
-                _purge(_VENDOR_PKGS)
+                _purge(_VENDOR_PKGS + ("_regex",))
+                if use_hf:
+                    _hf_path(root, False)
+                    _purge(_HF_PKGS)
             import os
             os.environ.setdefault("HF_HUB_OFFLINE", "1")
             os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -990,6 +1120,11 @@ def _device(st: dict):
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _degraded(reason: str) -> None:
+    from . import degraded
+    degraded.mark("sp_dfine", f"{UNAVAILABLE}: {reason}")
+
+
 def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, soft_ok=None) -> tuple[list[dict], bool]:
     """Объекты D-FINE участка и флаг «все растры SpOr пройдены полностью» (нужен для drop_groups).
 
@@ -1025,6 +1160,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             cache["load_error"] = msg
             stage["skip_reason"] = "thresholds_missing:" + ",".join(missing)
             write_unavailable_warning(msg)
+            _degraded(msg)
             if strict_mode():
                 raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         elif not st["weights"]:
@@ -1033,6 +1169,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             cache["load_error"] = msg
             stage["skip_reason"] = "weights_empty"
             write_unavailable_warning(msg)
+            _degraded(msg)
             if strict_mode():
                 raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         else:
@@ -1049,6 +1186,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
                 stage["skip_reason"] = f"load_failed:{type(exc).__name__}"
                 write_unavailable_warning(f"enabled=true, но модели не загрузились ({type(exc).__name__})",
                                           detail=detail)
+                _degraded(f"модели не загрузились: {detail[:500]}")
                 if strict_mode():   # EXPDS_STRICT=1: исходная ошибка как есть
                     raise
                 if st["strict"]:
@@ -1080,7 +1218,16 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             sc = Scene(Path(path), crs, float(st["res_m"]))
             ok = (lambda: guard.window_ok()) if guard is not None and hasattr(guard, "window_ok") else (lambda: True)
             t0 = time.monotonic()
-            res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            # bot-8: [orsp_tta] выкл. или только U-Net — ровно штатный detect_scene (flip_tta).
+            # Виды/масштабы D-FINE не оценены (регрессия sp_or на v3on_0876090).
+            from . import orsp_tta
+
+            plan = orsp_tta.dfine_plan(cfg)
+            if plan is None:
+                res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            else:
+                res, done, total = orsp_tta.detect_dfine(
+                    models, sc, Path(path), crs, st, cache["device"], ok, plan)
             complete &= done >= total
             dump = dump_root()
             n_raw = 0

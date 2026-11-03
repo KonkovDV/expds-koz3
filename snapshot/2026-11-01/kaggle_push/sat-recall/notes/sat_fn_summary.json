@@ -1,0 +1,36 @@
+{
+  "source": "fn_sat_mock.json + LB scoring_v2_eb268d6_0.41238.log",
+  "lb": {
+    "GT": 377,
+    "P": 0.456057,
+    "R": 0.254642,
+    "TP": 96,
+    "FP": 229,
+    "FN": 281,
+    "s_sat_proxy": 0.1297,
+    "ceiling_R0.6_proxy_dLB": 0.025,
+    "ceiling_R0.6_clsmap_dLB": 0.049,
+    "break_even_new_det_hit_pct": 8.9
+  },
+  "mock_fn_buckets": {
+    "loc_shift_2_10m": 14,
+    "loc_shift_10_50m": 31,
+    "far_50_200m": 2,
+    "undetected_gt200m": 19,
+    "should_have_matched": 1,
+    "n_fn": 67,
+    "n_gt": 83
+  },
+  "bot8_orsp_tta": "coded OFF; PC honest-10 pending — not proposing TTA as primary lever",
+  "bot2_sat_thr_relax": "already on main OFF; scale 0.85 E[dLB]+0.003..0.010 — complement not redo",
+  "closed": [
+    "sat2",
+    "sp_large",
+    "sat_8m_cluster/sp_score_fusion@8m",
+    "near_kept",
+    "peak-rerank",
+    "WSR",
+    "r50c5",
+    "dino-gor"
+  ]
+}

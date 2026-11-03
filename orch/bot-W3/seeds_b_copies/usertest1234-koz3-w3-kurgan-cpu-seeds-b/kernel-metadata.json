@@ -1,0 +1,17 @@
+{
+  "id": "usertest1234/koz3-w3-kurgan-cpu-seeds-b",
+  "title": "koz3-w3-kurgan-cpu-seeds-b",
+  "code_file": "koz3-w3-kurgan-cpu-seeds-b.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [
+    "usertest1234/koz3-w3-kurgan-cpu-data"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

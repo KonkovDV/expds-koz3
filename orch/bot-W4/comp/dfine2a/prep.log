@@ -1,0 +1,44 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+16:18:23 кэш стека meta_ebd32b882032ca67.json: кластеров 60
+16:18:24 кривые A из кэша curvesA_ebd32b882032ca67.pkl
+16:18:26 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1241 МБ
+16:18:47 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+[     26s] c19 1578 dfx 85069 dfx drel None 11772
+[     39s] dfine2-a regions 18 dets 38189 folds [0, 3]
+[     45s] identity circles exact True 17929 17929
+[     45s] E8 circles on AREG 23075 vs ref 17929 Counter({'kurgany_povrezhdennye': 15252, 'kurgany_tselye': 4299, 'arkhitektury': 1431, 'fortifikatsii': 1067, 'gorodishcha': 1026})
+[     60s] ID fold 0: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.446472, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.50106, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[     62s] ID fold 1: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.56171, 'arkhitektury': 0.281948, 'fortifikatsii': 0.682715}
+[     65s] ID fold 2: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.317553, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.562675, 'arkhitektury': 0.324719, 'fortifikatsii': 0.443028}
+[     68s] ID fold 3: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.56171, 'arkhitektury': 0.284558, 'fortifikatsii': 0.525625}
+[     70s] ID fold 4: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.317553, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.473934, 'arkhitektury': 0.236432, 'fortifikatsii': 0.443028}
+[     73s] ID fold 5: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.56171, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[     76s] ID fold 6: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.50106, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[     79s] ID fold 7: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.50106, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[     81s] ID fold 8: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.373988, 'kurgany_tselye': 0.506492, 'gorodishcha': 0.50106, 'arkhitektury': 0.281948, 'fortifikatsii': 0.508191}
+[     84s] ID fold 9: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.333253, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.421128, 'arkhitektury': 0.236432, 'fortifikatsii': 0.427748}
+[     84s] ID gate-side nested 0.348952 (no-centre base for this member set 0.333787)
+[     84s] ID reproduces C1 chosen+taus: True C1 gate_nested 0.34895211358365935
+[    103s] E8C1 fold 0: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.375213, 'kurgany_tselye': 0.358223, 'gorodishcha': 0.420283, 'arkhitektury': 0.228118, 'fortifikatsii': 0.430056}
+[    106s] E8C1 fold 1: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.281948, 'fortifikatsii': 0.682715}
+[    109s] E8C1 fold 2: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.302528, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.535123, 'arkhitektury': 0.324719, 'fortifikatsii': 0.430056}
+[    111s] E8C1 fold 3: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.274339, 'fortifikatsii': 0.525625}
+[    114s] E8C1 fold 4: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.333253, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.418903, 'arkhitektury': 0.228168, 'fortifikatsii': 0.430056}
+[    117s] E8C1 fold 5: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.369391, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[    120s] E8C1 fold 6: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.33355, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.420283, 'arkhitektury': 0.228168, 'fortifikatsii': 0.430056}
+[    123s] E8C1 fold 7: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.305641, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.420283, 'arkhitektury': 0.228168, 'fortifikatsii': 0.430056}
+[    126s] E8C1 fold 8: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.305568, 'kurgany_tselye': 0.38325, 'gorodishcha': 0.420283, 'arkhitektury': 0.257105, 'fortifikatsii': 0.430056}
+[    129s] E8C1 fold 9: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.333253, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.420283, 'arkhitektury': 0.228168, 'fortifikatsii': 0.427748}
+[    129s] E8C1 gate-side nested 0.349376 (no-centre base for this member set 0.335973)
+[    136s] E8C1f fold 0: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.44681, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[    136s] E8C1f fold 1: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.281948, 'fortifikatsii': 0.682715}
+[    137s] E8C1f fold 2: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.302528, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.535123, 'arkhitektury': 0.324719, 'fortifikatsii': 0.430056}
+[    137s] E8C1f fold 3: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.274339, 'fortifikatsii': 0.525625}
+[    138s] E8C1f fold 4: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.333253, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.418903, 'arkhitektury': 0.228168, 'fortifikatsii': 0.430056}
+[    138s] E8C1f fold 5: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.369391, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.281948, 'fortifikatsii': 0.525625}
+[    138s] E8C1f fold 6: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.384082, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.506058, 'arkhitektury': 0.274339, 'fortifikatsii': 0.525625}
+[    138s] E8C1f fold 7: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.369391, 'kurgany_tselye': 0.426006, 'gorodishcha': 0.562468, 'arkhitektury': 0.274339, 'fortifikatsii': 0.525625}
+[    139s] E8C1f fold 8: d0,s (0.25, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.373936, 'kurgany_tselye': 0.441842, 'gorodishcha': 0.562468, 'arkhitektury': 0.289211, 'fortifikatsii': 0.520656}
+[    139s] E8C1f fold 9: d0,s (0.0, 0.75) τ_dfine {'kurgany_povrezhdennye': 0.333253, 'kurgany_tselye': 0.358896, 'gorodishcha': 0.420283, 'arkhitektury': 0.228168, 'fortifikatsii': 0.427748}
+[    139s] E8C1f gate-side nested 0.350870 (no-centre base for this member set 0.335973)
+[    140s] done

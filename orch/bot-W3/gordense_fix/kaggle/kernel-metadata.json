@@ -1,0 +1,19 @@
+{
+ "id": "elenakonkova/koz3-w3-gordense-timing-k",
+ "title": "koz3-w3-gordense-timing-k",
+ "code_file": "koz3-w3-gordense-timing.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "machine_shape": "NvidiaTeslaT4",
+ "dataset_sources": [
+  "elenakonkova/koz3-w3-gordense-timing"
+ ],
+ "competition_sources": [],
+ "kernel_sources": [],
+ "model_sources": [],
+ "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435"
+}

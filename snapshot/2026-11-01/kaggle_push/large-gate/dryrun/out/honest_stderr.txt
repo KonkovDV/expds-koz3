@@ -1,0 +1,2 @@
+fatal: not a git repository (or any of the parent directories): .git
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом

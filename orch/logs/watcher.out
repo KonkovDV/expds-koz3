@@ -1,0 +1,215 @@
+13:02 старт v2 (poll 300s, conflicts 15 мин)
+итог: ERROR=1 WARN=10
+13:09 старт v2 (poll 300s, conflicts 15 мин)
+итог: ERROR=2 WARN=8
+13:20 acc2/cpu-2: dmitrijkv/koz3-w3-gorheads-cpu → ERROR; аренда снята; вывод → orch/bot-W3/gorheads_out
+итог: ERROR=2 WARN=4
+13:34 старт v2 (poll 300s, conflicts 15 мин)
+итог: ERROR=2 WARN=3
+13:40 acc2/cpu-2: dmitrijkv/koz3-w3-wsg2-cpu → COMPLETE; аренда снята
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=2 WARN=3
+итог: ERROR=3 WARN=3
+16:40 usertest1234/cpu: usertest1234/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+итог: ERROR=2 WARN=4
+17:12 старт v2 (poll 300s, conflicts 15 мин)
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+итог: ERROR=3 WARN=3
+19:40 acc2/cpu: dmitrijkv/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+итог: ERROR=3 WARN=4
+20:02 acc1/cpu: elenakonkova/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+итог: ERROR=3 WARN=4
+20:11 aaaa0000004/cpu: aaaa0000004/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+20:16 aaaadg4gg4g4g/cpu: aaaadg4gg4g4g/koz3-w3-kurgan-cpu-seeds → COMPLETE; аренда снята
+итог: ERROR=3 WARN=4
+итог: ERROR=3 WARN=4
+итог: ERROR=3 WARN=4
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=4
+итог: ERROR=3 WARN=4
+23:16 usertest1234/cpu-2: usertest1234/koz3-w3-kurgan-cpu-seeds-b → COMPLETE; аренда снята
+итог: ERROR=3 WARN=5
+23:47 usertest1234/cpu: usertest1234/koz3-w3-geo5-l-s12 → ERROR; аренда снята
+23:47 aaaadg4gg4g4g/cpu: aaaadg4gg4g4g/koz3-w3-geo5-l-s34 → ERROR; аренда снята
+23:47 aaaa0000004/cpu: aaaa0000004/koz3-w3-geo5-base-s12 → ERROR; аренда снята
+23:47 acc2/cpu: dmitrijkv/koz3-w3-geo5-base-s34 → ERROR; аренда снята
+итог: ERROR=7 WARN=5
+итог: ERROR=3 WARN=5
+00:25 aaaa0000004/cpu: aaaa0000004/koz3-w3-geo5-base-s12 → COMPLETE; аренда снята
+00:25 acc2/cpu: dmitrijkv/koz3-w3-geo5-base-s34 → COMPLETE; аренда снята
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=8
+итог: ERROR=3 WARN=8
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+03:07 acc1/tpu: elenakonkova/koz3-w5-dino-vitb-tpu → COMPLETE; аренда снята; вывод → out/w5-dino-vitb
+03:07 acc2/tpu: dmitrijkv/koz3-w5-dino-vitb-tpu → COMPLETE; аренда снята; вывод → out/w5-dino-vitb-acc2
+итог: ERROR=3 WARN=5
+03:14 aaaa0000004/gpu-1: aaaa0000004/koz3-w2-cnx-r50c5-f01 → ERROR; аренда снята
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'aaaa0000004', 'kernels', 'status', 'aaaa0000004/koz3-w4-v3amin-chk']' timed out after 60 seconds
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+08:29 acc1/gpu-1: elenakonkova/koz3-w2-cnx-r50c5-f01 → ERROR; аренда снята
+итог: ERROR=3 WARN=5
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w2-hillshade-parity-s3']' timed out after 60 seconds
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+11:13 acc1/gpu-1: elenakonkova/koz3-w3-gordense-timing-k → COMPLETE; аренда снята
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=5
+итог: ERROR=3 WARN=1
+11:53 acc1/gpu-1: elenakonkova/koz3-w3-gordense-timing-k → COMPLETE; аренда снята
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+12:34 acc2/gpu-1: dmitrijkv/koz3-w2-cnx-r50c5-f234 → COMPLETE; аренда снята
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w3-geo5-base-s34']' timed out after 60 seconds
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=3 WARN=1
+итог: ERROR=5 WARN=1
+итог: ERROR=5 WARN=1
+итог: ERROR=5 WARN=1
+итог: ERROR=5 WARN=1
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+итог: ERROR=6 WARN=2
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-peak-rerank-f0']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-tpu-smoke']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-w3-gordense-timing-k']' timed out after 60 seconds
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'aaaadg4gg4g4g', 'kernels', 'list', '--mine', '--page-size', '20', '--sort-by', 'dateRun', '--csv']' timed out after 90 seconds
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=2
+итог: ERROR=5 WARN=3
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-wsr-f0']' timed out after 60 seconds
+итог: ERROR=5 WARN=3
+12:52 dmitrijkv/gpu-1: dmitrijkv/koz3-w1-sat2-f0 → COMPLETE; аренда снята
+итог: ERROR=5 WARN=3
+итог: ERROR=5 WARN=3
+итог: ERROR=5 WARN=3
+итог: ERROR=5 WARN=3
+итог: ERROR=5 WARN=3
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=3
+15:12 elenakonkova/gpu-1: elenakonkova/koz3-lidar-aug-f0 → COMPLETE; аренда снята
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=3
+итог: ERROR=4 WARN=4
+итог: ERROR=4 WARN=5
+итог: ERROR=4 WARN=5
+17:15 dmitrijkv/gpu-1: dmitrijkv/koz3-w1-sat2-f14 → COMPLETE; аренда снята
+итог: ERROR=4 WARN=5
+итог: ERROR=4 WARN=5
+итог: ERROR=4 WARN=5
+18:22 elenakonkova/gpu-1: elenakonkova/koz3-lidar-aug-f0 → COMPLETE; аренда снята
+итог: ERROR=4 WARN=5
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-dino-gor-f0']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-dino-gor-f0']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-w3-gordense-timing-k']' timed out after 60 seconds
+итог: ERROR=5 WARN=6
+итог: ERROR=5 WARN=6
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-w4-li-post-full']' timed out after 60 seconds
+итог: ERROR=5 WARN=5
+итог: ERROR=5 WARN=5
+21:21 dmitrijkv/gpu-1: dmitrijkv/koz3-w1-lidar-aug-f2 → COMPLETE; аренда снята
+итог: ERROR=5 WARN=6
+21:47 elenakonkova/gpu-1: elenakonkova/koz3-lidar-aug-f0 → COMPLETE; аренда снята
+итог: ERROR=4 WARN=6
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w3-gordense-timing2']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w1-sat2-check']' timed out after 60 seconds
+итог: ERROR=4 WARN=10
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'list', '--mine', '--page-size', '20', '--sort-by', 'dateRun', '--csv']' timed out after 90 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'status', 'elenakonkova/koz3-w4-li-post-gate']' timed out after 60 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w1-sat2-check']' timed out after 60 seconds
+итог: ERROR=4 WARN=10
+итог: ERROR=4 WARN=10
+итог: ERROR=4 WARN=10
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'aaaa0000004', 'kernels', 'status', 'aaaa0000004/koz3-w4-v2cleanchk2']' timed out after 60 seconds
+итог: ERROR=4 WARN=11
+итог: ERROR=4 WARN=12
+итог: ERROR=5 WARN=12
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'elenakonkova', 'kernels', 'list', '--mine', '--page-size', '20', '--sort-by', 'dateRun', '--csv']' timed out after 90 seconds
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-bot7-sat-recall']' timed out after 60 seconds
+итог: ERROR=8 WARN=14
+итог: ERROR=8 WARN=14
+15:35 aaaa0000004/cpu-2: aaaa0000004/koz3-w4-v4chk → COMPLETE; аренда снята
+итог: ERROR=7 WARN=14
+итог: ERROR=7 WARN=14
+итог: ERROR=6 WARN=13
+итог: ERROR=5 WARN=13
+итог: ERROR=4 WARN=13
+subprocess.TimeoutExpired: Command '['/workspace/koz3/orch/pool_kaggle.sh', 'dmitrijkv', 'kernels', 'status', 'dmitrijkv/koz3-w1-lidar-aug-f2']' timed out after 60 seconds

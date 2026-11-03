@@ -1,0 +1,4917 @@
+{
+ "built": "01.11 MSK bot-D/W1",
+ "fold_recipe": "nn_oof family_folds k=5 on cache_spor_r1_t128_s25 positive tiles",
+ "summary": {
+  "n_regions": 210,
+  "with_tif": 132,
+  "n_tif": 175,
+  "fold_load_pos_tiles": [
+   854,
+   232,
+   231,
+   232,
+   231
+  ],
+  "families_per_fold": {
+   "0": [
+    "Курганы"
+   ],
+   "1": [
+    "КЧР",
+    "Калмыкия",
+    "Сарское"
+   ],
+   "2": [
+    "Архангельское",
+    "Барскоон",
+    "Белая",
+    "Булан",
+    "Верхнее",
+    "Верхний",
+    "Верхняя",
+    "Городище",
+    "Гочево",
+    "Демидовка",
+    "Елизаветинское",
+    "Золотаревка",
+    "Изборск",
+    "Каджы",
+    "Каменка",
+    "Каменные",
+    "Кан",
+    "Кароол",
+    "Кель",
+    "Кисловодская",
+    "Конур",
+    "Корумду",
+    "Костомаровское",
+    "Ксизово",
+    "Маяцкая",
+    "Мостище",
+    "Орнок",
+    "Постройки",
+    "Россошки",
+    "Русская",
+    "Сакские",
+    "Сары",
+    "Семибратнее",
+    "Скупая",
+    "Сторожевое",
+    "Таш",
+    "Торт",
+    "Тоссор",
+    "Тыва",
+    "Шаты",
+    "Шурскол"
+   ],
+   "3": [
+    "Артпозиции",
+    "Гнёздово",
+    "Иссык",
+    "Курменту",
+    "Солдатское",
+    "Усть",
+    "Шумгора"
+   ],
+   "4": [
+    "Воронеж",
+    "Кабардино",
+    "Миловидово",
+    "Новотитаровская",
+    "Примаки",
+    "Тору"
+   ]
+  },
+  "regions_per_fold": {
+   "0": 34,
+   "1": 4,
+   "2": 81,
+   "3": 25,
+   "4": 13
+  },
+  "regions_no_fold": 53,
+  "fold0_matches_sp_large_split": true,
+  "gt_sp_or_total": {
+   "gorodishcha": 65,
+   "kurgany_povrezhdennye": 1087,
+   "kurgany_povrezhdennye_ge1k": 296,
+   "kurgany_tselye": 207,
+   "kurgany_tselye_ge1k": 61,
+   "fortifikatsii": 37,
+   "arkhitektury": 210
+  },
+  "gt_kurgans_per_fold": {
+   "0": 663,
+   "1": 135,
+   "2": 151,
+   "3": 176,
+   "4": 169
+  },
+  "gt_kurgans_no_fold": 0,
+  "gt_regions_without_local_tif": [],
+  "grid": {
+   "windows_total": 5094,
+   "pos_windows_total": 815,
+   "windows_per_fold": {
+    "0": 1294,
+    "1": 328,
+    "2": 1793,
+    "3": 690,
+    "4": 989
+   },
+   "pos_windows_per_fold": {
+    "0": 327,
+    "1": 97,
+    "2": 73,
+    "3": 109,
+    "4": 209
+   },
+   "est_cache_GB_uint8_3ch": 4.01,
+   "families_whose_fold_changes_if_weighted_by_grid_pos": [
+    "Артпозиции",
+    "Воронеж",
+    "Гнёздово",
+    "Изборск",
+    "Иссык",
+    "КЧР",
+    "Кабардино",
+    "Курменту",
+    "Примаки",
+    "Сакские",
+    "Сарское",
+    "Семибратнее",
+    "Солдатское",
+    "Тыва",
+    "Шумгора"
+   ],
+   "fold_policy": "PIN folds from spor_focal recipe (nn_oof family_folds on cache_spor positives) — needed for fold0 vs spor_focal baseline; nn_oof on a grid cache would recompute folds from grid positives → pass explicit split"
+  },
+  "native_res_m_range": [
+   0.0569,
+   2.1167
+  ]
+ },
+ "regions": [
+  {
+   "region": "001_Гнёздово_Нивленское",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "002_Тешилово",
+   "family": "Тешилово",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "003_Лубно",
+   "family": "Лубно",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "004_Боровичи_1",
+   "family": "Боровичи",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "005_Боровичи_2",
+   "family": "Боровичи",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "006_Осечки_1.1км",
+   "family": "Осечки",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "007_Армиево",
+   "family": "Армиево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "008_Герите",
+   "family": "Герите",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::4326",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "009_Хальвасборген",
+   "family": "Хальвасборген",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "010_Эсбю_укрепление",
+   "family": "Эсбю",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32634",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "011_Эрентуна",
+   "family": "Эрентуна",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "012_Сож",
+   "family": "Сож",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "013_Нора_Виннон",
+   "family": "Нора",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "014_Лешки",
+   "family": "Лешки",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "015_Демидовка",
+   "family": "Демидовка",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/015_Демидовка/04_Демидовка_SpOr_спутник/01_Демидовка_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/015_Демидовка/04_Демидовка_SpOr_спутник/01_Демидовка_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.9164,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "016_Хога",
+   "family": "Хога",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32632",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "017_Юшково",
+   "family": "Юшково",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "018_Курган_Хога",
+   "family": "Курган",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "019_Селяне",
+   "family": "Селяне",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "020_Романово",
+   "family": "Романово",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "021_Новенькое",
+   "family": "Новенькое",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "022_Лихуша",
+   "family": "Лихуша",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "023_Бервенец",
+   "family": "Бервенец",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "024_Стрекаловка",
+   "family": "Стрекаловка",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "025_Вышенское",
+   "family": "Вышенское",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "026_Золотаревка",
+   "family": "Золотаревка",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/026_Золотаревка/04_Золотаревка_SpOr_спутник/01_Золотаревка_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/026_Золотаревка/04_Золотаревка_SpOr_спутник/01_Золотаревка_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7937,
+     "grid_windows": 20,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "027_Вышегжа_1",
+   "family": "Вышегжа",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "028_Вышегжа_2",
+   "family": "Вышегжа",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "029_Вышегжа_3",
+   "family": "Вышегжа",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "030_Эсбю",
+   "family": "Эсбю",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "031_Новотитаровская",
+   "family": "Новотитаровская",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 7,
+   "cache_pos_tiles": 4,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/031_Новотитаровская/04_Новотитаровская_SpOr_спутник/01_Новотитаровская_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 2,
+    "kurgany_povrezhdennye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/031_Новотитаровская/04_Новотитаровская_SpOr_спутник/01_Новотитаровская_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.4667,
+     "grid_windows": 8,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "032_Красносельская_0.5км",
+   "family": "Красносельская",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "033_Елизаветинское",
+   "family": "Елизаветинское",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/033_Елизаветинское/04_Елизаветинское_SpOr_спутник/01_Елизаветинское_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/033_Елизаветинское/04_Елизаветинское_SpOr_спутник/01_Елизаветинское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.5001,
+     "grid_windows": 15,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "034_Усть_река",
+   "family": "Усть",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 7,
+   "cache_pos_tiles": 2,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/034_Усть_река/04_Усть_река_SpOr_спутник/01_Усть_река_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/034_Усть_река/04_Усть_река_SpOr_спутник/01_Усть_река_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.7111,
+     "grid_windows": 9,
+     "grid_pos_windows": 3
+    }
+   ]
+  },
+  {
+   "region": "035_Шумгора",
+   "family": "Шумгора",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 20,
+   "cache_pos_tiles": 10,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/035_Шумгора/04_Шумгора_SpOr_спутник/01_Шумгора_SpOr_спутник.tif",
+    "w5data/sat_raw/035_Шумгора/04_Шумгора_SpOr_спутник/02_Шумгора_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "gorodishcha": 1,
+    "kurgany_povrezhdennye": 5,
+    "kurgany_povrezhdennye_ge1k": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/035_Шумгора/04_Шумгора_SpOr_спутник/01_Шумгора_SpOr_спутник.tif",
+     "crs": "EPSG:32636",
+     "native_res_m": 1.009,
+     "grid_windows": 35,
+     "grid_pos_windows": 7
+    },
+    {
+     "tif": "w5data/sat_raw/035_Шумгора/04_Шумгора_SpOr_спутник/02_Шумгора_SpOr_спутник.tif",
+     "crs": "EPSG:32636",
+     "native_res_m": 0.3,
+     "grid_windows": 50,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "036_Тимерево",
+   "family": "Тимерево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "037_Никола_Ленивец",
+   "family": "Никола",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "038_Копанское",
+   "family": "Копанское",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "039_Примаки_0.7км",
+   "family": "Примаки",
+   "fold": 4,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "040_Примаки_1.3км",
+   "family": "Примаки",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 8,
+   "cache_pos_tiles": 3,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/040_Примаки_1.3км/04_Примаки_1.3км_SpOr_спутник/01_Примаки_1.3км_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 2,
+    "kurgany_povrezhdennye_ge1k": 2,
+    "kurgany_tselye": 1,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/040_Примаки_1.3км/04_Примаки_1.3км_SpOr_спутник/01_Примаки_1.3км_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.1185,
+     "grid_windows": 40,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "041_Миловидово",
+   "family": "Миловидово",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 80,
+   "cache_pos_tiles": 48,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/041_Миловидово/04_Миловидово_SpOr_спутник/01_Миловидово_SpOr_спутник.tif",
+    "w5data/sat_raw/041_Миловидово/04_Миловидово_SpOr_спутник/02_Миловидово_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 29,
+    "kurgany_povrezhdennye_ge1k": 29,
+    "kurgany_tselye": 1,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/041_Миловидово/04_Миловидово_SpOr_спутник/01_Миловидово_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.8642,
+     "grid_windows": 112,
+     "grid_pos_windows": 36
+    },
+    {
+     "tif": "w5data/sat_raw/041_Миловидово/04_Миловидово_SpOr_спутник/02_Миловидово_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.8638,
+     "grid_windows": 112,
+     "grid_pos_windows": 22
+    }
+   ]
+  },
+  {
+   "region": "042_Тору_Айгыр",
+   "family": "Тору",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 46,
+   "cache_pos_tiles": 26,
+   "n_spor_tif": 4,
+   "tifs": [
+    "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/01_Тору_Айгыр_SpOr_спутник.tif",
+    "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/02_Тору_Айгыр_SpOr_спутник.tif",
+    "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/03_Тору_Айгыр_SpOr_спутник.tif",
+    "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/04_Тору_Айгыр_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 23
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/01_Тору_Айгыр_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.4806,
+     "grid_windows": 8,
+     "grid_pos_windows": 2
+    },
+    {
+     "tif": "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/02_Тору_Айгыр_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.48,
+     "grid_windows": 8,
+     "grid_pos_windows": 3
+    },
+    {
+     "tif": "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/03_Тору_Айгыр_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.4799,
+     "grid_windows": 8,
+     "grid_pos_windows": 3
+    },
+    {
+     "tif": "w5data/sat_raw/042_Тору_Айгыр/04_Тору_Айгыр_SpOr_спутник/04_Тору_Айгыр_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.4798,
+     "grid_windows": 8,
+     "grid_pos_windows": 2
+    }
+   ]
+  },
+  {
+   "region": "043_Гочево",
+   "family": "Гочево",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/043_Гочево/04_Гочево_SpOr_спутник/01_Гочево_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/043_Гочево/04_Гочево_SpOr_спутник/01_Гочево_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 1.8873,
+     "grid_windows": 96,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "044_Новотитаровская_1.8км",
+   "family": "Новотитаровская",
+   "fold": 4,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "045_Новотитаровская_2.8км",
+   "family": "Новотитаровская",
+   "fold": 4,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "046_Тыва_1",
+   "family": "Тыва",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 28,
+   "cache_pos_tiles": 18,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/046_Тыва_1/04_Тыва_1_SpOr_спутник/01_Тыва_1_SpOr_спутник.tif",
+    "w5data/sat_raw/046_Тыва_1/04_Тыва_1_SpOr_спутник/02_Тыва_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32646",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 6,
+    "kurgany_tselye": 8,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/046_Тыва_1/04_Тыва_1_SpOr_спутник/01_Тыва_1_SpOr_спутник.tif",
+     "crs": "EPSG:32646",
+     "native_res_m": 0.5646,
+     "grid_windows": 6,
+     "grid_pos_windows": 5
+    },
+    {
+     "tif": "w5data/sat_raw/046_Тыва_1/04_Тыва_1_SpOr_спутник/02_Тыва_1_SpOr_спутник.tif",
+     "crs": "EPSG:32646",
+     "native_res_m": 0.5641,
+     "grid_windows": 6,
+     "grid_pos_windows": 3
+    }
+   ]
+  },
+  {
+   "region": "047_Тыва_2",
+   "family": "Тыва",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 140,
+   "cache_pos_tiles": 103,
+   "n_spor_tif": 3,
+   "tifs": [
+    "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/01_Тыва_2_SpOr_спутник.tif",
+    "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/02_Тыва_2_SpOr_спутник.tif",
+    "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/03_Тыва_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32646",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 63,
+    "kurgany_povrezhdennye_ge1k": 17
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/01_Тыва_2_SpOr_спутник.tif",
+     "crs": "EPSG:32646",
+     "native_res_m": 0.8981,
+     "grid_windows": 18,
+     "grid_pos_windows": 14
+    },
+    {
+     "tif": "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/02_Тыва_2_SpOr_спутник.tif",
+     "crs": "EPSG:32646",
+     "native_res_m": 0.8981,
+     "grid_windows": 18,
+     "grid_pos_windows": 14
+    },
+    {
+     "tif": "w5data/sat_raw/047_Тыва_2/04_Тыва_2_SpOr_спутник/03_Тыва_2_SpOr_спутник.tif",
+     "crs": "EPSG:32646",
+     "native_res_m": 0.8975,
+     "grid_windows": 18,
+     "grid_pos_windows": 11
+    }
+   ]
+  },
+  {
+   "region": "048_Калмыкия_1",
+   "family": "Калмыкия",
+   "fold": 1,
+   "in_cache": true,
+   "cache_tiles": 176,
+   "cache_pos_tiles": 121,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/01_Калмыкия_1_SpOr_спутник.tif",
+    "w5data/sat_raw/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/02_Калмыкия_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 88,
+    "kurgany_povrezhdennye_ge1k": 42
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/01_Калмыкия_1_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.6532,
+     "grid_windows": 54,
+     "grid_pos_windows": 26
+    },
+    {
+     "tif": "w5data/sat_raw/048_Калмыкия_1/04_Калмыкия_1_SpOr_спутник/02_Калмыкия_1_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.2056,
+     "grid_windows": 24,
+     "grid_pos_windows": 15
+    }
+   ]
+  },
+  {
+   "region": "049_Калмыкия_2",
+   "family": "Калмыкия",
+   "fold": 1,
+   "in_cache": true,
+   "cache_tiles": 116,
+   "cache_pos_tiles": 90,
+   "n_spor_tif": 4,
+   "tifs": [
+    "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/01_Калмыкия_2_SpOr_спутник.tif",
+    "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/02_Калмыкия_2_SpOr_спутник.tif",
+    "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/03_Калмыкия_2_SpOr_спутник.tif",
+    "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/04_Калмыкия_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 24,
+    "kurgany_povrezhdennye_ge1k": 21,
+    "kurgany_tselye": 5,
+    "kurgany_tselye_ge1k": 4
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/01_Калмыкия_2_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.9962,
+     "grid_windows": 15,
+     "grid_pos_windows": 12
+    },
+    {
+     "tif": "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/02_Калмыкия_2_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.9957,
+     "grid_windows": 15,
+     "grid_pos_windows": 7
+    },
+    {
+     "tif": "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/03_Калмыкия_2_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.1,
+     "grid_windows": 15,
+     "grid_pos_windows": 10
+    },
+    {
+     "tif": "w5data/sat_raw/049_Калмыкия_2/04_Калмыкия_2_SpOr_спутник/04_Калмыкия_2_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.1,
+     "grid_windows": 15,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "050_Воронеж_1",
+   "family": "Воронеж",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 6,
+   "cache_pos_tiles": 3,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/050_Воронеж_1/04_Воронеж_1_SpOr_спутник/01_Воронеж_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_tselye": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/050_Воронеж_1/04_Воронеж_1_SpOr_спутник/01_Воронеж_1_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.4487,
+     "grid_windows": 6,
+     "grid_pos_windows": 2
+    }
+   ]
+  },
+  {
+   "region": "051_Воронеж_2",
+   "family": "Воронеж",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 16,
+   "cache_pos_tiles": 8,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/051_Воронеж_2/04_Воронеж_2_SpOr_спутник/01_Воронеж_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 8,
+    "kurgany_povrezhdennye_ge1k": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/051_Воронеж_2/04_Воронеж_2_SpOr_спутник/01_Воронеж_2_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 2.116,
+     "grid_windows": 110,
+     "grid_pos_windows": 9
+    }
+   ]
+  },
+  {
+   "region": "052_Воронеж_3",
+   "family": "Воронеж",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 9,
+   "cache_pos_tiles": 4,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/052_Воронеж_3/04_Воронеж_3_SpOr_спутник/01_Воронеж_3_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 4,
+    "kurgany_povrezhdennye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/052_Воронеж_3/04_Воронеж_3_SpOr_спутник/01_Воронеж_3_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.4938,
+     "grid_windows": 60,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "053_Воронеж_4",
+   "family": "Воронеж",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 60,
+   "cache_pos_tiles": 35,
+   "n_spor_tif": 5,
+   "tifs": [
+    "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/01_Воронеж_4_SpOr_спутник.tif",
+    "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/02_Воронеж_4_SpOr_спутник.tif",
+    "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/03_Воронеж_4_SpOr_спутник.tif",
+    "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/04_Воронеж_4_SpOr_спутник.tif",
+    "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/05_Воронеж_4_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 21,
+    "kurgany_povrezhdennye_ge1k": 14,
+    "kurgany_tselye": 4,
+    "kurgany_tselye_ge1k": 4
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/01_Воронеж_4_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6688,
+     "grid_windows": 15,
+     "grid_pos_windows": 1
+    },
+    {
+     "tif": "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/02_Воронеж_4_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6676,
+     "grid_windows": 15,
+     "grid_pos_windows": 3
+    },
+    {
+     "tif": "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/03_Воронеж_4_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6675,
+     "grid_windows": 15,
+     "grid_pos_windows": 7
+    },
+    {
+     "tif": "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/04_Воронеж_4_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6674,
+     "grid_windows": 15,
+     "grid_pos_windows": 6
+    },
+    {
+     "tif": "w5data/sat_raw/053_Воронеж_4/04_Воронеж_4_SpOr_спутник/05_Воронеж_4_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6671,
+     "grid_windows": 15,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "054_Воронеж_5",
+   "family": "Воронеж",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 35,
+   "cache_pos_tiles": 17,
+   "n_spor_tif": 4,
+   "tifs": [
+    "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/01_Воронеж_5_SpOr_спутник.tif",
+    "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/02_Воронеж_5_SpOr_спутник.tif",
+    "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/03_Воронеж_5_SpOr_спутник.tif",
+    "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/04_Воронеж_5_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 13,
+    "kurgany_povrezhdennye_ge1k": 6,
+    "kurgany_tselye": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/01_Воронеж_5_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6673,
+     "grid_windows": 15,
+     "grid_pos_windows": 6
+    },
+    {
+     "tif": "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/02_Воронеж_5_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6673,
+     "grid_windows": 15,
+     "grid_pos_windows": 3
+    },
+    {
+     "tif": "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/03_Воронеж_5_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6671,
+     "grid_windows": 15,
+     "grid_pos_windows": 5
+    },
+    {
+     "tif": "w5data/sat_raw/054_Воронеж_5/04_Воронеж_5_SpOr_спутник/04_Воронеж_5_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.667,
+     "grid_windows": 15,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "055_Курменту",
+   "family": "Курменту",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 106,
+   "cache_pos_tiles": 60,
+   "n_spor_tif": 8,
+   "tifs": [
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/01_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/02_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/03_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/04_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/05_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/06_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/07_Курменту_SpOr_спутник.tif",
+    "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/08_Курменту_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "gorodishcha": 1,
+    "kurgany_povrezhdennye": 27,
+    "kurgany_povrezhdennye_ge1k": 17,
+    "kurgany_tselye": 12,
+    "kurgany_tselye_ge1k": 3,
+    "fortifikatsii": 4
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/01_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.0044,
+     "grid_windows": 28,
+     "grid_pos_windows": 0
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/02_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8039,
+     "grid_windows": 20,
+     "grid_pos_windows": 4
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/03_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8038,
+     "grid_windows": 20,
+     "grid_pos_windows": 1
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/04_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8037,
+     "grid_windows": 20,
+     "grid_pos_windows": 6
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/05_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8037,
+     "grid_windows": 20,
+     "grid_pos_windows": 11
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/06_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8036,
+     "grid_windows": 20,
+     "grid_pos_windows": 13
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/07_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8036,
+     "grid_windows": 20,
+     "grid_pos_windows": 10
+    },
+    {
+     "tif": "w5data/sat_raw/055_Курменту/04_Курменту_SpOr_спутник/08_Курменту_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8035,
+     "grid_windows": 20,
+     "grid_pos_windows": 3
+    }
+   ]
+  },
+  {
+   "region": "056_Фалхан",
+   "family": "Фалхан",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "057_Кабардино_Балкария",
+   "family": "Кабардино",
+   "fold": 4,
+   "in_cache": true,
+   "cache_tiles": 151,
+   "cache_pos_tiles": 83,
+   "n_spor_tif": 9,
+   "tifs": [
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/01_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/02_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/03_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/04_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/05_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/06_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/07_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/08_Кабардино_Балкария_SpOr_спутник.tif",
+    "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/09_Кабардино_Балкария_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 19,
+    "kurgany_povrezhdennye_ge1k": 10,
+    "kurgany_tselye": 40,
+    "kurgany_tselye_ge1k": 32
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/01_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7807,
+     "grid_windows": 15,
+     "grid_pos_windows": 2
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/02_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7804,
+     "grid_windows": 18,
+     "grid_pos_windows": 5
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/03_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7805,
+     "grid_windows": 18,
+     "grid_pos_windows": 2
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/04_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.5606,
+     "grid_windows": 84,
+     "grid_pos_windows": 7
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/05_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.5603,
+     "grid_windows": 84,
+     "grid_pos_windows": 17
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/06_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.5601,
+     "grid_windows": 84,
+     "grid_pos_windows": 8
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/07_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7799,
+     "grid_windows": 18,
+     "grid_pos_windows": 10
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/08_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.7799,
+     "grid_windows": 18,
+     "grid_pos_windows": 10
+    },
+    {
+     "tif": "w5data/sat_raw/057_Кабардино_Балкария/04_Кабардино_Балкария_SpOr_спутник/09_Кабардино_Балкария_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.0924,
+     "grid_windows": 35,
+     "grid_pos_windows": 10
+    }
+   ]
+  },
+  {
+   "region": "058_Перынь",
+   "family": "Перынь",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "059_Шишкино",
+   "family": "Шишкино",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "060_Сельцо",
+   "family": "Сельцо",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "061_Граборг",
+   "family": "Граборг",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32633",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "062_Каменка",
+   "family": "Каменка",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/062_Каменка/04_Каменка_SpOr_спутник/01_Каменка_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/062_Каменка/04_Каменка_SpOr_спутник/01_Каменка_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.0583,
+     "grid_windows": 40,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "063_Верхнее_Казачье",
+   "family": "Верхнее",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/063_Верхнее_Казачье/04_Верхнее_Казачье_SpOr_спутник/01_Верхнее_Казачье_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/063_Верхнее_Казачье/04_Верхнее_Казачье_SpOr_спутник/01_Верхнее_Казачье_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.8467,
+     "grid_windows": 20,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "064_Ксизово",
+   "family": "Ксизово",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/064_Ксизово/04_Ксизово_SpOr_спутник/01_Ксизово_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/064_Ксизово/04_Ксизово_SpOr_спутник/01_Ксизово_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.5292,
+     "grid_windows": 9,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "065_Шниткино",
+   "family": "Шниткино",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "066_Московиты",
+   "family": "Московиты",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "067_Чудово",
+   "family": "Чудово",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "068_Стеклянуха_1",
+   "family": "Стеклянуха",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32652",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "069_Стеклянуха_2",
+   "family": "Стеклянуха",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32652",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "070_Архангельское",
+   "family": "Архангельское",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/070_Архангельское/04_Архангельское_SpOr_спутник/01_Архангельское_SpOr_спутник.tif",
+    "w5data/sat_raw/070_Архангельское/04_Архангельское_SpOr_спутник/02_Архангельское_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/070_Архангельское/04_Архангельское_SpOr_спутник/01_Архангельское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.6933,
+     "grid_windows": 88,
+     "grid_pos_windows": 0
+    },
+    {
+     "tif": "w5data/sat_raw/070_Архангельское/04_Архангельское_SpOr_спутник/02_Архангельское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.2,
+     "grid_windows": 32,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "071_Сторожевое",
+   "family": "Сторожевое",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/071_Сторожевое/04_Сторожевое_SpOr_спутник/01_Сторожевое_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/071_Сторожевое/04_Сторожевое_SpOr_спутник/01_Сторожевое_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 2.1167,
+     "grid_windows": 140,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "072_Белая_Гора",
+   "family": "Белая",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/072_Белая_Гора/04_Белая_Гора_SpOr_спутник/01_Белая_Гора_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/072_Белая_Гора/04_Белая_Гора_SpOr_спутник/01_Белая_Гора_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.9525,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "073_Тоссор",
+   "family": "Тоссор",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/073_Тоссор/04_Тоссор_SpOr_спутник/01_Тоссор_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "fortifikatsii": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/073_Тоссор/04_Тоссор_SpOr_спутник/01_Тоссор_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.2321,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "074_Солдатское",
+   "family": "Солдатское",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 16,
+   "cache_pos_tiles": 6,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/074_Солдатское/04_Солдатское_SpOr_спутник/01_Солдатское_SpOr_спутник.tif",
+    "w5data/sat_raw/074_Солдатское/04_Солдатское_SpOr_спутник/02_Солдатское_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1,
+    "kurgany_povrezhdennye": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/074_Солдатское/04_Солдатское_SpOr_спутник/01_Солдатское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 2.1167,
+     "grid_windows": 140,
+     "grid_pos_windows": 1
+    },
+    {
+     "tif": "w5data/sat_raw/074_Солдатское/04_Солдатское_SpOr_спутник/02_Солдатское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.3,
+     "grid_windows": 98,
+     "grid_pos_windows": 2
+    }
+   ]
+  },
+  {
+   "region": "075_Мостище",
+   "family": "Мостище",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/075_Мостище/04_Мостище_SpOr_спутник/01_Мостище_SpOr_спутник.tif",
+    "w5data/sat_raw/075_Мостище/04_Мостище_SpOr_спутник/02_Мостище_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/075_Мостище/04_Мостище_SpOr_спутник/01_Мостище_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.2857,
+     "grid_windows": 42,
+     "grid_pos_windows": 0
+    },
+    {
+     "tif": "w5data/sat_raw/075_Мостище/04_Мостище_SpOr_спутник/02_Мостище_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.3,
+     "grid_windows": 72,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "076_Маяцкая_крепость",
+   "family": "Маяцкая",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/076_Маяцкая_крепость/04_Маяцкая_крепость_SpOr_спутник/01_Маяцкая_крепость_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/076_Маяцкая_крепость/04_Маяцкая_крепость_SpOr_спутник/01_Маяцкая_крепость_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "077_Русская_Тростянка",
+   "family": "Русская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/077_Русская_Тростянка/04_Русская_Тростянка_SpOr_спутник/01_Русская_Тростянка_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/077_Русская_Тростянка/04_Русская_Тростянка_SpOr_спутник/01_Русская_Тростянка_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.5875,
+     "grid_windows": 77,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "078_Верхняя_Покровка",
+   "family": "Верхняя",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/078_Верхняя_Покровка/04_Верхняя_Покровка_SpOr_спутник/01_Верхняя_Покровка_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/078_Верхняя_Покровка/04_Верхняя_Покровка_SpOr_спутник/01_Верхняя_Покровка_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.5875,
+     "grid_windows": 77,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "079_Городище",
+   "family": "Городище",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/079_Городище/04_Городище_SpOr_спутник/01_Городище_SpOr_спутник.tif",
+    "w5data/sat_raw/079_Городище/04_Городище_SpOr_спутник/02_Городище_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/079_Городище/04_Городище_SpOr_спутник/01_Городище_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.9743,
+     "grid_windows": 30,
+     "grid_pos_windows": 0
+    },
+    {
+     "tif": "w5data/sat_raw/079_Городище/04_Городище_SpOr_спутник/02_Городище_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.1,
+     "grid_windows": 15,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "080_Верхний_Карабут",
+   "family": "Верхний",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/080_Верхний_Карабут/04_Верхний_Карабут_SpOr_спутник/01_Верхний_Карабут_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/080_Верхний_Карабут/04_Верхний_Карабут_SpOr_спутник/01_Верхний_Карабут_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6408,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "081_Костомаровское",
+   "family": "Костомаровское",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/081_Костомаровское/04_Костомаровское_SpOr_спутник/01_Костомаровское_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/081_Костомаровское/04_Костомаровское_SpOr_спутник/01_Костомаровское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.6412,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "082_Артпозиции_Иссык_Куль",
+   "family": "Артпозиции",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 18,
+   "cache_pos_tiles": 12,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/01_Артпозиции_Иссык_Куль_SpOr_спутник.tif",
+    "w5data/sat_raw/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/02_Артпозиции_Иссык_Куль_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 4,
+    "fortifikatsii": 28
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/01_Артпозиции_Иссык_Куль_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.5249,
+     "grid_windows": 6,
+     "grid_pos_windows": 5
+    },
+    {
+     "tif": "w5data/sat_raw/082_Артпозиции_Иссык_Куль/04_Артпозиции_Иссык_Куль_SpOr_спутник/02_Артпозиции_Иссык_Куль_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.1,
+     "grid_windows": 6,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "083_Барскоон",
+   "family": "Барскоон",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/083_Барскоон/04_Барскоон_SpOr_спутник/01_Барскоон_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/083_Барскоон/04_Барскоон_SpOr_спутник/01_Барскоон_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.7937,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "084_Булан_Соготту",
+   "family": "Булан",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/084_Булан_Соготту/04_Булан_Соготту_SpOr_спутник/01_Булан_Соготту_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/084_Булан_Соготту/04_Булан_Соготту_SpOr_спутник/01_Булан_Соготту_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.4233,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "085_Каджы_Саз",
+   "family": "Каджы",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/085_Каджы_Саз/04_Каджы_Саз_SpOr_спутник/01_Каджы_Саз_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/085_Каджы_Саз/04_Каджы_Саз_SpOr_спутник/01_Каджы_Саз_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.7938,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "086_Кан_Дебе",
+   "family": "Кан",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/086_Кан_Дебе/04_Кан_Дебе_SpOr_спутник/01_Кан_Дебе_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/086_Кан_Дебе/04_Кан_Дебе_SpOr_спутник/01_Кан_Дебе_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.926,
+     "grid_windows": 28,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "087_Кароол_Дюбе",
+   "family": "Кароол",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/087_Кароол_Дюбе/04_Кароол_Дюбе_SpOr_спутник/01_Кароол_Дюбе_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/087_Кароол_Дюбе/04_Кароол_Дюбе_SpOr_спутник/01_Кароол_Дюбе_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 1.5875,
+     "grid_windows": 77,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "088_Кель_Тор_Х",
+   "family": "Кель",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/088_Кель_Тор_Х/04_Кель_Тор_Х_SpOr_спутник/01_Кель_Тор_Х_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/088_Кель_Тор_Х/04_Кель_Тор_Х_SpOr_спутник/01_Кель_Тор_Х_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.926,
+     "grid_windows": 28,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "089_Конур_Елен",
+   "family": "Конур",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/089_Конур_Елен/04_Конур_Елен_SpOr_спутник/01_Конур_Елен_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/089_Конур_Елен/04_Конур_Елен_SpOr_спутник/01_Конур_Елен_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.926,
+     "grid_windows": 28,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "090_Корумду",
+   "family": "Корумду",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/090_Корумду/04_Корумду_SpOr_спутник/01_Корумду_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/090_Корумду/04_Корумду_SpOr_спутник/01_Корумду_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.5292,
+     "grid_windows": 8,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "091_Сакские_курганы",
+   "family": "Сакские",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 54,
+   "cache_pos_tiles": 43,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/091_Сакские_курганы/04_Сакские_курганы_SpOr_спутник/01_Сакские_курганы_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 6,
+    "kurgany_tselye": 21
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/091_Сакские_курганы/04_Сакские_курганы_SpOr_спутник/01_Сакские_курганы_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.4258,
+     "grid_windows": 4,
+     "grid_pos_windows": 2
+    }
+   ]
+  },
+  {
+   "region": "092_Шаты",
+   "family": "Шаты",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/092_Шаты/04_Шаты_SpOr_спутник/01_Шаты_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/092_Шаты/04_Шаты_SpOr_спутник/01_Шаты_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.1072,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "093_Старый_Барах",
+   "family": "Старый",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "094_Иссык_Куль_курганы_и_выкладки",
+   "family": "Иссык",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 32,
+   "cache_pos_tiles": 22,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/094_Иссык_Куль_курганы_и_выкладки/04_Иссык_Куль_курганы_и_выкладки_SpOr_спутник/01_Иссык_Куль_курганы_и_выкладки_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 4,
+    "kurgany_povrezhdennye": 16
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/094_Иссык_Куль_курганы_и_выкладки/04_Иссык_Куль_курганы_и_выкладки_SpOr_спутник/01_Иссык_Куль_курганы_и_выкладки_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4306,
+     "grid_windows": 6,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "095_Иссык_Куль_курганы_и_постройки_1",
+   "family": "Иссык",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 12,
+   "cache_pos_tiles": 8,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/095_Иссык_Куль_курганы_и_постройки_1/04_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3,
+    "kurgany_povrezhdennye": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/095_Иссык_Куль_курганы_и_постройки_1/04_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_1_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4346,
+     "grid_windows": 6,
+     "grid_pos_windows": 5
+    }
+   ]
+  },
+  {
+   "region": "096_Иссык_Куль_курганы_и_постройки_2",
+   "family": "Иссык",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 38,
+   "cache_pos_tiles": 25,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/096_Иссык_Куль_курганы_и_постройки_2/04_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 21,
+    "kurgany_povrezhdennye": 19
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/096_Иссык_Куль_курганы_и_постройки_2/04_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник/01_Иссык_Куль_курганы_и_постройки_2_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4323,
+     "grid_windows": 6,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "097_Орнок",
+   "family": "Орнок",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/097_Орнок/04_Орнок_SpOr_спутник/01_Орнок_SpOr_спутник.tif",
+    "w5data/sat_raw/097_Орнок/04_Орнок_SpOr_спутник/02_Орнок_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 13
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/097_Орнок/04_Орнок_SpOr_спутник/01_Орнок_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4304,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    },
+    {
+     "tif": "w5data/sat_raw/097_Орнок/04_Орнок_SpOr_спутник/02_Орнок_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.06,
+     "grid_windows": 2,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "098_Таш_Коро_1",
+   "family": "Таш",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/098_Таш_Коро_1/04_Таш_Коро_1_SpOr_спутник/01_Таш_Коро_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/098_Таш_Коро_1/04_Таш_Коро_1_SpOr_спутник/01_Таш_Коро_1_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2159,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "099_Таш_Коро_2",
+   "family": "Таш",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/099_Таш_Коро_2/04_Таш_Коро_2_SpOr_спутник/01_Таш_Коро_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/099_Таш_Коро_2/04_Таш_Коро_2_SpOr_спутник/01_Таш_Коро_2_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4307,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "100_Торт_Куль",
+   "family": "Торт",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/100_Торт_Куль/04_Торт_Куль_SpOr_спутник/01_Торт_Куль_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/100_Торт_Куль/04_Торт_Куль_SpOr_спутник/01_Торт_Куль_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4344,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "101_Гнёздово_Днепровская",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 138,
+   "cache_pos_tiles": 74,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/101_Гнёздово_Днепровская/04_Гнёздово_Днепровская_SpOr_спутник/01_Гнёздово_Днепровская_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 68,
+    "kurgany_povrezhdennye_ge1k": 1,
+    "kurgany_tselye": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/101_Гнёздово_Днепровская/04_Гнёздово_Днепровская_SpOr_спутник/01_Гнёздово_Днепровская_SpOr_спутник.tif",
+     "crs": "EPSG:32636",
+     "native_res_m": 0.51,
+     "grid_windows": 100,
+     "grid_pos_windows": 13
+    }
+   ]
+  },
+  {
+   "region": "102_Гнёздово_Заольшанская",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "103_Гнёздово_Ольшанская",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": true,
+   "cache_tiles": 26,
+   "cache_pos_tiles": 13,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/103_Гнёздово_Ольшанская/04_Гнёздово_Ольшанская_SpOr_спутник/01_Гнёздово_Ольшанская_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {
+    "gorodishcha": 1,
+    "kurgany_povrezhdennye": 13
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/103_Гнёздово_Ольшанская/04_Гнёздово_Ольшанская_SpOr_спутник/01_Гнёздово_Ольшанская_SpOr_спутник.tif",
+     "crs": "EPSG:32636",
+     "native_res_m": 0.5101,
+     "grid_windows": 60,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "104_Шетнево",
+   "family": "Шетнево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "105_Вщиж",
+   "family": "Вщиж",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "106_Верхмарево",
+   "family": "Верхмарево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "107_Сары_Булун",
+   "family": "Сары",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/107_Сары_Булун/04_Сары_Булун_SpOr_спутник/01_Сары_Булун_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32643",
+   "gt_sp_or": {
+    "arkhitektury": 17
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/107_Сары_Булун/04_Сары_Булун_SpOr_спутник/01_Сары_Булун_SpOr_спутник.tif",
+     "crs": "EPSG:32643",
+     "native_res_m": 0.245,
+     "grid_windows": 2,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "108_Скупая_Полудань",
+   "family": "Скупая",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/108_Скупая_Полудань/04_Скупая_Полудань_SpOr_спутник/01_Скупая_Полудань_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/108_Скупая_Полудань/04_Скупая_Полудань_SpOr_спутник/01_Скупая_Полудань_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "109_Россошки",
+   "family": "Россошки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/109_Россошки/04_Россошки_SpOr_спутник/01_Россошки_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/109_Россошки/04_Россошки_SpOr_спутник/01_Россошки_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "110_Саратов",
+   "family": "Саратов",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "111_Каменные_выкладки_1",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/111_Каменные_выкладки_1/04_Каменные_выкладки_1_SpOr_спутник/01_Каменные_выкладки_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 10
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/111_Каменные_выкладки_1/04_Каменные_выкладки_1_SpOr_спутник/01_Каменные_выкладки_1_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4304,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "112_Каменные_выкладки_2",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/112_Каменные_выкладки_2/04_Каменные_выкладки_2_SpOr_спутник/01_Каменные_выкладки_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/112_Каменные_выкладки_2/04_Каменные_выкладки_2_SpOr_спутник/01_Каменные_выкладки_2_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.431,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "113_Каменные_выкладки_3",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/113_Каменные_выкладки_3/04_Каменные_выкладки_3_SpOr_спутник/01_Каменные_выкладки_3_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/113_Каменные_выкладки_3/04_Каменные_выкладки_3_SpOr_спутник/01_Каменные_выкладки_3_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.431,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "114_Каменные_выкладки_4",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/114_Каменные_выкладки_4/04_Каменные_выкладки_4_SpOr_спутник/01_Каменные_выкладки_4_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/114_Каменные_выкладки_4/04_Каменные_выкладки_4_SpOr_спутник/01_Каменные_выкладки_4_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4309,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "115_Каменные_выкладки_5",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/115_Каменные_выкладки_5/04_Каменные_выкладки_5_SpOr_спутник/01_Каменные_выкладки_5_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/115_Каменные_выкладки_5/04_Каменные_выкладки_5_SpOr_спутник/01_Каменные_выкладки_5_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2155,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "116_Каменные_выкладки_6",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/116_Каменные_выкладки_6/04_Каменные_выкладки_6_SpOr_спутник/01_Каменные_выкладки_6_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 36
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/116_Каменные_выкладки_6/04_Каменные_выкладки_6_SpOr_спутник/01_Каменные_выкладки_6_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8617,
+     "grid_windows": 20,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "117_Каменные_выкладки_7",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/117_Каменные_выкладки_7/04_Каменные_выкладки_7_SpOr_спутник/01_Каменные_выкладки_7_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/117_Каменные_выкладки_7/04_Каменные_выкладки_7_SpOr_спутник/01_Каменные_выкладки_7_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.8198,
+     "grid_windows": 20,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "118_Каменные_выкладки_8",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/118_Каменные_выкладки_8/04_Каменные_выкладки_8_SpOr_спутник/01_Каменные_выкладки_8_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/118_Каменные_выкладки_8/04_Каменные_выкладки_8_SpOr_спутник/01_Каменные_выкладки_8_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4289,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "119_Каменные_выкладки_9",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/119_Каменные_выкладки_9/04_Каменные_выкладки_9_SpOr_спутник/01_Каменные_выкладки_9_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/119_Каменные_выкладки_9/04_Каменные_выкладки_9_SpOr_спутник/01_Каменные_выкладки_9_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2159,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "120_Каменные_выкладки_10",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/120_Каменные_выкладки_10/04_Каменные_выкладки_10_SpOr_спутник/01_Каменные_выкладки_10_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/120_Каменные_выкладки_10/04_Каменные_выкладки_10_SpOr_спутник/01_Каменные_выкладки_10_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4103,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "121_Каменные_выкладки_11",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/121_Каменные_выкладки_11/04_Каменные_выкладки_11_SpOr_спутник/01_Каменные_выкладки_11_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/121_Каменные_выкладки_11/04_Каменные_выкладки_11_SpOr_спутник/01_Каменные_выкладки_11_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4105,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "122_Каменные_выкладки_12",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/122_Каменные_выкладки_12/04_Каменные_выкладки_12_SpOr_спутник/01_Каменные_выкладки_12_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 7
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/122_Каменные_выкладки_12/04_Каменные_выкладки_12_SpOr_спутник/01_Каменные_выкладки_12_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4104,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "123_Каменные_выкладки_13",
+   "family": "Каменные",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/123_Каменные_выкладки_13/04_Каменные_выкладки_13_SpOr_спутник/01_Каменные_выкладки_13_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 8
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/123_Каменные_выкладки_13/04_Каменные_выкладки_13_SpOr_спутник/01_Каменные_выкладки_13_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.4106,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "124_Постройки_1",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/124_Постройки_1/04_Постройки_1_SpOr_спутник/01_Постройки_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/124_Постройки_1/04_Постройки_1_SpOr_спутник/01_Постройки_1_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.43,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "125_Постройки_2",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/125_Постройки_2/04_Постройки_2_SpOr_спутник/01_Постройки_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/125_Постройки_2/04_Постройки_2_SpOr_спутник/01_Постройки_2_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2144,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "126_Постройки_3",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/126_Постройки_3/04_Постройки_3_SpOr_спутник/01_Постройки_3_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/126_Постройки_3/04_Постройки_3_SpOr_спутник/01_Постройки_3_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2112,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "127_Постройки_4",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/127_Постройки_4/04_Постройки_4_SpOr_спутник/01_Постройки_4_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/127_Постройки_4/04_Постройки_4_SpOr_спутник/01_Постройки_4_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2142,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "128_Постройки_5",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/128_Постройки_5/04_Постройки_5_SpOr_спутник/01_Постройки_5_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/128_Постройки_5/04_Постройки_5_SpOr_спутник/01_Постройки_5_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.2161,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "129_Постройки_6",
+   "family": "Постройки",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/129_Постройки_6/04_Постройки_6_SpOr_спутник/01_Постройки_6_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "arkhitektury": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/129_Постройки_6/04_Постройки_6_SpOr_спутник/01_Постройки_6_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.2067,
+     "grid_windows": 1,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "130_Курганы_1",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 66,
+   "cache_pos_tiles": 54,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/130_Курганы_1/04_Курганы_1_SpOr_спутник/01_Курганы_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 33,
+    "kurgany_povrezhdennye_ge1k": 11
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/130_Курганы_1/04_Курганы_1_SpOr_спутник/01_Курганы_1_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8475,
+     "grid_windows": 20,
+     "grid_pos_windows": 13
+    }
+   ]
+  },
+  {
+   "region": "131_Курганы_2",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 104,
+   "cache_pos_tiles": 62,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/131_Курганы_2/04_Курганы_2_SpOr_спутник/01_Курганы_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 52,
+    "kurgany_povrezhdennye_ge1k": 22
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/131_Курганы_2/04_Курганы_2_SpOr_спутник/01_Курганы_2_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.6954,
+     "grid_windows": 80,
+     "grid_pos_windows": 20
+    }
+   ]
+  },
+  {
+   "region": "132_Курганы_3",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 56,
+   "cache_pos_tiles": 38,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/132_Курганы_3/04_Курганы_3_SpOr_спутник/01_Курганы_3_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 28,
+    "kurgany_povrezhdennye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/132_Курганы_3/04_Курганы_3_SpOr_спутник/01_Курганы_3_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8692,
+     "grid_windows": 20,
+     "grid_pos_windows": 9
+    }
+   ]
+  },
+  {
+   "region": "133_Курганы_4",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 54,
+   "cache_pos_tiles": 29,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/133_Курганы_4/04_Курганы_4_SpOr_спутник/01_Курганы_4_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 13,
+    "kurgany_povrezhdennye_ge1k": 1,
+    "kurgany_tselye": 14
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/133_Курганы_4/04_Курганы_4_SpOr_спутник/01_Курганы_4_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.5015,
+     "grid_windows": 63,
+     "grid_pos_windows": 9
+    }
+   ]
+  },
+  {
+   "region": "134_Курганы_5",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 26,
+   "cache_pos_tiles": 16,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/134_Курганы_5/04_Курганы_5_SpOr_спутник/01_Курганы_5_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 13
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/134_Курганы_5/04_Курганы_5_SpOr_спутник/01_Курганы_5_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7506,
+     "grid_windows": 12,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "135_Курганы_6",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 34,
+   "cache_pos_tiles": 29,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/135_Курганы_6/04_Курганы_6_SpOr_спутник/01_Курганы_6_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 17,
+    "kurgany_povrezhdennye_ge1k": 10
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/135_Курганы_6/04_Курганы_6_SpOr_спутник/01_Курганы_6_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.738,
+     "grid_windows": 12,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "136_Курганы_7",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 7,
+   "cache_pos_tiles": 3,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/136_Курганы_7/04_Курганы_7_SpOr_спутник/01_Курганы_7_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 2,
+    "kurgany_povrezhdennye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/136_Курганы_7/04_Курганы_7_SpOr_спутник/01_Курганы_7_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7381,
+     "grid_windows": 12,
+     "grid_pos_windows": 3
+    }
+   ]
+  },
+  {
+   "region": "137_Курганы_8",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 28,
+   "cache_pos_tiles": 22,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/137_Курганы_8/04_Курганы_8_SpOr_спутник/01_Курганы_8_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 14,
+    "kurgany_povrezhdennye_ge1k": 5
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/137_Курганы_8/04_Курганы_8_SpOr_спутник/01_Курганы_8_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7398,
+     "grid_windows": 12,
+     "grid_pos_windows": 10
+    }
+   ]
+  },
+  {
+   "region": "138_Курганы_9",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 28,
+   "cache_pos_tiles": 25,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/138_Курганы_9/04_Курганы_9_SpOr_спутник/01_Курганы_9_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 9,
+    "kurgany_tselye": 5
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/138_Курганы_9/04_Курганы_9_SpOr_спутник/01_Курганы_9_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.3689,
+     "grid_windows": 4,
+     "grid_pos_windows": 3
+    }
+   ]
+  },
+  {
+   "region": "139_Курганы_10",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 36,
+   "cache_pos_tiles": 21,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/139_Курганы_10/04_Курганы_10_SpOr_спутник/01_Курганы_10_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 18,
+    "kurgany_povrezhdennye_ge1k": 9
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/139_Курганы_10/04_Курганы_10_SpOr_спутник/01_Курганы_10_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.4749,
+     "grid_windows": 56,
+     "grid_pos_windows": 10
+    }
+   ]
+  },
+  {
+   "region": "140_Курганы_11",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 30,
+   "cache_pos_tiles": 19,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/140_Курганы_11/04_Курганы_11_SpOr_спутник/01_Курганы_11_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 15,
+    "kurgany_povrezhdennye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/140_Курганы_11/04_Курганы_11_SpOr_спутник/01_Курганы_11_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7381,
+     "grid_windows": 12,
+     "grid_pos_windows": 9
+    }
+   ]
+  },
+  {
+   "region": "141_Курганы_12",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 12,
+   "cache_pos_tiles": 7,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/141_Курганы_12/04_Курганы_12_SpOr_спутник/01_Курганы_12_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 6,
+    "kurgany_povrezhdennye_ge1k": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/141_Курганы_12/04_Курганы_12_SpOr_спутник/01_Курганы_12_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7384,
+     "grid_windows": 12,
+     "grid_pos_windows": 5
+    }
+   ]
+  },
+  {
+   "region": "142_Курганы_13",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 60,
+   "cache_pos_tiles": 36,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/142_Курганы_13/04_Курганы_13_SpOr_спутник/01_Курганы_13_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 30
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/142_Курганы_13/04_Курганы_13_SpOr_спутник/01_Курганы_13_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.7085,
+     "grid_windows": 12,
+     "grid_pos_windows": 10
+    }
+   ]
+  },
+  {
+   "region": "143_Курганы_14",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 6,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/143_Курганы_14/04_Курганы_14_SpOr_спутник/01_Курганы_14_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 5,
+    "kurgany_povrezhdennye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/143_Курганы_14/04_Курганы_14_SpOr_спутник/01_Курганы_14_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7351,
+     "grid_windows": 12,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "144_Курганы_15",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 12,
+   "cache_pos_tiles": 7,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/144_Курганы_15/04_Курганы_15_SpOr_спутник/01_Курганы_15_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 2,
+    "kurgany_povrezhdennye_ge1k": 1,
+    "kurgany_tselye": 4
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/144_Курганы_15/04_Курганы_15_SpOr_спутник/01_Курганы_15_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7354,
+     "grid_windows": 12,
+     "grid_pos_windows": 5
+    }
+   ]
+  },
+  {
+   "region": "145_Курганы_16",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 80,
+   "cache_pos_tiles": 58,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/145_Курганы_16/04_Курганы_16_SpOr_спутник/01_Курганы_16_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 40,
+    "kurgany_povrezhdennye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/145_Курганы_16/04_Курганы_16_SpOr_спутник/01_Курганы_16_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7354,
+     "grid_windows": 12,
+     "grid_pos_windows": 12
+    }
+   ]
+  },
+  {
+   "region": "146_Курганы_17",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 48,
+   "cache_pos_tiles": 24,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/146_Курганы_17/04_Курганы_17_SpOr_спутник/01_Курганы_17_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 19,
+    "kurgany_povrezhdennye_ge1k": 5,
+    "kurgany_tselye": 5,
+    "kurgany_tselye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/146_Курганы_17/04_Курганы_17_SpOr_спутник/01_Курганы_17_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.4709,
+     "grid_windows": 56,
+     "grid_pos_windows": 24
+    }
+   ]
+  },
+  {
+   "region": "147_Курганы_18",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 46,
+   "cache_pos_tiles": 26,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/147_Курганы_18/04_Курганы_18_SpOr_спутник/01_Курганы_18_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 23,
+    "kurgany_povrezhdennye_ge1k": 5
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/147_Курганы_18/04_Курганы_18_SpOr_спутник/01_Курганы_18_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 1.4709,
+     "grid_windows": 56,
+     "grid_pos_windows": 19
+    }
+   ]
+  },
+  {
+   "region": "148_Курганы_19",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 42,
+   "cache_pos_tiles": 27,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/148_Курганы_19/04_Курганы_19_SpOr_спутник/01_Курганы_19_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 15,
+    "kurgany_tselye": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/148_Курганы_19/04_Курганы_19_SpOr_спутник/01_Курганы_19_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7353,
+     "grid_windows": 12,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "149_Курганы_20",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 22,
+   "cache_pos_tiles": 15,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/149_Курганы_20/04_Курганы_20_SpOr_спутник/01_Курганы_20_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 5,
+    "kurgany_povrezhdennye_ge1k": 1,
+    "kurgany_tselye": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/149_Курганы_20/04_Курганы_20_SpOr_спутник/01_Курганы_20_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7354,
+     "grid_windows": 12,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "150_Курганы_21",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 90,
+   "cache_pos_tiles": 51,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/150_Курганы_21/04_Курганы_21_SpOr_спутник/01_Курганы_21_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 12,
+    "kurgany_tselye": 33
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/150_Курганы_21/04_Курганы_21_SpOr_спутник/01_Курганы_21_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.7058,
+     "grid_windows": 12,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "151_Курганы_22",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 64,
+   "cache_pos_tiles": 43,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/151_Курганы_22/04_Курганы_22_SpOr_спутник/01_Курганы_22_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 28,
+    "kurgany_povrezhdennye_ge1k": 1,
+    "kurgany_tselye": 4
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/151_Курганы_22/04_Курганы_22_SpOr_спутник/01_Курганы_22_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.8376,
+     "grid_windows": 20,
+     "grid_pos_windows": 6
+    }
+   ]
+  },
+  {
+   "region": "152_Курганы_23",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 12,
+   "cache_pos_tiles": 8,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/152_Курганы_23/04_Курганы_23_SpOr_спутник/01_Курганы_23_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/152_Курганы_23/04_Курганы_23_SpOr_спутник/01_Курганы_23_SpOr_спутник.tif",
+     "crs": "EPSG:32644",
+     "native_res_m": 0.3729,
+     "grid_windows": 4,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "153_Курганы_24",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 40,
+   "cache_pos_tiles": 30,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/153_Курганы_24/04_Курганы_24_SpOr_спутник/01_Курганы_24_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 8,
+    "kurgany_tselye": 12
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/153_Курганы_24/04_Курганы_24_SpOr_спутник/01_Курганы_24_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.3745,
+     "grid_windows": 4,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "154_Курганы_25",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 30,
+   "cache_pos_tiles": 24,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/154_Курганы_25/04_Курганы_25_SpOr_спутник/01_Курганы_25_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32644",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 8,
+    "kurgany_tselye": 7,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/154_Курганы_25/04_Курганы_25_SpOr_спутник/01_Курганы_25_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.3745,
+     "grid_windows": 4,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "155_Курганы_26",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 18,
+   "cache_pos_tiles": 9,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/155_Курганы_26/04_Курганы_26_SpOr_спутник/01_Курганы_26_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 7,
+    "kurgany_povrezhdennye_ge1k": 2,
+    "kurgany_tselye": 2,
+    "kurgany_tselye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/155_Курганы_26/04_Курганы_26_SpOr_спутник/01_Курганы_26_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.1524,
+     "grid_windows": 77,
+     "grid_pos_windows": 8
+    }
+   ]
+  },
+  {
+   "region": "156_Курганы_27",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 20,
+   "cache_pos_tiles": 11,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/156_Курганы_27/04_Курганы_27_SpOr_спутник/01_Курганы_27_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 9,
+    "kurgany_povrezhdennye_ge1k": 2,
+    "kurgany_tselye": 1,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/156_Курганы_27/04_Курганы_27_SpOr_спутник/01_Курганы_27_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.1523,
+     "grid_windows": 77,
+     "grid_pos_windows": 9
+    }
+   ]
+  },
+  {
+   "region": "157_Курганы_28",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 6,
+   "cache_pos_tiles": 1,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/157_Курганы_28/04_Курганы_28_SpOr_спутник/01_Курганы_28_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_tselye": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/157_Курганы_28/04_Курганы_28_SpOr_спутник/01_Курганы_28_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.1521,
+     "grid_windows": 77,
+     "grid_pos_windows": 2
+    }
+   ]
+  },
+  {
+   "region": "158_Курганы_29",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 18,
+   "cache_pos_tiles": 9,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/158_Курганы_29/04_Курганы_29_SpOr_спутник/01_Курганы_29_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 7,
+    "kurgany_povrezhdennye_ge1k": 6,
+    "kurgany_tselye": 2,
+    "kurgany_tselye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/158_Курганы_29/04_Курганы_29_SpOr_спутник/01_Курганы_29_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.3048,
+     "grid_windows": 286,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "159_Курганы_30",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 9,
+   "cache_pos_tiles": 5,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/159_Курганы_30/04_Курганы_30_SpOr_спутник/01_Курганы_30_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_tselye": 4,
+    "kurgany_tselye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/159_Курганы_30/04_Курганы_30_SpOr_спутник/01_Курганы_30_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.0762,
+     "grid_windows": 18,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "160_Курганы_31",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 22,
+   "cache_pos_tiles": 15,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/160_Курганы_31/04_Курганы_31_SpOr_спутник/01_Курганы_31_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 10,
+    "kurgany_povrezhdennye_ge1k": 5,
+    "kurgany_tselye": 1,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/160_Курганы_31/04_Курганы_31_SpOr_спутник/01_Курганы_31_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.0865,
+     "grid_windows": 28,
+     "grid_pos_windows": 8
+    }
+   ]
+  },
+  {
+   "region": "161_Курганы_32",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 10,
+   "cache_pos_tiles": 6,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/161_Курганы_32/04_Курганы_32_SpOr_спутник/01_Курганы_32_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 4,
+    "kurgany_tselye": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/161_Курганы_32/04_Курганы_32_SpOr_спутник/01_Курганы_32_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.8905,
+     "grid_windows": 16,
+     "grid_pos_windows": 8
+    }
+   ]
+  },
+  {
+   "region": "162_Курганы_33",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 18,
+   "cache_pos_tiles": 12,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/162_Курганы_33/04_Курганы_33_SpOr_спутник/01_Курганы_33_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 9,
+    "kurgany_povrezhdennye_ge1k": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/162_Курганы_33/04_Курганы_33_SpOr_спутник/01_Курганы_33_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.0569,
+     "grid_windows": 12,
+     "grid_pos_windows": 4
+    }
+   ]
+  },
+  {
+   "region": "163_Курганы_34",
+   "family": "Курганы",
+   "fold": 0,
+   "in_cache": true,
+   "cache_tiles": 176,
+   "cache_pos_tiles": 106,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/163_Курганы_34/04_Курганы_34_SpOr_спутник/01_Курганы_34_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 87,
+    "kurgany_povrezhdennye_ge1k": 11,
+    "kurgany_tselye": 1,
+    "kurgany_tselye_ge1k": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/163_Курганы_34/04_Курганы_34_SpOr_спутник/01_Курганы_34_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.2272,
+     "grid_windows": 160,
+     "grid_pos_windows": 58
+    }
+   ]
+  },
+  {
+   "region": "164_Кисловодская_котловина_1",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/164_Кисловодская_котловина_1/04_Кисловодская_котловина_1_SpOr_спутник/01_Кисловодская_котловина_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "arkhitektury": 49,
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/164_Кисловодская_котловина_1/04_Кисловодская_котловина_1_SpOr_спутник/01_Кисловодская_котловина_1_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "165_Кисловодская_котловина_2",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/165_Кисловодская_котловина_2/04_Кисловодская_котловина_2_SpOr_спутник/01_Кисловодская_котловина_2_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/165_Кисловодская_котловина_2/04_Кисловодская_котловина_2_SpOr_спутник/01_Кисловодская_котловина_2_SpOr_спутник.tif",
+     "crs": "EPSG:3857",
+     "native_res_m": 0.7996,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "166_Кисловодская_котловина_3",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/166_Кисловодская_котловина_3/04_Кисловодская_котловина_3_SpOr_спутник/01_Кисловодская_котловина_3_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/166_Кисловодская_котловина_3/04_Кисловодская_котловина_3_SpOr_спутник/01_Кисловодская_котловина_3_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "167_Кисловодская_котловина_4",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/167_Кисловодская_котловина_4/04_Кисловодская_котловина_4_SpOr_спутник/01_Кисловодская_котловина_4_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/167_Кисловодская_котловина_4/04_Кисловодская_котловина_4_SpOr_спутник/01_Кисловодская_котловина_4_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "168_Кисловодская_котловина_5",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/168_Кисловодская_котловина_5/04_Кисловодская_котловина_5_SpOr_спутник/01_Кисловодская_котловина_5_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/168_Кисловодская_котловина_5/04_Кисловодская_котловина_5_SpOr_спутник/01_Кисловодская_котловина_5_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 1.0583,
+     "grid_windows": 35,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "169_Кисловодская_котловина_6",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/169_Кисловодская_котловина_6/04_Кисловодская_котловина_6_SpOr_спутник/01_Кисловодская_котловина_6_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/169_Кисловодская_котловина_6/04_Кисловодская_котловина_6_SpOr_спутник/01_Кисловодская_котловина_6_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.8467,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "170_Кисловодская_котловина_7",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/170_Кисловодская_котловина_7/04_Кисловодская_котловина_7_SpOr_спутник/01_Кисловодская_котловина_7_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/170_Кисловодская_котловина_7/04_Кисловодская_котловина_7_SpOr_спутник/01_Кисловодская_котловина_7_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "171_Кисловодская_котловина_8",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/171_Кисловодская_котловина_8/04_Кисловодская_котловина_8_SpOr_спутник/01_Кисловодская_котловина_8_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/171_Кисловодская_котловина_8/04_Кисловодская_котловина_8_SpOr_спутник/01_Кисловодская_котловина_8_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "172_Кисловодская_котловина_9",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/172_Кисловодская_котловина_9/04_Кисловодская_котловина_9_SpOr_спутник/01_Кисловодская_котловина_9_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/172_Кисловодская_котловина_9/04_Кисловодская_котловина_9_SpOr_спутник/01_Кисловодская_котловина_9_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "173_Кисловодская_котловина_10",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/173_Кисловодская_котловина_10/04_Кисловодская_котловина_10_SpOr_спутник/01_Кисловодская_котловина_10_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/173_Кисловодская_котловина_10/04_Кисловодская_котловина_10_SpOr_спутник/01_Кисловодская_котловина_10_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "174_Кисловодская_котловина_11",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/174_Кисловодская_котловина_11/04_Кисловодская_котловина_11_SpOr_спутник/01_Кисловодская_котловина_11_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/174_Кисловодская_котловина_11/04_Кисловодская_котловина_11_SpOr_спутник/01_Кисловодская_котловина_11_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.635,
+     "grid_windows": 12,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "175_Кисловодская_котловина_12",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/175_Кисловодская_котловина_12/04_Кисловодская_котловина_12_SpOr_спутник/01_Кисловодская_котловина_12_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/175_Кисловодская_котловина_12/04_Кисловодская_котловина_12_SpOr_спутник/01_Кисловодская_котловина_12_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.9525,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "176_Кисловодская_котловина_13",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/176_Кисловодская_котловина_13/04_Кисловодская_котловина_13_SpOr_спутник/01_Кисловодская_котловина_13_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/176_Кисловодская_котловина_13/04_Кисловодская_котловина_13_SpOr_спутник/01_Кисловодская_котловина_13_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.9525,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "177_Кисловодская_котловина_14",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/177_Кисловодская_котловина_14/04_Кисловодская_котловина_14_SpOr_спутник/01_Кисловодская_котловина_14_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/177_Кисловодская_котловина_14/04_Кисловодская_котловина_14_SpOr_спутник/01_Кисловодская_котловина_14_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.9525,
+     "grid_windows": 24,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "178_Кисловодская_котловина_15",
+   "family": "Кисловодская",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/178_Кисловодская_котловина_15/04_Кисловодская_котловина_15_SpOr_спутник/01_Кисловодская_котловина_15_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32638",
+   "gt_sp_or": {
+    "gorodishcha": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/178_Кисловодская_котловина_15/04_Кисловодская_котловина_15_SpOr_спутник/01_Кисловодская_котловина_15_SpOr_спутник.tif",
+     "crs": "EPSG:32638",
+     "native_res_m": 0.4763,
+     "grid_windows": 6,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "179_Гнёздово_Лесная_1",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "180_Гнёздово_Лесная_2",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "181_Гнёздово_Лесная_3",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "182_Красносельская_1.7км",
+   "family": "Красносельская",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "183_Сарское",
+   "family": "Сарское",
+   "fold": 1,
+   "in_cache": true,
+   "cache_tiles": 23,
+   "cache_pos_tiles": 12,
+   "n_spor_tif": 2,
+   "tifs": [
+    "w5data/sat_raw/183_Сарское/04_Сарское_SpOr_спутник/01_Сарское_SpOr_спутник.tif",
+    "w5data/sat_raw/183_Сарское/04_Сарское_SpOr_спутник/02_Сарское_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "gorodishcha": 1,
+    "kurgany_povrezhdennye": 8,
+    "kurgany_povrezhdennye_ge1k": 8,
+    "kurgany_tselye": 3,
+    "kurgany_tselye_ge1k": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/183_Сарское/04_Сарское_SpOr_спутник/01_Сарское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.1,
+     "grid_windows": 91,
+     "grid_pos_windows": 9
+    },
+    {
+     "tif": "w5data/sat_raw/183_Сарское/04_Сарское_SpOr_спутник/02_Сарское_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.5,
+     "grid_windows": 91,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "184_Шурскол",
+   "family": "Шурскол",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 5,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/184_Шурскол/04_Шурскол_SpOr_спутник/01_Шурскол_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "fortifikatsii": 1
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/184_Шурскол/04_Шурскол_SpOr_спутник/01_Шурскол_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 1.1453,
+     "grid_windows": 40,
+     "grid_pos_windows": 0
+    }
+   ]
+  },
+  {
+   "region": "185_Изборск",
+   "family": "Изборск",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 106,
+   "cache_pos_tiles": 59,
+   "n_spor_tif": 3,
+   "tifs": [
+    "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/01_Изборск_SpOr_спутник.tif",
+    "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/02_Изборск_SpOr_спутник.tif",
+    "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/03_Изборск_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32635",
+   "gt_sp_or": {
+    "gorodishcha": 2,
+    "kurgany_povrezhdennye": 41,
+    "fortifikatsii": 3
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/01_Изборск_SpOr_спутник.tif",
+     "crs": "EPSG:32635",
+     "native_res_m": 0.9787,
+     "grid_windows": 28,
+     "grid_pos_windows": 2
+    },
+    {
+     "tif": "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/02_Изборск_SpOr_спутник.tif",
+     "crs": "EPSG:32635",
+     "native_res_m": 0.6988,
+     "grid_windows": 15,
+     "grid_pos_windows": 7
+    },
+    {
+     "tif": "w5data/sat_raw/185_Изборск/04_Изборск_SpOr_спутник/03_Изборск_SpOr_спутник.tif",
+     "crs": "EPSG:32635",
+     "native_res_m": 0.6987,
+     "grid_windows": 15,
+     "grid_pos_windows": 8
+    }
+   ]
+  },
+  {
+   "region": "186_Семибратнее_1",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": true,
+   "cache_tiles": 12,
+   "cache_pos_tiles": 8,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/186_Семибратнее_1/04_Семибратнее_1_SpOr_спутник/01_Семибратнее_1_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 6,
+    "kurgany_povrezhdennye_ge1k": 6
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/186_Семибратнее_1/04_Семибратнее_1_SpOr_спутник/01_Семибратнее_1_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.747,
+     "grid_windows": 18,
+     "grid_pos_windows": 7
+    }
+   ]
+  },
+  {
+   "region": "187_Судьбищи_1",
+   "family": "Судьбищи",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "188_Руна",
+   "family": "Руна",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "189_Макеево",
+   "family": "Макеево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "190_Муравлево",
+   "family": "Муравлево",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "191_Осечки_1.3км",
+   "family": "Осечки",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "192_КЧР",
+   "family": "КЧР",
+   "fold": 1,
+   "in_cache": true,
+   "cache_tiles": 14,
+   "cache_pos_tiles": 9,
+   "n_spor_tif": 1,
+   "tifs": [
+    "w5data/sat_raw/192_КЧР/04_КЧР_SpOr_спутник/01_КЧР_SpOr_спутник.tif"
+   ],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {
+    "kurgany_povrezhdennye": 7,
+    "kurgany_povrezhdennye_ge1k": 2
+   },
+   "grid": [
+    {
+     "tif": "w5data/sat_raw/192_КЧР/04_КЧР_SpOr_спутник/01_КЧР_SpOr_спутник.tif",
+     "crs": "EPSG:32637",
+     "native_res_m": 0.4592,
+     "grid_windows": 8,
+     "grid_pos_windows": 5
+    }
+   ]
+  },
+  {
+   "region": "200_Судьбищи_2",
+   "family": "Судьбищи",
+   "fold": null,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "201_Семибратнее_Городище_1",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "202_Семибратнее_Городище_2",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "203_Семибратнее_Городище_3",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "204_Семибратнее_Городище_4",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "205_Семибратнее_Городище_5",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "206_Семибратнее_Городище_6",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "207_Семибратнее_Городище_7",
+   "family": "Семибратнее",
+   "fold": 2,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32637",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "208_Гнёздово_Пойма",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "209_Гнёздово_Терраса_1",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "210_Гнёздово_Терраса_2",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "211_Гнёздово_Терраса_3",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "212_Гнёздово_Усадьба",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "213_Гнёздово_Лесная_1",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "214_Гнёздово_Лесная_2",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "215_Гнёздово_Селище_1",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "216_Гнёздово_Селище_2",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  },
+  {
+   "region": "217_Гнёздово_Селище_3",
+   "family": "Гнёздово",
+   "fold": 3,
+   "in_cache": false,
+   "cache_tiles": 0,
+   "cache_pos_tiles": 0,
+   "n_spor_tif": 0,
+   "tifs": [],
+   "utm_crs": "urn:ogc:def:crs:EPSG::32636",
+   "gt_sp_or": {},
+   "grid": []
+  }
+ ],
+ "grid_spec": {
+  "cmd": "python -m expds.tiles ... --markup sp_or --res 0.5 --tile 512 --grid-overlap 0.25 (classes kurgany_povrezhdennye kurgany_tselye)",
+  "res_m": 0.5,
+  "tile_px": 512,
+  "overlap": 0.25,
+  "note": "window counts are estimates from tif bounds; positive = sp_or kurgan centroid inside window"
+ }
+}

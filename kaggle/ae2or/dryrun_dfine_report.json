@@ -1,0 +1,109 @@
+{
+ "cfg": {
+  "mode": "smoke",
+  "res": 0.5,
+  "tile": 640,
+  "overlap": 160,
+  "max_windows": 0,
+  "bs": 8,
+  "iters": 2,
+  "lr": 5e-05,
+  "bb_mult": 0.1,
+  "wd": 0.0001,
+  "pct": 0.05,
+  "clip": 0.1,
+  "num_dn": -1,
+  "obj_frac": 0.6,
+  "cls_cap": 4.0,
+  "shift": 0.3333333333333333,
+  "qaug": 0.5,
+  "workers": 2,
+  "max_obj_chips_region": 400,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_det": 100,
+  "smoke_train_regions": 8,
+  "smoke_test_regions": 1,
+  "deadline_h": 4.0,
+  "folds": "0,1,2",
+  "regions": "",
+  "trainer": "bot5",
+  "aug": "ours"
+ },
+ "mod": "Or",
+ "dryrun": true,
+ "folds": {
+  "0": {
+   "n_test": 3,
+   "n_det": 6,
+   "dryrun_iters": 2
+  },
+  "1": {
+   "n_test": 2,
+   "n_det": 4,
+   "dryrun_iters": 2
+  }
+ },
+ "gsd_note": "Or prep~0.25m → Scene WarpedVRT average → 0.5m (Ae-matched); tile 640/160",
+ "init": "/tmp/ae2or_dry_run/_dry_ae_init",
+ "bands": "RGB 3ch same as Ae (Or COG RGB)",
+ "class_map": [
+  "kurgany_tselye",
+  "kurgany_povrezhdennye",
+  "gorodishcha",
+  "fortifikatsii",
+  "arkhitektury"
+ ],
+ "off_classes": [],
+ "final": {
+  "dir": "/tmp/ae2or_dry_run/dfine_or",
+  "note": "dryrun stub"
+ },
+ "thresholds": {
+  "path": "/tmp/ae2or_dry_run/thresholds_or_oof.json",
+  "detail": {
+   "kurgany_tselye": {
+    "tau": 1.01,
+    "fbeta": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "beta": 2.0
+   },
+   "kurgany_povrezhdennye": {
+    "tau": 1.01,
+    "fbeta": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "beta": 2.0
+   },
+   "gorodishcha": {
+    "tau": 1.01,
+    "fbeta": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "beta": 2.0
+   },
+   "fortifikatsii": {
+    "tau": 1.01,
+    "fbeta": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "beta": 2.0
+   },
+   "arkhitektury": {
+    "tau": 0.7,
+    "fbeta": 1.0,
+    "tp": 5,
+    "fp": 0,
+    "fn": 0,
+    "beta": 2.0
+   }
+  },
+  "beta": 2.0
+ },
+ "total_sec": 0
+}

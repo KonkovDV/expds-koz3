@@ -1,0 +1,11 @@
+# Release profile: all ACCEPTED features OFF.
+# Effective config = configs/default.toml (main tip) with no overlays.
+# Criterion: produced scored output must match v2 reference byte-for-byte
+# when compared via scripts/compare_submission_bytes.py.
+name = "off"
+description = "Baseline: FR1h/sat2/D-FINE Ae all OFF (v2 lineage)"
+
+[features]
+fr1h = false
+sat2 = false
+dfine_ae = false

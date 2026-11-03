@@ -1,0 +1,41 @@
+===== ИТОГИ ОЦЕНКИ · КОЗ-3 =====
+Дополнительные метрики. На final_score не влияют.
+
+Архив:              submission_bot7cand_v2_eb268d6.zip
+Время инференса:    3 мин 48 с / 30 мин
+final_score:        0.4123779189
+
+Сводные показатели:
+  Soft recall:        0.622291
+  Center deviation:   1.133383 м
+  FP ratio:           1.139323
+
+Контур (по TP-парам):
+  Boundary IoU:       0.001875
+  Hausdorff95:        7.947175 м
+  PoLiS:              4.735235 м
+
+Контур по классам:
+  kurgany_povrezhdennye  BIoU 0.000600   HD95 11.191699 м   PoLiS 7.826639 м
+  kurgany_tselye         BIoU 0.000499   HD95 5.821141 м   PoLiS 3.944770 м
+  gorodishcha            BIoU 0.047259   HD95 59.909866 м   PoLiS 24.282025 м
+  arkhitektury           BIoU 0.013852   HD95 5.820205 м   PoLiS 2.463726 м
+  object_poly            BIoU 0.000408   HD95 6.882874 м   PoLiS 2.611814 м
+  fortifikatsii          BIoU 0.150885   HD95 99.596781 м   PoLiS 17.823476 м
+  finds_points           — (контур не применим)
+
+По типам данных:
+  лидар      precision 0.516472   recall 0.504149
+  аэрофото   precision 0.090909   recall 0.013333
+  спутник    precision 0.456057   recall 0.254642
+  ортофото   precision 0.368421   recall 0.140000
+  геофизика  precision 0.769418   recall 0.656489
+             (сумма всех классов: maggr, etgr, terfl)
+
+По размерам GT-объектов:
+  ≤ 100 м²     recall 0.431596
+  ≤ 500 м²     recall 0.322581
+  ≤ 1000 м²    recall 0.326087
+  ≤ 5000 м²    recall 0.404762
+  ≤ 10000 м²   recall 0.000000
+  > 10000 м²   recall 0.294118

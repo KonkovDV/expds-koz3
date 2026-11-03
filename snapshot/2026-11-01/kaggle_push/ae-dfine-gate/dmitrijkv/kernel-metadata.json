@@ -1,0 +1,19 @@
+{
+  "id": "dmitrijkv/koz3-w1-ae-dfine-gate",
+  "title": "koz3-w1-ae-dfine-gate",
+  "code_file": "koz3-ae-dfine-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [
+    "elenakonkova/koz3-ae-dfine-gate",
+    "dmitrijkv/koz3-gt-train-v2"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

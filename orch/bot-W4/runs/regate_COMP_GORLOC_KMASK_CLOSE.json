@@ -1,0 +1,51 @@
+{
+  "agent": "W4",
+  "when": "2026-11-02 15:09 +0300",
+  "action": "confirm_close_independent_regate",
+  "prereg": "PREREG_COMP_GORLOC + PREREG_COMP_KMASK @5aa57b9",
+  "baseline": {
+    "v4_zip_sha256_prefix": "f0def982",
+    "out_C1_sha256": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+    "matches_W3_copy": true,
+    "base_score_W3": {
+      "all": 0.3616409998866962,
+      "new34": 0.31516432656608934,
+      "nolidar": 0.254254299411185
+    }
+  },
+  "GORLOC": {
+    "verdict": "NO-PASS",
+    "source": "W3 RESULT_PREREG_COMP_GORLOC on identical out_C1; W4 confirms identity + bar fail, closes independent re-gate without enabling flag",
+    "L1": {
+      "d_all": 0.001325,
+      "P": 0.602,
+      "d_new34": 0.0,
+      "d_nolidar": 0.002557
+    },
+    "L2": {
+      "d_all": 0.001799,
+      "P": 0.6455,
+      "d_new34": -0.001332,
+      "d_nolidar": 0.008842,
+      "kislovodsk_lofo_d": -0.002446
+    },
+    "L2xm": {
+      "d_all": 0.00388,
+      "P": 0.811,
+      "d_new34": -0.00067,
+      "d_nolidar": 0.011179
+    },
+    "bar": "Δ≥0.003, P≥0.95 Bonf k=2, new34≥0, nolidar≥0, floors — none meet jointly"
+  },
+  "KMASK": {
+    "verdict": "NO-GATE",
+    "oracle_d_all": 0.00065,
+    "note": "oracle ceiling <+0.002 → PREREG no gate"
+  },
+  "enabled": false,
+  "lb": "HOLD",
+  "refs": [
+    "orch/bot-W3/RESULT_PREREG_COMP_GORLOC.md",
+    "orch/bot-W3/RESULT_PREREG_COMP_KMASK.md"
+  ]
+}

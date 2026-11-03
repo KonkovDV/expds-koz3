@@ -1,0 +1,23 @@
+{
+  "version": "v5",
+  "base_commit": "eb268d6",
+  "source_tsv": "/home/box/shared/koz3/pc/results/weights_sha256_2026-10-29.tsv",
+  "pixgbm": {
+    "poly": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800",
+    "finds": "5fa8c09d77d0914cc925fb6bb925a0ab1b64ccecf3c823d7f3546e71c4ceb04a"
+  },
+  "files": {
+    "models/pixgbm/all/poly.txt": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800",
+    "models/pixgbm/all/finds.txt": "5fa8c09d77d0914cc925fb6bb925a0ab1b64ccecf3c823d7f3546e71c4ceb04a",
+    "models/li_gor_mask_r18.pt": "39702cd8a5d92d0c0c06132690febc265519ed7a35b3c6ff02ed1fd7c1fdd8ef",
+    "models/spor_gor_r18.pt": "00d5c08539d1bced03d373c018d9e31432d987c7d848196a4afac6b0d44f1cbe",
+    "models/dfine_f0/model.safetensors": "81ef82280c43dd5e48255587f449683603ece375c976981db4f9a243e8509ed8",
+    "models/dfine_or/dfine_f0/model.safetensors": "82c8a47a2ad0d0b12fd5467b38592d31910114ad4029242d933f2e807c517d9c",
+    "models/dfine_or/dfine_f1/model.safetensors": "7fcb58645366819e83f125b0078a5fdc0b4b896f1c2a1b0b3c995820586b6744",
+    "models/dfine_or/dfine_f2/model.safetensors": "29dcd3c633c31aa153abe420bde59766de25fa662b4b2b3065f7a78dacd0ed2e",
+    "models/dfine_ae/model.safetensors": "3e61987893b5da499482dc1af8520b0793894f73149fa3f2cddab8d1c9dfacad",
+    "models/gor_gate/gor_v3_head.npz": "5bd88f69b3ffbfdc5312214b4d6012c92be12c66539b7bf8ad35564c76a75e7d",
+    "models/gor_dense/gor_dense_head.npz": "feb1591bb1e9ada63b32829178eae44a7e19fdfd7e99d7d222e3b1389c5b2cb7",
+    "models/rerank_arch_lgbm.txt": "0bc2e924b7a7beb79706eae275d516a2668406294e99b6caf44e454030b6d97b"
+  }
+}

@@ -1,0 +1,44 @@
+# sp_det2 — SIDE skeleton for 2nd satellite detector (bot-D/W1, 01.11 MSK). NOT default.toml. Everything OFF.
+# Locked PROMPT: orch/plans/PROMPT_SAT2_DETECTOR_20261101.md. Hold 0.41238. No LB. No YOLO/DINOv3/FCOS.
+# Code does NOT read these keys yet: pipeline phase for sp_det2 + N-group sp_score_fusion are TODO (after fold0 PASS).
+#
+# Detector: CenterNet via centerhead/ (UnetCenterNet, hm/wh/off, stride 4), 3-ch SpOr, ImageNet init.
+# Backbone: timm ConvNeXt-T (fallback R50) — must differ from spor_* R18 U-Net.
+# Train tiles: GRID cache (python -m expds.tiles ... --markup sp_or --grid-overlap 0.25), not cache_spor_r1_t128_s25.
+# Folds: same family folds as spor_focal OOF (orch/bot-W1/sat2_dataset_manifest.json; fold0 = family «Курганы», 34 regions).
+
+[sp_det2]
+enabled = false                      # OFF. Enable only in a side pack after gate (PROMPT §5a–c).
+# weights = ["models/sp_det2_cnxt_f0.pt"]   # TBD by fold0 kernel …/koz3-sat2-f0 (A lease). Not in git.
+# backbone = "convnext_tiny"          # or "resnet50" (fallback)
+# markup = "sp_or"
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]   # kurgans only for fold0 (gor/arch later if PASS)
+# tile = 512                          # OPEN: tile/res for grid cache (spor_focal used res 1 m, t128)
+# res = 1.0                           # OPEN
+# stride = 4                          # centerhead DEFAULTS
+# circle_radius_m = 4.0               # OPEN: match sp_or (4 m) or use decoded wh?
+# nms_m = 12.0                        # OPEN: centerhead.decode.nms_distance radius
+# threshold_group = "sp_det2"
+
+# Models entry form (when code supports it) — keep commented:
+# [models]
+# sp_det2 = {path = "models/sp_det2_cnxt_f0.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
+
+# Thresholds: placeholders only. Without real values the group must output nothing (like sp_dfine require_thresholds).
+# Real values = median of nested k10 sweep_groups after 5-fold OOF (PROMPT §4). Never tune on public LB.
+# [thresholds_by_markup.sp_det2]
+# kurgany_povrezhdennye = 1.000001   # placeholder = emits nothing
+# kurgany_tselye = 1.000001
+
+# Fusion (PROMPT §4): extend post.sp_score_fusion from exactly 2 groups to N groups, mean conf within 8 m.
+# Current code: post.SP_FUSION_GROUPS = ("sp_focal","sp_focal2"), raises if len(groups) != 2 → needs code change.
+# [post.sp_score_fusion]
+# radius_m = 8.0
+# gen_floor = 0.05
+# groups = ["sp_focal", "sp_focal2", "sp_det2"]   # sp_focal2 only where active (no-LAS)
+# thresholds.sp_det2 = { kurgany_povrezhdennye = 1.000001, kurgany_tselye = 1.000001 }   # TBD nested k10
+# Fallback (kill-switch if mean fusion hurts P): add-only, drop sp_det2 circles within 12 m of kept anchors
+# (pipeline.drop_near_kurgans, as sp_focal2). Then also add "sp_det2" to [verify].groups and [post.frame_prior].groups? OPEN.
+
+# Gate (PROMPT §5): fold0 vs spor_focal baseline (out/sp_large-f0/baseline_spfocal_fold0.geojson, eval_fold0.py):
+# STOP if sat kurgan R not +0.05, or P −>0.03, or damaged F1 worse. PASS → folds 1–4 → honest-10 vs B′ 0.315800.

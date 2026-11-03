@@ -1,6 +1,7 @@
 """bot-4 large_objects: мастер OFF = no-op; sub-flags независимо; area_tau/protect/fort_to_gor."""
 from __future__ import annotations
 
+import pytest
 from shapely.geometry import Point, box
 
 from expds import large_objects as lo
@@ -16,6 +17,43 @@ def _feat(cls, conf, area_side, markup="li", group=None, source="a"):
     if group:
         f["threshold_group"] = group
     return f
+
+
+def test_threshold_for_does_not_touch_small_or_other_groups():
+    lo_cfg = {"min_area_m2": 5000.0, "tau_relax": 0.15, "tau_floor": 0.05,
+              "dfine_ae_gor_tau_large": 0.20, "classes": ["gorodishcha", "fortifikatsii"]}
+    # 10k м²: frac = 1, τ = 0.99 − 0.15
+    assert lo.threshold_for(0.99, 10000, "gorodishcha", "sp_or", "sp_or", lo_cfg,
+                            area_on=True, fixc_on=False) == pytest.approx(0.84)
+    assert lo.threshold_for(0.99, 100, "gorodishcha", "sp_or", "sp_or", lo_cfg,
+                            area_on=True, fixc_on=False) == pytest.approx(0.99)
+    assert lo.threshold_for(1.01, 8000, "gorodishcha", "dfine_ae", "ae", lo_cfg,
+                            area_on=False, fixc_on=True) == pytest.approx(0.20)
+    # лидар не входит в Fix C
+    assert lo.threshold_for(1.01, 8000, "gorodishcha", "li_mask", "li", lo_cfg,
+                            area_on=False, fixc_on=True) == pytest.approx(1.01)
+
+
+def test_default_toml_large_objects_off():
+    import tomllib
+    from pathlib import Path
+    cfg = tomllib.loads(Path("configs/default.toml").read_text(encoding="utf-8"))
+    assert cfg["large_objects"]["enabled"] is False
+    for name in ("area_tau", "protect_merge", "shape_cores", "fort_to_gor",
+                 "coarse_hillfort", "dfine_ae_gor_area_tau"):
+        assert cfg["large_objects"][name] is False
+
+
+def test_honest_script_exits_2_without_cache():
+    import subprocess
+    import sys
+    proc = subprocess.run([sys.executable, "scripts/large_objects_honest.py",
+                           "--fam", "/tmp/no-such-fam-bot4", "--gt", "/tmp/no-such-gt.geojson",
+                           "--clusters", "/tmp/no-such-clusters.json"],
+                          capture_output=True, text=True, check=False)
+    assert proc.returncode == 2
+    assert "honest-10 не посчитан" in proc.stdout
+    assert "0.314615" in proc.stdout
 
 
 def test_enabled_default_off():
@@ -112,7 +150,9 @@ def test_finish_flag_off_byte_identical_on_toy():
            "thresholds_by_markup": {}, "post": {}, "large_objects": {"enabled": False}}
     a = watchdog.finish(list(feats), cfg)
     b = watchdog.finish(list(feats), {**cfg, "large_objects": {"enabled": False}})
-    assert len(a) == len(b)
+    c = watchdog.safe_finish(list(feats), cfg)
+    assert len(a) == len(b) == len(c)
+    assert [f["class_name"] for f in a] == [f["class_name"] for f in c]
 
 
 def test_finish_master_on_subs_off_same_as_off():

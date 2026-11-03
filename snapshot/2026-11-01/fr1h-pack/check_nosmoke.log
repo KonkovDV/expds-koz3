@@ -1,0 +1,30 @@
+== check_submission: /workspace/koz3/out/fr1h-pack/submission_fr1h_on_eb268d6.zip (2026-11-01 19:16:37 MSK)
+[PASS] zip       50 файлов, CRC ок, пути безопасны
+[PASS] layout    metadata.json, inference/main.py, configs/default.toml, expds/ на месте
+[PASS] layout    ускоритель: inference/lib/expds_core.abi3.so
+[PASS] forbidden нет данных выборок и секретов
+[PASS] size      архив 500.8 МиБ (525160654 Б), распакованный 546.1 МиБ, лимит 2048 МиБ
+[INFO] size      крупнейшие: models/li_r18_hard2.pt 55 МиБ, models/spor_focal_wide_r18.pt 55 МиБ, models/spor_focal_r18.pt 55 МиБ
+[PASS] metadata  image=pantum/n7q:20261024, entry_point='python inference/main.py'
+[PASS] config    все 15 путей к весам из default.toml есть в архиве
+[PASS] config    PIXGBM: модели классов есть в архиве: ['models/pixgbm/all/finds.txt', 'models/pixgbm/all/poly.txt']
+[PASS] config    [time] budget_s=1500, guard_margin_s=180, watchdog включён
+[INFO] config    порог > 1 — класс в группе выключен: ['thresholds_by_markup.li.arkhitektury=1.01', 'thresholds_by_markup.li_coarse.arkhitektury=1.01', 'thresholds_by_markup.li_ae.kurgany_tselye=1.000001']
+[PASS] config    пороги в [0,1], имена классов из 7 допустимых
+[PASS] imports   в 28 модулях, достижимых из inference/main.py, нет сетевых импортов
+[INFO] imports   сторонние пакеты инференса: ['laspy', 'lightgbm', 'numpy', 'pyproj', 'rasterio', 'scipy', 'segmentation_models_pytorch', 'shapely', 'torch']
+[INFO] imports   необязательные (есть фолбэк, не проверяются): psutil — geo_pixgbm.process_t0: ImportError → момент импорта модуля; tl2cgen — geo_pixgbm backend=treelite (opt-in): ошибка → lightgbm
+[PASS] so        inference/lib/expds_core.abi3.so: ELF x86-64, максимум GLIBC_2.14; AVX-512 нет, ymm-инструкций 8389
+[FAIL] imports   не установлены в /usr/bin/python3: {'laspy': 'не найден', 'lightgbm': 'не найден', 'pyproj': 'не найден', 'rasterio': 'не найден', 'scipy': 'не найден', 'segmentation_models_pytorch': 'не найден', 'shapely': 'не найден', 'torch': 'не найден'}
+[FAIL] imports   модули инференса не импортируются: expds.candidates: ModuleNotFoundError: No module named 'shapely'; expds.crs: ModuleNotFoundError: No module named 'shapely'; expds.fusion: ModuleNotFoundError: No module named 'shapely'; expds.geo_pixgbm: ModuleNotFoundError: No module named 'scipy'; expds.geophys: ModuleNotFoundError: No module named 'rasterio'; expds.infer_nn: ModuleNotFoundError: No module named 'rasterio'; expds.open_ideas: ModuleNotFoundError: No module named 'scipy'; expds.pipeline: ModuleNotFoundError: No module named 'shapely'; expds.post: ModuleNotFoundError: No module named 'shapely'; expds.raster: ModuleNotFoundError: No module named 'rasterio'; expds.register: ModuleNotFoundError: No module named 'shapely'; expds.tiles: ModuleNotFoundError: No module named 'rasterio'; expds.watchdog: ModuleNotFoundError: No module named 'shapely'; expds.writer: ModuleNotFoundError: No module named 'shapely'
+[FAIL] config    проба конфига упала: Traceback (most recent call last):
+  File "<string>", line 31, in <module>
+    from expds.geophys import MAP_MODES
+  File "/tmp/b8static_qmztevds/expds/geophys.py", line 22, in <module>
+    from .raster import circle_3857, mask_to_polygons, pixel_to_xy
+  File "/tmp/b8static_qmztevds/expds/raster.py", line 16, in <module>
+    import rasterio
+ModuleNotFoundError: No module named 'rasterio'
+
+[INFO] smoke     пропущен (--no-smoke)
+== ИТОГ: FAIL — FAIL 3, WARN 0, проверок 20, 12.2 с

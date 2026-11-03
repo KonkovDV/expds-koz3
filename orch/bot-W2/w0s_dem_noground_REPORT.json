@@ -1,0 +1,191 @@
+{
+ "title": "w0s-dem-noground S3 follow-up (B / bot-W2-lidar)",
+ "inventory": {
+  "what": "S3 LAS class-2 inventory for w0s-dem-noground follow-up (P-W2-10 / AUDIT_SEAMS #6)",
+  "source": "w2_notes/w2_hsparity_ci28_rows.json (CI2-8 hillshade parity, all 59 bucket LAS)",
+  "computed_msk": "30.10.2026 13:31 MSK",
+  "n_sites": 59,
+  "no_class2": [
+   {
+    "site": "101_Гнёздово_Днепровская",
+    "g2": 0.0,
+    "veg": 0.0,
+    "used_all": true,
+    "cls": [
+     "8"
+    ]
+   },
+   {
+    "site": "102_Гнёздово_Заольшанская",
+    "g2": 0.0,
+    "veg": 0.0,
+    "used_all": true,
+    "cls": [
+     "8"
+    ]
+   },
+   {
+    "site": "037_Никола_Ленивец",
+    "g2": 0.0,
+    "veg": 0.0,
+    "used_all": true,
+    "cls": [
+     "8"
+    ]
+   },
+   {
+    "site": "187_Судьбищи_1",
+    "g2": 0.0,
+    "veg": 0.0,
+    "used_all": true,
+    "cls": [
+     "8"
+    ]
+   }
+  ],
+  "mixed_with_class2": [
+   {
+    "site": "015_Демидовка",
+    "g2": 0.5894,
+    "veg": 0.2503,
+    "used_all": false,
+    "cls": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7"
+    ]
+   },
+   {
+    "site": "190_Муравлево",
+    "g2": 0.4271,
+    "veg": 0.5708,
+    "used_all": false,
+    "cls": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "7"
+    ]
+   },
+   {
+    "site": "021_Новенькое",
+    "g2": 0.6251,
+    "veg": 0.372,
+    "used_all": false,
+    "cls": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5"
+    ]
+   },
+   {
+    "site": "186_Семибратнее_1",
+    "g2": 0.1208,
+    "veg": 0.7556,
+    "used_all": false,
+    "cls": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "7",
+     "8"
+    ]
+   }
+  ],
+  "n_pure_ground": 51,
+  "pipeline_today": {
+   "with_any_class2": "lidar.py has_class→keep only cls==2 (gaudit: 015/021/186/190 pipeline_uses=class2)",
+   "without_class2": "use_all=True → mean of ALL points (DSM risk); AUDIT fix=min-per-cell (+PMF/SMRF)"
+  },
+  "recommendation": {
+   "mixed_sites": "already safe under cls==2 filter; do NOT switch to all-points",
+   "no_class2_sites": [
+    "101_Гнёздово_Днепровская",
+    "102_Гнёздово_Заольшанская",
+    "037_Никола_Ленивец",
+    "187_Судьбищи_1"
+   ],
+   "next_code": "when !has_class(2): grid with nanmin (min-per-cell) instead of mean; optional PMF later"
+  }
+ },
+ "mean_vs_min_probe": {
+  "what": "w0s-dem-noground follow-up: mean(all) vs min-per-cell on S3 LAS without class 2",
+  "sites_no_class2": [
+   "037_Никола_Ленивец",
+   "101_Гнёздово_Днепровская",
+   "102_Гнёздово_Заольшанская",
+   "187_Судьбищи_1"
+  ],
+  "measured": [
+   "101",
+   "102"
+  ],
+  "pending_large": [
+   "037 (~2.0GB)",
+   "187 (~3.4GB)"
+  ],
+  "result": {
+   "102.las": {
+    "file": "102.las",
+    "size": 164672667,
+    "res_m": 1.0,
+    "n_cells": 1427841,
+    "dz_mean": 0.030272055646344394,
+    "dz_p50": 0.01999999999998181,
+    "dz_p90": 0.0724999999999909,
+    "dz_p99": 0.1983333333333519,
+    "dz_max": 1.0816666666666777,
+    "frac_dz_gt_0_5": 0.0002682371496546184,
+    "frac_dz_gt_2": 0.0,
+    "wall_s": 1.1,
+    "grid": {
+     "res": 1.0,
+     "W": 1933,
+     "H": 1475,
+     "npts": 4843307,
+     "filled": 1427841
+    },
+    "cls": {
+     "8": 1.0
+    }
+   },
+   "101.las": {
+    "file": "101.las",
+    "size": 343190789,
+    "res_m": 1.0,
+    "n_cells": 2337195,
+    "dz_mean": 0.03808277476638745,
+    "dz_p50": 0.026666666666699257,
+    "dz_p90": 0.0837500000000091,
+    "dz_p99": 0.222500000000025,
+    "dz_max": 1.6200000000000045,
+    "frac_dz_gt_0_5": 0.00037694758032598907,
+    "frac_dz_gt_2": 0.0,
+    "wall_s": 1.8,
+    "grid": {
+     "res": 1.0,
+     "W": 2737,
+     "H": 1856,
+     "npts": 10093840,
+     "filled": 2337195
+    },
+    "cls": {
+     "8": 1.0
+    }
+   }
+  },
+  "conclusion": "On 101/102 (cls8 only) mean−min shows canopy/DSM bias under current use_all=mean. Recommend: when !has_class(2), nanmin per cell instead of mean (AUDIT #6). Mixed cls2 sites already filtered — leave.",
+  "computed_msk": "30.10.2026 13:33 MSK"
+ },
+ "decision": "NO code change now. (1) 55/59 LAS have class2 → lidar.py already keeps cls==2 only (gaudit OK). (2) 4/59 have only cls8 (037/101/102/187), use_all=mean; on 101/102 mean−min ≈3cm (p99≈0.2m) → not canopy DSM. (3) AUDIT #6 min-per-cell still optional guard for future veg-only LAS; not blocking. P-W2-10 tin_lowveg remains FAIL/closed."
+}

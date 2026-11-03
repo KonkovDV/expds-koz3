@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel, candidates, fusion, geophys, li_half, lidar_cnx, post, writer
+from . import accel, candidates, fusion, geophys, li_half, lidar_cnx, post
 from .catalog import Region, read_utm_json, scan_root
 from .constants import DEFAULT_BUDGET_S
 
@@ -280,10 +280,16 @@ def _cached_segmenters(seg_cache: dict, cfg: dict, markup: str, root: Path) -> l
         raw_ms = cfg.get("ms", {}).get(markup, [1.0])
         if isinstance(raw_ms, (int, float)):
             raw_ms = [float(raw_ms)]
+        tta = int(cfg.get("tta", {}).get(markup, 1))
+        scales = [float(s) for s in raw_ms]
+        # bot-8: [orsp_tta] по умолчанию выкл. Чужие markup (ae, or) не меняются.
+        from . import orsp_tta
+
+        tta, scales = orsp_tta.apply_unet(cfg, markup, tta, scales)
         seg_cache[markup] = _segmenters(
             cfg.get("models", {}), markup, root,
-            tta=int(cfg.get("tta", {}).get(markup, 1)),
-            ms_scales=[float(s) for s in raw_ms],
+            tta=tta,
+            ms_scales=scales,
         )
     return seg_cache[markup]
 
@@ -490,7 +496,6 @@ def li_mask_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
     Нет файла весов — пустой список, основной лидар не трогается.
     """
-    from .lidar import hillshade_set
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -516,7 +521,6 @@ def li_fort_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
     Нет файла весов — пустой список, основной лидар не трогается.
     """
-    from .lidar import hillshade_set
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -543,7 +547,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     Сбой загрузки или инференса модели не оставляет участок без курганов:
     для этого LAS считается запасной детектор.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -731,6 +735,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         else:
             half_feats = []
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
+    from .ae_recall import mosaic_intact_on
+    if mosaic_intact_on(cfg):
+        fp.mosaic_intact = True
     if fp.li_to_ae and reg.rasters.get("ae"):
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
@@ -851,7 +858,8 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
-    if (cfg.get("post") or {}).get("frame_prior"):
+    pcf = cfg.get("post") or {}
+    if pcf.get("frame_prior") or pcf.get("sat_frame_gate") or _w1_prior_on(cfg):
         feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
 
@@ -894,6 +902,13 @@ def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: d
     state.replace(snap[:n_before] + [f for r in regions for f in by_reg.get(r.name, [])])
 
 
+def _w1_prior_on(cfg: dict) -> bool:
+    """W1-FRZ: [post].sat_center_prior или включённый [post.w1_c1f]/[post.w1_p2f] — нужен scene_drel."""
+    pcf = cfg.get("post") or {}
+    return bool(pcf.get("sat_center_prior") or pcf.get("sat_frame_prior")) or any(
+        isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f", "w4_sat"))
+
+
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
     """scene_drel для [post] frame_prior: положение объекта в кадре снимков своего типа (post.scene_drel)."""
     from .geophys import map_footprint
@@ -908,7 +923,11 @@ def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
                 fp = None
             if fp is not None:
                 boxes.setdefault(mt, []).append(fp)
-    return post.annotate_scene_drel(feats, boxes)
+    feats = post.annotate_scene_drel(feats, boxes)
+    if (cfg.get("post") or {}).get("sat_frame_gate"):   # W1-SATQ Q2: area of the scene that gives scene_drel
+        from . import sat_recall
+        feats = sat_recall.annotate_scene_mpix(feats, boxes)
+    return feats
 
 
 #: Модальности геофизики, для которых [models] может назвать сеть. Группа порога — «<модальность>_nn».
@@ -1051,7 +1070,7 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
     один раз на участок. Любой отказ (нет порогов cnx, веса, мягкий потолок, подготовка, CRS, сеть) —
     пустой список с предупреждением: без cnx остаётся выдача как при enabled=false.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -1216,7 +1235,7 @@ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root
     Отбор 12 м делает run: сюда попадают все круги выше пола выдачи.
     Нет весов — пустой список.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -1275,6 +1294,11 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     own = cfg.get("thresholds_by_markup", {}).get(markup, {})
     default = cfg.get("default_threshold", 0.15)
     floors = {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4: пороги li-групп заданы в шкале RR1s-cf; ранний пол — в шкале conf (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        floors = {c: w5_cloudfeat.li_floor(cfg, markup, c, v) for c, v in floors.items()}
     # [post] kurgan_neighbour_prior поднимает уверенность до floor + slope·cap раз до порогов: курган
     # группы приора ниже порога должен дожить до finish, иначе множитель только понижает.
     prior = ((cfg.get("post") or {}).get("kurgan_neighbour_prior"))
@@ -1523,6 +1547,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             raise   # strict: v3 не должен молча стать v2 (bot-10)
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
+            from . import degraded
+            degraded.mark("sp_dfine", f"{reg.name}: исключение в D-FINE участка (см. лог)")
             found, complete = [], False
         # bot-2 A3/A4: agreement_m — только рядом с уже найденным U-Net sp_or (фаза после оптики).
         agr = float(st.get("agreement_m") or 0.0)
@@ -1531,6 +1557,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             found = sp_dfine.filter_agreement(found, state.snapshot(), agr)
             if before != len(found):
                 log.info("sp_dfine agreement_m=%.1f: %d→%d на %s", agr, before, len(found), reg.name)
+        if found and _w1_prior_on(cfg):
+            # W4 (C1F re-gate PREREG e6b5a31): D-FINE идёт после optical_feats — без этого у sp_dfine нет scene_drel
+            # и приор центра сцены не действует. Рамки — те же map_footprint снимков sp_or.
+            try:
+                found = _with_scene_drel(reg, cfg, found)
+            except Exception:
+                log.exception("%s: scene_drel для sp_dfine не посчитан, приор без него", reg.name)
         state.add(found)
         n += len(found)
         if complete:
@@ -1573,9 +1606,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     if not (cache.get("models") or []) and cache.get("load_error"):
         log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
     # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
-    # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются (регрессия mock: R −46 при 0 TP).
+    # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются.
+    # drop_cover_m > 0 (по умолчанию 12): снимать старый объект только если D-FINE того же класса,
+    # прошедший порог sp_dfine, лежит не дальше N м. Иначе слепой R обнуляет sp_or: на mock 482 сырых
+    # бокса сняли 46 попаданий v2, а 13 боксов выше порога были в 50–1500 м от эталона (F1 sp_or → 0).
     if st["drop_groups"] and full:
         min_det = int(st.get("drop_min_det", 1))
+        cover_m = float(st.get("drop_cover_m", 12.0) or 0.0)
         snap = state.snapshot()
         full_ok = [
             r for r in full
@@ -1589,9 +1626,22 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
                 len(skipped), min_det, ", ".join(skipped[:12]) + ("…" if len(skipped) > 12 else ""))
         if full_ok:
             before = len(snap)
-            state.replace(sp_dfine.drop_groups(snap, st["drop_groups"], full_ok))
-            log.info("sp_dfine: drop_groups %s на %d участках: −%d объектов", list(st["drop_groups"]), len(full_ok),
-                     before - len(state.snapshot()))
+            if cover_m > 0:
+                survivors = [
+                    f for f in snap
+                    if f.get("threshold_group") == sp_dfine.GROUP and f.get("region_name") in full_ok
+                    and sp_dfine.passes_group_threshold(f, cfg)
+                ]
+                state.replace(sp_dfine.drop_groups_covered(
+                    snap, st["drop_groups"], full_ok, cover_m, survivors))
+                log.info(
+                    "sp_dfine: drop_groups %s на %d участках, покрытие ≤%.1f м, выживших D-FINE %d: −%d объектов",
+                    list(st["drop_groups"]), len(full_ok), cover_m, len(survivors),
+                    before - len(state.snapshot()))
+            else:
+                state.replace(sp_dfine.drop_groups(snap, st["drop_groups"], full_ok))
+                log.info("sp_dfine: drop_groups %s на %d участках (слепой R, drop_cover_m=0): −%d объектов",
+                         list(st["drop_groups"]), len(full_ok), before - len(state.snapshot()))
     return n
 
 
@@ -1627,6 +1677,53 @@ def _aeor_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
         note.setdefault("aeor_dfine", {"enabled": True}).update({"raw": len(found_all)})
     log.info("aeor_dfine: ИТОГ объектов %d", len(found_all))
     return len(found_all)
+
+
+def _sp_det2_phase(regions, cfg: dict, guard, state, root: Path) -> int:
+    """sat2 CenterNet on SpOr; REPLACE drop of sp_* kurgans on fully-scanned regions. Default OFF."""
+    from . import sp_det2
+
+    st = sp_det2.settings(cfg)
+    cache: dict = {}
+    n = 0
+    full: list[str] = []
+    for reg in regions:
+        if not reg.rasters.get("sp_or"):
+            continue
+        if not guard.ok(60):
+            log.warning("sp_det2: времени не осталось")
+            break
+        if not _soft_ok(guard, "sp_det2", f"sat2 {reg.name}", float(st["soft_need_s"])):
+            break
+        try:
+            found, complete = sp_det2.region_feats(
+                reg, cfg, guard, cache, root,
+                crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),
+                soft_ok=lambda what, need: _soft_ok(guard, "sp_det2", what, need))
+        except sp_det2.SpDet2Unavailable:
+            raise
+        except Exception:
+            log.exception("%s: sp_det2 пропущен", reg.name)
+            found, complete = [], False
+        state.add(found)
+        n += len(found)
+        if complete:
+            full.append(reg.name)
+        if found:
+            log.info("%s: sp_det2 %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
+        if not cache.get("models"):
+            break
+    note = getattr(state, "note", None)
+    info = note.setdefault("sp_det2", {"enabled": True}) if isinstance(note, dict) else {}
+    info.update({"models": len(cache.get("models") or []), "raw": n, "regions_full": len(full)})
+    log.info("sp_det2: ИТОГ моделей %d, детекций %d, участков полностью %d",
+             info["models"], n, len(full))
+    if st.get("drop_prefixes") and full:
+        before = len(state.snapshot())
+        state.replace(sp_det2.drop_kurgan_sp(state.snapshot(), st["drop_prefixes"], full))
+        log.info("sp_det2: REPLACE drop_prefixes %s на %d участках: −%d объектов",
+                 list(st["drop_prefixes"]), len(full), before - len(state.snapshot()))
+    return n
 
 
 def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[dict]:
@@ -1720,6 +1817,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
     if fast := speed.configure(cfg.get("speed")):   # харвест speedup-2026-10-28: без секции — всё выкл.
         log.info("[speed] включено: %s", ", ".join(fast))
+    from . import degraded
+    degraded.set_output(output_path)    # W4: маркер V3_DEGRADED.json рядом с ответом (старый удаляется)
+    if cfg.get("w5_cloudfeat"):
+        from . import w5_cloudfeat      # W4 v4: нет модуля W1 / референса — понятная ошибка до начала работы
+
+        w5_cloudfeat.preflight(cfg)
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime
@@ -1771,6 +1874,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         from . import aeor_dfine as _aod   # bot-1: strict preflight до работы, как у sp_dfine
 
         state.note["aeor_dfine"] = _aod.preflight(cfg, root)
+    if (cfg.get("sp_det2") or {}).get("enabled"):
+        from . import sp_det2 as _sp2   # sat2 CenterNet (bots/combo-sat2-fr1h); default OFF
+        state.note["sp_det2"] = _sp2.preflight(cfg, root)
+        log.info("sp_det2: preflight ok, weights %s", state.note["sp_det2"]["weights"])
     if (cfg.get("dfine_aeor") or {}).get("enabled"):
         from . import dfine_aeor as _dfa   # bot-6: ленивый импорт только при флаге; пороги из thresholds_file → cfg
 
@@ -1858,6 +1965,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             except Exception:
                 log.exception("%s: лидар пропущен", reg.name)
                 found = []
+            if cfg.get("w5_cloudfeat"):
+                from . import w5_cloudfeat      # W4 v4: признаки облака, пока LAS участка под рукой
+
+                found = w5_cloudfeat.region_features(reg, found, cfg)
             state.add(found)
             n_phase += len(found)
             log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(found),
@@ -1889,6 +2000,11 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             t_phase = time.monotonic()
             n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_det2") or {}).get("enabled"):
+            # sat2 CenterNet REPLACE (bots/combo-sat2-fr1h); default OFF — lost the 01.11 h2h to v3_on
+            t_phase = time.monotonic()
+            n_phase = _sp_det2_phase(regions, cfg, guard, state, root)
+            phases.append(("sp_det2", n_phase, time.monotonic() - t_phase))
         if (cfg.get("dfine_aeor") or {}).get("enabled"):
             # bot-6: D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
             t_phase = time.monotonic()
@@ -1986,7 +2102,6 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             phases.append(("городища кадра", len(found), time.monotonic() - t_phase))
     finally:
         _WINDOW_GUARD = None
-        signal.signal(signal.SIGTERM, previous_term)
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
@@ -2005,7 +2120,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         if guard.soft_skipped:
             summary["soft_skipped"] = list(guard.soft_skipped)
             state.note["soft_skipped"] = list(guard.soft_skipped)
-        summary["written"] = checkpoint(state, "конец")
+        # Обработчик SIGTERM снимается только после итоговой записи: сигнал во время проверки кропа
+        # (до 120 с) пишет текущий результат, а не убивает процесс без файла (аудит 03.11).
+        try:
+            summary["written"] = checkpoint(state, "конец")
+        finally:
+            signal.signal(signal.SIGTERM, previous_term)
         summary["seconds"] = round(guard.run_elapsed(), 1)
         summary["partial_files"] = list(guard.partial)
         for handler in logging.getLogger().handlers:

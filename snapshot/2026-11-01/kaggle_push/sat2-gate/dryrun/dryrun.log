@@ -1,0 +1,18 @@
+[      0s] sat2-gate start boot 50 scales [1.0]
+[      0s] extract embedded sidecars → /workspace/kaggle/push/sat2-gate/dryrun/kaggle/working/_sat2_bundle
+[      0s] HERE /workspace/kaggle/push/sat2-gate/dryrun/kaggle/working/_sat2_bundle
+[      0s] w5base /workspace/kaggle/push/sat2-gate/dryrun/kaggle/input/koz3-w2-gate/w5base
+[      0s] metric /workspace/kaggle/push/sat2-gate/dryrun/kaggle/working/sat2_gate/run/repo/materials/compute_metrics.py exists True
+[      0s] vs A /workspace/kaggle/push/sat2-gate/dryrun/kaggle/input/koz3-w2-gate/w5base/base_counts.pkl ref_score 0.314615
+[      0s] WARN no bprime_counts.pkl — gating vs A; also report score−B′ abs 0.3158
+[      0s] oof feats 2622 sha afaf8dcaec1fee89
+[      0s] replace_all
+{"kept": 1, "dropped": 1, "added": 2622, "scale": 1.0, "drop": {"sp_or|kurgany_povrezhdennye|sp_or": 1}}
+[      0s] prep replace_all (once)
+[      1s] prep done
+[      1s] gate replace_all boot 50 scale None
+[      1s] replace_all score 0.0 d 0.0 p 0.0 pass_full False pass_soft False
+[      1s] gate scale_1p0 boot 50 scale 1.0
+[      1s] scale_1p0 score 0.0 d 0.0 p 0.0 pass_full False
+[      1s] BEST replace_all score 0.0 d 0.0 p 0.0 pass_full False
+[      1s] DONE

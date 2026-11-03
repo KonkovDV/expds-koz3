@@ -1,0 +1,29 @@
+[{"stream_name":"stdout","time":1.404466425,"data":"DS /kaggle/input/datasets/dmitrijkv/koz3-w3-geo5-feat-base 198\n"}
+,{"stream_name":"stdout","time":3.106403661,"data":"== base F1 3 threads 4\n"}
+,{"stream_name":"stdout","time":379.855639445,"data":"done F1 3 377s {'finds_points': 514476, 'object_poly': 2272811}\n"}
+,{"stream_name":"stdout","time":379.855689526,"data":"== base F2 3 threads 4\n"}
+,{"stream_name":"stdout","time":525.83174416,"data":"done F2 3 146s {'finds_points': 236656, 'object_poly': 2112811}\n"}
+,{"stream_name":"stdout","time":525.831899404,"data":"== base F3 3 threads 4\n"}
+,{"stream_name":"stdout","time":658.267406865,"data":"done F3 3 132s {'finds_points': 524744, 'object_poly': 1698190}\n"}
+,{"stream_name":"stdout","time":658.267501525,"data":"== base F4 3 threads 4\n"}
+,{"stream_name":"stdout","time":774.13971314,"data":"done F4 3 116s {'finds_points': 458832, 'object_poly': 1683543}\n"}
+,{"stream_name":"stdout","time":774.139833159,"data":"== base F5 3 threads 4\n"}
+,{"stream_name":"stdout","time":891.231804384,"data":"done F5 3 117s {'finds_points': 578236, 'object_poly': 1579889}\n"}
+,{"stream_name":"stdout","time":891.232340808,"data":"== base F1 4 threads 4\n"}
+,{"stream_name":"stdout","time":1049.117257945,"data":"done F1 4 158s {'finds_points': 514476, 'object_poly': 2272811}\n"}
+,{"stream_name":"stdout","time":1049.117329017,"data":"== base F2 4 threads 4\n"}
+,{"stream_name":"stdout","time":1184.743477461,"data":"done F2 4 136s {'finds_points': 236656, 'object_poly': 2112811}\n"}
+,{"stream_name":"stdout","time":1184.743552068,"data":"== base F3 4 threads 4\n"}
+,{"stream_name":"stdout","time":1306.617031297,"data":"done F3 4 122s {'finds_points': 524744, 'object_poly': 1698190}\n"}
+,{"stream_name":"stdout","time":1306.617205072,"data":"== base F4 4 threads 4\n"}
+,{"stream_name":"stdout","time":1431.751978091,"data":"done F4 4 125s {'finds_points': 458832, 'object_poly': 1683543}\n"}
+,{"stream_name":"stdout","time":1431.752068392,"data":"== base F5 4 threads 4\n"}
+,{"stream_name":"stdout","time":1562.04591902,"data":"done F5 4 130s {'finds_points': 578236, 'object_poly': 1579889}\n"}
+,{"stream_name":"stdout","time":1562.04716169,"data":"ALLFIT\n"}
+,{"stream_name":"stderr","time":1565.71023601,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1565.710305683,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1566.12147301,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1566.121513798,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1567.171931472,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1568.656183641,"data":"[NbConvertApp] Writing 284375 bytes to __results__.html\n"}
+]

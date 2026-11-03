@@ -1,0 +1,19 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+13:24:17 кэш стека meta_5606f42d02724784.json: кластеров 60
+13:24:18 кривые A из кэша curvesA_5606f42d02724784.pkl
+13:24:20 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1264 МБ
+13:24:40 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+13:24:46 V3P honest 0.333787
+13:24:53 rebuild == V3P
+13:24:58 Q5: 4 variants built
+13:25:00 fold 0 pick=0.2 train off 0.41577 best 0.41658
+13:25:01 fold 1 pick=0.2 train off 0.39221 best 0.39362
+13:25:02 fold 2 pick=0.2 train off 0.42283 best 0.42397
+13:25:03 fold 3 pick=0.2 train off 0.40999 best 0.41094
+13:25:04 fold 4 pick=0.2 train off 0.39667 best 0.39764
+13:25:05 fold 5 pick=0.2 train off 0.40630 best 0.40729
+13:25:06 fold 6 pick=0.2 train off 0.42384 best 0.42450
+13:25:08 fold 7 pick=0.2 train off 0.40283 best 0.40397
+13:25:09 fold 8 pick=0.2 train off 0.41405 best 0.41498
+13:25:10 fold 9 pick=0.2 train off 0.40524 best 0.40618
+13:25:10 Q5 vs V3P: Δ -0.000335 P 0.433 | new34 +0.000900 nolidar -0.004358 noKis -0.000162 | kurgany_ +0.00309 kurgany_ -0.00631 gorodish +0.00000 arkhitek +0.00000 object_p +0.00000 fortifik +0.00000 finds_po +0.00000 | picks ['0.2', '0.2', '0.2', '0.2', '0.2', '0.2', '0.2', '0.2', '0.2', '0.2'] | {'delta': False, 'P': False, 'new34': True, 'nolidar': False, 'floors': False, 'PASS': False}

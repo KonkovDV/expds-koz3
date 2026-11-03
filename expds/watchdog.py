@@ -72,6 +72,16 @@ def _tau(cfg: dict):
                              cfg.get("thresholds_by_markup", {}))
 
 
+def _w1_flag(cfg: dict) -> dict:
+    """W1-FRZ [post.w1_c1f]/[post.w1_p2f] (по умолчанию выкл.): флаг → [post].sat_center_prior + свои пороги sp_dfine."""
+    pc = cfg.get("post") or {}
+    if pc.get("w1_c1f") or pc.get("w1_p2f") or pc.get("w4_sat"):
+        from . import sat_recall
+        return sat_recall.resolve_w4_flag(sat_recall.resolve_final_flag(cfg))
+    return cfg
+
+
+
 def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
     """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
 
@@ -93,6 +103,8 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
     if room <= 0 or not dfeats:
         return []
     out = post.only_known_classes(dfeats)
+    from .ae_recall import cross_tif_dedup, dedup_m
+    out = cross_tif_dedup(out, dedup_m(cfg))
     out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                 cfg.get("thresholds_by_markup", {}))
     out = post.finalize(post.merge_within_markup(out))
@@ -103,6 +115,7 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    cfg = _w1_flag(cfg)   # W1-FRZ / W4 flags (off by default): prior spec + own sp_dfine thresholds
     split = _aeor_split(feats, cfg)
     if split is not None:
         out = _finish_v3(split[0], cfg)
@@ -130,9 +143,28 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("kurgan_neighbour_prior"):
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("sat_fusion") or post_cfg.get("sat_center_prior") or post_cfg.get("sat_frame_gate"):
+        # W1-SATREC (docs/PREREG_W1_SATREC.md), off by default: equal-weight sat fusion, then scene-centre prior, before thresholds.
+        from . import sat_recall
+        if post_cfg.get("sat_fusion"):
+            out = sat_recall.sat_equal_fusion(out, _spec(post_cfg["sat_fusion"]))
+        if post_cfg.get("sat_center_prior"):
+            out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
+        if post_cfg.get("sat_frame_gate"):   # W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md), off by default
+            out = sat_recall.sat_frame_gate(out, _spec(post_cfg["sat_frame_gate"]))
+    if post_cfg.get("sat_frame_prior"):
+        # W4 [post.w4_sat].frame: v3_on frame_prior form on sp_dfine, right after sat_center_prior.
+        out = post.frame_prior(out, _spec(post_cfg["sat_frame_prior"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4 (RR1s-cf): до порогов; пороги li-групп в v4_on.toml — в шкале S (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        out = w5_cloudfeat.apply(out, cfg)
+    from .ae_recall import cross_tif_dedup, dedup_m
+    out = cross_tif_dedup(out, dedup_m(cfg))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = post.sat_thr_relax_by_markup(cfg)   # bot-2 [sat_thr_relax], без флага — таблица как есть
     if sf:
@@ -149,12 +181,19 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("near_kept"):
         out = post.rescue_near_kept(out, cfg.get("thresholds", {}), by_markup, _spec(post_cfg["near_kept"]),
                                     cfg.get("default_threshold", 0.15))
-    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+    from . import sat_recall_levers as _sr
+    if _sr.any_enabled(cfg):
+        # bot-7 sat recall: band-verify / agree-accept / cross-nms (all default OFF)
+        out = _sr.apply_thresholds(out, cfg, by_markup)
+    elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    by_markup, _lo.spec(cfg))
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     by_markup)
+    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    from . import li_post as _lip
+    out = _lip.apply(out, cfg)
     out = out + reranked
     # bot-4: protect_merge — крупный не сливается с мелким.
     if _lo.flag(cfg, "protect_merge"):
@@ -209,6 +248,10 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
     try:
+        cfg = _w1_flag(cfg)
+    except Exception:
+        log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
+    try:
         return finish(feats, cfg)
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
@@ -257,11 +300,36 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
         except Exception:
             log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_fusion") or pc.get("sat_center_prior") or pc.get("sat_frame_gate"):
+        try:
+            from . import sat_recall
+            if pc.get("sat_fusion"):
+                out = sat_recall.sat_equal_fusion(out, _spec(pc["sat_fusion"]))
+            if pc.get("sat_center_prior"):
+                out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
+            if pc.get("sat_frame_gate"):
+                out = sat_recall.sat_frame_gate(out, _spec(pc["sat_frame_gate"]))
+        except Exception:
+            log.exception("sat_fusion/sat_center_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["sat_frame_prior"]))
+        except Exception:
+            log.exception("sat_frame_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
+            from . import degraded
+            degraded.mark("frame_prior", "frame_prior в запасной цепочке упал")
+    if cfg.get("w5_cloudfeat"):
+        try:
+            from . import w5_cloudfeat
+
+            out = w5_cloudfeat.apply(out, cfg)
+        except Exception:
+            log.exception("w5_cloudfeat в запасной цепочке упал, li — без переоценки")
     from . import large_objects as _lo
     _by = post.sat_thr_relax_by_markup(cfg)
     if _lo.flag(cfg, "fort_to_gor"):
@@ -272,13 +340,33 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
                                         cfg.get("default_threshold", 0.15))
         except Exception:
             log.exception("near_kept в запасной цепочке упал, шаг пропущен")
-    if _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
+    from .ae_recall import cross_tif_dedup, dedup_m
+    if dedup_m(cfg) > 0:
+        try:
+            out = cross_tif_dedup(out, dedup_m(cfg))
+        except Exception:
+            log.exception("ae_recall cross_tif_dedup в запасной цепочке упал, шаг пропущен")
+    from . import sat_recall_levers as _sr
+    if _sr.any_enabled(cfg):
+        out = _sr.apply_thresholds(out, cfg, _by)
+    elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                    _by, _lo.spec(cfg))
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     _by)
+    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    from . import li_post as _lip
+    try:
+        out = _lip.apply(out, cfg)
+    except Exception:
+        log.exception("li_post в запасной цепочке упал, шаг пропущен")
     out = out + reranked
+    if _lo.flag(cfg, "protect_merge"):
+        try:
+            out = _lo.merge_within_markup(out, post.ISOLATED_GROUPS, _lo.spec(cfg))
+        except Exception:
+            log.exception("large_objects protect_merge в запасной цепочке упал, шаг пропущен")
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
                     ("filter_finds_points", post.filter_finds_points_regimes)):
@@ -307,6 +395,11 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
         except Exception:
             log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
+    if _lo.flag(cfg, "shape_cores"):
+        try:
+            out = _lo.shape_cores_large(out, _lo.spec(cfg))
+        except Exception:
+            log.exception("large_objects shape_cores в запасной цепочке упал, шаг пропущен")
     kept: list[dict] = []
     for f in out:
         try:
@@ -414,9 +507,12 @@ def arm_signal(state: RunState, exit_fn=os._exit):
             return
         try:
             feats = state.snapshot()
-            kept = finish(feats, state.cfg)
+            # safe_finish, как у checkpoint: сбой постобработки не должен оставить площадку без файла ответа
+            kept = safe_finish(feats, state.cfg)
             writer.write_geojson(kept, state.output)
             _emit_protocol(state, feats, kept, "signal")
+        except Exception:
+            log.exception("запись по сигналу не удалась")
         finally:
             _write_lock.release()
             for handler in logging.getLogger().handlers:

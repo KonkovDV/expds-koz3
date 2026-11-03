@@ -1,5 +1,80 @@
 # bot-4: крупные объекты (>5k м²)
 
+## Results (2026-11-01) — honest-10
+
+Флаги в `configs/default.toml` **выключены** (`enabled = false` и все sub-flags `false`). При выключенном мастере `finish` идёт в `post.apply_thresholds` / `post.merge_within_markup`, как без этого модуля. gor_dense не копировался: он остаётся отдельным флагом `[gor_dense]`.
+
+Честный прогон **не выполнен**. На этой машине нет OOF jsonl, эталона и кривых (`/workspace/koz3_shared`, `/workspace/rerank` отсутствуют; в git их нет). GPU и Kaggle нет, модели не учились. Подставленных P/R нет.
+
+| | precision | recall | score (взвеш. F1) | ΔP | ΔR | Δscore |
+|---|---|---|---|---|---|---|
+| flag OFF | не измерено | не измерено | не измерено | — | — | — |
+| area_tau ON | не измерено | не измерено | не измерено | не измерено | не измерено | не измерено |
+| fixc_nested ON | не измерено | не измерено | не измерено | не измерено | не измерено | не измерено |
+
+Полная таблица корзин площади и `recovered_gt_gt5k` появляется в `work/large_objects_honest.json` после команды ниже. До этого восстановление 113 / 82 / 6 / 3 **не посчитано**.
+
+Корзины LB (проверено по `docs/background/LB_SCORING_v2_eb268d6_0.41238.log` и `materials/compute_metrics.py`: границы 100, 500, 1000, 5000, 10000 — это верх интервала, не накопленная полнота):
+
+| корзина GT | recall на LB v2 |
+|---|---|
+| (5000, 10000] м² (в логе «≤ 10000») | **0.000000** |
+| > 10000 м² | **0.294118** |
+
+Разложение 204 = 113 below_τ + 82 no_cand + 6 shape + 3 consumed взято из отчёта bot-2 и README. Построчный `gt_rows.csv` в этот клон не входит, заново по строкам не пересчитано. Сложение опубликованных корзин OOF (5–10k: 13/112 найдено → 99 пропусков; >10k: 20/125 → 105) даёт 204 и с этой суммой сходится.
+
+**Лучший конфиг по honest-10 не выбран** — выбора без замера нет. Что уже известно и не является honest-10:
+
+- mock e2e полного ON: Δ **−0.01629** (coarse hillfort, +3 FP li/gorodishcha). Не включать.
+- ablation mock: `area_tau` / `protect_merge` / `shape_cores` Δ 0 (на том mock крупные ae-объекты не стреляют); `fort_to_gor` и `coarse_hillfort` ≈ **−0.006**.
+- τ_large = 0.20 для Fix C снят с **всей** таблицы OOF Ae (не nested). В honest-скрипте эта константа заново не выбирается: на каждом фолде τ_large берётся из сетки 0.10 / 0.20 / 0.30 только по train.
+
+Пока команда ниже не дала Δscore > 0 без провала слоя, сдача остаётся с флагом OFF.
+
+### Команда (CPU, без GPU, без обучения)
+
+```bash
+python3 scripts/large_objects_honest.py \
+  --fam /workspace/koz3_shared/bot-10/work11/fam0 \
+  --gt /workspace/rerank/gt_train_v2.geojson \
+  --clusters /workspace/koz3_shared/bot-10/work/family_clusters.json \
+  --metric materials/compute_metrics.py \
+  --out work/large_objects_honest.json
+```
+
+- Ветка: `bots/bot4-large-objects` (этот коммит; `git rev-parse HEAD` печатает скрипт, если входов нет).
+- Время: 30–90 мин, одно ядро (кривые по семьям, три варианта).
+- Успех: код 0; в JSON есть `off`, `area_tau`, `fixc_nested` с `score` / `precision` / `recall` / `delta_*` / `size_recall` / `recovered_gt_gt5k`; `off.score` близок к честной базе того стека, из которого собран fam (для стека A — 0.314615 ± 0.002).
+- На этой машине та же команда выходит с кодом **2** (`honest-10 не посчитан`).
+- На LB не сдавать.
+
+### Kaggle CPU package `large-gate` (01.11.2026 Europe/Moscow) — plan (b)
+
+Пакет: `/workspace/kaggle/push/large-gate/` (slug **`elenakonkova/koz3-w4-large-gate`**).
+Ядро: li-post-full style **prep→gate_v6c** vs B′=0.315800; варианты `baseline`/`area_tau`/`fixc_nested`.
+`enable_gpu/tpu=false`, **internet off**. **Не сдавать на LB. Бот не пушит.**
+
+**Решение (a) vs (b):** выбран **(b)** — без fam0.
+- S3 index (dmitrijkv): 2132 objs / 750 prefixes / **0 fam0 hits**; только raw train (La/Li/Ae/Or/разметка).
+- fam0 (~1.39M/103 fam pre-thr jsonl) нет в S3 и xfer.
+- (a) `split_stack_by_family` по `stack_arch` **невалиден** для thr-рычагов: post-thr stack не вернёт preds, убитые τ=1.01.
+- (b) дешевле и валиден: инъекция D-FINE ae OOF slim в w5base stack (как li-post-full).
+
+**Fix C effect check:** slim OOF 4520 gor (area≥5k∨conf≥0.15); **698** Fix-C-pass (area≥5k∩conf≥0.20); conf≈0.05–0.44 — **все ≪1.01**. Smoke apply: fixc n_add=698; area_tau n_add=0 (base gor τ=1.01−relax0.15=0.86 > max conf — area_tau alone не стреляет на ae gor).
+
+**Датасет:** только `elenakonkova/koz3-w2-gate` (w5base). OOF slim + family_clusters + vendor/w5_rerank/scripts **embedded** (~3.5 MB code_file).
+
+**Dry-run на боксе:** exit 0, STATUS=`DONE MISSING_INPUT` (нет stack_arch на боксе; ae_oof_embedded=true). Лог `kaggle/2026-11-01/large-gate/dryrun.log`.
+
+**Push (coord / человек):**
+```bash
+orch/pool_kaggle.sh elenakonkova kernels push -p /workspace/kaggle/push/large-gate
+```
+
+**Риски:** τ_large=0.20 не fam0-nested LOFO (fold-proxy median был 0.10 — оставлен config 0.20); box_area_m2 = geom_3857_scaled proxy; area_tau бесполезен при base τ=1.01; 320 m window не в inject; double-count если stack уже имел ae_dfine gor (apply дропает существующие).
+
+Fix C по кругам r=4 без `box_area_m2` в jsonl не видит бокс (площадь круга ~50 м²). Ключ `box_area_m2` в свойствах скрипт подхватывает. Иначе нужен OOF D-FINE Ae, а не повторный инференс.
+
 ## Контракт
 - **Цель:** поднять recall городищ/фортификаций площадью >5 000 м² (LB: R 5–10k = 0, R >10k = 0,294; OOF misses: 113 below_τ, 82 no_cand, 6 shape, 3 consumed) без регрессии мелких слоёв.
 - **Гипотеза:** area-aware ослабление калиброванных τ + защита крупного при склейке + ядра только у крупных gor + fort→gor + грубый hillfort закроют below_τ / no_cand / consumed, не повторяя отвергнутый bot-2 F1 (отдельные группы под sweep) и F2 (ядра глобально).
@@ -91,3 +166,10 @@ Docker mock+honest-10: оба плеча `[dfine_aeor] ae ON`; ON += Fix C only.
 ## Следующий пункт BACKLOG
 
 Дождаться Fix C mock+honest Δ; при PASS — кандидат в стек с Fix A (не полный LO). OOF post-tuning tau_relax — SUPERSEDED Fix C.
+
+### large-gate shrink (01.11.2026 20:25 Europe/Moscow)
+
+Kernel **17 335 B** (no embed). Sidecars → dataset `elenakonkova/koz3-w4-large-gate-code`
+(`/workspace/kaggle/push/large-gate-ds`, ~3.2 MB). Dry-run clean folder: `DONE MISSING_INPUT`.
+Push order: datasets create/version **then** kernels push. Bot does not push Kaggle.
+

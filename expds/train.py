@@ -214,6 +214,73 @@ def resample_scale(x, y, amount: float, scales=None):
     return xs, (ys > 0.5).to(y.dtype)
 
 
+#: Каналы рельефа лидара, у которых высота входит линейно (локальный рельеф, м / клип).
+RELIEF_LINEAR_TAGS = ("lrm_s", "lrm_l", "lrm_xl")
+
+
+def _log_uniform(n: int, lo: float, hi: float, device, dtype):
+    import torch
+
+    if lo <= 0 or hi <= 0:
+        raise ValueError("диапазон масштаба должен быть > 0")
+    a, b = math.log(min(lo, hi)), math.log(max(lo, hi))
+    return torch.exp(torch.empty(n, device=device, dtype=dtype).uniform_(a, b))
+
+
+def relief_aug(x, y, li_tags, height=(1.0, 1.0), zoom=(1.0, 1.0), p: float = 0.0,
+               slope_max_deg: float = 45.0):
+    """Высота × h и масштаб × s кадра лидара с пересчётом каналов рельефа (идея, своя реализация).
+
+    x — N×C×H×W в [0, 1] (до нормировки), y — N×K×H×W. Каналы по `li_tags` кэша:
+      * lrm_* = clip(lr / clip_m, −1, 1)·0,5 + 0,5, lr линейна по высоте → u' = (u − 0,5)·h + 0,5
+        (точно, кроме уже насыщенных пикселей);
+      * slope = deg / slope_max: tan(угла) линеен по высоте и обратен масштабу → atan(h·tan / s);
+      * прочие каналы только пересэмплируются.
+    zoom s > 1 — объекты крупнее (кадр — центральная часть, растянутая в s раз),
+    s < 1 — мельче (край повторяется). Окна lrm заданы в метрах и при масштабе не пересчитываются:
+    при s в 0,7–1,45 это приближение (точный пересчёт — из DEM в кэше, v2).
+    Каждый кадр с вероятностью p. p <= 0 — батч не меняется.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    n = x.shape[0]
+    if p <= 0 or n == 0 or (height == (1.0, 1.0) and zoom == (1.0, 1.0)):
+        return x, y
+    tags = list(li_tags or [])
+    on = torch.rand(n, device=x.device) < p
+    h = torch.where(on, _log_uniform(n, *height, x.device, x.dtype), torch.ones(n, device=x.device, dtype=x.dtype))
+    s = torch.where(on, _log_uniform(n, *zoom, x.device, x.dtype), torch.ones(n, device=x.device, dtype=x.dtype))
+    x = x.clone()
+    for c, t in enumerate(tags[: x.shape[1]]):
+        if t in RELIEF_LINEAR_TAGS:
+            x[:, c] = ((x[:, c] - 0.5) * h.view(n, 1, 1) + 0.5).clamp(0, 1)
+        elif t == "slope":
+            ang = (x[:, c] * slope_max_deg).clamp(0, 89.0) * (math.pi / 180.0)
+            ang = torch.atan(torch.tan(ang) * (h / s).view(n, 1, 1))
+            x[:, c] = (ang * (180.0 / math.pi) / slope_max_deg).clamp(0, 1)
+    if zoom != (1.0, 1.0):
+        theta = torch.zeros(n, 2, 3, device=x.device, dtype=x.dtype)
+        theta[:, 0, 0] = 1.0 / s
+        theta[:, 1, 1] = 1.0 / s
+        grid = F.affine_grid(theta, list(x.shape), align_corners=False)
+        x = F.grid_sample(x, grid, mode="bilinear", padding_mode="border", align_corners=False)
+        y = (F.grid_sample(y, grid, mode="nearest", padding_mode="zeros", align_corners=False) > 0.5).to(y.dtype)
+    return x, y
+
+
+def site_weights(rows: list[dict], alpha: float, key: str = "region") -> np.ndarray:
+    """Вес тайла ∝ n_участка^(−alpha): участки с тысячами тайлов не забивают эпоху.
+
+    alpha = 0 — равные веса (как без балансировки), 1 — каждый участок поровну. Сумма = 1.
+    """
+    from collections import Counter
+
+    cnt = Counter(r.get(key, "") for r in rows)
+    w = np.array([cnt[r.get(key, "")] ** (-float(alpha)) for r in rows], dtype=np.float64)
+    return w / max(w.sum(), 1e-12)
+
+
 class TileDataset:
     """Тайлы из .npy-шардов (memmap); маски — биты классов → K каналов float."""
 
@@ -282,9 +349,14 @@ class GpuTiles:
                  copy_paste: float = 0.0, paste_channels: tuple[int, ...] = (), class_bits: list[int] | None = None,
                  photo: bool = False, scale: float = 0.0, channel_dropout: float = 0.0,
                  paste_blend: float = 0.0, paste_scale: tuple[float, float] = (1.0, 1.0),
-                 elastic: float = 0.0, precompute_target=None):
+                 elastic: float = 0.0, precompute_target=None,
+                 relief: dict | None = None, sample_weights=None):
         import torch
 
+        self.relief = relief or {}
+        self.sample_weights = None
+        if sample_weights is not None:
+            self.sample_weights = torch.as_tensor(np.asarray(sample_weights), dtype=torch.float32, device=device)
         self.memory_format = memory_format or torch.contiguous_format
 
         by_shard: dict[int, list[int]] = {}
@@ -304,7 +376,8 @@ class GpuTiles:
         self.channel_dropout, self.paste_blend = channel_dropout, paste_blend
         self.paste_scale, self.elastic = paste_scale, elastic
         self.y_pre = None
-        if precompute_target is not None and scale <= 0 and copy_paste <= 0 and elastic <= 0:
+        relief_zoom = tuple(self.relief.get("zoom", (1.0, 1.0))) != (1.0, 1.0) and self.relief.get("p", 0) > 0
+        if precompute_target is not None and scale <= 0 and copy_paste <= 0 and elastic <= 0 and not relief_zoom:
             chunks = []
             for start in range(0, len(self.m), 256):
                 ym = ((self.m[start:start + 256].unsqueeze(1) >> self.shift) & 1).float()
@@ -334,6 +407,9 @@ class GpuTiles:
             for op in (lambda t: t.flip(-1), lambda t: t.flip(-2), lambda t: t.transpose(-1, -2)):
                 w = (torch.rand(len(idx), device=self.device) < 0.5).view(-1, 1, 1, 1)
                 x, y = torch.where(w, op(x), x), torch.where(w, op(y), y)
+        if augment and self.relief.get("p", 0) > 0:
+            x, y = relief_aug(x, y, self.relief.get("li_tags"), tuple(self.relief.get("height", (1.0, 1.0))),
+                              tuple(self.relief.get("zoom", (1.0, 1.0))), float(self.relief["p"]))
         if augment and self.scale > 0:
             x, y = resample_scale(x, y, self.scale)
         if augment and self.copy_paste > 0 and self.paste_channels:
@@ -351,7 +427,11 @@ class GpuTiles:
     def batches(self, batch: int, shuffle: bool, drop_last: bool):
         import torch
 
-        order = torch.randperm(len(self), device=self.device) if shuffle else torch.arange(len(self), device=self.device)
+        if shuffle and self.sample_weights is not None:
+            # балансировка участков: выборка с возвращением, длина эпохи прежняя
+            order = torch.multinomial(self.sample_weights, len(self), replacement=True)
+        else:
+            order = torch.randperm(len(self), device=self.device) if shuffle else torch.arange(len(self), device=self.device)
         stop = len(self) - batch + 1 if drop_last else len(self)
         for i in range(0, max(stop, 0), batch):
             yield self.get(order[i:i + batch], augment=shuffle)
@@ -364,7 +444,6 @@ def absent_class_weight(target, valid):
     valid формы (N, K) или (K,). Там, где 0, вес канала обнуляется. Без valid обучение
     не меняется: функция сама по себе в цикл не включена.
     """
-    import torch
 
     if valid.ndim == 1:
         valid = valid.view(1, -1)
@@ -447,7 +526,9 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           require_gpu: bool = False, min_gpus: int = 0, ema_warmup: bool = False,
           select_min_epoch: int = 1, center_match_m: float = 0.0,
           center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False,
-          within_site_rank: float = 0.0, init_weights: str | None = None) -> dict:
+          within_site_rank: float = 0.0, init_weights: str | None = None,
+          relief_height: tuple = (1.0, 1.0), relief_zoom: tuple = (1.0, 1.0), relief_p: float = 0.0,
+          site_balance: float = 0.0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -619,12 +700,28 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             # center_pre_flip: цель считается один раз, отражения применяются к ней на GPU.
             # Шип при отражении может сместиться на 1 пиксель (0,5 м) — меньше радиуса метрики 2 м.
             pre_target = _pre_target
+    relief = None
+    if relief_p > 0:
+        if meta.get("markup") != "li" or not meta.get("li_tags"):
+            raise ValueError("relief-aug только для кэша лидара с li_tags")
+        relief = {"li_tags": list(meta["li_tags"]), "height": tuple(relief_height),
+                  "zoom": tuple(relief_zoom), "p": float(relief_p)}
+        log.info("рельеф-аугментация: высота %s, масштаб %s, p %.2f, каналы %s",
+                 relief["height"], relief["zoom"], relief_p, relief["li_tags"])
+    sw = site_weights(tr_rows, site_balance) if site_balance > 0 else None
+    if sw is not None:
+        log.info("балансировка участков: alpha %.2f, участков %d", site_balance,
+                 len({r.get("region", "") for r in tr_rows}))
+    if (relief is not None or sw is not None) and not gpu_data and dev.type == "cpu":
+        gpu_data = True  # CPU: те же тензоры GpuTiles в ОЗУ (дымовой тест)
+    if (relief is not None or sw is not None) and not gpu_data:
+        raise RuntimeError("relief-aug / site-balance реализованы только для тайлов в видеопамяти")
     if gpu_data:
         g_tr = GpuTiles(cache_p, tr_rows, k, flips, dev, fmt, copy_paste=copy_paste, paste_channels=ch,
                         class_bits=class_bits, photo=photo, scale=scale,
                         channel_dropout=channel_dropout, paste_blend=paste_blend,
                         paste_scale=paste_scale, elastic=elastic,
-                        precompute_target=pre_target)
+                        precompute_target=pre_target, relief=relief, sample_weights=sw)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits,
                         precompute_target=_pre_target if (center and not no_pre) else None)
         n_steps = len(g_tr) // batch
@@ -829,6 +926,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "photo": photo, "scale": scale,
                         "epoch": ep + 1, "val_peak_thr": ep_thr, "seed": seed,
                         "ema_warmup": bool(ema_warmup), "device": str(dev),
+                        "relief_aug": relief, "site_balance": float(site_balance),
                         "val_loss": vl}, out)
     return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "best_peak_thr": best_thr,
             "history": history, "out": out,
@@ -907,6 +1005,13 @@ def _cli() -> None:
                     help="коэффициент шарнира «центр эталона выше ложных пиков кадра»; 0 — выключено, пилот — 1")
     ap.add_argument("--init-weights", default=None,
                     help="чекпойнт для доучивания; без него голова фокальной карты сбрасывается на prior 0,01")
+    ap.add_argument("--relief-height", type=float, nargs=2, default=(1.0, 1.0), metavar=("LO", "HI"),
+                    help="лидар: множитель высоты рельефа (лог-равномерно), напр. 0.5 2.2; 1 1 — выкл.")
+    ap.add_argument("--relief-zoom", type=float, nargs=2, default=(1.0, 1.0), metavar=("LO", "HI"),
+                    help="лидар: масштаб кадра с пересчётом уклона, напр. 0.7 1.45; 1 1 — выкл.")
+    ap.add_argument("--relief-p", type=float, default=0.0, help="доля кадров с рельеф-аугментацией; 0 — выкл.")
+    ap.add_argument("--site-balance", type=float, default=0.0,
+                    help="вес тайла ∝ n_участка^(−alpha); 0 — выкл., 0.5 — квадратный корень")
     ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
     if args.dry_run:
@@ -928,7 +1033,9 @@ def _cli() -> None:
                 min_gpus=args.min_gpus, ema_warmup=args.ema_warmup, select_min_epoch=args.select_min_epoch,
                 center_match_m=args.center_match_m, center_peak_thrs=tuple(args.center_peak_thrs),
                 center_pre_flip=args.center_pre_flip, within_site_rank=args.within_site_rank,
-                init_weights=args.init_weights)
+                init_weights=args.init_weights,
+                relief_height=tuple(args.relief_height), relief_zoom=tuple(args.relief_zoom),
+                relief_p=args.relief_p, site_balance=args.site_balance)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

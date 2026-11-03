@@ -1,0 +1,15 @@
+{
+ "rc": 1,
+ "heads": {
+  "gor_v3_head.npz": {
+   "sha256": "dffa79d41d1aaaee7360e325234c87751db9595462c5740bfe6e26196cdf8e6c",
+   "bytes": 253836,
+   "matches_pc": false
+  },
+  "gor_dense_head.npz": {
+   "sha256": "ba780f29a2c4e5cfb1178b117fadfa2b2aa65ae64803efcd86286163bd9d19d2",
+   "bytes": 204984,
+   "matches_pc": false
+  }
+ }
+}

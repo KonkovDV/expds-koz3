@@ -93,3 +93,95 @@ watcher w4-v2clean-check → usertest1234/koz3-w4-v2clean-check (CPU слоты 
 30.10 14:35 MSK | C | PIXGBM_RECOVER GO: geo pull DONE w4geo/train 1.5G; scripts/pix_geo_pr_gate.py added (C* vs REF, LB geo P/R); v2_clean terfl_pix=0.58017, maps etgr-only until gate. Await Elena v2-ref + A/D OOF finds-fix. v3a frozen.
 
 30.10 14:35 MSK | C | A ack: train/ canonical; v2-ref=Elena; OOF/finds-fix=A/exec, D=CPU folds. C (1)(2) DONE @81d502b pix_geo_pr_gate + terfl_pix=0.58017 maps=[etgr]. Idle for C*/REF geojsons. No aaaa/cpu-2.
+## 30.10 15:33 MSK — check4 PASS, new iteration
+- check_submission archive 545ef32a (v2clean 70d335a, DOC-1 guard): PASS — FAIL 0, WARN 2, sha_ok=True, wall 48 s (out_v2clean_check4). Lease bot-W4-chk3 released (kernel lease already freed by watcher).
+- Lease slot:box/q2 → bot-W4-v3 until 23:32 MSK; branch:bots/w4-gate renewed until 31.10 01:32 MSK.
+
+## 2026-10-30 iteration (bot5-W4)
+- check4 545ef32a: PASS (FAIL 0, WARN 2, sha_ok). Lease bot-W4-chk3 released.
+- v3_on: build b505656 → koz3_v3on_b505656_6d4764f8_w6dfd2e07.zip (680.5 MiB, sha ebc8e4ba…), DOC-1 guard PASS (no geo_pixgbm, no models/pixgbm). Flags off: v2clean zip sha 545ef32a… byte-identical.
+- v3 gate (honest-10, boot 2000, vs v2clean B0 0.313967): V3P Δ +0.0198 P 0.976 new34 +0.0084 nolidar +0.0751 → PASS; V3F (optimistic) Δ +0.0328 P 0.9985.
+- D2 (PREREG becf0c1): D2-1 C vs A Δ −0.00065 P 0.0 (object_poly F1 −0.0065) → FAIL; D2-2 direct parity BLOCKED (no v2 legacy geophys output in clean room), proxy |Δ−0.012|=0.0126 → FAIL; D2-3 G4: v2 post.merge_within_markup isolates etgr (static, same in w4-gate); dynamic: isolated is better than merged by +0.00016 (1578→180 rows).
+- Kaggle check_submission on v3: NOT run (needs separate W4 lease).
+
+## 30.10 16:20 MSK — origin/bots/w4-gate six "W4 C" commits: NOT OURS → not merged
+b03a4fd (13:24, author "W4 gate bot <w4-gate@koz3.local>": v3a levers PREREG/#12 comp-gate/M_rp PASS +0.00437 P 0.989/levers FAIL/parity PARTIAL, 15 files incl. scripts/v3a_levers.py),
+f901f89 (13:32 check4 PASS + PREP_V3A), 194fe48 (13:37 v3a_min check_submission PASS), 66c62b4 (14:28 "LB drop ack — v3a_min NOT next LB; wait PIXGBM recover"),
+c568499 (14:34 STATUS gate prep + pix_geo_pr_gate), 105ac1b (14:35 align with A) — last five author "bot-W4-gate <bot-w4@koz3.local>".
+Identity ≠ bot5-w4, not made in this session, commit messages/COORD_LOG reference PIXGBM non-cleanroom research → in doubt ⇒ no merge.
+bots/w4-v3on stays separate (push target for W4 bot5). Contents of these commits were not opened (cleanroom).
+# P-W4-compgate + v3_on+M_rp — result (30.10.2026 16:21 MSK), PREREG docs/PREREG_w4_compgate.md (c16be2f, before measurement)
+R  rebuild A on box (fresh split+cache): 60/60 cluster blobs equal cached, honest 0.3146153227 → PASS.
+Sanity: C0 Σ_mod counts == unweighted (0 mismatched cells, all variants); C1 |w≡1 − honest| ≤ 1.1e-16; M0 extras-without-disk == A and == V3P (0.0).
+Weights (target/OOF GT share): PUB geo 1.19 li 1.49 sp_or 0.89 ae 0.13 or 1.03; CLO geo 0.48 li 0.90 sp_or 1.37 ae 1.01 or 11.9 (noisy).
+| comparison | UNW Δ (P) | new34 | nolidar | PUB Δ (P) | CLO Δ (P) | comp-OK |
+|---|---|---|---|---|---|---|
+| V3P vs B0 | +0.019820 (0.976) | +0.008405 | +0.075076 | +0.014806 (0.942) | +0.019615 (0.976) | yes |
+| MRP vs A | +0.004670 (0.9925) | +0.002431 | +0.008924 | +0.002353 (0.933) | +0.005075 (0.999) | yes |
+| V3P+MRP vs V3P (gate) | +0.002758 (0.9985) | +0.003660 | +0.002369 | +0.001078 (0.998) | +0.002604 (0.998) | yes |
+| V3P+MRP vs B0 | +0.022578 (0.9855) | +0.012064 | +0.077446 | +0.015884 (0.948) | +0.022219 (0.986) | yes |
+V3P+MRP gate: Δ<0.003 → FAIL by prereg (P, floors, slices, composition all OK); per prereg: M_rp partly overlaps v3_on (+0.00467 on A → +0.00276 on top of v3_on).
+MRP on A reproduces W3 +0.004670 exactly. Disclosures: TP attributed to predicted modality; group etgr_org (C19 extras) mapped to geo via the etgr prefix rule (not named in PREREG list).
+
+## 01.11 20:20 MSK — J2 regate PASS, v3onchk PASS (env-pin), Kaggle ownership
+- J2 (PREREG 7b5882e, before measurement; rerun with /workspace/koz3/w4venv/bin/python, scipy 1.18.1 — the 30.10 crash was w1/venv without scipy): sanity K=0 mismatches, N reproduces compgate V3P_MRP (|d| 8e-12). J2W4 0.346143 vs V3P 0.333787: Δall +0.012356 P 0.9975 (p5 +0.0041), new34 +0.016405 (P 0.84), nolidar +0.002845 (P 0.9805); floors all ≥0 (kurg_povr +0.031, fort +0.042, object_poly +0.003, finds 0) → PASS (Δ≥0.003, P≥0.9857). α picks nested on v3 [0.6,0.3,0.6,1.0,0.6,0.6,0.3,0.6,0.6,0.6] vs W1-from-A [0.6,0.3,0.6,0.6,0.6,0.3,1.0,1.0,0.6,0.6]. W1's claim +0.0156 shrinks to +0.0124. Secondary vs V3P+M_rp: Δ +0.009598 P 0.9865. → runs/independent_regate_W1J2.json
+- v3onchk ERROR 30.10 16:07: run.py v1 used a hard path /kaggle/input/koz3-w4-wheels/laspy… (no recursive glob) → IndexError before the check. v2 (16:33, fixed glob, never logged) COMPLETE but FAIL: no D-FINE reference region 103 (check_submission DFINE_KNOWN, /workspace/data/train-expds-3 absent on Kaggle) + run A vendor regex cp312 cannot load on Kaggle py3.13.
+  Fix: own kernel dmitrijkv/koz3-w4-ref103 (S3 via koz3-s3-cred, keys not printed) → SpOr 103 + UTM.json (sha 93e9bd90…) → dataset aaaa0000004/koz3-w4-dfine-ref103; run.py v3 rebuilds region dir and passes --dfine-region.
+  v3 result (out_v3on_check3, sha ebc8e4ba OK): B (env transformers 5.21.0 cp313 offline wheels) PASS — FAIL 0, WARN 4, 97.7 s; D-FINE probe 14 queries ≥0.3 on 12 windows (f0 ref 14), max 0.7037 (ref 0.704); smoke sp_dfine n_det 16. A (archive vendor) FAIL 3 = all py3.13-vs-cp312 regex vendor (platform pantum/n7q is py3.12) — environment, not archive.
+- elenakonkova/koz3-w4-li-post-gate (COMPLETE 01.11 19:37 MSK): NOT ours — bot-4 li_post line (bots/bot4-li-post b61e3f6 "li_post Kaggle COMPLETE numbers", EXPERIMENTS.csv "via koz3-w4-li-post-gate"); no W4 lease/script. Not pulled. Their recorded result: Li-only honest-LOFO off 0.2803, thr_nested +0.118, thr_nms8 +0.1195.
+- elenakonkova/koz3-s3-index (ERROR, 01.11 19:39 MSK): no W4 lease, script or log on box, not W4 prefix → not ours; content not opened, not fixed.
+- Leases: box/q1, dmitrijkv/cpu + kernel ref103, aaaa0000004/cpu + kernel v3onchk + dataset ref103 all released.
+01.11 20:23 MSK | W4 | v4: аренда slot:box/q1 (bot-W4-v4); RR1s-cf в main (4293458 и др.) целиком под analysis/2026-10-30/bots/bot-W1/** (запрет) → ревью по копии W1 на коробке /workspace/koz3/w1/cf. Ранкер: LightGBM на семью, 50 признаков X4 = X2 (контекст стека, 35) + cnx_* (5, ConvNeXt лидар) + cf_* (10, диски по LAS 0,5 м, кольцо 8 м, земля 2/8); ядро koz3-w5-cloudfeat тянет LAS из S3 (сеть); сохранены только OOF (nested_w5cf.npz), полной модели и модуля инференса НЕТ | модуль не готов → ждём W1 | /workspace/koz3/w1/cf
+01.11 20:25 MSK | W4 | PREREG деплоя v4 (α = мода вложенного выбора = 0,6; пороги li-групп по всем фолдам в шкале S, без M_rp) до расчёта; V4C (V3P + RR1s-cf без M_rp, α вложенно) против V3P: Δall +0.009539 P 0.9865 (порог 0.9857), new34 +0.0126, nolidar +0.0005, полы OK. Ориентир parity для v4 ≈ +0.0095 (а не +0.0124 J2: та с M_rp). Опечатка PREREG: «110 регионам» = все регионы трейна | PASS | 8a0d48d, orch/bot-W4/runs/v4_fit.json
+01.11 20:27 MSK | W4 | каркас: флаг w5_cloudfeat=false (default.toml), expds/w5_cloudfeat.py (плагин expds.w5cf_infer: region_features()/score(); ref models/w5cf/ref.npz; W5CloudFeatMissing в preflight), хуки pipeline (preflight, лидар-проход, output_floors) и watchdog (finish/safe_finish до apply_thresholds); тесты 11/11, связанные 128 passed 10 skipped; configs/v4_on.toml = v3_on + флаг + [w5cf] + 7 секций порогов li-групп | — | 18ba8b7, 055d3a5
+01.11 20:29 MSK | W4 | сборка флаг выкл (055d3a5, configs/v3_on.toml, те же 8 весов+vendor): config sha 6d4764f8 = v3on, 3507 файлов; против манифеста v3on ebc8e4ba: 3504 побайтно равны, отличаются только expds/pipeline.py, expds/watchdog.py (хуки) и новый expds/w5_cloudfeat.py; zip целиком не равен (sha 1c191f39…), т.к. меняется код; поведение при выкл флаге = v3 (тесты identity finish/floors, без I/O). DOC-1: OK. v4_on без модуля падает в начале с понятной W5CloudFeatMissing | parity OK (пофайлово) | /workspace/koz3/w4geo/dist/koz3_v4off_055d3a5_6d4764f8_w6dfd2e07.zip
+01.11 20:31 MSK | W4 | шаг 5 (сборка v4_on, smoke, J2 через архив) не выполнен: нет модуля W1. Нужно от W1: модели на всём трейне, инференс X2/cnx/cf из run feats и тестового LAS без сети, parity с OOF, expds/w5cf_infer.py. ref.npz готов: orch/bot-W4/runs/w5cf_ref.npz (1,5 МБ, на коробке). Kaggle check_submission не запускался; аренда снята | ждём W1 | —
+01.11 21:25 MSK | W4 | v4 nocnx: cnx_* на инференсе нет (в v3_on только r18/D-FINE/pix_clean/LGBM, li_cnx закомментирован) → вариант nocnx; PREREG 6c2e946 до расчёта. Гейт V4N−V3P Δ+0.011653 P 0.998 (p5 +0.0039), new34 +0.0037, nolidar +0.0005; полы: fortifikatsii −0.00556 < −0.005 → FAIL (runs/independent_regate_W1J2_nocnx.json). Через код архива (OOF-скоры, ref.npz, α 0.6): смесь = fit (maxabs 4e-5), honest-10 Δ+0.0052 P 0.921, fortifikatsii −0.0084 (runs/v4on_archive_gate.json). | FAIL, Kaggle не запускался | runs/*.json
+01.11 21:25 MSK | W4 | v4_on собран: koz3_v4on_da537d3_aafe99d4_w644c0017.zip 684,1 МиБ 3519 файлов sha256 34819adbcd070b9894fb9fbc069ef297202bc8f21dda9d1b315158f3733693d4, DOC-1 OK; ранжировщики пересобраны train_final.py --nocnx, sha = W1 w5cf_infer_nocnx (все 8 файлов), в архиве WEIGHTS_MANIFEST.json, preflight сверяет sha. Сборщик: .npz разрешён только для ref.npz и gq_ref.npz с проверкой «только 1-D» (решение по политике — на бота 1). Parity W1 на коде архива: все 5 участков совпадают с p_nocnx.json W1 поле в поле. Smoke 190 (LAS 5,6 ГиБ): 210,7 с, пик RSS 4086 МиБ (весь конвейер), w5cf 46 с, 6205 объектов с признаками облака, пул 7120, записано 155. Флаг выкл: 3504/3506 как v3on (+3 новых файла кода). Удалены dist/koz3_v4off_055d3a5*.zip, koz3_v4off_65149fe*.zip, старый v4on_65149fe zip (манифесты оставлены). | собран, НЕ отправлен | /workspace/koz3/w4geo/dist/
+01.11 22:45 MSK | W4 | v3_on regex/D-FINE: причина 1 regex cp312-only (9f7877b, vendor cp311–314 + purge), причина 2 huggingface_hub Kaggle 1.29 < 1.31 (b447649, vendor/_hf hf 2.2.0 только при несовместимом env); V3_DEGRADED.json+WARN, check_submission FAIL; архив v3on_b447649 sha 1406c01a…ef41d 3902 файлов DOC-1 OK; Kaggle v4: C/A/B FAIL (hf), NEG FAIL ок, D_env521=REF побайтно; v5 kernel koz3-w4-v3onchk запущен 22:30; npz numeric 1-D 10ee67b; удалены zip 10ee67b, v4on_da537d3 | 1406c01a | bots/w4-v3on c121b68
+01.11 23:45 MSK | W4 | Kaggle v5 koz3-w4-v3onchk (архив v3on_b447649 sha 1406c01a…ef41d) COMPLETE: C_default PASS (FAIL 0, WARN 3), A_regex2025_preloaded PASS, B_no_regex PASS, D_new_env521 PASS — везде D-FINE из вендора 5.21.0, маркера V3_DEGRADED нет; smoke result.geojson 6b1da9bf…, ref103 result.geojson dc99ce1d… (n_det 155) побайтно = REF_old_ebc8e4ba_env521 во всех 4 средах; NEG_dfine_broken: маркер V3_DEGRADED.json есть, check_submission FAIL (5) — как задумано. Аренды dataset:aaaa0000004/koz3-w4-v3onfix и kernel:aaaa0000004/koz3-w4-v3onchk (bot-W4-v3fix) сняты | PASS, parity доказан | w4geo/kaggle/out_v3onfix2/
+01.11 23:43 MSK | W4 | v2clean 545ef32a паритет: архив не пересобирается (b447649 не затрагивает: нет vendor/degraded.py, sp_dfine/gor_gate off); PREREG 8844d49; Kaggle koz3-w4-v2cleanchk2 v5 запущен 23:42 (REF_check4/C/A/B/D), лиза kernel до 02.11 03:41, опрос poll_v2clean_par.sh → out_v2clean_par | — | bots/w4-v3on
+02.11 01:08 MSK | W4 | Kaggle v5 koz3-w4-v2cleanchk2 (архив v2clean 545ef32a, zip_sha_ok) COMPLETE 00:39: REF_check4 PASS (FAIL 0, WARN 2, 30 проверок), C_default / A_regex2025_preloaded / B_no_regex / D_new_env521 PASS (FAIL 0, WARN 2, 31), маркера V3_DEGRADED нет; smoke result.geojson 56be33ff…ca33 (58184 Б, 80 Polygon {finds_points 72, kurgany_tselye 3, kurgany_povrezhdennye 3, arkhitektury 2} = check4), ref103 result.geojson b7774f14…4ef5 (2639 Б) — побайтно = REF_check4 во всех 5 средах. По PREREG 8844d49 — PASS. Аренда kernel:aaaa0000004/koz3-w4-v2cleanchk2 (bot-W4-v2cpar) снята, опрос завершён | PASS, parity v2clean доказан | w4geo/kaggle/out_v2clean_par/
+02.11 14:05 MSK | W4 | Q0 new34-диагностика: C1/A1/P1/P2 минус new34 целиком от перенастройки лидарных τ gor (gor_phys ф4, li_coarse ф5/7; спутниковая часть C1 +0.00075, A1 +0.00011, P 0); R1 −0.0023 спутниковый, большие сцены 035#s1 8.4 Мп −0.00157, 040#s0 5.7 Мп −0.0009 | Δ R1 −0.00232 | docs/bots/2026-11-02/bot-W4/q0_new34/Q0_NEW34.md
+02.11 13:55 MSK | W4 | Q6 finds-GBM replay gate FAIL (UNI Δ−0.0075 P0.19; REP Δ−0.016), handed to W3 | 3b7a097 | docs/bots/2026-11-02/bot-W4/q6_finds_gbm/HANDOFF.md
+02.11 14:12 MSK | W4 | C1F независимый регейт (PREREG e6b5a31, порт 98cdf56+фикс scene_drel для sp_dfine): реплей вложенно C1 Δall +0.01224 P 0.999, nolidar +0.0115, но new34 −0.0008 и kurgany_tselye −0.0033 < −0.002; P2 Δ +0.0153 new34 −0.0016 kt −0.0059; шкала dfine_f0 совпадает; v4 не собирался | FAIL | docs/bots/2026-11-02/bot-W4/c1f_regate/RESULT.md
+02.11 14:30 MSK | W4 | C1F-gor/arkh + FP1 re-gate: PREREG + flag [post.w4_sat] (off) pushed, run started | d366a45, 07fa43c | docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG.md
+02.11 14:33 MSK | W4 | τ-rule discrepancy CONFIRMED (old C1F rule changes 50/50 base τ, prod rule 0/50); C1F RESULT 5d0dd4c superseded | AMEND1 c60e50f | docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG_AMEND1.md
+02.11 14:33 MSK | W4 | re-gate (prod rule, identity 0/50 OK): C1 Δ+0.016202 P1.0 PASS; GA Δ+0.013421 P1.0 PASS; FP1 Δ+0.008581 P0.999 PASS (=W1) | see RESULT | docs/bots/2026-11-02/bot-W4/c1fx_regate/RESULT.md
+02.11 14:33 MSK | W4 | WRAP-UP (coord): v4 NOT built, no Kaggle; leases released | — | orch/bot-W4/STATUS.md
+NEXT (recipe, W4): 1) re-gate is DONE: C1 (C1F all 5 classes), GA (gor/arkh, post hoc, P>=0.985714), FP1 (W1 as is) under prod τ rule (FP 0.5, metric._group_cuts midpoint, first argmax, round 6) with blocking identity sanity 0/50 — scripts docs/bots/2026-11-02/bot-W4/c1fx_regate/scripts (work copy /workspace/koz3/orch/bot-W4/work/c1fx, run_all.sh; code copy /workspace/koz3/w4/c1fx/x_c1fx = git archive of 07fa43c; outputs /workspace/koz3/w4/c1fx/out). Best single PASS = C1.
+  2) v4: compute full-data C1 values (same rule, training = all regions: (d0,s) from grid + τ refit for 5 sp_dfine classes; add a "full" step to c1fx_prep.py), write [post.w4_sat] enabled=true {groups=["sp_dfine"], center={d0, s_by_class all 5}, thresholds_sp_dfine} into the v4 build config (v3_on.toml copy; note old W4 configs/v4_on.toml name collision), base v3_on b447649 + 98cdf56 port + 07fa43c flag; build via scripts/build_submission_git.py --check (DOC-1 guard, check_archive_clean, WEIGHTS_MANIFEST, ≤1 v4 zip, sha256) into /workspace/koz3/w4geo/dist.
+  3) Kaggle parity C/A/B/D/REF + NEG via pool_kaggle.sh aaaa0000004, template /workspace/koz3/w4geo/kaggle/koz3-w4-v3onchk-fix, new dataset/kernel koz3-w4-v4*, is_private, leases dataset:/kernel:aaaa0000004/<name>, nohup poller (poll_v3onfix2.sh pattern). Push code only to bots/w4-v3on; no Drive.
+  Commits: PREREG d366a45, flag 07fa43c, AMEND1 c60e50f, RESULT = this commit. Branch bots/w4-v3on.
+
+30.10 14:52 MSK | C | v2-ref zip OK sha8f3f2671…; black-box REF emit RUNNING (docker pantum/n7q → w4geo/ref/out/REF_v2.geojson). MagGr DONE: C_* + R_d10_vsA18.json. Gate after REF. TerFl OFF. No aaaa/cpu-2.
+- [2026-10-30 15:02 MSK] PIXGBM recover gate vs black-box REF_v2 (7194 feats, 18 train sites): **FAIL** (C_Cet and C_Setonly).
+  C_Cet geo P/R 0.6318/0.4992 · C_Setonly 0.6233/0.4962 · REF 0.6644/0.7847 (v2_LB target 0.7694/0.6565). Main gap is MagGr recall: C 0.508 vs REF 0.859 (−0.351); EtGr −0.035.
+  Honest Δ vs A18: Cet +0.0187, Setonly +0.0160 (surrogate ≥0.012 = True). TerFl flag was OFF; REF writes no terfl.
+  Paths: runs/geo_pr_gate_{Cet,Setonly}_vsREF.{json,log}; REF w4geo/ref/out/REF_v2.geojson; needs EXPDS_METRIC=wt/w4-pix/materials/compute_metrics.py
+
+30.10 15:09 MSK | C | MagGr FN-by-site → orch/bot-W4/REPORT_MAGGR_FN_BY_SITE.md. Worst ΔR: 201 (−0.82, C n=16), 211 (−0.59, C n=0!), 207/209. Idle-ready for next C_*; TerFl OFF; v3a frozen.
+
+30.10 17:33 MSK | C | REF re-emit OK 7194. Gate CetO3_Sr8G FAIL vs REF (_ht MagGr R .681 vs .859). Surrogate +0.034. TerFl pix ON in Cet lineage (threshold_group=terfl_pix; oof maps included terfl). v3a frozen.
+
+30.10 17:34 MSK | C | A ACK Sr8G FAIL. Idle for C*_noTerFl → re-gate vs REF + confirm 0× terfl_pix. Do NOT enable TerFl for Elena pkg. v3a frozen; no LB. REF_v2 already on disk (7194).
+
+30.10 17:47 MSK | C | noTerFl gate: terfl_pix=0× OK. FAIL vs REF (see REPORT_TO_A_GATE_noTerFl.md). Soft-thr rejected. No LB.
+
+30.10 17:48 MSK | C | A ACK noTerFl FAIL. Idle-ready: next C*=MagGr domain Гнёздово 211/212 (not soft-thr). Watch→19:40. No LB; v3a frozen.
+
+## 30.10 23:04 MSK — FREEZE E1_G1 (Elena «как лучше», via A)
+- Best cleanroom C*: `w4geo/work/cstar/C_CetO3_Sr8G_noTerFl_L_E1_G1.geojson` + `_ht` (sha c92b25e0 / aaba16ef).
+- Gate vs REF_v2: FAIL PASS_vs_ref (MagGr R _ht wall −.162); geo+MagGr P _ht ≥ REF; honest Δ +0.0407/+0.0425; terfl_pix=0.
+- Gate JSONs: orch/bot-W4/runs/gateC_CetO3_Sr8G_noTerFl_L_E1_G1{,_ht}.json
+- STOP MagGr R grind vs REF. Hold package. No LB until Elena yes. C idle-ready for other W4 / seeds OOF when asked. v3a_min stays frozen.
+
+01.11 11:10 MSK | C | STANDBY re-gate (A ORCH_PLAN_20261101). A on CPU PIXGBM P1. No GPU push. Wait A gate (B′ 0.315800). Hold 0.41238 + E1_G1 freeze. No LB.
+01.11 11:39 MSK | C | Elena FULL GO GPU/CPU/TPU (A t225u). C ready for honest-10 / B′ gates on new lidar-aug + sat2 when A asks. STANDBY — no self kernel push. Hold 0.41238 + E1_G1.
+01.11 18:22 MSK | C | RESUME STANDBY (A: NOT Elena STOP — quota cut cancelled turn by mistake). No GPU. Hold 0.41238 + E1_G1. Ready honest-10/B′ on A ask.
+
+02.11 14:58 MSK | W4 (agent 5) | A→W4 ACK: v4 CONFIRMED. Zip /workspace/koz3/w4geo/dist/koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip sha256 f0def982… (manifest match), git 07795d2, [post.w1_c1f] enabled=true, DOC-1 name-scan clean (no geo_pixgbm/pixgbm/EN). Next: independent re-gate COMP_GORLOC + opt COMP_FL (coord-comp 5dedde3). Hold LB.
+
+02.11 15:05 MSK | W4 (agent 5) | A ACK packaging: Drive v4c1f_f0def982 parts 00–07 uploaded + FINAL_CANDIDATES.md; Kaggle DS aaaa0000004/koz3-w4-v4c1f ready; kernel koz3-w4-v4chk RUNNING (parity 4+). FINAL_CANDIDATES/HANDOFF tip updated on box (wt/orch + orch/). GORLOC+FL re-gates continue. Hold LB (Elena via A).
+02.11 15:10 MSK | W4 (agent 5) | COMP_FL re-gate (v4 honest-10, coord-comp 5dedde3 sat_frame_gate t2_cls, τ frozen): Δall +0.00012 P0.53, new34 +0.00056, nolidar −0.00283, kp floor −0.0027 FAIL → FAIL, |Δ|<0.003 → CLOSED. GORLOC: closed per A (parent regate_COMP_GORLOC_KMASK_CLOSE, W3 NO-PASS). runs/regate_COMP_FL.json. No LB.
+02.11 15:20 MSK | W4 (agent 5) | Гейт C1FP (C1F-all+FP1) на v4 → v5: FAIL. vs base Δall +0.01344 P1.0, new34 +0.0019, nolidar +0.0212, но пол kt −0.00227 (<−0.002); vs v4(C1) Δall −0.00276 P0.037, nolidar −0.0119. v5 не формируется, v4 остаётся. runs/gate_C1FP_v5.{json,md}, out sha d8440375…. Hold LB.

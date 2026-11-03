@@ -1,0 +1,174 @@
+{
+ "folds": [
+  0,
+  3
+ ],
+ "regions": 18,
+ "regions_b": 18,
+ "n_gt": 249,
+ "gt_classes": {
+  "gorodishcha": 11,
+  "kurgany_povrezhdennye": 190,
+  "kurgany_tselye": 6,
+  "arkhitektury": 41,
+  "fortifikatsii": 1
+ },
+ "A_sp_dfine": {
+  "S": 0.24991626283563276,
+  "per_class": {
+   "arkhitektury": {
+    "f1": 0.3529408473666652,
+    "t": 0.7,
+    "tp": 9,
+    "fp": 2,
+    "fn": 32
+   },
+   "fortifikatsii": {
+    "f1": 0.0,
+    "t": null
+   },
+   "gorodishcha": {
+    "f1": 0.28571390816362136,
+    "t": 0.725,
+    "tp": 2,
+    "fp": 2,
+    "fn": 9
+   },
+   "kurgany_povrezhdennye": {
+    "f1": 0.21081780820022442,
+    "t": 0.55,
+    "tp": 38,
+    "fp": 265,
+    "fn": 152
+   },
+   "kurgany_tselye": {
+    "f1": 0.2926824842361458,
+    "t": 0.7,
+    "tp": 3,
+    "fp": 23,
+    "fn": 3
+   }
+  },
+  "n_circles": 17945
+ },
+ "B_dfine2": {
+  "S": 0.3088334935072238,
+  "per_class": {
+   "arkhitektury": {
+    "f1": 0.3232320257118955,
+    "t": 0.775,
+    "tp": 8,
+    "fp": 1,
+    "fn": 33
+   },
+   "fortifikatsii": {
+    "f1": 0.0,
+    "t": null
+   },
+   "gorodishcha": {
+    "f1": 0.21052582702476416,
+    "t": 0.575,
+    "tp": 3,
+    "fp": 29,
+    "fn": 8
+   },
+   "kurgany_povrezhdennye": {
+    "f1": 0.24691309366045583,
+    "t": 0.525,
+    "tp": 40,
+    "fp": 188,
+    "fn": 150
+   },
+   "kurgany_tselye": {
+    "f1": 0.5454539504136905,
+    "t": 0.9,
+    "tp": 3,
+    "fp": 4,
+    "fn": 3
+   }
+  },
+  "n_circles": 17279
+ },
+ "M_merge8_mean": {
+  "S": 0.3337061577608212,
+  "per_class": {
+   "arkhitektury": {
+    "f1": 0.3664117342818159,
+    "t": 0.275,
+    "tp": 12,
+    "fp": 25,
+    "fn": 29
+   },
+   "fortifikatsii": {
+    "f1": 0.0,
+    "t": null
+   },
+   "gorodishcha": {
+    "f1": 0.37499952343798065,
+    "t": 0.65,
+    "tp": 3,
+    "fp": 4,
+    "fn": 8
+   },
+   "kurgany_povrezhdennye": {
+    "f1": 0.24691313643780716,
+    "t": 0.575,
+    "tp": 35,
+    "fp": 117,
+    "fn": 155
+   },
+   "kurgany_tselye": {
+    "f1": 0.49999941666718056,
+    "t": 0.775,
+    "tp": 3,
+    "fp": 6,
+    "fn": 3
+   }
+  },
+  "n_circles": 23075
+ },
+ "C_self_merge8_mean": {
+  "S": 0.25174552927674004,
+  "per_class": {
+   "arkhitektury": {
+    "f1": 0.3529408473666652,
+    "t": 0.7,
+    "tp": 9,
+    "fp": 2,
+    "fn": 32
+   },
+   "fortifikatsii": {
+    "f1": 0.0,
+    "t": null
+   },
+   "gorodishcha": {
+    "f1": 0.28571390816362136,
+    "t": 0.725,
+    "tp": 2,
+    "fp": 2,
+    "fn": 9
+   },
+   "kurgany_povrezhdennye": {
+    "f1": 0.21081780820022442,
+    "t": 0.55,
+    "tp": 38,
+    "fp": 265,
+    "fn": 152
+   },
+   "kurgany_tselye": {
+    "f1": 0.299999550000575,
+    "t": 0.7,
+    "tp": 3,
+    "fp": 22,
+    "fn": 3
+   }
+  },
+  "n_circles": 17448
+ },
+ "R1_fail": false,
+ "R2_fail": false,
+ "dB": 0.05891723067159102,
+ "dM": 0.08378989492518843,
+ "dM_vs_C": 0.08196062848408114,
+ "verdict": "PASS"
+}

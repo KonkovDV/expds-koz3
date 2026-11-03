@@ -1,0 +1,15 @@
+# Release profile: sat2 REPLACE pack attached; inference flags otherwise OFF.
+# sat2 is an OOF replace artifact (not a default.toml section on main tip).
+# pack-alongside-kit is sufficient; flag OFF by default; no logic changes on main.
+# Provide pack via --sat2-pack or [artifacts].sat2_replace_pack.
+name = "sat2"
+description = "sat2 REPLACE soft-PASS pack (OOF detections)"
+
+[features]
+fr1h = false
+sat2 = true
+dfine_ae = false
+
+[artifacts]
+# Override on CLI: --sat2-pack PATH
+# sat2_replace_pack = "out/sat2-f14/replace-pack/sat2_det2_oof_replace_pack.zip"
