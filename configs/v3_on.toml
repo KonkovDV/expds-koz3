@@ -419,6 +419,25 @@ classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_po
 d0 = 0.5
 edge = 0.5
 
+# W1-FRZ (bot-W1, 02.11; docs/W1_C1F_HANDOFF.md, PREREG 1532475, results 5cc5ed7): scene-centre prior on D-FINE (sp_dfine)
+# before thresholds, m = max(0, 1 − s·clip((scene_drel − d0)/(1 − d0), 0, 1)); thresholds of all non-sp_dfine groups unchanged.
+# Parameters + sp_dfine thresholds chosen ONCE on all regions (tools/satq/full_prep.py; the FRZ nested selection rule).
+# Both OFF. At most one may be enabled (expds/sat_recall.resolve_final_flag); enabling = enabled = true, nothing else.
+# Main (C1F): all D-FINE classes. FRZ prod-replay gate PASS: Δ +0.01592, P 1.000, new34 0, nolidar +0.0285.
+[post.w1_c1f]
+enabled = false
+groups = ["sp_dfine"]
+d0 = 0.25
+s_by_class = { arkhitektury = 0.75, fortifikatsii = 0.75, gorodishcha = 0.75, kurgany_povrezhdennye = 0.75, kurgany_tselye = 0.75 }
+thresholds_sp_dfine = { arkhitektury = 0.281948, fortifikatsii = 0.525625, gorodishcha = 0.56171, kurgany_povrezhdennye = 0.384082, kurgany_tselye = 0.426006 }
+# Comparison (P2F): gorodishcha + arkhitektury only. FRZ gate PASS: Δ +0.01491, P 1.000, new34 0, nolidar +0.0211.
+[post.w1_p2f]
+enabled = false
+groups = ["sp_dfine"]
+d0 = 0.0
+s_by_class = { arkhitektury = 1.25, gorodishcha = 1.5 }
+thresholds_sp_dfine = { arkhitektury = 0.228759, fortifikatsii = 0.869051, gorodishcha = 0.383565, kurgany_povrezhdennye = 0.555265, kurgany_tselye = 0.670285 }
+
 # Кандидат bot-7 (28.10, bot-7/REPORT3.md): только курганы 0,5 м. Микрокруги архитектуры не включены:
 # поверх реранкера архитектуры добавка неустойчива (bot-5/REPORT.md, analysis/joint/summary.json).
 # Пороги групп той же процедурой (sweep_groups в выборке по OOF после micro) не меняются

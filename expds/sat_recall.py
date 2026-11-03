@@ -1,302 +1,247 @@
-"""Satellite recall levers (bot-7): precision-guarded mid-band + cross-layer agree.
+"""W1-SATREC (bot-W1, 02.11, docs/PREREG_W1_SATREC.md): satellite recall levers. All OFF by default.
 
-Default OFF. Distinct from CLOSED levers:
-  - sat 8m cluster / [post.sp_score_fusion] radius_m=8 (score average, no new dets)
-  - near_kept / ring, sp_large, peak-rerank, sat2 (other bots)
-
-L1 [sat_band_verify]: lower thr (scale) but mid-band needs verify_p ≥ floor.
-L2 [sat_agree_accept]: thr×agree_scale only when partner sat group fires within
-    radius_m (default 16 m ≠ 8 m CLOSED cluster).
-L3 [sat_cross_nms]: after thresholds, keep max-conf across sat groups within nms_m
-    (dedup FP doubles; helps P so thr relax stays safe).
+sat_equal_fusion — equal-weight fusion of the satellite detectors into one group (default "sp_fuse"):
+  per region and class, candidates in descending confidence; each unassigned candidate becomes an anchor and
+  absorbs unassigned candidates whose centroid is within radius_m ground metres of the anchor centroid, or lies
+  inside the anchor geometry, or whose geometry contains the anchor centroid. Fused confidence = mean over the
+  detectors able to emit the class of each detector's max confidence in the cluster (absent detector = 0).
+  Geometry/properties = anchor's. Members are removed; non-members pass through unchanged.
+  Geometries must be EPSG:3857 (ground metres = units × cos φ, one cos φ per region).
+sat_center_prior — post.frame_prior form on the satellite group (scene_drel; d0 width of the untouched centre,
+  edge = 1 − strength at the scene edge). Applied before thresholds.
+sat_frame_gate — W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md §C): on scenes >= min_scene_mpix (scene_mpix of the covering
+  scene box that gives scene_drel), drop satellite detections with scene_drel > x and confidence < t2. Before thresholds.
+W1-FRZ production flags (docs/W1_C1F_HANDOFF.md) — [post.w1_c1f] (main) / [post.w1_p2f] (comparison), enabled = false
+  by default. resolve_final_flag(cfg) turns an enabled flag into [post].sat_center_prior + its own
+  [thresholds_by_markup.sp_dfine] values (non-sp_dfine thresholds untouched); flag off → cfg returned as is.
 """
 from __future__ import annotations
 
-import logging
 from collections import defaultdict
-from typing import Any
 
-log = logging.getLogger(__name__)
+import numpy as np
 
-KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
-SAT_GROUPS_DEFAULT = ("sp_or", "sp_focal", "sp_focal2", "sp_arch")
-# Pair for agree: center-map (sp_or/sp_focal) ↔ wide (sp_focal2).
-AGREE_PAIR_DEFAULT = ("sp_focal", "sp_focal2")
-
-
-def _group(f: dict) -> str:
-    g = f.get("threshold_group") or f.get("markup_type") or ""
-    # Submit center map is markup sp_or, thr table often sp_focal.
-    return "sp_focal" if g == "sp_or" else g
+DEFAULT_MEMBERS = {"sp_or": "r18", "sp_focal": "r18", "sp_arch": "r18", "sp_focal2": "f2", "sp_dfine": "dfine"}
+DEFAULT_CLASS_MEMBERS = {
+    "kurgany_povrezhdennye": ["r18", "f2", "dfine"],
+    "kurgany_tselye": ["r18", "f2", "dfine"],
+    "gorodishcha": ["r18", "dfine"],
+    "arkhitektury": ["r18", "dfine"],
+    "fortifikatsii": ["dfine"],
+}
 
 
-def _norm_group(g: str) -> str:
-    return "sp_focal" if g == "sp_or" else g
+def _group_of(f: dict) -> str:
+    return f.get("threshold_group") or f.get("markup_type") or ""
 
 
-def any_enabled(cfg: dict | None) -> bool:
-    cfg = cfg or {}
-    for key in ("sat_band_verify", "sat_agree_accept", "sat_cross_nms"):
-        spec = cfg.get(key) or {}
-        if isinstance(spec, dict) and spec.get("enabled"):
-            return True
-    return False
+def _member_of(f: dict, members: dict) -> str | None:
+    g = _group_of(f)
+    if g in members:
+        return members[g]
+    # production r18 outputs carry markup_type sp_or without threshold_group
+    if f.get("threshold_group") is None and f.get("markup_type") == "sp_or" and "sp_or" in members:
+        return members["sp_or"]
+    return None
 
 
-def band_settings(cfg: dict | None) -> dict[str, Any]:
-    spec = dict((cfg or {}).get("sat_band_verify") or {})
-    return {
-        "enabled": bool(spec.get("enabled")),
-        "scale": float(spec.get("scale", 0.90)),
-        "verify_floor": float(spec.get("verify_floor", 0.40)),
-        "groups": tuple(spec.get("groups") or SAT_GROUPS_DEFAULT),
-        "classes": tuple(spec.get("classes") or KURGANS),
-        # no verify_p: reject mid-band (safe) unless explicitly admit
-        "no_verify_policy": str(spec.get("no_verify_policy") or "reject"),
-    }
-
-
-def agree_settings(cfg: dict | None) -> dict[str, Any]:
-    spec = dict((cfg or {}).get("sat_agree_accept") or {})
-    return {
-        "enabled": bool(spec.get("enabled")),
-        "radius_m": float(spec.get("radius_m", 16.0)),
-        "scale": float(spec.get("scale", 0.85)),
-        "groups": tuple(spec.get("groups") or AGREE_PAIR_DEFAULT),
-        "classes": tuple(spec.get("classes") or KURGANS),
-    }
-
-
-def nms_settings(cfg: dict | None) -> dict[str, Any]:
-    spec = dict((cfg or {}).get("sat_cross_nms") or {})
-    return {
-        "enabled": bool(spec.get("enabled")),
-        "nms_m": float(spec.get("nms_m", 4.0)),
-        "groups": tuple(spec.get("groups") or SAT_GROUPS_DEFAULT),
-        "classes": tuple(spec.get("classes") or KURGANS),
-    }
-
-
-def _ground_scale(y: float) -> float:
-    """EPSG:3857 → approx meters on ground (same idea as post._ground_scale)."""
+def sat_equal_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
     import math
-    # WebMercator: meters_x ≈ cos(lat); y is northing.
-    lat = (2.0 * math.atan(math.exp(y / 6378137.0)) - math.pi / 2.0)
-    return max(0.2, abs(math.cos(lat)))
 
-
-def mark_agree(feats: list[dict], spec: dict[str, Any] | None = None) -> list[dict]:
-    """Stamp sat_agree=True on kurgans that have a partner from the other group within radius_m.
-
-    Does not change confidence. radius_m default 16 — not the CLOSED 8 m score-fusion cluster.
-    """
-    st = spec if spec is not None else agree_settings({"sat_agree_accept": {"enabled": True}})
-    if not st.get("enabled"):
-        return feats
-    groups = tuple(_norm_group(g) for g in st["groups"])
-    if len(groups) != 2:
-        raise ValueError(f"sat_agree_accept needs exactly 2 groups, got {groups}")
-    classes = set(st["classes"])
-    radius = float(st["radius_m"])
-    if radius <= 0:
-        raise ValueError(f"sat_agree_accept radius_m must be > 0, got {radius}")
-    # Refuse accidental re-enable of CLOSED 8 m cluster semantics via wrong radius.
-    if abs(radius - 8.0) < 1e-9:
-        raise ValueError(
-            "sat_agree_accept radius_m=8.0 overlaps CLOSED sat 8m cluster / sp_score_fusion; "
-            "use e.g. 12–20 m"
-        )
-
+    import shapely
     from scipy.spatial import cKDTree
-    import numpy as np
 
-    idx: list[tuple[int, str, str, float, float]] = []
-    for i, f in enumerate(feats):
-        if f.get("class_name") not in classes:
-            continue
-        g = _group(f)
-        if g not in groups:
-            continue
-        geom = f.get("geom")
-        if geom is None or geom.is_empty:
-            continue
-        c = geom.centroid
-        idx.append((i, f.get("region_name") or "", g, float(c.x), float(c.y)))
-    if not idx:
-        return feats
-
-    ys: dict[str, list[float]] = defaultdict(list)
-    for _, reg, _, _, y in idx:
-        ys[reg].append(y)
-    scale = {r: _ground_scale(float(np.median(v))) for r, v in ys.items()}
-
-    pts: dict[tuple[str, str], list[tuple[float, float, int]]] = defaultdict(list)
-    for i, reg, g, x, y in idx:
-        s = scale[reg]
-        pts[(reg, g)].append((x * s, y * s, i))
-
-    trees: dict[tuple[str, str], Any] = {}
-    for key, rows in pts.items():
-        arr = np.asarray([(a, b) for a, b, _ in rows], dtype=np.float64)
-        trees[key] = (cKDTree(arr), [i for _, _, i in rows])
-
-    agree_at = set()
-    g0, g1 = groups
-    for i, reg, g, x, y in idx:
-        other = g1 if g == g0 else g0
-        t = trees.get((reg, other))
-        if t is None:
-            continue
-        s = scale[reg]
-        hits = t[0].query_ball_point((x * s, y * s), radius)
-        if hits:
-            agree_at.add(i)
-
-    if not agree_at:
-        return feats
-    out = []
-    for i, f in enumerate(feats):
-        if i in agree_at:
-            f = dict(f)
-            f["sat_agree"] = True
-        out.append(f)
-    log.info("sat_agree_accept: marked %d / %d sat kurgans (r=%.1f m)", len(agree_at), len(idx), radius)
+    spec = spec or {}
+    members = dict(spec.get("members") or DEFAULT_MEMBERS)
+    cmem = {k: list(v) for k, v in (spec.get("class_members") or DEFAULT_CLASS_MEMBERS).items()}
+    radius = float(spec.get("radius_m", 8.0))
+    out_group = str(spec.get("group", "sp_fuse"))
+    out, by = [], defaultdict(list)
+    for f in feats:
+        m = _member_of(f, members)
+        if m is None or f.get("class_name") not in cmem or m not in cmem[f["class_name"]]:
+            if m is None:
+                out.append(f)
+            continue   # member detector of a class it cannot vote for -> dropped (not expected)
+        by[(f.get("region_name") or "", f["class_name"])].append((f, m))
+    for (reg, cls), lst in sorted(by.items(), key=lambda kv: kv[0]):
+        mlist = cmem[cls]
+        conf = np.array([float(f.get("confidence", 0.0)) for f, _ in lst])
+        geoms = np.array([f["geom"] for f, _ in lst], dtype=object)
+        cents = shapely.centroid(geoms)
+        cx, cy = shapely.get_x(cents), shapely.get_y(cents)
+        lat = math.atan(math.sinh(float(np.median(cy)) / 6378137.0))
+        s = max(math.cos(lat), 1e-6)
+        kd = cKDTree(np.c_[cx * s, cy * s])
+        t_pts = shapely.STRtree(cents)
+        t_geo = shapely.STRtree(geoms)
+        order = np.lexsort((np.arange(len(lst)), -conf))
+        assigned = np.zeros(len(lst), bool)
+        for i in order:
+            if assigned[i]:
+                continue
+            assigned[i] = True
+            near = set(kd.query_ball_point((cx[i] * s, cy[i] * s), radius))
+            near |= set(t_pts.query(geoms[i], predicate="intersects").tolist())
+            near |= set(t_geo.query(cents[i], predicate="intersects").tolist())
+            best = {lst[i][1]: conf[i]}
+            for j in near:
+                if not assigned[j]:
+                    assigned[j] = True
+                    mj = lst[j][1]
+                    best[mj] = max(best.get(mj, 0.0), conf[j])
+            fused = sum(best.get(m, 0.0) for m in mlist) / len(mlist)
+            f0 = lst[i][0]
+            out.append(dict(f0, confidence=float(fused), threshold_group=out_group, markup_type=f0.get("markup_type") or "sp_or",
+                            fuse_n=len(best), fuse_anchor=lst[i][1]))
     return out
 
 
-def _orig_tau(f: dict, thresholds: dict, default: float, by_markup: dict) -> float:
-    own = by_markup.get(f.get("threshold_group") or f.get("markup_type"), {}) or {}
-    # also try normalized group for sp_or ↔ sp_focal
-    if f["class_name"] not in own:
-        own = by_markup.get(_group(f), {}) or own
-    return float(own.get(f["class_name"], thresholds.get(f["class_name"], default)))
+def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Scene-centre prior on satellite group(s) (default sp_dfine), before thresholds. Off unless [post].sat_center_prior.
 
+    Legacy spec (d0, edge) → post.frame_prior unchanged (W1-SATREC). W1-SATREC2 (docs/PREREG_W1_SATREC2.md) adds:
+      s            strength, m = max(0, 1 − s·clip((d − d0)/(1 − d0), 0, 1)); s may exceed 1 (m hits 0 before the edge)
+      s_by_class   {class_name: s} overrides s per class (e.g. kurgany_tselye own strength)
+      only_without_lidar  apply only in regions whose input has no markup "li" feature
+      nl_group     relabel threshold_group of the prior groups to this name in lidar-free regions (own thresholds)
+    W1-COMBO (docs/PREREG_W1_COMBO.md) adds:
+      frame_prior  {classes, d0, edge}: after the prior, post.frame_prior on the same groups (∪ nl_group) — FP1 on sp_dfine
+    Feature without scene_drel keeps its confidence.
+    """
+    from . import post
 
-def apply_thresholds(
-    feats: list[dict],
-    cfg: dict,
-    by_markup: dict[str, dict[str, float]] | None,
-) -> list[dict]:
-    """Threshold pass with optional band-verify + agree scales; then optional cross-NMS."""
-    thresholds = cfg.get("thresholds") or {}
-    default = float(cfg.get("default_threshold", 0.15))
-    by_markup = by_markup or {}
-    band = band_settings(cfg)
-    agree = agree_settings(cfg)
-
-    if agree.get("enabled"):
-        feats = mark_agree(feats, agree)
-
-    band_groups = set(_norm_group(g) for g in band["groups"]) if band["enabled"] else set()
-    band_classes = set(band["classes"]) if band["enabled"] else set()
-    agree_groups = set(_norm_group(g) for g in agree["groups"]) if agree["enabled"] else set()
-    agree_classes = set(agree["classes"]) if agree["enabled"] else set()
-
-    if band["enabled"] and band["scale"] <= 0:
-        raise ValueError(f"sat_band_verify scale must be > 0, got {band['scale']}")
-    if agree["enabled"] and agree["scale"] <= 0:
-        raise ValueError(f"sat_agree_accept scale must be > 0, got {agree['scale']}")
-
-    kept: list[dict] = []
+    spec = dict(spec or {})
+    spec.setdefault("groups", ["sp_dfine"])
+    if not any(k in spec for k in ("s", "s_by_class", "only_without_lidar", "nl_group", "frame_prior")):
+        return post.frame_prior(feats, spec)
+    groups = set(spec["groups"])
+    d0 = min(max(float(spec.get("d0", 0.0)), 0.0), 0.999)
+    s_def = max(float(spec.get("s", 0.0)), 0.0)
+    s_cls = {str(k): max(float(v), 0.0) for k, v in (spec.get("s_by_class") or {}).items()}
+    only_nl = bool(spec.get("only_without_lidar"))
+    nl_group = spec.get("nl_group") or None
+    lidar = {f.get("region_name") for f in feats if f.get("markup_type") == "li"}
+    out = []
     for f in feats:
-        conf = float(f.get("confidence", 1.0))
-        thr = _orig_tau(f, thresholds, default, by_markup)
-        g = _group(f)
-        cls = f.get("class_name")
-
-        # Effective thr: start from original; may lower via agree and/or band.
-        eff = thr
-        used_band = False
-        if agree["enabled"] and f.get("sat_agree") and g in agree_groups and cls in agree_classes:
-            eff = min(eff, thr * float(agree["scale"]))
-        if band["enabled"] and g in band_groups and cls in band_classes:
-            low = thr * float(band["scale"])
-            if conf >= thr:
-                pass  # full admit
-            elif conf >= low:
-                vp = f.get("verify_p")
-                if vp is None:
-                    if band["no_verify_policy"] == "admit":
-                        eff = low
-                        used_band = True
-                    else:
-                        continue  # reject mid-band without verify
-                elif float(vp) >= float(band["verify_floor"]):
-                    eff = low
-                    used_band = True
-                else:
-                    continue
-            # else conf < low → fall through to eff compare (will fail unless agree lowered more)
-
-        if conf >= eff:
-            if used_band or (agree["enabled"] and f.get("sat_agree") and conf < thr):
-                f = dict(f)
-                if used_band:
-                    f["sat_band"] = True
-            kept.append(f)
-
-    nms = nms_settings(cfg)
-    if nms["enabled"]:
-        kept = cross_nms(kept, nms)
-    return kept
+        g = post._group_of(f)
+        if g not in groups or (only_nl and f.get("region_name") in lidar):
+            out.append(f)
+            continue
+        f2 = dict(f)
+        if nl_group and f.get("region_name") not in lidar:
+            f2["threshold_group"] = nl_group
+        d = f.get("scene_drel")
+        s = s_cls.get(f.get("class_name"), s_def)
+        if d is not None and s > 0 and float(d) > d0:
+            m = max(0.0, 1.0 - s * min((float(d) - d0) / (1.0 - d0), 1.0))
+            f2["confidence"] = float(f.get("confidence", 0.0)) * m
+        out.append(f2)
+    fp = spec.get("frame_prior")
+    if fp:
+        out = post.frame_prior(out, {**dict(fp), "groups": sorted(groups | ({nl_group} if nl_group else set()))})
+    return out
 
 
-def cross_nms(feats: list[dict], spec: dict[str, Any] | None = None) -> list[dict]:
-    """Keep highest-conf detection among sat groups within nms_m (per region+class)."""
-    st = spec if spec is not None else nms_settings({"sat_cross_nms": {"enabled": True}})
-    if not st.get("enabled"):
-        return feats
-    nms_m = float(st["nms_m"])
-    if nms_m <= 0:
-        raise ValueError(f"sat_cross_nms nms_m must be > 0, got {nms_m}")
-    groups = set(_norm_group(g) for g in st["groups"])
-    classes = set(st["classes"])
+def box_mpix(box) -> float:
+    """Mpix at 0.5 m of an EPSG:3857 scene box: (W·cos φ / 0.5)·(H·cos φ / 0.5)/1e6, φ = latitude of the box centre."""
+    import math
+    x0, y0, x1, y1 = box.bounds if hasattr(box, "bounds") else box
+    c = math.cos(math.atan(math.sinh(((y0 + y1) / 2.0) / 6378137.0)))
+    return (x1 - x0) * c / 0.5 * (y1 - y0) * c / 0.5 / 1e6
 
-    from scipy.spatial import cKDTree
-    import numpy as np
 
-    sat_idx = []
-    other = []
-    for i, f in enumerate(feats):
-        if f.get("class_name") in classes and _group(f) in groups:
-            geom = f.get("geom")
-            if geom is None or geom.is_empty:
-                other.append(f)
+def annotate_scene_mpix(feats: list[dict], boxes_by_markup: dict[str, list]) -> list[dict]:
+    """Field scene_mpix = box_mpix of the covering scene box with the smallest scene_drel (first on ties), per markup type.
+    Same box choice as post.scene_drel; a feature outside all scenes gets no field."""
+    for f in feats:
+        boxes = boxes_by_markup.get(f.get("markup_type") or "")
+        if not boxes or f.get("geom") is None or f["geom"].is_empty:
+            continue
+        pt = f["geom"].representative_point()
+        best, bm = None, None
+        for b in boxes:
+            x0, y0, x1, y1 = b.bounds if hasattr(b, "bounds") else b
+            hw, hh = (x1 - x0) / 2.0, (y1 - y0) / 2.0
+            if hw <= 0 or hh <= 0 or not (x0 <= pt.x <= x1 and y0 <= pt.y <= y1):
                 continue
-            c = geom.centroid
-            sat_idx.append((i, f, f.get("region_name") or "", f["class_name"], float(c.x), float(c.y),
-                            float(f.get("confidence", 0.0))))
-        else:
-            other.append(f)
-    if len(sat_idx) <= 1:
-        return feats
+            d = max(abs(pt.x - (x0 + hw)) / hw, abs(pt.y - (y0 + hh)) / hh)
+            if best is None or d < best:
+                best, bm = d, box_mpix((x0, y0, x1, y1))
+        if bm is not None:
+            f["scene_mpix"] = float(bm)
+    return feats
 
-    # Greedy by confidence desc within region+class
-    sat_idx.sort(key=lambda t: -t[6])
-    kept_flags = [True] * len(sat_idx)
-    # Build per (reg, cls) trees of already kept
-    kept_pts: dict[tuple[str, str], list[tuple[float, float]]] = defaultdict(list)
-    scales: dict[str, float] = {}
-    ys: dict[str, list[float]] = defaultdict(list)
-    for _, _, reg, _, _, y, _ in sat_idx:
-        ys[reg].append(y)
-    scales = {r: _ground_scale(float(np.median(v))) for r, v in ys.items()}
 
-    out_sat = []
-    for n, (_i, f, reg, cls, x, y, conf) in enumerate(sat_idx):
-        if not kept_flags[n]:
+SFG_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury")
+
+
+def sat_frame_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """W1-SATQ Q2, off unless [post].sat_frame_gate {groups=[sp_dfine], classes, min_scene_mpix=4, x, t2 | t2_cls}.
+    t2_cls (COMP-FL, docs/bots/2026-11-02/coord-A/PREREG_COMP_FL.md) overrides t2 per class; a class absent from t2_cls
+    falls back to t2, and without t2 it is left untouched.
+    Removes a feature of the groups/classes with scene_mpix >= min_scene_mpix, scene_drel > x and confidence < t2.
+    Features without scene_drel / scene_mpix are kept."""
+    from . import post
+
+    spec = dict(spec or {})
+    groups = set(spec.get("groups") or ["sp_dfine"])
+    classes = set(spec.get("classes") or SFG_CLASSES)
+    a = float(spec.get("min_scene_mpix", 4.0)); x = float(spec["x"])
+    t2_cls = {k: float(v) for k, v in (spec.get("t2_cls") or {}).items()}   # COMP-FL: per-class t2 (EN-relative form)
+    t2 = float(spec["t2"]) if "t2" in spec else None
+    if t2 is None and not t2_cls:
+        raise ValueError("[post].sat_frame_gate needs t2 or t2_cls")
+    out = []
+    for f in feats:
+        d, mp = f.get("scene_drel"), f.get("scene_mpix")
+        tc = t2_cls.get(f.get("class_name"), t2)
+        if (tc is not None and post._group_of(f) in groups and f.get("class_name") in classes and d is not None and mp is not None
+                and float(mp) >= a and float(d) > x and float(f.get("confidence", 0.0)) < tc):
             continue
-        s = scales[reg]
-        px, py = x * s, y * s
-        conflict = False
-        for qx, qy in kept_pts[(reg, cls)]:
-            if (px - qx) ** 2 + (py - qy) ** 2 <= nms_m * nms_m:
-                conflict = True
-                break
-        if conflict:
-            kept_flags[n] = False
-            continue
-        kept_pts[(reg, cls)].append((px, py))
-        out_sat.append(f)
-    log.info("sat_cross_nms: %d → %d (nms=%.1f m)", len(sat_idx), len(out_sat), nms_m)
-    return other + out_sat
+        out.append(f)
+    return out
+
+
+FINAL_FLAGS = ("w1_c1f", "w1_p2f")
+
+
+def final_flag_on(cfg: dict) -> str | None:
+    """Name of the enabled W1-FRZ production flag ([post.w1_c1f] / [post.w1_p2f]) or None. Both on → ValueError."""
+    pc = (cfg or {}).get("post") or {}
+    on = [k for k in FINAL_FLAGS if isinstance(pc.get(k), dict) and pc[k].get("enabled")]
+    if len(on) > 1:
+        raise ValueError(f"[post] {' and '.join(on)}: only one W1 sat-centre flag may be enabled")
+    return on[0] if on else None
+
+
+def resolve_final_flag(cfg: dict) -> dict:
+    """cfg with the enabled W1-FRZ flag applied (shallow copies; the input is not modified); no flag → cfg itself.
+
+    [post.<flag>]: enabled, groups (["sp_dfine"]), d0, s_by_class {class: s}, thresholds_sp_dfine {class: τ}.
+    Sets [post].sat_center_prior = {groups, d0, s = 0, s_by_class} and replaces the listed classes of
+    [thresholds_by_markup.sp_dfine]. A separate [post].sat_center_prior together with the flag → ValueError.
+    The returned cfg carries the flag as enabled = false, resolved = true, so resolving it again is a no-op.
+    """
+    name = final_flag_on(cfg)
+    if name is None:
+        return cfg
+    pc = dict(cfg.get("post") or {})
+    if pc.get("sat_center_prior"):
+        raise ValueError(f"[post.{name}] and [post].sat_center_prior are mutually exclusive")
+    fl = pc[name]
+    thr = {str(k): float(v) for k, v in (fl.get("thresholds_sp_dfine") or {}).items()}
+    if not thr or not fl.get("s_by_class"):
+        raise ValueError(f"[post.{name}] needs s_by_class and thresholds_sp_dfine")
+    pc["sat_center_prior"] = {"groups": list(fl.get("groups") or ["sp_dfine"]), "d0": float(fl.get("d0", 0.0)), "s": 0.0,
+                              "s_by_class": {str(k): float(v) for k, v in fl["s_by_class"].items()}}
+    if fl.get("frame_prior"):   # optional FP1 after the centre prior (W1-COMBO; no flag ships it — COMBO FAILED)
+        fp = dict(fl["frame_prior"])
+        pc["sat_center_prior"]["frame_prior"] = {"classes": [str(c) for c in fp.get("classes") or []],
+                                                 "d0": float(fp.get("d0", 0.5)), "edge": float(fp.get("edge", 0.5))}
+    pc[name] = {**fl, "enabled": False, "resolved": True}   # idempotent: a resolved cfg is not resolved again
+    by = dict(cfg.get("thresholds_by_markup") or {})
+    by["sp_dfine"] = {**dict(by.get("sp_dfine") or {}), **thr}
+    out = dict(cfg)
+    out["post"], out["thresholds_by_markup"] = pc, by
+    return out

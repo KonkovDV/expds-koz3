@@ -105,6 +105,9 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+        from . import sat_recall      # W1-FRZ flags (off by default): prior spec + own sp_dfine thresholds
+        cfg = sat_recall.resolve_final_flag(cfg)
     split = _aeor_split(feats, cfg)
     if split is not None:
         out = _finish_v3(split[0], cfg)
@@ -132,6 +135,15 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("kurgan_neighbour_prior"):
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
+    if post_cfg.get("sat_fusion") or post_cfg.get("sat_center_prior") or post_cfg.get("sat_frame_gate"):
+        # W1-SATREC (docs/PREREG_W1_SATREC.md), off by default: equal-weight sat fusion, then scene-centre prior, before thresholds.
+        from . import sat_recall
+        if post_cfg.get("sat_fusion"):
+            out = sat_recall.sat_equal_fusion(out, _spec(post_cfg["sat_fusion"]))
+        if post_cfg.get("sat_center_prior"):
+            out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
+        if post_cfg.get("sat_frame_gate"):   # W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md), off by default
+            out = sat_recall.sat_frame_gate(out, _spec(post_cfg["sat_frame_gate"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
@@ -153,7 +165,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("near_kept"):
         out = post.rescue_near_kept(out, cfg.get("thresholds", {}), by_markup, _spec(post_cfg["near_kept"]),
                                     cfg.get("default_threshold", 0.15))
-    from . import sat_recall as _sr
+    from . import sat_recall_levers as _sr
     if _sr.any_enabled(cfg):
         # bot-7 sat recall: band-verify / agree-accept / cross-nms (all default OFF)
         out = _sr.apply_thresholds(out, cfg, by_markup)
@@ -220,6 +232,12 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
     try:
+        if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
+            from . import sat_recall
+            cfg = sat_recall.resolve_final_flag(cfg)
+    except Exception:
+        log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
+    try:
         return finish(feats, cfg)
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
@@ -268,6 +286,17 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.kurgan_neighbour_prior(out, _spec(pc["kurgan_neighbour_prior"]), _tau(cfg))
         except Exception:
             log.exception("kurgan_neighbour_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_fusion") or pc.get("sat_center_prior") or pc.get("sat_frame_gate"):
+        try:
+            from . import sat_recall
+            if pc.get("sat_fusion"):
+                out = sat_recall.sat_equal_fusion(out, _spec(pc["sat_fusion"]))
+            if pc.get("sat_center_prior"):
+                out = sat_recall.sat_center_prior(out, _spec(pc["sat_center_prior"]))
+            if pc.get("sat_frame_gate"):
+                out = sat_recall.sat_frame_gate(out, _spec(pc["sat_frame_gate"]))
+        except Exception:
+            log.exception("sat_fusion/sat_center_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
@@ -289,7 +318,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = cross_tif_dedup(out, dedup_m(cfg))
         except Exception:
             log.exception("ae_recall cross_tif_dedup в запасной цепочке упал, шаг пропущен")
-    from . import sat_recall as _sr
+    from . import sat_recall_levers as _sr
     if _sr.any_enabled(cfg):
         out = _sr.apply_thresholds(out, cfg, _by)
     elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
