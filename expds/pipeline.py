@@ -861,8 +861,7 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
     pcf = cfg.get("post") or {}
-    if pcf.get("frame_prior") or pcf.get("sat_center_prior") or pcf.get("sat_frame_gate") or any(
-            isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f")):
+    if pcf.get("frame_prior") or pcf.get("sat_frame_gate") or _w1_prior_on(cfg):
         feats = _with_scene_drel(reg, cfg, feats)
     return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
 
@@ -903,6 +902,13 @@ def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: d
         log.warning("порядок оптики не восстановлен: состояние изменилось во время прохода")
         return
     state.replace(snap[:n_before] + [f for r in regions for f in by_reg.get(r.name, [])])
+
+
+def _w1_prior_on(cfg: dict) -> bool:
+    """W1-FRZ: [post].sat_center_prior или включённый [post.w1_c1f]/[post.w1_p2f] — нужен scene_drel."""
+    pcf = cfg.get("post") or {}
+    return bool(pcf.get("sat_center_prior") or pcf.get("sat_frame_prior")) or any(
+        isinstance(pcf.get(k), dict) and pcf[k].get("enabled") for k in ("w1_c1f", "w1_p2f", "w4_sat"))
 
 
 def _with_scene_drel(reg: Region, cfg: dict, feats: list[dict]) -> list[dict]:
@@ -1290,6 +1296,11 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     own = cfg.get("thresholds_by_markup", {}).get(markup, {})
     default = cfg.get("default_threshold", 0.15)
     floors = {c: float(own.get(c, thr.get(c, default))) for c in CLASSES}
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4: пороги li-групп заданы в шкале RR1s-cf; ранний пол — в шкале conf (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        floors = {c: w5_cloudfeat.li_floor(cfg, markup, c, v) for c, v in floors.items()}
     # [post] kurgan_neighbour_prior поднимает уверенность до floor + slope·cap раз до порогов: курган
     # группы приора ниже порога должен дожить до finish, иначе множитель только понижает.
     prior = ((cfg.get("post") or {}).get("kurgan_neighbour_prior"))
@@ -1538,6 +1549,8 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             raise   # strict: v3 не должен молча стать v2 (bot-10)
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
+            from . import degraded
+            degraded.mark("sp_dfine", f"{reg.name}: исключение в D-FINE участка (см. лог)")
             found, complete = [], False
         # bot-2 A3/A4: agreement_m — только рядом с уже найденным U-Net sp_or (фаза после оптики).
         agr = float(st.get("agreement_m") or 0.0)
@@ -1546,6 +1559,13 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             found = sp_dfine.filter_agreement(found, state.snapshot(), agr)
             if before != len(found):
                 log.info("sp_dfine agreement_m=%.1f: %d→%d на %s", agr, before, len(found), reg.name)
+        if found and _w1_prior_on(cfg):
+            # W4 (C1F re-gate PREREG e6b5a31): D-FINE идёт после optical_feats — без этого у sp_dfine нет scene_drel
+            # и приор центра сцены не действует. Рамки — те же map_footprint снимков sp_or.
+            try:
+                found = _with_scene_drel(reg, cfg, found)
+            except Exception:
+                log.exception("%s: scene_drel для sp_dfine не посчитан, приор без него", reg.name)
         state.add(found)
         n += len(found)
         if complete:
@@ -1752,6 +1772,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
 
     if fast := speed.configure(cfg.get("speed")):   # харвест speedup-2026-10-28: без секции — всё выкл.
         log.info("[speed] включено: %s", ", ".join(fast))
+    from . import degraded
+    degraded.set_output(output_path)    # W4: маркер V3_DEGRADED.json рядом с ответом (старый удаляется)
+    if cfg.get("w5_cloudfeat"):
+        from . import w5_cloudfeat      # W4 v4: нет модуля W1 / референса — понятная ошибка до начала работы
+
+        w5_cloudfeat.preflight(cfg)
     infer = cfg.get("infer", {})
     try:
         from .infer_nn import configure_runtime
@@ -1890,6 +1916,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             except Exception:
                 log.exception("%s: лидар пропущен", reg.name)
                 found = []
+            if cfg.get("w5_cloudfeat"):
+                from . import w5_cloudfeat      # W4 v4: признаки облака, пока LAS участка под рукой
+
+                found = w5_cloudfeat.region_features(reg, found, cfg)
             state.add(found)
             n_phase += len(found)
             log.info("%s: лидар %+d, %.1f с, прошло %.0f с", reg.name, len(found),

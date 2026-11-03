@@ -1,0 +1,11 @@
+[C1F_frozen] fold 0: in 20016 → out 527 chosen None 4s
+[C1F_frozen] fold 1: in 5438 → out 2431 chosen None 4s
+[C1F_frozen] fold 2: in 11581 → out 270 chosen None 6s
+[C1F_frozen] fold 3: in 4686 → out 439 chosen None 6s
+[C1F_frozen] fold 4: in 8532 → out 2155 chosen None 7s
+[C1F_frozen] fold 5: in 6641 → out 412 chosen None 8s
+[C1F_frozen] fold 6: in 14531 → out 918 chosen None 10s
+[C1F_frozen] fold 7: in 8611 → out 1415 chosen None 11s
+[C1F_frozen] fold 8: in 12824 → out 435 chosen None 12s
+[C1F_frozen] fold 9: in 5221 → out 1107 chosen None 13s
+done 10109 {'L1_in': 85069, 'L2_thr': 1853, 'L3_thr+rerank': 1853, 'L3_merge': 1853, 'L3b_multipole': 1853, 'L3c_finds': 1853, 'L3d_twins': 1853, 'L3e_micro': 1853, 'L3f_finalize': 1853, 'L4_final': 1853} 15s

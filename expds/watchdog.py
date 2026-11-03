@@ -72,6 +72,16 @@ def _tau(cfg: dict):
                              cfg.get("thresholds_by_markup", {}))
 
 
+def _w1_flag(cfg: dict) -> dict:
+    """W1-FRZ [post.w1_c1f]/[post.w1_p2f] (по умолчанию выкл.): флаг → [post].sat_center_prior + свои пороги sp_dfine."""
+    pc = cfg.get("post") or {}
+    if pc.get("w1_c1f") or pc.get("w1_p2f") or pc.get("w4_sat"):
+        from . import sat_recall
+        return sat_recall.resolve_w4_flag(sat_recall.resolve_final_flag(cfg))
+    return cfg
+
+
+
 def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
     """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
 
@@ -105,9 +115,7 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
     """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
-    if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
-        from . import sat_recall      # W1-FRZ flags (off by default): prior spec + own sp_dfine thresholds
-        cfg = sat_recall.resolve_final_flag(cfg)
+    cfg = _w1_flag(cfg)   # W1-FRZ / W4 flags (off by default): prior spec + own sp_dfine thresholds
     split = _aeor_split(feats, cfg)
     if split is not None:
         out = _finish_v3(split[0], cfg)
@@ -144,9 +152,17 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
             out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
         if post_cfg.get("sat_frame_gate"):   # W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md), off by default
             out = sat_recall.sat_frame_gate(out, _spec(post_cfg["sat_frame_gate"]))
+    if post_cfg.get("sat_frame_prior"):
+        # W4 [post.w4_sat].frame: v3_on frame_prior form on sp_dfine, right after sat_center_prior.
+        out = post.frame_prior(out, _spec(post_cfg["sat_frame_prior"]))
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    if cfg.get("w5_cloudfeat"):
+        # W4 v4 (RR1s-cf): до порогов; пороги li-групп в v4_on.toml — в шкале S (expds/w5_cloudfeat.py).
+        from . import w5_cloudfeat
+
+        out = w5_cloudfeat.apply(out, cfg)
     from .ae_recall import cross_tif_dedup, dedup_m
     out = cross_tif_dedup(out, dedup_m(cfg))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
@@ -232,9 +248,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
     """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
     try:
-        if (cfg.get("post") or {}).get("w1_c1f") or (cfg.get("post") or {}).get("w1_p2f"):
-            from . import sat_recall
-            cfg = sat_recall.resolve_final_flag(cfg)
+        cfg = _w1_flag(cfg)
     except Exception:
         log.exception("W1 sat-centre flag in the fallback chain failed, cfg as is")
     try:
@@ -297,11 +311,25 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
                 out = sat_recall.sat_frame_gate(out, _spec(pc["sat_frame_gate"]))
         except Exception:
             log.exception("sat_fusion/sat_center_prior в запасной цепочке упал, шаг пропущен")
+    if pc.get("sat_frame_prior"):
+        try:
+            out = post.frame_prior(out, _spec(pc["sat_frame_prior"]))
+        except Exception:
+            log.exception("sat_frame_prior в запасной цепочке упал, шаг пропущен")
     if pc.get("frame_prior"):
         try:
             out = post.frame_prior(out, _spec(pc["frame_prior"]))
         except Exception:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
+            from . import degraded
+            degraded.mark("frame_prior", "frame_prior в запасной цепочке упал")
+    if cfg.get("w5_cloudfeat"):
+        try:
+            from . import w5_cloudfeat
+
+            out = w5_cloudfeat.apply(out, cfg)
+        except Exception:
+            log.exception("w5_cloudfeat в запасной цепочке упал, li — без переоценки")
     from . import large_objects as _lo
     _by = post.sat_thr_relax_by_markup(cfg)
     if _lo.flag(cfg, "fort_to_gor"):

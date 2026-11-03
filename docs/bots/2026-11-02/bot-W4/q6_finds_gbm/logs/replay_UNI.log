@@ -1,0 +1,11 @@
+[UNI] fold 0: in 20016 → out 358 chosen 0.75 4s
+[UNI] fold 1: in 10036 → out 2262 chosen 0.75 4s
+[UNI] fold 2: in 11581 → out 256 chosen 0.75 5s
+[UNI] fold 3: in 4686 → out 354 chosen 0.75 5s
+[UNI] fold 4: in 24316 → out 2073 chosen 0.7 7s
+[UNI] fold 5: in 6641 → out 415 chosen 0.75 8s
+[UNI] fold 6: in 14531 → out 890 chosen 0.75 8s
+[UNI] fold 7: in 8611 → out 1426 chosen 0.75 9s
+[UNI] fold 8: in 12824 → out 462 chosen 0.75 11s
+[UNI] fold 9: in 11635 → out 709 chosen 0.75 11s
+done 9205 {'L1_in': 85069, 'L2_thr': 1613, 'L3_thr+rerank': 1613, 'L3_merge': 1613, 'L3b_multipole': 1613, 'L3c_finds': 1613, 'L3d_twins': 1613, 'L3e_micro': 1613, 'L3f_finalize': 1613, 'L4_final': 1613} 13s

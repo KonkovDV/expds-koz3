@@ -172,3 +172,26 @@ def test_sat_frame_gate_t2_cls():
     assert [f["class_name"] for f in out] == ["kurgany_povrezhdennye", "gorodishcha"]   # kt < 0.7 dropped; kp no t2 → kept
     out = SR.sat_frame_gate(feats, {"min_scene_mpix": 1, "x": 0.5, "t2": 0.65, "t2_cls": {"gorodishcha": 0.5}})
     assert [f["class_name"] for f in out] == ["gorodishcha"]
+
+
+def test_sp_dfine_phase_annotates_scene_drel_only_under_flag(monkeypatch):
+    """W4: D-FINE features are created after optical_feats; under a W1 flag they must get scene_drel too."""
+    from types import SimpleNamespace
+    from expds import pipeline, sp_dfine
+
+    def fake_region_feats(reg, cfg, guard, cache, root, crs_for=None, soft_ok=None):
+        cache["models"] = [object()]
+        return [_f(0, 0, "gorodishcha", 0.8, "sp_dfine")], True
+    monkeypatch.setattr(sp_dfine, "region_feats", fake_region_feats)
+    monkeypatch.setattr(pipeline, "_with_scene_drel", lambda reg, cfg, feats: [dict(f, scene_drel=0.9) for f in feats])
+    monkeypatch.setattr(pipeline, "_soft_ok", lambda *a, **k: True)
+    reg = SimpleNamespace(name="r1", rasters={"sp_or": ["x.tif"]}, utm_json=None)
+    guard = SimpleNamespace(ok=lambda s: True, elapsed=lambda: 0.0)
+    for on in (False, True):
+        cfg = _cfg()
+        cfg["sp_dfine"] = dict(cfg["sp_dfine"], drop_groups=[])
+        cfg["post"]["w1_c1f"]["enabled"] = on
+        got = []
+        st = SimpleNamespace(add=got.extend, snapshot=lambda: list(got), replace=lambda x: None)
+        pipeline._sp_dfine_phase([reg], cfg, guard, st, Path("."))
+        assert len(got) == 1 and (("scene_drel" in got[0]) == on)
