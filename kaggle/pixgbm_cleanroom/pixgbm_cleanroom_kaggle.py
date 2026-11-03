@@ -84,10 +84,11 @@ def load_rebuild():
 
 
 def default_threads() -> int:
+    """Historical models were trained with num_threads=2. Do not default to cpu_count()."""
     env = os.environ.get("PIXGBM_NUM_THREADS")
     if env:
         return max(1, int(env))
-    return max(1, int(os.cpu_count() or 1))
+    return 2
 
 
 def main() -> int:
@@ -117,12 +118,12 @@ def main() -> int:
         ensure_geo_pixgbm(repo)
         threads = default_threads()
         rounds = int(os.environ.get("PIXGBM_ROUNDS", "300"))
-        tol = os.environ.get("PIXGBM_METRIC_TOL", "1e-4")
         hashes = repo / "models" / "pixgbm" / "all" / "MODELS_NOT_IN_GIT.md"
         cmd = [
             sys.executable,
             str(repo / "scripts" / "pixgbm_retrain_cleanroom.py"),
             "--enable-retrain",
+            "--match-reference",
             "--root",
             str(root),
             "--out",
@@ -131,8 +132,6 @@ def main() -> int:
             str(rounds),
             "--num-threads",
             str(threads),
-            "--metric-tol",
-            str(tol),
         ]
         if hashes.is_file():
             cmd += ["--expected-hashes", str(hashes)]

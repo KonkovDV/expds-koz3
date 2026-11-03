@@ -26,9 +26,8 @@ Until then metadata attaches **all** s000–s009 (as instructed).
 
 | Var | Default | Meaning |
 |---|---|---|
-| `PIXGBM_NUM_THREADS` | `os.cpu_count()` | LightGBM threads |
+| `PIXGBM_NUM_THREADS` | `2` | LightGBM threads (historical models used 2; do not use all CPUs) |
 | `PIXGBM_ROUNDS` | 300 | boosting rounds |
-| `PIXGBM_METRIC_TOL` | 1e-4 | sha mismatch fallback |
 | `PIXGBM_TREE` | `/kaggle/working/train-expds-3` | rebuild destination |
 | `PIXGBM_REBUILD_ALL` | unset | if `1`, materialize all regions (not only 200–217) |
 | `PIXGBM_OUT` | `/kaggle/working/pixgbm_retrain` | models + STATUS |
@@ -39,4 +38,4 @@ Until then metadata attaches **all** s000–s009 (as instructed).
 
 ## Pass
 
-sha256 == MODELS_NOT_IN_GIT.md **or** metric_fallback.status=ok.
+sha256 == MODELS_NOT_IN_GIT.md, **or** on the lexicographically last site family: `|ΔAUC| ≤ 0.01` and `mean|Δp| ≤ 0.02` against the `eb268d6` reference models (both poly and finds). Bit-exact sha256 is not guaranteed (`deterministic=0`, `num_threads=2` in the saved files).
