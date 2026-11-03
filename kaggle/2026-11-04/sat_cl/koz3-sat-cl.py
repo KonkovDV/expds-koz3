@@ -9,6 +9,7 @@ targets rasterized from gt_train_v2.geojson. OOF: full SpOr rasters of the held-
 components -> EPSG:3857 polygons, confidence = max prob, threshold_group "sp_cl" (thresholds are chosen
 honestly by the gate). No secrets, no S3; weights and OOF go to /kaggle/working.
 
+Inputs are found under KIN (default /kaggle/input) by file name.
 Env: FOLDS (default "0,1,2,3,4"), ITERS (2500), BATCH (8), ENC (tu-convnext_tiny), DEADLINE_H (8), SMOKE (0).
 """
 from __future__ import annotations
@@ -26,8 +27,8 @@ T0 = time.time()
 CLASSES = ("gorodishcha", "arkhitektury")
 IN = Path(os.environ.get("KIN", "/kaggle/input"))
 OUT = Path(os.environ.get("KOUT", "/kaggle/working"))
-GRID = Path(os.environ.get("GRID", str(IN / "koz3-w1-sat2-f14-data" / "grid" / "grid")))
-RAW = [Path(p) for p in os.environ.get("RAW", f"{IN}/koz3-w2-dfine2-raw-a,{IN}/koz3-w2-dfine2-raw-b").split(",")]
+# Kaggle mount points differ between images (/kaggle/input/<slug> or deeper), so inputs are found by name:
+# grid fold dirs = parents of tiles.csv named f0..f4; raw dirs = parents of manifest_*.json (as the D-FINE-2 kernel does).
 ENC = os.environ.get("ENC", "tu-convnext_tiny")
 ITERS = int(os.environ.get("ITERS", "2500"))
 BATCH = int(os.environ.get("BATCH", "8"))
@@ -46,8 +47,15 @@ def pip():
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", *pk], check=False)
 
 
+def raw_dirs():
+    return sorted({m.parent for m in IN.rglob("manifest_*.json")})
+
+
 def load_gt():
-    gt = next(p / "gt_train_v2.geojson" for p in RAW if (p / "gt_train_v2.geojson").exists())
+    gts = sorted(IN.rglob("gt_train_v2.geojson"))
+    if not gts:
+        raise FileNotFoundError(f"gt_train_v2.geojson not found under {IN}")
+    gt = gts[0]
     feats = json.loads(gt.read_text(encoding="utf-8"))["features"]
     by = {}
     for f in feats:
@@ -59,7 +67,10 @@ def load_gt():
 
 def grid_tiles():
     rows = []
-    for fd in sorted(GRID.glob("f[0-4]")):
+    fds = sorted({p.parent for p in IN.rglob("tiles.csv") if p.parent.name in ("f0", "f1", "f2", "f3", "f4")}, key=lambda d: d.name)
+    if not fds:
+        raise FileNotFoundError(f"grid tiles.csv (f0..f4) not found under {IN}")
+    for fd in fds:
         for r in csv.DictReader(open(fd / "tiles.csv", encoding="utf-8")):
             r["dir"] = str(fd); rows.append(r)
     return rows
@@ -161,7 +172,7 @@ def train_fold(k, rows, gt_by, dev):
 
 def raw_index():
     idx = {}
-    for d in RAW:
+    for d in raw_dirs():
         for man in d.glob("manifest_*.json"):
             for a, v in json.loads(man.read_text(encoding="utf-8")).items():
                 if (d / a).exists():
