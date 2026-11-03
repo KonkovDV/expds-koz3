@@ -1,0 +1,31 @@
+[{"stream_name":"stdout","time":1.125011135,"data":"[    0.0s] nvidia-smi -L: GPU 0: Tesla T4 (UUID: GPU-6e39156a-0acd-67b7-9ef0-f854928a80ba)\n"}
+,{"stream_name":"stdout","time":1.125067797,"data":"GPU 1: Tesla T4 (UUID: GPU-017bd6b6-f071-9336-9189-a9d1ffd6732c)\n"}
+,{"stream_name":"stdout","time":53.093226286,"data":"[   52.0s] pip install: ['transformers==5.21.0', 'rasterio==1.5.2', 'pyproj==3.8.0', 'shapely==2.2.0', 'boto3==1.40.61', 'laspy[lazrs]', 'segmentation-models-pytorch']\n"}
+,{"stream_name":"stderr","time":79.06591488,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":79.065946391,"data":"bigframes 2.48.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":79.065952977,"data":"aiobotocore 2.26.0 requires botocore\u003c1.41.6,\u003e=1.41.0, but you have botocore 1.40.76 which is incompatible.\n"}
+,{"stream_name":"stderr","time":79.065958309,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":85.987588901,"data":"[   84.9s] версии: {\"torch\": \"2.11.0+cu128\", \"cuda\": \"12.8\", \"transformers\": \"5.21.0\", \"rasterio\": \"1.5.2\", \"numpy\": \"2.1.3\"}\n"}
+,{"stream_name":"stdout","time":145.112585769,"data":"[  144.0s] репо: распакованный каталог /kaggle/input/datasets/elenakonkova/koz3-w3-gordense-timing/repo_86a60c5 (md5 tar не проверить; сверяю gor_dense.py)\n"}
+,{"stream_name":"stderr","time":148.869293646,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":148.902976122,"data":"[  147.8s] из HF ('facebook/dinov2-small', 'ed25f3a31f01632728cabb09d1542f84ab7b0056') config.json\n"}
+,{"stream_name":"stdout","time":153.993580134,"data":"[  152.9s] из HF ('facebook/dinov2-small', 'ed25f3a31f01632728cabb09d1542f84ab7b0056') model.safetensors\n"}
+,{"stream_name":"stdout","time":156.575797595,"data":"[  155.5s] из HF ('facebook/dinov2-small', 'ed25f3a31f01632728cabb09d1542f84ab7b0056') preprocessor_config.json\n"}
+,{"stream_name":"stdout","time":165.075315148,"data":"[  164.0s] sp_dfine f0: НЕ смонтирован — sp_dfine ВЫКЛ. (замер без D-FINE SpOr!)\n"}
+,{"stream_name":"stdout","time":165.904108883,"data":"[  164.8s] конфиги on/off записаны (logs/default_*.toml)\n"}
+,{"stream_name":"stdout","time":194.258853213,"data":"[  193.2s] xfer: 4 tif + 4 UTM.json, 0.01 ГБ, участков 4\n"}
+,{"stream_name":"stdout","time":194.258894152,"data":"[  193.2s] WARN: ожидалось 175 tif / 132 UTM.json, есть 4/4 (продолжаю)\n"}
+,{"stream_name":"stdout","time":194.259236558,"data":"[  193.2s] данные скачаны {'source': 'xfer', 'regions': 4, 'tif': 4, 'utm': 4, 'gb': 0.009, 's': 28.4}\n"}
+,{"stream_name":"stdout","time":208.032650654,"data":"[  207.0s] CUDA_CHECK {\"device\": \"cuda\", \"param_device\": \"cuda:0\", \"dtype\": \"torch.float16\", \"cuda\": true, \"name\": \"Tesla T4\", \"fwd_s\": 1.181}\n"}
+,{"stream_name":"stdout","time":208.033866495,"data":"[  207.0s] ▶ main.py on: таймаут 3003 с\n"}
+,{"stream_name":"stdout","time":226.163902728,"data":"[  225.1s] ■ main.py on: {\"rc\": 0, \"wall_s\": 18.1, \"phases\": {\"геофизика\": {\"raw\": 0, \"seconds\": 2.7}, \"лидар\": {\"raw\": 0, \"seconds\": 0.0}, \"оптика\": {\"raw\": 4, \"seconds\": 9.8}, \"gor_dense\": {\"raw\": 0, \"seconds\": 0.0}, \"канал σ\": {\"raw\": 0, \"seconds\": 0.0}}, \"phases_line\": \"геофизика: сырых 0, 3 с, лидар: сырых 0, 0 с, оптика: сырых 4, 10 с, gor_dense: сырых 0, 0 с, канал σ: сырых 0, 0 с\", \"gor_dense_summary\": null, \"markers\": {\"GOR_DENSE_UNAVAILABLE\": 1, \"SP_DFINE_UNAVAILABLE\": 0, \"UNAVAILABLE\": 1, \"мягкий потолок\": 2, \"Traceback\": 1}, \"gpu_util_max\": 3, \"gpu_mem_max_mib\": 281, \"smi_samples\": 1, \"verdict\": {\"working_target_s\": true, \"bot10_criterion_s\": true, \"platform_limit_s\": true}, \"result_bytes\": 3760, \"result_md5\": \"f3f58e1b88f1e30207baa392fdf4e4cf\"}\n"}
+,{"stream_name":"stdout","time":226.164921087,"data":"[  225.1s] ▶ main.py off: таймаут 2985 с\n"}
+,{"stream_name":"stdout","time":240.384489509,"data":"[  239.3s] ■ main.py off: {\"rc\": 0, \"wall_s\": 14.2, \"phases\": {\"геофизика\": {\"raw\": 0, \"seconds\": 2.7}, \"лидар\": {\"raw\": 0, \"seconds\": 0.0}, \"оптика\": {\"raw\": 4, \"seconds\": 6.7}, \"канал σ\": {\"raw\": 0, \"seconds\": 0.0}}, \"phases_line\": \"геофизика: сырых 0, 3 с, лидар: сырых 0, 0 с, оптика: сырых 4, 7 с, канал σ: сырых 0, 0 с\", \"gor_dense_summary\": null, \"markers\": {\"GOR_DENSE_UNAVAILABLE\": 0, \"SP_DFINE_UNAVAILABLE\": 0, \"UNAVAILABLE\": 0, \"мягкий потолок\": 2, \"Traceback\": 0}, \"gpu_util_max\": 8, \"gpu_mem_max_mib\": 1427, \"smi_samples\": 1, \"verdict\": {\"working_target_s\": true, \"bot10_criterion_s\": true, \"platform_limit_s\": true}, \"result_bytes\": 3760, \"result_md5\": \"f3f58e1b88f1e30207baa392fdf4e4cf\"}\n"}
+,{"stream_name":"stdout","time":240.38589608,"data":"[  239.3s] ИТОГ: {\"cuda_check\": {\"device\": \"cuda\", \"param_device\": \"cuda:0\", \"dtype\": \"torch.float16\", \"cuda\": true, \"name\": \"Tesla T4\", \"fwd_s\": 1.181}, \"delta_on_minus_off_s\": 3.9} ON wall 18.1 s; цели {'working_target_s': 960, 'bot10_criterion_s': 900, 'platform_limit_s': 1800}\n"}
+,{"stream_name":"stderr","time":242.812436725,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":242.812471049,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":243.080225583,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":243.080254655,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":243.940355497,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":245.165743612,"data":"[NbConvertApp] Writing 373720 bytes to __results__.html\n"}
+]

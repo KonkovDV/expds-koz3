@@ -1,0 +1,11 @@
+[D1] fold 0: in 22344 → out 532 chosen None 4s
+[D1] fold 1: in 5457 → out 2420 chosen None 5s
+[D1] fold 2: in 13449 → out 286 chosen None 6s
+[D1] fold 3: in 5047 → out 354 chosen None 7s
+[D1] fold 4: in 9180 → out 2165 chosen None 8s
+[D1] fold 5: in 7444 → out 350 chosen None 9s
+[D1] fold 6: in 15689 → out 911 chosen None 10s
+[D1] fold 7: in 9031 → out 1376 chosen None 11s
+[D1] fold 8: in 14118 → out 364 chosen None 12s
+[D1] fold 9: in 5509 → out 1140 chosen None 13s
+done 9898 {'L1_in': 94366, 'L2_thr': 1643, 'L3_thr+rerank': 1643, 'L3_merge': 1643, 'L3b_multipole': 1643, 'L3c_finds': 1643, 'L3d_twins': 1643, 'L3e_micro': 1643, 'L3f_finalize': 1643, 'L4_final': 1643} 16s

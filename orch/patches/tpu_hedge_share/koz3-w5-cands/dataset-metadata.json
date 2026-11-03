@@ -1,0 +1,24 @@
+{
+ "info": {
+  "datasetId": 12954086,
+  "datasetSlug": "koz3-w5-cands",
+  "ownerUser": "elenakonkova",
+  "usabilityRating": 0.25,
+  "title": "koz3-w5-cands",
+  "subtitle": "",
+  "description": "",
+  "isPrivate": true,
+  "licenses": [
+   {
+    "name": "CC0-1.0"
+   }
+  ],
+  "expectedUpdateFrequency": "not specified",
+  "collaborators": [
+   {
+    "username": "dmitrijkv",
+    "role": "reader"
+   }
+  ]
+ }
+}

@@ -1,0 +1,11 @@
+[P2] fold 0: in 20016 → out 331 chosen {'d0': 0.0, 's_gor': 0.75, 's_arkh': 0.5} 3s
+[P2] fold 1: in 5438 → out 2434 chosen {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25} 4s
+[P2] fold 2: in 11581 → out 238 chosen {'d0': 0.0, 's_gor': 1.25, 's_arkh': 1.0} 5s
+[P2] fold 3: in 4686 → out 387 chosen {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25} 6s
+[P2] fold 4: in 8532 → out 2163 chosen {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25} 7s
+[P2] fold 5: in 6636 → out 403 chosen {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5} 8s
+[P2] fold 6: in 14531 → out 850 chosen {'d0': 0.0, 's_gor': 1.5, 's_arkh': 0.5} 9s
+[P2] fold 7: in 8606 → out 1414 chosen {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.25} 10s
+[P2] fold 8: in 12824 → out 419 chosen {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.25} 12s
+[P2] fold 9: in 5221 → out 1102 chosen {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5} 13s
+done 9741 {'L1_in': 85069, 'L2_thr': 1496, 'L3_thr+rerank': 1496, 'L3_merge': 1496, 'L3b_multipole': 1496, 'L3c_finds': 1496, 'L3d_twins': 1496, 'L3e_micro': 1496, 'L3f_finalize': 1496, 'L4_final': 1496} 15s

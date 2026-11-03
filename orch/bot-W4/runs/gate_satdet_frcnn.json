@@ -1,0 +1,523 @@
+{
+ "kernel": "elenakonkova/koz3-w1-satdet-frcnn",
+ "status": "COMPLETE",
+ "prereg": "wt/coord-comp/docs/PREREG_W1_SATDET.md (843d807; harness tools/satdet 7cbf4e4)",
+ "oof": {
+  "empty": false,
+  "n_det_ellipses": 11751,
+  "n_regions": 129,
+  "per_model_n_det": {
+   "g0": 3012,
+   "g1": 3840,
+   "g2": 1437,
+   "g3": 3462
+  },
+  "n_circles_after_post": 9297,
+  "circles_by_class": {
+   "gorodishcha": 728,
+   "kurgany_povrezhdennye": 6419,
+   "kurgany_tselye": 1319,
+   "arkhitektury": 719,
+   "fortifikatsii": 112
+  }
+ },
+ "verdict": "FAIL",
+ "hold_lb": true,
+ "A_prereg_family_vs_v3": {
+  "baseline": "v3_on production replay PH (out_base sha 2db04431..., = v4build/gate/out/out_base.geojson)",
+  "base_PH": {
+   "all": 0.3454387942318272,
+   "new34": 0.3144173812112219,
+   "nolidar": 0.22119708190020718
+  },
+  "gate_side_V3P": 0.3337867244410518,
+  "sanity": {
+   "base_all": 0.3454387942318272,
+   "PH_v3": 0.345439,
+   "ok": true
+  },
+  "bonf": 0.975,
+  "variants": {
+   "P1": {
+    "score": {
+     "all": 0.35888581643908785,
+     "new34": 0.31167070216333115,
+     "nolidar": 0.2420636472726013
+    },
+    "delta": {
+     "all": {
+      "d": 0.013447022207260628,
+      "P": 0.996,
+      "p5": 0.004894078587413031,
+      "p95": 0.023406785418076153
+     },
+     "new34": {
+      "d": -0.0027466790478907765,
+      "P": 0.2435,
+      "p5": -0.009615018519114707,
+      "p95": 0.0026937692055555877
+     },
+     "nolidar": {
+      "d": 0.02086656537239412,
+      "P": 0.9945,
+      "p5": 0.006928669014577097,
+      "p95": 0.042993082233243704
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "gorodishcha": {
+      "d": 0.06316170337693988,
+      "floor": -0.002,
+      "ok": true
+     },
+     "arkhitektury": {
+      "d": 0.03972766700719654,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": true,
+     "P>=0.975(bonf)": true,
+     "P>=0.9(raw)": true,
+     "P4": true,
+     "new34>=0": false,
+     "nolidar>=0": true
+    },
+    "PASS": false,
+    "n_out": 9740
+   },
+   "P2": {
+    "score": {
+     "all": 0.35912947090309266,
+     "new34": 0.31167070216333115,
+     "nolidar": 0.2423402090240197
+    },
+    "delta": {
+     "all": {
+      "d": 0.013690676671265445,
+      "P": 0.9965,
+      "p5": 0.0048982795869043725,
+      "p95": 0.02341688429177277
+     },
+     "new34": {
+      "d": -0.0027466790478907765,
+      "P": 0.2435,
+      "p5": -0.009615018519114707,
+      "p95": 0.0026937692055555877
+     },
+     "nolidar": {
+      "d": 0.021143127123812527,
+      "P": 0.9945,
+      "p5": 0.007086207631714012,
+      "p95": 0.043433469066857903
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "gorodishcha": {
+      "d": 0.06515283034115199,
+      "floor": -0.002,
+      "ok": true
+     },
+     "arkhitektury": {
+      "d": 0.03917752120092663,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": true,
+     "P>=0.975(bonf)": true,
+     "P>=0.9(raw)": true,
+     "P4": true,
+     "new34>=0": false,
+     "nolidar>=0": true
+    },
+    "PASS": false,
+    "n_out": 9741
+   },
+   "D1": {
+    "score": {
+     "all": 0.3511425598104545,
+     "new34": 0.3146545027165307,
+     "nolidar": 0.21352708956447772
+    },
+    "delta": {
+     "all": {
+      "d": 0.0057037655786272845,
+      "P": 0.692,
+      "p5": -0.008917324088872339,
+      "p95": 0.025073780170043206
+     },
+     "new34": {
+      "d": 0.0002371215053088016,
+      "P": 0.5635,
+      "p5": -0.0031300995950815673,
+      "p95": 0.004097153908827836
+     },
+     "nolidar": {
+      "d": -0.007669992335729459,
+      "P": 0.3235,
+      "p5": -0.039977093478584934,
+      "p95": 0.024060296957809573
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": -0.0017975676146830821,
+      "floor": -0.002,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "d": -0.011515728920376334,
+      "floor": -0.002,
+      "ok": false
+     },
+     "gorodishcha": {
+      "d": -0.003110122328561171,
+      "floor": -0.002,
+      "ok": false
+     },
+     "arkhitektury": {
+      "d": 0.09015987763997177,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": -6.575535211117423e-05,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": true,
+     "P>=0.975(bonf)": false,
+     "P>=0.9(raw)": false,
+     "P4": false,
+     "new34>=0": true,
+     "nolidar>=0": false
+    },
+    "PASS": false,
+    "n_out": 9898
+   },
+   "D2": {
+    "score": {
+     "all": 0.3539849758789347,
+     "new34": 0.31412488052671644,
+     "nolidar": 0.22709711782424472
+    },
+    "delta": {
+     "all": {
+      "d": 0.008546181647107465,
+      "P": 0.854,
+      "p5": -0.0033584798688442966,
+      "p95": 0.026223724520300598
+     },
+     "new34": {
+      "d": -0.00029250068450548117,
+      "P": 0.3965,
+      "p5": -0.0026990475234492466,
+      "p95": 0.0020195894706422856
+     },
+     "nolidar": {
+      "d": 0.005900035924037539,
+      "P": 0.692,
+      "p5": -0.010152084376663671,
+      "p95": 0.030570875456228233
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "gorodishcha": {
+      "d": -0.003110122328561171,
+      "floor": -0.002,
+      "ok": false
+     },
+     "arkhitektury": {
+      "d": 0.09015987763997177,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": -6.575535211117423e-05,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": true,
+     "P>=0.975(bonf)": false,
+     "P>=0.9(raw)": false,
+     "P4": false,
+     "new34>=0": false,
+     "nolidar>=0": true
+    },
+    "PASS": false,
+    "n_out": 9728
+   }
+  },
+  "gate_side_nested": {
+   "P1": 0.34441654236024777,
+   "P2": 0.3446709582476887,
+   "D1": 0.3347087707649524,
+   "D2": 0.33959935731451096
+  }
+ },
+ "B_extra_vs_v4_out_C1": {
+  "note": "W4 extra comparison, NOT PREREG family. C1 frozen (per-fold centre d0,s + all C1 taus); only sp_det2 per-class tau fitted nested on 9 train folds. Bar P>=0.95 (m=2).",
+  "baseline": "v4 out_C1.geojson sha 3d286d22... (0.361641)",
+  "base": {
+   "all": 0.3616409998866962,
+   "new34": 0.31516432656608934,
+   "nolidar": 0.254254299411185
+  },
+  "ID_byte_identical_to_C1": true,
+  "variants": {
+   "C1D1f": {
+    "score": {
+     "all": 0.35973097246417657,
+     "new34": 0.3174947985465629,
+     "nolidar": 0.2540440663502563
+    },
+    "delta": {
+     "all": {
+      "d": -0.0019100274225196112,
+      "P": 0.3945,
+      "p5": -0.011866749441131069,
+      "p95": 0.012557364071803901
+     },
+     "new34": {
+      "d": 0.0023304719804735363,
+      "P": 0.95,
+      "p5": 6.56396299002606e-05,
+      "p95": 0.005740847535540147
+     },
+     "nolidar": {
+      "d": -0.00021023306092871064,
+      "P": 0.4665,
+      "p5": -0.013421389040974611,
+      "p95": 0.01930744267791047
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": -0.007815575644451345,
+      "floor": -0.002,
+      "ok": false
+     },
+     "kurgany_tselye": {
+      "d": -0.005034811057420041,
+      "floor": -0.002,
+      "ok": false
+     },
+     "gorodishcha": {
+      "d": -0.02601155320317411,
+      "floor": -0.002,
+      "ok": false
+     },
+     "arkhitektury": {
+      "d": 0.05346648687658706,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": -6.616449765406429e-05,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": false,
+     "P>=bar": false,
+     "P>=0.98333(W1)": false,
+     "P>=0.985714(info)": false,
+     "P4": false,
+     "new34>=0": true,
+     "nolidar>=0": false
+    },
+    "PASS": false,
+    "n_out": 11150
+   },
+   "C1D2f": {
+    "score": {
+     "all": 0.36308260736899606,
+     "new34": 0.31516432656608934,
+     "nolidar": 0.25660734792771583
+    },
+    "delta": {
+     "all": {
+      "d": 0.0014416074822998781,
+      "P": 0.584,
+      "p5": -0.007381363761596929,
+      "p95": 0.014500046678808774
+     },
+     "new34": {
+      "d": 0.0,
+      "P": 0.0,
+      "p5": 0.0,
+      "p95": 0.0
+     },
+     "nolidar": {
+      "d": 0.0023530485165308423,
+      "P": 0.632,
+      "p5": -0.0068011293381396234,
+      "p95": 0.015994093370684095
+     }
+    },
+    "p4": {
+     "kurgany_povrezhdennye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "kurgany_tselye": {
+      "d": 0.0,
+      "floor": -0.002,
+      "ok": true
+     },
+     "gorodishcha": {
+      "d": -0.02601155320317411,
+      "floor": -0.002,
+      "ok": false
+     },
+     "arkhitektury": {
+      "d": 0.05346648687658706,
+      "floor": -0.005,
+      "ok": true
+     },
+     "object_poly": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     },
+     "fortifikatsii": {
+      "d": -6.616449765406429e-05,
+      "floor": -0.005,
+      "ok": true
+     },
+     "finds_points": {
+      "d": 0.0,
+      "floor": -0.005,
+      "ok": true
+     }
+    },
+    "checks": {
+     "d_all>=0.003": false,
+     "P>=bar": false,
+     "P>=0.98333(W1)": false,
+     "P>=0.985714(info)": false,
+     "P4": false,
+     "new34>=0": true,
+     "nolidar>=0": true
+    },
+    "PASS": false,
+    "n_out": 10178
+   }
+  },
+  "gate_side_nested": {
+   "ID": 0.34895211358365935,
+   "C1D1f": 0.33770635302190355,
+   "C1D2f": 0.34596533970347276
+  }
+ },
+ "sha256": {
+  "/workspace/koz3/orch/bot-W4/comp/satdet/out/out_D1.geojson": "9e4d2ae038fc8d43cf1312b14cc036c170c3145c83b4b588e7464d03a51c5830",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/out/out_D2.geojson": "093070bc253f65cdc45ca5db6ea9c05daafada27a2d621fbee4dda1410c4f9fb",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/out/out_P1.geojson": "051edc7a5f293550a4e3cb99b2592b954d7917d01eef1117519310012c5a4b78",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/out/out_P2.geojson": "786f8c5dfb03fdad94a2e02e9375eb90fa87a74c11dca880a1a518eb25ba8de8",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/out/out_base.geojson": "2db04431fe6898662ec7299e5d937266e7046bc7b7b6770a0575c94cf56ac7b7",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/outc1/out_C1.geojson": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/outc1/out_C1D1f.geojson": "ee1f153564b03e0ecfa38dc7d144b39c8b7b9329209e91c7a31ef26aa0738e22",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/outc1/out_C1D2f.geojson": "66535ec6bede6456f393230a2aeea310fdd21b1bf807852e1c026ce72a45d6c8",
+  "/workspace/koz3/orch/bot-W4/comp/satdet/outc1/out_ID.geojson": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc"
+ }
+}

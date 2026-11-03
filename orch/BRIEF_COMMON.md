@@ -14,4 +14,7 @@ Kaggle: CLI ~/.local/bin/kaggle, запуск через /workspace/koz3/orch/po
 7. ПК Элены может быть офлайн; на её компьютере ничего не менять.
 8. Дедлайн 11.11.2026, freeze 10.11. Приоритеты и слоты — orch/SCHEDULE.md, orch/QUEUE.json; состояние — orch/STATE.md. До PASS паритета v2 (W4) новых LB-сдач нет.
 9. Каждые 15 мин `orch/check_conflicts.sh`; свои ERROR чинить сразу.
-Итог работы и блокеры присылай боту 1 (id 0... см. отправителя) сообщением.
+Итог работы и блокеры присылай A (coord) сообщением — см. «Grok Bot map».
+
+## Grok Bot map (30.10 13:05 MSK)
+Актуальная адресация — `/workspace/koz3/orch/ROSTER.md` (перекрывает номера ботов в PROTOCOL.md). Координатор **A** = agent id `39653a2e-d03c-413e-b21b-c60785b4ec4b` (title «1»). B = W2, C = W4+W5, D = W1+W3. GPU только после аренды A; все GPU/TPU в cooldown до 31.10 03:05 MSK. Общий клон main (только чтение): `/workspace/koz3/repo`.

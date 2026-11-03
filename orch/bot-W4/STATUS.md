@@ -153,3 +153,35 @@ NEXT (recipe, W4): 1) re-gate is DONE: C1 (C1F all 5 classes), GA (gor/arkh, pos
   2) v4: compute full-data C1 values (same rule, training = all regions: (d0,s) from grid + τ refit for 5 sp_dfine classes; add a "full" step to c1fx_prep.py), write [post.w4_sat] enabled=true {groups=["sp_dfine"], center={d0, s_by_class all 5}, thresholds_sp_dfine} into the v4 build config (v3_on.toml copy; note old W4 configs/v4_on.toml name collision), base v3_on b447649 + 98cdf56 port + 07fa43c flag; build via scripts/build_submission_git.py --check (DOC-1 guard, check_archive_clean, WEIGHTS_MANIFEST, ≤1 v4 zip, sha256) into /workspace/koz3/w4geo/dist.
   3) Kaggle parity C/A/B/D/REF + NEG via pool_kaggle.sh aaaa0000004, template /workspace/koz3/w4geo/kaggle/koz3-w4-v3onchk-fix, new dataset/kernel koz3-w4-v4*, is_private, leases dataset:/kernel:aaaa0000004/<name>, nohup poller (poll_v3onfix2.sh pattern). Push code only to bots/w4-v3on; no Drive.
   Commits: PREREG d366a45, flag 07fa43c, AMEND1 c60e50f, RESULT = this commit. Branch bots/w4-v3on.
+
+30.10 14:52 MSK | C | v2-ref zip OK sha8f3f2671…; black-box REF emit RUNNING (docker pantum/n7q → w4geo/ref/out/REF_v2.geojson). MagGr DONE: C_* + R_d10_vsA18.json. Gate after REF. TerFl OFF. No aaaa/cpu-2.
+- [2026-10-30 15:02 MSK] PIXGBM recover gate vs black-box REF_v2 (7194 feats, 18 train sites): **FAIL** (C_Cet and C_Setonly).
+  C_Cet geo P/R 0.6318/0.4992 · C_Setonly 0.6233/0.4962 · REF 0.6644/0.7847 (v2_LB target 0.7694/0.6565). Main gap is MagGr recall: C 0.508 vs REF 0.859 (−0.351); EtGr −0.035.
+  Honest Δ vs A18: Cet +0.0187, Setonly +0.0160 (surrogate ≥0.012 = True). TerFl flag was OFF; REF writes no terfl.
+  Paths: runs/geo_pr_gate_{Cet,Setonly}_vsREF.{json,log}; REF w4geo/ref/out/REF_v2.geojson; needs EXPDS_METRIC=wt/w4-pix/materials/compute_metrics.py
+
+30.10 15:09 MSK | C | MagGr FN-by-site → orch/bot-W4/REPORT_MAGGR_FN_BY_SITE.md. Worst ΔR: 201 (−0.82, C n=16), 211 (−0.59, C n=0!), 207/209. Idle-ready for next C_*; TerFl OFF; v3a frozen.
+
+30.10 17:33 MSK | C | REF re-emit OK 7194. Gate CetO3_Sr8G FAIL vs REF (_ht MagGr R .681 vs .859). Surrogate +0.034. TerFl pix ON in Cet lineage (threshold_group=terfl_pix; oof maps included terfl). v3a frozen.
+
+30.10 17:34 MSK | C | A ACK Sr8G FAIL. Idle for C*_noTerFl → re-gate vs REF + confirm 0× terfl_pix. Do NOT enable TerFl for Elena pkg. v3a frozen; no LB. REF_v2 already on disk (7194).
+
+30.10 17:47 MSK | C | noTerFl gate: terfl_pix=0× OK. FAIL vs REF (see REPORT_TO_A_GATE_noTerFl.md). Soft-thr rejected. No LB.
+
+30.10 17:48 MSK | C | A ACK noTerFl FAIL. Idle-ready: next C*=MagGr domain Гнёздово 211/212 (not soft-thr). Watch→19:40. No LB; v3a frozen.
+
+## 30.10 23:04 MSK — FREEZE E1_G1 (Elena «как лучше», via A)
+- Best cleanroom C*: `w4geo/work/cstar/C_CetO3_Sr8G_noTerFl_L_E1_G1.geojson` + `_ht` (sha c92b25e0 / aaba16ef).
+- Gate vs REF_v2: FAIL PASS_vs_ref (MagGr R _ht wall −.162); geo+MagGr P _ht ≥ REF; honest Δ +0.0407/+0.0425; terfl_pix=0.
+- Gate JSONs: orch/bot-W4/runs/gateC_CetO3_Sr8G_noTerFl_L_E1_G1{,_ht}.json
+- STOP MagGr R grind vs REF. Hold package. No LB until Elena yes. C idle-ready for other W4 / seeds OOF when asked. v3a_min stays frozen.
+
+01.11 11:10 MSK | C | STANDBY re-gate (A ORCH_PLAN_20261101). A on CPU PIXGBM P1. No GPU push. Wait A gate (B′ 0.315800). Hold 0.41238 + E1_G1 freeze. No LB.
+01.11 11:39 MSK | C | Elena FULL GO GPU/CPU/TPU (A t225u). C ready for honest-10 / B′ gates on new lidar-aug + sat2 when A asks. STANDBY — no self kernel push. Hold 0.41238 + E1_G1.
+01.11 18:22 MSK | C | RESUME STANDBY (A: NOT Elena STOP — quota cut cancelled turn by mistake). No GPU. Hold 0.41238 + E1_G1. Ready honest-10/B′ on A ask.
+
+02.11 14:58 MSK | W4 (agent 5) | A→W4 ACK: v4 CONFIRMED. Zip /workspace/koz3/w4geo/dist/koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip sha256 f0def982… (manifest match), git 07795d2, [post.w1_c1f] enabled=true, DOC-1 name-scan clean (no geo_pixgbm/pixgbm/EN). Next: independent re-gate COMP_GORLOC + opt COMP_FL (coord-comp 5dedde3). Hold LB.
+
+02.11 15:05 MSK | W4 (agent 5) | A ACK packaging: Drive v4c1f_f0def982 parts 00–07 uploaded + FINAL_CANDIDATES.md; Kaggle DS aaaa0000004/koz3-w4-v4c1f ready; kernel koz3-w4-v4chk RUNNING (parity 4+). FINAL_CANDIDATES/HANDOFF tip updated on box (wt/orch + orch/). GORLOC+FL re-gates continue. Hold LB (Elena via A).
+02.11 15:10 MSK | W4 (agent 5) | COMP_FL re-gate (v4 honest-10, coord-comp 5dedde3 sat_frame_gate t2_cls, τ frozen): Δall +0.00012 P0.53, new34 +0.00056, nolidar −0.00283, kp floor −0.0027 FAIL → FAIL, |Δ|<0.003 → CLOSED. GORLOC: closed per A (parent regate_COMP_GORLOC_KMASK_CLOSE, W3 NO-PASS). runs/regate_COMP_FL.json. No LB.
+02.11 15:20 MSK | W4 (agent 5) | Гейт C1FP (C1F-all+FP1) на v4 → v5: FAIL. vs base Δall +0.01344 P1.0, new34 +0.0019, nolidar +0.0212, но пол kt −0.00227 (<−0.002); vs v4(C1) Δall −0.00276 P0.037, nolidar −0.0119. v5 не формируется, v4 остаётся. runs/gate_C1FP_v5.{json,md}, out sha d8440375…. Hold LB.

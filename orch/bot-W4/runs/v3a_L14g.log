@@ -1,0 +1,7 @@
+base 0.3146153226828423 comp 0.35997711966639545 site modality counts {'ae': 9, 'sp_or': 121, 'geo': 18, 'li': 58, 'or': 4}
+dedup pairs 1537402 same-group 608952 7 s
+L14g=0.3 {"d": 0.0, "d_new34": 0.0, "d_optical": 0.0, "d_comp": 0.0, "d_closed": 0.0, "accept": false} P 0.0 Ppub 0.0 Pcl 0.0 {'geo': 0.0, 'li': 0.0, 'sp_or': 0.0, 'ae': 0.0, 'or': 0.0}
+L14g=0.5 {"d": 0.0, "d_new34": 0.0, "d_optical": 0.0, "d_comp": 0.0, "d_closed": 0.0, "accept": false} P 0.0 Ppub 0.0 Pcl 0.0 {'geo': 0.0, 'li': 0.0, 'sp_or': 0.0, 'ae': 0.0, 'or': 0.0}
+L14g=0.7 {"d": 0.0, "d_new34": 0.0, "d_optical": 0.0, "d_comp": 0.0, "d_closed": 0.0, "accept": false} P 0.0 Ppub 0.0 Pcl 0.0 {'geo': 0.0, 'li': 0.0, 'sp_or': 0.0, 'ae': 0.0, 'or': 0.0}
+L14g_nested {"d": 0.0, "d_new34": 0.0, "d_optical": 0.0, "d_comp": 0.0, "d_closed": 0.0, "accept": false} P 0.0 Ppub 0.0 Pcl 0.0 {'geo': 0.0, 'li': 0.0, 'sp_or': 0.0, 'ae': 0.0, 'or': 0.0}
+done

@@ -1,0 +1,236 @@
+{
+ "what": "W4 independent honest-10 gate: dfine2-a (P-W2-13, D-FINE folds 0+3 only, 18/132 sp_or regions) on v4 vs v4/out_C1",
+ "time_msk": "2026-11-02 ~16:22",
+ "verdict": "FAIL",
+ "decisive": "E8C1",
+ "kernel": "dmitrijkv/koz3-w2-dfine2-a COMPLETE (pool_kaggle.sh status 16:08 MSK)",
+ "oof": [
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f0.geojson (5494 dets, 2 regions)",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f3.geojson (32695 dets, 16 regions)"
+ ],
+ "bar": "PREREG P-W2-13 / W4 C1FP: Δall>=+0.003, P>=0.95, new34>=0, nolidar>=0, class ΔF1 >= -0.002 kp/kt/gor, >= -0.005 arkh/fort; bootstrap 2000 site_family seed 0",
+ "baseline": {
+  "name": "v4 out_C1",
+  "sha256": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+  "all": 0.3616409998866962
+ },
+ "sanity": {
+  "ID_out_sha256": "3d286d2212ac73fdbeb839aa30e612af054077a3eb19f812008b404ebc0c2ecc",
+  "ID_byte_identical_to_out_C1": true,
+  "ID_reproduces_C1_chosen_taus_gate_nested": true,
+  "identity_circles_exact": true
+ },
+ "variants": {
+  "E8C1": {
+   "score": {
+    "all": 0.3620521450498956,
+    "new34": 0.31627707401081917,
+    "nolidar": 0.25713203266141127
+   },
+   "delta": {
+    "all": {
+     "d": 0.0004111451631994001,
+     "P": 0.56,
+     "p5": -0.001805551143938261,
+     "p95": 0.0028354386050509187
+    },
+    "new34": {
+     "d": 0.0011127474447298336,
+     "P": 0.9575,
+     "p5": 3.368913244566063e-05,
+     "p95": 0.004000677617092043
+    },
+    "nolidar": {
+     "d": 0.0028777332502262776,
+     "P": 0.803,
+     "p5": -0.002043454808369899,
+     "p95": 0.008413248562302762
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.0005281437569326641,
+    "kurgany_tselye": 0.0018151285771341175,
+    "gorodishcha": 0.004411067376563327,
+    "arkhitektury": -0.007752949487222299,
+    "object_poly": 0.0,
+    "fortifikatsii": 6.622325860999867e-05,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": false,
+    "P>=bar": false,
+    "P>=0.98333(W1)": false,
+    "P>=0.985714(info)": false,
+    "P4": false,
+    "new34>=0": true,
+    "nolidar>=0": true
+   },
+   "PASS": false,
+   "desc": "decisive: sp_dfine on 18 a-regions -> ENS8 mean (ref+dfine2, 4m/8m merge, mean, 2 models), group sp_dfine; full C1 recipe re-run nested per honest fold ((d0,s) grid + sp_dfine τ, freeze rule)",
+   "out_sha256": "e4867ba267df87068a5af23317654d0fcf7207175aaf43bc44a6ec3dd9becc09",
+   "gate_nested": 0.3493764988658255
+  },
+  "E8C1f": {
+   "score": {
+    "all": 0.36360528080952825,
+    "new34": 0.31627707401081917,
+    "nolidar": 0.2611513947181337
+   },
+   "delta": {
+    "all": {
+     "d": 0.0019642809228320735,
+     "P": 0.886,
+     "p5": -0.0006282580688059203,
+     "p95": 0.005025220101095919
+    },
+    "new34": {
+     "d": 0.0011127474447298336,
+     "P": 0.9575,
+     "p5": 3.368913244566063e-05,
+     "p95": 0.004000677617092043
+    },
+    "nolidar": {
+     "d": 0.006897095306948708,
+     "P": 0.9465,
+     "p5": -0.00011915832685855106,
+     "p95": 0.015144390122571558
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.0010961721092020982,
+    "kurgany_tselye": 0.0036283761923328606,
+    "gorodishcha": 0.010634384023428034,
+    "arkhitektury": -0.006887147148398692,
+    "object_poly": 0.0,
+    "fortifikatsii": 6.622325860999867e-05,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": false,
+    "P>=bar": false,
+    "P>=0.98333(W1)": false,
+    "P>=0.985714(info)": false,
+    "P4": false,
+    "new34>=0": true,
+    "nolidar>=0": true
+   },
+   "PASS": false,
+   "desc": "report: same member, C1's per-fold (d0,s) frozen, only sp_dfine τ re-swept",
+   "out_sha256": "23e8f291712611bcac2233868f10ae4277abd4e8cff5ae623e6c2713cab22712",
+   "gate_nested": 0.3508696239802973
+  }
+ },
+ "vs_v3on_base_report": {
+  "E8C1": {
+   "score": {
+    "all": 0.3620521450498956,
+    "new34": 0.31627707401081917,
+    "nolidar": 0.25713203266141127
+   },
+   "delta": {
+    "all": {
+     "d": 0.016613350818068362,
+     "P": 1.0,
+     "p5": 0.008556305968304093,
+     "p95": 0.025792309336455967
+    },
+    "new34": {
+     "d": 0.0018596927995972456,
+     "P": 0.8275,
+     "p5": -0.0012694916441010117,
+     "p95": 0.0075147906643900295
+    },
+    "nolidar": {
+     "d": 0.03593495076120409,
+     "P": 0.9995,
+     "p5": 0.01993071446853142,
+     "p95": 0.05727524451225909
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.009881342140248883,
+    "kurgany_tselye": 0.0035635260798436152,
+    "gorodishcha": 0.055329647699201234,
+    "arkhitektury": 0.046103885486343865,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0005281451302067697,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": true,
+    "P>=bar": true,
+    "P>=0.98333(W1)": true,
+    "P>=0.985714(info)": true,
+    "P4": true,
+    "new34>=0": true,
+    "nolidar>=0": true
+   },
+   "PASS": true
+  },
+  "E8C1f": {
+   "score": {
+    "all": 0.36360528080952825,
+    "new34": 0.31627707401081917,
+    "nolidar": 0.2611513947181337
+   },
+   "delta": {
+    "all": {
+     "d": 0.018166486577701035,
+     "P": 1.0,
+     "p5": 0.009644129549350105,
+     "p95": 0.02849952138053821
+    },
+    "new34": {
+     "d": 0.0018596927995972456,
+     "P": 0.8275,
+     "p5": -0.0012694916441010117,
+     "p95": 0.0075147906643900295
+    },
+    "nolidar": {
+     "d": 0.039954312817926524,
+     "P": 0.9995,
+     "p5": 0.02203109379368621,
+     "p95": 0.06399852022982262
+    }
+   },
+   "class_dF1": {
+    "kurgany_povrezhdennye": 0.010449370492518317,
+    "kurgany_tselye": 0.005376773695042358,
+    "gorodishcha": 0.06155296434606594,
+    "arkhitektury": 0.04696968782516747,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0005281451302067697,
+    "finds_points": 0.0
+   },
+   "checks": {
+    "d_all>=0.003": true,
+    "P>=bar": true,
+    "P>=0.98333(W1)": true,
+    "P>=0.985714(info)": true,
+    "P4": true,
+    "new34>=0": true,
+    "nolidar>=0": true
+   },
+   "PASS": true
+  }
+ },
+ "early_stop_prereg_W2_rule": {
+  "verdict": "PASS",
+  "R1_fail": false,
+  "R2_fail": false,
+  "dB": 0.05891723067159102,
+  "dM_vs_C": 0.08196062848408114,
+  "S_A": 0.24991626283563276,
+  "S_B": 0.3088334935072238,
+  "S_M": 0.3337061577608212,
+  "S_C": 0.25174552927674004
+ },
+ "caveats": [
+  "a-only: 114/132 regions keep ref sp_dfine; full ENS8 needs dfine2-b (folds 4,2,1, RUNNING)",
+  "PREREG decisive variant (B_ens8_mean_ctx_vs_V3P_ctx, gate_dfine2_ctx.py) requires all 132 regions and is vs V3P_ctx, not v4 — not runnable until b lands",
+  "dfine2-a output contains weights (dfine_f{0,3}/model.safetensors) although README says none saved"
+ ],
+ "hold_LB": true,
+ "no_push": true,
+ "cpu_only": true
+}

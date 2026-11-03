@@ -1,5 +1,6 @@
 #!/bin/bash
 # Аренды KOZ3 под эксклюзивным flock (атомарно на боксе).
+#   orch/lease.sh set-kernel <res> <owner|coord> <acc>/<slug>   — привязать ядро к взятому слоту (P2, 30.10)
 #   orch/lease.sh acquire <res> <owner> <ttl_h> [--note "..."] [--kernel acc/slug]
 #   orch/lease.sh renew   <res> <owner> <ttl_h>
 #   orch/lease.sh release <res> <owner> [--force  (только coord)]
@@ -10,7 +11,7 @@
 set -euo pipefail
 ORCH="${KOZ3_ORCH:-/workspace/koz3/orch}"
 LOCK="$ORCH/.leases.lock"
-WT="${KOZ3_ORCH_WT:-/workspace/koz3/wt/coord-orch}"
+WT="${KOZ3_ORCH_WT:-/workspace/koz3/wt/orch}"
 cmd="${1:-list}"
 if [[ "$cmd" == sync ]]; then
   exec 9>"$LOCK"; flock -w 60 9

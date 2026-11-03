@@ -1,0 +1,33 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+16:26:26 кэш стека meta_ebd32b882032ca67.json: кластеров 60
+16:26:27 кривые A из кэша curvesA_ebd32b882032ca67.pkl
+16:26:29 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1241 МБ
+16:26:50 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+[     26s] c19 1578 dfx 85069 dfx drel None 11772
+[     31s] sanity gate base 0.3337867 vs V3P 0.3337867
+[     31s] classes ['kurgany_povrezhdennye', 'kurgany_tselye', 'gorodishcha', 'arkhitektury', 'object_poly', 'fortifikatsii', 'finds_points']
+[     32s] ('P', 0.0, 0.0) gate honest 0.333787
+[     33s] ('P', 0.0, 0.25) gate honest 0.341084
+[     35s] ('P', 0.0, 0.5) gate honest 0.344414
+[     36s] ('P', 0.0, 0.75) gate honest 0.343529
+[     37s] ('P', 0.0, 1.0) gate honest 0.341919
+[     39s] ('P', 0.0, 1.25) gate honest 0.342835
+[     40s] ('P', 0.0, 1.5) gate honest 0.343459
+[     41s] ('P', 0.25, 0.25) gate honest 0.340509
+[     43s] ('P', 0.25, 0.5) gate honest 0.343237
+[     44s] ('P', 0.25, 0.75) gate honest 0.345405
+[     45s] ('P', 0.25, 1.0) gate honest 0.342765
+[     47s] ('P', 0.25, 1.25) gate honest 0.346358
+[     48s] ('P', 0.25, 1.5) gate honest 0.344155
+[     49s] ('P', 0.5, 0.25) gate honest 0.331537
+[     50s] ('P', 0.5, 0.5) gate honest 0.335605
+[     52s] ('P', 0.5, 0.75) gate honest 0.341996
+[     53s] ('P', 0.5, 1.0) gate honest 0.342522
+[     54s] ('P', 0.5, 1.25) gate honest 0.340535
+[     56s] ('P', 0.5, 1.5) gate honest 0.342307
+[     56s] P shared chosen [{'d0': 0.0, 's_gor': 0.75, 's_arkh': 0.75}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.0}, {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.0}, {'d0': 0.25, 's_gor': 1.25, 's_arkh': 1.25}, {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5}] nested gate 0.344417 Δ +0.010630 Δnew34 -0.0070 Δnolidar +0.0209
+[     56s] P indep chosen [{'d0': 0.0, 's_gor': 0.75, 's_arkh': 0.5}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25}, {'d0': 0.0, 's_gor': 1.25, 's_arkh': 1.0}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 1.25}, {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5}, {'d0': 0.0, 's_gor': 1.5, 's_arkh': 0.5}, {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.25}, {'d0': 0.0, 's_gor': 1.0, 's_arkh': 1.25}, {'d0': 0.25, 's_gor': 1.5, 's_arkh': 1.5}] nested gate 0.344671 Δ +0.010884 Δnew34 -0.0070 Δnolidar +0.0211
+[     57s] det OOF: 11751 ellipses, 129 regions -> 9297 circles {'gorodishcha': 728, 'kurgany_povrezhdennye': 6419, 'kurgany_tselye': 1319, 'arkhitektury': 719, 'fortifikatsii': 112}
+[     64s] D1 9297 nested gate 0.334709 Δ +0.000922 Δnew34 -0.0048 Δnolidar -0.0183
+[     71s] D2 1559 nested gate 0.339599 Δ +0.005813 Δnew34 -0.0043 Δnolidar +0.0059
+[     72s] done

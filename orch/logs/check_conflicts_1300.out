@@ -1,0 +1,17 @@
+check_conflicts 30.10 13:00 MSK
+  kaggle elenakonkova: активны ['elenakonkova/koz3-w3-kurgan-cpu-seeds', 'elenakonkova/koz3-w5-dino-emb-gpu', 'elenakonkova/koz3-acc2-tpu-smoke']
+  kaggle dmitrijkv: активны ['dmitrijkv/koz3-w3-kurgan-cpu-seeds', 'dmitrijkv/koz3-tpu-cnx-c3sc-train']
+[ERROR] общий клон /workspace/koz3/repo на ветке '', должен быть main (только чтение)
+[WARN] аренда истекла: slot:acc1/tpu (bot-W3-bigobj, 30.10 12:16) — renew или release
+[WARN] аренда истекла: kernel:elenakonkova/koz3-acc2-tpu-smoke (bot-W3-bigobj, 30.10 12:16) — renew или release
+[WARN] аренда истекла: slot:acc2/tpu (bot-W2-lidar, 30.10 12:16) — renew или release
+[WARN] аренда истекла: kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train (bot-W2-lidar, 30.10 12:16) — renew или release
+[WARN] слот acc1/tpu занят bot-W3-bigobj (elenakonkova/koz3-acc2-tpu-smoke) без аренды lease.sh (старый watcher?)
+[WARN] слот acc2/tpu занят bot-W2-lidar (dmitrijkv/koz3-tpu-cnx-c3sc-train) без аренды lease.sh (старый watcher?)
+[WARN] kaggle list usertest1234: rc=1 (пропуск)
+[WARN] kaggle list aaaa0000004: rc=1 (пропуск)
+[WARN] kaggle list aaaadg4gg4g4g: rc=1 (пропуск)
+[INFO] kernel:elenakonkova/koz3-acc2-tpu-smoke: legacy-префикс (нужен koz3-w3-*), новые ядра только с префиксом
+[INFO] kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train: legacy-префикс (нужен koz3-w2-*), новые ядра только с префиксом
+итог: ERROR=1 WARN=9
+exit 1

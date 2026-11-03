@@ -14,8 +14,17 @@ ROOT = pathlib.Path("/workspace/koz3")
 PK, LEASE = str(O / "pool_kaggle.sh"), str(O / "lease.sh")
 MSK = dt.timezone(dt.timedelta(hours=3))
 ACC = {"acc1": "elenakonkova", "acc2": "dmitrijkv"}
-SLOTS = ["acc1/gpu-1", "acc1/gpu-2", "acc1/tpu", "acc2/gpu-1", "acc2/gpu-2", "acc2/tpu", "acc2/cpu",
-         "usertest1234/cpu", "aaaa0000004/cpu", "aaaadg4gg4g4g/cpu", "box/q1", "box/q2"]
+# fix 30.10 13:10: + acc1/cpu и 2-я CPU-сессия на acc1/acc2 (Kaggle допускает параллельные CPU; проверено gorheads RUNNING рядом с kurgan)
+SLOTS = ["acc1/gpu-1", "acc1/gpu-2", "acc1/tpu", "acc2/gpu-1", "acc2/gpu-2", "acc2/tpu", "acc1/cpu", "acc1/cpu-2", "acc2/cpu", "acc2/cpu-2",
+         "box/q1", "box/q2", "box/cpu"]
+# fix 30.10 13:40 (A-exec, orch-audit): CPU-пул грузим из kaggle_pool json (только username, токены не читаем в лог) → <user>/cpu + <user>/cpu-2
+POOL_JSON = ROOT / "local_ctx/ctx/kaggle_pool_4x2_t4.json"
+_POOL_FALLBACK = ["usertest1234", "aaaa0000004", "aaaadg4gg4g4g"]
+def _pool_users():
+    try: return [n["username"] for n in json.load(open(POOL_JSON))["nodes"] if n.get("username") and n.get("accel", "cpu") in ("cpu", "", None)] or _POOL_FALLBACK
+    except Exception: return _POOL_FALLBACK
+for _u in _pool_users():
+    SLOTS += [f"{_u}/cpu", f"{_u}/cpu-2"]
 TERMINAL = ("COMPLETE", "ERROR", "CANCEL_ACKNOWLEDGED", "CANCELLED", "CANCEL_REQUESTED")
 POLL, CONFLICT_EVERY = int(os.environ.get("WATCH_POLL", 300)), 900
 DRY = "--dry" in sys.argv
@@ -143,6 +152,9 @@ def push(slot, it, acc, d):
     if (it["accel"] == "gpu") != bool(meta.get("enable_gpu")) or (it["accel"] == "tpu") != bool(meta.get("enable_tpu")):
         it["status"] = "hold"; it["why"] = "kernel-metadata ускоритель ≠ accel"; log(f"{it['id']}: hold (ускоритель в metadata)"); return False
     slug = meta["id"].split("/")[1]; ref = f"{acc}/{slug}"
+    # guard 30.10 13:40: 2 CPU-слота на аккаунт → тот же slug нельзя пушить поверх живого ядра (push = новая версия = отмена старой)
+    if f"kernel:{ref}" in leases()[0] or kstatus(ref) in ("RUNNING", "QUEUED"):
+        log(f"{slot}: skip {it['id']} — {ref} уже занят/RUNNING (второй CPU-слот)"); return False
     if DRY: log(f"DRY {slot} ← {ref} ({it['id']})"); return True
     rc, o = run([LEASE, "acquire", f"slot:{slot}", it["owner"], ttl, "--kernel", ref, "--note", it["id"]])
     if rc: log(f"{slot}: acquire отказ: {o[-160:]}"); return False

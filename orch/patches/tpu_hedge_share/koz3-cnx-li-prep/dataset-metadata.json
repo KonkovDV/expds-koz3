@@ -1,0 +1,25 @@
+{
+ "info": {
+  "datasetId": 12950778,
+  "datasetSlug": "koz3-cnx-li-prep",
+  "ownerUser": "elenakonkova",
+  "usabilityRating": 0.25,
+  "totalDownloads": 1,
+  "title": "koz3-cnx-li-prep",
+  "subtitle": "",
+  "description": "",
+  "isPrivate": true,
+  "licenses": [
+   {
+    "name": "other"
+   }
+  ],
+  "expectedUpdateFrequency": "not specified",
+  "collaborators": [
+   {
+    "username": "dmitrijkv",
+    "role": "reader"
+   }
+  ]
+ }
+}

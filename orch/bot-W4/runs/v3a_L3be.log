@@ -1,0 +1,4 @@
+base 0.3146153226828423 comp 0.35997711966639545 site modality counts {'geo': 18, 'sp_or': 121, 'ae': 9, 'or': 4, 'li': 58}
+L3be iso fits 173
+L3be {"d": 0.00145, "d_new34": 0.00311, "d_optical": 0.0, "d_comp": 0.00199, "d_closed": 0.00099, "accept": false} P 0.8665 Ppub 0.85 Pcl 0.85 {'geo': 0.0, 'li': 0.00285, 'sp_or': 0.0, 'ae': 0.0, 'or': 0.0}
+done

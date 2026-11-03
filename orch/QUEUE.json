@@ -1,6 +1,6 @@
 {
  "_doc": "Очередь KOZ3 по слотам; правит только coord (бот 1) или под арендой branch:bots/orch-protocol. Время MSK.",
- "generated": "29.10 22:45 MSK",
+ "generated": "30.10 13:09 MSK",
  "deadline": "11.11.2026 (официально 14.11)",
  "freeze": "10.11 23:59",
  "quota_reset": [
@@ -80,8 +80,8 @@
    "est_hours": 0.5,
    "prerequisites": [],
    "review_item": null,
-   "status": "decision",
-   "note": "смоук без цели → бот 1: отменить, если W3 не подтвердит до 23:30"
+   "status": "cancelled",
+   "note": "смоук без цели → бот 1: отменить, если W3 не подтвердит до 23:30 | 30.10 13:18 A: отменено push v2 CPU noop → COMPLETE"
   },
   {
    "id": "S0-tpu2",
@@ -95,8 +95,8 @@
    "est_hours": 0.5,
    "prerequisites": [],
    "review_item": null,
-   "status": "decision",
-   "note": "c5 закрыт решением бота 1 → отменить"
+   "status": "cancelled",
+   "note": "c5 закрыт решением бота 1 → отменить | 30.10 13:18 A: отменено push v2 CPU noop → COMPLETE"
   },
   {
    "id": "S0-box1",
@@ -853,8 +853,10 @@
   }
  ],
  "cooldown": {
-  "acc2/gpu-1": "31.10.2026 03:00",
-  "acc2/gpu-2": "31.10.2026 03:00"
+  "acc2/gpu-1": "31.10.2026 03:05",
+  "acc2/gpu-2": "31.10.2026 03:05",
+  "acc1/gpu-1": "31.10.2026 03:05",
+  "acc1/gpu-2": "31.10.2026 03:05"
  },
  "dispatch": [
   {
@@ -912,8 +914,11 @@
    "account": "elenakonkova",
    "kernel_dir": "wt/w5/kaggle/koz3-w5-dino-emb",
    "ttl_h": 4,
-   "status": "hold",
-   "note": "ждёт датасет elenakonkova/koz3-w5-cands (кандидаты из OOF A); TPU-вариант возможен (XLA-ветка в коде)"
+   "status": "done",
+   "note": "ждёт датасет elenakonkova/koz3-w5-cands (кандидаты из OOF A); TPU-вариант возможен (XLA-ветка в коде)",
+   "finished": "30.10 13:34 COMPLETE (GPU copy elenakonkova/koz3-w5-dino-emb-gpu pulled → out/w5-dino-emb-gpu, ok 218209/222929; CPU run → out/w5-dino-emb ok 212101)",
+   "kernel": "elenakonkova/koz3-w5-dino-emb-gpu",
+   "pull_to": "out/w5-dino-emb-gpu"
   },
   {
    "id": "coord-compliance-audit",
@@ -935,14 +940,15 @@
    "accel": "cpu",
    "account": "dmitrijkv",
    "ttl_h": 12.0,
-   "status": "pushed",
+   "status": "done",
    "after": [],
    "kernel_dir": "w2hs/k",
    "pull_to": "w2hs/out",
    "note": "CI2-8 v2 all S3 LAS; manual push by bot-W2 per bot1 30.10 08:21 under lease",
    "kernel": "dmitrijkv/koz3-w2-hillshade-parity-s3",
    "slot": "acc2/cpu",
-   "started": "30.10 08:29"
+   "started": "30.10 08:29",
+   "finished": "30.10 13:34 COMPLETE (verified A-exec via pool_kaggle status; closed stale pushed)"
   },
   {
    "id": "w3-seeds-v5-usertest1234",
@@ -994,15 +1000,20 @@
   },
   {
    "id": "w3-gorheads-cpu",
-   "owner": "bot-W3-bigobj",
+   "owner": "bot-W3-kurgan",
    "accel": "cpu",
    "account": "dmitrijkv",
    "ttl_h": 9.0,
-   "status": "hold",
+   "status": "failed",
    "after": [],
    "kernel_dir": "wt/w3/kernels/koz3-w3-gorheads-cpu",
    "pull_to": "orch/bot-W3/gorheads_out",
-   "note": "gor heads retrain CPU, internet on; ref sha256 in WEIGHTS_MANIFEST_v4 40fa5997"
+   "note": "gor heads retrain CPU, internet on; ref sha256 in WEIGHTS_MANIFEST_v4 40fa5997 | 31.10 01:05 MSK kernel DELETED on Kaggle (Elena t122u E)",
+   "kernel": "dmitrijkv/koz3-w3-gorheads-cpu",
+   "slot": "acc2/cpu-2",
+   "started": "30.10 13:08",
+   "finished": "30.10 13:20 ERROR",
+   "pulled": "rc=0"
   },
   {
    "id": "w0s-resweep-micro-rp",
@@ -1010,9 +1021,10 @@
    "accel": "box",
    "account": "box",
    "ttl_h": 10,
-   "status": "ready",
+   "status": "hold",
    "after": [],
-   "note": "AUDIT_SEAMS #1/#5: OOF transform micro(anchor=rp, r0.05 gor/arch/obj/fort) -> re-sweep group thresholds -> scoreboard --honest 10; base bots/w0-seams@5171c35"
+   "note": "AUDIT_SEAMS #1/#5: OOF transform micro(anchor=rp, r0.05 gor/arch/obj/fort) -> re-sweep group thresholds -> scoreboard --honest 10; base bots/w0-seams@5171c35",
+   "why": "A 30.10 13:05: нет cmd и нужен OOF A (pc_data пуст) — ручная задача, не для watcher"
   },
   {
    "id": "w0s-dem-noground",
@@ -1020,9 +1032,10 @@
    "accel": "box",
    "account": "box",
    "ttl_h": 10,
-   "status": "ready",
+   "status": "hold",
    "after": [],
-   "note": "AUDIT_SEAMS #6: count LAS without class 2; if any, use min-per-cell+PMF ground filter instead of mean of all points (lidar.py:258)"
+   "note": "AUDIT_SEAMS #6: count LAS without class 2; if any, use min-per-cell+PMF ground filter instead of mean of all points (lidar.py:258)",
+   "why": "A 30.10 13:05: нет cmd и нужен OOF A (pc_data пуст) — ручная задача, не для watcher"
   },
   {
    "id": "w0s-conf-ties",
@@ -1030,9 +1043,10 @@
    "accel": "box",
    "account": "box",
    "ttl_h": 10,
-   "status": "ready",
+   "status": "hold",
    "after": [],
-   "note": "AUDIT_SEAMS #7: kurgan confidence ties 96-98% in stack; find quantisation source, add tie-breaker, gate honest-10"
+   "note": "AUDIT_SEAMS #7: kurgan confidence ties 96-98% in stack; find quantisation source, add tie-breaker, gate honest-10",
+   "why": "A 30.10 13:05: нет cmd и нужен OOF A (pc_data пуст) — ручная задача, не для watcher"
   },
   {
    "id": "w3-gordense-timing",
@@ -1040,11 +1054,12 @@
    "accel": "gpu",
    "account": "dmitrijkv",
    "ttl_h": 1.5,
-   "status": "ready",
+   "status": "hold",
    "after": [],
    "kernel_dir": "wt/w3/kernels/koz3-w3-gordense-timing",
    "pull_to": "orch/bot-W3/gordense_timing_out",
-   "note": "gor_dense T4 timing (single GPU, 55 min hard cap); first free acc2 GPU slot"
+   "note": "gor_dense T4 timing (single GPU, 55 min hard cap); first free acc2 GPU slot",
+   "why": "A 30.10 13:05: GPU только после квоты 31.10 03:05 и аренды A; иначе watcher запушит"
   },
   {
    "id": "w2-r50c5",
@@ -1052,11 +1067,15 @@
    "accel": "gpu",
    "account": "dmitrijkv",
    "ttl_h": 12.0,
-   "status": "hold",
+   "status": "done",
    "after": [],
    "kernel_dir": "w2/kernels/koz3-w2-cnx-r50c5-f01",
    "pull_to": "w2/oof/r50c5",
-   "note": "T5 2-й лидарный детектор ResNet50 c5 sc f0/f1; acc2 после сброса 31.10 03:00; приоритет ПОСЛЕ W3 CI2-5 (CI2-5 не в dispatch → after не ставлю, держу hold; снимает coord/bot1)"
+   "note": "T5 2-й лидарный детектор ResNet50 c5 sc f0/f1; acc2 после сброса 31.10 03:00; приоритет ПОСЛЕ W3 CI2-5 (CI2-5 не в dispatch → after не ставлю, держу hold; снимает coord/bot1)",
+   "ready_after": "31.10.2026 03:05",
+   "release_by": "A (coord) → status ready, затем B: acquire slot:acc2/gpu-* + push f01; FAIL early_stop → cancel f234",
+   "why": "hold до сброса квоты; ready-after-reset",
+   "finished": "30.10 13:37 superseded by w2-r50c5-f01/f234"
   },
   {
    "id": "w4-v2clean-check",
@@ -1096,14 +1115,15 @@
    "accel": "gpu",
    "account": "elenakonkova",
    "ttl_h": 10.0,
-   "status": "pushed",
+   "status": "done",
    "after": [],
    "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-lihm-c3sc-f01234",
    "pull_to": "w2/oof/lihm/koz3-w2-lihm-c3sc-f01234",
    "note": "P-W2-7 li_hm; manual push by bot-W2 per bot1 30.10 03:59 under lease",
    "kernel": "elenakonkova/koz3-w2-lihm-c3sc-f01234",
    "slot": "acc1/gpu-1",
-   "started": "30.10 04:04"
+   "started": "30.10 04:04",
+   "finished": "30.10 13:34 COMPLETE (verified A-exec via pool_kaggle status; closed stale pushed)"
   },
   {
    "id": "w4-v2clean-check2",
@@ -1111,14 +1131,15 @@
    "accel": "cpu",
    "account": "aaaa0000004",
    "ttl_h": 3.0,
-   "status": "pushed",
+   "status": "done",
    "after": [],
    "kernel_dir": "w4geo/kaggle/koz3-w4-v2cleanchk2",
    "pull_to": "w4geo/kaggle/out_v2clean_check2",
    "note": "check_submission v2-clean 15d59e9f + pip laspy/smp (lock versions)",
    "kernel": "aaaa0000004/koz3-w4-v2cleanchk2",
    "slot": "aaaa0000004/cpu",
-   "started": "30.10 08:42"
+   "started": "30.10 08:42",
+   "finished": "30.10 13:34 COMPLETE (verified A-exec via pool_kaggle status; closed stale pushed)"
   },
   {
    "id": "w2-gaudit-ci2-3",
@@ -1136,6 +1157,72 @@
    "started": "30.10 08:34",
    "finished": "30.10 08:42 COMPLETE",
    "pulled": "rc=0"
+  },
+  {
+   "id": "w5-dino-vitb-tpu",
+   "owner": "coord",
+   "accel": "tpu",
+   "account": "elenakonkova",
+   "kernel_dir": "wt/w5/kaggle/koz3-w5-dino-vitb-tpu",
+   "ttl_h": 9,
+   "status": "done",
+   "after": [],
+   "kernel": "elenakonkova/koz3-w5-dino-vitb-tpu",
+   "slot": "acc1/tpu",
+   "started": "30.10 13:08",
+   "pull_to": "out/w5-dino-vitb",
+   "note": "DINOv2-B (CLS+mean patch) для W5 реранкера (план W2-a1g1/P-D4) на TPU v5e-8 вместо пост-ресет GPU; копия dino_emb.py c4e18a9 + фикс. батч для XLA, DEADLINE 8.3ч; вход = те же cands, что у ViT-S",
+   "finished": "31.10 03:07 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w5-dino-vitb-tpu-acc2-hedge",
+   "owner": "coord",
+   "accel": "tpu",
+   "account": "dmitrijkv",
+   "ttl_h": 10.0,
+   "status": "done",
+   "after": [],
+   "kernel_dir": "wt/w5/kaggle/koz3-w5-dino-vitb-tpu-acc2",
+   "pull_to": "out/w5-dino-vitb-acc2",
+   "note": "acc2/tpu hedge: дубликат vitb (acc1/tpu QUEUED с ~13:18). HOLD до подтверждения A/C: (1) acc1 vitb всё ещё QUEUED >1ч или ERROR; (2) датасеты elenakonkova/koz3-w5-cands, koz3-cnx-li-prep, koz3-s3-cred расшарены на dmitrijkv. Если acc1 стартовал — cancel hedge (done). | 15:07 A ACK unhold: share OK + vitb still QUEUED >1h.",
+   "class": "backfill",
+   "kernel": "dmitrijkv/koz3-w5-dino-vitb-tpu",
+   "finished": "31.10 03:07 COMPLETE",
+   "pulled": "rc=0"
+  },
+  {
+   "id": "w2-r50c5-f01",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "elenakonkova",
+   "ttl_h": 10,
+   "status": "hold",
+   "after": [],
+   "kernel_dir": "w2/kernels/elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "pull_to": "w2/oof/r50c5/f01",
+   "kernel": "elenakonkova/koz3-w2-cnx-r50c5-f01",
+   "ready_after": "31.10.2026 03:05",
+   "note": "P-W2-9 f0+f1; B push after A lease+GO; early_stop gates f234"
+  },
+  {
+   "id": "w2-r50c5-f234",
+   "owner": "bot-W2-lidar",
+   "accel": "gpu",
+   "account": "dmitrijkv",
+   "ttl_h": 12,
+   "status": "hold",
+   "after": [
+    "w2-r50c5-f01"
+   ],
+   "kernel_dir": "w2/kernels/dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "pull_to": "w2/oof/r50c5/f234",
+   "kernel": "dmitrijkv/koz3-w2-cnx-r50c5-f234",
+   "note": "P-W2-9 f2–f4; HOLD until early_stop PASS + A lease; never self-push"
   }
+ ],
+ "_cooldown_note": "A 30.10 13:10: cooldown только GPU (acc1/acc2 gpu-1,2) до 31.10 03:05 — квота GPU 0/≈0.35ч; TPU 20ч/акк свободны (не в cooldown). acc1/gpu-1 после сброса — r50c5 f01 (P-W2-9). Легаси TPU-смоуки QUEUED не трогаем до D0 Елены.",
+ "_doc_notes": [
+  "30.10 13:05 A: TPU removed from GPU-reset cooldown (20h each free); GPU slots stay cooled until 31.10 03:05"
  ]
 }

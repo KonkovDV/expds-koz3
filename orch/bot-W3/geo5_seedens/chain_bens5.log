@@ -1,0 +1,4 @@
+written 26349 m910/C_g1bens5_fs3_n0.5_p0.02_raw_x1_m.geojson
+added 224 boosted 87 -> m910/C_g1bens5_fs3_n0.5_p0.02_raw_x1.geojson
+Counter({('211', 'maggr_pix_cvlo'): 163, ('212', 'maggr_pix_cvhi'): 61})
+written 26186 /workspace/koz3/orch/bot-W3/geo5_seedens/E1_g1bens5_fs3_n0.5_p0.02_raw_x1.geojson

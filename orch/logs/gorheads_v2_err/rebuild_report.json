@@ -1,0 +1,145 @@
+{
+ "dest": "/kaggle/working/train-expds-3",
+ "shards_found": [
+  "s000:koz3-xfer-s000",
+  "s001:koz3-xfer-s001",
+  "s002:koz3-xfer-s002",
+  "s003:koz3-xfer-s003",
+  "s004:koz3-xfer-s004",
+  "s005:koz3-xfer-s005",
+  "s006:koz3-xfer-s006",
+  "s007:koz3-xfer-s007",
+  "s008:koz3-xfer-s008",
+  "s009:koz3-xfer-s009"
+ ],
+ "steps": [
+  {
+   "s000_extract": "small_files.tar.zst",
+   "members_geo": 765
+  },
+  {
+   "shard": "koz3-xfer-s000",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 0,
+   "error": "no_blob_mappings_in_manifest"
+  },
+  {
+   "shard": "koz3-xfer-s001",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 37,
+   "symlink": 37
+  },
+  {
+   "shard": "koz3-xfer-s002",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 13,
+   "symlink": 13
+  },
+  {
+   "shard": "koz3-xfer-s003",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 41,
+   "symlink": 41
+  },
+  {
+   "shard": "koz3-xfer-s004",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 13,
+   "symlink": 13
+  },
+  {
+   "shard": "koz3-xfer-s005",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 8,
+   "symlink": 8
+  },
+  {
+   "shard": "koz3-xfer-s006",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 14,
+   "symlink": 14
+  },
+  {
+   "shard": "koz3-xfer-s007",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 22,
+   "symlink": 22
+  },
+  {
+   "shard": "koz3-xfer-s008",
+   "linked": 0,
+   "copied": 0,
+   "exists": 0,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 5,
+   "symlink": 5
+  },
+  {
+   "shard": "koz3-xfer-s009",
+   "linked": 0,
+   "copied": 0,
+   "exists": 22,
+   "missing_blob": 0,
+   "skipped_non_geo": 0,
+   "mapped": 22
+  },
+  {
+   "gt": null,
+   "note": "koz3-gt-train-v2 not attached"
+  }
+ ],
+ "geo_region_dirs": [
+  "200_\u0421\u0443\u0434\u044c\u0431\u0438\u0449\u0438_2",
+  "201_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_1",
+  "202_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_2",
+  "203_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_3",
+  "204_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_4",
+  "205_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_5",
+  "206_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_6",
+  "207_\u0421\u0435\u043c\u0438\u0431\u0440\u0430\u0442\u043d\u0435\u0435_\u0413\u043e\u0440\u043e\u0434\u0438\u0449\u0435_7",
+  "208_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u041f\u043e\u0439\u043c\u0430",
+  "209_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0422\u0435\u0440\u0440\u0430\u0441\u0430_1",
+  "210_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0422\u0435\u0440\u0440\u0430\u0441\u0430_2",
+  "211_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0422\u0435\u0440\u0440\u0430\u0441\u0430_3",
+  "212_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0423\u0441\u0430\u0434\u044c\u0431\u0430",
+  "213_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u041b\u0435\u0441\u043d\u0430\u044f_1",
+  "214_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u041b\u0435\u0441\u043d\u0430\u044f_2",
+  "215_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0421\u0435\u043b\u0438\u0449\u0435_1",
+  "216_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0421\u0435\u043b\u0438\u0449\u0435_2",
+  "217_\u0413\u043d\u0451\u0437\u0434\u043e\u0432\u043e_\u0421\u0435\u043b\u0438\u0449\u0435_3"
+ ],
+ "root": "/kaggle/working/train-expds-3"
+}

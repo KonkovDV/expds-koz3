@@ -139,6 +139,17 @@ def cmd_renew(res, owner, ttl_h):
     print(f"OK renew {res} до {msk(cur[0]['expires'])}")
 
 
+def cmd_set_kernel(res, owner, kernel):
+    """P2: привязать ядро к уже взятой аренде слота (без смены since/expires)."""
+    d = load(); cur = [x for x in find(d, res) if x["expires"] > now()]
+    if not cur or (cur[0]["owner"] != owner and owner != "coord"):
+        sys.exit(f"НЕТ АРЕНДЫ {res} у {owner}")
+    cur[0]["kernel"] = kernel
+    if res.startswith("slot:"):
+        sync_slot(d, cur[0], res[5:])
+    save(d); log(f"set-kernel {res} → {kernel} by {owner}"); print(f"OK set-kernel {res} → {kernel}")
+
+
 def cmd_release(res, owner, force=False):
     d = load()
     cur = find(d, res)
@@ -181,6 +192,7 @@ if __name__ == "__main__":
     a.add_argument("--note", default=""); a.add_argument("--kernel"); a.add_argument("--force", action="store_true")
     r = sp.add_parser("renew"); r.add_argument("resource"); r.add_argument("owner"); r.add_argument("ttl_h", type=float)
     e = sp.add_parser("release"); e.add_argument("resource"); e.add_argument("owner"); e.add_argument("--force", action="store_true")
+    sk = sp.add_parser("set-kernel"); sk.add_argument("resource"); sk.add_argument("owner"); sk.add_argument("kernel")
     li = sp.add_parser("list"); li.add_argument("--all", action="store_true")
     w = sp.add_parser("who"); w.add_argument("resource")
     g = ap.parse_args()
@@ -190,6 +202,8 @@ if __name__ == "__main__":
         cmd_renew(g.resource, g.owner, g.ttl_h)
     elif g.cmd == "release":
         cmd_release(g.resource, g.owner, g.force)
+    elif g.cmd == "set-kernel":
+        cmd_set_kernel(g.resource, g.owner, g.kernel)
     elif g.cmd == "list":
         cmd_list(g.all)
     else:

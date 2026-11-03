@@ -1,0 +1,118 @@
+{
+ "what": "S3 LAS class-2 inventory for w0s-dem-noground follow-up (P-W2-10 / AUDIT_SEAMS #6)",
+ "source": "w2_notes/w2_hsparity_ci28_rows.json (CI2-8 hillshade parity, all 59 bucket LAS)",
+ "computed_msk": "30.10.2026 13:31 MSK",
+ "n_sites": 59,
+ "no_class2": [
+  {
+   "site": "101_Гнёздово_Днепровская",
+   "g2": 0.0,
+   "veg": 0.0,
+   "used_all": true,
+   "cls": [
+    "8"
+   ]
+  },
+  {
+   "site": "102_Гнёздово_Заольшанская",
+   "g2": 0.0,
+   "veg": 0.0,
+   "used_all": true,
+   "cls": [
+    "8"
+   ]
+  },
+  {
+   "site": "037_Никола_Ленивец",
+   "g2": 0.0,
+   "veg": 0.0,
+   "used_all": true,
+   "cls": [
+    "8"
+   ]
+  },
+  {
+   "site": "187_Судьбищи_1",
+   "g2": 0.0,
+   "veg": 0.0,
+   "used_all": true,
+   "cls": [
+    "8"
+   ]
+  }
+ ],
+ "mixed_with_class2": [
+  {
+   "site": "015_Демидовка",
+   "g2": 0.5894,
+   "veg": 0.2503,
+   "used_all": false,
+   "cls": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+   ]
+  },
+  {
+   "site": "190_Муравлево",
+   "g2": 0.4271,
+   "veg": 0.5708,
+   "used_all": false,
+   "cls": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "7"
+   ]
+  },
+  {
+   "site": "021_Новенькое",
+   "g2": 0.6251,
+   "veg": 0.372,
+   "used_all": false,
+   "cls": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ]
+  },
+  {
+   "site": "186_Семибратнее_1",
+   "g2": 0.1208,
+   "veg": 0.7556,
+   "used_all": false,
+   "cls": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "7",
+    "8"
+   ]
+  }
+ ],
+ "n_pure_ground": 51,
+ "pipeline_today": {
+  "with_any_class2": "lidar.py has_class→keep only cls==2 (gaudit: 015/021/186/190 pipeline_uses=class2)",
+  "without_class2": "use_all=True → mean of ALL points (DSM risk); AUDIT fix=min-per-cell (+PMF/SMRF)"
+ },
+ "recommendation": {
+  "mixed_sites": "already safe under cls==2 filter; do NOT switch to all-points",
+  "no_class2_sites": [
+   "101_Гнёздово_Днепровская",
+   "102_Гнёздово_Заольшанская",
+   "037_Никола_Ленивец",
+   "187_Судьбищи_1"
+  ],
+  "next_code": "when !has_class(2): grid with nanmin (min-per-cell) instead of mean; optional PMF later"
+ }
+}

@@ -1,0 +1,178 @@
+{
+ "kernel": "elenakonkova/koz3-w3-gordense-timing-k",
+ "commit": "86a60c5",
+ "targets": {
+  "working_target_s": 960,
+  "bot10_criterion_s": 900,
+  "platform_limit_s": 1800
+ },
+ "steps": {
+  "pip": {
+   "pkgs": [
+    "transformers==5.21.0",
+    "rasterio==1.5.2",
+    "pyproj==3.8.0",
+    "shapely==2.2.0",
+    "boto3==1.40.61",
+    "laspy[lazrs]",
+    "segmentation-models-pytorch"
+   ],
+   "s": 26.5
+  },
+  "code_weights": {
+   "md5": {
+    "models/dinov2-small/config.json": "689053885e41f529baca946d85d9b8dd",
+    "models/dinov2-small/model.safetensors": "ea251be6e151ba8609ad0bc9b2e13a78",
+    "models/dinov2-small/preprocessor_config.json": "e40d527806779cbf0c7fd6fca552eddb",
+    "models/gor_gate/gor_v3_head.npz": "487c48e49b5945300cefeed70bc2df00",
+    "models/gor_dense/gor_dense_head.npz": "d92f38f3cbf916a198b363b3f7c84158"
+   },
+   "dfine_f0": null,
+   "s": 79.1
+  },
+  "rebuild": {
+   "dest": "/tmp/rtree",
+   "shards_found": [
+    "s000:koz3-xfer-s000",
+    "s001:koz3-xfer-s001",
+    "s002:koz3-xfer-s002",
+    "s003:koz3-xfer-s003",
+    "s004:koz3-xfer-s004",
+    "s005:koz3-xfer-s005",
+    "s006:koz3-xfer-s006",
+    "s007:koz3-xfer-s007",
+    "s008:koz3-xfer-s008",
+    "s009:koz3-xfer-s009"
+   ],
+   "geo_region_dirs": [
+    "200_Судьбищи_2",
+    "201_Семибратнее_Городище_1",
+    "202_Семибратнее_Городище_2",
+    "203_Семибратнее_Городище_3",
+    "204_Семибратнее_Городище_4",
+    "205_Семибратнее_Городище_5",
+    "206_Семибратнее_Городище_6",
+    "207_Семибратнее_Городище_7",
+    "208_Гнёздово_Пойма",
+    "209_Гнёздово_Терраса_1",
+    "210_Гнёздово_Терраса_2",
+    "211_Гнёздово_Терраса_3",
+    "212_Гнёздово_Усадьба",
+    "213_Гнёздово_Лесная_1",
+    "214_Гнёздово_Лесная_2",
+    "215_Гнёздово_Селище_1",
+    "216_Гнёздово_Селище_2",
+    "217_Гнёздово_Селище_3"
+   ],
+   "root": "/tmp/rtree"
+  },
+  "download": {
+   "source": "xfer",
+   "regions": 4,
+   "tif": 4,
+   "utm": 4,
+   "gb": 0.009,
+   "s": 28.4
+  },
+  "main_on": {
+   "rc": 0,
+   "wall_s": 18.1,
+   "phases": {
+    "геофизика": {
+     "raw": 0,
+     "seconds": 2.7
+    },
+    "лидар": {
+     "raw": 0,
+     "seconds": 0.0
+    },
+    "оптика": {
+     "raw": 4,
+     "seconds": 9.8
+    },
+    "gor_dense": {
+     "raw": 0,
+     "seconds": 0.0
+    },
+    "канал σ": {
+     "raw": 0,
+     "seconds": 0.0
+    }
+   },
+   "phases_line": "геофизика: сырых 0, 3 с, лидар: сырых 0, 0 с, оптика: сырых 4, 10 с, gor_dense: сырых 0, 0 с, канал σ: сырых 0, 0 с",
+   "gor_dense_summary": null,
+   "markers": {
+    "GOR_DENSE_UNAVAILABLE": 1,
+    "SP_DFINE_UNAVAILABLE": 0,
+    "UNAVAILABLE": 1,
+    "мягкий потолок": 2,
+    "Traceback": 1
+   },
+   "gpu_util_max": 3,
+   "gpu_mem_max_mib": 281,
+   "smi_samples": 1,
+   "verdict": {
+    "working_target_s": true,
+    "bot10_criterion_s": true,
+    "platform_limit_s": true
+   },
+   "result_bytes": 3760,
+   "result_md5": "f3f58e1b88f1e30207baa392fdf4e4cf"
+  },
+  "main_off": {
+   "rc": 0,
+   "wall_s": 14.2,
+   "phases": {
+    "геофизика": {
+     "raw": 0,
+     "seconds": 2.7
+    },
+    "лидар": {
+     "raw": 0,
+     "seconds": 0.0
+    },
+    "оптика": {
+     "raw": 4,
+     "seconds": 6.7
+    },
+    "канал σ": {
+     "raw": 0,
+     "seconds": 0.0
+    }
+   },
+   "phases_line": "геофизика: сырых 0, 3 с, лидар: сырых 0, 0 с, оптика: сырых 4, 7 с, канал σ: сырых 0, 0 с",
+   "gor_dense_summary": null,
+   "markers": {
+    "GOR_DENSE_UNAVAILABLE": 0,
+    "SP_DFINE_UNAVAILABLE": 0,
+    "UNAVAILABLE": 0,
+    "мягкий потолок": 2,
+    "Traceback": 0
+   },
+   "gpu_util_max": 8,
+   "gpu_mem_max_mib": 1427,
+   "smi_samples": 1,
+   "verdict": {
+    "working_target_s": true,
+    "bot10_criterion_s": true,
+    "platform_limit_s": true
+   },
+   "result_bytes": 3760,
+   "result_md5": "f3f58e1b88f1e30207baa392fdf4e4cf"
+  }
+ },
+ "started_utc": "2026-10-31T08:08:41Z",
+ "gpu": "GPU 0: Tesla T4 (UUID: GPU-6e39156a-0acd-67b7-9ef0-f854928a80ba)\nGPU 1: Tesla T4 (UUID: GPU-017bd6b6-f071-9336-9189-a9d1ffd6732c)",
+ "versions": "{\"torch\": \"2.11.0+cu128\", \"cuda\": \"12.8\", \"transformers\": \"5.21.0\", \"rasterio\": \"1.5.2\", \"numpy\": \"2.1.3\"}",
+ "elapsed_s": 239.3,
+ "cuda_check": {
+  "device": "cuda",
+  "param_device": "cuda:0",
+  "dtype": "torch.float16",
+  "cuda": true,
+  "name": "Tesla T4",
+  "fwd_s": 1.181
+ },
+ "delta_on_minus_off_s": 3.9,
+ "note": "Время = верхняя оценка для теста: прокси 132 уч./175 SpOr/5,40 ГБ против публичного SpOr 30 уч./31 файл/4,68 ГБ; T4 медленнее 4090 платформы; ограничители времени сняты только для замера."
+}

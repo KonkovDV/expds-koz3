@@ -1,0 +1,11 @@
+13:09 pull elenakonkova/koz3-w1-dfine-or-final -> out/w1-dfine-or-final
+13:09 rc=0 elenakonkova/koz3-w1-dfine-or-final files=13 size=479M
+13:09 pull elenakonkova/koz3-w5-cloudfeat -> out/w5-cloudfeat
+13:09 rc=0 elenakonkova/koz3-w5-cloudfeat files=62 size=28M
+13:09 pull dmitrijkv/koz3-w2-hillshade-parity-s3 -> w2hs/out
+13:09 rc=0 dmitrijkv/koz3-w2-hillshade-parity-s3 files=61 size=288K
+13:09 pull elenakonkova/koz3-w2-lihm-c3sc-f01234 -> w2/oof/lihm/koz3-w2-lihm-c3sc-f01234
+13:10 rc=0 elenakonkova/koz3-w2-lihm-c3sc-f01234 files=78 size=1.7G
+13:10 pull elenakonkova/koz3-w2-cnx-c3sc-s3f4 -> out/w2-cnx-c3sc-s3f4
+13:10 rc=0 elenakonkova/koz3-w2-cnx-c3sc-s3f4 files=29 size=274M
+DONE
