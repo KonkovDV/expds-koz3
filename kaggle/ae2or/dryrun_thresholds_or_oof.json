@@ -1,0 +1,16 @@
+{
+  "dfine_or": {
+    "kurgany_tselye": 1.01,
+    "kurgany_povrezhdennye": 1.01,
+    "gorodishcha": 1.01,
+    "fortifikatsii": 1.01,
+    "arkhitektury": 0.7
+  },
+  "or_dfine": {
+    "kurgany_tselye": 1.01,
+    "kurgany_povrezhdennye": 1.01,
+    "gorodishcha": 1.01,
+    "fortifikatsii": 1.01,
+    "arkhitektury": 0.7
+  }
+}
