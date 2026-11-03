@@ -562,6 +562,7 @@ min_conf = 0.05
 # сохранить U-Net sp_or/sp_focal/sp_arch/sp_focal2 (путь v2/v3 pre-D-FINE); отдельно drop_groups=[] не нужно,
 # пока фаза не входит. DEFAULTS.drop_groups уже []. Вариант R (drop_groups = SpOr-группы) на mock дал
 # soft_tp 0/13 (медиана ~191 м до GT) — НЕ включать R, пока D-FINE не локализует курганы.
+# Патч e3c4f41 (ground_metres, только геофизика) боксы D-FINE не двигает: tests/test_e3c4f41_sp_or.py.
 # Архив сдачи v3on собирал bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor.
 # Ключи — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert, drop_groups, ensemble …).
 [sp_dfine]

@@ -1,7 +1,8 @@
 # Манифест весов — кандидат v4 (bot-5)
 
-База ветки: `bots/bot5-candidate-v4` ← `cbd48049ceaa6b56d0e4b85c72f4d35e839b2d3c`  
-Сборка v4 **ещё не** сливает/включает sp_or / gor_dense / D-FINE Ae/Or — ждём фикс sp_or бота 2.
+Историческая база манифеста (29.10): `cbd48049ceaa6b56d0e4b85c72f4d35e839b2d3c`.  
+Актуальная ветка `bots/bot5-candidate-v4` идёт от `main` @ `f127db8` (этот коммит уже содержит `cbd4804`).  
+Сборка v4 **не включает** D-FINE SpOr, gor_dense и D-FINE Ae/Or: флаги выключены, пока нет фикса локализации sp_or.
 
 Правило 29.10: большие веса D-FINE / PIXGBM в git не добавляем (`[nomodels]`).
 
@@ -86,7 +87,7 @@ Not byte-identical to legacy (features re-extracted; recipe + SEED=0 match). DEF
 | `models/rerank_arch_lgbm.txt` | rerank_arch | `0bc2e924b7a7beb79706eae275d516a2668406294e99b6caf44e454030b6d97b` | ON — **не трогать** в коммитах bot-5 |
 | `models/rerank_arch_lgbm.json` | rerank meta | `d76c7edc54fc1c377a652122dcc8c7022e62244d48a6c0bbe85ecc19d2215ab0` | box worktree 29.10 |
 
-## Флаги (все новые OFF; SpOr отдельно)
+## Флаги на `cbd4804` (снимок 29.10, не текущий `default.toml`)
 
 | секция | enabled default | примечание |
 |---|---|---|
@@ -94,4 +95,50 @@ Not byte-identical to legacy (features re-extracted; recipe + SEED=0 match). DEF
 | `[dfine_aeor]` | `false` | Or weights **READY** (table above); Ae **pending** bot3 FT |
 | `[gor_gate]` / `[gor_dense]` | `false` | backbone OK on PC; heads **retrained** @ `9f62a96` (new md5 → set `gate_head_md5`/`head_md5` when enabling) |
 | `[orgate]` | `false` | — |
-| `[geophys.pixgbm]` / `[rerank_arch]` | `true` | PIXGBM sha256 = stub v2 eb268d6 |
+| `[geophys.pixgbm]` / `[rerank_arch]` | `true` на том снимке | PIXGBM sha256 = stub v2 eb268d6 |
+
+## Сверка клона 2026-11-01 (ветка `bots/bot5-candidate-v4`, база `main` @ `f127db8`)
+
+Файл `models/rerank_arch_lgbm.txt` в этом клоне **нет**. Его не восстанавливали: этим файлом занимается другой агент. sha256 из таблицы выше (`0bc2e924…`) снят 29.10, здесь не пересчитан.
+
+Пересчитано sha256 файлов, которые в клоне есть. Совпало с таблицей «В git»:
+
+| path | sha256 | в git на этой ветке |
+|---|---|---|
+| `models/li_r18_hard2.pt` | `0311e877e148e0ec3acb6f3b13a7fb12affe5e0b58a60d3524a2df956b3793b1` | да |
+| `models/li_gor_mask_r18.pt` | `39702cd8a5d92d0c0c06132690febc265519ed7a35b3c6ff02ed1fd7c1fdd8ef` | да |
+| `models/spor_gor_r18.pt` | `00d5c08539d1bced03d373c018d9e31432d987c7d848196a4afac6b0d44f1cbe` | да |
+| `models/spor_focal_r18.pt` | `88bbd1a24bf4bd4a2dae8c7855a95767e117124955273c9df1b2255c96fdd88b` | да |
+| `models/ae_fort_mask_r18.pt` | `36d64e1a8a14d850dbf1494a11629e2a4ff7cea218b10dd462c5b827cf58bba7` | да |
+| `models/sp_crop.pt` | `4a41b0caada94d387721eb13526071469d5c70504b9dfb6743e7923a1f39cbeb` | да |
+| `models/kurgan_lgbm.txt` | `f249a47e3305f21ac6bb45f3f35169019c52b93b53574d572b12ea28542e796c` | да |
+| `models/orgate_g.txt` | `676f4c1bbc8ff9d71b0bb86b39c9b870c10dc5a327bcf38d81c08e9d64db697a` | да |
+| `models/orgate_g.json` | `d398032068f1abc3460083dcba4066b0bd2edcb757303144a465686686632c5d` | да |
+| `models/rerank_arch_lgbm.json` | `d76c7edc54fc1c377a652122dcc8c7022e62244d48a6c0bbe85ecc19d2215ab0` | да |
+| `models/dfine_aeor/thresholds_or_oof_provisional.json` | `380274a11c1875e6898ce5465fff6359591650624698c17e68cd07e70354683d` | да, 178 байт, не веса сети |
+
+Нет в этом клоне (sha256 неизвестен здесь; числа с ПК/Kaggle — в таблицах выше, файлы не пересчитывались):
+
+| path | зачем в коде | источник |
+|---|---|---|
+| `models/pixgbm/all/poly.txt` | `[geophys.pixgbm]`, сейчас `enabled=false` | обучение bot-3; sha256 в `MODELS_NOT_IN_GIT.md` и в таблице PC выше |
+| `models/pixgbm/all/finds.txt` | то же | то же |
+| `models/rerank_arch_lgbm.txt` | `[rerank_arch] model`, сейчас `enabled=false` | `scripts/rerank_arch_train.py`; файл в git не класть этим PR |
+| `models/dfine_f0/` (`config.json` + `model.safetensors`) | `[sp_dfine] weights`, флаг выкл. | bot-9, Kaggle `koz3-dfine-spor`, фолд f0; sha256 PC `81ef8228…` |
+| `models/dfine_ae/` | `[dfine_aeor] weights.ae` | bot-9 / дообучение `koz3-dfine-ae-ft`; в манифесте 29.10 — pending |
+| `models/dfine_or/dfine_f{0,1,2}/` | `[dfine_aeor] weights.or` | Kaggle `koz3-dfine-or`; sha256 в таблице Or выше |
+| `models/dinov2-small/` | `[gor_gate]` / `[gor_dense] backbone` | HF `facebook/dinov2-small` @ `ed25f3a3`; md5 safetensors `ea251be6…` |
+| `models/gor_gate/gor_v3_head.npz` | голова сцены | `scripts` bot-5 / ретрейн PC @ `9f62a96`; sha256 `5bd88f69…` |
+| `models/gor_dense/gor_dense_head.npz` | плотная голова, `centre_s=250` | `scripts/gor_dense/export_head.py`; sha256 `feb1591b…` |
+
+Флаги в текущем `configs/default.toml` (не в архивном снимке 29.10):
+
+| секция | enabled |
+|---|---|
+| `[sp_dfine]` | false, отдельно от `[dfine_aeor]` и от `[aeor_dfine]` |
+| `[dfine_aeor]` | false |
+| `[aeor_dfine]` | false |
+| `[gor_dense]` / `[gor_gate]` | false; пакет gor_dense: τ=0.824066, `centre_s=250` только в закомментированном блоке включения |
+| `[orgate]` | false |
+| `[geophys.pixgbm]` | false |
+| `[rerank_arch]` | false |
