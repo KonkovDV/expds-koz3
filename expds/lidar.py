@@ -215,26 +215,39 @@ def thin_keep(name: str, seed: int = 0) -> float:
 def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
               max_pixels: int = DEFAULTS["max_pixels"], ground_class: int = DEFAULTS["ground_class"],
               crs: str | None = None, fill: str = "delaunay", keep_prob: float = 1.0) -> Dem:
-    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill)."""
-    t0 = time.perf_counter()
-    dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
-    t1 = time.perf_counter()
-    holes = int(np.count_nonzero(~np.isfinite(dem)))
-    if fill == LOWVEG_FILL:
-        dem, lv = fill_lowveg(dem, las_path, info, max_pixels, ground_class)
-        info = dict(info, lowveg=lv)
-    else:
-        dem = fill_interior_holes(dem, method=fill)
-    t2 = time.perf_counter()
-    info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
-                backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
-    if crs is None:
-        from .crs import las_crs
+    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill).
 
-        crs = las_crs(las_path)
-    log.info("DEM %s: %dx%d @ %.3g м, точек %s, пустот %d, %s", Path(las_path).name,
-             dem.shape[1], dem.shape[0], info["res"], info["points_used"], holes, info["backend"])
-    return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=crs, info=info)
+    При EXPDS_DEM_DISK_CACHE=/каталог (или [speed] dem_disk_cache) сетка читается/пишется
+    на диск — между прогонами gate/A-B на тех же LAS без пересчёта; выход побайтно тот же.
+    """
+    from . import demcache
+
+    params = {"res": float(res), "max_pixels": int(max_pixels), "ground_class": int(ground_class),
+              "fill": str(fill), "keep_prob": float(keep_prob), "crs": crs}
+
+    def _build() -> Dem:
+        t0 = time.perf_counter()
+        dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
+        t1 = time.perf_counter()
+        holes = int(np.count_nonzero(~np.isfinite(dem)))
+        if fill == LOWVEG_FILL:
+            dem, lv = fill_lowveg(dem, las_path, info, max_pixels, ground_class)
+            info = dict(info, lowveg=lv)
+        else:
+            dem = fill_interior_holes(dem, method=fill)
+        t2 = time.perf_counter()
+        info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
+                    backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
+        out_crs = crs
+        if out_crs is None:
+            from .crs import las_crs
+
+            out_crs = las_crs(las_path)
+        log.info("DEM %s: %dx%d @ %.3g м, точек %s, пустот %d, %s", Path(las_path).name,
+                 dem.shape[1], dem.shape[0], info["res"], info["points_used"], holes, info["backend"])
+        return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=out_crs, info=info)
+
+    return demcache.wrap_build("build_dem", las_path, params, _build, Dem)
 
 
 def would_coarsen(las_path: str | Path, res: float, max_pixels: int) -> bool:
@@ -273,6 +286,27 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     середина, усреднённая до 0,5 м. Файл читается один раз. В конфиг не включено:
     на 24 грубых облаках это ещё не проверено официальной метрикой.
     """
+    from . import demcache
+
+    params = {"res": float(res), "work_res": float(work_res), "tile_m": float(tile_m),
+              "halo_m": float(halo_m), "ground_class": int(ground_class), "fill": str(fill),
+              "crs": crs}
+    cache_dir = demcache.resolve_dir()
+    if cache_dir is not None:
+        try:
+            key = demcache.key_for("build_dem_mosaic", las_path, **params)
+            hit = demcache.load(cache_dir, key)
+        except OSError:
+            hit = None
+            key = None
+        if hit is not None:
+            dem_arr, meta = hit
+            info = dict(meta.get("info") or {}, dem_cache="hit")
+            return Dem(dem=dem_arr, left=float(meta["left"]), top=float(meta["top"]),
+                       res=float(meta["res"]), crs=meta.get("crs"), info=info)
+    else:
+        key = None
+
     import laspy
 
     from .accel import grid_spec
@@ -393,7 +427,13 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
         crs = las_crs(las_path)
     info = dict(spec, res=work_res, factor=1, tiled=True, fine_res=res,
                 width=out_w, height=out_h, used_all=use_all, las_path=str(las_path), ground_class=ground_class)
-    return Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+    out = Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+    if cache_dir is not None and key is not None:
+        meta = {"left": float(out.left), "top": float(out.top), "res": float(out.res), "crs": out.crs,
+                "info": {k: out.info[k] for k in out.info if demcache._jsonable(out.info[k])}}
+        demcache.save(cache_dir, key, out.dem, meta)
+        out.info = dict(out.info, dem_cache="miss")
+    return out
 
 
 # Готовые сетки остаются до конца прогона: канал σ читает тот же DEM, что и основной лидар.
