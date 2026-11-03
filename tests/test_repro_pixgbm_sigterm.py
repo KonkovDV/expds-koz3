@@ -13,6 +13,10 @@ SCRIPT = ROOT / "scripts" / "repro_pixgbm_sigterm.py"
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="fork is Linux-only")
+@pytest.mark.skipif(
+    any(subprocess.run(["git", "-C", str(Path(__file__).resolve().parents[1]), "cat-file", "-e", f"{rev}:expds/geo_pixgbm.py"],
+                       capture_output=True).returncode for rev in ("67284ab", "8594842", "af97af0", "eb268d6", "36af6b7", "78af57f")),
+    reason="old PIXGBM revisions are not in this clone (expds/geo_pixgbm.py is held out of main)")
 def test_sigterm_hangs_on_old_pool_and_not_on_fix():
     r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr

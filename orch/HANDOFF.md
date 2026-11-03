@@ -1,3 +1,5 @@
+> **03.11.2026 — ОДИН MAIN.** Все ветки и PR сведены в `main` (`docs/AUDIT_2026-11-03.md`). Новые ветки — от `main`, в `main` — через PR; флаги по умолчанию OFF; `geo_pixgbm.py` в `main` не класть. Задание на гейты — `docs/plans/PROMPT_TO_061_20261103.md`: забрать OOF `dmitrijkv/koz3-w2-dfine2-{a,b}` и `elenakonkova/koz3-w1-satdet-frcnn` (complete 02.11), гейт поверх v4. Финал и порядок посылок — без изменений (`HANDOFF_NOW_20261102.md` §2). На Drive в общей папке две сборки sat2 с одинаковыми именами частей — не склеивать вслепую.
+
 > **02.11.2026 18:40 MSK — DEEP FREEZE. Читать первым: `orch/HANDOFF_NOW_20261102.md`** (v4 primary f0def982…, все add-on рычаги 02.11 FAIL, STANDBY, Hold LB — сабмит только Елена).
 
 # HANDOFF KOZ3 — АКТУАЛЬНО 02.11.2026 15:05 MSK (W4 agent 5)

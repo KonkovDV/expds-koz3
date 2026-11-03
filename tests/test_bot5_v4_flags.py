@@ -129,7 +129,9 @@ def test_v4_phase_drop_only_when_enabled_and_drop_groups(monkeypatch):
     old = [{"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "a"}]
     st = St(old)
     regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]})]
-    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"]}}
+    # Слепой R явно: после PR #17 (bot-2) по умолчанию drop_cover_m = 12 снимает только объекты, покрытые D-FINE
+    # того же класса; тест проверяет сам механизм drop_groups (интеграция 03.11).
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_cover_m": 0}}
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 1
     assert all(f.get("threshold_group") == "sp_dfine" for f in st.feats)
     assert not any(f.get("threshold_group") is None and f["markup_type"] == "sp_or" for f in st.feats)
