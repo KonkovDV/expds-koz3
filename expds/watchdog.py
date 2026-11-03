@@ -289,6 +289,11 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     _by)
     out = out + reranked
+    if _lo.flag(cfg, "protect_merge"):
+        try:
+            out = _lo.merge_within_markup(out, post.ISOLATED_GROUPS, _lo.spec(cfg))
+        except Exception:
+            log.exception("large_objects protect_merge в запасной цепочке упал, шаг пропущен")
     # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
                     ("filter_finds_points", post.filter_finds_points_regimes)):
@@ -317,6 +322,11 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
         except Exception:
             log.exception("micro_circles в запасной цепочке упал, круги оставлены как есть")
+    if _lo.flag(cfg, "shape_cores"):
+        try:
+            out = _lo.shape_cores_large(out, _lo.spec(cfg))
+        except Exception:
+            log.exception("large_objects shape_cores в запасной цепочке упал, шаг пропущен")
     kept: list[dict] = []
     for f in out:
         try:

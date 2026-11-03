@@ -1,0 +1,19 @@
+{
+  "id": "elenakonkova/koz3-w4-large-gate",
+  "title": "koz3-w4-large-gate",
+  "code_file": "koz3-w4-large-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": ["cpu", "honest-10", "large-objects", "fixc"],
+  "dataset_sources": [
+    "elenakonkova/koz3-w2-gate",
+    "elenakonkova/koz3-w4-large-gate-code"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": []
+}

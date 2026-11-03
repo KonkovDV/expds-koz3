@@ -130,6 +130,23 @@ def dfine_ae_gor_area_tau(base_tau, lo: dict):
     return tau
 
 
+def threshold_for(base_tau: float, area: float, class_name: str, group: str, markup: str,
+                  lo: dict, *, area_on: bool, fixc_on: bool) -> float:
+    """Порог одного объекта при уже подобранной базовой τ группы.
+
+    area_on — ослабление area_tau. fixc_on — абсолютный τ Fix C. База не переобучается:
+    её даёт sweep на других фолдах, сюда она приходит готовой.
+    """
+    feat = {"class_name": class_name, "threshold_group": group, "markup_type": markup,
+            "box_area_m2": area}
+    t = float(base_tau)
+    if area_on:
+        t = float(area_tau(lambda f: t, lo)(feat))
+    if fixc_on:
+        t = float(dfine_ae_gor_area_tau(lambda f: t, lo)(feat))
+    return t
+
+
 def apply_thresholds(feats: list[dict], thresholds: dict, default: float, by_markup: dict | None,
                      lo: dict) -> list[dict]:
     """Как post.apply_thresholds + опционально area_tau и/или Fix C (dfine_ae_gor_area_tau)."""
