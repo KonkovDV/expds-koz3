@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""Rebuild koz3-bot7-geo-gate.py with embedded vendor/w5_rerank/scripts/data tarball."""
+from __future__ import annotations
+import base64, pathlib, subprocess, sys, textwrap, tempfile, gzip, tarfile, io
+ROOT = pathlib.Path(__file__).resolve().parent
+
+def main():
+    tar_path = pathlib.Path(tempfile.mkstemp(suffix=".tar.gz")[1])
+    subprocess.check_call(
+        ["tar", "-czf", str(tar_path), "vendor", "w5_rerank", "scripts", "data"],
+        cwd=str(ROOT),
+    )
+    blob = tar_path.read_bytes()
+    b64 = "\n".join(textwrap.wrap(base64.b64encode(blob).decode(), 76))
+    script = ROOT / "koz3-bot7-geo-gate.py"
+    text = script.read_text()
+    start = text.index('BUNDLE_GZ_B64 = r"""') + len('BUNDLE_GZ_B64 = r"""')
+    end = text.index('"""', start)
+    text = text[:start] + "\n" + b64 + "\n" + text[end:]
+    script.write_text(text)
+    tar_path.unlink(missing_ok=True)
+    raw = gzip.decompress(base64.b64decode(b64))
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as tf:
+        names = tf.getnames()
+        assert "vendor/materials/compute_metrics.py" in names
+        assert "scripts/stack_apply_geo_hull.py" in names
+    print("OK", script, "bytes", script.stat().st_size, "bundle_gz", len(blob))
+
+if __name__ == "__main__":
+    main()
