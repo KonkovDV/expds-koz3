@@ -2,7 +2,23 @@ name: CI
 
 on:
   push:
+    # Боты пушат десятки коммитов только с отчётами и состоянием координации: CI на них не нужен (аудит 03.11)
+    paths-ignore:
+      - "docs/**"
+      - "orch/**"
+      - "orch_bot-*/**"
+      - "notes/**"
+      - "reports/**"
+      - "snapshot/**"
+      - "w2_*/**"
+      - "w3/**"
+      - "**.md"
   pull_request:
+
+# Новый пуш в ту же ветку отменяет прежний прогон
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -24,6 +40,10 @@ jobs:
         run: pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
       - name: Dependencies
         run: pip install -r requirements-dev.txt
+      - name: "Lint submission code (ruff F/E9: undefined names, duplicate defs, syntax)"
+        run: |
+          pip install "ruff>=0.6"
+          ruff check --select F,E9 expds inference/main.py scripts/build_submission.py scripts/check_submission.py scripts/check_archive_clean.py scripts/check_compliance.py scripts/build_submission_git.py scripts/v2_release_artifacts.py scripts/assemble_release.py
       - name: Import smoke (entrypoint)
         run: python -c "import expds.pipeline, expds.watchdog, expds.post, expds.metric; print('import ok')"
       - name: Tests on synthetic data (no competition data, no GPU)

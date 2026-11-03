@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Восстановить «бокс» команды (/workspace/koz3) для гейтов honest-10 в чистом контейнере (аудит 03.11).
+#
+#   KAGGLE_TOKEN_DMITRIJKV=... KAGGLE_TOKEN_ELENAKONKOVA=... bash scripts/box_restore.sh [VENV_DIR]
+#
+# Токены — только из окружения, в файлы не пишутся. Источники:
+#   - архив бокса R_results: приватный датасет elenakonkova/koz3-handoff-20261102 (koz3bk_R_results.tar.xz, 101 МБ);
+#     в нём orch/bot-W4/work/v3_gate_lib.py, пороги v3prod, разбиения; d3_gate.py — в wt/coord-orch/...;
+#   - стек OOF базы A: elenakonkova/koz3-w2-gate (w5base/: stack_arch.geojson 1,1 ГБ, table.pkl, gt_train_v2.geojson);
+#   - OOF D-FINE f0 (koz3-dfine-spor-full/-full-rest), D-FINE-2 (koz3-w2-dfine2-a/-b), Faster R-CNN (koz3-w1-satdet-frcnn).
+# Чего нет ни в одном бэкапе: w4geo/eval/{A18,C19etonly_orget_s0}.geojson (геофизика базы). load_geo тогда отдаёт []:
+# V3P = 0,334435 вместо 0,3337867 (+0,00065, только object_poly EtGr); Δ/P изменений только в классах ДЗЗ не меняются.
+set -euo pipefail
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+K=/workspace/koz3
+VENV="${1:-$K/venv312}"
+T_D="${KAGGLE_TOKEN_DMITRIJKV:?set KAGGLE_TOKEN_DMITRIJKV}"
+T_E="${KAGGLE_TOKEN_ELENAKONKOVA:?set KAGGLE_TOKEN_ELENAKONKOVA}"
+mkdir -p "$K"
+
+# 1) Python 3.12 + зависимости сдачи (как CI)
+if [ ! -x "$VENV/bin/python" ]; then
+  uv venv -p python3.12 "$VENV" >/dev/null
+  VIRTUAL_ENV="$VENV" uv pip install -q torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
+  VIRTUAL_ENV="$VENV" uv pip install -q -r "$REPO/requirements-dev.txt" -r "$REPO/requirements.lock"
+fi
+mkdir -p "$K/w4venv/bin" "$K/wt"
+ln -sfn "$VENV/bin/python" "$K/w4venv/bin/python"
+ln -sfn "$REPO" "$K/wt/w1"
+
+ds() {  # owner slug file dst
+  [ -s "$4" ] && return 0
+  mkdir -p "$(dirname "$4")"
+  curl -sSLf -m 3600 -H "Authorization: Bearer $5" \
+    "https://www.kaggle.com/api/v1/datasets/download/$1/$2/${3//\//%2F}" -o "$4.part" && mv "$4.part" "$4"
+}
+kout() {  # token user slug dst — только *.geojson и *report.json из корня вывода ядра
+  mkdir -p "$4"
+  curl -sS -m 120 -H "Authorization: Bearer $1" "https://www.kaggle.com/api/v1/kernels/output?userName=$2&kernelSlug=$3" |
+    "$VENV/bin/python" -c "
+import sys, json
+for f in json.load(sys.stdin).get('files', []):
+    n = f['fileName']
+    if '/' not in n and (n.endswith('.geojson') or n.endswith('report.json')): print(n, f['url'])" |
+    while read -r n u; do [ -s "$4/$n" ] || curl -sSLf -m 3600 "$u" -o "$4/$n"; done
+}
+
+# 2) Архив бокса и библиотеки гейта
+if [ ! -f "$K/orch/bot-W4/work/v3_gate_lib.py" ]; then
+  ds elenakonkova koz3-handoff-20261102 koz3bk_R_results.tar.xz "$K/_dl/R.tar.xz" "$T_E"
+  tar -xJf "$K/_dl/R.tar.xz" -C "$K"
+fi
+mkdir -p "$K/orch/bot-W1/work/d3_vendor"
+cp -n "$K/wt/coord-orch/orch/bot-W1/work/d3_gate.py" "$K/orch/bot-W1/work/d3_gate.py"
+git -C "$REPO" show cbd4804:expds/sp_dfine.py > "$K/orch/bot-W1/work/d3_vendor/sp_dfine_cbd4804.py"
+"$VENV/bin/python" - "$K/orch/bot-W4/work/v3_gate_lib.py" <<'EOF'
+import sys
+p = sys.argv[1]; t = open(p).read()
+old = 'def load_geo(p, pred):\n    return [f for f, _ in iter_features(Path(p)) if pred(f["properties"])]\n'
+if old in t:
+    t = t.replace(old, 'def load_geo(p, pred):\n    if not Path(p).exists():   # box_restore: C19/A18 not in any backup\n'
+                       '        log(f"load_geo: {p} missing -> []")\n        return []\n'
+                       '    return [f for f, _ in iter_features(Path(p)) if pred(f["properties"])]\n')
+    open(p, "w").write(t)
+EOF
+
+# 3) Стек OOF базы A и эталон
+for f in stack_arch.geojson gt_train_v2.geojson; do ds elenakonkova koz3-w2-gate "w5base/$f" "$K/w5data/$f" "$T_E"; done
+for f in table.pkl base_counts.pkl; do ds elenakonkova koz3-w2-gate "w5base/$f" "$K/w5data/work/$f" "$T_E"; done
+
+# 4) OOF детекторов спутника
+kout "$T_D" dmitrijkv koz3-dfine-spor-full "$K/w4geo/spor_oof/full"
+kout "$T_D" dmitrijkv koz3-dfine-spor-full-rest "$K/w4geo/spor_oof/rest"
+kout "$T_D" dmitrijkv koz3-w2-dfine2-a "$K/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a"
+kout "$T_D" dmitrijkv koz3-w2-dfine2-b "$K/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b"
+kout "$T_E" elenakonkova koz3-w1-satdet-frcnn "$K/w1/satdet/pulled"
+
+# 5) Конфиг v3_on для контекста гейта
+mkdir -p "$K/w2/r50c5_gate/v3on_src/configs"
+cp "$REPO/configs/v3_on.toml" "$K/w2/r50c5_gate/v3on_src/configs/default.toml"
+echo "box restored at $K (venv $VENV)"
