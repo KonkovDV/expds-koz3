@@ -1,0 +1,11 @@
+[v2c PC] fold 0: in 324 → out 338 (thr-only 324) 2s
+[v2c PC] fold 1: in 4668 → out 4592 (thr-only 4659) 3s
+[v2c PC] fold 2: in 604 → out 373 (thr-only 350) 3s
+[v2c PC] fold 3: in 382 → out 374 (thr-only 374) 3s
+[v2c PC] fold 4: in 3492 → out 2705 (thr-only 3016) 3s
+[v2c PC] fold 5: in 525 → out 426 (thr-only 390) 4s
+[v2c PC] fold 6: in 679 → out 566 (thr-only 546) 4s
+[v2c PC] fold 7: in 2301 → out 1875 (thr-only 1857) 4s
+[v2c PC] fold 8: in 786 → out 575 (thr-only 549) 5s
+[v2c PC] fold 9: in 1463 → out 1099 (thr-only 1093) 5s
+done 12923 7s

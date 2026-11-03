@@ -1,0 +1,182 @@
+{
+ "li": {
+  "kurgany_povrezhdennye": 0.04353,
+  "kurgany_tselye": 0.01653,
+  "gorodishcha": 0.98303,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 0.99934
+ },
+ "li_coarse": {
+  "kurgany_povrezhdennye": 0.99999,
+  "kurgany_tselye": 0.99995,
+  "gorodishcha": 0.9745,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 0.99926
+ },
+ "ae": {
+  "kurgany_povrezhdennye": 0.99053,
+  "kurgany_tselye": 0.802255,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.998215
+ },
+ "li_mosaic": {
+  "kurgany_povrezhdennye": 0.21367,
+  "kurgany_tselye": 0.01422,
+  "gorodishcha": 1.0,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 1.0
+ },
+ "li_ae": {
+  "kurgany_povrezhdennye": 0.993061,
+  "kurgany_tselye": 1.000001,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "sp_or": {
+  "kurgany_povrezhdennye": 0.3645,
+  "kurgany_tselye": 0.3725,
+  "gorodishcha": 0.994085,
+  "arkhitektury": 0.286725,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "maggr": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "etgr": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.096635,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "terfl": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "sp_focal": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "li_mask": {
+  "kurgany_povrezhdennye": 0.99999,
+  "kurgany_tselye": 0.99995,
+  "gorodishcha": 0.9745,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 1.0
+ },
+ "ae_fort": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "sp_arch": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "or": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.483891,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "li_fort": {
+  "kurgany_povrezhdennye": 0.99999,
+  "kurgany_tselye": 0.99995,
+  "gorodishcha": 1.0,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 0.81345
+ },
+ "li_dev": {
+  "kurgany_povrezhdennye": 0.21002,
+  "kurgany_tselye": 0.9871,
+  "gorodishcha": 1.0,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 1.0
+ },
+ "sp_focal2": {
+  "kurgany_povrezhdennye": 0.501645,
+  "kurgany_tselye": 0.645505,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "gor_phys": {
+  "kurgany_povrezhdennye": 0.99999,
+  "kurgany_tselye": 0.99995,
+  "gorodishcha": 0.2738,
+  "arkhitektury": 1.01,
+  "object_poly": 1.01,
+  "finds_points": 1.01,
+  "fortifikatsii": 1.0
+ },
+ "etgr_org": {
+  "kurgany_povrezhdennye": 0.15,
+  "kurgany_tselye": 0.15,
+  "gorodishcha": 0.15,
+  "arkhitektury": 0.15,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.2
+ },
+ "sp_dfine": {
+  "kurgany_povrezhdennye": 0.555265,
+  "kurgany_tselye": 0.670285,
+  "gorodishcha": 0.68847,
+  "arkhitektury": 0.373015,
+  "object_poly": 0.0,
+  "finds_points": 0.0,
+  "fortifikatsii": 0.869051
+ }
+}
