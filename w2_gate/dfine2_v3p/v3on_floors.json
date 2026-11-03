@@ -1,0 +1,149 @@
+{
+ "source": "configs/default.toml of w4geo/dist/koz3_v3on_b505656_6d4764f8_w6dfd2e07.zip; output_floors(cfg,group) (no prior/calib, no w5_cloudfeat)",
+ "floors": {
+  "li": {
+   "kurgany_tselye": 0.19422,
+   "kurgany_povrezhdennye": 0.06415,
+   "gorodishcha": 0.993091,
+   "arkhitektury": 1.01,
+   "fortifikatsii": 0.999971,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "ae": {
+   "kurgany_tselye": 0.802255,
+   "kurgany_povrezhdennye": 0.99053,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.998215,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_mosaic": {
+   "kurgany_tselye": 0.17042,
+   "kurgany_povrezhdennye": 0.959005,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_ae": {
+   "kurgany_tselye": 1.000001,
+   "kurgany_povrezhdennye": 0.993061,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_dev": {
+   "kurgany_tselye": 0.99957,
+   "kurgany_povrezhdennye": 0.99131,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_coarse": {
+   "kurgany_tselye": 0.469805,
+   "kurgany_povrezhdennye": 0.966705,
+   "gorodishcha": 0.986425,
+   "arkhitektury": 1.01,
+   "fortifikatsii": 0.99926,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_mask": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.99451,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "gor_phys": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.43049,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "or": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.483891,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "maggr": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "terfl": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "ae_fort": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_fort": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.987675,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "etgr_org": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "sp_dfine": {
+   "kurgany_tselye": 0.670285,
+   "kurgany_povrezhdennye": 0.555265,
+   "gorodishcha": 0.68847,
+   "arkhitektury": 0.373015,
+   "fortifikatsii": 0.869051,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_r50c5": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  }
+ }
+}
