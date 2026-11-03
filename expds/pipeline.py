@@ -731,6 +731,9 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         else:
             half_feats = []
     fp = _params(fusion.FusionParams, cfg.get("fusion"))
+    from .ae_recall import mosaic_intact_on
+    if mosaic_intact_on(cfg):
+        fp.mosaic_intact = True
     if fp.li_to_ae and reg.rasters.get("ae"):
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
