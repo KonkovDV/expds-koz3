@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accel, candidates, fusion, geophys, li_half, lidar_cnx, post, writer
+from . import accel, candidates, fusion, geophys, li_half, lidar_cnx, post
 from .catalog import Region, read_utm_json, scan_root
 from .constants import DEFAULT_BUDGET_S
 
@@ -496,7 +496,6 @@ def li_mask_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
     Нет файла весов — пустой список, основной лидар не трогается.
     """
-    from .lidar import hillshade_set
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -522,7 +521,6 @@ def li_fort_feats(reg: Region, las: Path, cfg: dict, seg_cache: dict, root: Path
     Модель видит шаг и каналы из своего чекпойнта. Курганы она не выдаёт.
     Нет файла весов — пустой список, основной лидар не трогается.
     """
-    from .lidar import hillshade_set
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -549,7 +547,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     Сбой загрузки или инференса модели не оставляет участок без курганов:
     для этого LAS считается запасной детектор.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -1072,7 +1070,7 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
     один раз на участок. Любой отказ (нет порогов cnx, веса, мягкий потолок, подготовка, CRS, сеть) —
     пустой список с предупреждением: без cnx остаётся выдача как при enabled=false.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -1237,7 +1235,7 @@ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root
     Отбор 12 м делает run: сюда попадают все круги выше пола выдачи.
     Нет весов — пустой список.
     """
-    from .lidar import build_dem, dem_params, hillshade_set
+    from .lidar import build_dem, dem_params
     from .lidar import hillshade_for
     hillshade_set = hillshade_for(cfg)  # lidar.hillshade_style (CI2-8), по умолчанию vendor
 
@@ -2104,7 +2102,6 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             phases.append(("городища кадра", len(found), time.monotonic() - t_phase))
     finally:
         _WINDOW_GUARD = None
-        signal.signal(signal.SIGTERM, previous_term)
         if prefetch is not None:
             prefetch.close()
         summary["raw"] = len(state.snapshot())
@@ -2123,7 +2120,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         if guard.soft_skipped:
             summary["soft_skipped"] = list(guard.soft_skipped)
             state.note["soft_skipped"] = list(guard.soft_skipped)
-        summary["written"] = checkpoint(state, "конец")
+        # Обработчик SIGTERM снимается только после итоговой записи: сигнал во время проверки кропа
+        # (до 120 с) пишет текущий результат, а не убивает процесс без файла (аудит 03.11).
+        try:
+            summary["written"] = checkpoint(state, "конец")
+        finally:
+            signal.signal(signal.SIGTERM, previous_term)
         summary["seconds"] = round(guard.run_elapsed(), 1)
         summary["partial_files"] = list(guard.partial)
         for handler in logging.getLogger().handlers:

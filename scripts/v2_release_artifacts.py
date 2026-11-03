@@ -17,6 +17,7 @@ build_submission.py без них падает («модель из конфиг
 from __future__ import annotations
 
 import argparse
+import os
 import hashlib
 import subprocess
 import sys
@@ -54,8 +55,11 @@ def main() -> int:
     ap.add_argument("--force", action="store_true", help="перезаписать файл с другим sha256")
     args = ap.parse_args()
     bad = 0
+    # EXPDS_V2_DEST: куда класть артефакты (по умолчанию корень репо). Тесты пишут во временную папку,
+    # иначе прогон pytest оставлял в рабочем дереве expds/geo_pixgbm.py и веса v2 (аудит 03.11).
+    dest_root = Path(os.environ.get("EXPDS_V2_DEST") or ROOT)
     for rel, want in MANIFEST.items():
-        dst = ROOT / rel
+        dst = dest_root / rel
         have = sha(dst.read_bytes()) if dst.exists() else None
         if have == want:
             print(f"OK    {rel} {want[:16]}")

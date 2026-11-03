@@ -21,7 +21,7 @@ from __future__ import annotations
 import math
 from collections import defaultdict
 
-from shapely.geometry import MultiPolygon, Point, Polygon
+from shapely.geometry import Point
 from shapely.ops import polylabel, unary_union
 from shapely.strtree import STRtree
 
@@ -156,7 +156,7 @@ def dedup_anchors(feats: list[dict], spec: dict) -> list[dict]:
         buckets[key].append(i)
     drop: set[int] = set()
     for key, idx in buckets.items():
-        rule = spec[key[1]]
+        rule = spec[key[1]]  # noqa: F841 — KeyError на классе без правила, как раньше
         rad, inside = float(rule.get("radius_m", 1.0)), bool(rule.get("inside", False))
         idx.sort(key=lambda i: -float(feats[i].get("confidence", 1.0)))
         cell = max(rad, 1e-3)
@@ -212,7 +212,7 @@ def merge_union(feats: list[dict], spec: dict) -> list[dict]:
         comp = defaultdict(list)
         for a in range(len(idx)):
             comp[find(a)].append(a)
-        rule = spec[key[1]]
+        rule = spec[key[1]]  # noqa: F841 — KeyError на классе без правила, как раньше
         for members in comp.values():
             best = max(members, key=lambda a: float(feats[idx[a]].get("confidence", 1.0)))
             u = unary_union([geoms[a] for a in members]) if len(members) > 1 else geoms[best]

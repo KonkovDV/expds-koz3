@@ -444,7 +444,6 @@ def absent_class_weight(target, valid):
     valid формы (N, K) или (K,). Там, где 0, вес канала обнуляется. Без valid обучение
     не меняется: функция сама по себе в цикл не включена.
     """
-    import torch
 
     if valid.ndim == 1:
         valid = valid.view(1, -1)

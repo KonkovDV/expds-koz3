@@ -68,6 +68,13 @@ def _write_submission_zip(path: Path, fc: dict) -> Path:
     return path
 
 
+@pytest.fixture(autouse=True)
+def _v2_artifacts_outside_tree(tmp_path, monkeypatch):
+    """assemble_release.main запускает v2_release_artifacts: без этого он клал expds/geo_pixgbm.py и веса v2
+    в рабочее дерево, и следующий прогон pytest пропускал другие тесты (аудит 03.11)."""
+    monkeypatch.setenv("EXPDS_V2_DEST", str(tmp_path / "v2_artifacts"))
+
+
 def test_profiles_exist():
     d = ROOT / "configs" / "release" / "profiles"
     for name in ("off", "fr1h", "sat2", "dfine_ae", "fr1h_sat2_dfine_ae"):

@@ -252,7 +252,6 @@ def cross_nms(feats: list[dict], spec: dict[str, Any] | None = None) -> list[dic
     groups = set(_norm_group(g) for g in st["groups"])
     classes = set(st["classes"])
 
-    from scipy.spatial import cKDTree
     import numpy as np
 
     sat_idx = []

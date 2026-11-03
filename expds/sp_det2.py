@@ -204,7 +204,6 @@ def detect_scene(models, scene: _Scene, st: dict, ch_cfg, device, keep_going=lam
     """Run fold-ensemble CenterNet; own-cell dedupe across overlapping windows; return feature dicts."""
     import torch
     from centerhead.decode import decode, concat
-    from centerhead.export import candidates_to_feats
     from scipy.spatial import cKDTree
 
     T = int(st["tile"])
@@ -293,7 +292,7 @@ def detect_scene(models, scene: _Scene, st: dict, ch_cfg, device, keep_going=lam
 
 def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, soft_ok=None) -> tuple[list[dict], bool]:
     st = settings(cfg)
-    from centerhead.export import candidates_to_feats, to_fc
+    from centerhead.export import candidates_to_feats
 
     paths = list(reg.rasters.get("sp_or") or [])
     if not paths:

@@ -644,7 +644,6 @@ def build_curves(pred: dict, gt: dict, metric_path: str | None = None,
     (на больших файлах он съедает заметную долю времени и на пары не влияет).
     """
     import gc
-    import shapely
 
     pause = os.environ.get("EXPDS_METRIC_NOGC", "1") != "0" and gc.isenabled()
     if pause:

@@ -36,7 +36,6 @@ import json
 
 import logging
 import math
-import os
 import time
 from pathlib import Path
 
@@ -606,7 +605,7 @@ def _metadata_shim() -> None:
        «Unable to compare versions … found=None» или «distribution was not found» для пакета из _META_DEPS,
        модуль которого импортируется, — WARNING SP_DFINE_DEPMETA вместо исключения. Слишком старая версия
        (ImportError) и неимпортируемый модуль по-прежнему роняют импорт → SP_DFINE_UNAVAILABLE."""
-    import importlib.abc
+    import importlib.abc  # noqa: F401 — подмодуль importlib.abc нужен загрузчику вендора до import transformers
     import importlib.metadata as md
     import sys
     if not getattr(md.version, "_b7_shim", False):

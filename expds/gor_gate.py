@@ -12,7 +12,6 @@ max p(городище) по всем виньеткам 384 м (шаг 192 м, 
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 import math
 import time
@@ -121,7 +120,7 @@ def _rename(k: str) -> str:
 
 def load_backbone(st: dict, root: Path, device):
     """Dinov2Model из config.json + model.safetensors, без хаба (как load_models D-FINE)."""
-    import torch
+    import torch  # noqa: F401 — torch нужен safetensors.torch; без него ImportError здесь, а не глубже
     from safetensors.torch import load_file
 
     from .sp_dfine import import_dfine

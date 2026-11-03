@@ -507,9 +507,12 @@ def arm_signal(state: RunState, exit_fn=os._exit):
             return
         try:
             feats = state.snapshot()
-            kept = finish(feats, state.cfg)
+            # safe_finish, как у checkpoint: сбой постобработки не должен оставить площадку без файла ответа
+            kept = safe_finish(feats, state.cfg)
             writer.write_geojson(kept, state.output)
             _emit_protocol(state, feats, kept, "signal")
+        except Exception:
+            log.exception("запись по сигналу не удалась")
         finally:
             _write_lock.release()
             for handler in logging.getLogger().handlers:

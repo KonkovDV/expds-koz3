@@ -25,7 +25,6 @@ from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
-import rasterio
 from rasterio.enums import Resampling
 from rasterio.features import rasterize
 from rasterio.transform import from_origin
@@ -34,7 +33,7 @@ from shapely.geometry import box, shape
 
 from .catalog import Region, read_utm_json, scan_root
 from .constants import GEO_CLASSES, GEO_MARKUP, RS_CLASSES
-from .crs import WEB_MERCATOR, raster_crs, to_3857_ok, to_crs, usable_raster_crs
+from .crs import WEB_MERCATOR, to_3857_ok, to_crs, usable_raster_crs
 from .naming import site_family
 
 log = logging.getLogger(__name__)
