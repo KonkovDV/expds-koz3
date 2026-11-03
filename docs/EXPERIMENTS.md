@@ -71,3 +71,6 @@
 - Шум площадки: SD Δ ≈ 0,005. Финальный пакет мерится целиком: crop × курганы не аддитивны.
 
 | 28 | **bot7-geo-gate** L1/L2/L3 OFF + S3 via `kaggle/common/koz3_s3.py` (CPU, internet) | prior Σ~0.003–0.005 | — | suite 1016p/65s/2 prefails dfine (0 new) | ✅ пакет `/workspace/kaggle/push/geo-gate/` slug `dmitrijkv/koz3-bot7-geo-gate`; helper tip `11a47d2a` | [bot7_geo_gate](../../../../../../home/box/shared/koz3/reports/bot7_geo_gate.md) |
+
+### 01.11.2026 — bot-W1-sat: sat2 REPLACE gate package
+See [`research/2026-11-01/EXPERIMENTS_sat2_gate.md`](research/2026-11-01/EXPERIMENTS_sat2_gate.md) + `bots/w1-sat2-gate/REPORT_sat2_gate_20261101.md`. Soft-PASS +0.00472 P0.838 → full P≥0.9 pending Kaggle CPU push by bot1.
