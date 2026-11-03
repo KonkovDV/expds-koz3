@@ -1,0 +1,20 @@
+{
+  "id": "dmitrijkv/koz3-tpu-probe",
+  "title": "koz3-tpu-probe",
+  "code_file": "koz3-tpu-probe.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": true,
+  "enable_internet": true,
+  "keywords": [
+    "tpu"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "",
+  "machine_shape": "TpuV5E8"
+}

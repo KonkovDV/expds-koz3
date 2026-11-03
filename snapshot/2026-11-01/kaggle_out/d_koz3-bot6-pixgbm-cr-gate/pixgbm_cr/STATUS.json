@@ -1,0 +1,5 @@
+{
+  "status": "FAILED",
+  "ts": "2026-11-01T16:55:00Z",
+  "error": "FileNotFoundError('helpers/bot6_r3_gate.py missing in package')"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "elenakonkova/koz3-w1-sat2-gate",
+  "title": "koz3-w1-sat2-gate",
+  "code_file": "koz3-w1-sat2-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": ["cpu"],
+  "dataset_sources": [
+    "elenakonkova/koz3-w2-gate"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/kaggle/src/script.py", line 569, in main
+    helpers = ensure_helpers()
+  File "/kaggle/src/script.py", line 118, in ensure_helpers
+    raise FileNotFoundError("helpers/bot6_r3_gate.py missing in package")
+FileNotFoundError: helpers/bot6_r3_gate.py missing in package

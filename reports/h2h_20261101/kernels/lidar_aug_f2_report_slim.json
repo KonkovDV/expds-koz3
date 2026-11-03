@@ -1,0 +1,106 @@
+{
+ "job": {
+  "variant": "c7-sc",
+  "ch": 7,
+  "init": "sc",
+  "fold": 2
+ },
+ "score_li_only": 0.16032107563517198,
+ "thr": {
+  "grid": [
+   0.05,
+   0.95,
+   0.05
+  ],
+  "note": "in-sample по GT теста фолда — оптимистично; без порога см. score_li_only",
+  "final_score_thr0_3": 0.3432350157836418,
+  "per_class_thr0_3": {
+   "kurgany_povrezhdennye": {
+    "f1": 0.2187494987804375,
+    "tp": 28,
+    "fp": 192,
+    "fn": 104
+   },
+   "kurgany_tselye": {
+    "f1": 0.4779046035346799,
+    "tp": 73,
+    "fp": 81,
+    "fn": 119
+   },
+   "gorodishcha": {
+    "f1": 0.47999952640038734,
+    "tp": 6,
+    "fp": 22,
+    "fn": 2
+   },
+   "fortifikatsii": {
+    "f1": 0.14117623494847842,
+    "tp": 12,
+    "fp": 270,
+    "fn": 11
+   }
+  },
+  "best_per_class": {
+   "kurgany_povrezhdennye": {
+    "thr": 0.2,
+    "f1": 0.23892854232751626,
+    "tp": 58,
+    "fp": 591,
+    "fn": 74,
+    "num_predictions": 649,
+    "num_ground_truth": 132
+   },
+   "kurgany_tselye": {
+    "thr": 0.25,
+    "f1": 0.48794276363613615,
+    "tp": 86,
+    "fp": 149,
+    "fn": 106,
+    "num_predictions": 235,
+    "num_ground_truth": 192
+   },
+   "gorodishcha": {
+    "thr": 0.9,
+    "f1": 0.7142851224493272,
+    "tp": 5,
+    "fp": 2,
+    "fn": 3,
+    "num_predictions": 7,
+    "num_ground_truth": 8
+   },
+   "fortifikatsii": {
+    "thr": 0.9,
+    "f1": 0.19512144913866136,
+    "tp": 4,
+    "fp": 28,
+    "fn": 19,
+    "num_predictions": 32,
+    "num_ground_truth": 23
+   }
+  },
+  "final_score_best_thr": 0.40880850892830606,
+  "t_s": 139.1
+ },
+ "test_regions": [
+  "010_Эсбю_укрепление",
+  "015_Демидовка",
+  "022_Лихуша",
+  "025_Вышенское",
+  "026_Золотаревка",
+  "030_Эсбю",
+  "031_Новотитаровская",
+  "034_Усть_река",
+  "037_Никола_Ленивец",
+  "044_Новотитаровская_1.8км",
+  "045_Новотитаровская_2.8км",
+  "066_Московиты",
+  "192_КЧР"
+ ],
+ "t_total_s": 10091.6,
+ "early_stop_ref": {
+  "c3sc_s2_f0": 0.2198,
+  "c3sc_s2_f1": 0.4786,
+  "mean": 0.3492,
+  "rule": "STOP if mean<=0.3492 or fold<ref-0.01"
+ }
+}

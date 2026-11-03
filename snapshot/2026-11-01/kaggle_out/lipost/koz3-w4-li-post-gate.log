@@ -1,0 +1,28 @@
+[{"stream_name":"stdout","time":1.419592099,"data":"STATUS=START li-post-gate\n"}
+,{"stream_name":"stdout","time":2.640113139,"data":"OOF_ROOT=/kaggle/input/datasets/elenakonkova/koz3-w2-oof\n"}
+,{"stream_name":"stdout","time":2.6458550240000003,"data":"SEED=s0 folds=['0', '1', '2', '3', '4']\n"}
+,{"stream_name":"stdout","time":2.645896503,"data":"load fold=0 oof=oof_cnx_c3-sc_f0.geojson gt=gt_li_cnx_c3-sc_f0.geojson\n"}
+,{"stream_name":"stdout","time":4.115133531,"data":"load fold=1 oof=oof_cnx_c3-sc_f1.geojson gt=gt_li_cnx_c3-sc_f1.geojson\n"}
+,{"stream_name":"stdout","time":4.331295048,"data":"load fold=2 oof=oof_cnx_c3-sc_f2.geojson gt=gt_li_cnx_c3-sc_f2.geojson\n"}
+,{"stream_name":"stdout","time":6.44772158,"data":"load fold=3 oof=oof_cnx_c3-sc_f3.geojson gt=gt_li_cnx_c3-sc_f3.geojson\n"}
+,{"stream_name":"stdout","time":8.81997325,"data":"load fold=4 oof=oof_cnx_c3-sc_f4.geojson gt=gt_li_cnx_c3-sc_f4.geojson\n"}
+,{"stream_name":"stdout","time":19.949205339,"data":"hold=0 floors={'kurgany_povrezhdennye': 0.3, 'kurgany_tselye': 0.25, 'gorodishcha': 0.15, 'fortifikatsii': 0.15, 'arkhitektury': 0.15}\n"}
+,{"stream_name":"stdout","time":27.583686213,"data":"hold=1 floors={'kurgany_povrezhdennye': 0.3, 'kurgany_tselye': 0.3, 'gorodishcha': 0.15, 'fortifikatsii': 0.15, 'arkhitektury': 0.15}\n"}
+,{"stream_name":"stdout","time":36.117575475,"data":"hold=2 floors={'kurgany_povrezhdennye': 0.3, 'kurgany_tselye': 0.35, 'gorodishcha': 0.15, 'fortifikatsii': 0.15, 'arkhitektury': 0.15}\n"}
+,{"stream_name":"stdout","time":44.837685593,"data":"hold=3 floors={'kurgany_povrezhdennye': 0.3, 'kurgany_tselye': 0.3, 'gorodishcha': 0.15, 'fortifikatsii': 0.15, 'arkhitektury': 0.15}\n"}
+,{"stream_name":"stdout","time":57.578850449,"data":"hold=4 floors={'kurgany_povrezhdennye': 0.25, 'kurgany_tselye': 0.3, 'gorodishcha': 0.15, 'fortifikatsii': 0.15, 'arkhitektury': 0.15}\n"}
+,{"stream_name":"stdout","time":57.579655585,"data":"WROTE /kaggle/working/li_post_honest.json\n"}
+,{"stream_name":"stdout","time":57.579678916,"data":"off: P=0.1788 R=0.6487 F1=0.2803 dF1=+0.0000 tp=1588 fp=14589 fn=860\n"}
+,{"stream_name":"stdout","time":57.579685092,"data":"thr_nested: P=0.3477 R=0.4661 F1=0.3983 dF1=+0.1180 tp=1141 fp=4281 fn=1307\n"}
+,{"stream_name":"stdout","time":57.579726818,"data":"nms8: P=0.1817 R=0.6438 F1=0.2834 dF1=+0.0031 tp=1576 fp=14197 fn=872\n"}
+,{"stream_name":"stdout","time":57.57982113,"data":"nms12: P=0.1867 R=0.5993 F1=0.2847 dF1=+0.0044 tp=1467 fp=12784 fn=981\n"}
+,{"stream_name":"stdout","time":57.579831456,"data":"thr_nms8: P=0.3505 R=0.4653 F1=0.3998 dF1=+0.1195 tp=1139 fp=4221 fn=1309\n"}
+,{"stream_name":"stdout","time":57.579892531,"data":"thr_nms12: P=0.3507 R=0.4449 F1=0.3922 dF1=+0.1119 tp=1089 fp=4033 fn=1359\n"}
+,{"stream_name":"stdout","time":57.579955043,"data":"STATUS=DONE elapsed_s=56.16\n"}
+,{"stream_name":"stderr","time":60.654417734,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":60.654512489,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":61.12482349,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":61.124858541,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":63.175720532,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":64.57719988,"data":"[NbConvertApp] Writing 346881 bytes to __results__.html\n"}
+]

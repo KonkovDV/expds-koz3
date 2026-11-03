@@ -1,0 +1,25 @@
+[      0s] sat2-gate start boot 4000 scales [1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.6, 0.5]
+[      0s] w5base /kaggle/input/datasets/elenakonkova/koz3-w2-gate/w5base
+[      0s] FAILED FileNotFoundError [Errno 2] No such file or directory: '/kaggle/src/vendor/materials/compute_metrics.py'
+Traceback (most recent call last):
+  File "/kaggle/src/script.py", line 299, in <module>
+    main()
+    ~~~~^^
+  File "/kaggle/src/script.py", line 160, in main
+    root = setup_vendor_root(work)
+  File "/kaggle/src/script.py", line 117, in setup_vendor_root
+    shutil.copy(HERE / "vendor" / "materials" / "compute_metrics.py", root / "materials" / "compute_metrics.py")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 428, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 260, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/src/vendor/materials/compute_metrics.py'
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 339076 bytes to __results__.html

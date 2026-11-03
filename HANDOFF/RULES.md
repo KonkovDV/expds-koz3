@@ -1,0 +1,11 @@
+# Rules
+- No pushes to main, no force-push. Work on bots/* branches; all progress to GH bots/*.
+- Bots never submit to LB. Only Elena submits, after Dmitrij's explicit "да".
+- Gate = honest-10 vs B′ 0.3158: Δ≥0.003, P≥0.9 (soft P≥0.8), damaged not worse.
+- New features OFF by default. Closed levers stay closed.
+- No paid cloud agents.
+- Dmitrij's PC offline, reserved for final Docker check. Never touch his other docker containers; never delete anything on his PC.
+- Secrets never logged/committed. S3 creds never on CPU accounts.
+- Data search order: Kaggle accounts → S3 (bucket train-expds-3, endpoint s3.ru-7.storage.selcloud.ru) → PC last.
+- Strict quota/token economy.
+- Packs → Drive folder 17N5Cu1bZJ38iYu3W_nCN3zOk6R3l5riX, split 95MB + SHA256SUMS.
