@@ -172,3 +172,30 @@ def test_geojson_never_kit(tmp_path: Path):
     p = tmp_path / "result.geojson"
     p.write_text(json.dumps(_fc([_poly(4_200_000.0, 7_500_000.0)])), encoding="utf-8")
     assert cc.looks_like_kit_zip(p) is None
+
+
+def test_kit_zip_no_geojson(tmp_path: Path):
+    """LESSONS §5: kit-zip (code/models) must FAIL loudly — not a submission."""
+    p = tmp_path / "kit.zip"
+    import zipfile
+    with zipfile.ZipFile(p, "w") as zf:
+        zf.writestr("inference/main.py", "print(1)\n")
+        zf.writestr("expds/pipeline.py", "x=1\n")
+        zf.writestr("configs/default.toml", "[time]\n")
+        zf.writestr("models/foo.pt", b"\0" * 16)
+        zf.writestr("README.md", "# kit\n")
+    with pytest.raises(ValueError, match="kit-zip|нет .geojson"):
+        cc._load(p)
+
+
+
+
+def test_validate_submission_v5_wrapper(tmp_path: Path):
+    wrap = ROOT / "scripts" / "validate_submission_v5.py"
+    assert wrap.is_file()
+    spec = importlib.util.spec_from_file_location("validate_submission_v5", wrap)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    p = tmp_path / "result.geojson"
+    p.write_text(__import__("json").dumps(_fc([_poly(4_200_000.0, 7_500_000.0)])), encoding="utf-8")
+    assert mod.main([str(p)]) == 0
