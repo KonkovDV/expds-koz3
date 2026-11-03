@@ -710,6 +710,32 @@ enabled = false
 # scale = 0.85
 # groups = ["sp_or", "sp_focal", "sp_focal2", "sp_arch"]  # omit sp_dfine until D-FINE has mock TP
 
+# bot-7 sat recall (NOT sat2 / NOT CLOSED 8m cluster / NOT near_kept / NOT sp_large).
+# L1: mid-band thr×scale admitted only if verify_p ≥ verify_floor (precision guard).
+# L2: thr×scale for dets with partner sat group within radius_m (default 16 ≠ CLOSED 8).
+# L3: cross-group NMS dedup (keeps max conf) to cut double-count FP.
+# All default OFF — enable via overlay for honest-10 gate vs B′ 0.315800.
+[sat_band_verify]
+enabled = false
+# scale = 0.90
+# verify_floor = 0.40
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+# no_verify_policy = "reject"   # mid-band without verify_p → drop
+
+[sat_agree_accept]
+enabled = false
+# radius_m = 16.0               # must not be 8.0 (CLOSED sat 8m cluster)
+# scale = 0.85
+# groups = ["sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+
+[sat_cross_nms]
+enabled = false
+# nms_m = 4.0
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+
 # ---------------------------------------------------------------------------
 # bot-4: крупные объекты (>5k м²). По умолчанию ВЫКЛЮЧЕНО — поведение = v4/cbd4804.
 # Включать только вместе с честным замером (honest-10 / по слою): area-aware τ,
