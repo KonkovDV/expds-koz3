@@ -314,6 +314,13 @@ def main() -> None:
                     help="опыт — весь стек из файла scripts/rerank_oof.py вместо стека базы")
     ap.add_argument("--sp-fusion", action="store_true",
                     help="опыт — слияние уверенностей sp_focal/sp_focal2 для курганов (post.sp_score_fusion, bot-6 ORSP)")
+    ap.add_argument("--lb-breakdown", default=None, metavar="DIR",
+                    help="дополнительно: scoring.log/.json/.csv как на LB (F1Calculator.auxiliary); "
+                         "stdout/JSON --out не меняются. DIR — папка вывода; пишет expected_delta_lb.md")
+    ap.add_argument("--lb-archive", default="", help="имя архива в шапке --lb-breakdown лога")
+    ap.add_argument("--lb-log", default="",
+                    help="эталонный scoring.log площадки: доли типов для expected_delta_lb "
+                         "(по умолчанию вшитые доли v2 eb268d6)")
     args = ap.parse_args()
     if args.match_scope is not None:
         os.environ["EXPDS_MATCH_SCOPE"] = args.match_scope
@@ -341,6 +348,10 @@ def main() -> None:
             Path(args.out).write_text(json.dumps({"base": base, "per_class": per_b,
                                                   "honest_base": honest_b[0] if honest_b else None},
                                                  ensure_ascii=False, indent=2), encoding="utf-8")
+        if args.lb_breakdown:
+            _emit_lb_breakdown(kept_b, gt, args.metric, args.lb_breakdown, "scoring_base",
+                               archive=args.lb_archive,
+                               lb_log=getattr(args, "lb_log", None) or None)
         return
     mixed = list(feats)
     if swap_li:
@@ -406,6 +417,55 @@ def main() -> None:
             "add": args.add, "replace": args.replace, "geo": geo.name, "gt": gt_path.name,
             "honest": honest_res,
         }, ensure_ascii=False, indent=2), encoding="utf-8")
+    if args.lb_breakdown:
+        _, bd_b = _emit_lb_breakdown(kept_b, gt, args.metric, args.lb_breakdown, "scoring_base",
+                                     archive=args.lb_archive,
+                                     lb_log=getattr(args, "lb_log", None) or None,
+                                     emit_delta=False)
+        _emit_lb_breakdown(kept_a, gt, args.metric, args.lb_breakdown, "scoring_exp",
+                           archive=args.lb_archive, peer_bd=bd_b,
+                           lb_log=getattr(args, "lb_log", None) or None)
+
+
+def _emit_lb_breakdown(kept, gt, metric, out_dir, stem, archive="", *, peer_bd=None,
+                       lb_log=None, emit_delta=True):
+    """Flag-gated LB scoring.log; does not alter default scoreboard output.
+
+    When emit_delta: writes expected_delta_lb.md/.json. peer_bd set → base vs exp
+    proxy ΔLB; peer_bd None → coeffs-only (ΔF1=0). Pass emit_delta=False on the
+    first arm of a two-arm gate so the table is printed once with real deltas.
+    """
+    import importlib.util
+    from pathlib import Path as _P
+    path = _P(__file__).resolve().parent / "lb_breakdown.py"
+    spec = importlib.util.spec_from_file_location("lb_breakdown", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    from expds.metric import score as _official_score
+    results = _official_score(kept, gt, metric)
+    paths = mod.write_outputs(results, _P(out_dir), stem=stem, archive=archive)
+    print(f"lb-breakdown: {paths['log']}", flush=True)
+    bd = mod.extract_breakdown(results)
+    if emit_delta:
+        shares = None
+        if lb_log:
+            try:
+                shares = mod.lb_type_shares_from_log(
+                    Path(lb_log).read_text(encoding="utf-8", errors="replace"))
+            except Exception as exc:  # noqa: BLE001 — optional enrichment
+                print(f"lb-breakdown: lb-log shares skipped: {exc}", flush=True)
+        if peer_bd is not None:
+            if stem.endswith("_exp"):
+                md = mod.write_expected_delta_lb(_P(out_dir), peer_bd, bd, lb_shares=shares)
+            else:
+                md = mod.write_expected_delta_lb(_P(out_dir), bd, peer_bd, lb_shares=shares)
+            print(md.read_text(encoding="utf-8"), end="", flush=True)
+            print(f"lb-breakdown: {md}", flush=True)
+        else:
+            md = mod.write_expected_delta_lb(_P(out_dir), bd, None, lb_shares=shares)
+            print(md.read_text(encoding="utf-8"), end="", flush=True)
+            print(f"lb-breakdown: {md} (coeffs; no exp arm)", flush=True)
+    return paths, bd
 
 
 def added(spec: str) -> list[dict]:
