@@ -189,13 +189,20 @@ def main():
         log(f"sp_cl OOF {len(cl)} feats, {len(cl_reg)} regions, missing vs D-FINE regions {len(set(dreg) - cl_reg)}"); save()
         clc = fl_feats(cl)
         GA = {"gorodishcha", "arkhitektury"}
-        for name, extra in (("D1_add_sp_cl", dfxc + clc),
-                            ("D2_replace_gor_arch_sp_cl", [f for f in dfxc if f["properties"]["class_name"] not in GA] + clc)):
+        only = os.environ.get("SATCL_ONLY")   # sat_cl2 PREREG E3: one class added, nothing removed
+        if only:
+            clo = [f for f in clc if f["properties"]["class_name"] == only]
+            res["satcl"]["only"] = {"class": only, "n_kept": len(clo)}
+            todo = ((f"E3_add_sp_cl_{only}", dfxc + clo, float(os.environ.get("SATCL_P", "0.9833"))),)
+        else:
+            todo = (("D1_add_sp_cl", dfxc + clc, 0.975),
+                    ("D2_replace_gor_arch_sp_cl", [f for f in dfxc if f["properties"]["class_name"] not in GA] + clc, 0.975))
+        for name, extra, p_need in todo:
             cB, _ = bctx.curves(c19c + extra); nB = D.honest(cB, folds)[0]; del cB
             score(name, nB, nA, True)
-            g = res["variants"][name]["gate"]; g["P_ge_bonferroni"] = (res["variants"][name]["scores"]["all"]["P"] or 0) >= 0.975
-            g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.975
-            log(f"{name}: PASS(prereg, P>=0.975) {g['PASS']}"); save()
+            g = res["variants"][name]["gate"]; g["P_ge_bonferroni"] = (res["variants"][name]["scores"]["all"]["P"] or 0) >= p_need
+            g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = p_need
+            log(f"{name}: PASS(prereg, P>={p_need}) {g['PASS']}"); save()
     elif os.environ.get("ONLY_CLS") == "1":
         if os.environ.get("ONLY_C3") == "1":
             variant_cls("C3_ens8_arkh_gor_as_sp_dfine_ctx", "sp_dfine", 0.9875)

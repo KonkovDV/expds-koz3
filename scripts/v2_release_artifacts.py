@@ -25,6 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_COMMIT = "eb268d6"
+SOURCE_COMMIT_FULL = "eb268d6e4adfbed32670cabeef15a709649b8246"
 MANIFEST = {
     "expds/geo_pixgbm.py": "35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b",
     "models/pixgbm/all/poly.txt": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800",
@@ -37,11 +38,24 @@ def sha(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
+def _fetch_source_commit() -> None:
+    """Достать коммит v2 в неполный клон (CI: actions/checkout с глубиной 1).
+
+    По короткому хэшу GitHub коммит не отдаёт — только по полному. В мелком клоне берём один
+    коммит (--depth=1), чтобы не тянуть всю историю; полный клон не делаем мелким.
+    """
+    git = ["git", "-C", str(ROOT)]
+    shallow = subprocess.run([*git, "rev-parse", "--is-shallow-repository"], capture_output=True, text=True)
+    depth = ["--depth=1"] if shallow.stdout.strip() == "true" else []
+    subprocess.run([*git, "fetch", "-q", *depth, "origin", SOURCE_COMMIT_FULL], capture_output=True)
+
+
 def from_git(rel: str) -> bytes:
     spec = f"{SOURCE_COMMIT}:{rel}"
     r = subprocess.run(["git", "-C", str(ROOT), "cat-file", "blob", spec], capture_output=True)
     if r.returncode != 0:
-        subprocess.run(["git", "-C", str(ROOT), "fetch", "-q", "origin", SOURCE_COMMIT], capture_output=True)
+        _fetch_source_commit()
+        spec = f"{SOURCE_COMMIT_FULL}:{rel}"
         r = subprocess.run(["git", "-C", str(ROOT), "cat-file", "blob", spec], capture_output=True)
     if r.returncode != 0:
         raise SystemExit(f"нет объекта {spec} (git fetch origin {SOURCE_COMMIT} или --from DIR)")
