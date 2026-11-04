@@ -1,0 +1,273 @@
+{
+ "A_honest": 0.3146153226828423,
+ "gt_by_type": {
+  "kurgany_tselye|ae": 587,
+  "kurgany_povrezhdennye|li": 1371,
+  "kurgany_tselye|li": 783,
+  "gorodishcha|li": 30,
+  "fortifikatsii|li": 264,
+  "kurgany_povrezhdennye|ae": 1162,
+  "fortifikatsii|ae": 393,
+  "arkhitektury|or": 178,
+  "gorodishcha|ae": 19,
+  "gorodishcha|sp_or": 65,
+  "arkhitektury|li": 1,
+  "kurgany_povrezhdennye|sp_or": 1087,
+  "gorodishcha|or": 4,
+  "kurgany_tselye|sp_or": 207,
+  "fortifikatsii|sp_or": 37,
+  "arkhitektury|ae": 18,
+  "arkhitektury|sp_or": 210,
+  "fortifikatsii|or": 2,
+  "finds_points|maggr": 3478,
+  "object_poly|maggr": 248,
+  "object_poly|etgr": 658,
+  "object_poly|terfl": 177
+ },
+ "scales": {
+  "0.8": {
+   "tp": 1267,
+   "fp": 3578,
+   "P": 0.2615067079463364,
+   "R_approx": 0.5173540220498163,
+   "n_gt_li": 2449,
+   "by": {
+    "li|fortifikatsii": [
+     0,
+     1
+    ],
+    "li|gorodishcha": [
+     0,
+     1
+    ],
+    "li|kurgany_povrezhdennye": [
+     721,
+     1462
+    ],
+    "li|kurgany_tselye": [
+     238,
+     366
+    ],
+    "li_ae|kurgany_tselye": [
+     1,
+     23
+    ],
+    "li_coarse|fortifikatsii": [
+     2,
+     38
+    ],
+    "li_coarse|gorodishcha": [
+     8,
+     26
+    ],
+    "li_dev|kurgany_povrezhdennye": [
+     51,
+     681
+    ],
+    "li_dev|kurgany_tselye": [
+     32,
+     468
+    ],
+    "li_fort|fortifikatsii": [
+     15,
+     135
+    ],
+    "li_mask|gorodishcha": [
+     13,
+     12
+    ],
+    "li_mosaic|kurgany_povrezhdennye": [
+     39,
+     149
+    ],
+    "li_mosaic|kurgany_tselye": [
+     147,
+     216
+    ]
+   }
+  },
+  "0.9": {
+   "tp": 1232,
+   "fp": 3116,
+   "P": 0.28334866605335784,
+   "R_approx": 0.5030624744793794,
+   "n_gt_li": 2449,
+   "by": {
+    "li|fortifikatsii": [
+     0,
+     1
+    ],
+    "li|gorodishcha": [
+     0,
+     1
+    ],
+    "li|kurgany_povrezhdennye": [
+     711,
+     1371
+    ],
+    "li|kurgany_tselye": [
+     238,
+     357
+    ],
+    "li_ae|kurgany_tselye": [
+     1,
+     16
+    ],
+    "li_coarse|fortifikatsii": [
+     2,
+     38
+    ],
+    "li_coarse|gorodishcha": [
+     8,
+     26
+    ],
+    "li_dev|kurgany_povrezhdennye": [
+     37,
+     522
+    ],
+    "li_dev|kurgany_tselye": [
+     27,
+     344
+    ],
+    "li_fort|fortifikatsii": [
+     15,
+     135
+    ],
+    "li_mask|gorodishcha": [
+     13,
+     12
+    ],
+    "li_mosaic|kurgany_povrezhdennye": [
+     34,
+     93
+    ],
+    "li_mosaic|kurgany_tselye": [
+     146,
+     200
+    ]
+   }
+  },
+  "1.0": {
+   "tp": 1169,
+   "fp": 2417,
+   "P": 0.3259899609592861,
+   "R_approx": 0.47733768885259287,
+   "n_gt_li": 2449,
+   "by": {
+    "li|fortifikatsii": [
+     0,
+     1
+    ],
+    "li|gorodishcha": [
+     0,
+     1
+    ],
+    "li|kurgany_povrezhdennye": [
+     702,
+     1304
+    ],
+    "li|kurgany_tselye": [
+     236,
+     349
+    ],
+    "li_ae|kurgany_tselye": [
+     0,
+     5
+    ],
+    "li_coarse|fortifikatsii": [
+     2,
+     38
+    ],
+    "li_coarse|gorodishcha": [
+     8,
+     26
+    ],
+    "li_dev|kurgany_povrezhdennye": [
+     13,
+     292
+    ],
+    "li_dev|kurgany_tselye": [
+     3,
+     31
+    ],
+    "li_fort|fortifikatsii": [
+     15,
+     135
+    ],
+    "li_mask|gorodishcha": [
+     13,
+     12
+    ],
+    "li_mosaic|kurgany_povrezhdennye": [
+     32,
+     38
+    ],
+    "li_mosaic|kurgany_tselye": [
+     145,
+     185
+    ]
+   }
+  },
+  "1.1": {
+   "tp": 1104,
+   "fp": 2122,
+   "P": 0.34221946683199006,
+   "R_approx": 0.45079624336463864,
+   "n_gt_li": 2449,
+   "by": {
+    "li|fortifikatsii": [
+     0,
+     1
+    ],
+    "li|gorodishcha": [
+     0,
+     1
+    ],
+    "li|kurgany_povrezhdennye": [
+     690,
+     1243
+    ],
+    "li|kurgany_tselye": [
+     232,
+     336
+    ],
+    "li_ae|kurgany_tselye": [
+     0,
+     0
+    ],
+    "li_coarse|fortifikatsii": [
+     2,
+     38
+    ],
+    "li_coarse|gorodishcha": [
+     8,
+     26
+    ],
+    "li_dev|kurgany_povrezhdennye": [
+     2,
+     152
+    ],
+    "li_dev|kurgany_tselye": [
+     0,
+     0
+    ],
+    "li_fort|fortifikatsii": [
+     15,
+     135
+    ],
+    "li_mask|gorodishcha": [
+     13,
+     12
+    ],
+    "li_mosaic|kurgany_povrezhdennye": [
+     0,
+     0
+    ],
+    "li_mosaic|kurgany_tselye": [
+     142,
+     178
+    ]
+   }
+  }
+ }
+}
