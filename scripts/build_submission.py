@@ -31,7 +31,20 @@ LIMIT = 2 * 1024 ** 3
 #: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
 #: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
-FLAG_MODULES = ("sp_dfine", "gor_gate")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+#: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
+EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}
+FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate",
+                "sp_det2")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+
+
+def _doc1_check(out: Path) -> None:
+    """W4 DOC-1: архив без EN-файлов и без включённого legacy PIXGBM, иначе архив удаляется и сборка падает."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_archive_clean import check
+    bad = check(out)
+    if bad:
+        out.unlink(missing_ok=True)
+        sys.exit("DOC-1: архив не чистый:\n" + "\n".join(bad))
 
 
 def collect() -> list[Path]:
@@ -41,8 +54,13 @@ def collect() -> list[Path]:
     # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
+    if any((cfg.get(sec) or {}).get("enabled") for sec in ("gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine")):
+        off.discard("sp_dfine.py")   # gor_gate, dfine_aeor и aeor_dfine импортируют sp_dfine на уровне модуля
+    if (cfg.get("gor_dense") or {}).get("enabled"):
+        off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
-                    if not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+                    if p.name not in EN_EXCLUDE
+                    and not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
@@ -52,8 +70,10 @@ def collect() -> list[Path]:
     seen = set()
     rr = cfg.get("rerank_arch") or {}
     rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    og = cfg.get("orgate") or {}
+    # bot-6: гейт ORGATE G (модель + meta) — только если [orgate] enabled
+    rerank += [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json")] if og.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
-    # bot-7: модели PIXGBM (poly.txt, finds.txt) — только если [geophys.pixgbm] enabled
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
         if pix.get("enabled") else []
     sd = cfg.get("sp_dfine") or {}
@@ -65,10 +85,33 @@ def collect() -> list[Path]:
     if gg.get("enabled"):
         bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
         dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
-    if sd.get("enabled") or gg.get("enabled"):
+    gd = cfg.get("gor_dense") or {}
+    # bot-5: плотный локализатор городищ (тот же DINOv2-S, голова сцены gor_v3 и плотная голова npz) — только если [gor_dense] enabled
+    if gd.get("enabled"):
+        bb = str(gd.get("backbone", "models/dinov2-small")).rstrip("/")
+        dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gd.get("gate_head", "models/gor_gate/gor_v3_head.npz"),
+                gd.get("head", "models/gor_dense/gor_dense_head.npz")]
+    ae = cfg.get("dfine_aeor") or {}
+    # bot-6: D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
+    if ae.get("enabled"):
+        w = ae.get("weights") or {}
+        wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in ([v] if isinstance(v, str) else v)]
+        absw = [x for x in wl if Path(str(x)).is_absolute()]
+        if absw:
+            sys.exit(f"[dfine_aeor] weights: абсолютные пути {absw} в архив не пакуются — свяжите их в models/ "
+                     f"(ln -s <каталог bot-9> models/dfine_ae) и укажите относительный путь")
+        dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
+        if ae.get("thresholds_file"):
+            dfm.append(ae["thresholds_file"])
+    s2 = cfg.get("sp_det2") or {}
+    # sat2 CenterNet (bots/combo-sat2-fr1h): веса — только если [sp_det2] enabled
+    if s2.get("enabled"):
+        from expds.sp_det2 import settings as _sp2_settings
+        dfm += [str(w) for w in _sp2_settings(cfg)["weights"]]
+    if sd.get("enabled") or gg.get("enabled") or gd.get("enabled") or ae.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():
-            sys.exit("[sp_dfine]/[gor_gate] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            sys.exit("[sp_dfine]/[gor_gate]/[gor_dense] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
         files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
     lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
     cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
@@ -216,6 +259,7 @@ def main() -> None:
             sys.exit("--from-zip меняет только конфиг: задайте --only-class или --thresholds")
         out = Path(args.out)
         digest = variant_from_zip(Path(args.from_zip), out, args.only_class or None, changes)
+        _doc1_check(out)
         what = [f"перепись {args.only_class}"] if args.only_class else []
         what += [f"порогов {sum(len(c) for c in changes.values())}"] if changes else []
         print(f"архив: {out} — {', '.join(what)} из {args.from_zip}, "
@@ -251,6 +295,7 @@ def main() -> None:
                 z.writestr(name, config_text)
             else:
                 z.write(f, name)
+    _doc1_check(out)
     size = out.stat().st_size
     if size > LIMIT:
         sys.exit(f"архив {size / 2**20:.0f} МБ больше 2 ГБ")

@@ -1,24 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[transformers] You passed `num_labels=5` which is incompatible to the `id2label` map of length `80`.
-Loading weights:   0%|          | 0/764 [00:00<?, ?it/s]Loading weights: 100%|██████████| 764/764 [00:00<00:00, 18129.53it/s]
-[transformers] [1mDFineForObjectDetection LOAD REPORT[0m from: ustc-community/dfine-small-coco
-Key                                        | Status   |                                                                                        
--------------------------------------------+----------+----------------------------------------------------------------------------------------
-model.decoder.class_embed.{0, 1, 2}.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
-model.decoder.class_embed.{0, 1, 2}.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
-model.enc_score_head.weight                | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80, 256]) vs model:torch.Size([5, 256])
-model.denoising_class_embed.weight         | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([81, 256]) vs model:torch.Size([6, 256])
-model.enc_score_head.bias                  | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([80]) vs model:torch.Size([5])          
-
-Notes:
-- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
-model ustc-community/dfine-small-coco params 10.2M device cpu build 10.6s rss 444MB
-/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/transformers/image_processing_backends.py:135: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:208.)
-  image = torch.from_numpy(image)
-/workspace/koz3_shared/bot-5/repo/scripts/det_train_hf.py:284: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
-  hist.append(float(o.loss))
-it 1/1 loss 118.2682 7.53s/it rss 674MB
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 17.71it/s]
-{"build_s": 10.582731485366821, "params_M": 10.213305, "train_s": 7.526426553726196, "s_per_iter": 7.526426553726196, "loss_first": 118.26815795898438, "loss_last": 118.26815795898438, "bs": 1, "iters": 1, "pred_s": 0.9374747276306152, "pred_images": 4, "pred_boxes": 400, "peak_rss_MB": 774.1171875, "total_s": 19.267624139785767, "model": "ustc-community/dfine-small-coco", "size": 256, "device": "cpu", "smoke": false, "dry_run": false, "torch": "2.15.0+cpu"}
-exit 0 watchdog_max_rss_MB 770

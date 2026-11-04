@@ -1,0 +1,140 @@
+{
+"summary": {
+"site": "186",
+"las": "186.las",
+"fmt": 3,
+"n": 76870020,
+"res": 0.25,
+"classes": {
+"1": 9309065,
+"2": 9286386,
+"3": 45503953,
+"4": 6029020,
+"5": 6552744,
+"7": 5136,
+"8": 183716
+},
+"frac": {
+"1": 0.1211,
+"2": 0.1208,
+"3": 0.592,
+"4": 0.0784,
+"5": 0.0852,
+"7": 0.0001,
+"8": 0.0024
+},
+"frac_ground": 0.1208,
+"pipeline_uses": "class2",
+"cells_all": 8871102,
+"cells_g2": 5258541,
+"g2_hole_frac_of_all_cells": 0.4072,
+"dz_all_minus_g2": {
+"mean": 0.224,
+"p50": 0.033,
+"p90": 0.23,
+"p99": 4.994,
+"frac_gt_0.5m": 0.0688,
+"frac_gt_2m": 0.0335
+},
+"n_gt": 8,
+"gt_povr": {
+"n": 8,
+"h_g2_med": 5.8,
+"h_all_med": 10.192,
+"dh_med": 2.833,
+"dh_p90": 6.035,
+"hole_in_g2_med": 0.714
+},
+"wall_s": 31.2
+},
+"gt": [
+{
+"cls": "povr",
+"area": 5390.6,
+"n_in": 86257,
+"hole_in_g2": 0.556,
+"h_g2": 5.88,
+"hole_in_all": 0.072,
+"h_all": 8.755,
+"dz_in_mean": 1.187,
+"dz_in_max": 10.095
+},
+{
+"cls": "povr",
+"area": 6415.2,
+"n_in": 102640,
+"hole_in_g2": 0.777,
+"h_g2": 5.72,
+"hole_in_all": 0.164,
+"h_all": 11.347,
+"dz_in_mean": 2.406,
+"dz_in_max": 15.58
+},
+{
+"cls": "povr",
+"area": 5974.8,
+"n_in": 95587,
+"hole_in_g2": 0.707,
+"h_g2": 6.331,
+"hole_in_all": 0.15,
+"h_all": 10.012,
+"dz_in_mean": 1.742,
+"dz_in_max": 12.485
+},
+{
+"cls": "povr",
+"area": 8098.6,
+"n_in": 129564,
+"hole_in_g2": 0.733,
+"h_g2": 9.61,
+"hole_in_all": 0.127,
+"h_all": 10.59,
+"dz_in_mean": 1.818,
+"dz_in_max": 12.19
+},
+{
+"cls": "povr",
+"area": 1409.4,
+"n_in": 22553,
+"hole_in_g2": 0.72,
+"h_g2": 2.06,
+"hole_in_all": 0.044,
+"h_all": 4.85,
+"dz_in_mean": 3.174,
+"dz_in_max": 10.575
+},
+{
+"cls": "povr",
+"area": 5520.9,
+"n_in": 88338,
+"hole_in_g2": 0.801,
+"h_g2": 3.385,
+"hole_in_all": 0.175,
+"h_all": 10.373,
+"dz_in_mean": 2.742,
+"dz_in_max": 12.521
+},
+{
+"cls": "povr",
+"area": 12351.8,
+"n_in": 197608,
+"hole_in_g2": 0.642,
+"h_g2": 13.3,
+"hole_in_all": 0.123,
+"h_all": 12.347,
+"dz_in_mean": 1.208,
+"dz_in_max": 13.046
+},
+{
+"cls": "povr",
+"area": 1599.4,
+"n_in": 25590,
+"hole_in_g2": 0.512,
+"h_g2": 1.186,
+"hole_in_all": 0.061,
+"h_all": 1.354,
+"dz_in_mean": 0.056,
+"dz_in_max": 1.159
+}
+]
+}

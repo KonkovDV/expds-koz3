@@ -1,9 +1,0 @@
-k10 {'orspN_keep': 0.33576, 'orspR_keep': 0.338768, 'orspv1_keep': 0.33576, 'd_orspR_keep': 0.003008, 'd_orspv1_keep': 0.0}
-lofo {'orspN_keep': 0.336852, 'orspR_keep': 0.338835, 'orspv1_keep': 0.336852, 'd_orspR_keep': 0.001983, 'd_orspv1_keep': 0.0}
-seed0 {'orspN_keep': 0.334784, 'orspR_keep': 0.337777, 'orspv1_keep': 0.334784, 'd_orspR_keep': 0.002994, 'd_orspv1_keep': 0.0}
-seed1 {'orspN_keep': 0.324966, 'orspR_keep': 0.32676, 'orspv1_keep': 0.324966, 'd_orspR_keep': 0.001794, 'd_orspv1_keep': 0.0}
-seed2 {'orspN_keep': 0.340072, 'orspR_keep': 0.341172, 'orspv1_keep': 0.340072, 'd_orspR_keep': 0.0011, 'd_orspv1_keep': 0.0}
-seed3 {'orspN_keep': 0.331279, 'orspR_keep': 0.333122, 'orspv1_keep': 0.331279, 'd_orspR_keep': 0.001843, 'd_orspv1_keep': 0.0}
-seed4 {'orspN_keep': 0.323767, 'orspR_keep': 0.325732, 'orspv1_keep': 0.323767, 'd_orspR_keep': 0.001965, 'd_orspv1_keep': 0.0}
-orspR_keep d10=+0.003008 P=1.000 CI=[+0.00085;+0.00677] lofo=+0.001983 seeds+=5/5 heavy=+0.003008 new34=-0.000360 acc=True
-orspv1_keep d10=+0.000000 P=0.000 CI=[+0.00000;+0.00000] lofo=+0.000000 seeds+=0/5 heavy=+0.000000 new34=+0.000000 acc=False

@@ -11,6 +11,18 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 * без ``[thresholds_by_markup.sp_dfine]`` для всех классов модуль ничего не выдаёт (``require_thresholds``):
   общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
+* ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``drop_cover_m`` (bot-2, регрессия mock 29.10) — старый объект группы R снимается, только если
+  D-FINE того же класса, прошедший ``[thresholds_by_markup.sp_dfine]``, лежит не дальше N м на земле
+  (по умолчанию 12). Иначе v2 остаётся: на mock 482 сырых бокса снимали 46 попаданий, а 13 боксов
+  выше порога были в 50–1500 м от эталона. ``0`` — слепой R (снять всю группу);
+* ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
+* ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
+  ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
+* ``EXPDS_STRICT=1`` (bot-2 A3 / bot-5 v4) — при ``enabled=true`` и сбое импорта/загрузки D-FINE —
+  громкий отказ (ERROR + WARNING-файл + raise), а не тихий fallback «как v2»; по умолчанию ВЫКЛ.
+  Вендор ``inference/lib/vendor`` — manylinux/cp312 (площадка/Kaggle/docker); на Windows-host без docker
+  import падает (``regex``/``tokenizers`` .so) → docker ``pantum/n7q`` или env transformers==5.21.0;
 * ансамбль фолдов: ``ensemble = "max"`` (кластер C берёт лучший из всех моделей, как NMS) или ``"mean"``
   (среднее по моделям, отсутствующая модель = 0, как score-averaging в WBF). Ни один не измерен честно —
   у фолдовых моделей нет общего OOF; по умолчанию одна модель.
@@ -18,6 +30,9 @@ NMS по классам на файл (IoU 0,5). Перевод в объект�
 torch / transformers импортируются лениво, только при enabled = true.
 """
 from __future__ import annotations
+
+import os
+import json
 
 import logging
 import math
@@ -51,6 +66,15 @@ DEFAULTS = {
     "merge_m": 4.0,
     "ensemble": "max",
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
+    # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
+    "drop_min_det": 1,
+    # bot-2: слепой R на mock обнулил sp_or (482 сырых → drop −46, после порога 13 FP в 50–1500 м от GT).
+    # Снимать старый объект, только если выживший D-FINE того же класса ближе drop_cover_m метров на земле.
+    # 0 — прежний слепой R (вся группа на участке).
+    "drop_cover_m": 12.0,
+    # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
+    # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
+    "agreement_m": 0.0,
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",
@@ -191,10 +215,16 @@ def cluster_circles(dets: list[dict], radius_m: float = 4.0, merge_m: float = 4.
             else:
                 conf = b[2]
             src = b[5]
-            out.append({"geom": Point(b[0], b[1]).buffer(radius_m / ground_scale(b[1]), quad_segs=4),
-                        "class_name": cls, "confidence": float(conf), "region_name": reg,
-                        "markup_type": MARKUP, "threshold_group": GROUP, "views": len(cl),
-                        "source": src.get("source"), "original_crs": src.get("original_crs")})
+            # max box_area_m2 по кластеру (Fix C area-aware τ; круг r=4 ≈ 50 м²).
+            areas = [float(m[5]["box_area_m2"]) for m in cl
+                     if m[5].get("box_area_m2") is not None]
+            row = {"geom": Point(b[0], b[1]).buffer(radius_m / ground_scale(b[1]), quad_segs=4),
+                   "class_name": cls, "confidence": float(conf), "region_name": reg,
+                   "markup_type": MARKUP, "threshold_group": GROUP, "views": len(cl),
+                   "source": src.get("source"), "original_crs": src.get("original_crs")}
+            if areas:
+                row["box_area_m2"] = max(areas)
+            out.append(row)
     return out
 
 
@@ -205,40 +235,158 @@ def as_features(dets: list[dict], st: dict, n_models: int) -> list[dict]:
     return cluster_circles(dets, float(st["radius_m"]), float(st["merge_m"]), str(st["ensemble"]), n_models)
 
 
+def feature_group(f: dict) -> str | None:
+    """Группа порога, как у scoreboard bot-10.
+
+    Явный threshold_group, иначе для markup sp_or по классу: курганы → sp_focal,
+    архитектура → sp_arch, городища и прочее → sp_or.
+    """
+    g = f.get("threshold_group")
+    if g:
+        return g
+    if f.get("markup_type") != MARKUP:
+        return f.get("markup_type")
+    cls = f.get("class_name")
+    if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
+        return "sp_focal"
+    if cls == "arkhitektury":
+        return "sp_arch"
+    return "sp_or"
+
+
 def drop_groups(feats: list[dict], groups, regions) -> list[dict]:
     """Вариант R: убрать объекты групп ``groups`` (кроме sp_dfine) на участках ``regions``.
 
-    Группа — как у scoreboard bot-10: threshold_group, иначе для markup sp_or по классу:
-    курганы → sp_focal, архитектура → sp_arch, городища и прочее → sp_or. Участки без D-FINE не трогаются.
+    Участки без D-FINE не трогаются. Слепой режим: любой объект группы снимается,
+    даже если D-FINE его не заменил. Для сдачи используйте ``drop_groups_covered``.
     """
     groups = set(groups or ())
     regions = set(regions or ())
     if not groups or not regions:
         return feats
+    return [f for f in feats
+            if not (f.get("region_name") in regions and feature_group(f) in groups and feature_group(f) != GROUP)]
 
-    def grp(f: dict) -> str | None:
-        g = f.get("threshold_group")
-        if g:
-            return g
-        if f.get("markup_type") != MARKUP:
-            return f.get("markup_type")
-        cls = f.get("class_name")
-        if cls in ("kurgany_tselye", "kurgany_povrezhdennye"):
-            return "sp_focal"
-        if cls == "arkhitektury":
-            return "sp_arch"
-        return "sp_or"
 
-    return [f for f in feats if not (f.get("region_name") in regions and grp(f) in groups and grp(f) != GROUP)]
+def passes_group_threshold(f: dict, cfg: dict) -> bool:
+    """Объект проходит порог своей группы. Нет порога класса — не отсекаем (порог ещё не задан)."""
+    group = f.get("threshold_group") or f.get("markup_type")
+    own = ((cfg.get("thresholds_by_markup") or {}).get(group) or {})
+    cls = f.get("class_name")
+    if cls not in own:
+        return True
+    try:
+        return float(f.get("confidence", 0.0)) >= float(own[cls])
+    except (TypeError, ValueError):
+        return False
+
+
+def _ground_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Метры на земле между точками EPSG:3857 (единицы × cos φ)."""
+    scale = ground_scale((a[1] + b[1]) / 2.0)
+    return math.hypot(a[0] - b[0], a[1] - b[1]) * scale
+
+
+def drop_groups_covered(feats: list[dict], groups, regions, cover_m: float, survivors: list[dict]) -> list[dict]:
+    """Снять старый объект группы R, только если его закрывает выживший D-FINE.
+
+    ``survivors`` — объекты ``sp_dfine``, уже прошедшие порог группы. Закрытие: тот же участок,
+    тот же класс, центр не дальше ``cover_m`` метров на земле. Чужой класс, бокс ниже порога
+    и бокс без геометрии старый объект не снимают. Сами объекты D-FINE остаются.
+    """
+    groups = set(groups or ())
+    regions = set(regions or ())
+    cover_m = float(cover_m)
+    if not groups or not regions or cover_m <= 0:
+        return list(feats)
+    buckets: dict[tuple, list[tuple[float, float]]] = {}
+    for det in survivors or ():
+        if det.get("threshold_group") != GROUP or det.get("region_name") not in regions:
+            continue
+        xy = _feat_xy(det)
+        if xy is None:
+            continue
+        buckets.setdefault((det.get("region_name"), det.get("class_name")), []).append(xy)
+    out = []
+    for feat in feats:
+        grp = feature_group(feat)
+        if feat.get("region_name") in regions and grp in groups and grp != GROUP:
+            xy = _feat_xy(feat)
+            pts = buckets.get((feat.get("region_name"), feat.get("class_name")), ())
+            if xy is not None and any(_ground_dist(xy, p) <= cover_m for p in pts):
+                continue
+        out.append(feat)
+    return out
+
+
+def _feat_xy(f: dict) -> tuple[float, float] | None:
+    g = f.get("geom")
+    if g is None:
+        return None
+    try:
+        c = g.centroid
+        return float(c.x), float(c.y)
+    except Exception:
+        return None
+
+
+def filter_agreement(feats: list[dict], anchors: list[dict], agreement_m: float) -> list[dict]:
+    """Оставить D-FINE, чей центр ≤ ``agreement_m`` м (EPSG:3857 ground) от якоря sp_or.
+
+    Якорь — объект с ``markup_type=sp_or`` и ``threshold_group != sp_dfine`` (U-Net / прочие).
+    ``agreement_m <= 0`` → без фильтра (OFF). Пустые якоря → все D-FINE отбрасываются при >0.
+    """
+    m = float(agreement_m or 0.0)
+    if m <= 0:
+        return feats
+    pts: list[tuple[float, float]] = []
+    for a in anchors or ():
+        if a.get("markup_type") != MARKUP:
+            continue
+        if a.get("threshold_group") == GROUP:
+            continue
+        xy = _feat_xy(a)
+        if xy is not None:
+            pts.append(xy)
+    if not pts:
+        return []
+    kept = []
+    for f in feats:
+        xy = _feat_xy(f)
+        if xy is None:
+            continue
+        x, y = xy
+        # ground metres ≈ Euclidean * ground_scale(y) in WebMercator
+        scale = ground_scale(y)
+        if any(math.hypot(x - ax, y - ay) * scale <= m for ax, ay in pts):
+            kept.append(f)
+    return kept
 
 
 # ── растр ────────────────────────────────────────────────────────────────────────────────────────────────
+def _crs_is_geographic(crs: str) -> bool:
+    """True, если CRS географический (градусы). WarpedVRT с res_m=0.5° уничтожил бы метраж."""
+    try:
+        from rasterio.crs import CRS
+        return bool(CRS.from_user_input(crs).is_geographic)
+    except Exception:
+        s = (crs or "").upper()
+        return "4326" in s or s in ("OGC:CRS84", "CRS84", "WGS84")
+
+
 def utm_for(path: Path, fallback_crs: str | None) -> str:
+    """Метрическая CRS сцены: UTM.json участка, если она проецированная; иначе зона UTM по центру растра.
+    bot-6 crsfix (находка bot-9): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
+    сцена строилась с шагом 0,5° вместо 0,5 м (1×1 px, 0 предсказаний). Географическая CRS не берётся."""
     import rasterio
     from pyproj import Transformer
 
-    if fallback_crs:
+    from .crs import is_geographic
+
+    if fallback_crs and not is_geographic(fallback_crs):
         return fallback_crs
+    if fallback_crs:   # страховка (bot-7 v3fix + bot-6 crsfix): градусы мимо read_utm_json — зона UTM по центру растра
+        log.warning("[crs] %s: CRS участка %s географическая — сцена в зоне UTM по центру растра", Path(path).name, fallback_crs)
     with rasterio.open(path) as ds:
         lon, lat = Transformer.from_crs(ds.crs, "EPSG:4326", always_xy=True).transform(
             *ds.xy(ds.height // 2, ds.width // 2))
@@ -256,6 +404,9 @@ class Scene:
 
         self.src = rasterio.open(path)
         self.crs = crs
+        if _crs_is_geographic(crs):
+            self.src.close()
+            raise ValueError(f"sp_dfine.Scene: CRS {crs!r} географический — нужен проекционный UTM (res_m в метрах)")
         tr, w, h = calculate_default_transform(self.src.crs, crs, self.src.width, self.src.height,
                                                *self.src.bounds, resolution=res_m)
         try:
@@ -324,6 +475,249 @@ def _rename_keys(sd: dict) -> dict:
 
 
 VENDOR = "inference/lib/vendor"   # распакованные колёса bot-9 submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
+#: закреплённая версия transformers (вендор); другая версия — только если совпадает ровно (напр. venv ПК с колёсами win)
+TRANSFORMERS_PIN = "5.21.0"
+#: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
+UNAVAILABLE = "SP_DFINE_UNAVAILABLE"
+#: пакеты вендора: при сбое импорта из вендора их полу-импортированные модули вычищаются из sys.modules
+#: W4 01.11: huggingface_hub 2.2.0 (= requirements.lock образа) + httpx2/httpcore2/h11/anyio/idna/truststore/
+#: typing_extensions (чистый python) — только если huggingface_hub окружения не подходит transformers 5.21.0
+#: (нужно >=1.31,<3; в Kaggle 1.29 → «cannot import name 'httpx' from huggingface_hub.utils»). На площадке (2.2.0)
+#: не используется. Подкаталог вендора, чтобы builder/check_submission брали его вместе с вендором.
+VENDOR_HF = VENDOR + "/_hf"
+HF_RANGE = ((1, 31), (3, 0))
+#: выгружаются при переключении на VENDOR_HF (остальные зависимости — общие с окружением, если уже загружены)
+_HF_PKGS = ("huggingface_hub", "httpx2", "httpcore2", "truststore")
+_VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdown_it", "mdurl", "pygments",
+                "shellingham", "annotated_doc")
+
+
+#: bot-7 (29.10, PC e2e бота 1 в образе pantum/n7q:20261024): у tqdm в образе нет версии в метаданных
+#: (importlib.metadata.version → None), и transformers.dependency_versions_check падал при импорте
+#: («Unable to compare versions for tqdm>=4.60: need=4.60 found=None»). Пакеты, версии которых transformers
+#: 5.21.0 читает из метаданных при импорте (dependency_versions_check, is_*_available): имя дистрибутива
+#: (нормализованное) → имя модуля. Для них при отсутствии/пустой версии метаданных берётся module.__version__.
+_META_DEPS = {"tqdm": "tqdm", "regex": "regex", "packaging": "packaging", "filelock": "filelock", "numpy": "numpy",
+              "tokenizers": "tokenizers", "huggingface-hub": "huggingface_hub", "safetensors": "safetensors",
+              "pyyaml": "yaml", "torch": "torch", "torchvision": "torchvision", "typer": "typer",
+              "pillow": "PIL", "accelerate": "accelerate", "rich": "rich"}
+#: маркер WARNING в логе: версия пакета взята из module.__version__, а не из метаданных
+DEPMETA = "SP_DFINE_DEPMETA"
+#: WARNING-файл / строка STATUS: D-FINE включён, но не загрузился (не тихий fallback) — port from 829ea7d
+WARN_MARKER = "WARNING SP_DFINE_UNAVAILABLE"
+_META_USED: dict = {}
+
+
+def strict_mode() -> bool:
+    """``EXPDS_STRICT=1`` — при сбое загрузки D-FINE (и enabled) поднимать исключение, не глотать."""
+    return (os.environ.get("EXPDS_STRICT") or "").strip() in ("1", "true", "TRUE", "yes", "YES")
+
+
+def status_dir() -> Path | None:
+    """Куда писать WARNING-файл: ``EXPDS_STATUS_DIR`` или ``EXPDS_DFINE_DUMP`` (если задан)."""
+    raw = (os.environ.get("EXPDS_STATUS_DIR") or os.environ.get("EXPDS_DFINE_DUMP") or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def vendor_platform_hint(vendor: Path) -> str:
+    """Подсказка при сбое импорта: Linux-.so на Windows / нет transformers в вендоре."""
+    import sys
+    if not vendor.is_dir():
+        return (f"vendor отсутствует: ожидался {vendor.as_posix()} "
+                f"(упакуйте inference/lib/vendor; на Kaggle/docker Linux OK)")
+    has_tr = (vendor / "transformers").is_dir()
+    so = list(vendor.rglob("*.so"))[:3]
+    pyd = list(vendor.rglob("*.pyd"))[:1]
+    bits = []
+    if not has_tr:
+        bits.append("в вендоре нет каталога transformers/")
+    if sys.platform.startswith("win") and so and not pyd:
+        bits.append(
+            f"вендор Linux (.so, напр. {so[0].name}): на Windows-host не грузится — "
+            f"запускайте в docker pantum/n7q (как площадка/Kaggle) или поставьте "
+            f"transformers=={TRANSFORMERS_PIN} в env"
+        )
+    return "; ".join(bits)
+
+
+def write_unavailable_warning(reason: str, *, detail: str = "") -> Path | None:
+    """ERROR в лог уже вызван вызывающим; здесь — WARNING-файл для STATUS.txt раннера."""
+    log.error("%s: %s", WARN_MARKER, reason)
+    d = status_dir()
+    if d is None:
+        return None
+    path = d / "SP_DFINE_WARNING.txt"
+    body = f"{WARN_MARKER}: {reason}\n"
+    if detail:
+        body += detail.rstrip() + "\n"
+    path.write_text(body, encoding="utf-8")
+    (d / "STATUS_WARNING.txt").write_text(f"{WARN_MARKER}: {reason}\n", encoding="utf-8")
+    return path
+
+
+def _norm_dist(name: str) -> str:
+    import re
+    return re.sub(r"[-_.]+", "-", str(name)).lower()
+
+
+def _mod_version(mod_name: str | None):
+    """module.__version__, если модуль импортируется и версия похожа на версию (tqdm без метаданных даёт None/UNKNOWN)."""
+    import importlib
+    if mod_name is None:
+        return None
+    try:
+        mv = getattr(importlib.import_module(mod_name), "__version__", None)
+    except Exception:  # noqa: BLE001 — модуля нет
+        return None
+    mv = str(mv) if mv is not None else ""
+    return mv if mv[:1].isdigit() else None
+
+
+def _dir_version(distribution_name: str):
+    """Версия из имени каталога метаданных (<имя>-<версия>.dist-info / .egg-info), если METADATA пуст или нет."""
+    import importlib.metadata as md
+    import re
+    try:
+        path = getattr(md.distribution(distribution_name), "_path", None)
+    except Exception:  # noqa: BLE001
+        return None
+    m = re.match(r"^[^-]+-([0-9][^-]*?)(?:-py[0-9.]+)?\.(?:dist|egg)-info$", Path(str(path or "")).name)
+    return m.group(1) if m else None
+
+
+def _depmeta_warn(name: str, how: str, value) -> None:
+    if name not in _META_USED:
+        _META_USED[name] = value
+        log.warning("%s: %s %s", DEPMETA, name, how)
+
+
+def _metadata_shim() -> None:
+    """Защита импорта transformers от неполных метаданных пакетов образа (только в этом процессе, один раз).
+
+    1) importlib.metadata.version для _META_DEPS: если метаданных нет (PackageNotFoundError) или в них нет
+       версии (None), версия берётся из module.__version__ (модуль импортируется), затем из имени каталога
+       <имя>-<версия>.dist-info; WARNING SP_DFINE_DEPMETA с именем пакета. Иначе — как без шима.
+    2) крючок импорта transformers.utils.versions: require_version (dependency_versions_check при импорте) при
+       «Unable to compare versions … found=None» или «distribution was not found» для пакета из _META_DEPS,
+       модуль которого импортируется, — WARNING SP_DFINE_DEPMETA вместо исключения. Слишком старая версия
+       (ImportError) и неимпортируемый модуль по-прежнему роняют импорт → SP_DFINE_UNAVAILABLE."""
+    import importlib.abc  # noqa: F401 — подмодуль importlib.abc нужен загрузчику вендора до import transformers
+    import importlib.metadata as md
+    import sys
+    if not getattr(md.version, "_b7_shim", False):
+        orig = md.version
+
+        def version(distribution_name):
+            missing = False
+            try:
+                got = orig(distribution_name)
+            except md.PackageNotFoundError:
+                got, missing = None, True
+            if got:
+                return got
+            key = _norm_dist(distribution_name)
+            if key not in _META_DEPS:
+                if missing:
+                    raise md.PackageNotFoundError(distribution_name)
+                return got
+            why = "нет dist-info" if missing else "version=None в метаданных"
+            mv = _mod_version(_META_DEPS[key])
+            if mv:
+                _depmeta_warn(distribution_name, f"{why} — взята {_META_DEPS[key]}.__version__ = {mv}", mv)
+                return mv
+            dv = None if missing else _dir_version(distribution_name)
+            if dv:
+                _depmeta_warn(distribution_name, f"{why} — взята версия из имени каталога метаданных = {dv}", dv)
+                return dv
+            if missing:
+                raise md.PackageNotFoundError(distribution_name)
+            return got
+
+        version._b7_shim = True
+        version._b7_orig = orig
+        md.version = version
+
+    if "transformers.utils.versions" in sys.modules:
+        _patch_versions(sys.modules["transformers.utils.versions"])
+    if not any(isinstance(f, _VersionsHook) for f in sys.meta_path):
+        sys.meta_path.insert(0, _VersionsHook())
+
+
+def _patch_versions(mod) -> None:
+    """transformers.utils.versions.require_version: см. _metadata_shim, п. 2."""
+    import importlib.metadata as md
+    import re
+    orig = getattr(mod, "require_version", None)
+    if orig is None or getattr(orig, "_b7_shim", False):
+        return
+
+    def require_version(requirement, hint=None):
+        try:
+            return orig(requirement, hint)
+        except (ValueError, md.PackageNotFoundError) as exc:
+            msg = str(exc)
+            if not ("found=None" in msg or isinstance(exc, md.PackageNotFoundError)):
+                raise
+            m = re.match(r"^\s*([A-Za-z0-9_.\-]+)", str(requirement))
+            key = _norm_dist(m.group(1)) if m else ""
+            if key not in _META_DEPS or not _importable(_META_DEPS[key]):
+                raise
+            _depmeta_warn(f"require:{key}", f"«{requirement}»: версия не определяется ({type(exc).__name__}), модуль "
+                          f"{_META_DEPS[key]} импортируется — проверка версии transformers пропущена", None)
+            return None
+
+    require_version._b7_shim = True
+    mod.require_version = require_version
+
+
+def _importable(mod_name: str) -> bool:
+    import importlib
+    try:
+        importlib.import_module(mod_name)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+try:
+    import importlib.abc as _iabc
+    _MetaBase = _iabc.MetaPathFinder
+except Exception:  # pragma: no cover
+    _MetaBase = object
+
+
+class _VersionsHook(_MetaBase):
+    """После исполнения transformers.utils.versions подменяет require_version (_patch_versions) — до того, как
+    dependency_versions_check возьмёт эти имена."""
+
+    def find_spec(self, name, path=None, target=None):
+        if name != "transformers.utils.versions":
+            return None
+        import sys
+        spec = None
+        for f in sys.meta_path:
+            if f is self or not hasattr(f, "find_spec"):
+                continue
+            spec = f.find_spec(name, path, target)
+            if spec is not None:
+                break
+        if spec is None or spec.loader is None or not hasattr(spec.loader, "exec_module"):
+            return spec
+        inner = spec.loader.exec_module
+
+        def exec_module(module, _inner=inner):
+            _inner(module)
+            _patch_versions(module)
+
+        try:
+            spec.loader.exec_module = exec_module
+        except Exception:  # noqa: BLE001 — не вышло: как без крючка
+            pass
+        return spec
 
 
 def _vendor_path(root: Path) -> None:
@@ -333,8 +727,137 @@ def _vendor_path(root: Path) -> None:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     v = Path(root) / VENDOR
-    if v.is_dir() and str(v) not in sys.path:
+    if v.is_dir():
+        if str(v) in sys.path:
+            sys.path.remove(str(v))
         sys.path.insert(0, str(v))
+
+
+def _purge(pkgs, keep_under: Path | None = None) -> list[str]:
+    """Выгрузить модули пакетов pkgs из sys.modules (кроме загруженных из keep_under). Возвращает выгруженные."""
+    import sys
+    gone = []
+    for name in list(sys.modules):
+        top = name.split(".", 1)[0]
+        if top not in pkgs:
+            continue
+        mod = sys.modules.get(name)
+        f = getattr(mod, "__file__", None) or ""
+        if keep_under is not None and f and Path(f).resolve().is_relative_to(keep_under.resolve()):
+            continue
+        sys.modules.pop(name, None)
+        gone.append(name)
+    return gone
+
+
+def _abi_tag() -> str:
+    import sys
+    return f"cpython-{sys.version_info.major}{sys.version_info.minor}"
+
+
+def _vendor_abi_ok(v: Path) -> bool:
+    """W4 01.11: в вендоре regex с _regex под текущий python (вендор несёт cp311–cp314: колёса regex 2026.9.29)."""
+    import importlib.machinery
+    d = Path(v) / "regex"
+    if not d.is_dir():
+        return True     # regex не вендорится — берётся из окружения
+    return any((d / f"_regex{suf}").is_file() for suf in importlib.machinery.EXTENSION_SUFFIXES)
+
+
+def _env_hf_ok() -> tuple:
+    """(подходит ли huggingface_hub окружения transformers 5.21.0, его версия) — по метаданным, без импорта."""
+    import importlib.metadata as md
+    import re
+    try:
+        ver = md.version("huggingface_hub")
+    except Exception:  # noqa: BLE001 — нет пакета
+        return False, None
+    m = re.match(r"(\d+)\.(\d+)", str(ver or ""))
+    if not m:
+        return False, ver
+    t = (int(m.group(1)), int(m.group(2)))
+    return HF_RANGE[0] <= t < HF_RANGE[1], ver
+
+
+def _hf_path(root: Path, on: bool) -> None:
+    import sys
+    h = str(Path(root) / VENDOR_HF)
+    while h in sys.path:
+        sys.path.remove(h)
+    if on:
+        sys.path.insert(1 if sys.path and sys.path[0] == str(Path(root) / VENDOR) else 0, h)
+
+
+def import_dfine(root: Path) -> tuple:
+    """Классы D-FINE строго закреплённой версии. Порядок:
+    1) уже загруженный НЕ из вендора transformers (старый из site-packages / чужой импорт) выгружается;
+    0) шим importlib.metadata.version (_metadata_shim): у зависимостей без версии в метаданных (tqdm в образе
+       площадки) версия берётся из module.__version__, WARNING SP_DFINE_DEPMETA; модуля нет → громкий отказ;
+    2) вендор архива первым в sys.path → import (в образе python:3.12 linux так и должно быть; в вендоре и tqdm
+       с dist-info, его метаданные находятся раньше метаданных образа);
+    3) сбой (на Windows/другом python не грузятся .so regex/tokenizers из вендора) → вендор вычищается из sys.path
+       и sys.modules, пробуем transformers окружения, но только версии ровно TRANSFORMERS_PIN;
+    иначе ImportError с причинами обеих попыток. Возвращает (DFineConfig, DFineForObjectDetection, info)."""
+    import importlib
+    import sys
+    v = Path(root) / VENDOR
+    info: dict = {"pin": TRANSFORMERS_PIN, "vendor": str(v), "vendor_present": v.is_dir(), "errors": []}
+    tr = sys.modules.get("transformers")
+    if tr is not None and not (v.is_dir() and Path(getattr(tr, "__file__", "") or "/").resolve().is_relative_to(v.resolve())):
+        info["purged_preloaded"] = getattr(tr, "__version__", "?")
+        _purge(("transformers",))
+    if v.is_dir():   # все чужие пакеты вендора (regex/_regex, tokenizers, …), загруженные до нас, — иначе вендорный
+        _purge(_VENDOR_PKGS + ("_regex",), keep_under=v)   # transformers возьмёт их (W4 01.11: regex 2025.11.3 окружения)
+        abi = _vendor_abi_ok(v)
+        info["vendor_regex_abi"] = abi
+        if not abi:
+            log.warning("sp_dfine: в вендоре нет _regex для %s — вендор не загрузится, пробуем окружение", _abi_tag())
+    h = Path(root) / VENDOR_HF
+    use_hf = False
+    if v.is_dir():
+        _hf_path(root, False)   # версия окружения — без нашего _hf в sys.path
+        ok, hver = _env_hf_ok()
+        use_hf = (not ok) and h.is_dir()
+        info["hf"] = f"vendor_hf (окружение: {hver})" if use_hf else f"env {hver}"
+        if use_hf:
+            log.warning("sp_dfine: huggingface_hub окружения %s не подходит transformers %s (нужно >=1.31,<3) — "
+                        "берём %s", hver, TRANSFORMERS_PIN, VENDOR_HF)
+    _metadata_shim()   # до импорта transformers: dependency_versions_check читает версии из метаданных
+    attempts = (["vendor"] if v.is_dir() else []) + ["env"]
+    for src in attempts:
+        if src == "vendor":
+            _vendor_path(root)
+            if use_hf:
+                _hf_path(root, True)
+                _purge(_HF_PKGS, keep_under=h)
+        else:
+            if v.is_dir():
+                while str(v) in sys.path:
+                    sys.path.remove(str(v))
+                _purge(_VENDOR_PKGS + ("_regex",))
+                if use_hf:
+                    _hf_path(root, False)
+                    _purge(_HF_PKGS)
+            import os
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        importlib.invalidate_caches()
+        try:
+            import transformers
+            ver = getattr(transformers, "__version__", "?")
+            if ver != TRANSFORMERS_PIN:
+                raise ImportError(f"transformers {ver} != закреплённой {TRANSFORMERS_PIN} ({transformers.__file__})")
+            from transformers import DFineConfig, DFineForObjectDetection
+            info.update(source=src, version=ver, file=str(transformers.__file__), meta_fallback=dict(_META_USED))
+            return DFineConfig, DFineForObjectDetection, info
+        except Exception as exc:  # noqa: BLE001 — причина пишется в лог/FAIL
+            info["errors"].append(f"{src}: {type(exc).__name__}: {str(exc)[:300]}")
+            _purge(("transformers",))
+    hint = vendor_platform_hint(v)
+    if hint:
+        info["errors"].append(f"hint: {hint}")
+    info["platform"] = __import__("sys").platform
+    raise ImportError(f"{UNAVAILABLE}: D-FINE недоступен — " + " | ".join(info["errors"]))
 
 
 def load_models(st: dict, root: Path, device) -> list:
@@ -344,8 +867,8 @@ def load_models(st: dict, root: Path, device) -> list:
     пропущенные ключи допустимы только связанные (tied) копии уже загруженных тензоров."""
     import torch
     from safetensors.torch import load_file
-    _vendor_path(root)
-    from transformers import DFineConfig, DFineForObjectDetection
+    DFineConfig, DFineForObjectDetection, info = import_dfine(root)
+    log.info("sp_dfine: transformers %s из %s (%s)", info["version"], info["source"], info["file"])
 
     models = []
     for rel in st["weights"]:
@@ -372,6 +895,139 @@ def load_models(st: dict, root: Path, device) -> list:
             raise RuntimeError(f"D-FINE {p}: {len(bad)} тензоров на meta ({', '.join(bad[:3])})")
         models.append(m.eval().to(device))
     return models
+
+
+
+def dump_root() -> Path | None:
+    """Каталог дампа из ``EXPDS_DFINE_DUMP`` (пусто / не задан → ``None``, фича ВЫКЛ.)."""
+    raw = (os.environ.get("EXPDS_DFINE_DUMP") or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def count_would_pass_thr(feats: list[dict], cfg: dict) -> int:
+    """Сколько объектов sp_dfine прошли бы ``post.apply_thresholds`` с текущим ``[thresholds_by_markup.sp_dfine]``.
+
+    Нужен dump-диагностике A≡B: если raw>0, а would_pass_thr=0 — порог/группа срезает всё до finish.
+    """
+    from . import post
+
+    by = cfg.get("thresholds_by_markup") or {}
+    tau = post.threshold_fn(cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15), by)
+    return sum(1 for f in feats if f.get("confidence", 1.0) >= tau(f))
+
+
+def append_stage(out_dir: Path, row: dict) -> Path:
+    """Дописывает одну запись в ``stages.jsonl`` (одна строка = один участок / фаза)."""
+    path = out_dir / "stages.jsonl"
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False))
+        fh.write("\n")
+    return path
+
+
+def write_stages_summary(out_dir: Path, rows: list[dict], **extra) -> Path:
+    """Итоговый ``stages.json``: сумма счётчиков по участкам + extra (n_models, thresholds_ready…)."""
+    keys = ("n_raw_boxes", "n_ellipses", "n_features", "n_would_pass_thr", "n_paths", "n_paths_done")
+    totals = {k: sum(int(r.get(k, 0) or 0) for r in rows) for k in keys}
+    payload = {"regions": rows, "totals": totals, **extra}
+    path = out_dir / "stages.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def write_boxes_dump(out_dir: Path, *, region: str, source: str, crs: str, transform,
+                     model_i: int, B, L, Cc, ellipses: list[dict]) -> Path:
+    """Пишет JSON: пиксельные xyxy + преобразованные центры/bbox в EPSG:3857 (+ crs сцены).
+
+    Нужен PC-прогону для проверки CRS-гипотезы (pixel → scene CRS → 3857 vs GT 3857).
+    """
+    from pyproj import Transformer
+
+    a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
+    to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
+    rows = []
+    for i, ((x0, y0, x1, y1), s, c) in enumerate(zip(B, L, Cc)):
+        cx, cy = (float(x0) + float(x1)) / 2, (float(y0) + float(y1)) / 2
+        # углы bbox в CRS сцены → 3857
+        corners_src = [
+            (a * float(x0) + b * float(y0) + c0, d * float(x0) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y0) + c0, d * float(x1) + e * float(y0) + f0),
+            (a * float(x1) + b * float(y1) + c0, d * float(x1) + e * float(y1) + f0),
+            (a * float(x0) + b * float(y1) + c0, d * float(x0) + e * float(y1) + f0),
+        ]
+        corners_3857 = [to3857(x, y) for x, y in corners_src]
+        cx_src, cy_src = a * cx + b * cy + c0, d * cx + e * cy + f0
+        cx_3857, cy_3857 = to3857(cx_src, cy_src)
+        ell = ellipses[i] if i < len(ellipses) else None
+        eb = list(ell["geom"].bounds) if ell is not None else None
+        rows.append({
+            "i": i,
+            "class_name": CLASSES[int(c)] if int(c) < len(CLASSES) else str(int(c)),
+            "score": float(s),
+            "xyxy_px": [float(x0), float(y0), float(x1), float(y1)],
+            "center_px": [cx, cy],
+            "center_scene_crs": [cx_src, cy_src],
+            "center_3857": [cx_3857, cy_3857],
+            "bbox_corners_3857": [[float(x), float(y)] for x, y in corners_3857],
+            "ellipse_bounds_3857": eb,
+        })
+    payload = {
+        "region": region,
+        "source": source,
+        "scene_crs": crs,
+        "target_crs": "EPSG:3857",
+        "model_i": model_i,
+        "n": len(rows),
+        "affine_a_b_c_d_e_f": [a, b, c0, d, e, f0],
+        "boxes": rows,
+    }
+    safe_src = source.replace("/", "_").replace("\\", "_")
+    path = out_dir / f"{region}__{safe_src}__m{model_i}_boxes.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def write_gt_dump(out_dir: Path, reg) -> Path | None:
+    """GT участка (SpOr и пр.) в EPSG:3857 через ``expds.gt.read_annotation``; нет аннотаций → None."""
+    anns = list(getattr(reg, "annotations", None) or [])
+    if not anns:
+        return None
+    # importlib — чтобы AST-граф инференса не тянул train-only gt.py (test_train_only_modules…).
+    import importlib
+    from shapely.geometry import mapping
+    read_annotation = importlib.import_module(f"{__package__}.gt").read_annotation
+
+    feats = []
+    report: list[dict] = []
+    for path, cls, mt in anns:
+        for it in read_annotation(Path(path), cls, mt, reg, report=report):
+            g = it["geom"]
+            feats.append({
+                "type": "Feature",
+                "properties": {
+                    "class_name": it["class_name"],
+                    "markup_type": it["markup_type"],
+                    "region_name": it["region_name"],
+                    "source": it.get("source"),
+                    "src_crs": it.get("src_crs"),
+                },
+                "geometry": mapping(g),
+            })
+    payload = {
+        "type": "FeatureCollection",
+        "crs": {"type": "name", "properties": {"name": "EPSG:3857"}},
+        "region": getattr(reg, "name", None),
+        "n": len(feats),
+        "files": report,
+        "features": feats,
+    }
+    path = out_dir / f"{getattr(reg, 'name', 'region')}__gt_3857.geojson"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
 
 
 def detect_scene(models: list, scene, st: dict, device, keep_going=lambda: True) -> tuple[list, int, int]:
@@ -442,15 +1098,17 @@ def boxes_to_ellipses(B, L, Cc, transform, crs: str, region: str, source: str, m
     to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
     t = np.linspace(0, 2 * np.pi, 33)[:-1]
     a, b, c0, d, e, f0 = transform.a, transform.b, transform.c, transform.d, transform.e, transform.f
+    pix_m2 = abs(a * e - b * d)
     out = []
     for (x0, y0, x1, y1), s, c in zip(B, L, Cc):
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         rx, ry = max((x1 - x0) / 2, 0.5), max((y1 - y0) / 2, 0.5)
         px, py = cx + rx * np.cos(t), cy + ry * np.sin(t)
         gx, gy = to3857(a * px + b * py + c0, d * px + e * py + f0)
+        box_area_m2 = float(abs(x1 - x0) * abs(y1 - y0) * pix_m2)
         out.append({"geom": Polygon(np.column_stack([gx, gy])), "class_name": CLASSES[int(c)],
                     "confidence": round(float(s), 5), "region_name": region, "source": source,
-                    "original_crs": crs, "model": model_i})
+                    "original_crs": crs, "model": model_i, "box_area_m2": box_area_m2})
     return out
 
 
@@ -462,46 +1120,97 @@ def _device(st: dict):
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _degraded(reason: str) -> None:
+    from . import degraded
+    degraded.mark("sp_dfine", f"{UNAVAILABLE}: {reason}")
+
+
 def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, soft_ok=None) -> tuple[list[dict], bool]:
     """Объекты D-FINE участка и флаг «все растры SpOr пройдены полностью» (нужен для drop_groups).
 
     cache — общий словарь прогона (модели грузятся один раз). Ошибка или нехватка времени → что успели.
+    При ``EXPDS_DFINE_DUMP`` пишет stages.jsonl: raw_boxes → ellipses → features → would_pass_thr.
     """
     st = settings(cfg)
     paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
+    stage = {
+        "region": getattr(reg, "name", None),
+        "n_paths": len(paths),
+        "n_paths_done": 0,
+        "n_raw_boxes": 0,
+        "n_ellipses": 0,
+        "n_features": 0,
+        "n_would_pass_thr": 0,
+        "n_models": None,
+        "thresholds_ready": None,
+        "skip_reason": None,
+    }
     if not paths:
+        stage["skip_reason"] = "no_sp_or_rasters"
+        _emit_stage(stage)
         return [], False
     if "models" not in cache:
         cache["models"], cache["device"] = [], None
         ready, missing = thresholds_ready(cfg)
+        cache["thresholds_ready"] = ready
+        cache["thresholds_missing"] = missing
         if st["require_thresholds"] and not ready:
-            log.error("sp_dfine: нет порогов [thresholds_by_markup.sp_dfine] для %s — D-FINE не запускается",
-                      ", ".join(missing))
+            msg = f"нет порогов [thresholds_by_markup.sp_dfine] для {', '.join(missing)}"
+            log.error("%s: %s — D-FINE не запускается, выдача как v2", UNAVAILABLE, msg)
+            cache["load_error"] = msg
+            stage["skip_reason"] = "thresholds_missing:" + ",".join(missing)
+            write_unavailable_warning(msg)
+            _degraded(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         elif not st["weights"]:
-            log.error("sp_dfine: weights пуст — D-FINE не запускается")
-        if st["strict"] and (not ready and st["require_thresholds"] or not st["weights"]):
-            raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
+            msg = "weights пуст — D-FINE не запускается"
+            log.error("%s: %s, выдача как v2", UNAVAILABLE, msg)
+            cache["load_error"] = msg
+            stage["skip_reason"] = "weights_empty"
+            write_unavailable_warning(msg)
+            _degraded(msg)
+            if strict_mode():
+                raise RuntimeError(f"{UNAVAILABLE}: {msg}")
         else:
             try:
                 dev = _device(st)
                 t0 = time.monotonic()
                 cache["models"], cache["device"] = load_models(st, root, dev), dev
                 log.info("sp_dfine: моделей %d на %s за %.1f с", len(cache["models"]), dev, time.monotonic() - t0)
-            except Exception as e:
+            except Exception as exc:  # noqa: BLE001 — без strict сдача не падает: выдача как v2
+                detail = f"{type(exc).__name__}: {str(exc)[:800]}"
+                log.exception("%s: модели не загрузились (%s) — D-FINE пропущен, выдача как v2",
+                              UNAVAILABLE, detail[:500])
+                cache["load_error"] = detail
+                stage["skip_reason"] = f"load_failed:{type(exc).__name__}"
+                write_unavailable_warning(f"enabled=true, но модели не загрузились ({type(exc).__name__})",
+                                          detail=detail)
+                _degraded(f"модели не загрузились: {detail[:500]}")
+                if strict_mode():   # EXPDS_STRICT=1: исходная ошибка как есть
+                    raise
                 if st["strict"]:
-                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({type(e).__name__}: {e})") from e
-                log.exception("sp_dfine: модели не загрузились, D-FINE пропущен")
+                    raise DFineUnavailable(f"sp_dfine: модели не загрузились ({detail[:500]})") from exc
+        if st["strict"] and ((not ready and st["require_thresholds"]) or not st["weights"]):
+            raise DFineUnavailable("sp_dfine: нет порогов или весов при strict = true")
     models = cache["models"]
+    stage["n_models"] = len(models)
+    stage["thresholds_ready"] = cache.get("thresholds_ready")
     if not models:
+        if stage["skip_reason"] is None:
+            stage["skip_reason"] = "no_models"
+        _emit_stage(stage)
         return [], False
     dets: list[dict] = []
     complete = True
     for path in paths:
         if guard is not None and not guard.ok(60):
             complete = False
+            stage["skip_reason"] = (stage["skip_reason"] or "") + ";guard_time"
             break
         if soft_ok is not None and not soft_ok(f"D-FINE {Path(path).name}", float(st["soft_need_s"])):
             complete = False
+            stage["skip_reason"] = (stage["skip_reason"] or "") + ";soft_ceiling"
             break
         sc = None
         try:
@@ -509,16 +1218,71 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             sc = Scene(Path(path), crs, float(st["res_m"]))
             ok = (lambda: guard.window_ok()) if guard is not None and hasattr(guard, "window_ok") else (lambda: True)
             t0 = time.monotonic()
-            res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            # bot-8: [orsp_tta] выкл. или только U-Net — ровно штатный detect_scene (flip_tta).
+            # Виды/масштабы D-FINE не оценены (регрессия sp_or на v3on_0876090).
+            from . import orsp_tta
+
+            plan = orsp_tta.dfine_plan(cfg)
+            if plan is None:
+                res, done, total = detect_scene(models, sc, st, cache["device"], ok)
+            else:
+                res, done, total = orsp_tta.detect_dfine(
+                    models, sc, Path(path), crs, st, cache["device"], ok, plan)
             complete &= done >= total
+            dump = dump_root()
+            n_raw = 0
             for mi, (B, L, Cc) in enumerate(res):
-                dets += boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                n_raw += int(len(L))
+                ell = boxes_to_ellipses(B, L, Cc, sc.T, crs, reg.name, Path(path).name, mi)
+                if dump is not None and len(L):
+                    try:
+                        write_boxes_dump(dump, region=reg.name, source=Path(path).name, crs=crs,
+                                         transform=sc.T, model_i=mi, B=B, L=L, Cc=Cc, ellipses=ell)
+                    except Exception:
+                        log.exception("sp_dfine: dump боксов не записан (%s m%d)", Path(path).name, mi)
+                dets += ell
+            stage["n_raw_boxes"] += n_raw
+            stage["n_paths_done"] += 1
             log.info("sp_dfine: %s %dx%d px, окон %d/%d, боксов %d, %.1f с", Path(path).name, sc.W, sc.H, done,
-                     total, sum(len(r[1]) for r in res), time.monotonic() - t0)
+                     total, n_raw, time.monotonic() - t0)
         except Exception:
             complete = False
             log.exception("sp_dfine: %s пропущен", Path(path).name)
+            stage["skip_reason"] = (stage["skip_reason"] or "") + f";path_err:{Path(path).name}"
         finally:
             if sc is not None:
                 sc.close()
-    return as_features(dets, st, len(models)), complete
+    # n_ellipses should be total dets, not wrongly accumulated mid-loop
+    stage["n_ellipses"] = len(dets)
+    feats = as_features(dets, st, len(models))
+    stage["n_features"] = len(feats)
+    stage["n_would_pass_thr"] = count_would_pass_thr(feats, cfg) if feats else 0
+    dump = dump_root()
+    if dump is not None:
+        try:
+            gp = write_gt_dump(dump, reg)
+            if gp is not None:
+                log.info("sp_dfine: GT dump %s", gp)
+        except Exception:
+            log.exception("sp_dfine: GT dump не записан (%s)", getattr(reg, "name", "?"))
+        try:
+            append_stage(dump, stage)
+            log.info("sp_dfine stages %s: raw=%d ell=%d feat=%d pass_thr=%d skip=%s",
+                     stage["region"], stage["n_raw_boxes"], stage["n_ellipses"], stage["n_features"],
+                     stage["n_would_pass_thr"], stage["skip_reason"])
+        except Exception:
+            log.exception("sp_dfine: stages dump не записан (%s)", getattr(reg, "name", "?"))
+    return feats, complete
+
+
+def _emit_stage(stage: dict) -> None:
+    """Пишет stage-строку, если dump включён (ранний выход region_feats)."""
+    dump = dump_root()
+    if dump is None:
+        return
+    try:
+        append_stage(dump, stage)
+        log.info("sp_dfine stages %s: skip=%s models=%s", stage.get("region"), stage.get("skip_reason"),
+                 stage.get("n_models"))
+    except Exception:
+        log.exception("sp_dfine: stages dump не записан (%s)", stage.get("region"))

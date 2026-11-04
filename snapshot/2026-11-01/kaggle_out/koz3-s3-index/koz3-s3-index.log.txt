@@ -1,0 +1,9 @@
+[      2s] Kaggle Secrets недоступны: ConnectionError — пробую env / приватный датасет
+[      2s] FAILED: нет ключей S3: Kaggle Secrets KOZ3_S3_ACCESS_KEY_ID/KOZ3_S3_SECRET_ACCESS_KEY или датасет dmitrijkv/koz3-s3-cred (cred.json)
+нет ключей S3: Kaggle Secrets KOZ3_S3_ACCESS_KEY_ID/KOZ3_S3_SECRET_ACCESS_KEY или датасет dmitrijkv/koz3-s3-cred (cred.json)
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 315122 bytes to __results__.html

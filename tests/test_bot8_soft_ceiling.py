@@ -45,10 +45,12 @@ def test_soft_ceiling_invalid_config_disables_with_warning(raw, capsys):
 
 
 def test_soft_need_thresholds_configurable(capsys):
-    assert pipeline.soft_need_from({}, environ={}) == {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
+    base = ("wide_window", "sigma", "verify")
+    need = pipeline.soft_need_from({}, environ={})
+    assert {k: need[k] for k in base} == {"wide_window": 120.0, "sigma": 60.0, "verify": 60.0}
     need = pipeline.soft_need_from({"time": {"soft": {"sigma": 90, "verify": 30}}},
                                    environ={"EXPDS_SOFT_NEED_VERIFY_S": "45", "EXPDS_SOFT_NEED_WIDE_WINDOW_S": "bad"})
-    assert need == {"wide_window": 120.0, "sigma": 90.0, "verify": 45.0}
+    assert {k: need[k] for k in base} == {"wide_window": 120.0, "sigma": 90.0, "verify": 45.0}
     assert "не принят" in capsys.readouterr().err
 
 
@@ -74,7 +76,9 @@ def test_t0_is_process_start_in_monotonic_base_budget_unchanged():
     assert g.t0 == watchdog.PROCESS_START <= g.run_t0
     assert g.elapsed() >= g.run_elapsed()
     assert abs(g.elapsed() - (time.monotonic() - watchdog.PROCESS_START)) < 5
-    assert abs(g.left() - (1500 - g.run_elapsed())) < 1e-6
+    # left() и run_elapsed() вызывают clock() отдельно — под нагрузкой suite
+    # разница двух семплов ~1e-6; допуск 1 мс (семантика: бюджет от run_t0).
+    assert abs(g.left() - (1500 - g.run_elapsed())) < 1e-3
     # 1620-сторож и мягкий потолок считают от одного начала
     assert abs((watchdog.PLATFORM_LIMIT_S - 180 - g.elapsed()) - watchdog.deadline_left(180)) < 1
 

@@ -1,6 +1,9 @@
 # Конфигурация инференса КОЗ №3. Пути к моделям — относительно корня архива.
 
 default_threshold = 0.15
+# W4 v4: RR1s-cf (переранжирование li по признакам облака точек, W1) — expds/w5_cloudfeat.py. По умолчанию ВЫКЛ.
+# Включение — configs/v4_on.toml (нужен модуль инференса W1 expds/w5cf_infer.py и models/w5cf/ref.npz в архиве).
+w5_cloudfeat = false
 
 [time]
 budget_s = 1500      # 25 минут из 30: запас на запуск контейнера и запись
@@ -20,7 +23,14 @@ window_reserve_s = 30
 soft_ceiling_s = 1200
 # Аудит 29.10: закрытая выборка финала может быть больше публичной (48 участков). Выход при запасе времени тот же.
 # optics_order = "small_first"  — оптика от дешёвых снимков к дорогим (гигантское ортофото не съедает остальных).
-# optics_s_per_gb = 0           — лидар оставляет оптике столько с на ГБ снимков (снять с лога площадки; 0 — выкл.).
+# optics_s_per_gb               — лидар оставляет оптике столько с на ГБ снимков (0 — выкл.).
+# bot-7 v3: защита ВКЛЮЧЕНА по умолчанию. Объекты после прохода оптики возвращаются в исходный порядок участков
+# (pipeline._restore_optics_order), так что при запасе времени выход побайтно тот же (проверено на synth/210/214/217).
+# optics_s_per_gb = 10 — неполный запас (на ПК оптика ≈ 64 с/ГБ: 25,5 ГБ за 1624 с, аудит R5): лидар не берёт новый
+# участок, если прошло больше 1500 − 120 − 10·ГБ с. На прогоне в бюджете (≤ 1200 с всего) лидар кончается раньше
+# этой черты, пока снимков меньше ~(1380 − конец лидара)/10 ГБ, — выход не меняется.
+optics_order = "small_first"
+optics_s_per_gb = 10.0
 
 # CRS участка. На 54 участках с LAS голосование совпало с UTM.json (notes/crs_audit_2026-10-24.json).
 # Расхождения заголовка LAS не накрывали эталон лучше, поэтому балл 0,353793 не сдвигается.
@@ -138,7 +148,7 @@ kurgany_tselye = 1.000001
 [thresholds_by_markup.etgr]
 object_poly = 0.096635
 
-# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — bot-3/pixgbm/pc/thr_pix_full.json (bot-9, fit_thr.py:
+# bot-7 (кандидат v2): пороги групп PIXGBM на всём трейне — thr_pix_full.json у bot-3 (bot-9, fit_thr.py:
 # sweep_groups по LOFO-кандидатам pix_lofo, global = site). Сверка bot-7 по кривым bot-10/work7/curves_g_S:
 # те же значения; пороги фолдов k10/LOFO maggr_pix finds 0,887–0,911, op 0,659–0,685 (bot-7/work5/taus_pix.json).
 # Оговорка: подобраны на LOFO-моделях, в сдаче модель all (увереннее) — пороги, вероятно, чуть занижены.
@@ -214,6 +224,9 @@ mosaic = true
 # Сколько следующих LAS строят DEM в фоне, пока текущий участок на видеокарте (lidar.DemPrefetch).
 # 0 — без фона. Каждый — до ~2 ГБ памяти на облако в 12 млн ячеек.
 prefetch = 2
+# Стиль отмывки g/i для li-моделей: "vendor" (как было) | "li_match" (CI2-8: Horn, σ=1 px, i=253−g,
+# ближе к Li организаторов). Не замерено (PREREG P-W2-5), по умолчанию выключено.
+hillshade_style = "vendor"
 
 [models]
 # Вторая итерация трудных негативов. Общий балл 0,203 против 0,197 у первой.
@@ -253,6 +266,42 @@ relief_radius_l_m = 0
 [thresholds_by_markup.gor_phys]
 gorodishcha = 0.43049
 
+# Второй проход сети li на 1 м (крупные курганы, OSINT п. 4: Эрентуна ⌀ медиана 12 м, p90 18 м).
+# Выключен. Включать только вместе с [thresholds_by_markup.li_half], подобранными вложенно
+# по семьям на OOF-выгрузке (EXPDS_LI_HALF_DUMP + scripts/nn_oof.py --predict-only):
+# без них проход идёт только в выгрузку. Выдаются лишь новые курганы — дальше 12 м от
+# кругов основного li (любого класса кургана), которые оставляет его принятый порог. Код — expds/li_half.py.
+# bot-8: enabled — только TOML-bool (true/false без кавычек), иначе выключено с предупреждением (как [li_cnx]).
+# enabled = true без [thresholds_by_markup.li_half] — объектов li_half нет (WARN в логе и в check_submission);
+# проход тогда идёт, только если задан EXPDS_LI_HALF_DUMP. Время: мягкий потолок, ключ [time.soft] li_half
+# (env EXPDS_SOFT_NEED_LI_HALF_S, 30 с) + оценка на LAS max(5, 0,35 × t основного li × tta; v1, бот 2 намерил
+# ≈0,2) + резервы wide_window/sigma/verify (и cnx) — li_half отключается первым. Ключа soft_need_s в [li_half]
+# нет. Отборы 12 м: li_half — против принятых li участка, без учёта класса кургана; cnx (позже) — против всего,
+# включая принятые li_half (лидар — без учёта класса, оптика — того же класса); σ — против KEPT_KURGAN_CONF
+# и принятых li_half/li_cnx, того же класса.
+[li_half]
+enabled = false
+res = 1.0
+tta = 1
+max_px = 30_000_000
+skip_mosaic = false   # мозаика (куски 400 м, поле 40 м) проходится: Эрентуна — мозаичный LAS
+skip_coarse = true    # огрублённый DEM без мозаики (li_coarse) — пропуск в v1
+dedupe_m = 12.0
+# NMS между своими кругами li_half БЕЗ учёта класса кургана, м (число ≥ 0; 0 — выкл., по умолчанию; не число — выкл. + WARN).
+# При > 0: после отбора против li (dedupe_m) и пола группы, до выдачи — из кругов участка ближе этого расстояния
+# друг к другу остаётся один: с большей уверенностью; при равной — целый (kurgany_tselye) раньше повреждённого,
+# затем первый по порядку выдачи. Жадно, расстояние между центрами (ground_point) ≤ порога.
+self_xclass_nms_m = 0.0
+group = "li_half"
+[li_half.cand]        # второй детектор: шаг 1 м, окно рельефа 30 м
+work_res = 1.0
+relief_radius_m = 30.0
+peak_radius_m = 5.0
+min_relief_m = 0.08
+r_in_m = 5.0
+r_out_m = 16.0
+circle_m = 2.0
+
 [candidates]
 work_res = 0.5
 relief_radius_m = 15.0
@@ -264,6 +313,13 @@ r_in_m = 2.5
 r_out_m = 8.0
 circle_m = 2.0
 lgbm_model = "models/kurgan_lgbm.txt"
+# Форма насыпи (TPI 5/40 м, симметрия, профильная кривизна) на запасном CPU-детекторе.
+# Выключено: пороги сдачи под этот множитель не пересчитаны, сеть li его не использует.
+dome = false
+# Курганы запасного детектора на склоне круче slope_max_deg отбрасываются. Сеть li не фильтруется.
+# 12° не измерены: на косогоре сидят и настоящие насыпи, включать только после замера.
+slope_gate = false
+# slope_max_deg = 12.0
 
 [geophys]
 point_circle_m = 0.3
@@ -280,6 +336,10 @@ point_circle_m = 0.3
 #   [geophys.maggr.finds_points] peak_density_min = <пиков на 1000 м²> — на карте с редкими пиками
 #     отсечка опускается до peak_k_min (0,5). 0 — как в сдаче. Оценка:
 #     scripts/geo_silent_maps.py notes/geo_probe_train.json --density 5,10,20.
+#   [geophys.maggr.finds_points] extremum_snap_m = 3.0 — сдвиг пика к argmax |detection| в окне
+#     (FN finds с кандидатом в 2–5 м; bot7-geo-gate). 0 — выкл (сдача).
+#   [geophys.maggr.finds_points] finds_nms_m = 1.5 — NMS по силе после пиков/сдвига
+#     (дубликаты finds; bot7-geo-gate). 0 — выкл (сдача).
 #   [geophys.etgr] layer_copy = true — объект среза EtGr копируется в другие срезы и профили той же
 #     привязки, где на этом месте ничего нет (каждый слой — отдельный эталон); группа etgr_copy,
 #     layer_copy_decay — множитель уверенности копий. Табло 27.10 не приняло.
@@ -302,8 +362,11 @@ point_circle_m = 0.3
 # Ss6−A +0,013938, P 1,0 (bot-10/REPORT9_v2.md §A). Выключить: enabled = false.
 # Код — bot-3 bot3-pixgbm 76f7317 (срок фазы + лестница full→finds_only→classic, классика на упавших растрах,
 # потоки по sched_getaffinity); backend lightgbm, файлы .so lleaves/treelite в архив НЕ кладутся.
-enabled = true
-model_dir = "models/pixgbm/all"   # относительный путь — от корня репо/архива (bot-7: не от текущей папки)
+# W4 DOC-1: выключено явно — legacy PIXGBM (по мотивам EN) не используется и в архив не идёт
+# (scripts/check_archive_clean.py); clean-room перепись — только impl = "clean" за флагом.
+enabled = false
+# model_dir сюда не пишется: путь старых весов страж архива не пропускает.
+# impl = "clean" берёт models/pix_clean (expds/pipeline.py), если ключ не задан.
 classes = ["finds_points", "object_poly"]
 replace = true   # true — вариант S (замена классики того же класса и метода), иначе объединение
 union_name_re = ""   # вариант H: replace=true, union_name_re="Гнёздово" — на этих участках правило U (объединение без дублей)
@@ -318,6 +381,13 @@ backend = "lightgbm"   # lightgbm | lleaves | treelite: lleaves/treelite — <и
 budget_s = 600   # абсолютный срок фазы: T0 (guard.t0 / старт процесса, что раньше) + budget_s; env PIXGBM_BUDGET_S важнее.
                  # Перед растром прогноз по с/Мпикс: не успеваем → только finds (maggr) → классика; ошибка → классика
 guard_reserve_s = 0   # срок ещё и ≤ guard.left() − резерв
+# W4 (impl="clean" only, all OFF by default; PREREG docs/PREREG_w4_pix_clean.md):
+org_maggr = false            # GEO-ORG1: MagGr candidates per organizer baseline 01 (expds/pix_org.py, models <model_dir>/org)
+org_classes = ["finds_points", "object_poly"]   # which ORG1 classes replace maggr candidates
+org_t_ref = 0.5              # ORG1: parent-score threshold for splitting merged blobs
+org2_band_mode = "rgb"       # GEO-ORG2: "jet" = EtGr scalar from jet palette (needs models trained with --band-mode jet)
+org2_mask = false            # GEO-ORG2: drop non-palette EtGr pixels (needs models trained with --org-mask)
+org_etgr = false             # GEO-ORG3: EtGr object_poly per organizer baseline 02, HGB mode (expds/pix_org_et.py, models <model_dir>/org)
 procs = 2   # процессов (fork) для признаков окон; 0 — min(потоки, 4). Каждый ребёнок ≈ +0,35 ГБ RSS (bench2, procs=2).
             # bot 1 (29.10): 2, а не 0 (до 4 детей): пик ОЗУ всего прогона у bot-9 уже 3 ГБ
 
@@ -383,17 +453,16 @@ filter_finds_points = true
 # P 0,986, LOFO +0,001603, 5/5; с курганами 0,5 м +0,003065, P 1,0 (bot-10/work8/twins78_stats.log, TO/TOfix, kurTO;
 # bot-10/STATUS.md 29.10 00:20 «→ только в пакет»). Выключить: kurgan_twins_only = false
 kurgan_twins_only = true
-# bot-7 v3: курганы внутри предсказанных городищ (правило разметки, OSINT_2026-10-29 §1.2; PREREG bot-7/work6/kig).
-# ВЫКЛ.: честно −0,000848, P 0,187, LOFO −0,000932, 0/5, new34 −0,002876 (bot-7/work6/kig/stats_kig.log);
-# с эталонными городищами (оракул) всего +0,000537 — потолок ниже П1.
-kurgan_in_gor = false
+# bot-7 v3: наш kurgan_in_gor (курганы в предсказанных городищах) удалён — заменён правилом аудита
+# kurgans_outside_hillforts ниже. Наш замер был: −0,000848, P 0,187, LOFO −0,000932, 0/5 (bot-7/work6/kig/stats_kig.log).
 # Аудит 29.10 (docs/AUDIT_CLAUDE_2026-10-29.md §5): два рычага соперника, которых в v2 нет. ВЫКЛЮЧЕНЫ до табло.
 # Правило разметки «насыпи внутри городищ не размечаются»: курган внутри выданного городища убирается
 # (после порогов, порогов не трогает). Замер: oof_transform.py gormask → scoreboard.py --honest 10.
 # kurgans_outside_hillforts = true
 # Множитель соседства курганов (могильники): conf × (0,5 + 0,5·clip(n/3, 0, 2)), n — соседи в 200 м.
-# До порогов: включать ТОЛЬКО вместе с порогами групп li/li_coarse/li_mosaic, подобранными после
-# oof_transform.py neigh (иначе пороги сдачи разойдутся с замером).
+# У соперника это v14, публично +0,0003 при полноте лидара +0,039. До 0,49 их подняла предыдущая
+# посылка (несколько спутниковых голов), не этот множитель. До порогов: включать ТОЛЬКО вместе
+# с порогами групп li/li_coarse/li_mosaic, подобранными после oof_transform.py neigh.
 # [post.kurgan_neighbour_prior]
 # groups = ["li", "li_coarse", "li_mosaic"]
 # radius_m = 200.0
@@ -403,9 +472,20 @@ kurgan_in_gor = false
 # [post.site_calibration]
 # groups = ["li_cnx"]
 # mode = "mix"
-# Приор кадра: объект у края крупной спутниковой сцены × до 0,5. До порогов; пороги — после oof_transform.py frame.
+# Приор кадра без городищ FR1h (аудит d4edf2f post.frame_prior; bot-10 REPORT11_audit.md C3h): объект групп
+# sp_or/sp_focal/sp_focal2 у края спутниковой сцены (scene_drel > d0) × линейно до edge на краю. ВКЛ. в v3: принят
+# ботом 10 в пакет — в порядке сдачи TOFR − TO +0,004042, P 0,999, LOFO +0,004228, 5/5, new34 +0,000464.
+# Шаг ДО порогов (watchdog.finish: после calib/neigh, до sp_score_fusion и apply_thresholds; twins — после порогов),
+# как в замере (xform_frame.py до кривых/порогов, fr_exact.py: пороги → twins). Городища НЕ трогаются (FR1 со всеми
+# классами отклонён: new34 −0,003728, 7 лишних FP городищ). Рамки сцен = bot-10 frame_boxes.json (168/168,
+# bot-7/work6/fr1h/boxes_cmp.out). Пороги sp_* в пакете прежние (в выборке, как в v2), не перенастроены на FR1h.
+# При D-FINE R группы sp_or/sp_focal/sp_focal2 на полностью пройденных SpOr-участках удаляются — там FR1h ничего не меняет.
+# W4 (bots/w4-gate): FR1h за флагом, по умолчанию ВЫКЛ (секция включается самим присутствием,
+# ключа enabled в коде нет — expds/watchdog.py:90). Включённая версия — configs/v3_on.toml
+# (build_submission_git.py --config configs/v3_on.toml).
 # [post.frame_prior]
 # groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye", "arkhitektury", "object_poly", "fortifikatsii", "finds_points"]
 # d0 = 0.5
 # edge = 0.5
 
@@ -415,6 +495,11 @@ kurgan_in_gor = false
 # (bot-7/work3/insample_tau_kur.json).
 [post.micro_circles]
 radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+# W0-seams (30.10, analysis/2026-10-30/w0_seams/g2_decomp.json): диск 0,05 м в representative_point
+# для неклассов-курганов (NK) поверх курганов 0,5 м: honest-10 +0,004366, P 0,9885, new34 +0,00225,
+# optical +0,00852 (fort +0,00205 P 0,982; gor +0,00248 P 0,867). В пакет — после перемера порогов:
+# radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5, gorodishcha = 0.05, arkhitektury = 0.05, object_poly = 0.05, fortifikatsii = 0.05 }
+# anchor = "rp"   # ВНИМАНИЕ: anchor общий для всех классов; курганы (круги 2 м) — rp ≈ центр, kur_rp −0,00034 (шум)
 # LOCALIZE (bot-6, 28.10, bot-6/LOCALIZE.md): + фортификации 0,5 м — точный пост-порог honest-10
 # +0,000257 (fort +3 TP / −3 FP), P(Δ>0) 0,75, lofo +0,00047, 5/5 случайных раскладок > 0;
 # П1 не выполнено (< 0,002) — только в пакет, после перемера на ПК (oof_transform.py micro + scoreboard).
@@ -427,12 +512,26 @@ radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
 # Выключить: enabled = false (одна строка; без модели код возвращает базу).
 # Модель: scripts/rerank_arch_train.py; оба файла — в models/ (build_submission берёт их по этим ключам).
 [rerank_arch]
-enabled = true
+# orch: выключено по умолчанию — models/rerank_arch_lgbm.txt не в git (MERGE_2026-10-29.md), чистая сборка падала.
+# Включать только в сборке, где файлы модели положены рядом (apply() без файлов → без реранка).
+enabled = false
 model = "models/rerank_arch_lgbm.txt"
 meta = "models/rerank_arch_lgbm.json"
 
+# bot-6 ORGATE G: гейт FP архитектуры (or / sp_arch) — ЗАМЕНА [rerank_arch] на том же месте цепочки finish
+# (после only_known_classes, до site_calibration / kurgan_neighbour_prior / frame_prior FR1h / порогов; dfine_ae|or
+# сюда не попадают, sp_dfine гейт не оценивает). Правило LAS: arch на участке с LAS во входе удаляется.
+# Пороги по группам — медиана 10 порогов вложенной k10 (or 0,004086, sp_arch 0,008176), см. meta.
+# Обучен на стеке A (без sp_dfine/dfine_aeor): при смене стека кандидатов arch — переобучить и перемерить.
+# Замер: bot-10/REPORT12_orgate.md (k10 dR +0,001933 к R). Нет файлов/сбой → ORGATE_UNAVAILABLE в логе и откат на R.
+[orgate]
+enabled = false
+model = "models/orgate_g.txt"
+meta = "models/orgate_g.json"
+
 # [post]
 # Выпуклая оболочка object_poly etgr/terfl (bot-6 GEO.md: LOSO +0,0017, P 0,998; на приёмке П1–П5 у bot-10).
+# geo_convex_hull = false           # bot7-geo-gate lever L3; true или { markups = ["etgr", "terfl"] }
 # geo_convex_hull = true            # или { markups = ["etgr", "terfl"] }
 # fill_holes = ["gorodishcha"]
 # [post.core.gorodishcha]
@@ -442,9 +541,12 @@ meta = "models/rerank_arch_lgbm.json"
 # [post.sp_score_fusion]
 # radius_m = 8.0
 # gen_floor = 0.05          # курганы sp_or / sp_focal2 генерируются сырыми, отбор 12 м — только из выдачи
-# thresholds.sp_focal = { kurgany_povrezhdennye = 0.27822, kurgany_tselye = 0.3696 }
+# thresholds.sp_focal = { kurgany_povrezhdennye = 0.2665015, kurgany_tselye = 0.3696 }
 # thresholds.sp_focal2 = { kurgany_povrezhdennye = 0.514733, kurgany_tselye = 0.701621 }
-# Пороги — sweep_groups на всех участках по кривым fusion (bot-6/work/orsp2/taus_all.json). Замер см. bot-6/ORSP.md.
+# Пороги сдачи — медиана 10 значений sweep_groups, каждое подобрано только на обучающих участках своего
+# фолда k10 (bot-6/work/orsp3/taus_fold.json, k10_median); для оценки — свои пороги в каждом фолде (paired.py).
+# Прежние 0.27822/0.3696, 0.514733/0.701621 были подобраны на всех участках (утечка, bot-10 REPORT10 §3) — не использовать.
+# sp_focal здесь = курганы sp_or сдачи (одна карта центров; в табло подписана sp_focal) — пороги общие. Замер: bot-6/ORSP.md.
 
 # Ансамбль только по курганам: path = ["models/a.pt", "models/b.pt"], ensemble_classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
 # Обучение: --arch FPN --ema 0.999 --scale-aug 0.25 --photo-aug 0.08. В сданных весах этого нет.
@@ -462,17 +564,80 @@ tile = 96
 res = 0.5
 min_conf = 0.05
 
-# bot-7 (кандидат v3): D-FINE bot-9 на SpOr (группа порога sp_dfine). ВЫКЛ.: нет transformers в образе
-# pantum/n7q:20261023d, нет порогов [thresholds_by_markup.sp_dfine] из OOF, нет замера против v2 (bot-7/work6/REPORT_v3.md).
-# Ключи и умолчания — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert = circle|ellipse, drop_groups, ensemble …).
+# bot-7 (кандидат v3) / bot-5 (v4): D-FINE bot-9 на SpOr (группа порога sp_dfine).
+# v4 (bot1_v3_spor_diag 29.10): SpOr D-FINE ВЫКЛ. — enabled = false. pipeline.run вызывает _sp_dfine_phase
+# ТОЛЬКО при enabled; drop_groups применяется только внутри фазы. Поэтому enabled=false достаточен, чтобы
+# сохранить U-Net sp_or/sp_focal/sp_arch/sp_focal2 (путь v2/v3 pre-D-FINE); отдельно drop_groups=[] не нужно,
+# пока фаза не входит. DEFAULTS.drop_groups уже []. Вариант R (drop_groups = SpOr-группы) на mock дал
+# soft_tp 0/13 (медиана ~191 м до GT) — НЕ включать R, пока D-FINE не локализует курганы.
+# Патч e3c4f41 (ground_metres, только геофизика) боксы D-FINE не двигает: tests/test_e3c4f41_sp_or.py.
+# Архив сдачи v3on собирал bot-7/work6/on/make_on.py. transformers 5.21.0 — вендор inference/lib/vendor.
+# Ключи — expds/sp_dfine.py DEFAULTS (weights, flip_tta, convert, drop_groups, ensemble …).
 [sp_dfine]
 enabled = false
-# Включение (принято ботом 10 условно, bot-10/REPORT10_accept.md §1; ждёт замера 4090 и сквозного прогона):
+# Включение (НЕ для v4 до фикса локализации; принято ботом 10 для v3on, модель СДАЧИ — f0):
 #   enabled = true
-#   weights = ["models/dfine_final"]   # ОДНА строка: каталог config.json + model.safetensors (fp32). Финальная модель
-#                                      # на всём SpOr из koz3-dfine-spor-final бота 9; f0 — models/dfine_f0 (тест)
-#   drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R
-#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log) и [thresholds_by_markup.or] arkhitektury = 0.483891
+#   weights = ["models/dfine_f0"]   # МОДЕЛЬ СДАЧИ: f0 bot-9 (koz3-dfine-spor-full-rest/dfine_f0, fp32; инференс fp16 autocast)
+#   drop_groups = []               # v4-safe: добавить D-FINE БЕЗ снятия U-Net; НЕ вариант R, пока soft_tp≈0
+#   drop_min_det = 1   # bot-2 багфикс (ВКЛ.): R только на участках с ≥N объектов sp_dfine; иначе оставляем v2
+#   drop_cover_m = 12  # ВКЛ. по умолчанию: старый объект снимается, только если D-FINE того же класса
+#                      # прошёл порог sp_dfine и центр ≤ 12 м на земле. 0 — слепой R (mock: sp_or F1 → 0).
+#   # drop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]   # вариант R; покрытие drop_cover_m обязательно
+#   + [thresholds_by_markup.sp_dfine] (bot-9 thr/sweep.log: OOF фолдовых моделей под f0) и [thresholds_by_markup.or] arkhitektury = 0.483891
+# Финальная модель (koz3-dfine-spor-final/dfine_final) — ТОЛЬКО РЕЗЕРВ; пороги под f0, для final нужен перенос/OOF.
+# Заготовка: bot-7/work6/on/FINAL_VARIANT.md.
+
+# bot-8: TTA и мультимасштаб. По умолчанию ВЫКЛ. — выход как без секции.
+# U-Net только markup из unet_markups (спутник sp_or и окно sp_focal2). ae и or не трогает.
+# unet_tta: 0 = не менять ([tta] или 1); 2|4|8 — отражения Segmenter._forward, маски усредняются.
+#   4 = исходный, отражение по ширине, по высоте и оба; 8 добавляет поворот на 90° (транспонирование).
+# unet_scales: зум кадра, как [ms]. 1.25 — крупнее пиксели модели. [1.0] = выкл. Карты вероятностей усредняются.
+# D-FINE: dfine_views off|d4|d8 и dfine_gsd — множители res_m. Слияние боксов одного растра — WBF
+# (координаты по уверенности, уверенность = сумма / число видов; одиночный вид делится — меньше ложных).
+# NMS оставлен ключом dfine_fuse = "nms". Между снимками не сливать.
+# D-FINE здесь НЕ ОЦЕНЕНО: mock v3on_0876090 дал sp_or F1 0. Не включать dfine_*, пока
+# ветка bots/bot2-e2e-v3-prep не закроет CRS/порог. Замер спутника dfine_views не включает.
+[orsp_tta]
+enabled = false
+unet_tta = 0
+unet_scales = [1.0]
+unet_markups = ["sp_or", "sp_focal2"]
+dfine_views = "off"
+dfine_gsd = [1.0]
+dfine_fuse = "wbf"
+dfine_fuse_iou = 0.55
+
+# bot-1 (кандидат v4, 29.10): D-FINE всех классов на Ae/Or (группы порога ae_dfine / or_dfine),
+# круги варианта C, слияние TTA (flip × масштабы) и моделей — WBF внутри ОДНОГО снимка. ВЫКЛ.:
+# нет весов Ae+Or (Kaggle-ядро kaggle/aeor_dfine — не запущено), нет порогов из OOF, нет приёмки honest-10 ботом 10
+# (bot-1/AEOR_DETECT_2026-10-29.md). Ключи и умолчания — expds/aeor_dfine.py DEFAULTS. Включение:
+#   enabled = true
+#   weights = { ae = ["models/dfine_aeor"], or = ["models/dfine_aeor"] }
+#   scales = [1.0, 1.5]
+#   + [thresholds_by_markup.ae_dfine] и [thresholds_by_markup.or_dfine] (sweep_groups по OOF ядра)
+[aeor_dfine]
+enabled = false
+
+# bot-6 (29.10, на v3 360c870): D-FINE всех классов на Ae/Or (bot-9 DFINE_FINAL_ORAE.md), фаза после sp_dfine,
+# до gor_gate. markup_type родной (ae/or), threshold_group dfine_ae / dfine_or. ВЫКЛ.: нет весов bot-9 Ae/Or и
+# порогов из вложенного OOF (bot-6/AEOR_DETECT.md). Ключи и умолчания — expds/dfine_aeor.py DEFAULTS
+# (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
+#   enabled = true
+#   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
+#     # = чекпойнты bot-9 koz3_shared/bot-9/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
+#     # 5 классов в порядке sp_dfine.CLASSES), в репозиторий — ln -s (полные пути: bot-6/AEOR_DETECT.md; личные
+#     # абсолютные пути в конфиге архива запрещены тестом test_no_personal_paths_in_packaged_code,
+#     # build_submission их не пакует)
+#   thresholds_file = "models/dfine_aeor/thresholds_oof.json"   # {"dfine_ae": {класс: порог}, "dfine_or": {...}}; ae_dfine/or_dfine тоже принимаются
+#   # scales = [1.0, 1.5]   # второй масштаб — только после замера времени на 4090
+# Рецепт входа (bot-9): RGB/255 без нормализации, flip-TTA, NMS IoU 0,5, fp16 только autocast на CUDA (.half() не вызывается).
+[dfine_aeor]
+enabled = false
+
+# bot-6: городища из D-FINE Or выключены порогом > 1, пока bot-10 не замерит их вместе с gor_dense bot-5.
+# Ключи TOML главнее thresholds_file. Объектов dfine_or нет при [dfine_aeor] enabled=false.
+[thresholds_by_markup.dfine_or]
+gorodishcha = 1.01
 
 # bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (bot-5/FOR_BOT7_GOR_V3.md, ветка bot5-gor-patch-kaggle abb89d0+82058b8).
 # conf городищ sp_or (без threshold_group) × p участка (max p виньеток 384 м + контекст 768 м) → группа sp_or_gated.
@@ -505,3 +670,194 @@ enabled = false
 # fast_channels = true  # fix_channels без repeat + concatenate
 # gdal_threads = true   # GDAL_NUM_THREADS=ALL_CPUS, если не задан
 # slot_accum = true     # CUDA: накопление окон «слотами» (не входит в enabled — только явно)
+# dem_disk_cache = true # дисковый кэш DEM между прогонами (или EXPDS_DEM_DISK_CACHE=/path)
+# rust_match = true     # Rust-префильтр пар honest-10/гейтов (EXPDS_RUST_MATCH=1)
+# bot-5 (ветка bot5-gor-dense-v3): PFnoD бота 10 (bot-10/REPORT14_gor_dense.md, work14/pkg_gor2.json; PACKAGE-ONLY
+# +0,015406, P 1,000) — точки городищ плотного локализатора DINOv2-S на SpOr (expds/gor_dense.py) после sp_dfine/drop_groups,
+# группа порога gor_dense; conf = 0,5·(p участка головы gor_v3 + пик); гейт sp_or НЕ ставить (при R ему нечего гейтить).
+# noD (классы drop_dfine_classes sp_dfine удаляются кодом на участках, где точки посчитаны) — флаг ВКЛ. делает это сам.
+# v4: пакет принят как компонент (τ=0.824066, centre_s=250); default OFF — байт-в-байт как v3-без-SpOr-D-FINE.
+# Включение (только для e2e/honest-10 приёмки пакета):
+#   enabled = true
+#   backbone = "models/dinov2-small"                 # тот же снапшот, что gor_gate (md5 ea251be6…)
+#   gate_head = "models/gor_gate/gor_v3_head.npz"     # md5 acb95c52…
+#   head = "models/gor_dense/gor_dense_head.npz"      # bot-5 export_head.py, вариант 'all', весь трейн; md5 e35570e1…
+#   head_md5 = "e35570e10d17edac32bea8d26fa0f5f4"
+#   centre_s = 250.0    # пакет v4: dense_probe на всём трейне (внутр. OOF, top-1 28/49)
+#   + [thresholds_by_markup.gor_dense] gorodishcha = 0.824066   # пакет v4: медиана 10 τ PFnoD fam10 (pkg_gor2.json chosen2)
+#   + [thresholds_by_markup.sp_dfine]
+#     gorodishcha = 1.01      # noD конфигом (спека bot-7); дублирует noD в коде (drop_dfine_classes = ["gorodishcha"]).
+#     Если [thresholds_by_markup.sp_dfine] уже пишет make_on.py — ключ gorodishcha = 1.01 дописать В ТУ таблицу,
+#     второй заголовок [thresholds_by_markup.sp_dfine] = дубль таблицы TOML (ошибка разбора).
+#   + v4 (решение бота 10): городища D-FINE Ae/Or бота 6 — порогом > 1 (TOML главнее thresholds_file):
+#     [thresholds_by_markup.dfine_or] gorodishcha = 1.01 — уже стоит выше (bot-6), не дублировать;
+#   + [thresholds_by_markup.dfine_ae]
+#     gorodishcha = 1.01
+[gor_dense]
+enabled = false
+
+# bot-3 (bots/bot3-aerial-recall): целые копии мозаики в группу ae и дедуп D-FINE между кадрами.
+# Оба выключены: выход как без секции. mosaic_intact не двигает порог маски фортификаций.
+# cross_tif_dedup_m = 0 — не режет. Слияние видов D-FINE как в OOF — отдельный [dfine_ae_tile].
+[ae_recall]
+mosaic_intact = false
+cross_tif_dedup_m = 0
+
+# bot-3 (aerial recall): ослабление порогов ae / li_ae / fusion. По умолчанию ВЫКЛ.
+# LB ae R≈0,013: ae_fort τ≈0,998; li_ae τ≈0,993/1,000001; povr_min=0,99; нет ae-курганной сети.
+# Включение: enabled = true (и при необходимости свои пороги ниже). Честная приёмка —
+# scripts/eval_aerial_honest10.py. D-FINE Ae — отдельно [dfine_aeor]; растры — [raster_fix].
+[ae_recall_relax]
+enabled = false
+# thresholds_by_markup.ae.fortifikatsii = 0.995
+# thresholds_by_markup.li_ae.kurgany_povrezhdennye = 0.95
+# thresholds_by_markup.li_ae.kurgany_tselye = 0.85
+# fusion.povr_min = 0.9
+# fusion.tselye_min = 0.7
+
+# bot-3: Ae D-FINE tiling/fuse aligned to FT OOF. Default OFF. When ON patches [dfine_aeor]
+# (windows_mode=train, fuse=nms). Does not enable dfine_aeor itself.
+# Keys: expds/dfine_ae_tile.py DEFAULTS.
+[dfine_ae_tile]
+enabled = false
+# windows_mode = "train"
+# fuse = "nms"
+# scales = [1.0]
+# budget_s = 120.0
+# bot-2 (Rule P / sat recall 0.25→0.4+): scale sp_* thresholds_by_markup (default OFF).
+# OOF A_max F1-opt already in [thresholds_by_markup.sp_*]; scale<1 → lower thr → more dets.
+# Hypothesis: new dets hit-rate > F1_type/(4-F1_type)≈8.9% → type F1↑. Mock FN: ~28% undetected >200m.
+# Enable only via runner overlay / make_on — not in default submission.
+[sat_thr_relax]
+enabled = false
+# scale = 0.85
+# groups = ["sp_or", "sp_focal", "sp_focal2", "sp_arch"]  # omit sp_dfine until D-FINE has mock TP
+
+# bot-7 sat recall (NOT sat2 / NOT CLOSED 8m cluster / NOT near_kept / NOT sp_large).
+# L1: mid-band thr×scale admitted only if verify_p ≥ verify_floor (precision guard).
+# L2: thr×scale for dets with partner sat group within radius_m (default 16 ≠ CLOSED 8).
+# L3: cross-group NMS dedup (keeps max conf) to cut double-count FP.
+# All default OFF — enable via overlay for honest-10 gate vs B′ 0.315800.
+[sat_band_verify]
+enabled = false
+# scale = 0.90
+# verify_floor = 0.40
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+# no_verify_policy = "reject"   # mid-band without verify_p → drop
+
+[sat_agree_accept]
+enabled = false
+# radius_m = 16.0               # must not be 8.0 (CLOSED sat 8m cluster)
+# scale = 0.85
+# groups = ["sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+
+[sat_cross_nms]
+enabled = false
+# nms_m = 4.0
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+
+# ---------------------------------------------------------------------------
+# bot-4: крупные объекты (>5k м²). По умолчанию ВЫКЛЮЧЕНО — поведение = v4/cbd4804.
+# Включать только вместе с честным замером (honest-10 / по слою): area-aware τ,
+# защита крупного при склейке, ядра только у крупных gor, fort→gor, грубый hillfort.
+# Не путать с отвергнутым bot-2 F1 (отдельные группы под sweep) и F2 (ядра глобально).
+# ---------------------------------------------------------------------------
+[large_objects]
+# Мастер OFF → байт-в-байт cbd4804. Sub-flags независимо false (ablation: enabled=true + один).
+enabled = false
+area_tau = false
+protect_merge = false
+shape_cores = false
+fort_to_gor = false
+coarse_hillfort = false
+# Fix C: абсолютный τ для крупных D-FINE Ae gorodishcha (ae_ortho_diagnosis §3).
+# Gate только ae + gorodishcha (li не трогаем). Нужен stash box_area_m2. OFF по умолчанию.
+# Ожидание +0.005…0.02 LB при dfine_aeor ae; без Ae D-FINE → Δ=0 (LESSONS).
+dfine_ae_gor_area_tau = false
+dfine_ae_gor_tau_large = 0.20
+dfine_ae_gor_classes = ["gorodishcha"]
+dfine_ae_gor_markups = ["ae"]
+dfine_ae_gor_groups = ["dfine_ae", "ae_dfine"]
+min_area_m2 = 5000.0
+tau_relax = 0.15
+tau_floor = 0.05
+classes = ["gorodishcha", "fortifikatsii"]
+fort_to_gor_scale = 0.8
+fort_to_gor_min_conf = 0.5
+fort_to_gor_group = "gor_from_fort"
+coarse_group = "gor_coarse_dem"
+coarse_work_res = 3.0
+coarse_relief_radius_m = 180.0
+coarse_relief_radius_l_m = 300.0
+coarse_max_area_m2 = 200000.0
+# Ужесточено после mock 337a27c ON Δ−0.01629 (вина: coarse +3 FP li/gorodishcha).
+coarse_max_per_dem = 1
+coarse_min_enclosure = 0.35
+coarse_min_rel_height_m = 1.8
+coarse_flat_max_deg = 12.0
+coarse_scarp_min_deg = 18.0
+[large_objects.core]
+frac = 0.35
+min_r_m = 2.0
+
+# Копии крупных fortifikatsii → gorodishcha (sub-flag fort_to_gor). Keep-original-label;
+# копия не добавляется при пересечении с существующим gor. OOF — pc/QUEUE.
+[thresholds_by_markup.gor_from_fort]
+gorodishcha = 0.35
+
+# Грубый hillfort (sub-flag coarse_hillfort). Порог поднят после mock FP.
+[thresholds_by_markup.gor_coarse_dem]
+gorodishcha = 0.55
+# bot-8 (LB focus): per-layer TTA / multiscale for U-Net segmenters. Default OFF:
+# missing [tta]/[ms] -> tta=1, ms_scales=[1.0] (byte-identical to eb268d6).
+# Layers (markup keys): ae (aerial), or (ortho), sp_or (satellite).
+# Priority for LB>0.41238: ae (R=0.013) -> or (R=0.14) -> sp_or (R=0.25).
+# Honest note: ae model is fort-only (ae_fort_mask_r18) at tau~0.998; TTA cannot invent
+# kurgan detections — expect small fort/contour gains unless paired with bot3 thresholds/D-FINE.
+# Budget: base LB wall 3m48s; keep total <=20m (~5x). Prefer TTA=4 on ae/or first, then MS.
+# For PC gate only (not default submit):
+# [tta]
+# ae = 4
+# or = 4
+# sp_or = 4
+# [ms]
+# ae = [0.75, 1.0, 1.25]
+# or = [0.75, 1.0, 1.25]
+# sp_or = [0.75, 1.0, 1.25]
+
+# Кольцо вокруг уже принятого спутникового кургана. Срез 31.10, не полный балл:
+# пол 0.20, 12…80 м на земле, F1 повреждённых 0.533→0.582, целых 0.546→0.609.
+# В сдачу не включать, пока нет честного замера всего стека.
+# [post.near_kept]
+# groups = ["sp_or", "sp_focal", "sp_focal2"]
+# classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+# floor = 0.20
+# min_m = 12.0
+# max_m = 80.0
+
+# Точка городища по токенам всего снимка и замена городищ по вероятности кадра.
+# Выключено: секции нет, pipeline её не вызывает. Включать только после честного замера.
+# [hillfort_loc]
+# enabled = true
+# backbone = "models/dinov3_sat"
+# weights = "models/hillfort_loc.npz"
+# side = 512
+# radius_m = 2.0
+
+# bot-4: Li FN/FP post levers (class_tau floors + self-NMS). Default OFF.
+# Honest s0 cnx OOF (base τ=0.15): class_tau nested ΔF1_li≈+0.118; self_nms@8 ≈+0.003.
+# Не трогает закрытые рычаги (r50c5/WSR/ring/peak-rerank/sp_large). Не геофизика.
+[li_post]
+enabled = false
+class_tau = false
+self_nms = false
+self_nms_m = 8.0
+
+# Абсолютные полы поверх post.apply_thresholds только для li*-группы.
+# Nested-fit median на s0 leave-one-fold (grid ≥0.15). fort/gorod не поднимаем.
+[li_post.class_tau_floor]
+kurgany_povrezhdennye = 0.30
+kurgany_tselye = 0.30

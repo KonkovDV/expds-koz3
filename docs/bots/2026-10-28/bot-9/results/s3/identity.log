@@ -1,4 +1,0 @@
-030_Эсбю Xg (298, 3, 64, 64) sha_numpy 8b444b8c94e2 sha_rust 0de4ff93c51c maxdiff 37 frac_diff 0.03728
-030_Эсбю Xc (460, 3, 64, 64) sha_numpy 7715c873fe44 sha_rust 2995884c985e maxdiff 37 frac_diff 0.03688
-179_Гнёздово_Лесная_1 Xg (186, 3, 64, 64) sha_numpy 13ad0de3246b sha_rust fbcd54931615 maxdiff 13 frac_diff 0.02494
-179_Гнёздово_Лесная_1 Xc (308, 3, 64, 64) sha_numpy 6e0ffc99eb41 sha_rust 33217c0f2124 maxdiff 13 frac_diff 0.02478

@@ -1,0 +1,10 @@
+{
+  "state": "DONE",
+  "elapsed_s": 95.5,
+  "levers_done": [
+    "L1_extremum_snap",
+    "L2_finds_nms",
+    "L3_geo_convex_hull",
+    "ALL"
+  ]
+}

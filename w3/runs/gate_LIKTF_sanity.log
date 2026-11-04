@@ -1,0 +1,8 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+14:08:14 кэш стека meta_5606f42d02724784.json: кластеров 60
+14:08:14 кривые A из кэша curvesA_5606f42d02724784.pkl
+14:08:16 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1264 МБ
+14:08:39 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+14:08:45 V3P honest 0.333787
+14:08:56 rebuild == V3P
+14:09:08 sanity frozen sweep on V3P 0.333787 vs 0.333787

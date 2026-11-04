@@ -44,6 +44,8 @@ class GeoParams:
     plateau_max_m2: float = 60.0    # пятно крупнее — фон, а не аномалия
     peak_density_min: float = 0.0   # finds_points: пиков на 1000 м² карты не меньше; 0 — выключено
     peak_k_min: float = 0.5         # ниже этого порога (в MAD) отсечка не опускается
+    extremum_snap_m: float = 0.0    # finds_points: сдвиг к argmax |detection| в окне; 0 — выкл (bot7-geo-gate)
+    finds_nms_m: float = 0.0        # finds_points: NMS по силе после пиков; 0 — выкл (bot7-geo-gate)
     split: str = "none"             # object_poly: разрезать слипшиеся области водоразделом: "none", "field", "dt"
     split_h: float = 0.1            # "field": глубина седловины в долях poly_k; "dt": в метрах радиуса вписанного круга
     split_res_m: float = 0.1        # сетка разрезания не мельче этой, м
@@ -171,15 +173,32 @@ SIGNALS = ("abs", "asa")
 POLARITIES = ("abs", "pos", "neg")
 
 
-def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.ndarray:
-    """Амплитуда аналитического сигнала √(gx² + gy² + gz²) в единицах MAD самой амплитуды.
+def _near_nodata(hole: np.ndarray, reach: int) -> np.ndarray:
+    """Дырка и пиксели в пределах reach: ближнее поле ступеньки «пусто → ноль»."""
+    if reach <= 0 or not hole.any():
+        return hole
+    h, w = hole.shape
+    pad = np.pad(hole, reach, mode="constant", constant_values=False)
+    out = np.zeros((h, w), dtype=bool)
+    r2 = reach * reach
+    for dr in range(2 * reach + 1):
+        for dc in range(2 * reach + 1):
+            if (dr - reach) ** 2 + (dc - reach) ** 2 <= r2:
+                out |= pad[dr:dr + h, dc:dc + w]
+    return out
 
-    Все производные — в спектре: gx = F⁻¹(i·kx·F), gy = F⁻¹(i·ky·F), gz = F⁻¹(|k|·F)
-    (Nabighian, 1972; Roest et al., 1992). Перед ними поле продолжается вверх на
-    upward_m: множитель e^(−|k|·h) — физический фильтр потенциального поля, без него
-    производные раздувают шум пикселя. Максимум амплитуды стоит над компактным
-    источником при любом наклонении. Пустые пиксели на время преобразования — ноль,
-    на выходе снова NaN.
+
+def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.ndarray:
+    """Амплитуда √(gx² + gy² + gz²) карты в единицах MAD самой амплитуды.
+
+    На вход приходит карта в своих единицах (после robust_z это уже не нТл).
+    Множитель e^(−|k|·h) — тот же, что у продолжения потенциального поля вверх
+    (Nabighian, 1972; Roest et al., 1992): он гасит шум пикселя. kx, ky — рад/м
+    при шаге res в метрах. Знак вертикальной производной не важен: она входит
+    квадратом. Пустые пиксели на время преобразования — ноль. Ноль за краем растра и за
+    дыркой — ступенька, и она даёт ложный пик. Ближнее поле этой ступеньки
+    (радиус продолжения) не входит ни в масштаб, ни в карту пиков. Сданный
+    детектор по модулю этой функции не вызывает.
     """
     finite = np.isfinite(hp)
     f = np.where(finite, hp, 0.0).astype(np.float64)
@@ -194,11 +213,24 @@ def analytic_signal(hp: np.ndarray, res: float, upward_m: float = 0.3) -> np.nda
         return np.fft.irfft2(spec * m, s=(py, px))[:ny, :nx]
 
     amp = np.sqrt(back(1j * kx) ** 2 + back(1j * ky) ** 2 + back(k) ** 2)
-    v = amp[finite]
+    reach = 1
+    if res > 0:
+        reach = max(1, int(np.ceil(max(float(upward_m), 0.0) / float(res))))
+    blind = np.zeros(finite.shape, dtype=bool)
+    if min(ny, nx) <= 2 * reach:
+        blind[:] = True
+    else:
+        blind[:reach, :] = blind[-reach:, :] = True
+        blind[:, :reach] = blind[:, -reach:] = True
+    if not finite.all():
+        blind |= _near_nodata(~finite, reach)
+    trust = finite & ~blind
+    v = amp[trust]
     if v.size:
         med = float(np.median(v))
         mad = float(np.median(np.abs(v - med))) * 1.4826 or 1.0
         amp = (amp - med) / mad
+    amp = np.where(blind, np.nan, amp)
     return np.where(finite, amp, np.nan).astype(np.float32)
 
 
@@ -318,6 +350,63 @@ def density_floor(vals: np.ndarray, floor: float, lo: float, n_target: float) ->
     return float(max(lo, np.sort(vals)[::-1][need - 1]))
 
 
+
+def snap_peaks_to_extremum(rows, cols, vals, mag: np.ndarray, res: float, snap_m: float):
+    """Сдвиг каждого пика к argmax карты обнаружения в окне snap_m (включительно).
+
+    Лечит FN, где пик NMS сел на кромку аномалии, а эталон — в 2–5 м у истинного
+    экстремума (REVIEW_SOTA / REVIEW_ORG_GEO: ~809 FN finds). snap_m ≤ 0 — no-op.
+    """
+    rows = np.asarray(rows); cols = np.asarray(cols); vals = np.asarray(vals, np.float32)
+    if snap_m <= 0 or len(rows) == 0:
+        return rows, cols, vals
+    rad = max(1, int(round(float(snap_m) / res)))
+    h, w = mag.shape
+    out_r = np.empty(len(rows), np.int64)
+    out_c = np.empty(len(cols), np.int64)
+    out_v = np.empty(len(vals), np.float32)
+    finite = np.isfinite(mag)
+    for i, (r0, c0) in enumerate(zip(rows, cols)):
+        r0 = int(r0); c0 = int(c0)
+        r1, r2 = max(0, r0 - rad), min(h, r0 + rad + 1)
+        c1, c2 = max(0, c0 - rad), min(w, c0 + rad + 1)
+        win = mag[r1:r2, c1:c2]
+        mask = finite[r1:r2, c1:c2]
+        if not mask.any():
+            out_r[i], out_c[i], out_v[i] = r0, c0, vals[i]
+            continue
+        # argmax среди конечных; при равенстве — ближайший к исходному пикселю
+        masked = np.where(mask, win, -np.inf)
+        flat = int(np.argmax(masked))
+        br, bc = divmod(flat, masked.shape[1])
+        rr, cc = r1 + br, c1 + bc
+        out_r[i], out_c[i], out_v[i] = rr, cc, float(mag[rr, cc]) if np.isfinite(mag[rr, cc]) else vals[i]
+    return out_r, out_c, out_v
+
+
+def nms_peaks_by_strength(rows, cols, vals, res: float, nms_m: float):
+    """Жадный NMS: сильнейший пик подавляет соседей ближе nms_m. nms_m ≤ 0 — no-op.
+
+    Организаторский baseline: NMS ~1,5 м у finds (REVIEW_ORG_GEO_BASELINES).
+    """
+    rows = np.asarray(rows); cols = np.asarray(cols); vals = np.asarray(vals, np.float32)
+    if nms_m <= 0 or len(rows) == 0:
+        return rows, cols, vals
+    order = np.argsort(vals)[::-1]
+    kept = []
+    suppressed = np.zeros(len(rows), bool)
+    thr_px2 = (float(nms_m) / res) ** 2
+    for i in order:
+        if suppressed[i]:
+            continue
+        kept.append(i)
+        dr = rows.astype(np.float64) - float(rows[i])
+        dc = cols.astype(np.float64) - float(cols[i])
+        suppressed |= (dr * dr + dc * dc) <= thr_px2
+    kept = np.asarray(kept, np.int64)
+    return rows[kept], cols[kept], vals[kept]
+
+
 def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, markup_type: str, source: str,
                p: GeoParams, k_min: float | None = None, raw: np.ndarray | None = None) -> list[dict]:
     """Пики карты обнаружения (detection_image) не ниже k_min (по умолчанию peak_k) → круги finds_points.
@@ -325,6 +414,8 @@ def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     С p.plateau и сырой картой raw пики у пятен насыщения заменяются центрами пятен (plateau_centers).
     С p.peak_density_min отсечка карты с редкими пиками опускается до p.peak_k_min (density_floor).
     При peak_density_min = 0 пики ищутся с прежней отсечкой.
+    С p.extremum_snap_m > 0 пик сдвигается к argmax detection в окне (bot7-geo-gate, default OFF).
+    С p.finds_nms_m > 0 после сдвига — NMS по силе (bot7-geo-gate, default OFF).
     """
     mag = detection_image(hp, res, p.signal)
     floor = p.peak_k if k_min is None else k_min
@@ -339,6 +430,10 @@ def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     if p.plateau and raw is not None:
         rows, cols, vals = with_plateaus(rows, cols, vals, raw, mag, res, radius, floor, p.plateau_max_m2,
                                          p.plateau_min_m2)
+    if getattr(p, "extremum_snap_m", 0.0) > 0:
+        rows, cols, vals = snap_peaks_to_extremum(rows, cols, vals, mag, res, p.extremum_snap_m)
+    if getattr(p, "finds_nms_m", 0.0) > 0:
+        rows, cols, vals = nms_peaks_by_strength(rows, cols, vals, res, p.finds_nms_m)
     xs, ys = pixel_to_xy(tr, rows, cols)
     # флаг batch_circles ([speed], по умолчанию ВЫКЛ.): все круги одним вызовом GEOS/PROJ, побитно те же
     geoms = (circles_3857(xs, ys, p.point_circle_m, crs) if speed.on("batch_circles")

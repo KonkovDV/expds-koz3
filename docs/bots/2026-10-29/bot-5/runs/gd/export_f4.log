@@ -1,6 +1,0 @@
-[1s] tokens 227182 dim 768 files 175 regions 132 tmp/hf/hub/models--facebook--dinov2-small/snapshots/ed25f3a31f01632728cabb09d1542f84ab7b0056/ [2.0, 4.0]
-[1s] frame prior: pos tokens dist to frame centre m q50/q90 [212.5, 487.5] edge share of neg 0.71
-[1s] token labels {0: 219182, -1: 5760, 1: 2240} regions with pos tokens 49
-{"variant": "all", "dout": "/workspace/koz3_shared/bot-5/analysis/gor_dense", "layout": "fam10", "fold": 4, "held": ["009_Хальвасборген", "011_Эрентуна", "013_Нора_Виннон", "025_Вышенское", "033_Елизаветинское", "062_Каменка", "070_Архангельское", "071_Сторожевое", "081_Костомаровское", "084_Булан_Соготту", "110_Саратов", "186_Семибратнее_1", "189_Макеево", "201_Семибратнее_Городище_1", "202_Семибратнее_Городище_2", "203_Семибратнее_Городище_3", "204_Семибратнее_Городище_4", "205_Семибратнее_Городище_5", "206_Семибратнее_Городище_6", "207_Семибратнее_Городище_7"], "n_train_tokens": 212248, "n_regions": 125, "hn_log": {"fits": 1, "hard_neg": 200, "neg": 20000}, "centre_s": 250.0, "max_abs_diff_headp_vs_probe": 0.0, "out": "work/gd/heads/fam10_f4_head.npz", "md5": "cc04ff397178f3a30ba7784eb9e3292b", "bytes": 204984}
-
-WATCH rc 0 elapsed_s 5.6 peak_rss_mb 966

@@ -3,7 +3,8 @@ import json
 
 import numpy as np
 import pytest
-import torch
+
+torch = pytest.importorskip("torch")  # W4: окружение без torch — skip, а не ошибка сбора
 from shapely.geometry import LineString, Point
 
 from expds.centers import focal_center_loss, gaussians_from_binary, small_component_weights
@@ -35,6 +36,21 @@ def test_small_weight_rejected_for_mask_target(tmp_path):
     (tmp_path / "meta.json").write_text(json.dumps({"classes": ["kurgany_tselye"], "channels": 3}), encoding="utf-8")
     with pytest.raises(ValueError, match="target=centers"):
         train(str(tmp_path), str(tmp_path / "m.pt"), target="mask", small_object_weight=2.0)
+
+
+def test_within_site_rank_rejected_outside_focal_centers(tmp_path):
+    from expds.train import train
+
+    (tmp_path / "meta.json").write_text(json.dumps({"classes": ["kurgany_tselye"], "channels": 3}), encoding="utf-8")
+    with pytest.raises(ValueError, match="фокальной"):
+        train(str(tmp_path), str(tmp_path / "m.pt"), target="mask", within_site_rank=1.0)
+
+
+def test_missing_init_weights_stop_before_training(tmp_path):
+    from expds.train import train
+
+    with pytest.raises(FileNotFoundError):
+        train(str(tmp_path), str(tmp_path / "m.pt"), init_weights=str(tmp_path / "no_such.pt"))
 
 
 def test_elastic_keeps_a_mound_in_one_piece():

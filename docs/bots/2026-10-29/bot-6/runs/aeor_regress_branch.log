@@ -1,9 +1,0 @@
-........................................................................ [ 51%]
-...................................................................      [100%]
-=============================== warnings summary ===============================
-tests/test_platform_robustness.py::test_gcp_and_degree_rasters_are_read_in_metres
-  /workspace/koz3_shared/bot-8/venv/lib/python3.12/site-packages/rasterio/__init__.py:377: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
-    dataset = writer(
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-139 passed, 1 warning in 50.74s

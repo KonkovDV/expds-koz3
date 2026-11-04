@@ -42,6 +42,10 @@ LEGACY_DEM = {"res": 0.1, "fill": "delaunay"}
 TAGS = ("c", "ch", "g", "i")
 #: Каналы модели li, построенные из LAS (relief_channels). Не зависят от освещения.
 RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
+#: Набор для крупных контуров под лесом: локальный рельеф, уклон, отмывка, шероховатость,
+#: кривизна. Отмывка — не производная поверхности и зависит от солнца. Высота заменена
+#: локальным рельефом: сырая высота тащит макрорельеф. В сданные веса не входит.
+ENCLOSURE_TAGS = ("lrm_l", "slope", "g", "rough", "curv")
 #: Радиусы окна локального рельефа (м) и шкалы перевода в uint8.
 #: opns, svf — положительная открытость и фактор вида на небо: луч opns_r_m, opns_dirs направлений,
 #: линейная шкала в пределах *_range (1–99 перцентили на шаге 0,5 м по четырём участкам трейна).
@@ -89,7 +93,7 @@ def _fill_by_delaunay(dem: np.ndarray, valid: np.ndarray, to_fill: np.ndarray,
     if n <= DEFAULTS["max_vertices_rust"]:
         tin = accel.fill_tin(dem)
         if tin is not None:
-            return np.where(to_fill, tin, dem).astype(np.float32)
+            return np.where(to_fill, tin, dem).astype(np.float32, copy=False)
     if n > max_vertices:
         return None
     try:
@@ -131,7 +135,69 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
     unresolved = to_fill & ~np.isfinite(filled)
     if unresolved.any():
         filled = np.where(unresolved, accel.fill_pyramid(filled), filled)
-    return filled.astype(np.float32)
+    return filled.astype(np.float32, copy=False)
+
+
+LOWVEG_FILL = "tin_lowveg"   # P-W2-10: lidar.dem_fill="tin_lowveg"; по умолчанию "delaunay" (как было)
+LOWVEG = dict(classes=(1, 3), parent_m=0.5, open_r_m=1.5, dz_lo=-0.5, dz_hi=3.0)
+
+
+def fill_lowveg(dem: np.ndarray, las_path: str | Path, info: dict, max_pixels: int = DEFAULTS["max_pixels"],
+                ground_class: int = 2, base: str = "delaunay", p: dict = LOWVEG) -> tuple[np.ndarray, dict]:
+    """Дыры класса 2 → вершины из нижних отражений классов 1/3 (P-W2-10, PREREG_W2_cnx.md).
+
+    N = поклеточный min средних z классов 1 и 3 на сетке DEM; Lmin — min N в родителе 0,5 м; Lo — серое открытие Lmin
+    диском r=1,5 м. Родитель без точек класса 2 с −0,5 ≤ Lo − T0 ≤ +3 м (T0 — обычная заливка base) даёт вершину Lo
+    в центральной ячейке DEM внутри оболочки; затем та же fill_interior_holes(base). Без классов 1/3 — как base.
+    """
+    from scipy import ndimage as ndi
+
+    res = float(info["res"])
+    t0 = fill_interior_holes(dem, method=base)
+    low = None
+    for c in p["classes"]:
+        g, gi = accel.las_grid(las_path, res, int(c), max_pixels)
+        if g.shape != dem.shape or abs(float(gi["res"]) - res) > 1e-9:
+            raise RuntimeError(f"lowveg: сетка класса {c} {g.shape}@{gi['res']} ≠ DEM {dem.shape}@{res}")
+        low = g if low is None else np.fmin(low, g)
+    stats = dict(n_accept=0, n_parent_holes=0, params=dict(p, classes=list(p["classes"])))
+    if low is None or not np.isfinite(low).any():
+        return t0, stats
+    h, w = dem.shape
+    pm = float(p["parent_m"])
+    ri = np.minimum(((np.arange(h) + 0.5) * res // pm).astype(np.int64), int(h * res // pm + 1))
+    ci = np.minimum(((np.arange(w) + 0.5) * res // pm).astype(np.int64), int(w * res // pm + 1))
+    ph, pw = int(ri.max()) + 1, int(ci.max()) + 1
+    lmin = np.full((ph, pw), np.inf, np.float32)
+    hasg = np.zeros((ph, pw), bool)
+    for r0 in range(0, h, 2048):  # построчными блоками: без копии сетки на int64
+        sl = slice(r0, min(h, r0 + 2048))
+        R = np.broadcast_to(ri[sl, None], (sl.stop - sl.start, w)).ravel()
+        C = np.broadcast_to(ci[None, :], (sl.stop - sl.start, w)).ravel()
+        lv = low[sl].ravel(); fin = np.isfinite(lv)
+        np.minimum.at(lmin, (R[fin], C[fin]), lv[fin])
+        gv = np.isfinite(dem[sl]).ravel()
+        hasg[R[gv], C[gv]] = True
+    rad = int(round(p["open_r_m"] / pm))
+    yy, xx = np.mgrid[-rad:rad + 1, -rad:rad + 1]
+    disk = (yy * yy + xx * xx) <= rad * rad
+    lo = ndi.grey_opening(lmin, footprint=disk, mode="nearest")
+    lo[~np.isfinite(lmin)] = np.inf
+    # центральная ячейка DEM каждого родителя
+    cr = np.minimum(((np.arange(ph) + 0.5) * pm / res).astype(np.int64), h - 1)
+    cc = np.minimum(((np.arange(pw) + 0.5) * pm / res).astype(np.int64), w - 1)
+    CR, CC = np.meshgrid(cr, cc, indexing="ij")
+    t0c = t0[CR, CC]
+    dz = lo - t0c
+    ok = (~hasg) & np.isfinite(lo) & np.isfinite(t0c) & (dz >= p["dz_lo"]) & (dz <= p["dz_hi"]) & ~np.isfinite(dem[CR, CC])
+    stats.update(n_parent_holes=int((~hasg & np.isfinite(t0c)).sum()), n_accept=int(ok.sum()),
+                 n_lowveg_parents=int((~hasg & np.isfinite(lo) & np.isfinite(t0c)).sum()),
+                 dz_accept_med=float(np.median(dz[ok])) if ok.any() else None)
+    if not ok.any():
+        return t0, stats
+    d2 = dem.copy()
+    d2[CR[ok], CC[ok]] = lo[ok]
+    return fill_interior_holes(d2, method=base), stats
 
 
 def thin_keep(name: str, seed: int = 0) -> float:
@@ -149,22 +215,39 @@ def thin_keep(name: str, seed: int = 0) -> float:
 def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
               max_pixels: int = DEFAULTS["max_pixels"], ground_class: int = DEFAULTS["ground_class"],
               crs: str | None = None, fill: str = "delaunay", keep_prob: float = 1.0) -> Dem:
-    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill)."""
-    t0 = time.perf_counter()
-    dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
-    t1 = time.perf_counter()
-    holes = int(np.count_nonzero(~np.isfinite(dem)))
-    dem = fill_interior_holes(dem, method=fill)
-    t2 = time.perf_counter()
-    info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
-                backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
-    if crs is None:
-        from .crs import las_crs
+    """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill).
 
-        crs = las_crs(las_path)
-    log.info("DEM %s: %dx%d @ %.3g м, точек %s, пустот %d, %s", Path(las_path).name,
-             dem.shape[1], dem.shape[0], info["res"], info["points_used"], holes, info["backend"])
-    return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=crs, info=info)
+    При EXPDS_DEM_DISK_CACHE=/каталог (или [speed] dem_disk_cache) сетка читается/пишется
+    на диск — между прогонами gate/A-B на тех же LAS без пересчёта; выход побайтно тот же.
+    """
+    from . import demcache
+
+    params = {"res": float(res), "max_pixels": int(max_pixels), "ground_class": int(ground_class),
+              "fill": str(fill), "keep_prob": float(keep_prob), "crs": crs}
+
+    def _build() -> Dem:
+        t0 = time.perf_counter()
+        dem, info = accel.las_grid(las_path, res, ground_class, max_pixels, keep_prob=keep_prob)
+        t1 = time.perf_counter()
+        holes = int(np.count_nonzero(~np.isfinite(dem)))
+        if fill == LOWVEG_FILL:
+            dem, lv = fill_lowveg(dem, las_path, info, max_pixels, ground_class)
+            info = dict(info, lowveg=lv)
+        else:
+            dem = fill_interior_holes(dem, method=fill)
+        t2 = time.perf_counter()
+        info = dict(info, holes=holes, t_grid_s=round(t1 - t0, 2), t_fill_s=round(t2 - t1, 2),
+                    backend=accel.backend(), las_path=str(las_path), ground_class=ground_class)
+        out_crs = crs
+        if out_crs is None:
+            from .crs import las_crs
+
+            out_crs = las_crs(las_path)
+        log.info("DEM %s: %dx%d @ %.3g м, точек %s, пустот %d, %s", Path(las_path).name,
+                 dem.shape[1], dem.shape[0], info["res"], info["points_used"], holes, info["backend"])
+        return Dem(dem=dem, left=info["left"], top=info["top"], res=info["res"], crs=out_crs, info=info)
+
+    return demcache.wrap_build("build_dem", las_path, params, _build, Dem)
 
 
 def would_coarsen(las_path: str | Path, res: float, max_pixels: int) -> bool:
@@ -203,6 +286,27 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
     середина, усреднённая до 0,5 м. Файл читается один раз. В конфиг не включено:
     на 24 грубых облаках это ещё не проверено официальной метрикой.
     """
+    from . import demcache
+
+    params = {"res": float(res), "work_res": float(work_res), "tile_m": float(tile_m),
+              "halo_m": float(halo_m), "ground_class": int(ground_class), "fill": str(fill),
+              "crs": crs}
+    cache_dir = demcache.resolve_dir()
+    if cache_dir is not None:
+        try:
+            key = demcache.key_for("build_dem_mosaic", las_path, **params)
+            hit = demcache.load(cache_dir, key)
+        except OSError:
+            hit = None
+            key = None
+        if hit is not None:
+            dem_arr, meta = hit
+            info = dict(meta.get("info") or {}, dem_cache="hit")
+            return Dem(dem=dem_arr, left=float(meta["left"]), top=float(meta["top"]),
+                       res=float(meta["res"]), crs=meta.get("crs"), info=info)
+    else:
+        key = None
+
     import laspy
 
     from .accel import grid_spec
@@ -323,7 +427,13 @@ def build_dem_mosaic(las_path: str | Path, res: float = 0.1, work_res: float = 0
         crs = las_crs(las_path)
     info = dict(spec, res=work_res, factor=1, tiled=True, fine_res=res,
                 width=out_w, height=out_h, used_all=use_all, las_path=str(las_path), ground_class=ground_class)
-    return Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+    out = Dem(dem=mosaic, left=spec["left"], top=spec["top"], res=work_res, crs=crs, info=info)
+    if cache_dir is not None and key is not None:
+        meta = {"left": float(out.left), "top": float(out.top), "res": float(out.res), "crs": out.crs,
+                "info": {k: out.info[k] for k in out.info if demcache._jsonable(out.info[k])}}
+        demcache.save(cache_dir, key, out.dem, meta)
+        out.info = dict(out.info, dem_cache="miss")
+    return out
 
 
 # Готовые сетки остаются до конца прогона: канал σ читает тот же DEM, что и основной лидар.
@@ -410,8 +520,42 @@ def dem_params(meta: dict | None = None, cfg: dict | None = None) -> dict:
     return {"res": float(lid.get("dem_res", MODEL_DEM["res"])), "fill": lid.get("dem_fill", MODEL_DEM["fill"])}
 
 
+HILLSHADE_STYLES = ("vendor", "li_match")
+
+
+def _hillshade_li_match(filled: np.ndarray, res: float) -> np.ndarray:
+    """CI2-8 (W2 T3, notes/w2/ci2_8/SUMMARY.md): отмывка ближе к Li_g организаторов —
+    Horn 3×3 по DEM, сглаженному гауссом σ=1 px; ESRI 315/45/z1. MAE к Li_g 2,4–4,6 против 3,1–6,1 у vendor."""
+    import math
+    from scipy import ndimage as ndi
+
+    z = ndi.gaussian_filter(np.asarray(filled, np.float32), 1.0)
+    k = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]], np.float32) / (8.0 * res)
+    gx = -ndi.correlate(z, k, mode="nearest")
+    gy = ndi.correlate(z, k.T, mode="nearest")
+    slope = np.arctan(np.hypot(gx, gy))
+    aspect = np.arctan2(-gx, -gy)
+    # 45° здесь — угол от зенита (90° − высота солнца 45°), как в accel.hillshade.
+    # Азимут 315° — свет с северо-запада, картографический, не полуденное солнце с юга.
+    altitude, azimuth = 45.0, 315.0
+    zen, az = math.radians(90.0 - altitude), math.radians(azimuth)
+    shade = 255.0 * (math.cos(zen) * np.cos(slope) + math.sin(zen) * np.sin(slope) * np.cos(az - aspect))
+    return np.rint(np.clip(shade, 0.0, 255.0)).astype(np.uint8)
+
+
+def hillshade_for(cfg: dict | None):
+    """hillshade_set с lidar.hillshade_style из конфига (по умолчанию "vendor" — как было)."""
+    style = str(((cfg or {}).get("lidar", {}) or {}).get("hillshade_style", "vendor"))
+    if style not in HILLSHADE_STYLES:
+        raise ValueError(f"lidar.hillshade_style={style!r}, ожидается одно из {HILLSHADE_STYLES}")
+    if style == "vendor":
+        return hillshade_set
+    import functools
+    return functools.partial(hillshade_set, style=style)
+
+
 def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
-                  cycles_ch: float | None = None) -> dict[str, np.ndarray]:
+                  cycles_ch: float | None = None, style: str = "vendor") -> dict[str, np.ndarray]:
     """Отмывки по DEM: g, i — H×W uint8 (nodata 255); c, ch — 3×H×W uint8 (nodata 0)."""
     valid = np.isfinite(d.dem)
     if not valid.any():
@@ -419,16 +563,26 @@ def hillshade_set(d: Dem, tags=TAGS, cycles_c: float = DEFAULTS["cycles_c"],
     z_min = float(np.nanmin(d.dem))
     z_max = float(np.nanmax(d.dem))
     z_range = max(z_max - z_min, 1e-9)
-    filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32)
+    filled = np.where(valid, d.dem, np.float32(z_min)).astype(np.float32, copy=False)
+    # Для уклона отмывки дырка — не колодец до минимума всей съёмки: ближайшая
+    # измеренная высота. Цветная шкала по-прежнему считает диапазон по съёмке.
+    shade_src = filled
+    if (~valid).any():
+        from scipy.ndimage import distance_transform_edt
+
+        nearest = distance_transform_edt(~valid, return_distances=False, return_indices=True)
+        shade_src = np.asarray(d.dem, np.float32)[tuple(nearest)]
     out: dict[str, np.ndarray] = {}
     if "g" in tags or "i" in tags:
-        shade = accel.hillshade(filled, d.res, d.res)
+        shade = (_hillshade_li_match(shade_src, d.res) if style == "li_match"
+                 else accel.hillshade(shade_src, d.res, d.res))
         if "g" in tags:
             g = shade.copy()
             g[~valid] = 255
             out["g"] = g
         if "i" in tags:
-            i = (255 - shade.astype(np.int16)).astype(np.uint8)
+            # Li организаторов: g + i = 253 (CI2-8), у vendor 255
+            i = np.clip((253 if style == "li_match" else 255) - shade.astype(np.int16), 0, 255).astype(np.uint8)
             i[~valid] = 255
             out["i"] = i
     cycles = {"c": float(cycles_c),
@@ -569,18 +723,21 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
+    # Пустые ячейки перед уклоном и отмывкой заменяются средней высотой. У края дырки
+    # это ложный обрыв, и он уже в сданных весах: кэш тайлов и инференс идут сюда же.
+    # Отсев slope_gate эту заливку не повторяет и сеть не кормит.
     mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
-    filled = np.where(valid, z, mean).astype(np.float32)
+    filled = np.where(valid, z, mean).astype(np.float32, copy=False)
     out = []
     opn_svf = None
     for t in tags:
         if t in ("lrm_s", "lrm_l", "lrm_xl"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
-            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius)
             unit = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF[f"{t}_clip_m"], -1, 1) * 0.5 + 0.5
         elif t in ("dev_s", "dev_l", "dev_xl"):
             radius = max(1, round(RELIEF[f"{t}_m"] / step))
-            dev = accel.local_dev(np.where(valid, z, np.nan).astype(np.float32), radius,
+            dev = accel.local_dev(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius,
                                   float(RELIEF["dev_std_floor_m"]))
             unit = np.clip(np.nan_to_num(dev, nan=0.0) / RELIEF["dev_clip"], -1, 1) * 0.5 + 0.5
         elif t == "slope":
@@ -603,7 +760,7 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
         elif t == "prod":
             slope_u = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
             radius = max(1, round(RELIEF["lrm_s_m"] / step))
-            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32), radius)
+            lr = accel.local_relief(np.where(valid, z, np.nan).astype(np.float32, copy=False), radius)
             lr_u = np.clip(np.nan_to_num(lr, nan=0.0) / RELIEF["lrm_s_clip_m"], -1, 1) * 0.5 + 0.5
             unit = np.clip(slope_u * lr_u, 0, 1)
         elif t == "ndi":

@@ -46,6 +46,9 @@ class FusionParams:
     register_res_m: float = 1.0
     register_max_m: float = 15.0
     register_radius_m: float = 5.0
+    # [ae_recall] mosaic_intact: целые копии мозаики/грубой сетки (группа li_ae, порог 1.000001)
+    # пишутся в группу ae (порог 0.802255). Повреждённые остаются li_ae. По умолчанию выкл.
+    mosaic_intact: bool = False
 
 
 @lru_cache(maxsize=32)
@@ -121,11 +124,13 @@ def li_to_ae(feats: list[dict], rasters: list, p: FusionParams | None = None,
         pt = g[TSEL]["confidence"] if TSEL in g else 0.0
         base = next(iter(g.values()))
         group = COPY_GROUP[base.get("threshold_group")]
+        # Целые копии li_ae при пороге 1.000001 не проходят никогда. Флаг переносит только их в ae.
+        intact_group = "ae" if p.mosaic_intact and group == "li_ae" else group
         if pp >= p.povr_min:
             out.append(dict(base, class_name=POVR, confidence=float(pp), markup_type="ae", threshold_group=group))
         if pp + pt >= p.tselye_min:
             out.append(dict(base, class_name=TSEL, confidence=float(min(pp + pt, 1.0)), markup_type="ae",
-                            threshold_group=group))
+                            threshold_group=intact_group))
     if p.register and out:
         out = registered(out, groups, rasters, p, fallback_crs)
     return out

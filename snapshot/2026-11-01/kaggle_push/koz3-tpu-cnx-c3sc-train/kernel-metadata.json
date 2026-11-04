@@ -1,0 +1,24 @@
+{
+  "id": "dmitrijkv/koz3-tpu-cnx-c3sc-train",
+  "title": "koz3-tpu-cnx-c3sc-train",
+  "code_file": "koz3-tpu-cnx-c3sc-train.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": true,
+  "enable_internet": true,
+  "keywords": [
+    "tpu"
+  ],
+  "dataset_sources": [
+    "dmitrijkv/koz3-s3-cred"
+  ],
+  "kernel_sources": [
+    "dmitrijkv/koz3-cnx-li-prep"
+  ],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "",
+  "machine_shape": "TpuV5E8"
+}

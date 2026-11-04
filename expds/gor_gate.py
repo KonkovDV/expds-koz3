@@ -12,7 +12,6 @@ max p(городище) по всем виньеткам 384 м (шаг 192 м, 
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 import math
 import time
@@ -121,12 +120,12 @@ def _rename(k: str) -> str:
 
 def load_backbone(st: dict, root: Path, device):
     """Dinov2Model из config.json + model.safetensors, без хаба (как load_models D-FINE)."""
-    import torch
+    import torch  # noqa: F401 — torch нужен safetensors.torch; без него ImportError здесь, а не глубже
     from safetensors.torch import load_file
 
-    from .sp_dfine import _vendor_path
+    from .sp_dfine import import_dfine
 
-    _vendor_path(root)
+    import_dfine(root)   # тот же закреплённый transformers 5.21.0 (вендор → env той же версии), иначе ImportError
     from transformers import Dinov2Config, Dinov2Model
 
     d = _p(root, st["backbone"])
@@ -226,6 +225,10 @@ def _epsg(reg) -> int | None:
     from .catalog import read_utm_json
 
     c = read_utm_json(getattr(reg, "utm_json", None))
+    paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
+    if c and paths:   # bot-6 crsfix: географическая CRS UTM.json (008_Герите, 4326) → зона UTM по центру растра
+        from .sp_dfine import utm_for
+        c = utm_for(Path(paths[0]), c)
     try:
         return int(str(c).split(":")[-1]) if c else None
     except ValueError:
@@ -240,6 +243,8 @@ def apply(feats: list[dict], regions: dict, cfg: dict, root: Path, guard=None, s
     miss = missing_artifacts(cfg, root)
     if miss:
         log.warning("gor_gate: нет артефактов (%s) — шлюз городищ не применён", "; ".join(miss))
+        from . import degraded
+        degraded.mark("gor_gate", "нет артефактов: " + "; ".join(miss))
         return feats
     st = settings(cfg)
     targets = sorted({f.get("region_name") for f in feats if is_gated_target(f)} & set(regions))
@@ -252,7 +257,9 @@ def apply(feats: list[dict], regions: dict, cfg: dict, root: Path, guard=None, s
         dev = _device(st)
         model = load_backbone(st, root, dev)
     except Exception:
-        log.exception("gor_gate: голова/бэкбон не загружены — шлюз не применён")
+        log.exception("GOR_GATE_UNAVAILABLE: голова/бэкбон не загружены — шлюз не применён, выдача как v2")
+        from . import degraded
+        degraded.mark("gor_gate", "GOR_GATE_UNAVAILABLE: голова/бэкбон не загружены")
         return feats
     keep = (lambda: guard.ok(30)) if guard is not None else (lambda: True)
     region_p: dict[str, float] = {}

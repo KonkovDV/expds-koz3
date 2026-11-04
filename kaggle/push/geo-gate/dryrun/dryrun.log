@@ -1,0 +1,13 @@
+[      0s] HERE local package /workspace/kaggle/push/geo-gate
+[      0s] w5base /workspace/kaggle/push/geo-gate/dryrun/kaggle/input/koz3-w2-gate/w5base
+[      0s] B′ config: Ae-ON flags-off honest-10 = 0.315800 (PLAN_STICKY/HANDOFF; stack_arch+Ae → prep → gate_v6c; artifact bprime_counts.pkl). A=0.314615 = stack_arch without Ae bump.
+[      0s] vs A /workspace/kaggle/push/geo-gate/dryrun/kaggle/input/koz3-w2-gate/w5base/base_counts.pkl ref 0.314615
+[      0s] gate baseline boot 50
+[      0s] baseline score 0.0 ref 0.314615 B′ 0.3158
+[      0s] DRYRUN: skip B′ ±tol check (synthetic stack)
+[      0s] L3 apply {'n_in': 3, 'n_hull': 1, 'n_skip': 0, 'markups': ['etgr', 'terfl'], 'lever': 'L3_geo_convex_hull'}
+[      1s] gate L3 boot 50
+[      1s] L3 score 0.0 Δ 0.0 P 0.0
+[      1s] SKIPPED L1_extremum_snap (GEO_GATE_REINFER!=1)
+[      1s] SKIPPED L2_finds_nms (GEO_GATE_REINFER!=1)
+[      1s] DONE verdict {'L3_pass': False, 'L3_delta': 0.0, 'L3_p_gt0': 0.0, 'baseline_score': 0.0, 'baseline_vs_bprime': -0.3158, 'reinfer': False, 'criterion': 'Δ≥0.003, p_gt0≥0.9, damaged not worse'}

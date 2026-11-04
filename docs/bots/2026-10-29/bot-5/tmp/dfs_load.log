@@ -1,4 +1,0 @@
-Loading weights:   0%|          | 0/764 [00:00<?, ?it/s]Loading weights: 100%|██████████| 764/764 [00:00<00:00, 20461.72it/s]
-model ustc-community/dfine-large-coco params 10.2M device cpu build 7.2s rss 406MB
-{"build_s": 7.194027423858643, "params_M": 10.213305, "pred_s": 4.429915904998779, "pred_images": 4, "pred_boxes": 400, "peak_rss_MB": 592.36328125, "total_s": 11.63035273551941, "model": "ustc-community/dfine-large-coco", "size": 256, "device": "cpu", "smoke": false, "dry_run": false, "torch": "2.15.0+cpu"}
-exit 0 watchdog_max_rss_MB 543

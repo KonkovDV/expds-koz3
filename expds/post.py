@@ -14,9 +14,13 @@
 from __future__ import annotations
 
 import math
+import os
+
+import numpy as np
 from collections import defaultdict
 
 from shapely.geometry import Polygon
+import shapely
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import polylabel, unary_union
 from shapely.strtree import STRtree
@@ -57,13 +61,28 @@ def merge_across_sources(items: list[dict], source_key: str = "source") -> list[
             a = parent[a]
         return a
 
-    for i, g in enumerate(geoms):
-        for j in tree.query(g):
-            j = int(j)
-            if j <= i or items[j].get(source_key) == items[i].get(source_key):
-                continue
-            if g.intersection(geoms[j]).area > 0:
-                parent[find(i)] = find(j)
+    if os.environ.get("EXPDS_POST_FAST", "1") != "0":
+        # w0: один пакетный запрос к STRtree и площади пересечений массивом; состав групп тот же
+        # (порядок объединений не влияет на выход: группы идут по наименьшему номеру, лучший — max conf).
+        arr = np.array(geoms, dtype=object)
+        ii, jj = tree.query(arr)
+        m = jj > ii
+        ii, jj = ii[m], jj[m]
+        src = [it.get(source_key) for it in items]
+        m = np.fromiter((src[a] != src[b] for a, b in zip(ii.tolist(), jj.tolist())), bool, len(ii))
+        ii, jj = ii[m], jj[m]
+        if len(ii):
+            hit = shapely.area(shapely.intersection(arr[ii], arr[jj])) > 0
+            for a, b in zip(ii[hit].tolist(), jj[hit].tolist()):
+                parent[find(a)] = find(b)
+    else:
+        for i, g in enumerate(geoms):
+            for j in tree.query(g):
+                j = int(j)
+                if j <= i or items[j].get(source_key) == items[i].get(source_key):
+                    continue
+                if g.intersection(geoms[j]).area > 0:
+                    parent[find(i)] = find(j)
     groups: dict[int, list[int]] = defaultdict(list)
     for i in range(len(items)):
         groups[find(i)].append(i)
@@ -96,16 +115,25 @@ def _repaired(feat: dict) -> dict | None:
     return feat
 
 
-def merge_within_markup(feats: list[dict]) -> list[dict]:
+#: bot-6: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
+ISOLATED_GROUPS = ("dfine_ae", "dfine_or")
+
+
+def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict]:
     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
 
     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
+    bot-6: у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
+    с dfine_ae (не с прочими ae). У остальных четвёртый элемент ключа None — их группы как в v3.
     """
+    iso = set(isolate or ())
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for raw in feats:
         feat = _repaired(raw)
         if feat is not None:
-            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"])].append(feat)
+            tg = feat.get("threshold_group")
+            groups[(feat.get("region_name"), feat.get("markup_type"), feat["class_name"],
+                    tg if tg in iso else None)].append(feat)
     out = []
     for key, items in groups.items():
         out.extend(items if key[1] == "etgr" else merge_across_sources(items))
@@ -113,7 +141,8 @@ def merge_within_markup(feats: list[dict]) -> list[dict]:
 
 
 def _vertex_count(geom: BaseGeometry) -> int:
-    return len(geom.exterior.coords) + sum(len(r.coords) for r in geom.interiors)
+    # w0: то же число, что len(exterior.coords)+Σlen(interiors.coords), но в GEOS без копии координат (×20)
+    return int(shapely.get_num_coordinates(geom))
 
 
 def limit_vertices(geom: BaseGeometry, max_vertices: int = MAX_VERTICES) -> BaseGeometry:
@@ -168,7 +197,37 @@ def convex_hull_object_poly(feats: list[dict], spec=None) -> list[dict]:
 
 
 def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:
-    """Валидные отдельные Polygon с допустимым числом вершин."""
+    """Валидные отдельные Polygon с допустимым числом вершин.
+
+    w0: векторный путь shapely 2 (is_valid/area/num_coords массивом); результат тот же, что у
+    finalize_ref (tests/test_w0_post_fast.py). EXPDS_POST_FAST=0 — старый поэлементный путь.
+    """
+    if os.environ.get("EXPDS_POST_FAST", "1") == "0" or not feats:
+        return finalize_ref(feats, min_area)
+    geoms = np.array([f["geom"] for f in feats], dtype=object)
+    bad = ~shapely.is_valid(geoms)
+    if bad.any():
+        geoms[bad] = shapely.make_valid(geoms[bad])
+    simple = shapely.get_type_id(geoms) == 3          # Polygon: polygons_of(g) == [g], если не пустой
+    empty = shapely.is_empty(geoms)
+    area = shapely.area(geoms)
+    nv = shapely.get_num_coordinates(geoms)
+    out = []
+    for f, g, s_, e, a, n in zip(feats, geoms, simple, empty, area, nv):
+        if s_:
+            if e or a < min_area:
+                continue
+            out.append(dict(f, geom=g if n < MAX_VERTICES else limit_vertices(g)))
+            continue
+        for part in polygons_of(g):
+            if part.area < min_area:
+                continue
+            out.append(dict(f, geom=limit_vertices(part)))
+    return out
+
+
+def finalize_ref(feats: list[dict], min_area: float = 0.01) -> list[dict]:
+    """Эталон finalize (до w0): поэлементно."""
     out = []
     for f in feats:
         g = f["geom"]
@@ -178,6 +237,52 @@ def finalize(feats: list[dict], min_area: float = 0.01) -> list[dict]:
             if part.area < min_area:
                 continue
             out.append(dict(f, geom=limit_vertices(part)))
+    return out
+
+
+def _pair_ground_m(a, b) -> float:
+    """Расстояние на земле между точками EPSG:3857."""
+    return float(a.distance(b)) * _ground_scale((a.y + b.y) / 2.0)
+
+
+def rescue_near_kept(feats: list[dict], thresholds: dict[str, float], by_markup: dict | None,
+                      spec: dict | None = None, default: float = 0.15) -> list[dict]:
+    """Поднимает уверенность кургана до порога, если он в кольце вокруг уже принятого.
+
+    Пик внутри эталона часто ниже порога, а дальнее поле ещё ниже. Кольцо вокруг
+    круга, который порог уже пропускает, забирает соседей по могильнику и не
+    берёт одиночные круги в поле. На срезе спутника 31.10 (не полный балл):
+    пол 0.20, кольцо 12…80 м на земле, F1 повреждённых 0.533→0.582, целых
+    0.546→0.609. В default.toml секции нет.
+    """
+    spec = spec or {}
+    groups = set(spec.get("groups") or ("sp_or", "sp_focal", "sp_focal2"))
+    classes = set(spec.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye"))
+    floor = float(spec.get("floor", 0.20))
+    min_m = float(spec.get("min_m", 12.0))
+    max_m = float(spec.get("max_m", 80.0))
+    tau = threshold_fn(thresholds, default, by_markup)
+    buckets: dict[tuple, list[int]] = defaultdict(list)
+    centres: list = []
+    for i, feat in enumerate(feats):
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        geom = feat.get("geom")
+        centre = None if geom is None or geom.is_empty else geom.centroid
+        centres.append(None if centre is None or centre.is_empty else centre)
+        if centre is not None and not centre.is_empty and group in groups and feat.get("class_name") in classes:
+            buckets[(feat.get("region_name"), group, feat["class_name"])].append(i)
+    out = list(feats)
+    for idx in buckets.values():
+        limit = tau(feats[idx[0]])
+        anchors = [centres[i] for i in idx if centres[i] is not None and float(feats[i].get("confidence") or 0) >= limit]
+        if not anchors:
+            continue
+        for i in idx:
+            conf = float(feats[i].get("confidence") or 0)
+            if conf < floor or conf >= limit or centres[i] is None:
+                continue
+            if any(min_m < _pair_ground_m(centres[i], anchor) <= max_m for anchor in anchors):
+                out[i] = dict(feats[i], confidence=limit)
     return out
 
 
@@ -203,6 +308,44 @@ def threshold_fn(thresholds: dict[str, float], default: float = 0.15,
         return own.get(f["class_name"], thresholds.get(f["class_name"], default))
 
     return tau
+
+
+
+# bot-2 sat recall: группы U-Net SpOr (+ sp_dfine), чьи пороги можно ослабить флагом [sat_thr_relax].
+SAT_THR_RELAX_GROUPS = ("sp_or", "sp_focal", "sp_focal2", "sp_arch", "sp_dfine")
+
+
+def scale_sat_thresholds(
+    by_markup: dict[str, dict[str, float]] | None,
+    scale: float = 0.85,
+    groups: tuple[str, ...] = SAT_THR_RELAX_GROUPS,
+) -> dict[str, dict[str, float]]:
+    """Копия thresholds_by_markup с порогами sat-групп × scale (scale<1 → ниже порог → выше recall).
+
+    Не мутирует вход. Чужие группы копируются как есть. scale<=0 запрещён (ValueError).
+    """
+    src = by_markup or {}
+    if scale <= 0:
+        raise ValueError(f"sat_thr_relax scale must be > 0, got {scale}")
+    gset = set(groups)
+    out: dict[str, dict[str, float]] = {}
+    for g, classes in src.items():
+        if g in gset and isinstance(classes, dict):
+            out[g] = {c: float(t) * scale for c, t in classes.items()}
+        else:
+            out[g] = dict(classes) if isinstance(classes, dict) else classes
+    return out
+
+
+def sat_thr_relax_by_markup(cfg: dict) -> dict[str, dict[str, float]]:
+    """thresholds_by_markup с учётом [sat_thr_relax] (default OFF)."""
+    by = cfg.get("thresholds_by_markup") or {}
+    spec = cfg.get("sat_thr_relax") or {}
+    if not spec.get("enabled"):
+        return by
+    scale = float(spec.get("scale", 0.85))
+    groups = tuple(spec.get("groups") or SAT_THR_RELAX_GROUPS)
+    return scale_sat_thresholds(by, scale=scale, groups=groups)
 
 
 def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
@@ -269,7 +412,11 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Круги указанных классов → микрокруг радиуса radius_m (метры на земле) в том же центре.
 
     Попадание метрики: cov = S(P∩G)/min(S) ≥ 0,5 и внутренняя точка P внутри G.
-    У круга внутренняя точка — центр. Микрокруг с центром внутри эталона даёт cov ≈ 1,
+    Два метра до точечного эталона считаются от центроида, и он остаётся в центре круга.
+    Внутренняя точка 32-угольника (quad_segs=8) лежит не в центре, а примерно на
+    десятую радиуса к северу: так устроена point-on-surface. Круг от этого не
+    перестраивается: сдвиг в сантиметры, а каждая вершина меняет сдачу.
+    Микрокруг с центром внутри эталона даёт cov ≈ 1,
     круг 2 м на стене шириной 1 м даёт cov ≈ 0,3. Поэтому замена не теряет ни одного
     попадания при том же центре, а промахи «центр внутри, покрытие < 0,5» становятся
     попаданиями. Число объектов и уверенности не меняются: пороги групп остаются.
@@ -284,6 +431,36 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
     per_class = dict(rad) if isinstance(rad, dict) else {}
     classes = set(spec.get("classes") or (per_class.keys() if per_class else ("arkhitektury",)))
     groups = set(spec.get("groups") or ())
+    anchor = str(spec.get("anchor", "centroid"))
+    # anchor=rp считает representative_point, а быстрый путь — centroid. Для rp остаётся цикл ниже.
+    if anchor != "rp" and os.environ.get("EXPDS_POST_FAST", "1") != "0":
+        # w0: те же GEOS-вызовы массивом (centroid/contains/point_on_surface/buffer); тест — test_w0_post_fast.py
+        out = list(feats)
+        idx = [i for i, f in enumerate(feats)
+               if f.get("class_name") in classes
+               and not (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups)
+               and f["geom"] is not None]
+        if not idx:
+            return out
+        geoms = np.array([feats[i]["geom"] for i in idx], dtype=object)
+        keep = ~shapely.is_empty(geoms)
+        idx = [i for i, k in zip(idx, keep) if k]
+        geoms = geoms[keep]
+        if not idx:
+            return out
+        cen = shapely.centroid(geoms)
+        bad = ~shapely.contains(geoms, cen)
+        if bad.any():
+            # Тот же запасной центр, что в цикле ниже: representative_point, не point_on_surface.
+            for j in np.flatnonzero(bad):
+                cen[j] = geoms[j].representative_point()
+        ys = shapely.get_y(cen)
+        radii = np.array([float(per_class.get(feats[i].get("class_name"), rad if not per_class else 0.25))
+                          / _ground_scale(float(y)) for i, y in zip(idx, ys)])
+        circ = shapely.buffer(cen, radii, quad_segs=8)
+        for i, c in zip(idx, circ):
+            out[i] = dict(feats[i], geom=c)
+        return out
     out = []
     for f in feats:
         if f.get("class_name") not in classes or (groups and (f.get("threshold_group") or f.get("markup_type")) not in groups):
@@ -293,9 +470,14 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
         if g is None or g.is_empty:
             out.append(f)
             continue
-        c = g.centroid
-        if not g.contains(c):
+        if anchor == "rp":
+            # W0-seams: метрика проверяет representative_point(P) ∈ G; диск r ≪ G в этой же точке
+            # засчитывается всегда, когда засчитан P (cov = 1), — слабое доминирование для любого P.
             c = g.representative_point()
+        else:
+            c = g.centroid
+            if not g.contains(c):
+                c = g.representative_point()
         radius = float(per_class.get(f.get("class_name"), rad if not per_class else 0.25))
         out.append(dict(f, geom=c.buffer(radius / _ground_scale(c.y), quad_segs=8)))
     return out
@@ -337,8 +519,70 @@ def shape_cores(feats: list[dict], spec: dict) -> list[dict]:
         if not rule or (rule.get("groups") and group not in rule["groups"]):
             out.append(feat)
             continue
+        # bot-2 bigobj F2: min_area_m2 — ядро только у полигонов не мельче (м² на земле); нет ключа — у всех.
+        if rule.get("min_area_m2") and _area_m2(feat["geom"]) < float(rule["min_area_m2"]):
+            out.append(feat)
+            continue
         core = core_of(feat["geom"], float(rule.get("frac", 0.3)), float(rule.get("min_r_m", 0.0)))
         out.append(dict(feat, geom=core) if core is not feat["geom"] else feat)
+    return out
+
+
+def _area_m2(geom: BaseGeometry) -> float:
+    """Площадь на земле, м²: EPSG:3857 с поправкой cos(широты) по середине охвата, иначе как есть."""
+    if geom is None or geom.is_empty:
+        return 0.0
+    minx, miny, maxx, maxy = geom.bounds
+    scale = _ground_scale((miny + maxy) / 2) if abs(maxx) > 1_000_000 else 1.0
+    return geom.area * scale * scale
+
+
+def big_area_groups(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """bot-2 bigobj F1: крупные прогнозы — в свою группу порога. По умолчанию выключено.
+
+    Уверенность масок городищ и фортификаций — пик вероятности экземпляра (infer_nn.probs_to_features),
+    одна шкала у мелкого пятна и у маски на весь памятник; порог группы (sp_or, ae, li_mask …) ставят
+    многочисленные мелкие ложные, и крупные попадания с уверенностью 0,93–0,999 отсекаются
+    (work/bigobj/A/gt_rows.csv: 113 из 204 пропущенных эталонов > 5000 м² — ниже честного порога).
+    Прогноз класса из spec.classes площадью ≥ min_area_m2 (м² на земле) получает threshold_group
+    «<группа><suffix>»; порог такой группы подбирается отдельно (big_group_thresholds).
+    spec = {min_area_m2 = 5000, classes = [gorodishcha, fortifikatsii], groups = [] (все), suffix = "_big"}.
+    Ставить ДО apply_thresholds (порог зависит от группы), геометрию не меняет.
+    """
+    spec = spec or {}
+    min_a = float(spec.get("min_area_m2", 5000.0))
+    suffix = str(spec.get("suffix", "_big"))
+    classes = set(spec.get("classes") or ("gorodishcha", "fortifikatsii"))
+    groups = set(spec.get("groups") or ())
+    out = []
+    for feat in feats:
+        group = feat.get("threshold_group") or feat.get("markup_type")
+        if (feat.get("class_name") in classes and (not groups or group in groups)
+                and not str(group).endswith(suffix) and _area_m2(feat.get("geom")) >= min_a):
+            feat = dict(feat, threshold_group=f"{group}{suffix}")
+        out.append(feat)
+    return out
+
+
+def big_group_thresholds(by_markup: dict | None, spec: dict | None = None) -> dict:
+    """thresholds_by_markup с группами «<g><suffix>» из big_area_groups.
+
+    Свои пороги — из spec.thresholds = {"<g>_big": {класс: tau}}; группы и классы без своего порога
+    наследуют порог родителя <g> (тогда выдача та же, что без F1). Исходный словарь не меняется.
+    """
+    spec = spec or {}
+    suffix = str(spec.get("suffix", "_big"))
+    classes = set(spec.get("classes") or ("gorodishcha", "fortifikatsii"))
+    out = {g: dict(v) for g, v in (by_markup or {}).items()}
+    for g, v in list(out.items()):
+        if g.endswith(suffix):
+            continue
+        own = out.setdefault(f"{g}{suffix}", {})
+        for c in classes:
+            if c in v:
+                own.setdefault(c, v[c])
+    for g, v in (spec.get("thresholds") or {}).items():
+        out.setdefault(g, {}).update({c: float(t) for c, t in v.items()})
     return out
 
 
@@ -597,32 +841,6 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     return out
 
 
-def drop_kurgans_in_hillforts(feats: list[dict]) -> list[dict]:
-    """bot-7 v3, флаг [post] kurgan_in_gor (по умолчанию выкл.). Правило разметки (research/OSINT_2026-10-29.md §1.2):
-    курганы внутри городищ не размечаются. Удаляет kurgany_* с центроидом внутри объединения полигонов
-    gorodishcha того же региона (любая группа), уже прошедших пороги. Критерий зафиксирован до замера
-    (bot-7/work6/kig/PREREG_kig.md). Честный замер на стеке A: −0,000848, P 0,187 — ОТКЛОНЕНО
-    (предсказанные городища ложно ложатся на курганные поля), поэтому флаг выключен."""
-    from shapely.prepared import prep
-
-    kur = {"kurgany_tselye", "kurgany_povrezhdennye"}
-    by: dict = defaultdict(list)
-    for f in feats:
-        if f.get("class_name") == "gorodishcha" and f.get("geom") is not None and not f["geom"].is_empty:
-            g = f["geom"] if f["geom"].is_valid else make_valid(f["geom"])
-            by[f.get("region_name")].append(g)
-    if not by:
-        return feats
-    U = {r: prep(unary_union(v)) for r, v in by.items()}
-    out = []
-    for f in feats:
-        if f.get("class_name") in kur and f.get("region_name") in U and f.get("geom") is not None \
-                and not f["geom"].is_empty and U[f["region_name"]].contains(f["geom"].centroid):
-            continue
-        out.append(f)
-    return out
-
-
 SP_FUSION_GROUPS = ("sp_focal", "sp_focal2")
 SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
 
@@ -706,6 +924,76 @@ def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
     return out
 
 
+KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
+
+
+def _group_of(f: dict) -> str:
+    return f.get("threshold_group") or f.get("markup_type") or ""
+
+
+def _region_scales(feats: list[dict]) -> dict[str, float]:
+    """Один cos φ на участок: метры на земле = единицы EPSG:3857 × масштаб (как в kurgan_cross_modal_twins)."""
+    ys: dict[str, list[float]] = defaultdict(list)
+    for f in feats:
+        g = f.get("geom")
+        if g is not None and not g.is_empty:
+            ys[f.get("region_name") or ""].append(g.centroid.y)
+    return {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
+
+
+def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Курганы, чья внутренняя точка внутри выданного городища того же участка, убираются.
+
+    Правило разметки организаторов: насыпи внутри городищ курганами не размечаются. На трейне
+    внутри городищ 7 из 974 курганов (все на одном участке); у соперника кандидаты-насыпи внутри
+    лидарных городищ — курганы в 2 % случаев против 45 % снаружи (DATA_INSIGHTS EN, разобрано в
+    docs/research/OSINT_2026-10-29.md). Безубыточность добавления — F/(4−F) ≈ 0,1–0,14, так что такой
+    курган в ожидании отнимает балл. Шаг идёт после порогов: убирает только выданное.
+
+    spec:
+      classes      — классы курганов (по умолчанию оба);
+      groups       — только эти группы порога курганов (пусто — все);
+      min_gor_conf — городища слабее этой уверенности не маскируют (по умолчанию 0: всё выданное);
+      gor_groups   — только городища этих групп (пусто — все);
+      buffer_m     — расширить (+) или сжать (−) городище, метры на земле (по умолчанию 0);
+      min_area_m2 / max_area_m2 — городища вне диапазона не маскируют (ядро-круг или ложная гигантская
+                     маска); по умолчанию 500 и 400 000 м² (p90 эталона спутника ≈ 57 000, аэрофото ≈ 83 000).
+    """
+    spec = spec or {}
+    classes = set(spec.get("classes") or KURGANS)
+    groups = set(spec.get("groups") or ())
+    gor_groups = set(spec.get("gor_groups") or ())
+    min_conf = float(spec.get("min_gor_conf", 0.0))
+    buf_m = float(spec.get("buffer_m", 0.0))
+    lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
+    scale = _region_scales(feats)
+    masks: dict[str, list] = defaultdict(list)
+    for f in feats:
+        if f.get("class_name") != "gorodishcha" or float(f.get("confidence", 1.0)) < min_conf:
+            continue
+        if gor_groups and _group_of(f) not in gor_groups:
+            continue
+        g = f.get("geom")
+        if g is None or g.is_empty:
+            continue
+        s = scale.get(f.get("region_name") or "", 1.0)
+        if not lo <= g.area * s * s <= hi:
+            continue
+        masks[f.get("region_name") or ""].append(g.buffer(buf_m / s) if buf_m else g)
+    if not masks:
+        return feats
+    trees = {r: (STRtree(gs), gs) for r, gs in masks.items()}
+    out = []
+    for f in feats:
+        reg = f.get("region_name") or ""
+        if f.get("class_name") in classes and reg in trees and (not groups or _group_of(f) in groups):
+            pt = f["geom"].representative_point()
+            tree, gs = trees[reg]
+            if any(gs[int(i)].covers(pt) for i in tree.query(pt)):
+                continue
+        out.append(f)
+    return out
+
 def sp_fusion_thresholds(by_markup: dict | None, spec) -> dict:
     """thresholds_by_markup с порогами курганов sp из [post.sp_score_fusion.thresholds] (sp_focal = sp_or в сдаче)."""
     out = {k: dict(v) for k, v in (by_markup or {}).items()}
@@ -729,10 +1017,6 @@ FUSION_CALIB_ENABLED = False
 
 
 KURGANS = ("kurgany_povrezhdennye", "kurgany_tselye")
-
-
-def _group_of(f: dict) -> str:
-    return f.get("threshold_group") or f.get("markup_type") or ""
 
 
 def calibrate_group_conf(feats: list[dict], calib: dict | None = None,
@@ -834,76 +1118,13 @@ def fuse_cross_group(feats: list[dict], how: str = "wbf",
             for i, f in enumerate(feats) if i not in drop]
 
 
-def _region_scales(feats: list[dict]) -> dict[str, float]:
-    """Один cos φ на участок: метры на земле = единицы EPSG:3857 × масштаб (как в kurgan_cross_modal_twins)."""
-    ys: dict[str, list[float]] = defaultdict(list)
-    for f in feats:
-        g = f.get("geom")
-        if g is not None and not g.is_empty:
-            ys[f.get("region_name") or ""].append(g.centroid.y)
-    return {r: _ground_scale(sum(v) / len(v)) for r, v in ys.items()}
-
-
-def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> list[dict]:
-    """Курганы, чья внутренняя точка внутри выданного городища того же участка, убираются.
-
-    Правило разметки организаторов: насыпи внутри городищ курганами не размечаются. На трейне
-    внутри городищ 7 из 974 курганов (все на одном участке); у соперника кандидаты-насыпи внутри
-    лидарных городищ — курганы в 2 % случаев против 45 % снаружи (DATA_INSIGHTS EN, разобрано в
-    docs/research/OSINT_2026-10-29.md). Безубыточность добавления — F/(4−F) ≈ 0,1–0,14, так что такой
-    курган в ожидании отнимает балл. Шаг идёт после порогов: убирает только выданное.
-
-    spec:
-      classes      — классы курганов (по умолчанию оба);
-      groups       — только эти группы порога курганов (пусто — все);
-      min_gor_conf — городища слабее этой уверенности не маскируют (по умолчанию 0: всё выданное);
-      gor_groups   — только городища этих групп (пусто — все);
-      buffer_m     — расширить (+) или сжать (−) городище, метры на земле (по умолчанию 0);
-      min_area_m2 / max_area_m2 — городища вне диапазона не маскируют (ядро-круг или ложная гигантская
-                     маска); по умолчанию 500 и 400 000 м² (p90 эталона спутника ≈ 57 000, аэрофото ≈ 83 000).
-    """
-    spec = spec or {}
-    classes = set(spec.get("classes") or KURGANS)
-    groups = set(spec.get("groups") or ())
-    gor_groups = set(spec.get("gor_groups") or ())
-    min_conf = float(spec.get("min_gor_conf", 0.0))
-    buf_m = float(spec.get("buffer_m", 0.0))
-    lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
-    scale = _region_scales(feats)
-    masks: dict[str, list] = defaultdict(list)
-    for f in feats:
-        if f.get("class_name") != "gorodishcha" or float(f.get("confidence", 1.0)) < min_conf:
-            continue
-        if gor_groups and _group_of(f) not in gor_groups:
-            continue
-        g = f.get("geom")
-        if g is None or g.is_empty:
-            continue
-        s = scale.get(f.get("region_name") or "", 1.0)
-        if not lo <= g.area * s * s <= hi:
-            continue
-        masks[f.get("region_name") or ""].append(g.buffer(buf_m / s) if buf_m else g)
-    if not masks:
-        return feats
-    trees = {r: (STRtree(gs), gs) for r, gs in masks.items()}
-    out = []
-    for f in feats:
-        reg = f.get("region_name") or ""
-        if f.get("class_name") in classes and reg in trees and (not groups or _group_of(f) in groups):
-            pt = f["geom"].representative_point()
-            tree, gs = trees[reg]
-            if any(gs[int(i)].covers(pt) for i in tree.query(pt)):
-                continue
-        out.append(f)
-    return out
-
-
 def kurgan_neighbour_prior(feats: list[dict], spec: dict | None = None, tau=None) -> list[dict]:
     """Уверенность кургана × (floor + slope·clip(n / k, 0, cap)), n — число соседних курганов в радиусе.
 
-    Курганы стоят могильниками: у соперника этот множитель на лидаре дал nested 0,5765 → 0,5831 и на LB
-    recall +0,039 при precision −0,007 (COMPETITORS_DEEP §2.2). Одиночная «кочка» теряет уверенность,
-    насыпь внутри цепочки её набирает. Шаг идёт ДО порогов: пороги групп из spec.groups нужно заново
+    Курганы стоят могильниками. У соперника на их лидарном зачёте множитель дал 0,5765 → 0,5831,
+    а полнота лидара на площадке 0,637 → 0,676. Публичный балл при этом сдвинулся на +0,0003
+    (v12 0,48874 → v14 0,48906): скачок до 0,49 уже был в предыдущей посылке, без этого множителя.
+    На их спутнике тот же приор честный балл ронял. Шаг идёт ДО порогов: пороги групп из spec.groups нужно заново
     подобрать по OOF после того же преобразования (scripts/oof_transform.py neigh).
 
     Сосед — другое место кургана (оба класса в одной точке считаются одним местом) того же участка

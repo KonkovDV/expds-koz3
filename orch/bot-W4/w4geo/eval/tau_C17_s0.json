@@ -1,0 +1,12 @@
+{
+  "etgr_pix": {
+    "object_poly": 0.528625
+  },
+  "maggr_pix": {
+    "object_poly": 0.74135,
+    "finds_points": 0.601805
+  },
+  "terfl_pix": {
+    "object_poly": 0.58017
+  }
+}

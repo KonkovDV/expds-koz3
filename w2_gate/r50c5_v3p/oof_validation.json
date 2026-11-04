@@ -1,0 +1,98 @@
+{
+ "region_fold_equal": true,
+ "n_regions_map": 59,
+ "per_fold": {
+  "0": {
+   "n_pred": 3810,
+   "pred_regions": 6,
+   "map_regions": 6,
+   "gt_regions": 6,
+   "pred_regions_not_in_fold": {},
+   "map_regions_without_pred": [],
+   "gt_regions_eq_map": true,
+   "classes": {
+    "fortifikatsii": 30,
+    "kurgany_tselye": 1465,
+    "kurgany_povrezhdennye": 2299,
+    "gorodishcha": 16
+   }
+  },
+  "1": {
+   "n_pred": 682,
+   "pred_regions": 1,
+   "map_regions": 1,
+   "gt_regions": 1,
+   "pred_regions_not_in_fold": {},
+   "map_regions_without_pred": [],
+   "gt_regions_eq_map": true,
+   "classes": {
+    "kurgany_povrezhdennye": 459,
+    "kurgany_tselye": 223
+   }
+  },
+  "2": {
+   "n_pred": 5848,
+   "pred_regions": 13,
+   "map_regions": 13,
+   "gt_regions": 13,
+   "pred_regions_not_in_fold": {},
+   "map_regions_without_pred": [],
+   "gt_regions_eq_map": true,
+   "classes": {
+    "gorodishcha": 38,
+    "fortifikatsii": 71,
+    "kurgany_tselye": 1714,
+    "kurgany_povrezhdennye": 4025
+   }
+  },
+  "3": {
+   "n_pred": 3088,
+   "pred_regions": 18,
+   "map_regions": 18,
+   "gt_regions": 18,
+   "pred_regions_not_in_fold": {},
+   "map_regions_without_pred": [],
+   "gt_regions_eq_map": true,
+   "classes": {
+    "gorodishcha": 19,
+    "kurgany_povrezhdennye": 2040,
+    "kurgany_tselye": 1029
+   }
+  },
+  "4": {
+   "n_pred": 8691,
+   "pred_regions": 20,
+   "map_regions": 21,
+   "gt_regions": 21,
+   "pred_regions_not_in_fold": {},
+   "map_regions_without_pred": [
+    "182_Красносельская_1.7км"
+   ],
+   "gt_regions_eq_map": true,
+   "classes": {
+    "gorodishcha": 10,
+    "fortifikatsii": 34,
+    "kurgany_povrezhdennye": 6196,
+    "kurgany_tselye": 2451
+   }
+  }
+ },
+ "combined_f01": 4492,
+ "combined_f234": 17627,
+ "sum_f01": 4492,
+ "sum_f234": 17627,
+ "total": 22119,
+ "folds_present": [
+  0,
+  1,
+  2,
+  3,
+  4
+ ],
+ "region_dup": [],
+ "conf_min": 0.05,
+ "groups": {
+  "li_cnx": 22119
+ },
+ "OK": true
+}

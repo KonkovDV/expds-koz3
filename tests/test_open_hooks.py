@@ -32,8 +32,9 @@ def test_geometric_blend():
     assert abs(blend_geo(0.16, 0.64) - 0.32) < 1e-9
 
 
-@requires_submission_files
-def test_shared_weights_are_packed_once():
+def test_shared_weights_are_packed_once(monkeypatch):
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
     files = _submission().collect()
     names = [p.as_posix() for p in files]
     assert len(names) == len(set(names))

@@ -1,23 +1,0 @@
-Loading weights:   0%|          | 0/224 [00:00<?, ?it/s]Loading weights: 100%|██████████| 224/224 [00:00<00:00, 25595.93it/s]
-dinov2-with-registers-small 12.37 ms/crop
-Traceback (most recent call last):
-  File "/workspace/koz3_shared/bot-6/work/orgate_s/bench_s.py", line 8, in <module>
-    m = AutoModel.from_pretrained(path, local_files_only=True).eval(); x = torch.randn(32, 3, 112, 112)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/transformers/models/auto/auto_factory.py", line 406, in from_pretrained
-    return model_class.from_pretrained(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        pretrained_model_name_or_path, *model_args, config=config, **hub_kwargs, **kwargs
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/transformers/modeling_utils.py", line 4353, in from_pretrained
-    loading_info, disk_offload_index = cls._load_pretrained_model(
-                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        model, state_dict, checkpoint_files, load_config
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/workspace/koz3_shared/bot-5/venv_det/lib/python3.13/site-packages/transformers/modeling_utils.py", line 4486, in _load_pretrained_model
-    file_pointer = safe_open(file, framework="pt", device=device, backend=backend)
-RuntimeError: unable to mmap 346358296 bytes from file </workspace/koz3_shared/bot-4/work/hf/hub/models--facebook--dinov2-with-registers-base/snapshots/a1d738ccfa7ae170945f210395d99dde8adb1805/model.safetensors>: Cannot allocate memory (12)

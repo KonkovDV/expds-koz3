@@ -1,1 +1,0 @@
-{"dfine_families": 58, "dfine_fam_by_fold": {"4": 16, "2": 15, "1": 12, "0": 1, "3": 14}, "n_units": 56, "base_size_MB_members": 381.6, "gt_t": 7787, "gt_t_sp": 1606, "gt_sp_total": 1606, "gt_sp_outside_touched": 0, "gt_t_sp_by_fold": {"2": 746, "3": 166, "4": 416, "1": 195, "0": 83}, "sp_group_families": 58, "sp_group_families_outside_touched": [], "maxrss_MB": 854}

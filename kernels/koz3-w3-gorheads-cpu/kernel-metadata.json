@@ -1,0 +1,5 @@
+{"id": "dmitrijkv/koz3-w3-gorheads-cpu", "title": "koz3-w3-gorheads-cpu", "code_file": "koz3-w3-gorheads-cpu.py",
+ "language": "python", "kernel_type": "script", "is_private": true, "enable_gpu": false, "enable_tpu": false,
+ "enable_internet": true,
+ "dataset_sources": ["dmitrijkv/koz3-w3-gorheads-code", "dmitrijkv/koz3-xfer-s000", "dmitrijkv/koz3-xfer-s001", "dmitrijkv/koz3-xfer-s002", "dmitrijkv/koz3-xfer-s003", "dmitrijkv/koz3-xfer-s004", "dmitrijkv/koz3-xfer-s005", "dmitrijkv/koz3-xfer-s006", "dmitrijkv/koz3-xfer-s007", "dmitrijkv/koz3-xfer-s008", "dmitrijkv/koz3-xfer-s009"],
+ "competition_sources": [], "kernel_sources": []}

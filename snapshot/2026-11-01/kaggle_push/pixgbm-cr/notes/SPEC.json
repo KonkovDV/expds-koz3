@@ -1,0 +1,29 @@
+{
+  "purpose": "e2e geo F1 equivalence gate on KOZ-3 train regions 200-217",
+  "gate": "|dF1| <= 0.01 on ALL and maggr/etgr/terfl (bot6_r3_gate.py)",
+  "ref": "dmitrijkv/koz3-fr1h-chk-20261101 fr1h.zip.bin (v2 eb268d6 + FR1h); FR1h forced OFF",
+  "fr1h_flag": {
+    "name": "post.frame_prior",
+    "toml": "[post.frame_prior]",
+    "default_in_zip": "ON (section present)",
+    "force_off": "delete [post.frame_prior] + restore archive SpOr kurgan taus (0.3645/0.3725, 0.501645/0.645505)",
+    "env_var": null
+  },
+  "candidate_preferred": "submission_pixgbm_clean_e1g1_p4_lleaves.zip (pix_clean)",
+  "geo_source": "S3 train-expds-3 MagGr/EtGr/TerFl+GT 200-217",
+  "branch": "bots/bot6-pixgbm-cleanroom",
+  "kernel_id": "dmitrijkv/koz3-bot6-pixgbm-cr-gate",
+  "enable_internet": true,
+  "enable_gpu": false,
+  "dataset_sources": [
+    "dmitrijkv/koz3-s3-cred",
+    "dmitrijkv/koz3-fr1h-chk-20261101",
+    "dmitrijkv/koz3-pixgbm-cr-cand",
+    "dmitrijkv/koz3-pixgbm-cr-wheels"
+  ],
+  "unused_staging": ["ds/pixgbm-cr-ref"],
+  "runtime_estimate_kaggle_cpu": "1-3h typical for 18 regions x2; per-region checkpoints; <<12h",
+  "do_not_push_from_bot6": false,
+  "owner_push_kernel_after_datasets": "coord «1»",
+  "bot6_may_push_branch": true
+}

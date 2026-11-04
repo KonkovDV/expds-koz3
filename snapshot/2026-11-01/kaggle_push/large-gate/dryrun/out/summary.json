@@ -1,0 +1,11 @@
+{
+  "tip": "33791bcc1e64d6afc4c7ccd13c36b8266e53a8cd",
+  "fam_src": "smoke",
+  "off_score": 0.9999991666670278,
+  "area_tau_score": 0.7999993066670009,
+  "area_tau_delta": -0.1999998600000269,
+  "fixc_nested_score": 0.9999991666670278,
+  "fixc_nested_delta": 0.0,
+  "fixc_recovered_gt_gt5k": 0,
+  "smoke": true
+}

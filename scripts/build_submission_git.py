@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import io
 import json
 import re
 import subprocess
@@ -48,6 +47,25 @@ def git(repo: Path, *args: str, binary: bool = False):
     return r.stdout if binary else r.stdout.decode().strip()
 
 
+def w5cf_refs(cfg: dict) -> list[str]:
+    """W4 v4: артефакты RR1s-cf (W1 expds.w5cf_infer) при w5_cloudfeat=true: ref.npz шкалы бленда + каталог ранжировщиков.
+    Файлы fam<k>.txt добавляются из meta.json в main() (список моделей знает только meta)."""
+    if not cfg.get("w5_cloudfeat"):
+        return []
+    s = cfg.get("w5cf") or {}
+    d = str(s.get("infer_dir", "models/w5cf_infer")).rstrip("/")
+    return [s.get("ref", "models/w5cf/ref.npz"), f"{d}/meta.json", f"{d}/gq_ref.npz"]
+
+
+def w5cf_npz_ok(path: str, data: bytes) -> bool:
+    """.npz запрещены (данные), кроме двух таблиц RR1s-cf: только 1-D числовые массивы/ключи, без координат/меток."""
+    import io
+    import numpy as np
+    z = np.load(io.BytesIO(data), allow_pickle=False)
+    bad = {"x", "y", "lon", "lat", "geometry", "label", "hit", "gt", "region", "reg"}
+    return all(z[k].ndim == 1 and z[k].dtype.kind in "biuf" and k.split("__")[0].lower() not in bad for k in z.files)
+
+
 def model_refs(cfg: dict) -> list[str]:
     """Те же правила, что scripts/build_submission.py:38-53 (model_specs/model_files), без импорта expds."""
     out = []
@@ -62,6 +80,16 @@ def model_refs(cfg: dict) -> list[str]:
     rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
     out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
     # bot-8 bot8-cnx: веса [li_cnx] сюда не входят — их берёт cnx_weights() по WEIGHTS_MANIFEST (не из git)
+    pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
+    if pix.get("enabled") and pix.get("impl") == "clean":   # W4: модели clean-room pix (legacy PIXGBM не собирается)
+        md = str(pix.get("model_dir", "models/pix_clean")).rstrip("/")
+        out += [f"{md}/poly.txt", f"{md}/finds.txt", f"{md}/meta.json"]
+        if pix.get("org_etgr"):   # W4 GEO-ORG3
+            out += [f"{md}/org/org_etgr_map.txt", f"{md}/org/org_etgr_prof.txt", f"{md}/org/org_etgr_meta.json"]
+    out += w5cf_refs(cfg)
+    sd = cfg.get("sp_dfine") or {}
+    if sd.get("enabled"):   # W4 v3: D-FINE SpOr — каталоги HF (config.json + model.safetensors), как build_submission.py
+        out += [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")]
     seen, uniq = set(), []
     for p in out:
         if p not in seen:
@@ -124,6 +152,8 @@ def main() -> int:
     ap.add_argument("--weight", action="append", default=[], metavar="ARCHIVE_PATH=LOCAL_FILE",
                     help="подменить/добавить файл весов (можно несколько раз)")
     ap.add_argument("--so", type=Path, help="свой expds_core.abi3.so вместо закоммиченного")
+    ap.add_argument("--vendor", type=Path, help="каталог распакованных колёс (transformers 5.21.0 …) → inference/lib/vendor/; "
+                    "обязателен при [sp_dfine]/[gor_gate] enabled")
     ap.add_argument("--out-dir", type=Path, default=Path("dist"))
     ap.add_argument("--check", action="store_true", help="после сборки запустить check_submission.py")
     ap.add_argument("--check-args", default="", help="доп. аргументы check_submission.py, одной строкой")
@@ -141,7 +171,9 @@ def main() -> int:
     files: dict[str, bytes] = {}
     pick = ["metadata.json", "inference/main.py"]
     pick += [p for p in tracked if p.startswith("inference/lib/expds_core") and p.endswith(".so")]
-    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")]
+    # W4 DOC-1: файлы, производные от EN, в архив не идут (scripts/check_archive_clean.py)
+    pick += [p for p in tracked if p.startswith("expds/") and p.endswith(".py")
+             and PurePosixPath(p).name not in {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}]
     for p in pick:
         files[p] = blob(p)
     if args.so:
@@ -176,6 +208,14 @@ def main() -> int:
             files[p] = blob(p)
         if CNX_WEIGHTS_MANIFEST not in files:
             sys.exit(f"[li_cnx] включён, но в коммите нет {CNX_WEIGHTS_MANIFEST}")
+    need_vendor = any((cfg.get(sec) or {}).get("enabled") for sec in ("sp_dfine", "gor_gate"))
+    if need_vendor and not (args.vendor and args.vendor.is_dir()):
+        sys.exit("[sp_dfine]/[gor_gate] enabled — нужен --vendor <каталог распакованных колёс>")
+    if args.vendor and need_vendor:
+        vroot = args.vendor.resolve()
+        for q in sorted(vroot.rglob("*")):
+            if q.is_file() and "__pycache__" not in q.parts and q.suffix != ".pyc":
+                files["inference/lib/vendor/" + q.relative_to(vroot).as_posix()] = q.read_bytes()
     meta = json.loads(files["metadata.json"])
     if not meta.get("image") or "<" in str(meta.get("image")) or not meta.get("entry_point"):
         sys.exit(f"metadata.json не заполнен: {meta}")
@@ -193,6 +233,26 @@ def main() -> int:
             files[rel] = blob(rel)
         else:
             missing.append(rel)
+    w5npz = set()
+    if cfg.get("w5_cloudfeat") and not missing:   # W4 v4: модели ранжировщика из meta.json
+        refs = w5cf_refs(cfg); mrel = refs[1]; d = mrel.rsplit("/", 1)[0]
+        w5npz = {r for r in refs if r.endswith(".npz")}
+        for v in json.loads(files[mrel])["models"].values():
+            rel = f"{d}/{v['file']}"
+            if rel in overrides:
+                files[rel] = overrides[rel].read_bytes()
+            elif rel in tracked:
+                files[rel] = blob(rel)
+            else:
+                missing.append(rel)
+        for r in w5npz:
+            if not w5cf_npz_ok(r, files[r]):
+                sys.exit(f"w5cf: {r} — не таблица 1-D (запрещено как данные)")
+        # sha256 артефактов ранжировщика в архиве: проверяются w5_cloudfeat.preflight до начала работы
+        w5 = sorted({*refs, *(f"{d}/{v['file']}" for v in json.loads(files[mrel])["models"].values())})
+        files["WEIGHTS_MANIFEST.json"] = json.dumps(
+            {"w5cf": {r: {"sha256": hashlib.sha256(files[r]).hexdigest(), "bytes": len(files[r])} for r in w5}},
+            ensure_ascii=False, indent=1, sort_keys=True).encode("utf-8")
     if missing:
         sys.exit(f"веса из конфига не найдены ни в коммите, ни в --weight: {missing}")
     cnx_src = cnx_weights(cfg, json.loads(files[CNX_WEIGHTS_MANIFEST]), overrides, set(tracked)) \
@@ -203,7 +263,7 @@ def main() -> int:
     unused = sorted(set(overrides) - set(files))
     if unused:
         print(f"ВНИМАНИЕ: --weight {unused} не упомянуты в конфиге — в архив не попадут", file=sys.stderr)
-    bad = [p for p in files if PurePosixPath(p).suffix.lower() in FORBIDDEN]
+    bad = [p for p in files if PurePosixPath(p).suffix.lower() in FORBIDDEN and p not in w5npz]
     if bad:
         sys.exit(f"запрещённые файлы: {bad}")
     dirty = git(repo, "status", "--porcelain", "--untracked-files=no", "--", *sorted(set(pick) & set(tracked)))
@@ -226,6 +286,12 @@ def main() -> int:
     if size > LIMIT:
         tmp.unlink()
         sys.exit(f"архив {size / 2**20:.0f} МиБ > 2048 МиБ — уберите веса из конфига")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_archive_clean import check as doc1_check   # W4 DOC-1
+    viol = doc1_check(tmp)
+    if viol:
+        tmp.unlink()
+        sys.exit("DOC-1: архив не чистый:\n" + "\n".join(viol))
     tmp.replace(out)
     zsha = hashlib.sha256(out.read_bytes()).hexdigest()
     manifest = {"zip": name, "sha256": zsha, "bytes": size, "git": sha, "ref": args.ref, "label": args.label,
@@ -233,6 +299,7 @@ def main() -> int:
                 "only_classes": args.only_classes, "weight_overrides": {k: str(v) for k, v in overrides.items()},
                 "cnx_weights": {k: str(v) for k, v in cnx_src.items()},
                 "so_override": str(args.so) if args.so else None,
+                "vendor": str(args.vendor) if args.vendor and need_vendor else None,
                 "files": {p: hashlib.sha256(b).hexdigest() for p, b in sorted(files.items())},
                 "built": time.strftime("%Y-%m-%d %H:%M:%S %Z")}
     out.with_suffix(".manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")

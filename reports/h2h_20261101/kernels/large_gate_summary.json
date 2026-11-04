@@ -1,0 +1,240 @@
+{
+ "goal": "large_objects off/area_tau/fixc_nested full-stack honest-10 vs B′",
+ "protocol": "ae OOF inject → prep → gate_v6c honest-10; NO fam0",
+ "plan": "b_no_fam0_inject_ae_oof",
+ "why_not_a": "fam0 absent in S3/xfer; stack_arch post-thr cannot revive τ=1.01 drops.",
+ "Bprime_how": "B′=0.315800 documented Ae-ON flags-off. Pair vs bprime_counts else A + abs.",
+ "inputs": {
+  "w5base": "/kaggle/input/koz3-w2-gate/w5base",
+  "code_root": "/kaggle/input/koz3-w4-large-gate-code",
+  "stack": "stack_arch.geojson",
+  "gt": "gt_train_v2.geojson",
+  "vs": "/kaggle/input/koz3-w2-gate/w5base/base_counts.pkl",
+  "base_name": "A",
+  "ae_oof": "/kaggle/input/koz3-w4-large-gate-code/data/ae_dfine_gor_oof_slim.jsonl",
+  "tau_large": 0.2,
+  "min_area_m2": 5000.0
+ },
+ "risk": "τ_large=0.20 not fam0-nested LOFO; box_area_m2 proxy; area_tau inert at τ=1.01; 320 m window not in inject.",
+ "Bprime_score": 0.3158,
+ "boot": 2000,
+ "results": [
+  {
+   "tag": "baseline",
+   "score": 0.3146153226828423,
+   "base": 0.3146153226828423,
+   "d": 0.0,
+   "delta_vs_bprime_abs": -0.0011846773171577119,
+   "d_new34": 0.0,
+   "d_optical": 0.0,
+   "boot": {
+    "p_gt0": 0.0,
+    "p5": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "per_class": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "layers": {
+    "li": {
+     "score": 0.21668693280765858,
+     "n": 1214818,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "ae": {
+     "score": 0.1019522054947382,
+     "n": 62203,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "sp_or": {
+     "score": 0.0628625004440901,
+     "n": 104330,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 0,
+      "unseen_kept": 0
+     }
+    }
+   },
+   "layer_delta_vs_baseline": {
+    "li": 0.0,
+    "ae": 0.0,
+    "sp_or": 0.0
+   },
+   "layer_drop_ok": true,
+   "pass_full": false,
+   "pass_soft": false,
+   "pass_vs_bprime": false,
+   "apply": {
+    "mode": "baseline",
+    "n_in": 1386709,
+    "n_out": 1386709,
+    "n_drop_exist_ae_gor": 0,
+    "n_add": 0,
+    "tau_large": 0.2,
+    "min_area": 5000.0
+   }
+  },
+  {
+   "tag": "area_tau",
+   "score": 0.3146153226828423,
+   "base": 0.3146153226828423,
+   "d": 0.0,
+   "delta_vs_bprime_abs": -0.0011846773171577119,
+   "d_new34": 0.0,
+   "d_optical": 0.0,
+   "boot": {
+    "p_gt0": 0.0,
+    "p5": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "per_class": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": 0.0,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "layers": {
+    "li": {
+     "score": 0.21668693280765858,
+     "n": 1214818,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "ae": {
+     "score": 0.1019522054947382,
+     "n": 62203,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "sp_or": {
+     "score": 0.0628625004440901,
+     "n": 104330,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 0,
+      "unseen_kept": 0
+     }
+    }
+   },
+   "layer_delta_vs_baseline": {
+    "li": 0.0,
+    "ae": 0.0,
+    "sp_or": 0.0
+   },
+   "layer_drop_ok": true,
+   "pass_full": false,
+   "pass_soft": false,
+   "pass_vs_bprime": false,
+   "apply": {
+    "mode": "area_tau",
+    "n_in": 1386709,
+    "n_out": 1386709,
+    "n_drop_exist_ae_gor": 0,
+    "n_add": 0,
+    "tau_large": 0.2,
+    "min_area": 5000.0
+   }
+  },
+  {
+   "tag": "fixc_nested",
+   "score": 0.3144986109752716,
+   "base": 0.3146153226828423,
+   "d": -0.0001167117075707158,
+   "delta_vs_bprime_abs": -0.0013013890247284277,
+   "d_new34": 0.0,
+   "d_optical": 0.0,
+   "boot": {
+    "p_gt0": 0.0,
+    "p5": -0.0003906085108182522,
+    "p50": -0.00010170200679043839,
+    "p95": 0.0,
+    "mean": -0.00012128379587319223
+   },
+   "per_class": {
+    "kurgany_povrezhdennye": 0.0,
+    "kurgany_tselye": 0.0,
+    "gorodishcha": -0.0007780780504714757,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": 0.0,
+    "finds_points": 0.0
+   },
+   "layers": {
+    "li": {
+     "score": 0.21668693280765858,
+     "n": 1214818,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "ae": {
+     "score": 0.1019522054947382,
+     "n": 62901,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 1,
+      "unseen_kept": 0
+     }
+    },
+    "sp_or": {
+     "score": 0.0628625004440901,
+     "n": 104330,
+     "info": {
+      "folds": 10,
+      "unseen_dropped": 0,
+      "unseen_kept": 0
+     }
+    }
+   },
+   "layer_delta_vs_baseline": {
+    "li": 0.0,
+    "ae": 0.0,
+    "sp_or": 0.0
+   },
+   "layer_drop_ok": true,
+   "pass_full": false,
+   "pass_soft": false,
+   "pass_vs_bprime": false,
+   "apply": {
+    "mode": "fixc",
+    "n_in": 1386709,
+    "n_out": 1387407,
+    "n_drop_exist_ae_gor": 0,
+    "n_add": 698,
+    "tau_large": 0.2,
+    "min_area": 5000.0
+   }
+  }
+ ],
+ "runtime_s": 1054.7695832252502
+}

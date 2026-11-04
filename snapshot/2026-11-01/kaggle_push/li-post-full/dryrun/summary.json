@@ -1,0 +1,6 @@
+{
+ "status": "MISSING_INPUT",
+ "error": "w5base/stack_arch.geojson not found (need elenakonkova/koz3-w2-gate or LI_POST_FULL_W5BASE). Box often lacks stack_arch/base_counts/bprime_counts; fam0 may be counts-only without jsonl.",
+ "Bprime": 0.3158,
+ "note": "Attach elenakonkova/koz3-w2-gate (w5base). Box: no stack_arch/base_counts/bprime_counts; fam0 only _counts.json; w2-gate API 403 from box."
+}

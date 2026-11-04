@@ -345,6 +345,162 @@
 - 30.10 11:06 MSK | lease | acquire slot:acc1/cpu → coord до 30.10 18:06 MSK CI2-1 cloudfeat на acc1/cpu (есть интернет; бокс-слоты заняты до 14:30) kernel elenakonkova/koz3-w5-cloudfeat
 - 30.10 11:08 MSK | lease | acquire kernel:elenakonkova/koz3-w5-cloudfeat → coord до 30.10 18:08 MSK CI2-1 cloudfeat
 - 30.10 11:12 MSK | coord | 15-мин проверка: box load 12.4/8 (полно). acc1/cpu простаивал с 10:42 → push elenakonkova/koz3-w5-cloudfeat (CI2-1, ядро W1 без изменений, приватный датасет elenakonkova/koz3-w5-cloudfeat-in с cred.json, интернет есть), аренда coord 7 ч. Выход → w1/cf/box_out-эквивалент: bot-W1 может снять ожидающий run_box.sh и взять cloudfeat.csv из out/w5-cloudfeat. Остальное: dino-emb-gpu и kurgan-seeds RUNNING, TPU QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00.
+- 30.10 11:19 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 11:21 MSK | lease | release kernel:elenakonkova/koz3-w5-cloudfeat (coord) by coord
+- 30.10 11:21 MSK | lease | release slot:acc1/cpu (coord) by coord
+- 30.10 11:23 MSK | lease | acquire slot:acc1/cpu → coord до 30.10 18:23 MSK fallback W3 kurgan seeds 79,80 (OOF для CI2-7)
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w3-kurgan-cpu-data → coord до 02.11 11:23 MSK копия kurgan-cpu-data для acc1
+- 30.10 11:23 MSK | lease | acquire kernel:elenakonkova/koz3-w3-kurgan-cpu-seeds → coord до 30.10 18:23 MSK seeds 79,80
+- 30.10 11:25 MSK | coord | 15-мин проверка: box load 14.5/8 (полно). acc1 cloudfeat COMPLETE (59 сайтов ok, 0 failed, 192806 строк) → out/w5-cloudfeat (62 файла), аренды сняты; CI2-1/CI2-3/CI2-8 → done в QUEUE. acc1/cpu: создан elenakonkova/koz3-w3-kurgan-cpu-data (копия cpuk/ds), push elenakonkova/koz3-w3-kurgan-cpu-seeds seeds 79,80 (OOF для CI2-7), аренды coord 7 ч. dino-emb-gpu RUNNING, kurgan-seeds RUNNING, TPU acc1/acc2 QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00.
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w2-oof → bot-W2-lidar до 30.10 19:23 MSK W2 backup for handoff (Elena t16u)
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w2-weights → bot-W2-lidar до 30.10 19:23 MSK W2 backup for handoff (Elena t16u)
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w2-maps → bot-W2-lidar до 30.10 19:23 MSK W2 backup for handoff (Elena t16u)
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w2-relief → bot-W2-lidar до 30.10 19:23 MSK W2 backup for handoff (Elena t16u)
+- 30.10 11:23 MSK | lease | acquire dataset:elenakonkova/koz3-w2-gate → bot-W2-lidar до 30.10 19:23 MSK W2 backup for handoff (Elena t16u)
+- 30.10 11:29 MSK | coord | 15-мин проверка: без изменений с 11:25 — box load 17.6/8 (полно), все Kaggle-слоты заняты (kurgan seeds ×4 CPU, dino-emb-gpu RUNNING, TPU QUEUED в очереди Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00.
+- 30.10 11:35 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 11:35 MSK | lease | release dataset:elenakonkova/koz3-w2-relief (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:36 MSK | lease | release dataset:elenakonkova/koz3-w2-oof (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:36 MSK | lease | release dataset:elenakonkova/koz3-w2-weights (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:36 MSK | lease | release dataset:elenakonkova/koz3-w2-maps (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:36 MSK | lease | release dataset:elenakonkova/koz3-w2-gate (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:50 MSK | coord | 15-мин проверка: без изменений — box load 15.4/8 (полно), kurgan seeds ×4 CPU RUNNING, dino-emb-gpu RUNNING, TPU acc1/acc2 QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00, dmitrijkv GPU квота 0.
+- 30.10 11:53 MSK | check_conflicts | ERROR=1 WARN=7: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 11:57 MSK | coord | 15-мин проверка: без изменений — box load 14.1/8 (полно), kurgan seeds ×5 CPU RUNNING (acc1, acc2, usertest1234, aaaa0000004, aaaadg4gg4g4g), dino-emb-gpu RUNNING, TPU acc1/acc2 QUEUED (очередь Kaggle), acc1/gpu-1 бережём под r50c5 после сб 03:00, dmitrijkv GPU квота 0.
+- 30.10 11:58 MSK | lease | acquire dataset:elenakonkova/koz3-w2-oof → bot-W2-lidar до 30.10 13:58 MSK DATASETS.md
+- 30.10 11:58 MSK | lease | acquire dataset:elenakonkova/koz3-w2-weights → bot-W2-lidar до 30.10 13:58 MSK DATASETS.md
+- 30.10 11:58 MSK | lease | acquire dataset:elenakonkova/koz3-w2-maps → bot-W2-lidar до 30.10 13:58 MSK DATASETS.md
+- 30.10 11:58 MSK | lease | acquire dataset:elenakonkova/koz3-w2-gate → bot-W2-lidar до 30.10 13:58 MSK DATASETS.md
+- 30.10 11:59 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 12:59 MSK docs
+- 30.10 11:59 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 11:59 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 12:59 MSK docs
+- 30.10 11:59 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:05 MSK | lease | release dataset:elenakonkova/koz3-w2-oof (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:05 MSK | lease | release dataset:elenakonkova/koz3-w2-weights (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:05 MSK | lease | release dataset:elenakonkova/koz3-w2-maps (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:05 MSK | lease | release dataset:elenakonkova/koz3-w2-gate (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:09 MSK | check_conflicts | ERROR=2 WARN=9: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w5-dino-emb-gpu RUNNING без аренды
+- 30.10 12:11 MSK | bot-W2-lidar | P-W2-10 DEM-fill FAIL (T vs C Δ +0,0014, P 0,99; Li-only 021/186 хуже) — линия закрыта; флаг lidar.dem_fill=tin_lowveg выкл. по умолчанию; находка: s1f4 карты 190 ≠ весам s1f4
+- 30.10 12:11 MSK | lease | acquire dataset:elenakonkova/koz3-w2-demfill → bot-W2-lidar до 30.10 16:11 MSK P-W2-10 demfill rel/maps/out backup
+- 30.10 12:12 MSK | lease | release dataset:elenakonkova/koz3-w2-demfill (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:12 MSK | lease | release slot:box/cpu (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:13 MSK | lease | acquire dataset:elenakonkova/koz3-w2-demfill → bot-W2-lidar до 30.10 13:13 MSK DATASETS.md
+- 30.10 12:13 MSK | lease | acquire dataset:elenakonkova/koz3-w2-gate → bot-W2-lidar до 30.10 13:13 MSK 
+- 30.10 12:14 MSK | lease | acquire branch:bots/w2-lidar → bot-W2-lidar до 30.10 13:14 MSK 
+- 30.10 12:14 MSK | lease | release branch:bots/w2-lidar (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:15 MSK | lease | release dataset:elenakonkova/koz3-w2-gate (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:15 MSK | lease | release dataset:elenakonkova/koz3-w2-demfill (bot-W2-lidar) by bot-W2-lidar
+- 30.10 12:23 MSK | coord | проверка: все CPU (5 акк.+box, load 7.4/8) заняты kurgan seeds, acc1 gpu-2 dino-emb RUNNING, TPU оба QUEUED (очередь Kaggle), GPU-квоты на исходе до Сб 03:00; новых запусков нет
+- 30.10 12:26 MSK | check_conflicts | ERROR=2 WARN=9: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w5-dino-emb-gpu RUNNING без аренды
+- 30.10 12:31 MSK | coord | проверка: CPU всех акк.+box заняты (load 8.1/8), acc1 gpu-2 dino-emb RUNNING — аренда продлена до 16:30 и привязана к ядру; GPU-квоты до Сб 03:00 исчерпаны, TPU QUEUED; новых запусков нет
+- 30.10 12:47 MSK | coord | проверка: CPU всех 5 акк. kurgan seeds RUNNING, box load 7.6/8, acc1 gpu-2 dino-emb RUNNING, TPU оба QUEUED (очередь Kaggle), GPU-квоты исчерпаны до Сб 03:00; новых запусков нет
+- 30.10 12:48 MSK | check_conflicts | ERROR=1 WARN=8: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 13:00 MSK | coord | проверка: kurgan seeds RUNNING на всех 5 акк., acc1 gpu-2 dino-emb RUNNING, TPU оба QUEUED (очередь Kaggle), box load 8.3/8, GPU-квоты до Сб 03:00 исчерпаны; новых запусков нет
+- 30.10 13:06 MSK | check_conflicts | ERROR=1 WARN=8: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт
+- 30.10 13:12 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 13:12 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 13:12 MSK | lease | acquire slot:box/q1 → coord до 30.10 17:12 MSK fallback W3 kurgan seeds 75,76 box CPU (cpu/kurgan_s75) pid 
+- 30.10 13:12 MSK | lease | acquire slot:box/q2 → coord до 30.10 17:12 MSK fallback W3 kurgan seeds 77,78 box CPU (cpu/kurgan_s77) pid 
+- 30.10 13:13 MSK | coord | проверка: box простаивал (load 0.65/8: kurgan s71-74 ГОТОВО ~8900-9040 с) → release q1/q2, fallback W3 kurgan seeds 75,76 (q1, cpu/kurgan_s75) и 77,78 (q2, cpu/kurgan_s77), аренды до 17:12. Kaggle: kurgan-cpu-seeds RUNNING на всех 5 акк., acc1 dino-emb-gpu RUNNING, TPU acc1/acc2 QUEUED (очередь Kaggle), GPU-квоты до Сб 03:00 исчерпаны
+- 30.10 13:19 MSK | lease | release slot:acc1/tpu (bot-W3-bigobj) by coord
+- 30.10 13:19 MSK | lease | release kernel:elenakonkova/koz3-acc2-tpu-smoke (bot-W3-bigobj) by coord
+- 30.10 13:19 MSK | watcher | acc1/tpu: elenakonkova/koz3-acc2-tpu-smoke → COMPLETE; аренда снята
+- 30.10 13:19 MSK | lease | release slot:acc2/tpu (bot-W2-lidar) by coord
+- 30.10 13:19 MSK | lease | release kernel:dmitrijkv/koz3-tpu-cnx-c3sc-train (bot-W2-lidar) by coord
+- 30.10 13:19 MSK | watcher | acc2/tpu: dmitrijkv/koz3-tpu-cnx-c3sc-train → COMPLETE; аренда снята
+- 30.10 13:35 MSK | coord | проверка: TPU-смоуки acc1/acc2 COMPLETE → S0-tpu1/2 закрыты; TPU свободны, но TPU-готовой задачи нет (W2-tpu hold до прохождения варианта (b)); box load 4.8→рост (kurgan s75-78 на q1/q2, старт 13:26); Kaggle CPU kurgan seeds RUNNING, acc1 gpu-2 RUNNING, GPU-квоты до Сб 03:00
+- 30.10 13:39 MSK | check_conflicts | ERROR=3 WARN=11: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 13:50 MSK | coord | проверка: box load 12/8 (полно, kurgan s75-78), acc1 kurgan-b RUNNING + W5 dino-vitb-tpu QUEUED (очередь Kaggle), acc2 kurgan RUNNING, wsg2-cpu COMPLETE, gorheads-cpu ERROR (W3), aaaa0000004 kurgan RUNNING; БЛОКЕР: токены usertest1234 и aaaadg4gg4g4g отклоняются API (Authentication required) — статус их ядер не виден, нужны новые токены от Элены; acc2 TPU свободен, TPU-готовой задачи нет
+- 30.10 14:01 MSK | lease | release kernel:elenakonkova/koz3-w5-dino-emb-gpu (coord) by coord
+- 30.10 14:01 MSK | lease | release slot:acc1/gpu-2 (coord) by coord
+- 30.10 14:03 MSK | coord | проверка: acc1 dino-emb-gpu COMPLETE → выход в out/w5-dino-emb-gpu-1030, аренды gpu-2 сняты (GPU-квоты до Сб 03:00 исчерпаны); kurgan seeds RUNNING acc1(a,b)/acc2/aaaa0000004, box load 11/8, dino-vitb-tpu QUEUED (очередь Kaggle), acc2 TPU свободен — TPU-готовой задачи нет; БЛОКЕР повторно: токены usertest1234 и aaaadg4gg4g4g отклоняются API
+- 30.10 14:01 MSK | check_conflicts | ERROR=3 WARN=11: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 14:03 MSK | lease | acquire slot:box/cpu → bot-W3-bigobj до 30.10 18:03 MSK W3 KS gate + WS-G1
+- 30.10 14:10 MSK | lease | release slot:box/cpu (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:10 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 15:10 MSK W3 push
+- 30.10 14:10 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:11 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 15:11 MSK W3 push
+- 30.10 14:11 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:11 MSK | lease | release slot:box/q1 (coord) by coord
+- 30.10 14:11 MSK | lease | release slot:box/q2 (coord) by coord
+- 30.10 14:12 MSK | lease | acquire slot:box/q1 → bot-W1-aeor до 30.10 19:12 MSK CI2-1 cloudfeat+gate on box (bot1 option b), nice10 thr4
+- 30.10 14:13 MSK | coord | проверка: без изменений с 14:03 — kurgan seeds RUNNING acc1(a,b)/acc2/aaaa0000004, dino-vitb-tpu QUEUED (очередь Kaggle), box load 13/8 (полно), GPU-квоты до Сб 03:00 исчерпаны, acc2 TPU свободен (TPU-готовой задачи нет); aaaa0000004 v3amin-chk COMPLETE (W4); токены usertest1234/aaaadg4gg4g4g по-прежнему отклоняются
+- 30.10 14:14 coord: WS-G1 FAIL, KS FAIL — kurgan subclass closed; box seeds 75–78 killed, q1→W3 CI2-5, q2→W2 check s1f4 site-190 OOF mismatch (0.666 vs 0.515). Kaggle tokens usertest1234/aaaadg4gg4g4g dead, waiting on Elena.
+- 30.10 14:12 MSK | lease | acquire slot:box/q2 → bot-W2-lidar до 30.10 20:12 MSK P-W2-11 s1f4 OOF/maps audit (CPU, nice10)
+- 30.10 14:16 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 14:46 MSK W3 CI2-5 prep commit
+- 30.10 14:16 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 14:17 coord: CI2-7 CLOSED. W3 CI2-5 in dispatch (w3-ci25-cpu) → runs/gate_C5.json; when it appears, hand off to parent to ping bot 4.
+- 30.10 14:17 MSK | check_conflicts | ERROR=3 WARN=10: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 14:35 MSK | check_conflicts | ERROR=3 WARN=10: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 14:37 MSK | coord | проверка: box load 7.6/8 (q1 W1 cloudfeat, q2 W2 s1f4 infer), acc1 kurgan a/b + acc2 kurgan + aaaa0000004 RUNNING (линия kurgan закрыта, ядра доживают; отменить CLI нельзя), dino-vitb-tpu QUEUED (очередь Kaggle), GPU-квоты до Сб 03:00 исчерпаны, TPU свободны (TPU-задачи нет); gate_C5.json ещё нет; токены usertest1234/aaaadg4gg4g4g по-прежнему мертвы (ждём Элену)
+- 30.10 14:48 MSK | coord | проверка: без изменений с 14:37 — box load 7.8/8 (q1 W1, q2 W2), kurgan RUNNING acc1(a,b)/acc2, dino-vitb-tpu QUEUED (очередь Kaggle), GPU-квоты до Сб 03:00 исчерпаны, gate_C5.json ещё нет, токены usertest1234/aaaadg4gg4g4g мертвы (ждём Элену)
+- 30.10 14:54 MSK | check_conflicts | ERROR=3 WARN=10: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 15:08 MSK | coord | проверка: без изменений — kurgan RUNNING acc1(a,b)/acc2, dino-vitb-tpu QUEUED (очередь Kaggle), dmitrijkv wsg2-cpu COMPLETE (W3), box: q1/q2 заняты (prep.py, ws_rr.py, load растёт), GPU-квоты до Сб 03:00 исчерпаны, TPU-задачи нет; gate_C5.json ещё нет
+- 30.10 15:10 MSK | check_conflicts | ERROR=4 WARN=10: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 15:15 MSK | lease | acquire slot:box/q3 → bot-W3-bigobj до 30.10 17:15 MSK CI2-5 gate (run_c5gate.sh) coord-launched: box idle load 1.4/8
+- 30.10 15:17 MSK | coord | box load 1.4/8 (q1/q2 процессы почти завершены, только ws_rr.py) → запущен W3 CI2-5 gate на slot:box/q3 (nice10 thr4) → bot-W3/runs/gate_C5.json, лог gate_C5.log; kurgan RUNNING acc1(a,b)/acc2, dino-vitb-tpu QUEUED на acc1+acc2 (очередь Kaggle), GPU-квоты до Сб 03:00 исчерпаны
+- 30.10 15:22 MSK | lease | release slot:box/q1 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 15:23 MSK | lease | release slot:box/q2 (bot-W2-lidar) by bot-W2-lidar
+- 30.10 15:25 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 17:25 MSK w3-ci25-cpu
+- 30.10 15:25 MSK | watcher | box/q1 ← w3-ci25-cpu (box, pid 637086)
+- 30.10 15:25 MSK | check_conflicts | ERROR=4 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 15:31 MSK | lease | release slot:box/q1 (bot-W3-bigobj) by coord
+- 30.10 15:31 MSK | watcher | box/q1: box → COMPLETE; аренда снята
+- 30.10 15:31 MSK | lease | release slot:box/q3 (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 15:33 MSK | coord | CI2-5 gate завершён: C5B PASS Δ+0.0039 (P 0.998), C5A/C5C fail → bot-W3/runs/gate_C5.json; box простаивает (load 0.25/8) — передаю родителю: пинг бота 4 (интеграция C5B) и бота 3/2/4 для загрузки box; kurgan RUNNING acc1/acc2, dino-vitb-tpu QUEUED (очередь Kaggle), GPU до Сб 03:00 исчерпаны
+- 30.10 15:32 MSK | lease | release dataset:aaaa0000004/koz3-w4-v2clean-check (bot-W4-chk3) by bot-W4-chk3
+- 30.10 15:32 MSK | lease | acquire slot:box/q2 → bot-W4-v3 до 30.10 23:32 MSK W4: порт pix_clean в w4-gate (v3_on), гейт honest-10, P-D2-cleanroom
+- 30.10 15:32 MSK | lease | acquire branch:bots/w4-gate → bot-W4-gate до 31.10 01:32 MSK W4 v3_on pix_clean port
+- 30.10 15:34 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 17:34 MSK W3 C5B joint gate (A+M_rp+ORG3+C5B), nice10 thr4
+- 30.10 15:41 MSK | check_conflicts | ERROR=4 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды
+- 30.10 15:45 MSK | lease | acquire slot:box/q3 → coord до 30.10 19:45 MSK w0s-dem-noground full-file class2 count (S3 stream)
+- 30.10 15:52 MSK | coord | проверка: kurgan RUNNING acc1-b/acc2, dino-vitb-tpu QUEUED acc1+acc2 (очередь Kaggle), GPU до Сб 03:00 исчерпаны, aaaa0000004 v3amin-chk COMPLETE; box q1 W3 C5B joint, q2 W4 v3; q3 ← coord w0s-dem-noground (полный подсчёт class 2 по 59 LAS из S3, кандидаты 037/101/102/187) → w0/noground/full_cls.json; токены usertest1234/aaaadg4gg4g4g по-прежнему мертвы (ждём Елену)
+- 30.10 15:53 MSK | lease | release slot:box/q1 (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 15:53 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 16:23 MSK W3 C5B joint commit
+- 30.10 15:53 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 15:55 MSK | lease | release slot:box/q2 (bot-W4-v3) by bot-W4-v3
+- 30.10 15:55 MSK | lease | release branch:bots/w4-pix-clean (bot-W4-doc1g) by bot-W4-doc1g
+- 30.10 15:55 MSK | lease | release slot:aaaa0000004/cpu (coord) by coord
+- 30.10 15:57 coord: v3_on PASS vs v2clean Δ+0.0198 (W4). aaaa0000004/cpu released for W4 v3 check_submission. C5B joint FAIL (overlaps M_rp).
+- 30.10 15:56 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 17:56 MSK W3 C5B NST nested gate, nice10 thr4
+- 30.10 15:57 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 15:57 MSK | lease | acquire slot:aaaa0000004/cpu → bot-W4-chk4 до 30.10 23:57 MSK check_submission v3_on ebc8e4ba
+- 30.10 15:57 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-v3on-check → bot-W4-chk4 до 30.10 23:57 MSK v3on archive
+- 30.10 15:57 MSK | lease | acquire dataset:aaaa0000004/koz3-w4-wheels-v3 → bot-W4-chk4 до 30.10 23:57 MSK py313 wheels
+- 30.10 15:58 MSK | coord | короткая проверка (5 мин после 15:52): box load 1.6/8 — q1 W3 NST, q3 coord noground; q2 свободен после W4 v3 (W4 переходит к check_submission на aaaa0000004); готовые box-пункты P-W2-hillshade-parity/P-W4-compgate не автозапуск (старт 18:00/31.10). Kaggle без изменений с 15:52.
+- 30.10 16:01 MSK | lease | acquire slot:box/q2 → bot-W4-cg до 31.10 00:01 MSK W4 compgate + OOF A rebuild + v3on+M_rp
+- 30.10 16:02 MSK | lease | acquire kernel:aaaa0000004/koz3-w4-v3onchk → bot-W4-chk4 до 31.10 00:02 MSK v3on check
+- 30.10 16:05 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:05 MSK commit gate_cf
+- 30.10 16:05 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:08 coord: CI2-1 cloudfeat FAIL (W1). Deleted elenakonkova/koz3-w5-cloudfeat-in (contained S3 cred.json). RULE: never put cred.json into datasets.
+- 30.10 16:07 MSK | lease | release slot:aaaa0000004/cpu (bot-W4-chk4) by coord
+- 30.10 16:07 MSK | lease | release kernel:aaaa0000004/koz3-w4-v3onchk (bot-W4-chk4) by coord
+- 30.10 16:07 MSK | watcher | aaaa0000004/cpu: aaaa0000004/koz3-w4-v3onchk → ERROR; аренда снята
+- 30.10 16:13 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 16:19 MSK | lease | release slot:box/q1 (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 16:19 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-bigobj до 30.10 17:19 MSK NST commit
+- 30.10 16:19 MSK | lease | release branch:bots/w3-kurgan-seeds (bot-W3-bigobj) by bot-W3-bigobj
+- 30.10 16:19 MSK | lease | acquire slot:box/q1 → bot-W1-aeor до 30.10 18:19 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:20 MSK | lease | release slot:box/q1 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:21 MSK | lease | release slot:box/q3 (coord) by coord
+- 30.10 16:22 MSK | coord | проверка: box load 1.4/8 — q3 coord noground завершён (w0/noground/full_cls.json 15:59), аренда снята; q2 W4-cg compgate, gap.py NST идёт; kurgan RUNNING acc1(a,b)/acc2/aaaa0000004 (v3onchk ERROR — у W4), dino-vitb-tpu QUEUED acc1+acc2 (очередь Kaggle), GPU до Сб 03:00 исчерпаны; токены usertest1234/aaaadg4gg4g4g мертвы (ждём Елену)
+- 30.10 16:22 MSK | lease | acquire slot:box/q1 → bot-W3-bigobj до 30.10 19:22 MSK W3 gap breakdown + lever gate (q2 busy W4), nice10 thr4
+- 30.10 16:22 MSK | lease | release slot:box/q2 (bot-W4-cg) by bot-W4-cg
+- 30.10 16:25 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 30.10 18:25 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:26 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:28 MSK | check_conflicts | ERROR=5 WARN=12: общий клон /workspace/koz3/repo имеет изменения в отслеживаемых файлах: 81 шт; ядро elenakonkova/koz3-w3-kurgan-cpu-seeds-b RUNNING без аренды; ядро elenakonkova/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро dmitrijkv/koz3-w5-dino-vitb-tpu QUEUED без аренды; ядро aaaa0000004/koz3-w3-kurgan-cpu-seeds RUNNING без аренды
+- 30.10 16:30 MSK | lease | acquire slot:box/q2 → bot-W1-aeor до 30.10 18:30 MSK W1 joint gate RR1s-cf+M_rp on v3_on (PREREG_W1 16:10), nice10 thr4
+- 30.10 16:31 MSK | lease | release slot:box/q2 (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:31 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:31 MSK commit joint gate
+- 30.10 16:32 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:32 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 30.10 17:32 MSK commit joint gate
+- 30.10 16:32 MSK | lease | release branch:bots/w1-aeor (bot-W1-aeor) by bot-W1-aeor
+- 30.10 16:35 MSK | coord | проверка: box load 1.6/8 — q1 W3 gap.py; q2/q3 свободны, W1 (joint gate) и W4 (compgate) циклят box-слоты короткими прогонами; Kaggle без изменений с 16:22 (kurgan RUNNING, dino-vitb-tpu QUEUED acc1+acc2, aaaa0000004 v3onchk ERROR у W4); GPU до Сб 03:00 исчерпаны; токены usertest1234/aaaadg4gg4g4g мертвы. Замечание: kurgan-сиды (CI2-7 CLOSED, KS FAIL) прироста не дают — новые сиды не перезапускать.
+- 30.10 16:35 coord: W1 J2 (RR1s-cf+M_rp over v3_on) Δ+0.0156 P0.9845 borderline Bonferroni → W4 independent regate (α reselected on v3, P≥0.9857); W1 builds cloudfeat inference module (flag w5_cloudfeat). M_rp over v3_on only +0.0008.
+
+- 01.11 19:47 MSK | bot7 | geo-gate rework: shared `kaggle/common/koz3_s3.py` @ 11a47d2a (blob 7e1d0ab1) — Secrets KOZ3_S3_* + cred fallback dmitrijkv/koz3-s3-cred; list_keys; scrub; для bot6 verbatim. Пакет `/workspace/kaggle/push/geo-gate/` slug dmitrijkv/koz3-bot7-geo-gate internet=true CPU; datasets gt-train-v2+xfer-s000 verified, s3-cred 403, w4-geo-s000/s001 missing→S3. Suite 1016p/65s/2 prefails (0 new). PR #26 draft update. Ядро НЕ пушено. Аренды branch:bots/bot7-geo-gate + slot:box/cpu снимаются.
+- 01.11 20:13 MSK | bot7 | geo-gate REAL scoreboard: L3 post hull + baseline prep→gate_v6c (B′=0.315800 Ae-ON flags-off ±0.002 fail-loud); L1/L2 SKIPPED unless GEO_GATE_REINFER=1 (no silent null DONE stubs). Package /workspace/kaggle/push/geo-gate + elenakonkova/koz3-w2-gate. sat-recall same stub→real fix in bots/bot7-sat-recall. Dry-run non-null on box. Do NOT kaggle-push from bot7.
+- 01.11 20:13 MSK | bot7 | sat-recall: prior_only stubs → REAL prep→gate_v6c scoreboard (same B′); package /workspace/kaggle/push/sat-recall. Audit: pushed 20:01 kernel was EMPTY.
 30.10 ~12:57 MSK | A→C | dino-emb зеркало: /workspace/koz3/out/w5-dino-emb (pull elenakonkova/koz3-w5-dino-emb). table.pkl/OOF A — нет (ждём ПК Елены → /workspace/koz3/pc_data или w5data/work). out_v2clean_check4 — нет токена aaaa0000004 (local_ctx пуст); ядро COMPLETE, цель w4geo/kaggle/out_v2clean_check4.
 - 30.10 12:57 MSK | lease | acquire branch:bots/w1-aeor → bot-W1-aeor до 01.11 12:57 MSK D/W1: e2e Ae V7 + CI2-5 prep; GPU after 31.10 03:00
 - 30.10 12:57 MSK | lease | acquire branch:bots/w3-kurgan-seeds → bot-W3-kurgan до 01.11 12:57 MSK D/W3: kurgan seeds; CPU pool keys pending

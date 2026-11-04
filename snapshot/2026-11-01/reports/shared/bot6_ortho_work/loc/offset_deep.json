@@ -1,0 +1,17 @@
+{
+  "n_oof": 1228,
+  "median_dist_m": 239.1927577961864,
+  "soft_tp_2m": 31,
+  "within_50": 277,
+  "within_200": 528,
+  "mean_dx_dy": [
+    84.11584898971472,
+    47.30553824656434
+  ],
+  "std_dx_dy": [
+    215.46663683622526,
+    211.81848680453797
+  ],
+  "residual_median_after_mean": 230.0524196085651,
+  "verdict": "NO systematic CRS offset (std>>mean); soft_tp@2m>0 \u2192 geo path OK; many far FPs = domain/thr"
+}

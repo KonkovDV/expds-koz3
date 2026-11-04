@@ -303,11 +303,11 @@ class CnxSegmenter:
                 xb = torch.from_numpy(np.ascontiguousarray(x[None, :, r:r + th, q:q + tw])).to(self.device)
                 t_one = float("inf")
                 for _ in range(2):                            # 1-й проход — прогрев (cudnn, кэши)
-                    t0 = time.monotonic()
+                    t0 = time.perf_counter()               # monotonic на Windows шагает ~15 мс
                     self._logits(xb, self.amp, 1, self.nets[:1])
                     if self.device.type == "cuda":
                         torch.cuda.synchronize()
-                    t_one = min(t_one, time.monotonic() - t0)
+                    t_one = min(t_one, time.perf_counter() - t0)
                 t_one *= batch                                # грубо: пакет ~ batch окон
                 tta = self.choose_tta(-(-len(pos) // batch), t_one, budget_s)
             self.tta_used = tta

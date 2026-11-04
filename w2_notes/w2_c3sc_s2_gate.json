@@ -1,0 +1,207 @@
+{
+ "time": "30.10 03:52 MSK",
+ "by": "bot-W2 (бот 3)",
+ "status": "измерение для W4/W5, не приём",
+ "oof": {
+  "path": "/workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s2.geojson",
+  "sha256": "7d45ef2f56e63b3aec68f793c952d9078c12aabca810c4def35faaa383ef9fae",
+  "n": 94959,
+  "n_det": {
+   "0": 10299,
+   "1": 1157,
+   "2": 18476,
+   "3": 15326,
+   "4": 49701
+  },
+  "s0": {
+   "0": 9604,
+   "1": 974,
+   "2": 18730,
+   "3": 20694,
+   "4": 35645
+  },
+  "s1": {
+   "0": 8627,
+   "1": 1197,
+   "2": 26927,
+   "3": 19326,
+   "4": 27442
+  },
+  "kernels": [
+   "dmitrijkv/koz3-w2-cnx-c3sc-s2f01 (f0,f1)",
+   "dmitrijkv/koz3-w2-cnx-c3sc-s2f23 (f2,f3)",
+   "elenakonkova/koz3-w2-cnx-c3sc-s2f4 (f4)"
+  ],
+  "cfg_seed": 2
+ },
+ "checks": {
+  "folds_5of5": true,
+  "threshold_group_li_cnx": "94959/94959",
+  "crs": "EPSG:3857 (urn:ogc:def:crs:EPSG::3857)",
+  "region_fold": "все 9 region_fold.json (s0/s1/s2) — одинаковые region_fold (59 уч.) и region_family; 5261 vs 5306 байт у f4-ядер (s0,s1,s2) — только поле jobs ([c3-sc:4] вместо [c3-sc:0,c3-sc:1])",
+  "outside_fold": 0,
+  "region_missing": 0,
+  "sites_with_det": {
+   "f0": 6,
+   "f1": 1,
+   "f2": 13,
+   "f3": 18,
+   "f4": 20,
+   "total": "58/59 (как s0/s1; 182_Красносельская_1.7км без детекций)"
+  },
+  "note_f4": "f4 49701 = +39% к s0 (35645), +81% к s1 (27442); прирост — низкие conf (медиана 0.076; conf>=0.3: 1538 vs 1476/1246)"
+ },
+ "gate_method": "как V6c W5 (wt/w5/analysis/2026-10-30/w5_rerank @c4e18a9): stack A + OOF как отдельная группа li_cnx (w2/tools/stack_add_cnx.py) → prep.py → gate_v6c.py --vs w5data/work/base_counts.pkl (honest-10 по семьям, paired bootstrap 2000 по семьям, 103 семьи) → w2/tools/gate_detail.py (полы, срезы, участки). Вариант (b) «замена li-групп» не мерялся.",
+ "A_repro": 0.3146153226828423,
+ "c3sc_s2": {
+  "A": 0.3146153226828423,
+  "B": 0.29840208092311027,
+  "d": -0.016213241759732044,
+  "boot": {
+   "mean": -0.0160421398154447,
+   "p5": -0.024719164517822113,
+   "p50": -0.015667283214884142,
+   "p95": -0.00822203072699815,
+   "p_gt0": 0.0,
+   "families": 103
+  },
+  "per_class_dF1": {
+   "kurgany_povrezhdennye": -0.009572000850830265,
+   "kurgany_tselye": -0.01726727630489916,
+   "gorodishcha": -0.05987827146117905,
+   "arkhitektury": 0.0,
+   "object_poly": 0.0,
+   "fortifikatsii": -0.018128910486525956,
+   "finds_points": 0.0
+  },
+  "floor_violations": {
+   "kurgany_povrezhdennye": -0.009572000850830265,
+   "kurgany_tselye": -0.01726727630489916,
+   "gorodishcha": -0.05987827146117905,
+   "fortifikatsii": -0.018128910486525956
+  },
+  "new34": {
+   "A": 0.2964508527066795,
+   "B": 0.2786355939017609,
+   "d": -0.017815258804918577,
+   "floor_violations": {
+    "gorodishcha": -0.14882876654598876,
+    "fortifikatsii": -0.014432491886757937
+   }
+  },
+  "optical_nolidar": {
+   "A": 0.14427407342564424,
+   "B": 0.14427407342564424,
+   "d": 0.0
+  },
+  "lidar59": {
+   "d": -0.03177199300148442,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.018510998241834553,
+    "kurgany_tselye": -0.018842455446565043,
+    "gorodishcha": -0.13941334548620116,
+    "fortifikatsii": -0.03076401233381773
+   }
+  },
+  "las_sites_changed": 43,
+  "las_sites_drop": 29,
+  "worst5": {
+   "007_Армиево": -0.7499988750009375,
+   "009_Хальвасборген": -0.3555549787659806,
+   "106_Верхмарево": -0.2917363120639974,
+   "015_Демидовка": -0.26666659555541994,
+   "033_Елизаветинское": -0.21428554081648904
+  },
+  "gate": {
+   "d_ok": false,
+   "p_ok": false,
+   "floors_ok": false,
+   "new34_ok": false,
+   "optical_ok": true,
+   "PASS": false
+  }
+ },
+ "c3sc_s012avg_secondary": {
+  "path": "/workspace/koz3/w2/oof/merged/oof_cnx_c3-sc_s012avg.geojson",
+  "sha256": "a88c65053beed31f9d529a640cb4940bc8c30b005728897017d0ca4a9b9bac98",
+  "n": 82996,
+  "build": "seed_merge_cnx.py maps --seeds s0,s1,s2 (карты s2f01 скачаны read-only в w2/maps/s2; декод s2 одиночно = OOF ядра: те же счёты по участок×класс, max|Δconf| 0.0037)",
+  "A": 0.3146153226828423,
+  "B": 0.30756409194689094,
+  "d": -0.007051230735951375,
+  "boot": {
+   "mean": -0.006794984645617886,
+   "p5": -0.016761573593432704,
+   "p50": -0.006627715882790847,
+   "p95": 0.001999330114805017,
+   "p_gt0": 0.1055,
+   "families": 103
+  },
+  "per_class_dF1": {
+   "kurgany_povrezhdennye": -0.010086288640563768,
+   "kurgany_tselye": -0.013645155275989529,
+   "gorodishcha": -0.005645419565215137,
+   "arkhitektury": 0.0,
+   "object_poly": 0.0,
+   "fortifikatsii": -0.008990003076042558,
+   "finds_points": 0.0
+  },
+  "floor_violations": {
+   "kurgany_povrezhdennye": -0.010086288640563768,
+   "kurgany_tselye": -0.013645155275989529,
+   "gorodishcha": -0.005645419565215137,
+   "fortifikatsii": -0.008990003076042558
+  },
+  "new34": {
+   "A": 0.2964508527066795,
+   "B": 0.2959859887057149,
+   "d": -0.00046486400096457103,
+   "floor_violations": {
+    "gorodishcha": -0.05904114499798707
+   }
+  },
+  "optical_nolidar": {
+   "A": 0.14427407342564424,
+   "B": 0.14427407342564424,
+   "d": 0.0
+  },
+  "lidar59": {
+   "d": -0.013773075404943602,
+   "floor_violations": {
+    "kurgany_povrezhdennye": -0.017246982739494876,
+    "kurgany_tselye": -0.01385774926796246,
+    "gorodishcha": -0.03272835468265939,
+    "fortifikatsii": -0.018363550542075724
+   }
+  },
+  "las_sites_changed": 48,
+  "las_sites_drop": 28,
+  "worst5": {
+   "007_Армиево": -0.6973673846961054,
+   "032_Красносельская_0.5км": -0.4444438518524197,
+   "015_Демидовка": -0.22857137052144683,
+   "106_Верхмарево": -0.2210030628848479,
+   "033_Елизаветинское": -0.21428554081648904
+  },
+  "gate": {
+   "d_ok": false,
+   "p_ok": false,
+   "floors_ok": false,
+   "new34_ok": true,
+   "optical_ok": true,
+   "PASS": false
+  }
+ },
+ "reference_W5_V6c_s01fused": {
+  "d": -0.010293,
+  "P": 0.0075
+ },
+ "verdict": "FAIL оба: c3-sc в стек аддитивно не проходит (Δ<0, P≈0, полы нарушены по povr/tselye/gor/fort)",
+ "files": {
+  "detail_s2": "/workspace/koz3/w2/gate_s2/detail_s2.json",
+  "detail_s012": "/workspace/koz3/w2/gate_s2/detail_s012.json",
+  "gate_s2": "/workspace/koz3/w2/gate_s2/s2/work/w6c_gate_s2.json",
+  "gate_s012": "/workspace/koz3/w2/gate_s2/s012/work/w6c_gate_s012.json",
+  "logs": "/workspace/koz3/w2/gate_s2/logs/"
+ }
+}

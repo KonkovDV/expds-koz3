@@ -473,7 +473,7 @@ def test_dedupe_cnx_against_kept_detections():
              _kur(105, 0, group="li_cnx"),                        # рядом слабый li — новый
              _kur(203, 0, group="li_cnx"),                        # дубль li_coarse
              _kur(303, 0, group="li_cnx"),                        # li_coarse ниже порога — новый
-             _kur(402, 0, group="li_cnx"),                        # другой класс — новый
+             _kur(402, 0, group="li_cnx"),                        # другой класс у лидара — тоже дубль (bot-8)
              _kur(500, 0, group="li_cnx"),                        # якорь в другом участке — новый
              {"geom": box(1050, 50, 1150, 150), "class_name": "gorodishcha", "confidence": 0.9,
               "region_name": "r", "markup_type": "li", "threshold_group": "li_cnx"},   # пересекается — дубль
@@ -481,7 +481,7 @@ def test_dedupe_cnx_against_kept_detections():
               "region_name": "r", "markup_type": "li", "threshold_group": "li_cnx"}]
     kept = pipeline.dedupe_cnx(fresh, pool, cfg)
     xs = sorted(round(f["geom"].centroid.x) for f in kept)
-    assert xs == [20, 105, 303, 402, 500, 2050]
+    assert xs == [20, 105, 303, 500, 2050]
     assert pipeline.dedupe_cnx(fresh, [], cfg) == fresh
     assert pipeline.dedupe_cnx([], pool, cfg) == []
 

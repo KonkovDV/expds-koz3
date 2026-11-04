@@ -1,0 +1,332 @@
+{
+ "what": "P-W2-13: D-FINE-2 ens8 (mean) on V3P, v3_on prod context",
+ "boot": 2000,
+ "cfg": "/workspace/koz3/w2/r50c5_gate/v3on_src/configs/default.toml",
+ "d2_dirs": [
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b"
+ ],
+ "variants": {
+  "C3_ens8_arkh_gor_as_sp_dfine_ctx": {
+   "decisive": true,
+   "scores": {
+    "all": {
+     "A": 0.3465003834973111,
+     "B": 0.3545461504657407,
+     "delta": 0.008045766968429569,
+     "P": 0.9215,
+     "p5": -0.0011228986913987466,
+     "p95": 0.016552728040519424
+    },
+    "new34": {
+     "A": 0.33797675586676257,
+     "B": 0.3340671247412121,
+     "delta": -0.003909631125550483,
+     "P": 0.0005,
+     "p5": -0.01106394432789653,
+     "p95": 0.0
+    },
+    "nolidar": {
+     "A": 0.22161833642789827,
+     "B": 0.23019450884775974,
+     "delta": 0.008576172419861472,
+     "P": 0.8345,
+     "p5": -0.00514978370919001,
+     "p95": 0.024320811320318422
+    }
+   },
+   "floor": {
+    "kurgany_povrezhdennye": {
+     "f1_A": 0.3482936556716586,
+     "f1_B": 0.3482936556716586,
+     "d": 0.0,
+     "n_gt": 3620.0,
+     "floor": -0.002,
+     "ok": true,
+     "tp": [
+      1003.0,
+      1003.0
+     ],
+     "fp": [
+      2273.0,
+      2273.0
+     ]
+    },
+    "kurgany_tselye": {
+     "f1_A": 0.4981654437021447,
+     "f1_B": 0.4981654437021447,
+     "d": 0.0,
+     "n_gt": 1577.0,
+     "floor": -0.002,
+     "ok": true,
+     "tp": [
+      713.0,
+      713.0
+     ],
+     "fp": [
+      1145.0,
+      1145.0
+     ]
+    },
+    "gorodishcha": {
+     "f1_A": 0.3259254363915195,
+     "f1_B": 0.34636826191500386,
+     "d": 0.020442825523484365,
+     "n_gt": 118.0,
+     "floor": -0.002,
+     "ok": true,
+     "tp": [
+      33.0,
+      31.0
+     ],
+     "fp": [
+      103.0,
+      60.0
+     ]
+    },
+    "arkhitektury": {
+     "f1_A": 0.17520617066158026,
+     "f1_B": 0.22499960206064923,
+     "d": 0.04979343139906897,
+     "n_gt": 407.0,
+     "floor": -0.005,
+     "ok": true,
+     "tp": [
+      53.0,
+      63.0
+     ],
+     "fp": [
+      290.0,
+      180.0
+     ]
+    },
+    "object_poly": {
+     "f1_A": 0.13054376295675083,
+     "f1_B": 0.13054376295675083,
+     "d": 0.0,
+     "n_gt": 1083.0,
+     "floor": -0.005,
+     "ok": true,
+     "tp": [
+      78.0,
+      78.0
+     ],
+     "fp": [
+      68.0,
+      68.0
+     ]
+    },
+    "fortifikatsii": {
+     "f1_A": 0.1511146924518632,
+     "f1_B": 0.1511146924518632,
+     "d": 0.0,
+     "n_gt": 696.0,
+     "floor": -0.005,
+     "ok": true,
+     "tp": [
+      83.0,
+      83.0
+     ],
+     "fp": [
+      639.0,
+      639.0
+     ]
+    },
+    "finds_points": {
+     "f1_A": 0.5535965461223044,
+     "f1_B": 0.5535965461223044,
+     "d": 0.0,
+     "n_gt": 3478.0,
+     "floor": -0.005,
+     "ok": true,
+     "tp": [
+      1641.0,
+      1641.0
+     ],
+     "fp": [
+      1619.0,
+      1619.0
+     ]
+    }
+   },
+   "gate": {
+    "delta_ge_0.003": true,
+    "P_ge_0.95": false,
+    "class_floors": true,
+    "new34_ge_0": false,
+    "nolidar_ge_0": true,
+    "PASS": false,
+    "P_ge_bonferroni": false,
+    "p_need": 0.9875
+   }
+  }
+ },
+ "d2_files": [
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f0.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a/oof_dfine_f3.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f1.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f2.geojson",
+  "/workspace/koz3/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b/oof_dfine_f4.geojson"
+ ],
+ "n_ref": 243029,
+ "n_d2": 242696,
+ "d2_regions": 132,
+ "ref_regions": 132,
+ "d2_missing_regions": [],
+ "V3P": 0.33443541758189455,
+ "S0_ok": false,
+ "S1": 0.33443541758189455,
+ "S1_ok": false,
+ "S0_note": "C19 geo eval missing in backups: V3P differs only in etgr object_poly; delta/P class-separable",
+ "ctx_rows": {
+  "stack_before": 1281976,
+  "stack_kept": 47382,
+  "c19_kept": 0,
+  "dfx_before": 85069,
+  "dfx_kept": 1985
+ },
+ "V3P_ctx": 0.3465003834973111,
+ "ens_rows": {
+  "C3_ens8_arkh_gor_as_sp_dfine_ctx": {
+   "ens": 14539,
+   "ref": 73728,
+   "kept": 1741,
+   "classes": {
+    "arkhitektury": 278,
+    "gorodishcha": 30,
+    "kurgany_povrezhdennye": 1297,
+    "kurgany_tselye": 136
+   }
+  }
+ },
+ "floors_used": {
+  "li": {
+   "kurgany_tselye": 0.19422,
+   "kurgany_povrezhdennye": 0.06415,
+   "gorodishcha": 0.993091,
+   "arkhitektury": 1.01,
+   "fortifikatsii": 0.999971,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "ae": {
+   "kurgany_tselye": 0.802255,
+   "kurgany_povrezhdennye": 0.99053,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.998215,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_mosaic": {
+   "kurgany_tselye": 0.17042,
+   "kurgany_povrezhdennye": 0.959005,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_ae": {
+   "kurgany_tselye": 1.000001,
+   "kurgany_povrezhdennye": 0.993061,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_dev": {
+   "kurgany_tselye": 0.99957,
+   "kurgany_povrezhdennye": 0.99131,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_coarse": {
+   "kurgany_tselye": 0.469805,
+   "kurgany_povrezhdennye": 0.966705,
+   "gorodishcha": 0.986425,
+   "arkhitektury": 1.01,
+   "fortifikatsii": 0.99926,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_mask": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.99451,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "gor_phys": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.43049,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "or": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.483891,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "maggr": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "terfl": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "ae_fort": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.2,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "li_fort": {
+   "kurgany_tselye": 0.15,
+   "kurgany_povrezhdennye": 0.15,
+   "gorodishcha": 0.15,
+   "arkhitektury": 0.15,
+   "fortifikatsii": 0.987675,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  },
+  "sp_dfine": {
+   "kurgany_tselye": 0.670285,
+   "kurgany_povrezhdennye": 0.555265,
+   "gorodishcha": 0.68847,
+   "arkhitektury": 0.373015,
+   "fortifikatsii": 0.869051,
+   "object_poly": 0.0,
+   "finds_points": 0.0
+  }
+ },
+ "floors_match_v3on_floors_json": true,
+ "sec": 165
+}

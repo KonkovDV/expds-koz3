@@ -1,0 +1,11 @@
+[C1] fold 0: in 20016 → out 360 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 3s
+[C1] fold 1: in 5438 → out 2428 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.5, 'kurgany_povrezhdennye': 0.5, 'gorodishcha': 0.5, 'arkhitektury': 0.5, 'fortifikatsii': 0.5}} 4s
+[C1] fold 2: in 11581 → out 206 chosen {'d0': 0.0, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 5s
+[C1] fold 3: in 4686 → out 351 chosen {'d0': 0.0, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 6s
+[C1] fold 4: in 8532 → out 2147 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.5, 'kurgany_povrezhdennye': 0.5, 'gorodishcha': 0.5, 'arkhitektury': 0.5, 'fortifikatsii': 0.5}} 6s
+[C1] fold 5: in 6641 → out 354 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 8s
+[C1] fold 6: in 14531 → out 810 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 9s
+[C1] fold 7: in 8611 → out 1382 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 10s
+[C1] fold 8: in 12824 → out 308 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.75, 'kurgany_povrezhdennye': 0.75, 'gorodishcha': 0.75, 'arkhitektury': 0.75, 'fortifikatsii': 0.75}} 12s
+[C1] fold 9: in 5221 → out 1099 chosen {'d0': 0.25, 's_by_class': {'kurgany_tselye': 0.5, 'kurgany_povrezhdennye': 0.5, 'gorodishcha': 0.5, 'arkhitektury': 0.5, 'fortifikatsii': 0.5}} 13s
+done 9445 {'L1_in': 85069, 'L2_thr': 1189, 'L3_thr+rerank': 1189, 'L3_merge': 1189, 'L3b_multipole': 1189, 'L3c_finds': 1189, 'L3d_twins': 1189, 'L3e_micro': 1189, 'L3f_finalize': 1189, 'L4_final': 1189} 15s

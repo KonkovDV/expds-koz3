@@ -1,3 +1,0 @@
-{"torch": "2.11.0+cu128", "cuda": "12.8", "cudnn": 91900, "timm": "1.0.29", "smp": "0.6.0", "transformers": "5.16.1", "device_count_visible": 1, "gpu0": "Tesla T4", "capability": [7, 5], "smoke_sum": 16777216.0}
-
---- stderr ---

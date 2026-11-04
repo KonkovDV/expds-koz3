@@ -1,0 +1,115 @@
+{
+ "what": "W1 production-context gate (J2 nocnx)",
+ "npz": "nested_w5cfnc.npz",
+ "boot": 2000,
+ "sanity": {
+  "folds_equal_ws_rr": true,
+  "K_key_mismatch": 0,
+  "V3P_via_curves": 0.3337867244410518,
+  "V3P_minus_engine": 0.0,
+  "retrain_vs_OUTS_maxabs": 0.0,
+  "retrain_vs_OUTS_spearman": 1.0
+ },
+ "V3P": 0.3337867244410518,
+ "oof_shift_on_survivors": {
+  "kurgany_povrezhdennye": {
+   "n_surv": 5385,
+   "n_li": 604121,
+   "spearman_full_vs_prod": 0.7800554065167906,
+   "mean_shift": 0.049468710572301226,
+   "mad": 0.07442427204350045
+  },
+  "kurgany_tselye": {
+   "n_surv": 1929,
+   "n_li": 605473,
+   "spearman_full_vs_prod": 0.8554762395395803,
+   "mean_shift": 0.058208678232195575,
+   "mad": 0.09174708948322421
+  },
+  "gorodishcha": {
+   "n_surv": 229,
+   "n_li": 3670,
+   "spearman_full_vs_prod": 0.8671829564417977,
+   "mean_shift": -0.002774019175791578,
+   "mad": 0.03424501190325565
+  },
+  "fortifikatsii": {
+   "n_surv": 195,
+   "n_li": 1529,
+   "spearman_full_vs_prod": 0.8955315671074138,
+   "mean_shift": -0.009731847332809289,
+   "mad": 0.01600241965809901
+  }
+ },
+ "variants": {
+  "G0_archive_D3": {
+   "all": {
+    "delta": 0.005218213265159755,
+    "P": 0.921
+   },
+   "new34": {
+    "delta": -0.005841583969320774,
+    "P": 0.2725
+   },
+   "nolidar": {
+    "delta": 0.00023558840493034805,
+    "P": 0.654
+   },
+   "floor": {
+    "kurgany_povrezhdennye": 0.015864,
+    "kurgany_tselye": 0.003288,
+    "gorodishcha": 0.001461,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.008353,
+    "finds_points": 0.0
+   }
+  },
+  "G0b_full_ctx_drop_nonsurv": {
+   "all": {
+    "delta": 0.005627911062791646,
+    "P": 0.9515
+   },
+   "new34": {
+    "delta": -0.0026123899756400615,
+    "P": 0.4245
+   },
+   "nolidar": {
+    "delta": 0.001944206734402515,
+    "P": 0.87
+   },
+   "floor": {
+    "kurgany_povrezhdennye": 0.016476,
+    "kurgany_tselye": 0.003774,
+    "gorodishcha": 0.001461,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.005776,
+    "finds_points": 0.0
+   }
+  },
+  "G1_prod_ctx_current_v4": {
+   "all": {
+    "delta": 0.003194266999494433,
+    "P": 0.793
+   },
+   "new34": {
+    "delta": 0.00936725185577475,
+    "P": 0.682
+   },
+   "nolidar": {
+    "delta": 0.0017846648102825269,
+    "P": 0.8335
+   },
+   "floor": {
+    "kurgany_povrezhdennye": 0.005348,
+    "kurgany_tselye": -0.003664,
+    "gorodishcha": 0.01659,
+    "arkhitektury": 0.0,
+    "object_poly": 0.0,
+    "fortifikatsii": -0.003317,
+    "finds_points": 0.0
+   }
+  }
+ }
+}

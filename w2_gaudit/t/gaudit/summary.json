@@ -1,0 +1,38 @@
+[
+ {
+  "site": "018",
+  "las": "018.las",
+  "fmt": 6,
+  "n": 458251,
+  "res": 0.25,
+  "classes": {
+   "2": 458251
+  },
+  "frac": {
+   "2": 1.0
+  },
+  "frac_ground": 1.0,
+  "pipeline_uses": "class2",
+  "cells_all": 455775,
+  "cells_g2": 455775,
+  "g2_hole_frac_of_all_cells": 0.0,
+  "dz_all_minus_g2": {
+   "mean": 0.0,
+   "p50": 0.0,
+   "p90": 0.0,
+   "p99": 0.0,
+   "frac_gt_0.5m": 0.0,
+   "frac_gt_2m": 0.0
+  },
+  "n_gt": 15,
+  "gt_tselye": {
+   "n": 15,
+   "h_g2_med": 1.086,
+   "h_all_med": 1.086,
+   "dh_med": 0.0,
+   "dh_p90": 0.0,
+   "hole_in_g2_med": 0.903
+  },
+  "wall_s": 0.6
+ }
+]

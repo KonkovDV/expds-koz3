@@ -1,0 +1,74 @@
+p_povr covered 6109 {'K5_moved': 11284, 'K1_relabeled': 5417, 'K4': 711}
+K1 extras 5417 drop 11284
+K2 extras 0 drop 0
+K3 extras 0 drop 0
+K4 extras 711 drop 0
+K5 extras 11284 drop 11284
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+Армиево done 0s rss 300MB
+Артпозиции+Барскоон+Булан+Герите+Городище+Елизаветинское+Иссык+КЧР+Кабардино+Каджы+Калмыкия+Каменные+Кан+Кароол+Кель+Кисловодская+Конур+Копанское+Корумду+Красносельская+Курганы+Курменту+Лешки+Миловидово+Новотитаровская+Орнок+Осечки+Постройки+Примаки+Сакские+Сары+Семибратнее+Старый+Стеклянуха+Таш+Торт+Тору+Тоссор+Фалхан+Шаты done 20s rss 1689MB
+Архангельское done 22s rss 1689MB
+Белая+Воронеж+Россошки done 24s rss 1689MB
+Бервенец done 26s rss 1689MB
+Боровичи done 46s rss 1803MB
+Верхмарево done 50s rss 1803MB
+Верхнее done 50s rss 1803MB
+Верхний done 51s rss 1803MB
+Верхняя done 52s rss 1803MB
+Вщиж done 56s rss 1803MB
+Вышегжа done 79s rss 2205MB
+Вышенское done 83s rss 2205MB
+Гнёздово done 102s rss 2205MB
+Гочево done 104s rss 2205MB
+Граборг done 113s rss 2205MB
+Демидовка done 117s rss 2205MB
+Золотаревка done 132s rss 2205MB
+Изборск done 133s rss 2205MB
+Каменка done 135s rss 2205MB
+Костомаровское done 137s rss 2205MB
+Ксизово done 138s rss 2205MB
+Курган done 140s rss 2205MB
+Лихуша done 142s rss 2205MB
+Лубно done 144s rss 2205MB
+Макеево done 146s rss 2205MB
+Маяцкая done 146s rss 2205MB
+Московиты done 149s rss 2205MB
+Мостище done 150s rss 2205MB
+Муравлево done 154s rss 2205MB
+Никола done 156s rss 2205MB
+Новенькое done 157s rss 2205MB
+Нора done 157s rss 2205MB
+Перынь done 158s rss 2205MB
+Романово done 160s rss 2205MB
+Руна done 162s rss 2205MB
+Русская done 162s rss 2205MB
+Саратов+Тыва done 165s rss 2205MB
+Сарское done 166s rss 2205MB
+Сельцо done 167s rss 2205MB
+Селяне done 169s rss 2205MB
+Скупая done 169s rss 2205MB
+Сож done 172s rss 2205MB
+Солдатское done 174s rss 2205MB
+Сторожевое done 174s rss 2205MB
+Стрекаловка done 175s rss 2205MB
+Судьбищи done 178s rss 2205MB
+Тешилово done 180s rss 2205MB
+Тимерево done 181s rss 2205MB
+Усть done 182s rss 2205MB
+Хальвасборген+Эсбю done 187s rss 2205MB
+Хога done 188s rss 2205MB
+Чудово done 189s rss 2205MB
+Шетнево done 194s rss 2205MB
+Шишкино done 195s rss 2205MB
+Шниткино done 196s rss 2205MB
+Шумгора done 203s rss 2205MB
+Шурскол done 204s rss 2205MB
+Эрентуна done 207s rss 2205MB
+Юшково done 208s rss 2205MB
+A0 honest all/new/optical [0.314615, 0.296451, 0.144274]
+K1: honest 0.303739 Δ -0.010877 | 34new Δ -0.009662 | optical Δ +0.007029 | P(A>B) 0.015 90% [-0.0159;-0.0035] gate fail
+K2: honest 0.314615 Δ +0.000000 | 34new Δ +0.000000 | optical Δ +0.000000 | P(A>B) 0.000 90% [+0.0000;+0.0000] gate fail
+K3: honest 0.314615 Δ +0.000000 | 34new Δ +0.000000 | optical Δ +0.000000 | P(A>B) 0.000 90% [+0.0000;+0.0000] gate fail
+K4: honest 0.309022 Δ -0.005594 | 34new Δ +0.002284 | optical Δ +0.000022 | P(A>B) 0.031 90% [-0.0114;-0.0005] gate fail
+K5: honest 0.311673 Δ -0.002942 | 34new Δ -0.014508 | optical Δ +0.000000 | P(A>B) 0.012 90% [-0.0076;-0.0007] gate fail
+KGATE_EXIT 0

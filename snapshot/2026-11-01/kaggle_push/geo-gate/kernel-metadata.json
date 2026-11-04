@@ -1,0 +1,26 @@
+{
+  "id": "dmitrijkv/koz3-bot7-geo-gate",
+  "title": "koz3-bot7-geo-gate",
+  "code_file": "koz3-bot7-geo-gate.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [
+    "cpu",
+    "honest-10",
+    "geo-gate",
+    "bot7",
+    "s3"
+  ],
+  "dataset_sources": [
+    "dmitrijkv/koz3-gt-train-v2",
+    "dmitrijkv/koz3-xfer-s000",
+    "dmitrijkv/koz3-s3-cred"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": []
+}

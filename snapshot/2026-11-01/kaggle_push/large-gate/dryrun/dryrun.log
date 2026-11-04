@@ -1,0 +1,13 @@
+[    0.0s] tip 33791bcc1e64d6afc4c7ccd13c36b8266e53a8cd python 3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]
+[    0.0s] code root /workspace/kaggle/push/large-gate
+[    0.0s] inputs []
+[    0.0s] no xfer shards attached — skip rebuild
+[    0.0s] SMOKE: empty GT placeholder (no gt dataset / train labels)
+[    0.0s] SMOKE rewrote GT with 3 synthetic families
+[    0.0s] SMOKE fam0 families 3 objs 9
+[    0.0s] fam source smoke /workspace/kaggle/push/large-gate/dryrun/out/work/fam0_smoke
+[    0.0s] family_clusters ['/workspace/koz3-venv-dry/bin/python', '/workspace/kaggle/push/large-gate/scripts/family_clusters.py', '--fam', '/workspace/kaggle/push/large-gate/dryrun/out/work/fam0_smoke', '--gt', '/workspace/kaggle/push/large-gate/dryrun/out/work/gt_train_v2.geojson', '--out', '/workspace/kaggle/push/large-gate/dryrun/out/work/family_clusters.json']
+пар участков разных семей с пересечением рамок: 0
+[    0.2s] run /workspace/koz3-venv-dry/bin/python /workspace/kaggle/push/large-gate/scripts/large_objects_honest.py --fam /workspace/kaggle/push/large-gate/dryrun/out/work/fam0_smoke --gt /workspace/kaggle/push/large-gate/dryrun/out/work/gt_train_v2.geojson --clusters /workspace/kaggle/push/large-gate/dryrun/out/work/family_clusters.json --metric /workspace/kaggle/push/large-gate/materials/compute_metrics.py --out /workspace/kaggle/push/large-gate/dryrun/out/large_objects_honest.json
+[    0.7s] SUMMARY {"tip": "33791bcc1e64d6afc4c7ccd13c36b8266e53a8cd", "fam_src": "smoke", "off_score": 0.9999991666670278, "area_tau_score": 0.7999993066670009, "area_tau_delta": -0.1999998600000269, "fixc_nested_score": 0.9999991666670278, "fixc_nested_delta": 0.0, "fixc_recovered_gt_gt5k": 0, "smoke": true}
+[    0.7s] skip root copy [Errno 13] Permission denied: '/kaggle'

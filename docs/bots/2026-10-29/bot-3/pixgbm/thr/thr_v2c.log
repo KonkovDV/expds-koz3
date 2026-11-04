@@ -1,8 +1,0 @@
-config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
-n {'finds_points': Counter({'maggr_pix': 16886}), 'object_poly': Counter({'maggr_pix': 8232, 'etgr_pix': 675, 'terfl_pix': 314})}
-pix groups [('etgr_pix', 'object_poly'), ('maggr_pix', 'finds_points'), ('maggr_pix', 'object_poly'), ('terfl_pix', 'object_poly')]
-rec [0.3472065425357082, {'finds_points': (0.5675218494502396, 2013, 1603, 3478), 'object_poly': (0.3085660198769522, 326, 704, 1083)}]
-rec_etgr0 [0.3470592003466562, {'finds_points': (0.5675218494502396, 2013, 1603, 3478), 'object_poly': (0.30327868852459017, 333, 780, 1083)}]
-rec_terfl0 [0.3460742388960675, {'finds_points': (0.5675218494502396, 2013, 1603, 3478), 'object_poly': (0.28512566955088586, 346, 998, 1083)}]
-rec_keep_classic_terfl [0.3471560446771529, {'finds_points': (0.5675218494502396, 2013, 1603, 3478), 'object_poly': (0.2944078947368421, 358, 991, 1083)}]
-stack [0.3361032818809798, {'finds_points': (0.5045769764216366, 1819, 1913, 3478), 'object_poly': (0.268733850129199, 260, 592, 1083)}]

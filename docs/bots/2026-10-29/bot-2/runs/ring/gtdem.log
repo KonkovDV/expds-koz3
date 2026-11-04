@@ -1,7 +1,0 @@
-config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
-{"region": "101_Гнёздово_Днепровская", "n": 291, "coords": "inside=1.000", "res": 0.5, "t_s": 23.3, "maxrss_mb": 863.0}
-{"region": "179_Гнёздово_Лесная_1", "n": 187, "coords": "inside=0.995", "res": 0.5, "t_s": 1.1, "maxrss_mb": 863.0}
-{"region": "180_Гнёздово_Лесная_2", "n": 483, "coords": "inside=0.930", "res": 0.5, "t_s": 0.8, "maxrss_mb": 863.0}
-{"region": "181_Гнёздово_Лесная_3", "n": 262, "coords": "inside=0.828", "res": 0.5, "t_s": 0.6, "maxrss_mb": 863.0}
-{"region": "030_Эсбю", "n": 298, "coords": "inside=1.000", "res": 0.5, "t_s": 0.7, "maxrss_mb": 863.0}
-{"region": "041_Миловидово", "n": 109, "coords": "outside_las inside=0.018 las_epsg=None", "res": 0.5, "t_s": 0.2, "maxrss_mb": 863.0}

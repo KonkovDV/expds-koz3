@@ -8,14 +8,14 @@
   Скопированный код не установлен, но правило владельца исключает код, производный от EN.
 * **Текущая LB-сборка (v2 `eb268d6`, LB 0,41238) включает модуль на этапе сборки**: файл кладётся в
   `expds/geo_pixgbm.py` рабочей копии перед `scripts/build_submission.py`; `[geophys.pixgbm] enabled = true`.
-  Эталон байт-в-байт: `analysis/2026-10-29/bots/bot-4/runs/review/v2eb268d6/expds/geo_pixgbm.py`,
+  Эталон байт-в-байт на ветке `archive/worked-20261031`: `archive_review/analysis/2026-10-29/bots/bot-4/runs/review/v2eb268d6/expds/geo_pixgbm.py`,
   **sha256 `35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b`**, 849 строк.
 * Без модуля `pipeline.py` пишет предупреждение и уходит в классику геофизики (сборка ≠ v2 LB);
   `scripts/check_submission.py` даёт FAIL, если pix включён, а модуля в архиве нет.
 * Вклад: bot-10 `PREREG_pixgbm.md` / `REPORT7_geo.md` — global keep **+0,011935** (P 0,965, 5/5), site +0,014110.
 * Копии модуля в дереве (только для воспроизводимости ревью, не код сдачи):
-  `analysis/2026-10-29/bots/bot-4/runs/review/{v2eb268d6,pixgbm428}/expds/geo_pixgbm.py`,
-  `analysis/2026-10-29/bots/bot-7/work5/pc/tools/v2/expds/geo_pixgbm.py`; плюс история веток `bot3-*`.
+  `archive_review/analysis/2026-10-29/bots/bot-4/runs/review/{v2eb268d6,pixgbm428}/expds/geo_pixgbm.py`,
+  `archive_review/analysis/2026-10-29/bots/bot-7/work5/pc/tools/v2/expds/geo_pixgbm.py`; плюс история веток `bot3-*`.
   Удалять их из дерева/истории — решение владельца (переписывание истории не делалось).
 * Модели `models/pixgbm/all/*.txt` (LightGBM) обучены на признаках этого модуля и данных трейна КОЗ-3 — вне git,
   sha256 в `models/pixgbm/all/MODELS_NOT_IN_GIT.md`.

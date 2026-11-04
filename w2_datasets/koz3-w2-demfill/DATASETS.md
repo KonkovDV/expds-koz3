@@ -1,0 +1,18 @@
+# koz3-w2-demfill — тест P-W2-10 «заполнение дыр DEM» (флаг `lidar.dem_fill="tin_lowveg"`), ~125 МБ
+
+**Итог: FAIL.** Вариант T (tin_lowveg) против контроля C (то же, но обычное "delaunay"): Δ+0,0014, P(T>C)=0,99, ниже порога +0,003. Полы не нарушены. Флаг остаётся выключенным. Участки: 015_Демидовка, 021_Новенькое, 186_Семибратнее_1, 190_Муравлево. Пересчитан только рельеф, без переобучения: CPU-инференс весами c3-sc s0/s1/s2 своего фолда (из koz3-w2-weights).
+
+| Путь | Что |
+|---|---|
+| `rel/C/`, `rel/T/` | рельеф 4 участков: C — контроль (бит-в-бит как в Kaggle koz3-cnx-li-prep), T — tin_lowveg; `build.log` |
+| `maps/{C,T}/s{0,1,2}/maps_cnx_<участок>.npz` | карты инференса (формат как в koz3-w2-maps) |
+| `out/merged_{C,T}.geojson` (+`.json`) | OOF s012avg, где эти 4 участка заменены на C/T (`swap_sites.py`), EPSG:3857 |
+| `out/w6c_gate_{C,T}.json`, `detail_{C,T}.json` | гейт honest-10 и разбор по классам |
+| `out/result_P-W2-10.json` | итог: verdict, Δ, P, Li-only по участкам, критерии a/b |
+| `out/liscore*.json` | Li-only F1 по участкам (K = текущий OOF Kaggle, C, T) |
+| `out/gapstats.json`/`.log` | доля дыр DEM по участкам (186: ~71 % земли внутри курганов отсутствует) |
+| `out/bench.npz` | замер скорости и сверки инференса |
+
+**Побочная находка (открыта, проверить):** на 190_Муравлево карты s1 f4 из Kaggle (ядро elenakonkova/koz3-cnx-li-c3sc-s1f4) не совпадают с инференсом по скачанным весам s1f4: Li F1 на 190 — 0,666 (C) против 0,515 в текущем OOF (K). Возможная причина — несовпадение весов и выхода ядра (другая эпоха или чекпойнт). Если подтвердится, OOF s1 на фолде 4 занижен.
+
+Использование: скачать `orch/pool_kaggle.sh elenakonkova datasets download -d elenakonkova/koz3-w2-demfill -p /workspace/koz3/w2/restore/demfill --unzip`. Код — `w2_demfill/` в ветке `bots/w2-lidar` (README там). В ядре: `dataset_sources: ["elenakonkova/koz3-w2-demfill"]` → `/kaggle/input/koz3-w2-demfill/`.

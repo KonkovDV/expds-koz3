@@ -32,6 +32,7 @@ def test_default_flags_off():
     assert "sp_dfine" not in cfg.get("thresholds_by_markup", {})
     st = sp_dfine.settings(cfg)
     assert st["drop_groups"] == [] and st["convert"] == "circle" and st["ensemble"] == "max"
+    assert st["drop_min_det"] == 1 and st["drop_cover_m"] == 12.0
 
 
 def test_cluster_circles_variant_c():
@@ -217,11 +218,94 @@ def test_pipeline_phase_drop_only_complete(monkeypatch):
     st = St(old)
     regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]}), SimpleNamespace(name="b", rasters={"sp_or": ["y"]}),
             SimpleNamespace(name="c", rasters={})]
-    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"]}}
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_cover_m": 0}}
     assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 2
     kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
     assert ("a", None) not in kept and ("b", None) in kept      # b прерван — старые объекты остаются
     assert kept.count(("a", "sp_dfine")) == 1 and kept.count(("b", "sp_dfine")) == 1
+
+
+
+
+def test_pipeline_phase_drop_skips_regions_without_dfine(monkeypatch):
+    """bot-2 safety valve: complete + 0 sp_dfine → v2 SpOr на участке сохраняются."""
+    from expds import pipeline
+
+    class St:
+        def __init__(self, feats):
+            self.feats = list(feats)
+        def add(self, f):
+            self.feats += f
+        def snapshot(self):
+            return list(self.feats)
+        def replace(self, f):
+            self.feats = list(f)
+
+    class G:
+        soft_ceiling = None
+        def ok(self, s=0):
+            return True
+        def elapsed(self):
+            return 0.0
+
+    def fake(reg, cfg, guard, cache, root, crs_for=None, soft_ok=None):
+        cache["models"] = ["m"]
+        if reg.name == "empty":
+            return [], True
+        f = {"markup_type": "sp_or", "class_name": "kurgany_tselye", "region_name": reg.name,
+             "threshold_group": "sp_dfine", "confidence": 0.9}
+        return [f], True
+
+    monkeypatch.setattr(sp_dfine, "region_feats", fake)
+    old = [
+        {"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "empty"},
+        {"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "hit"},
+    ]
+    st = St(old)
+    regs = [
+        SimpleNamespace(name="empty", rasters={"sp_or": ["x"]}),
+        SimpleNamespace(name="hit", rasters={"sp_or": ["y"]}),
+    ]
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 1, "drop_cover_m": 0}}
+    assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 1
+    kept = [(f["region_name"], f.get("threshold_group")) for f in st.feats]
+    assert ("empty", None) in kept, kept  # v2 на empty сохранён
+    assert ("hit", None) not in kept, kept  # v2 на hit снят
+    assert ("hit", "sp_dfine") in kept
+    assert ("empty", "sp_dfine") not in kept
+
+
+def test_pipeline_phase_drop_min_det_zero_allows_empty(monkeypatch):
+    """drop_min_det=0 — старое поведение R даже при 0 детекций (opt-out от багфикса)."""
+    from expds import pipeline
+
+    class St:
+        def __init__(self, feats):
+            self.feats = list(feats)
+        def add(self, f):
+            self.feats += f
+        def snapshot(self):
+            return list(self.feats)
+        def replace(self, f):
+            self.feats = list(f)
+
+    class G:
+        soft_ceiling = None
+        def ok(self, s=0):
+            return True
+        def elapsed(self):
+            return 0.0
+
+    def fake(reg, cfg, guard, cache, root, crs_for=None, soft_ok=None):
+        cache["models"] = ["m"]
+        return [], True
+
+    monkeypatch.setattr(sp_dfine, "region_feats", fake)
+    st = St([{"markup_type": "sp_or", "class_name": "gorodishcha", "region_name": "a"}])
+    regs = [SimpleNamespace(name="a", rasters={"sp_or": ["x"]})]
+    cfg = {"sp_dfine": {"enabled": True, "drop_groups": ["sp_or"], "drop_min_det": 0, "drop_cover_m": 0}}
+    assert pipeline._sp_dfine_phase(regs, cfg, G(), st, ROOT) == 0
+    assert st.feats == []
 
 
 def test_run_flag_off_never_touches_sp_dfine(monkeypatch):
@@ -277,11 +361,12 @@ def test_gor_gate_no_targets_skips_backbone(tmp_path, monkeypatch):
     assert gor_gate.apply(feats, {"a": object()}, cfg, tmp_path) == feats
 
 
-@requires_submission_files
-def test_train_only_modules_unreachable_and_not_packaged():
+def test_train_only_modules_unreachable_and_not_packaged(monkeypatch):
     """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
     import ast
     import importlib.util
+    from conftest import allow_missing_submission_models
+    allow_missing_submission_models(monkeypatch)
 
     mods = {p.stem: p for p in (ROOT / "expds").glob("*.py")}
 
@@ -327,30 +412,24 @@ def test_no_personal_paths_in_packaged_code():
     assert not bad, bad
 
 
-def test_kurgan_in_gor_flag_off_and_filter():
+def test_kurgan_in_gor_replaced_by_audit_gormask():
+    """наш kurgan_in_gor (−0,000848) удалён; правило — kurgans_outside_hillforts аудита, по умолчанию выкл."""
     import tomllib
-    from shapely.geometry import Point, box
     from expds import post
 
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
-    assert cfg["post"].get("kurgan_in_gor") is False
-    gor = {"class_name": "gorodishcha", "region_name": "r1", "geom": box(0, 0, 100, 100), "confidence": 0.9}
-    k_in = {"class_name": "kurgany_tselye", "region_name": "r1", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    k_edge = {"class_name": "kurgany_povrezhdennye", "region_name": "r1", "geom": Point(103, 50).buffer(5), "confidence": 0.9}
-    k_other = {"class_name": "kurgany_tselye", "region_name": "r2", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    arch = {"class_name": "arkhitektury", "region_name": "r1", "geom": Point(50, 50).buffer(5), "confidence": 0.9}
-    out = post.drop_kurgans_in_hillforts([gor, k_in, k_edge, k_other, arch])
-    assert out == [gor, k_edge, k_other, arch]
-    assert post.drop_kurgans_in_hillforts([k_in]) == [k_in]
+    assert "kurgan_in_gor" not in cfg["post"] and not cfg["post"].get("kurgans_outside_hillforts")
+    assert not hasattr(post, "drop_kurgans_in_hillforts")
 
 
-@requires_submission_files
-def test_flag_modules_not_packaged_when_off():
+def test_flag_modules_not_packaged_when_off(monkeypatch):
     """v3: при выключенных [sp_dfine]/[gor_gate] их модули не идут в архив (граф импортов без transformers),
     pipeline.py импортирует их лениво только под флагом; вендор и веса D-FINE тоже не кладутся."""
     import importlib.util
     import tomllib
+    from conftest import allow_missing_submission_models
 
+    allow_missing_submission_models(monkeypatch)
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
     assert not cfg["sp_dfine"]["enabled"] and not cfg["gor_gate"]["enabled"]
     spec = importlib.util.spec_from_file_location("b7_build", ROOT / "scripts" / "build_submission.py")
@@ -361,3 +440,35 @@ def test_flag_modules_not_packaged_when_off():
     src = (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")
     top = [l for l in src.splitlines() if l.startswith(("from .", "import ")) and ("sp_dfine" in l or "gor_gate" in l)]
     assert not top
+
+
+def test_time_protection_on_by_default_and_order_restored():
+    """v3: [time] optics_order = small_first и optics_s_per_gb > 0 по умолчанию; после прохода оптики объекты
+    стоят в исходном порядке участков (выход побайтно тот же), а при чужой записи в состояние — не трогаются."""
+    import tomllib
+    from types import SimpleNamespace
+    from expds import pipeline
+    from expds.watchdog import RunState
+
+    cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
+    assert cfg["time"]["optics_order"] == "small_first" and 0 < cfg["time"]["optics_s_per_gb"] <= 64
+    regions = [SimpleNamespace(name=n) for n in ("a", "b", "c")]
+    st = RunState(Path("/nonexistent/out.geojson"), {})
+    st.add([{"id": "geo"}])
+    by = {}
+    for n in ("c", "a", "b"):            # порядок small_first
+        f = [{"id": f"{n}{i}"} for i in range(2)]
+        st.add(f)
+        by[n] = f
+    pipeline._restore_optics_order(st, regions, 1, by)
+    assert [f["id"] for f in st.snapshot()] == ["geo", "a0", "a1", "b0", "b1", "c0", "c1"]
+    # оптика оборвалась на «a» (не дошла до b): объекты пройденных участков сохранены в исходном порядке
+    st2 = RunState(Path("/nonexistent/out.geojson"), {})
+    st2.add([{"id": "c0"}, {"id": "a0"}])
+    pipeline._restore_optics_order(st2, regions, 0, {"c": [{"id": "c0"}], "a": [{"id": "a0"}]})
+    assert [f["id"] for f in st2.snapshot()] == ["a0", "c0"]
+    # состояние изменилось во время прохода — перестановки нет
+    st3 = RunState(Path("/nonexistent/out.geojson"), {})
+    st3.add([{"id": "c0"}, {"id": "x"}])
+    pipeline._restore_optics_order(st3, regions, 0, {"c": [{"id": "c0"}]})
+    assert [f["id"] for f in st3.snapshot()] == ["c0", "x"]

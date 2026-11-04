@@ -1,8 +1,0 @@
-3f29518679ca3e7c7714ae02c2318b9b4891f197940323b97e227a16e9b6a36a  src/convnext_main.py
-06e372d737b1bbd77dbfa783bfea3b271e461cfd10600ba65c4703289f17bb3c  build.py
-0bdc582dc94b4652906a0170e8f231738ebf09a274f95dd6a4779cb5ab995024  koz3-cnx-li-c3sc-f4/kernel-metadata.json
-71ad2bf2d5113a79ef93df5d1f53b728d3ec4097f0e93564577398261d27151d  koz3-cnx-li-c3sc-f4/koz3-cnx-li-c3sc-f4.py
-fac9de8f48e31e0145e5fe0ad5feff11f9d2f8391b2bf2f7d1f642615b0e43a1  koz3-cnx-li-c3in-f01/kernel-metadata.json
-848893a53b5fa94ad7349921f829cea5ee1ba3a41c3b6ca44e0ef98e5d0e9a2c  koz3-cnx-li-c3in-f01/koz3-cnx-li-c3in-f01.py
-cea408be99702df62157f0b5d7bd0614f97d1fdcdee81e6791b38adfda3ef907  koz3-cnx-li-c3in-f23/kernel-metadata.json
-9a54a17bfe94f19ebfb8898b7a98edeb84694aed0b810b9f4c31d952fd185a53  koz3-cnx-li-c3in-f23/koz3-cnx-li-c3in-f23.py

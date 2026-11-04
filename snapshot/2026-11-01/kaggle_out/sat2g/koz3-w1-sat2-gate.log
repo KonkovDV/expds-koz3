@@ -1,0 +1,26 @@
+[{"stream_name":"stdout","time":6.368699111,"data":"[      0s] sat2-gate start boot 4000 scales [1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.6, 0.5]\n"}
+,{"stream_name":"stdout","time":6.557575177,"data":"[      0s] w5base /kaggle/input/datasets/elenakonkova/koz3-w2-gate/w5base\n"}
+,{"stream_name":"stdout","time":6.558539942,"data":"[      0s] FAILED FileNotFoundError [Errno 2] No such file or directory: '/kaggle/src/vendor/materials/compute_metrics.py'\n"}
+,{"stream_name":"stderr","time":6.561744425,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":6.562820722,"data":"  File \"/kaggle/src/script.py\", line 299, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":6.56284197,"data":"    main()\n"}
+,{"stream_name":"stderr","time":6.562847273,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":6.562851241,"data":"  File \"/kaggle/src/script.py\", line 160, in main\n"}
+,{"stream_name":"stderr","time":6.562861302,"data":"    root = setup_vendor_root(work)\n"}
+,{"stream_name":"stderr","time":6.562870941,"data":"  File \"/kaggle/src/script.py\", line 117, in setup_vendor_root\n"}
+,{"stream_name":"stderr","time":6.562874065,"data":"    shutil.copy(HERE / \"vendor\" / \"materials\" / \"compute_metrics.py\", root / \"materials\" / \"compute_metrics.py\")\n"}
+,{"stream_name":"stderr","time":6.562877362,"data":"    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":6.56288051,"data":"  File \"/usr/lib/python3.13/shutil.py\", line 428, in copy\n"}
+,{"stream_name":"stderr","time":6.56288345,"data":"    copyfile(src, dst, follow_symlinks=follow_symlinks)\n"}
+,{"stream_name":"stderr","time":6.562886316,"data":"    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":6.562897285,"data":"  File \"/usr/lib/python3.13/shutil.py\", line 260, in copyfile\n"}
+,{"stream_name":"stderr","time":6.562900233,"data":"    with open(src, 'rb') as fsrc:\n"}
+,{"stream_name":"stderr","time":6.5629029469999995,"data":"         ~~~~^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":6.56290565,"data":"FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/src/vendor/materials/compute_metrics.py'\n"}
+,{"stream_name":"stderr","time":9.342102559,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":9.342144529,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":9.747371349,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":9.747401479,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":10.911208073,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":12.342744479,"data":"[NbConvertApp] Writing 339076 bytes to __results__.html\n"}
+]

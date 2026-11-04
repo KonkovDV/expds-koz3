@@ -33,7 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "inference" / "lib"))
 sys.path.insert(0, str(ROOT))
-import expds.watchdog  # старт отсчёта 30 минут до импорта моделей
+import expds.watchdog  # noqa: F401 — старт отсчёта 30 минут до импорта моделей
 
 
 def _paths(argv: list[str]) -> tuple[Path, Path] | None:

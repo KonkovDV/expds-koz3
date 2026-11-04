@@ -21,10 +21,12 @@ cs = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cs)
 
 PIX_OFF = 'enabled = false\nmodel_dir = "models/pixgbm/all"'
-# bot-7 (cherry-pick на bot7-candidate-v3): в v2/v3 PIXGBM включён и у model_dir есть комментарий — тест берёт
-# ту же секцию, приведённую к «выкл.», а включает её сам через pix_cfg().
-CFG = re.sub(r'(?m)^enabled = (?:true|false)\nmodel_dir = "models/pixgbm/all".*$', PIX_OFF,
-             (ROOT / "configs" / "default.toml").read_text(encoding="utf-8"), count=1)
+# В default.toml каталог старых весов не записан (DOC-1 режет подстроку pixgbm/ в архиве).
+# В синтетический конфиг чекера строка возвращается: check_pixgbm_static смотрит именно её.
+_raw = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
+_pix = re.search(r"(?m)^\[geophys\.pixgbm\]\n(?:.*\n)*?^enabled = false\n", _raw)
+assert _pix, "в default.toml нет секции [geophys.pixgbm] с enabled = false"
+CFG = _raw[:_pix.start()] + "[geophys.pixgbm]\n" + PIX_OFF + "\n" + _raw[_pix.end():]
 assert PIX_OFF in CFG
 
 
@@ -148,12 +150,14 @@ def test_guarded_import_sites(tmp_path, src, guarded):
 
 
 def test_real_code_lazy_imports_are_guarded():
-    """Текущий код: psutil (geo_pixgbm.process_t0) и tl2cgen (TreeliteModel под try в load_models) — с фолбэком."""
-    pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+    """Текущий код: ленивые psutil/tl2cgen, если достижимы из main, — только с фолбэком.
+
+    W4 DOC-1: legacy-модуль PIXGBM больше не достижим из inference/main.py (в архив не идёт), поэтому
+    мест импорта может не быть вовсе; требование — ни одного незащищённого."""
     _, reach = cs.scan_imports(ROOT)
     sites = cs.guarded_import_sites(ROOT, reach, {"psutil", "tl2cgen", "lleaves"})
-    assert sites["psutil"] and all(g for _, g in sites["psutil"]), sites["psutil"]
-    assert sites["tl2cgen"] and all(g for _, g in sites["tl2cgen"]), sites["tl2cgen"]
+    assert all(g for _, g in sites["psutil"]), sites["psutil"]
+    assert all(g for _, g in sites["tl2cgen"]), sites["tl2cgen"]
     assert sites["lleaves"] == []
 
 

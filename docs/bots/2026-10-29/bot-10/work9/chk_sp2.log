@@ -1,2 +1,0 @@
-{'sp2': 17983, 'sp2_below_floor': 17780, 'sp2_within8_of_sp': 7647, 'sp2_within12_of_sp': 9433, 'sp2_above_floor_within8': 175, 'regions_sp2': 122}
-sp2 conf quantiles [0.05, 0.0516, 0.0783, 0.2983]

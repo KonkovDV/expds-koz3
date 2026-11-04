@@ -161,6 +161,8 @@
 | 27.10.2026 | Claude, Claude Code; версию модели по п. 8.5.3 заполняет человек | Anthropic | Стекер: различимость внутри группы и ворота | Отчёт `groups` (различимость внутри группы порога), `--calibrate quantile-group`, `--gate`: переписываются только группы, где внутри группы стало лучше. Повод — табло 27.10: 34 новых +0,0381, без лидара −0,065. Замера с воротами нет | `scripts/rerank_oof.py`, `tests/test_rerank.py`, `docs/AI_WORK_PLAN_2026-10-25.md` | _ФИО_ |
 | 29.10.2026 | Grok Bot (агент), Cursor | xAI / Cursor | Провенанс и чистота кода | Удалён `li_decode` (линия EN). Провенанс 15 весов `.pt` (запрещённых нет). Декларация PIXGBM: `expds/geo_pixgbm.py` написан ИИ-агентом bot-3 по мотивам разбора публичного решения конкурента EhimenNathan-EXpedition (ветка `bot3-ehimen`), в git не хранится, добавляется при сборке (sha256 `35e4331b…`); план чистой переписи | `docs/WEIGHTS_PROVENANCE.md`, `docs/PIXGBM_DECISION.md`, `docs/BRANCHES_ARCHIVE.md`, `docs/THIRD_PARTY.md`, `expds/pipeline.py`, `configs/default.toml` | |
 | 29.10.2026 | Grok Bot (агент), Cursor | xAI / Cursor | Соответствие утверждённому ТР | Сверка кода с утв. ТР и консультацией №2; лимиты Прил. 3 (≤ 97 МБ, 50 замечаний, валидность после округления); шаблоны README и декларации; план ПКК | `expds/writer.py`, `scripts/check_submission.py`, `tests/test_tr_compliance_2026_10_29.py`, `docs/RULES.md`, `docs/COMPLIANCE_2026-10-29.md`, `docs/PKK_GAP.md`, `docs/README.md`, `docs/ai_declaration.md` | _ФИО_ |
+| 29.10.2026 | Grok Bot (агент bot-6), Cursor | xAI / Cursor | PIXGBM clean-room retrain + provenance | Разбор PIXGBM (обучение/детерминизм/SIGTERM); скрипт переобучения за `--enable-retrain` OFF; ядро Kaggle TPU-VM CPU; секции DATA_PROTOCOL/AI_DECLARATION | `scripts/pixgbm_retrain_cleanroom.py`, `kaggle/pixgbm_cleanroom/`, `tests/test_bot6_pix_pool_sigterm.py`, `docs/DATA_PROTOCOL.md` (§ PIXGBM) | _ФИО_ |
+| 01.11.2026 | Grok 4.7, Cursor | xAI / Cursor | PIXGBM: воспроизведение весов и SIGTERM | Зафиксированы параметры эталона (`deterministic=0`, `num_threads=2`, сиды LightGBM 4.7.0). Скрипт переобучения: исторический режим для sha256, допуск ROC-AUC и mean\|Δp\| на последней семье, журнал JSON/MD, `--smoke`. Прогон SIGTERM: зависание пула `67284ab`/`8594842`, чистый выход `eb268d6` и v3 `36af6b7`/`78af57f`; в `af97af0` пула нет | `scripts/pixgbm_retrain_cleanroom.py`, `scripts/repro_pixgbm_sigterm.py`, `tests/test_pixgbm_retrain_cleanroom.py`, `docs/DATA_PROTOCOL.md`, `docs/AI_DECLARATION.md` | _ФИО_ |
 
 ## Правила ведения
 
@@ -168,3 +170,28 @@
 2. Каждый сгенерированный фрагмент должен прочитать член команды и записать себя в последнюю колонку.
 3. Отдельно отмечайте фрагменты, переписанные вручную: это помогает на защите.
 4. Если используется бот «Слои» или другие ассистенты — они тоже в журнал.
+
+
+## Дополнение PIXGBM (bot-6, 29.10.2026)
+
+Существующие строки таблицы AI_DECLARATION не удаляются и не переписываются. Ниже — уточнение провенанса и инструментов bot-6.
+
+### Провенанс модуля и моделей
+
+* Модуль `expds/geo_pixgbm.py` написан ИИ-агентом **bot-3** (Cursor) по мотивам разбора публичного решения конкурента **EhimenNathan-EXpedition** (ветка `bot3-ehimen`, `expds/geo_finds_gbm.py`). В `main` не хранится; sha256 эталона сборки v2 — `35e4331bbc690e7eb3b31e07cc290837ce9fd96a05c92f4c999f24eceafda35b` (`docs/PIXGBM_DECISION.md`).
+* Модели LightGBM `poly.txt` / `finds.txt` обучены bot-3 на трейне КОЗ-3 (регионы 200–217), `lightgbm==4.7.0`, `seed=0`, `ROUNDS=300`. Хеши — `models/pixgbm/all/MODELS_NOT_IN_GIT.md`.
+* Решение владельца 29.10: временная декларация EN-линии + план **чистой переписи** отдельными ролями (спека / исполнитель без доступа к EN-коду). Код чистой переписи в этом дополнении **не пишется**.
+
+### Запись в журнал (добавить строку в таблицу деклараций)
+
+| Дата | Инструмент | Провайдер | Что сделано | Файлы / артефакты | Подпись |
+|---|---|---|---|---|---|
+| 29.10.2026 | Grok Bot (агент bot-6), Cursor | xAI / Cursor | Разбор PIXGBM: пути обучения, детерминизм, SIGTERM fork-пула, скрипт переобучения за флагом OFF, секции DATA_PROTOCOL / AI_DECLARATION; ветка `bots/bot6-pixgbm-cleanroom` | `scripts/pixgbm_retrain_cleanroom.py`, `tests/test_bot6_pix_pool_sigterm.py`, `docs/DATA_PROTOCOL.md` (§ PIXGBM), этот блок, `reports/bot6_pixgbm.md` | _ФИО_ |
+
+### Детерминизм (уточнение 01.11.2026)
+
+Повторный прогон с исходным `G.LGBM` (`deterministic` не задан, в файле модели `0`, `num_threads=2`, `bagging_fraction=0.7`) **не гарантирует** тот же sha256, что у `models/pixgbm/all/MODELS_NOT_IN_GIT.md`. LightGBM 4.7.0 от `seed=0` получает те же производные сиды, что записаны в эталоне (`bagging_seed=7719` и соседние). Режим `--deterministic` (потоки 1, `deterministic=true`) делает два прогона одинаковыми между собой и **не** претендует на sha256 эталона: дамп параметров другой.
+
+Допуск, если sha256 не сошёлся: срез — семья с последним именем среди извлечённых (`sorted(families)[-1]`); метрики ROC-AUC и средний модуль разности вероятностей против txt из коммита `eb268d6`; порог `|ΔAUC| ≤ 0,01` и `mean|Δp| ≤ 0,02` для poly и finds. Модель `all` эту семью видела при обучении: это совпадение функции, не оценка на невидимом. Случайная матрица и порог `1e-4` критерием не являются.
+
+Код признаков — модуль `eb268d6` (sha256 `35e4331b…`), линия EN объявлена в `docs/PIXGBM_DECISION.md`. Пиксели и метки — только трейн КОЗ №3, регионы 200–217. На площадку эта переобучение ничего не отправляет.

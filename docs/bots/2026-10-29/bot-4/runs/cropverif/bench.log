@@ -1,11 +1,0 @@
-resnet18_smp(sp_crop) 96 4.4 ms/crop
-convnext_tiny.fb_in22k 96 12.3 ms/crop
-convnext_tiny.fb_in22k 128 29.9 ms/crop
-convnext_tiny.fb_in22k 224 108.7 ms/crop
-Loading weights:   0%|          | 0/224 [00:00<?, ?it/s]Loading weights:  72%|███████▏  | 161/224 [00:00<00:00, 1600.75it/s]Loading weights: 100%|██████████| 224/224 [00:00<00:00, 2179.18it/s]
-dinov2-with-registers-small 112 24.7 ms/crop
-dinov2-with-registers-small 224 149.7 ms/crop
-Loading weights:   0%|          | 0/224 [00:00<?, ?it/s]Loading weights: 100%|██████████| 224/224 [00:00<00:00, 2396.31it/s]
-dinov2-with-registers-base 112 104.1 ms/crop
-dinov2-with-registers-base 224 476.0 ms/crop
-{'resnet18_smp(sp_crop)@96': 4.43, 'convnext_tiny.fb_in22k@96': 12.27, 'convnext_tiny.fb_in22k@128': 29.88, 'convnext_tiny.fb_in22k@224': 108.7, 'dinov2-with-registers-small@112': 24.72, 'dinov2-with-registers-small@224': 149.74, 'dinov2-with-registers-base@112': 104.06, 'dinov2-with-registers-base@224': 476.02, 'maxrss_mb': 1247, 'threads': 2, 'torch': '2.15.0+cpu'}

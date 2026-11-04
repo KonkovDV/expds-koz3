@@ -1,9 +1,0 @@
-k10 {'A_drop': 0.312067, 'A_keep': 0.327873, 'fr1h_drop': 0.316683, 'fr1h_keep': 0.332489, 'd_fr1h_drop': 0.004616, 'd_fr1h_keep': 0.004615}
-lofo {'A_drop': 0.312058, 'A_keep': 0.327865, 'fr1h_drop': 0.316988, 'fr1h_keep': 0.332794, 'd_fr1h_drop': 0.00493, 'd_fr1h_keep': 0.004929}
-seed0 {'A_drop': 0.312402, 'A_keep': 0.328208, 'fr1h_drop': 0.316198, 'fr1h_keep': 0.332004, 'd_fr1h_drop': 0.003797, 'd_fr1h_keep': 0.003796}
-seed1 {'A_drop': 0.305903, 'A_keep': 0.32171, 'fr1h_drop': 0.309296, 'fr1h_keep': 0.325102, 'd_fr1h_drop': 0.003392, 'd_fr1h_keep': 0.003392}
-seed2 {'A_drop': 0.315344, 'A_keep': 0.33115, 'fr1h_drop': 0.318334, 'fr1h_keep': 0.33414, 'd_fr1h_drop': 0.00299, 'd_fr1h_keep': 0.002989}
-seed3 {'A_drop': 0.305373, 'A_keep': 0.321179, 'fr1h_drop': 0.3094, 'fr1h_keep': 0.325206, 'd_fr1h_drop': 0.004026, 'd_fr1h_keep': 0.004026}
-seed4 {'A_drop': 0.287028, 'A_keep': 0.315889, 'fr1h_drop': 0.290279, 'fr1h_keep': 0.319139, 'd_fr1h_drop': 0.003251, 'd_fr1h_keep': 0.003251}
-fr1h_drop d10=+0.004616 P=1.000 CI=[+0.00141;+0.01162] lofo=+0.004930 seeds+=5/5 heavy=+0.004616 new34=+0.000462 acc=True
-fr1h_keep d10=+0.004615 P=1.000 CI=[+0.00141;+0.01162] lofo=+0.004929 seeds+=5/5 heavy=+0.004615 new34=+0.000461 acc=True

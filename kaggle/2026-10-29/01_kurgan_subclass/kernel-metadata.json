@@ -1,0 +1,20 @@
+{
+ "id": "dmitrijkv/koz3-kurgan-subclass",
+ "title": "koz3-kurgan-subclass",
+ "code_file": "koz3-kurgan-subclass.ipynb",
+ "language": "python",
+ "kernel_type": "notebook",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "machine_shape": "NvidiaTeslaT4",
+ "dataset_sources": [
+  "dmitrijkv/koz3-kurgan-subclass-crops",
+  "dmitrijkv/koz3-li-tin-59-t128-bundle"
+ ],
+ "competition_sources": [],
+ "kernel_sources": [],
+ "model_sources": [],
+ "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435"
+}

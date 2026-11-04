@@ -1,0 +1,19 @@
+{
+  "state": "DONE",
+  "lever": "ALL",
+  "flags": {
+    "geophys.maggr.finds_points.extremum_snap_m": 3.0,
+    "geophys.maggr.finds_points.finds_nms_m": 1.5,
+    "post.geo_convex_hull": true
+  },
+  "mode": "prior_only",
+  "bprime": 0.3158,
+  "stack": null,
+  "gt": "/kaggle/input/datasets/dmitrijkv/koz3-gt-train-v2/gt_train_v2.geojson",
+  "score": null,
+  "delta": null,
+  "p_gt0": null,
+  "pass_full": null,
+  "note": "Checkpoint stub — wire tip scoreboard + GEO_GATE_REINFER=1 for classic re-infer; L3 post-only when stack attached.",
+  "expected_delta_lb": 0.0035
+}

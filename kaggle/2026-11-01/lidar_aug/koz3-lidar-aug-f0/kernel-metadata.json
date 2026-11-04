@@ -1,0 +1,16 @@
+{
+ "id": "elenakonkova/koz3-lidar-aug-f0",
+ "title": "koz3-lidar-aug-f0",
+ "code_file": "koz3-lidar-aug-f0.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "dataset_sources": ["elenakonkova/koz3-li-aug-data"],
+ "competition_sources": [],
+ "kernel_sources": [],
+ "model_sources": [],
+ "machine_shape": "NvidiaTeslaT4"
+}

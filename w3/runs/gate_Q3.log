@@ -1,0 +1,22 @@
+config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
+13:42:40 кэш стека meta_5606f42d02724784.json: кластеров 60
+13:42:40 кривые A из кэша curvesA_5606f42d02724784.pkl
+13:42:42 table.pkl: 1386709 объектов стека, 2 с, ОЗУ 1265 МБ
+13:43:02 D-FINE OOF: 243029 ellipses, 132 regions -> 85069 circles {'arkhitektury': 6658, 'fortifikatsii': 3501, 'gorodishcha': 4683, 'kurgany_povrezhdennye': 56833, 'kurgany_tselye': 13394}
+13:43:07 V3P honest 0.333787
+13:43:12 rebuild == V3P
+13:43:22 Q3 sanity {'scenes': 103, 'mpx_lt': {2: np.int64(86), 4: np.int64(92), 8: np.int64(93)}, 'r_med': 3.94834791773587, 'sp_rows_inside_bbox_mean': 1.0, 'p_ge': {0.05: 75, 0.1: 69, 0.2: 58, 0.3: 54}}
+/workspace/koz3/orch/bot-W3/code/q345.py:167: DeprecationWarning: The 'shapely.ops.transform()' function is deprecated. Use 'shapely.transform()' or 'shapely.transform_coordseq()' instead. See https://shapely.readthedocs.io/en/latest/manual.html#shapely.ops.transform for more details.
+  g = stf(to, Point(*v["cen"]).buffer(rr, 32))
+13:43:37 Q3: 48 variants built
+13:43:37 fold 0 pick=(2, 0.35, 0.02, 0.05) train off 0.41577 best 0.42134
+13:43:37 fold 1 pick=(4, 0.35, 0.02, 0.05) train off 0.39221 best 0.39722
+13:43:37 fold 2 pick=(4, 0.35, 0.02, 0.05) train off 0.42283 best 0.42628
+13:43:38 fold 3 pick=(4, 0.35, 0.02, 0.05) train off 0.40999 best 0.41487
+13:43:38 fold 4 pick=(2, 0.35, 0.02, 0.05) train off 0.39667 best 0.40122
+13:43:38 fold 5 pick=(4, 0.35, 0.02, 0.05) train off 0.40630 best 0.41319
+13:43:39 fold 6 pick=(4, 0.35, 0.02, 0.05) train off 0.42384 best 0.42743
+13:43:39 fold 7 pick=(2, 0.35, 0.02, 0.05) train off 0.40283 best 0.40759
+13:43:39 fold 8 pick=(4, 0.35, 0.02, 0.05) train off 0.41405 best 0.41857
+13:43:40 fold 9 pick=(4, 0.35, 0.02, 0.05) train off 0.40524 best 0.40914
+13:43:40 Q3 vs V3P: Δ +0.003084 P 0.7865 | new34 -0.007625 nolidar +0.010834 noKis +0.001786 | kurgany_ +0.00000 kurgany_ +0.00000 gorodish +0.02056 arkhitek +0.00000 object_p +0.00000 fortifik +0.00000 finds_po +0.00000 | picks ['(2, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(2, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(2, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)', '(4, 0.35, 0.02, 0.05)'] | {'delta': True, 'P': False, 'new34': False, 'nolidar': True, 'floors': True, 'PASS': False}

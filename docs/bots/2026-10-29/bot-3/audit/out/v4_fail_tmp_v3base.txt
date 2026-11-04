@@ -1,6 +1,0 @@
-FAILED tests/test_platform_robustness.py::test_region_crs_conflict_is_resolved_by_rasters
-FAILED tests/test_platform_robustness.py::test_input_layouts_flat_nested_and_single_region
-FAILED tests/test_platform_robustness.py::test_offline_scripts_on_a_synthetic_train
-FAILED tests/test_platform_robustness.py::test_mosaic_uses_all_points_when_there_is_no_ground_class
-ERROR tests/test_pipeline.py::test_main_writes_valid_geojson - ModuleNotFound...
-ERROR tests/test_platform_robustness.py::test_main_without_arguments_uses_env_and_cleans_tmp

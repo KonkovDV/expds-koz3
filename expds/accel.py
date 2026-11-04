@@ -250,7 +250,11 @@ def convex_hull_mask(valid: np.ndarray) -> np.ndarray:
 
 def hillshade(filled: np.ndarray, res_x: float, res_y: float, azimuth: float = 315.0,
               altitude: float = 45.0, z_factor: float = 1.0) -> np.ndarray:
-    """Серая отмывка ESRI/ArcGIS (uint8), как у бейзлайна организаторов."""
+    """Серая отмывка ESRI/ArcGIS (uint8), как у бейзлайна организаторов.
+
+    Азимут 315° — свет с северо-запада, чтобы тень падала на юго-восток.
+    Полуденное солнце с юга переворачивает чтение рельефа и сюда не ставится.
+    """
     import math
 
     filled = np.ascontiguousarray(filled, np.float32)
@@ -322,18 +326,26 @@ def box_mean(z: np.ndarray, radius: int) -> np.ndarray:
     if _rs is not None:
         return _rs.box_mean(z, int(radius))
     fin = np.isfinite(z)
-    v = np.where(fin, z, 0).astype(np.float64)
-    s = np.pad(v.cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    s = np.pad(np.where(fin, z, 0).astype(np.float64).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
     n = np.pad(fin.astype(np.int64).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    del fin
     h, w = z.shape
     r0 = np.clip(np.arange(h) - radius, 0, h)
     r1 = np.clip(np.arange(h) + radius + 1, 0, h)
     c0 = np.clip(np.arange(w) - radius, 0, w)
     c1 = np.clip(np.arange(w) + radius + 1, 0, w)
-    tot = s[r1][:, c1] - s[r0][:, c1] - s[r1][:, c0] + s[r0][:, c0]
-    cnt = n[r1][:, c1] - n[r0][:, c1] - n[r1][:, c0] + n[r0][:, c0]
-    with np.errstate(invalid="ignore", divide="ignore"):
-        return np.where(cnt > 0, tot / cnt, np.nan).astype(np.float32)
+    out = np.empty((h, w), np.float32)
+    # W4: по блокам строк — те же поэлементные операции (результат побайтно тот же), пик памяти ниже
+    # (участок 200, растр 14084×9034: полные float64-промежуточные не помещались в 7,5 ГБ)
+    step = max(1, (1 << 22) // max(w, 1))
+    for a in range(0, h, step):
+        b = min(h, a + step)
+        q0, q1 = r0[a:b], r1[a:b]
+        tot = s[q1][:, c1] - s[q0][:, c1] - s[q1][:, c0] + s[q0][:, c0]
+        cnt = n[q1][:, c1] - n[q0][:, c1] - n[q1][:, c0] + n[q0][:, c0]
+        with np.errstate(invalid="ignore", divide="ignore"):
+            out[a:b] = np.where(cnt > 0, tot / cnt, np.nan)
+    return out
 
 
 def slope_deg(z: np.ndarray, res: float) -> np.ndarray:

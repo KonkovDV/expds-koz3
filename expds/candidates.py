@@ -122,6 +122,14 @@ def heuristic_score(feats: np.ndarray) -> np.ndarray:
     return (1.0 / (1.0 + np.exp(-(prom - 0.35) / 0.12)) * (1.0 / (1.0 + np.exp(-(con - 2.0))))).astype(np.float32)
 
 
+def dome_multiplier(d: Dem, found: dict, near_m: float = 5.0, far_m: float = 40.0) -> np.ndarray:
+    """Множитель 1…1,1 по форме насыпи. Пустой список кандидатов — пустой множитель."""
+    from .dome import priors
+
+    z, step = to_work_grid(d.dem, d.res, float(found["res"]))
+    return priors(z, float(step), found["x"], found["y"], d.left, d.top, near_m, far_m)
+
+
 def score(feats: np.ndarray, model_path: str | Path | None = None) -> np.ndarray:
     """Оценка кандидатов: LightGBM, если модель есть, иначе эвристика.
 

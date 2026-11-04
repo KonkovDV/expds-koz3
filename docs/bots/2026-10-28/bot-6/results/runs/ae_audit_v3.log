@@ -1,7 +1,0 @@
-эталон: объектов 6417; участков с ae 32, из них без li 17
-ae по классам: {'kurgany_povrezhdennye': 1162, 'kurgany_tselye': 587, 'gorodishcha': 19, 'fortifikatsii': 393, 'arkhitektury': 18}
-курганов ae 1749: достижимо копией li 595, на участках без li 554
-  радиус ae:kurgany_povrezhdennye: n 1162, медиана 5.0 м, p10–p90 3.17–21.88 м
-  радиус ae:kurgany_tselye: n 587, медиана 4.44 м, p10–p90 2.6–10.24 м
-  радиус li:kurgany_povrezhdennye: n 1026, медиана 4.3 м, p10–p90 2.57–7.06 м
-  радиус li:kurgany_tselye: n 302, медиана 3.21 м, p10–p90 2.0–6.29 м

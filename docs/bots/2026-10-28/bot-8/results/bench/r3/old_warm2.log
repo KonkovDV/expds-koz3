@@ -1,2 +1,0 @@
-config.py недоступен (No module named 'config') — используются встроенные дефолты метрики; для расчёта ровно как на платформе положите config.py рядом со скриптом
-{"load_json": 1.339, "evaluate_base": 0.984, "honest_base": 0.074, "evaluate_exp": 0.678, "paired_bootstrap+2curves": 0.329, "honest_exp": 0.073, "paired_bootstrap_counts": 0.01, "total_flow": 3.578}

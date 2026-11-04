@@ -2,6 +2,15 @@
 
 Время — МСК. Запись — что было неверно, что верно, где источник.
 
+## 03.11.2026
+
+- **Один `main` (аудит 03.11, `docs/AUDIT_2026-11-03.md`).** В ветку `claude/wizardly-brahmagupta-6mcd0s`, затем PR в `main`, сведены все 40 удалённых веток и PR #16–#30. Резервные копии 02.11 и `archive/worked-20261031` — `merge -s ours` (история достижима, дампы не в дереве). `expds/geo_pixgbm.py` (линия EN) из `bots/bot5-release-v5` и старых линий не взят. Выход `inference/main.py` с `default.toml` побайтно прежний (золотой прогон `d2a76542…`).
+- Было неверно: README «Состояние на 29.10» называл финалом v3 и не знал о v4. Верно: финал — v4 (`configs/v4_c1f.toml`, honest-10 0,361641); v3 и v4 на LB не отправлялись (`orch/HANDOFF_NOW_20261102.md`).
+- Исправлено в коде: запись ответа по SIGTERM при сбое постобработки (A1), обработчик SIGTERM снимался до проверки кропа (A2), тест сборки релиза клал код EN и веса v2 в рабочее дерево (A3, `EXPDS_V2_DEST`). Два модуля `sat_recall` разведены (`sat_recall_levers.py`), `sp_det2` подвязан за флагом.
+- Тесты после сведения: `test_bot5_v4_flags` проверял слепой R, а PR #17 сделал по умолчанию снятие «по покрытию» (`drop_cover_m = 12`) — тест теперь задаёт `drop_cover_m = 0` явно. `test_repro_pixgbm_sigterm` пропускается, если в клоне нет старых ревизий PIXGBM.
+- На Kaggle не собраны (статус complete 02.11): `dmitrijkv/koz3-w2-dfine2-{a,b}` (D-FINE SpOr, 5 фолдов) и `elenakonkova/koz3-w1-satdet-frcnn` (Faster R-CNN, 4 группы). Задание на гейт — `docs/plans/PROMPT_TO_061_20261103.md`.
+- В папке Drive `17N5Cu1bZJ38iYu3W_nCN3zOk6R3l5riX` две разные сборки `submission_sat2_on_eb268d6.zip` с одинаковыми именами частей (`SHA256SUMS` `d85e9b2f…` и `573eb872…`) — склеивать только части одной сборки.
+
 ## 29.10.2026
 
 - **Третья выгрузка и единый STATUS (~12:45, Grok Bot).**

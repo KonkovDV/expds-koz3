@@ -1,0 +1,9 @@
+DRYRUN: skip _deps() pip/import pin check
+[      0s] CFG {"mode": "smoke", "res": 0.5, "tile": 640, "overlap": 160, "max_windows": 0, "bs": 8, "iters": 2, "lr": 5e-05, "bb_mult": 0.1, "wd": 0.0001, "pct": 0.05, "clip": 0.1, "num_dn": -1, "obj_frac": 0.6, "cls_cap": 4.0, "shift": 0.3333333333333333, "qaug": 0.5, "workers": 2, "max_obj_chips_region": 400, "min_score": 0.05, "nms_iou": 0.5, "max_det": 100, "smoke_train_regions": 8, "smoke_test_regions": 1, "deadline_h": 4.0, "folds": "0,1,2", "regions": "", "trainer": "bot5", "aug": "ours"}
+[      0s] GPU: []
+[      0s] DRYRUN: Or leave-region-out folds + resume + OOF Fβ=2 calib (no torch/S3)
+[      0s] фолды OK: 6 участков, 6 семей [['008_Герите', '014_Лешки', '093_Старый_Барах'], ['033_Елизаветинское', '056_Фалхан'], ['185_Изборск']]
+[      0s] resume OK: find_fold_ckpt(0)= /tmp/ae2or_dry_run/ckpt_f0
+[      0s] dry fold 0: test=3 dets=6
+[      0s] dry fold 1: test=2 dets=4
+[      0s] DRYRUN DONE {'kurgany_tselye': 1.01, 'kurgany_povrezhdennye': 1.01, 'gorodishcha': 1.01, 'fortifikatsii': 1.01, 'arkhitektury': np.float64(0.7)} dets 10

@@ -1,0 +1,16 @@
+{
+  "dfine_ae": {
+    "kurgany_tselye": 0.45,
+    "kurgany_povrezhdennye": 0.5,
+    "gorodishcha": 1.01,
+    "fortifikatsii": 0.35,
+    "arkhitektury": 1.01
+  },
+  "ae_dfine": {
+    "kurgany_tselye": 0.45,
+    "kurgany_povrezhdennye": 0.5,
+    "gorodishcha": 1.01,
+    "fortifikatsii": 0.35,
+    "arkhitektury": 1.01
+  }
+}

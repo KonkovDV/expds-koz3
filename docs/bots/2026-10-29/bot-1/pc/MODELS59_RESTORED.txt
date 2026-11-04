@@ -1,6 +1,0 @@
-MODELS59_RESTORED 2026-10-29 09:53:41 MSK
-Move-Item C:\Sloi\TRASH\models_59 -> C:\Sloi\models_59: moved
-Test-Path C:\Sloi\models_59 = True; Test-Path C:\Sloi\TRASH\models_59 = False
-files=113, 4.39 GB (same as before the move)
-TRASH now: lidump, oof59, s5
-work59 also restored to C:\Sloi\work59 (stack_s4_imnet.geojson present)

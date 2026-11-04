@@ -29,7 +29,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from expds import candidates, post, writer
+from expds import candidates, li_half, post, writer
 from expds.catalog import read_utm_json, scan_root
 from expds.lidar import DemPrefetch, build_dem, dem_params, hillshade_set
 from expds.naming import site_family
@@ -77,7 +77,7 @@ def fold_cache(src: Path, dst: Path, rows: list[dict], fields: list[str]) -> Non
 
 
 def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, prefetch=None,
-                   geo_maps: str = "gray") -> list[dict]:
+                   geo_maps: str = "gray", half_cfg: dict | None = None) -> list[dict]:
     """Предсказания модели по данным региона — тем же путём, что в pipeline.run_region.
 
     geo_maps="all" — карты геофизики все, и серые, и цветные; находки в одном месте
@@ -92,6 +92,15 @@ def predict_region(seg, reg, markup: str, cand_p, li_cfg: dict | None = None, pr
                  else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs))
             if d.crs is not None:
                 feats += _li_with_model(seg, d, reg.name, las.name, hillshade_set, cand_p, li_cfg)
+                if half_cfg is not None and li_half.dump_dir() is not None:
+                    # EXPDS_LI_HALF_DUMP: второй проход 1 м только в выгрузку, --out не меняется.
+                    # DEM здесь без мозаики: у крупных LAS он огрублён (0,2–0,3 м); на шаге 1 м
+                    # это лишь другое усреднение блоков, потому skip_coarse тут не действует.
+                    try:
+                        li_half.half_pass(seg, d, reg.name, las.name, cand_p, li_half.params(half_cfg),
+                                          li_half.dump_dir(), {"oof": True})
+                    except Exception:
+                        log.exception("%s/%s: li_half пропущен", reg.name, las.name)
         return feats
     files = reg.rasters.get(markup, [])
     if markup in ("maggr", "etgr", "terfl"):
@@ -124,7 +133,7 @@ def predict_with_weights(args, predict_mts: list[str]) -> None:
             continue
         try:
             for mt in predict_mts:
-                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps)
+                feats += predict_region(seg, reg, mt, cand_p, cfg.get("li"), geo_maps=args.geo_maps, half_cfg=cfg)
             n_reg += 1
         except Exception:
             log.exception("%s: предсказание пропущено", reg.name)
@@ -174,6 +183,11 @@ def main() -> None:
     ap.add_argument("--center-min-dist", type=float, default=12.0,
                     help="минимальное расстояние между центрами, м")
     ap.add_argument("--center-loss", choices=("bce", "focal"), default="bce")
+    ap.add_argument("--within-site-rank", type=float, default=0.0,
+                    help="коэффициент шарнира порядка пиков на кадре; 0 — выключено")
+    ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--init-weights", default=None,
+                    help="чекпойнт для доучивания той же сети; без него старт с ImageNet")
     ap.add_argument("--center-unbiased", action="store_true",
                     help="гауссиана центра между клетками, без шипа в 1 (отдельный опыт, не рецепт сдачи)")
     ap.add_argument("--center-edge-ignore", action="store_true",
@@ -182,6 +196,11 @@ def main() -> None:
                     help="читать бит «не учить» кэша (--ignore-other-layers): объекты других слоёв — не фон")
     ap.add_argument("--classes", nargs="*", default=None,
                     help="префикс классов кэша: биты маски идут в этом порядке")
+    ap.add_argument("--large-kurgan-weight", type=float, default=1.0,
+                    help="sp_large: вес пика кургана от --large-area-m2; 1 — выключено")
+    ap.add_argument("--large-damaged-weight", type=float, default=1.0,
+                    help="sp_large: вес пика повреждённого кургана от --large-area-m2; 1 — выключено")
+    ap.add_argument("--large-area-m2", type=float, default=1000.0)
     ap.add_argument("--repeat-regions", default=None,
                     help="файл участков, чьи тайлы повторяются в обучении (семья проверки — нет)")
     ap.add_argument("--repeat", type=int, default=1, help="сколько раз такой тайл входит в эпоху")
@@ -339,13 +358,16 @@ def main() -> None:
                     meta["classes"] = want
                     meta_path.write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
                 res = train(str(fc / "cache"), str(model), encoder=args.encoder, epochs=args.epochs,
-                            batch=args.batch, val_families=[val], workers=0, copy_paste=args.copy_paste,
+                            batch=args.batch, lr=args.lr, val_families=[val], workers=0, copy_paste=args.copy_paste,
                             seed=s if s else None, target=args.target,
                             center_sigma_m=args.center_sigma, center_radius_m=args.center_radius,
                             center_loss_name=args.center_loss, min_dist_m=args.center_min_dist,
                             center_spike=not args.center_unbiased, center_edge_ignore=args.center_edge_ignore, use_ignore=args.use_ignore,
                             photo=args.photo, scale=args.scale, arch=args.arch, ema=args.ema,
-                            flips_mode=args.flips, device=args.device)
+                            flips_mode=args.flips, device=args.device,
+                            large_kurgan_weight=args.large_kurgan_weight,
+                            large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2,
+                            within_site_rank=args.within_site_rank, init_weights=args.init_weights)
                 res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
@@ -370,7 +392,7 @@ def main() -> None:
                 try:
                     got = []
                     for mt in predict_mts:
-                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps)
+                        got += predict_region(seg, reg, mt, cand_p, cfg.get("li"), prefetch, args.geo_maps, half_cfg=cfg)
                 except Exception:
                     log.exception("%s: предсказание пропущено", reg.name)
                     continue

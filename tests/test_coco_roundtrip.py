@@ -5,6 +5,8 @@
 import importlib.util
 import json
 
+import pytest
+
 from conftest import ROOT, UTM, X0, Y0
 from shapely.geometry import box, shape
 
@@ -17,6 +19,7 @@ def load(name):
 
 
 def test_grid_cache_roundtrip_gives_one_circle_inside_each_object(val_dir, tmp_path):
+    pytest.importorskip("cv2")  # W4: окружение без OpenCV — skip
     from expds.crs import WEB_MERCATOR, to_crs
     from expds.tiles import build_cache
 

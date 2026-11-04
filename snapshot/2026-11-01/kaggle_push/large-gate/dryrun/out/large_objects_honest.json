@@ -1,0 +1,273 @@
+{
+  "off": {
+    "name": "off",
+    "score": 0.9999991666670278,
+    "precision": 0.9999996666667778,
+    "recall": 0.9999996666667778,
+    "tp": 3.0,
+    "fp": 0.0,
+    "fn": 0.0,
+    "size_recall": {
+      "<=100": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "100-500": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "500-1k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "1k-5k": {
+        "gt": 3,
+        "tp": 3,
+        "recall": 1.0
+      },
+      "5k-10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      ">10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      }
+    },
+    "fixc_tau_large_chosen": [],
+    "per_class": {
+      "arkhitektury": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_povrezhdennye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "finds_points": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "object_poly": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "fortifikatsii": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_tselye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "gorodishcha": {
+        "f1": 0.9999991666670278,
+        "tp": 3.0,
+        "fp": 0.0,
+        "fn": 0.0
+      }
+    }
+  },
+  "area_tau": {
+    "name": "area_tau",
+    "score": 0.7999993066670009,
+    "precision": 0.6666665185185514,
+    "recall": 0.9999996666667778,
+    "tp": 3.0,
+    "fp": 3.0,
+    "fn": 0.0,
+    "size_recall": {
+      "<=100": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "100-500": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "500-1k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "1k-5k": {
+        "gt": 3,
+        "tp": 3,
+        "recall": 1.0
+      },
+      "5k-10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      ">10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      }
+    },
+    "fixc_tau_large_chosen": [],
+    "per_class": {
+      "arkhitektury": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_povrezhdennye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "finds_points": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "object_poly": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "fortifikatsii": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_tselye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "gorodishcha": {
+        "f1": 0.7999993066670009,
+        "tp": 3.0,
+        "fp": 3.0,
+        "fn": 0.0
+      }
+    },
+    "delta_score": -0.1999998600000269,
+    "delta_precision": -0.33333314814822634,
+    "delta_recall": 0.0,
+    "recovered_gt_gt5k": 0
+  },
+  "fixc_nested": {
+    "name": "fixc_nested",
+    "score": 0.9999991666670278,
+    "precision": 0.9999996666667778,
+    "recall": 0.9999996666667778,
+    "tp": 3.0,
+    "fp": 0.0,
+    "fn": 0.0,
+    "size_recall": {
+      "<=100": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "100-500": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "500-1k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      "1k-5k": {
+        "gt": 3,
+        "tp": 3,
+        "recall": 1.0
+      },
+      "5k-10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      },
+      ">10k": {
+        "gt": 0,
+        "tp": 0,
+        "recall": null
+      }
+    },
+    "fixc_tau_large_chosen": [
+      0.2,
+      0.2,
+      0.2
+    ],
+    "per_class": {
+      "arkhitektury": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_povrezhdennye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "finds_points": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "object_poly": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "fortifikatsii": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "kurgany_tselye": {
+        "f1": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0
+      },
+      "gorodishcha": {
+        "f1": 0.9999991666670278,
+        "tp": 3.0,
+        "fp": 0.0,
+        "fn": 0.0
+      }
+    },
+    "delta_score": 0.0,
+    "delta_precision": 0.0,
+    "delta_recall": 0.0,
+    "recovered_gt_gt5k": 0
+  },
+  "note": "τ группы — sweep на других семьях. area_tau не подбирался. fixc_nested выбирает τ_large только на train фолда из (0.10, 0.20, 0.30). Причина пропуска (below_tau/no_cand/shape/consumed) этим скриптом не классифицируется: recovered_gt_gt5k — прирост TP в корзинах >5k м²."
+}

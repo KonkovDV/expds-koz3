@@ -213,6 +213,22 @@ def scan_root(root: str | Path) -> list[Region]:
 
 
 def read_utm_json(path: Path | None) -> str | None:
+    """CRS участка из UTM.json — единая точка для всех потребителей (pipeline.region_crs,
+    sp_dfine, gor_gate/gor_dense, tiles, gt, candidates).
+
+    Географическая CRS (008_Герите: EPSG:4326) заменяется зоной UTM по центру участка
+    (crs.project_region_crs, WARNING в журнале): иначе окна и шаги в метрах становятся
+    градусами (сцена Or 1×1 px у бота 9). Проекционные CRS возвращаются как есть.
+    """
+    raw = _read_utm_json_raw(path)
+    if raw is None:
+        return None
+    from .crs import project_region_crs
+
+    return project_region_crs(raw, path.parent)
+
+
+def _read_utm_json_raw(path: Path | None) -> str | None:
     """EPSG из UTM.json региона: поле crs/CRS («EPSG:32636») или utm/UTM («36N»)."""
     if path is None or not path.exists():
         return None

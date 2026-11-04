@@ -1,0 +1,7 @@
+RUNNING
+[      0s] li-post-full start boot 2000 floors {'kurgany_povrezhdennye': 0.3, 'kurgany_tselye': 0.3}
+[      0s] B′ provenance: documented Ae-ON flags-off honest-10 constant 0.315800 (HANDOFF_NOW / tta-gate / sat2-gate); prefer bprime_counts.pkl else base_counts.pkl (A=0.314615) + score−B′ abs. Inputs: stack_arch + gt_train_v2 + family honest-10 via prep→gate_v6c; per-layer OOF live in koz3-w2-oof / stack; fam0 jsonl often MISSING on box (counts only).
+[      0s] HERE local package /workspace/kaggle/push/li-post-full
+[      0s] HERE /workspace/kaggle/push/li-post-full
+[      0s] MISSING_INPUT w5base/stack_arch.geojson not found (need elenakonkova/koz3-w2-gate or LI_POST_FULL_W5BASE). Box often lacks stack_arch/base_counts/bprime_counts; fam0 may be counts-only without jsonl.
+DONE MISSING_INPUT
