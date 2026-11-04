@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Восстановить «бокс» команды (/workspace/koz3) для гейтов honest-10 в чистом контейнере (аудит 03.11).
 #
-#   KAGGLE_TOKEN_DMITRIJKV=... KAGGLE_TOKEN_ELENAKONKOVA=... bash scripts/box_restore.sh [VENV_DIR]
+#   KAGGLE_TOKEN_DMITRIJKV=... bash scripts/box_restore.sh [VENV_DIR]
 #
 # Токены — только из окружения, в файлы не пишутся. Источники:
-#   - архив бокса R_results: приватный датасет elenakonkova/koz3-handoff-20261102 (koz3bk_R_results.tar.xz, 101 МБ);
+#   - архив бокса R_results: приватный датасет dmitrijkv/koz3-handoff-20261102 (koz3bk_R_results.tar.xz, 101 МБ);
 #     в нём orch/bot-W4/work/v3_gate_lib.py, пороги v3prod, разбиения; d3_gate.py — в wt/coord-orch/...;
-#   - стек OOF базы A: elenakonkova/koz3-w2-gate (w5base/: stack_arch.geojson 1,1 ГБ, table.pkl, gt_train_v2.geojson);
-#   - OOF D-FINE f0 (koz3-dfine-spor-full/-full-rest), D-FINE-2 (koz3-w2-dfine2-a/-b), Faster R-CNN (koz3-w1-satdet-frcnn).
+#   - стек OOF базы A: dmitrijkv/koz3-gate-box-20261104 (stack_arch.geojson 1,1 ГБ, table.pkl, base_counts.pkl, gt_train_v2.geojson,
+#     SHA256SUMS) — копия с бокса 04.11: аккаунта elenakonkova (и koz3-w2-gate на нём) с 04.11 нет;
+#   - OOF D-FINE f0 (koz3-dfine-spor-full/-full-rest), D-FINE-2 (koz3-w2-dfine2-a/-b). OOF Faster R-CNN (elenakonkova) потерян.
 # Чего нет ни в одном бэкапе: w4geo/eval/{A18,C19etonly_orget_s0}.geojson (геофизика базы). load_geo тогда отдаёт []:
 # V3P = 0,334435 вместо 0,3337867 (+0,00065, только object_poly EtGr); Δ/P изменений только в классах ДЗЗ не меняются.
 set -euo pipefail
@@ -15,7 +16,6 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 K=/workspace/koz3
 VENV="${1:-$K/venv312}"
 T_D="${KAGGLE_TOKEN_DMITRIJKV:?set KAGGLE_TOKEN_DMITRIJKV}"
-T_E="${KAGGLE_TOKEN_ELENAKONKOVA:?set KAGGLE_TOKEN_ELENAKONKOVA}"
 mkdir -p "$K"
 
 # 1) Python 3.12 + зависимости сдачи (как CI)
@@ -47,7 +47,7 @@ for f in json.load(sys.stdin).get('files', []):
 
 # 2) Архив бокса и библиотеки гейта
 if [ ! -f "$K/orch/bot-W4/work/v3_gate_lib.py" ]; then
-  ds elenakonkova koz3-handoff-20261102 koz3bk_R_results.tar.xz "$K/_dl/R.tar.xz" "$T_E"
+  ds dmitrijkv koz3-handoff-20261102 koz3bk_R_results.tar.xz "$K/_dl/R.tar.xz" "$T_D"
   tar -xJf "$K/_dl/R.tar.xz" -C "$K"
 fi
 mkdir -p "$K/orch/bot-W1/work/d3_vendor"
@@ -65,15 +65,17 @@ if old in t:
 EOF
 
 # 3) Стек OOF базы A и эталон
-for f in stack_arch.geojson gt_train_v2.geojson; do ds elenakonkova koz3-w2-gate "w5base/$f" "$K/w5data/$f" "$T_E"; done
-for f in table.pkl base_counts.pkl; do ds elenakonkova koz3-w2-gate "w5base/$f" "$K/w5data/work/$f" "$T_E"; done
+GB=koz3-gate-box-20261104
+for f in stack_arch.geojson gt_train_v2.geojson; do ds dmitrijkv "$GB" "$f" "$K/w5data/$f" "$T_D"; done
+for f in table.pkl base_counts.pkl; do ds dmitrijkv "$GB" "$f" "$K/w5data/work/$f" "$T_D"; done
+ds dmitrijkv "$GB" SHA256SUMS "$K/w5data/SHA256SUMS" "$T_D"
+(cd "$K/w5data" && sha256sum -c SHA256SUMS)
 
 # 4) OOF детекторов спутника
 kout "$T_D" dmitrijkv koz3-dfine-spor-full "$K/w4geo/spor_oof/full"
 kout "$T_D" dmitrijkv koz3-dfine-spor-full-rest "$K/w4geo/spor_oof/rest"
 kout "$T_D" dmitrijkv koz3-w2-dfine2-a "$K/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-a"
 kout "$T_D" dmitrijkv koz3-w2-dfine2-b "$K/w2/oof/dfine2/dmitrijkv_koz3-w2-dfine2-b"
-kout "$T_E" elenakonkova koz3-w1-satdet-frcnn "$K/w1/satdet/pulled"
 
 # 5) Конфиг v3_on для контекста гейта
 mkdir -p "$K/w2/r50c5_gate/v3on_src/configs"

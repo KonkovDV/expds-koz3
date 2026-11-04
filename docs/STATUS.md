@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 14:15 MSK | инфра | Kaggle: аккаунты elenakonkova, usertest1234, aaaa0000004, aaaadg4gg4g4g не существуют (профиль 404, users.get denied как у несуществующего, токены 401); работаем только на dmitrijkv. Стек базы гейта (stack_arch 1,1 ГБ, table.pkl, base_counts.pkl, GT + SHA256SUMS) выгружается в приватный dmitrijkv/koz3-gate-box-20261104; box_restore.sh переведён на dmitrijkv | — | scripts/box_restore.sh
+
 04.11 14:05 MSK | сверка | прод-путь TTA D-FINE (sp_dfine.Scene + orsp_tta.detect_dfine, d8) = ядро на 138_Курганы_9, веса f2, CPU: NMS 568/568, WBF 591/591, центры ≤ 2,4 мм, уверенность ≤ 5e-6 (округление ядра). Шаг 1 «если PASS» закрыт до гейта | — | kaggle/2026-11-04/dfine_tta/parity_prod.py
 
 04.11 13:45 MSK | GPU | koz3-dfine-tta v1 COMPLETE (75 мин, 5/5) — стоп-правило PREREG: V0 f2 +9,2 % эллипсов к исходному OOF; причина — зона UTM по центру растра вместо UTM.json у 47 участков у границ зон. Гейт не считался, T8N/T8W v1 не смотрелись. Поправка 1 PREREG (зона из исходного OOF), v2 запущен; сухой прогон 138_Курганы_9: 192 против 194 (v1: 473) | — | kaggle/2026-11-04/dfine_tta/PREREG.md
