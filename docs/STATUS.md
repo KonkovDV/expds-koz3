@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 07:26 MSK | гейт | копии лидара в SpOr/Ae: T1 городища Δ−0.0050 P0.0005 new34 −0.016; T2 +форты Δ−0.0052 — FAIL, закрыто (дубли вместо вторых попаданий) | — | w2_gate/li_twins/PREREG.md
+
 04.11 07:25 MSK | PREREG | копии городищ (T1) и фортификаций (T2) лидара в слои SpOr/Ae — не мерились (Q4 копировал только курганы); P≥0.975 | — | w2_gate/li_twins/PREREG.md
 
 04.11 06:20 MSK | цикл | токен Kaggle elenakonkova → 401 Unauthenticated (отозван/перевыпущен), работаем на dmitrijkv; ботов нет; конкурент vaitter @dfdafaa разобран: новое для нас только CLAHE на Ae, без своей сети Ae не рычаг | — | docs/COMPETITORS_ATOMIC.md

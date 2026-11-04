@@ -149,7 +149,39 @@ def main():
         g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = p_need
         log(f"{name}: PASS(prereg, P>={p_need}) {g['PASS']}"); save()
 
-    if os.environ.get("SATCL"):   # kaggle/2026-11-04/sat_cl/PREREG.md: D1 add / D2 replace, P >= 0.975
+    if os.environ.get("LITWIN"):   # w2_gate/li_twins/PREREG.md: T1 hillforts, T2 + forts, P >= 0.975
+        import stack_scoreboard as S
+        from expds.naming import modality_of
+        lay = {}
+        for line in open(os.environ["LITWIN"], encoding="utf-8"):   # bucket key list: "<key> <size>"
+            key = line.rsplit(" ", 1)[0]
+            if key.lower().endswith((".tif", ".tiff")) and modality_of(key) in ("SpOr", "Ae"):
+                lay.setdefault(key.split("/")[0], set()).add("sp_or" if modality_of(key) == "SpOr" else "ae")
+        sd = Path("/workspace/koz3/w1/d3/split_arch")
+        src = {"gorodishcha": [], "fortifikatsii": []}
+        for fam in sorted(p.stem for p in sd.glob("*.tsv")):
+            for _, f in S.read_family(sd, fam):
+                pr = f["properties"]
+                if pr.get("markup_type") == "li" and pr.get("class_name") in src and pr.get("region_name") in lay:
+                    src[pr["class_name"]].append(f)
+        twins = {}
+        for cls, grp in (("gorodishcha", "li_gor_twin"), ("fortifikatsii", "li_fort_twin")):
+            kept = fl_feats(src[cls])      # only what the base itself keeps (floor of the original group)
+            twins[cls] = [{"type": "Feature", "geometry": f["geometry"],
+                           "properties": dict(f["properties"], markup_type=m, threshold_group=grp)}
+                          for f in kept for m in sorted(lay[f["properties"]["region_name"]])]
+        res["litwin"] = {"sites_with_optics": len(lay), "src": {c: len(v) for c, v in src.items()},
+                         "twins": {c: len(v) for c, v in twins.items()},
+                         "twin_regions": {c: len({f["properties"]["region_name"] for f in v}) for c, v in twins.items()}}
+        log(f"li twins: {res['litwin']}"); save()
+        for name, extra in (("T1_li_gor_twin", dfxc + twins["gorodishcha"]),
+                            ("T2_li_gor_fort_twin", dfxc + twins["gorodishcha"] + twins["fortifikatsii"])):
+            cB, _ = bctx.curves(c19c + extra); nB = D.honest(cB, folds)[0]; del cB
+            score(name, nB, nA, True)
+            g = res["variants"][name]["gate"]; g["P_ge_bonferroni"] = (res["variants"][name]["scores"]["all"]["P"] or 0) >= 0.975
+            g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.975
+            log(f"{name}: PASS(prereg, P>=0.975) {g['PASS']}"); save()
+    elif os.environ.get("SATCL"):   # kaggle/2026-11-04/sat_cl/PREREG.md: D1 add / D2 replace, P >= 0.975
         cl = json.loads(Path(os.environ["SATCL"]).read_text(encoding="utf-8"))["features"]
         cl_reg = {f["properties"]["region_name"] for f in cl}
         res["satcl"] = {"n": len(cl), "regions": len(cl_reg), "missing_vs_dfine": sorted(set(dreg) - cl_reg)[:20],
