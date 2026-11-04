@@ -1,5 +1,9 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 15:21 MSK | гейт | TTA D-FINE 8 видов: T8N vs V0 Δ+0.0148 P0.9995 new34 −0.0032 kt −0.0043 — FAIL; GA (gor+arkh из T8N, PREREG A3, P≥0.9833) Δ+0.0124 P0.997 new34 −0.0039 — FAIL; T8W (отчёт) Δ+0.0144 new34 −0.0013. Линия закрыта до сдачи. Шум перепрогона детектора ±0.002 V3P (A2) | — | kaggle/2026-11-04/dfine_tta/PREREG.md
+
+04.11 15:20 MSK | бэкап | Drive «2» (5,5 ТБ, adincris2018) → KOZ3_backup_2026-11-04: 01 база гейта, 02 фолды D-FINE, 03 OOF, 04 лидар, 05 TTA v2, 06 бокс, 08 копия KOZ3-final, 09 копия KOZ3-pixgbm, 10 git bundle; 07 Kaggle dmitrijkv в процессе; md5 всех файлов сверены. Опись утерянного — docs/INVENTORY_2026-11-04.md | — | docs/INVENTORY_2026-11-04.md
+
 04.11 14:15 MSK | инфра | Kaggle: аккаунты elenakonkova, usertest1234, aaaa0000004, aaaadg4gg4g4g заблокированы (подтверждено: «suspended or banned» при входе; профиль 404, users.get denied, токены 401); работаем только на dmitrijkv. Стек базы гейта (stack_arch 1,1 ГБ, table.pkl, base_counts.pkl, GT + SHA256SUMS) выгружен в приватный dmitrijkv/koz3-gate-box-20261104 (аноним 403; скачивание и sha256 проверены); box_restore.sh переведён на dmitrijkv | — | scripts/box_restore.sh
 
 04.11 14:05 MSK | сверка | прод-путь TTA D-FINE (sp_dfine.Scene + orsp_tta.detect_dfine, d8) = ядро на 138_Курганы_9, веса f2, CPU: NMS 568/568, WBF 591/591, центры ≤ 2,4 мм, уверенность ≤ 5e-6 (округление ядра). Шаг 1 «если PASS» закрыт до гейта | — | kaggle/2026-11-04/dfine_tta/parity_prod.py
