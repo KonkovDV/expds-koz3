@@ -71,6 +71,15 @@ log("CFG", json.dumps(CFG, ensure_ascii=False))
 AP = argparse.ArgumentParser(); AP.add_argument("--allow-cpu", action="store_true"); ARGS, _ = AP.parse_known_args()
 ''' % json.dumps(DATASETS)
 
+    region_crs = json.loads((Path(__file__).resolve().parent / "region_crs.json").read_text(encoding="utf-8"))
+    crs_fix = f'''
+# ── Поправка 1 PREREG: зона UTM участка — как в исходном OOF и в проде (из UTM.json), а не по центру растра ────────
+REGION_CRS = {json.dumps(region_crs, ensure_ascii=False)}
+_target_crs_auto = target_crs
+def target_crs(inv, ds):
+    return REGION_CRS.get(inv["region"]) or _target_crs_auto(inv, ds)
+log("зоны UTM из исходного OOF:", len(REGION_CRS), "участков")
+'''
     weights = r'''
 # ── Веса фолдов прод-модели sp_dfine: вывод ядер koz3-dfine-spor-full (f1, f2, f4) и -full-rest (f0, f3) ─────────
 def _weight_dirs():
@@ -246,7 +255,7 @@ log("ГОТОВО", REPORT["n_det"], "ошибки:", errs)
 if errs: raise SystemExit(f"фолды с ошибкой: {list(errs)}")
 '''
     parts = [head, "\n".join(deps), folds[0], "\n".join(imports), cfg, "\n".join(gpu), "\n".join(inputs),
-             "\n".join(model), "\n".join(inv), "import numpy as np\n" + tta,
+             "\n".join(model), "\n".join(inv), crs_fix, "import numpy as np\n" + tta,
              f"WEIGHTS_HINT = {json.dumps(WEIGHTS)}", weights, infer]
     text = "\n".join(parts) + "\n"
     compile(text, "koz3-dfine-tta.py", "exec")
