@@ -1,0 +1,33 @@
+{
+ "enc": "tu-convnext_tiny",
+ "iters": 6000,
+ "batch": 8,
+ "folds": [
+  {
+   "fold": 0,
+   "regions": 47,
+   "features": 208
+  },
+  {
+   "fold": 1,
+   "regions": 21,
+   "features": 132
+  },
+  {
+   "fold": 2,
+   "regions": 22,
+   "features": 132
+  },
+  {
+   "fold": 3,
+   "regions": 18,
+   "features": 147
+  },
+  {
+   "fold": 4,
+   "regions": 24,
+   "features": 93
+  }
+ ],
+ "sec": 6961
+}
