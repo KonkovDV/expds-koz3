@@ -7,6 +7,10 @@ Honest-10 0,361641 (Δ+0,0162 к v3_on, P 1,0). Kaggle-паритет v4chk PASS
 
 ## Где
 
+**Одним файлом (04.11, без склейки):** Google Drive «2» → `KOZ3_backup_2026-11-04/00_SUBMIT_v4_f0def982/koz3_v4c1f_07795d2_51882efd_w6dfd2e07.zip` — https://drive.google.com/file/d/12J_BRXkOipEv4JZtaenvYOgP3TRR1fiG/view (папка: https://drive.google.com/drive/folders/1NrqHOD57oNTVfL_Ufe7LYLVEASPQlo_H). Перед выкладкой 04.11: sha256 `f0def982…` совпал, CRC всех 3904 файлов zip в порядке, в корне `metadata.json` (`pantum/n7q:20261024`, `python inference/main.py`); md5 файла на Drive совпал с проверенным. Код сабмита в `main` с проверки пересборки (1bee81de) не менялся — v4 остаётся самой свежей версией: все гейты 03–04.11 поверх неё провалились.
+
+Частями (исходная выкладка 02.11):
+
 Google Drive → KOZ3-final → `v4c1f_f0def982`:
 https://drive.google.com/drive/folders/1h8AAWDV6xJkgxN7FwZXeLMYaAIEUx5Ia
 
