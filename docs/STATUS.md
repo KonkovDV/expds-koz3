@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 12:25 MSK | цикл | ботов и новых PR нет; main зелёный; bots/orch-protocol = main (PR #48); ядро dmitrijkv/koz3-dfine-tta running; конкурент vdurnov/xview2 1-е место (MIT, справочно): TTA 4 отражения на каждой U-Net — у нас U-Net в v4 без TTA вовсе → кандидат PREREG после D-FINE TTA | — | docs/COMPETITORS_ATOMIC.md
+
 04.11 12:05 MSK | CI | main был красным с 03.11 23:43 MSK (d15f921d): test_assemble_skip_build_off_profile в клоне глубины 1 не находил eb268d6:expds/geo_pixgbm.py — скрипт v2_release_artifacts.py дотягивал коммит по короткому хэшу, а GitHub отдаёт только по полному. Исправлено: полный хэш, --depth=1 в мелком клоне; в клоне глубины 1 21/21, полный pytest 1165 passed. PR #44–#47 влиты при красном CI (статус проверялся до запуска прогона) — впредь вливать только после success | — | scripts/v2_release_artifacts.py
 
 04.11 11:44 MSK | гейт | sat_cl2 E3 (только архитектура, PREREG до замера, m=3): Δ+0.003035 P0.9285 < 0.9833, new34 0, nolidar +0.0030 — FAIL; сеть городищ/архитектуры SpOr до сдачи закрыта | — | kaggle/2026-11-04/sat_cl2/PREREG.md

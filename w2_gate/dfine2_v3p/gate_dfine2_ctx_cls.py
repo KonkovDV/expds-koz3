@@ -181,6 +181,38 @@ def main():
             g = res["variants"][name]["gate"]; g["P_ge_bonferroni"] = (res["variants"][name]["scores"]["all"]["P"] or 0) >= 0.975
             g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.975
             log(f"{name}: PASS(prereg, P>=0.975) {g['PASS']}"); save()
+    elif os.environ.get("TTA_DIR"):   # kaggle/2026-11-04/dfine_tta/PREREG.md: T8N vs V0 decisive (P >= 0.95), T8W report-only
+        td = Path(os.environ["TTA_DIR"]); var = {}
+        for v in ("V0", "T8N", "T8W"):
+            ps = sorted(td.glob(f"oof_{v}_f[0-4].geojson"))
+            assert len(ps) == 5, f"{v}: {len(ps)} fold files in {td}"
+            var[v] = raw_dets(ps, 0)
+        v0, v0_fold = var["V0"]
+        bad = {r: (ref_fold.get(r), f) for r, f in v0_fold.items() if ref_fold.get(r) != f}
+        assert not bad, f"TTA fold/region mismatch vs ref: {list(bad.items())[:5]}"
+        # стоп-правило PREREG: эллипсов V0 по фолду не дальше 2 % от исходного OOF, нет участков без выхода
+        cnt = lambda by, fold_of: Counter(fold_of[r] for r, ds in by.items() for _ in ds)
+        c_ref, c_v0 = cnt(ref, ref_fold), cnt(v0, v0_fold)
+        rel = {k: (c_v0.get(k, 0) - c_ref[k]) / max(c_ref[k], 1) for k in sorted(c_ref)}
+        missing = sorted(set(ref) - set(v0))
+        res["tta"] = {"n": {v: sum(map(len, var[v][0].values())) for v in var}, "per_fold_ref": dict(c_ref), "per_fold_v0": dict(c_v0),
+                      "v0_rel_count": rel, "missing_regions_v0": missing[:20], "n_missing": len(missing)}
+        s0 = circles([v0], 4.0, "max", 1, "sp_dfine"); cS0, _ = base3.curves(c19 + s0)
+        res["tta"]["V3P_V0"] = M.score_counts(D.honest(cS0, folds)[0])[0]; del cS0
+        res["tta"]["V3P_V0_minus_ref"] = res["tta"]["V3P_V0"] - res["V3P"]
+        res["tta"]["stop"] = bool(missing) or max(abs(x) for x in rel.values()) > 0.02 or abs(res["tta"]["V3P_V0_minus_ref"]) > 0.002
+        log(f"TTA sanity: {json.dumps({k: res['tta'][k] for k in ('n', 'v0_rel_count', 'n_missing', 'V3P_V0_minus_ref', 'stop')}, default=float)}"); save()
+        if res["tta"]["stop"]:
+            log("TTA: стоп-правило PREREG сработало — гейт не считается"); save()
+        else:
+            cA0, _ = bctx.curves(c19c + fl_feats(s0)); nA0 = D.honest(cA0, folds)[0]; del cA0
+            score("V0_vs_V3P_ctx", nA0, nA)                                   # report-only: насколько V0 повторяет базу
+            for name, v, decisive in (("T8N_vs_V0", "T8N", True), ("T8W_vs_V0", "T8W", False)):
+                sB = circles([var[v][0]], 4.0, "max", 1, "sp_dfine"); cB, _ = bctx.curves(c19c + fl_feats(sB))
+                nB = D.honest(cB, folds)[0]; del cB
+                score(name, nB, nA0, decisive)
+                if decisive:
+                    log(f"{name}: PASS(prereg, P>=0.95) {res['variants'][name]['gate']['PASS']}"); save()
     elif os.environ.get("SATCL"):   # kaggle/2026-11-04/sat_cl/PREREG.md: D1 add / D2 replace, P >= 0.975
         cl = json.loads(Path(os.environ["SATCL"]).read_text(encoding="utf-8"))["features"]
         cl_reg = {f["properties"]["region_name"] for f in cl}
