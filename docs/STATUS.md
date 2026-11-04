@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 14:05 MSK | сверка | прод-путь TTA D-FINE (sp_dfine.Scene + orsp_tta.detect_dfine, d8) = ядро на 138_Курганы_9, веса f2, CPU: NMS 568/568, WBF 591/591, центры ≤ 2,4 мм, уверенность ≤ 5e-6 (округление ядра). Шаг 1 «если PASS» закрыт до гейта | — | kaggle/2026-11-04/dfine_tta/parity_prod.py
+
 04.11 13:45 MSK | GPU | koz3-dfine-tta v1 COMPLETE (75 мин, 5/5) — стоп-правило PREREG: V0 f2 +9,2 % эллипсов к исходному OOF; причина — зона UTM по центру растра вместо UTM.json у 47 участков у границ зон. Гейт не считался, T8N/T8W v1 не смотрелись. Поправка 1 PREREG (зона из исходного OOF), v2 запущен; сухой прогон 138_Курганы_9: 192 против 194 (v1: 473) | — | kaggle/2026-11-04/dfine_tta/PREREG.md
 
 04.11 13:20 MSK | цикл | ботов и новых коммитов в main нет; ядро dmitrijkv/koz3-dfine-tta running 72 мин (8 видов × 5 фолдов + WBF на CPU); поиск GitHub: новых репозиториев КОЗ-3 нет, yakirill99/ds-expedition без коммитов после 01.11, ветка feat/validation (AHN, ручная разметка) — не рычаг до сдачи | — | docs/COMPETITORS_ATOMIC.md
