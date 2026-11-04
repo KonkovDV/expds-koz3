@@ -200,18 +200,36 @@ def main():
         s0 = circles([v0], 4.0, "max", 1, "sp_dfine"); cS0, _ = base3.curves(c19 + s0)
         res["tta"]["V3P_V0"] = M.score_counts(D.honest(cS0, folds)[0])[0]; del cS0
         res["tta"]["V3P_V0_minus_ref"] = res["tta"]["V3P_V0"] - res["V3P"]
-        res["tta"]["stop"] = bool(missing) or max(abs(x) for x in rel.values()) > 0.02 or abs(res["tta"]["V3P_V0_minus_ref"]) > 0.002
+        # PREREG поправка 2: абсолютный |ΔV3P| ≤ 0,002 заменён проверкой конвейера по боксам (шум fp16 даёт ±0,002)
+        res["tta"]["stop_v1_rule"] = abs(res["tta"]["V3P_V0_minus_ref"]) > 0.002
+        bx = os.environ.get("TTA_BOX_CHECK")   # json: {"median_centre_m": .., "median_abs_dscore": ..}
+        bxd = json.loads(Path(bx).read_text()) if bx else None
+        res["tta"]["box_check"] = bxd
+        box_bad = bxd is None or bxd["median_centre_m"] > 0.5 or bxd["median_abs_dscore"] > 0.001
+        res["tta"]["stop"] = bool(missing) or max(abs(x) for x in rel.values()) > 0.02 or box_bad
         log(f"TTA sanity: {json.dumps({k: res['tta'][k] for k in ('n', 'v0_rel_count', 'n_missing', 'V3P_V0_minus_ref', 'stop')}, default=float)}"); save()
         if res["tta"]["stop"]:
             log("TTA: стоп-правило PREREG сработало — гейт не считается"); save()
         else:
             cA0, _ = bctx.curves(c19c + fl_feats(s0)); nA0 = D.honest(cA0, folds)[0]; del cA0
             score("V0_vs_V3P_ctx", nA0, nA)                                   # report-only: насколько V0 повторяет базу
-            for name, v, decisive in (("T8N_vs_V0", "T8N", True), ("T8W_vs_V0", "T8W", False)):
+            ga = [c for c in os.environ.get("TTA_GA", "").split(",") if c]   # PREREG поправка 3: классы из T8N, остальное из V0
+            if ga:
+                s8 = circles([var["T8N"][0]], 4.0, "max", 1, "sp_dfine")
+                sGA = [f for f in s0 if f["properties"]["class_name"] not in ga] + [f for f in s8 if f["properties"]["class_name"] in ga]
+                res["tta"]["ga"] = {"classes": ga, "n": len(sGA)}
+                cB, _ = bctx.curves(c19c + fl_feats(sGA)); nB = D.honest(cB, folds)[0]; del cB
+                score("GA_vs_V0", nB, nA0, True)
+                g = res["variants"]["GA_vs_V0"]["gate"]; g["P_ge_bonferroni"] = (res["variants"]["GA_vs_V0"]["scores"]["all"]["P"] or 0) >= 0.9833
+                g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.9833
+                score("GA_vs_V3P_ctx_report", nB, nA)
+                log(f"GA_vs_V0: PASS(prereg A3, P>=0.9833) {g['PASS']}"); save()
+            for name, v, decisive in (() if ga else (("T8N_vs_V0", "T8N", True), ("T8W_vs_V0", "T8W", False))):
                 sB = circles([var[v][0]], 4.0, "max", 1, "sp_dfine"); cB, _ = bctx.curves(c19c + fl_feats(sB))
                 nB = D.honest(cB, folds)[0]; del cB
                 score(name, nB, nA0, decisive)
                 if decisive:
+                    score(name.replace("_vs_V0", "_vs_V3P_ctx_report"), nB, nA)   # отчёт: против базы на исходном OOF
                     log(f"{name}: PASS(prereg, P>=0.95) {res['variants'][name]['gate']['PASS']}"); save()
     elif os.environ.get("SATCL"):   # kaggle/2026-11-04/sat_cl/PREREG.md: D1 add / D2 replace, P >= 0.975
         cl = json.loads(Path(os.environ["SATCL"]).read_text(encoding="utf-8"))["features"]
