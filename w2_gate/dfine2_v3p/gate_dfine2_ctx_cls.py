@@ -149,7 +149,22 @@ def main():
         g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = p_need
         log(f"{name}: PASS(prereg, P>={p_need}) {g['PASS']}"); save()
 
-    if os.environ.get("ONLY_CLS") == "1":
+    if os.environ.get("SATCL"):   # kaggle/2026-11-04/sat_cl/PREREG.md: D1 add / D2 replace, P >= 0.975
+        cl = json.loads(Path(os.environ["SATCL"]).read_text(encoding="utf-8"))["features"]
+        cl_reg = {f["properties"]["region_name"] for f in cl}
+        res["satcl"] = {"n": len(cl), "regions": len(cl_reg), "missing_vs_dfine": sorted(set(dreg) - cl_reg)[:20],
+                        "classes": dict(Counter(f["properties"]["class_name"] for f in cl))}
+        log(f"sp_cl OOF {len(cl)} feats, {len(cl_reg)} regions, missing vs D-FINE regions {len(set(dreg) - cl_reg)}"); save()
+        clc = fl_feats(cl)
+        GA = {"gorodishcha", "arkhitektury"}
+        for name, extra in (("D1_add_sp_cl", dfxc + clc),
+                            ("D2_replace_gor_arch_sp_cl", [f for f in dfxc if f["properties"]["class_name"] not in GA] + clc)):
+            cB, _ = bctx.curves(c19c + extra); nB = D.honest(cB, folds)[0]; del cB
+            score(name, nB, nA, True)
+            g = res["variants"][name]["gate"]; g["P_ge_bonferroni"] = (res["variants"][name]["scores"]["all"]["P"] or 0) >= 0.975
+            g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.975
+            log(f"{name}: PASS(prereg, P>=0.975) {g['PASS']}"); save()
+    elif os.environ.get("ONLY_CLS") == "1":
         if os.environ.get("ONLY_C3") == "1":
             variant_cls("C3_ens8_arkh_gor_as_sp_dfine_ctx", "sp_dfine", 0.9875)
         else:
