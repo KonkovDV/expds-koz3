@@ -213,7 +213,18 @@ def main():
         else:
             cA0, _ = bctx.curves(c19c + fl_feats(s0)); nA0 = D.honest(cA0, folds)[0]; del cA0
             score("V0_vs_V3P_ctx", nA0, nA)                                   # report-only: насколько V0 повторяет базу
-            for name, v, decisive in (("T8N_vs_V0", "T8N", True), ("T8W_vs_V0", "T8W", False)):
+            ga = [c for c in os.environ.get("TTA_GA", "").split(",") if c]   # PREREG поправка 3: классы из T8N, остальное из V0
+            if ga:
+                s8 = circles([var["T8N"][0]], 4.0, "max", 1, "sp_dfine")
+                sGA = [f for f in s0 if f["properties"]["class_name"] not in ga] + [f for f in s8 if f["properties"]["class_name"] in ga]
+                res["tta"]["ga"] = {"classes": ga, "n": len(sGA)}
+                cB, _ = bctx.curves(c19c + fl_feats(sGA)); nB = D.honest(cB, folds)[0]; del cB
+                score("GA_vs_V0", nB, nA0, True)
+                g = res["variants"]["GA_vs_V0"]["gate"]; g["P_ge_bonferroni"] = (res["variants"]["GA_vs_V0"]["scores"]["all"]["P"] or 0) >= 0.9833
+                g["PASS"] = g["PASS"] and g["P_ge_bonferroni"]; g["p_need"] = 0.9833
+                score("GA_vs_V3P_ctx_report", nB, nA)
+                log(f"GA_vs_V0: PASS(prereg A3, P>=0.9833) {g['PASS']}"); save()
+            for name, v, decisive in (() if ga else (("T8N_vs_V0", "T8N", True), ("T8W_vs_V0", "T8W", False))):
                 sB = circles([var[v][0]], 4.0, "max", 1, "sp_dfine"); cB, _ = bctx.curves(c19c + fl_feats(sB))
                 nB = D.honest(cB, folds)[0]; del cB
                 score(name, nB, nA0, decisive)
