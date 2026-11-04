@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 16:10 MSK | конкуренты | LB 04.11: 32-е из 78 (DataWinner и Чибас выше). GitHub: новых репо КОЗ-3 нет. Docker Hub: 17 новых образов — GigaFlex (3-е) на YOLO yolo26 (strekalov), huntertomo: YOLO на модальность + отдельные модели на визуализации рельефа RVT (li_c/ch/g/i) + SAM + без ортофото; philarete173: softmax U-Net 6 классов, слабый. Кандидаты после сдачи: каналы RVT для лидара, YOLO-детектор на модальность | — | docs/COMPETITORS_ATOMIC.md
+
 04.11 15:21 MSK | гейт | TTA D-FINE 8 видов: T8N vs V0 Δ+0.0148 P0.9995 new34 −0.0032 kt −0.0043 — FAIL; GA (gor+arkh из T8N, PREREG A3, P≥0.9833) Δ+0.0124 P0.997 new34 −0.0039 — FAIL; T8W (отчёт) Δ+0.0144 new34 −0.0013. Линия закрыта до сдачи. Шум перепрогона детектора ±0.002 V3P (A2) | — | kaggle/2026-11-04/dfine_tta/PREREG.md
 
 04.11 15:20 MSK | бэкап | Drive «2» (5,5 ТБ, adincris2018) → KOZ3_backup_2026-11-04: 01 база гейта, 02 фолды D-FINE, 03 OOF, 04 лидар, 05 TTA v2, 06 бокс, 08 копия KOZ3-final, 09 копия KOZ3-pixgbm, 10 git bundle; 07 Kaggle dmitrijkv в процессе; md5 всех файлов сверены. Опись утерянного — docs/INVENTORY_2026-11-04.md | — | docs/INVENTORY_2026-11-04.md
