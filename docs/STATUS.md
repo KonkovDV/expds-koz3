@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 11:50 MSK | целостность | код main (1bee81de) + веса архива v4 на синтетике = выход архива v4 побайтно (sha256 c3a5294e…, 82 объекта, включая D-FINE sp_or): v4 пересобирается из main | — | docs/V4_SUBMIT.md
+
 04.11 11:20 MSK | цикл | sat_cl2 running; ботов нет; Iskatel (КОЗ-1, MIT): бесшовная вставка курганов — у нас есть paste_objects/--copy-paste, но ни разу не гейтился → кандидат PREREG для li; список конкурентов из COMPETITORS_2026-10-29 пройден | — | docs/COMPETITORS_ATOMIC.md
 
 04.11 10:20 MSK | цикл | sat_cl2 running; ботов нет; конкурент MataNerdy @52b3854 (прошлый этап): DeepLabV3+ CE+Dice с весами, патчи вокруг объектов — уже в sat_cl2; новое лишь фильтр перегруженных патчей | — | docs/COMPETITORS_ATOMIC.md
