@@ -610,6 +610,9 @@ PIX_BACKEND_FILES = {"lleaves": (".lleaves.so", ".lleaves.json"), "treelite": ("
 
 def pixgbm_needed(pix: dict) -> tuple[str, list[str], list[str]]:
     """(model_dir, нужные .txt, файлы бэкенда) для [geophys.pixgbm] — умолчания как в pipeline.py/geo_pixgbm.py."""
+    if is_e1g1(pix):   # чистая цепочка E1_G1: 6 моделей находок ens6 (их же грузит проба импорта)
+        md = str(pix.get("model_dir", "models/pix_clean")).strip("/")
+        return md, [f"{md}/ens6/{m}/finds.txt" for m in E1G1_MEMBERS], []
     md = str(pix.get("model_dir", "models/pixgbm/all")).strip("/")
     classes = pix.get("classes", ["finds_points", "object_poly"])
     maps = pix.get("maps", list(PIX_METHODS))
@@ -623,11 +626,49 @@ def pixgbm_needed(pix: dict) -> tuple[str, list[str], list[str]]:
     return md, sorted(set(need)), sorted(set(extra))
 
 
+E1G1_MEMBERS = ("n40r8", "n40r6", "n40r10", "aug", "gw1d", "gw3d")   # == expds/pix_e1g1.MEMBERS
+E1G1_MODULES = ("expds/pix_e1g1.py", "expds/pix_clean.py", "expds/pix_org_et.py")
+E1G1_ORG = ("org/org_etgr_map.txt", "org/org_etgr_prof.txt")
+
+
+def is_e1g1(pix: dict) -> bool:
+    """Чистая геофизика E1_G1: impl=clean, chain=e1g1 (expds/pix_e1g1.py). Модели — ens6/<член>/finds.txt + ORG3."""
+    return bool(pix.get("enabled")) and str(pix.get("impl", "")) == "clean" and str(pix.get("chain", "")) == "e1g1"
+
+
+def check_e1g1_static(pix: dict, names: set) -> set:
+    """[geophys.pixgbm] impl=clean chain=e1g1: модули и 6 моделей ens6 + ORG3 в архиве — иначе FAIL
+    (pipeline при ошибке молча уходит в классику: «pix e1g1 пропущен»). geo_pixgbm.py (линия EN) здесь не нужен."""
+    md = str(pix.get("model_dir", "models/pix_clean")).strip("/")
+    need = [f"{md}/ens6/{m}/finds.txt" for m in E1G1_MEMBERS] + [f"{md}/{o}" for o in E1G1_ORG]
+    lost_mod = [m for m in E1G1_MODULES if m not in names]
+    lost = [f for f in need if f not in names]
+    if lost_mod:
+        report("FAIL", "config", f"PIXGBM e1g1: нет модулей {lost_mod} — геофизика уйдёт в классику")
+    if lost:
+        report("FAIL", "config", f"PIXGBM e1g1: нет моделей {lost} — геофизика уйдёт в классику")
+    if not lost_mod and not lost:
+        report("PASS", "config", f"PIXGBM e1g1 (чистая цепочка): модули и {len(E1G1_MEMBERS)} моделей ens6 + ORG3 в архиве")
+    extra = []
+    if str((pix.get("e1g1") or {}).get("backend", "lightgbm")) == "lleaves":
+        tgt = str((pix.get("e1g1") or {}).get("lleaves_target", "x86-64-v2"))
+        extra = [f"{md}/ens6/{m}/finds.lleaves.{tgt}.o" for m in E1G1_MEMBERS]
+        lost_x = [f for f in extra if f not in names]
+        if lost_x:
+            report("WARN", "config", f"PIXGBM e1g1 backend=lleaves: нет {lost_x} — фолбэк на lightgbm (медленнее)")
+    owned = set(need) | set(extra)
+    owned |= {f"{f}.sha256" for f in extra} | {f"{md}/ens6/{m}/meta.json" for m in E1G1_MEMBERS} | {f"{md}/SHA256SUMS"}
+    owned |= {n for n in names if n.startswith(f"{md}/org/")}
+    return owned
+
+
 def check_pixgbm_static(pix: dict, names: set) -> set:
     """При [geophys.pixgbm] enabled=true: файл модели на каждый класс (poly.txt / finds.txt) — иначе FAIL.
     Возвращает пути pixgbm, на которые ссылается конфиг (для предупреждения о лишних весах)."""
     if not pix.get("enabled"):
         return set()
+    if is_e1g1(pix):
+        return check_e1g1_static(pix, names)
     md, need, extra = pixgbm_needed(pix)
     bad = []
     classes, maps = pix.get("classes", ["finds_points", "object_poly"]), pix.get("maps", list(PIX_METHODS))
@@ -655,7 +696,7 @@ def check_pixgbm_static(pix: dict, names: set) -> set:
 def check_pixgbm_module(pix: dict, names: set) -> None:
     """Murder Board 29.10: expds/geo_pixgbm.py вне git (EN-hold). При [geophys.pixgbm] enabled=true без модуля
     pipeline молча уходит в классику (pipeline.py: «pixgbm включён, но expds/geo_pixgbm.py нет») — сборка ≠ v2 LB."""
-    if pix.get("enabled") and "expds/geo_pixgbm.py" not in names:
+    if pix.get("enabled") and str(pix.get("impl", "")) != "clean" and "expds/geo_pixgbm.py" not in names:
         report("FAIL", "config", "PIXGBM включён, а expds/geo_pixgbm.py нет в архиве — pix молча уйдёт в классику, "
                                  "сборка ≠ v2 LB 0.41238 (docs/MURDER_BOARD_2026-10-29.md)")
 
