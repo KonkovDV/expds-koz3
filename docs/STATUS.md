@@ -1,5 +1,11 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 14:05 MSK | сверка | прод-путь TTA D-FINE (sp_dfine.Scene + orsp_tta.detect_dfine, d8) = ядро на 138_Курганы_9, веса f2, CPU: NMS 568/568, WBF 591/591, центры ≤ 2,4 мм, уверенность ≤ 5e-6 (округление ядра). Шаг 1 «если PASS» закрыт до гейта | — | kaggle/2026-11-04/dfine_tta/parity_prod.py
+
+04.11 13:45 MSK | GPU | koz3-dfine-tta v1 COMPLETE (75 мин, 5/5) — стоп-правило PREREG: V0 f2 +9,2 % эллипсов к исходному OOF; причина — зона UTM по центру растра вместо UTM.json у 47 участков у границ зон. Гейт не считался, T8N/T8W v1 не смотрелись. Поправка 1 PREREG (зона из исходного OOF), v2 запущен; сухой прогон 138_Курганы_9: 192 против 194 (v1: 473) | — | kaggle/2026-11-04/dfine_tta/PREREG.md
+
+04.11 13:20 MSK | цикл | ботов и новых коммитов в main нет; ядро dmitrijkv/koz3-dfine-tta running 72 мин (8 видов × 5 фолдов + WBF на CPU); поиск GitHub: новых репозиториев КОЗ-3 нет, yakirill99/ds-expedition без коммитов после 01.11, ветка feat/validation (AHN, ручная разметка) — не рычаг до сдачи | — | docs/COMPETITORS_ATOMIC.md
+
 04.11 12:25 MSK | цикл | ботов и новых PR нет; main зелёный; bots/orch-protocol = main (PR #48); ядро dmitrijkv/koz3-dfine-tta running; конкурент vdurnov/xview2 1-е место (MIT, справочно): TTA 4 отражения на каждой U-Net — у нас U-Net в v4 без TTA вовсе → кандидат PREREG после D-FINE TTA | — | docs/COMPETITORS_ATOMIC.md
 
 04.11 12:05 MSK | CI | main был красным с 03.11 23:43 MSK (d15f921d): test_assemble_skip_build_off_profile в клоне глубины 1 не находил eb268d6:expds/geo_pixgbm.py — скрипт v2_release_artifacts.py дотягивал коммит по короткому хэшу, а GitHub отдаёт только по полному. Исправлено: полный хэш, --depth=1 в мелком клоне; в клоне глубины 1 21/21, полный pytest 1165 passed. PR #44–#47 влиты при красном CI (статус проверялся до запуска прогона) — впредь вливать только после success | — | scripts/v2_release_artifacts.py
