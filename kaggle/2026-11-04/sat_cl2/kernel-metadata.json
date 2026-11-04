@@ -1,0 +1,22 @@
+{
+ "id": "dmitrijkv/koz3-sat-cl2",
+ "title": "koz3-sat-cl2",
+ "code_file": "koz3-sat-cl2.py",
+ "language": "python",
+ "kernel_type": "script",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "enable_internet": true,
+ "keywords": [
+  "gpu"
+ ],
+ "dataset_sources": [
+  "dmitrijkv/koz3-w1-sat2-f14-data",
+  "dmitrijkv/koz3-w2-dfine2-raw-a",
+  "dmitrijkv/koz3-w2-dfine2-raw-b"
+ ],
+ "kernel_sources": [],
+ "competition_sources": [],
+ "model_sources": []
+}
