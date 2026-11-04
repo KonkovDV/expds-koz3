@@ -1,5 +1,7 @@
 # STATUS (KOZ-3) — формат: время MSK | бот | что | число | ссылка
 
+04.11 11:20 MSK | цикл | sat_cl2 running; ботов нет; Iskatel (КОЗ-1, MIT): бесшовная вставка курганов — у нас есть paste_objects/--copy-paste, но ни разу не гейтился → кандидат PREREG для li; список конкурентов из COMPETITORS_2026-10-29 пройден | — | docs/COMPETITORS_ATOMIC.md
+
 04.11 10:20 MSK | цикл | sat_cl2 running; ботов нет; конкурент MataNerdy @52b3854 (прошлый этап): DeepLabV3+ CE+Dice с весами, патчи вокруг объектов — уже в sat_cl2; новое лишь фильтр перегруженных патчей | — | docs/COMPETITORS_ATOMIC.md
 
 04.11 09:45 MSK | GPU | запущено dmitrijkv/koz3-sat-cl2 v1 — вторая попытка сети городищ/архитектуры SpOr по рецепту против схлопывания (softmax 3 класса, батчи вокруг объектов, веса CE, фолды по семьям с балансом, 6000 итераций); PREREG E1/E2 до результата | — | kaggle/2026-11-04/sat_cl2/PREREG.md
