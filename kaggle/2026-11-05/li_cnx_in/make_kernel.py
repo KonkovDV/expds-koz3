@@ -137,8 +137,14 @@ def _replace_once(text: str, old: str, new: str, what: str) -> str:
     return text.replace(old, new)
 
 
-def build(slug: str, jobs: str, iters: int, src: Path = SRC) -> tuple[str, dict]:
-    """Текст ядра и kernel-metadata.json."""
+def build(slug: str, jobs: str, iters: int, src: Path = SRC, mode: str = "full",
+          regions: str = "") -> tuple[str, dict]:
+    """Текст ядра и kernel-metadata.json. mode smoke (10 итераций) и regions (подмножество участков) — только для
+    проверки пути без S3 до полного прогона; в гейт идут лишь ядра mode full по всем участкам."""
+    if mode not in ("full", "smoke"):
+        raise SystemExit(f"mode {mode!r}: full или smoke")
+    if regions and mode != "smoke":
+        raise SystemExit("--regions только для smoke: гейт требует OOF по всем 59 участкам")
     for tok in jobs.split(","):
         if not JOB_RE.match(tok.strip()):
             raise SystemExit(f"задание {tok!r}: ожидается c3|c5-in|sc:0..4")
@@ -150,10 +156,13 @@ def build(slug: str, jobs: str, iters: int, src: Path = SRC) -> tuple[str, dict]
     text = _replace_once(text, "CNX_JOBS_DEFAULT = 'c3-sc:4'\n", f"CNX_JOBS_DEFAULT = {jobs!r}\n", "1 задания")
     text = _replace_once(text, 'iters=E("CNX_ITERS", 10 if SMOKE else 12000)',
                          f'iters=E("CNX_ITERS", 10 if SMOKE else {int(iters)})', "2 итерации")
+    text = _replace_once(text, "CNX_MODE_DEFAULT = 'full'\n", f"CNX_MODE_DEFAULT = {mode!r}\n", "0 режим")
+    text = _replace_once(text, "CNX_REGIONS_DEFAULT = ''\n", f"CNX_REGIONS_DEFAULT = {regions!r}\n", "0 участки")
     text = _replace_once(text, S3_OLD, HELPERS + S3_NEW, "3 разметка без S3")
     text = _replace_once(text, INV_OLD, INV_NEW, "4 инвентарь без S3")
     text = _replace_once(text, LOADGT_OLD, LOADGT_NEW, "5 load_gt из файла")
-    text = HEADER.format(sha=sha[:16], gt_ds=GT_DATASET, prep=PREP_KERNEL, jobs=jobs, iters=iters) + text
+    text = HEADER.format(sha=sha[:16], gt_ds=GT_DATASET, prep=PREP_KERNEL, jobs=jobs,
+                         iters=iters if mode == "full" else f"10 (smoke; участки: {regions or 'все'})") + text
     meta = json.loads(SRC_META.read_text(encoding="utf-8"))
     meta.update(id=f"{OWNER}/{slug}", title=slug, code_file=f"{slug}.py", is_private=True, enable_gpu=True,
                 enable_internet=True, dataset_sources=[GT_DATASET], kernel_sources=[PREP_KERNEL])
@@ -166,10 +175,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--jobs", required=True, help="например c5-in:0,c5-in:1")
     ap.add_argument("--iters", type=int, default=12000)
     ap.add_argument("--out", type=Path, required=True, help="каталог сборки (вне git)")
+    ap.add_argument("--mode", default="full", choices=("full", "smoke"))
+    ap.add_argument("--regions", default="", help="только smoke: участки через запятую")
     a = ap.parse_args(argv)
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{4,49}", a.slug):
         ap.error("slug: строчная латиница, цифры, дефисы, 5–50 символов")
-    text, meta = build(a.slug, a.jobs, a.iters)
+    text, meta = build(a.slug, a.jobs, a.iters, mode=a.mode, regions=a.regions)
     d = a.out / a.slug
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{a.slug}.py").write_text(text, encoding="utf-8")

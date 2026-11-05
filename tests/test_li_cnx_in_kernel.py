@@ -172,3 +172,15 @@ def test_gate_oof_check_refuses_leaks_and_missing_folds(tmp_path):
     _oof_tree(tmp_path / "split", families=fam)                         # одна семья в двух фолдах
     with pytest.raises(SystemExit):
         g.check_oof(tmp_path / "split")
+
+
+def test_smoke_build_sets_mode_and_regions_only_for_smoke(mk):
+    text, _ = mk.build("koz3-li-cnx-in-smoke", "c5-in:1", 12000, mode="smoke", regions="036_Тимерево,181_Гнёздово_Лесная_3")
+    compile(text, "smoke.py", "exec")
+    assert "CNX_MODE_DEFAULT = 'smoke'\n" in text and "CNX_REGIONS_DEFAULT = '036_Тимерево,181_Гнёздово_Лесная_3'\n" in text
+    full, _ = mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000)
+    assert "CNX_MODE_DEFAULT = 'full'\n" in full and "CNX_REGIONS_DEFAULT = ''\n" in full
+    with pytest.raises(SystemExit):
+        mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000, regions="036_Тимерево")      # подмножество — только smoke
+    with pytest.raises(SystemExit):
+        mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000, mode="prep")
