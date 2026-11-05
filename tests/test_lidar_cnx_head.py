@@ -129,3 +129,24 @@ def test_build_packs_centerhead_only_for_head_decode():
     assert not bs.cnx_head_on({"li_cnx": {"enabled": False, "weights": ["x"], "decode": "head"}})
     names = {p.name for p in bs.centerhead_files()}
     assert {"__init__.py", "config.py", "d8.py", "decode.py"} <= names and not any("test" in n for n in names)
+
+
+def test_cnx12_kind_and_prep_tags():
+    """c12 (05.11): тип весов cnx12 (12 каналов) принимается; подготовка ch=12 даёт теги контракта, первые пять = c5."""
+    import ast
+    from pathlib import Path
+    assert LC.KINDS == {"cnx3": 3, "cnx5": 5, "cnx12": 12}
+    root = Path(__file__).resolve().parents[1]
+    src = (root / "inference" / "cnx" / "cnx_prep.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    env = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") in ("TAGS5", "TAGS12"):
+            exec(compile(ast.Module([node], []), "cnx_prep", "exec"), env)
+    assert env["TAGS12"][:5] == env["TAGS5"] and len(env["TAGS12"]) == 12
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("mk_t", root / "kaggle" / "2026-11-05" / "li_cnx_in" / "make_kernel.py")
+    mk = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mk)
+    assert env["TAGS12"] == mk.C12_TAGS                      # = теги ядер обучения c12
+    assert "assert ch in (3, 5, 12)" in src and "las_path=str(las_path)" in src

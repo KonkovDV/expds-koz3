@@ -1780,7 +1780,7 @@ CNX_SMOKE_FAIL = ("веса [li_cnx] не загрузились", "объект
 #: bot-8 [li_half]: частичные отказы второго прохода — WARN (строки expds/pipeline.py, сверяет тест)
 LI_HALF_SMOKE_WARN = ("li_half упал", "li_half пропущен — мало времени", "объекты li_half НЕ выдаются")
 CNX_SMOKE_WARN = ("cnx не сработал", "cnx пропущен", "cnx: постобработка упала", "на cnx времени не осталось",
-                  "cnx — время на исходе", "cnx: TTA ")
+                  "cnx — время на исходе", "cnx: TTA ", "cnx head не сработал")   # 05.11: [li_cnx] decode = "head"
 
 
 def smoke_cnx(log: str, cnx_on: bool, n_las: int) -> None:

@@ -498,7 +498,7 @@ def test_vendor_manifest_matches_files():
     assert set(m) == have
     for rel, sha in m.items():
         assert hashlib.sha256((d / rel).read_bytes()).hexdigest() == sha, rel
-    assert m["cnx_prep.py"].startswith("77d30749")
+    assert m["cnx_prep.py"].startswith("1c11c250")   # 77d30749 bot-9 + ветка ch = 12 (05.11, c12-in)
     assert m["wheels/rvt_py-2.2.1-py3-none-any.whl"].startswith("f3b171e0")
 
 

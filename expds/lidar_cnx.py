@@ -50,7 +50,7 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
-KINDS = {"cnx3": 3, "cnx5": 5}
+KINDS = {"cnx3": 3, "cnx5": 5, "cnx12": 12}   # cnx12 — 05.11, kaggle/2026-11-05/li_c12_in
 #: Каталог вендора подготовки внутри решения (inference/cnx).
 PREP_DIR = Path(__file__).resolve().parent.parent / "inference" / "cnx"
 #: Значение входа для u8 0 (вне съёмки) — ровно как cnx_prep.u8_to_input.
@@ -377,7 +377,7 @@ def run_prep(las, ch: int, crs: str | None, timeout_s: float, prep_dir: Path | N
     script, vendor, deps = pd / "cnx_prep.py", pd / "vendor", pd / "_deps"
     if not script.is_file() or not vendor.is_dir():
         raise CnxError(f"нет вендора подготовки cnx в {pd}")
-    if ch == 5 and not (deps / "rvt").is_dir():
+    if ch in (5, 12) and not (deps / "rvt").is_dir():
         try:
             import importlib.util
             if importlib.util.find_spec("rvt") is None:
