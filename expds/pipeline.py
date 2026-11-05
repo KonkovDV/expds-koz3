@@ -2130,8 +2130,18 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                         fresh = sp_yolo.site_feats(det, rs, region_crs(reg, cfg), yo, reg.name,
                                                    deadline=lambda: not guard.ok(reserve))
                         fresh = [f for f in fresh if float(f["confidence"]) >= floors.get(f["class_name"], 0.0)]
-                        pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
-                        kept = sp_yolo.dedupe_against(fresh, pool, _passes, float(yo.get("dedupe_m", 8.0)))
+                        if fresh and yo.get("replace_sp") is True:
+                            # вариант R (05.11, фолд 4: YOLO 0,248 против стека 0,146): спутниковые объекты участка
+                            # (markup_type sp_or, кроме самого sp_yolo) снимаются, YOLO идёт без отбора дублей
+                            snap = state.snapshot()
+                            state.replace([f for f in snap if not (f.get("region_name") == reg.name
+                                                                   and f.get("markup_type") == "sp_or"
+                                                                   and f.get("threshold_group") != group)])
+                            log.info("%s: sp_yolo заменил спутник (%d сняты)", reg.name, len(snap) - len(state.snapshot()))
+                            kept = fresh
+                        else:
+                            pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                            kept = sp_yolo.dedupe_against(fresh, pool, _passes, float(yo.get("dedupe_m", 8.0)))
                     except Exception:
                         log.exception("%s: sp_yolo пропущен", reg.name)
                         kept = []

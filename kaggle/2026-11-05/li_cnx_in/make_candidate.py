@@ -65,6 +65,10 @@ def main() -> int:
     ap.add_argument("--tree", type=Path, required=True, help="пустой каталог сборки (вне репозитория)")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--base-config", type=Path, default=None, help="базовый конфиг вместо eb268d6 (например FR1h)")
+    ap.add_argument("--sp-yolo", type=Path, default=None, help="TorchScript YOLO спутника (expds/sp_yolo.py)")
+    ap.add_argument("--sp-yolo-thr", type=float, default=0.10, help="порог группы sp_yolo (по OOF)")
+    ap.add_argument("--sp-yolo-replace", action="store_true", help="вариант R: YOLO заменяет спутник участка")
+    ap.add_argument("--sp-yolo-classes", default="kurgany_povrezhdennye,kurgany_tselye,gorodishcha,arkhitektury")
     ap.add_argument("--wheels-dir", type=Path, default=Path("/workspace/whl"),
                     help="колёса inference/cnx/wheels (в git их нет, .gitignore); sha256 сверяется с inference/cnx/MANIFEST.json")
     ap.add_argument("--base-sha256", default="", help="ожидаемый sha256 файла --base-config (обязателен вместе с ним)")
@@ -127,7 +131,18 @@ def main() -> int:
                        f"гейт {Path(a.gate).name} вариант {a.variant}"}]
         (rels if i < len(a.weights) else rels_b).append(rel)
     man_p.write_text(json.dumps(man, ensure_ascii=False, indent=1), encoding="utf-8")
-    (a.tree / "configs" / "default.toml").write_text(cfg + cnx_section(a.variant, rels, taus, rels_b), encoding="utf-8")
+    extra = ""
+    if a.sp_yolo is not None:
+        rel_y = f"models/sp_yolo/{a.sp_yolo.name}"
+        (a.tree / rel_y).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(a.sp_yolo, a.tree / rel_y)
+        cls_y = [c for c in a.sp_yolo_classes.split(",") if c]
+        extra = ("\n# 05.11 YOLO спутника (docs/plans/OPTICS_DETECTOR_PLAN_20261105.md): фолд 4 OOF — YOLO 0,248 против стека 0,146\n"
+                 "[sp_yolo]\nenabled = true\n" + f"weights = {json.dumps(rel_y)}\n" +
+                 f"replace_sp = {'true' if a.sp_yolo_replace else 'false'}\n" +
+                 "classes = [" + ", ".join(json.dumps(c) for c in cls_y) + "]\n\n[thresholds_by_markup.sp_yolo]\n" +
+                 "".join(f"{c} = {a.sp_yolo_thr:.6f}\n" for c in cls_y))
+    (a.tree / "configs" / "default.toml").write_text(cfg + cnx_section(a.variant, rels, taus, rels_b) + extra, encoding="utf-8")
     r = subprocess.run([sys.executable, "scripts/build_submission.py", "--allow-en", "--out", str(a.out.resolve())],
                        cwd=str(a.tree), capture_output=True, text=True)
     sys.stdout.write(r.stdout[-3000:])

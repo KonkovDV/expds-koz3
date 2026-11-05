@@ -28,7 +28,7 @@ RADIUS_M = {"kurgany_povrezhdennye": 6.0, "kurgany_tselye": 6.0, "arkhitektury":
 CIRCLE_M = {"kurgany_povrezhdennye": 0.5, "kurgany_tselye": 0.5}
 DEFAULTS = {"enabled": False, "weights": "", "gsd": 0.5, "tile": 1024, "overlap": 0.25, "imgsz": 640,
             "conf_min": 0.01, "iou": 0.6, "max_det": 300, "batch": 8, "threshold_group": "sp_yolo",
-            "classes": list(CLASSES), "jpeg_q": 95}
+            "classes": list(CLASSES), "jpeg_q": 95, "replace_sp": False, "dedupe_m": 8.0}
 
 
 def cfg_of(cfg: dict | None) -> dict:
