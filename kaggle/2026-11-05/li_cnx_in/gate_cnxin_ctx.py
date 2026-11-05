@@ -34,7 +34,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 OOF_DIR = Path(os.environ.get("CNXIN_OOF_DIR", "/workspace/koz3/w2/oof/cnxin"))
-VARIANT = "c5-in"
+VARIANT = os.environ.get("CNXIN_VARIANT", "c5-in")   # c12-in — kaggle/2026-11-05/li_c12_in/PREREG.md
 KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
 LI_KUR_GROUPS = ("li", "li_coarse", "li_mosaic")
 GROUP = "li_cnxin"

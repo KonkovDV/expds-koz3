@@ -184,3 +184,28 @@ def test_smoke_build_sets_mode_and_regions_only_for_smoke(mk):
         mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000, regions="036_Тимерево")      # подмножество — только smoke
     with pytest.raises(SystemExit):
         mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000, mode="prep")
+
+
+def test_c12_build_reads_prep_dataset_and_keeps_c5_bytes(mk):
+    """c12: 12 каналов из приватного датасета; сборка c5 от этой правки не меняется (ядро f4 05.11 — sha 96a49e0a…)."""
+    import hashlib
+    c5, _ = mk.build("koz3-li-cnx-in-c", "c5-in:4", 12000)
+    assert hashlib.sha256(c5.encode("utf-8")).hexdigest().startswith("96a49e0a4a8439bb")
+    assert "TAGS5 = (\"lrm_s\", \"lrm_l\", \"slope\", \"svf_r\", \"opp_r\")" in c5      # c5 — прежние теги
+    text, meta = mk.build("koz3-li-c12-in-a", "c12-in:0,c12-in:1", 12000, prep_dataset="dmitrijkv/koz3-cnx-li-prep12")
+    compile(text, "c12.py", "exec")
+    assert "CNX_JOBS_DEFAULT = 'c12-in:0,c12-in:1'\n" in text
+    assert 'assert ch in ("c3", "c5", "c12")' in text and "ch=int(ch[1:])" in text
+    assert f"TAGS5 = {mk.C12_TAGS!r}" in text and mk.C12_TAGS[:5] == ("lrm_s", "lrm_l", "slope", "svf_r", "opp_r")
+    assert "(0, 1, 3, 4, 5, 6, 7, 8, 9)" in text                                       # высота — все каналы рельефа
+    assert meta["dataset_sources"] == ["dmitrijkv/koz3-gate-box-20261104", "dmitrijkv/koz3-cnx-li-prep12"]
+    assert meta["kernel_sources"] == [] and meta["is_private"] is True
+
+
+def test_c12_guards(mk):
+    with pytest.raises(SystemExit):
+        mk.build("koz3-li-c12-in-a", "c12-in:0", 12000)                                       # нет датасета каналов
+    with pytest.raises(SystemExit):
+        mk.build("koz3-li-c12-in-a", "c12-in:0,c5-in:1", 12000, prep_dataset="dmitrijkv/x")   # смешение входов
+    with pytest.raises(SystemExit):
+        mk.build("koz3-li-cnx-in-a", "c5-in:0", 12000, prep_dataset="dmitrijkv/x")           # датасет — только c12

@@ -127,7 +127,21 @@ LOADGT_NEW = '''def load_gt(region):
         return out
 '''
 
-JOB_RE = re.compile(r"^(c3|c5)-(in|sc):[0-4]$")
+JOB_RE = re.compile(r"^(c3|c5|c12)-(in|sc):[0-4]$")
+
+# ── c12 (05.11, вторая сессия): 12 каналов рельефа — рецепт EN (9–12 каналов) поверх c5. Каналы считает тот же вендор
+# bot-9 (relief_ext.EXTRA_TAGS) вне Kaggle из LAS организаторов; первые пять побайтно равны выходу koz3-cnx-li-prep.
+# Вход — приватный датасет (--prep-dataset) с cnx_relief/{участок}.npy|.json и manifest.json (теги — C12_TAGS).
+C12_TAGS = ("lrm_s", "lrm_l", "slope", "svf_r", "opp_r", "opn_r", "tpi5_r", "tri3_r", "curv_r", "slrm8_r", "dens_r", "int_r")
+PARSE_OLD = ('        assert ch in ("c3", "c5") and ini in ("in", "sc"), tok\n'
+             '        out.append(dict(variant=v, ch=int(ch[1]), init=ini, fold=int(f)))\n')
+PARSE_NEW = ('        assert ch in ("c3", "c5", "c12") and ini in ("in", "sc"), tok\n'
+             '        out.append(dict(variant=v, ch=int(ch[1:]), init=ini, fold=int(f)))\n')
+TAGS_OLD = 'TAGS5 = ("lrm_s", "lrm_l", "slope", "svf_r", "opp_r")   # порядок каналов = контракт модели (c3 = первые три)\n'
+TAGS_NEW = (f"TAGS5 = {C12_TAGS!r}   # c12 (make_kernel.py --prep-dataset): порядок каналов = контракт, первые пять = c5\n")
+# масштаб высоты ×h — для всех каналов рельефа (5–9: открытость −, TPI, TRI, кривизна, SLRM); плотность и интенсивность — нет
+HEIGHT_OLD = '            for c in [c for c in (0, 1, 3, 4) if c < self.nch]: img[c] = 128 + (img[c] - 128) * h\n'
+HEIGHT_NEW = '            for c in [c for c in (0, 1, 3, 4, 5, 6, 7, 8, 9) if c < self.nch]: img[c] = 128 + (img[c] - 128) * h\n'
 
 
 def _replace_once(text: str, old: str, new: str, what: str) -> str:
@@ -138,16 +152,25 @@ def _replace_once(text: str, old: str, new: str, what: str) -> str:
 
 
 def build(slug: str, jobs: str, iters: int, src: Path = SRC, mode: str = "full",
-          regions: str = "") -> tuple[str, dict]:
+          regions: str = "", prep_dataset: str = "") -> tuple[str, dict]:
     """Текст ядра и kernel-metadata.json. mode smoke (10 итераций) и regions (подмножество участков) — только для
-    проверки пути без S3 до полного прогона; в гейт идут лишь ядра mode full по всем участкам."""
+    проверки пути без S3 до полного прогона; в гейт идут лишь ядра mode full по всем участкам.
+    c12 — только вместе с prep_dataset (приватный датасет 12 каналов) и без смешения с c3/c5 в одном ядре."""
     if mode not in ("full", "smoke"):
         raise SystemExit(f"mode {mode!r}: full или smoke")
     if regions and mode != "smoke":
         raise SystemExit("--regions только для smoke: гейт требует OOF по всем 59 участкам")
-    for tok in jobs.split(","):
-        if not JOB_RE.match(tok.strip()):
-            raise SystemExit(f"задание {tok!r}: ожидается c3|c5-in|sc:0..4")
+    toks = [t.strip() for t in jobs.split(",")]
+    for tok in toks:
+        if not JOB_RE.match(tok):
+            raise SystemExit(f"задание {tok!r}: ожидается c3|c5|c12-in|sc:0..4")
+    c12 = [t.startswith("c12-") for t in toks]
+    if any(c12) and not all(c12):
+        raise SystemExit("c12 и c3/c5 в одном ядре не смешиваются: у них разные входы")
+    if any(c12) and not prep_dataset:
+        raise SystemExit("c12: нужен --prep-dataset (приватный датасет cnx_relief с 12 каналами)")
+    if prep_dataset and not any(c12):
+        raise SystemExit("--prep-dataset только для c12: c3/c5 читают выход koz3-cnx-li-prep")
     raw = src.read_bytes()
     sha = hashlib.sha256(raw).hexdigest()
     if sha != SRC_SHA256:
@@ -161,11 +184,17 @@ def build(slug: str, jobs: str, iters: int, src: Path = SRC, mode: str = "full",
     text = _replace_once(text, S3_OLD, HELPERS + S3_NEW, "3 разметка без S3")
     text = _replace_once(text, INV_OLD, INV_NEW, "4 инвентарь без S3")
     text = _replace_once(text, LOADGT_OLD, LOADGT_NEW, "5 load_gt из файла")
-    text = HEADER.format(sha=sha[:16], gt_ds=GT_DATASET, prep=PREP_KERNEL, jobs=jobs,
+    if any(c12):
+        text = _replace_once(text, PARSE_OLD, PARSE_NEW, "6 задания c12")
+        text = _replace_once(text, TAGS_OLD, TAGS_NEW, "7 теги c12")
+        text = _replace_once(text, HEIGHT_OLD, HEIGHT_NEW, "8 высота c12")
+    text = HEADER.format(sha=sha[:16], gt_ds=GT_DATASET, prep=prep_dataset or PREP_KERNEL, jobs=jobs,
                          iters=iters if mode == "full" else f"10 (smoke; участки: {regions or 'все'})") + text
     meta = json.loads(SRC_META.read_text(encoding="utf-8"))
     meta.update(id=f"{OWNER}/{slug}", title=slug, code_file=f"{slug}.py", is_private=True, enable_gpu=True,
                 enable_internet=True, dataset_sources=[GT_DATASET], kernel_sources=[PREP_KERNEL])
+    if any(c12):
+        meta.update(dataset_sources=[GT_DATASET, prep_dataset], kernel_sources=[])
     return text, meta
 
 
@@ -177,10 +206,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, required=True, help="каталог сборки (вне git)")
     ap.add_argument("--mode", default="full", choices=("full", "smoke"))
     ap.add_argument("--regions", default="", help="только smoke: участки через запятую")
+    ap.add_argument("--prep-dataset", default="", help="только c12: приватный датасет cnx_relief (12 каналов)")
     a = ap.parse_args(argv)
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{4,49}", a.slug):
         ap.error("slug: строчная латиница, цифры, дефисы, 5–50 символов")
-    text, meta = build(a.slug, a.jobs, a.iters, mode=a.mode, regions=a.regions)
+    text, meta = build(a.slug, a.jobs, a.iters, mode=a.mode, regions=a.regions, prep_dataset=a.prep_dataset)
     d = a.out / a.slug
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{a.slug}.py").write_text(text, encoding="utf-8")
