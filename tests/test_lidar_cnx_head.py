@@ -114,3 +114,18 @@ def test_replace_predicate_and_defaults():
     sp = {**li, "markup_type": "sp_or"}
     assert LC.is_li_kurgan(li, r) and LC.is_li_kurgan(coarse, r)
     assert not any(LC.is_li_kurgan(f, r) for f in (dev, cnx, other_site, gor, sp))
+
+
+def test_build_packs_centerhead_only_for_head_decode():
+    import importlib.util
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("build_submission_t", root / "scripts" / "build_submission.py")
+    bs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bs)
+    on = {"li_cnx": {"enabled": True, "weights": ["models/cnx/w.pt"], "decode": "head"}}
+    assert bs.cnx_head_on(on)
+    assert not bs.cnx_head_on({"li_cnx": {"enabled": True, "weights": ["models/cnx/w.pt"]}})          # rescore
+    assert not bs.cnx_head_on({"li_cnx": {"enabled": False, "weights": ["x"], "decode": "head"}})
+    names = {p.name for p in bs.centerhead_files()}
+    assert {"__init__.py", "config.py", "d8.py", "decode.py"} <= names and not any("test" in n for n in names)
