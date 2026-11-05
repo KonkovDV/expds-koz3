@@ -39,11 +39,13 @@ def sha256(p: Path) -> str:
     return h.hexdigest()
 
 
-def cnx_section(variant: str, weights: list[str], taus: dict) -> str:
+def cnx_section(variant: str, weights: list[str], taus: dict, weights_b: list[str] | None = None) -> str:
     lines = ["", "# 05.11 кандидат v2 + c5-in (kaggle/2026-11-05/li_cnx_in/make_candidate.py): курганы ConvNeXt-T ImageNet,",
              f"# декодирование как в OOF ядра (decode = \"head\", паритет PASS), вариант {variant} гейта c5-in.",
              "[li_cnx]", "enabled = true",
              "weights = [" + ", ".join(json.dumps(w) for w in weights) + "]",
+             *(["# ансамбль (PREREG li_ens_in): второй набор весов, логиты 10 сетей усредняются",
+                "weights_b = [" + ", ".join(json.dumps(w) for w in weights_b) + "]"] if weights_b else []),
              'decode = "head"', f'threshold_group = "{GROUP}"',
              'classes = ["kurgany_povrezhdennye", "kurgany_tselye"]',
              f"replace_li_kurgans = {'true' if variant == 'R' else 'false'}", "",
@@ -58,6 +60,8 @@ def main() -> int:
     ap.add_argument("--variant", required=True, choices=("K", "R"))
     ap.add_argument("--gate", type=Path, required=True)
     ap.add_argument("--weights", type=Path, nargs=5, required=True, help="weights_cnx_c5-in_f0.pt … _f4.pt")
+    ap.add_argument("--weights-b", type=Path, nargs=5, default=None,
+                    help="ансамбль: второй набор, например weights_cnx_c12-in_f0.pt … _f4.pt (гейт — gate_e512in_ctx.json)")
     ap.add_argument("--tree", type=Path, required=True, help="пустой каталог сборки (вне репозитория)")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--base-config", type=Path, default=None, help="базовый конфиг вместо eb268d6 (например FR1h)")
@@ -105,8 +109,12 @@ def main() -> int:
     rels = []
     man_p = a.tree / "inference" / "cnx" / "WEIGHTS_MANIFEST.json"
     man = json.loads(man_p.read_text(encoding="utf-8"))
-    for f, w in enumerate(a.weights):
-        rel = f"models/cnx/weights_cnx_c5-in_f{f}.pt"
+    sets = [(f, w) for f, w in enumerate(a.weights)] + [(f, w) for f, w in enumerate(a.weights_b or [])]
+    rels_b = []
+    for i, (f, w) in enumerate(sets):
+        if not w.name.endswith(f"_f{f}.pt"):
+            sys.exit(f"{w}: ожидается файл фолда {f} (…_f{f}.pt)")
+        rel = f"models/cnx/{w.name}"
         dst = a.tree / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         try:
@@ -115,10 +123,11 @@ def main() -> int:
             shutil.copy2(w, dst)
         man["weights"] = [e for e in man["weights"] if e.get("path") != rel] + [
             {"path": rel, "sha256": sha256(dst), "size": dst.stat().st_size, "source": str(w),
-             "status": f"c5-in fold {f} (dmitrijkv/koz3-li-cnx-in-*), ImageNet init; гейт c5-in вариант {a.variant}"}]
-        rels.append(rel)
+             "status": f"{w.name.split('weights_cnx_')[-1].rsplit('_f', 1)[0]} fold {f}, ImageNet init; "
+                       f"гейт {Path(a.gate).name} вариант {a.variant}"}]
+        (rels if i < len(a.weights) else rels_b).append(rel)
     man_p.write_text(json.dumps(man, ensure_ascii=False, indent=1), encoding="utf-8")
-    (a.tree / "configs" / "default.toml").write_text(cfg + cnx_section(a.variant, rels, taus), encoding="utf-8")
+    (a.tree / "configs" / "default.toml").write_text(cfg + cnx_section(a.variant, rels, taus, rels_b), encoding="utf-8")
     r = subprocess.run([sys.executable, "scripts/build_submission.py", "--allow-en", "--out", str(a.out.resolve())],
                        cwd=str(a.tree), capture_output=True, text=True)
     sys.stdout.write(r.stdout[-3000:])

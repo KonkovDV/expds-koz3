@@ -83,9 +83,11 @@ def _untta_map(t, k: int, fl: bool):
     return torch.rot90(t, -k, (2, 3))
 
 
-def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, batch: int = 8) -> dict:
+def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, batch: int = 8, extra=None) -> dict:
     """x: float32 (C,H,W) в нормировке контракта; valid: (H,W) bool (u8 > 0). → карты как у predict_region ядра:
-    {"hm": (2,h,w) prob, "wh": (1,h,w), "off": (2,h,w), "mask": (3,H,W) prob, "_valid": (H,W), "_valid_h": (h,w)}."""
+    {"hm": (2,h,w) prob, "wh": (1,h,w), "off": (2,h,w), "mask": (3,H,W) prob, "_valid": (H,W), "_valid_h": (h,w)}.
+    extra — [(seg_b, x_b), …]: ансамбль (PREREG li_ens_in) — логиты всех сетей всех наборов и всех видов D8 усредняются
+    вместе; x_b той же формы H×W (свои каналы). Без extra вычисления и порядок сложения — прежние."""
     import torch
 
     from centerhead.d8 import torch_untta_offsets
@@ -93,6 +95,9 @@ def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, 
     from .lidar_cnx import PAD_VALUE
 
     C, H, W = x.shape
+    members = [([flat.net for flat in seg.nets], x)] + [([flat.net for flat in sb.nets], xb_) for sb, xb_ in (extra or [])]
+    if any(xm.shape[1:] != (H, W) for _, xm in members):
+        raise HeadError(f"входы ансамбля разной формы: {[xm.shape for _, xm in members]}")
     S, st, s = p["tile"], p["step"], p["stride"]
     h4, w4, n4 = -(-H // s), -(-W // s), S // s
     tiles = [t for t in tile_origins(H, W, S, st, s) if valid[t[0]:t[0] + S:8, t[1]:t[1] + S:8].any()]
@@ -102,12 +107,11 @@ def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, 
     cnt4 = np.zeros((h4, w4), np.float32)
     dev = seg.device
     amp = bool(seg.amp)
-    nets = [flat.net for flat in seg.nets]
 
-    def window(yy, xx):
-        out = np.full((C, S, S), PAD_VALUE, np.float32)
+    def window(xm, yy, xx):
+        out = np.full((xm.shape[0], S, S), PAD_VALUE, np.float32)
         hh, ww = min(S, H - yy), min(S, W - xx)
-        out[:, :hh, :ww] = x[:, yy:yy + hh, xx:xx + ww]
+        out[:, :hh, :ww] = xm[:, yy:yy + hh, xx:xx + ww]
         return out
 
     with torch.inference_mode():
@@ -115,24 +119,25 @@ def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, 
             if deadline is not None and deadline():
                 raise HeadError(f"время вышло на окне {b}/{len(tiles)}")
             bt = tiles[b:b + batch]
-            xb = torch.from_numpy(np.stack([window(yy, xx) for yy, xx in bt])).to(dev)
             o: dict = {}
             n = 0
-            for net in nets:
-                for k, fl in tf:
-                    xi = torch.rot90(xb, k, (2, 3))
-                    xi = xi.flip(3) if fl else xi
-                    with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=amp):
-                        yo = net(xi.contiguous())
-                    yo = {kk: v.float() for kk, v in yo.items() if v is not None}
-                    r = {"mask": _untta_map(yo["mask"], k, fl), "hm": _untta_map(yo["hm"], k, fl)}
-                    if yo.get("wh") is not None:
-                        r["wh"] = _untta_map(yo["wh"], k, fl)
-                    if yo.get("off") is not None:
-                        r["off"] = torch_untta_offsets(yo["off"], k, fl)
-                    for kk, v in r.items():
-                        o[kk] = o[kk] + v if kk in o else v
-                    n += 1
+            for nets, xm in members:
+                xb = torch.from_numpy(np.stack([window(xm, yy, xx) for yy, xx in bt])).to(dev)
+                for net in nets:
+                    for k, fl in tf:
+                        xi = torch.rot90(xb, k, (2, 3))
+                        xi = xi.flip(3) if fl else xi
+                        with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=amp):
+                            yo = net(xi.contiguous())
+                        yo = {kk: v.float() for kk, v in yo.items() if v is not None}
+                        r = {"mask": _untta_map(yo["mask"], k, fl), "hm": _untta_map(yo["hm"], k, fl)}
+                        if yo.get("wh") is not None:
+                            r["wh"] = _untta_map(yo["wh"], k, fl)
+                        if yo.get("off") is not None:
+                            r["off"] = torch_untta_offsets(yo["off"], k, fl)
+                        for kk, v in r.items():
+                            o[kk] = o[kk] + v if kk in o else v
+                        n += 1
             for kk, v in o.items():
                 v = (v / n).cpu().numpy()
                 full = kk == "mask"
@@ -201,8 +206,11 @@ def to_features(dets, geo: dict, p: dict, region: str, source: str, classes=HM_C
     return out
 
 
-def site_feats(seg, las, crs, opts: dict, region: str, deadline=None, time_left=None, prep_dir=None) -> list[dict]:
-    """Подготовка участка (как bind_las) → карты головы → курганы. Любой отказ — исключение (вызов ловит)."""
+def site_feats(seg, las, crs, opts: dict, region: str, deadline=None, time_left=None, prep_dir=None,
+               seg_b=None) -> list[dict]:
+    """Подготовка участка (как bind_las) → карты головы → курганы. Любой отказ — исключение (вызов ловит).
+    seg_b — второй набор весов (ансамбль c5 + c12, PREREG li_ens_in): одна подготовка на max(каналов), каждому набору —
+    свои первые каналы (теги контрактов — префиксы тегов подготовки), логиты усредняются (predict_maps extra)."""
     import shutil
     import tempfile
     from pathlib import Path
@@ -210,6 +218,9 @@ def site_feats(seg, las, crs, opts: dict, region: str, deadline=None, time_left=
     from . import lidar_cnx as LC
 
     p = params(seg.contract)
+    if seg_b is not None and params(seg_b.contract) != p:
+        raise HeadError("у наборов весов ансамбля разные параметры инференса/декодирования в контрактах")
+    ch = max(seg.in_channels, seg_b.in_channels) if seg_b is not None else seg.in_channels
     timeout = float(opts.get("prep_timeout_s") or LC.DEFAULTS["prep_timeout_s"])
     if time_left is not None:
         timeout = min(timeout, float(time_left()))
@@ -224,19 +235,26 @@ def site_feats(seg, las, crs, opts: dict, region: str, deadline=None, time_left=
             src = LC.merge_las(files, tmp / "site.las")
         else:
             src = files[0]
-        x, geo = LC.run_prep(src, seg.in_channels, crs, timeout, prep_dir)
+        x, geo = LC.run_prep(src, ch, crs, timeout, prep_dir)
     finally:
         if tmp is not None:
             shutil.rmtree(tmp, ignore_errors=True)
-    if list(geo.get("tags") or []) != list(seg.meta["li_tags"]):
-        raise HeadError(f"каналы подготовки {geo.get('tags')} ≠ in_tags модели {seg.meta['li_tags']}")
+    tags = list(geo.get("tags") or [])
+    for sg in [seg] + ([seg_b] if seg_b is not None else []):
+        lt = list(sg.meta["li_tags"])
+        if tags[:len(lt)] != lt or (seg_b is None and tags != lt):
+            raise HeadError(f"каналы подготовки {tags} ≠ in_tags модели {lt}")
     valid = x[0] > LC.PAD_VALUE + 1e-6
     t1 = time.monotonic()
-    maps = predict_maps(seg, x, valid, p, deadline=deadline)
+    if seg_b is None:
+        maps = predict_maps(seg, x, valid, p, deadline=deadline)
+    else:
+        maps = predict_maps(seg, x[:seg.in_channels], valid, p, deadline=deadline, extra=[(seg_b, x[:seg_b.in_channels])])
     del x
     dets = decode_kurgans(maps, geo, p)
     feats = to_features(dets, geo, p, region, files[0].name, classes=opts.get("classes") or HM_CLASSES)
     log.info("cnx head %s: %d курганов (окно %d/%d, tta %d, %d весов, %s), подготовка %.1f с, сеть+декод %.1f с",
-             region, len(feats), p["tile"], p["step"], p["tta"], len(seg.nets), "fp16" if seg.amp else "fp32",
+             region, len(feats), p["tile"], p["step"], p["tta"], len(seg.nets) + (len(seg_b.nets) if seg_b is not None else 0),
+             "fp16" if seg.amp else "fp32",
              t1 - t0, time.monotonic() - t1)
     return feats

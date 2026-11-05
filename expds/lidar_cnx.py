@@ -74,6 +74,9 @@ DEFAULTS = {
     "decode": "rescore",
     # вариант R гейта: курганы групп li / li_coarse / li_mosaic участка снимаются, курганы cnx идут без отбора дублей
     "replace_li_kurgans": False,
+    # ансамбль (PREREG li_ens_in): второй набор весов другого входа (c12 при c5 в weights), только decode = "head";
+    # одна подготовка на max(каналов), логиты всех сетей усредняются
+    "weights_b": [],
 }
 DECODE_ALLOWED = ("rescore", "head")
 #: Группы курганов лидарного слоя, которые снимает вариант R (как LI_KUR_GROUPS гейта c5-in).
@@ -145,8 +148,8 @@ def enabled(cfg: dict | None) -> bool:
     return en and bool(c.get("weights"))
 
 
-def weight_files(cfg: dict | None) -> list[str]:
-    w = ((cfg or {}).get("li_cnx") or {}).get("weights") or []
+def weight_files(cfg: dict | None, key: str = "weights") -> list[str]:
+    w = ((cfg or {}).get("li_cnx") or {}).get(key) or []
     return [w] if isinstance(w, str) else [str(x) for x in w]
 
 
@@ -540,8 +543,8 @@ def check_prep_code(contract: dict, prep_dir: Path | None = None) -> None:
 
 
 def load(cfg: dict, root: Path, device: str | None = None, prep_dir: Path | None = None,
-         amp: bool | None = None) -> CnxSegmenter:
-    files = weight_files(cfg)
+         amp: bool | None = None, key: str = "weights") -> CnxSegmenter:
+    files = weight_files(cfg, key)
     paths = [Path(root) / f for f in files]
     missing = [str(p) for p in paths if not p.is_file()]
     if missing:

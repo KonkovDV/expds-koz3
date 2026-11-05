@@ -1123,10 +1123,22 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         from . import lidar_cnx_head
 
         floors = output_floors(cfg, group)
+        seg_b = None
+        if lidar_cnx.weight_files(cfg, "weights_b"):
+            # ансамбль c5 + c12 (PREREG li_ens_in): второй набор весов; не загрузился — весь cnx участка не выдаётся
+            if "li_cnx_b" not in seg_cache:
+                try:
+                    seg_cache["li_cnx_b"] = lidar_cnx.load(cfg, root, key="weights_b")
+                except Exception as exc:
+                    _warn(f"cnx: веса [li_cnx] не загрузились (weights_b: {str(exc)[-300:]}) — объектов cnx нет")
+                    seg_cache["li_cnx_b"] = None
+            seg_b = seg_cache["li_cnx_b"]
+            if seg_b is None:
+                return []
         try:
             out = lidar_cnx_head.site_feats(seg, list(reg.las), crs_region, opts, reg.name,
                                             deadline=lambda: not guard.ok(reserve),
-                                            time_left=lambda: max(0.0, float(left()) - reserve))
+                                            time_left=lambda: max(0.0, float(left()) - reserve), seg_b=seg_b)
         except Exception as exc:
             log.warning("%s: cnx head не сработал (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
             return []

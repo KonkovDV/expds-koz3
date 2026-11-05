@@ -150,3 +150,18 @@ def test_cnx12_kind_and_prep_tags():
     spec.loader.exec_module(mk)
     assert env["TAGS12"] == mk.C12_TAGS                      # = теги ядер обучения c12
     assert "assert ch in (3, 5, 12)" in src and "las_path=str(las_path)" in src
+
+
+def test_ensemble_extra_matches_single_for_identical_nets_and_checks_shapes():
+    """PREREG li_ens_in: extra=[(seg_b, x_b)] усредняет логиты; две одинаковые сети = одна; другая форма входа — отказ."""
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    one = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p)
+    x12 = np.concatenate([x, np.full((7,) + x.shape[1:], -0.5, np.float32)])     # «c12»: первые пять = вход c5
+    two = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(1)), x12)])
+    for k in ("hm", "mask", "wh", "off"):
+        assert np.allclose(one[k], two[k], atol=1e-6), k
+    mix = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(0)), x12)])
+    assert mix["hm"][1].max() < one["hm"][1].max() and mix["hm"][0].max() > one["hm"][0].max()   # логиты усреднены
+    with pytest.raises(LH.HeadError):
+        LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(1)), x12[:, :50])])

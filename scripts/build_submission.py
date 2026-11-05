@@ -129,6 +129,8 @@ def collect(allow_en: bool = False) -> list[Path]:
     lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
     cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
         if lc.get("enabled") is True else []   # только bool, как expds/lidar_cnx.enabled
+    if cnx_w:   # ансамбль (PREREG li_ens_in): второй набор весов
+        cnx_w += [lc["weights_b"]] if isinstance(lc.get("weights_b"), str) else list(lc.get("weights_b") or [])
     if cnx_w:
         files += sorted(p for p in (ROOT / "inference" / "cnx").rglob("*") if p.is_file() and "__pycache__" not in p.parts)
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
