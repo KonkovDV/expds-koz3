@@ -85,6 +85,7 @@ def main() -> int:
     from PIL import Image
     from pyproj import Transformer
     from shapely.geometry import shape
+    from shapely import transform as _st  # noqa: F401
     from shapely.ops import transform as stf
 
     folds = json.loads(FOLDS.read_text(encoding="utf-8"))
@@ -100,7 +101,7 @@ def main() -> int:
         if "_SpOr_" in k and k.lower().endswith((".tif", ".tiff")) and "_разметка/" not in k:
             tifs.setdefault(k.split("/")[0], []).append(k)
     sites = [s for s in a.sites.split(",") if s] or sorted(tifs)
-    for d in ("images", "labels", "done", "raw"):
+    for d in ("images", "labels", "done", "raw", "meta"):
         (a.out / d).mkdir(parents=True, exist_ok=True)
     s3, bucket = s3_client()
     rng = random.Random(0)
@@ -131,6 +132,10 @@ def main() -> int:
                     raw.unlink(missing_ok=True)
                 H, W = valid.shape
                 inv = ~tr
+                # привязка снимка: окно (x0, y0) → мир = tr * (x0 + px, y0 + py), CRS участка (для OOF по метрике)
+                (a.out / "meta" / f"{site}__{Path(k).stem}.json").write_text(json.dumps(
+                    {"site": site, "image": Path(k).name, "crs": crs, "transform": list(tr)[:6], "H": H, "W": W,
+                     "gsd": a.gsd}, ensure_ascii=False), encoding="utf-8")
                 boxes = []
                 for c, g in objs:
                     x0, y0, x1, y1 = g.bounds
