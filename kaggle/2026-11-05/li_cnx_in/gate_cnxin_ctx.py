@@ -210,17 +210,29 @@ def main() -> None:
             f"nolidar {sc['nolidar']['delta']:+.6f} PASS {g['PASS']}")
         save()
 
+    def taus(name, fold_taus):
+        """05.11: пороги группы GROUP по 10 честным фолдам и их медиана — для конфига сдачи (на решение не влияют)."""
+        per = [ft.get(GROUP, {}) for ft in fold_taus]
+        med = {c: float(np.median([p[c] for p in per if c in p and np.isfinite(p[c])]))
+               for c in KUR if any(c in p and np.isfinite(p[c]) for p in per)}
+        res["variants"][name]["taus_group"] = {"group": GROUP, "folds": per, "median": med}
+        save()
+
     rB = fl_feats(rows)
     res["n_cnxin_kur_ctx"] = len(rB)
     cK, _ = bctx.curves(ex_ctx + rB)
-    score("K_add_kurgans", D.honest(cK, folds)[0], nA, True)
-    del cK
+    hK = D.honest(cK, folds)
+    score("K_add_kurgans", hK[0], nA, True)
+    taus("K_add_kurgans", hK[2])
+    del cK, hK
     brep, _, n_left = filt_engine(bctx, lambda c, g, cf: not (c in KUR and g in LI_KUR_GROUPS))
     res["R_dropped_rows"] = res["ctx_rows"]["stack_kept"] - n_left
     assert res["R_dropped_rows"] > 0, f"в стеке нет курганов групп {LI_KUR_GROUPS} — имена групп?"
     cR, _ = brep.curves(ex_ctx + rB)
-    score("R_replace_li_kurgans", D.honest(cR, folds)[0], nA, True)
-    del cR
+    hR = D.honest(cR, folds)
+    score("R_replace_li_kurgans", hR[0], nA, True)
+    taus("R_replace_li_kurgans", hR[2])
+    del cR, hR
     res["PASS_any"] = any(v["gate"]["PASS"] for v in res["variants"].values() if v["decisive"])
     res["sec"] = round(time.perf_counter() - t0)
     save()
