@@ -1,0 +1,17 @@
+{
+ "what": "c5-in на V3P, прод-контекст v3_on (PREREG li_cnx_in)",
+ "boot": 0,
+ "cfg": "/workspace/koz3/w2/r50c5_gate/v3on_src/configs/default.toml",
+ "oof_check": null,
+ "variants": {},
+ "V3P": 0.33443541758189455,
+ "S0_ok": true,
+ "n_cnxin_kur": 0,
+ "ctx_rows": {
+  "stack_before": 1281976,
+  "stack_kept": 47382,
+  "extras_kept": 1985
+ },
+ "V3P_ctx": 0.3465003834973111,
+ "sec": 396
+}
