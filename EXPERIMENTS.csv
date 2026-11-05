@@ -11,3 +11,5 @@ date,bot,branch,lever,protocol,data,P,R,F1,delta_F1,notes
 2026-11-01,bot4,bots/bot4-li-post,li_post_full baseline,kaggle_honest10_w5base,koz3-w2-gate,,,0.31605,+0.00025,vs B′0.3158; ~repro; gated vs A
 2026-11-01,bot4,bots/bot4-li-post,li_post_full thr_nested,kaggle_honest10_w5base,koz3-w2-gate,,,0.31051,-0.00529,FAIL ALLΔ<0; li0.213 ae0.102 sp0.063
 2026-11-01,bot4,bots/bot4-li-post,li_post_full thr_nms8,kaggle_honest10_w5base,koz3-w2-gate,,,0.31070,-0.00510,FAIL ALLΔ<0; li0.210 ae0.102 sp0.063
+2026-11-05,claude,claude/stoic-turing-mahw6w,c5-in R replace li kurgans,honest-10 V3P_ctx boot2000,dmitrijkv/koz3-li-cnx-in-a/b/c,,,0.358297,+0.011797,PASS P0.983 new34+0.0263 povr+0.0408 tselye-0.0022
+2026-11-05,claude,claude/stoic-turing-mahw6w,c5-in K add kurgans,honest-10 V3P_ctx boot2000,dmitrijkv/koz3-li-cnx-in-a/b/c,,,0.353708,+0.007208,FAIL P0.8965

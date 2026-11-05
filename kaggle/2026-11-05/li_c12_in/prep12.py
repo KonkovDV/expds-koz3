@@ -22,8 +22,9 @@ def prep(las, crs, out):
     arr = np.concatenate([base, ext]).astype(np.uint8)
     geo = dict(left=float(d.left), top=float(d.top), step=float(step), crs=d.crs, shape=list(arr.shape), tags=list(TAGS12),
                dem_res=float(d.res), dem_factor=int(d.info.get("factor", 1)), backend=XA.backend(), site_stats=stats)
-    np.save(out.with_suffix(".npy"), arr)
-    out.with_suffix(".json").write_text(json.dumps(geo, ensure_ascii=False, default=str))
+    # имя участка может содержать точку («006_Осечки_1.1км»): суффикс дописывается, а не заменяется
+    np.save(out.parent / (out.name + ".npy"), arr)
+    (out.parent / (out.name + ".json")).write_text(json.dumps(geo, ensure_ascii=False, default=str))
     return arr.shape, round(time.time() - t, 1)
 
 if __name__ == "__main__":
