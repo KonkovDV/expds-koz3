@@ -142,6 +142,14 @@ TAGS_NEW = (f"TAGS5 = {C12_TAGS!r}   # c12 (make_kernel.py --prep-dataset): по
 # масштаб высоты ×h — для всех каналов рельефа (5–9: открытость −, TPI, TRI, кривизна, SLRM); плотность и интенсивность — нет
 HEIGHT_OLD = '            for c in [c for c in (0, 1, 3, 4) if c < self.nch]: img[c] = 128 + (img[c] - 128) * h\n'
 HEIGHT_NEW = '            for c in [c for c in (0, 1, 3, 4, 5, 6, 7, 8, 9) if c < self.nch]: img[c] = 128 + (img[c] - 128) * h\n'
+# zip датасета (kaggle datasets create --dir-mode zip) Kaggle распаковывает без папки cnx_relief (ядра a/b 05.11 упали на 46 с:
+# «нет каналов для 001_…»). c12 ищет manifest.json с тегами TAGS5 в любом месте /kaggle/input; c3/c5 — без изменений.
+FINDPREP_OLD = ('    for p in sorted(glob.glob("/kaggle/input/**/cnx_relief/manifest.json", recursive=True)):\n'
+                '        return Path(p).parent\n')
+FINDPREP_NEW = ('    for p in sorted(glob.glob("/kaggle/input/**/manifest.json", recursive=True)):   # c12: датасет без папки cnx_relief\n'
+                '        try: _m = json.load(open(p, encoding="utf-8"))\n'
+                '        except Exception: continue\n'
+                '        if isinstance(_m, dict) and _m.get("tags") == list(TAGS5) and _m.get("regions"): return Path(p).parent\n')
 
 
 def _replace_once(text: str, old: str, new: str, what: str) -> str:
@@ -188,6 +196,7 @@ def build(slug: str, jobs: str, iters: int, src: Path = SRC, mode: str = "full",
         text = _replace_once(text, PARSE_OLD, PARSE_NEW, "6 задания c12")
         text = _replace_once(text, TAGS_OLD, TAGS_NEW, "7 теги c12")
         text = _replace_once(text, HEIGHT_OLD, HEIGHT_NEW, "8 высота c12")
+        text = _replace_once(text, FINDPREP_OLD, FINDPREP_NEW, "9 поиск каналов c12")
     text = HEADER.format(sha=sha[:16], gt_ds=GT_DATASET, prep=prep_dataset or PREP_KERNEL, jobs=jobs,
                          iters=iters if mode == "full" else f"10 (smoke; участки: {regions or 'все'})") + text
     meta = json.loads(SRC_META.read_text(encoding="utf-8"))

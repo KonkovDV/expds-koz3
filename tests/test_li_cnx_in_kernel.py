@@ -200,6 +200,32 @@ def test_c12_build_reads_prep_dataset_and_keeps_c5_bytes(mk):
     assert "(0, 1, 3, 4, 5, 6, 7, 8, 9)" in text                                       # высота — все каналы рельефа
     assert meta["dataset_sources"] == ["dmitrijkv/koz3-gate-box-20261104", "dmitrijkv/koz3-cnx-li-prep12"]
     assert meta["kernel_sources"] == [] and meta["is_private"] is True
+    assert mk.FINDPREP_NEW in text and mk.FINDPREP_OLD not in text and mk.FINDPREP_OLD in c5
+
+
+def test_c12_find_prep_takes_flat_dataset_by_tags(mk, tmp_path, monkeypatch):
+    """05.11: Kaggle распаковал zip датасета без папки cnx_relief — c12 находит manifest по тегам, чужие manifest — нет."""
+    import glob as _glob
+    import json as _json
+    from pathlib import Path as _Path
+    text, _ = mk.build("koz3-li-c12-in-a", "c12-in:0", 12000, prep_dataset="dmitrijkv/koz3-cnx-li-prep12")
+    i = text.index("def find_prep():")
+    src = text[i:text.index("\n\n", i)]
+    flat = tmp_path / "input" / "datasets" / "dmitrijkv" / "koz3-cnx-li-prep12"
+    other = tmp_path / "input" / "datasets" / "dmitrijkv" / "koz3-gate-box-20261104"
+    flat.mkdir(parents=True)
+    other.mkdir(parents=True)
+    (other / "manifest.json").write_text(_json.dumps({"tags": ["lrm_s"], "regions": ["x"]}), encoding="utf-8")
+    (flat / "manifest.json").write_text(_json.dumps({"tags": list(mk.C12_TAGS), "regions": ["001"]}), encoding="utf-8")
+    real_glob = _glob.glob
+    ns = {"glob": type("G", (), {"glob": staticmethod(
+        lambda pat, recursive=False: real_glob(pat.replace("/kaggle/input", str(tmp_path / "input")), recursive=recursive))}),
+        "json": _json, "Path": _Path, "os": __import__("os"), "TAGS5": mk.C12_TAGS}
+    exec(src, ns)
+    monkeypatch.delenv("CNX_PREP_DIR", raising=False)
+    assert ns["find_prep"]() == flat
+    (flat / "manifest.json").unlink()
+    assert ns["find_prep"]() is None
 
 
 def test_c12_guards(mk):
