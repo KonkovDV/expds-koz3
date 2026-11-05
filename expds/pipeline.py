@@ -1113,6 +1113,27 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         return max(0.0, b)
 
     crs_region = region_crs(reg, cfg)
+    group = str(opts["threshold_group"])
+    decode = str(opts.get("decode") or "rescore")
+    if decode not in lidar_cnx.DECODE_ALLOWED:
+        _warn(f"[li_cnx] decode={decode!r}: допустимо {lidar_cnx.DECODE_ALLOWED} — объекты cnx НЕ выдаются")
+        return []
+    if decode == "head":
+        # 05.11: курганы как в OOF ядра (поправка 1 PREREG c5-in); прочие классы этим путём не выдаются
+        from . import lidar_cnx_head
+
+        floors = output_floors(cfg, group)
+        try:
+            out = lidar_cnx_head.site_feats(seg, list(reg.las), crs_region, opts, reg.name,
+                                            deadline=lambda: not guard.ok(reserve),
+                                            time_left=lambda: max(0.0, float(left()) - reserve))
+        except Exception as exc:
+            log.warning("%s: cnx head не сработал (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
+            return []
+        out = [f for f in out if float(f["confidence"]) >= floors.get(f["class_name"], 0.0)]
+        for f in out:
+            f["threshold_group"] = group
+        return out
     try:
         bound = lidar_cnx.bind_las(seg, list(reg.las), crs_region, opts, deadline=lambda: not guard.ok(reserve),
                                    time_left=lambda: max(0.0, float(left()) - reserve), infer_budget=infer_budget)
@@ -1125,7 +1146,6 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         except Exception:
             pass
         return []
-    group = str(opts["threshold_group"])
     floors = output_floors(cfg, group)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
     rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
@@ -2051,8 +2071,16 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                     break
                 try:
                     fresh = cnx_site_feats(reg, cfg, guard, seg_cache, root, prefetch)
-                    pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
-                    kept = dedupe_cnx(fresh, pool, cfg, dist)
+                    if fresh and lidar_cnx.cnx_cfg(cfg).get("replace_li_kurgans") is True:
+                        # 05.11, вариант R гейта c5-in: курганы лидарного слоя участка заменяются курганами cnx
+                        snap = state.snapshot()
+                        state.replace([f for f in snap if not lidar_cnx.is_li_kurgan(f, reg.name)])
+                        log.info("%s: cnx заменил курганы li (%d сняты)", reg.name,
+                                 sum(1 for f in snap if lidar_cnx.is_li_kurgan(f, reg.name)))
+                        kept = fresh
+                    else:
+                        pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                        kept = dedupe_cnx(fresh, pool, cfg, dist)
                 except Exception:
                     log.exception("%s: cnx пропущен", reg.name)
                     kept = []

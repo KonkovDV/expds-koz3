@@ -69,7 +69,21 @@ DEFAULTS = {
     "classes": ["kurgany_povrezhdennye", "kurgany_tselye"],   # gor/fort/arch — только явно, после замера
     "threshold_group": "li_cnx",           # своя группа порогов; группы li* запрещены (другая шкала)
     "dedupe_m": 12.0,                      # курган cnx ближе — дубль оставленного круга
+    # 05.11 (поправка 1 PREREG c5-in): "rescore" — курганы по пикам ЦМР с вероятностью сети (как было);
+    # "head" — курганы декодированием головы, как OOF ядра bot-9 (expds/lidar_cnx_head.py), по параметрам контракта.
+    "decode": "rescore",
+    # вариант R гейта: курганы групп li / li_coarse / li_mosaic участка снимаются, курганы cnx идут без отбора дублей
+    "replace_li_kurgans": False,
 }
+DECODE_ALLOWED = ("rescore", "head")
+#: Группы курганов лидарного слоя, которые снимает вариант R (как LI_KUR_GROUPS гейта c5-in).
+LI_KUR_GROUPS = ("li", "li_coarse", "li_mosaic")
+
+
+def is_li_kurgan(f: dict, region: str) -> bool:
+    """Курган лидарного слоя участка (группа — threshold_group, иначе markup_type ∈ LI_KUR_GROUPS): его снимает R."""
+    return (f.get("region_name") == region and f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye")
+            and (f.get("threshold_group") or f.get("markup_type")) in LI_KUR_GROUPS)
 TTA_ALLOWED = (1, 2, 8)
 #: Группы порогов других лидарных моделей: к шкале cnx не применимы.
 FORBIDDEN_GROUPS = frozenset({"li", "li_coarse", "li_mosaic", "li_ae", "li_cpu", "li_dev", "li_mask", "li_fort"})
