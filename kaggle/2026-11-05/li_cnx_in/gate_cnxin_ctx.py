@@ -35,6 +35,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OOF_DIR = Path(os.environ.get("CNXIN_OOF_DIR", "/workspace/koz3/w2/oof/cnxin"))
 VARIANT = os.environ.get("CNXIN_VARIANT", "c5-in")   # c12-in — kaggle/2026-11-05/li_c12_in/PREREG.md
+# Сравнение c12 − c5 (PREREG c12, «Выбор между c5-in и c12-in»): тот же вариант K/R, парный бутстреп по семьям,
+# правило Δ > 0 и P ≥ 0,9. Включается CNXIN_CMP_VARIANT (например c5-in) и CNXIN_CMP_DIR (OOF этого варианта).
+CMP_VARIANT = os.environ.get("CNXIN_CMP_VARIANT", "")
+CMP_DIR = Path(os.environ.get("CNXIN_CMP_DIR", "/workspace/koz3/w2/oof/cnxin"))
+CMP_P_MIN = 0.9
 KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
 LI_KUR_GROUPS = ("li", "li_coarse", "li_mosaic")
 GROUP = "li_cnxin"
@@ -46,22 +51,22 @@ CFG_P = next((p for p in (Path(os.environ.get("CNXIN_V3ON_CFG", "")), HERE / "v3
 P_MIN = 0.95                                      # m = 2
 
 
-def oof_files(root: Path = OOF_DIR) -> dict[int, Path]:
+def oof_files(root: Path = OOF_DIR, variant: str = VARIANT) -> dict[int, Path]:
     """{фолд: файл}; ровно один файл на фолд 0..4, иначе останов (PREREG: упавший фолд — гейт не считается)."""
     found: dict[int, list[Path]] = {}
-    for p in sorted(glob.glob(str(root / "**" / f"oof_cnx_{VARIANT}_f[0-4].geojson"), recursive=True)):
+    for p in sorted(glob.glob(str(root / "**" / f"oof_cnx_{variant}_f[0-4].geojson"), recursive=True)):
         f = int(Path(p).stem.rsplit("_f", 1)[1])
         found.setdefault(f, []).append(Path(p))
     bad = {f: v for f, v in found.items() if len(v) != 1}
     miss = sorted(set(range(5)) - set(found))
     if bad or miss:
-        raise SystemExit(f"OOF {VARIANT}: нет фолдов {miss}, дубли {bad} в {root}")
+        raise SystemExit(f"OOF {variant}: нет фолдов {miss}, дубли {bad} в {root}")
     return {f: v[0] for f, v in sorted(found.items())}
 
 
-def check_oof(root: Path = OOF_DIR) -> dict:
+def check_oof(root: Path = OOF_DIR, variant: str = VARIANT) -> dict:
     """Фолды по region_fold.json ядер: каждый участок OOF — тест своего фолда, семьи не разбиты, классы известны."""
-    files = oof_files(root)
+    files = oof_files(root, variant)
     rf: dict[str, int] = {}
     fam: dict[str, str] = {}
     for p in sorted(glob.glob(str(root / "**" / "region_fold.json"), recursive=True)):
@@ -112,8 +117,10 @@ def main() -> None:
     boot = 0 if base_only else (int(sys.argv[1]) if len(sys.argv) > 1 else 2000)
     out = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / ("gate_cnxin_base.json" if base_only else "gate_cnxin_ctx.json")
     t0 = time.perf_counter()
-    res = {"what": "c5-in на V3P, прод-контекст v3_on (PREREG li_cnx_in)", "boot": boot, "cfg": str(CFG_P),
-           "oof_check": None if base_only else check_oof(), "variants": {}}
+    res = {"what": f"{VARIANT} на V3P, прод-контекст v3_on (PREREG li_cnx_in; c12 — li_c12_in)", "boot": boot,
+           "cfg": str(CFG_P), "oof_check": None if base_only else check_oof(), "variants": {}}
+    if CMP_VARIANT and not base_only:
+        res["cmp_oof_check"] = check_oof(CMP_DIR, CMP_VARIANT)
     save = lambda: out.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=float))   # noqa: E731
     cfg = tomllib.load(open(CFG_P, "rb"))
     post = cfg.get("post") or {}
@@ -167,14 +174,18 @@ def main() -> None:
     log(f"S0 V3P {res['V3P']:.10f} ok {res['S0_ok']}")
     save()
     assert res["S0_ok"], "V3P не воспроизведён (ни 0,3337867 с C19, ни 0,334435 без C19 — box_restore.sh)"
-    rows = []
-    for p in ([] if base_only else oof_files().values()):
-        for f, _ in D.iter_features(p):
-            q = f["properties"]
-            if q.get("class_name") in KUR:
-                q["threshold_group"] = GROUP
-                q["markup_type"] = "li"
-                rows.append(f)
+    def kur_rows(files):
+        out = []
+        for p in files:
+            for f, _ in D.iter_features(p):
+                q = f["properties"]
+                if q.get("class_name") in KUR:
+                    q["threshold_group"] = GROUP
+                    q["markup_type"] = "li"
+                    out.append(f)
+        return out
+
+    rows = kur_rows([] if base_only else oof_files().values())
     res["n_cnxin_kur"] = len(rows)
     bctx, n0, n1 = filt_engine(base3, lambda c, g, cf: cf >= floor(g, c))
     ex_ctx = fl_feats(c19 + dfx)
@@ -210,6 +221,19 @@ def main() -> None:
             f"nolidar {sc['nolidar']['delta']:+.6f} PASS {g['PASS']}")
         save()
 
+    def cmp(name, nMain, nCmp):
+        """PREREG c12: тот же вариант, VARIANT против CMP_VARIANT; парный бутстреп по семьям (seed 0)."""
+        sc = {}
+        for k, s in slices.items():
+            sa, sb = M.score_counts(nCmp, s)[0], M.score_counts(nMain, s)[0]
+            bs = M.paired_bootstrap_counts(nMain, nCmp, site_family, boot, 0, s) if boot else {}
+            sc[k] = {"cmp": sa, "main": sb, "delta": sb - sa, "P": bs.get("p_gt0"), "p5": bs.get("p5"), "p95": bs.get("p95")}
+        rule = sc["all"]["delta"] > 0 and (sc["all"]["P"] or 0) >= CMP_P_MIN
+        res.setdefault("cmp", {"main": VARIANT, "vs": CMP_VARIANT, "rule": f"delta > 0 and P >= {CMP_P_MIN}"})[name] = \
+            {"scores": sc, "main_replaces_cmp": rule}
+        log(f"{name}: {VARIANT} − {CMP_VARIANT} Δ {sc['all']['delta']:+.6f} P {sc['all']['P']} → замена {rule}")
+        save()
+
     def taus(name, fold_taus):
         """05.11: пороги группы GROUP по 10 честным фолдам и их медиана — для конфига сдачи (на решение не влияют)."""
         per = [ft.get(GROUP, {}) for ft in fold_taus]
@@ -220,10 +244,17 @@ def main() -> None:
 
     rB = fl_feats(rows)
     res["n_cnxin_kur_ctx"] = len(rB)
+    rC = fl_feats(kur_rows(oof_files(CMP_DIR, CMP_VARIANT).values())) if CMP_VARIANT else None
+    if rC is not None:
+        res["n_cmp_kur_ctx"] = len(rC)
     cK, _ = bctx.curves(ex_ctx + rB)
     hK = D.honest(cK, folds)
     score("K_add_kurgans", hK[0], nA, True)
     taus("K_add_kurgans", hK[2])
+    if rC is not None:
+        cKc, _ = bctx.curves(ex_ctx + rC)
+        cmp("K_add_kurgans", hK[0], D.honest(cKc, folds)[0])
+        del cKc
     del cK, hK
     brep, _, n_left = filt_engine(bctx, lambda c, g, cf: not (c in KUR and g in LI_KUR_GROUPS))
     res["R_dropped_rows"] = res["ctx_rows"]["stack_kept"] - n_left
@@ -232,6 +263,10 @@ def main() -> None:
     hR = D.honest(cR, folds)
     score("R_replace_li_kurgans", hR[0], nA, True)
     taus("R_replace_li_kurgans", hR[2])
+    if rC is not None:
+        cRc, _ = brep.curves(ex_ctx + rC)
+        cmp("R_replace_li_kurgans", hR[0], D.honest(cRc, folds)[0])
+        del cRc
     del cR, hR
     res["PASS_any"] = any(v["gate"]["PASS"] for v in res["variants"].values() if v["decisive"])
     res["sec"] = round(time.perf_counter() - t0)
