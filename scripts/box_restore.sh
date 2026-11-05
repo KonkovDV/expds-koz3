@@ -11,6 +11,10 @@
 #   - OOF D-FINE f0 (koz3-dfine-spor-full/-full-rest), D-FINE-2 (koz3-w2-dfine2-a/-b). OOF Faster R-CNN (elenakonkova) потерян.
 # Чего нет ни в одном бэкапе: w4geo/eval/{A18,C19etonly_orget_s0}.geojson (геофизика базы). load_geo тогда отдаёт []:
 # V3P = 0,334435 вместо 0,3337867 (+0,00065, только object_poly EtGr); Δ/P изменений только в классах ДЗЗ не меняются.
+#
+# Если Kaggle отвечает 429 и повторы не помогают: те же архивы лежат на Drive «2» → KOZ3_backup_2026-11-04
+# (01_gate_base, 03_oof, 08_KOZ3-final_mirror/backup_2026-11-02/results; порядок — 00_README.md там же).
+# 05.11 бокс восстановлен оттуда: суммы совпали, `gate_cnxin_ctx.py base` дал V3P 0,3344354 и V3P_ctx 0,3465004.
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 K=/workspace/koz3
@@ -24,19 +28,24 @@ if [ ! -x "$VENV/bin/python" ]; then
   VIRTUAL_ENV="$VENV" uv pip install -q torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
   VIRTUAL_ENV="$VENV" uv pip install -q -r "$REPO/requirements-dev.txt" -r "$REPO/requirements.lock"
 fi
-mkdir -p "$K/w4venv/bin" "$K/wt"
-ln -sfn "$VENV/bin/python" "$K/w4venv/bin/python"
+# w4venv — симлинк на каталог venv: Python находит pyvenv.cfg рядом с путём запуска. Симлинк только на bin/python
+# запускал голый системный Python без пакетов venv (05.11).
+mkdir -p "$K/wt"
+if [ -d "$K/w4venv" ] && [ ! -L "$K/w4venv" ]; then rm -rf "$K/w4venv"; fi
+ln -sfn "$VENV" "$K/w4venv"
 ln -sfn "$REPO" "$K/wt/w1"
 
+# Kaggle режет частые скачивания (HTTP 429): повторы с паузой, curl считает 429 временной ошибкой.
+RETRY=(--retry 6 --retry-delay 30 --retry-max-time 1800)
 ds() {  # owner slug file dst
   [ -s "$4" ] && return 0
   mkdir -p "$(dirname "$4")"
-  curl -sSLf -m 3600 -H "Authorization: Bearer $5" \
+  curl -sSLf "${RETRY[@]}" -m 3600 -H "Authorization: Bearer $5" \
     "https://www.kaggle.com/api/v1/datasets/download/$1/$2/${3//\//%2F}" -o "$4.part" && mv "$4.part" "$4"
 }
 kout() {  # token user slug dst — только *.geojson и *report.json из корня вывода ядра
   mkdir -p "$4"
-  curl -sS -m 120 -H "Authorization: Bearer $1" "https://www.kaggle.com/api/v1/kernels/output?userName=$2&kernelSlug=$3" |
+  curl -sSf "${RETRY[@]}" -m 120 -H "Authorization: Bearer $1" "https://www.kaggle.com/api/v1/kernels/output?userName=$2&kernelSlug=$3" |
     "$VENV/bin/python" -c "
 import sys, json
 for f in json.load(sys.stdin).get('files', []):
