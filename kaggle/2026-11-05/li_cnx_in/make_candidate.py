@@ -7,6 +7,11 @@
 с медианой порогов 10 честных фолдов из отчёта гейта; вариант R — `replace_li_kurgans = true`.
 
     python make_candidate.py --variant K|R --gate gate_cnxin_ctx.json --weights W0.pt ... W4.pt --tree DIR --out ZIP
+        [--base-config FR1h/configs/default.toml --base-sha256 HEX]
+
+`--base-config` — другой базовый конфиг вместо `eb268d6:configs/default.toml`, например конфиг из архива FR1h
+(`submission_fr1h_on_eb268d6.zip`: v2 + `[post.frame_prior]` + 4 порога курганов спутника). Код FR1h в `main` есть;
+сборку с ним сверять с архивом FR1h на участках SpOr без LAS — там фаза cnx не работает и ответ обязан совпасть побайтно.
 
 Сборка — `scripts/build_submission.py --allow-en` (линия EN по решению владельца 04.11). Ключи и токены не нужны.
 """
@@ -55,7 +60,14 @@ def main() -> int:
     ap.add_argument("--weights", type=Path, nargs=5, required=True, help="weights_cnx_c5-in_f0.pt … _f4.pt")
     ap.add_argument("--tree", type=Path, required=True, help="пустой каталог сборки (вне репозитория)")
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--base-config", type=Path, default=None, help="базовый конфиг вместо eb268d6 (например FR1h)")
+    ap.add_argument("--wheels-dir", type=Path, default=Path("/workspace/whl"),
+                    help="колёса inference/cnx/wheels (в git их нет, .gitignore); sha256 сверяется с inference/cnx/MANIFEST.json")
+    ap.add_argument("--base-sha256", default="", help="ожидаемый sha256 файла --base-config (обязателен вместе с ним)")
     a = ap.parse_args()
+    if a.base_config is not None and (not a.base_sha256 or sha256(a.base_config) != a.base_sha256):
+        sys.exit(f"--base-config: sha256 {sha256(a.base_config) if a.base_config.is_file() else 'нет файла'} ≠ "
+                 f"--base-sha256 {a.base_sha256 or '(не задан)'}")
     gate = json.loads(a.gate.read_text(encoding="utf-8"))
     name = {"K": "K_add_kurgans", "R": "R_replace_li_kurgans"}[a.variant]
     v = gate["variants"][name]
@@ -71,8 +83,25 @@ def main() -> int:
     subprocess.run(["tar", "-x", "-C", str(a.tree)], input=arch, check=True)
     env = dict(os.environ, EXPDS_V2_DEST=str(a.tree))
     subprocess.run([sys.executable, str(REPO / "scripts" / "v2_release_artifacts.py")], env=env, check=True)
-    cfg = subprocess.run(["git", "-C", str(REPO), "show", f"{V2}:configs/default.toml"], capture_output=True,
-                         check=True).stdout.decode("utf-8")
+    cnx_man = json.loads((a.tree / "inference" / "cnx" / "MANIFEST.json").read_text(encoding="utf-8"))
+    for rel, want in (cnx_man.get("sha256") or {}).items():          # {путь: sha256}, в т.ч. wheels/*.whl
+        dst = a.tree / "inference" / "cnx" / rel
+        if not rel.startswith("wheels/") or not isinstance(want, str) or dst.is_file():
+            continue
+        src = a.wheels_dir / Path(rel).name
+        if not src.is_file() or sha256(src) != want:
+            sys.exit(f"нет колеса {rel} с sha256 {want[:16]}… в {a.wheels_dir} (скачать с PyPI и сверить)")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        print(f"колесо {rel} ← {src} (sha256 {want[:16]}… сходится)", flush=True)
+    lost = [r for r in (cnx_man.get("sha256") or {}) if r.startswith("wheels/") and not (a.tree / "inference" / "cnx" / r).is_file()]
+    if lost:
+        sys.exit(f"после копирования нет колёс: {lost}")
+    cfg = (a.base_config.read_text(encoding="utf-8") if a.base_config is not None else
+           subprocess.run(["git", "-C", str(REPO), "show", f"{V2}:configs/default.toml"], capture_output=True,
+                          check=True).stdout.decode("utf-8"))
+    if "[li_cnx]" in cfg:
+        sys.exit("в базовом конфиге уже есть [li_cnx]")
     rels = []
     man_p = a.tree / "inference" / "cnx" / "WEIGHTS_MANIFEST.json"
     man = json.loads(man_p.read_text(encoding="utf-8"))
@@ -95,7 +124,8 @@ def main() -> int:
     sys.stdout.write(r.stdout[-3000:])
     if r.returncode:
         sys.exit(r.stderr[-2000:])
-    print(json.dumps({"variant": a.variant, "taus": taus, "zip": str(a.out), "sha256": sha256(a.out)}, ensure_ascii=False))
+    print(json.dumps({"variant": a.variant, "taus": taus, "base_config": str(a.base_config or f"{V2}:configs/default.toml"),
+                      "zip": str(a.out), "sha256": sha256(a.out)}, ensure_ascii=False))
     return 0
 
 
