@@ -2,13 +2,16 @@
 # Autopilot ensemble (PREREG li_ens_in): after the c12 autopilot ends → push koz3-li-ens-oof (T4) → OOF → gate e512-in
 # vs the current lidar line (c12-in if it won its rule, else c5-in) → commit JSON → Drive. Tokens never printed.
 set -u
+pushretry() { while :; do o=$($HOME/.local/bin/kaggle kernels push -p "$1" 2>&1 | tail -1); echo "$(date -u +%H:%M) push $(basename $1): $o"; echo "$o" | grep -q "successfully pushed" && break; echo "$o" | grep -qi "quota" || break; sleep 1800; done; }
 K=/workspace/koz3; REPO=/home/user/expds-koz3; PY=$K/w4venv/bin/python; KG=$HOME/.local/bin/kaggle
 OOF=$K/w2/oof/ens; GJ=$REPO/kaggle/2026-11-05/li_ens_in/gate_e512in_ctx.json; G12=$REPO/kaggle/2026-11-05/li_c12_in/gate_c12in_ctx.json
 echo "$(date -u +%H:%M) start"
 while ! grep -qE "^[0-9:]+ end|СТОП" /workspace/autopilot_c12.log; do sleep 120; done
 grep -q "СТОП" /workspace/autopilot_c12.log && { echo "$(date -u +%H:%M) СТОП: автопилот c12 остановился — ансамбль не считается"; exit 1; }
 for i in $(seq 1 30); do st=$($KG datasets status dmitrijkv/koz3-ens-code 2>&1 | tail -1); echo "$st" | grep -q ready && break; sleep 60; done
-echo "$(date -u +%H:%M) code ds: $st; push: $($KG kernels push -p /workspace/ens/build/koz3-li-ens-oof 2>&1 | tail -1)"
+ex=$($KG kernels status dmitrijkv/koz3-li-ens-oof 2>&1 | tail -1)
+if echo "$ex" | grep -qE "RUNNING|QUEUED|COMPLETE"; then echo "$(date -u +%H:%M) ядро ансамбля уже есть: $ex"; else
+echo "$(date -u +%H:%M) code ds: $st"; pushretry /workspace/ens/build/koz3-li-ens-oof; fi
 sleep 120
 while :; do s=$($KG kernels status dmitrijkv/koz3-li-ens-oof 2>&1 | tail -1); echo "$s" | grep -qE "COMPLETE|ERROR|CANCEL" && break; sleep 180; done
 echo "$(date -u +%H:%M) ens kernel: $s"

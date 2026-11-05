@@ -4,6 +4,7 @@
 set -u
 K=/workspace/koz3; REPO=/home/user/expds-koz3; PY=$K/w4venv/bin/python; KG=$HOME/.local/bin/kaggle
 OOF=$K/w2/oof/c12in; GJ=$REPO/kaggle/2026-11-05/li_c12_in/gate_c12in_ctx.json
+pushretry() { while :; do o=$($KG kernels push -p "$1" 2>&1 | tail -1); echo "$(date -u +%H:%M) push $(basename $1): $o"; echo "$o" | grep -q "successfully pushed" && break; echo "$o" | grep -qi "quota" || break; sleep 1800; done; }
 st() { $KG kernels status dmitrijkv/$1 2>&1 | tail -1 | sed 's/.*status "//; s/"$//'; }
 term() { echo "$1" | grep -qE "COMPLETE|ERROR|CANCEL"; }
 bad() { echo "$1" | grep -qE "ERROR|CANCEL"; }
@@ -12,9 +13,10 @@ while :; do sa=$(st koz3-li-c12-in-a); sb=$(st koz3-li-c12-in-b)
   if bad "$sa" || bad "$sb"; then echo "$(date -u +%H:%M) СТОП: a=$sa b=$sb"; exit 1; fi
   if term "$sa" || term "$sb"; then break; fi; sleep 300; done
 echo "$(date -u +%H:%M) a=$sa b=$sb"
+if term "$(st koz3-li-c12-in-c)" || st koz3-li-c12-in-c | grep -qE "RUNNING|QUEUED"; then echo "$(date -u +%H:%M) c уже есть: $(st koz3-li-c12-in-c) (push c пропущен)"; else
 python3 $REPO/kaggle/2026-11-05/li_cnx_in/make_kernel.py --slug koz3-li-c12-in-c --jobs c12-in:4 \
   --prep-dataset dmitrijkv/koz3-cnx-li-prep12 --out /workspace/c12/BUILD >/dev/null \
-  && echo "$(date -u +%H:%M) push c: $($KG kernels push -p /workspace/c12/BUILD/koz3-li-c12-in-c 2>&1 | tail -1)"
+  && pushretry /workspace/c12/BUILD/koz3-li-c12-in-c; fi
 sleep 120
 while :; do sa=$(st koz3-li-c12-in-a); sb=$(st koz3-li-c12-in-b); sc=$(st koz3-li-c12-in-c)
   if bad "$sa" || bad "$sb" || bad "$sc"; then echo "$(date -u +%H:%M) СТОП: a=$sa b=$sb c=$sc"; exit 1; fi
