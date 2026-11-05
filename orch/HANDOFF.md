@@ -1,3 +1,20 @@
+> **05.11.2026 19:55 МСК — гейт c5-in: R PASS; кандидат v2 + c5-in R на Drive, ждёт LB-пробы; c12 загружается на Kaggle.**
+> - **Гейт c5-in** — `kaggle/2026-11-05/li_cnx_in/gate_cnxin_ctx.json`:
+>   - R (заменить курганы li, li_coarse, li_mosaic): Δ+0,0118, P 0,983, new34 +0,026 — PASS;
+>   - K: P 0,897 — FAIL.
+>   Это первая линия лидара, которая прошла гейт.
+> - **Кандидат** `v2_c5in_R.zip`, собран `make_candidate.py --variant R`:
+>   - sha256 `98e0ab74a97fc0b18798b026adc51d96af6891d01ee1edd64432429278eed5ac`, 822 757 161 байт;
+>   - `check_submission`: PASS, FAIL 0; smoke — 61 с на 1 LAS;
+>   - Drive «2» → `00_SUBMIT_v2_c5in_R_98e0ab74`, md5 OK. Прямая ссылка: https://drive.usercontent.google.com/download?id=1PzJe2Ce42IXCV_My91exfG_oOUQBHaqv&export=download&confirm=t
+>
+>   LB-пробу отправляет владелец. Должны измениться только P/R лидара (на LB у v2 было .516/.504).
+> - **FR1h** (`fe8d60b9…`) на LB ещё не был. Прямая ссылка: https://drive.usercontent.google.com/download?id=1b3lBSIE5TqfjzsIBw3pkwB_9GPhrBnn8&export=download&confirm=t
+> - **c12-in.** 12 каналов на 59 LAS готовы; исправления имён и участка 187 описаны в PREREG, раздел «Ход».
+>   - Приватный `dmitrijkv/koz3-cnx-li-prep12` готов. Ядра `dmitrijkv/koz3-li-c12-in-a` (f0, f1) и `-b` (f2, f3) отправлены в 19:56.
+>   - Ядро c (`c12-in:4`) — вручную, когда освободится слот GPU.
+> - **Копия c5-in на Drive:** вывод ядра f4 (`koz3-li-cnx-in-c`) и `gate_cnxin_ctx.json` → `11_c5in_2026-11-05`, md5 OK.
+
 > **05.11.2026 16:25 МСК — вторая сессия: аудит, паритет прода, автопилот гейта c5-in и c12.**
 > - **Аудит** — `docs/AUDIT_2026-11-05.md`:
 >   - финал v2 сверен (sha256, пересборка); `main` + артефакты v2 даёт побайтно тот же ответ на 5 участках S3;
