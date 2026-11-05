@@ -13,6 +13,7 @@
 PASS (всё сразу): Δ ≥ +0,003; P(Δ>0) ≥ 0,95; Δnew34 ≥ 0; Δnolidar ≥ −0,001; ΔF1 каждого класса ≥ −0,005 (n_gt ≥ 5).
 
     nice -n 10 /workspace/koz3/w4venv/bin/python gate_cnxin_ctx.py check     # только проверка OOF, секунды
+    nice -n 10 /workspace/koz3/w4venv/bin/python gate_cnxin_ctx.py base      # S0 и V3P_ctx без OOF (санити бокса)
     nice -n 10 /workspace/koz3/w4venv/bin/python gate_cnxin_ctx.py 2000 [OUT.json]
 
 OOF: /workspace/koz3/w2/oof/cnxin/<ядро>/oof_cnx_c5-in_f{0..4}.geojson и region_fold.json (выходы ядер
@@ -38,7 +39,10 @@ KUR = ("kurgany_povrezhdennye", "kurgany_tselye")
 LI_KUR_GROUPS = ("li", "li_coarse", "li_mosaic")
 GROUP = "li_cnxin"
 V3P_REF = 0.3337867244
-CFG_P = HERE / "v3on_src/configs/default.toml"   # из w4geo/dist/koz3_v3on_b505656_6d4764f8_w6dfd2e07.zip (как у r50c5)
+# конфиг v3_on (= configs/v3_on.toml; box_restore.sh кладёт копию в w2/r50c5_gate, как у гейта r50c5)
+CFG_P = next((p for p in (Path(os.environ.get("CNXIN_V3ON_CFG", "")), HERE / "v3on_src/configs/default.toml",
+                          Path("/workspace/koz3/w2/r50c5_gate/v3on_src/configs/default.toml")) if str(p) != "." and p.is_file()),
+             HERE / "v3on_src/configs/default.toml")
 P_MIN = 0.95                                      # m = 2
 
 
@@ -104,11 +108,12 @@ def main() -> None:
     spec.loader.exec_module(G)
     sys.argv = argv
     D, M, log, site_family = G.D, G.M, G.log, G.site_family
-    boot = int(sys.argv[1]) if len(sys.argv) > 1 else 2000
-    out = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "gate_cnxin_ctx.json"
+    base_only = len(sys.argv) > 1 and sys.argv[1] == "base"
+    boot = 0 if base_only else (int(sys.argv[1]) if len(sys.argv) > 1 else 2000)
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / ("gate_cnxin_base.json" if base_only else "gate_cnxin_ctx.json")
     t0 = time.perf_counter()
     res = {"what": "c5-in на V3P, прод-контекст v3_on (PREREG li_cnx_in)", "boot": boot, "cfg": str(CFG_P),
-           "oof_check": check_oof(), "variants": {}}
+           "oof_check": None if base_only else check_oof(), "variants": {}}
     save = lambda: out.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=float))   # noqa: E731
     cfg = tomllib.load(open(CFG_P, "rb"))
     post = cfg.get("post") or {}
@@ -163,7 +168,7 @@ def main() -> None:
     save()
     assert res["S0_ok"], "V3P не воспроизведён (ни 0,3337867 с C19, ни 0,334435 без C19 — box_restore.sh)"
     rows = []
-    for p in oof_files().values():
+    for p in ([] if base_only else oof_files().values()):
         for f, _ in D.iter_features(p):
             q = f["properties"]
             if q.get("class_name") in KUR:
@@ -180,6 +185,11 @@ def main() -> None:
     res["V3P_ctx"] = M.score_counts(nA)[0]
     log(f"V3P_ctx {res['V3P_ctx']:.10f}")
     save()
+    if base_only:
+        res["sec"] = round(time.perf_counter() - t0)
+        save()
+        log("base: готово", res["sec"], "с")
+        return
 
     def score(name, nB, nRef, decisive):
         sc = {}
