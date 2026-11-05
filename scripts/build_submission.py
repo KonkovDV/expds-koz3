@@ -93,6 +93,9 @@ def collect(allow_en: bool = False) -> list[Path]:
     # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
     dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
         if sd.get("enabled") else []
+    sy = cfg.get("sp_yolo") or {}
+    if sy.get("enabled") is True and sy.get("weights"):   # 05.11: YOLO спутника (TorchScript), только если включён
+        dfm.append(str(sy["weights"]))
     gg = cfg.get("gor_gate") or {}
     # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
     if gg.get("enabled"):

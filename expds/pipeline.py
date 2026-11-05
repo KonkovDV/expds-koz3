@@ -2101,6 +2101,47 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 if kept:
                     log.info("%s: cnx %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
             phases.append(("cnx", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_yolo") or {}).get("enabled"):
+            # 05.11 (план OPTICS_DETECTOR_PLAN): YOLO26 окнами по SpOr, своя группа порогов; вариант K —
+            # объекты ближе dedupe_m к уже найденным объектам того же класса (прошедшим свой порог) не добавляются
+            t_phase = time.monotonic()
+            n_phase = 0
+            try:
+                from . import sp_yolo
+
+                yo = sp_yolo.cfg_of(cfg)
+                det = sp_yolo.Detector(Path(root) / str(yo["weights"]), imgsz=yo["imgsz"], conf_min=yo["conf_min"],
+                                       iou=yo["iou"], max_det=yo["max_det"])
+                group = str(yo["threshold_group"])
+                floors = output_floors(cfg, group)
+
+                def _passes(f) -> bool:
+                    thr = output_floors(cfg, f.get("threshold_group") or f.get("markup_type")).get(f.get("class_name"))
+                    return thr is not None and float(f.get("confidence") or 0) >= thr
+
+                for reg in regions:
+                    rs = list(reg.rasters.get("sp_or", []))
+                    if not rs:
+                        continue
+                    if not guard.ok(reserve):
+                        log.warning("на sp_yolo времени не осталось")
+                        break
+                    try:
+                        fresh = sp_yolo.site_feats(det, rs, region_crs(reg, cfg), yo, reg.name,
+                                                   deadline=lambda: not guard.ok(reserve))
+                        fresh = [f for f in fresh if float(f["confidence"]) >= floors.get(f["class_name"], 0.0)]
+                        pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                        kept = sp_yolo.dedupe_against(fresh, pool, _passes, float(yo.get("dedupe_m", 8.0)))
+                    except Exception:
+                        log.exception("%s: sp_yolo пропущен", reg.name)
+                        kept = []
+                    state.add(kept)
+                    n_phase += len(kept)
+                    if kept:
+                        log.info("%s: sp_yolo %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+            except Exception:
+                log.exception("sp_yolo: фаза пропущена (веса или torch)")
+            phases.append(("sp_yolo", n_phase, time.monotonic() - t_phase))
         if guard.partial:
             state.note["partial_files"] = list(guard.partial)
             log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),

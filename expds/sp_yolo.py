@@ -178,3 +178,26 @@ def site_feats(det: Detector, rasters, crs: str, opts: dict, region: str, deadli
     keep = set(opts.get("classes") or CLASSES)
     feats = dedup_features(points, region, str(opts["threshold_group"]))
     return [f for f in feats if f["class_name"] in keep]
+
+
+def dedupe_against(fresh: list[dict], pool: list[dict], passes, dist_m: float = 8.0) -> list[dict]:
+    """Вариант K: объект YOLO снимается, если ближе dist_m есть объект того же класса участка, проходящий порог
+    своей группы (passes(f) -> bool). Расстояние — между центрами в EPSG:3857 с поправкой масштаба по широте."""
+    from shapely.geometry import shape
+    if not fresh:
+        return []
+    anchors: dict = {}
+    for f in pool:
+        if f.get("class_name") in CLASSES and passes(f):
+            g = f.get("geom") or shape(f["geometry"])
+            c = g.centroid
+            anchors.setdefault(f["class_name"], []).append((c.x, c.y))
+    out = []
+    for f in fresh:
+        c = f["geom"].centroid
+        k = max(np.cos(np.arctan(np.sinh(c.y / 6378137.0))), 1e-6)       # метры EPSG:3857 → метры на местности
+        lim2 = (dist_m / k) ** 2
+        if any((c.x - ax) ** 2 + (c.y - ay) ** 2 < lim2 for ax, ay in anchors.get(f["class_name"], [])):
+            continue
+        out.append(f)
+    return out
