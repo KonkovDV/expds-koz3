@@ -8,62 +8,18 @@ from __future__ import annotations
 import logging
 import math
 from contextlib import contextmanager
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator
 
 import numpy as np
 import rasterio
 from rasterio.enums import Resampling
 from rasterio.features import shapes
-from rasterio.windows import Window
 from shapely.geometry import Point
 
 from .crs import WEB_MERCATOR, to_crs
 
 log = logging.getLogger(__name__)
-
-
-@dataclass
-class Tile:
-    """Окно растра, приведённое к рабочему шагу."""
-    data: np.ndarray          # C×H×W
-    transform: object         # аффинное преобразование тайла (рабочий шаг)
-    crs: str | None
-    window: Window            # окно в пикселях исходного растра
-
-
-def raster_res(path: str | Path) -> float:
-    """Размер пикселя исходного растра (в единицах CRS, обычно метры)."""
-    with rasterio.open(path) as ds:
-        return float(abs(ds.res[0]))
-
-
-def iter_tiles(path: str | Path, target_res: float, tile: int = 256, overlap: float = 0.25,
-               bands: list[int] | None = None) -> Iterator[Tile]:
-    """Скользящее окно по растру: тайлы tile×tile пикселей рабочего шага с перекрытием."""
-    with rasterio.open(path) as ds:
-        scale = target_res / abs(ds.res[0])          # исходных пикселей на рабочий
-        src_tile = max(1, int(round(tile * scale)))
-        step = max(1, int(round(src_tile * (1 - overlap))))
-        idx = bands or list(range(1, min(ds.count, 3) + 1))
-        crs = ds.crs.to_string() if ds.crs else None
-        rows = list(range(0, max(ds.height - src_tile, 0) + 1, step)) or [0]
-        cols = list(range(0, max(ds.width - src_tile, 0) + 1, step)) or [0]
-        if rows[-1] + src_tile < ds.height:
-            rows.append(max(ds.height - src_tile, 0))
-        if cols[-1] + src_tile < ds.width:
-            cols.append(max(ds.width - src_tile, 0))
-        for r in rows:
-            for c in cols:
-                win = Window(c, r, min(src_tile, ds.width - c), min(src_tile, ds.height - r))
-                out_h = max(1, int(round(win.height / scale)))
-                out_w = max(1, int(round(win.width / scale)))
-                data = ds.read(idx, window=win, out_shape=(len(idx), out_h, out_w),
-                               resampling=Resampling.bilinear if scale < 1 else Resampling.average)
-                tr = ds.window_transform(win) * rasterio.Affine.scale(win.width / out_w, win.height / out_h)
-                yield Tile(data=data, transform=tr, crs=crs, window=win)
 
 
 def mask_to_polygons(labels: np.ndarray, transform, crs: str | None,
@@ -197,7 +153,7 @@ def circles_3857(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
     """
     import shapely
 
-    from .crs import transformer
+    from .crs import transformer, utm_epsg_codes
 
     px = np.asarray(xs, dtype=np.float64).ravel()
     py = np.asarray(ys, dtype=np.float64).ravel()
@@ -211,11 +167,7 @@ def circles_3857(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
             return list(polys)
         return list(_transform_many(polys, crs, WEB_MERCATOR))
     lon, lat = transformer(crs, "EPSG:4326").transform(px, py)
-    lon = np.atleast_1d(np.asarray(lon, dtype=np.float64))
-    lat = np.atleast_1d(np.asarray(lat, dtype=np.float64))
-    # Та же формула, что utm_for_lonlat: ⌊(λ+180)/6⌋+1, номер 1…60, север/юг по широте.
-    zone = np.clip(((lon + 180.0) // 6.0).astype(np.int64) + 1, 1, 60)
-    code = np.where(lat >= 0.0, 32600, 32700) + zone
+    code = utm_epsg_codes(lon, lat)
     _, first = np.unique(code, return_index=True)
     out = [None] * px.size
     for zcode in code[np.sort(first)]:
@@ -390,7 +342,3 @@ def pixel_to_xy(transform, rows: np.ndarray, cols: np.ndarray) -> tuple[np.ndarr
     ys = transform.f + (cols + 0.5) * transform.d + (rows + 0.5) * transform.e
     return np.asarray(xs), np.asarray(ys)
 
-
-def meters_to_px(meters: float, res: float) -> int:
-    """Длина в метрах → целое число пикселей (не меньше 1)."""
-    return max(1, int(math.ceil(meters / res)))

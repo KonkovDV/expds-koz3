@@ -131,32 +131,6 @@ def ellipse_of(poly, n: int = 32):
     return rotate(scale(circle, long / 2.0, short / 2.0, origin=center), angle, origin=center)
 
 
-def shift_to_weighted_centroid(geom, members: list):
-    """Сдвигает геометрию так, чтобы её центр совпал со взвешенным центром соседей.
-
-    members — пары (геометрия, уверенность). Пустой список не двигает объект.
-    Это не объединение площадей: контур остаётся контуром самого объекта.
-    """
-    if not members:
-        return geom
-    weight = 0.0
-    x = y = 0.0
-    for other, conf in members:
-        c = other.centroid
-        w = max(float(conf), 0.0)
-        x += c.x * w
-        y += c.y * w
-        weight += w
-    if weight <= 0:
-        return geom
-    return translate_geom(geom, x / weight - geom.centroid.x, y / weight - geom.centroid.y)
-
-
-def translate_geom(geom, dx: float, dy: float):
-    from shapely.affinity import translate
-    return translate(geom, dx, dy)
-
-
 def medial_peaks(mask: np.ndarray, min_distance: int = 2) -> list[tuple[int, int]]:
     """Локальные максимумы дистанционного преобразования. Дыра маски пиком не становится."""
     binary = np.asarray(mask, bool)

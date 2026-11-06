@@ -73,22 +73,6 @@ def test_fix_channels_same(monkeypatch, shape):
     assert a.dtype == b.dtype and np.array_equal(a, b)
 
 
-@pytest.mark.parametrize("depth", [0, 1, 3])
-def test_read_ahead_order(depth):
-    from expds.pipeline import _read_ahead
-
-    jobs = list(range(7))
-    assert list(_read_ahead(jobs, lambda j: j * j, depth)) == [(j, j * j) for j in jobs]
-
-
-def test_read_ahead_close_early():
-    from expds.pipeline import _read_ahead
-
-    g = _read_ahead(list(range(10)), lambda j: j)
-    assert next(g) == (0, 0)
-    g.close()
-
-
 def test_batch_circles_flag_same(monkeypatch):
     import shapely
 

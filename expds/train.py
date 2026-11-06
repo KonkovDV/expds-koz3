@@ -155,25 +155,6 @@ def elastic_deform(x, y, sigma: float, cell_px: int = 32):
             F.grid_sample(y, grid, mode="nearest", padding_mode="zeros", align_corners=True))
 
 
-def emphasize_small(y, weight: float, max_frac: float = 0.002):
-    """Умножает положительные пиксели кадра, если их доля меньше max_frac. weight == 1 не меняет y.
-
-    Для карты центров не годится: цель порогуется по 0,5, и умноженная маска даёт ту же цель.
-    Обучение берёт вес мелких насыпей в потерю (`centers.small_component_weights`).
-    """
-    import torch
-
-    if weight == 1.0:
-        return y
-    flat = (y > 0.5).flatten(2).sum(dim=2)
-    small = (flat > 0) & (flat < max_frac * y.shape[-1] * y.shape[-2])
-    if not bool(small.any()):
-        return y
-    factor = torch.ones(y.shape[0], y.shape[1], 1, 1, device=y.device, dtype=y.dtype)
-    factor[small] = float(weight)
-    return y * factor
-
-
 def photometric(x, brightness: float = PHOTO_BRIGHTNESS, contrast: float = PHOTO_CONTRAST):
     """Яркость и контраст кадра. x — N×C×H×W в [0, 1], маска не меняется.
 

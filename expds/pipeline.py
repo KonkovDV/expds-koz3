@@ -1460,29 +1460,6 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
     return probs_to_features(probs, seg.classes, tr, d.crs, d.res * k, region, "li", source, min_conf=min_conf)
 
 
-def _read_ahead(jobs: list, read, depth: int = 1):
-    """(job, read(job)) по порядку; следующие depth окон читаются в фоновом потоке (depth ≤ 0 — без потока).
-
-    speedup-2026-10-28 (харвест 29.10); включается флагом [speed] read_ahead (по умолчанию ВЫКЛ.).
-    """
-    from concurrent.futures import ThreadPoolExecutor
-
-    if depth <= 0 or len(jobs) < 2:
-        for job in jobs:
-            yield job, read(job)
-        return
-    pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="expds-read")
-    try:
-        futs = [pool.submit(read, job) for job in jobs[:depth]]
-        for i, job in enumerate(jobs):
-            if i + depth < len(jobs):
-                futs.append(pool.submit(read, jobs[i + depth]))
-            yield job, futs[i].result()
-            futs[i] = None
-    finally:
-        pool.shutdown(wait=True, cancel_futures=True)
-
-
 _AHEAD_END = object()
 
 

@@ -417,11 +417,6 @@ class CnxBound:
 
 
 # ---------------------------------------------------------------------- подготовка
-def prep_files() -> list[Path]:
-    """Файлы вендора подготовки, нужные в архиве при включённом cnx (без __pycache__)."""
-    return sorted(p for p in PREP_DIR.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
-
-
 def run_prep(las, ch: int, crs: str | None, timeout_s: float, prep_dir: Path | None = None,
              tmp_root: str | None = None) -> tuple[np.ndarray, dict]:
     """cnx_prep.py подпроцессом на весь LAS → (x float32 [ch,H,W], geo). Временный npz удаляется."""

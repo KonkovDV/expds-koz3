@@ -60,16 +60,24 @@ def to_crs(geom: BaseGeometry, src: str, dst: str = WEB_MERCATOR) -> BaseGeometr
     return shapely.transform(geom, lambda x, y: tr.transform(x, y), interleaved=False)
 
 
-def utm_for_lonlat(lon: float, lat: float) -> str:
-    """EPSG зоны UTM для точки.
+def utm_epsg_codes(lon, lat):
+    """Номера EPSG зон UTM для одной точки или массива.
 
     Та же формула, что у официальной метрики (`_to_utm_zone_epsg`):
     ⌊(λ + 180) / 6⌋ + 1, номер зажат в 1…60. На антимеридиане это зона 60,
-    как на площадке, а не несуществующая зона 61.
+    как на площадке, а не несуществующая зона 61. Юг — 327xx.
     """
-    zone = int((lon + 180) // 6) + 1
-    zone = min(max(zone, 1), 60)
-    return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
+    import numpy as np
+
+    lon_a = np.atleast_1d(np.asarray(lon, dtype=np.float64))
+    lat_a = np.atleast_1d(np.asarray(lat, dtype=np.float64))
+    zone = np.clip(((lon_a + 180.0) // 6.0).astype(np.int64) + 1, 1, 60)
+    return np.where(lat_a >= 0.0, 32600, 32700) + zone
+
+
+def utm_for_lonlat(lon: float, lat: float) -> str:
+    """EPSG зоны UTM для точки. Формула — `utm_epsg_codes`."""
+    return f"EPSG:{int(utm_epsg_codes(lon, lat).reshape(-1)[0])}"
 
 
 def _lonlat_center(crs: str, box: tuple) -> tuple[float, float] | None:
