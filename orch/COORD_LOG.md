@@ -1,7 +1,7 @@
 29.10 22:15 MSK | coord | acc1 gpu1/2 RUNNING (W2), TPU acc1/acc2 QUEUED, acc2 GPU квота 0, acc2/cpu pixgbm-cleanroom COMPLETE; box CPU занят kurgan (PID 20871); CPU-пул 3 акк свободны (зарезервированы W1/W3/W4, готовых ядер нет); блокер: OOF-стек A/table.pkl на ПК Элены (ПК офлайн)
 - 29.10 22:23 MSK | gpu_watcher | старт; очередь: elenakonkova/koz3-w1-dfine-ae-final, elenakonkova/koz3-w1-dfine-or-final
 - 29.10 22:23 MSK | gpu_watcher | acc1/gpu-1: elenakonkova/koz3-cnx-li-c3sc-s1f4 → KernelWorkerStatus.COMPLETE; аренда W1; push elenakonkova/koz3-w1-dfine-ae-final: Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/elenakonkova/koz3-w1-dfine-ae-final
-- 29.10 22:25 MSK | coord | dmitrijkv/koz3-w4-pixgbm-s3 = NON-CLEANROOM (geo_pixgbm.py от EhimenNathan), research/comparison only, not for archive. По завершении: вывод → w4pix/out2, аренда acc2/cpu снимается.
+- 29.10 22:25 MSK | coord | dmitrijkv/koz3-w4-pixgbm-s3 = NON-CLEANROOM (geo_pixgbm.py от сторонний репозиторий), research/comparison only, not for archive. По завершении: вывод → w4pix/out2, аренда acc2/cpu снимается.
 - 29.10 22:28 MSK coord: datasets <acc>/koz3-w3-kurgan-cpu-data ready ×3; pushed koz3-w3-kurgan-cpu-seeds v1 on usertest1234 (s11,12), aaaa0000004 (s21,22), aaaadg4gg4g4g (s31,32) — RUNNING; leases <acc>/cpu → bot-W3-bigobj. Box: waiter queued seeds 41,42 after PID 20871.
 - 29.10 22:31 MSK | lease | acquire slot:acc1/gpu-1 → bot-W1-aeor до 30.10 10:31 MSK D-FINE ae final+5 фолдов OOF, push 22:23 gpu_watcher
 - 29.10 22:31 MSK | lease | acquire kernel:elenakonkova/koz3-w1-dfine-ae-final → bot-W1-aeor до 30.10 10:31 MSK 

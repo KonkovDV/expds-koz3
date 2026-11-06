@@ -1,4 +1,4 @@
-"""bot-3 Fix B: [ae_recall_relax] default OFF; apply remaps ae/li_ae/fusion."""
+""" Fix B: [ae_recall_relax] default OFF; apply remaps ae/li_ae/fusion."""
 from __future__ import annotations
 
 from expds import ae_recall_relax as M

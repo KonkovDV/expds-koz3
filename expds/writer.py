@@ -63,7 +63,7 @@ def to_feature_collection(feats: list[dict]) -> dict:
             geom = mapping(f["geom"])
         if coords is None:
             if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy[:2]):
-                continue                # bot-8: NaN/inf дают невалидный JSON — объект отбрасывается
+                continue                # NaN/inf дают невалидный JSON — объект отбрасывается
             coords = _rounded_coords(geom["coordinates"])
             if coords is None:
                 log.warning("объект %s/%s отброшен: геометрия невалидна и после округления",
@@ -74,7 +74,7 @@ def to_feature_collection(feats: list[dict]) -> dict:
                  "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
                  "region_name": f.get("region_name", "default_source"),
                  "crs": "EPSG:3857"}
-        if f.get("out_markup_type"):      # bot-5 gor_dense: своя группа внутри, в файл — модальность из списка ТР
+        if f.get("out_markup_type"):      # gor_dense: своя группа внутри, в файл — модальность из списка ТР
             props["markup_type"] = f["out_markup_type"]
         elif f.get("markup_type"):
             props["markup_type"] = f["markup_type"]
@@ -132,7 +132,7 @@ def tmp_path_for(path: Path) -> Path:
 
 
 def enforce_limits(fc: dict) -> dict:
-    """Последний рубеж перед записью (bot-7): только Polygon, ≤ MAX_VERTICES вершин, ≤ MAX_FEATURES объектов.
+    """Последний рубеж перед записью: только Polygon, ≤ MAX_VERTICES вершин, ≤ MAX_FEATURES объектов.
 
     В норме ничего не делает: post.finalize/limit_vertices и post.cap_features уже держат лимиты.
     Срабатывает, если в обход них прошло лишнее (запасная оболочка limit_vertices, новый шаг после cap).
@@ -323,7 +323,7 @@ def validate(fc: dict | str | Path) -> dict:
     warnings += remarks[:20]
     if small_x:
         warnings.append(f"{small_x} объектов с |x| ≤ 1e6: метрика не пересчитает их из EPSG:3857 в UTM "
-                        "(для России так быть не должно — проверьте CRS)")
+                        "(ответ конкурса должен быть в EPSG:3857, проверьте CRS)")
     return {"ok": not errors, "errors": errors[:50], "warnings": warnings[:50],
             "summary": {"features": len(feats), "by_class": by_class, "tr_remarks": len(remarks),
                         "size_mb": None if size_mb is None else round(size_mb, 2)}}

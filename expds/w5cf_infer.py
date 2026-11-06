@@ -1,6 +1,6 @@
 """W1 → W4: RR1s-cf inference plug-in for expds.w5_cloudfeat (flag ``w5_cloudfeat``), offline, no network / S3.
 
-Contract (expds/w5_cloudfeat.py, bots/w4-v3on 18ba8b7):
+Контракт с expds/w5_cloudfeat.py:
 * ``region_features(reg, li_feats, cfg) -> None`` — lidar pass, while the site LAS is at hand: puts the 10 cloud
   features (expds.cloudfeat.NAMES, from the test LAS + UTM.json, same code as training) into ``f["w5cf_feat"]``
   for li objects that can enter the ranker pool; records that the site has LAS (``has_las``).

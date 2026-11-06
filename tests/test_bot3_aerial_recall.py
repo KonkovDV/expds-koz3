@@ -1,4 +1,4 @@
-"""bot-3: [ae_recall] выключен по умолчанию; целые копии мозаики и дедуп кадров D-FINE."""
+"""[ae_recall] выключен по умолчанию; целые копии мозаики и дедуп кадров D-FINE."""
 from pathlib import Path
 
 import tomllib

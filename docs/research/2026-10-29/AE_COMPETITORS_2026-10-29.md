@@ -2,7 +2,7 @@
 
 Автор: bot-1. Работа только на чтение: GPU не запускали, на Kaggle ничего не отправляли. Код соперников не копировали, ниже идеи изложены своими словами.
 Источники:
-- EhimenNathan/EXpedition (далее EN): `main` d434e56 (27.10), ветки `codex/v24-dinov3-1024` 90a7460 (29.10) и `fix/optical-one-object-per-data-type` 6e300f4;
+- сторонний репозиторий (далее EN): `main` d434e56 (27.10), ветки `codex/v24-dinov3-1024` 90a7460 (29.10) и `fix/optical-one-object-per-data-type` 6e300f4;
 - `bot-9/DFINE_FINAL_ORAE.md` §12;
 - `bot-10/REPORT13_lbv2.md` §4;
 - `bot-7/wt_v4` d22eac3;

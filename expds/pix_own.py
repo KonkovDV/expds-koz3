@@ -8,7 +8,9 @@
 канала. Нормировка — медиана и межквартильный размах. Тренд — медиана 5 м и 15 м
 на сетке 0,5 м. Дальше лапласиан и разность гауссиан по остатку 15 м, статистики
 остатка 5 м, градиент, кольцо из 16 лучей без отражения север–юг, расстояние до
-края съёмки и код метода. Находка — круг 0,5 м в максимуме. Полигон — круг 0,05 м
+края съёмки и код метода. Север луча — верх карты, север сетки, не магнитный
+север: склонение уже сидит в ориентировке планшета, и поворот лучей сдвинул бы
+деревья. Находка — круг 0,5 м в максимуме. Полигон — круг 0,05 м
 в полюсе компоненты.
 """
 from __future__ import annotations
@@ -436,10 +438,10 @@ _WIN: dict = {}
 
 
 def _pool_init() -> None:
-    """bot-7: в детях пула — SIGTERM по умолчанию. Иначе ребёнок наследует обработчик сторожа main.py
+    """в детях пула — SIGTERM по умолчанию. Иначе ребёнок наследует обработчик сторожа main.py
     (watchdog.arm_signal), pool.terminate() шлёт детям SIGTERM, ребёнок пишет пустой result.geojson и
     может повиснуть на унаследованной блокировке; родитель висит в pool.join() до сторожа 1620 с
-    (bot-7/work5/check_8594842_217.log: 217, procs=2 — «сигнал 15», записано 0, 918 с, FAIL)."""
+    (work5/check_8594842_217.log: 217, procs=2 — «сигнал 15», записано 0, 918 с, FAIL)."""
     import signal
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
     try:
@@ -607,7 +609,7 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
 
 
 def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
-    """Сырые компоненты P ≥ t (для каждого t из levels) — полные полигоны EPSG:3857 (для валидации bot-6).
+    """Сырые компоненты P ≥ t (для каждого t из levels) — полные полигоны EPSG:3857 (для валидации).
     Свойства: score — средняя P компоненты, max_p, t_pix, area_m2 (в метрах CRS карты), pole_x/pole_y (EPSG:3857)."""
     from shapely.geometry import Point
     from shapely.ops import polylabel
@@ -747,7 +749,7 @@ def region_feats(reg, cfg, model_dir, guard=None, status: dict | None = None) ->
     geo_cfg = cfg.get("geophys", {})
     bst = load_models(model_dir, backend)
     if not bst:
-        # bot-7: без моделей растры не читаем зря — сразу классика (status пуст → pipeline классику не трогает)
+        # без моделей растры не читаем зря — сразу классика (status пуст → pipeline классику не трогает)
         log.warning("%s: pixgbm — в %s нет poly.txt/finds.txt — классика", reg.name, model_dir)
         return []
     bk = "lleaves" if bst and all(getattr(m, "backend", "") == "lleaves" for m in bst.values()) else "lightgbm"

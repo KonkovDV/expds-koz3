@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Проверка архива КОЗ №3 перед отправкой на платформу (bot-8).
+"""Проверка архива КОЗ №3 перед отправкой на платформу.
 
     python check_submission.py dist/submission.zip                  # всё, включая CPU-смоук
     python check_submission.py dist/submission.zip --no-smoke       # только статика (~секунды)
@@ -9,6 +9,7 @@
   zip       — архив читается, CRC, нет абсолютных путей и «..», нет дублей, файлы в корне архива;
   layout    — metadata.json, inference/main.py, configs/default.toml, expds/, inference/lib/expds_core*.so;
   forbidden — нет данных выборок (.las .tif .geojson .npy ...), .git, __pycache__, секретов;
+  dinov3    — если в архиве есть веса DINOv3, рядом лежит копия лицензии (письмо 06.11); иначе проверка пустая;
   size      — архив ≤ 2 ГиБ (WARN с 1,9 ГиБ);
   metadata  — image не шаблон, entry_point = «python inference/main.py»;
   config    — TOML читается; пути моделей в архиве; классы/группы/режимы из списков кода; бюджет < 30 мин − запас;
@@ -28,6 +29,7 @@ import ast
 import json
 import math
 import os
+import re
 import shutil
 import signal
 import stat
@@ -53,7 +55,7 @@ SECRET_NAMES = {".env", "kaggle.json", "id_rsa", "id_ed25519", ".netrc", "creden
 NET_MODULES = {"socket", "requests", "httpx", "aiohttp", "urllib3", "ftplib", "smtplib", "paramiko", "boto3",
                "huggingface_hub", "wandb", "mlflow", "kaggle", "http.client", "urllib.request", "websocket"}
 NET_CALLS = {"load_state_dict_from_url", "hf_hub_download", "from_pretrained", "download_url_to_file", "urlopen",
-             "load_url"}   # torch.utils.model_zoo.load_url (bot-8, ревью bot-4)
+             "load_url"}   # torch.utils.model_zoo.load_url (ревью)
 
 RESULTS: list[tuple[str, str, str]] = []
 
@@ -106,11 +108,50 @@ def check_layout(z: zipfile.ZipFile) -> None:
         report("PASS", "layout", f"ускоритель: {so[0]}")
     else:
         report("WARN", "layout", "нет inference/lib/expds_core*.so — пойдёт запасной путь NumPy (медленнее)")
-    cnx_listed = {f"inference/cnx/{r}" for r in cnx_manifest(z)[0] or {}}   # bot-8 [li_cnx]: только из MANIFEST
+    cnx_listed = {f"inference/cnx/{r}" for r in cnx_manifest(z)[0] or {}}   # [li_cnx]: только из MANIFEST
     extra_entry = [n for n in names if n.startswith("inference/") and n.endswith(".py") and n != "inference/main.py"
                    and n not in cnx_listed]
     if extra_entry:
         report("WARN", "layout", f"лишние .py в inference/: {extra_entry[:5]}")
+
+
+def _dinov3_weight(name: str) -> bool:
+    path = PurePosixPath(name)
+    if path.suffix.lower() not in {".pt", ".pth", ".bin", ".safetensors"}:
+        return False
+    return "dinov3" in path.as_posix().lower()
+
+
+def _dinov3_license(name: str) -> bool:
+    return "dinov3" in PurePosixPath(name).name.lower() and "license" in PurePosixPath(name).name.lower()
+
+
+_DINOV3_LOAD = re.compile(
+    r"(?i)(?:from_pretrained|hub\.load|torch\.hub\.load)\s*\([^)\n]{0,240}dinov3|dinov3_vit")
+
+
+def _py_loads_dinov3(z: zipfile.ZipFile, name: str) -> bool:
+    raw = z.read(name).decode("utf-8", errors="ignore")
+    code = "\n".join(line.split("#", 1)[0] for line in raw.splitlines())
+    return _DINOV3_LOAD.search(code) is not None
+
+
+def check_dinov3_license(z: zipfile.ZipFile) -> None:
+    """Письмо организаторов 06.11: веса DINOv3 передаются только с копией лицензии.
+
+    Смотрит имя файла веса и вызов загрузки в коде. Упоминание в комментарии
+    и готовые веса DINOv2 правило не включает. Архив без DINOv3 проходит.
+    """
+    weights = [n for n in z.namelist() if _dinov3_weight(n)]
+    loaders = [n for n in z.namelist() if n.endswith(".py") and _py_loads_dinov3(z, n)]
+    if not weights and not loaders:
+        report("PASS", "dinov3", "весов DINOv3 нет")
+        return
+    if any(_dinov3_license(n) for n in z.namelist()):
+        report("PASS", "dinov3", "рядом с весами DINOv3 лежит копия лицензии")
+        return
+    report("FAIL", "dinov3",
+           "DINOv3 без файла с именем, где есть DINOv3 и LICENSE (письмо организаторов 06.11)")
 
 
 def check_forbidden(z: zipfile.ZipFile) -> None:
@@ -198,28 +239,28 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     verify = cfg.get("verify") or {}
     pixgbm = (cfg.get("geophys") or {}).get("pixgbm") or {}
     og = cfg.get("orgate") or {}
-    if og.get("enabled"):   # bot-6: без файлов гейт ORGATE откатится на R с маркером — пути по умолчанию тоже проверяем
+    if og.get("enabled"):   # без файлов гейт ORGATE откатится на R с маркером — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("orgate.model", og.get("model", "models/orgate_g.txt")),
                                    ("orgate.meta", og.get("meta", "models/orgate_g.json"))})
     rr = cfg.get("rerank_arch") or {}
-    if rr.get("enabled"):   # bot-7: без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
+    if rr.get("enabled"):   # без файлов rerank_arch молча вернёт базу — пути по умолчанию тоже проверяем
         refs = sorted(set(refs) | {("rerank_arch.model", rr.get("model", "models/rerank_arch_lgbm.txt")),
                                    ("rerank_arch.meta", rr.get("meta", "models/rerank_arch_lgbm.json"))})
-    # bot-7 v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick bot-8 7878087 это
+    # v2 (b1a9d28) раскрывал model_dir в poly.txt+finds.txt всегда; при cherry-pick 7878087 это
     # заменено точной проверкой по классам/картам (check_pixgbm_static) — model_dir как папка не FAIL.
-    # bot-7 v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
+    # v3: каталоги HF-весов (sp_dfine.weights[i], gor_gate.backbone) — нужны config.json + model.safetensors
     hf_dirs = {v.rstrip("/") for k, v in refs if k.startswith("sp_dfine.weights") or k in ("gor_gate.backbone", "gor_dense.backbone")
                or k.startswith("dfine_aeor.weights") or k.startswith("aeor_dfine.weights")}
     hf_files = {f"{d}/{f}" for d in hf_dirs for f in ("config.json", "model.safetensors")}
     missing = [f"{k}={v}" for k, v in refs if v not in names
-               and not (k.startswith("li_cnx.") and not cnx_on(cfg))   # bot-8 [li_cnx] выкл.
+               and not (k.startswith("li_cnx.") and not cnx_on(cfg))   # [li_cnx] выкл.
                and not (v.rstrip("/") in hf_dirs and {f"{v.rstrip('/')}/config.json", f"{v.rstrip('/')}/model.safetensors"} <= names)
                and not (k.startswith("verify.") and not verify.get("enabled"))
                and not (k.startswith("rerank_arch.") and not rr.get("enabled"))
-               and not (k.startswith("orgate.") and not og.get("enabled"))   # bot-6 ORGATE выкл.
+               and not (k.startswith("orgate.") and not og.get("enabled"))   # ORGATE выкл.
                and not (k.startswith("dfine_aeor.") and not (cfg.get("dfine_aeor") or {}).get("enabled"))
                and not (k.startswith("aeor_dfine.") and not (cfg.get("aeor_dfine") or {}).get("enabled"))
-               and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # bot-3 PIXGBM выкл.
+               and not (k.startswith("geophys.pixgbm.") and not pixgbm.get("enabled"))   # PIXGBM выкл.
                and k != "geophys.pixgbm.model_dir"]   # папка: файлы по классам проверяет check_pixgbm_static
     if missing:
         report("FAIL", "config", f"файлы из default.toml отсутствуют в архиве (модель молча выключится, "
@@ -273,7 +314,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
     return cfg
 
 
-# ---------------------------------------------------------------- [li_cnx]: ConvNeXt-лидар bot-9 (bot-8, bot8-cnx)
+# ---------------------------------------------------------------- [li_cnx]: ConvNeXt-лидар)
 #: без них подготовка cnx (отдельный процесс inference/cnx/cnx_prep.py) упадёт и пайплайн откатится на модель li
 CNX_REQUIRED = ("inference/cnx/cnx_prep.py", "inference/cnx/MANIFEST.json", "inference/cnx/vendor/expds_core.abi3.so",
                 "inference/cnx/vendor/relief_ext.py", "inference/cnx/vendor/expds/__init__.py",
@@ -327,7 +368,7 @@ def cnx_on(cfg: dict | None) -> bool:
     return ((cfg or {}).get("li_cnx") or {}).get("enabled") is True
 
 
-# ---------------------------------------------------------------- [li_half]: второй проход li на 1 м (бот 2, bot8-li-half)
+# ---------------------------------------------------------------- [li_half]: второй проход li на 1 м (,)
 #: как expds/li_half.py (DEFAULTS, FORBIDDEN_GROUPS) — чекер expds не импортирует
 LI_HALF_CLASSES = ["kurgany_povrezhdennye", "kurgany_tselye"]
 LI_HALF_FORBIDDEN_GROUPS = CNX_FORBIDDEN_GROUPS | {"li_cnx"}
@@ -340,7 +381,7 @@ def li_half_on(cfg: dict | None) -> bool:
 
 def check_li_half(cfg: dict | None) -> None:
     """[li_half]: enabled не bool — WARN (выключен). Включён без [thresholds_by_markup.<group>] — WARN: так задумано
-    ботом 2 (проход только в выгрузку EXPDS_LI_HALF_DUMP), пайплайн объектов li_half без своих порогов не выдаёт.
+     (проход только в выгрузку EXPDS_LI_HALF_DUMP), пайплайн объектов li_half без своих порогов не выдаёт.
     Включён с ошибкой порогов (чужая группа, нет порога на класс) — FAIL, как у cnx: включили выдачу, а её не будет."""
     lh = (cfg or {}).get("li_half")
     if not isinstance(lh, dict):
@@ -604,7 +645,7 @@ def check_cnx(z: zipfile.ZipFile, cfg: dict | None) -> set:
     return third
 
 
-#: bot-3 PIXGBM (expds/geo_pixgbm.py): класс → файл модели в model_dir и методы, на которых он считается.
+#: PIXGBM (expds/geo_pixgbm.py): класс → файл модели в model_dir и методы, на которых он считается.
 #: load_models молча пропускает отсутствующий <k>.txt (region_feats: «нет poly.txt/finds.txt — классика»),
 #: поэтому при enabled=true каждый нужный файл обязан быть в архиве.
 PIX_METHODS = ("maggr", "etgr", "terfl")
@@ -642,7 +683,7 @@ def is_e1g1(pix: dict) -> bool:
 
 def check_e1g1_static(pix: dict, names: set) -> set:
     """[geophys.pixgbm] impl=clean chain=e1g1: модули и 6 моделей ens6 + ORG3 в архиве — иначе FAIL
-    (pipeline при ошибке молча уходит в классику: «pix e1g1 пропущен»). geo_pixgbm.py (линия EN) здесь не нужен."""
+    (pipeline при ошибке молча уходит в классику: «pix e1g1 пропущен»)."""
     md = str(pix.get("model_dir", "models/pix_clean")).strip("/")
     need = [f"{md}/ens6/{m}/finds.txt" for m in E1G1_MEMBERS] + [f"{md}/{o}" for o in E1G1_ORG]
     lost_mod = [m for m in E1G1_MODULES if m not in names]
@@ -706,7 +747,7 @@ def check_pixgbm_module(pix: dict, names: set) -> None:
 
 
 def check_sp_dfine_static(cfg: dict, names: set) -> None:
-    """Murder Board 29.10 (bot-10): при [sp_dfine] enabled=true в архиве должны быть веса (config.json +
+    """при [sp_dfine] enabled=true в архиве должны быть веса (config.json +
     model.safetensors на каждый каталог weights), пороги группы sp_dfine и вендорный transformers с D-FINE
     (в образе площадки transformers нет) — иначе v3 молча станет v2."""
     st = cfg.get("sp_dfine") or {}
@@ -943,7 +984,7 @@ try:
     from expds.pipeline import model_specs, model_files
     cfg = tomllib.loads((root / "configs" / "default.toml").read_text(encoding="utf-8"))
     for name, sub in (cfg.get("geophys") or {}).items():
-        if name == "pixgbm" and isinstance(sub, dict):   # bot-3: maps — список методов, а не режим карт
+        if name == "pixgbm" and isinstance(sub, dict): # maps — список методов, а не режим карт
             pm = sub.get("maps", ["maggr", "etgr", "terfl"])
             bad = [m for m in pm if m not in ("maggr", "etgr", "terfl")] if isinstance(pm, list) else [pm]
             if bad:
@@ -1009,7 +1050,7 @@ try:
             except Exception as e:
                 out["weights"].append({"markup": "verify", "file": v["weights"], "ok": False, "err": repr(e)[:300]})
     lc = cfg.get("li_cnx") or {}
-    if lc.get("enabled") is True:               # bot-8 [li_cnx] (только bool, как cnx_on): вендорный expds — другой пакет, только подпроцесс
+    if lc.get("enabled") is True: # [li_cnx] (только bool, как cnx_on): вендорный expds — другой пакет, только подпроцесс
         import os, subprocess
         cx = root / "inference" / "cnx"
         chk = ("import sys; sys.path[:0] = [sys.argv[1]]; import numpy, laspy, expds, expds.lidar, expds.candidates, "
@@ -1160,7 +1201,7 @@ def unguarded_imports(root: Path, reach: set) -> set:
     return {k for k, v in guarded_import_sites(root, reach, pkgs).items() if not v or not all(g for _, g in v)}
 
 
-_module_level_imports = unguarded_imports   # совместимость с тестом бота 4 (work/review/cs_test/test_cs.py, T8)
+_module_level_imports = unguarded_imports   # совместимость с тестом (work/review/cs_test/test_cs.py, T8)
 
 
 def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
@@ -1195,7 +1236,7 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
     if opt:
         report("WARN", "imports", f"не установлены в {py} необязательные пакеты; каждый импорт в try/except "
                                   f"с фолбэком: {', '.join(f'{k} ({[w for w, _ in v]})' for k, v in sorted(opt.items()))}")
-    vend = root / "inference" / "lib" / "vendor"   # bot-7 v3: пакеты из вендора архива (импорт проверяет check_dfine)
+    vend = root / "inference" / "lib" / "vendor"   # v3: пакеты из вендора архива (импорт проверяет check_dfine)
     vendored = {k for k in out["third_fail"] if (vend / k).is_dir()}
     if vendored:
         report("INFO", "imports", f"нет в {py}, но есть в inference/lib/vendor (проверка — dfine): {sorted(vendored)}")
@@ -1221,12 +1262,12 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
         report("FAIL", "config", f"проба конфига упала: {out['probe_err']}")
     for msg in out["cfg"]:
         report("FAIL", "config", msg)
-    if "cnx_prep" in out:   # bot-8 [li_cnx]
+    if "cnx_prep" in out:   # [li_cnx]
         if out["cnx_prep"]["ok"]:
             report("PASS", "cnx", "подготовка cnx (vendor expds/expds_core/relief_ext + _deps/rvt) импортируется в подпроцессе")
         else:
             report("FAIL", "cnx", f"подготовка cnx не импортируется (откат на модель li): {out['cnx_prep']['err']}")
-    if args.weights or any(w["markup"] == "li_cnx" for w in out["weights"]):   # bot-8: cnx — и при --no-weights
+    if args.weights or any(w["markup"] == "li_cnx" for w in out["weights"]):   # cnx — и при --no-weights
         bad = [w for w in out["weights"] if not w["ok"]]
         warn = [w for w in out["weights"] if w.get("warn")]
         for w in bad:
@@ -1239,7 +1280,7 @@ def run_probe(root: Path, py: str, reach: set, third: set, args) -> None:
 
 
 # ---------------------------------------------------------------- .so
-#: bot-7 (v3): проба D-FINE/шлюза в чистом процессе — вендор архива, закреплённый transformers, классы D-FINE.
+#: (v3): проба D-FINE/шлюза в чистом процессе — вендор архива, закреплённый transformers, классы D-FINE.
 DFINE_PROBE = r"""
 import json, sys
 root = sys.argv[1]
@@ -1259,13 +1300,13 @@ print("DFINE_JSON=" + json.dumps(out, ensure_ascii=False))
 """
 
 
-#: bot-7 (29.10): пакеты образа, у которых вторая проба check_dfine прячет версию (пустой <имя>-<версия>.dist-info
+#: (29.10): пакеты образа, у которых вторая проба check_dfine прячет версию (пустой <имя>-<версия>.dist-info
 #: раньше настоящего): как tqdm в pantum/n7q:20261024 («Unable to compare versions for tqdm>=4.60 … found=None»).
 DFINE_NOMETA = ("tqdm-4.70.1", "packaging-26.3", "filelock-4.2.4", "numpy-2.5.4", "huggingface_hub-2.2.0",
                 "safetensors-0.8.0", "PyYAML-6.0.3", "torch-2.11.0", "torchvision-0.26.0")
 
 
-#: bot-7 (v3): опорные участки, на которых фолдовая модель f0 bot-9 даёт детекции (bot-7/work6/dfprobe/
+#: (v3): опорные участки, на которых фолдовая модель f0 даёт детекции (work6/dfprobe/
 #: find_windows.py → windows_103_f0.json: окна 640 px на 0,5 м без отражения, запросы со score ≥ 0,3).
 #: n_det = 0 на таком участке значит: импорт прошёл, а веса не работают (не те/битые/не загрузились) — FAIL.
 DFINE_KNOWN = {
@@ -1373,9 +1414,9 @@ def check_dfine_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
         shutil.rmtree(home, ignore_errors=True)
 
 
-#: bot-6 [dfine_aeor]: опорные участки смоука D-FINE Ae/Or — самые маленькие растры своей модальности в трейне
-#: с разметкой этой модальности (bot-6/work/aeor_rss/scene_info.log; разметка — 06_*_разметка/*.geojson).
-#: Эталонного n_det нет, пока bot-9 не отдал веса: проверка требует n_det > 0, а без весов — FAIL «нужны веса»
+#: [dfine_aeor]: опорные участки смоука D-FINE Ae/Or — самые маленькие растры своей модальности в трейне
+#: с разметкой этой модальности (work/aeor_rss/scene_info.log; разметка — 06_*_разметка/*.geojson).
+#: Эталонного n_det нет, пока не отдал веса: проверка требует n_det > 0, а без весов — FAIL «нужны веса»
 #: (не PASS). ref_n_det вписать после первого прогона с весами.
 DFINE_AEOR_KNOWN = {
     "ae": {"region": "181_Гнёздово_Лесная_3", "raster": "_Ae_", "gt": "Ae курганы: 75 целых + 20 повреждённых",
@@ -1434,7 +1475,7 @@ def dfine_aeor_verdict(mk: str, out: dict) -> tuple[str, str]:
     where = f"{mk} {spec['region']} ({spec['gt']})"
     if not out.get("ok"):
         return "FAIL", f"смоук dfine_aeor {where}: веса не загрузились/не отработали: {out.get('err')}"
-    ref = f", эталон {spec['ref_n_det']}" if spec.get("ref_n_det") is not None else ", эталона ещё нет (после весов bot-9)"
+    ref = f", эталон {spec['ref_n_det']}" if spec.get("ref_n_det") is not None else ", эталона ещё нет (после появления весов)"
     msg = (f"смоук dfine_aeor {where}: n_det={out['n_det']} (score ≥ {out.get('min_score')}, без flip), max "
            f"{out.get('max')}, окон {out.get('windows')}{ref}")
     return ("FAIL", msg + " — веса не дают детекций на опорном участке") if out["n_det"] == 0 else ("PASS", msg)
@@ -1487,7 +1528,7 @@ def check_dfine_aeor_weights(z: zipfile.ZipFile, cfg: dict, args) -> None:
                 continue
             line = next((x for x in r.stdout.splitlines() if x.startswith("DFINE_AEOR_JSON=")), None)
             out = json.loads(line.split("=", 1)[1]) if line else {"ok": False, "err": (r.stderr or r.stdout)[-1500:]}
-            status, msg = dfine_aeor_verdict(mk, out)   # bot-6 v4: вердикт (статус, текст) — раздел «dfine» здесь
+            status, msg = dfine_aeor_verdict(mk, out)   # v4: вердикт (статус, текст) — раздел «dfine» здесь
             report(status, "dfine", msg)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
@@ -1524,9 +1565,9 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
     cfg = cfg or {}
     dfine = bool((cfg.get("sp_dfine") or {}).get("enabled"))
     gate = bool((cfg.get("gor_gate") or {}).get("enabled"))
-    dense = bool((cfg.get("gor_dense") or {}).get("enabled"))   # bot-5: gor_dense = бэкбон/tif_feats gor_gate + import_dfine
-    aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # bot-6: тот же вендор и import_dfine
-    aeor1 = bool((cfg.get("aeor_dfine") or {}).get("enabled"))  # bot-1: from . import sp_dfine на уровне модуля
+    dense = bool((cfg.get("gor_dense") or {}).get("enabled"))   # gor_dense = бэкбон/tif_feats gor_gate + import_dfine
+    aeor = bool((cfg.get("dfine_aeor") or {}).get("enabled"))   # тот же вендор и import_dfine
+    aeor1 = bool((cfg.get("aeor_dfine") or {}).get("enabled"))  # from . import sp_dfine на уровне модуля
     if not (dfine or gate or dense or aeor or aeor1):
         return
     what = "+".join(n for n, on in (("sp_dfine", dfine), ("gor_gate", gate), ("gor_dense", dense),
@@ -1578,7 +1619,7 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
         else:
             report("PASS", "dfine", f"{what}: DFineConfig/DFineForObjectDetection из вендора transformers "
                                     f"{out.get('version')}{' + Dinov2' if gate else ''} в чистом процессе")
-        # bot-7 (29.10, PC e2e бота 1 в pantum/n7q:20261024): у tqdm в образе нет версии в метаданных, и вендорный
+        # (29.10, PC e2e в pantum/n7q:20261024): у tqdm в образе нет версии в метаданных, и вендорный
         # transformers падал в dependency_versions_check. Вторая проба: те же пакеты образа с пустыми dist-info
         # (version → None) раньше настоящих на sys.path — импорт обязан пройти (вендор tqdm + шим sp_dfine).
         shadow = home / "b7_nometa"
@@ -1601,7 +1642,7 @@ def check_dfine(z: zipfile.ZipFile, cfg: dict | None, args) -> None:
 
 def check_so(root: Path) -> None:
     for so in sorted((root / "inference" / "lib").glob("expds_core*.so")) + \
-            sorted((root / "inference" / "cnx" / "vendor").glob("expds_core*.so")):   # bot-8: SIGILL → cnx молча нет
+            sorted((root / "inference" / "cnx" / "vendor").glob("expds_core*.so")):   # SIGILL → cnx молча нет
         head = so.read_bytes()[:20]
         if head[:4] != b"\x7fELF" or head[4] != 2 or int.from_bytes(head[18:20], "little") != 62:
             report("FAIL", "so", f"{so.relative_to(root)}: не ELF64 x86-64")
@@ -1774,14 +1815,14 @@ def validate_output(path: Path) -> None:
 ALLOW_EMPTY = False
 
 
-#: bot-8 [li_cnx]: строки лога пайплайна (expds/pipeline.py, expds/lidar_cnx.py; сверяет тест
+#: [li_cnx]: строки лога пайплайна (expds/pipeline.py, expds/lidar_cnx.py; сверяет тест
 #: tests/test_bot8_check_cnx.py::test_smoke_keys_match_pipeline_logs). Успех подготовки на LAS:
 CNX_SMOKE_OK = "cnx_prep "                 # lidar_cnx.run_prep: "cnx_prep %s: ch=%d ..."
 CNX_SMOKE_OK2 = ": ch="
 #: cnx включён, но не работает целиком — FAIL
 CNX_SMOKE_FAIL = ("веса [li_cnx] не загрузились", "объекты cnx НЕ выдаются")
 #: частичные отказы (один участок, время) — WARN
-#: bot-8 [li_half]: частичные отказы второго прохода — WARN (строки expds/pipeline.py, сверяет тест)
+#: [li_half]: частичные отказы второго прохода — WARN (строки expds/pipeline.py, сверяет тест)
 LI_HALF_SMOKE_WARN = ("li_half упал", "li_half пропущен — мало времени", "объекты li_half НЕ выдаются")
 CNX_SMOKE_WARN = ("cnx не сработал", "cnx пропущен", "cnx: постобработка упала", "на cnx времени не осталось",
                   "cnx — время на исходе", "cnx: TTA ", "cnx head не сработал")   # 05.11: [li_cnx] decode = "head"
@@ -1804,14 +1845,14 @@ def smoke_cnx(log: str, cnx_on: bool, n_las: int) -> None:
 
 
 def orgate_lines(log: str) -> None:
-    """bot-6: ORGATE_UNAVAILABLE в логе — FAIL (гейт включён, но выдача шла через R/базу)."""
+    """ORGATE_UNAVAILABLE в логе — FAIL (гейт включён, но выдача шла через R/базу)."""
     bad = [ln for ln in log.splitlines() if "ORGATE_UNAVAILABLE" in ln]
     if bad:
         report("FAIL", "orgate", f"{len(bad)} строк ORGATE_UNAVAILABLE в логе (гейт не работал, откат на R): "
                                  + " | ".join(b[-300:] for b in bad[:3]))
 
 
-#: bot-6: опорный вход смоука гейта ORGATE (43 кандидата arch участка 008_Герите, стек A, EPSG:3857) с ожидаемыми
+#: опорный вход смоука гейта ORGATE (43 кандидата arch участка 008_Герите, стек A, EPSG:3857) с ожидаемыми
 #: решениями. Это производное конкурсных данных — в git не кладётся (.gitignore: *.geojson, п. 13.11 ТР), лежит на боксе,
 #: как и трейн для смоука dfine_aeor; другой путь — --orgate-smoke.
 ORGATE_SMOKE_DEFAULT = "/workspace/koz3_shared/bot-6/work/orgate_final/orgate_smoke_008.geojson"
@@ -1887,19 +1928,19 @@ def check_orgate(z: zipfile.ZipFile, cfg: dict, args) -> None:
 
 
 def dfine_lines(z: zipfile.ZipFile, log: str) -> None:
-    """bot-7 (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
+    """ (v3): маркеры недоступности D-FINE/шлюза в логе — FAIL; число детекций D-FINE — INFO."""
     lif = [ln for ln in log.splitlines() if "LI_TO_AE_FAILED" in ln]
     if lif:
         report("FAIL", "li_to_ae", f"{len(lif)} строк LI_TO_AE_FAILED: копии курганов лидара в ae потеряны: "
                                    + " | ".join(b[-300:] for b in lif[:3]))
     bad = [ln for ln in log.splitlines()
            if "SP_DFINE_UNAVAILABLE" in ln or "GOR_GATE_UNAVAILABLE" in ln or "GOR_DENSE_UNAVAILABLE" in ln
-           or "DFINE_AEOR_UNAVAILABLE" in ln]   # bot-6: D-FINE Ae/Or
+           or "DFINE_AEOR_UNAVAILABLE" in ln]   # D-FINE Ae/Or
     if bad:
         report("FAIL", "dfine", f"{len(bad)} строк недоступности D-FINE/шлюза в логе (выдача = v2): "
                                 + " | ".join(b[-300:] for b in bad[:3]))
     na = [ln.split("dfine_aeor ", 1)[1][:160] for ln in log.splitlines() if "dfine_aeor n_det=" in ln]
-    if na:   # bot-6: строки фазы D-FINE Ae/Or
+    if na:   # строки фазы D-FINE Ae/Or
         report("INFO", "dfine", " ; ".join(na[-6:]))
         for status, msg in dfine_aeor_ndet_verdict(log):
             report(status, "dfine", msg)
@@ -1989,7 +2030,7 @@ def smoke(z: zipfile.ZipFile, args) -> None:
         if "фазы:" in ln or "общее время" in ln or "записано" in ln or "ускоритель" in ln:
             report("INFO", "smoke", ln.split(": ", 1)[-1][:300] if "INFO" in ln else ln[:300])
     dfine_lines(z, log)
-    orgate_lines(log)   # bot-6: маркер недоступности гейта ORGATE
+    orgate_lines(log)   # маркер недоступности гейта ORGATE
     degraded_lines(log, out_dir)   # W4: маркер V3_DEGRADED.json рядом с ответом
     problems = [ln for ln in log.splitlines() if any(k in ln for k in (
         "Traceback", "сбой пайплайна", "не найдена:", "файла весов нет", "не загрузилась", "ошибка модели",
@@ -2055,6 +2096,7 @@ def main() -> int:
         return 1
     check_layout(z)
     check_forbidden(z)
+    check_dinov3_license(z)
     check_size(args.zip, z)
     check_metadata(z)
     cfg = check_config_static(z)
@@ -2067,7 +2109,7 @@ def main() -> int:
                 if n.endswith(".py") or n.endswith(".so") or n.endswith(".toml") or n.startswith("inference/cnx/"):
                     z.extract(n, tmp)
             cnx_w = set(cnx_weights_of(cfg)) if cnx_on(cfg) else set()
-            for n in z.namelist():                       # веса нужны пробе; cnx — всегда (bot-8)
+            for n in z.namelist():                       # веса нужны пробе; cnx — всегда
                 if (args.weights and n.startswith("models/")) or n in cnx_w:
                     z.extract(n, tmp)
             reach, third = check_imports_static(tmp)
@@ -2078,8 +2120,8 @@ def main() -> int:
     args.cnx_on = cnx_on(cfg)
     check_dfine(z, cfg, args)
     check_dfine_weights(z, cfg or {}, args)
-    check_dfine_aeor_weights(z, cfg or {}, args)   # bot-6: смоук весов D-FINE Ae/Or (только при enabled)
-    check_orgate(z, cfg or {}, args)   # bot-6: смоук гейта ORGATE на опорном входе (только при enabled)
+    check_dfine_aeor_weights(z, cfg or {}, args)   # смоук весов D-FINE Ae/Or (только при enabled)
+    check_orgate(z, cfg or {}, args)   # смоук гейта ORGATE на опорном входе (только при enabled)
     if args.smoke and not any(s == "FAIL" and c in ("zip", "layout") for s, c, _ in RESULTS):
         smoke(z, args)
     elif not args.smoke:

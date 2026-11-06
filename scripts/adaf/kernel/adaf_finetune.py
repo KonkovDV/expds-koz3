@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""КОЗ №3 / bot-2: fine-tune ADAF Faster R-CNN (Irish ALS, CC-BY-SA-4.0) on our lidar SLRM tiles,
-family out-of-fold, and export bot-9-compatible maps npz + OOF geojson.
+"""КОЗ №3 / fine-tune ADAF Faster R-CNN (Irish ALS, CC-BY-SA-4.0) on our lidar SLRM tiles,
+family out-of-fold, and export -compatible maps npz + OOF geojson.
 
 Own code (torchvision only, no aitlas / ADAF code copied). Model architecture = torchvision
 fasterrcnn_resnet50_fpn_v2, which is what the ADAF checkpoints were trained with (Čož et al. 2026,
@@ -12,10 +12,10 @@ Inputs (all paths env-overridable):
   ADAF_SLRM   dir with <region>.npz from scripts/adaf/prep_slrm.py: slrm_u8 (H,W) u8, valid (H,W) u8,
               left, top, res (0.5), crs (JSON string, e.g. "urn:ogc:def:crs:EPSG::32636")
   ADAF_GT     gt_train_v2.geojson (EPSG:3857; props class_name, region_name)
-  ADAF_FOLDS  region_fold.json (bot-9 family folds; keys region_fold, region_family)
+  ADAF_FOLDS region_fold.json (family folds; keys region_fold, region_family)
   ADAF_INIT   OD_barrow .tar/.pt (dict with 'state_dict'); downloaded from Zenodo if missing
 Outputs in ADAF_OUT:
-  maps/maps_adaf_{tag}_{region}.npz  — ONLY for the region's test fold (bot-9 HEAD_INTERFACE format)
+  maps/maps_adaf_{tag}_{region}.npz — ONLY for the region's test fold (HEAD_INTERFACE format)
   oof_adaf_{tag}.geojson             — EPSG:3857 circles, markup_type "adaf", threshold_group "adaf_ft"
   region_fold.json                   — copy of folds used (+ jobs)
   weights/adaf_ft_f{k}.pt            — CC-BY-SA-4.0 (with ATTRIBUTION.txt)
@@ -51,7 +51,7 @@ SEED = int(E("ADAF_SEED", "0"))
 ONLY_REGIONS = [r for r in E("ADAF_ONLY_REGIONS", "").split(",") if r]
 ZENODO = ("https://zenodo.org/records/15848663/files/OD_barrow.tar?download=1",
           "b9afba2246821035ea7007e08a64ab80")
-# label 1..K; hm channels follow bot-9: 0=tselye, 1=povr; mask channels: 0=gor, 1=fort, 2=arch
+# label 1..K; hm channels follow 0=tselye, 1=povr; mask channels: 0=gor, 1=fort, 2=arch
 CLASSES = E("ADAF_CLASSES", "kurgany_tselye,kurgany_povrezhdennye,fortifikatsii").split(",")
 HM_CH = {"kurgany_tselye": 0, "kurgany_povrezhdennye": 1}
 MASK_CH = {"gorodishcha": 0, "fortifikatsii": 1}
@@ -281,7 +281,7 @@ def predict_region(model, R: dict, min_score: float = 0.05) -> dict:
 
 
 def write_maps(path: Path, R: dict, det: dict, meta: dict):
-    """bot-9 HEAD_INTERFACE maps npz: valid u8 (H,W); valid_h u8 (h,w); hm f32 (2,h,w) 0=tselye 1=povr;
+    """ HEAD_INTERFACE maps npz: valid u8 (H,W); valid_h u8 (h,w); hm f32 (2,h,w) 0=tselye 1=povr;
     wh f16 (1,h,w) log(radius in head px); off f16 (2,h,w); mask u8 (3,H,W) 0=gor 1=fort 2=arch; meta JSON.
     Each detection = a single peak (value = score) at its centre cell of the stride-4 grid, so a peak decoder
     (pool 3, centre = left + (col+0.5+off_x)*step_head) reproduces box centres; masks = score*255 in the box."""

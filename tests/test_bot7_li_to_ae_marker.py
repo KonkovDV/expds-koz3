@@ -1,4 +1,4 @@
-"""bot-7 (v4): тихий отказ li→ae виден — маркер LI_TO_AE_FAILED в логе даёт FAIL check_submission."""
+""" (v4): тихий отказ li→ae виден — маркер LI_TO_AE_FAILED в логе даёт FAIL check_submission."""
 import importlib.util, io, sys, zipfile
 from pathlib import Path
 

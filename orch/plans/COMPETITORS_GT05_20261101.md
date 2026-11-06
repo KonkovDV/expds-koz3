@@ -6,7 +6,7 @@ Status: research is done; the CPU diagnostics are done (`out/competitors/adapt/`
 ## 0. Rules, and a conflict that needs Elena's decision
 
 - PLAN_TO_1111 already says: «Чужой код не копировать. У публичных репозиториев лицензии нет… EN — ничего не брать» (ideas only, clean-room). YOLO/ultralytics/DINOv3/SAM3/SegFormer mit_* are banned.
-- t224u says «изучить код репо конкурентов… сделай также у нас». I resolved this as follows: **I read EN's docs, commit messages and ledger (README, EXPERIMENTS.md, WEAKNESSES.md), and no `.py` file went into repo/.** The clones are blobless and read-only, outside the repo: `out/competitors/EhimenNathan_EXpedition` (heads 90a7460 / codex/v24-dinov3-1024) and `out/competitors/yakirill99_ds-expedition` (346f22a).
+- t224u says «изучить код репо конкурентов… сделай также у нас». I resolved this as follows: **I read EN's docs, commit messages and ledger (README, EXPERIMENTS.md, WEAKNESSES.md), and no `.py` file went into repo/.** The clones are blobless and read-only, outside the repo: `out/competitors/сторонний репозиторий_EXpedition` (heads 90a7460 / codex/v24-dinov3-1024) and `out/competitors/yakirill99_ds-expedition` (346f22a).
 - EN's README (branch codex/v24) calls the repository a "private continuation… Do not make public/redistribute". It contains legacy/previous_team code and weights from the previous stage. **Weights and code from there cannot be used in any form.**
 - **Question for Elena (not asked; the parent decides how to ask):** does t224u loosen the "EN — ничего не брать" rule? Until she answers, everything below is an idea-level transfer with our own implementation.
 
@@ -24,7 +24,7 @@ The LB is public on expds-platform.upgreat.one (Leader-ID login). Snapshot as of
 | 6 | Фанаты Фишмана | 0.53492 | none |
 | 7 | MTs | 0.52058 | none |
 | 8 | котики | 0.51154 | none |
-| 9 | Сахалинский центр ИИ | 0.50491 | **public repo github.com/EhimenNathan/EXpedition** (the only above-0.5 team with code and commits) |
+| 9 | Сахалинский центр ИИ | 0.50491 | **public repo github.com/сторонний репозиторий** (the only above-0.5 team with code and commits) |
 | 10 | Землекопы | 0.50232 | none |
 | — | (mlart, 2nd in KOZ-2) | — | Habr: models split by physical meaning (relief / LiDAR reflectance / magnetometry), several model families |
 | 35 (29.10) | StrataTrace (us) | 0.34796 → now **0.41238** | — |

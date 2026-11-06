@@ -1,4 +1,4 @@
-"""bot-7: build_curves_with_pairs + diff_match_scope — cross-layer TP видны в dump."""
+"""build_curves_with_pairs + diff_match_scope — cross-layer TP видны в dump."""
 from __future__ import annotations
 
 import json

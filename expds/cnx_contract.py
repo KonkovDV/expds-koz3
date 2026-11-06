@@ -1,7 +1,7 @@
-"""Загрузчик весов bot-9 convnext_lidar в формате контракта bot-8 (bot-9/CNX_CONTRACT_FOR_BOT8.md).
+"""Загрузчик весов ConvNeXt для лидара. Метка в файле весов не меняется: по ней узнаются уже обученные сети.
 
 Зависимости: torch, segmentation_models_pytorch==0.6.0, timm==1.0.29 (сеть строится офлайн, encoder_weights=None).
-Код свой (bot-9); CnxUnetCenter повторяет граф bot-2 centerhead.head.UnetCenterNet @788202a (те же имена параметров),
+Код свой; CnxUnetCenter повторяет граф centerhead.head.UnetCenterNet @788202a (те же имена параметров),
 равенство выходов проверено tests/test_contract.py.
 
     c = load_contract("weights_cnx_c5-sc_f0.pt")          # torch.load(weights_only=True)
@@ -67,7 +67,7 @@ def build_from_arch(arch: dict) -> nn.Module:
 
 
 class CnxFlat(nn.Module):
-    """Адаптер под tiling bot-8 (один тензор, sigmoid снаружи): (B,5,H,W) логиты [hm_t, hm_p, mask_gor, mask_fort, mask_arch];
+    """Адаптер под tiling (один тензор, sigmoid снаружи): (B,5,H,W) логиты [hm_t, hm_p, mask_gor, mask_fort, mask_arch];
     hm шага s повторяется nearest до полного разрешения (wh/off отбрасываются: центр — по клетке s·0,5 м)."""
 
     def __init__(self, net: nn.Module, contract: dict):

@@ -1,4 +1,4 @@
-"""bot-7: check_submission не валит архив за необязательные пакеты PIXGBM (psutil, tl2cgen, lleaves)
+"""check_submission не валит архив за необязательные пакеты PIXGBM (psutil, tl2cgen, lleaves)
 и за список типов в [geophys.pixgbm] maps (это не режим карт gray/all)."""
 import importlib.util
 from pathlib import Path

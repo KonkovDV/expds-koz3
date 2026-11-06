@@ -1,12 +1,12 @@
 """e3c4f41 (метры на земле, EPSG:3857) не двигает боксы D-FINE и не возвращает sp_or.
 
-Патч bot-3 меняет только шаг геофизики: ``crs.ground_scale`` / ``[geophys] ground_metres``
+Патч меняет только шаг геофизики: ``crs.ground_scale`` / ``[geophys] ground_metres``
 / ``EXPDS_GROUND_M``. По умолчанию множитель 1. ``sp_dfine.boxes_to_ellipses`` переводит
 пиксели сцены (UTM, аффин) в EPSG:3857 своим Transformer и этот флаг не читает.
 
 Регрессия v3on_0876090 (mock, F1 sp_or 0.2429 → 0.0) поэтому этим патчем не лечится.
 v3 сама под подозрением: тест не объявляет её верной базой. Разбор mock-дампа —
-``reports/bot2_dfine_a3_localization.md`` (другой бот); здесь только то, что считается
+``reports/`` (другой бот); здесь только то, что считается
 на синтетике без весов и без GPU.
 """
 from __future__ import annotations

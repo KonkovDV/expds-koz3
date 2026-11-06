@@ -36,7 +36,7 @@ def test_ground_scale(monkeypatch):
 
 
 def test_load_map_3857_ground_gsd(tmp_path, monkeypatch):
-    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
     """Карта 3857 с шагом 0,1/cos φ ед. CRS (= 0,1 м на земле) на 55°: включено — без пересэмплирования,
     gsd 0,1 м; выключено — прежнее поведение (шаг в единицах CRS)."""
     k = math.cos(math.radians(55.0))
@@ -57,7 +57,7 @@ def test_load_map_3857_ground_gsd(tmp_path, monkeypatch):
 
 
 def test_utm_identical(tmp_path, monkeypatch):
-    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
     """UTM: включение ничего не меняет — массивы и шаг побайтно равны."""
     p = tmp_path / "utm.tif"
     _write(p, "EPSG:32636", 5e5, 6.1e6, 0.05)

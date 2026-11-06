@@ -78,7 +78,7 @@ def test_off_finish_same_as_without_key():
 
 def test_on_without_module_clear_error(ref):
     cfg = {"w5_cloudfeat": True, "w5cf": {"module": "expds.__no_such_w5cf_module__", "ref": str(ref)}}
-    with pytest.raises(W.W5CloudFeatMissing, match="W1"):
+    with pytest.raises(W.W5CloudFeatMissing, match="не найден"):
         W.preflight(cfg)
 
 
@@ -160,7 +160,7 @@ def test_weights_manifest_mismatch_raises(tmp_path, monkeypatch):
 
 
 def test_npz_numeric_1d_only():
-    """Условие бота 1: в архив — только числовые 1-D массивы (строки/0-D/объекты — отказ сборщика)."""
+    """Условие: в архив — только числовые 1-D массивы (строки/0-D/объекты — отказ сборщика)."""
     import io
     import sys as _s
     _s.path.insert(0, str(ROOT / "scripts"))

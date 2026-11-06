@@ -1,4 +1,4 @@
-"""Relax ae / li_ae / fusion thresholds for aerial recall (bot-3).
+"""Relax ae / li_ae / fusion thresholds for aerial recall.
 
 Root cause on LB ae R~0.013 (eb268d6): ae network is fort-only at tau~0.998;
 li_to_ae copies cut by li_ae ~0.993/1.000001 and fusion.povr_min=0.99;

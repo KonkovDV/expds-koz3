@@ -32,7 +32,7 @@ def log_msg(msg: str) -> None:
 def organize_checkpoints(raw_dir: Path) -> list[str]:
     copied = []
     for pt in sorted(raw_dir.glob("*.pt")):
-        # bot-9: веса разных ядер (s2/s3) с одним именем раньше затирали друг друга.
+        # веса разных ядер (s2/s3) с одним именем раньше затирали друг друга.
         dst_flat = OUT_ROOT / raw_dir.name / pt.name
         dst_flat.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(pt, dst_flat)

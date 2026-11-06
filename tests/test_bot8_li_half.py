@@ -1,4 +1,4 @@
-"""bot-8 bot8-li-half: li_half бота 2 в нашем пайплайне — мягкий потолок, enabled только bool, пороги, порядок
+""": li_half в нашем пайплайне — мягкий потолок, enabled только bool, пороги, порядок
 отборов с cnx, проверки check_submission. Без весов: сеть и проход подменены."""
 import logging
 
@@ -166,7 +166,7 @@ def _half(out):
 
 
 def test_lidar_feats_li_half_new_only_and_hillfort_not_clobbering(lidar_env):
-    """С [hillfort] enabled (как в default.toml) у бота 2 hp затирался HillfortParams → TypeError, лидар участка терялся."""
+    """С [hillfort] enabled (как в default.toml) у hp затирался HillfortParams → TypeError, лидар участка терялся."""
     reg, calls, root = lidar_env
     out = pipeline.lidar_feats(reg, _cfg(), TimeGuard(1000), {}, root)
     assert len(calls) == 1 and calls[0]["hp"]["group"] == "li_half"
@@ -219,7 +219,7 @@ def test_cnx_does_not_recount_accepted_li_half():
     assert [round(f["geom"].centroid.x) for f in kept] == [152]
 
 
-# ---------- отбор без учёта класса кургана (решение бота 2) и якоря σ ----------
+# ---------- отбор без учёта класса кургана (решение) и якоря σ ----------
 
 def test_drop_near_kurgans_cross_class():
     anchor = _circ(0.0, 0.9)                                            # целый
@@ -243,7 +243,7 @@ def test_li_half_new_only_cross_class():
     half = [_circ(401.0, 0.8, "li_half", cls="kurgany_povrezhdennye"), _circ(503.0, 0.8, "li_half"),
             _circ(603.0, 0.8, "li_half"), _circ(413.0, 0.8, "li_half")]                         # 13 м — остаётся
     assert [round(f["geom"].centroid.x) for f in li_half.new_only(half, mos, hp)] == [603, 413]
-    # функция бота 2 и cross_class у drop_near_kurgans (ею пользуется cnx) — один и тот же отбор
+    # функция и cross_class у drop_near_kurgans (ею пользуется cnx) — один и тот же отбор
     pool = main + mos
     allh = [_circ(float(x), 0.8, "li_half", cls=c) for x in range(0, 700, 7)
             for c in ("kurgany_tselye", "kurgany_povrezhdennye")]
@@ -287,7 +287,7 @@ def test_run_sigma_uses_sigma_anchors():
     assert "kept_kurgan_anchors(pool)" not in src
 
 
-# ---------------------------------------------------------------- [li_half] self_xclass_nms_m (бот 2, 29.10)
+# ---------------------------------------------------------------- [li_half] self_xclass_nms_m (, 29.10)
 def test_self_xclass_nms_param_default_off_and_bad_values(caplog):
     assert li_half.params({})["self_xclass_nms_m"] == 0.0
     assert li_half.params({"li_half": {"self_xclass_nms_m": 12}})["self_xclass_nms_m"] == 12.0

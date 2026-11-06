@@ -1,18 +1,18 @@
-"""bot-6 (на bot7-candidate-v3 @ 360c870; каркас bot-1 6c2511c): D-FINE всех классов на Ae (аэрофото 1940-х)
-и Or (ортофото), фаза ``dfine_aeor``. ПО УМОЛЧАНИЮ ВЫКЛЮЧЕН ([dfine_aeor] enabled = false).
+"""D-FINE всех классов на аэрофото 1940-х и ортофото, фаза ``dfine_aeor``.
+По умолчанию выключен: [dfine_aeor] enabled = false.
 
-Соглашения (bot 7, 29.10 12:14):
+Как устроен выход:
 * markup_type родной — ``ae`` / ``or``; threshold_group ``dfine_ae`` / ``dfine_or``, пороги —
   [thresholds_by_markup.dfine_ae / dfine_or] или JSON-файл ``thresholds_file`` ({группа: {класс: порог}},
-  формат ``python -m expds.metric --out``), который заполняется ТОЛЬКО из вложенного OOF ядер bot-9. Своих чисел нет.
+  формат ``python -m expds.metric --out``), который заполняется ТОЛЬКО из вложенного OOF ядер. Своих чисел нет.
 * D-FINE импортируется только через ``sp_dfine.import_dfine`` (вендор transformers 5.21.0). Любая неготовность
   (нет весов, порогов, импорта) → ERROR с маркером ``DFINE_AEOR_UNAVAILABLE`` (check_submission → FAIL) и выдача
   без фазы. Кэш моделей общий с sp_dfine (по пути каталога весов).
-* Вход модели как в обучении bot-9 (bot-9/DFINE_FINAL_ORAE.md, kaggle/dfine_spor/src/dfine_main.py:53,262-291,479):
+* Вход модели как в обучении (DFINE_FINAL_ORAE.md, kaggle/dfine_spor/src/dfine_main.py:53,262-291,479):
   UTM участка, 0,5 м (WarpedVRT; уменьшение average), RGB uint8 (1 канал → 3 копии, не-uint8 → растяжка 1–99 %),
   pixel_values = x/255 без mean/std. Окно/перекрытие — как при обучении: Ae 640/160, Or 1024/288 (§9).
 * Слияние видов TTA (flip × rot90? × масштабы × модели) — WBF или NMS строго внутри ОДНОГО растра одной модальности;
-  ``rot90_tta`` (bot8) по умолчанию false — 90/180/270 CCW + inverse на cxcywh; не меняет bot3 defaults.
+  ``rot90_tta`` по умолчанию false: повороты на 90, 180 и 270 и обратный перевод центров. Без флага путь прежний.
   круги варианта C — тоже внутри растра. Межрастровое слияние — post.merge_within_markup с ключом
   (регион, markup, класс, threshold_group): dfine_ae склеивается только с dfine_ae, не с прочими ae
   (watchdog._aeor_split: своя короткая цепочка; merge_union=true — общая, по умолчанию выкл.).
@@ -39,7 +39,7 @@ UNAVAILABLE = "DFINE_AEOR_UNAVAILABLE"
 #: Классы метрики (materials/compute_metrics.py CLASS_WEIGHTS; тест сверяет).
 COMPETITION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhitektury", "object_poly",
                        "fortifikatsii", "finds_points")
-#: Метки моделей bot-9 по умолчанию (dfine_main.py:66), если в config.json нет id2label.
+#: Метки моделей по умолчанию (dfine_main.py:66), если в config.json нет id2label.
 MODEL_CLASSES = S.CLASSES
 GROUPS = {"ae": "dfine_ae", "or": "dfine_or"}
 LEVELS = ("full", "no_flip", "one_scale", "skip")
@@ -48,14 +48,14 @@ DEFAULTS = {
     "enabled": False,
     "markups": ["ae", "or"],
     "weights": {},                       # {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]} — каталоги HF
-    "thresholds_file": "",               # JSON из OOF bot-9 (вложенный подбор); пусто — только TOML
+    "thresholds_file": "",               # JSON из OOF (вложенный подбор); пусто — только TOML
     "class_map": {},                     # {метка модели: класс метрики}; пусто — тождественно по id2label
     "res_m": {"ae": 0.5, "or": 0.5},
     "tile": {"ae": 640, "or": 1024},
     "overlap": {"ae": 160, "or": 288},
     "batch": {"ae": 8, "or": 4},
     "flip_tta": True,
-    "rot90_tta": False,                 # bot8: 90/180/270 + inverse; OFF by default (bot3 defaults unchanged)
+    "rot90_tta": False,                 #: 90/180/270 + inverse; OFF by default (defaults unchanged)
     "scales": [1.0],                     # множители res_m; [1.0, 1.5] — второй масштаб (MS via overlay)
     "fuse": "wbf",                       # wbf | nms — только внутри одного растра
     "fuse_iou": 0.55,
@@ -71,7 +71,7 @@ DEFAULTS = {
     "max_objects": 20000,
     "require_thresholds": True,
     "soft_need_s": 60.0,                 # мягкий потолок: запас на участок
-    "budget_s": 120.0,                   # потолок фазы на весь набор (bot 7: ≤2 мин)
+    "budget_s": 120.0,                   # потолок фазы на весь набор, не больше двух минут
     "safety": 8.0,                       # оценка × safety ≤ остаток
     "tile_s": None,                      # с на окно-вид на целевой машине; None — замер на первом растре
     "device": "auto",
@@ -112,7 +112,7 @@ def _abs(root: Path, rel) -> Path:
     return p if p.is_absolute() else Path(root) / p
 
 
-#: Имена групп в OOF bot-9 → наши (bot-9 переименует; до тех пор загрузчик принимает оба).
+#: Имена групп в OOF → наши (переименует; до тех пор загрузчик принимает оба).
 GROUP_ALIASES = {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
 
 
@@ -125,12 +125,12 @@ def load_thresholds_file(cfg: dict, root: Path) -> dict:
         return {}
     p = _abs(root, rel)
     if not p.is_file():
-        raise AeOrUnavailable(f"thresholds_file не найден: {p} (заполняется из OOF bot-9, см. AEOR_DETECT.md)")
+        raise AeOrUnavailable(f"thresholds_file не найден: {p} (пороги берутся из OOF, см. AEOR_DETECT.md)")
     data = json.loads(p.read_text(encoding="utf-8"))
     tbm = cfg.setdefault("thresholds_by_markup", {})
     used: dict = {}
     for g, thr in data.items():
-        g = GROUP_ALIASES.get(g, g)   # OOF bot-9 называет группы ae_dfine/or_dfine
+        g = GROUP_ALIASES.get(g, g)   # OOF называет группы ae_dfine/or_dfine
         if g not in GROUPS.values() or not isinstance(thr, dict):
             continue
         own = tbm.setdefault(g, {})
@@ -179,7 +179,7 @@ def preflight(cfg: dict, root: Path) -> dict:
         if st["require_thresholds"] and not ok:
             pr.append(f"нет порогов {GROUPS[mk]} для " + ", ".join(miss))
         if not st["weights"].get(mk):
-            pr.append(f"weights.{mk} пуст (ждём чекпойнт bot-9)")
+            pr.append(f"weights.{mk} пуст (нет файла весов)")
         for rel in st["weights"].get(mk, []):
             p = _abs(root, rel)
             for name in ("config.json", "model.safetensors"):
@@ -451,7 +451,7 @@ def detect_scene(models: list, scene, st: dict, mk: str, augs, device, keep_goin
     """Окна сцены → виды (модель × aug), у каждого NMS по классам (склейка перекрытий окон).
     Возвращает ([(B, L, C)], окон сделано, окон всего).
 
-    Срок (bot-7 13:12): keep_going() и left() (секунд до конца фазы/окна сторожа) проверяются перед КАЖДЫМ
+    Срок (13:12): keep_going() и left() (секунд до конца фазы/окна сторожа) проверяются перед КАЖДЫМ
     чтением окна, а не только между батчами: на Or без обзоров одно окно читается ~7–23 с (056/033), и батч
     из 4 окон после последней проверки переехал бы потолок фазы на ~90 с. Следующее окно читается, только если
     left() > max(время чтения окна) + max(время прямого прохода батча) по замерам этой сцены; прерванный батч

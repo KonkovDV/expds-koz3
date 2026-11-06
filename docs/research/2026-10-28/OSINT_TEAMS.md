@@ -1,6 +1,6 @@
 # OSINT_TEAMS — соперники в «Экспедиция. Data Science» (КОЗ1 → КОЗ2 → КОЗ3)
 Составлено 28.10.2026 (МСК). Только публичные источники; никаких логинов, контактов, утёкших ключей. Ничего не отправлялось/не публиковалось.
-Не дублирует OSINT.md / OSINT_DEEP.md / competitors*/ (там EhimenNathan, maratgaliulin, KateBuikina, vaitter, falexsun и пр.).
+Не дублирует OSINT.md / OSINT_DEEP.md / competitors*/ (там сторонний репозиторий, maratgaliulin, KateBuikina, vaitter, falexsun и пр.).
 Сырьё: `osint/teams/` (koz-1/2/3_table.tsv — реестры upgreat, ntipdf/*.txt — 30 PDF документации ПО победителей из реестра nti.fund, tg/expds_all.txt — 107 постов t.me/s/expds, koz2_qual.txt — протокол квалификации КОЗ2).
 
 ## 0. Главный вывод о «тех же участниках» (проверено по реестрам)

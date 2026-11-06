@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 if not hasattr(G, "ensemble_use"):
     pytest.skip("geo_pixgbm without the C2/SATf patch from bots/bot3-opt", allow_module_level=True)
 

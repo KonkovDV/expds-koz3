@@ -31,13 +31,13 @@ log = logging.getLogger(__name__)
 
 
 class PixgbmModuleMissing(RuntimeError):
-    """bot-6: [geophys.pixgbm] enabled=true, а модуль прежней реализации отсутствует и EXPDS_PIXGBM_STRICT=1."""
+    """[geophys.pixgbm] enabled=true, а модуль прежней реализации отсутствует и EXPDS_PIXGBM_STRICT=1."""
 
 
 class TimeGuard:
     """Учёт времени: сколько прошло и хватает ли запаса на следующий шаг.
 
-    bot-8: дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
+    дедлайн внутри цикла окон снимков (window_ok). Окно не начинается, если до конца
     бюджета [time] budget_s или до сторожа (watchdog.deadline_left: 1800 − guard_margin_s = 1620 с
     от старта процесса) осталось не больше window_reserve_s. None — проверка выключена.
     clock — для тестов (поддельные часы); по умолчанию time.monotonic.
@@ -45,9 +45,9 @@ class TimeGuard:
 
     def __init__(self, budget_s: float, window_reserve_s: float | None = None, hard_left=None, clock=None):
         self.clock = clock or time.monotonic
-        #: bot-8: старт run() — от него, как и раньше, считается бюджет [time] budget_s (left/ok).
+        #: старт run() — от него, как и раньше, считается бюджет [time] budget_s (left/ok).
         self.run_t0 = self.clock()
-        #: bot-8: самый ранний известный старт в базе self.clock (по умолчанию time.monotonic, НЕ time.time).
+        #: самый ранний известный старт в базе self.clock (по умолчанию time.monotonic, НЕ time.time).
         #: До set_soft() — run_t0; в run() set_soft(watchdog.PROCESS_START) даёт тот же отсчёт, что у сторожа
         #: 1620 с. Абсолютные дедлайны (PIXGBM: t0 + PIXGBM_BUDGET_S) сравнивать с guard.clock() / elapsed().
         self.t0 = self.run_t0
@@ -55,14 +55,14 @@ class TimeGuard:
         self.window_reserve_s = window_reserve_s
         self.hard_left = hard_left
         self.partial: list[dict] = []
-        #: bot-8: мягкий потолок (с от t0). None — выключен (все прямые вызовы вне run()).
+        #: мягкий потолок (с от t0). None — выключен (все прямые вызовы вне run()).
         self.soft_ceiling: float | None = None
         self.soft_need = dict(SOFT_NEED_DEFAULT)
         self.soft_skipped: list[dict] = []
 
     def set_soft(self, process_start: float | None = None, soft_ceiling_s: float | None = None,
                  soft_need: dict | None = None) -> "TimeGuard":
-        """bot-8: мягкий потолок и ранний старт. process_start — в базе time.monotonic; учитывается только
+        """мягкий потолок и ранний старт. process_start — в базе time.monotonic; учитывается только
         при часах по умолчанию (поддельные часы тестов живут в своей базе): t0 = min(process_start, run_t0)."""
         if process_start is not None and self.clock is time.monotonic:
             self.t0 = min(float(process_start), self.run_t0)
@@ -117,14 +117,14 @@ class TimeGuard:
         return self.window_reserve_s is None or self.window_left() > float(self.window_reserve_s)
 
 
-#: [time] window_reserve_s по умолчанию (bot-8): запас до конца бюджета, при котором окно снимка уже не начинается.
+#: [time] window_reserve_s по умолчанию: запас до конца бюджета, при котором окно снимка уже не начинается.
 DEFAULT_WINDOW_RESERVE_S = 30.0
 
-#: bot-8: мягкий потолок прогона, с от старта процесса (BUDGET.md §7.13/§7.14). Рабочий потолок пакета,
+#: мягкий потолок прогона, с от старта процесса (BUDGET.md §7.13/§7.14). Рабочий потолок пакета,
 #: чтобы пережить частный набор до 2× публичного; лимит площадки 1800, TimeGuard 1500 и сторож 1620 — без изменений.
 #: EXPDS_SOFT_CEILING_S (env) > [time] soft_ceiling_s > 1200. Неверное значение или ≤ 0 — потолок выключен.
 SOFT_CEILING_DEFAULT_S = 1200.0
-#: bot-8: сколько секунд до мягкого потолка нужно, чтобы НАЧАТЬ необязательный шаг (порог soft_left).
+#: сколько секунд до мягкого потолка нужно, чтобы НАЧАТЬ необязательный шаг (порог soft_left).
 #: Оценки по замерам GTX 1650 (BUDGET.md §1, docs/PLAN.md:147): σ 57 с на весь mock_val, самый тяжёлый
 #: снимок 106 с; кроп — малая сеть (тайл 96) по кандидатам sp_focal/sp_focal2, отдельно не мерен.
 #: Переопределение: [time.soft] <ключ> = с или env EXPDS_SOFT_NEED_<КЛЮЧ>_S.
@@ -187,7 +187,7 @@ def soft_need_from(cfg: dict, environ=None) -> dict:
     return need
 
 
-#: bot-8: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
+#: TimeGuard текущего run() для дедлайна в цикле окон (_raster_with_model). Вне run() — None:
 #: скрипты (geo_predict, nn_oof) и прямые вызовы работают как раньше; подписи вызывающих не меняются.
 _WINDOW_GUARD: "TimeGuard | None" = None
 
@@ -245,7 +245,7 @@ def model_files(path: str | list[str]) -> list[str]:
 
 
 def rooted_verify(cfg: dict, root: Path) -> dict:
-    """[verify] weights относительно корня архива, как у [models] (bot-8: раньше — от текущей папки)."""
+    """[verify] weights относительно корня архива, как у [models] (раньше — от текущей папки)."""
     opts = dict(cfg.get("verify") or {})
     w = opts.get("weights")
     if w and not Path(w).is_absolute():
@@ -269,7 +269,7 @@ def _segmenters(models: dict, markup: str, root: Path, tta: int = 1,
         seg = members[0] if len(members) == 1 else Ensemble(members, only=only)
         seg.keep = set(classes) if classes else None
         seg.tta = tta
-        seg.ms_scales = scales  # bot-8: [1.0] / отсутствие = OFF (байт-идентично)
+        seg.ms_scales = scales  # [1.0] / отсутствие = OFF (байт-идентично)
         segs.append(seg)
     return segs
 
@@ -282,7 +282,7 @@ def _cached_segmenters(seg_cache: dict, cfg: dict, markup: str, root: Path) -> l
             raw_ms = [float(raw_ms)]
         tta = int(cfg.get("tta", {}).get(markup, 1))
         scales = [float(s) for s in raw_ms]
-        # bot-8: [orsp_tta] по умолчанию выкл. Чужие markup (ae, or) не меняются.
+        # [orsp_tta] по умолчанию выкл. Чужие markup (ae, or) не меняются.
         from . import orsp_tta
 
         tta, scales = orsp_tta.apply_unet(cfg, markup, tta, scales)
@@ -376,7 +376,7 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         feats += mine
     pix = geo_cfg.get("pixgbm") or {}
     if pix.get("enabled", False):
-        # bot-3 PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
+        # PIXGBM: пиксельный LightGBM — доп. источник кандидатов (группы <метод>_pix). По умолчанию выключен.
         # W4: impl="clean" — чистая перепись по docs/PIXGBM_SPEC_CLEANROOM.md (expds/pix_clean.py),
         # тот же контракт region_feats/status/dedupe_union; по умолчанию прежняя реализация.
         impl = str(pix.get("impl", "legacy"))
@@ -389,11 +389,11 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 from . import pix_own as pixmod
                 md_default = pixmod.MODEL_DIR
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
-            # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
+            # относительный model_dir — от корня репо/архива, а не от текущей папки процесса
             md = Path(pix.get("model_dir", md_default))
             if not md.is_absolute():
                 md = Path(__file__).resolve().parents[1] / md
-            # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (bot-3 5deb94a)
+            # срок фазы ([geophys.pixgbm] budget_s, абсолютный от старта) и лестница — внутри region_feats (5deb94a)
             pst: dict = {}
             new = [f for f in pixmod.region_feats(reg, cfg, md, guard=guard, status=pst)
                    if f["class_name"] in cls]
@@ -546,7 +546,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
     half_feats: list[dict] = []
     crs_region = region_crs(reg, cfg)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
-    # bot-8: half_p (не hp — hp ниже занят параметрами [hillfort]: у бота 2 они затирали [li_half] со 2-го LAS).
+    # half_p (не hp — hp ниже занят параметрами [hillfort]: у они затирали [li_half] со 2-го LAS).
     half_p = li_half.params(cfg)
     half_dump = li_half.dump_dir()
     half_thr = li_half.has_thresholds(cfg, half_p)
@@ -597,7 +597,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                 group = lidar_threshold_group(d.info)
                 floors = output_floors(cfg, group or "li")
                 kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
-                t_li_main = time.monotonic()      # bot-8: время основного li на этом LAS — для оценки li_half
+                t_li_main = time.monotonic()      # время основного li на этом LAS — для оценки li_half
                 for seg in segs:
                     found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
                                                       cand_p if rescore else None, cfg.get("li"), floors))
@@ -662,7 +662,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                         hp = hillfort.params_from(hf)
                         dem_hf = hillfort.build_dem(las, crs_region, hp)
                         feats += hillfort.candidates(dem_hf, reg.name, las.name, hp)
-                        # bot-4: грубый проход (sub-flag coarse_hillfort).
+                        # грубый проход (sub-flag coarse_hillfort).
                         if _lo.flag(cfg, "coarse_hillfort"):
                             feats += _lo.coarse_hillfort_candidates(
                                 dem_hf, reg.name, las.name, _lo.spec(cfg))
@@ -706,7 +706,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         if f.get("markup_type") == "li" and not f.get("threshold_group"):
             f["threshold_group"] = "li_mosaic"
     if half_feats:
-        # Порядок отборов 12 м (bot-8): li_half — против принятых кругов основного li этого участка (li/li_mosaic,
+        # Порядок отборов 12 м: li_half — против принятых кругов основного li этого участка (li/li_mosaic,
         # KEPT_KURGAN_CONF), без учёта класса кургана; cnx потом — против всего участка, включая принятые li_half
         # (dedupe_cnx: лидар — без учёта класса, оптика — того же класса); σ последним — против KEPT_KURGAN_CONF
         # и принятых li_half/li_cnx (sigma_anchors), того же класса. Один курган второй раз не выдаётся.
@@ -715,7 +715,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             half_feats = li_half.floor(li_half.new_only(half_feats, [f for f in feats if f.get("markup_type") == "li"],
                                                         half_p), output_floors(cfg, half_p["group"]))
             n1 = len(half_feats)
-            # bot-8: NMS среди оставленных li_half без учёта класса — после отбора против li и пола, до выдачи
+            # NMS среди оставленных li_half без учёта класса — после отбора против li и пола, до выдачи
             # ([li_half] self_xclass_nms_m; 0 — выкл., по умолчанию)
             half_feats = li_half.self_nms(half_feats, half_p["self_xclass_nms_m"])
             log.info("%s: li_half %d → %d новых (отбор %.0f м, пол группы %s)%s", reg.name, n0, len(half_feats),
@@ -732,7 +732,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
         try:
             feats += fusion.li_to_ae(feats, reg.rasters["ae"], fp, fallback_crs=crs_region)
         except Exception as exc:
-            # bot-7 (v4, REPORT13_lbv2 бота 10): громкий отказ — копии аэро-курганов с лидара потеряны, маркер ловит check_submission
+            # (v4, REPORT13_lbv2): громкий отказ — копии аэро-курганов с лидара потеряны, маркер ловит check_submission
             log.exception("LI_TO_AE_FAILED: %s: копирование курганов лидара в ae не выполнено, ae без копий (%s: %s)",
                           reg.name, type(exc).__name__, str(exc)[:300])
     # li_half — после копий li→ae: в слой ae не копируется (как li_dev).
@@ -787,7 +787,7 @@ def kept_kurgan_anchors(feats: list[dict]) -> list[dict]:
 
 
 _KURGAN_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
-#: bot-8: группы добавочных лидарных проходов, чьи принятые курганы — якоря отбора σ (li_dev) наравне с
+#: группы добавочных лидарных проходов, чьи принятые курганы — якоря отбора σ (li_dev) наравне с
 #: KEPT_KURGAN_CONF: li_half (второй проход li на 1 м) и li_cnx (ConvNeXt-лидар). Порог — их группа в конфиге.
 EXTRA_ANCHOR_GROUPS = ("li_half", "li_cnx")
 
@@ -796,7 +796,7 @@ def drop_near_kurgans(cands: list[dict], anchors: list[dict], dist_m: float = 12
                       cross_class: bool = False) -> list[dict]:
     """Убирает круг, если ближе dist_m к уже оставленному кругу того же участка и класса.
 
-    cross_class=True (bot-8, li_half/cnx против лидара): классы курганов не различаются — круг любого
+    cross_class=True (li_half/cnx против лидара): классы курганов не различаются — круг любого
     класса кургана убирается рядом с якорем любого класса кургана (целый рядом с повреждённым — дубль)."""
     from shapely.strtree import STRtree
 
@@ -881,7 +881,7 @@ def optics_order(regions: list[Region], cfg: dict) -> list[Region]:
 
 
 def _restore_optics_order(state, regions: list[Region], n_before: int, by_reg: dict[str, list[dict]]) -> None:
-    """bot-7 v3: оптика могла идти в порядке optics_order (small_first), но объекты в состоянии — в исходном
+    """ v3: оптика могла идти в порядке optics_order (small_first), но объекты в состоянии — в исходном
     порядке участков, как при optics_order = "name". Поэтому выход при запасе времени побайтно тот же, а при
     нехватке — те же объекты пройденных участков. Состояние сторож пишет и во время прохода (запись идёт сразу),
     перестановка — только в конце, и только если в состояние за это время ничего чужого не добавилось."""
@@ -1036,7 +1036,7 @@ def _sp_floors(cfg: dict, markup: str) -> dict[str, float]:
 
 
 def sigma_anchors(pool: list[dict], cfg: dict) -> list[dict]:
-    """bot-8: якоря отбора σ — KEPT_KURGAN_CONF (как раньше) + принятые курганы li_half и li_cnx (порог их группы
+    """якоря отбора σ — KEPT_KURGAN_CONF (как раньше) + принятые курганы li_half и li_cnx (порог их группы
     в thresholds_by_markup; без таблицы — не якорь). При выключенных li_half/cnx таких объектов нет — выдача прежняя."""
     out = kept_kurgan_anchors(pool)
     groups = set(EXTRA_ANCHOR_GROUPS) | {str(((cfg.get("li_half") or {}).get("group")) or "li_half"),
@@ -1053,7 +1053,7 @@ def sigma_anchors(pool: list[dict], cfg: dict) -> list[dict]:
 
 
 def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, prefetch=None) -> list[dict]:
-    """bot-8 cnx: ConvNeXt-лидар bot-9 ([li_cnx]) по всему участку → объекты группы li_cnx (до отбора дублей).
+    """ cnx: ConvNeXt-лидар ([li_cnx]) по всему участку → объекты группы li_cnx (до отбора дублей).
 
     Добавочный канал: модель li уже отработала в lidar_feats, здесь ничего из её выдачи не меняется.
     Все LAS участка — одна подготовка (lidar_cnx.bind_las сливает их, контракт §6.1). Курганы — по
@@ -1110,13 +1110,13 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         _warn(f"[li_cnx] decode={decode!r}: допустимо {lidar_cnx.DECODE_ALLOWED} — объекты cnx НЕ выдаются")
         return []
     if decode == "head":
-        # 05.11: курганы как в OOF ядра (поправка 1 PREREG c5-in); прочие классы этим путём не выдаются
+        # Курганы декодированием головы, как в отложенной проверке ядра. Прочие классы этим путём не выдаются.
         from . import lidar_cnx_head
 
         floors = output_floors(cfg, group)
         seg_b = None
         if lidar_cnx.weight_files(cfg, "weights_b"):
-            # ансамбль c5 + c12 (PREREG li_ens_in): второй набор весов; не загрузился — весь cnx участка не выдаётся
+            # Второй набор весов. Если он не загрузился, участок без объектов этой сети.
             if "li_cnx_b" not in seg_cache:
                 try:
                     seg_cache["li_cnx_b"] = lidar_cnx.load(cfg, root, key="weights_b")
@@ -1182,7 +1182,7 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
 
 
 def dedupe_cnx(fresh: list[dict], pool: list[dict], cfg: dict, dist_m: float = 12.0) -> list[dict]:
-    """bot-8 cnx: убирает объекты cnx, которые дублируют уже найденные (pool — объекты участка до cnx).
+    """ cnx: убирает объекты cnx, которые дублируют уже найденные (pool — объекты участка до cnx).
 
     Курганы — тем же отбором, что σ и окно 256 м (drop_near_kurgans, 12 м): якоря — круги, которые
     оставляет порог своей группы (KEPT_KURGAN_CONF; для групп вне таблицы — порог группы из конфига,
@@ -1203,7 +1203,7 @@ def dedupe_cnx(fresh: list[dict], pool: list[dict], cfg: dict, dist_m: float = 1
     anchors = kept_kurgan_anchors(pool) + [
         f for f in pool if f.get("class_name") in lidar_cnx.KURGANS
         and (f.get("threshold_group") or f.get("markup_type")) not in KEPT_KURGAN_CONF and passes(f)]
-    # bot-8: против лидарных якорей (markup_type li: li, li_mosaic, li_coarse, li_cpu, li_half, …) — без учёта
+    # против лидарных якорей (markup_type li: li, li_mosaic, li_coarse, li_cpu, li_half, …) — без учёта
     # класса кургана (тот же насып cnx мог назвать другим классом); против оптики (ae, sp_or, …) — того же класса.
     lid = [f for f in anchors if f.get("markup_type") == "li"]
     other = [f for f in anchors if f.get("markup_type") != "li"]
@@ -1229,7 +1229,7 @@ def dedupe_cnx(fresh: list[dict], pool: list[dict], cfg: dict, dist_m: float = 1
 
 
 def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
-    """bot-8: мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
+    """мягкий потолок для необязательного шага. Guard без потолка (тесты, скрипты) — всегда True."""
     fn = getattr(guard, "soft_ok", None)
     if fn is None or getattr(guard, "soft_ceiling", None) is None:
         return True
@@ -1237,7 +1237,7 @@ def _soft_ok(guard, phase: str, what: str = "", extra_s: float = 0.0) -> bool:
 
 
 def _li_half_soft_ok(guard, cfg: dict, what: str, est_s: float) -> bool:
-    """bot-8: li_half на одном LAS — первым в порядке отключения. Нужно soft_left >
+    """li_half на одном LAS — первым в порядке отключения. Нужно soft_left >
     max(need(li_half), оценка прохода) + need(wide_window) + need(sigma) + need(verify) [+ soft_need_s cnx, если
     [li_cnx] включён]: порог li_half всегда больше порога любого следующего шага, и при росте времени li_half
     отключается раньше окна 256 м, cnx, σ и кропа."""
@@ -1337,7 +1337,7 @@ def output_floors(cfg: dict, markup: str) -> dict[str, float]:
     if calib and markup in set(calib.get("groups") or ()):
         for c in set(calib.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye")):
             floors[c] = min(floors[c], float(calib.get("floor", 0.05)))
-    # [post] big_groups (bot-2 bigobj F1): крупные маски получают свой порог <markup>_big в finish; ранний
+    # [post] big_groups (bigobj F1): крупные маски получают свой порог <markup>_big в finish; ранний
     # пол не выше него, иначе крупные объекты ниже порога родителя срезаются ещё при полигонизации.
     big = (cfg.get("post") or {}).get("big_groups")
     if big:
@@ -1370,7 +1370,7 @@ def _li_with_model(seg, d, region: str, source: str, hillshade_set, cand_p=None,
 
     if seg.meta.get("li_source") in ("las", "cnx"):
         if seg.meta.get("li_source") == "cnx":
-            # bot-8 cnx: вероятности уже посчитаны на сетке подготовки bot-9 (lidar_cnx.bind_las).
+            # cnx: вероятности уже посчитаны на сетке подготовки (lidar_cnx.bind_las).
             probs, tr = seg.probs, seg.transform
         else:
             from .lidar import relief_channels
@@ -1446,7 +1446,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
 
     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
-    guard (bot-8): перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
+    guard: перед каждым окном guard.window_ok(); при близком дедлайне — частичный результат
     по файлу (объекты уже пройденных окон), запись в guard.partial. По умолчанию — guard текущего
     run() (_WINDOW_GUARD); вне run() проверки нет, как раньше.
     """
@@ -1548,11 +1548,11 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
 
 
 def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
-    """bot-7 (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
+    """ (v3): D-FINE по участкам с SpOr; drop_groups (вариант R) — только на участках, пройденных полностью."""
     from . import sp_dfine
 
     st = sp_dfine.settings(cfg)
-    cache = {} if cache is None else cache   # bot-6: общий с dfine_aeor (модели по каталогу весов)
+    cache = {} if cache is None else cache   # общий с dfine_aeor (модели по каталогу весов)
     n = 0
     full: list[str] = []
     for reg in regions:
@@ -1565,16 +1565,16 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             break
         try:
             found, complete = sp_dfine.region_feats(
-                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),   # как в обучении bot-9 (Scene: UTM.json), не [crs] vote
+                reg, cfg, guard, cache, root, crs_for=lambda r: read_utm_json(getattr(r, "utm_json", None)),   # как в обучении (Scene: UTM.json), не [crs] vote
                 soft_ok=lambda what, need: _soft_ok(guard, "sp_dfine", what, need))
         except sp_dfine.DFineUnavailable:
-            raise   # strict: v3 не должен молча стать v2 (bot-10)
+            raise   # strict: v3 не должен молча стать v2
         except Exception:
             log.exception("%s: sp_dfine пропущен", reg.name)
             from . import degraded
             degraded.mark("sp_dfine", f"{reg.name}: исключение в D-FINE участка (см. лог)")
             found, complete = [], False
-        # bot-2 A3/A4: agreement_m — только рядом с уже найденным U-Net sp_or (фаза после оптики).
+        # A3/A4: agreement_m — только рядом с уже найденным U-Net sp_or (фаза после оптики).
         agr = float(st.get("agreement_m") or 0.0)
         if agr > 0 and found:
             before = len(found)
@@ -1582,7 +1582,7 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
             if before != len(found):
                 log.info("sp_dfine agreement_m=%.1f: %d→%d на %s", agr, before, len(found), reg.name)
         if found and _w1_prior_on(cfg):
-            # W4 (C1F re-gate PREREG e6b5a31): D-FINE идёт после optical_feats — без этого у sp_dfine нет scene_drel
+            # D-FINE после оптики: иначе у его объектов нет положения относительно кадра.
             # и приор центра сцены не действует. Рамки — те же map_footprint снимков sp_or.
             try:
                 found = _with_scene_drel(reg, cfg, found)
@@ -1600,7 +1600,7 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
     info = note.setdefault("sp_dfine", {"enabled": True}) if isinstance(note, dict) else {}
     info.update({"models": len(cache.get("models") or []), "raw": n, "regions_full": len(full)})
     log.info("sp_dfine n_det=%d total, участков полностью %d, моделей %d", n, len(full), len(cache.get("models") or []))
-    # bot-2: stages.json — сводка счётчиков (если EXPDS_DFINE_DUMP); читается на ПК при A≡B.
+    # stages.json — сводка счётчиков (если EXPDS_DFINE_DUMP); читается на ПК при A≡B.
     dump = sp_dfine.dump_root()
     if dump is not None:
         try:
@@ -1626,10 +1626,10 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
                      dump / "stages.json", n_in_state, n, bool(cache.get("load_error")))
         except Exception:
             log.exception("sp_dfine: stages summary не записан")
-    # bot-2: при enabled и пустых моделях — WARNING уже в region_feats; дублируем в лог фазы
+    # при enabled и пустых моделях — WARNING уже в region_feats; дублируем в лог фазы
     if not (cache.get("models") or []) and cache.get("load_error"):
         log.error("%s: фаза завершилась без моделей (%s)", sp_dfine.UNAVAILABLE, str(cache["load_error"])[:300])
-    # bot-2: safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
+    # safety valve — вариант R только на участках, где D-FINE реально что-то выдал.
     # Иначе (0 детекций / UNAVAILABLE / пустые окна) старые sp_* v2 сохраняются.
     # drop_cover_m > 0 (по умолчанию 12): снимать старый объект только если D-FINE того же класса,
     # прошедший порог sp_dfine, лежит не дальше N м. Иначе слепой R обнуляет sp_or: на mock 482 сырых
@@ -1670,7 +1670,7 @@ def _sp_dfine_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | 
 
 
 def _aeor_dfine_phase(regions, cfg: dict, guard, state, root: Path) -> int:
-    """bot-1 (кандидат v4): D-FINE всех классов на Ae/Or (группы ae_dfine/or_dfine). ВЫКЛ. по умолчанию."""
+    """ (кандидат v4): D-FINE всех классов на Ae/Or (группы ae_dfine/or_dfine). ВЫКЛ. по умолчанию."""
     from . import aeor_dfine
 
     st = aeor_dfine.settings(cfg)
@@ -1772,7 +1772,7 @@ def _outside_zero_field(found: list[dict], zmask, tr, crs: str | None) -> list[d
 
 
 def _dfine_aeor_phase(regions, cfg: dict, guard, state, root: Path, cache: dict | None = None) -> int:
-    """bot-6 (на v3): D-FINE всех классов на Ae/Or, группы dfine_ae/dfine_or, markup_type родной.
+    """ (на v3): D-FINE всех классов на Ae/Or, группы dfine_ae/dfine_or, markup_type родной.
 
     Не готов (preflight: веса/пороги/импорт) → DFINE_AEOR_UNAVAILABLE в журнале, фаза пропущена. Участки — от
     дешёвых к дорогим; мягкий потолок на каждый участок; потолок фазы [dfine_aeor] budget_s; сторож с запасом.
@@ -1831,12 +1831,12 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     from . import ae_recall_relax as _ae_rr
     from .raster import configure_raster_fix
 
-    cfg = _ae_rr.apply(cfg)  # bot-3: [ae_recall_relax] default OFF
+    cfg = _ae_rr.apply(cfg)  # [ae_recall_relax] default OFF
     if (cfg.get("dfine_ae_tile") or {}).get("enabled"):
-        from . import dfine_ae_tile as _ae_tile   # bot-3: окна и слияние D-FINE Ae как в обучении
+        from . import dfine_ae_tile as _ae_tile   # окна и слияние D-FINE Ae как в обучении
 
         cfg = _ae_tile.apply(cfg)
-    configure_raster_fix(cfg.get("raster_fix"))  # bot-6: правки чтения снимков, без секции — выключено
+    configure_raster_fix(cfg.get("raster_fix"))  # правки чтения снимков, без секции — выключено
     from . import speed
 
     if fast := speed.configure(cfg.get("speed")):   # харвест speedup-2026-10-28: без секции — всё выкл.
@@ -1844,7 +1844,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
     from . import degraded
     degraded.set_output(output_path)    # W4: маркер V3_DEGRADED.json рядом с ответом (старый удаляется)
     if cfg.get("w5_cloudfeat"):
-        from . import w5_cloudfeat      # W4 v4: нет модуля W1 / референса — понятная ошибка до начала работы
+        from . import w5_cloudfeat      # нет модуля признаков облака или эталона — ошибка до начала работы
 
         w5_cloudfeat.preflight(cfg)
     infer = cfg.get("infer", {})
@@ -1856,7 +1856,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         log.exception("точность видеокарты не настроена, дальше без моделей torch")
     t_cfg = cfg.get("time", {})
     margin_s = float(t_cfg.get("guard_margin_s", 180))
-    # bot-8: тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
+    # тот же бюджет и тот же дедлайн сторожа, что у arm_platform, — без новых часов
     from . import watchdog as _wd
 
     guard = TimeGuard(t_cfg.get("budget_s", DEFAULT_BUDGET_S), window_reserve(cfg),
@@ -1889,21 +1889,21 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         "reserve_s": cfg.get("time", {}).get("reserve_s", 120),
     })
     if (cfg.get("sp_dfine") or {}).get("enabled"):
-        # bot-10 (Murder Board 29.10): до любой работы — нет DFine*/весов/порогов → ошибка (strict), не тихий v2
+        # (проверка 29.10): до любой работы — нет DFine*/весов/порогов → ошибка (strict), не тихий v2
         from . import sp_dfine as _spd
 
         state.note["sp_dfine"] = _spd.preflight(cfg, root)
         log.info("sp_dfine: preflight ok, transformers %s", state.note["sp_dfine"]["transformers"])
     if (cfg.get("aeor_dfine") or {}).get("enabled"):
-        from . import aeor_dfine as _aod   # bot-1: strict preflight до работы, как у sp_dfine
+        from . import aeor_dfine as _aod   # strict preflight до работы, как у sp_dfine
 
         state.note["aeor_dfine"] = _aod.preflight(cfg, root)
     if (cfg.get("sp_det2") or {}).get("enabled"):
-        from . import sp_det2 as _sp2   # sat2 CenterNet (bots/combo-sat2-fr1h); default OFF
+        from . import sp_det2 as _sp2   # вторая спутниковая сеть, по умолчанию выключена
         state.note["sp_det2"] = _sp2.preflight(cfg, root)
         log.info("sp_det2: preflight ok, weights %s", state.note["sp_det2"]["weights"])
     if (cfg.get("dfine_aeor") or {}).get("enabled"):
-        from . import dfine_aeor as _dfa   # bot-6: ленивый импорт только при флаге; пороги из thresholds_file → cfg
+        from . import dfine_aeor as _dfa   # ленивый импорт только при флаге; пороги из thresholds_file → cfg
 
         try:
             state.note["dfine_aeor"] = _dfa.preflight(cfg, root)
@@ -1925,7 +1925,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
         regions = scan_root(input_dir)
         summary["regions"] = len(regions)
         if (cfg.get("orgate") or {}).get("enabled"):
-            # bot-6 ORGATE: правило LAS и r_las — по наличию LAS во входном каталоге участка (как las_boxes_59 в трейне)
+            # ORGATE: правило LAS и r_las — по наличию LAS во входном каталоге участка (как las_boxes_59 в трейне)
             from .orgate import CATALOG_KEY, catalog_info
 
             cfg[CATALOG_KEY] = catalog_info(regions)
@@ -1964,7 +1964,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             try:
                 found = geophys_feats(reg, cfg, guard)
             except Exception:
-                # bot-8: сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
+                # сбой одного региона (конфиг, битый растр) не отменяет лидар и оптику
                 log.exception("%s: геофизика упала, регион пропущен", reg.name)
                 continue
             state.add(found)
@@ -2017,30 +2017,30 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             if found:
                 log.info("%s: оптика %+d, прошло %.0f с", reg.name, len(found), guard.elapsed())
         _restore_optics_order(state, regions, n_before_optics, optics_by_reg)
-        dfine_cache: dict = {}   # bot-6: общий кэш моделей D-FINE (sp_dfine, dfine_aeor)
+        dfine_cache: dict = {}   # общий кэш моделей D-FINE (sp_dfine, dfine_aeor)
         phases.append(("оптика", n_phase, time.monotonic() - t_phase))
         if (cfg.get("sp_dfine") or {}).get("enabled"):
-            # bot-7 (v3): D-FINE bot-9 на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
+            # (v3): D-FINE на SpOr, группа sp_dfine; по умолчанию выключен, без флага ветка не входит
             t_phase = time.monotonic()
             n_phase = _sp_dfine_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("sp_dfine", n_phase, time.monotonic() - t_phase))
         if (cfg.get("sp_det2") or {}).get("enabled"):
-            # sat2 CenterNet REPLACE (bots/combo-sat2-fr1h); default OFF — lost the 01.11 h2h to v3_on
+            # Вторая спутниковая сеть вместо прежней выдачи. По умолчанию выключена: на сверке 01.11 она проиграла.
             t_phase = time.monotonic()
             n_phase = _sp_det2_phase(regions, cfg, guard, state, root)
             phases.append(("sp_det2", n_phase, time.monotonic() - t_phase))
         if (cfg.get("dfine_aeor") or {}).get("enabled"):
-            # bot-6: D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
+            # D-FINE всех классов на Ae/Or (группы dfine_ae/dfine_or); без флага ветка не входит
             t_phase = time.monotonic()
             n_phase = _dfine_aeor_phase(regions, cfg, guard, state, root, dfine_cache)
             phases.append(("dfine_aeor", n_phase, time.monotonic() - t_phase))
         if (cfg.get("aeor_dfine") or {}).get("enabled"):
-            # bot-1 (v4-кандидат): D-FINE всех классов на Ae/Or; без флага ветка не входит
+            # (v4-кандидат): D-FINE всех классов на Ae/Or; без флага ветка не входит
             t_phase = time.monotonic()
             n_phase = _aeor_dfine_phase(regions, cfg, guard, state, root)
             phases.append(("aeor_dfine", n_phase, time.monotonic() - t_phase))
         if (cfg.get("gor_dense") or {}).get("enabled"):
-            # bot-5 (PFnoD бота 10): точки городищ плотного локализатора DINOv2-S на SpOr после sp_dfine/drop_groups и ДО gor_gate,
+            # (PFnoD): точки городищ плотного локализатора DINOv2-S на SpOr после sp_dfine/drop_groups и ДО gor_gate,
             # группа gor_dense + noD (без флага ветка не входит: выдача байт-в-байт как v3)
             t_phase = time.monotonic()
             n_phase = 0
@@ -2062,7 +2062,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
             except Exception:
                 log.exception("gor_gate пропущен")
         if lidar_cnx.enabled(cfg):
-            # bot-8 cnx: [li_cnx] — добавочная фаза ConvNeXt-лидара bot-9 после оптики; дубли уже
+            # cnx: [li_cnx] — добавочная фаза ConvNeXt-лидара после оптики; дубли уже
             # найденных объектов участка (li, li_mask, li_fort, оптика) убираются (dedupe_cnx).
             t_phase = time.monotonic()
             n_phase = 0
@@ -2163,7 +2163,7 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 fresh = li_dev_feats(reg, cfg, guard, seg_cache, root, prefetch)
                 pool = [f for f in state.snapshot()
                         if f.get("region_name") == reg.name and f.get("threshold_group") != "li_dev"]
-                kept = drop_near_kurgans(fresh, sigma_anchors(pool, cfg), 12.0)   # bot-8: + li_half, li_cnx
+                kept = drop_near_kurgans(fresh, sigma_anchors(pool, cfg), 12.0)   # + li_half, li_cnx
             except Exception:
                 log.exception("%s: канал σ пропущен", reg.name)
                 kept = []

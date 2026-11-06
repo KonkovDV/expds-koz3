@@ -1,4 +1,4 @@
-"""bot-6 ORGATE G ([orgate], по умолчанию выключен): гейт arch вместо R. Флаг выкл. — побайтно база; модель и meta;
+""" ORGATE G ([orgate], по умолчанию выключен): гейт arch вместо R. Флаг выкл. — побайтно база; модель и meta;
 смоук на опорном входе (008_Герите); правило LAS по каталогу; dfine_*/sp_dfine не оцениваются; маркер и откат на R;
 сборка и check_submission."""
 import hashlib
@@ -209,7 +209,7 @@ def test_check_submission_smoke_runs_archive_code(tmp_path):
 
 
 def test_check_submission_missing_smoke_input_warns_not_pass(tmp_path):
-    """bot-7 13:12: [orgate] enabled, модель в архиве, а опорного входа (--orgate-smoke) на машине нет —
+    """ 13:12: [orgate] enabled, модель в архиве, а опорного входа (--orgate-smoke) на машине нет —
     явный WARN «смоук не выполнен», не PASS и не молчание."""
     import zipfile
     cs = _cs()

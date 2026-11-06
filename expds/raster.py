@@ -110,6 +110,8 @@ def ground_step(native_res: float, kind: str, lat_deg: float, target_m: float,
 
     kind='meter' — UTM, шаг уже в метрах. kind='3857' — веб-меркатор, масштаб
     1/cos(широты). kind='degree' — градусы, 111320·cos(широты) метров на градус.
+    Широта — центра растра, не константа одной полосы. Пол 0,2 у косинуса
+    срабатывает только при |φ| ≳ 78,5°, это севернее памятников этапа.
     Сданные веса учились в единицах файла: этот шаг включает только кэш с
     pixel_units='ground'.
     """
@@ -152,9 +154,10 @@ def _radius_in_ground_meters(crs: str) -> bool:
 def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 16):
     """Круг радиуса radius_m метров на местности вокруг (x, y) → полигон EPSG:3857.
 
-    В EPSG:3857 и в градусах буфер строится в зоне UTM точки, иначе 4 м на
-    широте Москвы становятся примерно 2,3 м на земле. В UTM буфер как раньше:
-    единицы растра уже метры.
+    В EPSG:3857 и в градусах буфер строится в зоне UTM самой точки. Иначе круг,
+    заданный в единицах меркатора, на земле короче в cos φ раз: 4 м дают
+    около 2,0 м на 60° с. ш., около 2,2 м на 56° и около 2,7 м на 48°.
+    В UTM буфер как раньше: единицы растра уже метры.
     """
     from .crs import transformer, utm_for_lonlat
 
@@ -216,7 +219,12 @@ def _transform_many(geoms, src: str, dst: str):
 
 
 def needs_warp(ds) -> str | None:
-    """'gcps' или 'geographic', если окна растра нельзя читать как метры. UTM и 3857 — None."""
+    """'gcps' или 'geographic', если окна растра нельзя читать как метры.
+
+    Любая проекция в метрах остаётся как есть: зона UTM, национальная сетка
+    (поперечная Меркатора на всю страну) и EPSG:3857. Градусы и снимки только
+    с опорными точками переводятся в зону UTM своего центра.
+    """
     from .crs import is_geographic
 
     crs = ds.crs.to_string() if ds.crs else None
@@ -226,7 +234,7 @@ def needs_warp(ds) -> str | None:
     return "geographic" if is_geographic(crs) else None
 
 
-#: Правки чтения снимков (bot-6, ветка bot6-optics). Секция конфига [raster_fix], по умолчанию пусто = выключено.
+#: Правки чтения снимков (ветка). Секция конфига [raster_fix], по умолчанию пусто = выключено.
 #: reproject_3857 — снимок в EPSG:3857 читается перепроецированным в UTM участка (UTM.json):
 #:   на трейне 015 Демидовка и 029 Вышегжа_3, шаг файла 1,26 / 1,59 ед. при 0,73 / 0,88 м на земле.
 #: int16_identity — int16/uint16 со всеми значениями в 0–255 идёт в сеть как uint8, без растяжки p1–p99
@@ -304,7 +312,7 @@ def open_metric(path: str | Path):
     with rasterio.open(path) as src:
         why = needs_warp(src)
         if why is None and _reproject_3857(src, path):
-            # [raster_fix] reproject_3857 (bot-6): веб-меркатор → UTM участка, шаг файла = шаг на земле.
+            # [raster_fix] reproject_3857: веб-меркатор → UTM участка, шаг файла = шаг на земле.
             dst = utm_json_crs(path)
             if dst is None:
                 b = src.bounds
@@ -330,6 +338,7 @@ def open_metric(path: str | Path):
             cx, cy = (b.left + b.right) / 2, (b.bottom + b.top) / 2
         lon, lat = transformer(src_crs.to_string(), "EPSG:4326").transform(cx, cy)
         dst = utm_for_lonlat(lon, lat)
+        # Зона — по долготе центра снимка, не по полосе обучения.
         log.warning("%s: %s → перепроецирую в %s", Path(path).name, why, dst)
         with WarpedVRT(src, src_crs=src_crs, crs=dst, resampling=Resampling.bilinear) as vrt:
             yield vrt

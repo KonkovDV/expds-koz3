@@ -12,7 +12,7 @@
 
     python scripts/hillfort_oof.py --root F:/2/train-expds-3 --out F:/expds3/work/gor_phys.geojson
     python scripts/hillfort_oof.py ... --set relief_radius_l_m=150 --out F:/expds3/work/gor_phys_wide.geojson
-    python scripts/hillfort_oof.py ... --preset coarse --out F:/expds3/work/gor_coarse_dem.geojson   # грубый проход (bot-4)
+    python scripts/hillfort_oof.py... --preset coarse --out F:/expds3/work/gor_coarse_dem.geojson # грубый проход
 
 Тот же файл годится источником для `oof_transform.py rescue` (лучшая площадка участка).
 """

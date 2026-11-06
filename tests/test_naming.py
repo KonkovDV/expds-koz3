@@ -40,6 +40,31 @@ def test_keywords_for_validation_names():
     assert markup_type_of("region_0003/магниторазведка.tif") == "maggr"
 
 
+def test_english_names_and_satellite_without_lidar(tmp_path):
+    """Памятник только со спутником и планшет без русского слова не выбрасываются.
+
+    Код в имени важнее английского слова: SpOr остаётся спутником, даже если
+    рядом написано satellite.
+    """
+    from expds.catalog import scan_region
+
+    assert markup_type_of("region_0010/satellite.tif") == "sp_or"
+    assert markup_type_of("region_0011/orthophoto.tif") == "or"
+    assert markup_type_of("region_0012/magnetometry.tif") == "maggr"
+    assert markup_type_of("region_0013/resistivity.tif") == "etgr"
+    assert markup_type_of("region_0014/thermography.tif") == "terfl"
+    assert markup_type_of("region_0015/aerial_1942.tif") == "ae"
+    assert markup_type_of("012_Site_SpOr_satellite.tif") == "sp_or"
+    reg = tmp_path / "region_0100"
+    (reg / "04").mkdir(parents=True)
+    (reg / "04" / "satellite.tif").write_bytes(b"x")
+    (reg / "07" ).mkdir()
+    (reg / "07" / "magnetometry.tif").write_bytes(b"x")
+    found = scan_region(reg)
+    assert found.las == []
+    assert sorted(found.rasters) == ["maggr", "sp_or"]
+
+
 def test_scan_region_finds_boundaries_and_noise(tmp_path):
     from expds.catalog import scan_region
 

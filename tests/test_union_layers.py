@@ -2,7 +2,7 @@
 import pytest
 from shapely.geometry import Point
 
-G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 dedupe_union = G.dedupe_union
 
 

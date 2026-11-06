@@ -44,8 +44,8 @@ class GeoParams:
     plateau_max_m2: float = 60.0    # пятно крупнее — фон, а не аномалия
     peak_density_min: float = 0.0   # finds_points: пиков на 1000 м² карты не меньше; 0 — выключено
     peak_k_min: float = 0.5         # ниже этого порога (в MAD) отсечка не опускается
-    extremum_snap_m: float = 0.0    # finds_points: сдвиг к argmax |detection| в окне; 0 — выкл (bot7-geo-gate)
-    finds_nms_m: float = 0.0        # finds_points: NMS по силе после пиков; 0 — выкл (bot7-geo-gate)
+    extremum_snap_m: float = 0.0    # finds_points: сдвиг к argmax |detection| в окне; 0 — выкл)
+    finds_nms_m: float = 0.0        # finds_points: NMS по силе после пиков; 0 — выкл)
     split: str = "none"             # object_poly: разрезать слипшиеся области водоразделом: "none", "field", "dt"
     split_h: float = 0.1            # "field": глубина седловины в долях poly_k; "dt": в метрах радиуса вписанного круга
     split_res_m: float = 0.1        # сетка разрезания не мельче этой, м
@@ -414,8 +414,8 @@ def peaks_from(hp: np.ndarray, tr, crs: str | None, res: float, region: str, mar
     С p.plateau и сырой картой raw пики у пятен насыщения заменяются центрами пятен (plateau_centers).
     С p.peak_density_min отсечка карты с редкими пиками опускается до p.peak_k_min (density_floor).
     При peak_density_min = 0 пики ищутся с прежней отсечкой.
-    С p.extremum_snap_m > 0 пик сдвигается к argmax detection в окне (bot7-geo-gate, default OFF).
-    С p.finds_nms_m > 0 после сдвига — NMS по силе (bot7-geo-gate, default OFF).
+    Если extremum_snap_m > 0, пик сдвигается к максимуму карты в окне. По умолчанию 0, сдвига нет.
+    Если finds_nms_m > 0, после сдвига близкие пики схлопываются, остаётся более сильный. По умолчанию выключено.
     """
     mag = detection_image(hp, res, p.signal)
     floor = p.peak_k if k_min is None else k_min

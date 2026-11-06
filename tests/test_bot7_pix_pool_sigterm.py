@@ -1,5 +1,5 @@
 import pytest
-"""bot-7: fork-пул PIXGBM не наследует обработчик SIGTERM main.py (watchdog.arm_signal).
+"""fork-пул PIXGBM не наследует обработчик SIGTERM main.py (watchdog.arm_signal).
 
 Без этого pool.terminate() шлёт детям SIGTERM, ребёнок исполняет обработчик родителя (пишет пустой
 result.geojson) и может повиснуть; родитель висит в pool.join() (work5/check_8594842_217.log)."""
@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 
 CODE = r'''
 import os, signal, sys, time
@@ -23,7 +23,7 @@ def slow(x):
     time.sleep(0.5)
     return x
 signal.signal(signal.SIGTERM, on_term)
-if sys.argv[3] == "plain":   # контроль: обычный fork-пул — дети исполняют обработчик родителя
+if sys.argv[3] == "plain": # контроль: обычный fork-пул — дети исполняют обработчик родителя
     import multiprocessing as mp
     pool = mp.get_context("fork").Pool(2)
 else:
@@ -31,7 +31,7 @@ else:
 assert sorted(pool.map(abs, [-1, -2, -3, -4])) == [1, 2, 3, 4]
 pool.map_async(slow, range(8)); time.sleep(0.2)            # дети заняты в момент terminate, как в prob_map
 pool.terminate(); pool.join()
-assert signal.getsignal(signal.SIGTERM) is on_term          # обработчик родителя на месте
+assert signal.getsignal(signal.SIGTERM) is on_term # обработчик родителя на месте
 assert signal.SIGTERM not in signal.pthread_sigmask(signal.SIG_BLOCK, set())   # маска восстановлена
 print("ok", os.getpid())
 '''

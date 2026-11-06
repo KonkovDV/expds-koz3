@@ -16,9 +16,9 @@
 (скрипт прокидывает box_area_m2 в параллельный массив, если ключ есть в JSONL).
 
     python3 scripts/large_objects_honest.py \\
-        --fam /workspace/koz3_shared/bot-10/work11/fam0 \\
+        --fam /workspace/koz3_shared/work11/fam0 \\
         --gt /workspace/rerank/gt_train_v2.geojson \\
-        --clusters /workspace/koz3_shared/bot-10/work/family_clusters.json \\
+        --clusters /workspace/koz3_shared/work/family_clusters.json \\
         --metric materials/compute_metrics.py \\
         --out work/large_objects_honest.json
 """
@@ -78,12 +78,12 @@ def run_request(commit: str) -> str:
   commit: {commit}
   command:
     python3 scripts/large_objects_honest.py \\
-      --fam /workspace/koz3_shared/bot-10/work11/fam0 \\
+      --fam /workspace/koz3_shared/work11/fam0 \\
       --gt /workspace/rerank/gt_train_v2.geojson \\
-      --clusters /workspace/koz3_shared/bot-10/work/family_clusters.json \\
+      --clusters /workspace/koz3_shared/work/family_clusters.json \\
       --metric materials/compute_metrics.py \\
       --out work/large_objects_honest.json
-  ожидаемое время: 30–90 мин на одном ядре (сбор кривых по семьям, как bot-2 bigobj; три варианта).
+  ожидаемое время: 30–90 мин на одном ядре (сбор кривых по семьям, как bigobj; три варианта).
   критерий успеха: код выхода 0 и JSON с ключами off, area_tau, fixc_nested;
     у off score близок к честной базе стека, из которого собран fam (для стека A — 0.314615 ± 0.002);
     area_tau и fixc_nested содержат score, precision, recall, delta_vs_off, size_recall, recovered_gt_gt5k.

@@ -1,4 +1,4 @@
-"""bot-5. Fit gor_v3_head.npz from extract_feats outputs + hillfort labels.
+""". Fit gor_v3_head.npz from extract_feats outputs + hillfort labels.
 
 Reproduces scripts/gor_patch/gor_v3.py MODE=fit arithmetic (PCA-64 + L2-logreg
 C=1 + Landauer 0.85/0.05 cleaning on inner 5 family folds) without gor_scene.py.

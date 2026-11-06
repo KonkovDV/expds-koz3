@@ -3,7 +3,7 @@
 
 Четыре варианта спутника (sp_or, sp_focal2): baseline / tta / multiscale / tta+multiscale.
 D-FINE в эти варианты не входит: выход D-FINE SpOr на mock v3on_0876090 сломан
-(sp_or F1 0), фикс — ветка bots/bot2-e2e-v3-prep. Статус D-FINE: не оценено.
+(sp_or F1 0). Система координат и порог ещё не проверены заново. Статус D-FINE: не оценено.
 
 Без корня трейна и каталога work честного табло скрипт только печатает заявку
 (код возврата 0 на --request, 3 если прогон запрошен, а данных нет). Ничего не скачивает.
@@ -37,7 +37,7 @@ VARIANTS = {
                        "dfine_views": "off", "dfine_gsd": [1.0]},
 }
 
-# Отложено до фикса bot2. В --variant all не входит.
+# Отложено до фикса. В --variant all не входит.
 DFINE_DEFERRED = {
     "dfine_tta_multiscale": {
         "enabled": True, "unet_tta": 0, "unet_scales": [1.0],
@@ -61,7 +61,7 @@ def request_text() -> str:
         "Заявка координатору. На LB не сдавать. D-FINE не гонять: не оценено.",
         "",
         "Что: honest-10 и время TTA/мультимасштаба U-Net спутника (sp_or, sp_focal2).",
-        "Ветка: bots/bot8-orsp-tta. Коммит: тот, что в PR (флаг [orsp_tta], по умолчанию false).",
+        "Флаг [orsp_tta] по умолчанию выключен.",
         "Машина: ПК, GTX 1650 4 ГБ, Docker/WSL2. Не Kaggle.",
         "Веса: models/spor_gor_r18.pt, models/spor_focal_r18.pt, models/surf_arch_r18.pt,",
         "models/spor_focal_wide_r18.pt — как в configs/default.toml. Финальная модель",
@@ -73,7 +73,7 @@ def request_text() -> str:
         "  multiscale      unet_tta=0, unet_scales=[0.75, 1.0, 1.25]     ×3, маски усредняются",
         "  tta_multiscale  оба                                          ×12",
         "",
-        "Команды (из корня репозитория, ветка bots/bot8-orsp-tta):",
+        "Команды из корня репозитория:",
         "  python scripts/orsp_tta_honest10.py --root КОРЕНЬ_ТРЕЙНА --work КАТАЛОГ_OOF \\",
         "      --out-dir work/orsp_tta --variant all --score",
         "КАТАЛОГ_OOF — тот же, что у scripts/scoreboard.py --honest 10 (gt_train_v2.geojson,",
@@ -99,7 +99,7 @@ def request_text() -> str:
         "     спутниковых групп не задела or.",
         "  2) Включать флаг имеет смысл при Δ honest-10 ≥ +0,002 и t_площадка ≤ 900 с.",
         "     Иначе оставить enabled=false.",
-        "  3) D-FINE не измерять, пока bots/bot2-e2e-v3-prep не починит CRS/порог. Статус: не оценено.",
+        "  3) D-FINE не измерять, пока не проверены система координат и порог. Статус: не оценено.",
         "",
         "Что вернуть: work/orsp_tta/summary.json, лог с секундами по вариантам,",
         "четыре строки honest-10 и таблицу P/R по sp_or и or, время mock e2e и оценку t_площадка.",

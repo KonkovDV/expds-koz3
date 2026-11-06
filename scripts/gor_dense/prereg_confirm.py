@@ -1,4 +1,4 @@
-# bot-5. ПОДТВЕРЖДАЮЩИЙ прогон по bot-10/PREREG_gor_dense_bot5.md (пост-хок -> максимум PACKAGE-ONLY).
+#. ПОДТВЕРЖДАЮЩИЙ прогон по PREREG_gor_dense_bot5.md (пост-хок -> максимум PACKAGE-ONLY).
 """Основной F|all+cp:add+gate, вторичный FN|all+cp:add+gate, контроль gate (без точек), база = стек A (без гейта и точек).
 - s (приор центра) выбран ВЛОЖЕННО в dense_probe.py (внутренний OOF обучения каждого внешнего фолда, cp_s в peaks).
 - F: пороги групп стека = пороги контроля gate (sweep_groups на train фолда); порог gor_dense = max train-F1 (ничья -> меньше точек).

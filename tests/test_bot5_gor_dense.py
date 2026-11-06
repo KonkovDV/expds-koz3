@@ -1,5 +1,5 @@
-"""bot-5 (ветка bot5-gor-dense-v3): плотный локализатор городищ gor_dense (PFnoD бота 10) — флаг выкл., группа/порог,
-noD, запись, EPSG:3857, пики. Медленный тест воспроизведения peaks.json — при наличии артефактов бокса bot-5."""
+""" (ветка): плотный локализатор городищ gor_dense (PFnoD) — флаг выкл., группа/порог,
+noD, запись, EPSG:3857, пики. Медленный тест воспроизведения peaks.json — при наличии артефактов бокса."""
 import json
 import math
 import re
@@ -36,7 +36,7 @@ def _cfg():
 def _enable_block() -> dict:
     """Закомментированный блок включения [gor_dense] из default.toml → dict (ключи `#   key = value`)."""
     txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
-    head = txt[txt.index("# bot-5 (ветка bot5-gor-dense-v"):txt.index("[gor_dense]\nenabled = false")]
+    head = txt[txt.index("# (ветка"):txt.index("[gor_dense]\nenabled = false")]
     lines = [m.group(1) for m in re.finditer(r"^#   ([a-z0-9_]+ = .+?)(?:[ \t]+#.*)?$", head, re.M)]
     sec = tomllib.loads("\n".join(lines))
     thr = re.search(r"\[thresholds_by_markup\.gor_dense\] gorodishcha = ([0-9.]+)", head)
@@ -211,13 +211,13 @@ def test_region_peaks_k2_suppression():
     assert GD.region_peaks([], 2, 150.0) == []
 
 
-# ---------------------------------------------------------------- воспроизведение бота 10 / bot-5 (медленный)
+# ---------------------------------------------------------------- воспроизведение / (медленный)
 _RT = B5 / "work" / "gd" / "root"
 _SLOW = (_RT / "models" / "gor_dense" / "fam10_f4_head.npz").exists() and (DATA / "084_Булан_Соготту").exists() \
     and (B5 / "analysis" / "gor_dense" / "peaks.json").exists()
 
 
-@pytest.mark.skipif(not _SLOW, reason="нет артефактов бокса bot-5 (work/gd/root, analysis/gor_dense)")
+@pytest.mark.skipif(not _SLOW, reason="нет артефактов бокса (work/gd/root, analysis/gor_dense)")
 def test_reproduces_peaks_json_fold4():
     import torch
     from expds import catalog, gor_gate
@@ -325,7 +325,7 @@ def test_check_submission_knows_gor_dense():
 
 
 def test_v4_dfine_aeor_gorodishcha_off_in_enable_block():
-    """v4 (решение бота 10): городища D-FINE Ae/Or бота 6 выключены порогом > 1 (dfine_or — уже активно, dfine_ae — в блоке)."""
+    """v4 (решение): городища D-FINE Ae/Or выключены порогом > 1 (dfine_or — уже активно, dfine_ae — в блоке)."""
     txt = (ROOT / "configs" / "default.toml").read_text(encoding="utf-8")
     cfg = tomllib.loads(txt)
     assert cfg["thresholds_by_markup"]["dfine_or"]["gorodishcha"] > 1.0
@@ -339,7 +339,7 @@ _U008 = Path("/workspace/data/train-expds-3/008_Герите/UTM.json")
 
 @pytest.mark.skipif(not _U008.is_file(), reason="нет трейна 008_Герите на машине")
 def test_gor_dense_crs_on_geographic_region_008_is_projected_utm():
-    """bot-7 f3526cf: UTM.json EPSG:4326 (008_Герите) → UTM-зона по центру; gor_dense берёт CRS через gor_gate._epsg."""
+    """ f3526cf: UTM.json EPSG:4326 (008_Герите) → UTM-зона по центру; gor_dense берёт CRS через gor_gate._epsg."""
     from expds import gor_gate
     import inspect
     assert "gor_gate._epsg(reg)" in inspect.getsource(GD)

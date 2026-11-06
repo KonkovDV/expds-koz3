@@ -1,4 +1,4 @@
-"""bot-2: почему A≡B на PC — синтетические D-FINE в finish/writer/score path.
+"""почему A≡B на PC — синтетические D-FINE в finish/writer/score path.
 
 Гипотеза (b): если dets доходят до state с drop_groups=[], они появляются в GeoJSON
 как markup_type=sp_or и портят precision (F1 ≠). Точное равенство A≡B на PC значит,

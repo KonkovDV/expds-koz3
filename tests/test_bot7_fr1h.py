@@ -1,4 +1,4 @@
-"""bot-7 v3: приор кадра FR1h (bot-10 REPORT11_audit.md C3h) включён в конфиг сдачи ровно в принятом виде,
+""" v3: приор кадра FR1h (REPORT11_audit.md C3h) включён в конфиг сдачи ровно в принятом виде,
 стоит до порогов и не трогает городища."""
 import tomllib
 from pathlib import Path

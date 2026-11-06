@@ -1,4 +1,4 @@
-"""Замороженный предобученный бэкбон (ImageNet ResNet18 / DINOv2 ViT-S/14) как источник доп. признаков PIXGBM (bot-3, opt-in).
+"""Замороженный предобученный бэкбон (ImageNet ResNet18 / DINOv2 ViT-S/14) как источник доп. признаков PIXGBM (opt-in).
 
 Вход: 3 канала [d5, d15, z] карты load_map (z — робастно нормирован), clip ±4 → x/8+0,5 → нормировка ImageNet;
 сетка bb_gsd = max(gsd, 0,1 м) (etgr — среднее f×f). Карта признаков считается тайлами с полем (центральная часть тайла),
@@ -56,6 +56,8 @@ class Backbone:
             m = torchvision.models.resnet18()
             m.load_state_dict(torch.load(str(RESNET18_PTH), map_location="cpu", weights_only=True))
         elif name == "B2":
+            # Стандартный dinov2_vits14 с диска, без скачивания и без производной головы Meta.
+            # В платформенный путь модуль не входит: он тянет прежний расчёт геофизики.
             m = torch.hub.load(str(HUB / "facebookresearch_dinov2_main"), "dinov2_vits14", source="local", pretrained=False)
             m.load_state_dict(torch.load(str(HUB / "checkpoints/dinov2_vits14_pretrain.pth"), map_location="cpu", weights_only=True))
         else:

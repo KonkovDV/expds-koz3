@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean-room-adjacent PIXGBM retrain wrapper (bot-6).
+"""Clean-room-adjacent PIXGBM retrain wrapper.
 
 Reproduces / verifies models/pixgbm/all/{poly,finds}.txt against
 models/pixgbm/all/MODELS_NOT_IN_GIT.md without changing inference.
@@ -89,7 +89,7 @@ DETERMINISTIC_LGBM = make_deterministic_lgbm(1)
 
 
 def make_reference_lgbm(num_threads: int = 2) -> dict:
-    """Params matching original bot-3 train (geo_pixgbm.LGBM + seed=0).
+    """Params matching original train (geo_pixgbm.LGBM + seed=0).
 
     Evidence from REF models/pixgbm/all/*.txt (LightGBM 4.7.0):
       num_threads=2, deterministic=0, force_col_wise=0, seed=0,

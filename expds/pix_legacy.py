@@ -1,7 +1,4 @@
-"""Загрузчик прежней (legacy) реализации PIXGBM bot-3 для [geophys.pixgbm] impl != "clean".
-
-DOC-1 (W4): этот модуль и то, что он грузит, в архив решения НЕ входят (scripts/check_archive_clean.py);
-в архиве impl="clean" (expds/pix_clean.py). Нужен только для исследований/сравнения в репозитории.
+"""Необязательный загрузчик. В архив решения не входит.
 """
 from __future__ import annotations
 

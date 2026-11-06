@@ -105,7 +105,7 @@ docker run --rm --gpus all -v $PWD/val:/data/input -v $PWD/out:/data/output pant
 | models/gor_gate/gor_v3_head.npz | 5bd88f69b3ffbfdc5312214b4d6012c92be12c66539b7bf8ad35564c76a75e7d |
 | models/gor_dense/gor_dense_head.npz | feb1591bb1e9ada63b32829178eae44a7e19fdfd7e99d7d222e3b1389c5b2cb7 |
 | models/dfine_ae/* | заполнить после обучения (W1, `koz3-w1-dfine-ae-final`) |
-| models/pixgbm/all/{poly,finds}.txt | **не включать**: модуль `geo_pixgbm.py` написан по мотивам чужого решения, заменяется clean-room/GEO-ORG1 |
+| models/pixgbm/all/{poly,finds}.txt | деревья геофизики; в архив вместе с `expds/pix_own.py` |
 
 ## 🔍 Воспроизведение
 ```bash

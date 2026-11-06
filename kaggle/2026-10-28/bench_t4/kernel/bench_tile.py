@@ -4,7 +4,7 @@ bot-8, 28.10.2026. Для T4 (Kaggle) → пересчёт на RTX 4090 по к
 
 Веса СЛУЧАЙНЫЕ: для времени и VRAM этого достаточно, потому что FLOPs, память и ядра от значений весов не зависят.
 Исключение — постобработка, зависящая от числа детекций; здесь мерится только forward (как `_detect` в prev_sp_det.py:16-23).
-Архитектуры повторяют EhimenNathan-EXpedition:
+Архитектуры повторяют сторонний репозиторий:
   ConvNeXt-T U-Net: koz3/li_train.py:253-257 (smp.Unet "tu-convnext_tiny", decoder (256,128,64,32,16), 7 выходов),
                     входы 9 каналов (li) / 12 (li_x, RELIEF_EXTRA, koz3/relief.py:9-10) / 3 (SpOr heatmap, koz3/sp_train.py:154).
   TTA: koz3/hm.py:80-121 — d8 = rot90 k=0..3 × (без/с flip(-1)); flip3 = id, flip(-1), flip(-2). Их dtype bf16 (hm.py:105).

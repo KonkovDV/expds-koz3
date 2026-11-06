@@ -1,5 +1,5 @@
-"""E3 (bot-2): только отдельные пороги для участков без лидара; объявлено в
-koz3_shared/bot-2/EXPERIMENTS.md (28.10.2026 20:39:18 МСК).
+"""E3: только отдельные пороги для участков без лидара; объявлено в
+koz3_shared/EXPERIMENTS.md (28.10.2026 20:39:18 МСК).
 E3n — вложенный выбор по классам (внутр. family_folds(train,5)), решающий; E3p — без выбора, диагностика.
 Сопоставление global (как materials/compute_metrics.py: пулинг по всем источникам), region — диагностика.
 Запуск: OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/fusion_e3_eval.py
@@ -34,7 +34,7 @@ gt_all = {r for c in CL for r in R["gt_region"][c]}
 optical = {r for r in gt_all if r} - boxes
 new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
 
-def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
+def random_family_folds(regions, k, seed):      # копия repo/scripts/honest_bootstrap.py
     fams = {}
     for r in regions: fams.setdefault(site_family(r), set()).add(r)
     names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k
@@ -113,7 +113,7 @@ def wdelta(ca, cb):
     return {c: CLASS_WEIGHTS.get(c, 0.0) * (pa[c]["f1"] - pb[c]["f1"]) / den for c in pa if pa[c]["n_gt"] > 0}
 
 t0 = time.time()
-res = {"declared": "koz3_shared/bot-2/EXPERIMENTS.md E3, 28.10.2026 20:39:18 MSK", "folds10_equal_pkl": FOLDS_EQUAL,
+res = {"declared": "koz3_shared/work/EXPERIMENTS.md E3, 28.10.2026 20:39:18 MSK", "folds10_equal_pkl": FOLDS_EQUAL,
        "n_regions": len(every), "n_nl_regions": len(NLR), "modes": {}}
 for mode in ("global", "region"):
     curves = curves_for(mode)

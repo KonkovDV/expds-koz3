@@ -1,4 +1,4 @@
-"""bot-8: мягкий потолок 1200 с (EXPDS_SOFT_CEILING_S) — API guard и отключение необязательных шагов.
+"""мягкий потолок 1200 с (EXPDS_SOFT_CEILING_S) — API guard и отключение необязательных шагов.
 
 TimeGuard 1500 (budget_s от старта run()) и сторож 1620 (от watchdog.PROCESS_START) не меняются.
 """
@@ -194,7 +194,7 @@ def test_run_disabled_ceiling_runs_all(tmp_path, monkeypatch, capsys):
 
 
 def test_pixgbm_deadline_uses_guard_t0_monotonic():
-    """bot-3 geo_pixgbm.pix_deadline: T0 = min(старт процесса, guard.t0) — та же шкала time.monotonic."""
+    """ geo_pixgbm.pix_deadline: T0 = min(старт процесса, guard.t0) — та же шкала time.monotonic."""
     import time as _time
     geo_pixgbm = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)")
     from expds import watchdog

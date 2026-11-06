@@ -1,6 +1,6 @@
 """04.11: чистая геофизика E1_G1 ([geophys.pixgbm] impl=clean, chain=e1g1, expds/pix_e1g1.py).
 
-Проверка сабмита писалась под линию EN: требовала expds/geo_pixgbm.py и models/pix_clean/finds.txt и валила
+Проверка сабмита писалась под прежнюю реализацию: требовала expds/geo_pixgbm.py и models/pix_clean/finds.txt и валила
 готовую чистую сборку (`submission_pixgbm_clean_e1g1_p4_lleaves.zip`, sha256 ed51cae4…) двумя ложными FAIL.
 Теперь для e1g1 проверяются её собственные модули и шесть моделей ens6 + ORG3, а EN-модуль не нужен.
 """

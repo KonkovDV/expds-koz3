@@ -368,7 +368,8 @@ def main() -> None:
                             large_kurgan_weight=args.large_kurgan_weight,
                             large_damaged_weight=args.large_damaged_weight, large_area_m2=args.large_area_m2,
                             within_site_rank=args.within_site_rank, init_weights=args.init_weights)
-                res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"]}
+                res = {"train_tiles": res["train_tiles"], "best_val_loss": res["best_val_loss"],
+                       "kept_init": bool(res.get("kept_init"))}
                 done.write_text(json.dumps(res), encoding="utf-8")
             models.append(model)
         if args.train_only:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Задача 16 (bot-2, bigobj): кривые стека A с преобразованием F1/F2 ветки bot-2/bigobj.
+"""Задача 16 (bigobj): кривые стека A с преобразованием F1/F2 ветки bigobj.
 
-Как bot-10/repo/scripts/family_curves.py (семьи + кластеры, пачки, M.match_collected), но объекты
+Как repo/scripts/family_curves.py (семьи + кластеры, пачки, M.match_collected), но объекты
 классов из --classes перед сопоставлением проходят функции expds/post.py ветки (импорт из --code):
   F1 big_area_groups(spec)  — threshold_group → <g>_big у прогнозов ≥ min_area_m2 (геометрия та же);
   F2 shape_cores({cls: rule}) — круг-ядро в полюсе недоступности у полигонов ≥ min_area_m2.

@@ -1,4 +1,4 @@
-"""bot-7 (29.10, ПК e2e бота 1 в pantum/n7q:20261024): «SP_DFINE_UNAVAILABLE … vendor: ValueError: Unable to compare
+""" (29.10, ПК e2e в pantum/n7q:20261024): «SP_DFINE_UNAVAILABLE … vendor: ValueError: Unable to compare
 versions for tqdm>=4.60: need=4.60 found=None». У tqdm в образе dist-info без версии → importlib.metadata.version()
 = None → transformers.dependency_versions_check падает при import transformers.
 
@@ -56,7 +56,7 @@ sys.meta_path.insert(0, _NoTqdm())
 
 
 def test_repro_hidden_tqdm_metadata_without_fix_fails(tmp_path):
-    # воспроизведение ошибки бота 1: tqdm не вендорен, шим выключен
+    # воспроизведение ошибки: tqdm не вендорен, шим выключен
     out = _probe(_root(tmp_path, _vendor_without_tqdm(tmp_path)), _shadow(tmp_path, "tqdm-4.70.1.dist-info"),
                  pre="from expds import sp_dfine\n" + NOSHIM)
     assert not out["ok"]

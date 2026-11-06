@@ -1,4 +1,4 @@
-"""bot-7 (кандидат v3): D-FINE (sp_dfine) и шлюз городищ (gor_gate) — флаги выкл., перевод C/E, drop_groups."""
+""" (кандидат v3): D-FINE (sp_dfine) и шлюз городищ (gor_gate) — флаги выкл., перевод C/E, drop_groups."""
 import math
 import tomllib
 from pathlib import Path
@@ -98,7 +98,7 @@ def test_no_thresholds_no_model_load(monkeypatch, tmp_path):
     cfg = {"sp_dfine": {"enabled": True, "weights": ["x"], "strict": False}}
     reg = SimpleNamespace(name="r", rasters={"sp_or": [tmp_path / "a.tif"]})
     assert sp_dfine.region_feats(reg, cfg, None, {}, tmp_path) == ([], False)
-    # Murder Board 29.10 (bot-10): по умолчанию strict — без порогов не тихий v2, а ошибка
+    # по умолчанию strict — без порогов не тихий v2, а ошибка
     with pytest.raises(sp_dfine.DFineUnavailable):
         sp_dfine.region_feats(reg, {"sp_dfine": {"enabled": True, "weights": ["x"]}}, None, {}, tmp_path)
     ok, missing = sp_dfine.thresholds_ready(cfg)
@@ -228,7 +228,7 @@ def test_pipeline_phase_drop_only_complete(monkeypatch):
 
 
 def test_pipeline_phase_drop_skips_regions_without_dfine(monkeypatch):
-    """bot-2 safety valve: complete + 0 sp_dfine → v2 SpOr на участке сохраняются."""
+    """ safety valve: complete + 0 sp_dfine → v2 SpOr на участке сохраняются."""
     from expds import pipeline
 
     class St:
@@ -334,7 +334,7 @@ def test_gor_gate_stub(tmp_path):
 
 
 def test_gor_gate_head_and_md5(tmp_path):
-    """голова bot-5: p = σ([1, ((F−mu)/sd)·W/qsd]·w); неверный md5 — отказ загрузки."""
+    """голова p = σ([1, ((F−mu)/sd)·W/qsd]·w); неверный md5 — отказ загрузки."""
     import hashlib
 
     rng = np.random.default_rng(0)
@@ -362,7 +362,7 @@ def test_gor_gate_no_targets_skips_backbone(tmp_path, monkeypatch):
 
 
 def test_train_only_modules_unreachable_and_not_packaged(monkeypatch):
-    """Red team bot-4 В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
+    """Red team В6: gt/blobs/coarse/det_boxes не нужны инференсу и не идут в архив."""
     import ast
     import importlib.util
     from conftest import allow_missing_submission_models

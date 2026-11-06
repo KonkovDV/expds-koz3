@@ -1,4 +1,4 @@
-"""bot-7, кандидат v2: PIXGBM S и sota_stack6 — независимые флаги, порядок pix → stack6, пороги *_pix, модели."""
+""", кандидат v2: PIXGBM S и sota_stack6 — независимые флаги, порядок pix → stack6, пороги *_pix, модели."""
 import hashlib
 from pathlib import Path
 
@@ -10,7 +10,7 @@ from expds.catalog import Region
 from conftest import requires_submission_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-# bot-3/pixgbm/pc/thr_pix_full.json (bot-9)
+# pixgbm/pc/thr_pix_full.json
 THR_PIX = {"maggr_pix": {"finds_points": 0.902915, "object_poly": 0.684725},
            "etgr_pix": {"object_poly": 0.545825}, "terfl_pix": {"object_poly": 0.746421}}
 SHA = {"poly.txt": "d1fe3efafcd4377d41430d8828e881576c9024f9d7a5c89f55e23554e02ec800",
@@ -31,10 +31,10 @@ def test_flags_independent_and_as_documented(cfg):
     assert set(pix["classes"]) == {"finds_points", "object_poly"} and pix["union_name_re"] == ""
     assert float(pix["budget_s"]) == 600 and pix.get("backend", "lightgbm") == "lightgbm"   # REPORT4 §9; без .so
     assert int(pix["procs"]) == 2                                      # решение bot 1: пул ≤ 2 (ОЗУ)
-    assert float(cfg["time"]["soft_ceiling_s"]) == 1200 and pipeline.soft_ceiling_from(cfg, environ={}) == 1200.0   # bot-8
+    assert float(cfg["time"]["soft_ceiling_s"]) == 1200 and pipeline.soft_ceiling_from(cfg, environ={}) == 1200.0   #
     post = cfg["post"]
     assert post["multipole_object_poly"] is True and post["filter_finds_points"] is True   # stack6 sep
-    assert post.get("kurgan_twins_only") is True and not post.get("kurgan_twins")   # twins-only: bot-10 work8/twins78_stats.log
+    assert post.get("kurgan_twins_only") is True and not post.get("kurgan_twins")   # twins-only: work8/twins78_stats.log
     assert "pixgbm" not in post and "multipole" not in str(pix)        # флаги в разных таблицах
 
 
@@ -139,7 +139,7 @@ def test_flags_off_independently(cfg, monkeypatch):
 
 
 def test_pix_fell_raster_keeps_classic(cfg, monkeypatch):
-    """bot-3 5deb94a: растр, где pix не отработал (срок/ошибка, status["fell"]), сохраняет классику своего
+    """ 5deb94a: растр, где pix не отработал (срок/ошибка, status["fell"]), сохраняет классику своего
     (класс, метод); где отработал (status["done"]) — классика заменена."""
     geo_pixgbm = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)")
     _patch_classic(monkeypatch, CLASSIC)
@@ -182,7 +182,7 @@ def _rf_env(monkeypatch, tmp_path, prob_calls):
 
 def test_region_feats_deadline_and_no_models(monkeypatch, tmp_path):
     """Срок вышел (budget 0) — pix не считается, оба растра в status["fell"]; в срок — full, оба в done;
-    нет моделей — [] без чтения растров (bot-7)."""
+    нет моделей — [] без чтения растров."""
     geo_pixgbm = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py not in main (EN-similarity hold, docs/MERGE_2026-10-29.md)")
     calls = []
     reg = _rf_env(monkeypatch, tmp_path, calls)
@@ -217,6 +217,6 @@ def test_check_submission_pixgbm_model_dir(tmp_path):
         with zipfile.ZipFile(zp) as z:
             cs.check_config_static(z)
         st = [s for s, c, m in cs.RESULTS if c == "config" and ("весам" in m or "отсутствуют" in m or "PIXGBM включён" in m)]
-        # после cherry-pick bot-8 7878087 нехватка класса — отдельный FAIL check_pixgbm_static, путь к папке PASS
+        # после cherry-pick 7878087 нехватка класса — отдельный FAIL check_pixgbm_static, путь к папке PASS
         assert ("FAIL" in st) == (want == "FAIL") and set(st) <= {"PASS", want}, cs.RESULTS
         assert not any(s == "WARN" and "pixgbm" in m for s, c, m in cs.RESULTS)

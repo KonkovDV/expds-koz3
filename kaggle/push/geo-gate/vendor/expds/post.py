@@ -962,7 +962,7 @@ def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> li
     spec = spec or {}
     classes = set(spec.get("classes") or KURGANS)
     groups = set(spec.get("groups") or ())
-    gor_groups = set(spec.get("gor_groups") or ())
+    gor_groups = set(spec.get("gor_groups") or)
     min_conf = float(spec.get("min_gor_conf", 0.0))
     buf_m = float(spec.get("buffer_m", 0.0))
     lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
@@ -1012,7 +1012,7 @@ def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
 
 # --- Калибровка по группам + WBF-слияние разных групп (bot-2, п. 5 REPORT.md) ---
 # Флаг выключен по умолчанию. Честная офлайн-проверка (LOFO по семьям, 7 вариантов)
-# не прошла honest_accept: все Δ < 0 (см. koz3_shared/bot-2/REPORT2.md, раздел п. 5).
+# не прошла honest_accept: все Δ < 0 (см. koz3_shared/work/REPORT2.md, раздел п. 5).
 FUSION_CALIB_ENABLED = False
 
 
@@ -1265,7 +1265,7 @@ def site_calibration(feats: list[dict], spec: dict | None = None) -> list[dict]:
     import numpy as np
 
     spec = spec or {}
-    groups = set(spec.get("groups") or ())
+    groups = set(spec.get("groups") or)
     if not groups:
         raise ValueError("site_calibration: нужен список groups")
     classes = set(spec.get("classes") or KURGANS)

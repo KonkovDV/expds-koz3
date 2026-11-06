@@ -1,9 +1,8 @@
 """Курганы cnx-лидара декодированием головы «как в ядре» (`[li_cnx] decode = "head"`).
 
-Зачем (поправка 1 PREREG c5-in, `kaggle/2026-11-05/li_cnx_in/PREREG.md`): гейт меряет OOF ядра bot-9, а прод
-по умолчанию (`decode = "rescore"`) берёт кандидатов из пиков ЦМР и лишь снимает с карты сети вероятность.
-Здесь курганы получаются тем же путём, что в ядре (`snapshot/2026-11-01/kaggle_push/koz3-cnx-li-c3sc-f4-v2`,
-функции `predict_region` и `decode`):
+Зачем: честный замер смотрит выдачу ядра, а обычный путь (`decode = "rescore"`) берёт пики рельефа
+и только снимает с карты сети вероятность. Здесь курганы получаются тем же декодированием головы,
+что при обучении:
 
 1. окна `infer.tile` (512) с шагом `infer.stride` (384), только там, где есть съёмка (проверка каждого 8-го пикселя);
 2. D8: rot90(k) + отражение по W; среднее логитов `hm`/`mask` и сырых `wh`/`off` после обратного поворота
@@ -86,7 +85,7 @@ def _untta_map(t, k: int, fl: bool):
 def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, batch: int = 8, extra=None) -> dict:
     """x: float32 (C,H,W) в нормировке контракта; valid: (H,W) bool (u8 > 0). → карты как у predict_region ядра:
     {"hm": (2,h,w) prob, "wh": (1,h,w), "off": (2,h,w), "mask": (3,H,W) prob, "_valid": (H,W), "_valid_h": (h,w)}.
-    extra — [(seg_b, x_b), …]: ансамбль (PREREG li_ens_in) — логиты всех сетей всех наборов и всех видов D8 усредняются
+    extra — [(seg_b, x_b), …]: второй набор весов. Логиты всех сетей, наборов и видов D8 усредняются
     вместе; x_b той же формы H×W (свои каналы). Без extra вычисления и порядок сложения — прежние."""
     import torch
 
@@ -209,7 +208,7 @@ def to_features(dets, geo: dict, p: dict, region: str, source: str, classes=HM_C
 def site_feats(seg, las, crs, opts: dict, region: str, deadline=None, time_left=None, prep_dir=None,
                seg_b=None) -> list[dict]:
     """Подготовка участка (как bind_las) → карты головы → курганы. Любой отказ — исключение (вызов ловит).
-    seg_b — второй набор весов (ансамбль c5 + c12, PREREG li_ens_in): одна подготовка на max(каналов), каждому набору —
+    seg_b — второй набор весов (например 12 каналов рядом с 5): одна подготовка на большее число каналов, каждому набору —
     свои первые каналы (теги контрактов — префиксы тегов подготовки), логиты усредняются (predict_maps extra)."""
     import shutil
     import tempfile

@@ -1,8 +1,8 @@
-"""Satellite recall levers (bot-7): precision-guarded mid-band + cross-layer agree.
+"""Satellite recall levers: precision-guarded mid-band + cross-layer agree.
 
 Default OFF. Distinct from CLOSED levers:
   - sat 8m cluster / [post.sp_score_fusion] radius_m=8 (score average, no new dets)
-  - near_kept / ring, sp_large, peak-rerank, sat2 (other bots)
+  - near_kept, кольцо, крупные объекты, перестановка пиков, вторая спутниковая сеть
 
 L1 [sat_band_verify]: lower thr (scale) but mid-band needs verify_p ≥ floor.
 L2 [sat_agree_accept]: thr×agree_scale only when partner sat group fires within

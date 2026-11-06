@@ -1,7 +1,7 @@
 # EN_COMMIT_GAP_VS_US_20261101 — EN score-up steps vs our tree, feature by feature
 
 Author: A-executor (research subagent), 01.11 ~11:55 MSK. Tasks t228u (priority) + t225u/t227u FULL GO.
-Sources (read-only, blobless clone `out/competitors/EhimenNathan_EXpedition`, branch `origin/codex/v24-dinov3-1024`):
+Sources (read-only, blobless clone `out/competitors/сторонний репозиторий_EXpedition`, branch `origin/codex/v24-dinov3-1024`):
 `docs/EXPERIMENTS.md` (version ledger with public scores), `docs/WEAKNESSES.md`, `docs/PAPER_TRIAGE_AND_P2_2026-10-29.md`,
 `docs/*_VERDICT_*.md`, `git log --all` (94 commits, 26–29.10). **Only docs and commit messages were read. No EN .py / weights
 were copied, opened into, or referenced from our tree.** Our side: `repo/` @70dedf4 (+ deployed config `configs/default.toml`),

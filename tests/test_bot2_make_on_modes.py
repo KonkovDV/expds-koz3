@@ -1,4 +1,4 @@
-"""bot-2: harvest make_on — дефолт C (без R); R явно включает drop_groups."""
+"""harvest make_on — дефолт C (без R); R явно включает drop_groups."""
 import ast
 import re
 from pathlib import Path
@@ -28,7 +28,7 @@ def test_make_on_c_vs_r_drop_groups_injection():
         if mode == "R":
             drop = '\ndrop_groups = ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]\n'
         else:
-            drop = "\n# bot-2: вариант C — без drop_groups (v2 SpOr + D-FINE рядом)\n"
+            drop = "\n# вариант C — без drop_groups (v2 SpOr + D-FINE рядом)\n"
         cfg, n = re.subn(
             r"(?m)^\[sp_dfine\]\nenabled = false\n",
             (

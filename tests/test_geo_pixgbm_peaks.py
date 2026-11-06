@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from affine import Affine
 
-G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 
 
 def _two_blobs(gap_m):

@@ -1,4 +1,4 @@
-"""bot-7: область сопоставления build_curves scope=layer — эталон только своего слоя
+"""область сопоставления build_curves scope=layer — эталон только своего слоя
 (markup_type / layer_key). По умолчанию global остаётся байт-идентичным старому поведению.
 
 Слойные синонимы: la→li, german_ae→ae, spor→sp_or. maggr/etgr/terfl/geogr — отдельные.

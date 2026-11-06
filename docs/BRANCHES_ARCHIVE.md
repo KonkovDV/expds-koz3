@@ -12,7 +12,7 @@
 Почему не влиты:
 
 * `bots/bot8-cpu-a-clean`, `bots/bot8-cpu-a-clean-on-v2` — **не clean room**: `docs/CLEANROOM_SPEC_lidar_a.md`
-  написан тем же агентом по поведению EhimenNathan-EXpedition @d434e56; `tests/lidar_a_oracle.py` /
+  написан тем же агентом по поведению сторонний репозиторий @d434e56; `tests/lidar_a_oracle.py` /
   `tests/test_lidar_a_oracle.py` загружают репозиторий конкурента. Плюс бинарь
   `rust/expds_fast/wheels/expds_fast-0.1.0-cp312-abi3-manylinux…whl`.
 * `speedup-2026-10-28` — меняет пути CPU по умолчанию («байт-в-байт с 14d419…» заявлено, но не проверено
@@ -22,7 +22,7 @@
 
 ## Харвест 29.10.2026 (ветка `harvest/2026-10-29`, слияние `--no-ff` в `main` f1b8d4c)
 
-Вопрос владельца «есть что-то ценное?». Разобран каждый дифф против `main`. Правила: ничего из линии EN
+Вопрос владельца «есть что-то ценное?». Разобран каждый дифф против `main`. Правила: ничего из прежней реализации
 (спека/тесты ссылаются на поведение или репозиторий конкурента — не берём), никаких `.whl`/бинарей/данных/весов,
 умолчания `main` = v2 (новое — по умолчанию ВЫКЛ.).
 
@@ -36,10 +36,10 @@
 | `speedup` → `writer._polygon_coords` | **ВЗЯТО**, флаг `fast_writer` | тот же JSON до байта; сохранены пропуск NaN и `fid = len(out)` из `main`. Тест переписан: сравнение флаг вкл./выкл., без `git show 14d419a` (не работал на shallow CI) |
 | `speedup` → `tiles.fix_channels` без repeat+concatenate | **ВЗЯТО**, флаг `fast_channels` | те же массивы |
 | `speedup` → `GDAL_NUM_THREADS=ALL_CPUS` в `inference/main.py` и `Dockerfile` | **ВЗЯТО иначе**: флаг `gdal_threads` (ставит env, если не задан) | `inference/main.py` и `Dockerfile` не тронуты — умолчание сдачи прежнее |
-| `speedup` → `expds/las_grid_fast.py`, `rust/expds_fast/*`, `tests/test_las_grid_fast.py`, `fast_so()` в `build_submission.py`, исключения `.gitignore` для колеса | **НЕ ВЗЯТО** (EN) | написаны как «замена ground.rasterise для DTM lidar_a» — линия EN; в `main` потребителя нет |
+| `speedup` → `expds/las_grid_fast.py`, `rust/expds_fast/*`, `tests/test_las_grid_fast.py`, `fast_so()` в `build_submission.py`, исключения `.gitignore` для колеса | **НЕ ВЗЯТО** (EN) | написаны как «замена ground.rasterise для DTM lidar_a» — прежняя реализация; в `main` потребителя нет |
 | `speedup` → `expds/cpu_threads.py` (+тест) | **НЕ ВЗЯТО** | потребитель только `lidar_a` (EN) |
 | `speedup`, `cpu-a-clean*` → `expds_fast-0.1.0-cp312-abi3-manylinux….whl` | **НЕ ВЗЯТО** (бинарь) | бинарь в git запрещён |
-| `cpu-a-clean*` → `lidar_a/*`, `docs/CLEANROOM_SPEC_lidar_a.md`, `tests/lidar_a_oracle.py`, `tests/test_lidar_a*.py`, `build_submission_git` (колесо) | **НЕ ВЗЯТО** (EN) | спека по поведению EhimenNathan-EXpedition, оракул грузит его репозиторий |
+| `cpu-a-clean*` → `lidar_a/*`, `docs/CLEANROOM_SPEC_lidar_a.md`, `tests/lidar_a_oracle.py`, `tests/test_lidar_a*.py`, `build_submission_git` (колесо) | **НЕ ВЗЯТО** (EN) | спека по поведению сторонний репозиторий, оракул грузит его репозиторий |
 | `cpu-a-clean*` → коммит ускорений | **НЕ ВЗЯТО** (дубль) | подмножество `speedup` (las_grid_fast, cpu_threads, expds_fast, колесо) |
 | `cpu-a-clean*` → `check_submission.check_so` glob `expds_core*.so` → `expds_*.so` | **НЕ ВЗЯТО** | нужно только для `expds_fast`, которого в `main` нет |
 | `bots/bot8-li-half` (`e449736`) → `expds/li_half.py`, `[li_half]`, проход в `pipeline`, `cross_class` в `drop_near_kurgans`/`dedupe_cnx`, `sigma_anchors`, проверки `check_submission`, тесты | **НЕ ВЛИТО**, остаётся на ветке | эксперимент отклонён honest-10 (HX +0,0004, P 0,67); `dedupe_cnx` меняет поведение по умолчанию |

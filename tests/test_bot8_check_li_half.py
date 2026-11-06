@@ -1,4 +1,4 @@
-"""bot-8 bot8-li-half: проверки [li_half] в scripts/check_submission.py (check_li_half, ключи смоука)."""
+""": проверки [li_half] в scripts/check_submission.py (check_li_half, ключи смоука)."""
 import importlib.util
 import re
 from pathlib import Path
@@ -32,7 +32,7 @@ def test_check_li_half(cs):
     r = _run(cs, {"li_half": {"enabled": "true"}, "thresholds_by_markup": {"li_half": THR}})
     assert [s for s, _ in r] == ["WARN"] and "ВЫКЛЮЧЕННЫМ" in r[0][1]
     r = _run(cs, {"li_half": {"enabled": True}})
-    assert [s for s, _ in r] == ["WARN"] and "НЕ будет" in r[0][1]           # только выгрузка, как у бота 2
+    assert [s for s, _ in r] == ["WARN"] and "НЕ будет" in r[0][1]           # только выгрузка, как у
     r = _run(cs, {"li_half": {"enabled": True, "group": "li"}, "thresholds_by_markup": {"li": THR}})
     assert [s for s, _ in r] == ["FAIL"]
     r = _run(cs, {"li_half": {"enabled": True}, "thresholds_by_markup": {"li_half": {"kurgany_tselye": 0.5}}})

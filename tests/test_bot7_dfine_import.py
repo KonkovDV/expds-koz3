@@ -1,10 +1,10 @@
-"""bot-7 (v3, после сбоя ПК-прогона 29.10): импорт D-FINE строго закреплённого transformers, громкий отказ.
+""" (v3, после сбоя ПК-прогона 29.10): импорт D-FINE строго закреплённого transformers, громкий отказ.
 
 (a) [sp_dfine] включён, классов нет → в логе SP_DFINE_UNAVAILABLE, выдача как v2 (на прогоне сдача не падает);
     check_submission: FAIL по маркеру в логе и по пробе в чистом процессе.
 (b) в логе «sp_dfine n_det=… region=…» по участкам и итог «sp_dfine n_det=… total».
 Импорт проверяется в отдельных процессах (sys.modules не трогаем у pytest). Настоящий вендор — если есть на box
-(EXPDS_TEST_VENDOR или bot-7/work6/vendor_test/lib), иначе эти тесты пропускаются."""
+(EXPDS_TEST_VENDOR или work6/vendor_test/lib), иначе эти тесты пропускаются."""
 import importlib.util
 import io
 import json
@@ -303,6 +303,6 @@ def test_dfine_weights_probe_required_when_enabled(monkeypatch, tmp_path):
 
 
 def test_sp_dfine_fp32_weights_autocast_no_half():
-    """T4: .half() без autocast падает (bot-9 §7); веса fp32, fp16 — только autocast на cuda."""
+    """T4: .half() без autocast падает (§7); веса fp32, fp16 — только autocast на cuda."""
     src = (ROOT / "expds" / "sp_dfine.py").read_text(encoding="utf-8")
     assert ".half()" not in src and "torch.float16" in src and "torch.autocast(" in src

@@ -10,7 +10,7 @@
 
 ---
 ## 0. Коротко
-1. **Лидер из открытых — EhimenNathan (EN):** публичный LB **0.5019** (v20, 27.10). По нашим заметкам, v22 добавил ещё +0.003, итого ≈0.505.
+1. **Лидер из открытых — сторонний репозиторий (EN):** публичный LB **0.5019** (v20, 27.10). По нашим заметкам, v22 добавил ещё +0.003, итого ≈0.505.
    Мы: **0.41238** (v2). Отставание **≈0.09**.
 2. **Где именно отставание** (наш лог LB v2 против LB EN v14/v20, один и тот же публичный набор):
 
@@ -32,12 +32,12 @@
    Внутри .laz/.tif и `small_files.tar.zst`, то есть данные организаторов и, возможно, наши файлы. Нужно решение Елены: сделать приватными (см. §5).
 
 ---
-## 1. EhimenNathan/EXpedition (лидер) — полный разбор
-Источник: https://github.com/EhimenNathan/EXpedition (создан 26.10, последний push 29.10 15:24).
+## 1. сторонний репозиторий (лидер) — полный разбор
+Источник: https://github.com/сторонний репозиторий (создан 26.10, последний push 29.10 15:24).
 Описание: «inference forensics», код от Claude + Codex; данные и веса исключены.
 Внутри 408 файлов: `koz3/`, `inference/`, `scripts/` (≈60 OOF-скриптов), `experiments/codex/` (174), `legacy/previous_team/` (58).
-Журнал: [docs/EXPERIMENTS.md](https://github.com/EhimenNathan/EXpedition/blob/main/docs/EXPERIMENTS.md) (64 КБ).
-Слабые места: [docs/WEAKNESSES.md](https://github.com/EhimenNathan/EXpedition/blob/main/docs/WEAKNESSES.md).
+Журнал: [docs/EXPERIMENTS.md](https://github.com/сторонний репозиторий/blob/main/docs/EXPERIMENTS.md) (64 КБ).
+Слабые места: [docs/WEAKNESSES.md](https://github.com/сторонний репозиторий/blob/main/docs/WEAKNESSES.md).
 Форк: [maratgaliulin/EXpedition](https://github.com/maratgaliulin/EXpedition).
 
 ### 1.1. Рост публичного балла EN (из EXPERIMENTS.md / README; LB = публичная валидационная)
@@ -140,7 +140,7 @@
 
 ---
 ## 4. Источники
-- EN: [README](https://github.com/EhimenNathan/EXpedition/blob/main/README.md), [EXPERIMENTS.md](https://github.com/EhimenNathan/EXpedition/blob/main/docs/EXPERIMENTS.md), [WEAKNESSES.md](https://github.com/EhimenNathan/EXpedition/blob/main/docs/WEAKNESSES.md), [AE_V21_FORENSIC](https://github.com/EhimenNathan/EXpedition/blob/main/docs/AE_V21_FORENSIC_2026-10-27.md), [OPTICAL_LAYER_AUDIT](https://github.com/EhimenNathan/EXpedition/blob/main/docs/OPTICAL_LAYER_AUDIT_2026-10-27.md), [коммиты](https://github.com/EhimenNathan/EXpedition/commits/main)
+- EN: [README](https://github.com/сторонний репозиторий/blob/main/README.md), [EXPERIMENTS.md](https://github.com/сторонний репозиторий/blob/main/docs/EXPERIMENTS.md), [WEAKNESSES.md](https://github.com/сторонний репозиторий/blob/main/docs/WEAKNESSES.md), [AE_V21_FORENSIC](https://github.com/сторонний репозиторий/blob/main/docs/AE_V21_FORENSIC_2026-10-27.md), [OPTICAL_LAYER_AUDIT](https://github.com/сторонний репозиторий/blob/main/docs/OPTICAL_LAYER_AUDIT_2026-10-27.md), [коммиты](https://github.com/сторонний репозиторий/commits/main)
 - [maratgaliulin/EXpedition коммиты](https://github.com/maratgaliulin/EXpedition/commits/main)
 - [yakirill99 коммиты develop](https://github.com/yakirill99/ds-expedition/commits/develop), [vaitter коммиты](https://github.com/vaitter/koz3-build/commits/main)
 - Kaggle: https://www.kaggle.com/ssrobotics/code ; зеркала `kaggle datasets list -s koz3`

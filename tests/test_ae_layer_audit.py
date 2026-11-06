@@ -1,4 +1,4 @@
-"""ae_layer_audit.build_gt: кириллический код «Ае» в имени файла учитывается, пустые фигуры отбрасываются (bot-6)."""
+"""ae_layer_audit.build_gt: кириллический код «Ае» в имени файла учитывается, пустые фигуры отбрасываются."""
 import importlib.util
 import json
 from pathlib import Path

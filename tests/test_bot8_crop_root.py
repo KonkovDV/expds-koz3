@@ -1,5 +1,5 @@
-"""bot-8 (8343483): [verify] weights от корня архива, не от cwd. Тест перенесён из tests/test_bot8_faults.py
-без остальных тестов 9316b5f (bot-7: в кандидат взята только правка кропа)."""
+"""[verify] weights от корня архива, не от cwd. Тест перенесён из tests/test_bot8_faults.py
+без остальных тестов 9316b5f (в кандидат взята только правка кропа)."""
 
 
 def test_verify_weights_resolve_from_archive_root_not_cwd(tmp_path, monkeypatch):

@@ -52,6 +52,16 @@ def test_region_crs_conflict_is_resolved_by_rasters(tmp_path):
     assert resolve_region_crs(wrong, [las], [ortho], "utm_json") == wrong
 
 
+def test_dem_keeps_las_coordinates_and_only_labels_crs(tmp_path):
+    """ЦМР не переводится в зону подписи: левый край сетки — из заголовка файла."""
+    from expds.lidar import build_dem
+
+    las = write_las(tmp_path / "a.las", n=2_000)
+    dem = build_dem(las, res=5.0, crs="EPSG:32633")
+    assert dem.crs == "EPSG:32633"
+    assert dem.left == pytest.approx(X0, abs=5.0)
+
+
 def test_input_layouts_flat_nested_and_single_region(tmp_path):
     flat = tmp_path / "flat"
     write_las(flat / "x_La_точки.las", n=2_000)

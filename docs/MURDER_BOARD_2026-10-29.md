@@ -1,6 +1,6 @@
 # Murder Board / Red Team — main after the 29.10.2026 integration (condensed)
 
-Full version (shared workspace): `koz3_shared/bot-1/MURDER_BOARD_MAIN_2026-10-29.md`. Reference submission: v2
+Full version (shared workspace): `koz3_shared/work/MURDER_BOARD_MAIN_2026-10-29.md`. Reference submission: v2
 (eb268d6 / 1b62124 lineage, LB 0.41238). No data, weights or secrets in this file.
 
 ## Top findings
@@ -15,7 +15,7 @@ Full version (shared workspace): `koz3_shared/bot-1/MURDER_BOARD_MAIN_2026-10-29
    thresholds / vendored `transformers/models/d_fine`. `enabled = false` default unchanged.
 3. **EN provenance cannot be removed from history without a rewrite (forbidden).** `expds/geo_pixgbm.py` is reachable
    from main through 9 merged branches and is present in the main *tree* as 3 copies under `analysis/2026-10-29/`
-   (one byte-identical to v2, sha256 `35e4331b…`). `expds/li_decode.py` docstring cites EhimenNathan-EXpedition.
+   (one byte-identical to v2, sha256 `35e4331b…`). `expds/li_decode.py` docstring cites сторонний репозиторий.
    `bots/bot8-cpu-a-clean*` (not clean-room) are still on the remote.
 4. **CI had two blockers.** (a) account billing — jobs never start; (b) even with billing fixed the job would have
    failed: unpinned `torch` + timm pulled an ABI-mismatched torchvision (`operator torchvision::nms does not exist`

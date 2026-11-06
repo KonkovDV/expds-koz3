@@ -1,6 +1,6 @@
 """Пакетное построение геометрий метрики: то же, что официальная `_extract_geometry`, но быстрее.
 
-Профиль `scripts/scoreboard.py --honest` (bot-8/prof/cprofile_build_curves.txt): ≈ 90 %
+Профиль `scripts/scoreboard.py --honest` (prof/cprofile_build_curves.txt): ≈ 90 %
 времени build_curves уходит в `_extract_geometry` → конструктор `shapely.Polygon`
 (≈ 40 мкс на объект: обход вложенных списков, проверки типов, LinearRing).
 
@@ -9,7 +9,7 @@
 массивы и создаются одним вызовом `shapely.from_ragged_array`; валидность
 проверяется векторно. Невалидные, MultiPolygon, Point и всё необычное идут
 через официальную `_extract_geometry` по одному — результат совпадает
-побайтно (WKB), см. tests/test_bot8_fast_metric.py.
+побайтно (WKB), это проверяет тест быстрой метрики.
 
 Без собранного Rust-модуля (или EXPDS_BACKEND=numpy / EXPDS_FASTGEOM=0) работает
 прежний путь: официальная функция на каждый объект.

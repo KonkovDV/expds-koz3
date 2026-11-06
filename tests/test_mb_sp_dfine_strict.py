@@ -1,4 +1,4 @@
-"""Murder Board 29.10 (требование bot-10): при [sp_dfine] enabled = true контейнер без DFine* в transformers,
+"""проверка 29.10 (требование): при [sp_dfine] enabled = true контейнер без DFine* в transformers,
 без весов или порогов — жёсткая ошибка, а не тихий v2. Синтетика: без весов, без сети, transformers — заглушка."""
 import sys
 import types

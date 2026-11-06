@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-gp = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+gp = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 
 
 def _write(txt: Path, body: str = "feature_names=a\n") -> str:

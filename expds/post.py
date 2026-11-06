@@ -115,7 +115,7 @@ def _repaired(feat: dict) -> dict | None:
     return feat
 
 
-#: bot-6: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
+#: группы порогов, которые склеиваются только сами с собой (D-FINE Ae/Or, [dfine_aeor]).
 ISOLATED_GROUPS = ("dfine_ae", "dfine_or")
 
 
@@ -123,7 +123,7 @@ def merge_within_markup(feats: list[dict], isolate=ISOLATED_GROUPS) -> list[dict
     """Объединение по группам (регион, markup_type, класс); разные markup_type не трогаются.
 
     Слои EtGr не объединяются: каждый снимок — отдельный эталон.
-    bot-6: у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
+    у объектов с threshold_group из isolate ключ ещё и по группе — dfine_ae склеивается только
     с dfine_ae (не с прочими ae). У остальных четвёртый элемент ключа None — их группы как в v3.
     """
     iso = set(isolate or ())
@@ -181,7 +181,7 @@ GEO_HULL_MARKUPS = ("etgr", "terfl")
 def convex_hull_object_poly(feats: list[dict], spec=None) -> list[dict]:
     """Выпуклая оболочка object_poly только для геофизики etgr/terfl ([post] geo_convex_hull, по умолчанию выкл.).
 
-    Честная проверка bot-6 (GEO.md, work/geo/geo_val.py, LOSO внутри Гнёздово): +0,0017 к исходной
+    Честная проверка (GEO.md, work/geo/geo_val.py, LOSO внутри Гнёздово): +0,0017 к исходной
     геометрии, P 0,998. maggr и остальные классы не трогаются.
     """
     cfg = spec if isinstance(spec, dict) else {}
@@ -311,7 +311,7 @@ def threshold_fn(thresholds: dict[str, float], default: float = 0.15,
 
 
 
-# bot-2 sat recall: группы U-Net SpOr (+ sp_dfine), чьи пороги можно ослабить флагом [sat_thr_relax].
+# sat recall: группы U-Net SpOr (+ sp_dfine), чьи пороги можно ослабить флагом [sat_thr_relax].
 SAT_THR_RELAX_GROUPS = ("sp_or", "sp_focal", "sp_focal2", "sp_arch", "sp_dfine")
 
 
@@ -423,7 +423,7 @@ def micro_circles(feats: list[dict], spec: dict | None = None) -> list[dict]:
     Тот же приём, что у object_poly (multipole_object_poly, circle_radius_m = 0,05).
     radius_m по умолчанию 0,25: finalize отбрасывает полигоны мельче 0,01 ед.² EPSG:3857.
     radius_m — число (для всех classes) или словарь {класс: радиус}; во втором случае
-    classes по умолчанию = ключи словаря. Курганы (bot-7, 28.10): 0,5 м вместо 2 м /
+    classes по умолчанию = ключи словаря. Курганы (28.10): 0,5 м вместо 2 м /
     4 м (sp_focal) — тот же центр, cov ≥ 0,5 почти всегда, если центр внутри.
     """
     spec = spec or {}
@@ -519,7 +519,7 @@ def shape_cores(feats: list[dict], spec: dict) -> list[dict]:
         if not rule or (rule.get("groups") and group not in rule["groups"]):
             out.append(feat)
             continue
-        # bot-2 bigobj F2: min_area_m2 — ядро только у полигонов не мельче (м² на земле); нет ключа — у всех.
+        # bigobj F2: min_area_m2 — ядро только у полигонов не мельче (м² на земле); нет ключа — у всех.
         if rule.get("min_area_m2") and _area_m2(feat["geom"]) < float(rule["min_area_m2"]):
             out.append(feat)
             continue
@@ -538,7 +538,7 @@ def _area_m2(geom: BaseGeometry) -> float:
 
 
 def big_area_groups(feats: list[dict], spec: dict | None = None) -> list[dict]:
-    """bot-2 bigobj F1: крупные прогнозы — в свою группу порога. По умолчанию выключено.
+    """ bigobj F1: крупные прогнозы — в свою группу порога. По умолчанию выключено.
 
     Уверенность масок городищ и фортификаций — пик вероятности экземпляра (infer_nn.probs_to_features),
     одна шкала у мелкого пятна и у маски на весь памятник; порог группы (sp_or, ae, li_mask …) ставят
@@ -778,7 +778,7 @@ def kurgan_cross_modal_twins(feats: list[dict], spec: dict | None = None) -> lis
     sp_dedup_m = float(cfg.get("sp_dedup_m", 2.0))
 
     # Один масштаб cos φ на участок (по среднему y его объектов). Масштаб для каждой точки, s(y)·y, не изометрия:
-    # на 55° расстояния по меридиану сжимаются примерно в 16 раз (bot-10 REPORT6_twins.md §2, ae-двойников 5 вместо 85).
+    # на 55° расстояния по меридиану сжимаются примерно в 16 раз (REPORT6_twins.md §2, ae-двойников 5 вместо 85).
     ys: dict[str, list] = defaultdict(list)
     for f in feats:
         if f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye"):
@@ -846,7 +846,7 @@ SP_FUSION_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye")
 
 
 def sp_score_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
-    """Слияние уверенностей двух спутниковых групп для курганов (bot-6 ORSP, PREREG_ORSP.md).
+    """Слияние уверенностей двух спутниковых групп для курганов.
 
     Для кургана (povr или tselye) из sp_focal / sp_focal2: o = наибольшая уверенность курганов
     (любого из двух классов) ДРУГОЙ sp-группы в радиусе radius_m метров на земле на том же
@@ -1010,9 +1010,9 @@ def sp_fusion_gen_floors(floors: dict[str, float], spec) -> dict[str, float]:
     return {c: (min(t, g) if c in SP_FUSION_CLASSES else t) for c, t in floors.items()}
 
 
-# --- Калибровка по группам + WBF-слияние разных групп (bot-2, п. 5 REPORT.md) ---
+# --- Калибровка по группам + WBF-слияние разных групп (п. 5 REPORT.md) ---
 # Флаг выключен по умолчанию. Честная офлайн-проверка (LOFO по семьям, 7 вариантов)
-# не прошла honest_accept: все Δ < 0 (см. koz3_shared/bot-2/REPORT2.md, раздел п. 5).
+# не прошла honest_accept: все Δ < 0 (см. koz3_shared/REPORT2.md, раздел п. 5).
 FUSION_CALIB_ENABLED = False
 
 
@@ -1285,7 +1285,7 @@ CALIB_MODES = ("rank", "quantile", "mix")
 def site_calibration(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Калибровка уверенности по участку без эталона: шкала каждой (участок, группа, класс) — по её же объектам.
 
-    Одна сеть на разных участках откалибрована по-разному: ConvNeXt лидара (bot-9 CONVNEXT.md §2) имеет лучший
+    Одна сеть на разных участках откалибрована по-разному: ConvNeXt лидара (CONVNEXT.md §2) имеет лучший
     порог повреждённых 0,329 на одной семье и 0,064 на другой; честный порог группы, снятый на одной семье,
     дал на другой 5142 FP против 678 у базы. Геофизика решает то же рангом внутри карты (geophys.rank_within_source).
     Шаг идёт ДО порогов; пороги групп из spec.groups подбирать заново после scripts/oof_transform.py calib.

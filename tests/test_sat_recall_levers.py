@@ -1,4 +1,4 @@
-"""bot-7: [sat_band_verify] / [sat_agree_accept] / [sat_cross_nms] default OFF."""
+"""[sat_band_verify] / [sat_agree_accept] / [sat_cross_nms] default OFF."""
 from __future__ import annotations
 
 import pytest

@@ -1,4 +1,4 @@
-"""bot-8: инъекции отказов — один сбой не должен обнулять или урезать весь прогон."""
+"""инъекции отказов — один сбой не должен обнулять или урезать весь прогон."""
 import json
 import math
 from types import SimpleNamespace
@@ -84,7 +84,7 @@ def test_writer_never_emits_nan(tmp_path):
 
 
 def test_safe_finish_fallback_keeps_bot7_micro_circles(tmp_path, monkeypatch):
-    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет bot-7)."""
+    """watchdog.safe_finish: при сбое finish() запасная цепочка тоже делает [post.micro_circles] (пакет)."""
     from shapely.geometry import Point
 
     from expds import post

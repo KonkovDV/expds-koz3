@@ -10,7 +10,7 @@
 ## Расхождения и риски
 | # | Где | Что | Риск | Действие |
 |---|---|---|---|---|
-| R1 | `bots/bot5-candidate-v4`: `expds/geo_pixgbm.py`, `configs/default.toml:295` `[geophys.pixgbm] enabled` | модуль «по мотивам» решения EhimenNathan в пути архива (+ `models/pixgbm/all/*`) | **высокий** (clean-room, экспертиза 13.6/8.5) | QUEUE DOC-1 (W5): выключить или заменить clean-room/GEO-ORG1 |
+| R1 | `bots/bot5-candidate-v4`: `expds/geo_pixgbm.py`, `configs/default.toml:295` `[geophys.pixgbm] enabled` | модуль «по мотивам» решения сторонний репозиторий в пути архива (+ `models/pixgbm/all/*`) | **высокий** (clean-room, экспертиза 13.6/8.5) | QUEUE DOC-1 (W5): выключить или заменить clean-room/GEO-ORG1 |
 | R2 | `origin/main`: `configs/default.toml:295` pixgbm enabled, модуля нет → `expds/pipeline.py:361` тихий откат | флаг расходится с кодом | средний | DOC-1: явно `enabled=false` |
 | R3 | `orch/QUEUE.json` FINAL 11.11 | по консультации финал 17–19.11 | средний (план) | DOC-3: решение Елены |
 | R4 | `scripts/build_submission.py:38-80` | `docs/` в архив платформы не входят | низкий: для платформы не нужно, на экспертизу — весь репо | `docs/README_FINAL.md` на ветке `bots/w0-docs` |

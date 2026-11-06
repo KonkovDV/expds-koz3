@@ -1,4 +1,4 @@
-"""Разрезание слипшихся object_poly водоразделом и круги в полюсе недоступности (bot-3)."""
+"""Разрезание слипшихся object_poly водоразделом и круги в полюсе недоступности."""
 import numpy as np
 from rasterio.transform import from_origin
 

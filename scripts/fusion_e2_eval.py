@@ -1,10 +1,10 @@
-"""E2 (bot-2): заранее объявленные варианты из koz3_shared/bot-2/EXPERIMENTS.md (28.10.2026 20:14 МСК).
+"""E2: заранее объявленные варианты из koz3_shared/EXPERIMENTS.md (28.10.2026 20:14 МСК).
 
 Сопоставление только внутри своего участка (режим region). Калибратор isotonic.
   nl_iso_wbf       — iso + WBF только на участках без лидара; отдельные пороги для них; лидарные = база;
   all_iso_wbf_noli — iso везде + WBF везде, группы markup li для WBF — одна группа (не сливаются);
   nl_iso           — как nl_iso_wbf, без WBF.
-Приёмка — правило bot-10 П1–П4 (/workspace/koz3_shared/EXPERIMENTS.md); П5 — в отчёте.
+Приёмка — правило П1–П4 (/workspace/koz3_shared/EXPERIMENTS.md); П5 — в отчёте.
 Запуск: OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/fusion_e2_eval.py
 """
 import argparse, json, pickle, sys, time
@@ -37,7 +37,7 @@ optical = {r for r in gt_all if r} - boxes
 new = {l.strip() for l in (ROOT / "notes" / "regions_las_new.txt").read_text(encoding="utf-8").splitlines() if l.strip()}
 NL = {c: np.array([r not in boxes for r in R["P"][c]["region"]]) for c in CL}
 
-def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
+def random_family_folds(regions, k, seed):      # копия repo/scripts/honest_bootstrap.py
     fams = {}
     for r in regions: fams.setdefault(site_family(r), set()).add(r)
     names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k
@@ -171,7 +171,7 @@ def wdelta(ca, cb):
 
 lofo = family_folds(every, site_family, None)
 seed_folds = [random_family_folds(every, 10, s) for s in range(a.seeds)]
-out = {"declared": "koz3_shared/bot-2/EXPERIMENTS.md E2, 28.10.2026 20:14:08 MSK", "mode": MODE,
+out = {"declared": "koz3_shared/work/EXPERIMENTS.md E2, 28.10.2026 20:14:08 MSK", "mode": MODE,
        "n_lofo_folds": len(lofo), "n_new": len(new), "n_optical": len(optical), "variants": {}}
 t0 = time.time(); base = {}
 for v in a.variants.split(","):

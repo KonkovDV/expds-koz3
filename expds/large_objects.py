@@ -10,7 +10,7 @@ Fix C (dfine_ae_gor_area_tau): абсолютный τ для крупных (bo
 только группы dfine_ae/ae_dfine и markup ae — li не трогаем. Нужен stash box_area_m2
 из D-FINE (круги r=4 иначе ~50 м²).
 
-Не повторяет отвергнутый bot-2 F1 (отдельные группы порогов под sweep — переобучение на
+Не повторяет отвергнутый F1 (отдельные группы порогов под sweep — переобучение на
 малых группах): здесь те же калиброванные τ родителя, только ослабление по площади
 кандидата. F2 (ядра глобально) — только для крупных городищ.
 
@@ -98,7 +98,7 @@ def area_tau(base_tau, lo: dict):
     return tau
 
 
-#: Группы порога D-FINE Ae (OOF bot-9 иногда пишет ae_dfine).
+#: Группы порога D-FINE Ae (OOF иногда пишет ae_dfine).
 DFINE_AE_GROUPS = frozenset({"dfine_ae", "ae_dfine"})
 
 
@@ -230,7 +230,7 @@ def merge_within_markup(feats: list[dict], isolate, lo: dict) -> list[dict]:
 
 
 def shape_cores_large(feats: list[dict], lo: dict) -> list[dict]:
-    """Ядра только у крупных городищ (не глобальный F2 bot-2)."""
+    """Ядра только у крупных городищ (не глобальный F2)."""
     if not lo.get("shape_cores"):
         return feats
     min_area = float(lo.get("min_area_m2", 5000.0))

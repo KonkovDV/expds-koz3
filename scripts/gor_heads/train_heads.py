@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""bot-5. Deterministic, resumable training of gor_v3_head.npz + gor_dense_head.npz.
+""". Deterministic, resumable training of gor_v3_head.npz + gor_dense_head.npz.
 
-Recipe (original bot-5 / FOR_BOT7_GOR_V3 + export_head PFnoD):
+Обучение головы: признаки DINOv2, затем логистическая регрессия.
   1) extract_feats  — DINOv2-S vignettes 384+768 m → feats.npz (1536-d)
   2) fit_v3_head    — PCA-64 + L2-logreg C=1 + Landauer clean → gor_v3_head.npz
   3) dense_feats    — dense patch tokens GSDS 2+4 m → dense.npz (768-d)

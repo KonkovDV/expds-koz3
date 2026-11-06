@@ -1,4 +1,4 @@
-"""Задача 14: сборка bot-2/morph/morph_ringw_li_kurgan.parquet из per-region .npz morph_fast --ringw --save ringw.
+"""Задача 14: сборка morph/morph_ringw_li_kurgan.parquet из per-region.npz morph_fast --ringw --save ringw.
 Порядок строк и ключ stack_idx — как в morph_li_kurgan.parquet (1 209 594). Метки не читаются.
 python morph_ringw_merge.py TMPDIR OUT.parquet"""
 import hashlib, json, sys, glob

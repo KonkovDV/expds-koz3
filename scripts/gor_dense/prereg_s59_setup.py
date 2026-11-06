@@ -1,6 +1,6 @@
-# bot-5. PREREG bot-10/PREREG_gor_dense_bot5.md, поправка (1): ДО прогона записать генератор сидов 5–9, хэши списков фолдов
+#. PREREG PREREG_gor_dense_bot5.md, поправка (1): ДО прогона записать генератор сидов 5–9, хэши списков фолдов
 # и sha всех входов. Пишет DOUT/gor_dense_inputs.json (hf, scn — как в analysis/gor_dense; layouts — только seed5..seed9)
-# и DOUT/prerun.json. Раскладки: gor_scene.py rand_folds(s) = bot-10/repo/scripts/honest_bootstrap.py:random_family_folds
+# и DOUT/prerun.json. Раскладки: gor_scene.py rand_folds(s) = repo/scripts/honest_bootstrap.py:random_family_folds
 # (np.random.default_rng(s).permutation(n_семей) % 10 по sorted(семьи site_family)).
 import os, json, hashlib, subprocess
 from pathlib import Path

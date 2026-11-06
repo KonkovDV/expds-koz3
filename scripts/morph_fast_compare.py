@@ -1,4 +1,4 @@
-"""(запуск из bot-2/work/morphfast) сравнение 45 колонок morph_fast с parquet задачи 10 (e918a3b) на тех же stack_idx."""
+"""(запуск из work/morphfast) сравнение 45 колонок morph_fast с parquet задачи 10 (e918a3b) на тех же stack_idx."""
 import sys, json, numpy as np, pyarrow.parquet as pq, pyarrow.dataset as ds, pyarrow.compute as pc
 P = "/workspace/koz3_shared/bot-2/morph/morph_li_kurgan.parquet"
 res = {}

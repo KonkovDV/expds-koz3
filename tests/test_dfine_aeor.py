@@ -1,4 +1,4 @@
-"""bot-6: D-FINE Ae/Or ([dfine_aeor]) на v3 — флаг выкл., нарезка, слияние внутри растра, геопривязка,
+"""D-FINE Ae/Or ([dfine_aeor]) на v3 — флаг выкл., нарезка, слияние внутри растра, геопривязка,
 сторож времени, группы dfine_ae/dfine_or в постобработке v3 (R, frame_prior, verify, merge_within_markup)."""
 import importlib.util
 import inspect
@@ -35,12 +35,12 @@ def _thr(v=0.3):
 def test_default_off_and_names():
     cfg = _cfg()
     assert cfg["dfine_aeor"] == {"enabled": False}
-    assert not (cfg.get("aeor_dfine") or {}).get("enabled")   # вторая реализация (bot-1) тоже выключена
+    assert not (cfg.get("aeor_dfine") or {}).get("enabled")   # вторая реализация тоже выключена
     assert not A.enabled(cfg)
     assert A.GROUPS == {"ae": "dfine_ae", "or": "dfine_or"}
     tbm = cfg.get("thresholds_by_markup") or {}
     assert "dfine_ae" not in tbm   # чисел без OOF нет
-    assert tbm["dfine_or"] == {"gorodishcha": 1.01}   # городища D-FINE Or выкл. до замера bot-10 с gor_dense
+    assert tbm["dfine_or"] == {"gorodishcha": 1.01}   # городища D-FINE Or выкл. до замера с gor_dense
     assert A.GROUP_ALIASES == {"ae_dfine": "dfine_ae", "or_dfine": "dfine_or"}
 
 
@@ -303,7 +303,7 @@ def _slow_scene(clock, read_s):
 
 
 def test_deadline_checked_before_each_window_not_only_batch(tmp_path, monkeypatch):
-    """bot-7 13:12: самый медленный Or (033 Елизаветинское: 4 окна за 89,2 с ≈ 22 с/окно чтения+warp (детектор — заглушка), work/aeor_rss/or_033.log).
+    """ 13:12: самый медленный Or (033 Елизаветинское: 4 окна за 89,2 с ≈ 22 с/окно чтения+warp (детектор — заглушка), work/aeor_rss/or_033.log).
     Батч 4 окна, бюджет фазы 30 с, окно читается 23 с: проверка только между батчами прочла бы все 4 (92 с,
     перерасход 62 с). Теперь — проверка перед каждым окном по замеру: 1 окно, фаза не переехала потолок."""
     pytest.importorskip("torch")
@@ -481,7 +481,7 @@ def test_cap_per_group():
     assert len(out) == 4
 
 
-# ── правки bot-7 (12:31): ключ склейки, отдельная цепочка, check_submission ──────────────────────────────
+# ── правки (12:31): ключ склейки, отдельная цепочка, check_submission ──────────────────────────────
 def _poly(x, y, r=6.0):
     return Point(x, y).buffer(r, 32)
 
@@ -619,7 +619,7 @@ def test_check_submission_smoke_needs_weights(tmp_path):
 
 
 def test_check_submission_smoke_verdict_reaches_report(tmp_path, monkeypatch):
-    """bot-6 v4: первый настоящий прогон с весами bot-9 упал TypeError — report() звался с (статус, текст) без
+    """ v4: первый настоящий прогон с весами упал TypeError — report() звался с (статус, текст) без
     раздела. Проба с данными и весами должна дойти до report(статус, "dfine", текст): n_det>0 — PASS, 0 — FAIL."""
     cs = _cs()
     reg = tmp_path / "train" / "185_Изборск" / "05_Изборск_Or_ортофото"
@@ -638,7 +638,7 @@ def test_check_submission_smoke_verdict_reaches_report(tmp_path, monkeypatch):
 
 
 def test_check_submission_missing_train_data_warns_not_pass(tmp_path):
-    """bot-7 13:12: веса в архиве есть, а данных трейна для смоука на машине нет — явный WARN «смоук не выполнен»
+    """ 13:12: веса в архиве есть, а данных трейна для смоука на машине нет — явный WARN «смоук не выполнен»
     на каждую модальность, ни одного PASS; итог без FAIL (не дефект архива), но WARN виден."""
     cs = _cs()
     cfg = {"dfine_aeor": {"enabled": True, "weights": {"ae": ["models/dfine_ae"], "or": ["models/dfine_or"]}}}
@@ -682,7 +682,7 @@ def test_scene_uses_overview_only_for_heavy_downsampling(tmp_path):
 
 
 def test_scene_geographic_rgba_not_1x1(tmp_path):
-    """bot-9 13:37: Or 008_Герите (EPSG:4326, пиксель ~1e-7°, RGBA, обзоры 2…511) у bot-9 прочитан 1×1 px.
+    """ 13:37: Or 008_Герите (EPSG:4326, пиксель ~1e-7°, RGBA, обзоры 2…511) у прочитан 1×1 px.
     Scene считает размер через calculate_default_transform в UTM (метры), а не res в градусах: сцена = охват/0,5 м,
     альфа не читается, сетка окон покрывает сцену (замер на настоящем 008: work/aeor_v4/raster_probe.log)."""
     import rasterio
@@ -723,7 +723,7 @@ def test_thresholds_file_aliases_and_gor_off(tmp_path):
 
 
 def test_recipe_autocast_only_no_half():
-    """Вход как у sp_dfine/обучения bot-9: float32 RGB/255 без нормализации, flip-TTA, NMS 0,5; .half() нет."""
+    """Вход как у sp_dfine/обучения float32 RGB/255 без нормализации, flip-TTA, NMS 0,5;.half() нет."""
     import torch
 
     seen = []

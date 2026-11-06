@@ -284,7 +284,7 @@ def cmd_predict(a):
 
 
 def cmd_oof(a):
-    """Сырые OOF-полигоны object_poly для bot-6: <out>/<участок>_<метод>.geojson, маркер READY_<участок>."""
+    """Сырые OOF-полигоны object_poly для <out>/<участок>_<метод>.geojson, маркер READY_<участок>."""
     import lightgbm as lgb
     from shapely.geometry import mapping
     cfg = load_config(a.config)

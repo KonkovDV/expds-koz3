@@ -1,4 +1,4 @@
-"""Align Ae D-FINE infer tiling/fuse with Ae FT OOF (bot-3).
+"""Align Ae D-FINE infer tiling/fuse with Ae FT OOF.
 
 Mismatch audit (2026-10-29):
 - res_m/tile/overlap/min_score/max_det/nms_iou/flip_tta already match FT (0.5/640/160/0.05/100/0.5/True).

@@ -1,4 +1,4 @@
-"""bot-5 v4: патчи bot-3 уже в базе ветки — повторный cherry-pick не нужен.
+""" v4: патчи уже в базе ветки — повторный cherry-pick не нужен.
 
 История tip:
 - 3e7e7c82 ← e3c4f41 (ground_metres opt-in для EPSG:3857)
@@ -18,7 +18,7 @@ def test_v4_ground_metres_opt_in_default_off():
 
 
 def test_v4_dedupe_union_rule_u_present():
-    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage)")
+    G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
     _union_key, dedupe_union = G._union_key, G.dedupe_union
     mag_a = {"geom": Point(0, 0).buffer(3), "class_name": "object_poly",
              "markup_type": "maggr", "source": "gray.tif"}

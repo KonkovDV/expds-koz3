@@ -1,7 +1,7 @@
-# COMPETITORS_DEEP — аудит EhimenNathan/EXpedition и maratgaliulin/EXpedition (+ сеть репо)
+# COMPETITORS_DEEP — аудит сторонний репозиторий и maratgaliulin/EXpedition (+ сеть репо)
 
 Дата: 28.10.2026 (MSK). Источники только публичные: GitHub API, клоны только для чтения. Чужой код не запускался.
-Пути: клон `competitors/EhimenNathan-EXpedition` (далее **EN**); ветки разложены в worktree `competitors/_wt/<branch>`
+Пути: клон `competitors/сторонний репозиторий` (далее **EN**); ветки разложены в worktree `competitors/_wt/<branch>`
 (`codex_v21-robust` — это задеплоенная v20–v22, далее **v21**; `codex_v24-dinov3-1024` — последняя, далее **v24**;
 `claude_v23-dino-hillfort`). Наш код: `expds-koz3/expds/*`, метрика `materials/compute_metrics.py`.
 
@@ -10,7 +10,7 @@
 
 * **Чьё это репо.** Это команда «Сахалинский центр ИИ» (Галиулин, Шумилова; LB 0,505). Подтверждено:
   все коммиты Nat/maratgaliulin сделаны в TZ +1100 (Сахалин); v22 на LB дала 0,5049, ровно их строку.
-  **В OSINT.md ошибка:** основное репо — EhimenNathan. maratgaliulin — его форк: создан через 28 минут после
+  **В OSINT.md ошибка:** основное репо — сторонний репозиторий. maratgaliulin — его форк: создан через 28 минут после
   основного, сверху один коммит `be6009a` (s3_sync, check_torch). Авторы коммитов: 54 от Claude
   (noreply@anthropic.com) и 29 от Nat. Ветки `codex_*` и `claude_*` — работа ИИ-агентов (Codex и Claude).
 * **Калибровка.** Цифры 0,52–0,59 — это **только LiDAR** (nested 0,5223 → 0,5765 → 0,5831; на 59 сайтах 0,5884),
@@ -43,7 +43,7 @@
   `feat_physics-gates`. Все коммиты в +1100.
   maratgaliulin/EXpedition — форк EN через 28 минут, единственный свой коммит `be6009a`
   (`s3_sync_train-expds-3.py`, `check_torch.py`).
-* Профили. У EhimenNathan 7 репо: tunnelguard-lct2026, vesuvius-ink, prc2026-strong-turtle, tramcast-moscow…
+* Профили. У сторонний репозиторий 7 репо: tunnelguard-lct2026, vesuvius-ink, prc2026-strong-turtle, tramcast-moscow…
   Это профиль агентских соревнований. У maratgaliulin 16 репо (дататон sravni.ru 2024 и др.).
 * **Секреты (только факт).** В `s3_sync_train-expds-3.py` форка maratgaliulin (коммит be6009a) зашиты дефолтные
   access/secret key бакета организаторов `train-expds-3` на selcloud. **Мы их не используем и не переписываем.**

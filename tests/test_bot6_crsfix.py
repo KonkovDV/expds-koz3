@@ -1,4 +1,4 @@
-"""bot-6 crsfix (находка bot-9): UTM.json с географической CRS (008_Герите: urn:ogc:def:crs:EPSG::4326) не должна
+""" crsfix (находка): UTM.json с географической CRS (008_Герите: urn:ogc:def:crs:EPSG::4326) не должна
 становиться CRS сцены D-FINE / шлюза городищ — иначе шаг 0,5° вместо 0,5 м, сцена 1×1 px, 0 предсказаний."""
 import json
 from pathlib import Path
@@ -29,7 +29,7 @@ def _utm_json(p: Path, crs: str) -> Path:
 def test_geographic_utm_json_falls_back_to_raster_utm_zone(tmp_path):
     tif = _geo_tif(tmp_path / "r" / "05_r_Or_ортофото" / "01_r_Or_ортофото.tif")
     fb = read_utm_json(_utm_json(tmp_path / "r" / "UTM.json", "urn:ogc:def:crs:EPSG::4326"))
-    # v4 (слияние с bot-7 v3fix): read_utm_json — единая точка, градусы 008_Герите уже переведены в зону UTM
+    # v4 (слияние с v3fix): read_utm_json — единая точка, градусы 008_Герите уже переведены в зону UTM
     assert fb == "EPSG:32638"
     assert sp_dfine.utm_for(tif, fb) == "EPSG:32638"
     # второй слой — страховка utm_for: сырая географическая CRS мимо read_utm_json → зона по центру растра

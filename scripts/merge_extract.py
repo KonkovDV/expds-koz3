@@ -1,4 +1,4 @@
-"""bot-2, merge-check: потоково (только чтение) вынимает из стека объекты участков, где у markup
+""", merge-check: потоково (только чтение) вынимает из стека объекты участков, где у markup
 несколько входных файлов (источников) по листингу S3 — только там post.merge_across_sources
 может склеить объекты (source = имя файла, expds/pipeline.py:59,64 окна растра; li — один LAS на участок).
 python merge_extract.py <stack.geojson> <s3_sources.json> <out.pkl>"""

@@ -1,4 +1,4 @@
-"""bot-2: [sat_thr_relax] — scale sp_* thresholds_by_markup (default OFF)."""
+"""[sat_thr_relax] — scale sp_* thresholds_by_markup (default OFF)."""
 from __future__ import annotations
 
 import pytest

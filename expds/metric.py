@@ -345,7 +345,7 @@ def _collect_impl(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = Non
 
 def _collect_reference(mod, calc, fc: dict, is_gt: bool, sites_out: dict | None = None,
                         key_fn=site_key) -> dict[str, list[tuple]]:
-    """Прежняя реализация _collect (эталон для тестов bot-8). Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
+    """Прежняя реализация _collect (эталон для тестов). Повторяет F1Calculator._collect_by_class, сохраняя регион объекта (с кэшем в RAM + /dev/shm и векторизацией UTM)."""
     import pickle
     import shapely
 
@@ -782,7 +782,7 @@ def match_collected(calc, preds: dict, gts: dict, p_sites: dict | None = None,
 
 def build_curves_reference(pred: dict, gt: dict, metric_path: str | None = None,
                  scope: str | None = None) -> dict[str, ClassCurve]:
-    """Прежняя (до ускорения bot-8) реализация build_curves — эталон для тестов: каждая пара через
+    """Прежняя (до ускорения) реализация build_curves — эталон для тестов: каждая пара через
     calc._match_quality, дерево строится заново. Официальное жадное сопоставление по каждому классу, один раз на всех кандидатах.
 
     Кандидаты на пару ищутся пространственным индексом; порядок перебора эталонов
@@ -1236,7 +1236,7 @@ def paired_bootstrap_counts_reference(a: dict, b: dict, family_of, n: int = 1000
             "families": len(names)}
 
 
-# ─────────────── быстрые версии (bot-8): те же результаты, без циклов Python по объектам ───────────────
+# ─────────────── быстрые версии: те же результаты, без циклов Python по объектам ───────────────
 #
 # Прежние реализации сохранены с суффиксом _reference; tests/test_bot8_fast_metric.py
 # сверяет их побайтно. EXPDS_FAST_METRIC=0 возвращает прежний путь целиком.
@@ -1255,7 +1255,7 @@ def _fast_on() -> bool:
 
 def _curve_codes(c: ClassCurve):
     """Коды участков (по первому появлению) и групп (по алфавиту) кривой; кэшируется на объекте."""
-    cache = c.__dict__.get("_bot8_codes")
+    cache = c.__dict__.get("_curve_codes")
     if (cache is not None and cache[0] is c.pred_region and cache[1] is c.pred_group
             and cache[2] == (len(c.pred_region), len(c.pred_group))):
         return cache[3]
@@ -1266,7 +1266,7 @@ def _curve_codes(c: ClassCurve):
     gmap = {g: i for i, g in enumerate(gnames)}
     gcodes = np.fromiter((gmap[g] for g in c.pred_group), dtype=np.int64, count=len(c.pred_group))
     val = (list(rmap), rcodes, gnames, gcodes)
-    c.__dict__["_bot8_codes"] = (c.pred_region, c.pred_group, (len(c.pred_region), len(c.pred_group)), val)
+    c.__dict__["_curve_codes"] = (c.pred_region, c.pred_group, (len(c.pred_region), len(c.pred_group)), val)
     return val
 
 

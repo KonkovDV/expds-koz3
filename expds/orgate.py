@@ -1,11 +1,12 @@
-"""bot-6 ORGATE G: гейт FP архитектуры (or / sp_arch) — ЗАМЕНА rerank_arch (R), не добавка. По умолчанию выключен.
+"""Отсев ложной архитектуры на ортофото и спутнике. Заменяет прежнее переранжирование, не добавляется к нему.
+По умолчанию выключен.
 
-Замер: bot-6/ORGATE.md, PREREG_ORGATE.md (вариант G — предрегистрированный, с правилом LAS); приёмка
-bot-10/REPORT12_orgate.md (PACKAGE-ONLY как замена R; k10 dR +0,001933, P_R 0,993; семена 5/5).
+Срабатывает по правилу наличия лидара. На честном замере как замена прежнего переранжирования:
+прирост +0,0019, вероятность что лучше 0,993, все пять семей в плюсе.
 
     [orgate]
     enabled = false
-    model = "models/orgate_g.txt"    # LightGBM, финальная подгонка G на всех семьях (bot-6/work/orgate_final/fit.py)
+    model = "models/orgate_g.txt" # LightGBM, финальная подгонка G на всех семьях (work/orgate_final/fit.py)
     meta = "models/orgate_g.json"    # признаки (35 X2 + 22 гейта), словари, пороги групп, правило LAS
 
 Место в цепочке — то же, что у R (watchdog._finish_v3 / _safe_v3): после only_known_classes, ДО site_calibration,
@@ -15,11 +16,12 @@ kurgan_neighbour_prior, frame_prior (FR1h) и порогов; при enabled R �
 Обучение — на стеке rerank/work/table.pkl общей папки (стек A, без sp_dfine/dfine_aeor); при смене стека
 кандидатов arch гейт нужно переобучить и перемерить (REPORT12 §3, оговорка 3).
 
-Признаки 1:1 с bot-6/work/orgate/feats_gate.py (трейн) и rerank_arch.features (X2). Правило LAS и r_las —
+Признаки 1:1 с work/orgate/feats_gate.py (трейн) и rerank_arch.features (X2). Правило LAS и r_las —
 по наличию LAS во входном каталоге участка (pipeline.run кладёт cfg["_orgate_catalog"] = {участок: {las, utm_json}};
-на трейне это ровно notes/las_boxes_59.json — проверка bot-6/work/orgate_final/equiv.py). Без каталога (например,
+на трейне это ровно notes/las_boxes_59.json — проверка work/orgate_final/equiv.py). Без каталога (например,
 вызов finish вне pipeline.run) — запасное правило rerank_arch: «у участка есть кандидаты li» (на трейне 209/209 то же).
-Широта/долгота — как в трейне: CRS из UTM.json участка (если в нём не 4326), иначе NaN.
+Широта и долгота — градусы самого участка из его UTM.json (если в файле не 4326), иначе NaN.
+На памятнике другой полосы это другой признак, чем на обучении гейта. Гейт по умолчанию выключен.
 
 Нет файлов / meta не той версии / ошибка → OrGateUnavailable; вызывающий пишет маркер ORGATE_UNAVAILABLE в лог
 и откатывается на R (если [rerank_arch] enabled) или базу. check_submission на маркер даёт FAIL.

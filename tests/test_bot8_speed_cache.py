@@ -1,4 +1,4 @@
-"""bot-8: ускорение build_curves (векторное качество пар, память пар, дерево эталонов) и файловый
+"""ускорение build_curves (векторное качество пар, память пар, дерево эталонов) и файловый
 кэш геометрий expds/geomcache.py. Всё сравнивается побайтно с build_curves_reference +
 _collect_reference (код до ускорения) в обеих областях сопоставления (global и site)."""
 from __future__ import annotations

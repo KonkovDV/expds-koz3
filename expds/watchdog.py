@@ -83,12 +83,12 @@ def _w1_flag(cfg: dict) -> dict:
 
 
 def _aeor_split(feats: list[dict], cfg: dict) -> tuple[list[dict], list[dict]] | None:
-    """bot-6 [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
+    """ [dfine_aeor]: (прежние объекты, объекты dfine_ae/dfine_or) или None — делить не нужно.
 
     По умолчанию D-FINE Ae/Or идёт своей короткой цепочкой (пороги своей группы → склейка только внутри
     группы → finalize → остаток лимита), и прежние объекты проходят цепочку v3 без изменений: реранк,
     соседские приоры и twins не видят новых кандидатов. merge_union=true — межисточниковое объединение
-    в общей цепочке (по умолчанию выкл.; в v4 для этого dedupe_union bot-3 после порогов).
+    в общей цепочке (по умолчанию выкл.; в v4 для этого dedupe_union после порогов).
     """
     dc = cfg.get("dfine_aeor") or {}
     iso = set(post.ISOLATED_GROUPS)
@@ -114,7 +114,7 @@ def _aeor_finish(dfeats: list[dict], cfg: dict, room: int) -> list[dict]:
 
 
 def finish(feats: list[dict], cfg: dict) -> list[dict]:
-    """Та же цепочка, что в конце pipeline.run. bot-6: D-FINE Ae/Or — отдельно (_aeor_split)."""
+    """Та же цепочка, что в конце pipeline.run. D-FINE Ae/Or — отдельно (_aeor_split)."""
     cfg = _w1_flag(cfg)   # W1-FRZ / W4 flags (off by default): prior spec + own sp_dfine thresholds
     split = _aeor_split(feats, cfg)
     if split is not None:
@@ -125,15 +125,15 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
 
 
 def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> list[dict]:
-    """Цепочка v3 (до bot-6 — тело finish)."""
+    """Цепочка v3 (до — тело finish)."""
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
     if (cfg.get("orgate") or {}).get("enabled"):
-        from . import orgate           # bot-6: гейт G ВМЕСТО R (то же место цепочки); сбой → маркер и R/база
+        from . import orgate           # гейт G ВМЕСТО R (то же место цепочки); сбой → маркер и R/база
 
         out, reranked = orgate.apply_or_fallback(out, cfg)
     elif (cfg.get("rerank_arch") or {}).get("enabled"):
-        from . import rerank_arch      # bot-7: по умолчанию выключено; свои пороги, базовые к ним не применяются
+        from . import rerank_arch      # по умолчанию выключено; свои пороги, базовые к ним не применяются
 
         out, reranked = rerank_arch.apply(out, cfg["rerank_arch"])
     post_cfg = cfg.get("post") or {}
@@ -144,13 +144,13 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         # До порогов: пороги групп из spec.groups подобраны по OOF после того же множителя.
         out = post.kurgan_neighbour_prior(out, _spec(post_cfg["kurgan_neighbour_prior"]), _tau(cfg))
     if post_cfg.get("sat_fusion") or post_cfg.get("sat_center_prior") or post_cfg.get("sat_frame_gate"):
-        # W1-SATREC (docs/PREREG_W1_SATREC.md), off by default: equal-weight sat fusion, then scene-centre prior, before thresholds.
+        # Слияние спутниковых карт равными весами, затем приор центра кадра. По умолчанию выключено, до порогов.
         from . import sat_recall
         if post_cfg.get("sat_fusion"):
             out = sat_recall.sat_equal_fusion(out, _spec(post_cfg["sat_fusion"]))
         if post_cfg.get("sat_center_prior"):
             out = sat_recall.sat_center_prior(out, _spec(post_cfg["sat_center_prior"]))
-        if post_cfg.get("sat_frame_gate"):   # W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md), off by default
+        if post_cfg.get("sat_frame_gate"):   # отсев тихих пиков у края большого кадра; по умолчанию выключен
             out = sat_recall.sat_frame_gate(out, _spec(post_cfg["sat_frame_gate"]))
     if post_cfg.get("sat_frame_prior"):
         # W4 [post.w4_sat].frame: v3_on frame_prior form on sp_dfine, right after sat_center_prior.
@@ -168,7 +168,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     from .ae_recall import cross_tif_dedup, dedup_m
     out = cross_tif_dedup(out, dedup_m(cfg))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
-    by_markup = post.sat_thr_relax_by_markup(cfg)   # bot-2 [sat_thr_relax], без флага — таблица как есть
+    by_markup = post.sat_thr_relax_by_markup(cfg)   # [sat_thr_relax], без флага — таблица как есть
     if sf:
         out = post.sp_score_fusion(out, sf if isinstance(sf, dict) else None)
         by_markup = post.sp_fusion_thresholds(by_markup, sf)
@@ -176,7 +176,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         bg = _spec(post_cfg["big_groups"])
         out = post.big_area_groups(out, bg)
         by_markup = post.big_group_thresholds(by_markup, bg)
-    # bot-4 large_objects: каждый механизм — отдельный sub-flag (см. large_objects.flag).
+    # large_objects: каждый механизм — отдельный sub-flag (см. large_objects.flag).
     from . import large_objects as _lo
     if _lo.flag(cfg, "fort_to_gor"):
         out = _lo.fort_to_gor(out, _lo.spec(cfg))
@@ -185,7 +185,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
                                     cfg.get("default_threshold", 0.15))
     from . import sat_recall_levers as _sr
     if _sr.any_enabled(cfg):
-        # bot-7 sat recall: band-verify / agree-accept / cross-nms (all default OFF)
+        # sat recall: band-verify / agree-accept / cross-nms (all default OFF)
         out = _sr.apply_thresholds(out, cfg, by_markup)
     elif _lo.flag(cfg, "area_tau") or _lo.flag(cfg, "dfine_ae_gor_area_tau"):
         out = _lo.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
@@ -193,11 +193,11 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     by_markup)
-    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    # li_post: class_tau floors + self-NMS on li* (default OFF).
     from . import li_post as _lip
     out = _lip.apply(out, cfg)
     out = out + reranked
-    # bot-4: protect_merge — крупный не сливается с мелким.
+    # protect_merge — крупный не сливается с мелким.
     if _lo.flag(cfg, "protect_merge"):
         out = _lo.merge_within_markup(out, isolate, _lo.spec(cfg))
     else:
@@ -224,7 +224,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):
         out = post.shape_cores(out, post_cfg["core"])
-    # bot-4: ядра только у крупных городищ (sub-flag shape_cores).
+    # ядра только у крупных городищ (sub-flag shape_cores).
     if _lo.flag(cfg, "shape_cores"):
         out = _lo.shape_cores_large(out, _lo.spec(cfg))
     if post_cfg.get("split"):
@@ -248,7 +248,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 
 
 def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
-    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым (bot-8)."""
+    """finish(); если постобработка упала — урезанная цепочка, чтобы ответ не остался пустым."""
     try:
         cfg = _w1_flag(cfg)
     except Exception:
@@ -257,7 +257,7 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
         return finish(feats, cfg)
     except Exception:
         log.exception("постобработка упала, пишу ответ без склейки и доп. шагов")
-    split = _aeor_split(feats, cfg)   # bot-6: D-FINE Ae/Or и в запасной цепочке отдельно
+    split = _aeor_split(feats, cfg)   # D-FINE Ae/Or и в запасной цепочке отдельно
     if split is None:
         return _safe_v3(feats, cfg)
     out = _safe_v3(split[0], cfg)
@@ -269,12 +269,12 @@ def safe_finish(feats: list[dict], cfg: dict) -> list[dict]:
 
 
 def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
-    """Запасная цепочка v3 (до bot-6 — хвост safe_finish)."""
+    """Запасная цепочка v3 (до — хвост safe_finish)."""
     out = post.only_known_classes(feats)
     reranked: list[dict] = []
     rr = cfg.get("rerank_arch") or {}
     if (cfg.get("orgate") or {}).get("enabled"):
-        try:   # bot-6: гейт G вместо R и в запасной цепочке
+        try:   # гейт G вместо R и в запасной цепочке
             from . import orgate
 
             out, reranked = orgate.apply_or_fallback(out, cfg)
@@ -282,7 +282,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("orgate в запасной цепочке упал, архитектура — по базовым порогам")
             reranked = []
     elif rr.get("enabled"):
-        # bot-7 (bot7-candidate): реранк архитектуры со своими порогами — и в запасной цепочке
+        #): реранк архитектуры со своими порогами — и в запасной цепочке
         try:
             from . import rerank_arch
 
@@ -362,7 +362,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
     else:
         out = post.apply_thresholds(out, cfg.get("thresholds", {}), cfg.get("default_threshold", 0.15),
                                     _by)
-    # bot-4 li_post: class_tau floors + self-NMS on li* (default OFF).
+    # li_post: class_tau floors + self-NMS on li* (default OFF).
     from . import li_post as _lip
     try:
         out = _lip.apply(out, cfg)
@@ -374,7 +374,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             out = _lo.merge_within_markup(out, post.ISOLATED_GROUPS, _lo.spec(cfg))
         except Exception:
             log.exception("large_objects protect_merge в запасной цепочке упал, шаг пропущен")
-    # bot-7: sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
+    # sota_stack6 (separate) — и в запасной цепочке, каждый шаг отдельно; упал — идём без него
     for key, fn in (("multipole_object_poly", post.multipole_object_poly),
                     ("filter_finds_points", post.filter_finds_points_regimes)):
         if pc.get(key):
@@ -382,7 +382,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
                 out = fn(out, pc[key] if isinstance(pc[key], dict) else None)
             except Exception:
                 log.exception("%s в запасной цепочке упал, шаг пропущен", key)
-    # bot-7: [post] kurgan_twins_only (bot-6, по умолчанию выкл.) — и в запасной цепочке, как в finish()
+    # [post] kurgan_twins_only (по умолчанию выкл.) — и в запасной цепочке, как в finish()
     if not pc.get("kurgan_twins") and pc.get("kurgan_twins_only"):
         try:
             spec = dict(pc["kurgan_twins_only"]) if isinstance(pc["kurgan_twins_only"], dict) else {}
@@ -397,7 +397,7 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("kurgans_outside_hillforts в запасной цепочке упал, шаг пропущен")
     mc = pc.get("micro_circles")
     if mc:
-        # bot-7: форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
+        # форма под метрику (микрокруги) — и в запасной цепочке, иначе пороги/геометрия разойдутся
         try:
             out = post.micro_circles(out, mc if isinstance(mc, dict) else None)
         except Exception:
@@ -446,14 +446,14 @@ def _emit_protocol(state: RunState, raw: list[dict], kept: list[dict], reason: s
              note.get("las_files", "нет"), note.get("rasters", "нет"),
              note.get("skipped", "нет"))
     log.info("фазы: %s", phase_text)
-    if note.get("partial_files"):   # bot-8: дедлайн в цикле окон снимков
+    if note.get("partial_files"):   # дедлайн в цикле окон снимков
         log.info("частично (дедлайн в цикле окон): %s", ", ".join(
             f"{p['file']} {p['windows_done']}/{p['windows_total']}" for p in note["partial_files"]))
-    if note.get("soft_skipped"):   # bot-8: мягкий потолок (pipeline.TimeGuard.soft_ok)
+    if note.get("soft_skipped"):   # мягкий потолок (pipeline.TimeGuard.soft_ok)
         log.info("мягкий потолок отключил: %s", ", ".join(
             f"{p['phase']} (soft_left {p['soft_left_s']:.0f} с)" for p in note["soft_skipped"]))
     spd = note.get("sp_dfine")
-    if spd:   # bot-10: сколько дал D-FINE — видно в протоколе сабмита (0 при enabled = подозрительно)
+    if spd:   # сколько дал D-FINE — видно в протоколе сабмита (0 при enabled = подозрительно)
         log.info("sp_dfine: transformers %s; моделей %s; сырых %s; записано %d",
                  spd.get("transformers", "?"), spd.get("models", "?"), spd.get("raw", "?"),
                  sum(1 for f in kept if f.get("threshold_group") == "sp_dfine"))
@@ -533,7 +533,7 @@ def arm_signal(state: RunState, exit_fn=os._exit):
 
 
 def deadline_left(margin_s: float | None = None, clock=None) -> float:
-    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса (bot-8)."""
+    """Секунд до срабатывания сторожа: 30 минут платформы минус запас, от старта процесса."""
     margin = GUARD_MARGIN_S if margin_s is None else float(margin_s)
     return PLATFORM_LIMIT_S - margin - ((clock or time.monotonic)() - PROCESS_START)
 

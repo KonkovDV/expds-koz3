@@ -1,4 +1,4 @@
-"""bot-2: аудит локализации D-FINE — tiling offsets, boxes_to_ellipses, utm_for.
+"""аудит локализации D-FINE — tiling offsets, boxes_to_ellipses, utm_for.
 
 На mock медиана pred→GT ~191 м при верном CRS (bot1). Здесь — регрессии координатной
 математики; systematic 191 м на mock скорее domain/модель, не off-by-tile в порте.
@@ -105,7 +105,7 @@ def test_scene_rejects_geographic_crs(tmp_path):
 
 
 def test_flip_tta_only_mirrors_x():
-    """Горизонтальный flip: cx' = 1-cx; cy/w/h без изменений (как bot-9)."""
+    """Горизонтальный flip: cx' = 1-cx; cy/w/h без изменений (как)."""
     torch = pytest.importorskip("torch")
     bx = torch.tensor([[[0.25, 0.4, 0.1, 0.2]]])
     flipped = bx.clone()

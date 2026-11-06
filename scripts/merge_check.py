@@ -1,4 +1,4 @@
-"""bot-2, merge-check: сколько стоит post.merge_across_sources (expds/post.py:42-79) на честном A.
+""", merge-check: сколько стоит post.merge_across_sources (expds/post.py:42-79) на честном A.
 
 Стек табло (scripts/scoreboard.py build_stack) НЕ проходит merge_within_markup, а сдача проходит
 (expds/watchdog.py:66-70: пороги -> merge). Здесь слияние моделируется поверх честных порогов:
@@ -94,7 +94,7 @@ for c, s in sub.items():
     EDGES[c] = (qi, qj, s["group"][qi] == s["group"][qj])
 print("edges", {c: len(v[0]) for c, v in EDGES.items()}, round(time.time() - t0), flush=True)
 
-def random_family_folds(regions, k, seed):      # копия bot-10/repo/scripts/honest_bootstrap.py
+def random_family_folds(regions, k, seed):      # копия repo/scripts/honest_bootstrap.py
     fams = {}
     for r in regions: fams.setdefault(site_family(r), set()).add(r)
     names = sorted(fams); rng = np.random.default_rng(seed); lab = rng.permutation(len(names)) % k

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check maps npz against bot-9 HEAD_INTERFACE keys/shapes/dtypes and that a peak decode reproduces the
+"""Check maps npz against HEAD_INTERFACE keys/shapes/dtypes and that a peak decode reproduces the
 exported detections (centre error < 0.5 m) for hm classes."""
 import json, sys
 from pathlib import Path

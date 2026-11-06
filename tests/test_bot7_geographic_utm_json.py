@@ -40,7 +40,7 @@ def test_geographic_utm_json_becomes_center_zone(tmp_path, caplog):
     r = scan_region(reg)
     assert region_crs(r) == "EPSG:32638"                      # li / geophys / optics fallback
     assert region_crs(r, {"crs": {"policy": "vote"}}) == "EPSG:32638"
-    assert gor_gate._epsg(r) == 32638                          # gor_gate и gor_dense (bot-5)
+    assert gor_gate._epsg(r) == 32638                          # gor_gate и gor_dense
 
     # sp_dfine: путь пакета crs_for=read_utm_json → сцена в метрах, а не 1×1 px
     utm = sp_dfine.utm_for(tif, read_utm_json(r.utm_json))

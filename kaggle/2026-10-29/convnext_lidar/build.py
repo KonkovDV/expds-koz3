@@ -76,8 +76,8 @@ with tarfile.open(fileobj=io.BytesIO(_t)) as tf:
 assert sorted(bench) == sorted("repo/" + n for n in B8_FILES), sorted(bench)
 bench["bench/bench_acc_gpu.py"] = (B8 / "bench/bench_acc_gpu.py").read_bytes()
 import re as _re
-for n, b in bench.items():                               # лицензионный барьер: ни строки кода EhimenNathan в бандле
-    assert not _re.search(rb"(?i)ehimen|nathan", b), ("бенч: найден след EhimenNathan", n)
+for n, b in bench.items():                               # лицензионный барьер: ни строки кода сторонний репозиторий в бандле
+    assert not _re.search(rb"(?i)ehimen|nathan", b), ("бенч: найден след сторонний репозиторий", n)
 bman = {"branch": B8_BRANCH, "commit": B8_SHA, "worktree": str(B8_WT), "from": "git archive (закоммиченное состояние)",
         "bench_acc_gpu.py": str(B8 / "bench/bench_acc_gpu.py") + " (вне git, sha256 ниже)", "doc": str(B8 / "bench/acc_gpu_T4.md"),
         "sha256": {n: hashlib.sha256(b).hexdigest() for n, b in sorted(bench.items())}}

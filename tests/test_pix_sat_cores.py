@@ -5,7 +5,7 @@ import pytest
 rasterio = pytest.importorskip("rasterio")
 from rasterio.transform import from_origin  # noqa: E402
 
-G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (EhimenNathan-derived lineage review)")
+G = pytest.importorskip("expds.geo_pixgbm", reason="expds/geo_pixgbm.py is held out of main (module is not in this tree)")
 
 
 def _map(tmp_path):

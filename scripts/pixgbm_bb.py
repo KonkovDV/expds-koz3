@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PIXGBM + замороженный бэкбон (expds/geo_backbone.py), bot-3. Те же пиксели выборки, что у scripts/pixgbm.py extract
+"""PIXGBM + замороженный бэкбон (expds/geo_backbone.py),. Те же пиксели выборки, что у scripts/pixgbm.py extract
 (тот же rng), к 72 признакам добавляются PCA-32 признаков бэкбона (PCA внутри обучающих семей фолда).
 
     python scripts/pixgbm_bb.py extract --root DATA --feats PIXGBM/feats --out BB/bbfeats --variants B1,B2

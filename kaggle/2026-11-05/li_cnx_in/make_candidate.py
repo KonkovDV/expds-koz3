@@ -13,7 +13,7 @@
 (`submission_fr1h_on_eb268d6.zip`: v2 + `[post.frame_prior]` + 4 порога курганов спутника). Код FR1h в `main` есть;
 сборку с ним сверять с архивом FR1h на участках SpOr без LAS — там фаза cnx не работает и ответ обязан совпасть побайтно.
 
-Сборка — `scripts/build_submission.py --allow-en` (линия EN по решению владельца 04.11). Ключи и токены не нужны.
+Сборка — `scripts/build_submission.py --allow-en` (прежняя реализация по решению владельца 04.11). Ключи и токены не нужны.
 """
 from __future__ import annotations
 

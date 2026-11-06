@@ -1,4 +1,4 @@
-"""bot-8: область сопоставления build_curves — global (как calculate_f1 на всём файле) и
+"""область сопоставления build_curves — global (как calculate_f1 на всём файле) и
 site (эталон только своего участка, как calculate_f1 по каждому участку отдельно).
 
 Эталоны — официальный materials/compute_metrics.py без изменений:

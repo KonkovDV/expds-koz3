@@ -1,4 +1,4 @@
-"""bot-4 large_objects: мастер OFF = no-op; sub-flags независимо; area_tau/protect/fort_to_gor."""
+""" large_objects: мастер OFF = no-op; sub-flags независимо; area_tau/protect/fort_to_gor."""
 from __future__ import annotations
 
 import pytest

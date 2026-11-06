@@ -1,6 +1,6 @@
-"""bot-8 bot8-cnx: проверки [li_cnx] в scripts/check_submission.py (check_cnx и соседи), без сборки архива.
+""": проверки [li_cnx] в scripts/check_submission.py (check_cnx и соседи), без сборки архива.
 
-Случаи L/N/M/S — из ревью бота 4 (bot-4/REVIEW_CHECK_SUBMISSION_CNX.md)."""
+Случаи L/N/M/S — из ревью (REVIEW_CHECK_SUBMISSION_CNX.md)."""
 import hashlib
 import importlib.util
 import io
@@ -131,7 +131,7 @@ def test_fail(cs, mut, cfg, needle):
     (b"import torch; torch.hub.load('a/b', 'c')", "FAIL", "torch.hub.load"),           # N6
     (b"from urllib.request import urlopen; urlopen('http://x')", "FAIL", "вызов urlopen"),
     (b"import timm; timm.create_model('x', pretrained=True)", "FAIL", "pretrained=True"),
-    # повторное ревью bot-4 5bc6ad1, п. a: алиасы и прочие обходы сканера
+    # повторное ревью 5bc6ad1, п. a: алиасы и прочие обходы сканера
     (b"from subprocess import run; run(['curl', 'http://x'])", "WARN", "запуск процесса subprocess.run()"),
     (b"import subprocess as sp; sp.run(['curl', 'http://x'])", "WARN", "запуск процесса subprocess.run()"),
     (b"from subprocess import Popen as P; P(['curl'])", "WARN", "запуск процесса subprocess.Popen()"),
@@ -357,7 +357,7 @@ def test_smoke_keys_match_pipeline_logs(cs):
             assert any(k in ln for k in keys), ln
 
 
-# ---------- повторное ревью bot-4 5bc6ad1, п. a: без ложных срабатываний
+# ---------- повторное ревью 5bc6ad1, п. a: без ложных срабатываний
 def test_aliases_no_false_positives(cs):
     """Метод .eval() модели, re.compile, getattr на объекте — не динамика."""
     _, res = _run(cs, _zip(_prep(_files(), b"import re; _r = re.compile('x'); _o = object(); getattr(_o, '__class__')\n"

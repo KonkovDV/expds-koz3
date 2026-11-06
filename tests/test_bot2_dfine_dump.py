@@ -1,4 +1,4 @@
-"""bot-2: EXPDS_DFINE_DUMP — сырые xyxy + 3857 и GT; по умолчанию ВЫКЛ."""
+"""EXPDS_DFINE_DUMP — сырые xyxy + 3857 и GT; по умолчанию ВЫКЛ."""
 import json
 import os
 from pathlib import Path

@@ -1,8 +1,8 @@
 """Задача 11 (li_half): копия li_real_paired.py (задача 9) + срез eruntuna (011_Эрентуна отдельно).
-Задача 9: копия bot-10/work4/paired.py (запуск из папки bot-10) + срезы no_lidar / lidar59, П4 по каждому
+Задача 9: копия work4/paired.py (запуск из папки) + срезы no_lidar / lidar59, П4 по каждому
 тяжёлому классу отдельно (povr, tselye, gor ≥ −0,0005), Δ без 3 семей с наибольшим вкладом (п. «≤3 семьи»).
 
-    cd bot-10 && python <bot-2>/repo/scripts/li_real_paired.py --base L=<curves> --b P=<curves> --boot 1000 --out x.json
+    cd && python <>/repo/scripts/li_real_paired.py --base L=<curves> --b P=<curves> --boot 1000 --out x.json
 """
 import sys, json, argparse
 from pathlib import Path

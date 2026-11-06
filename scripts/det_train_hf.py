@@ -1,6 +1,6 @@
 """Обучение коробочного детектора (D-FINE-L, по желанию RT-DETRv2) на COCO из scripts/coco_from_cache.py.
 
-Написано bot-5 с нуля на публичном API Hugging Face transformers (AutoModelForObjectDetection /
+Написано с нуля на публичном API Hugging Face transformers (AutoModelForObjectDetection /
 AutoImageProcessor); код конкурентов не использовался. Вход — папка RF-DETR-раскладки
 (train/valid[/test] с _annotations.coco.json и PNG). Выход — результаты COCO
 [{"image_id","category_id","bbox":[x,y,w,h],"score"}] в пикселях PNG для scripts/coco_preds_to_stack.py

@@ -1,8 +1,8 @@
-"""Геометрия предсказаний под правило метрики koz3-1.5.0 (bot-7, 2026-10-28).
+"""Геометрия предсказаний под правило метрики koz3-1.5.0 (2026-10-28).
 
 Правило попадания полигона P в эталон G:
     cov = |P∩G| / min(|P|, |G|) ≥ 0,5   И   P.representative_point() ∈ G (или на границе).
-Отсюда (см. bot-7/REPORT.md, work/mc_shapes.json):
+Отсюда (см. REPORT.md, work/mc_shapes.json):
 * P(попадание) ≤ P(якорь ∈ G), где якорь — representative_point P;
 * маленький диск (r ≪ размера эталона) достигает этой границы: внутри G cov = 1,
   на прямой границе — ровно 0,5 при якоре на границе. Огромный диск — тоже (cov = 1 к G);
@@ -255,7 +255,7 @@ def optimize(feats: list[dict], cfg: dict) -> list[dict]:
     return feats
 
 
-# Рекомендация bot-7 (REPORT.md). PRE — до порогов (меняет только форму, кривые/пороги
+# Рекомендация (REPORT.md). PRE — до порогов (меняет только форму, кривые/пороги
 # надо подбирать уже на преобразованном стеке), POST — после apply_thresholds.
 _KUR_DISC = {"r_m": 0.5, "anchor": "centroid"}
 RECOMMENDED_PRE = {"reshape": {"kurgany_povrezhdennye": dict(_KUR_DISC), "kurgany_tselye": dict(_KUR_DISC)}}

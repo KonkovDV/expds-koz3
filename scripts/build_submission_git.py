@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Быстрая воспроизводимая сборка архива КОЗ №3 под эксперимент (bot-8).
+"""Быстрая воспроизводимая сборка архива КОЗ №3 под эксперимент.
 
 Файлы берутся из git-коммита (--ref, по умолчанию HEAD), а не из рабочей папки:
 незакоммиченные правки и чужие черновики в архив не попадают, один и тот же ввод
@@ -77,9 +77,9 @@ def model_refs(cfg: dict) -> list[str]:
     v = cfg.get("verify") or {}
     out += [lg] if lg else []
     out += [v["weights"]] if v.get("enabled") and v.get("weights") else []
-    rr = cfg.get("rerank_arch") or {}   # bot-7 (bot7-candidate): модель реранка архитектуры, если флаг включён
+    rr = cfg.get("rerank_arch") or {}   #): модель реранка архитектуры, если флаг включён
     out += [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []
-    # bot-8 bot8-cnx: веса [li_cnx] сюда не входят — их берёт cnx_weights() по WEIGHTS_MANIFEST (не из git)
+    #: веса [li_cnx] сюда не входят — их берёт cnx_weights() по WEIGHTS_MANIFEST (не из git)
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
     if pix.get("enabled") and pix.get("impl") == "clean":   # W4: модели clean-room pix (legacy PIXGBM не собирается)
         md = str(pix.get("model_dir", "models/pix_clean")).rstrip("/")
@@ -115,7 +115,7 @@ def _sha256_file(path: Path) -> str:
 
 
 def cnx_weights(cfg: dict, wman: dict, overrides: dict, tracked: set) -> dict[str, Path]:
-    """bot-8: веса [li_cnx] → {путь в архиве: локальный файл}. Только из WEIGHTS_MANIFEST.json: файл —
+    """веса [li_cnx] → {путь в архиве: локальный файл}. Только из WEIGHTS_MANIFEST.json: файл —
     --weight или поле source; sha256 и size обязаны совпасть, sha из never_pack (smoke-веса) — отказ.
     Веса cnx в git не держим: путь, отслеживаемый git, — отказ."""
     w = (cfg.get("li_cnx") or {}).get("weights")
@@ -200,7 +200,7 @@ def main() -> int:
     except tomllib.TOMLDecodeError as exc:
         sys.exit(f"конфиг не TOML: {exc}")
     files["configs/default.toml"] = cfg_text.encode("utf-8")
-    if cnx_enabled(cfg):   # bot-8 bot8-cnx: вендор подготовки bot-9 (cnx_prep.py, vendor/, _deps/rvt, колесо rvt-py)
+    if cnx_enabled(cfg):   #: вендор подготовки (cnx_prep.py, vendor/, _deps/rvt, колесо rvt-py)
         cnx = [p for p in tracked if p.startswith("inference/cnx/") and "/__pycache__/" not in p]
         if "inference/cnx/cnx_prep.py" not in cnx:
             sys.exit("[li_cnx] включён, но в коммите нет inference/cnx/ (вендор подготовки cnx)")

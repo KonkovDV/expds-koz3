@@ -1,12 +1,12 @@
-"""bot-7 (кандидат v3): шлюз городищ DINOv2-S bot-5 (FOR_BOT7_GOR_V3.md; ветка bot5-gor-patch-kaggle abb89d0 + 82058b8). Выключен.
+"""Шлюз городищ на DINOv2-S. По умолчанию выключен.
 
-Вариант bot-5 'gate': уверенность городищ SpOr (markup sp_or, без threshold_group) умножается на p_scene участка —
+Вариант 'gate': уверенность городищ SpOr (markup sp_or, без threshold_group) умножается на p_scene участка —
 max p(городище) по всем виньеткам 384 м (шаг 192 м, контекст 768 м, 224 px) всех растров SpOr участка;
-признаки — замороженный facebook/dinov2-small (Apache-2.0, ed25f3a3…) [CLS, mean(patch)] × 2 масштаба = 1536-d,
+признаки — замороженный facebook/dinov2-small (Apache-2.0, ed25f3a3…). Письмо организаторов 06.11: готовые веса допустимы, изображения LVD-142M в обучение не входят, описание этой выборки не требуется. [CLS, mean(patch)] × 2 масштаба = 1536-d,
 голова gor_v3_head.npz (z-норм. → PCA-64 → /qsd → логрегрессия). Порт extract_feats.py и gor_v3.py MODE=apply без
-изменения арифметики. Замер bot-5 (honest-10 к A): +0,005057, LOFO +0,002423, 5/5 — ниже MDE, только в пакете.
+изменения арифметики. Замер (honest-10 к A): +0,005057, LOFO +0,002423, 5/5 — ниже MDE, только в пакете.
 При варианте R D-FINE (drop sp_or на пройденных участках) шлюз бессмыслен: целей нет — признаки не считаются.
-Умноженные объекты получают threshold_group = ``sp_or_gated`` (порог bot-5 gor_v3_taus.json gate.sp_or 0,992648).
+Умноженные объекты получают threshold_group = ``sp_or_gated`` (порог gor_v3_taus.json gate.sp_or 0,992648).
 Участок, у которого пройдены не все растры (время), не трогается.
 """
 from __future__ import annotations
@@ -23,16 +23,19 @@ log = logging.getLogger(__name__)
 
 GATED_GROUP = "sp_or_gated"
 MARKUP = "sp_or"
+#: Стандартный выпуск Apache-2.0. Производная модель из того же репозитория письмом 06.11 не покрыта.
+DINOV2_RELEASE = "facebook/dinov2-small"
+DINOV2_REVISION = "ed25f3a31f01632728cabb09d1542f84ab7b0056"
 DEFAULTS = {
     "enabled": False,
     "backbone": "models/dinov2-small",                 # config.json + model.safetensors, facebook/dinov2-small@ed25f3a31f01632728cabb09d1542f84ab7b0056
-    "backbone_md5": "ea251be6e151ba8609ad0bc9b2e13a78",  # md5 model.safetensors (bot-5)
+    "backbone_md5": "ea251be6e151ba8609ad0bc9b2e13a78",  # md5 model.safetensors
     "head": "models/gor_gate/gor_v3_head.npz",
     "head_md5": "acb95c52956d712a16c3dd389237a691",
     "device": "auto",
     "batch": 16,
     "soft_need_s": 20.0,     # мягкий потолок: запас на один растр
-    "sec_per_patch": 0.45,   # справочно: CPU 2 потока, замер bot-7 с чтением растра 0,41–0,47 с/виньетку (bot-5: 0,13–0,16)
+    "sec_per_patch": 0.45,   # справочно: CPU 2 потока, замер с чтением растра 0,41–0,47 с/виньетку (0,13–0,16)
 }
 PS, ST, CTX, PX = 384.0, 192.0, 768.0, 224
 MEAN = np.array([0.485, 0.456, 0.406])[:, None, None]
@@ -151,7 +154,7 @@ def _device(st: dict):
 
 
 def tif_feats(model, path: Path, utm_epsg: int, device, batch: int = 16, keep_going=lambda: True):
-    """Порт extract_feats.py bot-5 (та же растяжка, усреднение, сетка, отбор valid ≥ 0,5): (F [n,1536] float16, n_total, done)."""
+    """Порт extract_feats.py (та же растяжка, усреднение, сетка, отбор valid ≥ 0,5): (F [n,1536] float16, n_total, done)."""
     import rasterio
     import torch
     from pyproj import Transformer
@@ -226,7 +229,7 @@ def _epsg(reg) -> int | None:
 
     c = read_utm_json(getattr(reg, "utm_json", None))
     paths = list((getattr(reg, "rasters", {}) or {}).get(MARKUP, []))
-    if c and paths:   # bot-6 crsfix: географическая CRS UTM.json (008_Герите, 4326) → зона UTM по центру растра
+    if c and paths:   # crsfix: географическая CRS UTM.json (008_Герите, 4326) → зона UTM по центру растра
         from .sp_dfine import utm_for
         c = utm_for(Path(paths[0]), c)
     try:

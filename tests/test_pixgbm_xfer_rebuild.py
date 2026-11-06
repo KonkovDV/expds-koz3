@@ -1,4 +1,4 @@
-"""bot-6: synthetic xfer-shard rebuild (no contest data, no network)."""
+"""synthetic xfer-shard rebuild (no contest data, no network)."""
 from __future__ import annotations
 
 import json

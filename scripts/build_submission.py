@@ -28,15 +28,15 @@ sys.path.insert(0, str(ROOT))
 FORBIDDEN = {".las", ".laz", ".tif", ".tiff", ".geojson", ".npy", ".npz", ".csv", ".jpg", ".png", ".jp2",
              ".shp", ".gpkg", ".zip"}
 LIMIT = 2 * 1024 ** 3
-#: bot-7 (v3, red team bot-4 В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
-#: импортов, bot-7/work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
+#: (v3, red team В6): модули обучения/разбора, недостижимые из inference/main.py (AST-граф
+#: импортов, work6/import_graph.py). В репозитории остаются (скрипты и тесты), в архив не идут.
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
 EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}
 # Эти файлы не кладём в архив даже с --allow-en: расчёт геофизики идёт из expds/pix_own.py.
 NEVER_PACK = {"geo_pixgbm.py", "geo_finds_gbm.py", "geo_backbone.py", "pix_legacy.py"}
 FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate",
-                "sp_det2")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
+                "sp_det2")   # v3: секция конфига = имя модуля expds/<имя>.py
 
 
 def _doc1_check(out: Path) -> None:
@@ -64,13 +64,13 @@ def collect(allow_en: bool = False) -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
-    # bot-7 v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
+    # v3: модули за флагом (ленивый импорт в pipeline.py только при enabled) кладутся, только если флаг включён:
     # выключенный sp_dfine не тянет transformers в граф импортов архива (check_submission imports)
     off = {f"{sec}.py" for sec in FLAG_MODULES if not (cfg.get(sec) or {}).get("enabled")}
     if any((cfg.get(sec) or {}).get("enabled") for sec in ("gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine")):
         off.discard("sp_dfine.py")   # gor_gate, dfine_aeor и aeor_dfine импортируют sp_dfine на уровне модуля
     if (cfg.get("gor_dense") or {}).get("enabled"):
-        off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
+        off.discard("gor_gate.py")   # gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
                     if p.name not in NEVER_PACK
                     and (allow_en or p.name not in EN_EXCLUDE)
@@ -85,40 +85,40 @@ def collect(allow_en: bool = False) -> list[Path]:
     verify = (cfg.get("verify") or {}).get("weights") if (cfg.get("verify") or {}).get("enabled") else None
     seen = set()
     rr = cfg.get("rerank_arch") or {}
-    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # bot-7: только если флаг включён
+    rerank = [rr.get("model", "models/rerank_arch_lgbm.txt"), rr.get("meta", "models/rerank_arch_lgbm.json")] if rr.get("enabled") else []   # только если флаг включён
     og = cfg.get("orgate") or {}
-    # bot-6: гейт ORGATE G (модель + meta) — только если [orgate] enabled
+    # гейт ORGATE G (модель + meta) — только если [orgate] enabled
     rerank += [og.get("model", "models/orgate_g.txt"), og.get("meta", "models/orgate_g.json")] if og.get("enabled") else []
     pix = (cfg.get("geophys") or {}).get("pixgbm") or {}
     pixm = [f"{pix.get('model_dir', 'models/pixgbm/all').rstrip('/')}/{k}.txt" for k in ("poly", "finds")] \
         if pix.get("enabled") else []
     sd = cfg.get("sp_dfine") or {}
-    # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
+    # v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
     dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
         if sd.get("enabled") else []
     sy = cfg.get("sp_yolo") or {}
     if sy.get("enabled") is True and sy.get("weights"):   # 05.11: YOLO спутника (TorchScript), только если включён
         dfm.append(str(sy["weights"]))
     gg = cfg.get("gor_gate") or {}
-    # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
+    # v3: шлюз городищ (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
     if gg.get("enabled"):
         bb = str(gg.get("backbone", "models/dinov2-small")).rstrip("/")
         dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gg.get("head", "models/gor_gate/gor_v3_head.npz")]
     gd = cfg.get("gor_dense") or {}
-    # bot-5: плотный локализатор городищ (тот же DINOv2-S, голова сцены gor_v3 и плотная голова npz) — только если [gor_dense] enabled
+    # плотный локализатор городищ (тот же DINOv2-S, голова сцены gor_v3 и плотная голова npz) — только если [gor_dense] enabled
     if gd.get("enabled"):
         bb = str(gd.get("backbone", "models/dinov2-small")).rstrip("/")
         dfm += [f"{bb}/config.json", f"{bb}/model.safetensors", gd.get("gate_head", "models/gor_gate/gor_v3_head.npz"),
                 gd.get("head", "models/gor_dense/gor_dense_head.npz")]
     ae = cfg.get("dfine_aeor") or {}
-    # bot-6: D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
+    # D-FINE Ae/Or — каталоги весов и файл порогов OOF только если [dfine_aeor] enabled
     if ae.get("enabled"):
         w = ae.get("weights") or {}
         wl = list(w) if isinstance(w, list) else [x for v in w.values() for x in ([v] if isinstance(v, str) else v)]
         absw = [x for x in wl if Path(str(x)).is_absolute()]
         if absw:
             sys.exit(f"[dfine_aeor] weights: абсолютные пути {absw} в архив не пакуются — свяжите их в models/ "
-                     f"(ln -s <каталог bot-9> models/dfine_ae) и укажите относительный путь")
+                     "(ln -s <каталог весов D-FINE> models/dfine_ae) и укажите относительный путь")
         dfm += [f"{str(x).rstrip('/')}/{f}" for x in wl for f in ("config.json", "model.safetensors")]
         if ae.get("thresholds_file"):
             dfm.append(ae["thresholds_file"])
@@ -130,9 +130,9 @@ def collect(allow_en: bool = False) -> list[Path]:
     if sd.get("enabled") or gg.get("enabled") or gd.get("enabled") or ae.get("enabled"):
         vend = ROOT / "inference" / "lib" / "vendor"
         if not vend.is_dir():
-            sys.exit("[sp_dfine]/[gor_gate]/[gor_dense] enabled, а inference/lib/vendor нет (распакуйте колёса bot-9 submission_dfine/wheels)")
+            sys.exit("[sp_dfine]/[gor_gate]/[gor_dense] enabled, а inference/lib/vendor нет (распакуйте колёса D-FINE в inference/lib/vendor)")
         files += sorted(q for q in vend.rglob("*") if q.is_file() and "__pycache__" not in q.parts)
-    lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
+    lc = cfg.get("li_cnx") or {}   #: веса ConvNeXt и вендор подготовки — только если включён
     cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
         if lc.get("enabled") is True else []   # только bool, как expds/lidar_cnx.enabled
     if cnx_w:   # ансамбль (PREREG li_ens_in): второй набор весов
@@ -152,7 +152,7 @@ def collect(allow_en: bool = False) -> list[Path]:
 
 
 def cnx_weight_files(cnx_w: list[str]) -> list[Path]:
-    """bot-8: веса [li_cnx] — только перечисленные в inference/cnx/WEIGHTS_MANIFEST.json, файл ROOT/<path>
+    """веса [li_cnx] — только перечисленные в inference/cnx/WEIGHTS_MANIFEST.json, файл ROOT/<path>
     (жёсткая ссылка на source, не копия) с теми же sha256 и size; smoke-веса (never_pack) — отказ."""
     if not cnx_w:
         return []
@@ -274,8 +274,7 @@ def main() -> None:
     ap.add_argument("--thresholds", default=None,
                     help="с --from-zip: пороги из отчёта scripts/density_thresholds.py (вариант раздела 5)")
     ap.add_argument("--allow-en", action="store_true",
-                    help="линия EN (решение владельца 04.11, docs/PIXGBM_DECISION.md): модуль geo_pixgbm.py и модели "
-                         "PIXGBM в архиве, проверка DOC-1 не делается. Без флага — как раньше")
+                    help="не отбрасывать модуль прежней геофизики и не делать проверку DOC-1. Без флага модуль в архив не входит")
     args = ap.parse_args()
     if args.allow_en and args.from_zip:
         sys.exit("--allow-en только для сборки из дерева")
@@ -322,7 +321,7 @@ def main() -> None:
             else:
                 z.write(f, name)
     if args.allow_en:
-        print("DOC-1 не проверялся: --allow-en (линия EN, решение владельца 04.11, docs/PIXGBM_DECISION.md)")
+        print("DOC-1 не проверялся: сборка с прежним модулем геофизики")
     else:
         _doc1_check(out)
     size = out.stat().st_size

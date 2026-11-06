@@ -510,6 +510,20 @@ def augment_batch(x, y, scale: float = 0.0, photo: float = 0.0):
     return x.contiguous(), y
 
 
+def finetune_keeps(f1_mean: float, best_f1: float, val_loss: float, best_loss: float,
+                   floor_rec: float | None = None, baseline_floor: float | None = None) -> bool:
+    """Можно ли заменить чекпойнт этой эпохой.
+
+    Доучивание сданной сети: если на пороге 0,15 пропала хотя бы половина попаданий
+    проверки, эпоху не берём, даже когда суммарная потеря стала меньше.
+    Обучение с нуля (baseline_floor is None) — прежнее правило: выше F1,
+    при равенстве F1 — ниже потеря.
+    """
+    if baseline_floor is not None and baseline_floor > 0 and floor_rec is not None and floor_rec < 0.5 * baseline_floor:
+        return False
+    return f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and val_loss < best_loss)
+
+
 def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, batch: int = 16,
           lr: float = 1e-3, val_families: list[str] | None = None, workers: int = 2,
           pretrained: bool = True, limit: int | None = None, amp: bool = True,
@@ -568,7 +582,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     tr_rows = [r for r in rows if r["family"] not in val_families]
     va_rows = [r for r in rows if r["family"] in val_families]
     if val_families and not va_rows and not all_data:
-        # bot-9: «--val-families auto» или опечатка раньше молча давали 10 % хвоста индекса (утечка семьи).
+        # «--val-families auto» или опечатка раньше молча давали 10 % хвоста индекса (утечка семьи).
         raise ValueError(f"--val-families {val_families}: ни одного тайла этих семей в {cache_p}/index.csv")
     if not va_rows:  # без проверки по семьям — 10 % хвоста (только для отладки)
         cut = max(1, len(rows) // 10)
@@ -640,7 +654,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         model.load_state_dict(ck["state_dict"])
         log.info("старт с %s, смещение головы не сбрасывается", init_weights)
     elif center and center_loss_name == "focal":
-        # bot-9: смещение головы ставится до копии в EMA, чтобы копия стартовала с тем же prior 0,01.
+        # смещение головы ставится до копии в EMA, чтобы копия стартовала с тем же prior 0,01.
         # При --init-weights его нет: иначе затирается голова сданной карты.
         from .centers import init_focal_bias
         init_focal_bias(model)
@@ -650,7 +664,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             raise RuntimeError(f"Модель не на GPU: {bad[:3]}")
     if ema > 0:
         if ema_warmup:
-            # bot-9: decay_t = min(ema, (1 + t) / (10 + t)) — при 1,3–1,7 тыс. шагов 0,999 без разгона
+            # decay_t = min(ema, (1 + t) / (10 + t)) — при 1,3–1,7 тыс. шагов 0,999 без разгона
             # оставляет 19–28 % веса первых шагов (0,999^1290 = 0,275).
             _ema = float(ema)
 
@@ -755,7 +769,13 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
              f", copy-paste {copy_paste:g}" if ch else "")
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     steps = max(1, epochs * max(1, n_steps))
-    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, total_steps=steps, pct_start=0.1)
+    if init_weights:
+        # Короткое доучивание сданной сети: постоянный шаг. Разгон OneCycle рассчитан на старт с нуля
+        # и на 1650 за четыре эпохи стёр пики выше рабочего порога.
+        sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_lambda=lambda _step: 1.0)
+        log.info("доучивание: постоянный шаг %.3g, без разгона OneCycle", lr)
+    else:
+        sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, total_steps=steps, pct_start=0.1)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     bce = torch.nn.BCEWithLogitsLoss()
     if center:
@@ -811,6 +831,37 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     best_f1, best_loss, history = -1.0, math.inf, []
     thrs = tuple(float(t) for t in (center_peak_thrs or (0.5,)))
     best_thr = None
+    kept_init = False
+    saved = False
+    baseline_floor = None
+    FLOOR_THR = 0.15
+
+    def _floor_recall(net) -> float | None:
+        if not (center and init_weights):
+            return None
+        from .centers import heatmap_counts as _hc
+        net.eval()
+        match_r = max(2, round(sigma_px)) if center_sigma_m <= 0 else max(1, round(sigma_px))
+        if center_match_m > 0:
+            match_r = max(1, int(round(center_match_m / float(meta["res"]))))
+        tp = fn = 0.0
+        with torch.inference_mode():
+            for x, y in val_batches():
+                va_pre = bool(gpu_data and g_va.y_pre is not None)
+                with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=use_amp):
+                    logits = net(x)
+                _, y = batch_loss(logits, y, precomputed=va_pre)
+                ctp, _, cfn = _hc(logits.float().sigmoid(), y, match_r, thr=FLOOR_THR)
+                tp += float(ctp.sum())
+                fn += float(cfn.sum())
+        return tp / max(tp + fn, 1e-6)
+
+    init_cpu = None
+    if init_weights and not all_data:
+        init_cpu = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+    if init_weights and center and not all_data:
+        baseline_floor = _floor_recall(model)
+        log.info("доучивание: полнота пиков на проверке при пороге %.2f до шага — %.3f", FLOOR_THR, baseline_floor)
     checked_dev = not must_gpu
     for ep in range(epochs):
         t0 = time.perf_counter()
@@ -843,6 +894,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         vn = 0
         tp, fp, fn = (torch.zeros(k, device=dev) for _ in range(3))
         ctab = {t: [torch.zeros(k, device=dev) for _ in range(3)] for t in thrs} if center else {}
+        floor_tp = torch.zeros(k, device=dev) if (center and init_weights) else None
+        floor_fn = torch.zeros(k, device=dev) if floor_tp is not None else None
         with torch.inference_mode():
             for x, y in val_batches():
                 va_pre = bool(gpu_data and g_va.y_pre is not None)
@@ -861,6 +914,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         ctab[t_][0] += ctp
                         ctab[t_][1] += cfp
                         ctab[t_][2] += cfn
+                    if floor_tp is not None:
+                        ftp, _, ffn = heatmap_counts(pr_sig, y, match_r, thr=FLOOR_THR)
+                        floor_tp += ftp
+                        floor_fn += ffn
                 else:
                     p = (logits.float().sigmoid() > 0.5).float()
                     tp += (p * y).sum(dim=(0, 2, 3))
@@ -871,7 +928,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         f1_by_thr = {}
         ep_thr = None
         if center:
-            # bot-9: F1 пиков на нескольких порогах; для отбора эпохи — лучший порог (порог с семьи проверки,
+            # F1 пиков на нескольких порогах; для отбора эпохи — лучший порог (порог с семьи проверки,
             # не с тестовой семьи фолда, т. е. leave-family-out сохраняется).
             best_mean = -2.0
             for t_ in thrs:
@@ -901,14 +958,20 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         log.info(json.dumps(rec, ensure_ascii=False))
         support = (tp + fn) > 0
         f1_mean = float(f1[support].mean()) if support.any() else -1.0
+        floor_rec = None
+        if floor_tp is not None:
+            floor_rec = float(floor_tp.sum() / torch.clamp(floor_tp.sum() + floor_fn.sum(), min=1e-6))
+            rec["floor_recall_0.15"] = round(floor_rec, 4)
         # Чекпойнт — по F1 классов, которые есть в проверке (пиксели или пики центров).
-        # Потеря BCE почти целиком про фон и выбирала пустую карту.
-        better = f1_mean > best_f1 + 1e-6 or (abs(f1_mean - best_f1) <= 1e-6 and vl < best_loss)
+        # Потеря почти целиком про фон и выбирала пустую карту. При доучивании пустая карта
+        # ещё и снижает шарнир, поэтому одной потери мало: пики на 0,15 должны остаться.
+        better = finetune_keeps(f1_mean, best_f1, vl, best_loss, floor_rec, baseline_floor)
         if ep + 1 < int(select_min_epoch):
-            better = False  # bot-9: эпоха 1–2 с F1 0,002 больше не «лучшая» навсегда
+            better = False  # эпоха 1–2 с F1 0,002 больше не «лучшая» навсегда
         if all_data:
             better = True
         if better:
+            saved = True
             best_f1, best_loss, best_thr = f1_mean, vl, ep_thr
             Path(out).parent.mkdir(parents=True, exist_ok=True)
             torch.save({"state_dict": net.state_dict(), "encoder": encoder, "arch": arch, "in_channels": c,
@@ -927,9 +990,17 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         "epoch": ep + 1, "val_peak_thr": ep_thr, "seed": seed,
                         "ema_warmup": bool(ema_warmup), "device": str(dev),
                         "relief_aug": relief, "site_balance": float(site_balance),
-                        "val_loss": vl}, out)
+                        "val_loss": vl, "kept_init": False}, out)
+    if init_cpu is not None and not saved:
+        kept_init = True
+        log.info("доучивание не обошло стартовые веса по пикам: в файл записан старт")
+        Path(out).parent.mkdir(parents=True, exist_ok=True)
+        torch.save({"state_dict": init_cpu, "encoder": encoder, "arch": arch, "in_channels": c,
+                    "classes": meta["classes"], "markup": meta["markup"], "res": meta["res"],
+                    "tile": meta["tile"], "kept_init": True,
+                    "target": target, "center_sigma_m": center_sigma_m if center else None}, out)
     return {"best_val_loss": best_loss, "best_pixel_f1": best_f1, "best_peak_thr": best_thr,
-            "history": history, "out": out,
+            "history": history, "out": out, "kept_init": kept_init,
             "train_tiles": len(tr_rows), "val_tiles": len(va_rows), "device": str(dev)}
 
 

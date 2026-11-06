@@ -4,13 +4,13 @@ Master [li_post] enabled (default false) + independent sub-flags class_tau /
 self_nms (also false). OFF → byte-identical finish path (no-op).
 
 Does NOT touch closed levers (r50c5, WSR, ring, peak-rerank, sp_large, …).
-Does NOT duplicate bot-7 geophysics. Operates only on lidar-family features
+Does NOT duplicate geophysics. Operates only on lidar-family features
 (markup_type / threshold_group starting with ``li``).
 
 Honest-10 residual (local s0 ConvNeXt-Li OOF vs fold GT, soft cov≥0.5 +
 rep-point, base τ=0.15 = production fallback for li_cnx):
   off F1≈0.280; class_tau nested ΔF1≈+0.118; self_nms@8 ΔF1≈+0.003;
-  both ≈+0.120. Numbers are Li-layer only — see reports/bot4_li_post.md.
+  both ≈+0.120. Это только слой лидара, не полный балл сдачи.
 """
 from __future__ import annotations
 

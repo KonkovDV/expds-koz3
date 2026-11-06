@@ -47,6 +47,8 @@ RELIEF_TAGS = ("lrm_s", "lrm_l", "slope")
 #: локальным рельефом: сырая высота тащит макрорельеф. В сданные веса не входит.
 ENCLOSURE_TAGS = ("lrm_l", "slope", "g", "rough", "curv")
 #: Радиусы окна локального рельефа (м) и шкалы перевода в uint8.
+#: Окно вычитает своё среднее, поэтому постоянный сдвиг вертикальной системы
+#: (эллипсоид или геоид) и почти линейный наклон геоида на 8–30 м в остаток не входят.
 #: opns, svf — положительная открытость и фактор вида на небо: луч opns_r_m, opns_dirs направлений,
 #: линейная шкала в пределах *_range (1–99 перцентили на шаге 0,5 м по четырём участкам трейна).
 RELIEF = {"lrm_s_m": 8.0, "lrm_s_clip_m": 0.75, "lrm_l_m": 30.0, "lrm_l_clip_m": 2.0,
@@ -138,13 +140,13 @@ def fill_interior_holes(dem: np.ndarray, max_vertices: int = DEFAULTS["max_verti
     return filled.astype(np.float32, copy=False)
 
 
-LOWVEG_FILL = "tin_lowveg"   # P-W2-10: lidar.dem_fill="tin_lowveg"; по умолчанию "delaunay" (как было)
+LOWVEG_FILL = "tin_lowveg"   # lidar.dem_fill="tin_lowveg"; по умолчанию "delaunay"
 LOWVEG = dict(classes=(1, 3), parent_m=0.5, open_r_m=1.5, dz_lo=-0.5, dz_hi=3.0)
 
 
 def fill_lowveg(dem: np.ndarray, las_path: str | Path, info: dict, max_pixels: int = DEFAULTS["max_pixels"],
                 ground_class: int = 2, base: str = "delaunay", p: dict = LOWVEG) -> tuple[np.ndarray, dict]:
-    """Дыры класса 2 → вершины из нижних отражений классов 1/3 (P-W2-10, PREREG_W2_cnx.md).
+    """Дыры класса 2 заполняются вершинами из нижних отражений классов 1 и 3.
 
     N = поклеточный min средних z классов 1 и 3 на сетке DEM; Lmin — min N в родителе 0,5 м; Lo — серое открытие Lmin
     диском r=1,5 м. Родитель без точек класса 2 с −0,5 ≤ Lo − T0 ≤ +3 м (T0 — обычная заливка base) даёт вершину Lo
@@ -216,6 +218,11 @@ def build_dem(las_path: str | Path, res: float = DEFAULTS["res"],
               max_pixels: int = DEFAULTS["max_pixels"], ground_class: int = DEFAULTS["ground_class"],
               crs: str | None = None, fill: str = "delaunay", keep_prob: float = 1.0) -> Dem:
     """Строит DEM из LAS/LAZ: сетка средних высот точек земли + заполнение пустот (fill).
+
+    Координаты сетки — числа заголовка LAS, без перепроецирования. Аргумент crs
+    только подписывает эти числа: в какой системе они ложатся на карту участка.
+    Переводить облако в другую зону до сетки нельзя: сдвинется привязка, на которой
+    учились каналы рельефа.
 
     При EXPDS_DEM_DISK_CACHE=/каталог (или [speed] dem_disk_cache) сетка читается/пишется
     на диск — между прогонами gate/A-B на тех же LAS без пересчёта; выход побайтно тот же.

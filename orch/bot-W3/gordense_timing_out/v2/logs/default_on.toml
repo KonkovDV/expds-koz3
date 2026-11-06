@@ -475,7 +475,7 @@ enabled = false
 # (0,5 м UTM; Ae 640/160, Or 1024/288; flip-TTA; WBF внутри растра; потолок фазы 120 с, запас ×8). Включение:
 #   enabled = true
 #   weights = { ae = ["models/dfine_ae"], or = ["models/dfine_or"] }
-#     # = чекпойнты bot-9 koz3_shared/bot-9/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
+#     # = чекпойнты bot-9 koz3_shared/work/models/dfine_ae и dfine_or (HF: config.json + model.safetensors fp32,
 #     # 5 классов в порядке sp_dfine.CLASSES), в репозиторий — ln -s (полные пути: bot-6/AEOR_DETECT.md; личные
 #     # абсолютные пути в конфиге архива запрещены тестом test_no_personal_paths_in_packaged_code,
 #     # build_submission их не пакует)

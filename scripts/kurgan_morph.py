@@ -12,7 +12,7 @@
 Запуск (CPU, 2 потока):
   OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/kurgan_morph.py \
      --gt /workspace/rerank/gt_train_v2.geojson --data /workspace/data/train-expds-3 \
-     --out /workspace/koz3_shared/bot-2/work/kurgan_morph.json
+     --out /workspace/koz3_shared/work/kurgan_morph.json
 """
 from __future__ import annotations
 import argparse, json, math, os, sys

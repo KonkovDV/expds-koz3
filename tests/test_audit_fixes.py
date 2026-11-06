@@ -46,6 +46,14 @@ def test_within_site_rank_rejected_outside_focal_centers(tmp_path):
         train(str(tmp_path), str(tmp_path / "m.pt"), target="mask", within_site_rank=1.0)
 
 
+def test_finetune_rejects_a_map_that_lost_its_peaks():
+    from expds.train import finetune_keeps
+
+    assert finetune_keeps(0.0, 0.0, 1.0, 2.0, floor_rec=0.0, baseline_floor=0.4) is False
+    assert finetune_keeps(0.2, 0.1, 1.0, 1.0, floor_rec=0.4, baseline_floor=0.4) is True
+    assert finetune_keeps(0.0, -1.0, 1.0, 9.0, floor_rec=None, baseline_floor=None) is True
+
+
 def test_missing_init_weights_stop_before_training(tmp_path):
     from expds.train import train
 

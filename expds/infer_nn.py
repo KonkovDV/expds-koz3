@@ -98,7 +98,7 @@ class Segmenter:
         self.model.to(self.device).eval()
         self.amp = inference_amp(self.device)
         self.tta = 1        # 1, 2, 4 или 8 вариантов из поворотов/отражений (модели учились с ними)
-        # bot-8: мультимасштаб. [1.0] / отсутствие — OFF, predict байт-идентичен старому пути.
+        # мультимасштаб. [1.0] / отсутствие — OFF, predict байт-идентичен старому пути.
         self.ms_scales: list[float] = [1.0]
 
     def _auto_batch(self) -> int:
@@ -166,7 +166,7 @@ class Segmenter:
     def predict(self, img: np.ndarray, overlap: float = 0.25, batch: int | None = None) -> np.ndarray:
         """img: C×H×W uint8 на рабочем шаге модели → вероятности K×H×W float32.
 
-        bot-8: при ms_scales = [1.0] (по умолчанию) вызывается ровно `_predict_at_scale`
+        при ms_scales = [1.0] (по умолчанию) вызывается ровно `_predict_at_scale`
         — байт-идентично поведению до мультимасштаба.
         """
         scales = [float(s) for s in (getattr(self, "ms_scales", None) or [1.0])]

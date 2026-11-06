@@ -1,4 +1,4 @@
-"""bot-8: scripts/check_submission.py под PIXGBM (ревью бота 4, REVIEW_CHECK_SUBMISSION.md).
+"""scripts/check_submission.py под PIXGBM (ревью, REVIEW_CHECK_SUBMISSION.md).
 
 1) [geophys.pixgbm] enabled=true — файл модели на каждый класс (object_poly → poly.txt, finds_points → finds.txt
    на maggr), иначе FAIL; лишний файл в папке не засчитывается.
@@ -125,7 +125,7 @@ def mkroot(tmp_path, src):
 
 
 @pytest.mark.parametrize("src,guarded", [
-    ("def f():\n    import psutil\n    return psutil\n", False),                       # T8 бота 4: нет try
+    ("def f():\n    import psutil\n    return psutil\n", False),                       # T8: нет try
     ("def f():\n    try:\n        import psutil\n    except Exception:\n        return None\n", True),
     ("try:\n    import psutil\nexcept ImportError:\n    psutil = None\n", True),         # модуль, с фолбэком
     ("try:\n    import psutil\nexcept (ValueError, ModuleNotFoundError):\n    psutil = None\n", True),
@@ -162,7 +162,7 @@ def test_real_code_lazy_imports_are_guarded():
 
 
 def test_pixgbm_enabled_without_module_fails():
-    """Murder Board 29.10: expds/geo_pixgbm.py вне git; без него в архиве — FAIL (иначе тихая классика ≠ v2 LB)."""
+    """expds/geo_pixgbm.py вне git; без него в архиве — FAIL (иначе тихая классика ≠ v2 LB)."""
     b = io.BytesIO()
     with zipfile.ZipFile(b, "w") as z:
         z.writestr("configs/default.toml", '[geophys.pixgbm]\nenabled = true\nmodel_dir = "models/pixgbm/all"\n')
@@ -174,7 +174,7 @@ def test_pixgbm_enabled_without_module_fails():
 
 
 def test_sp_dfine_enabled_static_checks():
-    """bot-10: [sp_dfine] enabled без весов/порогов/вендорного transformers d_fine — FAIL; полный набор — PASS."""
+    """[sp_dfine] enabled без весов/порогов/вендорного transformers d_fine — FAIL; полный набор — PASS."""
     cfg = '[sp_dfine]\nenabled = true\nweights = ["models/dfine_final"]\n'
     thr = "\n[thresholds_by_markup.sp_dfine]\n" + "".join(f"{c} = 0.5\n" for c in cs.CLASSES)
 

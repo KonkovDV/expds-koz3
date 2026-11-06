@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Посемейный стек (split_stack_by_family.py) → стек пакета-кандидата bot-7 до порогов.
+"""Посемейный стек (split_stack_by_family.py) → стек пакета-кандидата до порогов.
 
 Шаги в порядке watchdog.finish (порог потом подбирает честное табло по фолдам):
   sota_stack6 separate: post.multipole_object_poly(spec=None) + post.filter_finds_points_regimes
-  [--twins] [post] kurgan_twins_only (bot-6): kurgan_cross_modal_twins, dedup_ae_vs_li_m = 0
+  [--twins] [post] kurgan_twins_only: kurgan_cross_modal_twins, dedup_ae_vs_li_m = 0
   курганы 0,5 м: post.micro_circles (radius_m из --radius-map)
-Реранк архитектуры здесь не делается (честно — только вложенно, bot-10/work4/rerank/nested_lofo5.py),
+Реранк архитектуры здесь не делается (честно — только вложенно, work4/rerank/nested_lofo5.py),
 crop verify — уже в стеке, если стек снят табло с кропом.
 
     python scripts/pkg_fam.py --fam <fam> --out <fam_pkg> [--twins] [--no-stack6] [--radius-map ...]

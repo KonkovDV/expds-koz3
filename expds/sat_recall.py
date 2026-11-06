@@ -1,4 +1,4 @@
-"""W1-SATREC (bot-W1, 02.11, docs/PREREG_W1_SATREC.md): satellite recall levers. All OFF by default.
+"""Рычаги полноты спутника. По умолчанию все выключены.
 
 sat_equal_fusion — equal-weight fusion of the satellite detectors into one group (default "sp_fuse"):
   per region and class, candidates in descending confidence; each unassigned candidate becomes an anchor and
@@ -9,11 +9,10 @@ sat_equal_fusion — equal-weight fusion of the satellite detectors into one gro
   Geometries must be EPSG:3857 (ground metres = units × cos φ, one cos φ per region).
 sat_center_prior — post.frame_prior form on the satellite group (scene_drel; d0 width of the untouched centre,
   edge = 1 − strength at the scene edge). Applied before thresholds.
-sat_frame_gate — W1-SATQ Q2 (docs/PREREG_W1_SATQ_AMEND1.md §C): on scenes >= min_scene_mpix (scene_mpix of the covering
-  scene box that gives scene_drel), drop satellite detections with scene_drel > x and confidence < t2. Before thresholds.
-W1-FRZ production flags (docs/W1_C1F_HANDOFF.md) — [post.w1_c1f] (main) / [post.w1_p2f] (comparison), enabled = false
-  by default. resolve_final_flag(cfg) turns an enabled flag into [post].sat_center_prior + its own
-  [thresholds_by_markup.sp_dfine] values (non-sp_dfine thresholds untouched); flag off → cfg returned as is.
+sat_frame_gate — на кадрах не меньше min_scene_mpix отбрасывает детекции с положением от центра
+  scene_drel > x и уверенностью ниже t2. Применяется до порогов.
+Флаги [post.w1_c1f] и [post.w1_p2f] по умолчанию выключены. Включённый флаг подставляет приор центра
+  и свои пороги группы sp_dfine; остальные пороги не меняются. Выключенный флаг конфиг не трогает.
 """
 from __future__ import annotations
 
@@ -100,12 +99,12 @@ def sat_equal_fusion(feats: list[dict], spec: dict | None = None) -> list[dict]:
 def sat_center_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Scene-centre prior on satellite group(s) (default sp_dfine), before thresholds. Off unless [post].sat_center_prior.
 
-    Legacy spec (d0, edge) → post.frame_prior unchanged (W1-SATREC). W1-SATREC2 (docs/PREREG_W1_SATREC2.md) adds:
+    Старые ключи d0 и edge идут в post.frame_prior как раньше. Дополнительно:
       s            strength, m = max(0, 1 − s·clip((d − d0)/(1 − d0), 0, 1)); s may exceed 1 (m hits 0 before the edge)
       s_by_class   {class_name: s} overrides s per class (e.g. kurgany_tselye own strength)
       only_without_lidar  apply only in regions whose input has no markup "li" feature
       nl_group     relabel threshold_group of the prior groups to this name in lidar-free regions (own thresholds)
-    W1-COMBO (docs/PREREG_W1_COMBO.md) adds:
+    Ещё:
       frame_prior  {classes, d0, edge}: after the prior, post.frame_prior on the same groups (∪ nl_group) — FP1 on sp_dfine
     Feature without scene_drel keeps its confidence.
     """
@@ -178,7 +177,7 @@ SFG_CLASSES = ("kurgany_povrezhdennye", "kurgany_tselye", "gorodishcha", "arkhit
 
 def sat_frame_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """W1-SATQ Q2, off unless [post].sat_frame_gate {groups=[sp_dfine], classes, min_scene_mpix=4, x, t2 | t2_cls}.
-    t2_cls (COMP-FL, docs/bots/2026-11-02/coord-A/PREREG_COMP_FL.md) overrides t2 per class; a class absent from t2_cls
+    t2_cls задаёт свой порог края кадра по классу. Класс, которого нет в t2_cls,
     falls back to t2, and without t2 it is left untouched.
     Removes a feature of the groups/classes with scene_mpix >= min_scene_mpix, scene_drel > x and confidence < t2.
     Features without scene_drel / scene_mpix are kept."""
@@ -247,7 +246,7 @@ def resolve_final_flag(cfg: dict) -> dict:
     return out
 
 
-# ---------------- W4 [post.w4_sat] (PREREG docs/bots/2026-11-02/bot-W4/c1fx_regate/PREREG.md), default OFF ----------------
+# Дополнительный спутниковый порог [post.w4_sat]. По умолчанию выключен.
 W4_FLAG = "w4_sat"
 
 

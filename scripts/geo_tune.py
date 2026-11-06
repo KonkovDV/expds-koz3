@@ -16,7 +16,7 @@
     ... --only maggr/finds_points --signals abs asa --out work/geo_asa.json      # аналитический сигнал
     ... --only maggr/object_poly --polarities abs pos --out work/geo_pol.json    # ямы — положительные
     ... --only maggr/object_poly --splits none field:0.1 field:0.2 dt:0.5 --pole-circle 0 0.05 --out work/geo_split.json
-                                       # bot-3: разрезание слипшихся областей и круги в полюсе
+                                       # разрезание слипшихся областей и круги в полюсе
 """
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""bot-7: scripts/compare_candidates.py — rule PASS/FAIL, Δ, li↔ae, md/csv."""
+"""scripts/compare_candidates.py — rule PASS/FAIL, Δ, li↔ae, md/csv."""
 from __future__ import annotations
 
 import csv

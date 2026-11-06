@@ -218,7 +218,7 @@ def read_utm_json(path: Path | None) -> str | None:
 
     Географическая CRS (008_Герите: EPSG:4326) заменяется зоной UTM по центру участка
     (crs.project_region_crs, WARNING в журнале): иначе окна и шаги в метрах становятся
-    градусами (сцена Or 1×1 px у бота 9). Проекционные CRS возвращаются как есть.
+    градусами (сцена Or 1×1 px у). Проекционные CRS возвращаются как есть.
     """
     raw = _read_utm_json_raw(path)
     if raw is None:

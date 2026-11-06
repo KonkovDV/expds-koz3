@@ -1,4 +1,4 @@
-"""bot-2 A3/A4: agreement_m — D-FINE только рядом с U-Net sp_or (default OFF)."""
+""" A3/A4: agreement_m — D-FINE только рядом с U-Net sp_or (default OFF)."""
 from __future__ import annotations
 
 from shapely.geometry import Point

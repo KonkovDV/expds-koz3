@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Сборка бэкендов predict PIXGBM рядом с моделями (bot-3). Нужны только на машине сборки:
+"""Сборка бэкендов predict PIXGBM рядом с моделями. Нужны только на машине сборки:
 lleaves (MIT) + llvmlite 0.44 (BSD-2 / Apache-2.0 + LLVM exception) + gcc; treelite/tl2cgen (Apache-2.0) — для --treelite.
 
     python scripts/pixgbm_compile.py models/pixgbm/all                 # → poly.lleaves.so/.json, finds.lleaves.so/.json

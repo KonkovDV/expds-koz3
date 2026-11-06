@@ -1,7 +1,7 @@
 # KOZ3 — что есть у конкурентов и нет у нас (02.11.2026)
 
 База сравнения: финальный `v3_on` @ b447649 (production replay 0,345439; база гейта 0,3337867).
-Источники: EN (EhimenNathan_EXpedition @ d434e56, `configs/deployed_v20.json` и README/RESULTS),
+Источники: EN (сторонний репозиторий_EXpedition @ d434e56, `configs/deployed_v20.json` и README/RESULTS),
 ранний обзор `orch/COMPETITORS_2026-11-02.md`, `docs/COMPETITORS_2026-10-29.md`, оракульная таблица
 `orch/bot-W3/runs/gap_breakdown.md` (стек 0,3220 → оракул 0,690).
 Чистая комната (DOC-1): ниже только идеи и численные параметры. Код конкурентов не копируется ни в репозиторий, ни в спецификации.

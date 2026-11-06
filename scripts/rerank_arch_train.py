@@ -1,9 +1,9 @@
-"""Финальная модель реранка архитектуры для [rerank_arch] (bot-7). Только коробка: читает артефакты
+"""Финальная модель реранка архитектуры для [rerank_arch]. Только коробка: читает артефакты
 /workspace/rerank (стек stack_arch.geojson → work/table.pkl, X2.npy, pool.npy, first.npy, nested_v2.npz).
 
 Модель — как во внешнем фолде nested2/nested3 (те же параметры, 300 раундов, пул, метка first-hit),
 но на всех семьях. Пороги групп — sweep_groups в выборке по OOF-баллам канона (nested_v2 outer),
-той же процедурой, что пороги базы в configs/default.toml (проверено bot-7: work3/insample_tau.json).
+той же процедурой, что пороги базы в configs/default.toml (проверено work3/insample_tau.json).
 Пишет <out>.txt (LightGBM) и <out>.json (meta для expds/rerank_arch.py).
 
     OMP_NUM_THREADS=2 nice -n 10 /workspace/rerank/venv/bin/python scripts/rerank_arch_train.py --out work3/rerank_arch_lgbm

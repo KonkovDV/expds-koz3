@@ -1,4 +1,4 @@
-"""bot-1 (кандидат v4): D-FINE всех классов на Ae/Or — флаг выкл., WBF внутри снимка, strict preflight, лимиты."""
+""" (кандидат v4): D-FINE всех классов на Ae/Or — флаг выкл., WBF внутри снимка, strict preflight, лимиты."""
 import tomllib
 from pathlib import Path
 

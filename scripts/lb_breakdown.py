@@ -440,7 +440,7 @@ def re_sub_ws(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").strip())
 
 
-# --- final_score ↔ LB breakdown (bot7, 01.11.2026) ---------------------------------
+# --- final_score ↔ LB breakdown (, 01.11.2026) ---------------------------------
 # CLASS_WEIGHTS mirrors materials/compute_metrics.py F1Calculator.CLASS_WEIGHTS.
 CLASS_WEIGHTS: dict[str, float] = {
     "kurgany_povrezhdennye": 30.0,

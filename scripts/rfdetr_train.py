@@ -1,7 +1,7 @@
 """RF-DETR-M/L. По умолчанию (--init coco) — дообучение чекпойнта RF-DETR COCO (rf-detr-medium.pth / rf-detr-large-2026.pth,
 Apache-2.0, веса разрешены организаторами). Запасные режимы: --init dinov2 (только энкодер DINOv2-S, декодер с нуля), --init scratch.
 
-Написано bot-5. Из пакета rfdetr (Apache-2.0) берутся только сборка модели, сопоставитель и критерий
+Написано. Из пакета rfdetr (Apache-2.0) берутся только сборка модели, сопоставитель и критерий
 (rfdetr.models.lwdetr.build_model_from_config / build_criterion_from_config); цикл обучения, данные, MAL,
 flat-cosine, copy-paste курганов и перенос весов DINOv2 — свои. Код конкурентов не использовался.
 

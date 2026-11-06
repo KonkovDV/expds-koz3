@@ -614,7 +614,7 @@ def kurgans_outside_hillforts(feats: list[dict], spec: dict | None = None) -> li
     spec = spec or {}
     classes = set(spec.get("classes") or KURGANS)
     groups = set(spec.get("groups") or ())
-    gor_groups = set(spec.get("gor_groups") or ())
+    gor_groups = set(spec.get("gor_groups") or)
     min_conf = float(spec.get("min_gor_conf", 0.0))
     buf_m = float(spec.get("buffer_m", 0.0))
     lo, hi = float(spec.get("min_area_m2", 500.0)), float(spec.get("max_area_m2", 400_000.0))
@@ -793,7 +793,7 @@ def site_calibration(feats: list[dict], spec: dict | None = None) -> list[dict]:
     import numpy as np
 
     spec = spec or {}
-    groups = set(spec.get("groups") or ())
+    groups = set(spec.get("groups") or)
     if not groups:
         raise ValueError("site_calibration: нужен список groups")
     classes = set(spec.get("classes") or KURGANS)

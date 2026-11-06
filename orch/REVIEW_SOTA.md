@@ -99,7 +99,7 @@ _Составлено executor-ботом 29.10.2026, ~23:30 МСК. Тольк�
 | [Iskatel-potenzialov/gis](https://github.com/Iskatel-potenzialov/gis) | бесшовная вставка курганов (copy-paste) | **MIT**, можно брать |
 | [MataNerdy/Geodata_Archaeology_CV](https://github.com/MataNerdy/Geodata_Archaeology_CV), [Egor-git-cloud/ds-expedition](https://github.com/Egor-git-cloud/ds-expedition) | КОЗ-2-эпоха | идеи |
 | [vdurnov/xview2_1st_place_solution](https://github.com/vdurnov/xview2_1st_place_solution) | ансамбль U-Net, локализация + классификация | MIT |
-| EhimenNathan/EXpedition, maratgaliulin/EXpedition | лидер-уровень (EN v22 0.505) | **по правилу владельца ничего не брать** |
+| сторонний репозиторий, maratgaliulin/EXpedition | лидер-уровень (EN v22 0.505) | **по правилу владельца ничего не брать** |
 | Docker: evgps (RF-DETR), niovol, restdockerse (TerraMind + LoRA), azalexandr87 fort-v2 и др. | стек лидеров: DETR-детекторы, RS-FM | только наблюдение |
 | [t.me/s/expds](https://t.me/s/expds), [upgreat.one КОЗ-3](https://upgreat.one/contests/expds/koz-3), [ТР КОЗ-3](https://upgreat.one/upload/iblock/477/477560736561f633fc4e1bd983635da5/PROEKT_Tekhnicheskii_reglament_KOZ_3_Ekspeditsiya_DS.pdf) | правила, разъяснения | — |
 

@@ -21,10 +21,9 @@ test_meta_init.py, test_predict_slots.py), но на реальных данны
   slot_accum     — накопление окон на CUDA «слотами» (Segmenter._predict_on_device_slots). НЕ входит в
                    UMBRELLA: на CPU медленнее цикла, на CUDA не замерено — только явно.
 
-Не взято из ветки (см. docs/BRANCHES_ARCHIVE.md): las_grid_fast + rust/expds_fast (написаны под lidar_a —
-линия EN), cpu_threads (нет потребителя в main), колесо .whl (бинарь в git).
+Не взято из старой ветки: las_grid_fast и rust/expds_fast, cpu_threads (нет потребителя в main), колесо .whl (бинарь в git).
 
-Дополнительно (01.11.2026, bots/bot1-speedup-1101), вне UMBRELLA — только явно:
+Дополнительно, вне общего набора ускорений, только если включить явно:
   dem_disk_cache — дисковый кэш DEM (expds/demcache.py); выставляет
                    EXPDS_DEM_DISK_CACHE на каталог по умолчанию, если ещё не задан.
                    Либо задать EXPDS_DEM_DISK_CACHE=/path без флага (тоже включает кэш).

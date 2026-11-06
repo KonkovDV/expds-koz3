@@ -159,7 +159,7 @@ FOLD_VAL_FAMILIES = {}  # computed dynamically from fold splits
 
 def build_dual_gpu_plan() -> dict:
     """Формирует двухуровневый план обучения на 4 узлах (8 × Tesla T4, по 2 GPU на узел)."""
-    # bot-9: в HEAD имя splits_val_map нигде не задано → NameError в plan/stage.
+    # в HEAD имя splits_val_map нигде не задано → NameError в plan/stage.
     splits_val_map = {sp["fold"]: sp["val"] for sp in compute_fold_splits()}
     wave1 = [
         {

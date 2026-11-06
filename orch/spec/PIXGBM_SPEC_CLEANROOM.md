@@ -2,7 +2,7 @@
 
 ## Происхождение (provenance)
 - **Автор:** команда спецификации bot 1, исполнитель-«грязный» автор спецификации. Составлено 29.10.2026, ~22:40 МСК.
-- **Исполнитель:** bot 5. **Запрещено открывать** `expds/geo_pixgbm.py` (любые копии, в том числе в `analysis/**`, `pc/tools/**` и в коммитах веток `bots/bot3-*`), `expds/geo_finds_gbm.py`, ветки `bot3-ehimen`/`bot3-*`, репозитории EhimenNathan/EXpedition и форков, `docs/research/*` с разбором EN, модели `models/pixgbm/all/*`.
+- **Исполнитель:** bot 5. **Запрещено открывать** `expds/geo_pixgbm.py` (любые копии, в том числе в `analysis/**`, `pc/tools/**` и в коммитах веток `bots/bot3-*`), `expds/geo_finds_gbm.py`, ветки `старая ветка`/`bot3-*`, репозитории сторонний репозиторий и форков, `docs/research/*` с разбором EN, модели `models/pixgbm/all/*`.
 - **Что прочитал автор спецификации:**
   - `docs/PIXGBM_DECISION.md`;
   - `docs/PREREG_w4_pixgbm.md` (bots/w4-gate 22a32c3);

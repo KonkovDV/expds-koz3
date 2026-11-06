@@ -1,9 +1,9 @@
-"""bot-5. Фильтр городищ v3 (patch gate, NOLIDAR §12 «clean gate», +0,005057): финальная голова и применение.
+""". Фильтр городищ v3 (patch gate, NOLIDAR §12 «clean gate», +0,005057): финальная голова и применение.
   fit:   обучить голову на ВСЕХ обучающих сценах (та же процедура, что в gor_patch_eval.py: PCA-64 без меток,
          logreg C=1, чистка Landauer 0,85/0,05 по внутреннему OOF 5 семейных фолдов) -> HEAD.npz;
          пороги групп: sweep_groups по обучению, где sp_or-строки умножены на OOF max-p сцены (как в каждом фолде eval) -> TAUS.json.
   apply: признаки виньеток новой сцены (extract_feats.py) + кандидаты GeoJSON -> GeoJSON с conf_gated и scores JSON.
-Гиперпараметры заданы заранее (не подбирались). Env: MODE=fit|apply; см. FOR_BOT7_GOR_V3.md."""
+Гиперпараметры заданы заранее и здесь не подбирались. Режим: MODE=fit или MODE=apply."""
 import os, sys, json, hashlib, collections, time
 from pathlib import Path
 import numpy as np

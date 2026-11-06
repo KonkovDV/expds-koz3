@@ -1,4 +1,4 @@
-"""bot-4 li_post: master OFF = no-op; class_tau floors; self_nms radius."""
+""" li_post: master OFF = no-op; class_tau floors; self_nms radius."""
 from __future__ import annotations
 
 import pytest

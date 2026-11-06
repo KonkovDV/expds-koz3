@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""План заданий OOF-инференса для Kaggle-ядра bot-8 (GPU-5).
+"""План заданий OOF-инференса для Kaggle-ядра (GPU-5).
 
 Потребители: scripts/scoreboard.py (--honest 10), density_thresholds.py,
 oof_transform calib, bot4/bot7 калибровка порогов по слою.

@@ -1,11 +1,14 @@
-"""bot-5 (ветка bot5-gor-dense-v3 от bot7-candidate-v3 360c870): плотный локализатор городищ DINOv2-S на SpOr. ВЫКЛ.
+"""Плотный локализатор городищ DINOv2-S на спутниковых снимках. По умолчанию выключен.
 
-Вариант PFnoD бота 10 (bot-10/REPORT14_gor_dense.md, work14/pkg_gor2.py; PACKAGE-ONLY +0,015406, P 1,000):
+Тот же стандартный выпуск facebook/dinov2-small, что у шлюза: готовые веса Apache-2.0,
+голова своя и учится на снимках конкурса. Изображения LVD-142M в обучение не входят.
+
+Вариант PFnoD (REPORT14_gor_dense.md, work14/pkg_gor2.py; PACKAGE-ONLY +0,015406, P 1,000):
 F|all+cp:add — точки-кандидаты городищ из плотных патч-токенов замороженного facebook/dinov2-small, плюс
 выключенный класс gorodishcha в выдаче sp_dfine («noD»). Гейт-умножение sp_or выключено (при R целей нет);
 p участка головы гейта gor_v3 входит только в уверенность точки: conf = 0,5·(p_scene + пик).
 
-Порт без изменения арифметики (bot-5 scripts/gor_dense/dense_feats.py, dense_probe.Probe.peaks, gor_dense_eval rows):
+Порт без изменения арифметики (scripts/gor_dense/dense_feats.py, dense_probe.Probe.peaks, gor_dense_eval rows):
 * сцена целиком → шаги GSDS (2 и 4 м/пкс, усреднение), растяжка 2–98 % по обзору ≤1024 пкс, ImageNet-норм.;
 * тайлы 518 пкс шаг 392, токены 14 пкс усредняются по перекрытиям; вторая шкала — билинейно в центрах токенов первой;
   признак = [токен 2 м, токен 4 м] = 768 (float16, как в обучении);
@@ -18,7 +21,7 @@ p участка головы гейта gor_v3 входит только в у�
 (порог [thresholds_by_markup.gor_dense] gorodishcha, применяется в watchdog.finish до merge), в файл пишется
 markup_type ``sp_or`` (out_markup_type: в списке ТР; writer.to_feature_collection).
 noD: на участках, где точки посчитаны, объекты sp_dfine класса из drop_dfine_classes удаляются (= τ sp_dfine
-gorodishcha = inf у бота 10). Участок, не пройденный целиком (время/ошибка), не трогается вовсе (выдача как v3).
+gorodishcha = inf). Участок, не пройденный целиком (время/ошибка), не трогается вовсе (выдача как v3).
 """
 from __future__ import annotations
 
@@ -44,11 +47,11 @@ DEFAULTS = {
     "enabled": False,
     "backbone": "models/dinov2-small",                  # тот же снапшот, что у gor_gate (ed25f3a3…)
     "backbone_md5": "ea251be6e151ba8609ad0bc9b2e13a78",
-    "gate_head": "models/gor_gate/gor_v3_head.npz",     # p_scene: голова гейта gor_v3 (bot-5), без умножения sp_or
+    "gate_head": "models/gor_gate/gor_v3_head.npz",     # p_scene: голова гейта gor_v3, без умножения sp_or
     "gate_head_md5": "acb95c52956d712a16c3dd389237a691",
     "head": "models/gor_dense/gor_dense_head.npz",      # плотная голова 'all' (scripts/gor_dense/export_head.py)
     "head_md5": "",
-    "centre_s": None,        # s приора центра, м — ОБЯЗАТЕЛЕН (у бота 10 одного значения нет; см. открытые вопросы)
+    "centre_s": None,        # s приора центра, м — ОБЯЗАТЕЛЕН (у одного значения нет; см. открытые вопросы)
     "device": "auto",
     "batch": 16,             # виньетки p_scene
     "gsds": [2.0, 4.0],
@@ -326,7 +329,7 @@ def region_points(model, H, G, reg, st, dev, keep, soft_ok=None, timing: dict | 
         if timing is not None:
             timing[str(p)] = dict(s=time.monotonic() - t0, tiles=tok["tiles"], vignettes=int(_n), tokens=len(tok["row"]))
     pk = region_peaks(cands, int(st["k"]), float(st["suppress_m"]))
-    p_scene = max(ps) if ps else 0.0       # как gp_.get(r, 0.0) у бота 10
+    p_scene = max(ps) if ps else 0.0       # как gp_.get(r, 0.0)
     return point_features(name, pk, p_scene, epsg, st, Path(paths[0]).name), True
 
 

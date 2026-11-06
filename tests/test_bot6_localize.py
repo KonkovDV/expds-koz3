@@ -1,4 +1,4 @@
-"""bot-6 LOCALIZE: микрокруги фортификаций через [post.micro_circles] (словарь радиусов)."""
+""" LOCALIZE: микрокруги фортификаций через [post.micro_circles] (словарь радиусов)."""
 import math
 
 from shapely.geometry import Point, box

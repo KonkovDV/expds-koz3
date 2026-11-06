@@ -1,7 +1,7 @@
-"""bot-1 (кандидат v4): D-FINE на растрах Ae (аэрофото) и Or (ортофото), группы ``ae_dfine`` / ``or_dfine``.
+""" (кандидат v4): D-FINE на растрах Ae (аэрофото) и Or (ортофото), группы ``ae_dfine`` / ``or_dfine``.
 
-ПО УМОЛЧАНИЮ ВЫКЛЮЧЕН ([aeor_dfine] enabled = false). Включать только после honest-10 приёмки ботом 10
-(bot-1/AEOR_DETECT_2026-10-29.md). Без порогов [thresholds_by_markup.ae_dfine] / [...or_dfine] для всех
+ПО УМОЛЧАНИЮ ВЫКЛЮЧЕН ([aeor_dfine] enabled = false). Включать только после honest-10 приёмки
+(AEOR_DETECT_2026-10-29.md). Без порогов [thresholds_by_markup.ae_dfine] / [...or_dfine] для всех
 классов модуль ничего не выдаёт (``require_thresholds``), а при strict = true прогон падает на preflight.
 
 Отличия от ``sp_dfine`` (тот же загрузчик весов и та же сцена WarpedVRT):

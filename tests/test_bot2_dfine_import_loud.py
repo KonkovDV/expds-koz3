@@ -1,4 +1,4 @@
-"""bot-2 A3 / bot-5 v4: loud UNAVAILABLE + packaging layout + EXPDS_STRICT (ported from 829ea7d)."""
+""" A3 / v4: loud UNAVAILABLE + packaging layout + EXPDS_STRICT (ported from 829ea7d)."""
 from __future__ import annotations
 
 import logging

@@ -4,7 +4,7 @@
 `src/convnext_main.py` (ядро), снимок головы bot-2 — `src/vendor/centerhead/` (из git, не правится руками).
 
 ## 1. Источник головы bot-2 (вендоринг по sha)
-- Репозиторий `/workspace/koz3_shared/bot-2/repo`, ветка `bot-2/centerhead`, коммит `788202a1b3b8eebdef70b6728faaea3154ee2031`
+- Репозиторий `/workspace/koz3_shared/work/repo`, ветка `bot-2/centerhead`, коммит `788202a1b3b8eebdef70b6728faaea3154ee2031`
   (короткий `788202a`, по умолчанию в `build.py`: `CH_SHA = os.environ.get("CNX_CENTERHEAD_SHA", "788202a")`).
 - `build.py` берёт файлы через `git -C bot-2/repo archive <sha> centerhead` (без `tests/`), то есть только чтение.
   В манифест вендора (`VENDOR_B64`, sha256 по файлам) пишутся `source "centerhead/*" = "git … 788202a1…:centerhead"`

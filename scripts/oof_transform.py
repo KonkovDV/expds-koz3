@@ -133,7 +133,7 @@ def cmd_split(a) -> None:
 def cmd_micro(a) -> None:
     from expds.post import micro_circles
 
-    if a.radius_map:   # «arkhitektury=0.25,kurgany_tselye=0.5»: радиус по классу (пакет bot-7)
+    if a.radius_map:   # «arkhitektury=0.25,kurgany_tselye=0.5»: радиус по классу (пакет)
         rmap = {k: float(v) for k, v in (kv.split("=") for kv in a.radius_map.split(","))}
         spec = {"radius_m": rmap, "groups": a.groups or None}
     else:

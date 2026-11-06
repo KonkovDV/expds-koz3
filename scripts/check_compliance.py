@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Проверка ФИНАЛЬНОГО ответа КОЗ №3 (result.geojson или zip с ним) — bot-8.
+"""Проверка ФИНАЛЬНОГО ответа КОЗ №3 (result.geojson или zip с ним) —.
 
 LESSONS §5: validate the submission output scored on LB, NEVER a code/weights kit zip.
 LB scores e.g. submission_bot7cand_v2_eb268d6.zip → result.geojson (FeatureCollection).
@@ -233,7 +233,7 @@ def check(fc: dict, raw: str, size_bytes: int) -> dict:
     if small_x:
         warnings.append(
             f"{small_x} объектов с |x| ≤ 1e6: похоже не EPSG:3857 "
-            "(метрика не пересчитает в UTM для России)"
+            "(метрика не пересчитает такие координаты в UTM)"
         )
         if small_x == len(feats):
             errors.append("все объекты с |x| ≤ 1e6 — CRS не EPSG:3857")
@@ -295,7 +295,7 @@ def format_report(rep: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Compliance-проверка финального ответа КОЗ №3 (bot-8)")
+    ap = argparse.ArgumentParser(description="Проверка финального ответа КОЗ №3")
     ap.add_argument("path", help="submission.zip или result.geojson")
     ap.add_argument("--json", action="store_true", help="печатать полный отчёт JSON")
     args = ap.parse_args(argv)

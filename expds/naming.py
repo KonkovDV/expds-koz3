@@ -26,14 +26,18 @@ _LOOKALIKES = str.maketrans({
 _CODES = ("MagGr", "EtGr", "TerFl", "SpOr", "La", "Li", "Ae", "Or")
 _CODE_RE = re.compile(r"(?:^|_)(" + "|".join(_CODES) + r")(?=_|\.|$)")
 
-# Ключевые слова для имён, где кода нет (валидационная выборка, старые наборы).
+# Ключевые слова для имён, где кода нет (валидация и подписи не на русском).
+# Код MagGr/EtGr/TerFl/SpOr/Ae/Or в имени проверяется раньше и побеждает.
+# Слова ниже — только если кода нет: спутник без лидара и планшеты геофизики
+# могут быть подписаны по-английски. Более длинное слово стоит выше короткого.
 _KEYWORDS: tuple[tuple[str, str], ...] = (
-    ("магнит", "MagGr"), ("maggr", "MagGr"),
-    ("электро", "EtGr"), ("etgr", "EtGr"),
-    ("термо", "TerFl"), ("terfl", "TerFl"),
-    ("спутник", "SpOr"), ("spor", "SpOr"), ("sp_or", "SpOr"),
-    ("ортофото", "Or"),
-    ("немецк", "Ae"), ("luft", "Ae"), ("аэрофото", "Ae"),
+    ("магнит", "MagGr"), ("magnetometry", "MagGr"), ("magnetometer", "MagGr"),
+    ("magnet", "MagGr"), ("maggr", "MagGr"),
+    ("электро", "EtGr"), ("resistivity", "EtGr"), ("etgr", "EtGr"),
+    ("термо", "TerFl"), ("thermography", "TerFl"), ("thermal", "TerFl"), ("terfl", "TerFl"),
+    ("спутник", "SpOr"), ("satellite", "SpOr"), ("spor", "SpOr"), ("sp_or", "SpOr"),
+    ("ортофото", "Or"), ("orthophoto", "Or"),
+    ("немецк", "Ae"), ("luft", "Ae"), ("аэрофото", "Ae"), ("aerial", "Ae"),
     ("lidar", "Li"), ("hillshade", "Li"), ("отмывк", "Li"),
 )
 

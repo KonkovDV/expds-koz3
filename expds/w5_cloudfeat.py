@@ -2,7 +2,7 @@
 
 По умолчанию флаг выключен: ни одна функция модуля не меняет объекты и не читает файлы (выход как v3_on).
 
-Состав (docs/PREREG_w4_v4_cloudfeat.md, гейт docs/PREREG_w4_regate_W1J2.md без M_rp):
+Формула уверенности:
 для li-объекта класса c из групп LI_GROUPS новая уверенность
     S = α·rt + (1 − α)·RB,
 где RB — эмпирическая CDF его conf среди li-строк класса c обучающей таблицы (mid-rank), rt — квантиль RB pool-строк
@@ -54,7 +54,7 @@ def _plugin(cfg: dict):
         except ImportError as exc:
             raise W5CloudFeatMissing(
                 f"w5_cloudfeat=true, но модуль инференса признаков облака '{name}' не найден ({exc}). "
-                "Его даёт W1 (bot 2): признаки из тестового LAS, без сети, с parity-проверкой. "
+                "Модуль считает признаки облака по LAS участка, без сети. "
                 "Соберите архив с модулем или выключите флаг (w5_cloudfeat=false).") from exc
         if not callable(getattr(mod, "score", None)):
             raise W5CloudFeatMissing(f"модуль '{name}' не реализует score(feats, cfg) -> list[float | None]")
@@ -70,7 +70,7 @@ def _ref(cfg: dict) -> dict:
         if not p.is_file():
             raise W5CloudFeatMissing(f"w5_cloudfeat=true, но нет референса шкалы {p}")
         z = np.load(p, allow_pickle=False)
-        ref = {}   # только числовые 1-D массивы (условие бота 1): классы — из имён ключей "<поле>__<класс>"
+        ref = {}   # только числовые 1-D массивы (условие): классы — из имён ключей "<поле>__<класс>"
         for c in sorted({k.split("__", 1)[1] for k in z.files if "__" in k}):
             ref[c] = {k: z[f"{k}__{c}"] for k in ("conf_li", "rb_pool", "r_pool")}
         _CACHE[("ref", str(p))] = ref

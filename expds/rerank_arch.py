@@ -6,7 +6,7 @@
 Соседи — все кандидаты участка. Метры — UTM по центроиду, как в официальной метрике.
 
     [rerank_arch]
-    enabled = false                         # включать только после подтверждения bot-10
+    enabled = false # включать только после подтверждения
     model = "models/rerank_arch_lgbm.txt"   # от корня архива
     meta = "models/rerank_arch_lgbm.json"   # признаки, словари grp/mk, пороги по группам
     # arch_group_alias = { sp_or = "sp_arch" }  # по умолчанию из meta: группа сдачи → группа стека

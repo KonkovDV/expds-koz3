@@ -176,7 +176,7 @@ def is_color(path: Path) -> bool:
     return "цвет" in path.stem.lower()
 
 
-# GEO-ORG2 (флаги, по умолчанию выключены; см. docs/PREREG_w4_pix_clean.md):
+# Запасной геофизический детектор. Флаги по умолчанию выключены.
 #   band_mode="jet" — скаляр EtGr = позиция ближайшего цвета шкалы jet вместо оси PCA и яркости;
 #   org_mask=True   — пиксели дальше PALETTE_MAX_DIST от шкалы jet (подписи, рамка) вне маски.
 # Источник идеи — бейзлайн организаторов 02_baseline_etgr_anomalies (29.10.2026).

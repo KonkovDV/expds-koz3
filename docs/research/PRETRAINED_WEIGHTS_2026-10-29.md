@@ -104,7 +104,7 @@
 Ранжировано по [оц] Δ / GPU-ч T4. Все варианты проходят П1–П7 (`EXPERIMENTS.md`). Каждый должен быть вписан в ≤ 1200 с на 4090.
 
 **1. D-FINE-L COCO (SpOr) — в сдачу.** [ф] Δ +0,0198 за 0 новых GPU-ч на подбор (финальная модель на всех SpOr ≈ 2 ч T4).
-- Репозиторий: `koz3_shared/bot-9/kaggle/dfine_spor` (det_train_hf.py). Чекпойнт: `ustc-community/dfine-large-coco` @ `aa8f8211545e4cff5adf52ea512f9ac74a9824ec`.
+- Репозиторий: `koz3_shared/work/kaggle/dfine_spor` (det_train_hf.py). Чекпойнт: `ustc-community/dfine-large-coco` @ `aa8f8211545e4cff5adf52ea512f9ac74a9824ec`.
 - Режим как в 5-фолдовом прогоне: 0,5 м/пикс, окно 640, шаг 160 при инференсе, 6000 ит, bs 8, AdamW 1e-4 (бэкбон ×0,1), wd 1e-4, OneCycle 0,05, clip 0,1, fp16. Аугментации: 60% окон с объектами, сдвиг ±1/3, вес класса 1/√n (потолок 4), повороты 90° + отражения.
 - Финал: обучить на всех 5 фолдах (full-data) 6000–8000 ит. В пакет — fp16 `weights_only` (≈62 МБ). Вариант C или E; `threshold_group=sp_dfine`; старые sp-группы не выбрасывать (R0 −0,0064).
 - Проверка: время всего SpOr-теста на 4090 и бюджет 1200 с.
@@ -161,7 +161,7 @@
 
 ---
 ## 6. Исключено (не тратить время)
-DEIMv2 (NC + DINOv3), DINOv3 / DINOv3-SAT, SAM 3, C-RADIOv3, SegFormer mit_*, ultralytics/YOLO (AGPL), RF-DETR A/F/P/XL/2XL (PML), ScaleMAE / ConvNeXt-V2 FCMAE / Hiera (NC), SkySense (без лицензии), RemoteCLIP / GeoRSCLIP / MTP / RSP (неясные данные или лицензия), BudjBim DINO-CV (NC), OlmoEarth (своя лицензия), kardosdrur burial-mounds (NC + AGPL), код DAI AnomalyExtractor (GPL-3), код EhimenNathan (нет LICENSE).
+DEIMv2 (NC + DINOv3), DINOv3 / DINOv3-SAT, SAM 3, C-RADIOv3, SegFormer mit_*, ultralytics/YOLO (AGPL), RF-DETR A/F/P/XL/2XL (PML), ScaleMAE / ConvNeXt-V2 FCMAE / Hiera (NC), SkySense (без лицензии), RemoteCLIP / GeoRSCLIP / MTP / RSP (неясные данные или лицензия), BudjBim DINO-CV (NC), OlmoEarth (своя лицензия), kardosdrur burial-mounds (NC + AGPL), код DAI AnomalyExtractor (GPL-3), код сторонний репозиторий (нет LICENSE).
 
 ## 7. Источники
 - Archaeoscape: https://arxiv.org/abs/2412.05203 ; код (Apache-2.0 по GitHub API, бейдж README — MIT; раздел весов «Coming soon»): https://github.com/archaeoscape-ai/archaeoscape

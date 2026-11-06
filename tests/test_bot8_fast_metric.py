@@ -1,10 +1,10 @@
-"""bot-8: быстрые версии метрики против прежних (_reference) — совпадение побайтно.
+"""быстрые версии метрики против прежних (_reference) — совпадение побайтно.
 
 Проверяется: пакетное построение геометрий (Rust flatten_polygons + from_ragged_array)
 против официальной _extract_geometry (WKB байт в байт), _collect против
 _collect_reference, build_curves, sweep_groups, honest_counts, bootstrap,
 paired_bootstrap, paired_bootstrap_counts (точное равенство всех чисел и порядка
-ключей). Данные: синтетика с краевыми случаями и реальные выборки бота 8
+ключей). Данные: синтетика с краевыми случаями и реальные выборки
 (если есть). Нужен официальный compute_metrics.py: EXPDS_METRIC или materials/.
 """
 from __future__ import annotations

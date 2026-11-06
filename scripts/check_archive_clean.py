@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DOC-1: в архиве решения нет файлов, производных от EN (EhimenNathan), и PIXGBM-legacy не включён.
+"""DOC-1: в архиве решения нет запрещённых маркеров и старого модуля геофизики.
 
     python scripts/check_archive_clean.py dist/submission.zip      # или каталог распакованного архива
 
@@ -11,7 +11,7 @@
 * (жёсткий DOC-1, 30.10) любой файл, sha256 которого есть в scripts/en_denylist.sha256 (sha256 файлов,
   производных от EN: все версии geo_pixgbm.py/geo_finds_gbm.py, models/pixgbm/*, analysis/*, scripts/pixgbm*.py
   из всех веток, w4pix/ — посчитаны sha256sum без просмотра содержимого);
-* любой файл архива (текст и бинарь), в байтах которого встречается geo_pixgbm | EhimenNathan | pixgbm/
+* любой файл архива (текст и бинарь), в байтах которого встречается маркер из CONTENT_RE
   (без учёта регистра);
 * конфиг, ссылающийся на прогоны/модели сравнения на geo_pixgbm (курганы, w4pix, hillshade-parity и т.п.):
   строковые значения configs/*.toml проверяются по CONFIG_BANNED_RE.

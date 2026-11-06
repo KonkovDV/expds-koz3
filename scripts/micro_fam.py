@@ -4,7 +4,7 @@
 Преобразование до порогов: число объектов, уверенности и группы не меняются,
 меняется только геометрия. Кривые потом строит family_curves.py.
 
-    python scripts/micro_fam.py --fam ../bot-10/work/fam --out work/fam_bundle \
+    python scripts/micro_fam.py --fam../work/fam --out work/fam_bundle \
         --radius-map arkhitektury=0.25,kurgany_povrezhdennye=0.5,kurgany_tselye=0.5
 """
 from __future__ import annotations

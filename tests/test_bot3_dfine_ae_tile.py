@@ -1,4 +1,4 @@
-"""bot-3: [dfine_ae_tile] default OFF; train-matched windows + fuse patch."""
+"""[dfine_ae_tile] default OFF; train-matched windows + fuse patch."""
 from __future__ import annotations
 
 import tomllib

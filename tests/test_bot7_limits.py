@@ -1,4 +1,4 @@
-"""bot-7: последний рубеж лимитов выдачи в writer.write_geojson (≤ 20000 объектов, ≤ 3000 вершин, только Polygon)."""
+"""последний рубеж лимитов выдачи в writer.write_geojson (≤ 20000 объектов, ≤ 3000 вершин, только Polygon)."""
 import json
 import math
 
@@ -44,7 +44,7 @@ def test_feature_cap(tmp_path):
 
 
 def test_safe_finish_fallback_keeps_stack6(monkeypatch):
-    """bot-7: при сбое finish() запасная цепочка тоже делает sota_stack6 (multipole + filter_finds_points); сбой шага не роняет её."""
+    """при сбое finish() запасная цепочка тоже делает sota_stack6 (multipole + filter_finds_points); сбой шага не роняет её."""
     from expds import post, watchdog
 
     calls = []
@@ -60,7 +60,7 @@ def test_safe_finish_fallback_keeps_stack6(monkeypatch):
 
 
 def test_candidate_twins_only_on_and_in_fallback(monkeypatch):
-    """bot-7: в конфиге кандидата v2 kurgan_twins_only = true (приёмка bot-10), полный twins выкл.; запасная цепочка его тоже делает (dedup ae/li = 0)."""
+    """в конфиге кандидата v2 kurgan_twins_only = true (приёмка), полный twins выкл.; запасная цепочка его тоже делает (dedup ae/li = 0)."""
     import tomllib
     from pathlib import Path
 

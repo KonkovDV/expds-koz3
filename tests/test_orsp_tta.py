@@ -138,7 +138,7 @@ def test_request_refuses_without_data():
     text = mod.request_text()
     assert "не оценено" in text
     assert "tta_multiscale" in text and "baseline" in text
-    assert "bots/bot2-e2e-v3-prep" in text
+    assert "не проверены система координат и порог" in text
     assert mod.main(["--request"]) == 0
     assert mod.main(["--root", str(ROOT / "нет_такого_корня"), "--work", str(ROOT / "нет_такого_work")]) == 3
 

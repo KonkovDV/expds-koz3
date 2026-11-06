@@ -1,4 +1,4 @@
-"""bot-6: flag-default-OFF and synthetic LightGBM determinism (no contest data)."""
+"""flag-default-OFF and synthetic LightGBM determinism (no contest data)."""
 from __future__ import annotations
 
 import importlib.util

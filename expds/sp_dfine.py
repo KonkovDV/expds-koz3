@@ -1,25 +1,25 @@
-"""bot-7 (кандидат v3): детектор D-FINE bot-9 на растрах SpOr, группа порога ``sp_dfine``. По умолчанию выключен.
+""" (кандидат v3): детектор D-FINE на растрах SpOr, группа порога ``sp_dfine``. По умолчанию выключен.
 
-Порт инференса ``bot-9/kaggle/dfine_spor/src/dfine_main.py`` (Scene + infer_region) без загрузки данных
+Порт инференса ``kaggle/dfine_spor/src/dfine_main.py`` (Scene + infer_region) без загрузки данных
 и без сетевого кода: окно 640 px на 0,5 м в UTM участка, перекрытие 160, flip-TTA, top-k 100, min_score 0,05,
-NMS по классам на файл (IoU 0,5). Перевод в объекты пайплайна — вариант C из bot-9 DFINE.md / prep5.py:
+NMS по классам на файл (IoU 0,5). Перевод в объекты пайплайна — вариант C из DFINE.md / prep5.py:
 по (участок, класс) жадные кластеры (центры ≤ merge_m м на земле или покрытие bbox ≥ 0,5) → круг radius_m м
 в центре самого уверенного, уверенность — его. Вариант E (``convert = "ellipse"``) — эллипсы как есть.
 
 Что зафиксировано (не подбиралось здесь):
-* markup_type ``sp_or``, threshold_group ``sp_dfine`` (как в OOF bot-9; указание bot 1);
+* markup_type ``sp_or``, threshold_group ``sp_dfine`` (как в отложенной проверке);
 * без ``[thresholds_by_markup.sp_dfine]`` для всех классов модуль ничего не выдаёт (``require_thresholds``):
-  общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора bot-9/bot-10;
+  общий порог 0,15 к D-FINE не применим, порог нужен из OOF-подбора;
 * ``drop_groups`` (вариант R) — только явным списком; по умолчанию пусто (вариант C), см. REPORT_v3.md;
-* ``drop_min_det`` (bot-2) — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
-* ``drop_cover_m`` (bot-2, регрессия mock 29.10) — старый объект группы R снимается, только если
+* ``drop_min_det`` — R применяется только к участкам с ≥N объектов ``sp_dfine`` (по умолчанию 1; багфикс: при 0 детекций v2 SpOr сохраняются);
+* ``drop_cover_m`` (регрессия mock 29.10) — старый объект группы R снимается, только если
   D-FINE того же класса, прошедший ``[thresholds_by_markup.sp_dfine]``, лежит не дальше N м на земле
   (по умолчанию 12). Иначе v2 остаётся: на mock 482 сырых бокса снимали 46 попаданий, а 13 боксов
   выше порога были в 50–1500 м от эталона. ``0`` — слепой R (снять всю группу);
-* ``agreement_m`` (bot-2 A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
-* ``EXPDS_DFINE_DUMP`` (env, bot-2) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
+* ``agreement_m`` (A3/A4) — если >0, оставлять D-FINE только если центр ≤ agreement_m м от уже имеющегося sp_or не-sp_dfine; 0 = OFF;
+* ``EXPDS_DFINE_DUMP`` (env,) — каталог дампа сырых боксов (pixel + EPSG:3857), GT и
   ``stages.json`` (счётчики raw→ellipse→features→would_pass_thr); по умолчанию ВЫКЛ.;
-* ``EXPDS_STRICT=1`` (bot-2 A3 / bot-5 v4) — при ``enabled=true`` и сбое импорта/загрузки D-FINE —
+* ``EXPDS_STRICT=1`` (A3 / v4) — при ``enabled=true`` и сбое импорта/загрузки D-FINE —
   громкий отказ (ERROR + WARNING-файл + raise), а не тихий fallback «как v2»; по умолчанию ВЫКЛ.
   Вендор ``inference/lib/vendor`` — manylinux/cp312 (площадка/Kaggle/docker); на Windows-host без docker
   import падает (``regex``/``tokenizers`` .so) → docker ``pantum/n7q`` или env transformers==5.21.0;
@@ -66,22 +66,22 @@ DEFAULTS = {
     "merge_m": 4.0,
     "ensemble": "max",
     "drop_groups": [],        # вариант R: ["sp_or", "sp_focal", "sp_arch", "sp_focal2"]
-    # bot-2: R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
+    # R применяется только к участкам с ≥ drop_min_det объектов threshold_group=sp_dfine (багфикс, ВКЛ.).
     "drop_min_det": 1,
-    # bot-2: слепой R на mock обнулил sp_or (482 сырых → drop −46, после порога 13 FP в 50–1500 м от GT).
+    # слепой R на mock обнулил sp_or (482 сырых → drop −46, после порога 13 FP в 50–1500 м от GT).
     # Снимать старый объект, только если выживший D-FINE того же класса ближе drop_cover_m метров на земле.
     # 0 — прежний слепой R (вся группа на участке).
     "drop_cover_m": 12.0,
-    # bot-2 A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
+    # A3: держать D-FINE только рядом с уже найденным sp_or (U-Net и др.); 0 = OFF.
     # На A3 Docker все 13 pass_thr ≥70 м от U-Net → agreement_m=50 отсекает FP без CRS-фикса.
     "agreement_m": 0.0,
     "require_thresholds": True,
     "soft_need_s": 150.0,     # запас до мягкого потолка на один растр
     "device": "auto",
-    # bot-10 (Murder Board 29.10): при enabled = true отсутствие DFine* в transformers, весов или порогов —
+    # (проверка 29.10): при enabled = true отсутствие DFine* в transformers, весов или порогов —
     # ЖЁСТКАЯ ошибка прогона (иначе v3 молча превращается в v2). strict = false — старое мягкое поведение.
     "strict": True,
-    "transformers_version": "5.21.0",   # пин: из колёс bot-9 submission_dfine (requirements-dfine.txt)
+    "transformers_version": "5.21.0",   # пин: из колёс submission_dfine (requirements-dfine.txt)
 }
 
 
@@ -99,7 +99,7 @@ class DFineUnavailable(RuntimeError):
 
 
 def preflight(cfg: dict, root: Path) -> dict:
-    """Проверка до начала прогона при [sp_dfine] enabled = true (bot-10, Murder Board 29.10).
+    """Проверка до начала прогона при [sp_dfine] enabled = true (проверка 29.10).
 
     Возвращает сведения для протокола; при strict = true на любой проблеме бросает DFineUnavailable,
     чтобы v3 не превратился молча в v2 (контейнер без DFine*, пустые weights, нет порогов, чужая версия).
@@ -236,7 +236,7 @@ def as_features(dets: list[dict], st: dict, n_models: int) -> list[dict]:
 
 
 def feature_group(f: dict) -> str | None:
-    """Группа порога, как у scoreboard bot-10.
+    """Группа порога, как у scoreboard.
 
     Явный threshold_group, иначе для markup sp_or по классу: курганы → sp_focal,
     архитектура → sp_arch, городища и прочее → sp_or.
@@ -376,7 +376,7 @@ def _crs_is_geographic(crs: str) -> bool:
 
 def utm_for(path: Path, fallback_crs: str | None) -> str:
     """Метрическая CRS сцены: UTM.json участка, если она проецированная; иначе зона UTM по центру растра.
-    bot-6 crsfix (находка bot-9): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
+     crsfix (находка): у 008_Герите в UTM.json «urn:ogc:def:crs:EPSG::4326» (один из 210 участков) —
     сцена строилась с шагом 0,5° вместо 0,5 м (1×1 px, 0 предсказаний). Географическая CRS не берётся."""
     import rasterio
     from pyproj import Transformer
@@ -385,7 +385,7 @@ def utm_for(path: Path, fallback_crs: str | None) -> str:
 
     if fallback_crs and not is_geographic(fallback_crs):
         return fallback_crs
-    if fallback_crs:   # страховка (bot-7 v3fix + bot-6 crsfix): градусы мимо read_utm_json — зона UTM по центру растра
+    if fallback_crs:   # страховка (v3fix + crsfix): градусы мимо read_utm_json — зона UTM по центру растра
         log.warning("[crs] %s: CRS участка %s географическая — сцена в зоне UTM по центру растра", Path(path).name, fallback_crs)
     with rasterio.open(path) as ds:
         lon, lat = Transformer.from_crs(ds.crs, "EPSG:4326", always_xy=True).transform(
@@ -454,7 +454,7 @@ def windows(W: int, H: int, tile: int, overlap: int) -> list[tuple[int, int]]:
 # ── модель ───────────────────────────────────────────────────────────────────────────────────────────────
 #: Переименование ключей чекпойнта D-FINE → модули transformers 5.x. Копия правил "d_fine" из
 #: transformers/conversion_mapping.py (5.21.0), которые from_pretrained применяет сам. Сверено побитово с
-#: from_pretrained на dfine_f1 bot-9 (bot-7/work6/load_smoke.log).
+#: from_pretrained на dfine_f1 (work6/load_smoke.log).
 _KEY_RULES = (
     ("out_proj", "o_proj"),
     (r"layers\.(\d+)\.fc1", r"layers.\1.mlp.layers.0"),
@@ -474,7 +474,7 @@ def _rename_keys(sd: dict) -> dict:
     return out
 
 
-VENDOR = "inference/lib/vendor"   # распакованные колёса bot-9 submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
+VENDOR = "inference/lib/vendor"   # распакованные колёса submission_dfine/wheels (transformers 5.21.0 и зависимости, cp312)
 #: закреплённая версия transformers (вендор); другая версия — только если совпадает ровно (напр. venv ПК с колёсами win)
 TRANSFORMERS_PIN = "5.21.0"
 #: маркер в логе: D-FINE включён, но недоступен → выдача как v2; check_submission по нему даёт FAIL
@@ -492,7 +492,7 @@ _VENDOR_PKGS = ("transformers", "tokenizers", "regex", "typer", "rich", "markdow
                 "shellingham", "annotated_doc")
 
 
-#: bot-7 (29.10, PC e2e бота 1 в образе pantum/n7q:20261024): у tqdm в образе нет версии в метаданных
+#: (29.10, PC e2e в образе pantum/n7q:20261024): у tqdm в образе нет версии в метаданных
 #: (importlib.metadata.version → None), и transformers.dependency_versions_check падал при импорте
 #: («Unable to compare versions for tqdm>=4.60: need=4.60 found=None»). Пакеты, версии которых transformers
 #: 5.21.0 читает из метаданных при импорте (dependency_versions_check, is_*_available): имя дистрибутива
@@ -863,7 +863,7 @@ def import_dfine(root: Path) -> tuple:
 def load_models(st: dict, root: Path, device) -> list:
     """DFineForObjectDetection из каталогов весов (config.json + model.safetensors), только локально:
     конфиг → пустая модель → load_state_dict. Без from_pretrained/хаба (check_submission: нет сетевых
-    вызовов). Проверки как check_model у bot-9: 5 классов, нет meta-тензоров, нет неожиданных ключей,
+    вызовов). Проверки как check_model у 5 классов, нет meta-тензоров, нет неожиданных ключей,
     пропущенные ключи допустимы только связанные (tied) копии уже загруженных тензоров."""
     import torch
     from safetensors.torch import load_file
@@ -1089,7 +1089,7 @@ def detect_scene(models: list, scene, st: dict, device, keep_going=lambda: True)
 
 
 def boxes_to_ellipses(B, L, Cc, transform, crs: str, region: str, source: str, model_i: int) -> list[dict]:
-    """Боксы в пикселях сцены → 32-угольные эллипсы в EPSG:3857, как у bot-9."""
+    """Боксы в пикселях сцены → 32-угольные эллипсы в EPSG:3857, как у обучения."""
     from pyproj import Transformer
     from shapely.geometry import Polygon
 
@@ -1218,7 +1218,7 @@ def region_feats(reg, cfg: dict, guard, cache: dict, root: Path, crs_for=None, s
             sc = Scene(Path(path), crs, float(st["res_m"]))
             ok = (lambda: guard.window_ok()) if guard is not None and hasattr(guard, "window_ok") else (lambda: True)
             t0 = time.monotonic()
-            # bot-8: [orsp_tta] выкл. или только U-Net — ровно штатный detect_scene (flip_tta).
+            # [orsp_tta] выкл. или только U-Net — ровно штатный detect_scene (flip_tta).
             # Виды/масштабы D-FINE не оценены (регрессия sp_or на v3on_0876090).
             from . import orsp_tta
 

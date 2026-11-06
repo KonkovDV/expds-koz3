@@ -1,11 +1,11 @@
-"""Вход модели ConvNeXt-лидар bot-9 (cnx3/cnx5) из одного LAS/LAZ: точная копия prep-цепочки обучения
-(src/convnext_main.py:build_relief, стр. 284–292, + norm стр. 469). Свой код bot-9, только чтение вендора.
+"""Вход модели ConvNeXt-лидар (cnx3/cnx5) из одного LAS/LAZ: точная копия prep-цепочки обучения
+(src/convnext_main.py:build_relief, стр. 284–292, + norm стр. 469). Свой код, только чтение вендора.
 
     import cnx_prep
     x, geo = cnx_prep.cnx_input("01_Осечки_1.3км_La_точки.laz", ch=5)
     # x: np.float32 [ch, H, W], значения ≈[-1, 1], вне съёмки -1.0079 (u8 0); geo: left/top/step/transform/crs/valid/...
 
-CLI (чистый процесс — рекомендуется, т.к. у bot-8 свои пакеты с теми же именами expds / expds_core):
+CLI (отдельный процесс: у подготовки свои пакеты с теми же именами expds и expds_core):
     python cnx_prep.py LAS --ch 5 --out x.npz [--crs EPSG:32637] [--vendor DIR]
 """
 from __future__ import annotations
@@ -25,8 +25,8 @@ DEM_RES = 0.1                                               # шаг ЦМР (с�
 
 
 def _import_vendor(vendor: Path):
-    """Вендор bot-9 первым в sys.path. Если expds / expds_core уже импортированы из другого места — ошибка
-    (у bot-8 те же имена модулей: expds/*.py совпадают побайтно, а expds_core.abi3.so — другая сборка)."""
+    """Вендор первым в sys.path. Если expds / expds_core уже импортированы из другого места — ошибка
+    (у те же имена модулей: expds/*.py совпадают побайтно, а expds_core.abi3.so — другая сборка)."""
     vendor = Path(vendor).resolve()
     for m in ("expds", "expds_core", "relief_ext"):
         mod = sys.modules.get(m)

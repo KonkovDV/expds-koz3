@@ -9,7 +9,7 @@ import numpy as np
 from pyproj import Transformer
 
 from expds.catalog import read_utm_json, scan_root
-from expds.crs import coords_kind, guess_geojson_crs
+from expds.crs import coords_kind, guess_geojson_crs, utm_for_lonlat
 from expds.gt import build_gt, render_summary, stats
 
 X0, Y0 = 400_000.0, 6_000_000.0
@@ -60,6 +60,33 @@ def test_coords_kind_guards_pixels():
     assert coords_kind([120, 125], [10, 20], "EPSG:32636") == "local"
     assert coords_kind([33.0, 33.1], [55.0, 55.1], "EPSG:32636") == "wgs84"
     assert coords_kind([33.0, 33.1], [55.0, 55.1], "EPSG:32650") == "local"     # далеко от зоны участка
+    # Швеция западнее 15° в. д., зона 33 (осевой меридиан 15°). Казахстан — зона 43.
+    assert coords_kind([13.1, 13.4], [55.5, 55.7], "EPSG:32633") == "wgs84"
+    assert coords_kind([13.1, 13.4], [55.5, 55.7], "EPSG:32636") == "local"
+    assert coords_kind([76.2, 76.5], [48.0, 48.2], "EPSG:32643") == "wgs84"
+
+
+def test_swedish_point_is_implausible_in_a_zone_far_to_the_east():
+    from pyproj import Transformer
+
+    from expds.crs import plausible
+
+    lon, lat = 13.2, 55.6
+    east = Transformer.from_crs("EPSG:4326", "EPSG:32637", always_xy=True)
+    x, y = east.transform(lon, lat)
+    assert plausible("EPSG:32637", (x - 50, y - 50, x + 50, y + 50)) is False
+    own = Transformer.from_crs("EPSG:4326", "EPSG:32633", always_xy=True)
+    x, y = own.transform(lon, lat)
+    assert plausible("EPSG:32633", (x - 50, y - 50, x + 50, y + 50)) is True
+
+
+def test_utm_zone_follows_longitude_not_a_fixed_belt():
+    assert utm_for_lonlat(13.2, 55.6) == "EPSG:32633"   # 12–18° в. д.
+    assert utm_for_lonlat(11.2, 58.0) == "EPSG:32632"   # западнее 12°
+    assert utm_for_lonlat(76.4, 48.1) == "EPSG:32643"   # 72–78° в. д.
+    assert utm_for_lonlat(37.6, 55.7) == "EPSG:32637"
+    assert utm_for_lonlat(180.0, 60.0) == "EPSG:32660"
+    assert utm_for_lonlat(-180.0, 60.0) == "EPSG:32601"
     assert coords_kind([400_000, 400_100], [6e6, 6.0001e6]) == "utm"
     assert guess_geojson_crs(_fc([_poly(_ring(400_000, 6e6, 5))]), None) is None  # UTM без UTM.json
 

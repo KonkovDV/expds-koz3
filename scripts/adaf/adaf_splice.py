@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add ADAF zero-shot detections to a copy of the bot-10 family stack (work/fam, read-only) as NEW
+"""Add ADAF zero-shot detections to a copy of the family stack (work/fam, read-only) as NEW
 threshold groups; nothing is removed from the stack.
 
   barrow    -> kurgany_povrezhdennye AND kurgany_tselye, group adaf_b

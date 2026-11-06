@@ -1,4 +1,4 @@
-"""bot-6 29.10: [geophys.pixgbm] enabled=true без expds/geo_pixgbm.py (модуль вне git, docs/PIXGBM_DECISION.md)
+""" 29.10: [geophys.pixgbm] enabled=true без expds/geo_pixgbm.py (модуль вне git, docs/PIXGBM_DECISION.md)
 не должен проходить молча. e2e r1 @b0add08: REF=NEW 0.312509 — ложное равенство, pix не работал ни в одном прогоне.
 Проверяем: ERROR в логе; EXPDS_PIXGBM_STRICT=1 — исключение; check_submission — FAIL без модуля в архиве."""
 import importlib.util

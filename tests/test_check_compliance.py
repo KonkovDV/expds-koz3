@@ -1,4 +1,4 @@
-"""Синтетические zip/geojson для scripts/check_compliance.py (bot-8)."""
+"""Синтетические zip/geojson для scripts/check_compliance.py."""
 from __future__ import annotations
 
 import importlib.util
@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 _SCRIPT = ROOT / "scripts" / "check_compliance.py"
-# На чужих ветках/частичных копиях bot8_patches скрипта может не быть — не роняем collection.
+# На чужих ветках/частичных копиях скрипта может не быть — не роняем collection.
 if not _SCRIPT.is_file():
     pytest.skip(
         "scripts/check_compliance.py отсутствует на этой ветке (bot-8 only)",

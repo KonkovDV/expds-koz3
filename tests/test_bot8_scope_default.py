@@ -1,4 +1,4 @@
-"""bot-8: область сопоставления по умолчанию — global везде (метрика, scoreboard, env.sh), site только явно."""
+"""область сопоставления по умолчанию — global везде (метрика, scoreboard, env.sh), site только явно."""
 import os
 import re
 from pathlib import Path

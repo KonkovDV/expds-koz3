@@ -4,7 +4,7 @@
 медиана диаметра 12 м, p90 18 м. Те же веса на сетке 1,0 м вместо 0,5 м видят
 насыпь вдвое меньшей в пикселях, то есть внутри обученного диапазона.
 
-Как устроено (бот 8, bench/half_res_lidar_estimate.md, и решение пользователя 29.10):
+Как устроено (заметки half_res_lidar_estimate.md, решение 29.10):
 - тот же DEM, что у основного прохода (reuse_dem): каналы relief_channels(d, res=1.0);
   радиусы LRM (8/30 м) фиксированы в метрах и не меняются;
 - tta = 1 (TTA8 в ×10 медленнее);
@@ -15,10 +15,10 @@
 - группа порога li_half (thresholds_by_markup.li_half);
 - выдаются только НОВЫЕ курганы: отбор 12 м против кругов основного li,
   которые принятый порог уже оставляет (KEPT_KURGAN_CONF), ПЕРЕКРЁСТНО по классу (поправка
-  29.10, смоук бота 8): круг li_half любого класса вон, если рядом принятый целый ИЛИ
+  29.10, смоук): круг li_half любого класса вон, если рядом принятый целый ИЛИ
   повреждённый курган — метрика сопоставляет по классу, тот же холм в другом классе — ложное
   срабатывание. Канал σ (li_dev) в pipeline считается позже, поэтому здесь не якорь;
-  (bot-8) принятые li_half потом сами — якоря cnx (dedupe_cnx) и σ (pipeline.sigma_anchors);
+   принятые li_half потом сами — якоря cnx (dedupe_cnx) и σ (pipeline.sigma_anchors);
 - мозаика (LAS > 60 млн ячеек на 0,1 м): проход идёт по DEM мозаики 0,5 м, которая
   строится кусками 400 м с полем 40 м (lidar.build_dem_mosaic) — перекрытие ≥ 40 м.
 
@@ -55,10 +55,10 @@ DEFAULTS = {
     "skip_mosaic": False,       # True — не идти по мозаике (Эрентуна — мозаика, см. REPORT2 §11)
     "skip_coarse": True,        # v1: огрублённый DEM li_coarse (без мозаики) пропускается
     "dedupe_m": 12.0,
-    # bot-8 (бот 2, 29.10): NMS между своими кругами li_half без учёта класса, м; 0 — выкл. (по умолчанию). См. self_nms.
+    # NMS между своими кругами li_half без учёта класса, м; 0 — выкл. См. self_nms.
     "self_xclass_nms_m": 0.0,
     "group": "li_half",
-    # bot-8: время — мягким потолком pipeline (_soft_ok "li_half": [time.soft] li_half /
+    # время — мягким потолком pipeline (_soft_ok "li_half": [time.soft] li_half /
     # EXPDS_SOFT_NEED_LI_HALF_S, по умолчанию 30 с) и оценкой на LAS est_s(); ключ soft_need_s здесь не читается.
     # второй детектор кандидатов: шаг 1 м, окно рельефа 30 м; прочее — ×2 к [candidates]
     "cand": {"work_res": 1.0, "relief_radius_m": 30.0, "peak_radius_m": 5.0,
@@ -66,12 +66,12 @@ DEFAULTS = {
 }
 
 
-#: bot-8: значения enabled не-bool, о которых уже предупредили (одна строка на значение, как lidar_cnx).
+#: значения enabled не-bool, о которых уже предупредили (одна строка на значение, как lidar_cnx).
 _ENABLED_WARNED: set = set()
 
 
 def _enabled_raw(own: dict) -> bool:
-    """bot-8: enabled — только TOML-bool true (то же правило, что [li_cnx] enabled и check_submission).
+    """enabled — только TOML-bool true (то же правило, что [li_cnx] enabled и check_submission).
     Строка "true", 1 и т. п. — выключено с предупреждением."""
     en = own.get("enabled", False)
     if isinstance(en, bool):
@@ -93,7 +93,7 @@ def params(cfg: dict | None) -> dict:
     return out
 
 
-#: bot-8: плохие значения self_xclass_nms_m, о которых уже предупредили.
+#: плохие значения self_xclass_nms_m, о которых уже предупредили.
 _NMS_WARNED: set = set()
 
 
@@ -112,13 +112,13 @@ def enabled(cfg: dict | None) -> bool:
     return params(cfg)["enabled"] is True
 
 
-#: bot-8: группы порогов других проходов — li_half их не берёт (своя шкала: другая сетка и детектор).
+#: группы порогов других проходов — li_half их не берёт (своя шкала: другая сетка и детектор).
 FORBIDDEN_GROUPS = frozenset({"li", "li_coarse", "li_mosaic", "li_ae", "li_cpu", "li_dev", "li_mask", "li_fort",
                               "li_cnx"})
 
 
 def threshold_problem(cfg: dict | None, hp: dict | None = None) -> str | None:
-    """bot-8: None — у li_half своя группа порогов на все его классы; иначе причина (объектов li_half тогда нет).
+    """None — у li_half своя группа порогов на все его классы; иначе причина (объектов li_half тогда нет).
     Правило то же, что у cnx (lidar_cnx.threshold_problem)."""
     hp = hp or params(cfg)
     group = hp.get("group")
@@ -136,13 +136,13 @@ def threshold_problem(cfg: dict | None, hp: dict | None = None) -> str | None:
 
 
 def has_thresholds(cfg: dict | None, hp: dict | None = None) -> bool:
-    """bot-8: своя группа порогов li_half на все классы прохода — без неё объектов li_half нет."""
+    """своя группа порогов li_half на все классы прохода — без неё объектов li_half нет."""
     return threshold_problem(cfg, hp) is None
 
 
 def est_s(t_main_s: float, hp: dict) -> float:
-    """bot-8: оценка времени прохода на LAS: max(5, 0,35 × время основного li на этом LAS × tta прохода).
-    Проход — сетка 1 м (¼ ячеек 0,5 м) и tta 1, плюс второй детектор; 0,35 — с запасом, оставлен в v1 (бот 2 намерил ≈0,2: +2 с к 23 с)."""
+    """оценка времени прохода на LAS: max(5, 0,35 × время основного li на этом LAS × tta прохода).
+    Проход — сетка 1 м (¼ ячеек 0,5 м) и tta 1, плюс второй детектор; 0,35 — с запасом, оставлен в v1 (намерил ≈0,2: +2 с к 23 с)."""
     return max(5.0, 0.35 * max(0.0, float(t_main_s)) * max(1, int(hp.get("tta") or 1)))
 
 
@@ -254,7 +254,7 @@ _NMS_CLASS_RANK = {"kurgany_tselye": 0, "kurgany_povrezhdennye": 1}
 
 
 def self_nms(feats: list[dict], dist_m: float) -> list[dict]:
-    """bot-8: NMS между кругами li_half одного участка БЕЗ учёта класса кургана ([li_half] self_xclass_nms_m).
+    """NMS между кругами li_half одного участка БЕЗ учёта класса кургана ([li_half] self_xclass_nms_m).
 
     dist_m <= 0 — вход без изменений (по умолчанию). Иначе жадно: круги-курганы (KUR) участка упорядочиваются по
     (уверенность ↓, целый раньше повреждённого, исходный порядок), круг остаётся, если ни один уже оставленный

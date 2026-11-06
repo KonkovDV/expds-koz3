@@ -1,4 +1,4 @@
-"""bot-7: флаг [rerank_arch] (по умолчанию выключен) и конфиг кандидата."""
+"""флаг [rerank_arch] (по умолчанию выключен) и конфиг кандидата."""
 import json
 import tomllib
 
@@ -45,7 +45,7 @@ def test_default_config_candidate():
     assert cfg["post"]["micro_circles"]["radius_m"] == {"kurgany_povrezhdennye": 0.5, "kurgany_tselye": 0.5}
     assert cfg["thresholds_by_markup"]["or"]["arkhitektury"] == 0.065565
     assert cfg["verify"]["enabled"] is True
-    # финальный состав (bot-1 по сводке bot-10): sota_stack6 separate, без kurgan_twins и без unified_group
+    # финальный состав (по сводке): sota_stack6 separate, без kurgan_twins и без unified_group
     post_cfg = cfg["post"]
     assert post_cfg["multipole_object_poly"] is True and post_cfg["filter_finds_points"] is True
     assert "kurgan_twins" not in post_cfg

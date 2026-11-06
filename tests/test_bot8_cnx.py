@@ -1,7 +1,7 @@
-"""bot-8: лидарные модели ConvNeXt bot-9 (in_kind cnx3/cnx5, [li_cnx]) — диспетчеризация, паритет подготовки, откат.
+"""лидарные модели ConvNeXt (in_kind cnx3/cnx5, [li_cnx]) — диспетчеризация, паритет подготовки, откат.
 
-Сеть в тестах — крошечная CnxUnetCenter на tu-convnext_atto со случайными весами (контракт как у bot-9);
-настоящие веса не нужны. Тест паритета подготовки — только если рядом лежит LAZ и эталон bot-9.
+Сеть в тестах — крошечная CnxUnetCenter на tu-convnext_atto со случайными весами (тот же контракт, что у обучения);
+настоящие веса не нужны. Тест паритета подготовки — только если рядом лежит LAZ и эталон.
 """
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ def _contract(kind: str, seed: int = 0) -> dict:
             "kwargs": {"encoder_name": "tu-convnext_atto", "encoder_weights": None, "in_channels": ch, "classes": 3,
                        "stride": 4, "feat_block": 2, "feat_ch": 64, "n_cls": 2, "head_ch": 8}}
     net = build_from_arch(arch)
-    sd = {k: v.half() for k, v in net.state_dict().items()}      # как у bot-9: fp16 в файле
+    sd = {k: v.half() for k, v in net.state_dict().items()}      # как у fp16 в файле
     vs = _vendor_sha()
     return {"format": "koz3-weights-contract-bot8", "contract_version": 1, "arch": arch, "state_dict": sd,
             "in_kind": kind, "in_channels": ch, "in_tags": TAGS[kind], "n_out": 8, "out_names": OUT_NAMES,
@@ -97,7 +97,7 @@ def test_dispatch_shapes_classes_cpu_fp32(weights, kind):
 
 
 def test_padding_equals_manual(weights):
-    """Дополнение до кратного 32 — значением u8 0 (−1,0079), как в обучении bot-9."""
+    """Дополнение до кратного 32 — значением u8 0 (−1,0079), как в обучении."""
     seg = lidar_cnx.load(_cfg(weights["cnx3"]), Path("/"), device="cpu")
     assert lidar_cnx.PAD_VALUE == pytest.approx(-128 / 127)
     x = np.random.default_rng(1).uniform(-1, 1, (3, 50, 40)).astype(np.float32)
@@ -180,7 +180,7 @@ def test_deadline_between_windows(weights):
         seg.predict(np.zeros((3, 128, 128), np.float32), deadline=lambda: True)
 
 
-# ------------------------------------------------------------ подготовка (подпроцесс, вендор bot-9)
+# ------------------------------------------------------------ подготовка (подпроцесс, вендор)
 @pytest.mark.parametrize("ch", [3, 5])
 def test_run_prep_synthetic_and_cleanup(tmp_path, ch):
     las = write_las(tmp_path / "a.las", n=20_000)
@@ -207,7 +207,7 @@ REF = Path(os.environ.get("CNX_PREP_REF", "/workspace/koz3_shared/bot-9/for_bot8
 
 @pytest.mark.skipif(not (LAZ.is_file() and REF.is_file()), reason="нет LAZ Осечки или эталона подготовки bot-9")
 def test_prep_parity_with_bot9_reference(tmp_path):
-    """Вендор в inference/cnx даёт побайтно тот же u8, что эталон bot-9 (без --crs, как эталон)."""
+    """Вендор в inference/cnx даёт побайтно тот же u8, что эталон (без --crs, как эталон)."""
     with np.load(REF, allow_pickle=False) as z:
         ref, rgeo = z["u8"], json.loads(str(z["geo"]))
     x, geo = lidar_cnx.run_prep(LAZ, ref.shape[0], None, 300, tmp_root=str(tmp_path / "t"))
@@ -473,7 +473,7 @@ def test_dedupe_cnx_against_kept_detections():
              _kur(105, 0, group="li_cnx"),                        # рядом слабый li — новый
              _kur(203, 0, group="li_cnx"),                        # дубль li_coarse
              _kur(303, 0, group="li_cnx"),                        # li_coarse ниже порога — новый
-             _kur(402, 0, group="li_cnx"),                        # другой класс у лидара — тоже дубль (bot-8)
+             _kur(402, 0, group="li_cnx"),                        # другой класс у лидара — тоже дубль
              _kur(500, 0, group="li_cnx"),                        # якорь в другом участке — новый
              {"geom": box(1050, 50, 1150, 150), "class_name": "gorodishcha", "confidence": 0.9,
               "region_name": "r", "markup_type": "li", "threshold_group": "li_cnx"},   # пересекается — дубль
@@ -498,7 +498,7 @@ def test_vendor_manifest_matches_files():
     assert set(m) == have
     for rel, sha in m.items():
         assert hashlib.sha256((d / rel).read_bytes()).hexdigest() == sha, rel
-    assert m["cnx_prep.py"].startswith("1c11c250")   # 77d30749 bot-9 + ветка ch = 12 (05.11, c12-in)
+    assert m["cnx_prep.py"].startswith("1c11c250")   # 77d30749 + ветка ch = 12 (05.11, c12-in)
     assert m["wheels/rvt_py-2.2.1-py3-none-any.whl"].startswith("f3b171e0")
 
 
@@ -512,7 +512,7 @@ def test_weights_manifest_shape_and_not_in_git():
     assert all(len(e["sha256"]) == 64 and e["size"] > 0 for e in m["weights"])
     never = {e["sha256"] for e in m["never_pack"]}
     assert never and not never & {e["sha256"] for e in m["weights"]}
-    assert "9b6b4c98f64f19f1" in "".join(never)            # c5 smoke bot-9
+    assert "9b6b4c98f64f19f1" in "".join(never)            # c5 smoke
     tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "models/cnx", "*.pt"], capture_output=True,
                              text=True).stdout.split()
     assert not [t for t in tracked if "cnx" in t]
@@ -550,7 +550,7 @@ def test_build_cnx_weights_verifies_sha_size_never_pack(tmp_path):
 
 
 def test_enabled_requires_bool(caplog):
-    """Повторное ревью bot-4 5bc6ad1, п. c: enabled = "false" (строка) — cnx ВЫКЛЮЧЕН с WARN, а не включён."""
+    """Повторное ревью 5bc6ad1, п. c: enabled = "false" (строка) — cnx ВЫКЛЮЧЕН с WARN, а не включён."""
     lidar_cnx._ENABLED_WARNED.clear()
     with caplog.at_level("WARNING", logger=lidar_cnx.__name__):
         for v in ("false", "true", 1, 0):

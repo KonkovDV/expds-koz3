@@ -1,4 +1,4 @@
-"""Чекпойнты dense_probe по фолдам и склейка в peaks{TAG}.json (bot-5).
+"""Чекпойнты dense_probe по фолдам и склейка в peaks{TAG}.json.
 Раскладка: CKPT_DIR/meta.json, CKPT_DIR/<layout>/f###.json (fr, hit, hn) + f###.npz (idx, p_<v>, lab, negscene отложенных токенов).
 Склейка: python peaks_ckpt.py CKPT_DIR[,CKPT_DIR2,...] OUT.json — каталоги разных кернелов сливаются пофолдно
 (дубликат фолда допустим только с тем же содержимым json). В OUT попадают только раскрои, где есть все фолды."""
