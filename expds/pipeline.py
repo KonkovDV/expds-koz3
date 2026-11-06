@@ -1113,6 +1113,39 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         return max(0.0, b)
 
     crs_region = region_crs(reg, cfg)
+    group = str(opts["threshold_group"])
+    decode = str(opts.get("decode") or "rescore")
+    if decode not in lidar_cnx.DECODE_ALLOWED:
+        _warn(f"[li_cnx] decode={decode!r}: допустимо {lidar_cnx.DECODE_ALLOWED} — объекты cnx НЕ выдаются")
+        return []
+    if decode == "head":
+        # 05.11: курганы как в OOF ядра (поправка 1 PREREG c5-in); прочие классы этим путём не выдаются
+        from . import lidar_cnx_head
+
+        floors = output_floors(cfg, group)
+        seg_b = None
+        if lidar_cnx.weight_files(cfg, "weights_b"):
+            # ансамбль c5 + c12 (PREREG li_ens_in): второй набор весов; не загрузился — весь cnx участка не выдаётся
+            if "li_cnx_b" not in seg_cache:
+                try:
+                    seg_cache["li_cnx_b"] = lidar_cnx.load(cfg, root, key="weights_b")
+                except Exception as exc:
+                    _warn(f"cnx: веса [li_cnx] не загрузились (weights_b: {str(exc)[-300:]}) — объектов cnx нет")
+                    seg_cache["li_cnx_b"] = None
+            seg_b = seg_cache["li_cnx_b"]
+            if seg_b is None:
+                return []
+        try:
+            out = lidar_cnx_head.site_feats(seg, list(reg.las), crs_region, opts, reg.name,
+                                            deadline=lambda: not guard.ok(reserve),
+                                            time_left=lambda: max(0.0, float(left()) - reserve), seg_b=seg_b)
+        except Exception as exc:
+            log.warning("%s: cnx head не сработал (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
+            return []
+        out = [f for f in out if float(f["confidence"]) >= floors.get(f["class_name"], 0.0)]
+        for f in out:
+            f["threshold_group"] = group
+        return out
     try:
         bound = lidar_cnx.bind_las(seg, list(reg.las), crs_region, opts, deadline=lambda: not guard.ok(reserve),
                                    time_left=lambda: max(0.0, float(left()) - reserve), infer_budget=infer_budget)
@@ -1125,7 +1158,6 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
         except Exception:
             pass
         return []
-    group = str(opts["threshold_group"])
     floors = output_floors(cfg, group)
     cand_p = _params(candidates.CandidateParams, cfg.get("candidates"))
     rescore = cfg.get("li", {}).get("mode", "rescore") == "rescore"
@@ -2051,8 +2083,16 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                     break
                 try:
                     fresh = cnx_site_feats(reg, cfg, guard, seg_cache, root, prefetch)
-                    pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
-                    kept = dedupe_cnx(fresh, pool, cfg, dist)
+                    if fresh and lidar_cnx.cnx_cfg(cfg).get("replace_li_kurgans") is True:
+                        # 05.11, вариант R гейта c5-in: курганы лидарного слоя участка заменяются курганами cnx
+                        snap = state.snapshot()
+                        state.replace([f for f in snap if not lidar_cnx.is_li_kurgan(f, reg.name)])
+                        log.info("%s: cnx заменил курганы li (%d сняты)", reg.name,
+                                 sum(1 for f in snap if lidar_cnx.is_li_kurgan(f, reg.name)))
+                        kept = fresh
+                    else:
+                        pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                        kept = dedupe_cnx(fresh, pool, cfg, dist)
                 except Exception:
                     log.exception("%s: cnx пропущен", reg.name)
                     kept = []
@@ -2061,6 +2101,57 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                 if kept:
                     log.info("%s: cnx %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
             phases.append(("cnx", n_phase, time.monotonic() - t_phase))
+        if (cfg.get("sp_yolo") or {}).get("enabled"):
+            # 05.11 (план OPTICS_DETECTOR_PLAN): YOLO26 окнами по SpOr, своя группа порогов; вариант K —
+            # объекты ближе dedupe_m к уже найденным объектам того же класса (прошедшим свой порог) не добавляются
+            t_phase = time.monotonic()
+            n_phase = 0
+            try:
+                from . import sp_yolo
+
+                yo = sp_yolo.cfg_of(cfg)
+                det = sp_yolo.Detector(Path(root) / str(yo["weights"]), imgsz=yo["imgsz"], conf_min=yo["conf_min"],
+                                       iou=yo["iou"], max_det=yo["max_det"])
+                group = str(yo["threshold_group"])
+                floors = output_floors(cfg, group)
+
+                def _passes(f) -> bool:
+                    thr = output_floors(cfg, f.get("threshold_group") or f.get("markup_type")).get(f.get("class_name"))
+                    return thr is not None and float(f.get("confidence") or 0) >= thr
+
+                for reg in regions:
+                    rs = list(reg.rasters.get("sp_or", []))
+                    if not rs:
+                        continue
+                    if not guard.ok(reserve):
+                        log.warning("на sp_yolo времени не осталось")
+                        break
+                    try:
+                        fresh = sp_yolo.site_feats(det, rs, region_crs(reg, cfg), yo, reg.name,
+                                                   deadline=lambda: not guard.ok(reserve))
+                        fresh = [f for f in fresh if float(f["confidence"]) >= floors.get(f["class_name"], 0.0)]
+                        if fresh and yo.get("replace_sp") is True:
+                            # вариант R (05.11, фолд 4: YOLO 0,248 против стека 0,146): спутниковые объекты участка
+                            # (markup_type sp_or, кроме самого sp_yolo) снимаются, YOLO идёт без отбора дублей
+                            snap = state.snapshot()
+                            state.replace([f for f in snap if not (f.get("region_name") == reg.name
+                                                                   and f.get("markup_type") == "sp_or"
+                                                                   and f.get("threshold_group") != group)])
+                            log.info("%s: sp_yolo заменил спутник (%d сняты)", reg.name, len(snap) - len(state.snapshot()))
+                            kept = fresh
+                        else:
+                            pool = [f for f in state.snapshot() if f.get("region_name") == reg.name]
+                            kept = sp_yolo.dedupe_against(fresh, pool, _passes, float(yo.get("dedupe_m", 8.0)))
+                    except Exception:
+                        log.exception("%s: sp_yolo пропущен", reg.name)
+                        kept = []
+                    state.add(kept)
+                    n_phase += len(kept)
+                    if kept:
+                        log.info("%s: sp_yolo %+d, прошло %.0f с", reg.name, len(kept), guard.elapsed())
+            except Exception:
+                log.exception("sp_yolo: фаза пропущена (веса или torch)")
+            phases.append(("sp_yolo", n_phase, time.monotonic() - t_phase))
         if guard.partial:
             state.note["partial_files"] = list(guard.partial)
             log.warning("дедлайн в цикле окон: частичный результат по %d файлам: %s", len(guard.partial),

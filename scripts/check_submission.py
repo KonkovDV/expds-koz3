@@ -377,8 +377,12 @@ def check_li_half(cfg: dict | None) -> None:
 
 
 def cnx_weights_of(cfg: dict | None) -> list[str]:
-    w = ((cfg or {}).get("li_cnx") or {}).get("weights")
-    return [w] if isinstance(w, str) else list(w or [])
+    lc = (cfg or {}).get("li_cnx") or {}
+    out = []
+    for key in ("weights", "weights_b"):            # weights_b — ансамбль c5 + c12 (PREREG li_ens_in)
+        w = lc.get(key)
+        out += [w] if isinstance(w, str) else list(w or [])
+    return out
 
 
 def check_cnx_config(cfg: dict) -> None:
@@ -1780,7 +1784,7 @@ CNX_SMOKE_FAIL = ("веса [li_cnx] не загрузились", "объект
 #: bot-8 [li_half]: частичные отказы второго прохода — WARN (строки expds/pipeline.py, сверяет тест)
 LI_HALF_SMOKE_WARN = ("li_half упал", "li_half пропущен — мало времени", "объекты li_half НЕ выдаются")
 CNX_SMOKE_WARN = ("cnx не сработал", "cnx пропущен", "cnx: постобработка упала", "на cnx времени не осталось",
-                  "cnx — время на исходе", "cnx: TTA ")
+                  "cnx — время на исходе", "cnx: TTA ", "cnx head не сработал")   # 05.11: [li_cnx] decode = "head"
 
 
 def smoke_cnx(log: str, cnx_on: bool, n_las: int) -> None:

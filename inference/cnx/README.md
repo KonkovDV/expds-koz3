@@ -6,7 +6,7 @@
 
 | путь | откуда | зачем |
 |---|---|---|
-| `cnx_prep.py` | bot-9/for_bot8/cnx_prep.py (sha256 77d30749…), побайтно | LAS → u8 [ch,H,W] + geo |
+| `cnx_prep.py` | bot-9/for_bot8/cnx_prep.py (sha256 77d30749…) + 05.11 ветка `ch = 12` (TAGS12, те же вызовы вендора, что `kaggle/2026-11-05/li_c12_in/prep12.py`); ch 3/5 без изменений | LAS → u8 [ch,H,W] + geo |
 | `vendor/expds/{__init__,accel,candidates,crs,lidar}.py`, `vendor/expds_core.abi3.so`, `vendor/relief_ext.py` | bot-9/kaggle/convnext_lidar/src/vendor, побайтно (sha = поле `prep_code_files` в весах = bot-9 vendor_manifest.json; `lidar_cnx.load` сверяет и при расхождении откатывается на li) | код подготовки, на котором учились веса (prep_code_sha 6ed68955…) |
 | `_deps/rvt/*.py`, `_deps/rvt/LICENSE` | распакованный `wheels/rvt_py-2.2.1-py3-none-any.whl` (Apache-2.0) | svf_r / opp_r для cnx5 (`rvt.vis`) |
 | `wheels/rvt_py-2.2.1-py3-none-any.whl` | bot-9/for_bot8/wheels (sha256 f3b171e0…) | исходник _deps, `pip install --no-deps` при сборке образа |

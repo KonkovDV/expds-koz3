@@ -47,7 +47,18 @@ def _doc1_check(out: Path) -> None:
         sys.exit("DOC-1: архив не чистый:\n" + "\n".join(bad))
 
 
-def collect() -> list[Path]:
+def cnx_head_on(cfg: dict) -> bool:
+    """05.11: [li_cnx] включён и decode = "head" — нужен пакет centerhead (expds/lidar_cnx_head.py его импортирует)."""
+    lc = cfg.get("li_cnx") or {}
+    return lc.get("enabled") is True and bool(lc.get("weights")) and str(lc.get("decode") or "rescore") == "head"
+
+
+def centerhead_files() -> list[Path]:
+    """Модули пакета centerhead без тестов и инструментов (то, что импортирует декодирование головы)."""
+    return sorted(p for p in (ROOT / "centerhead").glob("*.py"))
+
+
+def collect(allow_en: bool = False) -> list[Path]:
     files = [ROOT / "metadata.json", ROOT / "inference" / "main.py"]
     files += sorted((ROOT / "inference" / "lib").glob("expds_core*.so"))
     cfg = tomllib.loads((ROOT / "configs" / "default.toml").read_text(encoding="utf-8"))
@@ -59,8 +70,10 @@ def collect() -> list[Path]:
     if (cfg.get("gor_dense") or {}).get("enabled"):
         off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
-                    if p.name not in EN_EXCLUDE
+                    if (allow_en or p.name not in EN_EXCLUDE)
                     and not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
+    if cnx_head_on(cfg):
+        files += centerhead_files()
     files += sorted((ROOT / "configs").glob("*.toml"))
     from expds.pipeline import model_files, model_specs
 
@@ -80,6 +93,9 @@ def collect() -> list[Path]:
     # bot-7 v3: D-FINE (каталоги config.json + model.safetensors) и вендор колёс — только если [sp_dfine] enabled
     dfm = [f"{str(w).rstrip('/')}/{f}" for w in sd.get("weights", []) for f in ("config.json", "model.safetensors")] \
         if sd.get("enabled") else []
+    sy = cfg.get("sp_yolo") or {}
+    if sy.get("enabled") is True and sy.get("weights"):   # 05.11: YOLO спутника (TorchScript), только если включён
+        dfm.append(str(sy["weights"]))
     gg = cfg.get("gor_gate") or {}
     # bot-7 v3: шлюз городищ bot-5 (DINOv2-S config.json + model.safetensors, голова npz) — только если [gor_gate] enabled
     if gg.get("enabled"):
@@ -116,6 +132,8 @@ def collect() -> list[Path]:
     lc = cfg.get("li_cnx") or {}   # bot-8 bot8-cnx: веса ConvNeXt bot-9 и вендор подготовки — только если включён
     cnx_w = ([lc["weights"]] if isinstance(lc.get("weights"), str) else list(lc.get("weights") or [])) \
         if lc.get("enabled") is True else []   # только bool, как expds/lidar_cnx.enabled
+    if cnx_w:   # ансамбль (PREREG li_ens_in): второй набор весов
+        cnx_w += [lc["weights_b"]] if isinstance(lc.get("weights_b"), str) else list(lc.get("weights_b") or [])
     if cnx_w:
         files += sorted(p for p in (ROOT / "inference" / "cnx").rglob("*") if p.is_file() and "__pycache__" not in p.parts)
     for rel in paths + [cfg.get("candidates", {}).get("lgbm_model"), verify] + rerank + pixm + dfm:
@@ -252,7 +270,12 @@ def main() -> None:
                     help="перепись или вариант порогов из уже загруженного архива: код и веса оттуда, меняется только конфиг")
     ap.add_argument("--thresholds", default=None,
                     help="с --from-zip: пороги из отчёта scripts/density_thresholds.py (вариант раздела 5)")
+    ap.add_argument("--allow-en", action="store_true",
+                    help="линия EN (решение владельца 04.11, docs/PIXGBM_DECISION.md): модуль geo_pixgbm.py и модели "
+                         "PIXGBM в архиве, проверка DOC-1 не делается. Без флага — как раньше")
     args = ap.parse_args()
+    if args.allow_en and args.from_zip:
+        sys.exit("--allow-en только для сборки из дерева")
     if args.from_zip:
         changes = density_changes(Path(args.thresholds)) if args.thresholds else None
         if not args.only_class and not changes:
@@ -271,7 +294,7 @@ def main() -> None:
         problems.append("metadata.json: укажите публичный образ Docker Hub в поле image")
     if not meta.get("entry_point"):
         problems.append("metadata.json: нет entry_point")
-    files = collect()
+    files = collect(allow_en=args.allow_en)
     for f in files:
         if f.suffix.lower() in FORBIDDEN:
             problems.append(f"запрещённый тип файла в архиве: {f.relative_to(ROOT)}")
@@ -295,7 +318,10 @@ def main() -> None:
                 z.writestr(name, config_text)
             else:
                 z.write(f, name)
-    _doc1_check(out)
+    if args.allow_en:
+        print("DOC-1 не проверялся: --allow-en (линия EN, решение владельца 04.11, docs/PIXGBM_DECISION.md)")
+    else:
+        _doc1_check(out)
     size = out.stat().st_size
     if size > LIMIT:
         sys.exit(f"архив {size / 2**20:.0f} МБ больше 2 ГБ")

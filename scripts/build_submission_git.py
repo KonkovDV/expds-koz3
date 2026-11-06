@@ -208,6 +208,12 @@ def main() -> int:
             files[p] = blob(p)
         if CNX_WEIGHTS_MANIFEST not in files:
             sys.exit(f"[li_cnx] включён, но в коммите нет {CNX_WEIGHTS_MANIFEST}")
+        if str((cfg.get("li_cnx") or {}).get("decode") or "rescore") == "head":   # 05.11: expds/lidar_cnx_head.py
+            ch = [p for p in tracked if p.startswith("centerhead/") and p.count("/") == 1 and p.endswith(".py")]
+            if "centerhead/decode.py" not in ch:
+                sys.exit("[li_cnx] decode = \"head\", а в коммите нет пакета centerhead/")
+            for p in ch:
+                files[p] = blob(p)
     need_vendor = any((cfg.get(sec) or {}).get("enabled") for sec in ("sp_dfine", "gor_gate"))
     if need_vendor and not (args.vendor and args.vendor.is_dir()):
         sys.exit("[sp_dfine]/[gor_gate] enabled — нужен --vendor <каталог распакованных колёс>")

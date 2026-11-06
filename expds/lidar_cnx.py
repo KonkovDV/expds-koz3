@@ -50,7 +50,7 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
-KINDS = {"cnx3": 3, "cnx5": 5}
+KINDS = {"cnx3": 3, "cnx5": 5, "cnx12": 12}   # cnx12 — 05.11, kaggle/2026-11-05/li_c12_in
 #: Каталог вендора подготовки внутри решения (inference/cnx).
 PREP_DIR = Path(__file__).resolve().parent.parent / "inference" / "cnx"
 #: Значение входа для u8 0 (вне съёмки) — ровно как cnx_prep.u8_to_input.
@@ -69,7 +69,24 @@ DEFAULTS = {
     "classes": ["kurgany_povrezhdennye", "kurgany_tselye"],   # gor/fort/arch — только явно, после замера
     "threshold_group": "li_cnx",           # своя группа порогов; группы li* запрещены (другая шкала)
     "dedupe_m": 12.0,                      # курган cnx ближе — дубль оставленного круга
+    # 05.11 (поправка 1 PREREG c5-in): "rescore" — курганы по пикам ЦМР с вероятностью сети (как было);
+    # "head" — курганы декодированием головы, как OOF ядра bot-9 (expds/lidar_cnx_head.py), по параметрам контракта.
+    "decode": "rescore",
+    # вариант R гейта: курганы групп li / li_coarse / li_mosaic участка снимаются, курганы cnx идут без отбора дублей
+    "replace_li_kurgans": False,
+    # ансамбль (PREREG li_ens_in): второй набор весов другого входа (c12 при c5 в weights), только decode = "head";
+    # одна подготовка на max(каналов), логиты всех сетей усредняются
+    "weights_b": [],
 }
+DECODE_ALLOWED = ("rescore", "head")
+#: Группы курганов лидарного слоя, которые снимает вариант R (как LI_KUR_GROUPS гейта c5-in).
+LI_KUR_GROUPS = ("li", "li_coarse", "li_mosaic")
+
+
+def is_li_kurgan(f: dict, region: str) -> bool:
+    """Курган лидарного слоя участка (группа — threshold_group, иначе markup_type ∈ LI_KUR_GROUPS): его снимает R."""
+    return (f.get("region_name") == region and f.get("class_name") in ("kurgany_povrezhdennye", "kurgany_tselye")
+            and (f.get("threshold_group") or f.get("markup_type")) in LI_KUR_GROUPS)
 TTA_ALLOWED = (1, 2, 8)
 #: Группы порогов других лидарных моделей: к шкале cnx не применимы.
 FORBIDDEN_GROUPS = frozenset({"li", "li_coarse", "li_mosaic", "li_ae", "li_cpu", "li_dev", "li_mask", "li_fort"})
@@ -131,8 +148,8 @@ def enabled(cfg: dict | None) -> bool:
     return en and bool(c.get("weights"))
 
 
-def weight_files(cfg: dict | None) -> list[str]:
-    w = ((cfg or {}).get("li_cnx") or {}).get("weights") or []
+def weight_files(cfg: dict | None, key: str = "weights") -> list[str]:
+    w = ((cfg or {}).get("li_cnx") or {}).get(key) or []
     return [w] if isinstance(w, str) else [str(x) for x in w]
 
 
@@ -363,7 +380,7 @@ def run_prep(las, ch: int, crs: str | None, timeout_s: float, prep_dir: Path | N
     script, vendor, deps = pd / "cnx_prep.py", pd / "vendor", pd / "_deps"
     if not script.is_file() or not vendor.is_dir():
         raise CnxError(f"нет вендора подготовки cnx в {pd}")
-    if ch == 5 and not (deps / "rvt").is_dir():
+    if ch in (5, 12) and not (deps / "rvt").is_dir():
         try:
             import importlib.util
             if importlib.util.find_spec("rvt") is None:
@@ -526,8 +543,8 @@ def check_prep_code(contract: dict, prep_dir: Path | None = None) -> None:
 
 
 def load(cfg: dict, root: Path, device: str | None = None, prep_dir: Path | None = None,
-         amp: bool | None = None) -> CnxSegmenter:
-    files = weight_files(cfg)
+         amp: bool | None = None, key: str = "weights") -> CnxSegmenter:
+    files = weight_files(cfg, key)
     paths = [Path(root) / f for f in files]
     missing = [str(p) for p in paths if not p.is_file()]
     if missing:

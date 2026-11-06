@@ -18,6 +18,8 @@ import numpy as np
 
 VENDOR = Path(os.environ.get("CNX_VENDOR", Path(__file__).resolve().parent.parent / "kaggle/convnext_lidar/src/vendor"))
 TAGS5 = ("lrm_s", "lrm_l", "slope", "svf_r", "opp_r")      # = контракт модели, c3 = первые три
+# c12 (05.11, kaggle/2026-11-05/li_c12_in): те же функции вендора, что prep12.py; первые пять = TAGS5, dens_r/int_r — из LAS
+TAGS12 = TAGS5 + ("opn_r", "tpi5_r", "tri3_r", "curv_r", "slrm8_r", "dens_r", "int_r")
 CELL_M = 0.5                                                # шаг сети
 DEM_RES = 0.1                                               # шаг ЦМР (среднее точек класса 2 + Delaunay)
 
@@ -40,7 +42,7 @@ def _import_vendor(vendor: Path):
 
 def cnx_u8(las_path, ch: int = 5, crs: str | None = None, vendor: Path = VENDOR):
     """LAS/LAZ (один файл = один участок) → (u8 [ch,H,W], geo). u8 0 = вне съёмки, 1…255 — значения."""
-    assert ch in (3, 5), ch
+    assert ch in (3, 5, 12), ch
     XA, XL, to_work_grid, RX = _import_vendor(vendor)
     d = XL.build_dem(str(las_path), res=DEM_RES, fill="delaunay", crs=crs)   # сетка по заголовку LAS (все точки)
     base, tr = XL.relief_channels(d, CELL_M, TAGS5[:3])                     # Rust-путь (expds_core) или NumPy
@@ -52,8 +54,12 @@ def cnx_u8(las_path, ch: int = 5, crs: str | None = None, vendor: Path = VENDOR)
         z = np.where(base[0] > 0, z, np.nan).astype(np.float32)
         ext, stats = RX.extra_channels(z, step, d.left, d.top, accel=None, tags=TAGS5[3:])   # accel=None → rvt.vis (как в обучении)
         arr = np.concatenate([base, ext])
+    elif ch == 12:
+        z = np.where(base[0] > 0, z, np.nan).astype(np.float32)
+        ext, stats = RX.extra_channels(z, step, d.left, d.top, las_path=str(las_path), accel=None, tags=TAGS12[3:])
+        arr = np.concatenate([base, ext])
     arr = arr.astype(np.uint8)
-    geo = dict(left=float(d.left), top=float(d.top), step=float(step), crs=d.crs, shape=list(arr.shape), tags=list(TAGS5[:ch]),
+    geo = dict(left=float(d.left), top=float(d.top), step=float(step), crs=d.crs, shape=list(arr.shape), tags=list(TAGS12 if ch == 12 else TAGS5[:ch]),
                transform=(float(step), 0.0, float(d.left), 0.0, -float(step), float(d.top)),   # affine.Affine(a,b,c,d,e,f), север вверху
                dem_res=float(d.res), dem_factor=int(d.info.get("factor", 1)), backend=XA.backend(), site_stats=stats,
                valid=(arr[0] > 0))

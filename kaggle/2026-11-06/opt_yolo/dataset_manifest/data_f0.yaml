@@ -1,0 +1,9 @@
+path: .
+train: train_f0.txt
+val: val_f0.txt
+names:
+  0: kurgany_povrezhdennye
+  1: kurgany_tselye
+  2: gorodishcha
+  3: arkhitektury
+  4: fortifikatsii
