@@ -1,3 +1,5 @@
+> **06.11.2026 08:00 МСК — LB: YOLO спутника R = 0,38441 (< 0,43274), не берём.** Спутник +14 TP / +324 FP. Лучший по-прежнему v2 + c5-in R (0,43274). Разбор и следующий шаг — `docs/LB_LOG.md`.
+
 > **06.11.2026 02:10 МСК — кандидат v2 + c5-in R + YOLO спутника R готов к LB-пробе.**
 > - `v2_c5inR_yoloR.zip`, sha256 `bdfc7f8b631bd0558db03cb7f808d288e38ef8e3a2138913989cb922228c31fe`, 831 557 252 байт.
 > - Drive «2» → `00_SUBMIT_v2_c5inR_yoloR_bdfc7f8b`: https://drive.google.com/file/d/17AVG5mzikXYahFAmYq4_RivkjQgY9iqo/view
