@@ -45,6 +45,9 @@ CATALOG_KEY = "_orgate_catalog"
 GATE_NAMES = ["sh_pp", "sh_rect", "ch_oth5_max", "ch_oth5_n", "ch_oth15_max", "ch_oth15_n",
               "kur15_n", "kur30_n", "kur15_max", "gor30_max", "fort30_max", "li15_n",
               "r_las", "r_fli", "r_fae", "r_fgeo", "r_ncls", "r_km2", "r_arch_dens", "r_arch_hi", "lat", "lon"]
+#: lat/lon — градусы участка, не расстояние между объектами. Письмо перед финалом запрещает
+#: координату, которая подменяет обнаружение. Гейт в сдаче выключен. Даже при enabled он
+#: не считает, пока в секции нет allow_site_coordinates = true (только старый замер).
 
 
 class OrGateUnavailable(RuntimeError):
@@ -143,6 +146,10 @@ def decide_table(T: dict, opts: dict, catalog: dict | None, model=None) -> dict:
     """Ядро гейта на массивах стека T (rerank_arch.table или table.pkl трейна). Возвращает
     target (индексы строк), kept_idx, removed_idx, score (по target; −1 = правило LAS), las_regions, las_source.
     gq и пул (rerank_arch.group_quantile / pool_mask) считаются по всему входу — как у R."""
+    if not opts.get("allow_site_coordinates"):
+        raise OrGateUnavailable(
+            "признаки lat/lon — градусы участка. Письмо перед финалом запрещает координату, "
+            "которая подменяет обнаружение по снимку. Старый замер: allow_site_coordinates = true")
     bst, meta = model if model is not None else load(opts)
     taus = {str(g): float(t) for g, t in meta["thresholds"].items()}
     info = dict(target=[], kept_idx=[], removed_idx=[], score=[], las_regions=[], las_source=None)

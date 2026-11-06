@@ -18,6 +18,8 @@ from expds import orgate, rerank_arch, watchdog
 ROOT = Path(__file__).resolve().parents[1]
 FX = Path("/workspace/koz3_shared/bot-6/work/orgate_final/orgate_smoke_008.geojson")   # вне git (п. 13.11 ТР)
 X3857, Y3857 = 4_118_890.0, 7_361_866.0
+#: Старый замер гейта кормил модель градусами участка. Письмо перед финалом это выключает.
+HISTORICAL = {"allow_site_coordinates": True}
 
 
 def _cfg():
@@ -61,7 +63,7 @@ def test_flag_off_is_noop_in_finish():
 
 def test_smoke_reference_region_removes_expected():
     fx, feats = _fixture()
-    rest, kept, info = orgate.decide(feats, {}, fx["catalog"])
+    rest, kept, info = orgate.decide(feats, HISTORICAL, fx["catalog"])
     assert len(info["target"]) == 43 and info["las_source"] == "catalog"
     assert info["removed_idx"] == fx["expected_removed_idx"] and len(info["removed_idx"]) >= 1
     assert len(rest) == 0 and len(kept) == 43 - len(info["removed_idx"])
@@ -71,20 +73,20 @@ def test_smoke_reference_region_removes_expected():
 def test_las_rule_from_catalog_and_li_fallback():
     fx, feats = _fixture()
     r = feats[0]["region_name"]
-    _, kept, info = orgate.decide(feats, {}, {r: {"las": True, "utm_json": None}})
+    _, kept, info = orgate.decide(feats, HISTORICAL, {r: {"las": True, "utm_json": None}})
     assert kept == [] and len(info["removed_idx"]) == 43 and set(info["score"]) == {-1.0}
     # без каталога — правило «есть кандидаты li» (как has_las у R)
     li = dict(feats[0], class_name="kurgany_tselye", markup_type="li", threshold_group="li", geom=Point(feats[0]["geom"].centroid).buffer(3))
-    _, kept2, info2 = orgate.decide(feats + [li], {}, None)
+    _, kept2, info2 = orgate.decide(feats + [li], HISTORICAL, None)
     assert info2["las_source"] == "li_candidates" and kept2 == []
-    _, kept3, info3 = orgate.decide(feats, {}, None)
+    _, kept3, info3 = orgate.decide(feats, HISTORICAL, None)
     assert info3["las_source"] == "li_candidates" and len(kept3) > 0
 
 
 def test_dfine_groups_not_scored():
     fx, feats = _fixture()
     extra = [dict(feats[i], markup_type=g, threshold_group=g) for i, g in ((0, "dfine_or"), (1, "dfine_ae"), (2, "sp_dfine"))]
-    rest, kept, info = orgate.decide(feats + extra, {}, fx["catalog"])
+    rest, kept, info = orgate.decide(feats + extra, HISTORICAL, fx["catalog"])
     assert len(info["target"]) == 43 and all(i < 43 for i in info["target"])
     assert [f["threshold_group"] for f in rest] == ["dfine_or", "dfine_ae", "sp_dfine"]
 
@@ -102,11 +104,32 @@ def test_unavailable_marker_and_fallback(tmp_path, caplog):
     assert _key(watchdog.finish([dict(f) for f in feats], no_r)) == _key(watchdog.finish([dict(f) for f in feats], base))
 
 
-def test_enabled_replaces_r_in_finish():
+def test_gate_refuses_site_degrees_before_loading_a_model():
+    feat = {"class_name": "arkhitektury", "confidence": 0.4, "markup_type": "or",
+            "threshold_group": "or", "region_name": "region", "geom": Point(4_000_000, 7_000_000).buffer(2)}
+    with pytest.raises(orgate.OrGateUnavailable, match="lat/lon"):
+        orgate.decide([feat], {}, {})
+
+
+def test_enabled_without_site_coordinates_falls_back(caplog):
+    """Включённый гейт без явного разрешения не кормит модель градусами участка."""
     fx, feats = _fixture()
     cfg = {**_cfg(), "orgate": {**_cfg()["orgate"], "enabled": True}, orgate.CATALOG_KEY: fx["catalog"]}
+    base = {**_cfg(), "rerank_arch": {**_cfg()["rerank_arch"], "enabled": False}}
+    with caplog.at_level(logging.ERROR):
+        out = watchdog.finish([dict(f) for f in feats], cfg)
+    assert orgate.MARKER in caplog.text
+    assert _key(out) == _key(watchdog.finish([dict(f) for f in feats], base))
+    with pytest.raises(orgate.OrGateUnavailable, match="lat/lon"):
+        orgate.decide(feats, {}, fx["catalog"])
+
+
+def test_enabled_replaces_r_in_finish():
+    fx, feats = _fixture()
+    cfg = {**_cfg(), "orgate": {**_cfg()["orgate"], "enabled": True, **HISTORICAL},
+           orgate.CATALOG_KEY: fx["catalog"]}
     out = watchdog.finish([dict(f) for f in feats], cfg)
-    _, kept, _ = orgate.decide(feats, {}, fx["catalog"])
+    _, kept, _ = orgate.decide(feats, HISTORICAL, fx["catalog"])
     arch = [f for f in out if f["class_name"] == "arkhitektury"]
     assert len(arch) <= len(kept) and len(arch) >= 1
     assert all("conf_stack" in f for f in arch)

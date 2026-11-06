@@ -10,6 +10,7 @@
   layout    — metadata.json, inference/main.py, configs/default.toml, expds/, inference/lib/expds_core*.so;
   forbidden — нет данных выборок (.las .tif .geojson .npy ...), .git, __pycache__, секретов;
   dinov3    — если в архиве есть веса DINOv3, рядом лежит копия лицензии (письмо 06.11); иначе проверка пустая;
+  final     — письмо 06.11 вечером: нет orgate с lat/lon, нет site_calibration, нет правила по имени участка;
   size      — архив ≤ 2 ГиБ (WARN с 1,9 ГиБ);
   metadata  — image не шаблон, entry_point = «python inference/main.py»;
   config    — TOML читается; пути моделей в архиве; классы/группы/режимы из списков кода; бюджет < 30 мин − запас;
@@ -152,6 +153,39 @@ def check_dinov3_license(z: zipfile.ZipFile) -> None:
         return
     report("FAIL", "dinov3",
            "DINOv3 без файла с именем, где есть DINOv3 и LICENSE (письмо организаторов 06.11)")
+
+
+def check_final_letter(cfg: dict | None) -> None:
+    """Письмо организаторов 06.11 вечером: финал — разведка, не справочник памятников.
+
+    Сдача 0,43274 проходит. FAIL — включённый гейт с широтой и долготой участка,
+    калибровка уверенности по своим предсказаниям прогона и особое правило pixgbm
+    по имени участка. Расстояния между уже найденными объектами в реранке архитектуры
+    справочником не являются: cx, cy в модель не входят.
+    """
+    if not cfg:
+        report("WARN", "final", "конфиг не прочитан, письмо перед финалом не проверено")
+        return
+    failed = False
+    if (cfg.get("orgate") or {}).get("enabled"):
+        failed = True
+        report("FAIL", "final",
+               "orgate включён: среди признаков lat и lon участка. Письмо перед финалом "
+               "запрещает координату, которая подменяет обнаружение по снимкам")
+    post = cfg.get("post") or {}
+    if isinstance(post.get("site_calibration"), dict):
+        failed = True
+        report("FAIL", "final",
+               "site_calibration меняет уверенность по предсказаниям участка. "
+               "Письмо перед финалом запрещает дообучение на данных прогона")
+    pix = ((cfg.get("geophys") or {}).get("pixgbm") or {})
+    if pix.get("enabled") and str(pix.get("union_name_re") or "").strip():
+        failed = True
+        report("FAIL", "final",
+               "pixgbm.union_name_re задаёт особое правило по имени участка. "
+               "Письмо перед финалом запрещает готовый ответ для территории")
+    if not failed:
+        report("PASS", "final", "справочника памятников нет, веса на прогоне не меняются")
 
 
 def check_forbidden(z: zipfile.ZipFile) -> None:
@@ -1867,7 +1901,9 @@ try:
     fx = json.load(open(sys.argv[2], encoding="utf-8"))
     feats = [dict(f["properties"], geom=shape(f["geometry"])) for f in fx["features"]]
     import os; os.chdir(sys.argv[1])
-    rest, kept, info = orgate.decide(feats, cfg.get("orgate") or {}, fx["catalog"])
+    opts = dict(cfg.get("orgate") or {})
+    opts["allow_site_coordinates"] = True
+    rest, kept, info = orgate.decide(feats, opts, fx["catalog"])
     out = dict(ok=True, n_arch=len(info["target"]), removed=info["removed_idx"], kept=info["kept_idx"],
                expected_removed=fx["expected_removed_idx"])
 except Exception as e:
@@ -2100,6 +2136,7 @@ def main() -> int:
     check_size(args.zip, z)
     check_metadata(z)
     cfg = check_config_static(z)
+    check_final_letter(cfg)
     cnx_third = check_cnx(z, cfg)
     check_li_half(cfg)
     if "inference/main.py" in z.namelist() and "expds/pipeline.py" in z.namelist():
