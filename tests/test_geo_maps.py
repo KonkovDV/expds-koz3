@@ -9,6 +9,60 @@ from shapely.geometry import Point
 from expds import geophys, pipeline
 
 
+def test_broken_etgr_boundary_keeps_maggr_finds(tmp_path, monkeypatch):
+    """Сильная магнитка не пропадает, если граница электроразведки того же участка не читается."""
+    from types import SimpleNamespace
+
+    from expds.catalog import Region
+
+    mag = write_mag_tif(tmp_path / "a_MagGr_серый.tif")[0]
+    et = write_mag_tif(tmp_path / "b_EtGr_карта_01_0.5.tif", seed=2)[0]
+    reg = Region("r", tmp_path, rasters={"maggr": [mag], "etgr": [et]})
+    real = geophys.survey_boundary
+
+    def boom(files, markup, *args, **kwargs):
+        if markup == "etgr":
+            raise RuntimeError("битая граница")
+        return real(files, markup, *args, **kwargs)
+
+    monkeypatch.setattr(geophys, "survey_boundary", boom)
+    guard = SimpleNamespace(ok=lambda *_a, **_k: True, elapsed=lambda: 0.0, left=lambda: 999.0)
+    out = pipeline.geophys_feats(reg, {}, guard)
+    assert any(f["markup_type"] == "maggr" and f["class_name"] == "finds_points" for f in out)
+    assert all(f["markup_type"] != "etgr" for f in out)
+
+
+def test_broken_finds_keep_the_polygon_of_the_same_map(tmp_path, monkeypatch):
+    """Находки и контуры одной карты считаются отдельно: сбой находок не стирает контур."""
+    from expds.catalog import Region
+
+    mag = write_mag_tif(tmp_path / "a_MagGr_серый.tif")[0]
+    reg = Region("r", tmp_path, rasters={"maggr": [mag]})
+    poly = {"geom": Point(0, 0).buffer(2), "class_name": "object_poly", "confidence": 0.9,
+            "markup_type": "maggr", "region_name": "r", "source": mag.name}
+
+    def boom(*_a, **_k):
+        raise RuntimeError("находки")
+
+    monkeypatch.setattr(geophys, "finds_points", boom)
+    monkeypatch.setattr(geophys, "object_polys", lambda *_a, **_k: [dict(poly)])
+    guard = SimpleNamespace(ok=lambda *_a, **_k: True, elapsed=lambda: 0.0, left=lambda: 999.0)
+    out = pipeline.geophys_feats(reg, {}, guard)
+    assert any(f["class_name"] == "object_poly" for f in out)
+    assert all(f["class_name"] != "finds_points" for f in out)
+
+
+def test_geo_model_failure_keeps_optical_objects(monkeypatch):
+    """Сеть на картах не должна стирать снимки, которые оптика уже нашла."""
+    found = {"class_name": "kurgany_tselye", "geom": Point(0, 0).buffer(1), "confidence": 0.8}
+    monkeypatch.setattr(pipeline, "_wide_without_lidar", lambda *a, **k: list(a[-1]) + [found])
+    monkeypatch.setattr(pipeline, "geo_model_feats", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("сеть")))
+    reg = SimpleNamespace(name="r", rasters={})
+    guard = SimpleNamespace(ok=lambda *_a, **_k: True, elapsed=lambda: 0.0, left=lambda: 999.0)
+    out = pipeline.optical_feats(reg, {}, guard, {}, Path("."))
+    assert out == [found]
+
+
 def test_select_rasters_modes():
     files = [Path("01_x_MagGr_серый.tif"), Path("02_x_MagGr_цвет.tif"), Path("03_x_MagGr_цвет_2.tif")]
     assert geophys.select_rasters(files, "maggr") == files[:1]                  # как в сдаче

@@ -173,37 +173,77 @@ def circle_3857(x: float, y: float, radius_m: float, crs: str | None, n: int = 1
 _radius_ground_cached = lru_cache(maxsize=256)(_radius_in_ground_meters)   # только для circles_3857
 
 
+def _as_distance(radius_m, n: int):
+    """Скаляр остаётся скаляром: так пакет совпадает с прежним вызовом buffer.
+
+    Последовательность радиусов — свой радиус у каждой точки, в том же порядке.
+    """
+    if isinstance(radius_m, (int, float, np.floating)):
+        return float(radius_m)
+    dist = np.asarray(radius_m, dtype=np.float64).ravel()
+    if dist.size == 1:
+        return float(dist[0])
+    if dist.size != n:
+        raise ValueError(f"радиусов {dist.size}, точек {n}")
+    return dist
+
+
 def circles_3857(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
     """circle_3857 для массива точек: те же полигоны побитно, но одним вызовом GEOS/PROJ на зону.
 
     Порядок операций над каждой точкой тот же (PROJ и GEOS считают точки независимо),
     поэтому координаты совпадают с поштучным вызовом до бита (tests/test_circles_batch.py).
+    radius_m может быть своим у каждой точки: на проекции в метрах это один buffer.
     """
     import shapely
 
-    from .crs import transformer, utm_for_lonlat
+    from .crs import transformer
 
     px = np.asarray(xs, dtype=np.float64).ravel()
     py = np.asarray(ys, dtype=np.float64).ravel()
     if px.size == 0:
         return []
+    dist = _as_distance(radius_m, px.size)
     qs = max(2, n // 4)
     if not crs or _radius_ground_cached(crs):
-        polys = shapely.buffer(shapely.points(px, py), radius_m, quad_segs=qs)
+        polys = shapely.buffer(shapely.points(px, py), dist, quad_segs=qs)
         if not crs:
             return list(polys)
         return list(_transform_many(polys, crs, WEB_MERCATOR))
     lon, lat = transformer(crs, "EPSG:4326").transform(px, py)
-    zones = [utm_for_lonlat(float(a), float(b)) for a, b in zip(np.atleast_1d(lon), np.atleast_1d(lat))]
+    lon = np.atleast_1d(np.asarray(lon, dtype=np.float64))
+    lat = np.atleast_1d(np.asarray(lat, dtype=np.float64))
+    # Та же формула, что utm_for_lonlat: ⌊(λ+180)/6⌋+1, номер 1…60, север/юг по широте.
+    zone = np.clip(((lon + 180.0) // 6.0).astype(np.int64) + 1, 1, 60)
+    code = np.where(lat >= 0.0, 32600, 32700) + zone
+    _, first = np.unique(code, return_index=True)
     out = [None] * px.size
-    for z in dict.fromkeys(zones):
-        idx = np.array([i for i, q in enumerate(zones) if q == z])
+    for zcode in code[np.sort(first)]:
+        z = f"EPSG:{int(zcode)}"
+        idx = np.flatnonzero(code == zcode)
         ux, uy = transformer(crs, z).transform(px[idx], py[idx])
+        zone_r = dist if isinstance(dist, float) else dist[idx]
         polys = shapely.buffer(shapely.points(np.asarray(ux, np.float64), np.asarray(uy, np.float64)),
-                               radius_m, quad_segs=qs)
+                               zone_r, quad_segs=qs)
         for i, g in zip(idx, _transform_many(polys, z, WEB_MERCATOR)):
             out[i] = g
     return out
+
+
+def point_circles(xs, ys, radius_m: float, crs: str | None, n: int = 16) -> list:
+    """Круги точек. Пакет по зонам UTM — тот же WKB, что круг по одной точке.
+
+    Если пакет не собрался, точки считаются по одной: одна битая координата не стирает карту.
+    EXPDS_SPEED_BATCH_CIRCLES=0 оставляет только поштучный путь.
+    """
+    from . import speed
+
+    if speed.use_fast("batch_circles"):
+        try:
+            return circles_3857(xs, ys, radius_m, crs, n)
+        except Exception:
+            log.exception("пакет кругов не собрался, точки по одной")
+    return [circle_3857(float(x), float(y), radius_m, crs, n) for x, y in zip(xs, ys)]
 
 
 def _transform_many(geoms, src: str, dst: str):

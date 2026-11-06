@@ -256,7 +256,7 @@ def fix_channels(img: np.ndarray, c: int) -> np.ndarray:
         return img[:c]
     from . import speed
 
-    if not speed.on("fast_channels"):
+    if not speed.use_fast("fast_channels"):
         return np.concatenate([img, np.repeat(img[-1:], c - img.shape[0], axis=0)], axis=0)
     out = np.empty((c, *img.shape[1:]), img.dtype)     # флаг fast_channels: без repeat + concatenate
     out[:img.shape[0]] = img

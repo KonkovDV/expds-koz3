@@ -124,6 +124,15 @@ def finish(feats: list[dict], cfg: dict) -> list[dict]:
     return _finish_v3(feats, cfg, isolate=() if union else post.ISOLATED_GROUPS)
 
 
+def _keep_step(name: str, current: list[dict], fn, *args) -> list[dict]:
+    """Шаг сдачи. Ошибка оставляет предыдущий список, а не пустую запасную цепочку без микрокругов и копий."""
+    try:
+        return fn(*args)
+    except Exception:
+        log.exception("%s пропущен, остаётся предыдущий список (%d)", name, len(current))
+        return current
+
+
 def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> list[dict]:
     """Цепочка v3 (до — тело finish)."""
     out = post.only_known_classes(feats)
@@ -166,7 +175,7 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
 
         out = w5_cloudfeat.apply(out, cfg)
     from .ae_recall import cross_tif_dedup, dedup_m
-    out = cross_tif_dedup(out, dedup_m(cfg))
+    out = _keep_step("cross_tif_dedup", out, cross_tif_dedup, out, dedup_m(cfg))
     sf = (cfg.get("post") or {}).get("sp_score_fusion")
     by_markup = post.sat_thr_relax_by_markup(cfg)   # [sat_thr_relax], без флага — таблица как есть
     if sf:
@@ -199,13 +208,15 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     out = out + reranked
     # protect_merge — крупный не сливается с мелким.
     if _lo.flag(cfg, "protect_merge"):
-        out = _lo.merge_within_markup(out, isolate, _lo.spec(cfg))
+        out = _keep_step("merge_within_markup", out, _lo.merge_within_markup, out, isolate, _lo.spec(cfg))
     else:
-        out = post.merge_within_markup(out, isolate)
+        out = _keep_step("merge_within_markup", out, post.merge_within_markup, out, isolate)
     if post_cfg.get("multipole_object_poly"):
-        out = post.multipole_object_poly(out, post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None)
+        spec = post_cfg.get("multipole_object_poly") if isinstance(post_cfg.get("multipole_object_poly"), dict) else None
+        out = _keep_step("multipole_object_poly", out, post.multipole_object_poly, out, spec)
     if post_cfg.get("filter_finds_points"):
-        out = post.filter_finds_points_regimes(out, post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None)
+        spec = post_cfg.get("filter_finds_points") if isinstance(post_cfg.get("filter_finds_points"), dict) else None
+        out = _keep_step("filter_finds_points", out, post.filter_finds_points_regimes, out, spec)
     if post_cfg.get("geo_convex_hull"):
         out = post.convex_hull_object_poly(out, post_cfg.get("geo_convex_hull"))
     if post_cfg.get("kurgan_twins"):
@@ -214,12 +225,13 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         # Только копии целый -> повреждённый (ae_twin, sp_twin); межтиповой dedup ae против li выключен (AUDIT.md B5).
         spec = dict(post_cfg["kurgan_twins_only"]) if isinstance(post_cfg.get("kurgan_twins_only"), dict) else {}
         spec["dedup_ae_vs_li_m"] = 0.0
-        out = post.kurgan_cross_modal_twins(out, spec)
+        out = _keep_step("kurgan_twins_only", out, post.kurgan_cross_modal_twins, out, spec)
     if post_cfg.get("kurgans_outside_hillforts"):
         # После twins (копии тоже проверяются), до micro_circles и core: нужна полная маска городища.
         out = post.kurgans_outside_hillforts(out, _spec(post_cfg["kurgans_outside_hillforts"]))
     if post_cfg.get("micro_circles"):
-        out = post.micro_circles(out, post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None)
+        spec = post_cfg.get("micro_circles") if isinstance(post_cfg.get("micro_circles"), dict) else None
+        out = _keep_step("micro_circles", out, post.micro_circles, out, spec)
     if post_cfg.get("fill_holes"):
         out = post.fill_holes(out, post_cfg["fill_holes"])
     if post_cfg.get("core"):
@@ -238,8 +250,8 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
         if post_cfg.get("fort_medial"):
             out = open_ideas.medial_fort_circles(out, float(post_cfg.get("fort_medial_m", 2.0)),
                                                  float(post_cfg.get("fort_medial_spacing_m", 25.0)))
-    out = post.finalize(out)
-    out = post.cap_features(out)
+    out = _keep_step("finalize", out, post.finalize, out)
+    out = _keep_step("cap_features", out, post.cap_features, out)
     # Перепись одного класса. Без ключа список тот же, что у полной сдачи.
     only = post_cfg.get("only_classes")
     if only is not None:

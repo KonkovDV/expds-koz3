@@ -123,3 +123,33 @@ def test_small_cape_is_not_swallowed_by_the_upland():
     found = find(z, 1.0, HillfortParams(relief_radius_l_m=150))
     assert site[found[0]["row"], found[0]["col"]] and found[0]["enclosure"] > 0.6
     assert sum(site[c["row"], c["col"]] for c in found) == 1
+
+
+def test_one_bad_hillfort_circle_keeps_the_other(monkeypatch):
+    """Один круг городища, который не строится, не стирает остальные кандидаты того же облака."""
+    from types import SimpleNamespace
+
+    from shapely.geometry import Point
+
+    from expds import hillfort
+
+    hits = [
+        {"col": 1, "row": 1, "inscribed_m": 20, "confidence": 0.8, "area_m2": 100, "enclosure": 0.5, "height_m": 2},
+        {"col": 5, "row": 5, "inscribed_m": 20, "confidence": 0.7, "area_m2": 80, "enclosure": 0.4, "height_m": 1},
+    ]
+    monkeypatch.setattr("expds.candidates.to_work_grid", lambda dem, res, work: (dem, float(res)))
+    monkeypatch.setattr(hillfort, "find", lambda z, step, p: hits)
+    seen = {"n": 0}
+
+    def circle(x, y, r, crs):
+        seen["n"] += 1
+        if seen["n"] > 1:
+            raise RuntimeError("круг")
+        return Point(x, y).buffer(r)
+
+    monkeypatch.setattr("expds.raster.circles_3857", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("пакет")))
+    monkeypatch.setattr("expds.raster.circle_3857", circle)
+    dem = SimpleNamespace(crs="EPSG:32637", left=0.0, top=100.0, res=2.0, dem=np.zeros((4, 4)))
+    out = candidates(dem, "r", "a.las")
+    assert len(out) == 1
+    assert out[0]["class_name"] == "gorodishcha"

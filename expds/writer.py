@@ -24,6 +24,22 @@ from .constants import CLASSES, MARKUP_TYPES, MAX_FEATURES, MAX_FILE_MB, MAX_VER
 log = logging.getLogger(__name__)
 
 
+def _py_round2(coords: np.ndarray) -> np.ndarray:
+    """Округление до 0,01 м как у round(v, 2).
+
+    NumPy совпадает с ним везде, кроме стыка половины сотой: там дробная часть
+    после умножения на 100 равна 0,5, и эти вершины округляет сам Python.
+    """
+    flat = np.asarray(coords, np.float64).ravel()
+    out = np.round(flat, 2)
+    scaled = flat * 100.0
+    frac = np.abs(scaled - np.trunc(scaled))
+    sus = np.nonzero(np.abs(frac - 0.5) == 0.0)[0]
+    if sus.size:
+        out[sus] = [round(float(flat[i]), 2) for i in sus]
+    return out
+
+
 def _polygon_coords(geoms: list) -> list | None:
     """Координаты колец всех полигонов одним вызовом GEOS, округлённые как раньше (round Python).
 
@@ -38,8 +54,7 @@ def _polygon_coords(geoms: list) -> list | None:
     if not (shapely.get_type_id(arr) == 3).all() or shapely.is_empty(arr).any():
         return None
     _, coords, (ring_off, poly_off) = shapely.to_ragged_array(arr, include_z=False)
-    flat = [round(v, 2) for v in coords.ravel().tolist()]
-    pts = [flat[i:i + 2] for i in range(0, len(flat), 2)]
+    pts = _py_round2(coords).reshape(-1, 2).tolist()
     rings = [pts[a:b] for a, b in zip(ring_off[:-1].tolist(), ring_off[1:].tolist())]
     return [rings[a:b] for a, b in zip(poly_off[:-1].tolist(), poly_off[1:].tolist())]
 
@@ -53,34 +68,44 @@ def to_feature_collection(feats: list[dict]) -> dict:
     # иначе — общий путь с _rounded_coords (Прил. 3 ТР).
     from . import speed
 
-    fast = _polygon_coords([f["geom"] for f in feats]) if speed.on("fast_writer") else None
+    fast = None
+    if speed.use_fast("fast_writer"):
+        try:
+            fast = _polygon_coords([f["geom"] for f in feats])
+        except Exception:
+            log.exception("пакет координат не собрался, объекты по одному")
     for k, f in enumerate(feats):
-        coords = None
-        if fast is not None and _ring_ok(fast[k]):
-            geom = {"type": "Polygon", "coordinates": fast[k]}
-            coords = fast[k]
-        else:
-            geom = mapping(f["geom"])
-        if coords is None:
-            if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy[:2]):
-                continue                # NaN/inf дают невалидный JSON — объект отбрасывается
-            coords = _rounded_coords(geom["coordinates"])
+        try:
+            coords = None
+            if fast is not None and _ring_ok(fast[k]):
+                geom = {"type": "Polygon", "coordinates": fast[k]}
+                coords = fast[k]
+            else:
+                geom = mapping(f["geom"])
             if coords is None:
-                log.warning("объект %s/%s отброшен: геометрия невалидна и после округления",
-                            f.get("region_name"), f.get("class_name"))
-                continue                # Прил. 3 ТР: самопересечение — замечание валидатора; > 50 — отказ
-        geom["coordinates"] = coords
-        props = {"fid": len(out), "class_name": f["class_name"],
-                 "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
-                 "region_name": f.get("region_name", "default_source"),
-                 "crs": "EPSG:3857"}
-        if f.get("out_markup_type"):      # gor_dense: своя группа внутри, в файл — модальность из списка ТР
-            props["markup_type"] = f["out_markup_type"]
-        elif f.get("markup_type"):
-            props["markup_type"] = f["markup_type"]
-        if f.get("original_crs"):
-            props["original_crs"] = f["original_crs"]
-        out.append({"type": "Feature", "geometry": geom, "properties": props})
+                if not all(math.isfinite(v) for ring in geom["coordinates"] for xy in ring for v in xy[:2]):
+                    continue                # NaN/inf дают невалидный JSON — объект отбрасывается
+                coords = _rounded_coords(geom["coordinates"])
+                if coords is None:
+                    log.warning("объект %s/%s отброшен: геометрия невалидна и после округления",
+                                f.get("region_name"), f.get("class_name"))
+                    continue                # Прил. 3 ТР: самопересечение — замечание валидатора; > 50 — отказ
+            geom["coordinates"] = coords
+            props = {"fid": len(out), "class_name": f["class_name"],
+                     "confidence": round(min(1.0, max(0.0, float(f.get("confidence", 1.0)))), 5),
+                     "region_name": f.get("region_name", "default_source"),
+                     "crs": "EPSG:3857"}
+            if f.get("out_markup_type"):      # gor_dense: своя группа внутри, в файл — модальность из списка ТР
+                props["markup_type"] = f["out_markup_type"]
+            elif f.get("markup_type"):
+                props["markup_type"] = f["markup_type"]
+            if f.get("original_crs"):
+                props["original_crs"] = f["original_crs"]
+            out.append({"type": "Feature", "geometry": geom, "properties": props})
+        except Exception:
+            name = f.get("region_name") if isinstance(f, dict) else None
+            cls = f.get("class_name") if isinstance(f, dict) else None
+            log.exception("объект %s/%s не записан", name, cls)
     return {"type": "FeatureCollection", "features": out}
 
 

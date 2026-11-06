@@ -116,43 +116,48 @@ def predict_maps(seg, x: np.ndarray, valid: np.ndarray, p: dict, deadline=None, 
     with torch.inference_mode():
         for b in range(0, len(tiles), batch):
             if deadline is not None and deadline():
-                raise HeadError(f"время вышло на окне {b}/{len(tiles)}")
-            bt = tiles[b:b + batch]
-            o: dict = {}
-            n = 0
-            for nets, xm in members:
-                xb = torch.from_numpy(np.stack([window(xm, yy, xx) for yy, xx in bt])).to(dev)
-                for net in nets:
-                    for k, fl in tf:
-                        xi = torch.rot90(xb, k, (2, 3))
-                        xi = xi.flip(3) if fl else xi
-                        with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=amp):
-                            yo = net(xi.contiguous())
-                        yo = {kk: v.float() for kk, v in yo.items() if v is not None}
-                        r = {"mask": _untta_map(yo["mask"], k, fl), "hm": _untta_map(yo["hm"], k, fl)}
-                        if yo.get("wh") is not None:
-                            r["wh"] = _untta_map(yo["wh"], k, fl)
-                        if yo.get("off") is not None:
-                            r["off"] = torch_untta_offsets(yo["off"], k, fl)
-                        for kk, v in r.items():
-                            o[kk] = o[kk] + v if kk in o else v
-                        n += 1
-            for kk, v in o.items():
-                v = (v / n).cpu().numpy()
-                full = kk == "mask"
-                Hh, Ww, nn_, d = (H, W, S, 1) if full else (h4, w4, n4, s)
-                if kk not in acc:
-                    acc[kk] = np.zeros((v.shape[1], Hh, Ww), np.float32)
-                for (yy, xx), oi in zip(bt, v):
-                    y0, x0 = yy // d, xx // d
-                    hh, ww = min(nn_, Hh - y0), min(nn_, Ww - x0)
-                    acc[kk][:, y0:y0 + hh, x0:x0 + ww] += oi[:, :hh, :ww]
-            for yy, xx in bt:
-                hh, ww = min(S, H - yy), min(S, W - xx)
-                cnt[yy:yy + hh, xx:xx + ww] += 1
-                y0, x0 = yy // s, xx // s
-                hh, ww = min(n4, h4 - y0), min(n4, w4 - x0)
-                cnt4[y0:y0 + hh, x0:x0 + ww] += 1
+                log.warning("cnx head: время вышло на окне %d/%d, декодируются уже посчитанные окна", b, len(tiles))
+                break
+            try:
+                bt = tiles[b:b + batch]
+                o: dict = {}
+                n = 0
+                for nets, xm in members:
+                    xb = torch.from_numpy(np.stack([window(xm, yy, xx) for yy, xx in bt])).to(dev)
+                    for net in nets:
+                        for k, fl in tf:
+                            xi = torch.rot90(xb, k, (2, 3))
+                            xi = xi.flip(3) if fl else xi
+                            with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=amp):
+                                yo = net(xi.contiguous())
+                            yo = {kk: v.float() for kk, v in yo.items() if v is not None}
+                            r = {"mask": _untta_map(yo["mask"], k, fl), "hm": _untta_map(yo["hm"], k, fl)}
+                            if yo.get("wh") is not None:
+                                r["wh"] = _untta_map(yo["wh"], k, fl)
+                            if yo.get("off") is not None:
+                                r["off"] = torch_untta_offsets(yo["off"], k, fl)
+                            for kk, v in r.items():
+                                o[kk] = o[kk] + v if kk in o else v
+                            n += 1
+                for kk, v in o.items():
+                    v = (v / n).cpu().numpy()
+                    full = kk == "mask"
+                    Hh, Ww, nn_, d = (H, W, S, 1) if full else (h4, w4, n4, s)
+                    if kk not in acc:
+                        acc[kk] = np.zeros((v.shape[1], Hh, Ww), np.float32)
+                    for (yy, xx), oi in zip(bt, v):
+                        y0, x0 = yy // d, xx // d
+                        hh, ww = min(nn_, Hh - y0), min(nn_, Ww - x0)
+                        acc[kk][:, y0:y0 + hh, x0:x0 + ww] += oi[:, :hh, :ww]
+                for yy, xx in bt:
+                    hh, ww = min(S, H - yy), min(S, W - xx)
+                    cnt[yy:yy + hh, xx:xx + ww] += 1
+                    y0, x0 = yy // s, xx // s
+                    hh, ww = min(n4, h4 - y0), min(n4, w4 - x0)
+                    cnt4[y0:y0 + hh, x0:x0 + ww] += 1
+            except Exception:
+                log.exception("cnx head: окно %d/%d не посчиталось, декодируются уже посчитанные окна", b, len(tiles))
+                break
     va = valid & (cnt > 0)
     va4 = block_any(va, s) & (cnt4 > 0)
     for kk in acc:
@@ -185,23 +190,65 @@ def decode_kurgans(maps: dict, geo: dict, p: dict) -> list[tuple[float, float, i
     return [(float(X), float(Y), int(c), float(sc)) for X, Y, c, sc in zip(t["X"], t["Y"], t["cls"], t["score"])]
 
 
-def to_features(dets, geo: dict, p: dict, region: str, source: str, classes=HM_CLASSES) -> list[dict]:
-    """Круги circle_r_m (quad_segs=4, как в ядре) в родной СК → EPSG:3857; markup_type li."""
+def _one_circle(X, Y, radius, crs):
+    """Один круг в родной СК → EPSG:3857. Тот же буфер, что у пакетного пути на проекции в метрах."""
     from pyproj import Transformer
-    from shapely.geometry import Point, mapping
+    from shapely.geometry import Point
     from shapely.ops import transform as stf
 
+    to3857 = Transformer.from_crs(crs, "EPSG:3857", always_xy=True).transform
+    return stf(to3857, Point(X, Y).buffer(radius, quad_segs=4))
+
+
+def to_features(dets, geo: dict, p: dict, region: str, source: str, classes=HM_CLASSES) -> list[dict]:
+    """Круги circle_r_m (quad_segs=4, как в ядре) в родной СК → EPSG:3857; markup_type li.
+
+    На проекции в метрах круги одного радиуса собираются одним вызовом GEOS/PROJ.
+    Координаты те же, что у круга по одной точке. Веб-меркатор и градусы остаются
+    по одной точке: там пакетный путь строит круг в зоне UTM, а этот контракт — в родной СК.
+    """
+    from shapely.geometry import mapping
+
+    from .raster import _radius_in_ground_meters, circles_3857
+
     keep = set(classes)
-    to3857 = Transformer.from_crs(geo["crs"], "EPSG:3857", always_xy=True).transform
-    out = []
+    crs = str(geo["crs"])
+    radius = float(p["circle_r_m"])
+    rows = []
     for X, Y, c, sc in dets:
-        name = HM_CLASSES[c]
+        try:
+            name = HM_CLASSES[c]
+        except Exception:
+            log.exception("cnx head: класс %s пропущен", c)
+            continue
         if name not in keep:
             continue
-        g = stf(to3857, Point(X, Y).buffer(p["circle_r_m"], quad_segs=4))
-        out.append({"type": "Feature", "geometry": mapping(g), "geom": g, "class_name": name,
-                    "confidence": round(min(1.0, max(0.0, sc)), 5), "region_name": region, "markup_type": "li",
-                    "source": source, "original_crs": str(geo["crs"])})
+        rows.append((float(X), float(Y), name, sc))
+    geoms = None
+    if rows and _radius_in_ground_meters(crs):
+        try:
+            geoms = circles_3857([r[0] for r in rows], [r[1] for r in rows], radius, crs, n=16)
+        except Exception:
+            log.exception("cnx head: пакет кругов не собрался, курганы по одному")
+            geoms = None
+    if geoms is None or len(geoms) != len(rows):
+        geoms = []
+        kept = []
+        for X, Y, name, sc in rows:
+            try:
+                geoms.append(_one_circle(X, Y, radius, crs))
+                kept.append((X, Y, name, sc))
+            except Exception:
+                log.exception("cnx head: курган %.0f,%.0f пропущен, остальные круги участка остаются", X, Y)
+        rows = kept
+    out = []
+    for (X, Y, name, sc), g in zip(rows, geoms):
+        try:
+            out.append({"type": "Feature", "geometry": mapping(g), "geom": g, "class_name": name,
+                        "confidence": round(min(1.0, max(0.0, sc)), 5), "region_name": region, "markup_type": "li",
+                        "source": source, "original_crs": crs})
+        except Exception:
+            log.exception("cnx head: курган %.0f,%.0f пропущен, остальные круги участка остаются", X, Y)
     return out
 
 

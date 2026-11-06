@@ -152,25 +152,47 @@ def find(z: np.ndarray, step: float, p: HillfortParams) -> list[dict]:
     return [{k: v for k, v in c.items() if not k.startswith("_")} for c in kept[: p.max_per_dem]]
 
 
+def _hillfort_feature(c: dict, geom, region: str, source: str, crs: str, p: HillfortParams) -> dict:
+    return {"geom": geom, "class_name": "gorodishcha",
+            "confidence": round(c["confidence"], 6), "region_name": region, "markup_type": "li",
+            "source": source, "original_crs": crs, "threshold_group": p.group,
+            "hillfort_area_m2": round(c["area_m2"], 1), "hillfort_enclosure": round(c["enclosure"], 3),
+            "hillfort_height_m": round(c["height_m"], 2)}
+
+
 def candidates(d, region: str, source: str, p: HillfortParams | None = None) -> list[dict]:
     """ЦМР (lidar.Dem) → круги класса gorodishcha в EPSG:3857, группа p.group (gor_phys по умолчанию)."""
     from .candidates import to_work_grid
-    from .raster import circle_3857
+    from .raster import circle_3857, circles_3857
 
     p = p or HillfortParams()
     if d.crs is None:
         return []
     z, step = to_work_grid(d.dem, d.res, p.work_res)
     found = find(z, step, p)
-    out = []
+    ready = []
     for c in found:
-        x = d.left + (c["col"] + 0.5) * step
-        y = d.top - (c["row"] + 0.5) * step
-        r = min(p.core_m, max(1.0, 0.5 * c["inscribed_m"]))
-        out.append({"geom": circle_3857(x, y, r, d.crs), "class_name": "gorodishcha",
-                    "confidence": round(c["confidence"], 6), "region_name": region, "markup_type": "li",
-                    "source": source, "original_crs": d.crs, "threshold_group": p.group,
-                    "hillfort_area_m2": round(c["area_m2"], 1), "hillfort_enclosure": round(c["enclosure"], 3),
-                    "hillfort_height_m": round(c["height_m"], 2)})
+        try:
+            x = d.left + (c["col"] + 0.5) * step
+            y = d.top - (c["row"] + 0.5) * step
+            r = min(p.core_m, max(1.0, 0.5 * c["inscribed_m"]))
+            ready.append((c, x, y, r))
+        except Exception:
+            log.exception("%s: кандидат городища пропущен, остальные остаются", source)
+    geoms = None
+    if ready:
+        try:
+            geoms = circles_3857([t[1] for t in ready], [t[2] for t in ready], [t[3] for t in ready], d.crs)
+        except Exception:
+            log.exception("%s: пакет кругов городищ не собрался, кандидаты по одному", source)
+            geoms = None
+    out = []
+    batched = geoms is not None and len(geoms) == len(ready)
+    for i, (c, x, y, r) in enumerate(ready):
+        try:
+            geom = geoms[i] if batched else circle_3857(x, y, r, d.crs)
+            out.append(_hillfort_feature(c, geom, region, source, d.crs, p))
+        except Exception:
+            log.exception("%s: кандидат городища пропущен, остальные остаются", source)
     log.info("%s: кандидатов городищ по рельефу %d", source, len(out))
     return out

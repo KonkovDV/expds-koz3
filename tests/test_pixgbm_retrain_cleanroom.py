@@ -115,7 +115,8 @@ def test_save_booster_non_ascii_path(tmp_path):
     end = src.index("\ndef rss_mb")
     ns: dict = {}
     exec(
-        "import os\nimport shutil\nimport tempfile\nfrom pathlib import Path\n" + src[start:end],
+        "import os\nimport shutil\nimport tempfile\nfrom pathlib import Path\n"
+        "from expds.ascii_tmp import ascii_tmpdir\n" + src[start:end],
         ns,
     )
     save_booster = ns["save_booster"]

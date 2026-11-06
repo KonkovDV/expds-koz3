@@ -341,8 +341,7 @@ def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: s
     subpixel сдвигает круг внутри клетки по параболе логарифма. По умолчанию
     выключен: пороги сдачи подобраны на целых пикселях.
     """
-    from . import speed
-    from .raster import circle_3857, circles_3857, pixel_to_xy
+    from .raster import pixel_to_xy, point_circles
 
     out = []
     step = max(float(res), 1e-6)
@@ -362,9 +361,7 @@ def centers_to_features(probs: np.ndarray, classes: list[str], transform, crs: s
             # два пика ближе min_dist_m, и круги склеятся в один полигон.
             keep = _keep_min_distance(xs, ys, min_dist_m)
             xs, ys, vals = xs[keep], ys[keep], vals[keep]
-        # флаг batch_circles ([speed], по умолчанию ВЫКЛ.): все круги одним вызовом GEOS/PROJ, побитно те же
-        geoms = (circles_3857(xs, ys, radius_m, crs) if speed.on("batch_circles")
-                 else (circle_3857(float(x), float(y), radius_m, crs) for x, y in zip(xs, ys)))
+        geoms = point_circles(xs, ys, radius_m, crs)
         for geom, v in zip(geoms, vals):
             if geom.is_empty:
                 continue

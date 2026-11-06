@@ -19,6 +19,19 @@ def sq(dx, dy, s=5):
     return box(BASE.x + dx, BASE.y + dy, BASE.x + dx + s, BASE.y + dy + s)
 
 
+def test_one_unwritable_object_does_not_drop_the_file():
+    """Сильный ответ: одна битая геометрия не стирает остальные объекты файла."""
+
+    class Boom:
+        pass
+
+    bad = feat(sq(0, 0))
+    bad["geom"] = Boom()
+    fc = writer.to_feature_collection([feat(sq(0, 0)), bad, feat(sq(40, 0))])
+    assert len(fc["features"]) == 2
+    assert writer.validate(fc)["ok"]
+
+
 def test_writer_clamps_confidence_into_unit_interval():
     fc = writer.to_feature_collection([feat(sq(0, 0), conf=1.7), feat(sq(30, 0), conf=-0.4)])
     assert [f["properties"]["confidence"] for f in fc["features"]] == [1.0, 0.0]

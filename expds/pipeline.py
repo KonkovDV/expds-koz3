@@ -340,8 +340,12 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             continue
         classes = ("finds_points", "object_poly") if mt == "maggr" else ("object_poly",)
         opts = {c: geophys.params_for(geo_cfg, mt, c) for c in classes}
-        boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
-        noise = geophys.load_mask(reg.noise, mt, crs_region)
+        try:
+            boundary = geophys.survey_boundary(reg.boundaries, mt, crs_region, geo_cfg)
+            noise = geophys.load_mask(reg.noise, mt, crs_region)
+        except Exception:
+            log.exception("%s: границы %s не прочитались, метод пропущен, остальные остаются", reg.name, mt)
+            continue
         mine: list[dict] = []
         for path in files:
             if not guard.ok(5):
@@ -349,7 +353,11 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                 break
             try:
                 b_map, n_map = geophys.sane_masks(path, boundary, noise, geo_cfg, crs_region)
-                for cls in classes:
+            except Exception as exc:
+                log.exception("%s: маски геофизики не прочитались (%s), карта пропущена", path.name, exc)
+                continue
+            for cls in classes:
+                try:
                     p, o = opts[cls]
                     found = (geophys.finds_points(path, reg.name, mt, p, fallback_crs=crs_region)
                              if cls == "finds_points"
@@ -358,15 +366,19 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
                         found = geophys.rank_within_source(found)
                     found = geophys.apply_masks(found, b_map, n_map if o["use_noise"] else None)
                     mine += [f for f in found if f["confidence"] >= o["min_confidence"]]
-            except Exception as exc:
-                log.exception("%s: ошибка геофизики (%s)", path.name, exc)
+                except Exception as exc:
+                    log.exception("%s: класс %s пропущен (%s), остальные классы карты остаются",
+                                  path.name, cls, exc)
         mt_cfg = geo_cfg.get(mt) or {}
         if (maps == "all" and "finds_points" in classes and len(files) > 1
                 and mt_cfg.get("dedupe_maps", True)):
             # Одна находка на серой и цветной карте — один объект ([geophys.<модальность>] maps = "all").
             # dedupe_maps = false: эталон размечен по каждой карте отдельно (211: серая и цвет_2),
             # метрика сводит класс по всем картам — дубль на другой карте может быть попаданием.
-            mine = geophys.dedupe_points(mine, 2.0, crs_region)
+            try:
+                mine = geophys.dedupe_points(mine, 2.0, crs_region)
+            except Exception:
+                log.exception("%s: склейка находок %s пропущена, карты остаются по отдельности", reg.name, mt)
         if mt_cfg.get("layer_copy", False):
             try:
                 layers = {f.name: geophys.source_crs(f, crs_region) for f in files}
@@ -598,16 +610,23 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                 floors = output_floors(cfg, group or "li")
                 kur = {"kurgany_povrezhdennye", "kurgany_tselye"}
                 t_li_main = time.monotonic()      # время основного li на этом LAS — для оценки li_half
+                nn_ok = False
                 for seg in segs:
-                    found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
-                                                      cand_p if rescore else None, cfg.get("li"), floors))
-                    if split:
-                        found = [f for f in found if f.get("class_name") not in kur]
-                    if group:
-                        for f in found:
-                            if not f.get("threshold_group"):
-                                f["threshold_group"] = group
-                    feats += found
+                    try:
+                        found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
+                                                          cand_p if rescore else None, cfg.get("li"), floors))
+                        if split:
+                            found = [f for f in found if f.get("class_name") not in kur]
+                        if group:
+                            for f in found:
+                                if not f.get("threshold_group"):
+                                    f["threshold_group"] = group
+                        feats += found
+                        nn_ok = True
+                    except Exception:
+                        log.exception("%s: сеть li пропущена, остальные сети облака остаются", las.name)
+                if not nn_ok:
+                    raise RuntimeError(f"{las.name}: все сети li упали")
                 if split:
                     try:
                         mosaic = build_dem_mosaic(las, res=dp0["res"], fill=dp0["fill"], crs=crs_region)
@@ -617,19 +636,25 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                     fresh: list[dict] = []
                     if mosaic is not None and mosaic.crs is not None:
                         for seg in segs:
-                            found = _li_with_model(seg, mosaic, reg.name, las.name, hillshade_set,
-                                                   cand_p if rescore else None, cfg.get("li"), None)
-                            fresh += [f for f in found if f.get("class_name") in kur]
+                            try:
+                                found = _li_with_model(seg, mosaic, reg.name, las.name, hillshade_set,
+                                                       cand_p if rescore else None, cfg.get("li"), None)
+                                fresh += [f for f in found if f.get("class_name") in kur]
+                            except Exception:
+                                log.exception("%s: сеть li на мозаике пропущена", las.name)
                     else:
                         for seg in segs:
-                            found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
-                                                              cand_p if rescore else None, cfg.get("li"), floors))
-                            found = [f for f in found if f.get("class_name") in kur]
-                            if group:
-                                for f in found:
-                                    if not f.get("threshold_group"):
-                                        f["threshold_group"] = group
-                            fresh = found
+                            try:
+                                found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
+                                                                  cand_p if rescore else None, cfg.get("li"), floors))
+                                found = [f for f in found if f.get("class_name") in kur]
+                                if group:
+                                    for f in found:
+                                        if not f.get("threshold_group"):
+                                            f["threshold_group"] = group
+                                fresh = found
+                            except Exception:
+                                log.exception("%s: сеть li на грубой сетке пропущена", las.name)
                     mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
                     feats += fresh
                 if half_on:
@@ -702,6 +727,14 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
             log.exception("%s: запасной детектор упал", las.name)
 
     # Группа мозаики ставится до копий: копия мозаики — li_ae, копия мелкой сетки — ae, как в табло.
+    try:
+        return _lidar_tail(reg, cfg, feats, mosaic_kurgans, half_feats, half_p, half_thr, crs_region)
+    except Exception:
+        log.exception("%s: хвост лидара упал, возвращены уже собранные курганы", reg.name)
+        return feats
+
+
+def _lidar_tail(reg, cfg, feats, mosaic_kurgans, half_feats, half_p, half_thr, crs_region):
     for f in mosaic_kurgans:
         if f.get("markup_type") == "li" and not f.get("threshold_group"):
             f["threshold_group"] = "li_mosaic"
@@ -852,7 +885,12 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
     pcf = cfg.get("post") or {}
     if pcf.get("frame_prior") or pcf.get("sat_frame_gate") or _w1_prior_on(cfg):
         feats = _with_scene_drel(reg, cfg, feats)
-    return _with_copies(feats, reg, cfg) + geo_model_feats(reg, cfg, guard, seg_cache, root)
+    try:
+        extra = geo_model_feats(reg, cfg, guard, seg_cache, root)
+    except Exception:
+        log.exception("%s: сеть геофизики пропущена, оптика остаётся", reg.name)
+        extra = []
+    return _with_copies(feats, reg, cfg) + extra
 
 
 def optical_bytes(reg: Region) -> int:
@@ -1157,10 +1195,14 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
     out: list[dict] = []
     try:
         dp = dem_params(seg.meta, cfg)
-        for i, las in enumerate(reg.las):
-            if not guard.ok(reserve):
-                log.warning("%s: cnx — время на исходе, остальные LAS без cnx", reg.name)
-                break
+    except Exception as exc:
+        log.warning("%s: cnx: постобработка упала (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
+        return []
+    for i, las in enumerate(reg.las):
+        if not guard.ok(reserve):
+            log.warning("%s: cnx — время на исходе, остальные LAS без cnx", reg.name)
+            break
+        try:
             d = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
                  else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
             if d.crs is None:
@@ -1173,9 +1215,8 @@ def cnx_site_feats(reg: Region, cfg: dict, guard, seg_cache: dict, root: Path, p
             if rest and i == 0:
                 out += _li_with_model(bound.view(rest), d, reg.name, las.name, hillshade_set, None,
                                       cfg.get("li"), floors)
-    except Exception as exc:
-        log.warning("%s: cnx: постобработка упала (%s) — объектов cnx нет", reg.name, str(exc)[-400:])
-        return []
+        except Exception as exc:
+            log.warning("%s: cnx на %s пропущен (%s), остальные облака остаются", reg.name, las.name, str(exc)[-400:])
     for f in out:
         f["threshold_group"] = group
     return out
@@ -1277,19 +1318,22 @@ def li_dev_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root
     for las in reg.las:
         if not guard.ok(60):
             break
-        for seg in segs:
-            dp = dem_params(seg.meta, cfg)
-            d = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
-                 else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
-            if d.crs is None:
-                continue
-            found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
-                                              cand_p, cfg.get("li"), floors))
-            for feat in found:
-                if feat.get("class_name") not in ("kurgany_povrezhdennye", "kurgany_tselye"):
+        try:
+            for seg in segs:
+                dp = dem_params(seg.meta, cfg)
+                d = (prefetch.get(las, dp["res"], dp["fill"], crs_region) if prefetch is not None
+                     else build_dem(las, res=dp["res"], fill=dp["fill"], crs=crs_region))
+                if d.crs is None:
                     continue
-                feat["threshold_group"] = "li_dev"
-                out.append(feat)
+                found = _kept(seg, _li_with_model(seg, d, reg.name, las.name, hillshade_set,
+                                                  cand_p, cfg.get("li"), floors))
+                for feat in found:
+                    if feat.get("class_name") not in ("kurgany_povrezhdennye", "kurgany_tselye"):
+                        continue
+                    feat["threshold_group"] = "li_dev"
+                    out.append(feat)
+        except Exception:
+            log.exception("%s: канал σ на %s пропущен, остальные облака участка остаются", reg.name, las.name)
     return out
 
 
@@ -1439,6 +1483,75 @@ def _read_ahead(jobs: list, read, depth: int = 1):
         pool.shutdown(wait=True, cancel_futures=True)
 
 
+_AHEAD_END = object()
+
+
+def _read_ahead_private(opener, path, jobs: list, read_with):
+    """Следующее окно читает фоновый поток со своим dataset.
+
+    Главный поток свой дескриптор GDAL не отдаёт: два вызова на одном дескрипторе
+    гоняют один и тот же буфер. Пиксели те же, что у чтения в этом потоке.
+    """
+    import queue
+    import threading
+
+    stop = threading.Event()
+    box: queue.Queue = queue.Queue(maxsize=1)
+
+    def offer(item) -> bool:
+        while not stop.is_set():
+            try:
+                box.put(item, timeout=0.2)
+                return True
+            except queue.Full:
+                continue
+        return False
+
+    def worker() -> None:
+        try:
+            with opener(path) as dataset:
+                for job in jobs:
+                    if stop.is_set():
+                        break
+                    try:
+                        item = read_with(dataset, job)
+                    except Exception as exc:
+                        item = exc
+                    if not offer(item):
+                        break
+        except Exception as exc:
+            offer(exc)
+        finally:
+            while True:
+                try:
+                    box.put(_AHEAD_END, timeout=0.2)
+                    break
+                except queue.Full:
+                    if not stop.is_set():
+                        continue
+                    try:
+                        box.get_nowait()
+                    except queue.Empty:
+                        pass
+
+    thread = threading.Thread(target=worker, name="expds-read", daemon=True)
+    thread.start()
+    try:
+        for job in jobs:
+            item = box.get()
+            if item is _AHEAD_END:
+                break
+            yield job, item
+    finally:
+        stop.set()
+        try:
+            while True:
+                box.get_nowait()
+        except queue.Empty:
+            pass
+        thread.join(timeout=30)
+
+
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                        overlap: int = 256, min_conf: dict[str, float] | None = None,
                        fallback_crs: str | None = None, guard: "TimeGuard | None" = None,
@@ -1485,20 +1598,21 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         step = block - overlap
         xs = list(range(0, max(w - overlap, 1), step))
         ys = list(range(0, max(h - overlap, 1), step))
-        def read_block(job):
+        def read_with(dataset, job):
             _, _, y0, x0 = job
             bw, bh = min(block, w - x0), min(block, h - y0)
             win = Window(x0 * scale, y0 * scale, bw * scale, bh * scale)
-            return bw, bh, win, ds.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
-                                        resampling=Resampling.average if scale > 1 else Resampling.bilinear)
+            resampling = Resampling.average if scale > 1 else Resampling.bilinear
+            return bw, bh, win, dataset.read(list(range(1, n + 1)), window=win, out_shape=(n, bh, bw),
+                                             resampling=resampling)
 
         jobs = [(iy, ix, y0, x0) for iy, y0 in enumerate(ys) for ix, x0 in enumerate(xs)]
-        # speedup-2026-10-28 (харвест 29.10), флаг read_ahead ([speed], по умолчанию ВЫКЛ.): следующее окно
-        # читается в фоновом потоке (GDAL отпускает GIL), пока текущее идёт через сеть и полигоны. Данные и
-        # порядок те же. Выключено — окно читается здесь же, после проверки дедлайна, как раньше.
+        # Следующее окно читается заранее своим dataset. Общий дескриптор GDAL сюда не отдаётся.
         from . import speed
 
-        ahead = _read_ahead(jobs, read_block) if speed.on("read_ahead") else None
+        ahead = (_read_ahead_private(open_metric, path, jobs, read_with)
+                 if speed.use_fast("read_ahead") and len(jobs) >= 2 else None)
+        window_errors = 0
         try:
             for iy, ix, y0, x0 in jobs:
                 if guard is not None and not guard.window_ok():
@@ -1509,38 +1623,52 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                     guard.partial.append({"file": path.name, "region": region, "markup": markup,
                                           "windows_done": done, "windows_total": total, "feats": len(feats)})
                     return feats
-                bw, bh, win, a = next(ahead)[1] if ahead is not None else read_block((iy, ix, y0, x0))
-                if not a.any():
-                    continue
-                tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
-                img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
-                probs = seg.predict(img)
-                zmask = None
-                if raster_fix_on("zero_nodata", markup):
-                    zmask = zero_field_mask(a, ds.nodata, int(RASTER_FIX.get("zero_nodata_px", 5)))
-                    if not zmask.any():
-                        zmask = None
-                if as_centers:
-                    from .centers import centers_to_features
+                try:
+                    if ahead is not None:
+                        _job, item = next(ahead)
+                        if isinstance(item, Exception):
+                            raise item
+                        bw, bh, win, a = item
+                    else:
+                        bw, bh, win, a = read_with(ds, (iy, ix, y0, x0))
+                    if not a.any():
+                        continue
+                    tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
+                    img = fix_channels(to_uint8(a, markup, stats), int(seg.meta["in_channels"]))
+                    probs = seg.predict(img)
+                    zmask = None
+                    if raster_fix_on("zero_nodata", markup):
+                        zmask = zero_field_mask(a, ds.nodata, int(RASTER_FIX.get("zero_nodata_px", 5)))
+                        if not zmask.any():
+                            zmask = None
+                    if as_centers:
+                        from .centers import centers_to_features
 
-                    found = centers_to_features(
-                        probs, seg.classes, tr, crs, r, region, markup, path.name,
-                        radius_m=float(seg.meta.get("center_radius_m") or 6.0),
-                        min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
-                        min_conf=min_conf)
-                else:
-                    found = probs_to_features(probs, seg.classes, tr, crs, r, region, markup, path.name,
-                                              min_conf=min_conf, conf_stat=conf_stat)
-                # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
-                c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
-                c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))
-                (ax, ay), (bx, by) = tr @ c0, tr @ c1
-                core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
-                core = to_crs(core, crs, WEB_MERCATOR) if crs else core
-                found = [f for f in found if core.contains(f["geom"].representative_point())]
-                if zmask is not None and found:
-                    found = _outside_zero_field(found, zmask, tr, crs)
-                feats += found
+                        found = centers_to_features(
+                            probs, seg.classes, tr, crs, r, region, markup, path.name,
+                            radius_m=float(seg.meta.get("center_radius_m") or 6.0),
+                            min_dist_m=float(12.0 if seg.meta.get("min_dist_m") is None else seg.meta["min_dist_m"]),
+                            min_conf=min_conf)
+                    else:
+                        found = probs_to_features(probs, seg.classes, tr, crs, r, region, markup, path.name,
+                                                  min_conf=min_conf, conf_stat=conf_stat)
+                    # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
+                    c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
+                    c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))
+                    (ax, ay), (bx, by) = tr @ c0, tr @ c1
+                    core = box(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
+                    core = to_crs(core, crs, WEB_MERCATOR) if crs else core
+                    found = [f for f in found if core.contains(f["geom"].representative_point())]
+                    if zmask is not None and found:
+                        found = _outside_zero_field(found, zmask, tr, crs)
+                    feats += found
+                except Exception:
+                    window_errors += 1
+                    log.exception("%s: окно %s (%d,%d) пропущено", path.name, markup, y0, x0)
+                    if window_errors >= 3:
+                        log.error("%s: три окна с ошибкой, файл остановлен, объекты %d уже собранных окон сохранены",
+                                  path.name, len(feats))
+                        return feats
         finally:
             if ahead is not None:
                 ahead.close()   # дождаться фонового чтения до закрытия ds

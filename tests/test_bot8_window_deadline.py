@@ -58,6 +58,41 @@ def test_window_loop_stops_near_deadline_with_partial_result(tmp_path):
     assert set(_centers(part)) <= set(_centers(full))      # частичный результат — подмножество полного
 
 
+def test_one_broken_window_keeps_objects_from_the_others(tmp_path):
+    """Слабые спутник и аэрофото: сбой одного окна не выбрасывает объекты остальных окон файла."""
+    p = write_raster(tmp_path / "ae.tif")
+    full = _raster_with_model(SlowSeg(Clock()), p, "r", "ae", block=64, overlap=16)
+
+    class OneBoom(SlowSeg):
+        def __init__(self, clock):
+            super().__init__(clock)
+            self.hit = False
+
+        def predict(self, img):
+            self.calls += 1
+            if not self.hit and float(img.max()) > 200:
+                self.hit = True
+                raise RuntimeError("окно")
+            return img[:1].astype(np.float32) / 255.0
+
+    part = _raster_with_model(OneBoom(Clock()), p, "r", "ae", block=64, overlap=16)
+    assert 0 < len(part) < len(full)
+    assert set(_centers(part)) < set(_centers(full))
+
+
+def test_three_broken_windows_stop_the_file_and_keep_what_was_found(tmp_path):
+    p = write_raster(tmp_path / "ae.tif")
+
+    class AlwaysBoom(SlowSeg):
+        def predict(self, img):
+            self.calls += 1
+            raise RuntimeError("окно")
+
+    seg = AlwaysBoom(Clock())
+    assert _raster_with_model(seg, p, "r", "ae", block=64, overlap=16) == []
+    assert seg.calls == 3
+
+
 def test_window_deadline_off_or_far_keeps_full_result(tmp_path):
     p = write_raster(tmp_path / "ae.tif")
     clk = Clock()

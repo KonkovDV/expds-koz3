@@ -2,7 +2,7 @@
 import math
 import random
 
-from shapely.geometry import MultiPolygon, Point, Polygon, GeometryCollection, LineString
+from shapely.geometry import GeometryCollection, LineString, MultiPolygon, Point, Polygon, box
 
 from expds import post
 
@@ -68,3 +68,21 @@ def test_micro_circles_matches_reference(monkeypatch):
     assert len(a) == len(b)
     for x, y in zip(a, b):
         assert x["i"] == y["i"] and x["geom"].equals_exact(y["geom"], 0.0)
+
+
+def _kurgan(geom, source, confidence, cls="kurgany_tselye"):
+    return {"geom": geom, "class_name": cls, "markup_type": "li", "region_name": "r",
+            "source": source, "confidence": confidence, "threshold_group": "li"}
+
+
+def test_failed_union_keeps_that_group_and_the_other_class(monkeypatch):
+    """Одно слияние не роняет цепочку: эта группа остаётся по отдельности, соседний класс на месте."""
+    a = _kurgan(box(0, 0, 2, 2), "a", 0.9)
+    b = _kurgan(box(1, 1, 3, 3), "b", 0.4)
+    other = _kurgan(box(100, 100, 102, 102), "a", 0.8, "gorodishcha")
+    merged = post.merge_within_markup([a, b, other])
+    assert sum(f["class_name"] == "kurgany_tselye" for f in merged) == 1
+    monkeypatch.setattr(post, "unary_union", lambda _geoms: (_ for _ in ()).throw(RuntimeError("union")))
+    kept = post.merge_within_markup([a, b, other])
+    assert sum(f["class_name"] == "kurgany_tselye" for f in kept) == 2
+    assert sum(f["class_name"] == "gorodishcha" for f in kept) == 1

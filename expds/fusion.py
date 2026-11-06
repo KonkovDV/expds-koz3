@@ -82,7 +82,11 @@ def covered(x: np.ndarray, y: np.ndarray, rasters: list, max_side: int = 1024,
     """
     hit = np.zeros(len(x), bool)
     for path in rasters:
-        valid, tr, crs = coverage(str(path), max_side, fallback_crs)
+        try:
+            valid, tr, crs = coverage(str(path), max_side, fallback_crs)
+        except Exception:
+            log.exception("%s: снимок не открылся, покрытие пропущено", Path(path).name)
+            continue
         if crs is None:
             continue
         try:

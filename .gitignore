@@ -21,6 +21,7 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+.ascii_tmp/
 bench_result.json
 
 # Секреты и журналы синхронизации S3 (в них печатаются ключи)

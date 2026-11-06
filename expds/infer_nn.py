@@ -84,7 +84,7 @@ class Segmenter:
         # как есть (assign). Если что-то осталось без значения (буфер вне state_dict) или веса не float32
         # (assign сохранил бы их dtype) — обычный путь.
         model = None
-        if speed.on("meta_init"):
+        if speed.use_fast("meta_init"):
             with torch.device("meta"):
                 model = build()
             model.load_state_dict(ck["state_dict"], assign=True)
@@ -203,7 +203,7 @@ class Segmenter:
             xs.append(w - t)
         pad_h, pad_w = max(0, t - h), max(0, t - w)
         # Флаг no_pad_copy ([speed], по умолчанию ВЫКЛ.): без паддинга np.pad всё равно копирует весь снимок.
-        if speed.on("no_pad_copy") and not (pad_h or pad_w):
+        if speed.use_fast("no_pad_copy") and not (pad_h or pad_w):
             x_all = np.ascontiguousarray(img)
         else:
             x_all = np.pad(img, ((0, 0), (0, pad_h), (0, pad_w)))

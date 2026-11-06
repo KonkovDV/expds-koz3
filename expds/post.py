@@ -13,8 +13,11 @@
 """
 from __future__ import annotations
 
+import logging
 import math
 import os
+
+log = logging.getLogger(__name__)
 
 import numpy as np
 from collections import defaultdict
@@ -92,7 +95,12 @@ def merge_across_sources(items: list[dict], source_key: str = "source") -> list[
             out.append(items[members[0]])
             continue
         best = max(members, key=lambda k: items[k].get("confidence", 1.0))
-        geom = unary_union([geoms[k] for k in members])
+        try:
+            geom = unary_union([geoms[k] for k in members])
+        except Exception:
+            log.exception("слияние группы пропущено, объекты остаются по отдельности")
+            out.extend(items[k] for k in members)
+            continue
         for part in polygons_of(geom):
             out.append(dict(items[best], geom=part))
     return out
@@ -105,13 +113,19 @@ def _repaired(feat: dict) -> dict | None:
     уже после того, как все участки посчитаны, и файл результата пустеет.
     """
     geom = feat.get("geom")
-    if geom is None or geom.is_empty:
+    if geom is None:
         return None
-    if not geom.is_valid:
-        geom = make_valid(geom)
+    try:
         if geom.is_empty:
             return None
-        feat = dict(feat, geom=geom)
+        if not geom.is_valid:
+            geom = make_valid(geom)
+            if geom.is_empty:
+                return None
+            feat = dict(feat, geom=geom)
+    except Exception:
+        log.exception("геометрия объекта не чинится, объект пропущен")
+        return None
     return feat
 
 

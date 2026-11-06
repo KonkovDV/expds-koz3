@@ -54,6 +54,90 @@ def _input(H=100, W=90, py=42, px=54):
     return x, valid
 
 
+def test_deadline_keeps_tiles_already_computed():
+    """Сильный лидар c5-in: конец времени не выбрасывает окна, которые сеть уже посчитала."""
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    empty = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, deadline=lambda: True)
+    assert float(empty["hm"].sum()) == 0.0
+    calls = {"n": 0}
+
+    def after_first_batch():
+        calls["n"] += 1
+        return calls["n"] > 1
+
+    full = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p)
+    part = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, deadline=after_first_batch)
+    assert part["_valid"].sum() <= full["_valid"].sum()
+    assert float(part["hm"].sum()) > 0.0
+
+
+def test_broken_window_keeps_tiles_already_computed():
+    """Сильный лидар c5-in: сбой одного окна не выбрасывает окна, которые сеть уже посчитала."""
+
+    class Boom(PeakNet):
+        def __init__(self):
+            super().__init__(0)
+            self.n = 0
+
+        def forward(self, x):
+            self.n += 1
+            if self.n > 1:
+                raise RuntimeError("окно")
+            return super().forward(x)
+
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    p["tta"] = 1
+    full = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, batch=1)
+    part = LH.predict_maps(FakeSeg(Boom()), x, valid, p, batch=1)
+    assert float(part["hm"].sum()) > 0.0
+    assert part["_valid"].sum() < full["_valid"].sum()
+
+
+def test_batched_utm_circles_match_one_by_one():
+    """Сильный лидар c5-in: пакет кругов на UTM совпадает с кругом по одной точке до бита WKB."""
+    import shapely
+    from pyproj import Transformer
+    from shapely.geometry import Point
+    from shapely.ops import transform as stf
+
+    dets = [(500_000.0 + i * 20.0, 6_100_000.0, i % 2, 0.4 + i * 0.01) for i in range(8)]
+    geo = {"crs": "EPSG:32637"}
+    out = LH.to_features(dets, geo, {"circle_r_m": 0.5}, "r", "a.las")
+    to3857 = Transformer.from_crs(geo["crs"], "EPSG:3857", always_xy=True).transform
+    assert len(out) == len(dets)
+    for feat, (x, y, _c, _s) in zip(out, dets):
+        one = stf(to3857, Point(x, y).buffer(0.5, quad_segs=4))
+        assert shapely.to_wkb(feat["geom"]) == shapely.to_wkb(one)
+
+
+def test_one_bad_circle_keeps_the_other(monkeypatch):
+    """Сильный лидар c5-in: сбой пакета не стирает круг, который строится по одной точке."""
+    from expds import raster
+
+    real_batch = raster.circles_3857
+
+    def boom_batch(xs, ys, *args, **kwargs):
+        if float(np.max(np.asarray(xs))) > 5:
+            raise RuntimeError("пакет")
+        return real_batch(xs, ys, *args, **kwargs)
+
+    real_one = LH._one_circle
+
+    def boom_one(x, y, radius, crs):
+        if x > 5:
+            raise RuntimeError("круг")
+        return real_one(x, y, radius, crs)
+
+    monkeypatch.setattr(raster, "circles_3857", boom_batch)
+    monkeypatch.setattr(LH, "_one_circle", boom_one)
+    out = LH.to_features([(0.0, 0.0, 0, 0.9), (10.0, 0.0, 1, 0.8)],
+                         {"crs": "EPSG:32637"}, {"circle_r_m": 0.5}, "r", "a.las")
+    assert len(out) == 1
+    assert out[0]["class_name"] == "kurgany_tselye"
+
+
 def test_tile_origins_match_centerhead():
     from centerhead.decode import tile_origins as ch_tiles
     for H, W in ((100, 90), (512, 700), (1300, 513)):

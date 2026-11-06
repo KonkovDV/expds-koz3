@@ -25,6 +25,19 @@ def kurgan(x, y, pp, pt, group=None):
     return [dict(f, threshold_group=group) if group else f for f in out]
 
 
+def test_broken_photo_does_not_drop_copies_from_a_good_one(tmp_path):
+    """Слабый слой аэрофото: один нечитаемый кадр не обнуляет копии с остальных снимков участка."""
+    good = write_ae(tmp_path / "good.tif")
+    bad = tmp_path / "broken.tif"
+    bad.write_bytes(b"not a tiff")
+    feats = kurgan(X0 + 20, Y0 + 50, 0.995, 0.004)
+    alone = fusion.li_to_ae(feats, [good])
+    with_bad = fusion.li_to_ae(feats, [bad, good])
+    assert [(f["class_name"], round(f["confidence"], 3)) for f in with_bad] == [
+        (f["class_name"], round(f["confidence"], 3)) for f in alone]
+    assert alone
+
+
 def test_copies_follow_gates_coverage_and_class_shift(tmp_path):
     ae = write_ae(tmp_path / "ae.tif")
     feats = (kurgan(X0 + 20, Y0 + 50, 0.995, 0.004)        # уверенный повреждённый в покрытии → обе копии

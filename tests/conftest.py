@@ -12,6 +12,23 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "inference" / "lib"))
 
+# До фикстур pytest: системный TEMP с кириллицей ломает LightGBM и TorchScript.
+from expds.ascii_tmp import pin_process_temp
+
+pin_process_temp()
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_configure(config):
+    """pytest-of-<имя> тащит кириллицу пользователя даже в латинский TEMP."""
+    if getattr(config.option, "basetemp", None):
+        return
+    from expds.ascii_tmp import ascii_tmpdir
+
+    folder = ascii_tmpdir() / "pytest-expds"
+    folder.mkdir(parents=True, exist_ok=True)
+    config.option.basetemp = str(folder)
+
 # Файлы сдачи, которых нет в git (веса обучены на конкурсных данных; expds/geo_pixgbm.py — на проверке
 # происхождения, docs/MERGE_2026-10-29.md). Тесты сборки архива с ними пропускаются, если файлов нет.
 NOT_IN_GIT = ("models/rerank_arch_lgbm.txt", "models/pixgbm/all/poly.txt", "models/pixgbm/all/finds.txt",

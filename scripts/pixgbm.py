@@ -25,6 +25,7 @@ from expds import geo_pixgbm as G, geophys, writer          # noqa: E402
 from expds.catalog import scan_root                        # noqa: E402
 from expds.gt import read_annotation                       # noqa: E402
 from expds.naming import site_family                       # noqa: E402
+from expds.ascii_tmp import ascii_tmpdir                   # noqa: E402
 from expds.pipeline import load_config, region_crs         # noqa: E402
 
 GEO_REGIONS = tuple(str(n) for n in range(200, 218))
@@ -50,7 +51,7 @@ def save_booster(bst, path) -> None:
     if not _path_has_non_ascii(path):
         bst.save_model(str(path))
         return
-    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt")
+    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt", dir=ascii_tmpdir())
     os.close(fd)
     tmp_p = Path(tmp)
     try:
@@ -72,7 +73,7 @@ def load_booster(path):
     path = Path(path)
     if not _path_has_non_ascii(path):
         return lgb.Booster(model_file=str(path))
-    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt")
+    fd, tmp = tempfile.mkstemp(prefix="lgbm_", suffix=".txt", dir=ascii_tmpdir())
     os.close(fd)
     tmp_p = Path(tmp)
     try:

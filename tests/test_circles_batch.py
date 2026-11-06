@@ -26,5 +26,16 @@ def test_same_wkb(crs, r):
     print(f"{crs} r={r}: по одной {ta:.3f}s, пакетом {tb:.3f}s, x{ta / tb:.1f}")
 
 
+def test_each_point_keeps_its_own_radius():
+    """Свой радиус у точки не меняет WKB относительно круга по одной точке, в том числе на стыке зон."""
+    xs = np.array([500_000.0, 600_000.0, 4_000_000.0])
+    ys = np.array([6_100_000.0, 6_200_000.0, 7_500_000.0])
+    rs = [1.0, 2.5, 3.0]
+    for crs in ("EPSG:32637", "EPSG:3857"):
+        one = [circle_3857(float(x), float(y), r, crs) for x, y, r in zip(xs, ys, rs)]
+        batch = circles_3857(xs, ys, rs, crs)
+        assert all(shapely.to_wkb(a) == shapely.to_wkb(b) for a, b in zip(one, batch))
+
+
 def test_empty():
     assert circles_3857(np.array([]), np.array([]), 6.0, "EPSG:3857") == []
