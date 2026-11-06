@@ -384,20 +384,10 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
             if impl == "clean":
                 from . import pix_clean as pixmod
                 md_default = "models/pix_clean"
-            else:  # DOC-1: прежняя реализация грузится через expds/pix_legacy.py — в архив решения не входит
-                from . import pix_legacy
-                try:
-                    pixmod, md_default = pix_legacy.load(), pix_legacy.MODEL_DIR
-                except ImportError:
-                    # Прежняя реализация не хранится в main (docs/MERGE_2026-10-29.md) — классика.
-                    # Имя модуля в этот файл не пишется: байтовый страж архива считает его маркером EN.
-                    # bot-6: ERROR, не WARNING — иначе прогон тихо отличается от v2.
-                    # EXPDS_PIXGBM_STRICT=1 — исключение вместо классики (прогоны на ПК и в CI).
-                    log.error("%s: pixgbm impl=legacy, но модуль прежней реализации в этой сборке отсутствует — "
-                              "классика (сборка не равна v2 LB; см. docs/PIXGBM_DECISION.md)", reg.name)
-                    if os.environ.get("EXPDS_PIXGBM_STRICT", "") == "1":
-                        raise PixgbmModuleMissing("модуль прежней реализации отсутствует, а [geophys.pixgbm] impl=legacy")
-                    return feats
+            else:
+                # Свой расчёт тех же признаков и тех же деревьев (expds/pix_own.py). Чужой модуль в архив не кладётся.
+                from . import pix_own as pixmod
+                md_default = pixmod.MODEL_DIR
             cls = set(pix.get("classes", ["finds_points", "object_poly"]))
             # bot-7: относительный model_dir — от корня репо/архива, а не от текущей папки процесса
             md = Path(pix.get("model_dir", md_default))
@@ -854,7 +844,8 @@ def optical_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, roo
                 try:
                     feats += _kept(seg, _raster_with_model(seg, path, reg.name, mt,
                                                            min_conf=_sp_floors(cfg, mt),
-                                                           fallback_crs=region_crs(reg, cfg)))
+                                                           fallback_crs=region_crs(reg, cfg),
+                                                           conf_stat=str((cfg.get("post") or {}).get("component_conf") or "max")))
                 except Exception as exc:
                     log.exception("%s: ошибка модели %s (%s)", path.name, mt, exc)
     feats = _wide_without_lidar(reg, cfg, guard, seg_cache, root, feats)
@@ -1450,7 +1441,8 @@ def _read_ahead(jobs: list, read, depth: int = 1):
 
 def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4096,
                        overlap: int = 256, min_conf: dict[str, float] | None = None,
-                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None) -> list[dict]:
+                       fallback_crs: str | None = None, guard: "TimeGuard | None" = None,
+                       conf_stat: str = "max") -> list[dict]:
     """Растр на рабочем шаге модели окнами block×block с перекрытием → объекты (память — одно окно).
 
     CRS — через crs.usable_raster_crs: безымянная LOCAL_CS с координатами UTM получает fallback_crs.
@@ -1538,7 +1530,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                         min_conf=min_conf)
                 else:
                     found = probs_to_features(probs, seg.classes, tr, crs, r, region, markup, path.name,
-                                              min_conf=min_conf)
+                                              min_conf=min_conf, conf_stat=conf_stat)
                 # середина окна: соседние окна делят перекрытие пополам, объект попадает ровно в одно
                 c0 = (half if ix > 0 else 0, half if iy > 0 else 0)
                 c1 = (bw - (half if ix < len(xs) - 1 else 0), bh - (half if iy < len(ys) - 1 else 0))

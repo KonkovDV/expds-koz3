@@ -158,6 +158,8 @@ def _finish_v3(feats: list[dict], cfg: dict, isolate=post.ISOLATED_GROUPS) -> li
     if post_cfg.get("frame_prior"):
         # До порогов, как и в замере oof_transform.py frame: множитель по scene_drel (pipeline._with_scene_drel).
         out = post.frame_prior(out, _spec(post_cfg["frame_prior"]))
+    if post_cfg.get("carpet_gate"):
+        out = post.carpet_gate(out, _spec(post_cfg["carpet_gate"]))
     if cfg.get("w5_cloudfeat"):
         # W4 v4 (RR1s-cf): до порогов; пороги li-групп в v4_on.toml — в шкале S (expds/w5_cloudfeat.py).
         from . import w5_cloudfeat
@@ -323,6 +325,11 @@ def _safe_v3(feats: list[dict], cfg: dict) -> list[dict]:
             log.exception("frame_prior в запасной цепочке упал, шаг пропущен")
             from . import degraded
             degraded.mark("frame_prior", "frame_prior в запасной цепочке упал")
+    if pc.get("carpet_gate"):
+        try:
+            out = post.carpet_gate(out, _spec(pc["carpet_gate"]))
+        except Exception:
+            log.exception("carpet_gate в запасной цепочке упал, шаг пропущен")
     if cfg.get("w5_cloudfeat"):
         try:
             from . import w5_cloudfeat

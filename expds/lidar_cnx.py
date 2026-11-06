@@ -63,6 +63,7 @@ DEFAULTS = {
     "tile": 1024, "overlap": 192,          # CUDA
     "tile_cpu": 512, "overlap_cpu": 128,   # CPU: память ≤ 2 ГБ
     "tta": 8,                              # {1, 2, 8}; 8 = D8, как OOF bot-9
+    "scales": [1.0],                       # пирамида зума кадра; [1.0] — один проход, как без ключа
     "batch": 0,                            # 0 — авто (CUDA 2, CPU 1)
     "prep_timeout_s": 600,
     "soft_need_s": 120,
@@ -119,6 +120,25 @@ def threshold_problem(cfg: dict | None, classes=None) -> str | None:
     if lost:
         return f"в [thresholds_by_markup.{group}] нет порогов для {lost}"
     return None
+
+
+def _scale_list(raw) -> list[float]:
+    """Множители зума кадра. Один множитель 1 — отдельный проход не запускается."""
+    if isinstance(raw, (int, float)):
+        raw = [raw]
+    if not raw:
+        return [1.0]
+    out = []
+    for item in raw:
+        value = float(item)
+        if value <= 0:
+            raise CnxError(f"li_cnx.scales: множитель {item!r} должен быть > 0")
+        out.append(value)
+    return out
+
+
+def _one_scale(scales: list[float]) -> bool:
+    return len(scales) == 1 and abs(scales[0] - 1.0) < 1e-9
 
 
 def tta_value(raw) -> int:
@@ -222,6 +242,7 @@ class CnxSegmenter:
         self.tile = int(o["tile"] if cuda else o["tile_cpu"])
         self.overlap = int(o["overlap"] if cuda else o["overlap_cpu"])
         self.tta = tta_value(o.get("tta", DEFAULTS["tta"]))
+        self.scales = _scale_list(o.get("scales", DEFAULTS["scales"]))
         self.batch = int(o.get("batch") or (2 if cuda else 1))
         if self.tile % HW_MULT or self.tile < HW_MULT or not 0 <= self.overlap < self.tile:
             raise CnxError(f"окно {self.tile}/{self.overlap}: окно кратно {HW_MULT}, перекрытие < окна")
@@ -288,6 +309,34 @@ class CnxSegmenter:
         return 1
 
     def predict(self, x: np.ndarray, deadline=None, budget_s: float | None = None) -> np.ndarray:
+        """Вероятности K×H×W. scales = [1.0] — ровно один проход _predict_native.
+
+        Несколько множителей (0,8 / 1 / 1,25) — среднее вероятностей после возврата
+        на исходную сетку. Время растёт пропорционально числу множителей.
+        """
+        if _one_scale(self.scales):
+            return self._predict_native(x, deadline, budget_s)
+        from scipy import ndimage as ndi
+
+        base = np.asarray(x, np.float32)
+        _, h, w = base.shape
+        acc = None
+        for scale in self.scales:
+            src = base if abs(scale - 1.0) < 1e-9 else np.stack(
+                [ndi.zoom(base[i], scale, order=1) for i in range(base.shape[0])]).astype(np.float32)
+            prob = self._predict_native(src, deadline, budget_s)
+            if prob.shape[1] != h or prob.shape[2] != w:
+                fy, fx = h / prob.shape[1], w / prob.shape[2]
+                prob = np.stack([ndi.zoom(prob[i], (fy, fx), order=1) for i in range(prob.shape[0])])
+                prob = prob[:, :h, :w]
+                if prob.shape[1] < h or prob.shape[2] < w:
+                    pad = np.zeros((prob.shape[0], h, w), np.float32)
+                    pad[:, :prob.shape[1], :prob.shape[2]] = prob
+                    prob = pad
+            acc = prob.astype(np.float32) if acc is None else acc + prob.astype(np.float32)
+        return (acc / np.float32(len(self.scales))).astype(np.float32)
+
+    def _predict_native(self, x: np.ndarray, deadline=None, budget_s: float | None = None) -> np.ndarray:
         """x: float32 C×H×W (нормировка контракта) → вероятности K×H×W float32 (sigmoid среднего логитов).
 
         deadline — вызываемый без аргументов, True = время вышло (между окнами): CnxError.

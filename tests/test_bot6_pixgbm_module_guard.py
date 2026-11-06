@@ -25,21 +25,21 @@ def _reg(tmp_path):
     return Region(name="r_test", path=tmp_path)
 
 
-def test_missing_module_logs_error(tmp_path, monkeypatch, caplog):
+def test_own_module_runs_without_the_old_file(tmp_path, monkeypatch, caplog):
+    """Расчёт идёт из expds.pix_own. Пустой участок без карт не падает и не зовёт чужой модуль."""
     _hide_module(monkeypatch)
     monkeypatch.delenv("EXPDS_PIXGBM_STRICT", raising=False)
     with caplog.at_level(logging.WARNING, logger="expds.pipeline"):
         out = pipeline.geophys_feats(_reg(tmp_path), CFG, pipeline.TimeGuard(1000))
     assert out == []
-    hits = [r for r in caplog.records if "модуль прежней реализации в этой сборке отсутствует" in r.getMessage()]
-    assert hits and all(r.levelno == logging.ERROR for r in hits)
+    assert not [r for r in caplog.records if "прежней реализации" in r.getMessage()]
 
 
-def test_missing_module_strict_raises(tmp_path, monkeypatch):
+def test_own_module_strict_still_runs_on_an_empty_region(tmp_path, monkeypatch):
     _hide_module(monkeypatch)
     monkeypatch.setenv("EXPDS_PIXGBM_STRICT", "1")
-    with pytest.raises(pipeline.PixgbmModuleMissing):
-        pipeline.geophys_feats(_reg(tmp_path), CFG, pipeline.TimeGuard(1000))
+    out = pipeline.geophys_feats(_reg(tmp_path), CFG, pipeline.TimeGuard(1000))
+    assert out == []
 
 
 def test_disabled_pixgbm_never_complains(tmp_path, monkeypatch, caplog):
@@ -62,8 +62,8 @@ def test_check_submission_fails_without_module():
     cs = _cs()
     cs.RESULTS.clear()
     cs.check_pixgbm_module({"enabled": True}, {"inference/main.py", "expds/pipeline.py"})
-    assert any(s == "FAIL" and "geo_pixgbm.py" in m for s, _c, m in cs.RESULTS)
+    assert any(s == "FAIL" and "pix_own.py" in m for s, _c, m in cs.RESULTS)
     cs.RESULTS.clear()
-    cs.check_pixgbm_module({"enabled": True}, {"expds/geo_pixgbm.py"})
+    cs.check_pixgbm_module({"enabled": True}, {"expds/pix_own.py"})
     cs.check_pixgbm_module({"enabled": False}, set())
     assert not [r for r in cs.RESULTS if r[0] == "FAIL"]

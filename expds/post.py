@@ -1215,6 +1215,43 @@ def annotate_scene_drel(feats: list[dict], boxes_by_markup: dict[str, list]) -> 
     return feats
 
 
+def carpet_gate(feats: list[dict], spec: dict | None = None) -> list[dict]:
+    """Оставляет курган, только если рядом на земле достаточно таких же.
+
+    На аэрофото ящики режутся по сотне объектов, а насыпи стоят ковром.
+    Одиночный пик на пустом поле поэтому не выпускается. Секции в конфиге нет —
+    шаг не вызывается. spec: groups, classes, radius_m (60), min_n (8).
+    """
+    spec = spec or {}
+    groups = set(spec.get("groups") or ("ae",))
+    classes = set(spec.get("classes") or ("kurgany_povrezhdennye", "kurgany_tselye"))
+    radius = float(spec.get("radius_m", 60.0))
+    min_n = int(spec.get("min_n", 8))
+    chosen_ids = set()
+    chosen = []
+    for feat in feats:
+        geom = feat.get("geom")
+        if (_group_of(feat) in groups and feat.get("class_name") in classes
+                and geom is not None and not geom.is_empty):
+            chosen_ids.add(id(feat))
+            chosen.append(feat)
+    if len(chosen) <= min_n:
+        return [f for f in feats if id(f) not in chosen_ids]
+    keep = set()
+    for i, feat in enumerate(chosen):
+        n = 0
+        for j, other in enumerate(chosen):
+            if i == j or feat.get("region_name") != other.get("region_name"):
+                continue
+            if _pair_ground_m(feat["geom"].centroid, other["geom"].centroid) <= radius:
+                n += 1
+            if n >= min_n:
+                keep.add(i)
+                break
+    kept = {id(chosen[i]) for i in keep}
+    return [f for f in feats if id(f) not in chosen_ids or id(f) in kept]
+
+
 def frame_prior(feats: list[dict], spec: dict | None = None) -> list[dict]:
     """Уверенность объекта у края крупной сцены снижается: метки есть только около памятника в центре кадра.
 

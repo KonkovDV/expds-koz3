@@ -698,11 +698,11 @@ def check_pixgbm_static(pix: dict, names: set) -> set:
 
 
 def check_pixgbm_module(pix: dict, names: set) -> None:
-    """Murder Board 29.10: expds/geo_pixgbm.py вне git (EN-hold). При [geophys.pixgbm] enabled=true без модуля
-    pipeline молча уходит в классику (pipeline.py: «pixgbm включён, но expds/geo_pixgbm.py нет») — сборка ≠ v2 LB."""
-    if pix.get("enabled") and str(pix.get("impl", "")) != "clean" and "expds/geo_pixgbm.py" not in names:
-        report("FAIL", "config", "PIXGBM включён, а expds/geo_pixgbm.py нет в архиве — pix молча уйдёт в классику, "
-                                 "сборка ≠ v2 LB 0.41238 (docs/MURDER_BOARD_2026-10-29.md)")
+    """При включённом пиксельном бустинге в архиве должен быть свой модуль expds/pix_own.py.
+    Без него пайплайн не считает те же карты, и балл геофизики падает."""
+    if pix.get("enabled") and str(pix.get("impl", "")) != "clean" and "expds/pix_own.py" not in names:
+        report("FAIL", "config", "пиксельный бустинг включён, а expds/pix_own.py нет в архиве — "
+                                 "геофизика уйдёт в классику и балл не совпадёт с 0.43274")
 
 
 def check_sp_dfine_static(cfg: dict, names: set) -> None:

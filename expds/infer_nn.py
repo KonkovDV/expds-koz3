@@ -469,7 +469,8 @@ def split_by_peaks(prob: np.ndarray, mask: np.ndarray, radius_px: int, min_peak:
 
 def probs_to_features(probs: np.ndarray, classes: list[str], transform, crs: str | None, res: float,
                       region: str, markup: str, source: str, low: float = 0.05,
-                      min_area_px: int = 3, min_conf: dict[str, float] | None = None) -> list[dict]:
+                      min_area_px: int = 3, min_conf: dict[str, float] | None = None,
+                      conf_stat: str = "max") -> list[dict]:
     """Вероятности K×H×W → объекты пайплайна (полигоны EPSG:3857 с уверенностью).
 
     min_conf — пороги выдачи по классам: экземпляры ниже них отбрасываются до
@@ -492,6 +493,11 @@ def probs_to_features(probs: np.ndarray, classes: list[str], transform, crs: str
             continue
         sizes = np.bincount(inst.ravel(), minlength=n + 1)
         peak = accel.label_max(inst, p, n)
+        if conf_stat == "mean":
+            total = np.bincount(inst.ravel(), weights=p.ravel(), minlength=n + 1)
+            peak = np.divide(total, np.maximum(sizes, 1))
+        elif conf_stat != "max":
+            raise ValueError(f"conf_stat={conf_stat!r}: ожидается max или mean")
         keep = sizes >= min_area_px
         if floor is not None:
             keep &= peak.astype(np.float64) >= floor

@@ -69,4 +69,4 @@ def test_probe_loads_ens6_models():
 def test_en_line_still_requires_its_module():
     cs = _cs()
     cs.check_pixgbm_module({"enabled": True}, {"inference/main.py"})
-    assert any(r[0] == "FAIL" and "geo_pixgbm.py" in r[2] for r in cs.RESULTS)
+    assert any(r[0] == "FAIL" and "pix_own.py" in r[2] for r in cs.RESULTS)

@@ -528,7 +528,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False,
           within_site_rank: float = 0.0, init_weights: str | None = None,
           relief_height: tuple = (1.0, 1.0), relief_zoom: tuple = (1.0, 1.0), relief_p: float = 0.0,
-          site_balance: float = 0.0) -> dict:
+          site_balance: float = 0.0, center_pos_floor: int = 0) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -800,8 +800,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                     wmap = small_component_weights(y[:, :k], small_object_weight)
                 if not precomputed:
                     y = prepare(y)
-                loss = (focal_center_loss(logits, y, weight=wmap) if center_loss_name == "focal"
-                        else center_loss(logits, y, weight=wmap))
+                loss = (focal_center_loss(logits, y, weight=wmap, pos_floor=center_pos_floor)
+                        if center_loss_name == "focal" else center_loss(logits, y, weight=wmap))
                 if within_site_rank > 0:
                     loss = loss + within_site_rank * within_site_rank_hinge(logits, y)
                 return loss, y
@@ -1012,6 +1012,8 @@ def _cli() -> None:
     ap.add_argument("--relief-p", type=float, default=0.0, help="доля кадров с рельеф-аугментацией; 0 — выкл.")
     ap.add_argument("--site-balance", type=float, default=0.0,
                     help="вес тайла ∝ n_участка^(−alpha); 0 — выкл., 0.5 — квадратный корень")
+    ap.add_argument("--center-pos-floor", type=int, default=0,
+                    help="пол числа пиков в знаменателе фокальной потери; 0 — как раньше")
     ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
     if args.dry_run:
@@ -1035,7 +1037,8 @@ def _cli() -> None:
                 center_pre_flip=args.center_pre_flip, within_site_rank=args.within_site_rank,
                 init_weights=args.init_weights,
                 relief_height=tuple(args.relief_height), relief_zoom=tuple(args.relief_zoom),
-                relief_p=args.relief_p, site_balance=args.site_balance)
+                relief_p=args.relief_p, site_balance=args.site_balance,
+                center_pos_floor=args.center_pos_floor)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

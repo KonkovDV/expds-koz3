@@ -167,7 +167,8 @@ def _center_positives(target):
     return (target >= 0.999) | ((target + 1e-6 >= pooled) & (target > 0.5))
 
 
-def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, weight=None):
+def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, weight=None,
+                      pos_floor: int = 0):
     """Фокальная потеря карты центров (Law & Deng, 2018; Zhou et al., 2019).
 
     У пика (target = 1) штраф (1 − p)^α. Рядом с пиком фон почти не штрафуется:
@@ -186,6 +187,9 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, wei
         pos_loss = pos_loss * weight
     neg_loss = -((1 - target) ** beta) * (p ** alpha) * torch.log(1 - p)
     n_pos = pos.sum().clamp(min=1).to(pos_loss.dtype)
+    # Пол числа пиков: при 1–2 позитивах знаменатель не раздувает шаг. 0 — как раньше.
+    if int(pos_floor) > 1:
+        n_pos = torch.maximum(n_pos, n_pos.new_tensor(float(pos_floor)))
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 

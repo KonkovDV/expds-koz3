@@ -47,7 +47,7 @@ def mkzip(cfg, extra=()):
         c = tomllib.loads(cfg)
         refs = {v for _, v in cs._strings(c) if v.startswith("models/") and not v.startswith("models/pixgbm")}
         refs |= {"models/rerank_arch_lgbm.txt", "models/rerank_arch_lgbm.json"}
-        refs |= {"expds/geo_pixgbm.py"}   # Murder Board 29.10: модуль вне git — его отсутствие отдельный FAIL
+        refs |= {"expds/pix_own.py"}
         for n in sorted(refs | set(extra)):
             z.writestr(n, b"x")
     return zipfile.ZipFile(io.BytesIO(b.getvalue()))
@@ -170,7 +170,7 @@ def test_pixgbm_enabled_without_module_fails():
             z.writestr(f"models/pixgbm/all/{f}", b"x")
     cs.RESULTS.clear()
     cs.check_config_static(zipfile.ZipFile(io.BytesIO(b.getvalue())))
-    assert any(s == "FAIL" and "geo_pixgbm.py" in m for s, c, m in cs.RESULTS), cs.RESULTS
+    assert any(s == "FAIL" and "pix_own.py" in m for s, c, m in cs.RESULTS), cs.RESULTS
 
 
 def test_sp_dfine_enabled_static_checks():

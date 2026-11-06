@@ -33,6 +33,8 @@ LIMIT = 2 * 1024 ** 3
 TRAIN_ONLY = {"gt.py", "blobs.py", "coarse.py", "det_boxes.py"}
 #: W4 DOC-1: файлы, производные от EN, и старые модели PIXGBM в архив не идут (scripts/check_archive_clean.py)
 EN_EXCLUDE = {"geo_pixgbm.py", "geo_finds_gbm.py", "pix_legacy.py", "geo_backbone.py"}
+# Эти файлы не кладём в архив даже с --allow-en: расчёт геофизики идёт из expds/pix_own.py.
+NEVER_PACK = {"geo_pixgbm.py", "geo_finds_gbm.py", "geo_backbone.py", "pix_legacy.py"}
 FLAG_MODULES = ("sp_dfine", "gor_gate", "gor_dense", "dfine_aeor", "aeor_dfine", "dfine_ae_tile", "orgate",
                 "sp_det2")   # bot-7 v3: секция конфига = имя модуля expds/<имя>.py
 
@@ -70,7 +72,8 @@ def collect(allow_en: bool = False) -> list[Path]:
     if (cfg.get("gor_dense") or {}).get("enabled"):
         off.discard("gor_gate.py")   # bot-5: gor_dense берёт бэкбон, tif_feats и голову сцены из gor_gate
     files += sorted(p for p in (ROOT / "expds").rglob("*.py")
-                    if (allow_en or p.name not in EN_EXCLUDE)
+                    if p.name not in NEVER_PACK
+                    and (allow_en or p.name not in EN_EXCLUDE)
                     and not (p.parent == ROOT / "expds" and (p.name in TRAIN_ONLY or p.name in off)))
     if cnx_head_on(cfg):
         files += centerhead_files()

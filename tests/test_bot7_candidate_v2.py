@@ -210,7 +210,7 @@ def test_check_submission_pixgbm_model_dir(tmp_path):
         zp = tmp_path / f"z{len(files)}.zip"
         with zipfile.ZipFile(zp, "w") as z:
             z.writestr("configs/default.toml", toml)
-            z.writestr("expds/geo_pixgbm.py", "")   # Murder Board 29.10: без модуля — отдельный FAIL
+            z.writestr("expds/pix_own.py", "")
             for f in files:
                 z.writestr(f"models/pixgbm/all/{f}", "x")
         cs.RESULTS.clear()
