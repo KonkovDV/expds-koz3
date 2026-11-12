@@ -60,6 +60,8 @@ def test_one_live_plan_and_it_is_linked_from_the_entry_points():
     for name in ("README.md", "docs/DOCS.md", "docs/AI_MASTER_PROMPT_061.md", "docs/plans/PLAN_TO_061_20261105.md"):
         assert "AI_PLAN_20261112.md" in _text(name), name
     assert "VERIFY_2026-11-12.md" in _text("README.md")
+    assert "OSINT_SOTA_20261112.md" in _text("README.md")
+    assert "OSINT_SOTA_20261112.md" in _text("docs/plans/AI_PLAN_20261112.md")
 
 
 def test_declaration_is_not_a_second_copy_of_the_journal():
