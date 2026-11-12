@@ -337,7 +337,6 @@ def features_at(zw, zdw, vw, m5, m15, gsd, mt_id, rr, cc) -> dict:
     """Признаки в пикселях (rr, cc) окна. Все входы — окна одного размера."""
     def px(m):
         return max(m / gsd, 0.5)
-    inv = ~vw
     F = {}
     d5 = np.where(vw, zw - m5, 0).astype(np.float32)
     d15 = np.where(vw, zw - m15, 0).astype(np.float32)
@@ -611,7 +610,6 @@ def poly_candidates(P, d, region, mt, source, t_pix=T_PIX):
 def poly_components(P, d, region, mt, source, levels=(0.3, 0.5, 0.7), min_px=2):
     """Сырые компоненты P ≥ t (для каждого t из levels) — полные полигоны EPSG:3857 (для валидации).
     Свойства: score — средняя P компоненты, max_p, t_pix, area_m2 (в метрах CRS карты), pole_x/pole_y (EPSG:3857)."""
-    from shapely.geometry import Point
     from shapely.ops import polylabel
     from .raster import mask_to_polygons, to_crs, WEB_MERCATOR
 

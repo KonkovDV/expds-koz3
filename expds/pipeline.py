@@ -652,7 +652,7 @@ def lidar_feats(reg: Region, cfg: dict, guard: TimeGuard, seg_cache: dict, root:
                                     for f in found:
                                         if not f.get("threshold_group"):
                                             f["threshold_group"] = group
-                                fresh = found
+                                fresh += found
                             except Exception:
                                 log.exception("%s: сеть li на грубой сетке пропущена", las.name)
                     mosaic_kurgans += [f for f in fresh if not f.get("threshold_group")]
@@ -1590,6 +1590,7 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
         ahead = (_read_ahead_private(open_metric, path, jobs, read_with)
                  if speed.use_fast("read_ahead") and len(jobs) >= 2 else None)
         window_errors = 0
+        ahead_dead = False
         try:
             for iy, ix, y0, x0 in jobs:
                 if guard is not None and not guard.window_ok():
@@ -1601,13 +1602,21 @@ def _raster_with_model(seg, path: Path, region: str, markup: str, block: int = 4
                                           "windows_done": done, "windows_total": total, "feats": len(feats)})
                     return feats
                 try:
-                    if ahead is not None:
-                        _job, item = next(ahead)
-                        if isinstance(item, Exception):
-                            raise item
-                        bw, bh, win, a = item
-                    else:
+                    # Живой фоновый поток отдаёт те же пиксели, что чтение в этом потоке.
+                    # Если он умер (файл второй раз не открылся) или одно окно там упало,
+                    # окно читается дескриптором, который уже открыт здесь. Иначе три
+                    # StopIteration останавливали весь снимок, хотя ds ещё читался.
+                    item = None
+                    if ahead is not None and not ahead_dead:
+                        try:
+                            _job, item = next(ahead)
+                        except StopIteration:
+                            ahead_dead = True
+                            item = None
+                    if isinstance(item, Exception) or item is None:
                         bw, bh, win, a = read_with(ds, (iy, ix, y0, x0))
+                    else:
+                        bw, bh, win, a = item
                     if not a.any():
                         continue
                     tr = ds.window_transform(win) @ rasterio.Affine.scale(win.width / bw, win.height / bh)
