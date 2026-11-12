@@ -1,3 +1,5 @@
+> **12.11.2026.** Ниже — срез 02.11. v4 публичным баллом не стал. Действующий балл 0,43274 — `docs/LB_LOG.md`. Карта документов — `docs/DOCS.md`.
+
 # STATE KOZ3 — актуально на 02.11.2026 14:40 MSK (coord, передача №3, финальная)
 <!-- W4 NOW -->
 > **W4 NOW 02.11.2026 18:40 MSK (deep freeze):** **v4 C1F-all PRIMARY** (f0def982…, honest-10 0.361641 Δ+0.0162 P1.0, v4chk PASS). ВСЕ add-on рычаги 02.11 **FAIL CLOSED** vs v4: GORLOC, KMASK(no-gate), COMP_FL, C1FP→v5, satdet-frcnn, dfine2-a, dfine2 full ENS8 (Δ+0.00525 P0.95, но new34− kt− arkh−). W4/все боты **STANDBY**; GPU-рычаги исчерпаны; квота ~20%. **Hold LB 0.41238** — сабмит v4 только Елена. Пакет передачи: `orch/HANDOFF_NOW_20261102.md` + box `/workspace/koz3/out/handoff-20261102/` + Drive KOZ3-handoff-20261102. Ждут «да»: LB v4, S3 rotate, disk UNSURE, новый PREREG.

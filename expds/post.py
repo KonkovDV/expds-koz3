@@ -399,7 +399,12 @@ def cap_features(feats: list[dict], max_n: int = MAX_FEATURES) -> list[dict]:
 
 
 def only_known_classes(feats: list[dict]) -> list[dict]:
-    """Отбрасывает объекты с неизвестным классом (иначе платформа отклонит файл)."""
+    """Оставляет семь классов метрики.
+
+    Платформа неизвестный ``class_name`` пропускает и файл из‑за него не отклоняет
+    (утв. ТР, Прил. 1). Такой объект всё равно не пишем: метрика его не засчитает,
+    а ``writer.validate`` считает этот класс ошибкой нашей проверки.
+    """
     return [f for f in feats if f["class_name"] in CLASSES]
 
 

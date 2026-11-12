@@ -19,4 +19,6 @@ check_submission.py сверяет его с архивом. Вендорный 
 `WEIGHTS_MANIFEST.json` (не входит в `MANIFEST.json`) — список весов [li_cnx] с sha256/size и `never_pack`
 (smoke-веса). Веса в git не лежат (`models/cnx/` в .gitignore): `scripts/build_submission*.py` берут их по
 этому списку и отказывают при несовпадении sha/size или при попадании never_pack; check_submission сверяет sha
-внутри zip. Пороги — только своя группа `[thresholds_by_markup.li_cnx]` (без неё cnx не выдаёт объектов).
+внутри zip. Пороги — своя группа `[thresholds_by_markup.<threshold_group>]`. Имя по умолчанию — `li_cnx`.
+Группы чужой шкалы (`li`, `li_coarse`, `li_mosaic` и остальные из `FORBIDDEN_GROUPS`) запрещены: без своей
+таблицы cnx молчит. Архив 0,43274 задаёт группу `li_cnxin`, не имя по умолчанию.

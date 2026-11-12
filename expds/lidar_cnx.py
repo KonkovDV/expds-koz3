@@ -68,7 +68,7 @@ DEFAULTS = {
     "prep_timeout_s": 600,
     "soft_need_s": 120,
     "classes": ["kurgany_povrezhdennye", "kurgany_tselye"],   # gor/fort/arch — только явно, после замера
-    "threshold_group": "li_cnx",           # своя группа порогов; группы li* запрещены (другая шкала)
+    "threshold_group": "li_cnx",           # своя группа; имена из FORBIDDEN_GROUPS запрещены (другая шкала)
     "dedupe_m": 12.0,                      # курган cnx ближе — дубль оставленного круга
     # "rescore" — курганы по пикам рельефа, вероятность берётся с карты сети.
     # "head" — курганы декодированием головы (expds/lidar_cnx_head.py), как в отложенной проверке ядра.

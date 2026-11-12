@@ -1,3 +1,5 @@
+> **12.11.2026.** Срез 01.11. Лучший балл тогда был 0,41238. Сейчас 0,43274 (`docs/LB_LOG.md`). Карта документов — `docs/DOCS.md`.
+
 # KOZ No.3 — Handoff (2026-11-01)
 Goal: archaeology object detection (KOZ No.3). Deadline **11.11.2026**. Target LB ~0.61; our best LB **0.41238** (v2, commit eb268d6).
 Reports index: [snapshot/2026-11-01/INDEX.md](../snapshot/2026-11-01/INDEX.md) · PR https://github.com/KonkovDV/expds-koz3/pull/28
