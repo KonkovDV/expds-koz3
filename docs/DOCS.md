@@ -22,6 +22,7 @@
 | Что делать дальше и что решает владелец | [`plans/AI_PLAN_20261112.md`](plans/AI_PLAN_20261112.md) |
 | Какие идеи конкурентов ещё не закрыты | [`OSINT_SOTA_20261112.md`](OSINT_SOTA_20261112.md) |
 | Как чужой балл рос от посылки к посылке | [`COMPETITOR_SCORES_20261112.md`](COMPETITOR_SCORES_20261112.md) |
+| Что в этой лестнице не доказано | [`MURDER_BOARD_20261112.md`](MURDER_BOARD_20261112.md) |
 | Какие средства ИИ использовались | сводка [`ai_declaration.md`](ai_declaration.md), дни — [`AI_DECLARATION.md`](AI_DECLARATION.md) |
 
 ## Что приведено 12.11

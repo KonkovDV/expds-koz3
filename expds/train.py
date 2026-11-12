@@ -299,13 +299,17 @@ class TileDataset:
                 x, y = x[:, ::-1], y[:, ::-1]
             k = np.random.randint(4)
             x, y = np.rot90(x, k, (1, 2)), np.rot90(y, k, (1, 2))
-        if self.scale > 0 or self.photo:
+        if self.scale > 0 or self.photo or self.ignore_void:
             import torch
 
             xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
             yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
             if self.scale > 0:
                 xt, yt = resample_scale(xt, yt, self.scale)
+            if self.ignore_void:
+                from .centers import ignore_survey_void
+
+                yt = ignore_survey_void(xt, yt)
             if self.photo:
                 xt = photometric(xt)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
@@ -316,7 +320,7 @@ class TileDataset:
             yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
             xt, yt = elastic_deform(xt, yt, self.elastic)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
-        if self.ignore_void:
+        if self.ignore_void and self.elastic > 0:
             from .centers import ignore_survey_void
 
             xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
@@ -572,6 +576,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         np.random.seed(seed)
     cache_p = Path(cache)
     meta = json.loads((cache_p / "meta.json").read_text(encoding="utf-8"))
+    if ignore_void and meta.get("markup") != "li":
+        raise ValueError("--ignore-void только для кэша лидара: на снимке ноль бывает настоящим пикселем")
     rows = load_index(cache_p)
     if limit:
         rows = rows[:limit]
