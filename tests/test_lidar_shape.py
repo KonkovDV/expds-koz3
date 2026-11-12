@@ -89,3 +89,25 @@ def test_curvature_marks_a_low_mound_on_a_noisy_dem_without_saturating():
     bg = img[0, 10:-10, 10:-10].astype(int)
     assert np.mean((bg <= 1) | (bg >= 255)) < 0.01
     assert int(img[0, 80, 80]) < int(np.median(bg)) - 40            # купол 0,3 м радиусом 3 м
+
+
+def test_default_void_fill_stays_the_shipped_mean():
+    z = np.arange(21, dtype=np.float32)[:, None] * np.ones((21, 21), np.float32) * 0.05
+    z = z.copy()
+    z[2:5, 8:13] = np.nan
+    d = Dem(dem=z, left=0.0, top=21.0, res=1.0, crs="EPSG:32636")
+    base, _ = relief_channels(d, 1.0, ("slope",))
+    named, _ = relief_channels(d, 1.0, ("slope",), fill="mean")
+    assert np.array_equal(base, named)
+
+
+def test_nearest_void_fill_does_not_cut_a_cliff_into_a_gentle_slope():
+    z = np.arange(21, dtype=np.float32)[:, None] * np.ones((21, 21), np.float32) * 0.05
+    z = z.copy()
+    z[2:5, 8:13] = np.nan
+    d = Dem(dem=z, left=0.0, top=21.0, res=1.0, crs="EPSG:32636")
+    mean_img, _ = relief_channels(d, 1.0, ("slope",), fill="mean")
+    near_img, _ = relief_channels(d, 1.0, ("slope",), fill="nearest")
+    # Ряд 5 граничит с дырой. Средняя высота съёмки далеко от местного склона.
+    assert int(mean_img[0, 5, 10]) > int(near_img[0, 5, 10]) + 20
+    assert int(near_img[0, 5, 10]) < 80
