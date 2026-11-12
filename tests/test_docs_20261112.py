@@ -53,6 +53,15 @@ def test_living_docs_name_the_same_two_builds():
     assert "pantum/n7q:20261024" in final
 
 
+def test_one_live_plan_and_it_is_linked_from_the_entry_points():
+    plan = "docs/plans/AI_PLAN_20261112.md"
+    body = _text(plan)
+    assert "0,41024" in body and "D1" in body and "T1" in body
+    for name in ("README.md", "docs/DOCS.md", "docs/AI_MASTER_PROMPT_061.md", "docs/plans/PLAN_TO_061_20261105.md"):
+        assert "AI_PLAN_20261112.md" in _text(name), name
+    assert "VERIFY_2026-11-12.md" in _text("README.md")
+
+
 def test_declaration_is_not_a_second_copy_of_the_journal():
     summary = _text("docs/ai_declaration.md")
     journal = _text("docs/AI_DECLARATION.md")
