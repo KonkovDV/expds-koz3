@@ -61,6 +61,7 @@ def test_one_live_plan_and_it_is_linked_from_the_entry_points():
         assert "AI_PLAN_20261112.md" in _text(name), name
     assert "VERIFY_2026-11-12.md" in _text("README.md")
     assert "OSINT_SOTA_20261112.md" in _text("README.md")
+    assert "COMPETITOR_SCORES_20261112.md" in _text("README.md")
     assert "OSINT_SOTA_20261112.md" in _text("docs/plans/AI_PLAN_20261112.md")
 
 
