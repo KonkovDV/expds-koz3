@@ -303,6 +303,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
         report("PASS", "config", f"все {len(refs)} путей к весам из default.toml есть в архиве")
     pix_files = check_pixgbm_static(pixgbm, names)
     check_pixgbm_module(pixgbm, names)
+    check_e1g1_wired(pixgbm, z)
     check_sp_dfine_static(cfg, names)
     models_in_zip = {n for n in names if n.startswith("models/") and not n.endswith("/")}
     unused = sorted(models_in_zip - {v for _, v in refs} - pix_files - hf_files)
@@ -739,6 +740,26 @@ def check_e1g1_static(pix: dict, names: set) -> set:
     owned |= {f"{f}.sha256" for f in extra} | {f"{md}/ens6/{m}/meta.json" for m in E1G1_MEMBERS} | {f"{md}/SHA256SUMS"}
     owned |= {n for n in names if n.startswith(f"{md}/org/")}
     return owned
+
+
+def check_e1g1_wired(pix: dict, z: zipfile.ZipFile) -> None:
+    """chain=e1g1 работает, только если pipeline.py архива вызывает expds/pix_e1g1.py.
+
+    Обвязка цепочки была только внутри архива ed51cae4. Дерево без неё считает
+    impl=clean модулем pix_clean, и выход не совпадает с баллом 0,38988.
+    """
+    if not is_e1g1(pix):
+        return
+    try:
+        text = z.read("expds/pipeline.py").decode("utf-8", "replace")
+    except KeyError:
+        report("FAIL", "config", "PIXGBM e1g1: в архиве нет expds/pipeline.py")
+        return
+    if "pix_e1g1" in text:
+        report("PASS", "config", "PIXGBM e1g1: pipeline.py вызывает expds/pix_e1g1.py")
+    else:
+        report("FAIL", "config", "PIXGBM e1g1: pipeline.py не вызывает expds/pix_e1g1.py — "
+                                 "геофизика уйдёт в pix_clean, а не в цепочку E1_G1")
 
 
 def check_pixgbm_static(pix: dict, names: set) -> set:

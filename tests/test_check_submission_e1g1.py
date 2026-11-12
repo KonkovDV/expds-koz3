@@ -66,6 +66,27 @@ def test_probe_loads_ens6_models():
     assert md == "models/pix_clean" and need == [f"models/pix_clean/ens6/{m}/finds.txt" for m in MEMBERS] and extra == []
 
 
+def _zip(tmp_path, pipeline_text: str):
+    import zipfile
+
+    p = tmp_path / "a.zip"
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("expds/pipeline.py", pipeline_text)
+    return zipfile.ZipFile(p)
+
+
+def test_e1g1_fails_when_pipeline_does_not_call_the_chain(tmp_path):
+    cs = _cs()
+    cs.check_e1g1_wired(E1G1, _zip(tmp_path, (ROOT / "expds" / "pipeline.py").read_text(encoding="utf-8")))
+    assert any(r[0] == "FAIL" and "pix_e1g1" in r[2] for r in cs.RESULTS)
+
+
+def test_e1g1_passes_when_pipeline_calls_the_chain(tmp_path):
+    cs = _cs()
+    cs.check_e1g1_wired(E1G1, _zip(tmp_path, "from . import pix_e1g1\n"))
+    assert not [r for r in cs.RESULTS if r[0] == "FAIL"]
+
+
 def test_en_line_still_requires_its_module():
     cs = _cs()
     cs.check_pixgbm_module({"enabled": True}, {"inference/main.py"})

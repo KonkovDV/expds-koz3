@@ -394,6 +394,9 @@ def geophys_feats(reg: Region, cfg: dict, guard: TimeGuard) -> list[dict]:
         impl = str(pix.get("impl", "legacy"))
         try:
             if impl == "clean":
+                if str(pix.get("chain", "")) == "e1g1":
+                    log.error("%s: [geophys.pixgbm] chain = \"e1g1\" в этом дереве не подключена, "
+                              "геофизику считает pix_clean, а не цепочка E1_G1", reg.name)
                 from . import pix_clean as pixmod
                 md_default = "models/pix_clean"
             else:

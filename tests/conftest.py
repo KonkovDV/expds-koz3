@@ -117,11 +117,11 @@ def val_dir(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def official_metric() -> str | None:
-    """Путь к официальному compute_metrics.py, если задан EXPDS_METRIC."""
+    """Путь к официальному compute_metrics.py: EXPDS_METRIC, иначе копия в materials/."""
     import os
 
-    p = os.environ.get("EXPDS_METRIC")
-    return p if p and Path(p).exists() else None
+    p = os.environ.get("EXPDS_METRIC") or str(ROOT / "materials" / "compute_metrics.py")
+    return p if Path(p).exists() else None
 
 
 def allow_missing_submission_models(monkeypatch: pytest.MonkeyPatch, root: Path | None = None) -> None:
