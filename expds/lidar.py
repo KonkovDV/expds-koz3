@@ -772,6 +772,16 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS, fill: str = "mean"):
             unit = np.clip(np.nan_to_num(dev, nan=0.0) / RELIEF["dev_clip"], -1, 1) * 0.5 + 0.5
         elif t == "slope":
             unit = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
+        elif t == "msrm":
+            # Многомасштабный остаток: на каждой дистанции свой клип в метрах,
+            # в канал берётся самый сильный. Клипы фиксированы, не статистики участка.
+            best = np.zeros(z.shape, np.float32)
+            src = np.where(valid, z, np.nan).astype(np.float32, copy=False)
+            for radius_m, clip_m in ((5.0, 0.25), (10.0, 0.5), (20.0, 1.0), (40.0, 2.0)):
+                radius = max(1, round(radius_m / step))
+                scaled = np.nan_to_num(accel.local_relief(src, radius), nan=0.0) / clip_m
+                best = np.where(np.abs(scaled) > np.abs(best), scaled, best)
+            unit = np.clip(best, -1, 1) * 0.5 + 0.5
         elif t == "g":
             unit = accel.hillshade(filled, step, step).astype(np.float32) / 255.0
         elif t in ("opns", "svf"):

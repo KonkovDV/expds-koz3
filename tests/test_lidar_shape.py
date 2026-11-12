@@ -111,3 +111,15 @@ def test_nearest_void_fill_does_not_cut_a_cliff_into_a_gentle_slope():
     # Ряд 5 граничит с дырой. Средняя высота съёмки далеко от местного склона.
     assert int(mean_img[0, 5, 10]) > int(near_img[0, 5, 10]) + 20
     assert int(near_img[0, 5, 10]) < 80
+
+
+def test_msrm_is_flat_on_a_plane_and_peaks_on_a_mound():
+    plane = np.full((41, 41), 3.0, np.float32)
+    d = Dem(dem=plane, left=0.0, top=41.0, res=1.0, crs="EPSG:32636")
+    img, _ = relief_channels(d, 1.0, ("msrm",))
+    assert int(np.median(img[0, 8:-8, 8:-8])) == 128
+    mound = _mound()
+    got, _ = relief_channels(Dem(dem=mound, left=0.0, top=81.0, res=1.0, crs="EPSG:32636"), 1.0, ("msrm",))
+    assert int(got[0, 40, 40]) > int(np.median(got[0, 8:-8, 8:-8])) + 20
+    shipped, _ = relief_channels(Dem(dem=mound, left=0.0, top=81.0, res=1.0, crs="EPSG:32636"), 1.0)
+    assert shipped.shape[0] == 3
