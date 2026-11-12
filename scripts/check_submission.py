@@ -255,6 +255,18 @@ def _strings(obj, path=""):
         yield path, obj
 
 
+def check_public_lessons(cfg: dict) -> None:
+    """Шаги, которые на чужой площадке балл не подняли. WARN, не запрет: опыт можно повторить явно."""
+    prior = (cfg.get("post") or {}).get("kurgan_neighbour_prior")
+    if prior:
+        report("WARN", "config", "kurgan_neighbour_prior включён: у конкурента полнота лидара выросла, "
+                                 "общий балл 0,48874→0,48634 (docs/COMPETITOR_SCORES_20261112.md)")
+    yolo = cfg.get("sp_yolo") or {}
+    if yolo.get("enabled") and yolo.get("replace_sp") is True:
+        report("WARN", "config", "sp_yolo replace_sp снимает весь спутник: наша проба дала 0,38441. "
+                                 "Чужой плюс дал дополнительный детектор, не замена ветки")
+
+
 def check_config_static(z: zipfile.ZipFile) -> dict | None:
     names = set(z.namelist())
     cfg = None
@@ -317,6 +329,7 @@ def check_config_static(z: zipfile.ZipFile) -> dict | None:
         report("WARN", "config", "[time] watchdog=false — при превышении 30 мин ответа не будет")
     else:
         report("PASS", "config", f"[time] budget_s={budget:g}, guard_margin_s={margin:g}, watchdog включён")
+    check_public_lessons(cfg)
     bad, off = [], []
     tables = [("thresholds", cfg.get("thresholds") or {})] + \
         [(f"thresholds_by_markup.{g}", t or {}) for g, t in (cfg.get("thresholds_by_markup") or {}).items()]
