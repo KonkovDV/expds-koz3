@@ -1,5 +1,7 @@
 # Сверка main с утверждённым ТР — 29.10.2026
 
+> **12.11.2026.** Текст ниже — сверка того дня. Риск 2 закрыт: `[rerank_arch] enabled = false`, отсутствующий файл реранка сборку больше не роняет. Действующие флаги — `configs/default.toml`. `configs/default.toml` не собирает архив 0,43274. Карта документов — `docs/DOCS.md`.
+
 База: `main` @ `f1b8d4c`, ветка `compliance/tr-approved-2026-10-29`. Источники: утв. ТР (`docs/background/TR_KOZ3_approved.txt`),
 консультация №2 (`docs/background/KOZ3_consult2_answers.txt`), отличия от проекта — `docs/background/TR_DIFF_draft_vs_approved.md`.
 Выжимка правил — `docs/RULES.md`. Номера строк — по ветке на момент сверки.
