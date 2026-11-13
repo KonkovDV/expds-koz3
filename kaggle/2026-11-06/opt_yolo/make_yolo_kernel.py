@@ -2,7 +2,7 @@
 """Ядро Kaggle: YOLO26 на окнах спутника (план docs/plans/OPTICS_DETECTOR_PLAN_20261105.md, §3.3–3.6).
 
     python make_yolo_kernel.py --slug koz3-spor-yolo-f0 --folds 0 --epochs 40 --out BUILD [--model yolo26s.pt]
-                               [--imgsz 1024] [--batch 16] [--fraction 1.0]
+                               [--imgsz 1024] [--batch 8] [--fraction 1.0]
 
 Вход — приватный датасет `dmitrijkv/koz3-spor-yolo` (выход export_spor.py). Kaggle распаковывает zip без папок,
 поэтому ядро само раскладывает файлы: *.jpg → ds/images, *.txt окон → ds/labels, списки и yaml — с путями ds.
@@ -90,7 +90,7 @@ def main() -> int:
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--model", default="yolo26s.pt")
     ap.add_argument("--imgsz", type=int, default=1024)
-    ap.add_argument("--batch", type=int, default=16)
+    ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--fraction", type=float, default=1.0)
     ap.add_argument("--recipe", default="default", choices=("default", "gigaflex"))
     ap.add_argument("--out", type=Path, required=True)
