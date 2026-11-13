@@ -32,5 +32,14 @@ def test_checker_warns_when_those_steps_are_turned_on():
     cs.check_public_lessons({"sp_yolo": {"enabled": True, "replace_sp": True}})
     assert any(r[0] == "WARN" and "0,38441" in r[2] for r in cs.RESULTS)
     cs.RESULTS.clear()
+    cs.check_public_lessons({"li_cnx": {"scales": [0.8, 1.0, 1.25]}})
+    assert any(r[0] == "WARN" and "пирамида" in r[2] for r in cs.RESULTS)
+    cs.RESULTS.clear()
+    cs.check_public_lessons({"li_cnx": {"scales": [1.0]}})
+    assert not [r for r in cs.RESULTS if r[0] == "WARN"]
+    cs.RESULTS.clear()
+    cs.check_public_lessons({"post": {"carpet_gate": {"min_n": 8}}})
+    assert any(r[0] == "WARN" and "carpet_gate" in r[2] for r in cs.RESULTS)
+    cs.RESULTS.clear()
     cs.check_public_lessons({})
     assert not [r for r in cs.RESULTS if r[0] == "WARN"]

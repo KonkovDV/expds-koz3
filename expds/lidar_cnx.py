@@ -243,6 +243,10 @@ class CnxSegmenter:
         self.overlap = int(o["overlap"] if cuda else o["overlap_cpu"])
         self.tta = tta_value(o.get("tta", DEFAULTS["tta"]))
         self.scales = _scale_list(o.get("scales", DEFAULTS["scales"]))
+        if not _one_scale(self.scales):
+            log.warning("li_cnx.scales %s: на чужих сданных весах пирамида зума ухудшила лидар. "
+                        "Их свежий OOF +0,016 F1 лидара, ожидание площадки +0,003…+0,004. "
+                        "Сдача 0,43274 идёт одним масштабом", self.scales)
         self.batch = int(o.get("batch") or (2 if cuda else 1))
         if self.tile % HW_MULT or self.tile < HW_MULT or not 0 <= self.overlap < self.tile:
             raise CnxError(f"окно {self.tile}/{self.overlap}: окно кратно {HW_MULT}, перекрытие < окна")
