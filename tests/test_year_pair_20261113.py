@@ -1,7 +1,12 @@
 """Пара 2024/2025: общий сдвиг яркости — не насыпь, локальный круг — пик."""
 import numpy as np
 
+from expds.accel import backend
 from expds.year_pair import disk_contrast, local_change, pick_year_pair, strongest_mark, year_from_tags
+
+
+def test_pair_contrast_uses_the_rust_box_when_the_module_is_present():
+    assert backend().startswith("rust")
 
 
 def test_numbered_files_are_not_a_year_pair():

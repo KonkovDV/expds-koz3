@@ -81,19 +81,20 @@ def disk_contrast(change: np.ndarray, radius_px: int) -> np.ndarray:
     """Среднее в круге минус среднее в кольце вокруг него.
 
     Круглая метка даёт плюс. Прямая граница поля и общий шум — около нуля.
+    Окно считает Rust (expds_core.box_mean), если модуль собран.
     """
-    from scipy.ndimage import uniform_filter
+    from .accel import box_mean
 
     radius = int(radius_px)
     if radius < 1:
         raise ValueError("радиус в пикселях меньше 1")
     src = np.asarray(change, np.float32)
-    inner = uniform_filter(src, size=2 * radius + 1, mode="nearest")
-    outer = uniform_filter(src, size=4 * radius + 1, mode="nearest")
+    inner = box_mean(src, radius)
+    outer = box_mean(src, 2 * radius)
     inner_n = float((2 * radius + 1) ** 2)
     outer_n = float((4 * radius + 1) ** 2)
     ring = (outer * outer_n - inner * inner_n) / (outer_n - inner_n)
-    return (inner - ring).astype(np.float32, copy=False)
+    return np.nan_to_num(inner - ring, nan=0.0).astype(np.float32, copy=False)
 
 
 def strongest_mark(change: np.ndarray, radius_px: int) -> tuple[int, int, float]:
