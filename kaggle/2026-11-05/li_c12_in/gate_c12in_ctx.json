@@ -1,0 +1,486 @@
+{
+ "what": "c12-in на V3P, прод-контекст v3_on (PREREG li_cnx_in; c12 — li_c12_in)",
+ "boot": 2000,
+ "cfg": "/workspace/koz3/w2/r50c5_gate/v3on_src/configs/default.toml",
+ "oof_check": {
+  "rows": {
+   "0": 1545,
+   "1": 459,
+   "2": 1731,
+   "3": 2161,
+   "4": 2821
+  },
+  "classes": {
+   "kurgany_povrezhdennye": 5412,
+   "kurgany_tselye": 3272,
+   "gorodishcha": 24,
+   "fortifikatsii": 9
+  },
+  "regions_per_fold": {
+   "0": 6,
+   "1": 1,
+   "2": 12,
+   "3": 18,
+   "4": 20
+  }
+ },
+ "variants": {
+  "K_add_kurgans": {
+   "decisive": true,
+   "scores": {
+    "all": {
+     "A": 0.3465003834973111,
+     "B": 0.3492554122885455,
+     "delta": 0.002755028791234404,
+     "P": 0.7295,
+     "p5": -0.006754647672359318,
+     "p95": 0.007506029414006785
+    },
+    "new34": {
+     "A": 0.33797675586676257,
+     "B": 0.3398536044377834,
+     "delta": 0.0018768485710208282,
+     "P": 0.533,
+     "p5": -0.020517199302967172,
+     "p95": 0.017009727232093076
+    },
+    "nolidar": {
+     "A": 0.22161833642789827,
+     "B": 0.22121417093828133,
+     "delta": -0.0004041654896169422,
+     "P": 0.2745,
+     "p5": -0.0034673812059549574,
+     "p95": 0.000785076452234229
+    }
+   },
+   "floor": {
+    "kurgany_povrezhdennye": {
+     "d": 0.022762788279994728,
+     "n_gt": 3620.0,
+     "tp": [
+      1003.0,
+      1191.0
+     ],
+     "fp": [
+      2273.0,
+      3217.0
+     ],
+     "ok": true
+    },
+    "kurgany_tselye": {
+     "d": -0.02036903846382032,
+     "n_gt": 1577.0,
+     "tp": [
+      713.0,
+      694.0
+     ],
+     "fp": [
+      1145.0,
+      1268.0
+     ],
+     "ok": false
+    },
+    "gorodishcha": {
+     "d": 0.0,
+     "n_gt": 118.0,
+     "tp": [
+      33.0,
+      33.0
+     ],
+     "fp": [
+      103.0,
+      103.0
+     ],
+     "ok": true
+    },
+    "arkhitektury": {
+     "d": 0.0,
+     "n_gt": 407.0,
+     "tp": [
+      53.0,
+      53.0
+     ],
+     "fp": [
+      290.0,
+      290.0
+     ],
+     "ok": true
+    },
+    "object_poly": {
+     "d": 0.0,
+     "n_gt": 1083.0,
+     "tp": [
+      78.0,
+      78.0
+     ],
+     "fp": [
+      68.0,
+      68.0
+     ],
+     "ok": true
+    },
+    "fortifikatsii": {
+     "d": 0.0,
+     "n_gt": 696.0,
+     "tp": [
+      83.0,
+      83.0
+     ],
+     "fp": [
+      639.0,
+      639.0
+     ],
+     "ok": true
+    },
+    "finds_points": {
+     "d": 0.0,
+     "n_gt": 3478.0,
+     "tp": [
+      1641.0,
+      1641.0
+     ],
+     "fp": [
+      1619.0,
+      1619.0
+     ],
+     "ok": true
+    }
+   },
+   "gate": {
+    "delta_ge_0.003": false,
+    "P_ge_0.95": false,
+    "class_floors_ge_-0.005": false,
+    "new34_ge_0": true,
+    "nolidar_ge_-0.001": true,
+    "PASS": false
+   },
+   "taus_group": {
+    "group": "li_cnxin",
+    "folds": [
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.933161
+     },
+     {
+      "kurgany_povrezhdennye": 0.15471,
+      "kurgany_tselye": 0.277335
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.933161
+     },
+     {
+      "kurgany_povrezhdennye": 0.16694,
+      "kurgany_tselye": 0.933161
+     },
+     {
+      "kurgany_povrezhdennye": 0.16694,
+      "kurgany_tselye": 0.277335
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.38897
+     },
+     {
+      "kurgany_povrezhdennye": 0.169825,
+      "kurgany_tselye": 0.933161
+     },
+     {
+      "kurgany_povrezhdennye": 0.264155,
+      "kurgany_tselye": 0.898141
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.277335
+     },
+     {
+      "kurgany_povrezhdennye": 0.16981,
+      "kurgany_tselye": 0.933161
+     }
+    ],
+    "median": {
+     "kurgany_povrezhdennye": 0.160825,
+     "kurgany_tselye": 0.915651
+    }
+   }
+  },
+  "R_replace_li_kurgans": {
+   "decisive": true,
+   "scores": {
+    "all": {
+     "A": 0.3465003834973111,
+     "B": 0.3575867213978874,
+     "delta": 0.011086337900576282,
+     "P": 0.9925,
+     "p5": 0.0029466712191411506,
+     "p95": 0.020885696211331746
+    },
+    "new34": {
+     "A": 0.33797675586676257,
+     "B": 0.35376525959055494,
+     "delta": 0.01578850372379237,
+     "P": 0.777,
+     "p5": -0.017276273934528772,
+     "p95": 0.04822859225157174
+    },
+    "nolidar": {
+     "A": 0.22161833642789827,
+     "B": 0.22099401669829713,
+     "delta": -0.0006243197296011416,
+     "P": 0.1355,
+     "p5": -0.0027957984450671424,
+     "p95": 0.00024481474683784546
+    }
+   },
+   "floor": {
+    "kurgany_povrezhdennye": {
+     "d": 0.043896465165038145,
+     "n_gt": 3620.0,
+     "tp": [
+      1003.0,
+      1140.0
+     ],
+     "fp": [
+      2273.0,
+      2107.0
+     ],
+     "ok": true
+    },
+    "kurgany_tselye": {
+     "d": -0.010413008244676225,
+     "n_gt": 1577.0,
+     "tp": [
+      713.0,
+      687.0
+     ],
+     "fp": [
+      1145.0,
+      1106.0
+     ],
+     "ok": false
+    },
+    "gorodishcha": {
+     "d": 0.0,
+     "n_gt": 118.0,
+     "tp": [
+      33.0,
+      33.0
+     ],
+     "fp": [
+      103.0,
+      103.0
+     ],
+     "ok": true
+    },
+    "arkhitektury": {
+     "d": 0.0,
+     "n_gt": 407.0,
+     "tp": [
+      53.0,
+      53.0
+     ],
+     "fp": [
+      290.0,
+      290.0
+     ],
+     "ok": true
+    },
+    "object_poly": {
+     "d": 0.0,
+     "n_gt": 1083.0,
+     "tp": [
+      78.0,
+      78.0
+     ],
+     "fp": [
+      68.0,
+      68.0
+     ],
+     "ok": true
+    },
+    "fortifikatsii": {
+     "d": 0.0,
+     "n_gt": 696.0,
+     "tp": [
+      83.0,
+      83.0
+     ],
+     "fp": [
+      639.0,
+      639.0
+     ],
+     "ok": true
+    },
+    "finds_points": {
+     "d": 0.0,
+     "n_gt": 3478.0,
+     "tp": [
+      1641.0,
+      1641.0
+     ],
+     "fp": [
+      1619.0,
+      1619.0
+     ],
+     "ok": true
+    }
+   },
+   "gate": {
+    "delta_ge_0.003": true,
+    "P_ge_0.95": true,
+    "class_floors_ge_-0.005": false,
+    "new34_ge_0": true,
+    "nolidar_ge_-0.001": true,
+    "PASS": false
+   },
+   "taus_group": {
+    "group": "li_cnxin",
+    "folds": [
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15471,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.18573
+     },
+     {
+      "kurgany_povrezhdennye": 0.15096,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.150835,
+      "kurgany_tselye": 0.1854
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.185505
+     },
+     {
+      "kurgany_povrezhdennye": 0.15088,
+      "kurgany_tselye": 0.17571
+     }
+    ],
+    "median": {
+     "kurgany_povrezhdennye": 0.15088,
+     "kurgany_tselye": 0.185505
+    }
+   }
+  }
+ },
+ "cmp_oof_check": {
+  "rows": {
+   "0": 1415,
+   "1": 354,
+   "2": 1031,
+   "3": 1455,
+   "4": 2961
+  },
+  "classes": {
+   "kurgany_tselye": 2626,
+   "kurgany_povrezhdennye": 4534,
+   "gorodishcha": 28,
+   "fortifikatsii": 28
+  },
+  "regions_per_fold": {
+   "0": 6,
+   "1": 1,
+   "2": 11,
+   "3": 16,
+   "4": 20
+  }
+ },
+ "V3P": 0.33443541758189455,
+ "S0_ok": true,
+ "n_cnxin_kur": 8684,
+ "ctx_rows": {
+  "stack_before": 1281976,
+  "stack_kept": 47382,
+  "extras_kept": 1985
+ },
+ "V3P_ctx": 0.3465003834973111,
+ "n_cnxin_kur_ctx": 2840,
+ "n_cmp_kur_ctx": 2549,
+ "cmp": {
+  "main": "c12-in",
+  "vs": "c5-in",
+  "rule": "delta > 0 and P >= 0.9",
+  "K_add_kurgans": {
+   "scores": {
+    "all": {
+     "cmp": 0.35370844853859423,
+     "main": 0.3492554122885455,
+     "delta": -0.004453036250048725,
+     "P": 0.001,
+     "p5": -0.006690574367875188,
+     "p95": -0.0026103269067268148
+    },
+    "new34": {
+     "cmp": 0.3548016211194987,
+     "main": 0.3398536044377834,
+     "delta": -0.014948016681715304,
+     "P": 0.015,
+     "p5": -0.03455016440713197,
+     "p95": -0.004138959484814872
+    },
+    "nolidar": {
+     "cmp": 0.22142867853393405,
+     "main": 0.22121417093828133,
+     "delta": -0.00021450759565272426,
+     "P": 0.2465,
+     "p5": -0.0009848170067156756,
+     "p95": 5.1492192509974834e-05
+    }
+   },
+   "main_replaces_cmp": false
+  },
+  "R_replace_li_kurgans": {
+   "scores": {
+    "all": {
+     "cmp": 0.35829707388452753,
+     "main": 0.3575867213978874,
+     "delta": -0.0007103524866401423,
+     "P": 0.465,
+     "p5": -0.009499262693585947,
+     "p95": 0.010660052269470534
+    },
+    "new34": {
+     "cmp": 0.36425460271011195,
+     "main": 0.35376525959055494,
+     "delta": -0.010489343119557015,
+     "P": 0.0795,
+     "p5": -0.027017231998355033,
+     "p95": 0.0022929314775675135
+    },
+    "nolidar": {
+     "cmp": 0.221658007709154,
+     "main": 0.22099401669829713,
+     "delta": -0.0006639910108568736,
+     "P": 0.119,
+     "p5": -0.002823940244167067,
+     "p95": 0.00020151843212012604
+    }
+   },
+   "main_replaces_cmp": false
+  }
+ },
+ "R_dropped_rows": 3142,
+ "PASS_any": false,
+ "sec": 216
+}
