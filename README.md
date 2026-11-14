@@ -136,4 +136,4 @@ python -m expds.metric sweep --pred work/oof.geojson --gt work/gt_train.geojson 
 
 ## Документы
 
-Правила — `docs/RULES.md`. Как платформа вызывает код — `docs/ARCHITECTURE.md`. Описание для шаблона организаторов — `docs/README.md`. Проверка физики и математики — `docs/VERIFY_2026-11-12.md`. План для ИИ — `docs/plans/AI_PLAN_20261112.md`. Идеи конкурентов — `docs/OSINT_SOTA_20261112.md`. Лестница их балла — `docs/COMPETITOR_SCORES_20261112.md`. Карта документов — `docs/DOCS.md`.
+Правила — `docs/RULES.md`. Как платформа вызывает код — `docs/ARCHITECTURE.md`. Описание для шаблона организаторов — `docs/README.md`. Проверка физики и математики — `docs/VERIFY_2026-11-12.md`. План для ИИ — `docs/plans/AI_PLAN_20261112.md`. Идеи конкурентов — `docs/OSINT_SOTA_20261114.md`, разбор 12.11 — `docs/OSINT_SOTA_20261112.md`. Лестница их балла — `docs/COMPETITOR_SCORES_20261112.md`. Карта документов — `docs/DOCS.md`.
