@@ -9,18 +9,39 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
 
 log = logging.getLogger(__name__)
 
-_rs = None
-if os.environ.get("EXPDS_BACKEND", "auto").lower() != "numpy":
+
+def _load_rust():
+    """Модуль expds_core, если он собран. Иначе None — те же функции идут на NumPy.
+
+    Точка входа площадки кладёт inference/lib в путь сама. Скрипты и тесты
+    импортируют expds напрямую, и без этой подстановки Rust молча не находится.
+    """
+    if os.environ.get("EXPDS_BACKEND", "auto").lower() == "numpy":
+        return None
     try:
-        import expds_core as _rs  # type: ignore
+        import expds_core as rs  # type: ignore
+        return rs
     except ImportError:
-        _rs = None
+        pass
+    lib = Path(__file__).resolve().parents[1] / "inference" / "lib"
+    if not lib.is_dir():
+        return None
+    sys.path.insert(0, str(lib))
+    try:
+        import expds_core as rs  # type: ignore
+        return rs
+    except ImportError:
+        return None
+
+
+_rs = _load_rust()
 
 HAVE_RUST = _rs is not None
 

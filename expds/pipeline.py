@@ -2223,6 +2223,10 @@ def run(input_dir: str | Path, output_path: str | Path, config_path: str | Path 
                                        iou=yo["iou"], max_det=yo["max_det"])
                 group = str(yo["threshold_group"])
                 floors = output_floors(cfg, group)
+                if yo.get("replace_sp") is True:
+                    log.warning("sp_yolo replace_sp снимает весь спутник участка: так проба 06.11 дала 0,38441. "
+                                "Плюс на чужой площадке дал дополнительный детектор, не замена ветки "
+                                "(docs/COMPETITOR_SCORES_20261112.md)")
 
                 def _passes(f) -> bool:
                     thr = output_floors(cfg, f.get("threshold_group") or f.get("markup_type")).get(f.get("class_name"))

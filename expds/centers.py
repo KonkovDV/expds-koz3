@@ -193,6 +193,21 @@ def focal_center_loss(logits, target, alpha: float = 2.0, beta: float = 4.0, wei
     return (pos_loss[pos].sum() + neg_loss[neg].sum()) / n_pos
 
 
+def ignore_survey_void(x, target):
+    """Пиксели вне съёмки не учат фон.
+
+    Канал лидара кодирует контур как 0 и измеренную ячейку как 1…255, то есть
+    до нормировки сети ноль во всех каналах — не чёрная земля, а отсутствие
+    данных. ``x`` здесь уже в долях 0…1. Пик, который уже стоит на таком
+    пикселе, не стирается. Потеря карты центров пропускает цель −1.
+    """
+    import torch
+
+    void = x.amax(dim=1, keepdim=True) == 0
+    low = target < 0.5
+    return torch.where(void & low, torch.full_like(target, -1.0), target)
+
+
 def within_site_rank_hinge(logits, target, max_false: int = 8, margin: float = 1.0):
     """Штраф, если на том же кадре ложный пик громче центра эталона.
 

@@ -267,9 +267,10 @@ class TileDataset:
 
     def __init__(self, cache: Path, rows: list[dict], n_classes: int, flips: bool,
                  class_bits: list[int] | None = None, photo: bool = False, scale: float = 0.0,
-                 channel_dropout: float = 0.0, elastic: float = 0.0):
+                 channel_dropout: float = 0.0, elastic: float = 0.0, ignore_void: bool = False):
         self.cache, self.rows, self.k, self.flips = cache, rows, n_classes, flips
         self.photo, self.scale, self.channel_dropout, self.elastic = photo, scale, channel_dropout, elastic
+        self.ignore_void = ignore_void
         self.bits = class_bits if class_bits is not None else list(range(n_classes))
         self._img: dict[int, np.ndarray] = {}
         self._msk: dict[int, np.ndarray] = {}
@@ -298,13 +299,17 @@ class TileDataset:
                 x, y = x[:, ::-1], y[:, ::-1]
             k = np.random.randint(4)
             x, y = np.rot90(x, k, (1, 2)), np.rot90(y, k, (1, 2))
-        if self.scale > 0 or self.photo:
+        if self.scale > 0 or self.photo or self.ignore_void:
             import torch
 
             xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
             yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
             if self.scale > 0:
                 xt, yt = resample_scale(xt, yt, self.scale)
+            if self.ignore_void:
+                from .centers import ignore_survey_void
+
+                yt = ignore_survey_void(xt, yt)
             if self.photo:
                 xt = photometric(xt)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
@@ -315,6 +320,12 @@ class TileDataset:
             yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
             xt, yt = elastic_deform(xt, yt, self.elastic)
             x, y = xt.squeeze(0).numpy(), yt.squeeze(0).numpy()
+        if self.ignore_void and self.elastic > 0:
+            from .centers import ignore_survey_void
+
+            xt = torch.from_numpy(np.ascontiguousarray(x)).unsqueeze(0)
+            yt = torch.from_numpy(np.ascontiguousarray(y)).unsqueeze(0)
+            y = ignore_survey_void(xt, yt).squeeze(0).numpy()
         x = (x - 0.5) / 0.25
         return torch.from_numpy(np.ascontiguousarray(x)), torch.from_numpy(np.ascontiguousarray(y))
 
@@ -331,7 +342,7 @@ class GpuTiles:
                  photo: bool = False, scale: float = 0.0, channel_dropout: float = 0.0,
                  paste_blend: float = 0.0, paste_scale: tuple[float, float] = (1.0, 1.0),
                  elastic: float = 0.0, precompute_target=None,
-                 relief: dict | None = None, sample_weights=None):
+                 relief: dict | None = None, sample_weights=None, ignore_void: bool = False):
         import torch
 
         self.relief = relief or {}
@@ -356,6 +367,7 @@ class GpuTiles:
         self.photo, self.scale = photo, scale
         self.channel_dropout, self.paste_blend = channel_dropout, paste_blend
         self.paste_scale, self.elastic = paste_scale, elastic
+        self.ignore_void = ignore_void
         self.y_pre = None
         relief_zoom = tuple(self.relief.get("zoom", (1.0, 1.0))) != (1.0, 1.0) and self.relief.get("p", 0) > 0
         if precompute_target is not None and scale <= 0 and copy_paste <= 0 and elastic <= 0 and not relief_zoom:
@@ -400,6 +412,10 @@ class GpuTiles:
             x = drop_channel(x, self.channel_dropout)
         if augment and self.elastic > 0:
             x, y = elastic_deform(x, y, self.elastic)
+        if self.ignore_void:
+            from .centers import ignore_survey_void
+
+            y = ignore_survey_void(x, y)
         if augment and self.photo:
             x = photometric(x)
         x = x.sub(0.5).div(0.25)
@@ -523,7 +539,7 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
           center_peak_thrs: tuple = (0.5,), center_pre_flip: bool = False,
           within_site_rank: float = 0.0, init_weights: str | None = None,
           relief_height: tuple = (1.0, 1.0), relief_zoom: tuple = (1.0, 1.0), relief_p: float = 0.0,
-          site_balance: float = 0.0, center_pos_floor: int = 0) -> dict:
+          site_balance: float = 0.0, center_pos_floor: int = 0, ignore_void: bool = False) -> dict:
     """Обучает модель. Чекпойнт — лучший F1 на проверке, не минимум потери.
 
     target="mask" — бинарная маска, F1 по пикселям. target="centers" — гауссиана
@@ -535,6 +551,10 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
     """
     if small_object_weight != 1.0 and target != "centers":
         raise ValueError("вес мелких насыпей входит в потерю карты центров: нужен target=centers")
+    if ignore_void and target != "centers":
+        raise ValueError("пустые пиксели съёмки пропускает только потеря карты центров: нужен target=centers")
+    if ignore_void:
+        log.info("вне съёмки (все каналы 0) в потерю центров не входит")
     large_on = large_kurgan_weight != 1.0 or large_damaged_weight != 1.0
     if large_on and target != "centers":
         raise ValueError("вес крупных насыпей (sp_large) входит в потерю карты центров: нужен target=centers")
@@ -556,6 +576,8 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
         np.random.seed(seed)
     cache_p = Path(cache)
     meta = json.loads((cache_p / "meta.json").read_text(encoding="utf-8"))
+    if ignore_void and meta.get("markup") != "li":
+        raise ValueError("--ignore-void только для кэша лидара: на снимке ноль бывает настоящим пикселем")
     rows = load_index(cache_p)
     if limit:
         rows = rows[:limit]
@@ -685,10 +707,13 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
 
         def _pre_target(ym):
             src = ym[:, :k]
-            t = _gfb(src, sigma_px, by_radius=center_sigma_m <= 0,
+            void = src < 0
+            t = _gfb(src.clamp(min=0), sigma_px, by_radius=center_sigma_m <= 0,
                      spike=center_spike, edge_ignore=center_edge_ignore)
             if ign_bit is not None:
                 t = torch.where((ym[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
+            if bool(void.any()):
+                t = torch.where(void & (t < 0.5), torch.full_like(t, -1.0), t)
             return t
 
         if not center_spike or (not flips) or center_pre_flip:
@@ -716,9 +741,11 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
                         class_bits=class_bits, photo=photo, scale=scale,
                         channel_dropout=channel_dropout, paste_blend=paste_blend,
                         paste_scale=paste_scale, elastic=elastic,
-                        precompute_target=pre_target, relief=relief, sample_weights=sw)
+                        precompute_target=pre_target, relief=relief, sample_weights=sw,
+                        ignore_void=ignore_void)
         g_va = GpuTiles(cache_p, va_rows, k, False, dev, fmt, class_bits=class_bits,
-                        precompute_target=_pre_target if (center and not no_pre) else None)
+                        precompute_target=_pre_target if (center and not no_pre) else None,
+                        ignore_void=ignore_void)
         n_steps = len(g_tr) // batch
 
         def train_batches():
@@ -728,11 +755,13 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
             return g_va.batches(batch, shuffle=False, drop_last=False)
     else:
         dl_tr = DataLoader(TileDataset(cache_p, tr_rows, k, flips, class_bits, photo=photo, scale=scale,
-                                       channel_dropout=channel_dropout, elastic=elastic),
+                                       channel_dropout=channel_dropout, elastic=elastic,
+                                       ignore_void=ignore_void),
                            batch_size=batch, shuffle=True,
                            num_workers=workers, drop_last=True, pin_memory=dev.type == "cuda",
                            persistent_workers=workers > 0)
-        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits), batch_size=batch,
+        dl_va = DataLoader(TileDataset(cache_p, va_rows, k, False, class_bits, ignore_void=ignore_void),
+                           batch_size=batch,
                            num_workers=workers, persistent_workers=workers > 0)
         n_steps = len(dl_tr)
 
@@ -775,10 +804,13 @@ def train(cache: str, out: str, encoder: str = "resnet18", epochs: int = 20, bat
 
             def prepare(y):
                 src = y[:, :k]
-                t = gaussians_from_binary(src, sigma_px, by_radius=center_sigma_m <= 0,
+                void = src < 0
+                t = gaussians_from_binary(src.clamp(min=0), sigma_px, by_radius=center_sigma_m <= 0,
                                           spike=center_spike, edge_ignore=center_edge_ignore)
                 if ign_bit is not None:
                     t = torch.where((y[:, k:] > 0.5) & (t < 0.5), torch.full_like(t, -1.0), t)
+                if bool(void.any()):
+                    t = torch.where(void & (t < 0.5), torch.full_like(t, -1.0), t)
                 return t
 
             if large_on:
@@ -1066,6 +1098,8 @@ def _cli() -> None:
                     help="вес тайла ∝ n_участка^(−alpha); 0 — выкл., 0.5 — квадратный корень")
     ap.add_argument("--center-pos-floor", type=int, default=0,
                     help="пол числа пиков в знаменателе фокальной потери; 0 — как раньше")
+    ap.add_argument("--ignore-void", action="store_true",
+                    help="карта центров: пиксель вне съёмки (все каналы 0) не учить как фон")
     ap.add_argument("--dry-run", action="store_true", help="только разобрать аргументы и выйти")
     args = ap.parse_args()
     if args.dry_run:
@@ -1090,7 +1124,7 @@ def _cli() -> None:
                 init_weights=args.init_weights,
                 relief_height=tuple(args.relief_height), relief_zoom=tuple(args.relief_zoom),
                 relief_p=args.relief_p, site_balance=args.site_balance,
-                center_pos_floor=args.center_pos_floor)
+                center_pos_floor=args.center_pos_floor, ignore_void=args.ignore_void)
     print(json.dumps({k: v for k, v in res.items() if k != "history"}, ensure_ascii=False))
 
 

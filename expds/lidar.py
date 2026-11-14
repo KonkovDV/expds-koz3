@@ -685,13 +685,38 @@ def _curvature(z: np.ndarray, valid: np.ndarray, step: float) -> np.ndarray:
     return (p[:-2, 1:-1] + p[2:, 1:-1] + p[1:-1, :-2] + p[1:-1, 2:] - 4.0 * p[1:-1, 1:-1]) / (step * step)
 
 
-def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
+def fill_voids(z: np.ndarray, how: str = "mean") -> np.ndarray:
+    """Пустые ячейки перед уклоном и отмывкой.
+
+    ``mean`` — средняя высота съёмки. Так собраны сданные каналы: у края дыры
+    остаётся ложный обрыв. ``nearest`` — высота ближайшей измеренной ячейки,
+    как у отмывки g/i в ``hillshade_set``. На плоскости дыра не становится обрывом.
+    """
+    z = np.asarray(z, np.float32)
+    valid = np.isfinite(z)
+    if how == "mean":
+        mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
+        return np.where(valid, z, mean).astype(np.float32, copy=False)
+    if how == "nearest":
+        if not valid.any():
+            return np.zeros_like(z)
+        if bool(valid.all()):
+            return z
+        from scipy.ndimage import distance_transform_edt
+
+        nearest = distance_transform_edt(~valid, return_distances=False, return_indices=True)
+        return np.asarray(z, np.float32)[tuple(nearest)]
+    raise ValueError(f"заливка пустот {how!r}: mean или nearest")
+
+
+def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS, fill: str = "mean"):
     """Каналы модели li из DEM на рабочем шаге: C×H×W uint8 и привязка (север вверху).
 
     Одна и та же функция строит кэш тайлов и вход модели на инференсе: в
     валидации готовых карт Li нет, а карты Li трейна построены другим
     инструментом и не повторяются по LAS (expds.lidar check). Значения 1…255,
-    0 — вне контура съёмки.
+    0 — вне контура съёмки. ``fill="mean"`` — сданная заливка пустот. ``nearest``
+    убирает ложный обрыв у дыры и в сданные веса не входит.
     lrm_s, lrm_l — локальный рельеф (высота − среднее окна радиусом 8 и 30 м,
     под курганы лесной и степной зон); lrm_xl — то же окно 100 м под городища,
     в сданных весах курганов его нет; slope — уклон; g — серая отмывка;
@@ -713,7 +738,7 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
     rs = accel._rs
     tags = tuple(tags)
     fused = [t for t in tags if t != "int"]
-    if rs is not None and hasattr(rs, "relief_channels") and fused and set(fused) <= FUSED_TAGS:
+    if fill == "mean" and rs is not None and hasattr(rs, "relief_channels") and fused and set(fused) <= FUSED_TAGS:
         try:
             img, step = rs.relief_channels(
                 np.ascontiguousarray(d.dem, np.float32), float(d.res), float(res), fused,
@@ -730,11 +755,9 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             log.debug("каналы li на Rust не собраны (%s), считаю в NumPy", exc)
     z, step = to_work_grid(d.dem, d.res, res)
     valid = np.isfinite(z)
-    # Пустые ячейки перед уклоном и отмывкой заменяются средней высотой. У края дырки
-    # это ложный обрыв, и он уже в сданных весах: кэш тайлов и инференс идут сюда же.
-    # Отсев slope_gate эту заливку не повторяет и сеть не кормит.
-    mean = np.float32(np.nanmean(z, dtype=np.float64)) if valid.any() else np.float32(0)
-    filled = np.where(valid, z, mean).astype(np.float32, copy=False)
+    # mean — сданная заливка: у края дыры ложный обрыв, и он уже в весах.
+    # nearest — высота ближайшей измеренной ячейки; в сдачу не входит.
+    filled = fill_voids(z, fill)
     out = []
     opn_svf = None
     for t in tags:
@@ -749,6 +772,16 @@ def relief_channels(d: Dem, res: float, tags=RELIEF_TAGS):
             unit = np.clip(np.nan_to_num(dev, nan=0.0) / RELIEF["dev_clip"], -1, 1) * 0.5 + 0.5
         elif t == "slope":
             unit = np.clip(slope_deg(filled, step) / RELIEF["slope_max_deg"], 0, 1)
+        elif t == "msrm":
+            # Многомасштабный остаток: на каждой дистанции свой клип в метрах,
+            # в канал берётся самый сильный. Клипы фиксированы, не статистики участка.
+            best = np.zeros(z.shape, np.float32)
+            src = np.where(valid, z, np.nan).astype(np.float32, copy=False)
+            for radius_m, clip_m in ((5.0, 0.25), (10.0, 0.5), (20.0, 1.0), (40.0, 2.0)):
+                radius = max(1, round(radius_m / step))
+                scaled = np.nan_to_num(accel.local_relief(src, radius), nan=0.0) / clip_m
+                best = np.where(np.abs(scaled) > np.abs(best), scaled, best)
+            unit = np.clip(best, -1, 1) * 0.5 + 0.5
         elif t == "g":
             unit = accel.hillshade(filled, step, step).astype(np.float32) / 255.0
         elif t in ("opns", "svf"):

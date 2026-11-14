@@ -2,7 +2,7 @@
 """Ядро Kaggle: YOLO26 на окнах спутника (план docs/plans/OPTICS_DETECTOR_PLAN_20261105.md, §3.3–3.6).
 
     python make_yolo_kernel.py --slug koz3-spor-yolo-f0 --folds 0 --epochs 40 --out BUILD [--model yolo26s.pt]
-                               [--imgsz 1024] [--batch 16] [--fraction 1.0]
+                               [--imgsz 1024] [--batch 8] [--fraction 1.0]
 
 Вход — приватный датасет `dmitrijkv/koz3-spor-yolo` (выход export_spor.py). Kaggle распаковывает zip без папок,
 поэтому ядро само раскладывает файлы: *.jpg → ds/images, *.txt окон → ds/labels, списки и yaml — с путями ds.
@@ -47,6 +47,8 @@ for p in inp.rglob("*.txt"):
 for p in inp.rglob("data_f*.yaml"):
     (ds / p.name).write_text(p.read_text(encoding="utf-8").replace("path: .", f"path: {{ds}}"), encoding="utf-8")
 print("окон", n_img, "разметок", n_lab, flush=True)
+if n_img < 1 or n_lab < 1:
+    raise SystemExit("нет jpg или разметок: каталоги датасета не попали в /kaggle/input")
 from ultralytics import YOLO
 import torch
 dev = list(range(torch.cuda.device_count())) or "cpu"
@@ -72,7 +74,9 @@ for k in CFG["folds"]:
     mb = YOLO(str(best))
     with open(f"/kaggle/working/oof_f{{k}}.jsonl", "w", encoding="utf-8") as fo:
         for i in range(0, len(val), 64):
-            for r in mb.predict(source=val[i:i + 64], imgsz=CFG["imgsz"], conf=0.01, iou=0.6, device=dev[0] if dev != "cpu" else "cpu",
+            for r in mb.predict(source=val[i:i + 64], imgsz=CFG["imgsz"], conf=0.01, iou=0.6,
+                                max_det=CFG.get("max_det", 300),
+                                device=dev[0] if dev != "cpu" else "cpu",
                                 verbose=False, batch=16):
                 b = r.boxes
                 fo.write(json.dumps({{"tile": Path(r.path).stem, "xyxy": b.xyxy.cpu().numpy().round(1).tolist(),
@@ -90,14 +94,16 @@ def main() -> int:
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--model", default="yolo26s.pt")
     ap.add_argument("--imgsz", type=int, default=1024)
-    ap.add_argument("--batch", type=int, default=16)
+    ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--fraction", type=float, default=1.0)
     ap.add_argument("--recipe", default="default", choices=("default", "gigaflex"))
+    ap.add_argument("--max-det", type=int, default=300)
+    ap.add_argument("--dataset", default=DATASET)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--template", type=Path, default=Path("/workspace/c12/BUILD/koz3-li-c12-in-a/kernel-metadata.json"))
     a = ap.parse_args()
     cfg = {"folds": [int(x) for x in a.folds.split(",")], "epochs": a.epochs, "model": a.model, "imgsz": a.imgsz,
-           "batch": a.batch, "fraction": a.fraction, "recipe": a.recipe}
+           "batch": a.batch, "fraction": a.fraction, "recipe": a.recipe, "max_det": a.max_det}
     kd = a.out / a.slug
     kd.mkdir(parents=True, exist_ok=True)
     text = SCRIPT.format(cfg=json.dumps(cfg))
@@ -105,7 +111,7 @@ def main() -> int:
     (kd / f"{a.slug}.py").write_text(text, encoding="utf-8")
     meta = json.loads(a.template.read_text(encoding="utf-8"))
     meta.update(id=f"{OWNER}/{a.slug}", title=a.slug, code_file=f"{a.slug}.py", is_private=True, enable_gpu=True,
-                enable_internet=True, dataset_sources=[DATASET], kernel_sources=[])
+                enable_internet=True, dataset_sources=[a.dataset], kernel_sources=[])
     (kd / "kernel-metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"kernel": str(kd), **cfg}))
     return 0
