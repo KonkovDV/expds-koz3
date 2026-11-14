@@ -1,5 +1,7 @@
 # Конкурсные данные и всё, что из них получено, в git не попадают (п. 13.11 ТР)
 data/
+# Бокс гейта (stack, table.pkl, OOF, веса). Восстанавливается scripts/box_restore.sh
+/koz3/
 work/
 cache/
 *.las

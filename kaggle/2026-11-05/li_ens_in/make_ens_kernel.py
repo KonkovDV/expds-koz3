@@ -32,11 +32,18 @@ import glob, json, os, subprocess, sys, tarfile, time
 from pathlib import Path
 t0 = time.time()
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "segmentation-models-pytorch==0.6.0"], check=False)
-tar = sorted(glob.glob("/kaggle/input/**/koz3_ens_code.tar", recursive=True))
-assert len(tar) == 1, tar
 code = Path("/kaggle/working/code")
-with tarfile.open(tar[0]) as t:
-    t.extractall(code)
+tar = sorted(glob.glob("/kaggle/input/**/koz3_ens_code.tar", recursive=True))
+if len(tar) == 1:
+    with tarfile.open(tar[0]) as t:
+        t.extractall(code)
+else:
+    # Kaggle распаковывает tar датасета сам: ищем каталог, где лежат expds и ens_oof.py
+    hits = sorted(glob.glob("/kaggle/input/**/kaggle/2026-11-05/li_ens_in/ens_oof.py", recursive=True))
+    assert len(hits) == 1, (tar, hits)
+    src = next(up for up in Path(hits[0]).parents
+               if (up / "expds").is_dir() and (up / "kaggle/2026-11-05/li_ens_in/ens_oof.py").is_file())
+    code.symlink_to(src)
 relief = None
 for p in sorted(glob.glob("/kaggle/input/**/manifest.json", recursive=True)):
     try:
