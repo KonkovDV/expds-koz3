@@ -7,6 +7,8 @@ Default OFF. Distinct from CLOSED levers:
 L1 [sat_band_verify]: lower thr (scale) but mid-band needs verify_p ≥ floor.
 L2 [sat_agree_accept]: thr×agree_scale only when partner sat group fires within
     radius_m (default 16 m ≠ 8 m CLOSED cluster).
+    Measured 14.11 on the archive floors: 302 boxes, Δ −0.000238, P 0.37.
+    Leave disabled. Numbers: kaggle/2026-11-13/spor_yolo_k/gate_agree.json.
 L3 [sat_cross_nms]: after thresholds, keep max-conf across sat groups within nms_m
     (dedup FP doubles; helps P so thr relax stays safe).
 """

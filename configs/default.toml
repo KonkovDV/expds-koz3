@@ -462,8 +462,8 @@ kurgan_twins_only = true
 # (после порогов, порогов не трогает). Замер: oof_transform.py gormask → scoreboard.py --honest 10.
 # kurgans_outside_hillforts = true
 # Множитель соседства курганов (могильники): conf × (0,5 + 0,5·clip(n/3, 0, 2)), n — соседи в 200 м.
-# Их v13: полнота лидара 0,637→0,676, общий балл 0,48874→0,48634. До 0,49 подняли детекторы
-# спутника и геофизика, не этот множитель (docs/COMPETITOR_SCORES_20261112.md). Включать только
+# Их v13: полнота лидара 0,637→0,676, общий балл 0,48874→0,48634. Шаг до 0,49 — пачка правок,
+# не этот множитель (docs/V12_ATOMIC_20261114.md). Включать только
 # вместе с порогами групп li/li_coarse/li_mosaic после oof_transform.py neigh.
 # [post.kurgan_neighbour_prior]
 # groups = ["li", "li_coarse", "li_mosaic"]
@@ -738,10 +738,12 @@ enabled = false
 # groups = ["sp_or", "sp_focal", "sp_focal2", "sp_arch"]  # omit sp_dfine until D-FINE has mock TP
 
 # sat recall (NOT sat2 / NOT CLOSED 8m cluster / NOT near_kept / NOT sp_large).
-# L1: mid-band thr×scale admitted only if verify_p ≥ verify_floor (precision guard).
+# L1: mid-band thr×scale admitted only if verify_p ≥ verify_floor (precision guard). Не измерен.
 # L2: thr×scale for dets with partner sat group within radius_m (default 16 ≠ CLOSED 8).
-# L3: cross-group NMS dedup (keeps max conf) to cut double-count FP.
-# All default OFF — enable via overlay for honest-10 gate vs B′ 0.315800.
+#     14.11 на стеке с полами архива: 302 объекта, Δ −0,000238, P 0,37. Не включать.
+#     Числа — kaggle/2026-11-13/spor_yolo_k/gate_agree.json.
+# L3: cross-group NMS dedup (keeps max conf) to cut double-count FP. Не измерен.
+# Все три выключены. Проверка архива предупреждает, если L2 включён.
 [sat_band_verify]
 enabled = false
 # scale = 0.90
