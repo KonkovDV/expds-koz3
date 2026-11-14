@@ -263,8 +263,14 @@ def check_public_lessons(cfg: dict) -> None:
                                  "общий балл 0,48874→0,48634 (docs/COMPETITOR_SCORES_20261112.md)")
     yolo = cfg.get("sp_yolo") or {}
     if yolo.get("enabled") and yolo.get("replace_sp") is True:
-        report("WARN", "config", "sp_yolo replace_sp снимает весь спутник: наша проба дала 0,38441. "
-                                 "Чужой плюс дал дополнительный детектор, не замена ветки")
+        report("WARN", "config", "sp_yolo replace_sp снимает весь спутник: площадка дала 0,38441")
+    elif yolo.get("enabled"):
+        report("WARN", "config", "sp_yolo поверх ветки: гейт K дал Δ +0,002218 при P 0,8735, "
+                                 "повреждённые +28 попаданий и +310 ложных. В архив не класть "
+                                 "(kaggle/2026-11-13/spor_yolo_k/gate_yolo_k.json)")
+    if (cfg.get("sat_agree_accept") or {}).get("enabled"):
+        report("WARN", "config", "sat_agree_accept: 302 объекта ниже пола, Δ −0,000238, P 0,37. "
+                                 "В архив не класть (kaggle/2026-11-13/spor_yolo_k/gate_agree.json)")
     scales = (cfg.get("li_cnx") or {}).get("scales")
     if isinstance(scales, (list, tuple)) and scales and not (
             len(scales) == 1 and abs(float(scales[0]) - 1.0) < 1e-9):
