@@ -1,0 +1,172 @@
+{
+ "what": "YOLO26s SpOr, вариант K, порог по фолдам семей, дубль 8 м снят",
+ "n_after_dedup": 9626,
+ "delta": 0.0022181005111719387,
+ "P": 0.8735,
+ "p5": -0.0008108334954601809,
+ "p95": 0.006410201389609566,
+ "base": 0.3282781728488717,
+ "new": 0.3304962733600436,
+ "fold_taus": [
+  {
+   "kurgany_povrezhdennye": 0.4,
+   "kurgany_tselye": 0.5,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.2,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.1
+  },
+  {
+   "kurgany_povrezhdennye": 0.15,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.02,
+   "fortifikatsii": 0.1
+  },
+  {
+   "kurgany_povrezhdennye": 0.15,
+   "kurgany_tselye": 0.25,
+   "gorodishcha": 0.6,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.1
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.25,
+   "fortifikatsii": 0.75
+  },
+  {
+   "kurgany_povrezhdennye": 0.1,
+   "kurgany_tselye": 0.2,
+   "gorodishcha": 0.5,
+   "arkhitektury": 0.05,
+   "fortifikatsii": 0.75
+  }
+ ],
+ "classes": {
+  "kurgany_povrezhdennye": {
+   "f_base": 0.30614973427250697,
+   "f_new": 0.3061466518437378,
+   "d_f1": -3.0824287691744168e-06,
+   "tp": [
+    1237.0,
+    1265.0
+   ],
+   "fp": [
+    6448.0,
+    6758.0
+   ],
+   "n_added_hit_rate": 0.08284023668639054,
+   "break_even": 0.0828809270134862,
+   "beats_break_even": false,
+   "n_raw": 4320
+  },
+  "kurgany_tselye": {
+   "f_base": 0.4445798397607778,
+   "f_new": 0.4457954561687025,
+   "d_f1": 0.001215616407924669,
+   "tp": [
+    727.0,
+    733.0
+   ],
+   "fp": [
+    1933.0,
+    1957.0
+   ],
+   "n_added_hit_rate": 0.2,
+   "break_even": 0.12504284155571216,
+   "beats_break_even": true,
+   "n_raw": 441
+  },
+  "gorodishcha": {
+   "f_base": 0.33695605801102424,
+   "f_new": 0.34133286314730366,
+   "d_f1": 0.004376805136279416,
+   "tp": [
+    31.0,
+    32.0
+   ],
+   "fp": [
+    70.0,
+    75.0
+   ],
+   "n_added_hit_rate": 0.16666666666666666,
+   "break_even": 0.09198799232205289,
+   "beats_break_even": true,
+   "n_raw": 1143
+  },
+  "arkhitektury": {
+   "f_base": 0.058583870679671614,
+   "f_new": 0.07182527896533178,
+   "d_f1": 0.013241408285660165,
+   "tp": [
+    54.0,
+    84.0
+   ],
+   "fp": [
+    2765.0,
+    3696.0
+   ],
+   "n_added_hit_rate": 0.031217481789802288,
+   "break_even": 0.014863660358992345,
+   "beats_break_even": true,
+   "n_raw": 2504
+  },
+  "fortifikatsii": {
+   "f_base": 0.024269974786006017,
+   "f_new": 0.024174781970202945,
+   "d_f1": -9.519281580307182e-05,
+   "tp": [
+    245.0,
+    245.0
+   ],
+   "fp": [
+    38497.0,
+    38656.0
+   ],
+   "n_added_hit_rate": 0.0,
+   "break_even": 0.006104532911461885,
+   "beats_break_even": false,
+   "n_raw": 1218
+  }
+ },
+ "PASS_delta": false,
+ "sec": 27,
+ "PASS": false
+}

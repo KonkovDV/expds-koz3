@@ -22,7 +22,7 @@
 | Что делать дальше и что решает владелец | [`plans/AI_PLAN_20261114.md`](plans/AI_PLAN_20261114.md). План 12.11 по чистой паре и документам — [`plans/AI_PLAN_20261112.md`](plans/AI_PLAN_20261112.md) |
 | Какие идеи конкурентов ещё не закрыты | [`OSINT_SOTA_20261114.md`](OSINT_SOTA_20261114.md). Разбор 12.11 — [`OSINT_SOTA_20261112.md`](OSINT_SOTA_20261112.md) |
 | Повторный просмотр 13.11 | [`COMPETITOR_SCAN_20261113.md`](COMPETITOR_SCAN_20261113.md) |
-| Как чужой балл рос от посылки к посылке | [`COMPETITOR_SCORES_20261112.md`](COMPETITOR_SCORES_20261112.md) |
+| Как чужой балл рос от посылки к посылке | [`COMPETITOR_SCORES_20261112.md`](COMPETITOR_SCORES_20261112.md). Шаг v11→v12 по частям — [`V12_ATOMIC_20261114.md`](V12_ATOMIC_20261114.md) |
 | Что в этой лестнице не доказано | [`MURDER_BOARD_20261112.md`](MURDER_BOARD_20261112.md) |
 | Какие средства ИИ использовались | сводка [`ai_declaration.md`](ai_declaration.md), дни — [`AI_DECLARATION.md`](AI_DECLARATION.md) |
 
