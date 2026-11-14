@@ -47,6 +47,8 @@ for p in inp.rglob("*.txt"):
 for p in inp.rglob("data_f*.yaml"):
     (ds / p.name).write_text(p.read_text(encoding="utf-8").replace("path: .", f"path: {{ds}}"), encoding="utf-8")
 print("окон", n_img, "разметок", n_lab, flush=True)
+if n_img < 1 or n_lab < 1:
+    raise SystemExit("нет jpg или разметок: каталоги датасета не попали в /kaggle/input")
 from ultralytics import YOLO
 import torch
 dev = list(range(torch.cuda.device_count())) or "cpu"
