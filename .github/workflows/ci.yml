@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Byte-compile
+        run: python -m compileall -q expds centerhead inference scripts tests training
+      - name: PyTorch CPU (same versions as the Docker image)
+        run: pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Lint (undefined names, duplicate definitions, syntax)
+        # The kernel template convnext_main.py gets its constants from make_kernel.py; the training vendor
+        # is pinned by its sha256 manifest and materials/compute_metrics.py is the unchanged official metric.
+        run: >-
+          ruff check --select F,E9 expds centerhead inference/main.py scripts tests
+          training/lidar_convnext/make_kernel.py training/lidar_convnext/prep12.py
+          training/lidar_convnext/make_dataset12.py training/lidar_convnext/cnx_contract.py
+          training/lidar_convnext/validate_oof.py
+      - name: Import smoke
+        run: python -c "import expds.pipeline, expds.watchdog, expds.post, expds.metric; print('import ok')"
+      - name: Tests on synthetic data (weights are not in git; tests that need them are skipped)
+        run: pytest -q -rs

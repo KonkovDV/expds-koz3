@@ -1,0 +1,215 @@
+"""expds.lidar_cnx_head: курганы cnx так же, как в ядре обучения (декодирование c5-in). Синтетика, без весов и данных."""
+from __future__ import annotations
+
+import numpy as np
+import pytest
+
+torch = pytest.importorskip("torch")
+
+from expds import lidar_cnx as LC  # noqa: E402
+from expds import lidar_cnx_head as LH  # noqa: E402
+
+CONTRACT = {
+    "out_stride": [4, 4, 4, 4, 4, 1, 1, 1],
+    "thresholds": {"mask_thr": 0.5, "circle_r_m": 0.5, "max_det": 20000, "head_min_score": 0.05,
+                   "head_peak_pool": 3, "head_topk": 20000, "head_nms_min_m": 1.0, "head_nms_frac": 0.8,
+                   "head_nms_cross_class": False, "head_size_mode": "log_r"},
+    "infer": {"tile": 64, "stride": 48, "tta": 8},
+}
+
+
+class PeakNet(torch.nn.Module):
+    """hm: гауссов пик класса `cls` в пикселе входа (py, px) — инвариантно к D8 (пик задан во входе); маски — 0."""
+
+    def __init__(self, cls: int, gor: bool = False):
+        super().__init__()
+        self.cls, self.gor = cls, gor
+
+    def forward(self, x):
+        B, C, H, W = x.shape
+        s = 4
+        # «пик» там, где канал 0 входа максимален (так D8 входа корректно отражается в выходе)
+        a = x[:, 0]
+        hm = torch.full((B, 2, H // s, W // s), -6.0)
+        pooled = torch.nn.functional.avg_pool2d(a[:, None], s)[:, 0]
+        hm[:, self.cls] = -6.0 + 12.0 * (pooled > 0.9).float()
+        mask = torch.full((B, 3, H, W), -6.0)
+        if self.gor:
+            mask[:, 0] = 6.0
+        return {"hm": hm, "wh": torch.zeros((B, 1, H // s, W // s)), "off": torch.zeros((B, 2, H // s, W // s)),
+                "mask": mask}
+
+
+class FakeSeg:
+    def __init__(self, net):
+        self.nets = [type("Flat", (), {"net": net})()]
+        self.device = torch.device("cpu")
+        self.amp = False
+
+
+def _input(H=100, W=90, py=42, px=54):
+    x = np.full((5, H, W), -0.5, np.float32)
+    x[0, py - 2:py + 2, px - 2:px + 2] = 1.0          # блок 4×4 по сетке шага 4 (строки 40–43, столбцы 52–55) → клетка (10, 13)
+    valid = np.ones((H, W), bool)
+    return x, valid
+
+
+def test_deadline_keeps_tiles_already_computed():
+    """Сильный лидар c5-in: конец времени не выбрасывает окна, которые сеть уже посчитала."""
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    empty = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, deadline=lambda: True)
+    assert float(empty["hm"].sum()) == 0.0
+    calls = {"n": 0}
+
+    def after_first_batch():
+        calls["n"] += 1
+        return calls["n"] > 1
+
+    full = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p)
+    part = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, deadline=after_first_batch)
+    assert part["_valid"].sum() <= full["_valid"].sum()
+    assert float(part["hm"].sum()) > 0.0
+
+
+def test_broken_window_keeps_tiles_already_computed():
+    """Сильный лидар c5-in: сбой одного окна не выбрасывает окна, которые сеть уже посчитала."""
+
+    class Boom(PeakNet):
+        def __init__(self):
+            super().__init__(0)
+            self.n = 0
+
+        def forward(self, x):
+            self.n += 1
+            if self.n > 1:
+                raise RuntimeError("окно")
+            return super().forward(x)
+
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    p["tta"] = 1
+    full = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p, batch=1)
+    part = LH.predict_maps(FakeSeg(Boom()), x, valid, p, batch=1)
+    assert float(part["hm"].sum()) > 0.0
+    assert part["_valid"].sum() < full["_valid"].sum()
+
+
+def test_batched_utm_circles_match_one_by_one():
+    """Сильный лидар c5-in: пакет кругов на UTM совпадает с кругом по одной точке до бита WKB."""
+    import shapely
+    from pyproj import Transformer
+    from shapely.geometry import Point
+    from shapely.ops import transform as stf
+
+    dets = [(500_000.0 + i * 20.0, 6_100_000.0, i % 2, 0.4 + i * 0.01) for i in range(8)]
+    geo = {"crs": "EPSG:32637"}
+    out = LH.to_features(dets, geo, {"circle_r_m": 0.5}, "r", "a.las")
+    to3857 = Transformer.from_crs(geo["crs"], "EPSG:3857", always_xy=True).transform
+    assert len(out) == len(dets)
+    for feat, (x, y, _c, _s) in zip(out, dets):
+        one = stf(to3857, Point(x, y).buffer(0.5, quad_segs=4))
+        assert shapely.to_wkb(feat["geom"]) == shapely.to_wkb(one)
+
+
+def test_one_bad_circle_keeps_the_other(monkeypatch):
+    """Сильный лидар c5-in: сбой пакета не стирает круг, который строится по одной точке."""
+    from expds import raster
+
+    real_batch = raster.circles_3857
+
+    def boom_batch(xs, ys, *args, **kwargs):
+        if float(np.max(np.asarray(xs))) > 5:
+            raise RuntimeError("пакет")
+        return real_batch(xs, ys, *args, **kwargs)
+
+    real_one = LH._one_circle
+
+    def boom_one(x, y, radius, crs):
+        if x > 5:
+            raise RuntimeError("круг")
+        return real_one(x, y, radius, crs)
+
+    monkeypatch.setattr(raster, "circles_3857", boom_batch)
+    monkeypatch.setattr(LH, "_one_circle", boom_one)
+    out = LH.to_features([(0.0, 0.0, 0, 0.9), (10.0, 0.0, 1, 0.8)],
+                         {"crs": "EPSG:32637"}, {"circle_r_m": 0.5}, "r", "a.las")
+    assert len(out) == 1
+    assert out[0]["class_name"] == "kurgany_tselye"
+
+
+def test_tile_origins_match_centerhead():
+    from centerhead.decode import tile_origins as ch_tiles
+    for H, W in ((100, 90), (512, 700), (1300, 513)):
+        assert LH.tile_origins(H, W, 512, 384, 4) == ch_tiles(H, W, 512, 384, 4)
+
+
+def test_params_from_contract_and_missing_keys():
+    p = LH.params(CONTRACT)
+    assert p["tile"] == 64 and p["step"] == 48 and p["tta"] == 8 and p["stride"] == 4
+    assert p["cfg"]["min_score"] == 0.05 and p["cfg"]["nms_cross_class"] is False and p["circle_r_m"] == 0.5
+    bad = {**CONTRACT, "thresholds": {k: v for k, v in CONTRACT["thresholds"].items() if k != "head_peak_pool"}}
+    with pytest.raises(LH.HeadError):
+        LH.params(bad)
+
+
+@pytest.mark.parametrize("cls", [0, 1])
+def test_peak_decoded_at_right_place_and_class_with_d8(cls):
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    maps = LH.predict_maps(FakeSeg(PeakNet(cls)), x, valid, p)
+    assert maps["hm"].shape == (2, 25, 23) and maps["mask"].shape == (3, 100, 90)
+    geo = {"left": 1000.0, "top": 2000.0, "step": 0.5, "crs": "EPSG:32637"}
+    dets = LH.decode_kurgans(maps, geo, p)
+    assert len(dets) == 1
+    X, Y, c, s = dets[0]
+    assert c == cls and s > 0.9
+    # клетка головы (10, 13), шаг клетки 4 × 0,5 = 2 м: центр (13,5·2; 10,5·2) м от угла
+    assert abs(X - (1000.0 + 13.5 * 2.0)) < 1e-6 and abs(Y - (2000.0 - 10.5 * 2.0)) < 1e-6
+    feats = LH.to_features(dets, geo, p, "001_Участок", "a.las")
+    assert feats[0]["class_name"] == LH.HM_CLASSES[cls] and feats[0]["markup_type"] == "li"
+    assert abs(feats[0]["geom"].area - np.pi * 0.25) / (np.pi * 0.25) < 0.2     # круг 0,5 м в EPSG:3857 (масштаб)
+
+
+def test_kurgans_inside_hillfort_mask_are_suppressed():
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    maps = LH.predict_maps(FakeSeg(PeakNet(1, gor=True)), x, valid, p)
+    assert LH.decode_kurgans(maps, {"left": 0.0, "top": 0.0, "step": 0.5, "crs": "EPSG:32637"}, p) == []
+
+
+def test_outside_survey_has_no_detections():
+    x, valid = _input()
+    valid[:] = False
+    p = LH.params(CONTRACT)
+    maps = LH.predict_maps(FakeSeg(PeakNet(0)), x, valid, p)
+    assert not maps["_valid"].any() and float(maps["hm"].max()) == 0.0
+
+
+def test_replace_predicate_and_defaults():
+    assert LC.DEFAULTS["decode"] == "rescore" and LC.DEFAULTS["replace_li_kurgans"] is False
+    r = "001_Участок"
+    li = {"region_name": r, "class_name": "kurgany_tselye", "markup_type": "li"}
+    coarse = {**li, "threshold_group": "li_coarse"}
+    dev = {**li, "threshold_group": "li_dev"}                      # σ — не снимается
+    cnx = {**li, "threshold_group": "li_cnx"}
+    other_site = {**li, "region_name": "002_Другой"}
+    gor = {**li, "class_name": "gorodishcha"}
+    sp = {**li, "markup_type": "sp_or"}
+    assert LC.is_li_kurgan(li, r) and LC.is_li_kurgan(coarse, r)
+    assert not any(LC.is_li_kurgan(f, r) for f in (dev, cnx, other_site, gor, sp))
+
+
+def test_ensemble_extra_matches_single_for_identical_nets_and_checks_shapes():
+    """Ансамбль li_ens_in: extra=[(seg_b, x_b)] усредняет логиты; две одинаковые сети = одна; другая форма входа — отказ."""
+    x, valid = _input()
+    p = LH.params(CONTRACT)
+    one = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p)
+    x12 = np.concatenate([x, np.full((7,) + x.shape[1:], -0.5, np.float32)])     # «c12»: первые пять = вход c5
+    two = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(1)), x12)])
+    for k in ("hm", "mask", "wh", "off"):
+        assert np.allclose(one[k], two[k], atol=1e-6), k
+    mix = LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(0)), x12)])
+    assert mix["hm"][1].max() < one["hm"][1].max() and mix["hm"][0].max() > one["hm"][0].max()   # логиты усреднены
+    with pytest.raises(LH.HeadError):
+        LH.predict_maps(FakeSeg(PeakNet(1)), x, valid, p, extra=[(FakeSeg(PeakNet(1)), x12[:, :50])])

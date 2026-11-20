@@ -1,0 +1,4 @@
+{
+  "image": "pantum/n7q:20261024",
+  "entry_point": "python inference/main.py"
+}

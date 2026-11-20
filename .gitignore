@@ -1,0 +1,92 @@
+# Состав репозитория задан явно: всё, что не перечислено в этом блоке, git не видит. Так посторонние файлы,
+# данные и веса не попадут в репозиторий с очередным `git add -A`. Новую папку верхнего уровня или
+# новый документ добавляют сюда и в tests/test_repo_hygiene.py осознанно.
+/*
+!/.dockerignore
+!/.gitattributes
+!/.github/
+!/.gitignore
+!/Dockerfile
+!/LICENSE
+!/README.md
+!/README.en.md
+!/centerhead/
+!/configs/
+!/docs/
+!/expds/
+!/inference/
+!/materials/
+!/metadata.json
+!/models/
+!/pyproject.toml
+!/requirements-dev.txt
+!/requirements.txt
+!/rust/
+!/scripts/
+!/tests/
+!/training/
+
+/docs/*
+!/docs/README.md
+!/docs/TECHNICAL_REPORT.md
+!/docs/ai_declaration.md
+!/docs/final_archive.sha256
+
+# Данные конкурса и всё, что из них получено, в git не попадают (ТР, п. 13.10)
+*.las
+*.laz
+*.tif
+*.tiff
+*.geojson
+*.npy
+*.npz
+*.parquet
+*.pkl
+
+# Веса обучены на данных конкурса и едут в архиве решения, а не в git (models/README.md).
+# В git — только описание и контрольные суммы.
+/models/*
+!/models/README.md
+!/models/MANIFEST.sha256
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.safetensors
+
+# Колесо RVT едет в архиве решения (scripts/fetch_thirdparty.py)
+inference/cnx/wheels/*.whl
+
+# Сборки
+rust/target/
+rust/expds_core/target/
+*.zip
+*.whl
+*.egg-info/
+
+# Секреты и журналы синхронизации S3
+.env
+.env.*
+*.key
+*secret*
+s3_*.log
+kaggle.json
+
+# Python и инструменты
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+bench_result.json
+
+# Редакторы и ОС
+.idea/
+.vscode/
+.cursor/
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak

@@ -1,0 +1,263 @@
+"""Rust и NumPy дают одинаковый результат; NumPy совпадает с OpenCV там, где бейзлайн его использует."""
+from contextlib import contextmanager
+
+import numpy as np
+import pytest
+
+from expds import accel
+
+rust = pytest.mark.skipif(not accel.HAVE_RUST, reason="expds_core не собран")
+
+
+@contextmanager
+def numpy_backend():
+    saved = accel._rs
+    accel._rs = None
+    try:
+        yield
+    finally:
+        accel._rs = saved
+
+
+def both(fn, *args, **kw):
+    a = fn(*args, **kw)
+    with numpy_backend():
+        b = fn(*args, **kw)
+    return a, b
+
+
+def dem_with_holes(h=97, w=131, seed=0):
+    rng = np.random.default_rng(seed)
+    yy, xx = np.mgrid[0:h, 0:w]
+    z = (100 + 0.05 * xx + 0.02 * yy + 2 * np.exp(-((xx - 60) ** 2 + (yy - 40) ** 2) / 50)).astype(np.float32)
+    z += rng.normal(0, 0.01, z.shape).astype(np.float32)
+    z[rng.random(z.shape) < 0.2] = np.nan
+    z[10:20, 30:50] = np.nan
+    return z
+
+
+@pytest.mark.skipif(not hasattr(accel._rs, "fill_tin"), reason="expds_core без fill_tin")
+def test_fill_tin_matches_scipy_on_plane():
+    from expds import lidar
+
+    rng = np.random.default_rng(3)
+    yy, xx = np.mgrid[0:90, 0:120]
+    plane = (50 + 0.3 * xx - 0.2 * yy).astype(np.float32)
+    dem = plane.copy()
+    dem[rng.random(dem.shape) < 0.7] = np.nan
+    dem[30:55, 40:80] = np.nan
+    valid = np.isfinite(dem)
+    to_fill = accel.convex_hull_mask(valid) & ~valid
+    tin = accel.fill_tin(dem)
+    with numpy_backend():
+        ref = lidar._fill_by_delaunay(dem, valid, to_fill, 10**9)
+    assert np.array_equal(np.isfinite(tin) & to_fill, np.isfinite(ref) & to_fill)
+    m = to_fill & np.isfinite(tin)
+    assert m.sum() > 1000
+    assert np.abs(tin[m] - plane[m]).max() < 1e-3 and np.abs(ref[m] - plane[m]).max() < 1e-3
+
+
+@rust
+def test_fill_pyramid_parity():
+    a, b = both(accel.fill_pyramid, dem_with_holes())
+    assert np.isfinite(a).all() and np.isfinite(b).all()
+    assert np.allclose(a, b, atol=1e-4)
+
+
+def test_resize_matches_opencv():
+    cv2 = pytest.importorskip("cv2")
+    src = np.random.default_rng(1).normal(size=(13, 17)).astype(np.float32)
+    for (h, w) in [(26, 34), (25, 33), (100, 7)]:
+        ref = cv2.resize(src, (w, h), interpolation=cv2.INTER_LINEAR)
+        with numpy_backend():
+            ours = accel.resize_linear(src, h, w)
+        assert np.allclose(ours, ref, atol=1e-5)
+        if accel.HAVE_RUST:
+            assert np.allclose(accel.resize_linear(src, h, w), ref, atol=1e-5)
+
+
+def test_convex_hull_close_to_opencv():
+    cv2 = pytest.importorskip("cv2")
+    rng = np.random.default_rng(2)
+    valid = np.zeros((120, 160), bool)
+    yy, xx = np.mgrid[0:120, 0:160]
+    valid[((xx - 80) / 60) ** 2 + ((yy - 60) / 40) ** 2 < 1] = True
+    valid &= rng.random(valid.shape) < 0.7
+    rows, cols = np.nonzero(valid)
+    pts = np.column_stack([cols, rows]).astype(np.int32).reshape(-1, 1, 2)
+    ref = np.zeros(valid.shape, np.uint8)
+    cv2.fillConvexPoly(ref, cv2.convexHull(pts), 1)
+    for m in both(accel.convex_hull_mask, valid) if accel.HAVE_RUST else [accel.convex_hull_mask(valid)]:
+        assert (m == ref.astype(bool)).mean() > 0.995
+
+
+@rust
+def test_hillshade_and_color_parity():
+    z = accel.fill_pyramid(dem_with_holes())
+    a, b = both(accel.hillshade, z, 0.1, 0.1)
+    d = np.abs(a.astype(int) - b.astype(int))
+    assert d.max() <= 1 and (d > 0).mean() < 0.01
+    valid = np.ones(z.shape, bool)
+    valid[:3] = False
+    zmin, zr = float(z.min()), float(z.max() - z.min())
+    a, b = both(accel.color_relief, z, valid, zmin, zr, 3.0)
+    d = np.abs(a.astype(int) - b.astype(int))
+    assert a.shape == (3,) + z.shape and d.max() <= 1 and (d > 0).mean() < 0.01
+    assert (a[:, :3] == 0).all()
+
+
+@rust
+def test_relief_peaks_ring_parity():
+    z = accel.fill_pyramid(dem_with_holes())
+    a, b = both(accel.local_relief, z, 7)
+    assert np.allclose(a, b, atol=1e-4)
+    (r1, c1, v1), (r2, c2, v2) = both(accel.find_peaks, a, 4, 0.05)
+    assert len(r1) > 0 and np.array_equal(r1, r2) and np.array_equal(c1, c2)
+    s1, s2 = both(accel.ring_stats, z, r1, c1, 2.0, 6.0)
+    assert np.allclose(s1, s2, atol=1e-3, equal_nan=True)
+
+
+def test_label_max_matches_ufunc_at():
+    rng = np.random.default_rng(4)
+    labels = rng.integers(0, 50, (300, 400)).astype(np.int32)
+    values = rng.random((300, 400), dtype=np.float32)
+    ref = np.zeros(50, np.float32)
+    np.maximum.at(ref, labels.ravel(), values.ravel())
+    a, b = both(accel.label_max, labels, values, 49)
+    assert np.array_equal(a, ref) and np.array_equal(b, ref)
+
+
+def test_robust_z_matches_numpy():
+    rng = np.random.default_rng(2)
+    a = rng.normal(size=(40, 70)).astype(np.float32)
+    a[::5, ::3] = np.nan
+    a[0, 0] = 1e6
+    got, ref = both(accel.robust_z, a)
+    assert np.allclose(got, ref, equal_nan=True, atol=1e-5)
+    even = np.array([[1, 2], [3, 4]], np.float32)
+    got, ref = both(accel.robust_z, even)
+    assert np.allclose(got, ref, equal_nan=True, atol=1e-5)
+
+
+def test_box_mean_ignores_nan():
+    z = np.ones((5, 5), np.float32)
+    z[2, 2] = np.nan
+    m = accel.box_mean(z, 1)
+    assert np.allclose(m, 1.0)
+
+
+def test_sample_window_matches_scipy():
+    scipy = pytest.importorskip("scipy")
+    from scipy.ndimage import maximum_filter
+
+    if not accel.HAVE_RUST or not hasattr(accel._rs, "sample_window_max"):
+        pytest.skip("нет sample_window_max")
+    rng = np.random.default_rng(0)
+    img = rng.normal(size=(3, 9, 11)).astype(np.float32)
+    img[0, 2, 3] = np.nan
+    rows = np.array([0, 1, 8, 4, 3], np.int64)
+    cols = np.array([0, 10, 2, 5, 1], np.int64)
+    got = accel._rs.sample_window_max(np.ascontiguousarray(img), rows, cols, 5)
+    ref = np.stack([maximum_filter(p, size=5)[rows, cols] for p in img], 1)
+    assert np.allclose(got, ref, equal_nan=True)
+    assert scipy is not None
+
+
+def test_relief_channels_match_numpy():
+    from expds.lidar import Dem, relief_channels
+
+    rng = np.random.default_rng(1)
+    dem = rng.normal(scale=0.2, size=(24, 31)).astype(np.float32) + 100
+    dem[0, :] = np.nan
+    d = Dem(dem=dem, left=100.0, top=200.0, res=0.1, crs="EPSG:32636")
+    a, ta = relief_channels(d, 0.5)
+    with numpy_backend():
+        b, tb = relief_channels(d, 0.5)
+    assert ta.a == pytest.approx(float(tb.a))
+    assert a.shape == b.shape
+    assert np.array_equal(a, b)
+    five, _ = relief_channels(d, 0.5, ("lrm_s", "lrm_l", "slope", "opns", "svf"))
+    assert np.array_equal(five[:3], a)
+    five, _ = relief_channels(d, 0.5, ("lrm_s", "lrm_l", "slope", "opns", "svf"))
+    assert np.array_equal(five[:3], a)
+
+
+def test_lrm_xl_sees_a_wide_dome_without_changing_narrower_channels():
+    from expds.lidar import Dem, relief_channels
+
+    n = 220
+    yy, xx = np.mgrid[-n // 2:n // 2, -n // 2:n // 2]
+    radius = np.hypot(xx, yy).astype(np.float32)
+    z = np.where(radius < 80, 4.0 * (1 - radius / 80), 0).astype(np.float32)
+    d = Dem(dem=z, left=0.0, top=float(n), res=1.0, crs="EPSG:32636")
+    wide, _ = relief_channels(d, 1.0, ("lrm_l", "slope", "lrm_xl"))
+    with numpy_backend():
+        base, _ = relief_channels(d, 1.0, ("lrm_l", "slope"))
+    assert wide.shape[0] == 3 and np.array_equal(wide[:2], base)
+    center = int(wide[2, n // 2, n // 2])
+    assert center > int(wide[2, 2, 2]) + 30
+    with pytest.raises(ValueError):
+        relief_channels(d, 1.0, ("nope",))
+
+
+def test_local_dev_shrinks_when_the_neighbourhood_is_rougher():
+    from expds.lidar import Dem, relief_channels
+
+    n = 41
+    flat = np.zeros((n, n), np.float32)
+    flat[n // 2, n // 2] = 1.0
+    quiet = accel.local_dev(flat, 3, 0.05)
+    rough = flat.copy()
+    rough[::2, ::2] = 2.0
+    rough[1::2, 1::2] = -2.0
+    rough[n // 2, n // 2] = 1.0
+    noisy = accel.local_dev(rough, 3, 0.05)
+    assert quiet[n // 2, n // 2] > 5
+    assert noisy[n // 2, n // 2] < quiet[n // 2, n // 2] / 2
+    flat[0, :] = np.nan
+    assert np.isnan(accel.local_dev(flat, 2, 0.05)[0]).all()
+    mound = np.zeros((80, 80), np.float32)
+    mound[40, 40] = 1.0
+    mound[0, :] = np.nan
+    d = Dem(dem=mound, left=0.0, top=80.0, res=1.0, crs="EPSG:32636")
+    img, _ = relief_channels(d, 1.0, ("lrm_s", "dev_s"))
+    alone, _ = relief_channels(d, 1.0, ("lrm_s",))
+    assert np.array_equal(img[0], alone[0])
+    assert img[1, 0, 0] == 0
+    assert int(img[1, 40, 40]) > int(img[1, 5, 5]) + 20
+
+
+def test_openness_svf_matches_numpy_and_shape():
+    z = accel.fill_pyramid(dem_with_holes(40, 52))
+    z[:2, :] = np.nan
+    (o1, s1), (o2, s2) = both(accel.openness_svf, z, 0.5, 6, 16)
+    assert np.allclose(o1, o2, atol=1e-4, equal_nan=True) and np.allclose(s1, s2, atol=1e-6, equal_nan=True)
+    assert np.isnan(o1[:2]).all()
+    flat = np.zeros((21, 21), np.float32)
+    o, s = accel.openness_svf(flat, 0.5, 5, 16)
+    assert np.allclose(o, 90.0) and np.allclose(s, 1.0)
+    mound = flat.copy()
+    mound[10, 10] = 1.0
+    o, s = accel.openness_svf(mound, 0.5, 5, 16)
+    assert o[10, 10] > 90.0 and s[10, 10] == pytest.approx(1.0)
+    pit = -mound
+    o, s = accel.openness_svf(pit, 0.5, 5, 16)
+    assert o[10, 10] < 90.0 and s[10, 10] < 1.0
+
+
+def test_slope_matches_numpy():
+    z = dem_with_holes(48, 63)
+    a, b = both(accel.slope_deg, z, 0.5)
+    assert a.shape == z.shape
+    assert np.allclose(a, b, atol=1e-4, equal_nan=True)
+
+
+def test_work_grid_matches_numpy():
+    from expds import candidates
+
+    z = dem_with_holes(40, 55)
+    for src, dst in ((0.1, 0.5), (0.3, 0.5), (0.5, 0.5)):
+        (a, sa), (b, sb) = both(candidates.to_work_grid, z, src, dst)
+        assert sa == pytest.approx(sb)
+        assert a.shape == b.shape
+        assert np.allclose(a, b, equal_nan=True, atol=1e-5)

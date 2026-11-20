@@ -1,0 +1,33 @@
+{
+ "sha256": {
+  "centerhead/__init__.py": "47404eb8dc8f362e5ca1def35fd0014bd592ffb1325ff8bfbd4d2161ac991e5e",
+  "centerhead/config.py": "64d6d535512324060487a444dc5e64fa501daa6d7f05d81e4dbe35d3d3ee3684",
+  "centerhead/d8.py": "6acf5f424911fbb181af443589096e2e75594952ded58e8510fe9923d5e1a527",
+  "centerhead/decode.py": "4c38447ed8092912e6be979aa0a805552f6ee75677bb408494f1a3af2c8070c4",
+  "centerhead/export.py": "41470b9d8484d2ace4e2474573c32dd959c3be6e48222f0813b8d09f0b3e91ec",
+  "centerhead/features.py": "38e95c5624ec1aa96f8e0717f458f2bd07bd6a80820841f3cd27e4775c3f3f32",
+  "centerhead/geo.py": "fe84b65b155082819ab79b09f238afaf7a02d1bbe849ad5269285b307c43094b",
+  "centerhead/head.py": "051c85498159ed45cc03b3cf8adf0f08abefedbc50ad0edb484aab5433341974",
+  "centerhead/losses.py": "7d8e35403942cb53b3f92905e3cd4fe82f7facd9fa0da193b965273988b79b20",
+  "centerhead/rerank.py": "cc7adbf1dd122d803435cac383ee185a4cb7ef0626a8eebfa8d3d4d1079027f1",
+  "centerhead/targets.py": "e36c4a31313006953d518306067214424f64326a4dbcee1dc6027787ab030e6f",
+  "cnx_head.py": "820abbe52589684c4a7cc8127fe8168853cbf7a998f714668575b4dc04d85033",
+  "compute_metrics.py": "299792ccc5b86873a1cb0554eac06a145f5e09496088ee7f734b41b9e4c70081",
+  "expds/__init__.py": "9028e45c371137948876d6cb577dd832ffca0f6ce3445cbd83b73ce4fd728758",
+  "expds/accel.py": "fc2ec8b6d2a9b2fca4fe3cb0efccda6e0057026eecdaa00fd973cd6066866e4b",
+  "expds/candidates.py": "96b9fbe12d5858bd93ef2f03b793581a9ad3b01eee1c1757c9daa1cc886a2248",
+  "expds/crs.py": "d93b855cb66851ea2492a76ac66708ec6a0d3282c0ff98a8b80bd1cd71107618",
+  "expds/lidar.py": "2bd79edbd604424b261274cf045384abe81cc5874f2c0e54093981430b84f222",
+  "expds_core.abi3.so": "7d847b9207f952222b14f17903cfc020c882cb3f4818cdec1eecb5edfe156110",
+  "relief_ext.py": "21194f67903a3eb349fe357ec3c61ab55c65f56f00c6769760e26a6b0a3d00c3"
+ },
+ "source": {
+  "expds/*": "inference/cnx/vendor/expds (код каналов, общий с инференсом)",
+  "expds_core.abi3.so": "inference/cnx/vendor/expds_core.abi3.so",
+  "relief_ext.py": "inference/cnx/vendor/relief_ext.py",
+  "compute_metrics.py": "materials/compute_metrics.py (официальная метрика koz3-1.5.0)",
+  "cnx_head.py": "training/lidar_convnext/vendor/cnx_head.py",
+  "centerhead/*": "training/lidar_convnext/vendor/centerhead"
+ },
+ "centerhead_commit": "788202a1b3b8eebdef70b6728faaea3154ee2031"
+}

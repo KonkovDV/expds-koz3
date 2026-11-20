@@ -1,0 +1,308 @@
+# Конфигурация инференса, третья версия финала: вариант C2 (курганы лидара ансамблем ConvNeXt c5 + c12)
+# + микродиски 0,05 м у архитектуры, площадных объектов и фортификаций + порог находок серых карт MagGr
+# группы grhi 0,22 вместо 0,324615. Остальное — как в configs/final_c2_ens.toml.
+# Пути к весам — относительно корня архива.
+# Все пороги подобраны официальной метрикой на обучающей выборке: участок проверки
+# не входил в обучение модели (кросс-валидация по семьям участков). По баллу
+# публичной выборки пороги не настраивались.
+
+default_threshold = 0.15
+
+# Лимит платформы — 30 минут на контейнер. Тяжёлый шаг не начинается, если до конца
+# бюджета осталось меньше reserve_s; сторож пишет уже найденное за guard_margin_s
+# до снятия контейнера. Окна снимков проверяют срок перед каждым окном.
+[time]
+budget_s = 1500
+reserve_s = 120
+watchdog = true
+guard_margin_s = 180
+window_deadline = true
+window_reserve_s = 30
+# Мягкий потолок от старта процесса: после него пропускаются необязательные шаги
+# (окно 256 м спутника, канал σ лидара, проверка кропа), основные фазы идут дальше.
+soft_ceiling_s = 1200
+
+# CRS участка: своя CRS файла, если она задана и переводится в EPSG:3857; иначе UTM.json.
+# При расхождении заголовка LAS и UTM.json выбирается CRS, в которой облако ложится на землю
+# и на снимки участка.
+[crs]
+policy = "vote"
+
+# Инференс в той точности, в которой подбирались пороги (FP32, детерминированные свёртки).
+[infer]
+amp = false
+tf32 = false
+deterministic = true
+
+# Пороги по классам; ниже — пороги по группам (ветка модели / тип съёмки), они важнее.
+[thresholds]
+kurgany_povrezhdennye = 0.15
+kurgany_tselye = 0.15
+gorodishcha = 0.15
+arkhitektury = 0.15
+fortifikatsii = 0.20
+object_poly = 0.0
+finds_points = 0.0
+
+# Лидар, U-Net ResNet-18, курганы по пикам рельефа с уверенностью сети (ЦМР 0,1 м).
+[thresholds_by_markup.li]
+kurgany_povrezhdennye = 0.06415
+kurgany_tselye = 0.194220
+gorodishcha = 0.993091
+arkhitektury = 1.01
+fortifikatsii = 0.999971
+
+# Тот же лидар, когда облако не помещается в сетку 0,1 м и шаг ЦМР увеличен.
+[thresholds_by_markup.li_coarse]
+kurgany_povrezhdennye = 0.966705
+kurgany_tselye = 0.469805
+gorodishcha = 0.986425
+arkhitektury = 1.01
+fortifikatsii = 0.999260
+
+# Курганы с мозаики кусков ЦМР 0,1 м.
+[thresholds_by_markup.li_mosaic]
+kurgany_povrezhdennye = 0.959005
+kurgany_tselye = 0.170420
+
+# Маска городищ лидара (ЦМР 1 м, окно 384 м).
+[thresholds_by_markup.li_mask]
+gorodishcha = 0.994510
+
+# Аэрофото: маска фортификаций; курганы слоя аэрофото.
+[thresholds_by_markup.ae]
+fortifikatsii = 0.998215
+kurgany_povrezhdennye = 0.99053
+kurgany_tselye = 0.802255
+
+# Маска фортификаций лидара (ЦМР 1 м, окно 384 м).
+[thresholds_by_markup.li_fort]
+fortifikatsii = 0.987675
+
+# Спутник: городища маской, курганы картой центров, архитектура кругами.
+[thresholds_by_markup.sp_or]
+gorodishcha = 0.994085
+kurgany_povrezhdennye = 0.3645
+kurgany_tselye = 0.3725
+arkhitektury = 0.286725
+
+# Ортофото: та же сеть архитектуры, что у спутника.
+[thresholds_by_markup.or]
+arkhitektury = 0.065565
+
+# Спутник, окно 256 м — только на участках без лидара.
+[thresholds_by_markup.sp_focal2]
+kurgany_povrezhdennye = 0.501645
+kurgany_tselye = 0.645505
+
+# Канал σ лидара: круг остаётся, если он дальше 12 м от уже оставленного кургана.
+[thresholds_by_markup.li_dev]
+kurgany_povrezhdennye = 0.99131
+kurgany_tselye = 0.99957
+
+# Копии курганов лидара в слое аэрофото того же участка.
+[thresholds_by_markup.li_ae]
+kurgany_povrezhdennye = 0.993061
+kurgany_tselye = 1.000001
+
+# Геофизика, классический детектор: полигоны электроразведки, магниторазведки и термографии.
+[thresholds_by_markup.etgr]
+object_poly = 0.096635
+
+[thresholds_by_markup.maggr]
+object_poly = 0.0
+
+[thresholds_by_markup.terfl]
+object_poly = 0.496041
+
+# Геофизика, пиксельный бустинг: группа порога растра MagGr — тип карты (серая / цветная)
+# и число кандидатов на растре (меньше 300 — lo, иначе hi).
+# Порог серых карт с ≥ 300 кандидатов снижен с 0,324615 (оптимум честного OOF трейна) до 0,22.
+# Журнал площадки 04.11 (E1_G1: геофизика P 0,872 / R 0,394, на 568 TP) исключает режим трейна на новых
+# картах: при нём одни находки дали бы 740–1030 TP. Остаются сдвиг шкалы уверенности (порог режет лишнее)
+# или нехватка кандидатов (порог не участвует). 0,22 — минимакс сожаления F1 находок по двум режимам:
+# не больше −0,027 F1, если карты как в трейне, и около −0,01 вместо −0,14 при сдвиге шкалы.
+[thresholds_by_markup.maggr_pix_grhi]
+finds_points = 0.22
+
+[thresholds_by_markup.maggr_pix_grlo]
+finds_points = 0.0
+
+[thresholds_by_markup.maggr_pix_cvhi]
+finds_points = 0.677652
+
+[thresholds_by_markup.maggr_pix_cvlo]
+finds_points = 0.051686
+
+# Площадные аномалии электроразведки (изолинии + бустинг).
+[thresholds_by_markup.etgr_org]
+object_poly = 0.0
+
+# Запасные группы пиксельных кандидатов до разбиения по растрам.
+[thresholds_by_markup.maggr_pix]
+finds_points = 0.902915
+object_poly = 0.684725
+
+[thresholds_by_markup.etgr_pix]
+object_poly = 0.545825
+
+[thresholds_by_markup.terfl_pix]
+object_poly = 0.746421
+
+# Курганы лидара, ансамбль ConvNeXt-T на 5 и 12 каналах рельефа, медиана порогов фолдов.
+[thresholds_by_markup.li_cnxin]
+kurgany_povrezhdennye = 0.150905
+kurgany_tselye = 0.16542
+
+# Запасной детектор курганов без нейросети: пики рельефа + LightGBM.
+[thresholds_by_markup.li_cpu]
+kurgany_povrezhdennye = 0.0121
+kurgany_tselye = 0.0096
+
+# Уверенный курган лидара копируется в слой аэрофото, если снимок покрывает точку:
+# на снимках 1940-х распаханная позже насыпь ещё видна. Это отдельный эталон слоя.
+[fusion]
+li_to_ae = true
+povr_min = 0.99
+tselye_min = 0.8
+
+# Курганы по пикам рельефа с уверенностью сети li в центре пика.
+[li]
+mode = "rescore"
+
+# ЦМР из LAS: сетка 0,1 м, заливка триангуляцией Делоне. Облако больше 60 млн ячеек
+# идёт кусками 0,1 м (мозаика). prefetch — сколько следующих LAS готовится в фоне.
+[lidar]
+dem_res = 0.1
+dem_fill = "delaunay"
+mosaic = true
+prefetch = 2
+
+# Веса U-Net (ResNet-18) по типам съёмки.
+[models]
+li = "models/li_r18_hard2.pt"
+li_mask = {path = "models/li_gor_mask_r18.pt", classes = ["gorodishcha"]}
+sp_or = [
+  {path = "models/spor_gor_r18.pt", classes = ["gorodishcha"]},
+  {path = "models/spor_focal_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]},
+  {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]},
+]
+li_fort = {path = "models/li_fort_mask_r18.pt", classes = ["fortifikatsii"]}
+li_dev = {path = "models/li_dev_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
+sp_focal2 = {path = "models/spor_focal_wide_r18.pt", classes = ["kurgany_povrezhdennye", "kurgany_tselye"]}
+ae = {path = "models/ae_fort_mask_r18.pt", classes = ["fortifikatsii"]}
+or = {path = "models/surf_arch_r18.pt", classes = ["arkhitektury"]}
+
+# Городища по форме рельефа: отдельная ЦМР 0,5 м, одно окно.
+[hillfort]
+enabled = true
+relief_radius_l_m = 0
+
+[thresholds_by_markup.gor_phys]
+gorodishcha = 0.43049
+
+# Кандидаты курганов по рельефу (рабочая сетка 0,5 м).
+[candidates]
+work_res = 0.5
+relief_radius_m = 15.0
+peak_radius_m = 2.5
+min_relief_m = 0.08
+r_in_m = 2.5
+r_out_m = 8.0
+circle_m = 2.0
+lgbm_model = "models/kurgan_lgbm.txt"
+
+# Классический детектор геофизики. Уверенность — ранг силы аномалии внутри своей карты:
+# контраст разных планшетов несопоставим. Маска шума (швы) из extra/ применяется после детектора.
+[geophys]
+point_circle_m = 0.3
+
+[geophys.pixgbm]
+enabled = true
+impl = "clean"
+chain = "e1g1"
+model_dir = "models/pix_clean"
+classes = ["finds_points"]
+maps = ["maggr"]
+replace = true
+budget_s = 900
+guard_reserve_s = 0
+procs = 4
+
+[geophys.pixgbm.e1g1]
+backend = "lleaves"
+lleaves_target = "x86-64-v2"
+
+[geophys.maggr.finds_points]
+background_m = 2.0
+peak_radius_m = 2.0
+peak_k = 1.0
+use_noise = true
+confidence = "rank"
+min_confidence = 0.1739
+
+[geophys.maggr.object_poly]
+background_m = 8.0
+smooth_m = 0.5
+poly_k = 1.5
+use_noise = true
+confidence = "rank"
+min_confidence = 0.0714
+
+[geophys.etgr.object_poly]
+background_m = 2.0
+smooth_m = 0.1
+poly_k = 1.0
+min_confidence = 0.0958
+
+[geophys.terfl.object_poly]
+background_m = 8.0
+smooth_m = 0.25
+poly_k = 1.0
+min_confidence = 0.1426
+
+# Постобработка. Курган выдаётся кругом 0,5 м в центре, найденном детектором центров.
+# kurgan_twins_only — копия целого кургана как повреждённого в том же месте (подкласс неоднозначен).
+[post]
+kurgan_twins_only = true
+
+[post.micro_circles]
+radius_m = { kurgany_povrezhdennye = 0.5, kurgany_tselye = 0.5 }
+
+# Микродиски: полигон архитектуры, площадного объекта или фортификации → диск 0,05 м во внутренней
+# точке (representative_point), той же, что проверяет метрика. Засчитанный полигон остаётся засчитанным
+# (покрытие диска 1), промах «точка внутри эталона, покрытие < 0,5» становится попаданием. Городища и
+# курганы не трогаются. Гейт по кросс-валидации семей: Δ +0,00197 (P 0,9995), новые участки +0,00023
+# (P 0,949) — kaggle/2026-11-05/li_cnx_in/gate_disks_p1.json в полной истории.
+[post.micro_disks]
+radius_m = { arkhitektury = 0.05, object_poly = 0.05, fortifikatsii = 0.05 }
+anchor = "rp"
+
+# Переоценка кругов архитектуры LightGBM по форме, уверенности и соседству найденных объектов.
+[rerank_arch]
+enabled = true
+model = "models/rerank_arch_lgbm.txt"
+meta = "models/rerank_arch_lgbm.json"
+
+# Проверка кропа: курган спутника переоценивается сетью по окну снимка 96 px (0,5 м).
+[verify]
+enabled = true
+weights = "models/sp_crop.pt"
+markup = "sp_or"
+groups = ["sp_focal", "sp_focal2"]
+classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+tile = 96
+res = 0.5
+min_conf = 0.05
+
+# Курганы лидара: ансамбль ConvNeXt-T (инициализация ImageNet) — пять фолдов на пяти каналах рельефа и пять
+# фолдов на двенадцати; логиты всех десяти сетей усредняются. Подготовка рельефа одна (первые пять каналов
+# двенадцатиканального входа совпадают с пятиканальным). Заменяет курганы U-Net на участках с LAS.
+[li_cnx]
+enabled = true
+weights = ["models/cnx/weights_cnx_c5-in_f0.pt", "models/cnx/weights_cnx_c5-in_f1.pt", "models/cnx/weights_cnx_c5-in_f2.pt", "models/cnx/weights_cnx_c5-in_f3.pt", "models/cnx/weights_cnx_c5-in_f4.pt"]
+weights_b = ["models/cnx/weights_cnx_c12-in_f0.pt", "models/cnx/weights_cnx_c12-in_f1.pt", "models/cnx/weights_cnx_c12-in_f2.pt", "models/cnx/weights_cnx_c12-in_f3.pt", "models/cnx/weights_cnx_c12-in_f4.pt"]
+decode = "head"
+threshold_group = "li_cnxin"
+classes = ["kurgany_povrezhdennye", "kurgany_tselye"]
+replace_li_kurgans = true

@@ -1,0 +1,52 @@
+Copyright (c) 2026 Konkov Dmitrij. Все права защищены.
+
+Репозиторий открыт для ознакомления. В нём решение команды StrataTrace для конкурса
+отдельных заданий № 3 «Комплексирование» технологического конкурса «Экспедиция. Data Science».
+
+Публикация не означает лицензии. Копировать, изменять, распространять и использовать код и
+документацию, целиком или частично, можно только с письменного согласия правообладателя.
+Без согласия допускается лишь то, что разрешает закон (например, цитирование по ст. 1274
+ГК РФ), а также просмотр и форк средствами GitHub по его Условиям использования.
+
+Открытую лицензию мы не выдаём намеренно: по условиям конкурса исключительное право на решение
+должно оставаться передаваемым Оператору конкурса. Права Оператора определяет конкурсная
+документация, а не этот файл.
+
+Сторонние компоненты распространяются на собственных условиях:
+- inference/cnx/_deps/rvt — Relief Visualization Toolbox (rvt-py 2.2.1), лицензия Apache 2.0,
+  текст — inference/cnx/_deps/rvt/LICENSE;
+- rust/expds_core/src/delaunay.rs — копия delaunator 1.1.0 (Mapbox) с одной правкой, лицензия ISC,
+  текст — в шапке файла;
+- materials/compute_metrics.py — официальная метрика организаторов конкурса, копия без
+  изменений; права на неё принадлежат организаторам;
+- lleaves (MIT) и llvmlite (BSD-2-Clause) в репозиторий не входят: они попадают только в архив
+  решения, вместе с текстами своих лицензий.
+
+Данных конкурса, производных от них растров и предсказаний, а также весов моделей в
+репозитории нет. Добавлять их нельзя (технический регламент КОЗ № 3, п. 13.10).
+
+---
+
+Copyright (c) 2026 Konkov Dmitrij. All rights reserved.
+
+This repository is published for reference. It holds team StrataTrace's solution to task
+contest No. 3 "Complexing" of the "Expedition. Data Science" technology contest.
+
+Publication grants no license. Copying, modifying, distributing or using the code and
+documentation, in whole or in part, requires the written permission of the copyright holder.
+Only what the law allows without permission (such as quotation) and viewing and forking on
+GitHub under its Terms of Service are permitted.
+
+No open-source license is granted on purpose: under the contest terms the exclusive right in
+the solution must remain transferable to the contest operator. The operator's rights are set
+by the contest documents, not by this file.
+
+Third-party components keep their own terms: Relief Visualization Toolbox in
+inference/cnx/_deps/rvt (Apache License 2.0, see its LICENSE); rust/expds_core/src/delaunay.rs is a
+modified copy of delaunator 1.1.0 by Mapbox (ISC, notice in the file header); materials/compute_metrics.py is
+the organizers' official metric, copied unchanged, and its rights belong to the organizers;
+lleaves (MIT) and llvmlite (BSD-2-Clause) are not in this repository and ship only inside the
+solution archive with their licenses.
+
+Contest data, rasters and predictions derived from it, and model weights are not in this
+repository and must not be added (contest technical regulations, clause 13.10).

@@ -1,0 +1,5 @@
+-r requirements.txt
+# Разработка: сборка Rust и тесты
+maturin>=1.7,<2
+pytest>=8
+ruff>=0.6
